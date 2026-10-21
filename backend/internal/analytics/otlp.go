@@ -92,7 +92,7 @@ func (o ExportOptions) normalizeEndpoint(raw string) (string, error) {
 	switch {
 	case err != nil || u.Host == "":
 		return "", plxerr.New(plxerr.InvalidFormat, "the OTLP endpoint is not a URL")
-	case u.Scheme != "https" && !(o.AllowHTTP && u.Scheme == "http"):
+	case u.Scheme != "https" && (!o.AllowHTTP || u.Scheme != "http"):
 		return "", plxerr.New(plxerr.InvalidFormat, "the OTLP endpoint must use https")
 	case u.User != nil || u.RawQuery != "" || u.Fragment != "":
 		return "", plxerr.New(plxerr.InvalidFormat, "the OTLP endpoint must not carry credentials, a query or a fragment")

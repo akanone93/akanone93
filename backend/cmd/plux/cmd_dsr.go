@@ -7,7 +7,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 	"strings"
 
 	"connectrpc.com/connect"
@@ -79,7 +78,7 @@ func (e env) dsrExport(ctx context.Context, client pluxv1connect.DataSubjectServ
 		_, _ = fmt.Fprintln(e.stdout)
 		return exitOK
 	}
-	if err := os.WriteFile(out, res.Msg.GetArchive(), 0o600); err != nil {
+	if err := writeNamedFile(out, res.Msg.GetArchive(), 0o600); err != nil {
 		return e.fail("dsr export", err)
 	}
 	_, _ = fmt.Fprintf(e.stderr, "Wrote %d rows to %s (request %s)\n", res.Msg.GetRowCount(), out, res.Msg.GetRequestId())

@@ -356,7 +356,7 @@ func TestDecide_NeedsStepUp_GOV_023(t *testing.T) {
 	_, err := f.decide(stale, id, approval.DecisionApprove)
 	wantCode(t, err, plxerr.StepUpRequired, "no step-up")
 	old := f.reviewer
-	old.Identity = old.Identity.WithStepUp(time.Hour)
+	old.Identity = old.WithStepUp(time.Hour)
 	_, err = f.decide(old, id, approval.DecisionApprove)
 	wantCode(t, err, plxerr.StepUpExpired, "an old step-up")
 }

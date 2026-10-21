@@ -109,7 +109,6 @@ type Fixture struct {
 // New builds a fixture.
 func New(t *testing.T, o Options) *Fixture {
 	t.Helper()
-	ctx := context.Background()
 	if o.Start.IsZero() {
 		o.Start = time.Date(2026, 10, 19, 10, 0, 0, 0, time.UTC)
 	}
@@ -126,6 +125,38 @@ func New(t *testing.T, o Options) *Fixture {
 	if err != nil {
 		t.Fatal(err)
 	}
+	f.createOrganisation(t, backend)
+	f.Devices, err = device.NewService(device.Options{DB: f.DB, IDs: f.IDs, Cache: cache.NewMemory(nil), DevelopmentProvider: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.Device, f.Env = f.NewDevice(t)
+	f.Store = analytics.NewPostgres(f.DB, f.Clock.Now)
+	f.Telemetry = f.Ingestion(t, telemetry.Options{})
+	window := o.Window
+	if window == nil {
+		w, err := analytics.ParseWindow("02:00", "04:00", "UTC")
+		if err != nil {
+			t.Fatal(err)
+		}
+		window = &w
+	}
+	f.Analytics, err = analytics.New(analytics.Options{
+		DB: f.DB, Store: f.Store, Audit: f.Audit, IDs: f.IDs, Limits: o.Limits, Now: f.Clock.Now, Defaults: o.Defaults, Window: *window,
+		Organizations: func(ctx context.Context, fn func(org string) error) error { return fn(f.Org) }, Export: o.Export,
+		Exporter: o.Exporter, Objects: o.Objects, Crypter: backend,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return f
+}
+
+// createOrganisation bootstraps an installation with one organisation and
+// app, and records their identifiers and the organisation's owner.
+func (f *Fixture) createOrganisation(t *testing.T, backend *signing.File) {
+	t.Helper()
+	ctx := context.Background()
 	authService, err := auth.NewService(auth.Options{DB: f.DB, Audit: f.Audit, Cache: cache.NewMemory(nil), Crypter: backend, IDs: f.IDs, VerificationURI: "https://p.example/device"})
 	if err != nil {
 		t.Fatal(err)
@@ -155,30 +186,6 @@ func New(t *testing.T, o Options) *Fixture {
 		t.Fatal(err)
 	}
 	f.App = app.ID
-	f.Devices, err = device.NewService(device.Options{DB: f.DB, IDs: f.IDs, Cache: cache.NewMemory(nil), DevelopmentProvider: true})
-	if err != nil {
-		t.Fatal(err)
-	}
-	f.Device, f.Env = f.NewDevice(t)
-	f.Store = analytics.NewPostgres(f.DB, f.Clock.Now)
-	f.Telemetry = f.Ingestion(t, telemetry.Options{})
-	window := o.Window
-	if window == nil {
-		w, err := analytics.ParseWindow("02:00", "04:00", "UTC")
-		if err != nil {
-			t.Fatal(err)
-		}
-		window = &w
-	}
-	f.Analytics, err = analytics.New(analytics.Options{
-		DB: f.DB, Store: f.Store, Audit: f.Audit, IDs: f.IDs, Limits: o.Limits, Now: f.Clock.Now, Defaults: o.Defaults, Window: *window,
-		Organizations: func(ctx context.Context, fn func(org string) error) error { return fn(f.Org) }, Export: o.Export,
-		Exporter: o.Exporter, Objects: o.Objects, Crypter: backend,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	return f
 }
 
 // NewDevice registers another device of the app's development environment

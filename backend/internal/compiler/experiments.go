@@ -98,6 +98,24 @@ func (u *unit) checkVariantSet(e *experiment) {
 // checkExperimentProps checks the declared props and the value each
 // variant gives them.
 func (u *unit) checkExperimentProps(e *experiment) {
+	declared := u.declareExperimentProps(e)
+	for i, v := range e.doc.Variants {
+		vp := plxerr.Pointer("variants", strconv.Itoa(i), "props")
+		for _, name := range sortedKeys(v.Props) {
+			if !declared[name] {
+				u.reportDoc(plxerr.UnknownProp, e.file, vp+plxerr.Pointer(name), "the experiment declares no prop %q", name)
+			}
+		}
+		for j := range e.props {
+			u.checkVariantProp(e, &e.props[j], v, vp)
+		}
+	}
+}
+
+// declareExperimentProps claims the names of the declared props, keeps those
+// whose type checks on the experiment, sorted by name, and returns the set of
+// declared names.
+func (u *unit) declareExperimentProps(e *experiment) map[string]bool {
 	names := u.newKeys("prop")
 	declared := map[string]bool{}
 	for i, p := range e.doc.Props {
@@ -109,31 +127,26 @@ func (u *unit) checkExperimentProps(e *experiment) {
 		}
 	}
 	slices.SortFunc(e.props, func(a, b experimentProp) int { return strings.Compare(a.name, b.name) })
-	for i, v := range e.doc.Variants {
-		vp := plxerr.Pointer("variants", strconv.Itoa(i), "props")
-		for _, name := range sortedKeys(v.Props) {
-			if !declared[name] {
-				u.reportDoc(plxerr.UnknownProp, e.file, vp+plxerr.Pointer(name), "the experiment declares no prop %q", name)
-			}
-		}
-		for j := range e.props {
-			p := &e.props[j]
-			raw, ok := v.Props[p.name]
-			if !ok {
-				u.reportDoc(plxerr.MissingRequiredProp, e.file, vp, "variant %q gives no value for the prop %q", v.Name, p.name)
-				continue
-			}
-			if u.focus != "" {
-				continue
-			}
-			checked := u.checkRaw(vctx{file: e.file, ptr: vp + plxerr.Pointer(p.name), code: plxerr.ValueTypeMismatch}, raw, p.te)
-			if v.Name == e.control {
-				p.control = checked
-			}
-			if checked != nil {
-				p.variants = append(p.variants, variantValue{variant: v.Name, value: checked})
-			}
-		}
+	return declared
+}
+
+// checkVariantProp checks the value one variant gives one prop and records it
+// on the prop; the control variant's value becomes the prop's default.
+func (u *unit) checkVariantProp(e *experiment, p *experimentProp, v schema.ExperimentVariant, vp string) {
+	raw, ok := v.Props[p.name]
+	if !ok {
+		u.reportDoc(plxerr.MissingRequiredProp, e.file, vp, "variant %q gives no value for the prop %q", v.Name, p.name)
+		return
+	}
+	if u.focus != "" {
+		return
+	}
+	checked := u.checkRaw(vctx{file: e.file, ptr: vp + plxerr.Pointer(p.name), code: plxerr.ValueTypeMismatch}, raw, p.te)
+	if v.Name == e.control {
+		p.control = checked
+	}
+	if checked != nil {
+		p.variants = append(p.variants, variantValue{variant: v.Name, value: checked})
 	}
 }
 

@@ -91,7 +91,10 @@ func (s *Service) PermissionsVersion(ctx context.Context, organizationID string)
 	var version int64
 	err = s.inTx(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) (err error) {
 		version, err = dbgen.New(tx).GetPermissionsVersion(ctx, org)
-		return err
+		if err != nil {
+			return fmt.Errorf("query: %w", err)
+		}
+		return nil
 	})
 	if err != nil {
 		return 0, fmt.Errorf("auth: read the permissions version: %w", err)

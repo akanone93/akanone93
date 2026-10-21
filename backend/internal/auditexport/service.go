@@ -133,7 +133,7 @@ func (s *Service) Create(ctx context.Context, p auth.Principal, n NewDestination
 			CursorSequence: n.StartAfterSequence, CursorHash: cursorHash,
 		})
 		if err != nil {
-			return failure(err, "destination")
+			return failure(err)
 		}
 		out = fromRow(row)
 		return s.record(ctx, tx, p, audit.ExportDestinationCreated, out)
@@ -159,7 +159,7 @@ func (s *Service) Get(ctx context.Context, p auth.Principal, id string) (Destina
 		q := dbgen.New(tx)
 		row, err := q.GetAuditExportDestination(ctx, uid)
 		if err != nil {
-			return failure(err, "destination")
+			return failure(err)
 		}
 		out = fromRow(row)
 		head, err = chainHead(ctx, q, p.OrganizationID)
@@ -204,7 +204,7 @@ func (s *Service) Update(ctx context.Context, p auth.Principal, c Change) (Desti
 		q := dbgen.New(tx)
 		current, err := q.GetAuditExportDestination(ctx, uid)
 		if err != nil {
-			return failure(err, "destination")
+			return failure(err)
 		}
 		params, err := s.updateParams(ctx, current, c)
 		if err != nil {
@@ -212,7 +212,7 @@ func (s *Service) Update(ctx context.Context, p auth.Principal, c Change) (Desti
 		}
 		row, err := q.UpdateAuditExportDestination(ctx, params)
 		if err != nil {
-			return failure(err, "destination")
+			return failure(err)
 		}
 		out = fromRow(row)
 		return s.record(ctx, tx, p, audit.ExportDestinationUpdated, out)
@@ -267,10 +267,10 @@ func (s *Service) Delete(ctx context.Context, p auth.Principal, id string) error
 		q := dbgen.New(tx)
 		row, err := q.GetAuditExportDestination(ctx, uid)
 		if err != nil {
-			return failure(err, "destination")
+			return failure(err)
 		}
 		if _, err := q.DeleteAuditExportDestination(ctx, uid); err != nil {
-			return failure(err, "destination")
+			return failure(err)
 		}
 		return s.record(ctx, tx, p, audit.ExportDestinationDeleted, fromRow(row))
 	})
@@ -358,7 +358,8 @@ func (s *Service) record(ctx context.Context, tx pgx.Tx, p auth.Principal, actio
 }
 
 // failure maps a storage error to a domain one.
-func failure(err error, what string) error {
+func failure(err error) error {
+	const what = "destination"
 	var pg *pgconn.PgError
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):

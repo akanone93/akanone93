@@ -17,9 +17,9 @@ const waiverPage = "plugins/loans/pages/calculator.page.json"
 
 // pageWithWaiver returns the stored calculator page with an Image node
 // carrying the waiver, or without a waiver when it is empty.
-func pageWithWaiver(t *testing.T, f *fixture, pluginID, waiver string) ([]byte, int64) {
+func pageWithWaiver(ctx context.Context, t *testing.T, f *fixture, pluginID, waiver string) ([]byte, int64) {
 	t.Helper()
-	page, err := f.docs.GetDocument(context.Background(), f.owner, f.app, pluginID, waiverPage)
+	page, err := f.docs.GetDocument(ctx, f.owner, f.app, pluginID, waiverPage)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,19 +90,19 @@ func TestWaiverChangeNeedsPermissionUnderMaximum_A11Y_002(t *testing.T) {
 
 	// Strict: anyone who may edit may waive.
 	setProfile("strict")
-	content, rev := pageWithWaiver(t, f, loans, "Decorative picture, one.")
+	content, rev := pageWithWaiver(ctx, t, f, loans, "Decorative picture, one.")
 	if _, err := f.docs.PutDocument(ctx, unverified, f.app, loans, "s", waiverPage, content, rev); err != nil {
 		t.Fatalf("a waiver under strict: %v", err)
 	}
 
 	setProfile("maximum")
 	// The same waiver again changes nothing.
-	same, rev := pageWithWaiver(t, f, loans, "Decorative picture, one.")
+	same, rev := pageWithWaiver(ctx, t, f, loans, "Decorative picture, one.")
 	if _, err := f.docs.PutDocument(ctx, unverified, f.app, loans, "s", waiverPage, same, rev); err != nil {
 		t.Fatalf("an unchanged waiver under maximum: %v", err)
 	}
 	// A changed one needs the permission and the second factor.
-	changed, rev := pageWithWaiver(t, f, loans, "Decorative picture, two.")
+	changed, rev := pageWithWaiver(ctx, t, f, loans, "Decorative picture, two.")
 	if _, err := f.docs.PutDocument(ctx, unverified, f.app, loans, "s", waiverPage, changed, rev); code(err) != plxerr.A11yWaiverPermissionRequired {
 		t.Fatalf("a changed waiver without a second factor: %v", err)
 	}
@@ -118,7 +118,7 @@ func TestWaiverChangeNeedsPermissionUnderMaximum_A11Y_002(t *testing.T) {
 		t.Fatalf("a changed waiver by the owner: %v", err)
 	}
 	// Removing a waiver needs nothing.
-	removed, rev := pageWithWaiver(t, f, loans, "")
+	removed, rev := pageWithWaiver(ctx, t, f, loans, "")
 	if _, err := f.docs.PutDocument(ctx, unverified, f.app, loans, "s", waiverPage, removed, rev); err != nil {
 		t.Fatalf("removing a waiver: %v", err)
 	}

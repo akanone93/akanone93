@@ -75,7 +75,7 @@ func (f fakeApprovals) DeletePolicy(_ context.Context, r *connect.Request[pluxv1
 	return connect.NewResponse(&pluxv1.DeletePolicyResponse{}), nil
 }
 
-func (f fakeApprovals) ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error) {
+func (fakeApprovals) ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error) {
 	return connect.NewResponse(&pluxv1.ExportPoliciesResponse{Files: []*pluxv1.PolicyFile{
 		{Path: "policies/p.policy.json", Content: []byte("{}\n")}, {Path: "../escape.json", Content: []byte("x")},
 	}}), nil

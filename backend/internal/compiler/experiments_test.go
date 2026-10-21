@@ -289,42 +289,42 @@ func variantCases() []experimentCase {
 
 // experimentDocCases break the experiment documents.
 func experimentDocCases() []experimentCase {
-	variants := func(t *testing.T, d map[string]any) []any { return d["variants"].([]any) }
+	variants := func(d map[string]any) []any { return d["variants"].([]any) }
 	return []experimentCase{
 		{
 			name: "experiment without a control", file: expCTA, code: plxerr.VariantWithoutControl, ptr: "/variants",
-			edit: func(t *testing.T, d map[string]any) { delete(variants(t, d)[0].(map[string]any), "control") },
+			edit: func(t *testing.T, d map[string]any) { delete(variants(d)[0].(map[string]any), "control") },
 		},
 		{
 			name: "experiment with two controls", file: expCTA, code: plxerr.VariantWithoutControl, ptr: "/variants",
-			edit: func(t *testing.T, d map[string]any) { variants(t, d)[1].(map[string]any)["control"] = true },
+			edit: func(t *testing.T, d map[string]any) { variants(d)[1].(map[string]any)["control"] = true },
 		},
 		{
 			name: "weights over 100", file: expCTA, code: plxerr.VariantWeightsInvalid, ptr: "/variants",
-			edit: func(t *testing.T, d map[string]any) { variants(t, d)[2].(map[string]any)["weight"] = 25 },
+			edit: func(t *testing.T, d map[string]any) { variants(d)[2].(map[string]any)["weight"] = 25 },
 		},
 		{
 			name: "weights under 100", file: expHero, code: plxerr.VariantWeightsInvalid, ptr: "/variants",
-			edit: func(t *testing.T, d map[string]any) { variants(t, d)[1].(map[string]any)["weight"] = 49.5 },
+			edit: func(t *testing.T, d map[string]any) { variants(d)[1].(map[string]any)["weight"] = 49.5 },
 		},
 		{
 			name: "duplicate variant name", file: expHero, code: plxerr.DuplicateKey, ptr: "/variants/1/name",
-			edit: func(t *testing.T, d map[string]any) { variants(t, d)[1].(map[string]any)["name"] = "control" },
+			edit: func(t *testing.T, d map[string]any) { variants(d)[1].(map[string]any)["name"] = "control" },
 		},
 		{
 			name: "prop value of the wrong type", file: expCTA, code: plxerr.ValueTypeMismatch, ptr: "/variants/1/props/label",
 			edit: func(t *testing.T, d map[string]any) {
-				variants(t, d)[1].(map[string]any)["props"] = map[string]any{"label": 7}
+				variants(d)[1].(map[string]any)["props"] = map[string]any{"label": 7}
 			},
 		},
 		{
 			name: "prop without a value", file: expCTA, code: plxerr.MissingRequiredProp, ptr: "/variants/2/props",
-			edit: func(t *testing.T, d map[string]any) { variants(t, d)[2].(map[string]any)["props"] = map[string]any{} },
+			edit: func(t *testing.T, d map[string]any) { variants(d)[2].(map[string]any)["props"] = map[string]any{} },
 		},
 		{
 			name: "undeclared prop", file: expCTA, code: plxerr.UnknownProp, ptr: "/variants/0/props/colour",
 			edit: func(t *testing.T, d map[string]any) {
-				variants(t, d)[0].(map[string]any)["props"].(map[string]any)["colour"] = "red"
+				variants(d)[0].(map[string]any)["props"].(map[string]any)["colour"] = "red"
 			},
 		},
 		{

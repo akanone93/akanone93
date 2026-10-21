@@ -126,7 +126,7 @@ func (s *Service) Escalate(ctx context.Context, organizationID string) (int, err
 		return nil
 	})
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("breakglass: escalate the overdue reviews: %w", err)
 	}
 	for _, rec := range raised {
 		s.alertOverdue(ctx, rec)

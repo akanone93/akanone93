@@ -100,34 +100,86 @@ func encodeNodes(e *valueEnc, sectionID [16]byte, all []*node) flatbuffers.UOffs
 	return offsetVector(b, offs)
 }
 
-// node writes one node.
-func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
+// nodeParts are the nested objects of a node, which the builder needs
+// written before the node's table starts.
+type nodeParts struct {
+	props, handlers, children, variant, slots, visible flatbuffers.UOffsetT
+	semantics, overrides, typeArgs, animation          flatbuffers.UOffsetT
+	testID, native                                     uint32
+}
+
+// buildNodeParts writes the nested objects of a node. The order of the
+// writes is part of the bundle's byte layout (CMP-002).
+func buildNodeParts(e *valueEnc, n *node) nodeParts {
 	b := e.b
-	props := propVector(e, n.props)
-	hs := handlers(b, n.handlers)
+	var p nodeParts
+	p.props = propVector(e, n.props)
+	p.handlers = handlers(b, n.handlers)
 	var childIndices []uint32
 	if n.variant == nil {
 		childIndices = indices(n.children)
 	}
-	children := u32Vector(b, childIndices)
-	var variant flatbuffers.UOffsetT
+	p.children = u32Vector(b, childIndices)
 	if n.variant != nil {
-		variant = variantTable(e, n)
+		p.variant = variantTable(e, n)
 	}
-	slots := slotVector(b, n.slots)
-	visible := e.value(n.visible)
-	sem := semanticsTable(e, n.semantics)
-	overrides := overrides(e, n.overrides)
-	ta := typeArguments(e, n)
-	anim := nodeAnimationTable(e, n)
-	testID := e.strs.of(n.doc.TestID)
-	var native uint32
+	p.slots = slotVector(b, n.slots)
+	p.visible = e.value(n.visible)
+	p.semantics = semanticsTable(e, n.semantics)
+	p.overrides = overrides(e, n.overrides)
+	p.typeArgs = typeArguments(e, n)
+	p.animation = nodeAnimationTable(e, n)
+	p.testID = e.strs.of(n.doc.TestID)
 	if n.widget == nil && n.target == nil && n.variant == nil {
-		native = e.strs.of(n.doc.Type)
+		p.native = e.strs.of(n.doc.Type)
 	}
+	return p
+}
+
+// node writes one node.
+func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
+	b := e.b
+	p := buildNodeParts(e, n)
 	fbs.NodeStart(b)
 	hi, lo := uuidHalves(uuidBytes(n.doc.ID))
 	fbs.NodeAddId(b, fbs.CreateUuid(b, hi, lo))
+	addNodeKind(b, n, p.native)
+	fbs.NodeAddProps(b, p.props)
+	fbs.NodeAddHandlers(b, p.handlers)
+	fbs.NodeAddChildren(b, p.children)
+	fbs.NodeAddSlots(b, p.slots)
+	if p.visible != 0 {
+		fbs.NodeAddVisible(b, p.visible)
+	}
+	if p.semantics != 0 {
+		fbs.NodeAddSemantics(b, p.semantics)
+	}
+	if p.testID != 0 {
+		fbs.NodeAddTestId(b, p.testID)
+	}
+	fbs.NodeAddOverrides(b, p.overrides)
+	if n.hints != 0 {
+		fbs.NodeAddHints(b, byte(n.hints))
+	}
+	fbs.NodeAddTypeArguments(b, p.typeArgs)
+	if p.animation != 0 {
+		fbs.NodeAddAnimation(b, p.animation)
+	}
+	switch n.doc.Direction {
+	case schema.TextDirectionLtr:
+		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideLtr)
+	case schema.TextDirectionRtl:
+		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideRtl)
+	}
+	if p.variant != 0 {
+		fbs.NodeAddVariant(b, p.variant)
+	}
+	return fbs.NodeEnd(b)
+}
+
+// addNodeKind says what a node is: a widget, a component instance or a
+// native slot.
+func addNodeKind(b *flatbuffers.Builder, n *node, native uint32) {
 	switch {
 	case n.widget != nil:
 		fbs.NodeAddWidget(b, n.widget.ID)
@@ -138,37 +190,6 @@ func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
 	default:
 		fbs.NodeAddNativeSlot(b, native)
 	}
-	fbs.NodeAddProps(b, props)
-	fbs.NodeAddHandlers(b, hs)
-	fbs.NodeAddChildren(b, children)
-	fbs.NodeAddSlots(b, slots)
-	if visible != 0 {
-		fbs.NodeAddVisible(b, visible)
-	}
-	if sem != 0 {
-		fbs.NodeAddSemantics(b, sem)
-	}
-	if testID != 0 {
-		fbs.NodeAddTestId(b, testID)
-	}
-	fbs.NodeAddOverrides(b, overrides)
-	if n.hints != 0 {
-		fbs.NodeAddHints(b, byte(n.hints))
-	}
-	fbs.NodeAddTypeArguments(b, ta)
-	if anim != 0 {
-		fbs.NodeAddAnimation(b, anim)
-	}
-	switch n.doc.Direction {
-	case schema.TextDirectionLtr:
-		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideLtr)
-	case schema.TextDirectionRtl:
-		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideRtl)
-	}
-	if variant != 0 {
-		fbs.NodeAddVariant(b, variant)
-	}
-	return fbs.NodeEnd(b)
 }
 
 // slotVector writes the filled slots of a node.

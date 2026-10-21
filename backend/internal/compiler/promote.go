@@ -6,6 +6,7 @@ package compiler
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"strconv"
 	"strings"
@@ -56,7 +57,7 @@ func PromoteWinner(fsys fs.FS, experimentKey, winner string) (fs.FS, plxerr.Diag
 		}
 		data, err := fs.ReadFile(fsys, name)
 		if err != nil {
-			return err
+			return fmt.Errorf("compiler: read %s: %w", name, err)
 		}
 		if place, ok := schema.PlaceOf(name); ok && promotedKinds[place.Kind] {
 			data = p.document(data)

@@ -33,7 +33,7 @@ type fakeExperiments struct {
 	flag *pluxv1.Flag
 }
 
-func (f fakeExperiments) ListEnvironments(context.Context, *connect.Request[pluxv1.ListEnvironmentsRequest]) (*connect.Response[pluxv1.ListEnvironmentsResponse], error) {
+func (fakeExperiments) ListEnvironments(context.Context, *connect.Request[pluxv1.ListEnvironmentsRequest]) (*connect.Response[pluxv1.ListEnvironmentsResponse], error) {
 	return connect.NewResponse(&pluxv1.ListEnvironmentsResponse{Environments: []*pluxv1.Environment{{Id: "env-prod", Key: "production"}}}), nil
 }
 
@@ -71,7 +71,7 @@ func (f fakeExperiments) DeleteFlag(_ context.Context, r *connect.Request[pluxv1
 	return connect.NewResponse(&pluxv1.DeleteFlagResponse{}), nil
 }
 
-func (f fakeExperiments) experiment(state pluxv1.ExperimentState) *pluxv1.Experiment {
+func (fakeExperiments) experiment(state pluxv1.ExperimentState) *pluxv1.Experiment {
 	return &pluxv1.Experiment{Id: heroID, Key: "heroLayout", State: state, LayerStart: 0, LayerEnd: 2500}
 }
 

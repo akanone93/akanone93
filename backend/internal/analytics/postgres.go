@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -585,7 +586,7 @@ func dropPartition(ctx context.Context, tx pgx.Tx, m time.Time) (bool, error) {
 	if !exists {
 		return false, nil
 	}
-	if _, err := tx.Exec(ctx, "DROP TABLE "+pgx.Identifier{name}.Sanitize()); err != nil {
+	if _, err := tx.Exec(ctx, "DROP TABLE "+quoteIdentifier(name)); err != nil {
 		return false, fmt.Errorf("analytics: drop the partition %s: %w", name, err)
 	}
 	return true, nil
@@ -620,4 +621,10 @@ func (p *Postgres) Compact(ctx context.Context, before time.Time) (int, error) {
 		}
 	}
 	return dropped, nil
+}
+
+// quoteIdentifier quotes a PostgreSQL identifier so that it is read as one
+// name whatever it contains.
+func quoteIdentifier(name string) string {
+	return `"` + strings.ReplaceAll(strings.ReplaceAll(name, "\x00", ""), `"`, `""`) + `"`
 }

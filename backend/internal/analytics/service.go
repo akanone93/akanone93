@@ -159,7 +159,11 @@ func (s *Service) Query(ctx context.Context, p auth.Principal, q Query) (Series,
 	if maxRows := int(s.o.Limits.Get(limits.APIPageSize)); q.Limit <= 0 || q.Limit > maxRows {
 		q.Limit = maxRows
 	}
-	return s.o.Store.Query(ctx, p.OrganizationID, q)
+	series, err := s.o.Store.Query(ctx, p.OrganizationID, q)
+	if err != nil {
+		return Series{}, fmt.Errorf("analytics: query the store: %w", err)
+	}
+	return series, nil
 }
 
 // Setting is the retention of one data class.
@@ -310,39 +314,7 @@ func (s *Service) SetRetention(ctx context.Context, p auth.Principal, class stri
 		row.State, row.ApplyAt = "scheduled", storage.Timestamp(s.o.Window.NextOpen(now))
 	}
 	err = s.inOrg(ctx, p.OrganizationID, p.UserID, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		// A newer request for a class replaces a waiting one.
-		replaced, err := q.SupersedeScheduledChange(ctx, dbgen.SupersedeScheduledChangeParams{
-			OrganizationID: row.OrganizationID, DataClass: class, FinishedAt: storage.Timestamp(now),
-		})
-		if err != nil {
-			return fmt.Errorf("analytics: supersede: %w", err)
-		}
-		if replaced > 0 {
-			if _, err := s.o.Audit.Append(ctx, tx, audit.Entry{
-				Action: audit.RetentionCancelled, TargetKind: "retention", TargetID: class,
-				Detail: class + ": the waiting change was replaced by a newer request", OrganizationID: p.OrganizationID, Actor: p.Actor(),
-			}); err != nil {
-				return fmt.Errorf("analytics: %w", err)
-			}
-		}
-		if err := q.InsertRetentionChange(ctx, row); err != nil {
-			return fmt.Errorf("analytics: record the change: %w", err)
-		}
-		action, detail := audit.RetentionScheduled, fmt.Sprintf("%s: %s, applies %s", class, describe(d), storage.Time(row.ApplyAt).Format(time.RFC3339))
-		if immediate {
-			action, detail = audit.RetentionSet, fmt.Sprintf("%s: %s, at once", class, describe(d))
-			if err := q.UpsertRetentionSetting(ctx, dbgen.UpsertRetentionSettingParams{
-				OrganizationID: row.OrganizationID, DataClass: class, Days: row.Days, ChangedBy: row.RequestedBy,
-			}); err != nil {
-				return fmt.Errorf("analytics: set the retention: %w", err)
-			}
-		}
-		_, err = s.o.Audit.Append(ctx, tx, audit.Entry{
-			Action: action, TargetKind: "retention", TargetID: class, Detail: detail,
-			OrganizationID: p.OrganizationID, Actor: p.Actor(),
-		})
-		return err //nolint:wrapcheck // wrapped by the audit log
+		return s.recordRetention(ctx, tx, p, row, d, immediate)
 	})
 	if err != nil {
 		return Change{}, nil, err
@@ -360,6 +332,48 @@ func (s *Service) SetRetention(ctx context.Context, p auth.Principal, class stri
 	diags = append(diags, plxerr.NewDiagnostic(plxerr.RetentionChangeScheduled, plxerr.Location{},
 		"the retention of %s becomes %s at %s, in the maintenance window", class, describe(d), ch.ApplyAt.In(s.o.Window.Location).Format(time.RFC3339)))
 	return ch, diags, nil
+}
+
+// recordRetention stores a retention change inside the transaction: it
+// supersedes a waiting change of the class, inserts the new one, applies the
+// setting when the change is immediate and audits the outcome.
+func (s *Service) recordRetention(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.InsertRetentionChangeParams, d *int, immediate bool) error {
+	q := dbgen.New(tx)
+	class := row.DataClass
+	// A newer request for a class replaces a waiting one.
+	replaced, err := q.SupersedeScheduledChange(ctx, dbgen.SupersedeScheduledChangeParams{
+		OrganizationID: row.OrganizationID, DataClass: class, FinishedAt: row.RequestedAt,
+	})
+	if err != nil {
+		return fmt.Errorf("analytics: supersede: %w", err)
+	}
+	if replaced > 0 {
+		if _, err := s.o.Audit.Append(ctx, tx, audit.Entry{
+			Action: audit.RetentionCancelled, TargetKind: "retention", TargetID: class,
+			Detail: class + ": the waiting change was replaced by a newer request", OrganizationID: p.OrganizationID, Actor: p.Actor(),
+		}); err != nil {
+			return fmt.Errorf("analytics: %w", err)
+		}
+	}
+	if err := q.InsertRetentionChange(ctx, row); err != nil {
+		return fmt.Errorf("analytics: record the change: %w", err)
+	}
+	action, detail := audit.RetentionScheduled, fmt.Sprintf("%s: %s, applies %s", class, describe(d), storage.Time(row.ApplyAt).Format(time.RFC3339))
+	if immediate {
+		action, detail = audit.RetentionSet, fmt.Sprintf("%s: %s, at once", class, describe(d))
+		if err := q.UpsertRetentionSetting(ctx, dbgen.UpsertRetentionSettingParams{
+			OrganizationID: row.OrganizationID, DataClass: class, Days: row.Days, ChangedBy: row.RequestedBy,
+		}); err != nil {
+			return fmt.Errorf("analytics: set the retention: %w", err)
+		}
+	}
+	if _, err := s.o.Audit.Append(ctx, tx, audit.Entry{
+		Action: action, TargetKind: "retention", TargetID: class, Detail: detail,
+		OrganizationID: p.OrganizationID, Actor: p.Actor(),
+	}); err != nil {
+		return fmt.Errorf("analytics: %w", err)
+	}
+	return nil
 }
 
 // ListChanges lists the organisation's retention changes, newest first.

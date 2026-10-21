@@ -367,11 +367,11 @@ const (
 	FederatedSignIn Action = "user.federated_sign_in"
 	// FederatedSignOut: a provider's back-channel logout ended sessions.
 	FederatedSignOut Action = "user.federated_sign_out"
-	// ScimTokenCreated, ScimTokenRotated and ScimTokenRevoked: a SCIM bearer
+	// ScimAccessCreated, ScimAccessRotated and ScimAccessRevoked: a SCIM bearer
 	// token was made, replaced or withdrawn.
-	ScimTokenCreated Action = "scim.token_created"
-	ScimTokenRotated Action = "scim.token_rotated"
-	ScimTokenRevoked Action = "scim.token_revoked"
+	ScimAccessCreated Action = "scim.token_created"
+	ScimAccessRotated Action = "scim.token_rotated"
+	ScimAccessRevoked Action = "scim.token_revoked"
 	// ScimUserProvisioned, ScimUserChanged and ScimUserDeprovisioned: the
 	// organisation's SCIM client created or adopted a person, changed them,
 	// or removed their access.
@@ -439,7 +439,7 @@ var actions = sorted(
 	ExportDestinationCreated, ExportDestinationUpdated, ExportDestinationDeleted,
 	GitExportConfigured, GitExported,
 	ProviderCreated, ProviderUpdated, ProviderDeleted, MappingSet, UserProvisioned, FederatedSignIn, FederatedSignOut,
-	ScimTokenCreated, ScimTokenRotated, ScimTokenRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
+	ScimAccessCreated, ScimAccessRotated, ScimAccessRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
 	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
 	DataSubjectExported, DataSubjectErased,
 	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted,

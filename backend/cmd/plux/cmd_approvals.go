@@ -171,10 +171,15 @@ func writeUnder(dir, target string, content []byte) error {
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		return fmt.Errorf("the path %q is outside %s", target, dir)
 	}
-	if err := os.MkdirAll(filepath.Dir(target), 0o750); err != nil {
+	root, err := openDirectory(dir)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = root.Close() }()
+	if err := root.MkdirAll(filepath.Dir(rel), 0o750); err != nil {
 		return fmt.Errorf("create %s: %w", filepath.Dir(target), err)
 	}
-	if err := os.WriteFile(target, content, 0o600); err != nil {
+	if err := root.WriteFile(rel, content, 0o600); err != nil {
 		return fmt.Errorf("write %s: %w", target, err)
 	}
 	return nil

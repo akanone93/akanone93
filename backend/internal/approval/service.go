@@ -191,11 +191,3 @@ func failure(err error, what string) error {
 	}
 	return fmt.Errorf("approval: %s: %w", what, err)
 }
-
-// parseID checks an identifier from a caller.
-func parseID(s, what string) (string, error) {
-	if _, err := storage.UUID(s); err != nil {
-		return "", plxerr.New(plxerr.InvalidFormat, "the %s identifier is not valid", what)
-	}
-	return s, nil
-}

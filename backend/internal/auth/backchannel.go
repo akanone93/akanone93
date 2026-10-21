@@ -137,41 +137,57 @@ func (s *Service) endFederatedSessions(ctx context.Context, target oidcTarget, c
 		if err != nil {
 			return fmt.Errorf("auth: find the signed-in sessions: %w", err)
 		}
-		type ending struct {
-			ids []string
-			all bool
-		}
-		byUser := map[string]*ending{}
-		for _, r := range rows {
-			e := byUser[storage.ID(r.UserID)]
-			if e == nil {
-				e = &ending{}
-				byUser[storage.ID(r.UserID)] = e
-			}
-			if r.SessionID.Valid {
-				e.ids = append(e.ids, storage.ID(r.SessionID))
-			} else {
-				e.all = true
-			}
-		}
-		for user, e := range byUser {
-			ids := e.ids
-			if e.all {
-				ids = nil
-			}
-			n, err := s.o.Sessions.EndSessions(ctx, tx, user, ids)
-			if err != nil {
-				return err //nolint:wrapcheck // the ender wraps its own failures
-			}
-			ended += n
-			if err := s.record(ctx, tx, audit.Entry{
-				Actor: audit.Actor{Kind: "identity_provider", Display: "back-channel logout"}, Action: audit.FederatedSignOut,
-				TargetKind: "user", TargetID: user, Detail: fmt.Sprintf("issuer=%s sessions=%d", target.provider.Issuer, n),
-			}); err != nil {
-				return err
-			}
-		}
-		return nil
+		ended, err = s.endUsersSessions(ctx, tx, target, groupSignIns(rows))
+		return err
 	})
 	return ended, err
+}
+
+// sessionEnding is what a back-channel logout ends for one person: the named
+// sessions, or all of them.
+type sessionEnding struct {
+	ids []string
+	all bool
+}
+
+// groupSignIns groups the matching federated sign-ins by person.
+func groupSignIns(rows []dbgen.FederatedSignIn) map[string]*sessionEnding {
+	byUser := map[string]*sessionEnding{}
+	for _, r := range rows {
+		e := byUser[storage.ID(r.UserID)]
+		if e == nil {
+			e = &sessionEnding{}
+			byUser[storage.ID(r.UserID)] = e
+		}
+		if r.SessionID.Valid {
+			e.ids = append(e.ids, storage.ID(r.SessionID))
+		} else {
+			e.all = true
+		}
+	}
+	return byUser
+}
+
+// endUsersSessions ends each person's sessions and audits it, returning how
+// many sessions ended.
+func (s *Service) endUsersSessions(ctx context.Context, tx pgx.Tx, target oidcTarget, byUser map[string]*sessionEnding) (int64, error) {
+	var ended int64
+	for user, e := range byUser {
+		ids := e.ids
+		if e.all {
+			ids = nil
+		}
+		n, err := s.o.Sessions.EndSessions(ctx, tx, user, ids)
+		if err != nil {
+			return ended, err //nolint:wrapcheck // the ender wraps its own failures
+		}
+		ended += n
+		if err := s.record(ctx, tx, audit.Entry{
+			Actor: audit.Actor{Kind: "identity_provider", Display: "back-channel logout"}, Action: audit.FederatedSignOut,
+			TargetKind: "user", TargetID: user, Detail: fmt.Sprintf("issuer=%s sessions=%d", target.provider.Issuer, n),
+		}); err != nil {
+			return ended, err
+		}
+	}
+	return ended, nil
 }

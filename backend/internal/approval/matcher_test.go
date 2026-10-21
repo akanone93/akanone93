@@ -66,7 +66,7 @@ func TestHashOf_GOV_022(t *testing.T) {
 	if HashOf([]byte("ab"), []byte("c")) == HashOf([]byte("a"), []byte("bc")) {
 		t.Fatal("moving content between parts must change the hash")
 	}
-	if HashOf([]byte("x")) != HashOf([]byte("x")) {
+	if once, again := HashOf([]byte("x")), HashOf([]byte("x")); once != again {
 		t.Fatal("the same content must hash the same")
 	}
 	a, err := HashJSON(map[string]any{"b": 1, "a": []int{1, 2}})

@@ -32,7 +32,10 @@ func (s *Service) Sign(ctx context.Context, organizationID string) (int, error) 
 	err := s.o.DB.InTx(ctx, tenant, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		pending, err = dbgen.New(tx).ListUnsignedComplianceReports(ctx, signingBatch)
-		return err
+		if err != nil {
+			return fmt.Errorf("query: %w", err)
+		}
+		return nil
 	})
 	if err != nil {
 		return 0, fmt.Errorf("compliance: list the unsigned reports: %w", err)
@@ -44,10 +47,12 @@ func (s *Service) Sign(ctx context.Context, organizationID string) (int, error) 
 			return signed, fmt.Errorf("compliance: sign a report: %w", err)
 		}
 		err = s.o.DB.InTx(ctx, tenant, func(ctx context.Context, tx pgx.Tx) error {
-			_, err := dbgen.New(tx).SignComplianceReport(ctx, dbgen.SignComplianceReportParams{
+			if _, err := dbgen.New(tx).SignComplianceReport(ctx, dbgen.SignComplianceReportParams{
 				ID: r.ID, KeyID: &keyID, Signature: sig, SignedAt: storage.Timestamp(s.now()),
-			})
-			return err
+			}); err != nil {
+				return fmt.Errorf("update: %w", err)
+			}
+			return nil
 		})
 		if err != nil {
 			return signed, fmt.Errorf("compliance: store a report signature: %w", err)

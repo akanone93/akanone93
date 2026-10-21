@@ -85,7 +85,7 @@ func (s *Service) decideIn(ctx context.Context, tx pgx.Tx, p auth.Principal, app
 
 // checkDecidable refuses a decision the principal may not make on a request
 // in its state.
-func (s *Service) checkDecidable(p auth.Principal, req Request) error {
+func (*Service) checkDecidable(p auth.Principal, req Request) error {
 	var err error
 	if req.Environment != "" && req.AppID != "" {
 		err = p.AuthorizeEnvironment(auth.ApprovalsDecide, req.AppID, req.Environment)
@@ -102,12 +102,12 @@ func (s *Service) checkDecidable(p auth.Principal, req Request) error {
 	default:
 		return plxerr.New(plxerr.PreconditionFailed, "request %s is %s and takes no more decisions", req.ID, req.Status)
 	}
-	switch {
-	case p.UserID == "":
+	switch p.UserID {
+	case "":
 		return plxerr.New(plxerr.ApproverNotEligible, "only a person can decide an approval")
-	case p.UserID == req.RequestedByID:
+	case req.RequestedByID:
 		return plxerr.New(plxerr.ApproverNotEligible, "you asked for this change and cannot approve or reject it")
-	case p.UserID == req.AuthorID:
+	case req.AuthorID:
 		return plxerr.New(plxerr.ApproverNotEligible, "you wrote this change and cannot approve or reject it")
 	}
 	return nil
