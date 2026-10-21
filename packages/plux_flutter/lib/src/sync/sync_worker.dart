@@ -20,6 +20,8 @@ import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/transport.dart' show DataResponse;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/invoke_function.dart';
+import 'package:plux_flutter/src/reconstruction/import.dart';
+import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
@@ -119,6 +121,12 @@ final class _Store extends _Command {
 final class _Baseline extends _Command {
   const _Baseline(super.reply, this.assets);
   final SendPort? assets;
+}
+
+/// Verifies and installs a reconstruction release (SEC-142).
+final class _Reconstruction extends _Command {
+  const _Reconstruction(super.reply, this.release);
+  final PluxReconstruction release;
 }
 
 final class _Settle extends _Command {
@@ -334,6 +342,15 @@ final class SyncWorker
       assets.close();
     }
   }
+
+  /// Verifies a reconstruction release and installs it as the store's
+  /// active release (SEC-142, SEC-052); the moment its manifest describes.
+  /// Throws the [PluxException] that failed verification.
+  Future<PluxReconstructionMoment> importReconstruction(
+    PluxReconstruction release,
+  ) async =>
+      await _ask((p) => _Reconstruction(p, release))
+          as PluxReconstructionMoment;
 
   /// The security settings in force when the isolate started, as
   /// [loadSettings] reads them; throws [StateError] when they could not be
@@ -711,6 +728,24 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
           );
         } on PluxException catch (e) {
           reply.send(e);
+        }
+      case _Reconstruction(:final reply, :final release):
+        try {
+          reply.send(
+            await importReconstruction(
+              reconstruction: release,
+              store: store,
+              keys: config.sync.keys,
+              appId: config.sync.appId,
+              environment: config.sync.environment,
+              limits: config.sync.verifierLimits,
+              supportsFeature: config.sync.supportsFeature,
+            ),
+          );
+        } on PluxException catch (e) {
+          reply.send(e);
+        } on Object catch (e) {
+          reply.send(_Failure('$e'));
         }
       case _Store(:final reply, :final op):
         try {

@@ -589,6 +589,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
         navigator: const _GuardNavigator(),
         emit: services.emit,
         nativeActions: services.nativeActions,
+        reconstruction: services.reconstruction,
       ),
       limits: ActionLimits.of(release.limits),
       report: report,
@@ -1189,6 +1190,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         sync: services.sync,
         data: _data,
         logout: services.logout,
+        reconstruction: services.reconstruction,
         device: services.deviceGuard == null
             ? null
             : DeviceScope(

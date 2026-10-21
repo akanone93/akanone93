@@ -24,6 +24,7 @@ import 'package:plux_flutter/src/device/handlers.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/handlers.dart';
 import 'package:plux_flutter/src/functions/invoke_function.dart';
+import 'package:plux_flutter/src/reconstruction/gate.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 import 'package:plux_flutter/src/security/handlers.dart';
 import 'package:plux_flutter/src/state/access.dart';
@@ -247,6 +248,7 @@ final class StepContext {
     this.device,
     this.pluginKey = '',
     this.execution,
+    this.reconstruction,
   });
 
   /// This context with [state] (STA-001).
@@ -324,6 +326,10 @@ final class StepContext {
   /// (SEC-080); null where no runtime provides them.
   final DeviceScope? device;
 
+  /// Admits the actions of a reconstruction (SEC-142); null outside
+  /// reconstruction mode, where every action runs.
+  final ReconstructionGate? reconstruction;
+
   /// The service of type [T], or null where none is installed.
   T? service<T extends Object>() => services[T] as T?;
 
@@ -363,6 +369,7 @@ final class StepContext {
     device: device,
     pluginKey: pluginKey ?? this.pluginKey,
     execution: execution ?? this.execution,
+    reconstruction: reconstruction,
   );
 }
 
