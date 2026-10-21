@@ -17,6 +17,7 @@ import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/control/control_snapshot.dart';
 import 'package:plux_flutter/src/control/live_control.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/experiments/targeting.dart';
 import 'package:plux_flutter/src/mmap/mapped_file.dart';
 import 'package:plux_flutter/src/render/values.dart' show uuidString;
 import 'package:plux_flutter/src/store/release_record.dart';
@@ -91,6 +92,7 @@ final class ActiveRelease {
     this.gate,
     this.control,
     this._live,
+    this._facts,
     this._report,
     this._decrypted,
   );
@@ -103,7 +105,8 @@ final class ActiveRelease {
   /// opened beforehand off the UI isolate (SEC-053); the reader works on
   /// those buffers instead of a mapping. [live] gives the control document
   /// in force when a switch is asked about, so a document that arrives
-  /// later applies to a release already open (SYN-060).
+  /// later applies to a release already open (SYN-060). [facts] gives what
+  /// the targeting rules of its switches compare, read now (REL-060).
   factory ActiveRelease.open(
     ReleaseStore store,
     ReleaseRecord record,
@@ -111,6 +114,7 @@ final class ActiveRelease {
     void Function(PluxException error)? report,
     Map<String, Uint8List> decrypted = const {},
     LiveControl Function()? live,
+    TargetingFacts Function()? facts,
   }) {
     final r = ActiveRelease._(
       record,
@@ -118,6 +122,7 @@ final class ActiveRelease {
       SectionGate(limits),
       _control(store, record),
       live ?? () => LiveControl.none,
+      facts ?? () => const {},
       report,
       decrypted,
     );
@@ -137,6 +142,7 @@ final class ActiveRelease {
   final ControlState control;
 
   final LiveControl Function() _live;
+  final TargetingFacts Function() _facts;
   final void Function(PluxException error)? _report;
   final Map<String, Uint8List> _decrypted;
   final Map<String, MappedBundle> _bundles = {};
@@ -385,24 +391,26 @@ final class ActiveRelease {
   bool disabled(String key) =>
       control.appKillSwitch ||
       control.killSwitches.contains(key) ||
-      _live().isOff(SwitchKind.plugin, key);
+      _live().isOff(SwitchKind.plugin, key, _facts);
 
   /// Whether the control document switches [page] off (RT-022, REL-060).
-  bool pageDisabled(PageRef page) => _live().isOff(SwitchKind.page, page.id);
+  bool pageDisabled(PageRef page) =>
+      _live().isOff(SwitchKind.page, page.id, _facts);
 
   /// Whether the control document switches off the action graph [id], a
   /// document UUID (REL-060).
-  bool graphDisabled(String id) => _live().isOff(SwitchKind.actionGraph, id);
+  bool graphDisabled(String id) =>
+      _live().isOff(SwitchKind.actionGraph, id, _facts);
 
   /// Whether the control document switches off the data source [id], a
   /// document UUID (REL-060).
   bool dataSourceDisabled(String id) =>
-      _live().isOff(SwitchKind.dataSource, id);
+      _live().isOff(SwitchKind.dataSource, id, _facts);
 
   /// Whether the control document switches off the function [name]
   /// (REL-060).
   bool functionDisabled(String name) =>
-      _live().isOff(SwitchKind.function, name);
+      _live().isOff(SwitchKind.function, name, _facts);
 
   /// Takes a lease for a page.
   void acquire() => _leases++;

@@ -52,7 +52,8 @@ void main() {
       record: (name, {fields = const {}, route = '', pluginKey = ''}) {},
       route: 'home',
       pluginKey: 'shop',
-      disabled: (graph) => live.isOff(SwitchKind.actionGraph, graph),
+      disabled: (graph) =>
+          live.isOff(SwitchKind.actionGraph, graph, () => const {}),
     );
 
     Future<RunResult?> run(String graph) {
@@ -110,7 +111,8 @@ void main() {
       record: (name, {fields = const {}, route = '', pluginKey = ''}) {},
       report: (_) {},
       allowCleartext: true,
-      disabled: (source) => live.isOff(SwitchKind.dataSource, source),
+      disabled: (source) =>
+          live.isOff(SwitchKind.dataSource, source, () => const {}),
     );
 
     DataSourceSpec source(String sourceId) => DataSourceSpec(
@@ -157,7 +159,7 @@ void main() {
         final rt = FunctionRuntime(
           resolve: (plugin, name) {
             resolved++;
-            if (live.isOff(SwitchKind.function, name)) {
+            if (live.isOff(SwitchKind.function, name, () => const {})) {
               throw LiveControl.disabled(SwitchKind.function, name);
             }
             return null;

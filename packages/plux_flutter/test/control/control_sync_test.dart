@@ -145,7 +145,10 @@ void main() {
     final first = await check.check();
     expect(first.fresh, isTrue);
     expect(first.error, isNull);
-    expect(first.snapshot!.isOff(SwitchKind.plugin, 'loans'), isTrue);
+    expect(
+      first.snapshot!.isOff(SwitchKind.plugin, 'loans', () => const {}),
+      isTrue,
+    );
     final request = server.asked.single;
     expect(request.headers['Authorization'], 'DPoP access');
     expect(request.headers['DPoP'], isNotEmpty);
@@ -158,7 +161,10 @@ void main() {
     );
     expect(second.fresh, isFalse, reason: '304: the document held is in force');
     expect(second.snapshot!.version, 2);
-    expect(second.snapshot!.isOff(SwitchKind.plugin, 'loans'), isTrue);
+    expect(
+      second.snapshot!.isOff(SwitchKind.plugin, 'loans', () => const {}),
+      isTrue,
+    );
   });
 
   test('a new version replaces the switches, and raises the floor '
@@ -169,8 +175,14 @@ void main() {
     await publish(3, switches: [plugin('cards')]);
     final outcome = await check.check();
     expect(outcome.fresh, isTrue);
-    expect(outcome.snapshot!.isOff(SwitchKind.plugin, 'loans'), isFalse);
-    expect(outcome.snapshot!.isOff(SwitchKind.plugin, 'cards'), isTrue);
+    expect(
+      outcome.snapshot!.isOff(SwitchKind.plugin, 'loans', () => const {}),
+      isFalse,
+    );
+    expect(
+      outcome.snapshot!.isOff(SwitchKind.plugin, 'cards', () => const {}),
+      isTrue,
+    );
     expect(MetadataStore(dir.path).read().floor.control, 3);
   });
 
@@ -184,7 +196,10 @@ void main() {
     expect(outcome.error!.code, PluxErrorCode.controlRollbackRejected);
     expect(outcome.fresh, isFalse);
     expect(outcome.snapshot!.version, 5);
-    expect(outcome.snapshot!.isOff(SwitchKind.plugin, 'loans'), isTrue);
+    expect(
+      outcome.snapshot!.isOff(SwitchKind.plugin, 'loans', () => const {}),
+      isTrue,
+    );
   });
 
   test('refuses a tampered document with PLX-3100 and stores nothing '
@@ -227,7 +242,10 @@ void main() {
     expect(outcome.error!.code, PluxErrorCode.controlDocumentExpired);
     expect(outcome.expired, isTrue);
     expect(outcome.snapshot!.version, 2);
-    expect(outcome.snapshot!.isOff(SwitchKind.plugin, 'loans'), isTrue);
+    expect(
+      outcome.snapshot!.isOff(SwitchKind.plugin, 'loans', () => const {}),
+      isTrue,
+    );
   });
 
   test('past its expiry, with no server, the last switches stay in force '
@@ -240,7 +258,10 @@ void main() {
     final outcome = await sync().check();
     expect(outcome.error, isNull, reason: 'offline is not a control failure');
     expect(outcome.expired, isTrue);
-    expect(outcome.snapshot!.isOff(SwitchKind.plugin, 'loans'), isTrue);
+    expect(
+      outcome.snapshot!.isOff(SwitchKind.plugin, 'loans', () => const {}),
+      isTrue,
+    );
   });
 
   test(

@@ -10,6 +10,7 @@ library;
 
 import 'package:plux_flutter/src/control/control_snapshot.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/experiments/targeting.dart';
 
 /// The control state in force.
 final class LiveControl {
@@ -27,9 +28,11 @@ final class LiveControl {
   /// null (REL-070).
   final MandatoryUpdate? pendingUpdate;
 
-  /// Whether a kill switch turns off the [kind] named [target].
-  bool isOff(SwitchKind kind, String target) =>
-      snapshot?.isOff(kind, target) ?? false;
+  /// Whether a kill switch turns off the [kind] named [target] on this
+  /// device; [facts] reads what targeting rules compare, and is called only
+  /// when a switch of the target has a rule (REL-060).
+  bool isOff(SwitchKind kind, String target, TargetingFacts Function() facts) =>
+      snapshot?.isOff(kind, target, facts) ?? false;
 
   /// The error a run, load or call of a switched-off [kind] fails with:
   /// `PLX-4020` for a plugin or page (their fallback shows, RT-022) and the

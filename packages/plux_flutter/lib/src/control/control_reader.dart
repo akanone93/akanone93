@@ -250,7 +250,9 @@ void _agree(fbs.ControlDocument doc, ControlEnvelope e) {
 }
 
 /// The switch [s] as a value, or null for a scope this runtime does not
-/// know (it comes from a newer server) or one that names no target.
+/// know (it comes from a newer server) or one that names no target. A rule
+/// that is absent or that this runtime cannot read leaves the switch
+/// applying to every device: a kill switch fails safe (REL-060).
 ControlSwitch? _switch(fbs.KillSwitch s) {
   final fbs.SwitchScope scope;
   try {
@@ -267,5 +269,9 @@ ControlSwitch? _switch(fbs.KillSwitch s) {
     fbs.SwitchScope.$Function => SwitchKind.function,
     fbs.SwitchScope.Unspecified => null,
   };
-  return kind == null || target == null ? null : ControlSwitch(kind, target);
+  final table = s.rule;
+  final rule = table == null ? null : readRule(table);
+  return kind == null || target == null
+      ? null
+      : ControlSwitch(kind, target, rule: rule);
 }

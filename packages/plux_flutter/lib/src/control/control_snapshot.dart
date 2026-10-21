@@ -10,6 +10,7 @@
 library;
 
 import 'package:plux_flutter/src/experiments/control_models.dart';
+import 'package:plux_flutter/src/experiments/targeting.dart';
 
 /// What a kill switch disables (`SwitchScope` of `schema/control.fbs`,
 /// without the unspecified member).
@@ -32,16 +33,22 @@ enum SwitchKind {
 
 /// One kill switch.
 final class ControlSwitch {
-  /// Creates a switch.
-  const ControlSwitch(this.kind, this.target);
+  /// Creates a switch; a null [rule] applies it to every device of the
+  /// channel (REL-060).
+  const ControlSwitch(this.kind, this.target, {this.rule});
 
-  /// Reads the stored form; null when it is not one.
+  /// Reads the stored form; null when it is not one. A stored rule this
+  /// runtime cannot read leaves the switch applying to every device.
   static ControlSwitch? fromJson(Object? json) {
     if (json is! Map<String, Object?>) return null;
     final kind = SwitchKind.values.asNameMap()[json['kind']];
     final target = json['target'];
     if (kind == null || target is! String) return null;
-    return ControlSwitch(kind, target);
+    return ControlSwitch(
+      kind,
+      target,
+      rule: TargetingRule.fromJson(json['rule']),
+    );
   }
 
   /// What it disables.
@@ -50,8 +57,15 @@ final class ControlSwitch {
   /// The plugin key, document UUID or function name, by [kind].
   final String target;
 
+  /// The devices the switch applies to, or null for every device.
+  final TargetingRule? rule;
+
   /// The stored form.
-  Map<String, Object?> toJson() => {'kind': kind.name, 'target': target};
+  Map<String, Object?> toJson() => {
+    'kind': kind.name,
+    'target': target,
+    'rule': rule?.toJson(),
+  };
 }
 
 /// A mandatory update (REL-070): the release every Plux page waits for.
@@ -135,7 +149,7 @@ final class ControlSnapshot {
     this.flags = const [],
     this.experiments = const [],
     this.holdout,
-  }) : _off = {for (final s in switches) _key(s.kind, s.target)};
+  }) : _rules = _indexRules(switches);
 
   /// Reads the stored form; null when it is not one.
   static ControlSnapshot? fromJson(Object? json) {
@@ -198,20 +212,41 @@ final class ControlSnapshot {
   /// The global holdout, or null (ABT-004).
   final ControlHoldout? holdout;
 
-  final Set<String> _off;
+  /// The rules of the switches by [_key]; a null rule applies to every
+  /// device. One target may be named by several switches.
+  final Map<String, List<TargetingRule?>> _rules;
 
   static String _key(SwitchKind kind, String target) =>
       '${kind.name}\u0000$target';
 
-  /// Whether a switch turns off the [kind] named [target].
-  bool isOff(SwitchKind kind, String target) =>
-      _off.contains(_key(kind, target));
+  static Map<String, List<TargetingRule?>> _indexRules(
+    List<ControlSwitch> switches,
+  ) {
+    final index = <String, List<TargetingRule?>>{};
+    for (final s in switches) {
+      index.putIfAbsent(_key(s.kind, s.target), () => []).add(s.rule);
+    }
+    return index;
+  }
 
-  /// How many switches differ between this document and [before]: those
-  /// it turns on that were not on, and those it turns off that were.
+  /// Whether a switch turns off the [kind] named [target] on this device:
+  /// one with no rule, or one whose rule matches the facts [facts] reads.
+  /// [facts] is called only when a switch of the target has a rule.
+  bool isOff(SwitchKind kind, String target, TargetingFacts Function() facts) {
+    final rules = _rules[_key(kind, target)];
+    if (rules == null) return false;
+    if (rules.contains(null)) return true;
+    final device = facts();
+    return rules.whereType<TargetingRule>().any((r) => r.matches(device));
+  }
+
+  /// How many switched targets differ between this document and [before]:
+  /// those it switches that were not switched, and those it stops switching
+  /// that were.
   int switchesChangedFrom(ControlSnapshot? before) {
-    final was = before?._off ?? const <String>{};
-    return _off.difference(was).length + was.difference(_off).length;
+    final now = _rules.keys.toSet();
+    final was = before?._rules.keys.toSet() ?? <String>{};
+    return now.difference(was).length + was.difference(now).length;
   }
 
   /// The stored form.
