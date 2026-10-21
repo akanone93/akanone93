@@ -34,6 +34,8 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 | `dsr_requests` | The completed data subject requests. | — | — | `subject_hash` | Audit retention, 10 years by default for production data (SEC-143); never erased (SEC-140). | retained | Holds the subject's hash only, never the identifier. |
 | `dsr_tombstones` | What an erasure left behind: subject hash, store, row count and time. | — | — | `subject_hash` | Audit retention, 10 years by default for production data (SEC-143); never erased (SEC-140). | retained | The proof that an erasure happened; it holds the subject's hash only. |
 | `idempotency_keys` | Stored responses of retried requests, sealed. | — | — | `subject` | The idempotency window, then the maintenance sweep. | retained | Short-lived and sealed (SEC-106); the subject is the credential that made the request. |
+| `approval_requests` | Requests for approval of a change, with who wrote and who asked for it (GOV-020 to GOV-022). | — | — | `author_id`, `requested_by_id`, `requested_by` | Audit retention, 10 years by default for production data (SEC-143); never erased (SEC-140). | retained | Kept as compliance evidence (GOV-026), like the audit log. subject names the artifact asked about, not a person; people appear by identifier and display name, never an email address. |
+| `approval_decisions` | The signed approval decisions, with who decided (GOV-021, GOV-022). | — | — | `decider_id`, `decider` | Audit retention, 10 years by default for production data (SEC-143); never erased (SEC-140). | retained | Kept as compliance evidence (GOV-026): each decision is a signed record chained into the audit log, which erasure would break (SEC-140). |
 
 ## Staff account data
 

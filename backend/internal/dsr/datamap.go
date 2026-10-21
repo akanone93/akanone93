@@ -226,6 +226,16 @@ func personalDataMap() []Store {
 			Note: "locale is the language being translated, not a person's locale.",
 		},
 		{
+			Name: "approval_requests", Description: "Requests for approval of a change, with who wrote and who asked for it (GOV-020 to GOV-022).",
+			Personal: []string{"author_id", "requested_by_id", "requested_by"}, Retention: retentionAudit, Erase: EraseRetained,
+			Note: "Kept as compliance evidence (GOV-026), like the audit log. subject names the artifact asked about, not a person; people appear by identifier and display name, never an email address.",
+		},
+		{
+			Name: "approval_decisions", Description: "The signed approval decisions, with who decided (GOV-021, GOV-022).",
+			Personal: []string{"decider_id", "decider"}, Retention: retentionAudit, Erase: EraseRetained,
+			Note: "Kept as compliance evidence (GOV-026): each decision is a signed record chained into the audit log, which erasure would break (SEC-140).",
+		},
+		{
 			Name: "golden_cases", Description: "Golden-test cases of an app.",
 			Retention: "Until the case is deleted.", Erase: EraseNone,
 			Note: "locale is the language the case renders in, not a person's locale.",
