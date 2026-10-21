@@ -1399,8 +1399,14 @@ type RollbackReleaseRequest struct {
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
 	// to_sequence is the earlier release whose content to reproduce.
-	ToSequence    int64  `protobuf:"varint,4,opt,name=to_sequence,json=toSequence,proto3" json:"to_sequence,omitempty"`
-	Notes         string `protobuf:"bytes,5,opt,name=notes,proto3" json:"notes,omitempty"`
+	ToSequence int64  `protobuf:"varint,4,opt,name=to_sequence,json=toSequence,proto3" json:"to_sequence,omitempty"`
+	Notes      string `protobuf:"bytes,5,opt,name=notes,proto3" json:"notes,omitempty"`
+	// break_glass runs the change as an emergency action without the freeze
+	// and approval checks, and needs breakglass.invoke on the environment with
+	// a fresh step-up (GOV-024, SEC-103). justification is then required
+	// (PLX-8005); it is refused without break_glass.
+	BreakGlass    bool   `protobuf:"varint,6,opt,name=break_glass,json=breakGlass,proto3" json:"break_glass,omitempty"`
+	Justification string `protobuf:"bytes,7,opt,name=justification,proto3" json:"justification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1466,6 +1472,20 @@ func (x *RollbackReleaseRequest) GetToSequence() int64 {
 func (x *RollbackReleaseRequest) GetNotes() string {
 	if x != nil {
 		return x.Notes
+	}
+	return ""
+}
+
+func (x *RollbackReleaseRequest) GetBreakGlass() bool {
+	if x != nil {
+		return x.BreakGlass
+	}
+	return false
+}
+
+func (x *RollbackReleaseRequest) GetJustification() string {
+	if x != nil {
+		return x.Justification
 	}
 	return ""
 }
@@ -1957,7 +1977,7 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\vchannel_key\x18\x04 \x01(\tR\n" +
 	"channelKey\"D\n" +
 	"\x16PromoteReleaseResponse\x12*\n" +
-	"\arelease\x18\x01 \x01(\v2\x10.plux.v1.ReleaseR\arelease\"\xae\x01\n" +
+	"\arelease\x18\x01 \x01(\v2\x10.plux.v1.ReleaseR\arelease\"\xf5\x01\n" +
 	"\x16RollbackReleaseRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
@@ -1965,7 +1985,10 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"channelKey\x12\x1f\n" +
 	"\vto_sequence\x18\x04 \x01(\x03R\n" +
 	"toSequence\x12\x14\n" +
-	"\x05notes\x18\x05 \x01(\tR\x05notes\"E\n" +
+	"\x05notes\x18\x05 \x01(\tR\x05notes\x12\x1f\n" +
+	"\vbreak_glass\x18\x06 \x01(\bR\n" +
+	"breakGlass\x12$\n" +
+	"\rjustification\x18\a \x01(\tR\rjustification\"E\n" +
 	"\x17RollbackReleaseResponse\x12*\n" +
 	"\arelease\x18\x01 \x01(\v2\x10.plux.v1.ReleaseR\arelease\"m\n" +
 	"\x13GetChangelogRequest\x12\x15\n" +

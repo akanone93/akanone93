@@ -2958,6 +2958,1173 @@ func (x *DecideApprovalResponse) GetApproval() *ApprovalRequest {
 	return nil
 }
 
+// BreakGlassInvocation is one emergency action and its review.
+type BreakGlassInvocation struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AppId         string                 `protobuf:"bytes,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	Environment   string                 `protobuf:"bytes,4,opt,name=environment,proto3" json:"environment,omitempty"`
+	// action is "killSwitch", "forcedRollback" or "rollback"; a function is
+	// disabled with a kill switch of scope function.
+	Action        string                 `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
+	Subject       string                 `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`
+	Justification string                 `protobuf:"bytes,7,opt,name=justification,proto3" json:"justification,omitempty"`
+	InvokedById   string                 `protobuf:"bytes,8,opt,name=invoked_by_id,json=invokedById,proto3" json:"invoked_by_id,omitempty"`
+	InvokedBy     string                 `protobuf:"bytes,9,opt,name=invoked_by,json=invokedBy,proto3" json:"invoked_by,omitempty"`
+	InvokedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=invoked_at,json=invokedAt,proto3" json:"invoked_at,omitempty"`
+	ReviewDueAt   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=review_due_at,json=reviewDueAt,proto3" json:"review_due_at,omitempty"`
+	// review_status is "open" or "reviewed".
+	ReviewStatus  string                 `protobuf:"bytes,12,opt,name=review_status,json=reviewStatus,proto3" json:"review_status,omitempty"`
+	ReviewedBy    string                 `protobuf:"bytes,13,opt,name=reviewed_by,json=reviewedBy,proto3" json:"reviewed_by,omitempty"`
+	ReviewedAt    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=reviewed_at,json=reviewedAt,proto3" json:"reviewed_at,omitempty"`
+	ReviewComment string                 `protobuf:"bytes,15,opt,name=review_comment,json=reviewComment,proto3" json:"review_comment,omitempty"`
+	// overdue is set while the review is open past its due time (PLX-8006).
+	Overdue       bool `protobuf:"varint,16,opt,name=overdue,proto3" json:"overdue,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BreakGlassInvocation) Reset() {
+	*x = BreakGlassInvocation{}
+	mi := &file_plux_v1_governance_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BreakGlassInvocation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BreakGlassInvocation) ProtoMessage() {}
+
+func (x *BreakGlassInvocation) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BreakGlassInvocation.ProtoReflect.Descriptor instead.
+func (*BreakGlassInvocation) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *BreakGlassInvocation) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetJustification() string {
+	if x != nil {
+		return x.Justification
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetInvokedById() string {
+	if x != nil {
+		return x.InvokedById
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetInvokedBy() string {
+	if x != nil {
+		return x.InvokedBy
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetInvokedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.InvokedAt
+	}
+	return nil
+}
+
+func (x *BreakGlassInvocation) GetReviewDueAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ReviewDueAt
+	}
+	return nil
+}
+
+func (x *BreakGlassInvocation) GetReviewStatus() string {
+	if x != nil {
+		return x.ReviewStatus
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetReviewedBy() string {
+	if x != nil {
+		return x.ReviewedBy
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetReviewedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ReviewedAt
+	}
+	return nil
+}
+
+func (x *BreakGlassInvocation) GetReviewComment() string {
+	if x != nil {
+		return x.ReviewComment
+	}
+	return ""
+}
+
+func (x *BreakGlassInvocation) GetOverdue() bool {
+	if x != nil {
+		return x.Overdue
+	}
+	return false
+}
+
+type ListBreakGlassRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// status narrows the list to "open" or "reviewed" when set.
+	Status        string `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Page          *Page  `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBreakGlassRequest) Reset() {
+	*x = ListBreakGlassRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBreakGlassRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBreakGlassRequest) ProtoMessage() {}
+
+func (x *ListBreakGlassRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBreakGlassRequest.ProtoReflect.Descriptor instead.
+func (*ListBreakGlassRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *ListBreakGlassRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListBreakGlassRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ListBreakGlassResponse struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Invocations   []*BreakGlassInvocation `protobuf:"bytes,1,rep,name=invocations,proto3" json:"invocations,omitempty"`
+	Page          *PageResult             `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBreakGlassResponse) Reset() {
+	*x = ListBreakGlassResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBreakGlassResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBreakGlassResponse) ProtoMessage() {}
+
+func (x *ListBreakGlassResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBreakGlassResponse.ProtoReflect.Descriptor instead.
+func (*ListBreakGlassResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *ListBreakGlassResponse) GetInvocations() []*BreakGlassInvocation {
+	if x != nil {
+		return x.Invocations
+	}
+	return nil
+}
+
+func (x *ListBreakGlassResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ReviewBreakGlassRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Comment       string                 `protobuf:"bytes,2,opt,name=comment,proto3" json:"comment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewBreakGlassRequest) Reset() {
+	*x = ReviewBreakGlassRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewBreakGlassRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewBreakGlassRequest) ProtoMessage() {}
+
+func (x *ReviewBreakGlassRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewBreakGlassRequest.ProtoReflect.Descriptor instead.
+func (*ReviewBreakGlassRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *ReviewBreakGlassRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ReviewBreakGlassRequest) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+type ReviewBreakGlassResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Invocation    *BreakGlassInvocation  `protobuf:"bytes,1,opt,name=invocation,proto3" json:"invocation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewBreakGlassResponse) Reset() {
+	*x = ReviewBreakGlassResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewBreakGlassResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewBreakGlassResponse) ProtoMessage() {}
+
+func (x *ReviewBreakGlassResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewBreakGlassResponse.ProtoReflect.Descriptor instead.
+func (*ReviewBreakGlassResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *ReviewBreakGlassResponse) GetInvocation() *BreakGlassInvocation {
+	if x != nil {
+		return x.Invocation
+	}
+	return nil
+}
+
+// ChangeFreeze is one freeze window.
+type ChangeFreeze struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// environment_key is the environment frozen; empty freezes every
+	// production environment.
+	EnvironmentKey string `protobuf:"bytes,3,opt,name=environment_key,json=environmentKey,proto3" json:"environment_key,omitempty"`
+	// time_zone is an IANA time zone name.
+	TimeZone string `protobuf:"bytes,4,opt,name=time_zone,json=timeZone,proto3" json:"time_zone,omitempty"`
+	// start is the wall-clock start in time_zone, as YYYY-MM-DDTHH:MM. For a
+	// recurring window it is the first start.
+	Start           string `protobuf:"bytes,5,opt,name=start,proto3" json:"start,omitempty"`
+	DurationMinutes int32  `protobuf:"varint,6,opt,name=duration_minutes,json=durationMinutes,proto3" json:"duration_minutes,omitempty"`
+	// recurrence is empty for a one-off window, else FREQ=DAILY or
+	// FREQ=WEEKLY;BYDAY=MO,TU,..., optionally with ;UNTIL=YYYYMMDD.
+	Recurrence    string                 `protobuf:"bytes,7,opt,name=recurrence,proto3" json:"recurrence,omitempty"`
+	Reason        string                 `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
+	CreatedBy     string                 `protobuf:"bytes,9,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeFreeze) Reset() {
+	*x = ChangeFreeze{}
+	mi := &file_plux_v1_governance_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeFreeze) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeFreeze) ProtoMessage() {}
+
+func (x *ChangeFreeze) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeFreeze.ProtoReflect.Descriptor instead.
+func (*ChangeFreeze) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *ChangeFreeze) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetEnvironmentKey() string {
+	if x != nil {
+		return x.EnvironmentKey
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetTimeZone() string {
+	if x != nil {
+		return x.TimeZone
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetStart() string {
+	if x != nil {
+		return x.Start
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetDurationMinutes() int32 {
+	if x != nil {
+		return x.DurationMinutes
+	}
+	return 0
+}
+
+func (x *ChangeFreeze) GetRecurrence() string {
+	if x != nil {
+		return x.Recurrence
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *ChangeFreeze) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ChangeFreeze) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+type ListFreezesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFreezesRequest) Reset() {
+	*x = ListFreezesRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFreezesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFreezesRequest) ProtoMessage() {}
+
+func (x *ListFreezesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFreezesRequest.ProtoReflect.Descriptor instead.
+func (*ListFreezesRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{55}
+}
+
+type ListFreezesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Freezes       []*ChangeFreeze        `protobuf:"bytes,1,rep,name=freezes,proto3" json:"freezes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFreezesResponse) Reset() {
+	*x = ListFreezesResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFreezesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFreezesResponse) ProtoMessage() {}
+
+func (x *ListFreezesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFreezesResponse.ProtoReflect.Descriptor instead.
+func (*ListFreezesResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *ListFreezesResponse) GetFreezes() []*ChangeFreeze {
+	if x != nil {
+		return x.Freezes
+	}
+	return nil
+}
+
+type PutFreezeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Freeze        *ChangeFreeze          `protobuf:"bytes,1,opt,name=freeze,proto3" json:"freeze,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PutFreezeRequest) Reset() {
+	*x = PutFreezeRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PutFreezeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PutFreezeRequest) ProtoMessage() {}
+
+func (x *PutFreezeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PutFreezeRequest.ProtoReflect.Descriptor instead.
+func (*PutFreezeRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *PutFreezeRequest) GetFreeze() *ChangeFreeze {
+	if x != nil {
+		return x.Freeze
+	}
+	return nil
+}
+
+type PutFreezeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Freeze        *ChangeFreeze          `protobuf:"bytes,1,opt,name=freeze,proto3" json:"freeze,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PutFreezeResponse) Reset() {
+	*x = PutFreezeResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PutFreezeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PutFreezeResponse) ProtoMessage() {}
+
+func (x *PutFreezeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PutFreezeResponse.ProtoReflect.Descriptor instead.
+func (*PutFreezeResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *PutFreezeResponse) GetFreeze() *ChangeFreeze {
+	if x != nil {
+		return x.Freeze
+	}
+	return nil
+}
+
+type DeleteFreezeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFreezeRequest) Reset() {
+	*x = DeleteFreezeRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFreezeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFreezeRequest) ProtoMessage() {}
+
+func (x *DeleteFreezeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFreezeRequest.ProtoReflect.Descriptor instead.
+func (*DeleteFreezeRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *DeleteFreezeRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteFreezeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFreezeResponse) Reset() {
+	*x = DeleteFreezeResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFreezeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFreezeResponse) ProtoMessage() {}
+
+func (x *DeleteFreezeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFreezeResponse.ProtoReflect.Descriptor instead.
+func (*DeleteFreezeResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{60}
+}
+
+// ComplianceReportInfo describes a report without its content.
+type ComplianceReportInfo struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	PeriodFrom  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=period_from,json=periodFrom,proto3" json:"period_from,omitempty"`
+	PeriodTo    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=period_to,json=periodTo,proto3" json:"period_to,omitempty"`
+	Changes     int32                  `protobuf:"varint,4,opt,name=changes,proto3" json:"changes,omitempty"`
+	RequestedBy string                 `protobuf:"bytes,5,opt,name=requested_by,json=requestedBy,proto3" json:"requested_by,omitempty"`
+	RequestedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=requested_at,json=requestedAt,proto3" json:"requested_at,omitempty"`
+	// signed is false until the worker has signed the report.
+	Signed        bool                   `protobuf:"varint,7,opt,name=signed,proto3" json:"signed,omitempty"`
+	KeyId         string                 `protobuf:"bytes,8,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
+	SignedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=signed_at,json=signedAt,proto3" json:"signed_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ComplianceReportInfo) Reset() {
+	*x = ComplianceReportInfo{}
+	mi := &file_plux_v1_governance_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ComplianceReportInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ComplianceReportInfo) ProtoMessage() {}
+
+func (x *ComplianceReportInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ComplianceReportInfo.ProtoReflect.Descriptor instead.
+func (*ComplianceReportInfo) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{61}
+}
+
+func (x *ComplianceReportInfo) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ComplianceReportInfo) GetPeriodFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PeriodFrom
+	}
+	return nil
+}
+
+func (x *ComplianceReportInfo) GetPeriodTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PeriodTo
+	}
+	return nil
+}
+
+func (x *ComplianceReportInfo) GetChanges() int32 {
+	if x != nil {
+		return x.Changes
+	}
+	return 0
+}
+
+func (x *ComplianceReportInfo) GetRequestedBy() string {
+	if x != nil {
+		return x.RequestedBy
+	}
+	return ""
+}
+
+func (x *ComplianceReportInfo) GetRequestedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RequestedAt
+	}
+	return nil
+}
+
+func (x *ComplianceReportInfo) GetSigned() bool {
+	if x != nil {
+		return x.Signed
+	}
+	return false
+}
+
+func (x *ComplianceReportInfo) GetKeyId() string {
+	if x != nil {
+		return x.KeyId
+	}
+	return ""
+}
+
+func (x *ComplianceReportInfo) GetSignedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SignedAt
+	}
+	return nil
+}
+
+type CreateComplianceReportRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// from is inclusive and to exclusive.
+	From          *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	To            *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=to,proto3" json:"to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateComplianceReportRequest) Reset() {
+	*x = CreateComplianceReportRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateComplianceReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateComplianceReportRequest) ProtoMessage() {}
+
+func (x *CreateComplianceReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateComplianceReportRequest.ProtoReflect.Descriptor instead.
+func (*CreateComplianceReportRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{62}
+}
+
+func (x *CreateComplianceReportRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *CreateComplianceReportRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+type CreateComplianceReportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Report        *ComplianceReportInfo  `protobuf:"bytes,1,opt,name=report,proto3" json:"report,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateComplianceReportResponse) Reset() {
+	*x = CreateComplianceReportResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateComplianceReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateComplianceReportResponse) ProtoMessage() {}
+
+func (x *CreateComplianceReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateComplianceReportResponse.ProtoReflect.Descriptor instead.
+func (*CreateComplianceReportResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *CreateComplianceReportResponse) GetReport() *ComplianceReportInfo {
+	if x != nil {
+		return x.Report
+	}
+	return nil
+}
+
+type GetComplianceReportRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// format is "json" or "pdf".
+	Format        string `protobuf:"bytes,2,opt,name=format,proto3" json:"format,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetComplianceReportRequest) Reset() {
+	*x = GetComplianceReportRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetComplianceReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetComplianceReportRequest) ProtoMessage() {}
+
+func (x *GetComplianceReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetComplianceReportRequest.ProtoReflect.Descriptor instead.
+func (*GetComplianceReportRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *GetComplianceReportRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetComplianceReportRequest) GetFormat() string {
+	if x != nil {
+		return x.Format
+	}
+	return ""
+}
+
+type GetComplianceReportResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Report *ComplianceReportInfo  `protobuf:"bytes,1,opt,name=report,proto3" json:"report,omitempty"`
+	// content is empty while the report is not signed.
+	Content       []byte `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	ContentType   string `protobuf:"bytes,3,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetComplianceReportResponse) Reset() {
+	*x = GetComplianceReportResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetComplianceReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetComplianceReportResponse) ProtoMessage() {}
+
+func (x *GetComplianceReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetComplianceReportResponse.ProtoReflect.Descriptor instead.
+func (*GetComplianceReportResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *GetComplianceReportResponse) GetReport() *ComplianceReportInfo {
+	if x != nil {
+		return x.Report
+	}
+	return nil
+}
+
+func (x *GetComplianceReportResponse) GetContent() []byte {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+func (x *GetComplianceReportResponse) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+type ListComplianceReportsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          *Page                  `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListComplianceReportsRequest) Reset() {
+	*x = ListComplianceReportsRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListComplianceReportsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListComplianceReportsRequest) ProtoMessage() {}
+
+func (x *ListComplianceReportsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListComplianceReportsRequest.ProtoReflect.Descriptor instead.
+func (*ListComplianceReportsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *ListComplianceReportsRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ListComplianceReportsResponse struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Reports       []*ComplianceReportInfo `protobuf:"bytes,1,rep,name=reports,proto3" json:"reports,omitempty"`
+	Page          *PageResult             `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListComplianceReportsResponse) Reset() {
+	*x = ListComplianceReportsResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListComplianceReportsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListComplianceReportsResponse) ProtoMessage() {}
+
+func (x *ListComplianceReportsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListComplianceReportsResponse.ProtoReflect.Descriptor instead.
+func (*ListComplianceReportsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *ListComplianceReportsResponse) GetReports() []*ComplianceReportInfo {
+	if x != nil {
+		return x.Reports
+	}
+	return nil
+}
+
+func (x *ListComplianceReportsResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
 var File_plux_v1_governance_proto protoreflect.FileDescriptor
 
 const file_plux_v1_governance_proto_rawDesc = "" +
@@ -3169,7 +4336,98 @@ const file_plux_v1_governance_proto_rawDesc = "" +
 	"\bdecision\x18\x03 \x01(\tR\bdecision\x12\x18\n" +
 	"\acomment\x18\x04 \x01(\tR\acomment\"N\n" +
 	"\x16DecideApprovalResponse\x124\n" +
-	"\bapproval\x18\x01 \x01(\v2\x18.plux.v1.ApprovalRequestR\bapproval2\xf9\x05\n" +
+	"\bapproval\x18\x01 \x01(\v2\x18.plux.v1.ApprovalRequestR\bapproval\"\xe0\x04\n" +
+	"\x14BreakGlassInvocation\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12 \n" +
+	"\venvironment\x18\x04 \x01(\tR\venvironment\x12\x16\n" +
+	"\x06action\x18\x05 \x01(\tR\x06action\x12\x18\n" +
+	"\asubject\x18\x06 \x01(\tR\asubject\x12$\n" +
+	"\rjustification\x18\a \x01(\tR\rjustification\x12\"\n" +
+	"\rinvoked_by_id\x18\b \x01(\tR\vinvokedById\x12\x1d\n" +
+	"\n" +
+	"invoked_by\x18\t \x01(\tR\tinvokedBy\x129\n" +
+	"\n" +
+	"invoked_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tinvokedAt\x12>\n" +
+	"\rreview_due_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vreviewDueAt\x12#\n" +
+	"\rreview_status\x18\f \x01(\tR\freviewStatus\x12\x1f\n" +
+	"\vreviewed_by\x18\r \x01(\tR\n" +
+	"reviewedBy\x12;\n" +
+	"\vreviewed_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"reviewedAt\x12%\n" +
+	"\x0ereview_comment\x18\x0f \x01(\tR\rreviewComment\x12\x18\n" +
+	"\aoverdue\x18\x10 \x01(\bR\aoverdue\"R\n" +
+	"\x15ListBreakGlassRequest\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12!\n" +
+	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"\x82\x01\n" +
+	"\x16ListBreakGlassResponse\x12?\n" +
+	"\vinvocations\x18\x01 \x03(\v2\x1d.plux.v1.BreakGlassInvocationR\vinvocations\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"C\n" +
+	"\x17ReviewBreakGlassRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\acomment\x18\x02 \x01(\tR\acomment\"Y\n" +
+	"\x18ReviewBreakGlassResponse\x12=\n" +
+	"\n" +
+	"invocation\x18\x01 \x01(\v2\x1d.plux.v1.BreakGlassInvocationR\n" +
+	"invocation\"\x86\x03\n" +
+	"\fChangeFreeze\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12'\n" +
+	"\x0fenvironment_key\x18\x03 \x01(\tR\x0eenvironmentKey\x12\x1b\n" +
+	"\ttime_zone\x18\x04 \x01(\tR\btimeZone\x12\x14\n" +
+	"\x05start\x18\x05 \x01(\tR\x05start\x12)\n" +
+	"\x10duration_minutes\x18\x06 \x01(\x05R\x0fdurationMinutes\x12\x1e\n" +
+	"\n" +
+	"recurrence\x18\a \x01(\tR\n" +
+	"recurrence\x12\x16\n" +
+	"\x06reason\x18\b \x01(\tR\x06reason\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\t \x01(\tR\tcreatedBy\x129\n" +
+	"\n" +
+	"created_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x14\n" +
+	"\x12ListFreezesRequest\"F\n" +
+	"\x13ListFreezesResponse\x12/\n" +
+	"\afreezes\x18\x01 \x03(\v2\x15.plux.v1.ChangeFreezeR\afreezes\"A\n" +
+	"\x10PutFreezeRequest\x12-\n" +
+	"\x06freeze\x18\x01 \x01(\v2\x15.plux.v1.ChangeFreezeR\x06freeze\"B\n" +
+	"\x11PutFreezeResponse\x12-\n" +
+	"\x06freeze\x18\x01 \x01(\v2\x15.plux.v1.ChangeFreezeR\x06freeze\"%\n" +
+	"\x13DeleteFreezeRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x16\n" +
+	"\x14DeleteFreezeResponse\"\x80\x03\n" +
+	"\x14ComplianceReportInfo\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12;\n" +
+	"\vperiod_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"periodFrom\x127\n" +
+	"\tperiod_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bperiodTo\x12\x18\n" +
+	"\achanges\x18\x04 \x01(\x05R\achanges\x12!\n" +
+	"\frequested_by\x18\x05 \x01(\tR\vrequestedBy\x12=\n" +
+	"\frequested_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vrequestedAt\x12\x16\n" +
+	"\x06signed\x18\a \x01(\bR\x06signed\x12\x15\n" +
+	"\x06key_id\x18\b \x01(\tR\x05keyId\x127\n" +
+	"\tsigned_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bsignedAt\"{\n" +
+	"\x1dCreateComplianceReportRequest\x12.\n" +
+	"\x04from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"W\n" +
+	"\x1eCreateComplianceReportResponse\x125\n" +
+	"\x06report\x18\x01 \x01(\v2\x1d.plux.v1.ComplianceReportInfoR\x06report\"D\n" +
+	"\x1aGetComplianceReportRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06format\x18\x02 \x01(\tR\x06format\"\x91\x01\n" +
+	"\x1bGetComplianceReportResponse\x125\n" +
+	"\x06report\x18\x01 \x01(\v2\x1d.plux.v1.ComplianceReportInfoR\x06report\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\fR\acontent\x12!\n" +
+	"\fcontent_type\x18\x03 \x01(\tR\vcontentType\"A\n" +
+	"\x1cListComplianceReportsRequest\x12!\n" +
+	"\x04page\x18\x01 \x01(\v2\r.plux.v1.PageR\x04page\"\x81\x01\n" +
+	"\x1dListComplianceReportsResponse\x127\n" +
+	"\areports\x18\x01 \x03(\v2\x1d.plux.v1.ComplianceReportInfoR\areports\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page2\xf9\x05\n" +
 	"\x11GovernanceService\x12V\n" +
 	"\x0fListPermissions\x12\x1f.plux.v1.ListPermissionsRequest\x1a .plux.v1.ListPermissionsResponse\"\x00\x12D\n" +
 	"\tListRoles\x12\x19.plux.v1.ListRolesRequest\x1a\x1a.plux.v1.ListRolesResponse\"\x00\x12>\n" +
@@ -3194,7 +4452,18 @@ const file_plux_v1_governance_proto_rawDesc = "" +
 	"\rListApprovals\x12\x1d.plux.v1.ListApprovalsRequest\x1a\x1e.plux.v1.ListApprovalsResponse\"\x00\x12J\n" +
 	"\vGetApproval\x12\x1b.plux.v1.GetApprovalRequest\x1a\x1c.plux.v1.GetApprovalResponse\"\x00\x12\\\n" +
 	"\x11GetApprovalReview\x12!.plux.v1.GetApprovalReviewRequest\x1a\".plux.v1.GetApprovalReviewResponse\"\x00\x12S\n" +
-	"\x0eDecideApproval\x12\x1e.plux.v1.DecideApprovalRequest\x1a\x1f.plux.v1.DecideApprovalResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\x0eDecideApproval\x12\x1e.plux.v1.DecideApprovalRequest\x1a\x1f.plux.v1.DecideApprovalResponse\"\x002\xc3\x01\n" +
+	"\x11BreakGlassService\x12S\n" +
+	"\x0eListBreakGlass\x12\x1e.plux.v1.ListBreakGlassRequest\x1a\x1f.plux.v1.ListBreakGlassResponse\"\x00\x12Y\n" +
+	"\x10ReviewBreakGlass\x12 .plux.v1.ReviewBreakGlassRequest\x1a!.plux.v1.ReviewBreakGlassResponse\"\x002\xf0\x01\n" +
+	"\rFreezeService\x12J\n" +
+	"\vListFreezes\x12\x1b.plux.v1.ListFreezesRequest\x1a\x1c.plux.v1.ListFreezesResponse\"\x00\x12D\n" +
+	"\tPutFreeze\x12\x19.plux.v1.PutFreezeRequest\x1a\x1a.plux.v1.PutFreezeResponse\"\x00\x12M\n" +
+	"\fDeleteFreeze\x12\x1c.plux.v1.DeleteFreezeRequest\x1a\x1d.plux.v1.DeleteFreezeResponse\"\x002\xce\x02\n" +
+	"\x11ComplianceService\x12k\n" +
+	"\x16CreateComplianceReport\x12&.plux.v1.CreateComplianceReportRequest\x1a'.plux.v1.CreateComplianceReportResponse\"\x00\x12b\n" +
+	"\x13GetComplianceReport\x12#.plux.v1.GetComplianceReportRequest\x1a$.plux.v1.GetComplianceReportResponse\"\x00\x12h\n" +
+	"\x15ListComplianceReports\x12%.plux.v1.ListComplianceReportsRequest\x1a&.plux.v1.ListComplianceReportsResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_governance_proto_rawDescOnce sync.Once
@@ -3208,89 +4477,108 @@ func file_plux_v1_governance_proto_rawDescGZIP() []byte {
 	return file_plux_v1_governance_proto_rawDescData
 }
 
-var file_plux_v1_governance_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_plux_v1_governance_proto_msgTypes = make([]protoimpl.MessageInfo, 68)
 var file_plux_v1_governance_proto_goTypes = []any{
-	(*PermissionEntry)(nil),           // 0: plux.v1.PermissionEntry
-	(*RoleDefinition)(nil),            // 1: plux.v1.RoleDefinition
-	(*RoleGrant)(nil),                 // 2: plux.v1.RoleGrant
-	(*ListPermissionsRequest)(nil),    // 3: plux.v1.ListPermissionsRequest
-	(*ListPermissionsResponse)(nil),   // 4: plux.v1.ListPermissionsResponse
-	(*ListRolesRequest)(nil),          // 5: plux.v1.ListRolesRequest
-	(*ListRolesResponse)(nil),         // 6: plux.v1.ListRolesResponse
-	(*GetRoleRequest)(nil),            // 7: plux.v1.GetRoleRequest
-	(*GetRoleResponse)(nil),           // 8: plux.v1.GetRoleResponse
-	(*CreateRoleRequest)(nil),         // 9: plux.v1.CreateRoleRequest
-	(*CreateRoleResponse)(nil),        // 10: plux.v1.CreateRoleResponse
-	(*UpdateRoleRequest)(nil),         // 11: plux.v1.UpdateRoleRequest
-	(*UpdateRoleResponse)(nil),        // 12: plux.v1.UpdateRoleResponse
-	(*DeleteRoleRequest)(nil),         // 13: plux.v1.DeleteRoleRequest
-	(*DeleteRoleResponse)(nil),        // 14: plux.v1.DeleteRoleResponse
-	(*ListGrantsRequest)(nil),         // 15: plux.v1.ListGrantsRequest
-	(*ListGrantsResponse)(nil),        // 16: plux.v1.ListGrantsResponse
-	(*CreateGrantRequest)(nil),        // 17: plux.v1.CreateGrantRequest
-	(*CreateGrantResponse)(nil),       // 18: plux.v1.CreateGrantResponse
-	(*UpdateGrantRequest)(nil),        // 19: plux.v1.UpdateGrantRequest
-	(*UpdateGrantResponse)(nil),       // 20: plux.v1.UpdateGrantResponse
-	(*DeleteGrantRequest)(nil),        // 21: plux.v1.DeleteGrantRequest
-	(*DeleteGrantResponse)(nil),       // 22: plux.v1.DeleteGrantResponse
-	(*PolicyRecord)(nil),              // 23: plux.v1.PolicyRecord
-	(*PutPolicyRequest)(nil),          // 24: plux.v1.PutPolicyRequest
-	(*PutPolicyResponse)(nil),         // 25: plux.v1.PutPolicyResponse
-	(*GetPolicyRequest)(nil),          // 26: plux.v1.GetPolicyRequest
-	(*GetPolicyResponse)(nil),         // 27: plux.v1.GetPolicyResponse
-	(*ListPoliciesRequest)(nil),       // 28: plux.v1.ListPoliciesRequest
-	(*ListPoliciesResponse)(nil),      // 29: plux.v1.ListPoliciesResponse
-	(*DeletePolicyRequest)(nil),       // 30: plux.v1.DeletePolicyRequest
-	(*DeletePolicyResponse)(nil),      // 31: plux.v1.DeletePolicyResponse
-	(*PolicyFile)(nil),                // 32: plux.v1.PolicyFile
-	(*ExportPoliciesRequest)(nil),     // 33: plux.v1.ExportPoliciesRequest
-	(*ExportPoliciesResponse)(nil),    // 34: plux.v1.ExportPoliciesResponse
-	(*ApprovalDecision)(nil),          // 35: plux.v1.ApprovalDecision
-	(*ApprovalRequest)(nil),           // 36: plux.v1.ApprovalRequest
-	(*ListApprovalsRequest)(nil),      // 37: plux.v1.ListApprovalsRequest
-	(*ListApprovalsResponse)(nil),     // 38: plux.v1.ListApprovalsResponse
-	(*GetApprovalRequest)(nil),        // 39: plux.v1.GetApprovalRequest
-	(*GetApprovalResponse)(nil),       // 40: plux.v1.GetApprovalResponse
-	(*GetApprovalReviewRequest)(nil),  // 41: plux.v1.GetApprovalReviewRequest
-	(*ReviewImage)(nil),               // 42: plux.v1.ReviewImage
-	(*InstallBaseEntry)(nil),          // 43: plux.v1.InstallBaseEntry
-	(*ReviewReport)(nil),              // 44: plux.v1.ReviewReport
-	(*ReviewRisk)(nil),                // 45: plux.v1.ReviewRisk
-	(*GetApprovalReviewResponse)(nil), // 46: plux.v1.GetApprovalReviewResponse
-	(*DecideApprovalRequest)(nil),     // 47: plux.v1.DecideApprovalRequest
-	(*DecideApprovalResponse)(nil),    // 48: plux.v1.DecideApprovalResponse
-	(*timestamppb.Timestamp)(nil),     // 49: google.protobuf.Timestamp
-	(*Page)(nil),                      // 50: plux.v1.Page
-	(*PageResult)(nil),                // 51: plux.v1.PageResult
+	(*PermissionEntry)(nil),                // 0: plux.v1.PermissionEntry
+	(*RoleDefinition)(nil),                 // 1: plux.v1.RoleDefinition
+	(*RoleGrant)(nil),                      // 2: plux.v1.RoleGrant
+	(*ListPermissionsRequest)(nil),         // 3: plux.v1.ListPermissionsRequest
+	(*ListPermissionsResponse)(nil),        // 4: plux.v1.ListPermissionsResponse
+	(*ListRolesRequest)(nil),               // 5: plux.v1.ListRolesRequest
+	(*ListRolesResponse)(nil),              // 6: plux.v1.ListRolesResponse
+	(*GetRoleRequest)(nil),                 // 7: plux.v1.GetRoleRequest
+	(*GetRoleResponse)(nil),                // 8: plux.v1.GetRoleResponse
+	(*CreateRoleRequest)(nil),              // 9: plux.v1.CreateRoleRequest
+	(*CreateRoleResponse)(nil),             // 10: plux.v1.CreateRoleResponse
+	(*UpdateRoleRequest)(nil),              // 11: plux.v1.UpdateRoleRequest
+	(*UpdateRoleResponse)(nil),             // 12: plux.v1.UpdateRoleResponse
+	(*DeleteRoleRequest)(nil),              // 13: plux.v1.DeleteRoleRequest
+	(*DeleteRoleResponse)(nil),             // 14: plux.v1.DeleteRoleResponse
+	(*ListGrantsRequest)(nil),              // 15: plux.v1.ListGrantsRequest
+	(*ListGrantsResponse)(nil),             // 16: plux.v1.ListGrantsResponse
+	(*CreateGrantRequest)(nil),             // 17: plux.v1.CreateGrantRequest
+	(*CreateGrantResponse)(nil),            // 18: plux.v1.CreateGrantResponse
+	(*UpdateGrantRequest)(nil),             // 19: plux.v1.UpdateGrantRequest
+	(*UpdateGrantResponse)(nil),            // 20: plux.v1.UpdateGrantResponse
+	(*DeleteGrantRequest)(nil),             // 21: plux.v1.DeleteGrantRequest
+	(*DeleteGrantResponse)(nil),            // 22: plux.v1.DeleteGrantResponse
+	(*PolicyRecord)(nil),                   // 23: plux.v1.PolicyRecord
+	(*PutPolicyRequest)(nil),               // 24: plux.v1.PutPolicyRequest
+	(*PutPolicyResponse)(nil),              // 25: plux.v1.PutPolicyResponse
+	(*GetPolicyRequest)(nil),               // 26: plux.v1.GetPolicyRequest
+	(*GetPolicyResponse)(nil),              // 27: plux.v1.GetPolicyResponse
+	(*ListPoliciesRequest)(nil),            // 28: plux.v1.ListPoliciesRequest
+	(*ListPoliciesResponse)(nil),           // 29: plux.v1.ListPoliciesResponse
+	(*DeletePolicyRequest)(nil),            // 30: plux.v1.DeletePolicyRequest
+	(*DeletePolicyResponse)(nil),           // 31: plux.v1.DeletePolicyResponse
+	(*PolicyFile)(nil),                     // 32: plux.v1.PolicyFile
+	(*ExportPoliciesRequest)(nil),          // 33: plux.v1.ExportPoliciesRequest
+	(*ExportPoliciesResponse)(nil),         // 34: plux.v1.ExportPoliciesResponse
+	(*ApprovalDecision)(nil),               // 35: plux.v1.ApprovalDecision
+	(*ApprovalRequest)(nil),                // 36: plux.v1.ApprovalRequest
+	(*ListApprovalsRequest)(nil),           // 37: plux.v1.ListApprovalsRequest
+	(*ListApprovalsResponse)(nil),          // 38: plux.v1.ListApprovalsResponse
+	(*GetApprovalRequest)(nil),             // 39: plux.v1.GetApprovalRequest
+	(*GetApprovalResponse)(nil),            // 40: plux.v1.GetApprovalResponse
+	(*GetApprovalReviewRequest)(nil),       // 41: plux.v1.GetApprovalReviewRequest
+	(*ReviewImage)(nil),                    // 42: plux.v1.ReviewImage
+	(*InstallBaseEntry)(nil),               // 43: plux.v1.InstallBaseEntry
+	(*ReviewReport)(nil),                   // 44: plux.v1.ReviewReport
+	(*ReviewRisk)(nil),                     // 45: plux.v1.ReviewRisk
+	(*GetApprovalReviewResponse)(nil),      // 46: plux.v1.GetApprovalReviewResponse
+	(*DecideApprovalRequest)(nil),          // 47: plux.v1.DecideApprovalRequest
+	(*DecideApprovalResponse)(nil),         // 48: plux.v1.DecideApprovalResponse
+	(*BreakGlassInvocation)(nil),           // 49: plux.v1.BreakGlassInvocation
+	(*ListBreakGlassRequest)(nil),          // 50: plux.v1.ListBreakGlassRequest
+	(*ListBreakGlassResponse)(nil),         // 51: plux.v1.ListBreakGlassResponse
+	(*ReviewBreakGlassRequest)(nil),        // 52: plux.v1.ReviewBreakGlassRequest
+	(*ReviewBreakGlassResponse)(nil),       // 53: plux.v1.ReviewBreakGlassResponse
+	(*ChangeFreeze)(nil),                   // 54: plux.v1.ChangeFreeze
+	(*ListFreezesRequest)(nil),             // 55: plux.v1.ListFreezesRequest
+	(*ListFreezesResponse)(nil),            // 56: plux.v1.ListFreezesResponse
+	(*PutFreezeRequest)(nil),               // 57: plux.v1.PutFreezeRequest
+	(*PutFreezeResponse)(nil),              // 58: plux.v1.PutFreezeResponse
+	(*DeleteFreezeRequest)(nil),            // 59: plux.v1.DeleteFreezeRequest
+	(*DeleteFreezeResponse)(nil),           // 60: plux.v1.DeleteFreezeResponse
+	(*ComplianceReportInfo)(nil),           // 61: plux.v1.ComplianceReportInfo
+	(*CreateComplianceReportRequest)(nil),  // 62: plux.v1.CreateComplianceReportRequest
+	(*CreateComplianceReportResponse)(nil), // 63: plux.v1.CreateComplianceReportResponse
+	(*GetComplianceReportRequest)(nil),     // 64: plux.v1.GetComplianceReportRequest
+	(*GetComplianceReportResponse)(nil),    // 65: plux.v1.GetComplianceReportResponse
+	(*ListComplianceReportsRequest)(nil),   // 66: plux.v1.ListComplianceReportsRequest
+	(*ListComplianceReportsResponse)(nil),  // 67: plux.v1.ListComplianceReportsResponse
+	(*timestamppb.Timestamp)(nil),          // 68: google.protobuf.Timestamp
+	(*Page)(nil),                           // 69: plux.v1.Page
+	(*PageResult)(nil),                     // 70: plux.v1.PageResult
 }
 var file_plux_v1_governance_proto_depIdxs = []int32{
-	49, // 0: plux.v1.RoleDefinition.created_at:type_name -> google.protobuf.Timestamp
-	49, // 1: plux.v1.RoleDefinition.updated_at:type_name -> google.protobuf.Timestamp
-	49, // 2: plux.v1.RoleGrant.created_at:type_name -> google.protobuf.Timestamp
+	68, // 0: plux.v1.RoleDefinition.created_at:type_name -> google.protobuf.Timestamp
+	68, // 1: plux.v1.RoleDefinition.updated_at:type_name -> google.protobuf.Timestamp
+	68, // 2: plux.v1.RoleGrant.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: plux.v1.ListPermissionsResponse.permissions:type_name -> plux.v1.PermissionEntry
-	50, // 4: plux.v1.ListRolesRequest.page:type_name -> plux.v1.Page
+	69, // 4: plux.v1.ListRolesRequest.page:type_name -> plux.v1.Page
 	1,  // 5: plux.v1.ListRolesResponse.roles:type_name -> plux.v1.RoleDefinition
-	51, // 6: plux.v1.ListRolesResponse.page:type_name -> plux.v1.PageResult
+	70, // 6: plux.v1.ListRolesResponse.page:type_name -> plux.v1.PageResult
 	1,  // 7: plux.v1.GetRoleResponse.role:type_name -> plux.v1.RoleDefinition
 	1,  // 8: plux.v1.CreateRoleResponse.role:type_name -> plux.v1.RoleDefinition
 	1,  // 9: plux.v1.UpdateRoleResponse.role:type_name -> plux.v1.RoleDefinition
-	50, // 10: plux.v1.ListGrantsRequest.page:type_name -> plux.v1.Page
+	69, // 10: plux.v1.ListGrantsRequest.page:type_name -> plux.v1.Page
 	2,  // 11: plux.v1.ListGrantsResponse.grants:type_name -> plux.v1.RoleGrant
-	51, // 12: plux.v1.ListGrantsResponse.page:type_name -> plux.v1.PageResult
+	70, // 12: plux.v1.ListGrantsResponse.page:type_name -> plux.v1.PageResult
 	2,  // 13: plux.v1.CreateGrantResponse.grant:type_name -> plux.v1.RoleGrant
 	2,  // 14: plux.v1.UpdateGrantResponse.grant:type_name -> plux.v1.RoleGrant
-	49, // 15: plux.v1.PolicyRecord.created_at:type_name -> google.protobuf.Timestamp
+	68, // 15: plux.v1.PolicyRecord.created_at:type_name -> google.protobuf.Timestamp
 	23, // 16: plux.v1.PutPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
 	23, // 17: plux.v1.GetPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
 	23, // 18: plux.v1.ListPoliciesResponse.policies:type_name -> plux.v1.PolicyRecord
 	32, // 19: plux.v1.ExportPoliciesResponse.files:type_name -> plux.v1.PolicyFile
-	49, // 20: plux.v1.ApprovalDecision.decided_at:type_name -> google.protobuf.Timestamp
-	49, // 21: plux.v1.ApprovalRequest.created_at:type_name -> google.protobuf.Timestamp
-	49, // 22: plux.v1.ApprovalRequest.expires_at:type_name -> google.protobuf.Timestamp
+	68, // 20: plux.v1.ApprovalDecision.decided_at:type_name -> google.protobuf.Timestamp
+	68, // 21: plux.v1.ApprovalRequest.created_at:type_name -> google.protobuf.Timestamp
+	68, // 22: plux.v1.ApprovalRequest.expires_at:type_name -> google.protobuf.Timestamp
 	35, // 23: plux.v1.ApprovalRequest.decisions:type_name -> plux.v1.ApprovalDecision
-	50, // 24: plux.v1.ListApprovalsRequest.page:type_name -> plux.v1.Page
+	69, // 24: plux.v1.ListApprovalsRequest.page:type_name -> plux.v1.Page
 	36, // 25: plux.v1.ListApprovalsResponse.approvals:type_name -> plux.v1.ApprovalRequest
-	51, // 26: plux.v1.ListApprovalsResponse.page:type_name -> plux.v1.PageResult
+	70, // 26: plux.v1.ListApprovalsResponse.page:type_name -> plux.v1.PageResult
 	36, // 27: plux.v1.GetApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
 	36, // 28: plux.v1.GetApprovalReviewResponse.approval:type_name -> plux.v1.ApprovalRequest
 	44, // 29: plux.v1.GetApprovalReviewResponse.reports:type_name -> plux.v1.ReviewReport
@@ -3298,49 +4586,88 @@ var file_plux_v1_governance_proto_depIdxs = []int32{
 	43, // 31: plux.v1.GetApprovalReviewResponse.install_base:type_name -> plux.v1.InstallBaseEntry
 	45, // 32: plux.v1.GetApprovalReviewResponse.risk:type_name -> plux.v1.ReviewRisk
 	36, // 33: plux.v1.DecideApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
-	3,  // 34: plux.v1.GovernanceService.ListPermissions:input_type -> plux.v1.ListPermissionsRequest
-	5,  // 35: plux.v1.GovernanceService.ListRoles:input_type -> plux.v1.ListRolesRequest
-	7,  // 36: plux.v1.GovernanceService.GetRole:input_type -> plux.v1.GetRoleRequest
-	9,  // 37: plux.v1.GovernanceService.CreateRole:input_type -> plux.v1.CreateRoleRequest
-	11, // 38: plux.v1.GovernanceService.UpdateRole:input_type -> plux.v1.UpdateRoleRequest
-	13, // 39: plux.v1.GovernanceService.DeleteRole:input_type -> plux.v1.DeleteRoleRequest
-	15, // 40: plux.v1.GovernanceService.ListGrants:input_type -> plux.v1.ListGrantsRequest
-	17, // 41: plux.v1.GovernanceService.CreateGrant:input_type -> plux.v1.CreateGrantRequest
-	19, // 42: plux.v1.GovernanceService.UpdateGrant:input_type -> plux.v1.UpdateGrantRequest
-	21, // 43: plux.v1.GovernanceService.DeleteGrant:input_type -> plux.v1.DeleteGrantRequest
-	24, // 44: plux.v1.ApprovalService.PutPolicy:input_type -> plux.v1.PutPolicyRequest
-	26, // 45: plux.v1.ApprovalService.GetPolicy:input_type -> plux.v1.GetPolicyRequest
-	28, // 46: plux.v1.ApprovalService.ListPolicies:input_type -> plux.v1.ListPoliciesRequest
-	30, // 47: plux.v1.ApprovalService.DeletePolicy:input_type -> plux.v1.DeletePolicyRequest
-	33, // 48: plux.v1.ApprovalService.ExportPolicies:input_type -> plux.v1.ExportPoliciesRequest
-	37, // 49: plux.v1.ApprovalService.ListApprovals:input_type -> plux.v1.ListApprovalsRequest
-	39, // 50: plux.v1.ApprovalService.GetApproval:input_type -> plux.v1.GetApprovalRequest
-	41, // 51: plux.v1.ApprovalService.GetApprovalReview:input_type -> plux.v1.GetApprovalReviewRequest
-	47, // 52: plux.v1.ApprovalService.DecideApproval:input_type -> plux.v1.DecideApprovalRequest
-	4,  // 53: plux.v1.GovernanceService.ListPermissions:output_type -> plux.v1.ListPermissionsResponse
-	6,  // 54: plux.v1.GovernanceService.ListRoles:output_type -> plux.v1.ListRolesResponse
-	8,  // 55: plux.v1.GovernanceService.GetRole:output_type -> plux.v1.GetRoleResponse
-	10, // 56: plux.v1.GovernanceService.CreateRole:output_type -> plux.v1.CreateRoleResponse
-	12, // 57: plux.v1.GovernanceService.UpdateRole:output_type -> plux.v1.UpdateRoleResponse
-	14, // 58: plux.v1.GovernanceService.DeleteRole:output_type -> plux.v1.DeleteRoleResponse
-	16, // 59: plux.v1.GovernanceService.ListGrants:output_type -> plux.v1.ListGrantsResponse
-	18, // 60: plux.v1.GovernanceService.CreateGrant:output_type -> plux.v1.CreateGrantResponse
-	20, // 61: plux.v1.GovernanceService.UpdateGrant:output_type -> plux.v1.UpdateGrantResponse
-	22, // 62: plux.v1.GovernanceService.DeleteGrant:output_type -> plux.v1.DeleteGrantResponse
-	25, // 63: plux.v1.ApprovalService.PutPolicy:output_type -> plux.v1.PutPolicyResponse
-	27, // 64: plux.v1.ApprovalService.GetPolicy:output_type -> plux.v1.GetPolicyResponse
-	29, // 65: plux.v1.ApprovalService.ListPolicies:output_type -> plux.v1.ListPoliciesResponse
-	31, // 66: plux.v1.ApprovalService.DeletePolicy:output_type -> plux.v1.DeletePolicyResponse
-	34, // 67: plux.v1.ApprovalService.ExportPolicies:output_type -> plux.v1.ExportPoliciesResponse
-	38, // 68: plux.v1.ApprovalService.ListApprovals:output_type -> plux.v1.ListApprovalsResponse
-	40, // 69: plux.v1.ApprovalService.GetApproval:output_type -> plux.v1.GetApprovalResponse
-	46, // 70: plux.v1.ApprovalService.GetApprovalReview:output_type -> plux.v1.GetApprovalReviewResponse
-	48, // 71: plux.v1.ApprovalService.DecideApproval:output_type -> plux.v1.DecideApprovalResponse
-	53, // [53:72] is the sub-list for method output_type
-	34, // [34:53] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	68, // 34: plux.v1.BreakGlassInvocation.invoked_at:type_name -> google.protobuf.Timestamp
+	68, // 35: plux.v1.BreakGlassInvocation.review_due_at:type_name -> google.protobuf.Timestamp
+	68, // 36: plux.v1.BreakGlassInvocation.reviewed_at:type_name -> google.protobuf.Timestamp
+	69, // 37: plux.v1.ListBreakGlassRequest.page:type_name -> plux.v1.Page
+	49, // 38: plux.v1.ListBreakGlassResponse.invocations:type_name -> plux.v1.BreakGlassInvocation
+	70, // 39: plux.v1.ListBreakGlassResponse.page:type_name -> plux.v1.PageResult
+	49, // 40: plux.v1.ReviewBreakGlassResponse.invocation:type_name -> plux.v1.BreakGlassInvocation
+	68, // 41: plux.v1.ChangeFreeze.created_at:type_name -> google.protobuf.Timestamp
+	68, // 42: plux.v1.ChangeFreeze.updated_at:type_name -> google.protobuf.Timestamp
+	54, // 43: plux.v1.ListFreezesResponse.freezes:type_name -> plux.v1.ChangeFreeze
+	54, // 44: plux.v1.PutFreezeRequest.freeze:type_name -> plux.v1.ChangeFreeze
+	54, // 45: plux.v1.PutFreezeResponse.freeze:type_name -> plux.v1.ChangeFreeze
+	68, // 46: plux.v1.ComplianceReportInfo.period_from:type_name -> google.protobuf.Timestamp
+	68, // 47: plux.v1.ComplianceReportInfo.period_to:type_name -> google.protobuf.Timestamp
+	68, // 48: plux.v1.ComplianceReportInfo.requested_at:type_name -> google.protobuf.Timestamp
+	68, // 49: plux.v1.ComplianceReportInfo.signed_at:type_name -> google.protobuf.Timestamp
+	68, // 50: plux.v1.CreateComplianceReportRequest.from:type_name -> google.protobuf.Timestamp
+	68, // 51: plux.v1.CreateComplianceReportRequest.to:type_name -> google.protobuf.Timestamp
+	61, // 52: plux.v1.CreateComplianceReportResponse.report:type_name -> plux.v1.ComplianceReportInfo
+	61, // 53: plux.v1.GetComplianceReportResponse.report:type_name -> plux.v1.ComplianceReportInfo
+	69, // 54: plux.v1.ListComplianceReportsRequest.page:type_name -> plux.v1.Page
+	61, // 55: plux.v1.ListComplianceReportsResponse.reports:type_name -> plux.v1.ComplianceReportInfo
+	70, // 56: plux.v1.ListComplianceReportsResponse.page:type_name -> plux.v1.PageResult
+	3,  // 57: plux.v1.GovernanceService.ListPermissions:input_type -> plux.v1.ListPermissionsRequest
+	5,  // 58: plux.v1.GovernanceService.ListRoles:input_type -> plux.v1.ListRolesRequest
+	7,  // 59: plux.v1.GovernanceService.GetRole:input_type -> plux.v1.GetRoleRequest
+	9,  // 60: plux.v1.GovernanceService.CreateRole:input_type -> plux.v1.CreateRoleRequest
+	11, // 61: plux.v1.GovernanceService.UpdateRole:input_type -> plux.v1.UpdateRoleRequest
+	13, // 62: plux.v1.GovernanceService.DeleteRole:input_type -> plux.v1.DeleteRoleRequest
+	15, // 63: plux.v1.GovernanceService.ListGrants:input_type -> plux.v1.ListGrantsRequest
+	17, // 64: plux.v1.GovernanceService.CreateGrant:input_type -> plux.v1.CreateGrantRequest
+	19, // 65: plux.v1.GovernanceService.UpdateGrant:input_type -> plux.v1.UpdateGrantRequest
+	21, // 66: plux.v1.GovernanceService.DeleteGrant:input_type -> plux.v1.DeleteGrantRequest
+	24, // 67: plux.v1.ApprovalService.PutPolicy:input_type -> plux.v1.PutPolicyRequest
+	26, // 68: plux.v1.ApprovalService.GetPolicy:input_type -> plux.v1.GetPolicyRequest
+	28, // 69: plux.v1.ApprovalService.ListPolicies:input_type -> plux.v1.ListPoliciesRequest
+	30, // 70: plux.v1.ApprovalService.DeletePolicy:input_type -> plux.v1.DeletePolicyRequest
+	33, // 71: plux.v1.ApprovalService.ExportPolicies:input_type -> plux.v1.ExportPoliciesRequest
+	37, // 72: plux.v1.ApprovalService.ListApprovals:input_type -> plux.v1.ListApprovalsRequest
+	39, // 73: plux.v1.ApprovalService.GetApproval:input_type -> plux.v1.GetApprovalRequest
+	41, // 74: plux.v1.ApprovalService.GetApprovalReview:input_type -> plux.v1.GetApprovalReviewRequest
+	47, // 75: plux.v1.ApprovalService.DecideApproval:input_type -> plux.v1.DecideApprovalRequest
+	50, // 76: plux.v1.BreakGlassService.ListBreakGlass:input_type -> plux.v1.ListBreakGlassRequest
+	52, // 77: plux.v1.BreakGlassService.ReviewBreakGlass:input_type -> plux.v1.ReviewBreakGlassRequest
+	55, // 78: plux.v1.FreezeService.ListFreezes:input_type -> plux.v1.ListFreezesRequest
+	57, // 79: plux.v1.FreezeService.PutFreeze:input_type -> plux.v1.PutFreezeRequest
+	59, // 80: plux.v1.FreezeService.DeleteFreeze:input_type -> plux.v1.DeleteFreezeRequest
+	62, // 81: plux.v1.ComplianceService.CreateComplianceReport:input_type -> plux.v1.CreateComplianceReportRequest
+	64, // 82: plux.v1.ComplianceService.GetComplianceReport:input_type -> plux.v1.GetComplianceReportRequest
+	66, // 83: plux.v1.ComplianceService.ListComplianceReports:input_type -> plux.v1.ListComplianceReportsRequest
+	4,  // 84: plux.v1.GovernanceService.ListPermissions:output_type -> plux.v1.ListPermissionsResponse
+	6,  // 85: plux.v1.GovernanceService.ListRoles:output_type -> plux.v1.ListRolesResponse
+	8,  // 86: plux.v1.GovernanceService.GetRole:output_type -> plux.v1.GetRoleResponse
+	10, // 87: plux.v1.GovernanceService.CreateRole:output_type -> plux.v1.CreateRoleResponse
+	12, // 88: plux.v1.GovernanceService.UpdateRole:output_type -> plux.v1.UpdateRoleResponse
+	14, // 89: plux.v1.GovernanceService.DeleteRole:output_type -> plux.v1.DeleteRoleResponse
+	16, // 90: plux.v1.GovernanceService.ListGrants:output_type -> plux.v1.ListGrantsResponse
+	18, // 91: plux.v1.GovernanceService.CreateGrant:output_type -> plux.v1.CreateGrantResponse
+	20, // 92: plux.v1.GovernanceService.UpdateGrant:output_type -> plux.v1.UpdateGrantResponse
+	22, // 93: plux.v1.GovernanceService.DeleteGrant:output_type -> plux.v1.DeleteGrantResponse
+	25, // 94: plux.v1.ApprovalService.PutPolicy:output_type -> plux.v1.PutPolicyResponse
+	27, // 95: plux.v1.ApprovalService.GetPolicy:output_type -> plux.v1.GetPolicyResponse
+	29, // 96: plux.v1.ApprovalService.ListPolicies:output_type -> plux.v1.ListPoliciesResponse
+	31, // 97: plux.v1.ApprovalService.DeletePolicy:output_type -> plux.v1.DeletePolicyResponse
+	34, // 98: plux.v1.ApprovalService.ExportPolicies:output_type -> plux.v1.ExportPoliciesResponse
+	38, // 99: plux.v1.ApprovalService.ListApprovals:output_type -> plux.v1.ListApprovalsResponse
+	40, // 100: plux.v1.ApprovalService.GetApproval:output_type -> plux.v1.GetApprovalResponse
+	46, // 101: plux.v1.ApprovalService.GetApprovalReview:output_type -> plux.v1.GetApprovalReviewResponse
+	48, // 102: plux.v1.ApprovalService.DecideApproval:output_type -> plux.v1.DecideApprovalResponse
+	51, // 103: plux.v1.BreakGlassService.ListBreakGlass:output_type -> plux.v1.ListBreakGlassResponse
+	53, // 104: plux.v1.BreakGlassService.ReviewBreakGlass:output_type -> plux.v1.ReviewBreakGlassResponse
+	56, // 105: plux.v1.FreezeService.ListFreezes:output_type -> plux.v1.ListFreezesResponse
+	58, // 106: plux.v1.FreezeService.PutFreeze:output_type -> plux.v1.PutFreezeResponse
+	60, // 107: plux.v1.FreezeService.DeleteFreeze:output_type -> plux.v1.DeleteFreezeResponse
+	63, // 108: plux.v1.ComplianceService.CreateComplianceReport:output_type -> plux.v1.CreateComplianceReportResponse
+	65, // 109: plux.v1.ComplianceService.GetComplianceReport:output_type -> plux.v1.GetComplianceReportResponse
+	67, // 110: plux.v1.ComplianceService.ListComplianceReports:output_type -> plux.v1.ListComplianceReportsResponse
+	84, // [84:111] is the sub-list for method output_type
+	57, // [57:84] is the sub-list for method input_type
+	57, // [57:57] is the sub-list for extension type_name
+	57, // [57:57] is the sub-list for extension extendee
+	0,  // [0:57] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_governance_proto_init() }
@@ -3355,9 +4682,9 @@ func file_plux_v1_governance_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_governance_proto_rawDesc), len(file_plux_v1_governance_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   49,
+			NumMessages:   68,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   5,
 		},
 		GoTypes:           file_plux_v1_governance_proto_goTypes,
 		DependencyIndexes: file_plux_v1_governance_proto_depIdxs,

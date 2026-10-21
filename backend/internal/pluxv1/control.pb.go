@@ -842,6 +842,12 @@ type SetKillSwitchRequest struct {
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
 	KillSwitch    *KillSwitchEntry       `protobuf:"bytes,4,opt,name=kill_switch,json=killSwitch,proto3" json:"kill_switch,omitempty"`
+	// break_glass runs the change as an emergency action without the freeze
+	// and approval checks, and needs breakglass.invoke on the environment with
+	// a fresh step-up (GOV-024, SEC-103). justification is then required
+	// (PLX-8005); it is refused without break_glass.
+	BreakGlass    bool   `protobuf:"varint,5,opt,name=break_glass,json=breakGlass,proto3" json:"break_glass,omitempty"`
+	Justification string `protobuf:"bytes,6,opt,name=justification,proto3" json:"justification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -902,6 +908,20 @@ func (x *SetKillSwitchRequest) GetKillSwitch() *KillSwitchEntry {
 		return x.KillSwitch
 	}
 	return nil
+}
+
+func (x *SetKillSwitchRequest) GetBreakGlass() bool {
+	if x != nil {
+		return x.BreakGlass
+	}
+	return false
+}
+
+func (x *SetKillSwitchRequest) GetJustification() string {
+	if x != nil {
+		return x.Justification
+	}
+	return ""
 }
 
 type ClearKillSwitchRequest struct {
@@ -1114,8 +1134,14 @@ type SetForcedRollbackRequest struct {
 	EnvironmentId   string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	ChannelKey      string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
 	ReleaseSequence int64                  `protobuf:"varint,4,opt,name=release_sequence,json=releaseSequence,proto3" json:"release_sequence,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// break_glass runs the change as an emergency action without the freeze
+	// and approval checks, and needs breakglass.invoke on the environment with
+	// a fresh step-up (GOV-024, SEC-103). justification is then required
+	// (PLX-8005); it is refused without break_glass.
+	BreakGlass    bool   `protobuf:"varint,5,opt,name=break_glass,json=breakGlass,proto3" json:"break_glass,omitempty"`
+	Justification string `protobuf:"bytes,6,opt,name=justification,proto3" json:"justification,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SetForcedRollbackRequest) Reset() {
@@ -1174,6 +1200,20 @@ func (x *SetForcedRollbackRequest) GetReleaseSequence() int64 {
 		return x.ReleaseSequence
 	}
 	return 0
+}
+
+func (x *SetForcedRollbackRequest) GetBreakGlass() bool {
+	if x != nil {
+		return x.BreakGlass
+	}
+	return false
+}
+
+func (x *SetForcedRollbackRequest) GetJustification() string {
+	if x != nil {
+		return x.Justification
+	}
+	return ""
 }
 
 type ClearForcedRollbackRequest struct {
@@ -1307,14 +1347,17 @@ const file_plux_v1_control_proto_rawDesc = "" +
 	"\x1aGetControlDocumentResponse\x124\n" +
 	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"O\n" +
 	"\x17ControlDocumentResponse\x124\n" +
-	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"\xb0\x01\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"\xf7\x01\n" +
 	"\x14SetKillSwitchRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
 	"\vchannel_key\x18\x03 \x01(\tR\n" +
 	"channelKey\x129\n" +
 	"\vkill_switch\x18\x04 \x01(\v2\x18.plux.v1.KillSwitchEntryR\n" +
-	"killSwitch\"\xb2\x01\n" +
+	"killSwitch\x12\x1f\n" +
+	"\vbreak_glass\x18\x05 \x01(\bR\n" +
+	"breakGlass\x12$\n" +
+	"\rjustification\x18\x06 \x01(\tR\rjustification\"\xb2\x01\n" +
 	"\x16ClearKillSwitchRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
@@ -1334,13 +1377,16 @@ const file_plux_v1_control_proto_rawDesc = "" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
 	"\vchannel_key\x18\x03 \x01(\tR\n" +
-	"channelKey\"\xa4\x01\n" +
+	"channelKey\"\xeb\x01\n" +
 	"\x18SetForcedRollbackRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
 	"\vchannel_key\x18\x03 \x01(\tR\n" +
 	"channelKey\x12)\n" +
-	"\x10release_sequence\x18\x04 \x01(\x03R\x0freleaseSequence\"{\n" +
+	"\x10release_sequence\x18\x04 \x01(\x03R\x0freleaseSequence\x12\x1f\n" +
+	"\vbreak_glass\x18\x05 \x01(\bR\n" +
+	"breakGlass\x12$\n" +
+	"\rjustification\x18\x06 \x01(\tR\rjustification\"{\n" +
 	"\x1aClearForcedRollbackRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +

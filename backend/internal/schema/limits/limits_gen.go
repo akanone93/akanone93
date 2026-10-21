@@ -315,6 +315,22 @@ const (
 	GoldenCasesPerRun Key = "golden.casesPerRun"
 	// GoldenImageBytes: Size of one golden image. (TST-003)
 	GoldenImageBytes Key = "golden.imageBytes"
+	// GovernanceBreakGlassReviewHours: Hours after a break-glass action within
+	// which its post-hoc review is due; an overdue review is escalated
+	// (PLX-8006). (GOV-024)
+	GovernanceBreakGlassReviewHours Key = "governance.breakGlassReviewHours"
+	// GovernanceFreezeWindowHours: Longest a change-freeze window may last, in
+	// hours. (GOV-025)
+	GovernanceFreezeWindowHours Key = "governance.freezeWindowHours"
+	// GovernanceFreezeWindowsPerOrg: Change-freeze windows one organisation may
+	// define. (GOV-025)
+	GovernanceFreezeWindowsPerOrg Key = "governance.freezeWindowsPerOrg"
+	// GovernanceJustificationLength: Length of the written justification of a
+	// break-glass action. (GOV-024)
+	GovernanceJustificationLength Key = "governance.justificationLength"
+	// GovernanceReportChanges: Production changes one compliance report may
+	// list; a longer period is refused and is split into shorter ones. (GOV-026)
+	GovernanceReportChanges Key = "governance.reportChanges"
 	// HTTPResponseSize: Size of a response the server reads when it fetches a
 	// URL, such as an identity provider's keys. (SEC-104, SEC-105)
 	HTTPResponseSize Key = "http.responseSize"
@@ -555,6 +571,11 @@ var registry = [...]Definition{
 	{Key: GoldenBaselineBytesPerPlugin, Unit: UnitBytes, Default: 268435456, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P8", Description: "Golden baseline images one plugin may store."},
 	{Key: GoldenCasesPerRun, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Golden cases one run may contain."},
 	{Key: GoldenImageBytes, Unit: UnitBytes, Default: 2097152, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one golden image."},
+	{Key: GovernanceBreakGlassReviewHours, Unit: UnitCount, Default: 24, Warning: 0, Max: 720, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Hours after a break-glass action within which its post-hoc review is due; an overdue review is escalated (PLX-8006)."},
+	{Key: GovernanceFreezeWindowHours, Unit: UnitCount, Default: 720, Warning: 0, Max: 8760, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Longest a change-freeze window may last, in hours."},
+	{Key: GovernanceFreezeWindowsPerOrg, Unit: UnitCount, Default: 50, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Change-freeze windows one organisation may define."},
+	{Key: GovernanceJustificationLength, Unit: UnitCodepoints, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the written justification of a break-glass action."},
+	{Key: GovernanceReportChanges, Unit: UnitCount, Default: 20000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Production changes one compliance report may list; a longer period is refused and is split into shorter ones."},
 	{Key: HTTPResponseSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 67108864, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."},
 	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},
 	{Key: NotificationsPerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."},

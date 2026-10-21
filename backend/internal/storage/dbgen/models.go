@@ -281,6 +281,44 @@ type Blob struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type BreakGlassInvocation struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	EnvironmentKey string
+	Production     bool
+	Action         string
+	Subject        string
+	Justification  string
+	InvokedByKind  string
+	InvokedByID    string
+	InvokedBy      string
+	InvokedAt      pgtype.Timestamptz
+	ReviewDueAt    pgtype.Timestamptz
+	ReviewStatus   string
+	ReviewedByID   string
+	ReviewedBy     string
+	ReviewedAt     pgtype.Timestamptz
+	ReviewComment  string
+	EscalatedAt    pgtype.Timestamptz
+}
+
+type ChangeFreeze struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	Name            string
+	EnvironmentKey  string
+	TimeZone        string
+	StartLocal      string
+	DurationMinutes int32
+	Recurrence      string
+	Reason          string
+	CreatedBy       string
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+}
+
 type Channel struct {
 	ID              pgtype.UUID
 	OrganizationID  pgtype.UUID
@@ -301,6 +339,21 @@ type ChannelControl struct {
 	UpdatedByID       string
 	UpdatedBy         string
 	UpdatedAt         pgtype.Timestamptz
+}
+
+type ComplianceReport struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	PeriodFrom     pgtype.Timestamptz
+	PeriodTo       pgtype.Timestamptz
+	Changes        int32
+	RequestedByID  string
+	RequestedBy    string
+	RequestedAt    pgtype.Timestamptz
+	Statement      []byte
+	KeyID          *string
+	Signature      []byte
+	SignedAt       pgtype.Timestamptz
 }
 
 type ConfigEnvironment struct {
@@ -1186,6 +1239,26 @@ type PluginVersion struct {
 	PublishedBy      string
 	CreatedAt        pgtype.Timestamptz
 	NativeUses       []byte
+}
+
+type ProductionChange struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	EnvironmentKey string
+	Resource       string
+	Action         string
+	Subject        string
+	ContentHash    string
+	Summary        string
+	AuthorID       string
+	ChangedByKind  string
+	ChangedByID    string
+	ChangedBy      string
+	ChangedAt      pgtype.Timestamptz
+	RequestID      pgtype.UUID
+	BreakGlassID   pgtype.UUID
 }
 
 type PublishJob struct {

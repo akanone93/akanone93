@@ -137,6 +137,12 @@ message SetKillSwitchRequest {
   string environment_id = 2;
   string channel_key = 3;
   KillSwitchEntry kill_switch = 4;
+  // break_glass runs the change as an emergency action without the freeze
+  // and approval checks, and needs breakglass.invoke on the environment with
+  // a fresh step-up (GOV-024, SEC-103). justification is then required
+  // (PLX-8005); it is refused without break_glass.
+  bool break_glass = 5;
+  string justification = 6;
 }
 message ClearKillSwitchRequest {
   string app_id = 1;
@@ -161,6 +167,12 @@ message SetForcedRollbackRequest {
   string environment_id = 2;
   string channel_key = 3;
   int64 release_sequence = 4;
+  // break_glass runs the change as an emergency action without the freeze
+  // and approval checks, and needs breakglass.invoke on the environment with
+  // a fresh step-up (GOV-024, SEC-103). justification is then required
+  // (PLX-8005); it is refused without break_glass.
+  bool break_glass = 5;
+  string justification = 6;
 }
 message ClearForcedRollbackRequest {
   string app_id = 1;

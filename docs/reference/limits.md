@@ -113,6 +113,11 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `golden.baselineBytesPerPlugin` | bytes | 268435456 | 80% | 4294967296 | installation, organization, app | P8 | TST-003 | Golden baseline images one plugin may store. |
 | `golden.casesPerRun` | count | 500 | 80% | 10000 | installation, organization, app | P8 | TST-003 | Golden cases one run may contain. |
 | `golden.imageBytes` | bytes | 2097152 | 80% | 16777216 | installation, organization, app | P8 | TST-003 | Size of one golden image. |
+| `governance.breakGlassReviewHours` | count | 24 | 80% | 720 | installation, organization | P9 | GOV-024 | Hours after a break-glass action within which its post-hoc review is due; an overdue review is escalated (PLX-8006). |
+| `governance.freezeWindowHours` | count | 720 | 80% | 8760 | installation, organization | P9 | GOV-025 | Longest a change-freeze window may last, in hours. |
+| `governance.freezeWindowsPerOrg` | count | 50 | 80% | 1000 | installation, organization | P9 | GOV-025 | Change-freeze windows one organisation may define. |
+| `governance.justificationLength` | codepoints | 2000 | 80% | 20000 | installation, organization | P9 | GOV-024 | Length of the written justification of a break-glass action. |
+| `governance.reportChanges` | count | 20000 | 80% | 1000000 | installation, organization | P9 | GOV-026 | Production changes one compliance report may list; a longer period is refused and is split into shorter ones. |
 | `http.responseSize` | bytes | 1048576 | 80% | 67108864 | installation | P2 | SEC-104, SEC-105 | Size of a response the server reads when it fetches a URL, such as an identity provider's keys. |
 | `media.pinnedDownloadSize` | bytes | 209715200 | 80% | 1073741824 | installation, organization, app | P8 | SEC-041 | Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client). |
 | `notifications.perHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | SRV-062 | Notifications one organisation may send in an hour across all channels; the excess is dropped and audited. |

@@ -2384,6 +2384,211 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UpdateExportDestinationResponse'
+  /plux.v1.BreakGlassService/ListBreakGlass:
+    post:
+      tags:
+        - plux.v1.BreakGlassService
+      summary: ListBreakGlass
+      description: |-
+        ListBreakGlass lists the emergency actions of the organisation, newest
+         first. It needs audit.read.
+      operationId: plux.v1.BreakGlassService.ListBreakGlass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListBreakGlassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListBreakGlassResponse'
+  /plux.v1.BreakGlassService/ReviewBreakGlass:
+    post:
+      tags:
+        - plux.v1.BreakGlassService
+      summary: ReviewBreakGlass
+      description: |-
+        ReviewBreakGlass completes the post-hoc review of an action. It needs
+         approvals.decide with a fresh step-up (SEC-103); whoever took the action
+         cannot review it (PLX-8003).
+      operationId: plux.v1.BreakGlassService.ReviewBreakGlass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ReviewBreakGlassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ReviewBreakGlassResponse'
+  /plux.v1.ComplianceService/CreateComplianceReport:
+    post:
+      tags:
+        - plux.v1.ComplianceService
+      summary: CreateComplianceReport
+      description: |-
+        CreateComplianceReport gathers the production changes of a period into a
+         report. The server's worker signs it a moment later; poll
+         GetComplianceReport. It needs compliance.report.
+      operationId: plux.v1.ComplianceService.CreateComplianceReport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateComplianceReportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateComplianceReportResponse'
+  /plux.v1.ComplianceService/GetComplianceReport:
+    post:
+      tags:
+        - plux.v1.ComplianceService
+      summary: GetComplianceReport
+      description: |-
+        GetComplianceReport returns a report as JSON (the signed envelope) or
+         as PDF. It needs compliance.report.
+      operationId: plux.v1.ComplianceService.GetComplianceReport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetComplianceReportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetComplianceReportResponse'
+  /plux.v1.ComplianceService/ListComplianceReports:
+    post:
+      tags:
+        - plux.v1.ComplianceService
+      summary: ListComplianceReports
+      description: ListComplianceReports lists the reports requested, newest first.
+      operationId: plux.v1.ComplianceService.ListComplianceReports
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListComplianceReportsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListComplianceReportsResponse'
   /plux.v1.ComponentService/GetComponent:
     post:
       tags:
@@ -5184,6 +5389,128 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.FlagResponse'
+  /plux.v1.FreezeService/DeleteFreeze:
+    post:
+      tags:
+        - plux.v1.FreezeService
+      summary: DeleteFreeze
+      description: DeleteFreeze removes a window. It needs freezes.manage.
+      operationId: plux.v1.FreezeService.DeleteFreeze
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteFreezeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteFreezeResponse'
+  /plux.v1.FreezeService/ListFreezes:
+    post:
+      tags:
+        - plux.v1.FreezeService
+      summary: ListFreezes
+      description: |-
+        ListFreezes lists the windows of the organisation. It needs
+         organization.read.
+      operationId: plux.v1.FreezeService.ListFreezes
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListFreezesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListFreezesResponse'
+  /plux.v1.FreezeService/PutFreeze:
+    post:
+      tags:
+        - plux.v1.FreezeService
+      summary: PutFreeze
+      description: |-
+        PutFreeze creates a window, or replaces the one of the same name. It
+         needs freezes.manage. The window is checked by the calendar (PLX-1700
+         for a window that cannot be evaluated).
+      operationId: plux.v1.FreezeService.PutFreeze
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.PutFreezeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.PutFreezeResponse'
   /plux.v1.FunctionAdminService/Build:
     post:
       tags:
@@ -12842,6 +13169,68 @@ components:
              JSON serialisation, for navigator.credentials.create().
       title: BeginWebAuthnRegistrationResponse
       additionalProperties: false
+    plux.v1.BreakGlassInvocation:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        environment:
+          type: string
+          title: environment
+        action:
+          type: string
+          title: action
+          description: |-
+            action is "killSwitch", "forcedRollback" or "rollback"; a function is
+             disabled with a kill switch of scope function.
+        subject:
+          type: string
+          title: subject
+        justification:
+          type: string
+          title: justification
+        invokedById:
+          type: string
+          title: invoked_by_id
+        invokedBy:
+          type: string
+          title: invoked_by
+        invokedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: invoked_at
+        reviewDueAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: review_due_at
+        reviewStatus:
+          type: string
+          title: review_status
+          description: review_status is "open" or "reviewed".
+        reviewedBy:
+          type: string
+          title: reviewed_by
+        reviewedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: reviewed_at
+        reviewComment:
+          type: string
+          title: review_comment
+        overdue:
+          type: boolean
+          title: overdue
+          description: overdue is set while the review is open past its due time (PLX-8006).
+      title: BreakGlassInvocation
+      additionalProperties: false
+      description: BreakGlassInvocation is one emergency action and its review.
     plux.v1.Build:
       type: object
       properties:
@@ -13052,6 +13441,58 @@ components:
           title: change
       title: CancelRetentionChangeResponse
       additionalProperties: false
+    plux.v1.ChangeFreeze:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        name:
+          type: string
+          title: name
+        environmentKey:
+          type: string
+          title: environment_key
+          description: |-
+            environment_key is the environment frozen; empty freezes every
+             production environment.
+        timeZone:
+          type: string
+          title: time_zone
+          description: time_zone is an IANA time zone name.
+        start:
+          type: string
+          title: start
+          description: |-
+            start is the wall-clock start in time_zone, as YYYY-MM-DDTHH:MM. For a
+             recurring window it is the first start.
+        durationMinutes:
+          type: integer
+          title: duration_minutes
+          format: int32
+        recurrence:
+          type: string
+          title: recurrence
+          description: |-
+            recurrence is empty for a one-off window, else FREQ=DAILY or
+             FREQ=WEEKLY;BYDAY=MO,TU,..., optionally with ;UNTIL=YYYYMMDD.
+        reason:
+          type: string
+          title: reason
+        createdBy:
+          type: string
+          title: created_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: ChangeFreeze
+      additionalProperties: false
+      description: ChangeFreeze is one freeze window.
     plux.v1.ChangePasswordRequest:
       type: object
       properties:
@@ -13422,6 +13863,45 @@ components:
           title: session
       title: CompleteWebAuthnLoginResponse
       additionalProperties: false
+    plux.v1.ComplianceReportInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        periodFrom:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: period_from
+        periodTo:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: period_to
+        changes:
+          type: integer
+          title: changes
+          format: int32
+        requestedBy:
+          type: string
+          title: requested_by
+        requestedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: requested_at
+        signed:
+          type: boolean
+          title: signed
+          description: signed is false until the worker has signed the report.
+        keyId:
+          type: string
+          title: key_id
+        signedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: signed_at
+      title: ComplianceReportInfo
+      additionalProperties: false
+      description: ComplianceReportInfo describes a report without its content.
     plux.v1.Component:
       type: object
       properties:
@@ -13921,6 +14401,29 @@ components:
             - $ref: '#/components/schemas/plux.v1.Channel'
           title: channel
       title: CreateChannelResponse
+      additionalProperties: false
+    plux.v1.CreateComplianceReportRequest:
+      type: object
+      properties:
+        from:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: from
+          description: from is inclusive and to exclusive.
+        to:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: to
+      title: CreateComplianceReportRequest
+      additionalProperties: false
+    plux.v1.CreateComplianceReportResponse:
+      type: object
+      properties:
+        report:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ComplianceReportInfo'
+          title: report
+      title: CreateComplianceReportResponse
       additionalProperties: false
     plux.v1.CreateEnvironmentRequest:
       type: object
@@ -14885,6 +15388,18 @@ components:
     plux.v1.DeleteFlagResponse:
       type: object
       title: DeleteFlagResponse
+      additionalProperties: false
+    plux.v1.DeleteFreezeRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteFreezeRequest
+      additionalProperties: false
+    plux.v1.DeleteFreezeResponse:
+      type: object
+      title: DeleteFreezeResponse
       additionalProperties: false
     plux.v1.DeleteGrantRequest:
       type: object
@@ -16761,6 +17276,35 @@ components:
             - $ref: '#/components/schemas/plux.v1.Compatibility'
           title: compatibility
       title: GetCompatibilityResponse
+      additionalProperties: false
+    plux.v1.GetComplianceReportRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        format:
+          type: string
+          title: format
+          description: format is "json" or "pdf".
+      title: GetComplianceReportRequest
+      additionalProperties: false
+    plux.v1.GetComplianceReportResponse:
+      type: object
+      properties:
+        report:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ComplianceReportInfo'
+          title: report
+        content:
+          type: string
+          title: content
+          format: byte
+          description: content is empty while the report is not signed.
+        contentType:
+          type: string
+          title: content_type
+      title: GetComplianceReportResponse
       additionalProperties: false
     plux.v1.GetComponentRequest:
       type: object
@@ -19011,6 +19555,33 @@ components:
           title: page
       title: ListAuditEntriesResponse
       additionalProperties: false
+    plux.v1.ListBreakGlassRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          title: status
+          description: status narrows the list to "open" or "reviewed" when set.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListBreakGlassRequest
+      additionalProperties: false
+    plux.v1.ListBreakGlassResponse:
+      type: object
+      properties:
+        invocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.BreakGlassInvocation'
+          title: invocations
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListBreakGlassResponse
+      additionalProperties: false
     plux.v1.ListChannelsRequest:
       type: object
       properties:
@@ -19036,6 +19607,29 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListChannelsResponse
+      additionalProperties: false
+    plux.v1.ListComplianceReportsRequest:
+      type: object
+      properties:
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListComplianceReportsRequest
+      additionalProperties: false
+    plux.v1.ListComplianceReportsResponse:
+      type: object
+      properties:
+        reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ComplianceReportInfo'
+          title: reports
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListComplianceReportsResponse
       additionalProperties: false
     plux.v1.ListComponentsRequest:
       type: object
@@ -19413,6 +20007,20 @@ components:
             $ref: '#/components/schemas/plux.v1.Flag'
           title: flags
       title: ListFlagsResponse
+      additionalProperties: false
+    plux.v1.ListFreezesRequest:
+      type: object
+      title: ListFreezesRequest
+      additionalProperties: false
+    plux.v1.ListFreezesResponse:
+      type: object
+      properties:
+        freezes:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ChangeFreeze'
+          title: freezes
+      title: ListFreezesResponse
       additionalProperties: false
     plux.v1.ListFunctionsRequest:
       type: object
@@ -21623,6 +22231,24 @@ components:
           title: diagnostics
       title: PutDocumentResponse
       additionalProperties: false
+    plux.v1.PutFreezeRequest:
+      type: object
+      properties:
+        freeze:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ChangeFreeze'
+          title: freeze
+      title: PutFreezeRequest
+      additionalProperties: false
+    plux.v1.PutFreezeResponse:
+      type: object
+      properties:
+        freeze:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ChangeFreeze'
+          title: freeze
+      title: PutFreezeResponse
+      additionalProperties: false
     plux.v1.PutPolicyRequest:
       type: object
       properties:
@@ -22447,6 +23073,26 @@ components:
       description: |-
         RetentionSetting is the retention of one data class: raw_events, rollups
          or audit_production.
+    plux.v1.ReviewBreakGlassRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        comment:
+          type: string
+          title: comment
+      title: ReviewBreakGlassRequest
+      additionalProperties: false
+    plux.v1.ReviewBreakGlassResponse:
+      type: object
+      properties:
+        invocation:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.BreakGlassInvocation'
+          title: invocation
+      title: ReviewBreakGlassResponse
+      additionalProperties: false
     plux.v1.ReviewImage:
       type: object
       properties:
@@ -22663,6 +23309,17 @@ components:
         notes:
           type: string
           title: notes
+        breakGlass:
+          type: boolean
+          title: break_glass
+          description: |-
+            break_glass runs the change as an emergency action without the freeze
+             and approval checks, and needs breakglass.invoke on the environment with
+             a fresh step-up (GOV-024, SEC-103). justification is then required
+             (PLX-8005); it is refused without break_glass.
+        justification:
+          type: string
+          title: justification
       title: RollbackReleaseRequest
       additionalProperties: false
     plux.v1.RollbackReleaseResponse:
@@ -23416,6 +24073,17 @@ components:
           type: string
           title: release_sequence
           format: int64
+        breakGlass:
+          type: boolean
+          title: break_glass
+          description: |-
+            break_glass runs the change as an emergency action without the freeze
+             and approval checks, and needs breakglass.invoke on the environment with
+             a fresh step-up (GOV-024, SEC-103). justification is then required
+             (PLX-8005); it is refused without break_glass.
+        justification:
+          type: string
+          title: justification
       title: SetForcedRollbackRequest
       additionalProperties: false
     plux.v1.SetGroupMappingRequest:
@@ -23471,6 +24139,17 @@ components:
           allOf:
             - $ref: '#/components/schemas/plux.v1.KillSwitchEntry'
           title: kill_switch
+        breakGlass:
+          type: boolean
+          title: break_glass
+          description: |-
+            break_glass runs the change as an emergency action without the freeze
+             and approval checks, and needs breakglass.invoke on the environment with
+             a fresh step-up (GOV-024, SEC-103). justification is then required
+             (PLX-8005); it is refused without break_glass.
+        justification:
+          type: string
+          title: justification
       title: SetKillSwitchRequest
       additionalProperties: false
     plux.v1.SetMandatoryUpdateRequest:
@@ -25238,6 +25917,26 @@ tags:
        engine opens when a guarded change is refused for want of one. A request
        is opened by the refusal itself, never by a call here, and names the
        artifact by its content hash.
+  - name: plux.v1.BreakGlassService
+    description: |-
+      BreakGlassService lists and reviews the emergency actions taken without
+       prior approval (GOV-024, ADR-0076). The actions themselves are taken with
+       the break_glass field of the kill-switch, forced-rollback and rollback
+       calls; each opens a post-hoc review here, due within
+       governance.breakGlassReviewHours (24 hours by default) and escalated when
+       overdue (PLX-8006).
+  - name: plux.v1.FreezeService
+    description: |-
+      FreezeService manages change-freeze windows (GOV-025, ADR-0076), an
+       enterprise feature (PLX-8600 without the licence). Inside a window,
+       changes to a production environment are refused with PLX-8010, except
+       through break-glass.
+  - name: plux.v1.ComplianceService
+    description: |-
+      ComplianceService produces compliance reports (GOV-026, ADR-0076), an
+       enterprise feature (PLX-8600 without the licence): every production
+       change of a period with author, approvers, timestamps, content hashes and
+       evidence, as a DSSE envelope signed with the audit key, and as a PDF.
   - name: plux.v1.LicenseService
     description: |-
       LicenseService reports the installation's enterprise licence (GOV-030,
