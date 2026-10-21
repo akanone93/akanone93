@@ -147,8 +147,8 @@ func restrictionOf(id string, spec RestrictionSpec) (Restriction, error) {
 }
 
 // CreateRestriction creates a restriction (GOV-006). It needs
-// restrictions.manage with a step-up, and organization.manage as well for a
-// restriction on the whole organisation. The caller may restrict only
+// restrictions.manage with a step-up; a restriction on the whole organisation
+// needs an Owner. The caller may restrict only
 // permissions they hold in the scope the restriction names, which also keeps
 // them from restricting themselves in a scope wider than their own grants
 // (PLX-8106). A restriction that would leave no Owner able to manage members,
@@ -201,6 +201,9 @@ func (s *Service) insertRestriction(ctx context.Context, tx pgx.Tx, p Principal,
 	}
 	app, err := restrictionScope(ctx, q, *r)
 	if err != nil {
+		return err
+	}
+	if err := s.refusing(ctx, tx, p, *r, ownerOnly(ctx, q, org, p, *r, false)); err != nil {
 		return err
 	}
 	if err := s.refusing(ctx, tx, p, *r, holdsWhatItRestricts(p, *r)); err != nil {
@@ -438,6 +441,44 @@ func appliesTo(r Restriction, person string, teams []string) bool {
 	return false
 }
 
+// ownerOnly refuses what only an Owner may do (GOV-006): restrict the whole
+// organisation, or lift a restriction from it, and, when lifting, remove a
+// restriction that applies to the caller, which would let a restricted Admin
+// give their own rights back (PLX-8106, audited by the caller).
+func ownerOnly(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, p Principal, r Restriction, lifting bool) error {
+	owner, err := isOwner(ctx, q, org, p)
+	if err != nil || owner {
+		return err
+	}
+	if r.SubjectKind == SubjectOrganization {
+		return plxerr.New(plxerr.PermissionDenied, "only an owner may restrict the whole organisation or lift such a restriction")
+	}
+	if !lifting || p.UserID == "" {
+		return nil
+	}
+	teams, err := teamsOf(ctx, q, org, storage.MustUUID(p.UserID))
+	if err != nil {
+		return err
+	}
+	if appliesTo(r, p.UserID, teams) {
+		return plxerr.New(plxerr.RestrictionExceedsCaller, "this restriction applies to you, so an owner must lift it")
+	}
+	return nil
+}
+
+// isOwner reports whether the principal is a person holding the Owner role
+// of the organisation.
+func isOwner(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, p Principal) (bool, error) {
+	if p.UserID == "" {
+		return false, nil
+	}
+	owners, err := q.ListOwnerUserIDs(ctx, org)
+	if err != nil {
+		return false, fmt.Errorf("auth: list owners: %w", err)
+	}
+	return slices.Contains(owners, storage.MustUUID(p.UserID)), nil
+}
+
 // restrictionDetail says whom a restriction is for, what it removes and
 // where.
 func restrictionDetail(r Restriction) string {
@@ -488,9 +529,9 @@ func (s *Service) ListRestrictions(ctx context.Context, p Principal, f Restricti
 }
 
 // DeleteRestriction removes a restriction (GOV-006). It needs
-// restrictions.manage with a step-up, and organization.manage as well for a
-// restriction on the whole organisation, like creating one. The
-// organisation's permissions version rises with the delete.
+// restrictions.manage with a step-up; one on the whole organisation, or one
+// that applies to the caller, needs an Owner (refused and audited otherwise).
+// The organisation's permissions version rises with the delete.
 func (s *Service) DeleteRestriction(ctx context.Context, p Principal, restrictionID string) error {
 	if err := p.Authorize(RestrictionsManage); err != nil {
 		return err
@@ -499,7 +540,7 @@ func (s *Service) DeleteRestriction(ctx context.Context, p Principal, restrictio
 	if err != nil {
 		return err
 	}
-	return s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID, UserID: p.UserID}, func(ctx context.Context, tx pgx.Tx) error {
+	return s.inTxRefusing(ctx, storage.Tenant{OrganizationID: p.OrganizationID, UserID: p.UserID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		row, err := q.GetRestriction(ctx, id)
 		if err != nil {
@@ -507,6 +548,9 @@ func (s *Service) DeleteRestriction(ctx context.Context, p Principal, restrictio
 		}
 		r := restrictionRecord(row)
 		if err := authorizeRestrictionChange(p, r.SubjectKind); err != nil {
+			return err
+		}
+		if err := s.refusing(ctx, tx, p, r, ownerOnly(ctx, q, row.OrganizationID, p, r, true)); err != nil {
 			return err
 		}
 		if _, err := q.DeleteRestriction(ctx, id); err != nil {

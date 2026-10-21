@@ -577,3 +577,33 @@ func TestRestrictionLimitOverride_GOV_006(t *testing.T) {
 		t.Errorf("second under a raised override = %v", err)
 	}
 }
+
+// Verifies: GOV-006.
+// Only an Owner restricts the whole organisation, though an Admin holds
+// organization.manage; and a restricted Admin cannot lift a restriction that
+// applies to them, which is refused and audited, while an Owner can.
+func TestOnlyAnOwnerRestrictsTheOrganisationOrLiftsOwnRestriction_GOV_006(t *testing.T) {
+	t.Parallel()
+	g := newGovernance(t)
+	ctx := context.Background()
+	adminID := g.addMember(t, "admin@example.com", auth.RoleAdmin)
+	admin := g.principalOf(t, "admin@example.com", g.org)
+	whole := auth.RestrictionSpec{SubjectKind: auth.SubjectOrganization, Patterns: []string{"plugin.edit"}}
+	if _, err := g.svc.CreateRestriction(ctx, admin, whole); code(err) != plxerr.PermissionDenied {
+		t.Errorf("an Admin restricting the organisation = %v, want denied", err)
+	}
+	own, err := g.svc.CreateRestriction(ctx, g.owner, auth.RestrictionSpec{SubjectKind: auth.SubjectUser, SubjectID: adminID, Patterns: []string{"plugin.edit"}})
+	if err != nil {
+		t.Fatalf("the owner restricting the Admin: %v", err)
+	}
+	refused := g.auditCount(t, "restriction.refused")
+	if err := g.svc.DeleteRestriction(ctx, g.principalOf(t, "admin@example.com", g.org), own.ID); code(err) != plxerr.RestrictionExceedsCaller {
+		t.Errorf("the Admin lifting their own restriction = %v, want PLX-8106", err)
+	}
+	if got := g.auditCount(t, "restriction.refused"); got != refused+1 {
+		t.Errorf("refusals audited = %d, want %d", got, refused+1)
+	}
+	if err := g.svc.DeleteRestriction(ctx, g.owner, own.ID); err != nil {
+		t.Errorf("the owner lifting it: %v", err)
+	}
+}
