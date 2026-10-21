@@ -158,6 +158,11 @@ type world struct {
 	configs  *gateway.Configs
 	resolver *gateway.ConfigResolver
 	control  pluxv1connect.ControlServiceClient
+	// breakGlass, freeze and compliance are the clients of the governance
+	// controls of GOV-024 to GOV-026.
+	breakGlass pluxv1connect.BreakGlassServiceClient
+	freeze     pluxv1connect.FreezeServiceClient
+	compliance pluxv1connect.ComplianceServiceClient
 	// functions is the function service, and fn the fakes it runs builds
 	// with, as the worker role would.
 	functions     *function.Service
@@ -547,6 +552,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		manifest:     pluxv1connect.NewManifestServiceClient(srv.Client(), srv.URL),
 		native:       pluxv1connect.NewNativeCatalogueServiceClient(srv.Client(), srv.URL),
 		control:      pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
+		breakGlass:   pluxv1connect.NewBreakGlassServiceClient(srv.Client(), srv.URL),
+		freeze:       pluxv1connect.NewFreezeServiceClient(srv.Client(), srv.URL),
+		compliance:   pluxv1connect.NewComplianceServiceClient(srv.Client(), srv.URL),
 		secAdmin:     pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
 		license:      pluxv1connect.NewLicenseServiceClient(srv.Client(), srv.URL),
 		audit:        pluxv1connect.NewAuditServiceClient(srv.Client(), srv.URL),
