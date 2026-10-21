@@ -143,7 +143,7 @@ final class MetadataSync {
           targets: targets.version,
         );
       });
-      return MetadataTrust._(_targetsKeys(trusted.root), floor);
+      return MetadataTrust._(targetsKeysOf(trusted.root), floor);
     });
   }
 
@@ -353,18 +353,33 @@ final class MetadataSync {
       );
     }
   }
-
-  List<TrustedKey> _targetsKeys(RootMetadata root) => [
-    for (final id in root.role('targets').keyIds)
-      if (canonicalAlgorithm(root.keys[id]!.algorithm) == algEd25519)
-        TrustedKey(
-          keyId: id,
-          algorithm: ed25519Algorithm,
-          role: 'targets',
-          publicKey: root.keys[id]!.publicKey,
-        ),
-  ];
 }
+
+/// The Ed25519 keys [root] lists for the targets role, in the form the
+/// manifest verifier takes: after a rotation they replace the embedded
+/// ones.
+List<TrustedKey> targetsKeysOf(RootMetadata root) => [
+  for (final id in root.role('targets').keyIds)
+    if (canonicalAlgorithm(root.keys[id]!.algorithm) == algEd25519)
+      TrustedKey(
+        keyId: id,
+        algorithm: ed25519Algorithm,
+        role: 'targets',
+        publicKey: root.keys[id]!.publicKey,
+      ),
+];
+
+/// The `targets` keys a verified root chain lists (SEC-051): the root made
+/// from the [pinned] keys is the trust anchor, [chain] the signed root files
+/// after it, each verified against its predecessor, and the last must not
+/// have expired at [now]. This is the walk of a sync, run once with no
+/// store. A chain the pinned keys do not vouch for throws a [PluxException]
+/// (`PLX-3100` and its neighbours); nothing is returned for it.
+Future<List<TrustedKey>> verifiedTargetsKeys({
+  required List<TrustedKey> pinned,
+  required List<Uint8List> chain,
+  required DateTime now,
+}) async => targetsKeysOf(await rootChain(rootFromKeys(pinned), chain, now));
 
 final class _Trusted {
   const _Trusted(this.root, this.state);

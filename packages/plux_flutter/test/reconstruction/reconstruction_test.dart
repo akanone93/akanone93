@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cryptography/cryptography.dart' show SimpleKeyPair;
+import 'package:cryptography/dart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -16,9 +18,15 @@ import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/verify/jcs.dart';
 
 import '../sync/fake_device.dart';
+import '../sync/fake_metadata.dart';
 import '../sync/fake_server.dart';
 
 http.Client _client() => http.Client();
+
+Future<List<int>> _signWith(SimpleKeyPair pair, List<int> message) async =>
+    (await DartEd25519(
+      sha512: const DartSha512(),
+    ).sign(message, keyPair: pair)).bytes;
 
 /// Runtime in reconstruction mode, against a fake server that must stay
 /// untouched.
@@ -28,11 +36,15 @@ void main() {
   final gallery = goldens.bundles['widgets/gallery.pxb']!;
 
   late FakePluxServer server;
+  late FakeMetadata metadata;
   late String dir;
   final errors = <PluxException>[];
 
   setUp(() async {
     server = await FakePluxServer.start();
+    // The environment's root chain, over the server's signing key as its
+    // targets key (the key a manifest verifies under).
+    metadata = await FakeMetadata.create(await MetaKey.of(9));
     dir = Directory.systemTemp.createTempSync('plux_rec').path;
     errors.clear();
   });
@@ -43,13 +55,17 @@ void main() {
   });
 
   /// A reconstruction of the widgets app and its gallery plugin, signed by
-  /// the fake server's key unless [tweak] or [sign] change that.
+  /// the fake server's key unless [signer] says otherwise, with the root
+  /// chain after the pinned root 1 (the environment's current one unless
+  /// [roots] says otherwise).
   Future<PluxReconstruction> release({
     String id = 'rec_1',
     Map<String, Object?> Function(Map<String, Object?> manifest)? tweak,
     Map<String, Uint8List>? bundles,
     Uint8List Function(Uint8List canonical)? alter,
     bool canonical = true,
+    MetaKey? signer,
+    List<Uint8List>? roots,
   }) async {
     final held = bundles ?? {'': widgets, 'gallery': gallery};
     final manifest = <String, Object?>{
@@ -92,18 +108,21 @@ void main() {
         ? canonicalJson(shown)
         : const JsonEncoder.withIndent(' ').convert(shown);
     var signed = Uint8List.fromList(utf8.encode(text));
-    final signature = base64.decode(await server.signHash(signed));
+    final signature = signer == null
+        ? base64.decode(await server.signHash(signed))
+        : (await _signWith(signer.pair, signed));
     if (alter != null) signed = alter(signed);
     return PluxReconstruction(
       id: id,
       manifest: signed,
       signatures: [
         PluxReconstructionSignature(
-          keyId: server.keyId,
+          keyId: signer?.id ?? server.keyId,
           algorithm: 'ed25519',
           signature: Uint8List.fromList(signature),
         ),
       ],
+      roots: roots ?? metadata.roots.skip(1).toList(),
       bundles: [
         for (final MapEntry(:key, :value) in held.entries)
           PluxReconstructionBundle(key: key, bytes: value),
@@ -124,12 +143,13 @@ void main() {
           rootKeys:
               keys ??
               [
-                PluxPublicKey(
-                  keyId: server.keyId,
-                  algorithm: 'ed25519',
-                  role: 'targets',
-                  publicKey: server.publicKey,
-                ),
+                for (final k in metadata.embedded)
+                  PluxPublicKey(
+                    keyId: k.keyId,
+                    algorithm: k.algorithm,
+                    role: k.role,
+                    publicKey: k.publicKey,
+                  ),
               ],
           storageDirectory: dir,
           httpClient: _client,
@@ -219,6 +239,7 @@ void main() {
           final r = await release();
           return PluxReconstruction(
             id: r.id,
+            roots: r.roots,
             manifest: r.manifest,
             signatures: r.signatures,
             bundles: [
@@ -235,6 +256,7 @@ void main() {
           final r = await release();
           return PluxReconstruction(
             id: r.id,
+            roots: r.roots,
             manifest: r.manifest,
             signatures: r.signatures,
             bundles: [
@@ -250,6 +272,7 @@ void main() {
           final r = await release();
           return PluxReconstruction(
             id: r.id,
+            roots: r.roots,
             manifest: r.manifest,
             signatures: r.signatures,
             bundles: [
@@ -265,6 +288,7 @@ void main() {
           final r = await release();
           return PluxReconstruction(
             id: r.id,
+            roots: r.roots,
             manifest: r.manifest,
             signatures: r.signatures,
             bundles: [r.bundles.first],
@@ -277,6 +301,7 @@ void main() {
           final r = await release();
           return PluxReconstruction(
             id: r.id,
+            roots: r.roots,
             manifest: r.manifest,
             signatures: const [],
             bundles: r.bundles,
@@ -328,10 +353,84 @@ void main() {
       expect(startup.error!.code, PluxErrorCode.manifestSignatureInvalid);
     });
 
-    testWidgets('refuses a release when no keys are given', (tester) async {
+    testWidgets('refuses a release when no root keys are pinned [SEC-142]', (
+      tester,
+    ) async {
       final startup = await start(tester, await release(), keys: const []);
       expect(startup.ready, isFalse);
       expect(startup.error!.code, PluxErrorCode.manifestSignatureInvalid);
+      expect(startup.error!.message, contains('no root key'));
+    });
+
+    testWidgets('refuses a release signed by a key outside the pinned chain '
+        '[SEC-142] [SEC-051]', (tester) async {
+      final outsider = await MetaKey.of(77);
+      final startup = await start(tester, await release(signer: outsider));
+      expect(startup.ready, isFalse);
+      expect(startup.error!.code, PluxErrorCode.manifestSignatureInvalid);
+      expect(Plux.reconstruction, isNull);
+    });
+
+    testWidgets('trusts no targets key the pinned keys do not hold when the '
+        'chain is empty [SEC-142] [SEC-051]', (tester) async {
+      // Only the root keys are pinned: the server's own targets key, which
+      // signed the manifest, is nowhere in what the host trusts.
+      final startup = await start(
+        tester,
+        await release(),
+        keys: [
+          for (final k in metadata.embedded)
+            if (k.role == 'root')
+              PluxPublicKey(
+                keyId: k.keyId,
+                algorithm: k.algorithm,
+                role: k.role,
+                publicKey: k.publicKey,
+              ),
+        ],
+      );
+      expect(startup.ready, isFalse);
+      expect(startup.error!.code, PluxErrorCode.manifestSignatureInvalid);
+    });
+
+    testWidgets('opens a release whose targets key a rotated chain lists '
+        '[SEC-142] [SEC-051]', (tester) async {
+      await tester.runAsync(metadata.rotate);
+      final r = await tester.runAsync(release);
+      expect(r!.roots, hasLength(1));
+      final startup = await start(tester, r);
+      expect(startup.ready, isTrue);
+      expect(Plux.reconstruction!.id, 'rec_1');
+    });
+
+    testWidgets('refuses a root chain the pinned keys did not sign '
+        '[SEC-142] [SEC-051]', (tester) async {
+      await tester.runAsync(() => metadata.rotate(forged: true));
+      final startup = await start(tester, (await tester.runAsync(release))!);
+      expect(startup.ready, isFalse);
+      expect(startup.error!.code, PluxErrorCode.updateMetadataInvalid);
+      expect(Plux.reconstruction, isNull);
+    });
+
+    testWidgets('refuses a root chain that skips a version [SEC-142] '
+        '[SEC-051]', (tester) async {
+      await tester.runAsync(metadata.rotate);
+      await tester.runAsync(metadata.rotate);
+      final r = await tester.runAsync(
+        () => release(roots: metadata.roots.skip(2).toList()),
+      );
+      final startup = await start(tester, r!);
+      expect(startup.ready, isFalse);
+      expect(startup.error!.code, PluxErrorCode.rollbackRejected);
+    });
+
+    testWidgets('refuses a chain that ends in an expired root [SEC-142] '
+        '[SEC-051]', (tester) async {
+      metadata.rootExpires = DateTime.utc(2020);
+      await tester.runAsync(metadata.rotate);
+      final startup = await start(tester, (await tester.runAsync(release))!);
+      expect(startup.ready, isFalse);
+      expect(startup.error!.code, PluxErrorCode.updateMetadataInvalid);
     });
 
     testWidgets('keeps a hostile ID inside the reconstruction directory', (

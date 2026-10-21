@@ -180,6 +180,7 @@ export 'src/render/node_context.dart' show NodeBuilder, NodeContext;
 export 'src/render/plux_icon.dart' show PluxIcon;
 export 'src/render/widget_package.dart' show PluxWidgetPackage;
 export 'src/runtime_info.dart';
+export 'src/schema/limits.g.dart' show PluxLimit, PluxLimitUnit;
 export 'src/security/key_wrap.dart'
     show HardwareWrappedSecretStore, KeyWrapper, PlatformKeyWrapper;
 export 'src/security/rasp.dart' show PluxSecurityHost, PluxSecurityModule;

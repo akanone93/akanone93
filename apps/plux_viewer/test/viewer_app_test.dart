@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:plux_flutter/plux_flutter.dart' show PluxPublicKey;
 import 'package:plux_viewer/viewer.dart';
 
 /// The viewer opens a link once the auditor is signed in to its server
@@ -33,12 +34,23 @@ void main() {
     }),
   );
 
+  final pinned = [
+    PluxPublicKey(
+      keyId: 'root-1',
+      algorithm: 'ed25519',
+      role: 'root',
+      publicKey: Uint8List(32),
+    ),
+  ];
+
   Future<void> pumpApp(WidgetTester tester) async {
     await tester.pumpWidget(
       ViewerApp(
         controller: controller,
+        rootKeys: pinned,
         openerFor: (api) => ReconstructionOpener(
           apiFor(api.server, token: 'x'),
+          rootKeys: pinned,
           start: (_) async => null,
           stop: () async {},
         ),

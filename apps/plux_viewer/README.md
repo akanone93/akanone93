@@ -19,12 +19,38 @@ nothing. The viewer downloads the release and hands it to `Plux.initialize` thro
 |---|---|
 | `lib/main.dart` | the controller, the link receiver, then the app |
 | `lib/src/link.dart` | `ViewerLink`: parses `plux-viewer://reconstruction/<id>?server=<url>` |
-| `lib/src/api.dart` | `ViewerApi`: the ConnectRPC JSON calls (sign-in, lists, `GetReconstruction`, `GetRootKeys`, bundle download) |
+| `lib/src/api.dart` | `ViewerApi`: the ConnectRPC JSON calls (sign-in, lists, `GetReconstruction`, `GetRootKeys` for the signed root chain, bundle download) |
+| `lib/src/root_keys.dart` | the root keys the viewer is built with (`PLUX_VIEWER_ROOT_KEYS`) |
 | `lib/src/device_sign_in.dart` | the device authorization grant (RFC 8628) |
 | `lib/src/controller.dart` | the session (in memory) and the link waiting to be opened |
 | `lib/src/sign_in_screen.dart`, `list_screen.dart`, `reconstruction_screen.dart` | the three screens |
-| `lib/src/opener.dart` | `ReconstructionOpener`: release, keys, bundles, `Plux.initialize`, `Plux.dispose` |
+| `lib/src/opener.dart` | `ReconstructionOpener`: release, root chain, bundles, `Plux.initialize`, `Plux.dispose` |
 | `lib/src/viewer_app.dart` | the app, and `ViewerLinks`, which hands platform links to the controller |
+
+## The trust anchor: root keys pinned at build time
+
+A reconstruction is only as trustworthy as the keys it is verified with. The viewer does not take
+them from the server it talks to (a server, or anyone in the TLS path, could then sign a forged
+reconstruction and list the key that verifies it). It is built with the **root keys** of the
+installation, as a host app is (`SEC-051`): the contents of the installation's `keys.json`, as
+`plux pull` writes it, a JSON list of `{keyId, algorithm, role, publicKey}` with the public key in
+hex.
+
+```bash
+flutter build apk \
+  --dart-define=PLUX_VIEWER_ROOT_KEYS="$(cat path/to/keys.json)"
+```
+
+| Define | Meaning |
+|---|---|
+| `PLUX_VIEWER_ROOT_KEYS` | the installation's `keys.json`; without it the viewer opens nothing and says why |
+
+The runtime makes a root of these keys and walks the signed root files `GetRootKeys` returns
+after it, each signed by the threshold of its predecessor's keys and its own, to the `targets`
+keys it verifies the manifest with: the walk of a normal sync, not a second implementation. A
+reconstruction signed by a key that chain does not list is refused (`PLX-3001`), as is a chain the
+pinned keys did not sign or that has expired (`PLX-6022`; `PLX-3003` for a chain that skips a version). Keys that cannot be read stop the app at
+start, so that a mistake in a build does not look like a viewer that opens nothing.
 
 ## Signing in
 
@@ -57,13 +83,14 @@ as they are.
 
 1. `GetReconstruction` returns the canonical manifest, its signatures and a download URL per
    bundle. The server audits the view.
-2. `GetRootKeys` returns the environment's keys; the viewer keeps those of role `targets`. (It
-   reads the app and environment out of the still unverified manifest to know which to ask for,
-   and nothing else.)
+2. `GetRootKeys` returns the environment's signed root chain after the pinned root; the viewer keeps
+   the root files and nothing else it lists. (It reads the app and environment out of the still
+   unverified manifest to know which chain to ask for, and nothing else.)
 3. The bundles are downloaded, each stopped at the size the release declares and at the registry's
    bound for a bundle (`bundle.pluginSize`).
-4. `Plux.initialize(PluxConfig(…, reconstruction: …))` verifies the manifest (canonical form,
-   signature under a `targets` key, the app, environment and `audit` channel) and then each bundle
+4. `Plux.initialize(PluxConfig(rootKeys: <pinned>, …, reconstruction: …))` walks the chain from the
+   pinned keys to the `targets` keys, then verifies the manifest (canonical form,
+   signature under one of them, the app, environment and `audit` channel) and then each bundle
    against the hash the manifest names, before anything is stored or parsed.
 5. `PluxReconstructionView` shows the recorded route in the recorded locale and theme, at the
    recorded text scale and device class, under the banner. Leaving the screen stops the runtime,

@@ -20,6 +20,16 @@ void main() {
   late List<String> requested;
   late List<PluxConfig> started;
   late int stopped;
+  final root1 = Uint8List.fromList([1, 1, 1]);
+  final root2 = Uint8List.fromList([2, 2, 2]);
+  final pinned = [
+    PluxPublicKey(
+      keyId: 'pinned-root',
+      algorithm: 'ed25519',
+      role: 'root',
+      publicKey: Uint8List(32),
+    ),
+  ];
 
   ViewerApi api() => ViewerApi(
     server,
@@ -31,8 +41,12 @@ void main() {
     }),
   );
 
-  ReconstructionOpener opener({String? refusal}) => ReconstructionOpener(
+  ReconstructionOpener opener({
+    String? refusal,
+    List<PluxPublicKey>? rootKeys,
+  }) => ReconstructionOpener(
     api(),
+    rootKeys: rootKeys ?? pinned,
     start: (config) async {
       started.add(config);
       return refusal;
@@ -62,6 +76,7 @@ void main() {
         ],
       }),
       '/plux.v1.ManifestService/GetRootKeys': () => json({
+        'roots': [base64.encode(root1), base64.encode(root2)],
         'keys': [
           {
             'keyId': 'k1',
@@ -82,7 +97,7 @@ void main() {
     };
   });
 
-  test('hands the runtime the release, the keys and the bundles', () async {
+  test('hands the runtime the release, the pinned keys, the chain and the bundles [SEC-142]', () async {
     final steps = <String>[];
     await opener().open('rec_1', progress: steps.add);
     final c = started.single;
@@ -91,7 +106,9 @@ void main() {
     expect(c.channel, 'audit');
     expect(c.endpoint, server);
     expect(c.baseline, isNull);
-    expect(c.rootKeys.map((k) => (k.keyId, k.role)), [('k1', 'targets')]);
+    // The keys the server lists are not the runtime's: only the pinned
+    // ones are, and the runtime walks the chain from them (SEC-051).
+    expect(c.rootKeys.map((k) => (k.keyId, k.role)), [('pinned-root', 'root')]);
     final r = c.reconstruction!;
     expect(r.id, 'rec_1');
     expect(r.manifest, manifest);
@@ -99,13 +116,14 @@ void main() {
     expect(r.bundles.map((b) => b.key), ['', 'p']);
     expect(r.bundles[0].bytes, [1, 2, 3]);
     expect(r.bundles[1].bytes, [4, 5]);
+    expect(r.roots, [root1, root2]);
     expect(steps.first, 'Fetching the reconstruction');
     expect(steps.last, 'Verifying');
   });
 
   test('trusts nothing it downloads: the runtime does the verifying', () async {
     // The viewer reads two fields of the unverified manifest, to know which
-    // keys to ask for, and passes the rest on untouched.
+    // root chain to ask for, and passes the rest on untouched.
     routes['/plux.v1.AuditService/GetReconstruction'] = () => json({
       'manifest': base64.encode(
         utf8.encode('{"app":"app_1","environment":"e","x":1}'),
@@ -151,18 +169,48 @@ void main() {
     expect(requested, ['/plux.v1.AuditService/GetReconstruction']);
   });
 
-  test('refuses a manifest it cannot read, before asking for keys', () async {
-    routes['/plux.v1.AuditService/GetReconstruction'] = () => json({
-      'manifest': base64.encode(utf8.encode('[]')),
-      'bundles': <Object?>[],
-    });
-    await expectLater(opener().open('rec_1'), throwsA(isA<OpenException>()));
-    expect(requested, ['/plux.v1.AuditService/GetReconstruction']);
-  });
+  test(
+    'refuses a manifest it cannot read, before asking for the chain',
+    () async {
+      routes['/plux.v1.AuditService/GetReconstruction'] = () => json({
+        'manifest': base64.encode(utf8.encode('[]')),
+        'bundles': <Object?>[],
+      });
+      await expectLater(opener().open('rec_1'), throwsA(isA<OpenException>()));
+      expect(requested, ['/plux.v1.AuditService/GetReconstruction']);
+    },
+  );
 
-  test('needs a targets key to verify with', () async {
+  test(
+    'opens nothing without pinned root keys, and asks nothing [SEC-142]',
+    () async {
+      await expectLater(
+        opener(rootKeys: const []).open('rec_1'),
+        throwsA(
+          isA<OpenException>().having(
+            (e) => e.message,
+            'message',
+            noRootKeysMessage,
+          ),
+        ),
+      );
+      expect(requested, isEmpty);
+      expect(started, isEmpty);
+    },
+  );
+
+  test('passes an empty chain on: the pinned keys are then current', () async {
     routes['/plux.v1.ManifestService/GetRootKeys'] = () =>
         json({'keys': <Object?>[]});
+    await opener().open('rec_1');
+    expect(started.single.reconstruction!.roots, isEmpty);
+  });
+
+  test('reports a failure to fetch the chain in the server\'s words', () async {
+    routes['/plux.v1.ManifestService/GetRootKeys'] = () => http.Response(
+      jsonEncode({'code': 'not_found', 'message': 'no such environment'}),
+      404,
+    );
     await expectLater(opener().open('rec_1'), throwsA(isA<OpenException>()));
     expect(started, isEmpty);
   });
@@ -213,6 +261,7 @@ void main() {
     var left = false;
     final o = ReconstructionOpener(
       api(),
+      rootKeys: pinned,
       start: (config) async {
         left = true;
         return null;
@@ -230,6 +279,7 @@ void main() {
     final events = <String>[];
     final o = ReconstructionOpener(
       api(),
+      rootKeys: pinned,
       start: (config) async {
         events.add('start');
         return null;
