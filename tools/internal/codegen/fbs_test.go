@@ -90,3 +90,49 @@ func TestLoadFBSRejectsUnsupportedInput(t *testing.T) {
 		t.Error("a dangling root was accepted")
 	}
 }
+
+// ControlFiles writes the verifier's layout of the control document: the
+// tables sorted by name, the file identifier and the index of the root.
+// Verifies: SYN-060, SEC-052.
+func TestControlFilesRenderTheControlDocumentLayout_SYN_060(t *testing.T) {
+	t.Parallel()
+	s, err := LoadFBS(filepath.Join("testdata", "fbs"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	files, err := ControlFiles(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(files) != 1 || files[0].Path != ControlDartLayoutPath {
+		t.Fatalf("files = %v, want only %s", files, ControlDartLayoutPath)
+	}
+	src := string(files[0].Content)
+	for _, part := range []string{
+		"DO NOT EDIT.", "schema/control.fbs", "const List<TableLayout> controlLayouts = [",
+		"FieldLayout('leaves', 7, FieldKind.vectorTable, 0, 0, 0, required: false)",
+		"const String controlIdentifier = 'TEST';", "const int controlRootLayout = 1;",
+	} {
+		if !strings.Contains(src, part) {
+			t.Errorf("control layout lacks %q:\n%s", part, src)
+		}
+	}
+}
+
+// Verifies: SYN-060.
+func TestControlFilesRejectBrokenSchemas_SYN_060(t *testing.T) {
+	t.Parallel()
+	for name, s := range map[string]*FBS{
+		"no root":      {Tables: []FBSTable{{Name: "A"}}},
+		"two roots":    {Tables: []FBSTable{{Name: "A"}}, Roots: map[string]string{"AAAA": "A", "BBBB": "A"}},
+		"unknown root": {Tables: []FBSTable{{Name: "A"}}, Roots: map[string]string{"AAAA": "Missing"}},
+		"dangling table": {
+			Tables: []FBSTable{{Name: "A", Fields: []FBSField{{Name: "b", Kind: FieldTable, Table: "Missing"}}}},
+			Roots:  map[string]string{"AAAA": "A"},
+		},
+	} {
+		if _, err := ControlFiles(s); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+}

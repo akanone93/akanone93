@@ -265,8 +265,8 @@ void main() {
       );
     });
 
-    test('the hand-written layout accepts what the generated builder '
-        'writes [SEC-052]', () async {
+    test('the generated layout accepts what the generated builder '
+        'writes [SEC-052] [SYN-060]', () async {
       final doc = control.document(
         switches: [
           for (var i = 0; i < 50; i++)
@@ -284,6 +284,30 @@ void main() {
       );
       final snapshot = await read(doc);
       expect(snapshot.switches, hasLength(50));
+    });
+
+    test('the generated layout checks the tables a hand-written one left '
+        'out: an experiment without its key is refused [SEC-052] '
+        '[SYN-060]', () async {
+      final doc = control.document(
+        experiments: [
+          fbs.ExperimentAllocationObjectBuilder(
+            scope: fbs.ExperimentScope.Prop,
+            salt: 's',
+          ),
+        ],
+      );
+      final envelope = await accepted(await control.file(doc));
+      expect(
+        () => readControlDocument(envelope, _limits),
+        throwsA(
+          isA<PluxException>().having(
+            (e) => e.code,
+            'code',
+            PluxErrorCode.controlSignatureInvalid,
+          ),
+        ),
+      );
     });
   });
 }

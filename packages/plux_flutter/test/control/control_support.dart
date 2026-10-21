@@ -83,6 +83,7 @@ final class ControlFixture {
     List<fbs.KillSwitchObjectBuilder> switches = const [],
     fbs.MandatoryUpdateObjectBuilder? mandatory,
     fbs.ForcedRollbackObjectBuilder? rollback,
+    List<fbs.ExperimentAllocationObjectBuilder>? experiments,
   }) => fbs.ControlDocumentObjectBuilder(
     version: version,
     appId: app,
@@ -96,6 +97,7 @@ final class ControlFixture {
     killSwitches: switches,
     mandatoryUpdate: mandatory,
     forcedRollback: rollback,
+    experiments: experiments,
   ).toBytes('PLXC');
 
   /// The signed file for [document] (built with the same [version],

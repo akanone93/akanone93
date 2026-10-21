@@ -25,6 +25,13 @@ const FBSDartLayoutPath = "packages/plux_flutter/lib/src/verify/layout.g.dart"
 // FBSSource names the schemas the layout tables come from.
 const FBSSource = "schema/fbs"
 
+// ControlDartLayoutPath is the layout of the control document for the
+// runtime's verifier (SYN-060, ADR-0077, ADR-0029).
+const ControlDartLayoutPath = "packages/plux_flutter/lib/src/control/control_layout.g.dart"
+
+// ControlSource names the schema the control document's layout comes from.
+const ControlSource = "schema/control.fbs"
+
 // FBS is the layout of the bundle section schemas, read from the binary
 // schemas (.bfbs) flatc writes for schema/fbs/*.fbs.
 type FBS struct {
@@ -249,10 +256,7 @@ func shortName(qualified string) string {
 
 // FBSFiles renders the verifier's layout tables.
 func FBSFiles(s *FBS) ([]File, error) {
-	index := map[string]int{}
-	for i, t := range s.Tables {
-		index[t.Name] = i
-	}
+	index := tableIndex(s)
 	var b bytes.Buffer
 	b.WriteString(header(LangGo, FBSSource))
 	b.WriteString("package bundle\n\n")
@@ -295,38 +299,87 @@ func FBSFiles(s *FBS) ([]File, error) {
 	return []File{f, fbsDart(s, index)}, nil
 }
 
-// fbsDart writes the layout tables as Dart for the runtime's verifier,
-// which interprets them exactly as the Go verifier does.
-func fbsDart(s *FBS, index map[string]int) File {
-	kinds := map[FBSFieldKind]string{
-		FieldScalar: "scalar", FieldStruct: "struct", FieldString: "string", FieldTable: "table",
-		FieldVectorScalar: "vectorScalar", FieldVectorStruct: "vectorStruct",
-		FieldVectorString: "vectorString", FieldVectorTable: "vectorTable",
-	}
-	var b bytes.Buffer
-	b.WriteString(header(LangDart, FBSSource))
-	b.WriteString("/// The layout tables of the bundle section schemas (ADR-0002, ADR-0029):\n")
-	b.WriteString("/// the same tables the Go verifier interprets.\nlibrary;\n\n")
-	b.WriteString("import 'package:plux_flutter/src/verify/flatbuffers_verifier.dart';\n\n")
-	b.WriteString("/// Every table of the section schemas, sorted by name.\nconst List<TableLayout> tableLayouts = [\n")
+// dartKinds maps a field kind to its Dart verifier enum member.
+var dartKinds = map[FBSFieldKind]string{
+	FieldScalar: "scalar", FieldStruct: "struct", FieldString: "string", FieldTable: "table",
+	FieldVectorScalar: "vectorScalar", FieldVectorStruct: "vectorStruct",
+	FieldVectorString: "vectorString", FieldVectorTable: "vectorTable",
+}
+
+// tableIndex maps each table name to its position in s.Tables.
+func tableIndex(s *FBS) map[string]int {
+	index := map[string]int{}
 	for i, t := range s.Tables {
-		fmt.Fprintf(&b, "  // %d\n  TableLayout('%s', [\n", i, t.Name)
+		index[t.Name] = i
+	}
+	return index
+}
+
+// dartLayoutList writes the Dart list name of the layouts of s.
+func dartLayoutList(b *bytes.Buffer, s *FBS, index map[string]int, name, doc string) {
+	fmt.Fprintf(b, "/// %s\nconst List<TableLayout> %s = [\n", doc, name)
+	for i, t := range s.Tables {
+		fmt.Fprintf(b, "  // %d\n  TableLayout('%s', [\n", i, t.Name)
 		for _, f := range t.Fields {
 			table := -1
 			if f.Table != "" {
 				table = index[f.Table]
 			}
-			fmt.Fprintf(&b, "    FieldLayout('%s', %d, FieldKind.%s, %d, %d, %d, required: %t),\n",
-				f.Name, f.ID, kinds[f.Kind], f.Size, f.Align, table, f.Required)
+			fmt.Fprintf(b, "    FieldLayout('%s', %d, FieldKind.%s, %d, %d, %d, required: %t),\n",
+				f.Name, f.ID, dartKinds[f.Kind], f.Size, f.Align, table, f.Required)
 		}
 		b.WriteString("  ]),\n")
 	}
-	b.WriteString("];\n\n/// Each section's file identifier and the index of its root table.\nconst Map<String, int> rootLayouts = {\n")
+	b.WriteString("];\n")
+}
+
+// fbsDart writes the layout tables as Dart for the runtime's verifier,
+// which interprets them exactly as the Go verifier does.
+func fbsDart(s *FBS, index map[string]int) File {
+	var b bytes.Buffer
+	b.WriteString(header(LangDart, FBSSource))
+	b.WriteString("/// The layout tables of the bundle section schemas (ADR-0002, ADR-0029):\n")
+	b.WriteString("/// the same tables the Go verifier interprets.\nlibrary;\n\n")
+	b.WriteString("import 'package:plux_flutter/src/verify/flatbuffers_verifier.dart';\n\n")
+	dartLayoutList(&b, s, index, "tableLayouts", "Every table of the section schemas, sorted by name.")
+	b.WriteString("\n/// Each section's file identifier and the index of its root table.\nconst Map<String, int> rootLayouts = {\n")
 	for _, ident := range slices.Sorted(maps.Keys(s.Roots)) {
 		fmt.Fprintf(&b, "  '%s': %d, // %s\n", ident, index[s.Roots[ident]], s.Roots[ident])
 	}
 	b.WriteString("};\n")
 	return File{Path: FBSDartLayoutPath, Content: b.Bytes()}
+}
+
+// ControlFiles renders the layout tables of the control document for the
+// runtime's verifier (SYN-060). The schema has exactly one root: the
+// control document.
+func ControlFiles(s *FBS) ([]File, error) {
+	if len(s.Roots) != 1 {
+		return nil, fmt.Errorf("codegen.ControlFiles: %d root tables, want 1", len(s.Roots))
+	}
+	index := tableIndex(s)
+	ident := slices.Collect(maps.Keys(s.Roots))[0]
+	root := s.Roots[ident]
+	rootIndex, ok := index[root]
+	if !ok {
+		return nil, fmt.Errorf("codegen.ControlFiles: root %s of %q is not a table", root, ident)
+	}
+	for _, t := range s.Tables {
+		for _, f := range t.Fields {
+			if _, known := index[f.Table]; f.Table != "" && !known {
+				return nil, fmt.Errorf("codegen.ControlFiles: %s.%s refers to unknown table %s", t.Name, f.Name, f.Table)
+			}
+		}
+	}
+	var b bytes.Buffer
+	b.WriteString(header(LangDart, ControlSource))
+	b.WriteString("/// The layout tables of the control document (SYN-060, ADR-0077, ADR-0029),\n")
+	b.WriteString("/// in the form the runtime's FlatBuffers verifier walks.\nlibrary;\n\n")
+	b.WriteString("import 'package:plux_flutter/src/verify/flatbuffers_verifier.dart';\n\n")
+	dartLayoutList(&b, s, index, "controlLayouts", "Every table of the control document's schema, sorted by name.")
+	fmt.Fprintf(&b, "\n/// The file identifier of a control document.\nconst String controlIdentifier = '%s';\n", ident)
+	fmt.Fprintf(&b, "\n/// The index in [controlLayouts] of the root table, `%s`.\nconst int controlRootLayout = %d;\n", root, rootIndex)
+	return []File{{Path: ControlDartLayoutPath, Content: b.Bytes()}}, nil
 }
 
 // fbReader reads a FlatBuffers buffer without a schema-specific API. It

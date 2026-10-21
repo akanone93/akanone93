@@ -4,11 +4,14 @@
 /// Reads the FlatBuffers document of a verified control envelope
 /// (`schema/control.fbs`, ADR-0077). The buffer goes through the
 /// FlatBuffers verifier first (SEC-052, ADR-0029) against the layout tables
-/// below, and only a buffer that passes is read with the generated reader.
+/// of `control_layout.g.dart`, which `make gen` writes from the schema
+/// (SYN-060), and only a buffer that passes is read with the generated
+/// reader.
 /// Unknown kill switch scopes and unknown fields come from a newer server
 /// and are skipped (additive evolution).
 library;
 
+import 'package:plux_flutter/src/control/control_layout.g.dart';
 import 'package:plux_flutter/src/control/control_snapshot.dart';
 import 'package:plux_flutter/src/control/fbs/control_controlfbs_generated.dart'
     as fbs;
@@ -17,103 +20,6 @@ import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
 import 'package:plux_flutter/src/verify/flatbuffers_verifier.dart';
 import 'package:plux_flutter/src/verify/update_metadata.dart';
-
-/// The file identifier of a control document.
-const String controlIdentifier = 'PLXC';
-
-/// The layout tables of `schema/control.fbs`, in the form the verifier
-/// walks, written by hand because the generator emits the bundle sections
-/// only. A test builds a document with the generated builder and checks it
-/// against these, so a change of the schema fails there.
-const List<TableLayout> controlLayouts = [
-  // 0
-  TableLayout('TargetingRule', []),
-  // 1
-  TableLayout('KillSwitch', [
-    FieldLayout('scope', 0, FieldKind.scalar, 1, 1, -1, required: false),
-    FieldLayout('target', 1, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout('rule', 2, FieldKind.table, 0, 0, 0, required: false),
-  ]),
-  // 2
-  TableLayout('MandatoryUpdate', [
-    FieldLayout('release_id', 0, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout(
-      'release_sequence',
-      1,
-      FieldKind.scalar,
-      8,
-      8,
-      -1,
-      required: false,
-    ),
-    FieldLayout('message_key', 2, FieldKind.string, 0, 0, -1, required: false),
-  ]),
-  // 3
-  TableLayout('ForcedRollback', [
-    FieldLayout('release_id', 0, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout(
-      'release_sequence',
-      1,
-      FieldKind.scalar,
-      8,
-      8,
-      -1,
-      required: false,
-    ),
-  ]),
-  // 4
-  TableLayout('FlagValue', []),
-  // 5
-  TableLayout('ExperimentAllocation', []),
-  // 6
-  TableLayout('ControlDocument', [
-    FieldLayout('version', 0, FieldKind.scalar, 8, 8, -1, required: false),
-    FieldLayout('app_id', 1, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout('environment', 2, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout('channel', 3, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout('issued_at', 4, FieldKind.scalar, 8, 8, -1, required: false),
-    FieldLayout('expires_at', 5, FieldKind.scalar, 8, 8, -1, required: false),
-    FieldLayout(
-      'kill_switches',
-      6,
-      FieldKind.vectorTable,
-      0,
-      0,
-      1,
-      required: false,
-    ),
-    FieldLayout(
-      'mandatory_update',
-      7,
-      FieldKind.table,
-      0,
-      0,
-      2,
-      required: false,
-    ),
-    FieldLayout(
-      'forced_rollback',
-      8,
-      FieldKind.table,
-      0,
-      0,
-      3,
-      required: false,
-    ),
-    FieldLayout('flags', 9, FieldKind.vectorTable, 0, 0, 4, required: false),
-    FieldLayout(
-      'experiments',
-      10,
-      FieldKind.vectorTable,
-      0,
-      0,
-      5,
-      required: false,
-    ),
-  ]),
-];
-
-const int _documentTable = 6;
 
 PluxException _invalid(String message) => PluxException(
   PluxErrorCode.controlSignatureInvalid,
@@ -135,7 +41,7 @@ ControlSnapshot readControlDocument(
       envelope.document,
       identifier: controlIdentifier,
       layouts: controlLayouts,
-      root: _documentTable,
+      root: controlRootLayout,
       maxDepth: limits.maxDepth,
       maxVisits: limits.maxVisits,
     );
