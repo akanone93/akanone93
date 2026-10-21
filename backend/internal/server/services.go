@@ -553,7 +553,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	experiments, err := buildExperiments(db, log, gen, tenancyService, docs, releases)
+	experiments, err := buildExperiments(db, log, gen, tenancyService, docs, releases, approvals)
 	if err != nil {
 		return nil, err
 	}

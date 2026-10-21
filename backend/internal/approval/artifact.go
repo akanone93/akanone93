@@ -37,6 +37,8 @@ const (
 	ActionSetCapabilities = "setCapabilities"
 	// ActionChangePolicy writes or withdraws a policy.
 	ActionChangePolicy = "change"
+	// ActionLaunch starts an experiment (ABT-007).
+	ActionLaunch = "launch"
 )
 
 // maxDepth bounds the nesting of the JSON the engine reads or hashes.

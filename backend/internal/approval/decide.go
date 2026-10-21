@@ -157,7 +157,7 @@ func (*Service) holder(ctx context.Context, q *dbgen.Queries, p auth.Principal) 
 	if err != nil {
 		return nil, nil, fmt.Errorf("approval: read the teams of a decider: %w", err)
 	}
-	roles = slices.Concat([]string{}, roles)
+	roles = append([]string{}, roles...)
 	slices.Sort(roles)
 	teams = []string{}
 	for _, id := range ids {

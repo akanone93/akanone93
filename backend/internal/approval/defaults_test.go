@@ -113,6 +113,32 @@ func TestDefaultPolicies_PerProfile_GOV_020(t *testing.T) {
 	}
 }
 
+// Verifies: ABT-007, GOV-020.
+func TestDefaultPolicies_ExperimentLaunch_ABT_007(t *testing.T) {
+	launch := func(env Environment, risk ...schema.PolicyRisk) Artifact {
+		return Artifact{Resource: schema.PolicyResourceExperiment, Action: ActionLaunch, Environment: env, Risk: risk}
+	}
+	dev, prod := Environment{Key: "dev"}, Environment{Key: "production", Production: true}
+	cases := []struct {
+		profile settings.Profile
+		art     Artifact
+		want    int
+	}{
+		{settings.Maximum, launch(dev, schema.PolicyRiskTouchesSecurePage), 2},
+		{settings.Maximum, launch(prod, schema.PolicyRiskTouchesMoneyFlow), 2},
+		{settings.Maximum, launch(dev, schema.PolicyRiskTouchesSecurePage, schema.PolicyRiskTouchesMoneyFlow), 2},
+		{settings.Maximum, launch(prod), 0},
+		{settings.Maximum, launch(prod, schema.PolicyRiskChangesFunctionUsedBy), 0},
+		{settings.Strict, launch(prod, schema.PolicyRiskTouchesSecurePage), 0},
+		{settings.Standard, launch(prod, schema.PolicyRiskTouchesMoneyFlow), 0},
+	}
+	for i, c := range cases {
+		if got := requirementFor(t, c.profile, c.art); got != c.want {
+			t.Errorf("case %d: %s asks %d approvals of an experiment launch with %v, want %d", i, c.profile, got, c.art.Risk, c.want)
+		}
+	}
+}
+
 // Verifies: GOV-020.
 func TestParsePolicy_Refusals_GOV_020(t *testing.T) {
 	s := parser(t)

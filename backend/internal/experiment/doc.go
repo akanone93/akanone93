@@ -49,9 +49,10 @@
 //
 // # Seams
 //
-// [ApprovalGate] is where the approval engine (ABT-007, milestone E2)
-// decides whether an experiment on a secure page or a money flow may start;
-// the default allows. [SegmentSource] supplies the rule of a segment.
+// [ApprovalGate] is where the approval engine (ABT-007) decides whether an
+// experiment on a secure page or a money flow may start; [EngineGate]
+// implements it with the engine, rating the launch from the draft, and
+// [AllowAll] is the default where no engine is wired. [SegmentSource] supplies the rule of a segment.
 // [Documents], [Publisher] and [ControlWriter] are the narrow views of the
 // document and release services this package uses.
 //

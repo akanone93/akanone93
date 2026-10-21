@@ -40,7 +40,8 @@ func production() *bool {
 // security profile (maintainer decision Q16, spec §18.2): standard asks one
 // approver for a production publish, strict two, and maximum four-eyes on
 // production publish, function deployment, device-function enablement,
-// security-configuration change, accessibility waiver and golden approval.
+// security-configuration change, accessibility waiver and golden approval,
+// and on an experiment that touches a secure page or a money flow (ABT-007).
 // Every default also asks that the author is not the approver, which the
 // engine enforces whatever a policy says. newID supplies the immutable
 // identifier of each document.
@@ -124,5 +125,20 @@ func maximumRules(prod func(...schema.PolicyResource) schema.PolicyMatch, releas
 			description: "Four-eyes approval for promoting golden images to baselines.",
 			match:       schema.PolicyMatch{Resources: []schema.PolicyResource{schema.PolicyResourceGoldenBaseline}}, approvers: 2,
 		},
+		experimentRule("secure-page", "a page marked secure", schema.PolicyRiskTouchesSecurePage),
+		experimentRule("money-flow", "a flow that involves money", schema.PolicyRiskTouchesMoneyFlow),
+	}
+}
+
+// experimentRule is the maximum profile's rule for an experiment that
+// carries one risk attribute (ABT-007).
+func experimentRule(suffix, touches string, risk schema.PolicyRisk) defaultRule {
+	return defaultRule{
+		key: defaultPrefix + "maximum-experiment-" + suffix, name: "Experiment launch on " + touches + " (maximum)",
+		description: "Four-eyes approval for starting an experiment that touches " + touches + ".",
+		match: schema.PolicyMatch{
+			Resources: []schema.PolicyResource{schema.PolicyResourceExperiment},
+			Actions:   []string{ActionLaunch}, Risk: []schema.PolicyRisk{risk},
+		}, approvers: 2,
 	}
 }
