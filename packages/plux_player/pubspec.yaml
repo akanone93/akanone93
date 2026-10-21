@@ -16,7 +16,7 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-  plux_flutter: ^0.5.0
+  plux_flutter: ^0.6.0
   video_player: ^2.14.1
 
 dev_dependencies:

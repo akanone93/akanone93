@@ -5,6 +5,25 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 0.6.0
+
+The runtime of Plux Phase 9: controls, experiments, reconstruction and the enterprise seams.
+Not released yet.
+
+- **Signed control document (SYN-060, SEC-142):** the device applies the signed control
+  document on start-up and on each sync; a switched-off graph, source or function fails with
+  its own code; a kill switch applies only on the devices its rule matches; the verifier layout
+  is generated from the schema.
+- **Flags and experiments (ABT-002):** flags and experiment allocations are read from the
+  control document; the device assigns its variant from the bundle's embedded defaults, and
+  `Variant` nodes render the assigned branch.
+- **Device targeting and reconstruction:** sync sends the device's targeting inputs and the
+  reconstruction inputs; the viewer host verifies reconstructions under build-time pinned root
+  keys and renders them in a reconstruction mode.
+- **Mandatory updates (REL-070):** the update screen shown while a mandatory update is
+  pending, with `PluxConfig.updateScreen` for the host's own.
+- **Errors and limits:** the Phase 9 error codes and limit keys the runtime reads.
+
 ## 0.5.0
 
 The runtime of Plux Phase 8: localisation, accessibility and the catalogue catch-up. Not

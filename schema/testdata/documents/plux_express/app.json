@@ -35,7 +35,7 @@
   "id": "01d0c450-6c00-7000-8000-000000000300",
   "key": "express",
   "kind": "app",
-  "minRuntimeVersion": "0.5.0",
+  "minRuntimeVersion": "0.6.0",
   "name": "Plux Express",
   "navigation": {
     "shells": [
