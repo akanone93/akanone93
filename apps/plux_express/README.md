@@ -41,3 +41,24 @@ flutter test test/express_test.dart       # host tests of the configuration, the
 
 The end-to-end driver (`TestPluxExpressAgainstTheServer`) builds [`test/refapi`](../../test/refapi),
 publishes the fixture with its environment URLs pointed at it, and runs the flows.
+
+## P9 scenarios (DX-004)
+
+The fixture carries three P9 scenarios; [`tool/p9_express.sh`](tool/p9_express.sh) runs their
+server side with the `plux` CLI (its header lists the environment it reads):
+
+| Scenario | In the fixture | Script step |
+|---|---|---|
+| A scheduled campaign banner | the `offers` carousel of the `catalogue` page; the campaign is a release that changes it, delivered by a rollout with a start and an end, after which the channel returns to the previous release (REL-050) | `campaign` |
+| An A/B experiment on the banner | the `catalogueBanner` experiment and the `Variant` node on `catalogue`: the control keeps the carousel, `compact` shows one banner; the `experiment_exposure` event is recorded when the arm builds (ABT-001, ABT-002) | `experiment` |
+| A flag-gated courier | the app flag `courierEnabled` and the guard `courier-gate` on the `courier` route; with the flag off the route sends the device to `catalogue` (NAV-009, ABT-006) | `courier-off`, `courier-on` |
+
+```bash
+PLUX_ARGS="--app $APP" CAMPAIGN_RELEASE=7 CAMPAIGN_START=2026-12-01T00:00:00Z \
+  CAMPAIGN_END=2026-12-08T00:00:00Z apps/plux_express/tool/p9_express.sh campaign
+```
+
+The compiler's output for the fixture is pinned in `schema/testdata/bundles/plux_express`
+(`cd backend && go test ./cmd/plux -run TestReferenceApps -update` rewrites it), and
+`packages/plux_flutter/test/experiments/reference_apps_p9_test.dart` runs the banner arms and
+the flag guard on those bundles. The steps that talk to a server, and the device flows, run in CI.

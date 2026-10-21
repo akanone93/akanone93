@@ -1,0 +1,27 @@
+{
+  "description": "Whether the catalogue opens with the carousel of offers or one compact banner.",
+  "id": "01d0c450-6c00-7000-8000-0000000007a0",
+  "key": "catalogueBanner",
+  "kind": "experiment",
+  "minimumSampleSize": 1000,
+  "name": "Catalogue banner",
+  "primaryMetric": {
+    "direction": "increase",
+    "event": "order_placed",
+    "kind": "proportion"
+  },
+  "salt": "catalogue-banner-1",
+  "schemaVersion": "1.0.0",
+  "scope": "subtree",
+  "variants": [
+    {
+      "control": true,
+      "name": "control",
+      "weight": 50
+    },
+    {
+      "name": "compact",
+      "weight": 50
+    }
+  ]
+}

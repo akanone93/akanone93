@@ -75,6 +75,7 @@ final class Harness {
     List<PluxWidgetPackage> widgetPackages = const [PluxComponents()],
     ProviderContainer? container,
     http.Client Function()? client,
+    PluxFunctionEngine? functionEngine,
   }) async {
     server.release = null;
     final baseline = await server.baseline(5, app, plugins);
@@ -108,6 +109,7 @@ final class Harness {
         databaseAdapter: databaseAdapter,
         widgetPackages: widgetPackages,
         container: container,
+        functionEngine: functionEngine,
       ),
       RuntimeOverrides(
         credentials: MemoryCredentialStore.new,

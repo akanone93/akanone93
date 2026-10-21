@@ -242,6 +242,16 @@
       "description": "Use at most 40 characters",
       "id": "01d0c450-6c00-7000-8000-000000009309",
       "key": "transfer.error.reference"
+    },
+    {
+      "description": "Transfers are paused",
+      "id": "01d0c450-6c00-7000-8000-000000009401",
+      "key": "transfer.unavailable.title"
+    },
+    {
+      "description": "Transfers are unavailable for now. Your money is safe; please try again later.",
+      "id": "01d0c450-6c00-7000-8000-000000009402",
+      "key": "transfer.unavailable.message"
     }
   ],
   "kind": "translationKeys",

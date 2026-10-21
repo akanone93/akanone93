@@ -137,7 +137,11 @@ func startReferenceApp(t *testing.T, app referenceApp) *referenceRun {
 		OK      bool
 		Release int64
 	}
-	decode(t, st.run(t, 0, "publish", "-C", project, "--env", "staging", "--promote", "staging", "--json"), &pub)
+	// Plux Express's Variant node raises PLX-1120 (a newer runtime would be
+	// needed to target it); the device's runtime supports the feature, and
+	// an older one refuses the bundle by it (BND-008), so the warning is
+	// acknowledged.
+	decode(t, st.run(t, 0, "publish", "-C", project, "--env", "staging", "--promote", "staging", "--acknowledge-warnings", "--json"), &pub)
 	if !pub.OK || pub.Release != 1 {
 		t.Fatalf("publish: %+v", pub)
 	}
