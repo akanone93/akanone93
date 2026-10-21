@@ -7,35 +7,41 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_flutter/src/experiments/assignment.dart';
 import 'package:plux_flutter/src/experiments/control_models.dart';
+import 'package:plux_flutter/src/experiments/targeting.dart';
 
 ControlExperiment experiment({
   String key = 'cta',
   String salt = 'cta-1',
   List<(String, int)> weights = const [
-    ('control', 50),
-    ('bold', 30),
-    ('short', 20),
+    ('control', 5000),
+    ('bold', 3000),
+    ('short', 2000),
   ],
-  String? layer,
-  int rangeStart = 0,
-  int rangeEnd = bucketCount,
-  int holdout = 0,
+  String layer = '',
+  int layerStart = 0,
+  int layerEnd = 0,
+  int holdoutBp = 0,
+  TargetingRule? segment,
   DateTime? startsAt,
   DateTime? endsAt,
 }) => ControlExperiment(
   key: key,
   salt: salt,
-  variants: [for (final (n, w) in weights) ControlVariant(name: n, weight: w)],
+  variants: [
+    for (final (i, (n, w)) in weights.indexed)
+      ControlVariant(name: n, weightBp: w, control: i == 0),
+  ],
   layer: layer,
-  rangeStart: rangeStart,
-  rangeEnd: rangeEnd,
-  holdout: holdout,
+  layerStart: layerStart,
+  layerEnd: layerEnd,
+  holdoutBp: holdoutBp,
+  segment: segment,
   startsAt: startsAt,
   endsAt: endsAt,
 );
 
 /// The subjects of the deterministic population every test draws from.
-final subjects = [for (var i = 0; i < 20000; i++) subjectOf('user-$i')];
+final subjects = [for (var i = 0; i < 20000; i++) 'user-$i'];
 
 void main() {
   group('bucketing', () {
@@ -45,7 +51,7 @@ void main() {
         ('cta-1', 'a'),
         ('', 'device'),
         ('s' * 40, 'ü-user'),
-        ('x', subjectOf('42')),
+        ('x', '42'),
       ]) {
         final bytes = sha256.convert(utf8.encode(salt + subject)).bytes;
         final expected =
@@ -60,29 +66,24 @@ void main() {
         expect(bucketOf(salt, subject), expected.toInt());
       }
     });
-
-    test('a subject is the hash of its ID, never the ID [ABT-002]', () {
-      expect(subjectOf('user-1'), isNot(contains('user-1')));
-      expect(subjectOf('user-1'), hasLength(64));
-      expect(subjectOf('user-1'), subjectOf('user-1'));
-    });
   });
 
   group('weighted pick', () {
     test('the weights split the buckets in order, and a zero weight gets '
         'none [ABT-002]', () {
-      final e = experiment(weights: [('a', 50), ('b', 0), ('c', 50)]);
+      final e = experiment(weights: [('a', 5000), ('b', 0), ('c', 5000)]);
       expect(weightedPick(e, 0), 'a');
       expect(weightedPick(e, 4999), 'a');
       expect(weightedPick(e, 5000), 'c');
       expect(weightedPick(e, 9999), 'c');
     });
 
-    test('an experiment with no weight picks nothing [ABT-002]', () {
+    test('weights that stop short of the bucket pick nothing [ABT-002]', () {
       expect(
         weightedPick(experiment(weights: [('a', 0), ('b', 0)]), 10),
         isNull,
       );
+      expect(weightedPick(experiment(weights: [('a', 5000)]), 5000), isNull);
     });
   });
 
@@ -134,14 +135,14 @@ void main() {
         key: 'a',
         salt: 'a-1',
         layer: 'checkout',
-        rangeEnd: 4000,
+        layerEnd: 4000,
       );
       final second = experiment(
         key: 'b',
         salt: 'b-1',
         layer: 'checkout',
-        rangeStart: 4000,
-        rangeEnd: 10000,
+        layerStart: 4000,
+        layerEnd: 10000,
       );
       var inFirst = 0, inSecond = 0;
       for (final s in subjects) {
@@ -158,7 +159,7 @@ void main() {
 
     test('an experiment alone in its layer with a half range enrols half '
         '[ABT-004]', () {
-      final e = experiment(layer: 'solo', rangeEnd: 5000);
+      final e = experiment(layer: 'solo', layerEnd: 5000);
       final enrolled = subjects.where(
         (s) => drawVariant(e, s, const {}) != null,
       );
@@ -167,7 +168,7 @@ void main() {
 
     test('the global holdout keeps its share out of every experiment, the '
         'same subjects in each [ABT-004]', () {
-      const holdout = ControlHoldout(salt: 'holdout-1', size: 1000);
+      const holdout = ControlHoldout(salt: 'holdout-1', basisPoints: 1000);
       final held = subjects.where((s) => isHeldOut(holdout, s)).toSet();
       expect(held.length / subjects.length, closeTo(0.1, 0.01));
       expect(isHeldOut(null, subjects.first), isFalse);
@@ -179,11 +180,62 @@ void main() {
       );
     });
 
-    test('an experiment holdout leaves that share on the control without '
-        'enrolling it [ABT-004]', () {
-      final e = experiment(holdout: 2000);
-      final out = subjects.where((s) => drawVariant(e, s, const {}) == null);
-      expect(out.length / subjects.length, closeTo(0.2, 0.012));
+    test('an experiment holdout shows that share the control, whatever the '
+        'weights [ABT-004]', () {
+      final e = experiment(
+        weights: [('control', 0), ('bold', 10000)],
+        holdoutBp: 2000,
+      );
+      final drawn = [for (final s in subjects) drawVariant(e, s, const {})];
+      expect(
+        drawn.where((v) => v == 'control').length / subjects.length,
+        closeTo(0.2, 0.012),
+      );
+      expect(
+        drawn.where((v) => v == 'bold').length / subjects.length,
+        closeTo(0.8, 0.012),
+      );
+      for (final s in subjects.take(500)) {
+        final held = bucketOf('cta-1:holdout', s) < 2000;
+        expect(drawVariant(e, s, const {}), held ? 'control' : 'bold');
+      }
+    });
+
+    test('the control is the variant marked as such, not the first '
+        '[ABT-004]', () {
+      final e = ControlExperiment(
+        key: 'k',
+        salt: 'k-1',
+        variants: const [
+          ControlVariant(name: 'wide', weightBp: 0),
+          ControlVariant(name: 'base', weightBp: 10000, control: true),
+        ],
+        holdoutBp: 10000,
+      );
+      expect(drawVariant(e, 'someone', const {}), 'base');
+      expect(e.control.name, 'base');
+    });
+  });
+
+  group('segment', () {
+    test('a subject outside the segment is not in the experiment, one inside '
+        'draws as everyone does [ABT-001] [ABT-002]', () {
+      const ios = TargetingCondition('os', TargetingOperator.eq, 'ios');
+      final e = experiment(segment: ios);
+      for (final s in subjects.take(200)) {
+        expect(drawVariant(e, s, const {'os': 'android'}), isNull);
+        expect(drawVariant(e, s, const {}), isNull);
+        expect(
+          drawVariant(e, s, const {'os': 'ios'}),
+          drawVariant(experiment(), s, const {}),
+        );
+      }
+    });
+
+    test('a segment this runtime cannot evaluate matches no device '
+        '[ABT-001]', () {
+      final e = experiment(segment: const TargetingNever());
+      expect(drawVariant(e, 'a', const {'os': 'ios'}), isNull);
     });
   });
 

@@ -4,9 +4,12 @@
 /// Which variant of an experiment a subject gets (ABT-002, ABT-004): a pure
 /// function of the experiment's allocation, the subject and the facts the
 /// device has, so the same inputs give the same variant on every device and
-/// in every test. `variant = weightedPick(sha256(salt ‖ subject))`; layers
-/// give experiments disjoint ranges of one bucket space, and a global
-/// holdout keeps a fixed share of subjects out of every experiment.
+/// in every test. It follows the procedure that `ExperimentAllocation` of
+/// `schema/control.fbs` defines, step by step: the schedule, the global
+/// holdout, the segment, the layer, the experiment's own holdout and then
+/// the weights. The subject is the user identifier `setUserContext` gave,
+/// otherwise the installation identifier; it enters the bucket hash and
+/// goes nowhere else.
 library;
 
 import 'dart:convert';
@@ -30,23 +33,15 @@ int bucketOf(String salt, String subject) {
   return ((high % bucketCount) * (twoPow32 % bucketCount) + low) % bucketCount;
 }
 
-/// The hashed form of a user ID or device ID in which it is used as the
-/// subject: identifiers never enter a hash, an event or a store in the
-/// clear.
-String subjectOf(String id) => sha256.convert(utf8.encode(id)).toString();
-
-/// The variant of [experiment] that the weights of its variants give the
-/// bucket [bucket]; null when every weight is zero.
+/// The variant whose running total of `weightBp` first exceeds [bucket], or
+/// null when the weights stop short of it.
 String? weightedPick(ControlExperiment experiment, int bucket) {
-  final total = experiment.variants.fold<int>(0, (sum, v) => sum + v.weight);
-  if (total <= 0) return null;
-  final point = bucket * total ~/ bucketCount;
   var upTo = 0;
   for (final v in experiment.variants) {
-    upTo += v.weight;
-    if (point < upTo) return v.name;
+    upTo += v.weightBp;
+    if (bucket < upTo) return v.name;
   }
-  return experiment.control.name;
+  return null;
 }
 
 /// Whether the schedule of [experiment] covers [now].
@@ -58,28 +53,30 @@ bool isScheduled(ControlExperiment experiment, DateTime now) {
 
 /// Whether [subject] is in the global [holdout] (ABT-004).
 bool isHeldOut(ControlHoldout? holdout, String subject) =>
-    holdout != null && bucketOf(holdout.salt, subject) < holdout.size;
+    holdout != null && bucketOf(holdout.salt, subject) < holdout.basisPoints;
 
 /// The variant [subject] is drawn into, or null when it is not in the
-/// experiment: its targeting rule does not match [facts], its bucket in
-/// the layer lies outside the experiment's range, or it is in the
-/// experiment's own holdout. The schedule and the global holdout are the
-/// caller's to check (they also gate a stored assignment).
+/// experiment: its segment does not match [facts], its bucket in the layer
+/// lies outside the experiment's range, or the weights leave it out. A
+/// subject in the experiment's own holdout is drawn into the control. The
+/// schedule and the global holdout are the caller's to check (they also
+/// gate a stored assignment).
 String? drawVariant(
   ControlExperiment experiment,
   String subject,
   TargetingFacts facts,
 ) {
-  if (experiment.rule case final rule? when !rule.matches(facts)) return null;
-  final traffic = bucketOf(
-    experiment.layer ?? '${experiment.salt}/traffic',
-    subject,
-  );
-  if (traffic < experiment.rangeStart || traffic >= experiment.rangeEnd) {
+  if (experiment.segment case final rule? when !rule.matches(facts)) {
     return null;
   }
-  if (bucketOf('${experiment.salt}/holdout', subject) < experiment.holdout) {
-    return null;
+  if (experiment.layer.isNotEmpty) {
+    final traffic = bucketOf(experiment.layer, subject);
+    if (traffic < experiment.layerStart || traffic >= experiment.layerEnd) {
+      return null;
+    }
+  }
+  if (bucketOf('${experiment.salt}:holdout', subject) < experiment.holdoutBp) {
+    return experiment.control.name;
   }
   return weightedPick(experiment, bucketOf(experiment.salt, subject));
 }

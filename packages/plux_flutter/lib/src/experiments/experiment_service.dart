@@ -81,9 +81,9 @@ final class ExperimentService {
   // ── Flags (ABT-006) ──────────────────────────────────────────────────────
 
   /// The flags of [defaults] (the app document's, by key) with the value
-  /// the control document gives this device wherever a case matches and
-  /// has the default's kind. Returns [defaults] itself when no flag changes,
-  /// which is the common case.
+  /// the control document gives this device wherever it names the flag and
+  /// the value has the default's kind. Returns [defaults] itself when no
+  /// flag changes, which is the common case.
   Map<String, Object?> flags(Map<String, Object?> defaults) {
     Map<String, Object?>? out;
     for (final MapEntry(:key, :value) in defaults.entries) {
@@ -96,29 +96,23 @@ final class ExperimentService {
   }
 
   /// The effective value of flag [key] whose default is [fallback]: what
-  /// `flags.<key>` reads, for guards and host accessors alike. The first
-  /// case of the control document whose rule matches this device and whose
-  /// value has the default's kind wins; a flag the document does not name
-  /// keeps its default.
+  /// `flags.<key>` reads, for guards and host accessors alike. A flag the
+  /// control document names takes the value of the first segment whose rule
+  /// matches this device, else the document's default, provided the value
+  /// has the kind of [fallback]; any other flag keeps its default.
   Object? flag(String key, Object? fallback) {
     final controlled = _snapshot()?.flags.where((f) => f.key == key);
     final found = controlled == null || controlled.isEmpty
         ? null
-        : _caseValue(controlled.first, fallback);
+        : _controlledValue(controlled.first, fallback);
     final value = found == null ? fallback : found.value;
     _flagEvaluated(key, value, controlled: found != null);
     return value;
   }
 
-  ({Object? value})? _caseValue(ControlFlag flag, Object? fallback) {
-    TargetingFacts? facts;
-    for (final c in flag.cases) {
-      final rule = c.rule;
-      if (rule != null && !rule.matches(facts ??= _facts())) continue;
-      final coerced = _coerce(c.value, fallback);
-      if (coerced.fits) return (value: coerced.value);
-    }
-    return null;
+  ({Object? value})? _controlledValue(ControlFlag flag, Object? fallback) {
+    final coerced = _coerce(flag.valueFor(_facts()), fallback);
+    return coerced.fits ? (value: coerced.value) : null;
   }
 
   void _flagEvaluated(String key, Object? value, {required bool controlled}) {
@@ -159,7 +153,7 @@ final class ExperimentService {
 
   String? _assign(ControlExperiment experiment, ControlHoldout? holdout) {
     if (!isScheduled(experiment, _clock())) return null;
-    final subject = subjectOf(_userId() ?? _installId());
+    final subject = _userId() ?? _installId();
     if (isHeldOut(holdout, subject)) return null;
     final stored = _stored(experiment);
     if (stored != null) return stored;

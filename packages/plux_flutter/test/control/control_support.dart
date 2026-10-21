@@ -41,6 +41,44 @@ fbs.KillSwitchObjectBuilder killSwitch(
   rule: withRule ? fbs.TargetingRuleObjectBuilder() : null,
 );
 
+/// A condition of a targeting rule, with its operands as the server writes
+/// them (canonical text).
+fbs.TargetingRuleObjectBuilder condition(
+  String attribute,
+  fbs.RuleOperator op,
+  fbs.RuleValueType type,
+  List<String> values,
+) => fbs.TargetingRuleObjectBuilder(
+  attribute: attribute,
+  $operator: op,
+  valueType: type,
+  values: values,
+);
+
+/// A flag of a built document.
+fbs.FlagValueObjectBuilder flagValue(
+  String key,
+  fbs.FlagType type,
+  String defaultValue, [
+  List<fbs.FlagSegmentValueObjectBuilder> segments = const [],
+]) => fbs.FlagValueObjectBuilder(
+  key: key,
+  type: type,
+  defaultValue: defaultValue,
+  segments: segments,
+);
+
+/// One variant of an experiment of a built document.
+fbs.AllocationVariantObjectBuilder allocationVariant(
+  String name,
+  int weightBp, {
+  bool control = false,
+}) => fbs.AllocationVariantObjectBuilder(
+  name: name,
+  weightBp: weightBp,
+  control: control,
+);
+
 /// A key playing the `control` role, and the files it signs.
 final class ControlFixture {
   ControlFixture._(this._pair, this.publicKey)
@@ -83,6 +121,9 @@ final class ControlFixture {
     List<fbs.KillSwitchObjectBuilder> switches = const [],
     fbs.MandatoryUpdateObjectBuilder? mandatory,
     fbs.ForcedRollbackObjectBuilder? rollback,
+    List<fbs.FlagValueObjectBuilder> flags = const [],
+    List<fbs.ExperimentAllocationObjectBuilder> experiments = const [],
+    fbs.GlobalHoldoutObjectBuilder? holdout,
   }) => fbs.ControlDocumentObjectBuilder(
     version: version,
     appId: app,
@@ -96,6 +137,9 @@ final class ControlFixture {
     killSwitches: switches,
     mandatoryUpdate: mandatory,
     forcedRollback: rollback,
+    flags: flags,
+    experiments: experiments,
+    holdout: holdout,
   ).toBytes('PLXC');
 
   /// The signed file for [document] (built with the same [version],

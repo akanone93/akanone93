@@ -9,10 +9,12 @@
 /// and are skipped (additive evolution).
 library;
 
+import 'package:plux_flutter/src/control/control_experiments_reader.dart';
 import 'package:plux_flutter/src/control/control_snapshot.dart';
 import 'package:plux_flutter/src/control/fbs/control_controlfbs_generated.dart'
     as fbs;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/experiments/control_models.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
 import 'package:plux_flutter/src/verify/flatbuffers_verifier.dart';
@@ -27,7 +29,14 @@ const String controlIdentifier = 'PLXC';
 /// against these, so a change of the schema fails there.
 const List<TableLayout> controlLayouts = [
   // 0
-  TableLayout('TargetingRule', []),
+  TableLayout('TargetingRule', [
+    FieldLayout('attribute', 0, FieldKind.string, 0, 0, -1, required: false),
+    FieldLayout('operator', 1, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('value_type', 2, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('values', 3, FieldKind.vectorString, 0, 0, -1, required: false),
+    FieldLayout('all', 4, FieldKind.vectorTable, 0, 0, 0, required: false),
+    FieldLayout('any', 5, FieldKind.vectorTable, 0, 0, 0, required: false),
+  ]),
   // 1
   TableLayout('KillSwitch', [
     FieldLayout('scope', 0, FieldKind.scalar, 1, 1, -1, required: false),
@@ -62,9 +71,26 @@ const List<TableLayout> controlLayouts = [
     ),
   ]),
   // 4
-  TableLayout('FlagValue', []),
+  TableLayout('FlagValue', [
+    FieldLayout('key', 0, FieldKind.string, 0, 0, -1, required: true),
+    FieldLayout('type', 1, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('default_value', 2, FieldKind.string, 0, 0, -1, required: true),
+    FieldLayout('segments', 3, FieldKind.vectorTable, 0, 0, 7, required: false),
+  ]),
   // 5
-  TableLayout('ExperimentAllocation', []),
+  TableLayout('ExperimentAllocation', [
+    FieldLayout('key', 0, FieldKind.string, 0, 0, -1, required: true),
+    FieldLayout('scope', 1, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('salt', 2, FieldKind.string, 0, 0, -1, required: true),
+    FieldLayout('variants', 3, FieldKind.vectorTable, 0, 0, 8, required: false),
+    FieldLayout('layer', 4, FieldKind.string, 0, 0, -1, required: false),
+    FieldLayout('layer_start', 5, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('layer_end', 6, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('holdout_bp', 7, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('segment', 8, FieldKind.table, 0, 0, 0, required: false),
+    FieldLayout('starts_at', 9, FieldKind.scalar, 8, 8, -1, required: false),
+    FieldLayout('ends_at', 10, FieldKind.scalar, 8, 8, -1, required: false),
+  ]),
   // 6
   TableLayout('ControlDocument', [
     FieldLayout('version', 0, FieldKind.scalar, 8, 8, -1, required: false),
@@ -110,6 +136,24 @@ const List<TableLayout> controlLayouts = [
       5,
       required: false,
     ),
+    FieldLayout('holdout', 11, FieldKind.table, 0, 0, 9, required: false),
+  ]),
+  // 7
+  TableLayout('FlagSegmentValue', [
+    FieldLayout('segment', 0, FieldKind.string, 0, 0, -1, required: true),
+    FieldLayout('rule', 1, FieldKind.table, 0, 0, 0, required: true),
+    FieldLayout('value', 2, FieldKind.string, 0, 0, -1, required: true),
+  ]),
+  // 8
+  TableLayout('AllocationVariant', [
+    FieldLayout('name', 0, FieldKind.string, 0, 0, -1, required: true),
+    FieldLayout('control', 1, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('weight_bp', 2, FieldKind.scalar, 4, 4, -1, required: false),
+  ]),
+  // 9
+  TableLayout('GlobalHoldout', [
+    FieldLayout('basis_points', 0, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('salt', 1, FieldKind.string, 0, 0, -1, required: true),
   ]),
 ];
 
@@ -122,10 +166,12 @@ PluxException _invalid(String message) => PluxException(
 );
 
 /// Verifies the FlatBuffers [bytes] of [envelope] and reads them: the kill
-/// switches, the mandatory update and the forced rollback. The document
-/// must say what the signed header says (version, channel, times), and
-/// carry at most `control.killSwitches` switches. Throws `PLX-3100` for any
-/// buffer that is not a well-formed, agreeing document.
+/// switches, the mandatory update, the forced rollback, the flags, the
+/// experiment allocations and the global holdout. The document must say
+/// what the signed header says (version, channel, times), and carry at most
+/// `control.killSwitches` switches, `flags.perApp` flags and
+/// `experiments.activePerApp` experiments. Throws `PLX-3100` for any buffer
+/// that is not a well-formed, agreeing document.
 ControlSnapshot readControlDocument(
   ControlEnvelope envelope,
   VerifierLimits limits,
@@ -147,6 +193,14 @@ ControlSnapshot readControlDocument(
   final all = doc.killSwitches ?? const <fbs.KillSwitch>[];
   if (all.length > PluxLimit.controlKillSwitches.max) {
     throw _invalid('${all.length} kill switches');
+  }
+  final flags = doc.flags ?? const <fbs.FlagValue>[];
+  final experiments = doc.experiments ?? const <fbs.ExperimentAllocation>[];
+  if (flags.length > PluxLimit.flagsPerApp.max) {
+    throw _invalid('${flags.length} flags');
+  }
+  if (experiments.length > PluxLimit.experimentsActivePerApp.max) {
+    throw _invalid('${experiments.length} experiments');
   }
   final mandatory = doc.mandatoryUpdate;
   final rollback = doc.forcedRollback;
@@ -170,6 +224,15 @@ ControlSnapshot readControlDocument(
             releaseId: rollback.releaseId ?? '',
             releaseSequence: rollback.releaseSequence,
           ),
+    flags: [
+      for (final f in flags)
+        if (readFlag(f) case final ControlFlag known) known,
+    ],
+    experiments: [
+      for (final e in experiments)
+        if (readExperiment(e) case final ControlExperiment known) known,
+    ],
+    holdout: readHoldout(doc.holdout),
   );
 }
 

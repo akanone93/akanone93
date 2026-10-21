@@ -18,7 +18,12 @@ ControlSnapshot flagOn({required bool value, TargetingRule? rule}) =>
       flags: [
         ControlFlag(
           key: 'betaEnabled',
-          cases: [FlagCase(rule: rule, value: value)],
+          type: FlagType.boolean,
+          defaultValue: rule == null ? value : !value,
+          segments: [
+            if (rule != null)
+              FlagSegment(segment: 'targeted', rule: rule, value: value),
+          ],
         ),
       ],
     );

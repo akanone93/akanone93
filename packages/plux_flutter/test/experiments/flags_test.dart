@@ -26,14 +26,29 @@ Map<String, Object?> cond(String attribute, String operator, Object value) => {
 ControlSnapshot snapshot(List<ControlFlag> flags) =>
     ControlSnapshot(version: 1, expiresAt: DateTime.utc(2030), flags: flags);
 
-ControlFlag flag(String key, List<(Map<String, Object?>?, Object?)> cases) =>
-    ControlFlag(
-      key: key,
-      cases: [
-        for (final (r, v) in cases)
-          FlagCase(rule: r == null ? null : rule(r), value: v),
-      ],
-    );
+/// A rule that holds on every device the tests describe.
+final Map<String, Object?> anyone = cond('channel', 'neq', 'none');
+
+/// A flag whose type follows its [defaultValue], with the [segments] (a rule
+/// and a value each) in precedence order.
+ControlFlag flag(
+  String key,
+  Object? defaultValue, [
+  List<(Map<String, Object?>, Object?)> segments = const [],
+]) => ControlFlag(
+  key: key,
+  type: switch (defaultValue) {
+    bool() => FlagType.boolean,
+    num() => FlagType.number,
+    String() => FlagType.string,
+    _ => FlagType.json,
+  },
+  defaultValue: defaultValue,
+  segments: [
+    for (final (i, (r, v)) in segments.indexed)
+      FlagSegment(segment: 'segment$i', rule: rule(r), value: v),
+  ],
+);
 
 void main() {
   const phone = <String, Object>{
@@ -198,85 +213,104 @@ void main() {
       });
     });
 
-    test('the first case whose rule matches the device gives the value; '
-        'no match keeps the default [ABT-006]', () {
+    test('the first segment whose rule matches the device gives the value; '
+        'no match gives the default of the document [ABT-006]', () {
       control = snapshot([
-        flag('beta', [
-          (cond('os', 'eq', 'ios'), 'ios'),
+        flag('beta', false, [
+          (cond('os', 'eq', 'ios'), false),
           (cond('channel', 'eq', 'beta'), true),
-          (null, false),
+          (anyone, false),
         ]),
-        flag('label', [(cond('os', 'eq', 'ios'), 'iOS label')]),
+        flag('label', 'Document label', [
+          (cond('os', 'eq', 'ios'), 'iOS label'),
+        ]),
       ]);
       expect(service.flags({'beta': false, 'label': 'Second'}), {
         'beta': true,
-        'label': 'Second',
+        'label': 'Document label',
       });
       facts = {...phone, 'os': 'ios'};
       expect(service.flag('label', 'Second'), 'iOS label');
       expect(
-        service.flag('beta', false),
-        isTrue,
-        reason: 'the ios case matches but is a string: the next case wins',
+        service.flag('beta', true),
+        isFalse,
+        reason: 'the ios segment is first and wins',
       );
     });
 
-    test('a case without a rule applies to every device [ABT-006]', () {
+    test('a segment that holds on every device decides before the default '
+        '[ABT-006]', () {
       control = snapshot([
-        flag('beta', [(null, true)]),
+        flag('beta', false, [(anyone, true)]),
       ]);
-      facts = const {};
+      facts = const {'channel': 'stable'};
       expect(service.flag('beta', false), isTrue);
+      facts = const {};
+      expect(
+        service.flag('beta', true),
+        isFalse,
+        reason: 'a device without the fact fails the condition',
+      );
     });
 
-    test('a value of another kind than the default is ignored, a whole '
+    test('a value of another kind than the app default is ignored, a whole '
         'number fits a decimal flag [ABT-006]', () {
       control = snapshot([
-        flag('beta', [(null, 'yes')]),
-        flag('ratio', [(null, 2)]),
-        flag('count', [(null, 2.5), (null, 3.0)]),
-        flag('config', [
-          (null, {'a': 1}),
-        ]),
+        flag('beta', 'yes'),
+        flag('ratio', 2),
+        flag('count', 2.5, [(anyone, 3.0)]),
+        flag('whole', 2.5),
+        flag('config', {'a': 1}),
       ]);
       expect(service.flag('beta', false), isFalse);
       expect(service.flag('ratio', 1.5), 2.0);
       expect(service.flag('ratio', 1.5), isA<double>());
       expect(service.flag('count', 1), 3);
       expect(service.flag('count', 1), isA<int>());
+      expect(service.flag('whole', 1), 1);
       expect(service.flag('config', <String, Object?>{}), {'a': 1});
     });
 
     test('a flag the app does not declare is not created [ABT-006]', () {
-      control = snapshot([
-        flag('ghost', [(null, true)]),
-      ]);
+      control = snapshot([flag('ghost', true)]);
       expect(service.flags({'beta': false}), {'beta': false});
     });
 
-    test('a case with a rule this runtime cannot read is dropped, so the '
-        'default holds [ABT-006]', () {
+    test('a segment with a rule this runtime cannot read, or a value of '
+        'another type than the flag, is dropped [ABT-006]', () {
       final stored = ControlFlag.fromJson({
         'key': 'beta',
-        'cases': [
-          {'rule': cond('os', 'matches', 'x'), 'value': true},
-          {'value': 'no rule key but not a bool'},
+        'type': 'boolean',
+        'defaultValue': false,
+        'segments': [
+          {'segment': 'a', 'rule': cond('os', 'matches', 'x'), 'value': true},
+          {
+            'segment': 'b',
+            'rule': cond('os', 'eq', 'android'),
+            'value': 'not a bool',
+          },
         ],
       })!;
-      expect(stored.cases, hasLength(1));
+      expect(stored.segments, isEmpty);
       control = snapshot([stored]);
-      expect(service.flag('beta', false), isFalse);
+      expect(service.flag('beta', true), isFalse);
+      expect(
+        ControlFlag.fromJson({
+          'key': 'beta',
+          'type': 'boolean',
+          'defaultValue': 'no',
+          'segments': <Object?>[],
+        }),
+        isNull,
+        reason: 'a default of another type than the flag is no flag',
+      );
     });
 
     test('a new control document changes the value at once, without a '
         'restart [ABT-006]', () {
-      control = snapshot([
-        flag('beta', [(null, false)]),
-      ]);
+      control = snapshot([flag('beta', false)]);
       expect(service.flag('beta', true), isFalse);
-      control = snapshot([
-        flag('beta', [(null, true)]),
-      ]);
+      control = snapshot([flag('beta', true)]);
       expect(service.flag('beta', false), isTrue);
       control = null;
       expect(service.flag('beta', false), isFalse);
@@ -288,25 +322,30 @@ void main() {
         version: 3,
         expiresAt: DateTime.utc(2030),
         flags: [
-          flag('beta', [(cond('os', 'eq', 'ios'), true)]),
+          flag('beta', false, [(cond('os', 'eq', 'ios'), true)]),
         ],
         experiments: const [
           ControlExperiment(
             key: 'cta',
             salt: 's',
-            variants: [ControlVariant(name: 'control', weight: 100)],
+            scope: ExperimentScope.prop,
+            variants: [
+              ControlVariant(name: 'control', weightBp: 10000, control: true),
+            ],
             layer: 'checkout',
-            rangeEnd: 5000,
-            holdout: 100,
+            layerEnd: 5000,
+            holdoutBp: 100,
+            segment: TargetingNever(),
           ),
         ],
-        holdout: const ControlHoldout(salt: 'h', size: 500),
+        holdout: const ControlHoldout(salt: 'h', basisPoints: 500),
       );
       final again = ControlSnapshot.fromJson(s.toJson())!;
       expect(again.toJson(), s.toJson());
-      expect(again.flags.single.cases.single.rule, isNotNull);
+      expect(again.flags.single.segments.single.rule, isNotNull);
       expect(again.experiments.single.layer, 'checkout');
-      expect(again.holdout!.size, 500);
+      expect(again.experiments.single.segment, isA<TargetingNever>());
+      expect(again.holdout!.basisPoints, 500);
       // A document stored before flags existed still reads.
       expect(
         ControlSnapshot.fromJson({
@@ -321,7 +360,7 @@ void main() {
     test('flag_evaluated names the flag, its value type and its source, '
         'once per session, and never a user attribute [ABT-006]', () {
       control = snapshot([
-        flag('beta', [(cond('user.tier', 'eq', 'gold'), true)]),
+        flag('beta', false, [(cond('user.tier', 'eq', 'gold'), true)]),
       ]);
       service.flags({'beta': false, 'label': 'x'});
       service.flags({'beta': false, 'label': 'x'});
