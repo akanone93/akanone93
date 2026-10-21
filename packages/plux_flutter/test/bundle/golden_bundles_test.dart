@@ -50,6 +50,10 @@ void main() {
       'forms/signup.pxb',
       'loan-calculator/demo.pxb',
       'loan-calculator/loans.pxb',
+      'plux_bank/bank.pxb',
+      'plux_bank/banking.pxb',
+      'plux_express/express.pxb',
+      'plux_express/shop.pxb',
       'routing/nav.pxb',
       'routing/routing.pxb',
       'state/notes.pxb',
@@ -71,6 +75,7 @@ void main() {
             ? 3
             : (path.contains('/tasks') ||
                       path.contains('/loans') ||
+                      path.contains('/banking') ||
                       path.contains('/nav') ||
                       path.contains('/shop') ||
                       path.contains('/notes') ||
@@ -110,6 +115,12 @@ void main() {
             // The experiments project has Variant nodes, which need 0.6.0
             // (ABT-002).
             : path.startsWith('experiments/')
+            ? '0.6.0'
+            // The reference apps declare their own minimum: Plux Bank the P8
+            // runtime, Plux Express the P9 one for its Variant node.
+            : path.startsWith('plux_bank/')
+            ? '0.5.0'
+            : path.startsWith('plux_express/')
             ? '0.6.0'
             : '0.3.0',
         reason: path,
