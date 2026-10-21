@@ -5,7 +5,7 @@
 # pull request (ci/affected.json, ADR-0043). The tools are pinned in the
 # Makefile header and installed by `make install-helm-tools`.
 
-.PHONY: helm-lint e2e-kind restore-drill airgap-kind
+.PHONY: helm-lint e2e-kind restore-drill airgap-kind walkthrough-kind walkthrough-plan
 
 ##@ Kubernetes (Helm chart)
 
@@ -33,3 +33,11 @@ restore-drill: ## Restore the installation into a new namespace on kind from its
 airgap-kind: ## Build and verify an air-gapped bundle, then install it on kind with outbound networking denied, images from a local registry, and run helm test (needs Docker, kubectl, skopeo and the enterprise module)
 	docker build -f backend/Dockerfile --target server -t $(E2E_IMAGE) .
 	GO="$(GO)" HELM="$(HELM)" KIND="$(KIND)" E2E_IMAGE="$(E2E_IMAGE)" CNPG_VERSION="$(CNPG_VERSION)" CNPG_SHA256="$(CNPG_SHA256)" $(HELM_DIR)/airgap-kind.sh
+
+# Verifies: DEP-004, GOV-006, GOV-007, GOV-020, GOV-021, GOV-022, GOV-024, GOV-025, GOV-026, REL-053, REL-060, SEC-142, SEC-143, SEC-162, NFR-024.
+walkthrough-kind: ## Run the scripted regulated-industry audit walkthrough (SSO and SCIM, approvals, staged rollout and health gate, kill switch through break-glass, mandatory update, audit export, reconstruction, rolling upgrade, data-subject request) against the HA chart on kind with the synthetic fleet, and verify the signed evidence bundle (needs Docker, kubectl, the enterprise image and the two browser hooks of test/walkthrough/walkthrough-kind.sh)
+	docker build -f backend/Dockerfile --target server -t $(E2E_IMAGE) .
+	GO="$(GO)" HELM="$(HELM)" KIND="$(KIND)" E2E_IMAGE="$(E2E_IMAGE)" CNPG_VERSION="$(CNPG_VERSION)" CNPG_SHA256="$(CNPG_SHA256)" test/walkthrough/walkthrough-kind.sh
+
+walkthrough-plan: ## Print the plan of the audit walkthrough: every step, the requirements it exercises and what it does; starts nothing
+	cd tools && $(GO) run ./cmd/walkthrough run -dry-run
