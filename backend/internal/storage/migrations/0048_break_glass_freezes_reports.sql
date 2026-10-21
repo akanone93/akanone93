@@ -42,6 +42,7 @@ CREATE TABLE break_glass_invocations (
 CREATE INDEX break_glass_open ON break_glass_invocations (review_due_at, id) WHERE review_status = 'open';
 CREATE INDEX break_glass_by_org ON break_glass_invocations (organization_id, invoked_at DESC, id DESC);
 SELECT plux_tenant_policy('break_glass_invocations');
+SELECT plux_app_policy('break_glass_invocations');
 
 -- change_freezes holds the change-freeze windows of an organisation
 -- (GOV-025). start_local is a wall-clock time in time_zone, so that a window
@@ -93,6 +94,7 @@ CREATE TABLE production_changes (
 );
 CREATE INDEX production_changes_period ON production_changes (organization_id, changed_at, id);
 SELECT plux_tenant_policy('production_changes');
+SELECT plux_app_policy('production_changes');
 
 -- compliance_reports holds a requested report: the statement is built when
 -- the report is requested, and the worker, which alone holds the audit key,

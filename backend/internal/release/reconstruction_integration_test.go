@@ -127,7 +127,7 @@ func newReconFixture(t *testing.T) *reconFixture {
 		t.Fatal(err)
 	}
 	f.auditor = auth.Principal{
-		Identity:       auth.Identity{Kind: auth.KindUser, ID: "auditor-1", UserID: "auditor-1", Display: "Auditor", SecondFactor: true},
+		Identity:       auth.Identity{Kind: auth.KindUser, ID: "auditor-1", UserID: "0192f3a0-0000-7000-8000-0000000000a1", Display: "Auditor", SecondFactor: true},
 		OrganizationID: f.org, Permissions: []auth.Permission{auth.ReconstructionView},
 	}
 	f.deviceID = f.registerDevice(t)

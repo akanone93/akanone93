@@ -122,7 +122,7 @@ func (s *Service) Create(ctx context.Context, p auth.Principal, from, to time.Ti
 	var info Info
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
-		info, err = s.create(ctx, tx, p, from.UTC(), to.UTC())
+		info, err = s.create(ctx, tx, p, stored(from), stored(to))
 		return err
 	})
 	if err != nil {
@@ -137,6 +137,11 @@ func (s *Service) Create(ctx context.Context, p auth.Principal, from, to time.Ti
 	}
 	return s.info(ctx, p, info.ID)
 }
+
+// stored returns an instant in UTC at the resolution PostgreSQL stores, so that
+// the period a report states, the period it is stored with and the period the
+// caller is told are the same.
+func stored(t time.Time) time.Time { return t.UTC().Truncate(time.Microsecond) }
 
 // create builds, stores and audits a report inside the transaction.
 func (s *Service) create(ctx context.Context, tx pgx.Tx, p auth.Principal, from, to time.Time) (Info, error) {

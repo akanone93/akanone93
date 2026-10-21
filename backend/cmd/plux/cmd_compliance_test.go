@@ -97,14 +97,6 @@ func (f fakeControls) ClearForcedRollback(_ context.Context, r *connect.Request[
 	return connect.NewResponse(&pluxv1.ControlDocumentResponse{Document: &pluxv1.ControlDocument{}}), nil
 }
 
-// yesNo spells a bool for the call log.
-func yesNo(b bool) string {
-	if b {
-		return "yes"
-	}
-	return "no"
-}
-
 // signedReport returns the JSON of a DSSE envelope over a small report and
 // the public key that verifies it.
 func signedReport(t *testing.T) ([]byte, ed25519.PublicKey) {
