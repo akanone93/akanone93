@@ -82,6 +82,10 @@ type Options struct {
 	// (ClickHouse) in place of PostgreSQL (ANL-010, ADR-0080). Nil, or an
 	// opener that returns no store, is the core's PostgreSQL store.
 	Analytics extanalytics.Opener
+	// AnalyticsExporter, when set, is the enterprise edition's Parquet and
+	// webhook export of analytics (ANL-011). Nil refuses the exports with
+	// PLX-8600.
+	AnalyticsExporter extanalytics.Exporter
 	// Identity, when its fields are set, is the enterprise edition's SAML
 	// 2.0 single sign-on and SCIM 2.0 provisioning (GOV-004, ADR-0074). A
 	// nil field is the community default, which refuses with PLX-8600.
@@ -277,6 +281,9 @@ func serve(ctx context.Context, args []string, stderr io.Writer, opts Options) i
 		return exitFailed
 	}
 	buildOpts := []server.BuildOption{server.WithEdition(provider), server.WithAuditSinks(opts.AuditSinks), server.WithIdentityExtensions(opts.Identity)}
+	if opts.AnalyticsExporter != nil {
+		buildOpts = append(buildOpts, server.WithAnalyticsExporter(opts.AnalyticsExporter))
+	}
 	if opts.Analytics != nil {
 		// The opener reads the licence from the context, so that an
 		// unlicensed installation keeps the PostgreSQL store: it answers

@@ -163,9 +163,12 @@ type WorkDeps struct {
 	// AnalyticsStore is the enterprise edition's analytics store; nil uses
 	// PostgreSQL (ANL-010).
 	AnalyticsStore analytics.Store
-	Objects        objects.Store
-	Queue          *JobQueue
-	Codecs         *media.Codecs
+	// AnalyticsExporter is the enterprise edition's Parquet and webhook
+	// export (ANL-011); nil refuses the exports with PLX-8600.
+	AnalyticsExporter analytics.Exporter
+	Objects           objects.Store
+	Queue             *JobQueue
+	Codecs            *media.Codecs
 	// SVG compiles SVGs; nil where the server has no SVG compiler.
 	SVG    *media.SVGCompiler
 	Signer signing.Signer
@@ -470,7 +473,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, notifier, work)
+	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, notifier, backend, work)
 	if err != nil {
 		return nil, err
 	}

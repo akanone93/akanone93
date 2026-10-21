@@ -253,6 +253,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetExportResponse'
+  /plux.v1.AnalyticsService/GetFileExport:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: GetFileExport
+      description: |-
+        GetFileExport returns the settings of the Parquet and webhook exports
+         (ANL-011) and how far they have come. It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.GetFileExport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetFileExportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetFileExportResponse'
   /plux.v1.AnalyticsService/GetRetention:
     post:
       tags:
@@ -542,6 +583,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.SetExportResponse'
+  /plux.v1.AnalyticsService/SetFileExport:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: SetFileExport
+      description: |-
+        SetFileExport sets the Parquet and webhook exports. An export the
+         licence does not allow is PLX-8600. It needs organization.manage and is
+         audited.
+      operationId: plux.v1.AnalyticsService.SetFileExport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetFileExportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetFileExportResponse'
   /plux.v1.AnalyticsService/SetRetention:
     post:
       tags:
@@ -15578,6 +15661,66 @@ components:
       title: Factor
       additionalProperties: false
       description: Factor is an enrolled second factor (SEC-100).
+    plux.v1.FileExport:
+      type: object
+      properties:
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FileExportSettings'
+          title: settings
+        secretHint:
+          type: string
+          title: secret_hint
+          description: |-
+            secret_hint is the end of the webhook signing secret, which is never
+             returned; empty when none is stored.
+        exportedUntil:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: exported_until
+          description: exported_until is the end of the last hour delivered.
+        lastError:
+          type: string
+          title: last_error
+          description: last_error says why the last attempt failed; empty when it did not.
+        lastAttemptAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_attempt_at
+      title: FileExport
+      additionalProperties: false
+      description: |-
+        FileExport is the settings of the Parquet and webhook exports and the
+         progress of their delivery.
+    plux.v1.FileExportSettings:
+      type: object
+      properties:
+        parquetEnabled:
+          type: boolean
+          title: parquet_enabled
+        parquetEvents:
+          type: boolean
+          title: parquet_events
+          description: parquet_events and parquet_rollups choose the kinds of Parquet file.
+        parquetRollups:
+          type: boolean
+          title: parquet_rollups
+        parquetGranularity:
+          type: string
+          title: parquet_granularity
+          description: 'parquet_granularity is the width of the exported rollups: 5m, 1h or 1d.'
+        webhookEnabled:
+          type: boolean
+          title: webhook_enabled
+        webhookUrl:
+          type: string
+          title: webhook_url
+          description: webhook_url is the https address of the receiver.
+      title: FileExportSettings
+      additionalProperties: false
+      description: |-
+        FileExportSettings is what an organisation exports as files and messages
+         (ANL-011).
     plux.v1.FinishWebAuthnRegistrationRequest:
       type: object
       properties:
@@ -16414,6 +16557,19 @@ components:
             - $ref: '#/components/schemas/plux.v1.Export'
           title: export
       title: GetExportResponse
+      additionalProperties: false
+    plux.v1.GetFileExportRequest:
+      type: object
+      title: GetFileExportRequest
+      additionalProperties: false
+    plux.v1.GetFileExportResponse:
+      type: object
+      properties:
+        export:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FileExport'
+          title: export
+      title: GetFileExportResponse
       additionalProperties: false
     plux.v1.GetFlagRequest:
       type: object
@@ -22575,6 +22731,30 @@ components:
             - $ref: '#/components/schemas/plux.v1.Export'
           title: export
       title: SetExportResponse
+      additionalProperties: false
+    plux.v1.SetFileExportRequest:
+      type: object
+      properties:
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FileExportSettings'
+          title: settings
+        webhookSecret:
+          type: string
+          title: webhook_secret
+          description: |-
+            webhook_secret is the Standard Webhooks signing secret, "whsec_" and
+             base64; empty keeps the stored one.
+      title: SetFileExportRequest
+      additionalProperties: false
+    plux.v1.SetFileExportResponse:
+      type: object
+      properties:
+        export:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FileExport'
+          title: export
+      title: SetFileExportResponse
       additionalProperties: false
     plux.v1.SetForcedRollbackRequest:
       type: object

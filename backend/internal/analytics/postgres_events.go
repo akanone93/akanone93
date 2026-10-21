@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	ext "github.com/nightCode42/plux3/backend/ext/analytics"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -19,10 +20,6 @@ import (
 )
 
 var _ ext.EventReader = (*Postgres)(nil)
-
-// nilUUID sorts before every event identifier, so a cursor that holds only
-// a time starts at the first event of that time.
-const nilUUID = "00000000-0000-0000-0000-000000000000"
 
 // ReadEvents returns up to limit events of org in [from, to), ordered by
 // time and identifier, after the cursor (ANL-011). The cursor is the time
@@ -41,7 +38,7 @@ func (p *Postgres) ReadEvents(ctx context.Context, org string, from, to time.Tim
 		var err error
 		rows, err = dbgen.New(tx).ListEventsWindow(ctx, dbgen.ListEventsWindowParams{
 			OrganizationID: storage.MustUUID(org), FromTime: storage.Timestamp(from), ToTime: storage.Timestamp(to),
-			CursorTime: storage.Timestamp(cursorTime), CursorID: storage.MustUUID(cursorID), RowLimit: int32(min(limit, 1<<30)), //nolint:gosec // bounded above
+			CursorTime: storage.Timestamp(cursorTime), CursorID: cursorID, RowLimit: int32(min(limit, 1<<30)), //nolint:gosec // bounded above
 		})
 		return err //nolint:wrapcheck // wrapped below
 	})
@@ -66,20 +63,23 @@ func (p *Postgres) ReadEvents(ctx context.Context, org string, from, to time.Tim
 
 // parseCursor reads a cursor made by ReadEvents. The empty cursor is the
 // start of the window.
-func parseCursor(cursor string, from time.Time) (time.Time, string, error) {
+func parseCursor(cursor string, from time.Time) (time.Time, pgtype.UUID, error) {
 	if cursor == "" {
-		return from, nilUUID, nil
+		// The zero identifier sorts before every event; it is not a version 7
+		// identifier, which storage.UUID would refuse, so it is built directly.
+		return from, pgtype.UUID{Valid: true}, nil
 	}
 	at, id, ok := strings.Cut(cursor, "|")
 	if !ok {
-		return time.Time{}, "", errors.New("analytics: read events: the cursor is not one this store made")
+		return time.Time{}, pgtype.UUID{}, errors.New("analytics: read events: the cursor is not one this store made")
 	}
 	t, err := time.Parse(time.RFC3339Nano, at)
 	if err != nil {
-		return time.Time{}, "", errors.New("analytics: read events: the cursor is not one this store made")
+		return time.Time{}, pgtype.UUID{}, errors.New("analytics: read events: the cursor is not one this store made")
 	}
-	if _, err := storage.UUID(id); err != nil {
-		return time.Time{}, "", errors.New("analytics: read events: the cursor is not one this store made")
+	cursorID, err := storage.UUID(id)
+	if err != nil {
+		return time.Time{}, pgtype.UUID{}, errors.New("analytics: read events: the cursor is not one this store made")
 	}
-	return t, id, nil
+	return t, cursorID, nil
 }

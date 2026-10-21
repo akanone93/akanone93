@@ -1307,6 +1307,355 @@ func (*DeleteExportResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{20}
 }
 
+// FileExportSettings is what an organisation exports as files and messages
+// (ANL-011).
+type FileExportSettings struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ParquetEnabled bool                   `protobuf:"varint,1,opt,name=parquet_enabled,json=parquetEnabled,proto3" json:"parquet_enabled,omitempty"`
+	// parquet_events and parquet_rollups choose the kinds of Parquet file.
+	ParquetEvents  bool `protobuf:"varint,2,opt,name=parquet_events,json=parquetEvents,proto3" json:"parquet_events,omitempty"`
+	ParquetRollups bool `protobuf:"varint,3,opt,name=parquet_rollups,json=parquetRollups,proto3" json:"parquet_rollups,omitempty"`
+	// parquet_granularity is the width of the exported rollups: 5m, 1h or 1d.
+	ParquetGranularity string `protobuf:"bytes,4,opt,name=parquet_granularity,json=parquetGranularity,proto3" json:"parquet_granularity,omitempty"`
+	WebhookEnabled     bool   `protobuf:"varint,5,opt,name=webhook_enabled,json=webhookEnabled,proto3" json:"webhook_enabled,omitempty"`
+	// webhook_url is the https address of the receiver.
+	WebhookUrl    string `protobuf:"bytes,6,opt,name=webhook_url,json=webhookUrl,proto3" json:"webhook_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FileExportSettings) Reset() {
+	*x = FileExportSettings{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileExportSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileExportSettings) ProtoMessage() {}
+
+func (x *FileExportSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileExportSettings.ProtoReflect.Descriptor instead.
+func (*FileExportSettings) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *FileExportSettings) GetParquetEnabled() bool {
+	if x != nil {
+		return x.ParquetEnabled
+	}
+	return false
+}
+
+func (x *FileExportSettings) GetParquetEvents() bool {
+	if x != nil {
+		return x.ParquetEvents
+	}
+	return false
+}
+
+func (x *FileExportSettings) GetParquetRollups() bool {
+	if x != nil {
+		return x.ParquetRollups
+	}
+	return false
+}
+
+func (x *FileExportSettings) GetParquetGranularity() string {
+	if x != nil {
+		return x.ParquetGranularity
+	}
+	return ""
+}
+
+func (x *FileExportSettings) GetWebhookEnabled() bool {
+	if x != nil {
+		return x.WebhookEnabled
+	}
+	return false
+}
+
+func (x *FileExportSettings) GetWebhookUrl() string {
+	if x != nil {
+		return x.WebhookUrl
+	}
+	return ""
+}
+
+// FileExport is the settings of the Parquet and webhook exports and the
+// progress of their delivery.
+type FileExport struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Settings *FileExportSettings    `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	// secret_hint is the end of the webhook signing secret, which is never
+	// returned; empty when none is stored.
+	SecretHint string `protobuf:"bytes,2,opt,name=secret_hint,json=secretHint,proto3" json:"secret_hint,omitempty"`
+	// exported_until is the end of the last hour delivered.
+	ExportedUntil *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=exported_until,json=exportedUntil,proto3" json:"exported_until,omitempty"`
+	// last_error says why the last attempt failed; empty when it did not.
+	LastError     string                 `protobuf:"bytes,4,opt,name=last_error,json=lastError,proto3" json:"last_error,omitempty"`
+	LastAttemptAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_attempt_at,json=lastAttemptAt,proto3" json:"last_attempt_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FileExport) Reset() {
+	*x = FileExport{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileExport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileExport) ProtoMessage() {}
+
+func (x *FileExport) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileExport.ProtoReflect.Descriptor instead.
+func (*FileExport) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *FileExport) GetSettings() *FileExportSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+func (x *FileExport) GetSecretHint() string {
+	if x != nil {
+		return x.SecretHint
+	}
+	return ""
+}
+
+func (x *FileExport) GetExportedUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExportedUntil
+	}
+	return nil
+}
+
+func (x *FileExport) GetLastError() string {
+	if x != nil {
+		return x.LastError
+	}
+	return ""
+}
+
+func (x *FileExport) GetLastAttemptAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastAttemptAt
+	}
+	return nil
+}
+
+type GetFileExportRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFileExportRequest) Reset() {
+	*x = GetFileExportRequest{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFileExportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFileExportRequest) ProtoMessage() {}
+
+func (x *GetFileExportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFileExportRequest.ProtoReflect.Descriptor instead.
+func (*GetFileExportRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{23}
+}
+
+type GetFileExportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Export        *FileExport            `protobuf:"bytes,1,opt,name=export,proto3" json:"export,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFileExportResponse) Reset() {
+	*x = GetFileExportResponse{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFileExportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFileExportResponse) ProtoMessage() {}
+
+func (x *GetFileExportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFileExportResponse.ProtoReflect.Descriptor instead.
+func (*GetFileExportResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetFileExportResponse) GetExport() *FileExport {
+	if x != nil {
+		return x.Export
+	}
+	return nil
+}
+
+type SetFileExportRequest struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Settings *FileExportSettings    `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	// webhook_secret is the Standard Webhooks signing secret, "whsec_" and
+	// base64; empty keeps the stored one.
+	WebhookSecret string `protobuf:"bytes,2,opt,name=webhook_secret,json=webhookSecret,proto3" json:"webhook_secret,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetFileExportRequest) Reset() {
+	*x = SetFileExportRequest{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetFileExportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetFileExportRequest) ProtoMessage() {}
+
+func (x *SetFileExportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetFileExportRequest.ProtoReflect.Descriptor instead.
+func (*SetFileExportRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *SetFileExportRequest) GetSettings() *FileExportSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+func (x *SetFileExportRequest) GetWebhookSecret() string {
+	if x != nil {
+		return x.WebhookSecret
+	}
+	return ""
+}
+
+type SetFileExportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Export        *FileExport            `protobuf:"bytes,1,opt,name=export,proto3" json:"export,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetFileExportResponse) Reset() {
+	*x = SetFileExportResponse{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetFileExportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetFileExportResponse) ProtoMessage() {}
+
+func (x *SetFileExportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetFileExportResponse.ProtoReflect.Descriptor instead.
+func (*SetFileExportResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *SetFileExportResponse) GetExport() *FileExport {
+	if x != nil {
+		return x.Export
+	}
+	return nil
+}
+
 // AlertRule is a condition on a rollup metric (ANL-030). The aggregation of
 // the metric over the window is compared with the threshold; the rule fires
 // when the comparison has held for for_seconds.
@@ -1342,7 +1691,7 @@ type AlertRule struct {
 
 func (x *AlertRule) Reset() {
 	*x = AlertRule{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[21]
+	mi := &file_plux_v1_analytics_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1354,7 +1703,7 @@ func (x *AlertRule) String() string {
 func (*AlertRule) ProtoMessage() {}
 
 func (x *AlertRule) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[21]
+	mi := &file_plux_v1_analytics_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1367,7 +1716,7 @@ func (x *AlertRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertRule.ProtoReflect.Descriptor instead.
 func (*AlertRule) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *AlertRule) GetId() string {
@@ -1503,7 +1852,7 @@ type AlertState struct {
 
 func (x *AlertState) Reset() {
 	*x = AlertState{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[22]
+	mi := &file_plux_v1_analytics_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1515,7 +1864,7 @@ func (x *AlertState) String() string {
 func (*AlertState) ProtoMessage() {}
 
 func (x *AlertState) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[22]
+	mi := &file_plux_v1_analytics_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1528,7 +1877,7 @@ func (x *AlertState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertState.ProtoReflect.Descriptor instead.
 func (*AlertState) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AlertState) GetRuleId() string {
@@ -1604,7 +1953,7 @@ type CreateAlertRuleRequest struct {
 
 func (x *CreateAlertRuleRequest) Reset() {
 	*x = CreateAlertRuleRequest{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[23]
+	mi := &file_plux_v1_analytics_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1616,7 +1965,7 @@ func (x *CreateAlertRuleRequest) String() string {
 func (*CreateAlertRuleRequest) ProtoMessage() {}
 
 func (x *CreateAlertRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[23]
+	mi := &file_plux_v1_analytics_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1629,7 +1978,7 @@ func (x *CreateAlertRuleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAlertRuleRequest.ProtoReflect.Descriptor instead.
 func (*CreateAlertRuleRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{23}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *CreateAlertRuleRequest) GetRule() *AlertRule {
@@ -1648,7 +1997,7 @@ type CreateAlertRuleResponse struct {
 
 func (x *CreateAlertRuleResponse) Reset() {
 	*x = CreateAlertRuleResponse{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[24]
+	mi := &file_plux_v1_analytics_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1660,7 +2009,7 @@ func (x *CreateAlertRuleResponse) String() string {
 func (*CreateAlertRuleResponse) ProtoMessage() {}
 
 func (x *CreateAlertRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[24]
+	mi := &file_plux_v1_analytics_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1673,7 +2022,7 @@ func (x *CreateAlertRuleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAlertRuleResponse.ProtoReflect.Descriptor instead.
 func (*CreateAlertRuleResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *CreateAlertRuleResponse) GetRule() *AlertRule {
@@ -1693,7 +2042,7 @@ type UpdateAlertRuleRequest struct {
 
 func (x *UpdateAlertRuleRequest) Reset() {
 	*x = UpdateAlertRuleRequest{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[25]
+	mi := &file_plux_v1_analytics_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1705,7 +2054,7 @@ func (x *UpdateAlertRuleRequest) String() string {
 func (*UpdateAlertRuleRequest) ProtoMessage() {}
 
 func (x *UpdateAlertRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[25]
+	mi := &file_plux_v1_analytics_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1718,7 +2067,7 @@ func (x *UpdateAlertRuleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAlertRuleRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAlertRuleRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *UpdateAlertRuleRequest) GetRule() *AlertRule {
@@ -1737,7 +2086,7 @@ type UpdateAlertRuleResponse struct {
 
 func (x *UpdateAlertRuleResponse) Reset() {
 	*x = UpdateAlertRuleResponse{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[26]
+	mi := &file_plux_v1_analytics_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1749,7 +2098,7 @@ func (x *UpdateAlertRuleResponse) String() string {
 func (*UpdateAlertRuleResponse) ProtoMessage() {}
 
 func (x *UpdateAlertRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[26]
+	mi := &file_plux_v1_analytics_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1762,7 +2111,7 @@ func (x *UpdateAlertRuleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAlertRuleResponse.ProtoReflect.Descriptor instead.
 func (*UpdateAlertRuleResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *UpdateAlertRuleResponse) GetRule() *AlertRule {
@@ -1781,7 +2130,7 @@ type DeleteAlertRuleRequest struct {
 
 func (x *DeleteAlertRuleRequest) Reset() {
 	*x = DeleteAlertRuleRequest{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[27]
+	mi := &file_plux_v1_analytics_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1793,7 +2142,7 @@ func (x *DeleteAlertRuleRequest) String() string {
 func (*DeleteAlertRuleRequest) ProtoMessage() {}
 
 func (x *DeleteAlertRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[27]
+	mi := &file_plux_v1_analytics_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1806,7 +2155,7 @@ func (x *DeleteAlertRuleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAlertRuleRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAlertRuleRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *DeleteAlertRuleRequest) GetId() string {
@@ -1824,7 +2173,7 @@ type DeleteAlertRuleResponse struct {
 
 func (x *DeleteAlertRuleResponse) Reset() {
 	*x = DeleteAlertRuleResponse{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[28]
+	mi := &file_plux_v1_analytics_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1836,7 +2185,7 @@ func (x *DeleteAlertRuleResponse) String() string {
 func (*DeleteAlertRuleResponse) ProtoMessage() {}
 
 func (x *DeleteAlertRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[28]
+	mi := &file_plux_v1_analytics_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1849,7 +2198,7 @@ func (x *DeleteAlertRuleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAlertRuleResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAlertRuleResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{34}
 }
 
 type ListAlertRulesRequest struct {
@@ -1862,7 +2211,7 @@ type ListAlertRulesRequest struct {
 
 func (x *ListAlertRulesRequest) Reset() {
 	*x = ListAlertRulesRequest{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[29]
+	mi := &file_plux_v1_analytics_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1874,7 +2223,7 @@ func (x *ListAlertRulesRequest) String() string {
 func (*ListAlertRulesRequest) ProtoMessage() {}
 
 func (x *ListAlertRulesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[29]
+	mi := &file_plux_v1_analytics_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1887,7 +2236,7 @@ func (x *ListAlertRulesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertRulesRequest.ProtoReflect.Descriptor instead.
 func (*ListAlertRulesRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{29}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListAlertRulesRequest) GetAppId() string {
@@ -1906,7 +2255,7 @@ type ListAlertRulesResponse struct {
 
 func (x *ListAlertRulesResponse) Reset() {
 	*x = ListAlertRulesResponse{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[30]
+	mi := &file_plux_v1_analytics_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1918,7 +2267,7 @@ func (x *ListAlertRulesResponse) String() string {
 func (*ListAlertRulesResponse) ProtoMessage() {}
 
 func (x *ListAlertRulesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[30]
+	mi := &file_plux_v1_analytics_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1931,7 +2280,7 @@ func (x *ListAlertRulesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertRulesResponse.ProtoReflect.Descriptor instead.
 func (*ListAlertRulesResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{30}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListAlertRulesResponse) GetRules() []*AlertRule {
@@ -1952,7 +2301,7 @@ type ListAlertStatesRequest struct {
 
 func (x *ListAlertStatesRequest) Reset() {
 	*x = ListAlertStatesRequest{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[31]
+	mi := &file_plux_v1_analytics_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1964,7 +2313,7 @@ func (x *ListAlertStatesRequest) String() string {
 func (*ListAlertStatesRequest) ProtoMessage() {}
 
 func (x *ListAlertStatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[31]
+	mi := &file_plux_v1_analytics_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1977,7 +2326,7 @@ func (x *ListAlertStatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertStatesRequest.ProtoReflect.Descriptor instead.
 func (*ListAlertStatesRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{31}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListAlertStatesRequest) GetAppId() string {
@@ -2003,7 +2352,7 @@ type ListAlertStatesResponse struct {
 
 func (x *ListAlertStatesResponse) Reset() {
 	*x = ListAlertStatesResponse{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[32]
+	mi := &file_plux_v1_analytics_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2015,7 +2364,7 @@ func (x *ListAlertStatesResponse) String() string {
 func (*ListAlertStatesResponse) ProtoMessage() {}
 
 func (x *ListAlertStatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[32]
+	mi := &file_plux_v1_analytics_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2028,7 +2377,7 @@ func (x *ListAlertStatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertStatesResponse.ProtoReflect.Descriptor instead.
 func (*ListAlertStatesResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{32}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListAlertStatesResponse) GetStates() []*AlertState {
@@ -2050,7 +2399,7 @@ type ErrorDay struct {
 
 func (x *ErrorDay) Reset() {
 	*x = ErrorDay{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[33]
+	mi := &file_plux_v1_analytics_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2062,7 +2411,7 @@ func (x *ErrorDay) String() string {
 func (*ErrorDay) ProtoMessage() {}
 
 func (x *ErrorDay) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[33]
+	mi := &file_plux_v1_analytics_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2075,7 +2424,7 @@ func (x *ErrorDay) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorDay.ProtoReflect.Descriptor instead.
 func (*ErrorDay) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{33}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ErrorDay) GetDay() string {
@@ -2126,7 +2475,7 @@ type ErrorGroup struct {
 
 func (x *ErrorGroup) Reset() {
 	*x = ErrorGroup{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[34]
+	mi := &file_plux_v1_analytics_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2138,7 +2487,7 @@ func (x *ErrorGroup) String() string {
 func (*ErrorGroup) ProtoMessage() {}
 
 func (x *ErrorGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[34]
+	mi := &file_plux_v1_analytics_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2151,7 +2500,7 @@ func (x *ErrorGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorGroup.ProtoReflect.Descriptor instead.
 func (*ErrorGroup) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{34}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ErrorGroup) GetId() string {
@@ -2286,7 +2635,7 @@ type ErrorSample struct {
 
 func (x *ErrorSample) Reset() {
 	*x = ErrorSample{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[35]
+	mi := &file_plux_v1_analytics_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2298,7 +2647,7 @@ func (x *ErrorSample) String() string {
 func (*ErrorSample) ProtoMessage() {}
 
 func (x *ErrorSample) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[35]
+	mi := &file_plux_v1_analytics_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2311,7 +2660,7 @@ func (x *ErrorSample) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorSample.ProtoReflect.Descriptor instead.
 func (*ErrorSample) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{35}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ErrorSample) GetEventId() string {
@@ -2350,7 +2699,7 @@ type ListErrorGroupsRequest struct {
 
 func (x *ListErrorGroupsRequest) Reset() {
 	*x = ListErrorGroupsRequest{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[36]
+	mi := &file_plux_v1_analytics_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2362,7 +2711,7 @@ func (x *ListErrorGroupsRequest) String() string {
 func (*ListErrorGroupsRequest) ProtoMessage() {}
 
 func (x *ListErrorGroupsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[36]
+	mi := &file_plux_v1_analytics_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2375,7 +2724,7 @@ func (x *ListErrorGroupsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListErrorGroupsRequest.ProtoReflect.Descriptor instead.
 func (*ListErrorGroupsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{36}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ListErrorGroupsRequest) GetAppId() string {
@@ -2415,7 +2764,7 @@ type ListErrorGroupsResponse struct {
 
 func (x *ListErrorGroupsResponse) Reset() {
 	*x = ListErrorGroupsResponse{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[37]
+	mi := &file_plux_v1_analytics_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2427,7 +2776,7 @@ func (x *ListErrorGroupsResponse) String() string {
 func (*ListErrorGroupsResponse) ProtoMessage() {}
 
 func (x *ListErrorGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[37]
+	mi := &file_plux_v1_analytics_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2440,7 +2789,7 @@ func (x *ListErrorGroupsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListErrorGroupsResponse.ProtoReflect.Descriptor instead.
 func (*ListErrorGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{37}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ListErrorGroupsResponse) GetGroups() []*ErrorGroup {
@@ -2460,7 +2809,7 @@ type GetErrorGroupRequest struct {
 
 func (x *GetErrorGroupRequest) Reset() {
 	*x = GetErrorGroupRequest{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[38]
+	mi := &file_plux_v1_analytics_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2472,7 +2821,7 @@ func (x *GetErrorGroupRequest) String() string {
 func (*GetErrorGroupRequest) ProtoMessage() {}
 
 func (x *GetErrorGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[38]
+	mi := &file_plux_v1_analytics_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2485,7 +2834,7 @@ func (x *GetErrorGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetErrorGroupRequest.ProtoReflect.Descriptor instead.
 func (*GetErrorGroupRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{38}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *GetErrorGroupRequest) GetId() string {
@@ -2512,7 +2861,7 @@ type GetErrorGroupResponse struct {
 
 func (x *GetErrorGroupResponse) Reset() {
 	*x = GetErrorGroupResponse{}
-	mi := &file_plux_v1_analytics_proto_msgTypes[39]
+	mi := &file_plux_v1_analytics_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2524,7 +2873,7 @@ func (x *GetErrorGroupResponse) String() string {
 func (*GetErrorGroupResponse) ProtoMessage() {}
 
 func (x *GetErrorGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_analytics_proto_msgTypes[39]
+	mi := &file_plux_v1_analytics_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2537,7 +2886,7 @@ func (x *GetErrorGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetErrorGroupResponse.ProtoReflect.Descriptor instead.
 func (*GetErrorGroupResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{39}
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *GetErrorGroupResponse) GetGroup() *ErrorGroup {
@@ -2653,7 +3002,32 @@ const file_plux_v1_analytics_proto_rawDesc = "" +
 	"\x11SetExportResponse\x12'\n" +
 	"\x06export\x18\x01 \x01(\v2\x0f.plux.v1.ExportR\x06export\"\x15\n" +
 	"\x13DeleteExportRequest\"\x16\n" +
-	"\x14DeleteExportResponse\"\xcd\x04\n" +
+	"\x14DeleteExportResponse\"\x88\x02\n" +
+	"\x12FileExportSettings\x12'\n" +
+	"\x0fparquet_enabled\x18\x01 \x01(\bR\x0eparquetEnabled\x12%\n" +
+	"\x0eparquet_events\x18\x02 \x01(\bR\rparquetEvents\x12'\n" +
+	"\x0fparquet_rollups\x18\x03 \x01(\bR\x0eparquetRollups\x12/\n" +
+	"\x13parquet_granularity\x18\x04 \x01(\tR\x12parquetGranularity\x12'\n" +
+	"\x0fwebhook_enabled\x18\x05 \x01(\bR\x0ewebhookEnabled\x12\x1f\n" +
+	"\vwebhook_url\x18\x06 \x01(\tR\n" +
+	"webhookUrl\"\x8c\x02\n" +
+	"\n" +
+	"FileExport\x127\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.plux.v1.FileExportSettingsR\bsettings\x12\x1f\n" +
+	"\vsecret_hint\x18\x02 \x01(\tR\n" +
+	"secretHint\x12A\n" +
+	"\x0eexported_until\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\rexportedUntil\x12\x1d\n" +
+	"\n" +
+	"last_error\x18\x04 \x01(\tR\tlastError\x12B\n" +
+	"\x0flast_attempt_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rlastAttemptAt\"\x16\n" +
+	"\x14GetFileExportRequest\"D\n" +
+	"\x15GetFileExportResponse\x12+\n" +
+	"\x06export\x18\x01 \x01(\v2\x13.plux.v1.FileExportR\x06export\"v\n" +
+	"\x14SetFileExportRequest\x127\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.plux.v1.FileExportSettingsR\bsettings\x12%\n" +
+	"\x0ewebhook_secret\x18\x02 \x01(\tR\rwebhookSecret\"D\n" +
+	"\x15SetFileExportResponse\x12+\n" +
+	"\x06export\x18\x01 \x01(\v2\x13.plux.v1.FileExportR\x06export\"\xcd\x04\n" +
 	"\tAlertRule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x12\n" +
@@ -2757,8 +3131,7 @@ const file_plux_v1_analytics_proto_rawDesc = "" +
 	"\x04days\x18\x02 \x01(\x05R\x04days\"r\n" +
 	"\x15GetErrorGroupResponse\x12)\n" +
 	"\x05group\x18\x01 \x01(\v2\x13.plux.v1.ErrorGroupR\x05group\x12.\n" +
-	"\asamples\x18\x02 \x03(\v2\x14.plux.v1.ErrorSampleR\asamples2\x8a\n" +
-	"\n" +
+	"\asamples\x18\x02 \x03(\v2\x14.plux.v1.ErrorSampleR\asamples2\xae\v\n" +
 	"\x10AnalyticsService\x12M\n" +
 	"\fQueryRollups\x12\x1c.plux.v1.QueryRollupsRequest\x1a\x1d.plux.v1.QueryRollupsResponse\"\x00\x12M\n" +
 	"\fGetRetention\x12\x1c.plux.v1.GetRetentionRequest\x1a\x1d.plux.v1.GetRetentionResponse\"\x00\x12M\n" +
@@ -2767,7 +3140,9 @@ const file_plux_v1_analytics_proto_rawDesc = "" +
 	"\x15CancelRetentionChange\x12%.plux.v1.CancelRetentionChangeRequest\x1a&.plux.v1.CancelRetentionChangeResponse\"\x00\x12D\n" +
 	"\tGetExport\x12\x19.plux.v1.GetExportRequest\x1a\x1a.plux.v1.GetExportResponse\"\x00\x12D\n" +
 	"\tSetExport\x12\x19.plux.v1.SetExportRequest\x1a\x1a.plux.v1.SetExportResponse\"\x00\x12M\n" +
-	"\fDeleteExport\x12\x1c.plux.v1.DeleteExportRequest\x1a\x1d.plux.v1.DeleteExportResponse\"\x00\x12V\n" +
+	"\fDeleteExport\x12\x1c.plux.v1.DeleteExportRequest\x1a\x1d.plux.v1.DeleteExportResponse\"\x00\x12P\n" +
+	"\rGetFileExport\x12\x1d.plux.v1.GetFileExportRequest\x1a\x1e.plux.v1.GetFileExportResponse\"\x00\x12P\n" +
+	"\rSetFileExport\x12\x1d.plux.v1.SetFileExportRequest\x1a\x1e.plux.v1.SetFileExportResponse\"\x00\x12V\n" +
 	"\x0fCreateAlertRule\x12\x1f.plux.v1.CreateAlertRuleRequest\x1a .plux.v1.CreateAlertRuleResponse\"\x00\x12V\n" +
 	"\x0fUpdateAlertRule\x12\x1f.plux.v1.UpdateAlertRuleRequest\x1a .plux.v1.UpdateAlertRuleResponse\"\x00\x12V\n" +
 	"\x0fDeleteAlertRule\x12\x1f.plux.v1.DeleteAlertRuleRequest\x1a .plux.v1.DeleteAlertRuleResponse\"\x00\x12S\n" +
@@ -2788,7 +3163,7 @@ func file_plux_v1_analytics_proto_rawDescGZIP() []byte {
 	return file_plux_v1_analytics_proto_rawDescData
 }
 
-var file_plux_v1_analytics_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
+var file_plux_v1_analytics_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_plux_v1_analytics_proto_goTypes = []any{
 	(*RollupGroup)(nil),                   // 0: plux.v1.RollupGroup
 	(*RollupPoint)(nil),                   // 1: plux.v1.RollupPoint
@@ -2811,103 +3186,119 @@ var file_plux_v1_analytics_proto_goTypes = []any{
 	(*SetExportResponse)(nil),             // 18: plux.v1.SetExportResponse
 	(*DeleteExportRequest)(nil),           // 19: plux.v1.DeleteExportRequest
 	(*DeleteExportResponse)(nil),          // 20: plux.v1.DeleteExportResponse
-	(*AlertRule)(nil),                     // 21: plux.v1.AlertRule
-	(*AlertState)(nil),                    // 22: plux.v1.AlertState
-	(*CreateAlertRuleRequest)(nil),        // 23: plux.v1.CreateAlertRuleRequest
-	(*CreateAlertRuleResponse)(nil),       // 24: plux.v1.CreateAlertRuleResponse
-	(*UpdateAlertRuleRequest)(nil),        // 25: plux.v1.UpdateAlertRuleRequest
-	(*UpdateAlertRuleResponse)(nil),       // 26: plux.v1.UpdateAlertRuleResponse
-	(*DeleteAlertRuleRequest)(nil),        // 27: plux.v1.DeleteAlertRuleRequest
-	(*DeleteAlertRuleResponse)(nil),       // 28: plux.v1.DeleteAlertRuleResponse
-	(*ListAlertRulesRequest)(nil),         // 29: plux.v1.ListAlertRulesRequest
-	(*ListAlertRulesResponse)(nil),        // 30: plux.v1.ListAlertRulesResponse
-	(*ListAlertStatesRequest)(nil),        // 31: plux.v1.ListAlertStatesRequest
-	(*ListAlertStatesResponse)(nil),       // 32: plux.v1.ListAlertStatesResponse
-	(*ErrorDay)(nil),                      // 33: plux.v1.ErrorDay
-	(*ErrorGroup)(nil),                    // 34: plux.v1.ErrorGroup
-	(*ErrorSample)(nil),                   // 35: plux.v1.ErrorSample
-	(*ListErrorGroupsRequest)(nil),        // 36: plux.v1.ListErrorGroupsRequest
-	(*ListErrorGroupsResponse)(nil),       // 37: plux.v1.ListErrorGroupsResponse
-	(*GetErrorGroupRequest)(nil),          // 38: plux.v1.GetErrorGroupRequest
-	(*GetErrorGroupResponse)(nil),         // 39: plux.v1.GetErrorGroupResponse
-	nil,                                   // 40: plux.v1.AlertRule.FiltersEntry
-	(*timestamppb.Timestamp)(nil),         // 41: google.protobuf.Timestamp
-	(*Diagnostic)(nil),                    // 42: plux.v1.Diagnostic
+	(*FileExportSettings)(nil),            // 21: plux.v1.FileExportSettings
+	(*FileExport)(nil),                    // 22: plux.v1.FileExport
+	(*GetFileExportRequest)(nil),          // 23: plux.v1.GetFileExportRequest
+	(*GetFileExportResponse)(nil),         // 24: plux.v1.GetFileExportResponse
+	(*SetFileExportRequest)(nil),          // 25: plux.v1.SetFileExportRequest
+	(*SetFileExportResponse)(nil),         // 26: plux.v1.SetFileExportResponse
+	(*AlertRule)(nil),                     // 27: plux.v1.AlertRule
+	(*AlertState)(nil),                    // 28: plux.v1.AlertState
+	(*CreateAlertRuleRequest)(nil),        // 29: plux.v1.CreateAlertRuleRequest
+	(*CreateAlertRuleResponse)(nil),       // 30: plux.v1.CreateAlertRuleResponse
+	(*UpdateAlertRuleRequest)(nil),        // 31: plux.v1.UpdateAlertRuleRequest
+	(*UpdateAlertRuleResponse)(nil),       // 32: plux.v1.UpdateAlertRuleResponse
+	(*DeleteAlertRuleRequest)(nil),        // 33: plux.v1.DeleteAlertRuleRequest
+	(*DeleteAlertRuleResponse)(nil),       // 34: plux.v1.DeleteAlertRuleResponse
+	(*ListAlertRulesRequest)(nil),         // 35: plux.v1.ListAlertRulesRequest
+	(*ListAlertRulesResponse)(nil),        // 36: plux.v1.ListAlertRulesResponse
+	(*ListAlertStatesRequest)(nil),        // 37: plux.v1.ListAlertStatesRequest
+	(*ListAlertStatesResponse)(nil),       // 38: plux.v1.ListAlertStatesResponse
+	(*ErrorDay)(nil),                      // 39: plux.v1.ErrorDay
+	(*ErrorGroup)(nil),                    // 40: plux.v1.ErrorGroup
+	(*ErrorSample)(nil),                   // 41: plux.v1.ErrorSample
+	(*ListErrorGroupsRequest)(nil),        // 42: plux.v1.ListErrorGroupsRequest
+	(*ListErrorGroupsResponse)(nil),       // 43: plux.v1.ListErrorGroupsResponse
+	(*GetErrorGroupRequest)(nil),          // 44: plux.v1.GetErrorGroupRequest
+	(*GetErrorGroupResponse)(nil),         // 45: plux.v1.GetErrorGroupResponse
+	nil,                                   // 46: plux.v1.AlertRule.FiltersEntry
+	(*timestamppb.Timestamp)(nil),         // 47: google.protobuf.Timestamp
+	(*Diagnostic)(nil),                    // 48: plux.v1.Diagnostic
 }
 var file_plux_v1_analytics_proto_depIdxs = []int32{
-	41, // 0: plux.v1.RollupPoint.bucket:type_name -> google.protobuf.Timestamp
+	47, // 0: plux.v1.RollupPoint.bucket:type_name -> google.protobuf.Timestamp
 	0,  // 1: plux.v1.RollupPoint.group:type_name -> plux.v1.RollupGroup
-	41, // 2: plux.v1.QueryRollupsRequest.from:type_name -> google.protobuf.Timestamp
-	41, // 3: plux.v1.QueryRollupsRequest.to:type_name -> google.protobuf.Timestamp
+	47, // 2: plux.v1.QueryRollupsRequest.from:type_name -> google.protobuf.Timestamp
+	47, // 3: plux.v1.QueryRollupsRequest.to:type_name -> google.protobuf.Timestamp
 	1,  // 4: plux.v1.QueryRollupsResponse.points:type_name -> plux.v1.RollupPoint
-	41, // 5: plux.v1.RetentionSetting.changed_at:type_name -> google.protobuf.Timestamp
-	41, // 6: plux.v1.RetentionChange.requested_at:type_name -> google.protobuf.Timestamp
-	41, // 7: plux.v1.RetentionChange.apply_at:type_name -> google.protobuf.Timestamp
-	41, // 8: plux.v1.RetentionChange.finished_at:type_name -> google.protobuf.Timestamp
+	47, // 5: plux.v1.RetentionSetting.changed_at:type_name -> google.protobuf.Timestamp
+	47, // 6: plux.v1.RetentionChange.requested_at:type_name -> google.protobuf.Timestamp
+	47, // 7: plux.v1.RetentionChange.apply_at:type_name -> google.protobuf.Timestamp
+	47, // 8: plux.v1.RetentionChange.finished_at:type_name -> google.protobuf.Timestamp
 	4,  // 9: plux.v1.GetRetentionResponse.settings:type_name -> plux.v1.RetentionSetting
 	5,  // 10: plux.v1.GetRetentionResponse.scheduled:type_name -> plux.v1.RetentionChange
 	5,  // 11: plux.v1.SetRetentionResponse.change:type_name -> plux.v1.RetentionChange
-	42, // 12: plux.v1.SetRetentionResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	48, // 12: plux.v1.SetRetentionResponse.diagnostics:type_name -> plux.v1.Diagnostic
 	5,  // 13: plux.v1.ListRetentionChangesResponse.changes:type_name -> plux.v1.RetentionChange
 	5,  // 14: plux.v1.CancelRetentionChangeResponse.change:type_name -> plux.v1.RetentionChange
-	41, // 15: plux.v1.Export.exported_until:type_name -> google.protobuf.Timestamp
-	41, // 16: plux.v1.Export.last_attempt_at:type_name -> google.protobuf.Timestamp
+	47, // 15: plux.v1.Export.exported_until:type_name -> google.protobuf.Timestamp
+	47, // 16: plux.v1.Export.last_attempt_at:type_name -> google.protobuf.Timestamp
 	14, // 17: plux.v1.GetExportResponse.export:type_name -> plux.v1.Export
 	14, // 18: plux.v1.SetExportResponse.export:type_name -> plux.v1.Export
-	40, // 19: plux.v1.AlertRule.filters:type_name -> plux.v1.AlertRule.FiltersEntry
-	41, // 20: plux.v1.AlertRule.updated_at:type_name -> google.protobuf.Timestamp
-	41, // 21: plux.v1.AlertState.since:type_name -> google.protobuf.Timestamp
-	41, // 22: plux.v1.AlertState.evaluated_at:type_name -> google.protobuf.Timestamp
-	41, // 23: plux.v1.AlertState.fired_at:type_name -> google.protobuf.Timestamp
-	41, // 24: plux.v1.AlertState.resolved_at:type_name -> google.protobuf.Timestamp
-	21, // 25: plux.v1.CreateAlertRuleRequest.rule:type_name -> plux.v1.AlertRule
-	21, // 26: plux.v1.CreateAlertRuleResponse.rule:type_name -> plux.v1.AlertRule
-	21, // 27: plux.v1.UpdateAlertRuleRequest.rule:type_name -> plux.v1.AlertRule
-	21, // 28: plux.v1.UpdateAlertRuleResponse.rule:type_name -> plux.v1.AlertRule
-	21, // 29: plux.v1.ListAlertRulesResponse.rules:type_name -> plux.v1.AlertRule
-	22, // 30: plux.v1.ListAlertStatesResponse.states:type_name -> plux.v1.AlertState
-	41, // 31: plux.v1.ErrorGroup.first_seen:type_name -> google.protobuf.Timestamp
-	41, // 32: plux.v1.ErrorGroup.last_seen:type_name -> google.protobuf.Timestamp
-	33, // 33: plux.v1.ErrorGroup.trend:type_name -> plux.v1.ErrorDay
-	41, // 34: plux.v1.ErrorSample.occurred_at:type_name -> google.protobuf.Timestamp
-	34, // 35: plux.v1.ListErrorGroupsResponse.groups:type_name -> plux.v1.ErrorGroup
-	34, // 36: plux.v1.GetErrorGroupResponse.group:type_name -> plux.v1.ErrorGroup
-	35, // 37: plux.v1.GetErrorGroupResponse.samples:type_name -> plux.v1.ErrorSample
-	2,  // 38: plux.v1.AnalyticsService.QueryRollups:input_type -> plux.v1.QueryRollupsRequest
-	6,  // 39: plux.v1.AnalyticsService.GetRetention:input_type -> plux.v1.GetRetentionRequest
-	8,  // 40: plux.v1.AnalyticsService.SetRetention:input_type -> plux.v1.SetRetentionRequest
-	10, // 41: plux.v1.AnalyticsService.ListRetentionChanges:input_type -> plux.v1.ListRetentionChangesRequest
-	12, // 42: plux.v1.AnalyticsService.CancelRetentionChange:input_type -> plux.v1.CancelRetentionChangeRequest
-	15, // 43: plux.v1.AnalyticsService.GetExport:input_type -> plux.v1.GetExportRequest
-	17, // 44: plux.v1.AnalyticsService.SetExport:input_type -> plux.v1.SetExportRequest
-	19, // 45: plux.v1.AnalyticsService.DeleteExport:input_type -> plux.v1.DeleteExportRequest
-	23, // 46: plux.v1.AnalyticsService.CreateAlertRule:input_type -> plux.v1.CreateAlertRuleRequest
-	25, // 47: plux.v1.AnalyticsService.UpdateAlertRule:input_type -> plux.v1.UpdateAlertRuleRequest
-	27, // 48: plux.v1.AnalyticsService.DeleteAlertRule:input_type -> plux.v1.DeleteAlertRuleRequest
-	29, // 49: plux.v1.AnalyticsService.ListAlertRules:input_type -> plux.v1.ListAlertRulesRequest
-	31, // 50: plux.v1.AnalyticsService.ListAlertStates:input_type -> plux.v1.ListAlertStatesRequest
-	36, // 51: plux.v1.AnalyticsService.ListErrorGroups:input_type -> plux.v1.ListErrorGroupsRequest
-	38, // 52: plux.v1.AnalyticsService.GetErrorGroup:input_type -> plux.v1.GetErrorGroupRequest
-	3,  // 53: plux.v1.AnalyticsService.QueryRollups:output_type -> plux.v1.QueryRollupsResponse
-	7,  // 54: plux.v1.AnalyticsService.GetRetention:output_type -> plux.v1.GetRetentionResponse
-	9,  // 55: plux.v1.AnalyticsService.SetRetention:output_type -> plux.v1.SetRetentionResponse
-	11, // 56: plux.v1.AnalyticsService.ListRetentionChanges:output_type -> plux.v1.ListRetentionChangesResponse
-	13, // 57: plux.v1.AnalyticsService.CancelRetentionChange:output_type -> plux.v1.CancelRetentionChangeResponse
-	16, // 58: plux.v1.AnalyticsService.GetExport:output_type -> plux.v1.GetExportResponse
-	18, // 59: plux.v1.AnalyticsService.SetExport:output_type -> plux.v1.SetExportResponse
-	20, // 60: plux.v1.AnalyticsService.DeleteExport:output_type -> plux.v1.DeleteExportResponse
-	24, // 61: plux.v1.AnalyticsService.CreateAlertRule:output_type -> plux.v1.CreateAlertRuleResponse
-	26, // 62: plux.v1.AnalyticsService.UpdateAlertRule:output_type -> plux.v1.UpdateAlertRuleResponse
-	28, // 63: plux.v1.AnalyticsService.DeleteAlertRule:output_type -> plux.v1.DeleteAlertRuleResponse
-	30, // 64: plux.v1.AnalyticsService.ListAlertRules:output_type -> plux.v1.ListAlertRulesResponse
-	32, // 65: plux.v1.AnalyticsService.ListAlertStates:output_type -> plux.v1.ListAlertStatesResponse
-	37, // 66: plux.v1.AnalyticsService.ListErrorGroups:output_type -> plux.v1.ListErrorGroupsResponse
-	39, // 67: plux.v1.AnalyticsService.GetErrorGroup:output_type -> plux.v1.GetErrorGroupResponse
-	53, // [53:68] is the sub-list for method output_type
-	38, // [38:53] is the sub-list for method input_type
-	38, // [38:38] is the sub-list for extension type_name
-	38, // [38:38] is the sub-list for extension extendee
-	0,  // [0:38] is the sub-list for field type_name
+	21, // 19: plux.v1.FileExport.settings:type_name -> plux.v1.FileExportSettings
+	47, // 20: plux.v1.FileExport.exported_until:type_name -> google.protobuf.Timestamp
+	47, // 21: plux.v1.FileExport.last_attempt_at:type_name -> google.protobuf.Timestamp
+	22, // 22: plux.v1.GetFileExportResponse.export:type_name -> plux.v1.FileExport
+	21, // 23: plux.v1.SetFileExportRequest.settings:type_name -> plux.v1.FileExportSettings
+	22, // 24: plux.v1.SetFileExportResponse.export:type_name -> plux.v1.FileExport
+	46, // 25: plux.v1.AlertRule.filters:type_name -> plux.v1.AlertRule.FiltersEntry
+	47, // 26: plux.v1.AlertRule.updated_at:type_name -> google.protobuf.Timestamp
+	47, // 27: plux.v1.AlertState.since:type_name -> google.protobuf.Timestamp
+	47, // 28: plux.v1.AlertState.evaluated_at:type_name -> google.protobuf.Timestamp
+	47, // 29: plux.v1.AlertState.fired_at:type_name -> google.protobuf.Timestamp
+	47, // 30: plux.v1.AlertState.resolved_at:type_name -> google.protobuf.Timestamp
+	27, // 31: plux.v1.CreateAlertRuleRequest.rule:type_name -> plux.v1.AlertRule
+	27, // 32: plux.v1.CreateAlertRuleResponse.rule:type_name -> plux.v1.AlertRule
+	27, // 33: plux.v1.UpdateAlertRuleRequest.rule:type_name -> plux.v1.AlertRule
+	27, // 34: plux.v1.UpdateAlertRuleResponse.rule:type_name -> plux.v1.AlertRule
+	27, // 35: plux.v1.ListAlertRulesResponse.rules:type_name -> plux.v1.AlertRule
+	28, // 36: plux.v1.ListAlertStatesResponse.states:type_name -> plux.v1.AlertState
+	47, // 37: plux.v1.ErrorGroup.first_seen:type_name -> google.protobuf.Timestamp
+	47, // 38: plux.v1.ErrorGroup.last_seen:type_name -> google.protobuf.Timestamp
+	39, // 39: plux.v1.ErrorGroup.trend:type_name -> plux.v1.ErrorDay
+	47, // 40: plux.v1.ErrorSample.occurred_at:type_name -> google.protobuf.Timestamp
+	40, // 41: plux.v1.ListErrorGroupsResponse.groups:type_name -> plux.v1.ErrorGroup
+	40, // 42: plux.v1.GetErrorGroupResponse.group:type_name -> plux.v1.ErrorGroup
+	41, // 43: plux.v1.GetErrorGroupResponse.samples:type_name -> plux.v1.ErrorSample
+	2,  // 44: plux.v1.AnalyticsService.QueryRollups:input_type -> plux.v1.QueryRollupsRequest
+	6,  // 45: plux.v1.AnalyticsService.GetRetention:input_type -> plux.v1.GetRetentionRequest
+	8,  // 46: plux.v1.AnalyticsService.SetRetention:input_type -> plux.v1.SetRetentionRequest
+	10, // 47: plux.v1.AnalyticsService.ListRetentionChanges:input_type -> plux.v1.ListRetentionChangesRequest
+	12, // 48: plux.v1.AnalyticsService.CancelRetentionChange:input_type -> plux.v1.CancelRetentionChangeRequest
+	15, // 49: plux.v1.AnalyticsService.GetExport:input_type -> plux.v1.GetExportRequest
+	17, // 50: plux.v1.AnalyticsService.SetExport:input_type -> plux.v1.SetExportRequest
+	19, // 51: plux.v1.AnalyticsService.DeleteExport:input_type -> plux.v1.DeleteExportRequest
+	23, // 52: plux.v1.AnalyticsService.GetFileExport:input_type -> plux.v1.GetFileExportRequest
+	25, // 53: plux.v1.AnalyticsService.SetFileExport:input_type -> plux.v1.SetFileExportRequest
+	29, // 54: plux.v1.AnalyticsService.CreateAlertRule:input_type -> plux.v1.CreateAlertRuleRequest
+	31, // 55: plux.v1.AnalyticsService.UpdateAlertRule:input_type -> plux.v1.UpdateAlertRuleRequest
+	33, // 56: plux.v1.AnalyticsService.DeleteAlertRule:input_type -> plux.v1.DeleteAlertRuleRequest
+	35, // 57: plux.v1.AnalyticsService.ListAlertRules:input_type -> plux.v1.ListAlertRulesRequest
+	37, // 58: plux.v1.AnalyticsService.ListAlertStates:input_type -> plux.v1.ListAlertStatesRequest
+	42, // 59: plux.v1.AnalyticsService.ListErrorGroups:input_type -> plux.v1.ListErrorGroupsRequest
+	44, // 60: plux.v1.AnalyticsService.GetErrorGroup:input_type -> plux.v1.GetErrorGroupRequest
+	3,  // 61: plux.v1.AnalyticsService.QueryRollups:output_type -> plux.v1.QueryRollupsResponse
+	7,  // 62: plux.v1.AnalyticsService.GetRetention:output_type -> plux.v1.GetRetentionResponse
+	9,  // 63: plux.v1.AnalyticsService.SetRetention:output_type -> plux.v1.SetRetentionResponse
+	11, // 64: plux.v1.AnalyticsService.ListRetentionChanges:output_type -> plux.v1.ListRetentionChangesResponse
+	13, // 65: plux.v1.AnalyticsService.CancelRetentionChange:output_type -> plux.v1.CancelRetentionChangeResponse
+	16, // 66: plux.v1.AnalyticsService.GetExport:output_type -> plux.v1.GetExportResponse
+	18, // 67: plux.v1.AnalyticsService.SetExport:output_type -> plux.v1.SetExportResponse
+	20, // 68: plux.v1.AnalyticsService.DeleteExport:output_type -> plux.v1.DeleteExportResponse
+	24, // 69: plux.v1.AnalyticsService.GetFileExport:output_type -> plux.v1.GetFileExportResponse
+	26, // 70: plux.v1.AnalyticsService.SetFileExport:output_type -> plux.v1.SetFileExportResponse
+	30, // 71: plux.v1.AnalyticsService.CreateAlertRule:output_type -> plux.v1.CreateAlertRuleResponse
+	32, // 72: plux.v1.AnalyticsService.UpdateAlertRule:output_type -> plux.v1.UpdateAlertRuleResponse
+	34, // 73: plux.v1.AnalyticsService.DeleteAlertRule:output_type -> plux.v1.DeleteAlertRuleResponse
+	36, // 74: plux.v1.AnalyticsService.ListAlertRules:output_type -> plux.v1.ListAlertRulesResponse
+	38, // 75: plux.v1.AnalyticsService.ListAlertStates:output_type -> plux.v1.ListAlertStatesResponse
+	43, // 76: plux.v1.AnalyticsService.ListErrorGroups:output_type -> plux.v1.ListErrorGroupsResponse
+	45, // 77: plux.v1.AnalyticsService.GetErrorGroup:output_type -> plux.v1.GetErrorGroupResponse
+	61, // [61:78] is the sub-list for method output_type
+	44, // [44:61] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_analytics_proto_init() }
@@ -2916,14 +3307,14 @@ func file_plux_v1_analytics_proto_init() {
 		return
 	}
 	file_plux_v1_common_proto_init()
-	file_plux_v1_analytics_proto_msgTypes[22].OneofWrappers = []any{}
+	file_plux_v1_analytics_proto_msgTypes[28].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_analytics_proto_rawDesc), len(file_plux_v1_analytics_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   41,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

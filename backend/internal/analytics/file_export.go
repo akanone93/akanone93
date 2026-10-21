@@ -4,7 +4,6 @@
 package analytics
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -341,5 +340,3 @@ func defaultWebhookClient() (*http.Client, error) {
 	}
 	return client, nil
 }
-
-var _ = bytes.NewReader

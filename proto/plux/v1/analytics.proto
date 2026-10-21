@@ -40,6 +40,13 @@ service AnalyticsService {
   // DeleteExport removes the OTLP destination. It needs organization.manage
   // and is audited.
   rpc DeleteExport(DeleteExportRequest) returns (DeleteExportResponse) {}
+  // GetFileExport returns the settings of the Parquet and webhook exports
+  // (ANL-011) and how far they have come. It needs analytics.read.
+  rpc GetFileExport(GetFileExportRequest) returns (GetFileExportResponse) {}
+  // SetFileExport sets the Parquet and webhook exports. An export the
+  // licence does not allow is PLX-8600. It needs organization.manage and is
+  // audited.
+  rpc SetFileExport(SetFileExportRequest) returns (SetFileExportResponse) {}
   // CreateAlertRule defines an alert on a rollup metric (ANL-030). It needs
   // alerts.manage on the app and is audited.
   rpc CreateAlertRule(CreateAlertRuleRequest) returns (CreateAlertRuleResponse) {}
@@ -206,6 +213,49 @@ message SetExportResponse {
 
 message DeleteExportRequest {}
 message DeleteExportResponse {}
+
+// FileExportSettings is what an organisation exports as files and messages
+// (ANL-011).
+message FileExportSettings {
+  bool parquet_enabled = 1;
+  // parquet_events and parquet_rollups choose the kinds of Parquet file.
+  bool parquet_events = 2;
+  bool parquet_rollups = 3;
+  // parquet_granularity is the width of the exported rollups: 5m, 1h or 1d.
+  string parquet_granularity = 4;
+  bool webhook_enabled = 5;
+  // webhook_url is the https address of the receiver.
+  string webhook_url = 6;
+}
+
+// FileExport is the settings of the Parquet and webhook exports and the
+// progress of their delivery.
+message FileExport {
+  FileExportSettings settings = 1;
+  // secret_hint is the end of the webhook signing secret, which is never
+  // returned; empty when none is stored.
+  string secret_hint = 2;
+  // exported_until is the end of the last hour delivered.
+  google.protobuf.Timestamp exported_until = 3;
+  // last_error says why the last attempt failed; empty when it did not.
+  string last_error = 4;
+  google.protobuf.Timestamp last_attempt_at = 5;
+}
+
+message GetFileExportRequest {}
+message GetFileExportResponse {
+  FileExport export = 1;
+}
+
+message SetFileExportRequest {
+  FileExportSettings settings = 1;
+  // webhook_secret is the Standard Webhooks signing secret, "whsec_" and
+  // base64; empty keeps the stored one.
+  string webhook_secret = 2;
+}
+message SetFileExportResponse {
+  FileExport export = 1;
+}
 
 // AlertRule is a condition on a rollup metric (ANL-030). The aggregation of
 // the metric over the window is compared with the threshold; the rule fires
