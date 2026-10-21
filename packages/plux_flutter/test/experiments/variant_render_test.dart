@@ -136,6 +136,19 @@ void main() {
     expect(await exposures(tester), isEmpty);
   });
 
+  testWidgets('with no control document a prop experiment reads the control '
+      'value the compiler embedded in the app bundle [ABT-002]', (
+    tester,
+  ) async {
+    await start(tester, consent: true);
+    applyControl(null);
+    await show(tester);
+    expect(find.text('Buy'), findsOneWidget);
+    expect(find.text('Buy now'), findsNothing);
+    expect(find.text('Welcome'), findsOneWidget);
+    expect(await exposures(tester), isEmpty);
+  });
+
   testWidgets('without the experiments consent everyone gets the control '
       'and nothing is recorded [ABT-002] [SEC-161]', (tester) async {
     await start(tester, consent: false);

@@ -453,6 +453,23 @@ table LocalisationSettings {
   numbering_systems: [NumberingSystemEntry];
 }
 
+// The value an experiment prop has for the control (ABT-002).
+table ExperimentProp {
+  name: string;
+  value: Value;
+}
+
+// The control arm of an experiment of the project: the name of the
+// control variant and the value of each declared prop for it, sorted by
+// name. The runtime reads `experiment.<key>.<prop>` from these when the
+// control document has no entry for the experiment, so a binding never
+// fails for want of a document (ABT-002).
+table ExperimentDefaults {
+  key: string (key);
+  control: string;
+  props: [ExperimentProp];
+}
+
 table Meta {
   kind: BundleKind;
   id: Uuid;
@@ -503,6 +520,9 @@ table Meta {
   // App bundles: the app's localisation settings (I18N-003, I18N-011);
   // absent when app.json declares none.
   localisation: LocalisationSettings;
+  // App bundles: the control arm of each experiment that declares props,
+  // sorted by key (ABT-002); absent when the app has none.
+  experiments: [ExperimentDefaults];
 }
 
 // ── Section page ──────────────────────────────────────────────────────────
