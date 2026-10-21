@@ -178,6 +178,56 @@ func TestEveryTypeShape(t *testing.T) {
 	golden(t, "types.g.dart", out)
 }
 
+// TestFlagAccessors writes one typed getter per flag of the app document,
+// sorted by name, with the description as its documentation and the
+// document's default as the value before a release is active; an app
+// without flags gets no class.
+// Verifies: ABT-006, HST-030.
+func TestFlagAccessors_ABT_006(t *testing.T) {
+	t.Parallel()
+	raw := func(s string) json.RawMessage { return json.RawMessage(s) }
+	p := &schema.Project{App: schema.Loaded[schema.AppDocument]{Doc: &schema.AppDocument{
+		Key: "shop",
+		Flags: []schema.FlagDecl{
+			{Name: "newCheckout", Type: schema.FlagTypeBool, Default: raw("false"), Description: "Shows the new checkout."},
+			{Name: "greeting", Type: schema.FlagTypeString, Default: raw(`"Hi"`)},
+			{Name: "maxItems", Type: schema.FlagTypeInt, Default: raw("20")},
+			{Name: "taxRate", Type: schema.FlagTypeDouble, Default: raw("0.2")},
+		},
+	}}}
+	out, err := Dart(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const want = `
+/// The app's feature flags (ABT-006).
+abstract final class PluxFlags {
+  /// The feature flag ` + "`greeting`" + `.
+  static String get greeting => plux.Plux.flag<String>('greeting') ?? 'Hi';
+
+  /// The feature flag ` + "`maxItems`" + `.
+  static int get maxItems => plux.Plux.flag<int>('maxItems') ?? 20;
+
+  /// Shows the new checkout.
+  static bool get newCheckout => plux.Plux.flag<bool>('newCheckout') ?? false;
+
+  /// The feature flag ` + "`taxRate`" + `.
+  static double get taxRate => plux.Plux.flag<double>('taxRate') ?? 0.2;
+}
+`
+	if !strings.Contains(string(out), want) {
+		t.Errorf("the library lacks the flag accessors:\n%s", out)
+	}
+	p.App.Doc.Flags = nil
+	out, err = Dart(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(out), "PluxFlags") {
+		t.Error("an app without flags got a PluxFlags class")
+	}
+}
+
 // TestErrors reports what cannot be generated.
 // Verifies: HST-030.
 func TestErrors(t *testing.T) {
