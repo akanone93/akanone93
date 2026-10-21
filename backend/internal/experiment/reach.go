@@ -215,7 +215,7 @@ func binds(src, key string) bool {
 			return false
 		}
 		start, end := offset+i, offset+i+len(needle)
-		if !identChar(src, start-1) && !identChar(src, end) && !(start > 0 && src[start-1] == '.') {
+		if !identChar(src, start-1) && !identChar(src, end) && (start == 0 || src[start-1] != '.') {
 			return true
 		}
 		rest, offset = rest[i+1:], offset+i+1

@@ -5,6 +5,7 @@ package function
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/jackc/pgx/v5"
@@ -36,12 +37,16 @@ type deployment struct {
 // runs before the function's lock and before the audit entry
 // (approval.Require).
 func (s *Service) requireDeployment(ctx context.Context, tx pgx.Tx, p auth.Principal, d deployment) error {
-	return approval.Require(ctx, s.o.Approvals, tx, approval.Artifact{
+	err := approval.Require(ctx, s.o.Approvals, tx, approval.Artifact{
 		Resource: schema.PolicyResourceFunctionVersion, OrganizationID: p.OrganizationID, AppID: d.app,
 		Environment: approval.Environment{ID: storage.ID(d.env.ID), Key: d.env.Key, Production: d.env.Production},
 		Action:      approval.ActionDeploy, Subject: d.subject + "@" + storage.ID(d.env.ID),
 		Hash: approval.HashOf(d.content...), Summary: d.summary, Requester: p.Actor(),
 	})
+	if err != nil {
+		return fmt.Errorf("function.requireDeployment: %w", err)
+	}
+	return nil
 }
 
 // deployContent lists the parts of a deployment's hash: the function, its

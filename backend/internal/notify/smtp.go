@@ -104,7 +104,11 @@ func (s *Service) dial(ctx context.Context, address string) (net.Conn, error) {
 	if err != nil {
 		return nil, fmt.Errorf("notify: %w", err)
 	}
-	return d.DialContext(ctx, "tcp", address)
+	conn, err := d.DialContext(ctx, "tcp", address)
+	if err != nil {
+		return nil, fmt.Errorf("notify: dial %s: %w", address, err)
+	}
+	return conn, nil
 }
 
 // sendMail sends one message. STARTTLS is required: a relay that does not

@@ -587,49 +587,59 @@ func (s *Service) RollbackReleaseWith(ctx context.Context, p auth.Principal, app
 		alert *breakglass.Record
 	)
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		app, env, err := s.environment(ctx, q, appID, envID)
-		if err != nil {
-			return err
-		}
-		if err := authorizeEnvironment(p, auth.ReleasePromote, appID, env.Key); err != nil {
-			return err
-		}
-		earlier, vs, err := s.releaseRow(ctx, q, appID, toSequence)
-		if err != nil {
-			return err
-		}
-		if err := s.requireRollbackTarget(ctx, q, appID, env, earlier, vs); err != nil {
-			return err
-		}
-		if alert, err = s.gateRollback(ctx, tx, p, appID, env, channelKey, earlier, vs, opts); err != nil {
-			return err
-		}
-		if _, err := q.LockApp(ctx, app); err != nil {
-			return failure(err, "app")
-		}
-		if notes == "" {
-			notes = "Rollback to release " + strconv.FormatInt(toSequence, 10)
-		}
-		// A rollback reproduces the release, so it is as confidential as
-		// the release it reproduces; it gets a content key of its own.
-		out, err = s.insertRelease(ctx, tx, p, env, vs, toSequence, notes, earlier.Confidential)
-		if err != nil {
-			return err
-		}
-		row, err := q.GetRelease(ctx, dbgen.GetReleaseParams{AppID: app, Sequence: out.Sequence})
-		if err != nil {
-			return failure(err, "release")
-		}
-		if err := carryOver(ctx, q, &out, row.ID, earlier.ID); err != nil {
-			return err
-		}
-		return s.point(ctx, tx, p, env, channelKey, row)
+		var err error
+		out, alert, err = s.rollbackTx(ctx, tx, p, appID, envID, channelKey, toSequence, notes, opts)
+		return err
 	})
 	if err == nil {
 		s.alert(ctx, alert)
 	}
 	return out, err
+}
+
+// rollbackTx checks a rollback, copies the earlier release into a new one
+// and points the channel at it, in the transaction of the request. It
+// returns the emergency record to alert on, if the rollback was one.
+func (s *Service) rollbackTx(ctx context.Context, tx pgx.Tx, p auth.Principal, appID, envID, channelKey string, toSequence int64, notes string, opts []ChangeOption) (Release, *breakglass.Record, error) {
+	q := dbgen.New(tx)
+	app, env, err := s.environment(ctx, q, appID, envID)
+	if err != nil {
+		return Release{}, nil, err
+	}
+	if err := authorizeEnvironment(p, auth.ReleasePromote, appID, env.Key); err != nil {
+		return Release{}, nil, err
+	}
+	earlier, vs, err := s.releaseRow(ctx, q, appID, toSequence)
+	if err != nil {
+		return Release{}, nil, err
+	}
+	if err := s.requireRollbackTarget(ctx, q, appID, env, earlier, vs); err != nil {
+		return Release{}, nil, err
+	}
+	alert, err := s.gateRollback(ctx, tx, p, appID, env, channelKey, earlier, vs, opts)
+	if err != nil {
+		return Release{}, nil, err
+	}
+	if _, err := q.LockApp(ctx, app); err != nil {
+		return Release{}, nil, failure(err, "app")
+	}
+	if notes == "" {
+		notes = "Rollback to release " + strconv.FormatInt(toSequence, 10)
+	}
+	// A rollback reproduces the release, so it is as confidential as
+	// the release it reproduces; it gets a content key of its own.
+	out, err := s.insertRelease(ctx, tx, p, env, vs, toSequence, notes, earlier.Confidential)
+	if err != nil {
+		return Release{}, nil, err
+	}
+	row, err := q.GetRelease(ctx, dbgen.GetReleaseParams{AppID: app, Sequence: out.Sequence})
+	if err != nil {
+		return Release{}, nil, failure(err, "release")
+	}
+	if err := carryOver(ctx, q, &out, row.ID, earlier.ID); err != nil {
+		return Release{}, nil, err
+	}
+	return out, alert, s.point(ctx, tx, p, env, channelKey, row)
 }
 
 // gateRollback decides whether a rollback may happen. An emergency rollback
@@ -646,7 +656,7 @@ func (s *Service) gateRollback(ctx context.Context, tx pgx.Tx, p auth.Principal,
 	if em := emergencyOf(opts, breakglass.ActionRollback, subject, releaseHash(earlier, vs)); em != nil {
 		return s.invoke(ctx, tx, p, appID, env, em)
 	}
-	if p.Identity.Kind == auth.KindSystem {
+	if p.Kind == auth.KindSystem {
 		return nil, nil
 	}
 	return nil, s.requirePromotion(ctx, tx, p, appID, env, channelKey, earlier, vs)

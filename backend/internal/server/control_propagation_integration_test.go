@@ -66,7 +66,7 @@ func newFakeFCM(t *testing.T) *fakeFCM {
 
 // credentials is the service account key file the server reads from the
 // environment's secrets; its key signs only the assertion the fake accepts.
-func (f *fakeFCM) credentials(t *testing.T) string {
+func (*fakeFCM) credentials(t *testing.T) string {
 	t.Helper()
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -314,7 +314,7 @@ func TestBenchControlPropagation_NFR_024(t *testing.T) {
 		t.Errorf("polling p95 %.1f s is far beyond the %.0f s interval", poller.P95Seconds, poll.Seconds())
 	}
 	// Both changes were seen by every device and recorded by the server.
-	waitUntil(t, 10*time.Second, func() bool { return histogramCount(t, st) >= uint64(2*devices) }, fmt.Sprintf("%d propagation samples", 2*devices))
+	waitUntil(t, 10*time.Second, func() bool { return histogramCount(t, st) >= uint64(max(2*devices, 0)) }, fmt.Sprintf("%d propagation samples", 2*devices))
 }
 
 // Verifies: DEP-051, NFR-023.

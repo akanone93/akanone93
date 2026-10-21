@@ -47,16 +47,30 @@ func renumber(n *Node, newID IDSource, ids map[string]string) error {
 	}
 	ids[n.ID] = id
 	n.ID = id
+	if err := renumberChildren(n, newID, ids); err != nil {
+		return err
+	}
+	if err := renumberVariants(n, newID, ids); err != nil {
+		return err
+	}
+	return renumberSlots(n, newID, ids)
+}
+
+// renumberChildren renumbers the children and the control arm of n.
+func renumberChildren(n *Node, newID IDSource, ids map[string]string) error {
 	for i := range n.Children {
 		if err := renumber(&n.Children[i], newID, ids); err != nil {
 			return err
 		}
 	}
 	if n.Control != nil {
-		if err := renumber(n.Control, newID, ids); err != nil {
-			return err
-		}
+		return renumber(n.Control, newID, ids)
 	}
+	return nil
+}
+
+// renumberVariants renumbers the variant arms of n, by name.
+func renumberVariants(n *Node, newID IDSource, ids map[string]string) error {
 	for _, name := range slices.Sorted(maps.Keys(n.Variants)) {
 		arm := n.Variants[name]
 		if err := renumber(&arm, newID, ids); err != nil {
@@ -64,6 +78,11 @@ func renumber(n *Node, newID IDSource, ids map[string]string) error {
 		}
 		n.Variants[name] = arm
 	}
+	return nil
+}
+
+// renumberSlots renumbers the nodes that fill the slots of n, by name.
+func renumberSlots(n *Node, newID IDSource, ids map[string]string) error {
 	for _, name := range slices.Sorted(maps.Keys(n.Slots)) {
 		fill := n.Slots[name]
 		if fill.One != nil {

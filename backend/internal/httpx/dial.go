@@ -99,7 +99,7 @@ func CheckHostPort(policy Policy, address string) error {
 	if err != nil || host == "" || port == "" {
 		return fmt.Errorf("%w: %q is not host:port", ErrBlocked, address)
 	}
-	if n, err := net.LookupPort("tcp", port); err != nil || n == 0 {
+	if n, err := net.DefaultResolver.LookupPort(context.Background(), "tcp", port); err != nil || n == 0 {
 		return fmt.Errorf("%w: %q is not a port", ErrBlocked, port)
 	}
 	if addr, err := netip.ParseAddr(host); err == nil {

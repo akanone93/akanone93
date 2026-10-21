@@ -46,7 +46,7 @@ type Server struct {
 	seenJTIs map[string]bool
 
 	// FailTelemetry, when set, makes IngestEvents fail with that code.
-	failTelemetry atomic.Int32
+	failTelemetry atomic.Uint32
 	// release is the release sequence the manifest names.
 	release atomic.Int64
 }
@@ -99,7 +99,7 @@ func (s *Server) SetReleaseSequence(n int64) { s.release.Store(n) }
 
 // FailTelemetry makes IngestEvents answer with the given Connect code from
 // now on; zero restores it.
-func (s *Server) FailTelemetry(code connect.Code) { s.failTelemetry.Store(int32(code)) } //nolint:gosec // a Connect code is small
+func (s *Server) FailTelemetry(code connect.Code) { s.failTelemetry.Store(uint32(code)) }
 
 // Calls returns how many calls the procedure (for example
 // "ManifestService/GetManifest") received.
@@ -151,7 +151,7 @@ func (s *Server) verify(r connect.AnyRequest, procedure string) *connect.Error {
 	if r.Header().Get("Authorization") == "" {
 		token = ""
 	}
-	if token != "" && token != accessToken {
+	if token != "" && token != issuedAccess {
 		return connect.NewError(connect.CodeUnauthenticated, errors.New("unknown access token"))
 	}
 	proof, err := s.verifier.Verify(r.Header().Get("DPoP"), dpop.Expect{
@@ -181,8 +181,8 @@ func (*Server) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.S
 	return next
 }
 
-// accessToken is the token the fake issues to every device.
-const accessToken = "loadgentest-access-token"
+// issuedAccess is the credential the fake issues to every device.
+const issuedAccess = "loadgentest-access"
 
 type deviceHandler struct {
 	pluxv1connect.UnimplementedDeviceServiceHandler
@@ -214,7 +214,7 @@ type tokenHandler struct {
 }
 
 func (tokenHandler) RefreshDeviceToken(context.Context, *connect.Request[pluxv1.RefreshDeviceTokenRequest]) (*connect.Response[pluxv1.RefreshDeviceTokenResponse], error) {
-	return connect.NewResponse(&pluxv1.RefreshDeviceTokenResponse{AccessToken: accessToken, TokenType: "DPoP"}), nil
+	return connect.NewResponse(&pluxv1.RefreshDeviceTokenResponse{AccessToken: issuedAccess, TokenType: "DPoP"}), nil
 }
 
 type manifestHandler struct {

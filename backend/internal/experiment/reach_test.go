@@ -23,8 +23,8 @@ const (
 
 func files(kv ...string) []document.File {
 	var out []document.File
-	for i := 0; i < len(kv); i += 2 {
-		out = append(out, document.File{Path: kv[i], Content: []byte(kv[i+1])})
+	for pair := range slices.Chunk(kv, 2) {
+		out = append(out, document.File{Path: pair[0], Content: []byte(pair[len(pair)-1])})
 	}
 	return out
 }

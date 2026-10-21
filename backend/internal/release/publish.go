@@ -674,51 +674,65 @@ func (s *Service) store(ctx context.Context, kind objects.Kind, sum, data []byte
 func (s *Service) recordVersion(ctx context.Context, p auth.Principal, row dbgen.PublishJob, b *compiler.Bundle, c compiled, sig versionSignature, diags plxerr.Diagnostics) error {
 	succeeded := false
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		if _, err := q.LockApp(ctx, row.AppID); err != nil {
-			return failure(err, "app")
-		}
-		current, err := q.GetPublishJobForUpdate(ctx, row.ID)
-		if err != nil {
-			return failure(err, "publish job")
-		}
-		if current.State != StateRunning {
-			return nil // cancelled while it ran
-		}
-		id, next, err := s.insertVersion(ctx, q, row, b, c, sig)
-		if err != nil {
-			return err
-		}
-		uses, err := encodeUses(compiler.NativeUses(c.result, draftFiles(c.key)))
-		if err != nil {
-			return err
-		}
-		if err := q.SetVersionNativeUses(ctx, dbgen.SetVersionNativeUsesParams{ID: storage.MustUUID(id), NativeUses: uses}); err != nil {
-			return failure(err, "version")
-		}
-		if err := s.finishTx(ctx, q, row, StateSucceeded, diags, next); err != nil {
-			return err
-		}
-		succeeded = true
-		if err := s.enqueueDeltas(ctx, tx, p.OrganizationID, storage.ID(row.AppID), c.key, b.Hash[:]); err != nil {
-			return err
-		}
-		if s.o.Published != nil {
-			summary := fmt.Sprintf("%s version %d", keyOrApp(b.Key, row), next)
-			if err := s.o.Published.Published(ctx, tx, p.OrganizationID, storage.ID(row.AppID), id, summary, row.ActorID, row.ActorDisplay); err != nil {
-				return fmt.Errorf("release: %w", err)
-			}
-		}
-		actor := auth.Principal{Identity: auth.Identity{Kind: row.ActorKind, ID: row.ActorID, Display: row.ActorDisplay}, OrganizationID: p.OrganizationID}
-		return s.record(ctx, tx, actor, audit.Entry{
-			Action: audit.VersionPublished, TargetKind: "version", TargetID: id,
-			AfterHash: hex.EncodeToString(b.Hash[:]), Detail: fmt.Sprintf("%s version %d", keyOrApp(b.Key, row), next),
-		})
+		var err error
+		succeeded, err = s.recordVersionTx(ctx, tx, p, row, b, c, sig, diags)
+		return err
 	})
 	if err == nil && succeeded {
 		s.publishFinished(StateSucceeded)
 	}
 	return err
+}
+
+// recordVersionTx inserts the version, finishes the job and queues what
+// follows from the publish, in the transaction of the request. It reports
+// false when the job was cancelled while it ran, and records nothing then.
+func (s *Service) recordVersionTx(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.PublishJob, b *compiler.Bundle, c compiled, sig versionSignature, diags plxerr.Diagnostics) (bool, error) {
+	q := dbgen.New(tx)
+	if _, err := q.LockApp(ctx, row.AppID); err != nil {
+		return false, failure(err, "app")
+	}
+	current, err := q.GetPublishJobForUpdate(ctx, row.ID)
+	if err != nil {
+		return false, failure(err, "publish job")
+	}
+	if current.State != StateRunning {
+		return false, nil // cancelled while it ran
+	}
+	id, next, err := s.insertVersion(ctx, q, row, b, c, sig)
+	if err != nil {
+		return false, err
+	}
+	uses, err := encodeUses(compiler.NativeUses(c.result, draftFiles(c.key)))
+	if err != nil {
+		return false, err
+	}
+	if err := q.SetVersionNativeUses(ctx, dbgen.SetVersionNativeUsesParams{ID: storage.MustUUID(id), NativeUses: uses}); err != nil {
+		return false, failure(err, "version")
+	}
+	if err := s.finishTx(ctx, q, row, StateSucceeded, diags, next); err != nil {
+		return false, err
+	}
+	if err := s.enqueueDeltas(ctx, tx, p.OrganizationID, storage.ID(row.AppID), c.key, b.Hash[:]); err != nil {
+		return true, err
+	}
+	return true, s.announceVersion(ctx, tx, p, row, b, id, next)
+}
+
+// announceVersion tells the publish listener about a new version and audits
+// it.
+func (s *Service) announceVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.PublishJob, b *compiler.Bundle, id string, next int64) error {
+	summary := fmt.Sprintf("%s version %d", keyOrApp(b.Key, row), next)
+	if s.o.Published != nil {
+		if err := s.o.Published.Published(ctx, tx, p.OrganizationID, storage.ID(row.AppID), id, summary, row.ActorID, row.ActorDisplay); err != nil {
+			return fmt.Errorf("release: %w", err)
+		}
+	}
+	actor := auth.Principal{Identity: auth.Identity{Kind: row.ActorKind, ID: row.ActorID, Display: row.ActorDisplay}, OrganizationID: p.OrganizationID}
+	return s.record(ctx, tx, actor, audit.Entry{
+		Action: audit.VersionPublished, TargetKind: "version", TargetID: id,
+		AfterHash: hex.EncodeToString(b.Hash[:]), Detail: summary,
+	})
 }
 
 // insertVersion records the next version of a job's draft.

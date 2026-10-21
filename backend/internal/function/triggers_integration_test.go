@@ -274,7 +274,7 @@ func TestTriggerDelete_FN_025(t *testing.T) {
 func hookRequest(svc *function.Service, app, name string, body string, h http.Header) *httptest.ResponseRecorder {
 	mux := http.NewServeMux()
 	mux.Handle("POST /hooks/{app}/{function}", svc.HookHandler())
-	req := httptest.NewRequest(http.MethodPost, "/hooks/"+app+"/"+name, strings.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/hooks/"+app+"/"+name, strings.NewReader(body))
 	for k, v := range h {
 		req.Header[k] = v
 	}

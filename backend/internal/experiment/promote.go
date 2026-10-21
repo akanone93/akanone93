@@ -124,7 +124,10 @@ func filesOf(fsys fs.FS) ([]document.File, error) {
 		}
 		data, err := fs.ReadFile(fsys, name)
 		found[name] = data
-		return err
+		if err != nil {
+			return fmt.Errorf("read %s: %w", name, err)
+		}
+		return nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("experiment: read the promoted project: %w", err)

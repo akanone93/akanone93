@@ -141,8 +141,16 @@ type Service struct {
 	oidc map[string]cachedOIDC
 }
 
-// NewService returns the service.
+// NewService returns the service. Its permission subscription lasts until
+// Close.
 func NewService(o Options) (*Service, error) {
+	return NewServiceContext(context.Background(), o)
+}
+
+// NewServiceContext returns the service, setting up its permission
+// subscription with ctx. The subscription belongs to the service, not to
+// ctx: Close ends it.
+func NewServiceContext(ctx context.Context, o Options) (*Service, error) {
 	switch {
 	case o.DB == nil:
 		return nil, errors.New("auth: a database is required")
@@ -188,7 +196,7 @@ func NewService(o Options) (*Service, error) {
 		lifetime := time.Duration(o.Limits.Get(limits.AuthPermissionCacheSeconds)) * time.Second
 		// The subscription belongs to the service, not to a request: Close
 		// ends it.
-		bus, err := newPermissionBus(context.Background(), o.Notifier, lifetime, now)
+		bus, err := newPermissionBus(ctx, o.Notifier, lifetime, now)
 		if err != nil {
 			return nil, err
 		}

@@ -5,14 +5,13 @@ package stats_test
 
 import (
 	"math"
-	"math/rand/v2"
 	"testing"
 
 	"github.com/nightCode42/plux3/backend/internal/experiment/stats"
 )
 
 // sample draws one subject's outcome y and pre-exposure covariate x.
-type sample func(r *rand.Rand, treated bool) (y, x float64)
+type sample func(r *rng, treated bool) (y, x float64)
 
 // outcome of one simulated experiment, read at every look.
 type outcome struct {
@@ -29,7 +28,7 @@ type outcome struct {
 // result after every step subjects per variant from minN on. truth is the true
 // difference the confidence sequence is checked against.
 func simulate(seed uint64, draw sample, truth float64, minN, maxN, step int, cuped bool) outcome {
-	r := rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15))
+	r := newRNG(seed, seed^0x9e3779b97f4a7c15)
 	var c, t stats.Moments
 	out := outcome{alwaysCovered: true}
 	for n := 1; n <= maxN; n++ {
@@ -52,7 +51,7 @@ func simulate(seed uint64, draw sample, truth float64, minN, maxN, step int, cup
 	return out
 }
 
-func add(m *stats.Moments, draw sample, r *rand.Rand, treated bool) {
+func add(m *stats.Moments, draw sample, r *rng, treated bool) {
 	y, x := draw(r, treated)
 	m.N++
 	m.SumY += y
@@ -74,7 +73,7 @@ func rate(sims int, run func(seed uint64) outcome, pick func(outcome) bool) floa
 }
 
 func normal(effect float64) sample {
-	return func(r *rand.Rand, treated bool) (float64, float64) {
+	return func(r *rng, treated bool) (float64, float64) {
 		y := r.NormFloat64()
 		if treated {
 			y += effect
@@ -84,7 +83,7 @@ func normal(effect float64) sample {
 }
 
 func bernoulli(base, lift float64) sample {
-	return func(r *rand.Rand, treated bool) (float64, float64) {
+	return func(r *rng, treated bool) (float64, float64) {
 		p := base
 		if treated {
 			p += lift
@@ -99,7 +98,7 @@ func bernoulli(base, lift float64) sample {
 // skewed is an exponential outcome with mean 1, a heavy right tail like a
 // revenue or latency metric.
 func skewed(lift float64) sample {
-	return func(r *rand.Rand, treated bool) (float64, float64) {
+	return func(r *rng, treated bool) (float64, float64) {
 		y := r.ExpFloat64()
 		if treated {
 			y += lift
@@ -111,7 +110,7 @@ func skewed(lift float64) sample {
 // history draws an outcome that depends on the subject's pre-exposure
 // covariate: y = slope * x + noise (+ effect when treated).
 func history(slope, effect float64) sample {
-	return func(r *rand.Rand, treated bool) (float64, float64) {
+	return func(r *rng, treated bool) (float64, float64) {
 		x := 10 + 2*r.NormFloat64()
 		y := slope*x + r.NormFloat64()
 		if treated {
@@ -156,7 +155,7 @@ func TestFixedHorizonInflatesUnderPeeking_ABT_003(t *testing.T) {
 	t.Parallel()
 	hits := 0
 	for seed := uint64(1); seed <= 500; seed++ {
-		r := rand.New(rand.NewPCG(seed, seed))
+		r := newRNG(seed, seed)
 		var c, tr stats.Moments
 		for n := 1; n <= 3000; n++ {
 			add(&c, normal(0), r, false)
@@ -219,7 +218,7 @@ func TestDetectsProportionLift_ABT_003(t *testing.T) {
 // Verifies: ABT-003.
 func TestSequenceIsWiderThanFixedHorizon_ABT_003(t *testing.T) {
 	t.Parallel()
-	r := rand.New(rand.NewPCG(7, 7))
+	r := newRNG(7, 7)
 	var c, tr stats.Moments
 	var earlier stats.Estimate
 	for n := 1; n <= 4000; n++ {
@@ -250,7 +249,7 @@ func TestCUPEDReducesVariance_ABT_003(t *testing.T) {
 	t.Parallel()
 	const effect = 0.5
 	draw := history(0.8, effect)
-	r := rand.New(rand.NewPCG(11, 3))
+	r := newRNG(11, 3)
 	var c, tr stats.Moments
 	for range 5000 {
 		add(&c, draw, r, false)
@@ -396,7 +395,7 @@ func TestSampleRatioDetectsMismatch_ABT_003(t *testing.T) {
 // Verifies: ABT-003.
 func TestSampleRatioFalsePositiveRate_ABT_003(t *testing.T) {
 	t.Parallel()
-	r := rand.New(rand.NewPCG(5, 5))
+	r := newRNG(5, 5)
 	flagged := 0
 	const runs = 4000
 	for range runs {

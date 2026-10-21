@@ -20,7 +20,7 @@ import (
 // connect sends one request to the proxy and returns the status line code.
 func connect(t *testing.T, p *proxy, method, target, auth string) int {
 	t.Helper()
-	conn, err := net.Dial("tcp", p.address())
+	conn, err := (&net.Dialer{}).DialContext(t.Context(), "tcp", p.address())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,6 +36,7 @@ func connect(t *testing.T, p *proxy, method, target, auth string) int {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer res.Body.Close()
 	return res.StatusCode
 }
 
@@ -45,7 +46,7 @@ func connect(t *testing.T, p *proxy, method, target, auth string) int {
 // its secret, serves CONNECT only, and tunnels to an allowed address.
 func TestProxy_AddressPolicy_GOV_011(t *testing.T) {
 	t.Parallel()
-	echo, err := net.Listen("tcp", "127.0.0.1:0")
+	echo, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +71,7 @@ func TestProxy_AddressPolicy_GOV_011(t *testing.T) {
 		}
 		return nil, fmt.Errorf("no such host %s", host)
 	}
-	strict, err := startProxy(httpx.Policy{}, resolver, "secret")
+	strict, err := startProxy(t.Context(), httpx.Policy{}, resolver, "secret")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,11 +96,11 @@ func TestProxy_AddressPolicy_GOV_011(t *testing.T) {
 		t.Errorf("GET = %d", got)
 	}
 
-	open, err := startProxy(httpx.Policy{AllowLoopback: true}, resolver, "secret")
+	open, err := startProxy(t.Context(), httpx.Policy{AllowLoopback: true}, resolver, "secret")
 	if err != nil {
 		t.Fatal(err)
 	}
-	conn, err := net.Dial("tcp", open.address())
+	conn, err := (&net.Dialer{}).DialContext(t.Context(), "tcp", open.address())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,9 +109,11 @@ func TestProxy_AddressPolicy_GOV_011(t *testing.T) {
 		t.Fatal(err)
 	}
 	r := bufio.NewReader(conn)
-	if res, err := http.ReadResponse(r, nil); err != nil || res.StatusCode != http.StatusOK {
+	res, err := http.ReadResponse(r, nil)
+	if err != nil || res.StatusCode != http.StatusOK {
 		t.Fatalf("CONNECT to an allowed address: %v, %v", res, err)
 	}
+	defer res.Body.Close()
 	buf := make([]byte, 5)
 	if _, err := r.Read(buf); err != nil || !strings.HasPrefix(string(buf), "hello") {
 		t.Errorf("tunnel read = %q, %v", buf, err)

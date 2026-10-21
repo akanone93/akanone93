@@ -71,13 +71,29 @@ func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (
 	if err := authorizeSomeControl(p, c.AppID); err != nil {
 		return Control{}, err
 	}
+	kills, err := checkedKillSwitches(c)
+	if err != nil {
+		return Control{}, err
+	}
+	var out Control
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		out, err = s.setControlTx(ctx, tx, p, c, kills)
+		return err
+	})
+	return out, err
+}
+
+// checkedKillSwitches validates the message and the plugin kill switches of
+// a legacy control call and returns the switches sorted and without
+// duplicates.
+func checkedKillSwitches(c Control) ([]string, error) {
 	if len(c.Message) > maxControlMessage {
-		return Control{}, plxerr.New(plxerr.InvalidFormat, "the message is longer than %d characters", maxControlMessage)
+		return nil, plxerr.New(plxerr.InvalidFormat, "the message is longer than %d characters", maxControlMessage)
 	}
 	kills := slices.Clone(c.KillSwitchPlugins)
 	for _, k := range kills {
 		if !schema.ValidKey(k) {
-			return Control{}, plxerr.New(plxerr.InvalidFormat, "%q is not a plugin key", k)
+			return nil, plxerr.New(plxerr.InvalidFormat, "%q is not a plugin key", k)
 		}
 	}
 	slices.Sort(kills)
@@ -85,49 +101,51 @@ func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (
 	if kills == nil {
 		kills = []string{}
 	}
-	var out Control
-	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		app, env, err := s.environment(ctx, q, c.AppID, c.EnvironmentID)
-		if err != nil {
-			return err
-		}
-		if err := authorizeControl(p, c.AppID, env.Key); err != nil {
-			return err
-		}
-		if _, err := s.gateChange(ctx, tx, p, c.AppID, env, nil); err != nil {
-			return err
-		}
-		ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(c.ChannelKey)})
-		if err != nil {
-			return failure(err, "channel")
-		}
-		actor := p.Actor()
-		change := controlChange{detail: "set through the legacy control call", apply: legacyApply(s, kills, c.MandatoryUpdate)}
-		if _, _, err := s.applyControl(ctx, tx, controlTarget{app: app, env: env, ch: ch}, change, actor); err != nil {
-			return err
-		}
-		row, err := q.UpsertChannelControl(ctx, dbgen.UpsertChannelControlParams{
-			ChannelID: ch.ID, OrganizationID: ch.OrganizationID, KillSwitchPlugins: kills,
-			AppKillSwitch: c.AppKillSwitch, MandatoryUpdate: c.MandatoryUpdate, Message: c.Message,
-			UpdatedByKind: actor.Kind, UpdatedByID: actor.ID, UpdatedBy: actor.Display,
-		})
-		if err != nil {
-			return failure(err, "control")
-		}
-		if err := s.enqueueManifest(ctx, tx, ch); err != nil {
-			return err
-		}
-		if err := s.record(ctx, tx, p, audit.Entry{
-			Action: audit.ControlChanged, TargetKind: "channel", TargetID: storage.ID(ch.ID),
-			Detail: "kill switches [" + strings.Join(kills, ", ") + "]" + onOff(" app kill switch", c.AppKillSwitch) + onOff(" mandatory update", c.MandatoryUpdate),
-		}); err != nil {
-			return err
-		}
-		out = controlOf(c.AppID, c.EnvironmentID, ch.Key, row)
-		return nil
+	return kills, nil
+}
+
+// setControlTx writes the legacy control row and the control document of
+// the channel, queues its manifest and audits the change, in the
+// transaction of the request.
+func (s *Service) setControlTx(ctx context.Context, tx pgx.Tx, p auth.Principal, c Control, kills []string) (Control, error) {
+	q := dbgen.New(tx)
+	app, env, err := s.environment(ctx, q, c.AppID, c.EnvironmentID)
+	if err != nil {
+		return Control{}, err
+	}
+	if err := authorizeControl(p, c.AppID, env.Key); err != nil {
+		return Control{}, err
+	}
+	if _, err := s.gateChange(ctx, tx, p, c.AppID, env, nil); err != nil {
+		return Control{}, err
+	}
+	ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(c.ChannelKey)})
+	if err != nil {
+		return Control{}, failure(err, "channel")
+	}
+	actor := p.Actor()
+	change := controlChange{detail: "set through the legacy control call", apply: legacyApply(s, kills, c.MandatoryUpdate)}
+	if _, _, err := s.applyControl(ctx, tx, controlTarget{app: app, env: env, ch: ch}, change, actor); err != nil {
+		return Control{}, err
+	}
+	row, err := q.UpsertChannelControl(ctx, dbgen.UpsertChannelControlParams{
+		ChannelID: ch.ID, OrganizationID: ch.OrganizationID, KillSwitchPlugins: kills,
+		AppKillSwitch: c.AppKillSwitch, MandatoryUpdate: c.MandatoryUpdate, Message: c.Message,
+		UpdatedByKind: actor.Kind, UpdatedByID: actor.ID, UpdatedBy: actor.Display,
 	})
-	return out, err
+	if err != nil {
+		return Control{}, failure(err, "control")
+	}
+	if err := s.enqueueManifest(ctx, tx, ch); err != nil {
+		return Control{}, err
+	}
+	if err := s.record(ctx, tx, p, audit.Entry{
+		Action: audit.ControlChanged, TargetKind: "channel", TargetID: storage.ID(ch.ID),
+		Detail: "kill switches [" + strings.Join(kills, ", ") + "]" + onOff(" app kill switch", c.AppKillSwitch) + onOff(" mandatory update", c.MandatoryUpdate),
+	}); err != nil {
+		return Control{}, err
+	}
+	return controlOf(c.AppID, c.EnvironmentID, ch.Key, row), nil
 }
 
 // legacyApply is the change a legacy SetControl makes to the document: the

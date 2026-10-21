@@ -149,7 +149,7 @@ func (w *world) device(t *testing.T) push.Device {
 	return push.Device{OrganizationID: w.org, AppID: w.app, EnvironmentID: w.env, DeviceID: id}
 }
 
-func (w *world) credentials(t *testing.T) secrets {
+func (*world) credentials(t *testing.T) secrets {
 	t.Helper()
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

@@ -35,7 +35,7 @@ func variantMoments(control, treatment stats.Moments) []experiment.VariantMoment
 
 // runningExperiment is the two-variant hero experiment with guardrail and
 // primary metrics, started.
-func (w *world) runningExperiment(obs *memObservations) experiment.Experiment {
+func (w *world) runningExperiment() experiment.Experiment {
 	w.t.Helper()
 	e := w.create(w.a, w.a.prod, newDoc(w.t, "heroLayout", "", func(d map[string]any) {
 		d["minimumSampleSize"] = 1000
@@ -61,7 +61,7 @@ func newAnalysisWorld(t *testing.T) (*world, *memObservations) {
 func TestResultsNeedTheMinimumSample_ABT_003(t *testing.T) {
 	t.Parallel()
 	w, obs := newAnalysisWorld(t)
-	e := w.runningExperiment(obs)
+	e := w.runningExperiment()
 	ctx := context.Background()
 	obs.byEvent["purchase"] = variantMoments(stats.Proportion(1000, 100), stats.Proportion(999, 130))
 	_, err := w.svc.Analyse(ctx, w.a.admin, e.ID)
@@ -82,7 +82,7 @@ func TestResultsNeedTheMinimumSample_ABT_003(t *testing.T) {
 func TestResultsCompareWithControl_ABT_003(t *testing.T) {
 	t.Parallel()
 	w, obs := newAnalysisWorld(t)
-	e := w.runningExperiment(obs)
+	e := w.runningExperiment()
 	obs.byEvent["purchase"] = variantMoments(stats.Proportion(5000, 500), stats.Proportion(5000, 640))
 	obs.byEvent["refund"] = variantMoments(stats.Proportion(5000, 100), stats.Proportion(5000, 160))
 	w.now = w.now.Add(48 * time.Hour)
@@ -122,7 +122,7 @@ func TestResultsCompareWithControl_ABT_003(t *testing.T) {
 func TestResultsFlagSampleRatioMismatch_ABT_003(t *testing.T) {
 	t.Parallel()
 	w, obs := newAnalysisWorld(t)
-	e := w.runningExperiment(obs)
+	e := w.runningExperiment()
 	obs.byEvent["purchase"] = variantMoments(stats.Proportion(5300, 500), stats.Proportion(4700, 480))
 	obs.byEvent["refund"] = obs.byEvent["purchase"]
 	w.stop(e.ID)
@@ -168,8 +168,8 @@ func TestSampleRatioAccountsForHoldout_ABT_003(t *testing.T) {
 // Analysis is for those who may read analytics.
 func TestResultsAuthorisation_ABT_003(t *testing.T) {
 	t.Parallel()
-	w, obs := newAnalysisWorld(t)
-	e := w.runningExperiment(obs)
+	w, _ := newAnalysisWorld(t)
+	e := w.runningExperiment()
 	_, err := w.svc.Analyse(context.Background(), w.a.as(auth.AppRead, auth.ExperimentsManage), e.ID)
 	wantCode(t, err, plxerr.PermissionDenied)
 }

@@ -294,7 +294,10 @@ func (s *Service) begin(ctx context.Context, job ExportJob) (dbgen.GitSetting, d
 		run = true
 		return q.MarkGitExportAttempt(ctx, export.ID)
 	})
-	return settings, export, run, err
+	if err != nil {
+		return settings, export, run, fmt.Errorf("gitsync: claim the export: %w", err)
+	}
+	return settings, export, run, nil
 }
 
 // pushVersion renders the app and pushes it as one commit.
@@ -321,7 +324,7 @@ func (s *Service) pushVersion(ctx context.Context, job ExportJob, st dbgen.GitSe
 	if err != nil {
 		return "", err
 	}
-	px, err := startProxy(s.o.Policy, s.o.Resolver, secret)
+	px, err := startProxy(ctx, s.o.Policy, s.o.Resolver, secret)
 	if err != nil {
 		return "", err
 	}
@@ -386,13 +389,17 @@ func message(job ExportJob) string {
 
 // succeed records a pushed export and audits it.
 func (s *Service) succeed(ctx context.Context, job ExportJob, export dbgen.GitExport, commit string) error {
-	return s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: job.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	err := s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: job.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		if err := dbgen.New(tx).MarkGitExportPushed(ctx, dbgen.MarkGitExportPushedParams{ID: export.ID, CommitSha: commit}); err != nil {
 			return fmt.Errorf("gitsync: record the push: %w", err)
 		}
 		actor := auth.System(job.OrganizationID).Actor()
 		return s.record(ctx, tx, actor, job.OrganizationID, audit.GitExported, "app", job.AppID, "release "+job.VersionID+" commit "+commit)
 	})
+	if err != nil {
+		return fmt.Errorf("gitsync: record the export: %w", err)
+	}
+	return nil
 }
 
 // fail records the code of a failed attempt, in a transaction of its own,

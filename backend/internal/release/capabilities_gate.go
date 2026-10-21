@@ -64,7 +64,7 @@ func (s *Service) gateCapabilities(ctx context.Context, system auth.Principal, r
 }
 
 // capabilityArtifact describes the proposed capability set.
-func (s *Service) capabilityArtifact(ctx context.Context, tx pgx.Tx, row dbgen.PublishJob, proposed *schema.ApprovedCapabilities) (approval.Artifact, error) {
+func (*Service) capabilityArtifact(ctx context.Context, tx pgx.Tx, row dbgen.PublishJob, proposed *schema.ApprovedCapabilities) (approval.Artifact, error) {
 	env, err := dbgen.New(tx).GetEnvironment(ctx, row.EnvironmentID)
 	if err != nil {
 		return approval.Artifact{}, failure(err, "environment")

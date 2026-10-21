@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"math"
 	"slices"
 	"sync"
 	"testing"
@@ -244,7 +245,7 @@ func TestControlExpiryAndRefresh_SYN_060(t *testing.T) {
 		t.Errorf("an expired document: %v", err)
 	}
 	f.now = first.IssuedAt.Add(time.Minute)
-	if _, err := f.verifier(t, int64(second.Version)).Control(oldFile, f.scope); !errors.Is(err, updatemeta.ErrRollback) {
+	if _, err := f.verifier(t, int64(min(second.Version, math.MaxInt64))).Control(oldFile, f.scope); !errors.Is(err, updatemeta.ErrRollback) {
 		t.Errorf("an older version: %v", err)
 	}
 }

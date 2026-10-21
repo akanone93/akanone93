@@ -76,7 +76,7 @@ func (s *Service) gateChange(ctx context.Context, tx pgx.Tx, p auth.Principal, a
 	if em != nil {
 		return s.invoke(ctx, tx, p, appID, env, em)
 	}
-	if !env.Production || p.Identity.Kind == auth.KindSystem {
+	if !env.Production || p.Kind == auth.KindSystem {
 		return nil, nil
 	}
 	return nil, freeze.Check(ctx, s.o.Freezes, tx, env.Key) //nolint:wrapcheck // a refusal for the caller

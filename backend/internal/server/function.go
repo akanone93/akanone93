@@ -138,7 +138,7 @@ type runnerLink struct {
 // runner URL configured. The grants' secret is created on first use and
 // shared by every replica (ADR-0064).
 func buildRunnerLink(ctx context.Context, cfg *config.Config, db *storage.DB, crypter signing.Crypter, work WorkDeps) (*runnerLink, error) {
-	if work.Objects == nil || !(cfg.Has(config.RoleAPI) || cfg.Has(config.RoleWorker)) || cfg.Functions.RunnerURL == "" {
+	if work.Objects == nil || (!cfg.Has(config.RoleAPI) && !cfg.Has(config.RoleWorker)) || cfg.Functions.RunnerURL == "" {
 		return nil, nil //nolint:nilnil // the process calls no runner
 	}
 	grants, err := function.OpenGrants(ctx, db, crypter, nil)

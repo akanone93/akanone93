@@ -90,7 +90,10 @@ func (s *Service) requirePromotion(ctx context.Context, tx pgx.Tx, p auth.Princi
 	if row.CreatedByKind == auth.KindUser {
 		art.Author = row.CreatedByID
 	}
-	return approval.Require(ctx, s.o.Approvals, tx, art)
+	if err := approval.Require(ctx, s.o.Approvals, tx, art); err != nil {
+		return fmt.Errorf("release.requirePromotion: %w", err)
+	}
+	return nil
 }
 
 // releaseRisk computes the risk attributes of promoting a release from what
@@ -140,7 +143,7 @@ func channelSequence(ctx context.Context, q *dbgen.Queries, env dbgen.Environmen
 
 // pinnedChanges lists the functions whose pinned version differs between the
 // release and the release the channel holds now.
-func (s *Service) pinnedChanges(ctx context.Context, q *dbgen.Queries, env dbgen.Environment, channelKey string, row dbgen.Release) (map[string]bool, error) {
+func (*Service) pinnedChanges(ctx context.Context, q *dbgen.Queries, env dbgen.Environment, channelKey string, row dbgen.Release) (map[string]bool, error) {
 	ids := []pgtype.UUID{row.ID}
 	current, err := channelSequence(ctx, q, env, channelKey)
 	if err != nil {

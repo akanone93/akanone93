@@ -5,10 +5,13 @@ package push
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/go-jose/go-jose/v4"
 )
 
 // Marker is the value of the "plux" key every message carries; the host
@@ -56,11 +59,28 @@ const maxResponse = 64 << 10
 // name the provider's reason in the error; it never holds a secret.
 func statusError(provider string, resp *http.Response) error {
 	body, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponse))
-	switch {
-	case resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= http.StatusInternalServerError:
+	if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= http.StatusInternalServerError {
 		return fmt.Errorf("%w: %s answered %d", ErrTransient, provider, resp.StatusCode)
 	}
 	return fmt.Errorf("%w: %s answered %d: %s", ErrRejected, provider, resp.StatusCode, reason(body))
+}
+
+// compactJWT signs the claims, a value that marshals to a JSON object, and
+// returns the compact serialisation of the token.
+func compactJWT(signer jose.Signer, claims any) (string, error) {
+	payload, err := json.Marshal(claims)
+	if err != nil {
+		return "", fmt.Errorf("push: marshal the claims: %w", err)
+	}
+	signed, err := signer.Sign(payload)
+	if err != nil {
+		return "", fmt.Errorf("push: sign the token: %w", err)
+	}
+	compact, err := signed.CompactSerialize()
+	if err != nil {
+		return "", fmt.Errorf("push: serialise the token: %w", err)
+	}
+	return compact, nil
 }
 
 // reason shortens a provider's error body for an error message.

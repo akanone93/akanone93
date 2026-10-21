@@ -30,7 +30,7 @@ func auditCommand(ctx context.Context, args []string, stdout, stderr io.Writer) 
 		case "verify":
 			return auditVerify(ctx, args[1:], stdout, stderr)
 		case "public-key":
-			return auditPublicKey(args[1:], stdout, stderr)
+			return auditPublicKey(ctx, args[1:], stdout, stderr)
 		}
 	}
 	_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, auditUsage)
@@ -42,7 +42,7 @@ func auditCommand(ctx context.Context, args []string, stdout, stderr io.Writer) 
 // compliance report (GOV-026) or the checkpoints of the audit log (SEC-141)
 // pins this value once, from a trusted channel, and then needs nothing else
 // from the server. The private half is never read.
-func auditPublicKey(args []string, stdout, stderr io.Writer) int {
+func auditPublicKey(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	path, err := flags("audit public-key", args, stderr)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, auditUsage)
@@ -58,7 +58,7 @@ func auditPublicKey(args []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, err)
 		return exitFailed
 	}
-	pub, keyID, err := backend.PublicKey(context.Background(), cfg.Signing.Keys.Audit)
+	pub, keyID, err := backend.PublicKey(ctx, cfg.Signing.Keys.Audit)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "%s: the audit key %q: %s\n", name, cfg.Signing.Keys.Audit, err)
 		return exitFailed

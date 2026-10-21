@@ -55,6 +55,6 @@
 // theta is the pooled within-arm regression slope of y on x. The adjustment
 // is unbiased because x does not depend on the assignment, and it removes
 // the share of variance x explains (Deng, Xu, Kohavi and Walker, "Improving
-// the sensitivity of online controlled experiments by utilizing
+// the sensitivity of online controlled experiments by using
 // pre-experiment data", WSDM 2013).
 package stats

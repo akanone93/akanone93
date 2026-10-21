@@ -246,11 +246,29 @@ func (s *Service) RunTriggers(ctx context.Context, org string) (int, error) {
 	if inv == nil {
 		return 0, nil
 	}
-	now := s.o.Now().UTC()
-	type fire struct {
-		t  dbgen.FunctionTrigger
-		at time.Time
+	fires, err := s.claimFires(ctx, org, s.o.Now().UTC())
+	if err != nil {
+		return 0, err
 	}
+	for _, f := range fires {
+		result := s.runFire(ctx, inv, f.t)
+		if err := s.finishFire(ctx, org, f, result); err != nil && s.o.Log != nil {
+			s.o.Log.WarnContext(ctx, "function: record the outcome of a schedule", "trigger", storage.ID(f.t.ID), "error", err)
+		}
+		s.noteOutcome(ctx, f.t, result)
+	}
+	return len(fires), nil
+}
+
+// fire is one claimed fire time of a schedule.
+type fire struct {
+	t  dbgen.FunctionTrigger
+	at time.Time
+}
+
+// claimFires advances every due schedule of the organisation and claims the
+// fire times that no other worker has claimed.
+func (s *Service) claimFires(ctx context.Context, org string, now time.Time) ([]fire, error) {
 	var fires []fire
 	err := s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
@@ -259,58 +277,66 @@ func (s *Service) RunTriggers(ctx context.Context, org string) (int, error) {
 			return failure(err, "triggers")
 		}
 		for _, t := range due {
-			at := storage.Time(t.NextFireAt)
-			sched, perr := ParseSchedule(t.Expression, t.Timezone)
-			next := time.Time{}
-			if perr == nil {
-				next = sched.Next(now)
-			}
-			if next.IsZero() {
-				// A schedule that no longer parses or never fires again
-				// (a zone database change) is parked, not spun on.
-				next = now.Add(24 * time.Hour)
-				if err := q.SetFunctionTriggerResult(ctx, dbgen.SetFunctionTriggerResultParams{ID: t.ID, LastResult: "invalid schedule"}); err != nil {
-					return failure(err, "trigger")
-				}
-			}
-			if err := q.AdvanceFunctionTrigger(ctx, dbgen.AdvanceFunctionTriggerParams{ID: t.ID, NextFireAt: storage.Timestamp(next), LastFireAt: storage.Timestamp(at)}); err != nil {
-				return failure(err, "trigger")
-			}
-			if perr != nil {
-				continue
-			}
-			n, err := q.InsertTriggerFire(ctx, dbgen.InsertTriggerFireParams{TriggerID: t.ID, FireAt: storage.Timestamp(at), OrganizationID: t.OrganizationID})
+			f, claimed, err := claimFire(ctx, q, t, now)
 			if err != nil {
-				return failure(err, "trigger")
+				return err
 			}
-			if n == 1 {
-				fires = append(fires, fire{t, at})
+			if claimed {
+				fires = append(fires, f)
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	for _, f := range fires {
-		result := s.runFire(ctx, inv, f.t)
-		err := s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
-			q := dbgen.New(tx)
-			if err := q.FinishTriggerFire(ctx, dbgen.FinishTriggerFireParams{TriggerID: f.t.ID, FireAt: storage.Timestamp(f.at), Result: result}); err != nil {
-				return failure(err, "trigger")
-			}
-			return failure(q.SetFunctionTriggerResult(ctx, dbgen.SetFunctionTriggerResultParams{ID: f.t.ID, LastResult: result}), "trigger")
-		})
-		if err != nil && s.o.Log != nil {
-			s.o.Log.WarnContext(ctx, "function: record the outcome of a schedule", "trigger", storage.ID(f.t.ID), "error", err)
+	return fires, nil
+}
+
+// claimFire moves one due schedule to its next fire time and claims the
+// time it was due. A schedule that no longer parses, or never fires again
+// (a zone database change), is parked for a day, not spun on, and claims
+// nothing.
+func claimFire(ctx context.Context, q *dbgen.Queries, t dbgen.FunctionTrigger, now time.Time) (fire, bool, error) {
+	at := storage.Time(t.NextFireAt)
+	sched, perr := ParseSchedule(t.Expression, t.Timezone)
+	parses := perr == nil
+	next := time.Time{}
+	if parses {
+		next = sched.Next(now)
+	}
+	if next.IsZero() {
+		next = now.Add(24 * time.Hour)
+		if err := q.SetFunctionTriggerResult(ctx, dbgen.SetFunctionTriggerResultParams{ID: t.ID, LastResult: "invalid schedule"}); err != nil {
+			return fire{}, false, failure(err, "trigger")
 		}
-		s.noteOutcome(ctx, f.t, result)
 	}
-	return len(fires), nil
+	if err := q.AdvanceFunctionTrigger(ctx, dbgen.AdvanceFunctionTriggerParams{ID: t.ID, NextFireAt: storage.Timestamp(next), LastFireAt: storage.Timestamp(at)}); err != nil {
+		return fire{}, false, failure(err, "trigger")
+	}
+	if !parses {
+		return fire{}, false, nil
+	}
+	n, err := q.InsertTriggerFire(ctx, dbgen.InsertTriggerFireParams{TriggerID: t.ID, FireAt: storage.Timestamp(at), OrganizationID: t.OrganizationID})
+	if err != nil {
+		return fire{}, false, failure(err, "trigger")
+	}
+	return fire{t, at}, n == 1, nil
+}
+
+// finishFire records the outcome of a fire on the fire and its schedule.
+func (s *Service) finishFire(ctx context.Context, org string, f fire, result string) error {
+	return s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		if err := q.FinishTriggerFire(ctx, dbgen.FinishTriggerFireParams{TriggerID: f.t.ID, FireAt: storage.Timestamp(f.at), Result: result}); err != nil {
+			return failure(err, "trigger")
+		}
+		return failure(q.SetFunctionTriggerResult(ctx, dbgen.SetFunctionTriggerResultParams{ID: f.t.ID, LastResult: result}), "trigger")
+	})
 }
 
 // runFire runs one fire and describes the outcome without a payload.
-func (s *Service) runFire(ctx context.Context, inv ServerInvoker, t dbgen.FunctionTrigger) string {
+func (*Service) runFire(ctx context.Context, inv ServerInvoker, t dbgen.FunctionTrigger) string {
 	res, err := inv.InvokeServer(ctx, ServerCall{
 		OrganizationID: storage.ID(t.OrganizationID), AppID: storage.ID(t.AppID), EnvironmentID: storage.ID(t.EnvironmentID),
 		Function: t.FunctionName, Alias: t.Alias, Input: t.Input,
@@ -397,14 +423,9 @@ func (s *Service) CreateHook(ctx context.Context, p auth.Principal, spec HookSpe
 	if spec.Verifier == "" {
 		spec.Verifier = StandardWebhooks
 	}
-	secret := spec.Secret
-	if spec.Verifier == StandardWebhooks {
-		var err error
-		if secret, err = webhook.NewSecret(); err != nil {
-			return Hook{}, "", err //nolint:wrapcheck // a domain error
-		}
-	} else if _, ok := s.o.Verifiers[spec.Verifier]; !ok || secret == "" {
-		return Hook{}, "", plxerr.New(plxerr.InvalidEnumValue, "the verifier %q is not registered, or no secret was given for it", spec.Verifier)
+	secret, err := s.hookSecret(spec)
+	if err != nil {
+		return Hook{}, "", err
 	}
 	if spec.Alias == "" {
 		return Hook{}, "", plxerr.New(plxerr.MissingProperty, "a hook names the alias it runs")
@@ -415,38 +436,63 @@ func (s *Service) CreateHook(ctx context.Context, p auth.Principal, spec HookSpe
 	}
 	var out Hook
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		env, err := environmentOf(ctx, q, spec.AppID, spec.EnvironmentID)
-		if err != nil {
-			return err
-		}
-		if err := authorizeEnv(p, spec.AppID, env); err != nil {
-			return err
-		}
-		res, err := ResolveVersionTx(ctx, tx, spec.AppID, spec.EnvironmentID, spec.Function, spec.Alias)
-		if err != nil {
-			return err
-		}
-		if res.Placement != PlacementServer {
-			return plxerr.New(plxerr.FunctionNotFound, "the function %s does not run on the server", spec.Function)
-		}
-		row, err := q.InsertFunctionHook(ctx, dbgen.InsertFunctionHookParams{
-			ID: storage.MustUUID(id), OrganizationID: env.OrganizationID, AppID: env.AppID, EnvironmentID: env.ID,
-			FunctionName: spec.Function, Alias: spec.Alias, Verifier: spec.Verifier, CreatedBy: createdBy(p),
-		})
-		if err != nil {
-			return failure(err, "hook")
-		}
-		if _, err := s.o.Secrets.SealSecret(ctx, q, env.OrganizationID, notify.OwnerHook, row.ID, secret); err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		out = hookOf(row)
-		return s.record(ctx, tx, p, audit.FunctionHookSet, "function_hook", id, spec.Function+"@"+spec.Alias)
+		out, err = s.insertHook(ctx, tx, p, spec, id, secret)
+		return err
 	})
 	if err != nil {
 		return Hook{}, "", err
 	}
 	return out, secret, nil
+}
+
+// hookSecret returns the secret of a new hook: a generated one for Standard
+// Webhooks, the given one for a registered provider verifier.
+func (s *Service) hookSecret(spec HookSpec) (string, error) {
+	if spec.Verifier == StandardWebhooks {
+		secret, err := webhook.NewSecret()
+		if err != nil {
+			return "", err //nolint:wrapcheck // a domain error
+		}
+		return secret, nil
+	}
+	if _, ok := s.o.Verifiers[spec.Verifier]; !ok || spec.Secret == "" {
+		return "", plxerr.New(plxerr.InvalidEnumValue, "the verifier %q is not registered, or no secret was given for it", spec.Verifier)
+	}
+	return spec.Secret, nil
+}
+
+// insertHook stores the hook and seals its secret in the transaction of the
+// request, and records the change.
+func (s *Service) insertHook(ctx context.Context, tx pgx.Tx, p auth.Principal, spec HookSpec, id, secret string) (Hook, error) {
+	q := dbgen.New(tx)
+	env, err := environmentOf(ctx, q, spec.AppID, spec.EnvironmentID)
+	if err != nil {
+		return Hook{}, err
+	}
+	if err := authorizeEnv(p, spec.AppID, env); err != nil {
+		return Hook{}, err
+	}
+	res, err := ResolveVersionTx(ctx, tx, spec.AppID, spec.EnvironmentID, spec.Function, spec.Alias)
+	if err != nil {
+		return Hook{}, err
+	}
+	if res.Placement != PlacementServer {
+		return Hook{}, plxerr.New(plxerr.FunctionNotFound, "the function %s does not run on the server", spec.Function)
+	}
+	row, err := q.InsertFunctionHook(ctx, dbgen.InsertFunctionHookParams{
+		ID: storage.MustUUID(id), OrganizationID: env.OrganizationID, AppID: env.AppID, EnvironmentID: env.ID,
+		FunctionName: spec.Function, Alias: spec.Alias, Verifier: spec.Verifier, CreatedBy: createdBy(p),
+	})
+	if err != nil {
+		return Hook{}, failure(err, "hook")
+	}
+	if _, err := s.o.Secrets.SealSecret(ctx, q, env.OrganizationID, notify.OwnerHook, row.ID, secret); err != nil {
+		return Hook{}, err //nolint:wrapcheck // a domain error
+	}
+	if err := s.record(ctx, tx, p, audit.FunctionHookSet, "function_hook", id, spec.Function+"@"+spec.Alias); err != nil {
+		return Hook{}, err
+	}
+	return hookOf(row), nil
 }
 
 // ListHooks lists an app's hooks (function.read).
@@ -473,7 +519,7 @@ func (s *Service) ListHooks(ctx context.Context, p auth.Principal, appID string)
 }
 
 // hookForChange reads a hook and checks the caller may change it.
-func (s *Service) hookForChange(ctx context.Context, q *dbgen.Queries, p auth.Principal, id pgtype.UUID) (dbgen.FunctionHook, error) {
+func (*Service) hookForChange(ctx context.Context, q *dbgen.Queries, p auth.Principal, id pgtype.UUID) (dbgen.FunctionHook, error) {
 	row, err := q.GetFunctionHook(ctx, id)
 	if err != nil {
 		return row, failure(err, "hook")
