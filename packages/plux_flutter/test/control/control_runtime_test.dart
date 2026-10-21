@@ -500,6 +500,7 @@ void main() {
       await settle(tester, () => server.controlAsked.length == 2);
       expect(server.controlAsked.last, '"c1"');
       expect(rt().control.value.snapshot!.version, 1);
+      await settle(tester, () => rt().controlCheckInFlight == null);
 
       rt().didChangeAppLifecycleState(AppLifecycleState.paused);
       expect(timer.cancelled, isTrue, reason: 'none in the background');

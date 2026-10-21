@@ -35,7 +35,11 @@ enum PluxErrorCode {
   invalidJson(1008, 'INVALID_JSON', 'Invalid JSON'),
 
   /// Unsupported schema version.
-  unsupportedSchemaVersion(1009, 'UNSUPPORTED_SCHEMA_VERSION', 'Unsupported schema version'),
+  unsupportedSchemaVersion(
+    1009,
+    'UNSUPPORTED_SCHEMA_VERSION',
+    'Unsupported schema version',
+  ),
 
   /// Schema migration failed.
   migrationFailed(1010, 'MIGRATION_FAILED', 'Schema migration failed'),
@@ -44,7 +48,11 @@ enum PluxErrorCode {
   duplicateId(1011, 'DUPLICATE_ID', 'Duplicate identifier'),
 
   /// Invalid project layout.
-  invalidProjectLayout(1020, 'INVALID_PROJECT_LAYOUT', 'Invalid project layout'),
+  invalidProjectLayout(
+    1020,
+    'INVALID_PROJECT_LAYOUT',
+    'Invalid project layout',
+  ),
 
   /// Request too large.
   requestTooLarge(1021, 'REQUEST_TOO_LARGE', 'Request too large'),
@@ -98,16 +106,28 @@ enum PluxErrorCode {
   invalidActionGraph(1113, 'INVALID_ACTION_GRAPH', 'Invalid action graph'),
 
   /// Component version not found.
-  componentVersionNotFound(1114, 'COMPONENT_VERSION_NOT_FOUND', 'Component version not found'),
+  componentVersionNotFound(
+    1114,
+    'COMPONENT_VERSION_NOT_FOUND',
+    'Component version not found',
+  ),
 
   /// Unknown type.
   unknownType(1115, 'UNKNOWN_TYPE', 'Unknown type'),
 
   /// Invalid type expression.
-  invalidTypeExpression(1116, 'INVALID_TYPE_EXPRESSION', 'Invalid type expression'),
+  invalidTypeExpression(
+    1116,
+    'INVALID_TYPE_EXPRESSION',
+    'Invalid type expression',
+  ),
 
   /// Value does not match its declared type.
-  valueTypeMismatch(1117, 'VALUE_TYPE_MISMATCH', 'Value does not match its declared type'),
+  valueTypeMismatch(
+    1117,
+    'VALUE_TYPE_MISMATCH',
+    'Value does not match its declared type',
+  ),
 
   /// Missing design-time mock.
   missingMock(1118, 'MISSING_MOCK', 'Missing design-time mock'),
@@ -116,7 +136,11 @@ enum PluxErrorCode {
   runtimeTooOld(1119, 'RUNTIME_TOO_OLD', 'Newer than the minimum runtime'),
 
   /// Required features raised.
-  requiredFeaturesRaised(1120, 'REQUIRED_FEATURES_RAISED', 'Required features raised'),
+  requiredFeaturesRaised(
+    1120,
+    'REQUIRED_FEATURES_RAISED',
+    'Required features raised',
+  ),
 
   /// Prop constraint violated.
   constraintViolation(1121, 'CONSTRAINT_VIOLATION', 'Prop constraint violated'),
@@ -128,7 +152,11 @@ enum PluxErrorCode {
   unknownIcon(1123, 'UNKNOWN_ICON', 'Unknown icon'),
 
   /// Custom action named like a built-in action.
-  customActionNamedLikeBuiltIn(1124, 'CUSTOM_ACTION_NAMED_LIKE_BUILT_IN', 'Custom action named like a built-in action'),
+  customActionNamedLikeBuiltIn(
+    1124,
+    'CUSTOM_ACTION_NAMED_LIKE_BUILT_IN',
+    'Custom action named like a built-in action',
+  ),
 
   /// Flows call each other in a cycle.
   flowCallCycle(1125, 'FLOW_CALL_CYCLE', 'Flows call each other in a cycle'),
@@ -140,61 +168,125 @@ enum PluxErrorCode {
   invalidTrigger(1127, 'INVALID_TRIGGER', 'Invalid trigger'),
 
   /// Component event not declared.
-  undeclaredComponentEvent(1128, 'UNDECLARED_COMPONENT_EVENT', 'Component event not declared'),
+  undeclaredComponentEvent(
+    1128,
+    'UNDECLARED_COMPONENT_EVENT',
+    'Component event not declared',
+  ),
 
   /// emitEvent outside a component.
-  emitEventOutsideComponent(1129, 'EMIT_EVENT_OUTSIDE_COMPONENT', 'emitEvent outside a component'),
+  emitEventOutsideComponent(
+    1129,
+    'EMIT_EVENT_OUTSIDE_COMPONENT',
+    'emitEvent outside a component',
+  ),
 
   /// Invalid retry policy.
   invalidRetryPolicy(1130, 'INVALID_RETRY_POLICY', 'Invalid retry policy'),
 
   /// State entry written that cannot be.
-  stateEntryReadOnly(1140, 'STATE_ENTRY_READ_ONLY', 'State entry written that cannot be'),
+  stateEntryReadOnly(
+    1140,
+    'STATE_ENTRY_READ_ONLY',
+    'State entry written that cannot be',
+  ),
 
   /// State patch of a value that is not an object.
-  statePatchNotObject(1141, 'STATE_PATCH_NOT_OBJECT', 'State patch of a value that is not an object'),
+  statePatchNotObject(
+    1141,
+    'STATE_PATCH_NOT_OBJECT',
+    'State patch of a value that is not an object',
+  ),
 
   /// Persistence that the entry cannot have.
-  statePersistenceNotAllowed(1142, 'STATE_PERSISTENCE_NOT_ALLOWED', 'Persistence that the entry cannot have'),
+  statePersistenceNotAllowed(
+    1142,
+    'STATE_PERSISTENCE_NOT_ALLOWED',
+    'Persistence that the entry cannot have',
+  ),
 
   /// Stored state changes type without a migration.
-  stateMigrationRequired(1143, 'STATE_MIGRATION_REQUIRED', 'Stored state changes type without a migration'),
+  stateMigrationRequired(
+    1143,
+    'STATE_MIGRATION_REQUIRED',
+    'Stored state changes type without a migration',
+  ),
 
   /// State migration from a type the previous release did not have.
-  stateMigrationMismatch(1144, 'STATE_MIGRATION_MISMATCH', 'State migration from a type the previous release did not have'),
+  stateMigrationMismatch(
+    1144,
+    'STATE_MIGRATION_MISMATCH',
+    'State migration from a type the previous release did not have',
+  ),
 
   /// State migration that can never run.
-  stateMigrationInvalid(1145, 'STATE_MIGRATION_INVALID', 'State migration that can never run'),
+  stateMigrationInvalid(
+    1145,
+    'STATE_MIGRATION_INVALID',
+    'State migration that can never run',
+  ),
 
   /// Validator that does not apply to its field.
-  formValidatorNotApplicable(1160, 'FORM_VALIDATOR_NOT_APPLICABLE', 'Validator that does not apply to its field'),
+  formValidatorNotApplicable(
+    1160,
+    'FORM_VALIDATOR_NOT_APPLICABLE',
+    'Validator that does not apply to its field',
+  ),
 
   /// Invalid validator options.
-  formValidatorOptions(1161, 'FORM_VALIDATOR_OPTIONS', 'Invalid validator options'),
+  formValidatorOptions(
+    1161,
+    'FORM_VALIDATOR_OPTIONS',
+    'Invalid validator options',
+  ),
 
   /// Invalid validator pattern.
   formPatternInvalid(1162, 'FORM_PATTERN_INVALID', 'Invalid validator pattern'),
 
   /// Unknown phone region.
-  formPhoneRegionUnknown(1163, 'FORM_PHONE_REGION_UNKNOWN', 'Unknown phone region'),
+  formPhoneRegionUnknown(
+    1163,
+    'FORM_PHONE_REGION_UNKNOWN',
+    'Unknown phone region',
+  ),
 
   /// Invalid asynchronous validator.
-  formAsyncValidatorInvalid(1164, 'FORM_ASYNC_VALIDATOR_INVALID', 'Invalid asynchronous validator'),
+  formAsyncValidatorInvalid(
+    1164,
+    'FORM_ASYNC_VALIDATOR_INVALID',
+    'Invalid asynchronous validator',
+  ),
 
   /// Form field without an initial value.
-  formFieldInitialMissing(1165, 'FORM_FIELD_INITIAL_MISSING', 'Form field without an initial value'),
+  formFieldInitialMissing(
+    1165,
+    'FORM_FIELD_INITIAL_MISSING',
+    'Form field without an initial value',
+  ),
 
   /// Form or field named twice.
   formNameConflict(1166, 'FORM_NAME_CONFLICT', 'Form or field named twice'),
 
   /// Form state written that cannot be.
-  formWriteInvalid(1167, 'FORM_WRITE_INVALID', 'Form state written that cannot be'),
+  formWriteInvalid(
+    1167,
+    'FORM_WRITE_INVALID',
+    'Form state written that cannot be',
+  ),
 
   /// Invalid data source configuration.
-  dataSourceConfigInvalid(1170, 'DATA_SOURCE_CONFIG_INVALID', 'Invalid data source configuration'),
+  dataSourceConfigInvalid(
+    1170,
+    'DATA_SOURCE_CONFIG_INVALID',
+    'Invalid data source configuration',
+  ),
 
   /// Data source on an undeclared domain.
-  dataSourceDomainUndeclared(1171, 'DATA_SOURCE_DOMAIN_UNDECLARED', 'Data source on an undeclared domain'),
+  dataSourceDomainUndeclared(
+    1171,
+    'DATA_SOURCE_DOMAIN_UNDECLARED',
+    'Data source on an undeclared domain',
+  ),
 
   /// Invalid response mapping.
   dataMappingInvalid(1172, 'DATA_MAPPING_INVALID', 'Invalid response mapping'),
@@ -203,10 +295,18 @@ enum PluxErrorCode {
   dataPaginationInvalid(1173, 'DATA_PAGINATION_INVALID', 'Invalid pagination'),
 
   /// Credential in a data source header.
-  dataSourceSecretHeader(1174, 'DATA_SOURCE_SECRET_HEADER', 'Credential in a data source header'),
+  dataSourceSecretHeader(
+    1174,
+    'DATA_SOURCE_SECRET_HEADER',
+    'Credential in a data source header',
+  ),
 
   /// Invalid stream configuration.
-  dataStreamInvalid(1175, 'DATA_STREAM_INVALID', 'Invalid stream configuration'),
+  dataStreamInvalid(
+    1175,
+    'DATA_STREAM_INVALID',
+    'Invalid stream configuration',
+  ),
 
   /// Invalid offline mutation.
   dataOutboxInvalid(1176, 'DATA_OUTBOX_INVALID', 'Invalid offline mutation'),
@@ -215,34 +315,70 @@ enum PluxErrorCode {
   dataTransferInvalid(1177, 'DATA_TRANSFER_INVALID', 'Invalid file transfer'),
 
   /// Collection version not raised with its schema.
-  collectionVersionInvalid(1190, 'COLLECTION_VERSION_INVALID', 'Collection version not raised with its schema'),
+  collectionVersionInvalid(
+    1190,
+    'COLLECTION_VERSION_INVALID',
+    'Collection version not raised with its schema',
+  ),
 
   /// Destructive collection change without a migration plan.
-  collectionPlanRequired(1191, 'COLLECTION_PLAN_REQUIRED', 'Destructive collection change without a migration plan'),
+  collectionPlanRequired(
+    1191,
+    'COLLECTION_PLAN_REQUIRED',
+    'Destructive collection change without a migration plan',
+  ),
 
   /// Invalid collection migration plan.
-  collectionPlanInvalid(1192, 'COLLECTION_PLAN_INVALID', 'Invalid collection migration plan'),
+  collectionPlanInvalid(
+    1192,
+    'COLLECTION_PLAN_INVALID',
+    'Invalid collection migration plan',
+  ),
 
   /// Collection primary key changed.
-  collectionKeyChanged(1193, 'COLLECTION_KEY_CHANGED', 'Collection primary key changed'),
+  collectionKeyChanged(
+    1193,
+    'COLLECTION_KEY_CHANGED',
+    'Collection primary key changed',
+  ),
 
   /// Collection migration deletes data.
-  collectionDestructive(1194, 'COLLECTION_DESTRUCTIVE', 'Collection migration deletes data'),
+  collectionDestructive(
+    1194,
+    'COLLECTION_DESTRUCTIVE',
+    'Collection migration deletes data',
+  ),
 
   /// Invalid database data source.
-  databaseSourceInvalid(1195, 'DATABASE_SOURCE_INVALID', 'Invalid database data source'),
+  databaseSourceInvalid(
+    1195,
+    'DATABASE_SOURCE_INVALID',
+    'Invalid database data source',
+  ),
 
   /// Unknown route.
   unknownRoute(1201, 'UNKNOWN_ROUTE', 'Unknown route'),
 
   /// Route parameter missing at navigate.
-  routeParameterMissing(1203, 'ROUTE_PARAMETER_MISSING', 'Route parameter missing at navigate'),
+  routeParameterMissing(
+    1203,
+    'ROUTE_PARAMETER_MISSING',
+    'Route parameter missing at navigate',
+  ),
 
   /// Route parameter has the wrong type.
-  routeParameterTypeInvalid(1204, 'ROUTE_PARAMETER_TYPE_INVALID', 'Route parameter has the wrong type'),
+  routeParameterTypeInvalid(
+    1204,
+    'ROUTE_PARAMETER_TYPE_INVALID',
+    'Route parameter has the wrong type',
+  ),
 
   /// Unknown route parameter.
-  unknownRouteParameter(1205, 'UNKNOWN_ROUTE_PARAMETER', 'Unknown route parameter'),
+  unknownRouteParameter(
+    1205,
+    'UNKNOWN_ROUTE_PARAMETER',
+    'Unknown route parameter',
+  ),
 
   /// Redirect loop.
   redirectLoop(1206, 'REDIRECT_LOOP', 'Redirect loop'),
@@ -251,73 +387,157 @@ enum PluxErrorCode {
   animationInvalid(1210, 'ANIMATION_INVALID', 'Invalid animation timeline'),
 
   /// Animation track targets nothing animatable.
-  animationTargetInvalid(1211, 'ANIMATION_TARGET_INVALID', 'Animation track targets nothing animatable'),
+  animationTargetInvalid(
+    1211,
+    'ANIMATION_TARGET_INVALID',
+    'Animation track targets nothing animatable',
+  ),
 
   /// Keyframe value has the wrong type.
-  animationValueInvalid(1212, 'ANIMATION_VALUE_INVALID', 'Keyframe value has the wrong type'),
+  animationValueInvalid(
+    1212,
+    'ANIMATION_VALUE_INVALID',
+    'Keyframe value has the wrong type',
+  ),
 
   /// Invalid transition.
   transitionInvalid(1213, 'TRANSITION_INVALID', 'Invalid transition'),
 
   /// Animation that re-lays out the page every frame.
-  animationExpensive(1214, 'ANIMATION_EXPENSIVE', 'Animation that re-lays out the page every frame'),
+  animationExpensive(
+    1214,
+    'ANIMATION_EXPENSIVE',
+    'Animation that re-lays out the page every frame',
+  ),
 
   /// Opacity animated over a large subtree.
-  animationOpacitySubtree(1215, 'ANIMATION_OPACITY_SUBTREE', 'Opacity animated over a large subtree'),
+  animationOpacitySubtree(
+    1215,
+    'ANIMATION_OPACITY_SUBTREE',
+    'Opacity animated over a large subtree',
+  ),
 
   /// Many timelines can run together.
-  animationTooManyTimelines(1216, 'ANIMATION_TOO_MANY_TIMELINES', 'Many timelines can run together'),
+  animationTooManyTimelines(
+    1216,
+    'ANIMATION_TOO_MANY_TIMELINES',
+    'Many timelines can run together',
+  ),
 
   /// Invalid node animation.
-  nodeAnimationInvalid(1217, 'NODE_ANIMATION_INVALID', 'Invalid node animation'),
+  nodeAnimationInvalid(
+    1217,
+    'NODE_ANIMATION_INVALID',
+    'Invalid node animation',
+  ),
 
   /// Capability not approved by the app.
-  capabilityNotApproved(1230, 'CAPABILITY_NOT_APPROVED', 'Capability not approved by the app'),
+  capabilityNotApproved(
+    1230,
+    'CAPABILITY_NOT_APPROVED',
+    'Capability not approved by the app',
+  ),
 
   /// Device action without its capability.
-  deviceCapabilityUndeclared(1231, 'DEVICE_CAPABILITY_UNDECLARED', 'Device action without its capability'),
+  deviceCapabilityUndeclared(
+    1231,
+    'DEVICE_CAPABILITY_UNDECLARED',
+    'Device action without its capability',
+  ),
 
   /// openUrl on an undeclared domain.
-  openUrlDomainUndeclared(1232, 'OPEN_URL_DOMAIN_UNDECLARED', 'openUrl on an undeclared domain'),
+  openUrlDomainUndeclared(
+    1232,
+    'OPEN_URL_DOMAIN_UNDECLARED',
+    'openUrl on an undeclared domain',
+  ),
 
   /// Host build lacks a Plux package.
-  hostBuildLacksPackage(1233, 'HOST_BUILD_LACKS_PACKAGE', 'Host build lacks a Plux package'),
+  hostBuildLacksPackage(
+    1233,
+    'HOST_BUILD_LACKS_PACKAGE',
+    'Host build lacks a Plux package',
+  ),
 
   /// FormScope names no form.
   formScopeInvalid(1240, 'FORM_SCOPE_INVALID', 'FormScope names no form'),
 
   /// Collection primary key field of an unsupported type.
-  collectionKeyTypeInvalid(1250, 'COLLECTION_KEY_TYPE_INVALID', 'Collection primary key field of an unsupported type'),
+  collectionKeyTypeInvalid(
+    1250,
+    'COLLECTION_KEY_TYPE_INVALID',
+    'Collection primary key field of an unsupported type',
+  ),
 
   /// Document cannot be imported.
-  importDocumentInvalid(1260, 'IMPORT_DOCUMENT_INVALID', 'Document cannot be imported'),
+  importDocumentInvalid(
+    1260,
+    'IMPORT_DOCUMENT_INVALID',
+    'Document cannot be imported',
+  ),
 
   /// Construct has no Plux type.
-  importConstructUnsupported(1261, 'IMPORT_CONSTRUCT_UNSUPPORTED', 'Construct has no Plux type'),
+  importConstructUnsupported(
+    1261,
+    'IMPORT_CONSTRUCT_UNSUPPORTED',
+    'Construct has no Plux type',
+  ),
 
   /// Operation is invalid against its schema.
-  importOperationInvalid(1262, 'IMPORT_OPERATION_INVALID', 'Operation is invalid against its schema'),
+  importOperationInvalid(
+    1262,
+    'IMPORT_OPERATION_INVALID',
+    'Operation is invalid against its schema',
+  ),
 
   /// Imported data sources fail validation.
-  importOutputInvalid(1263, 'IMPORT_OUTPUT_INVALID', 'Imported data sources fail validation'),
+  importOutputInvalid(
+    1263,
+    'IMPORT_OUTPUT_INVALID',
+    'Imported data sources fail validation',
+  ),
 
   /// Scenario file does not match its schema.
-  scenarioFileInvalid(1270, 'SCENARIO_FILE_INVALID', 'Scenario file does not match its schema'),
+  scenarioFileInvalid(
+    1270,
+    'SCENARIO_FILE_INVALID',
+    'Scenario file does not match its schema',
+  ),
 
   /// Scenario file is not valid YAML or JSON.
-  scenarioSyntaxInvalid(1271, 'SCENARIO_SYNTAX_INVALID', 'Scenario file is not valid YAML or JSON'),
+  scenarioSyntaxInvalid(
+    1271,
+    'SCENARIO_SYNTAX_INVALID',
+    'Scenario file is not valid YAML or JSON',
+  ),
 
   /// Scenario names something the project does not have.
-  scenarioReferenceUnknown(1272, 'SCENARIO_REFERENCE_UNKNOWN', 'Scenario names something the project does not have'),
+  scenarioReferenceUnknown(
+    1272,
+    'SCENARIO_REFERENCE_UNKNOWN',
+    'Scenario names something the project does not have',
+  ),
 
   /// Scenario uses something plux test cannot run yet.
-  scenarioUnsupported(1273, 'SCENARIO_UNSUPPORTED', 'Scenario uses something plux test cannot run yet'),
+  scenarioUnsupported(
+    1273,
+    'SCENARIO_UNSUPPORTED',
+    'Scenario uses something plux test cannot run yet',
+  ),
 
   /// Two scenarios of a file share a name.
-  scenarioNameDuplicate(1274, 'SCENARIO_NAME_DUPLICATE', 'Two scenarios of a file share a name'),
+  scenarioNameDuplicate(
+    1274,
+    'SCENARIO_NAME_DUPLICATE',
+    'Two scenarios of a file share a name',
+  ),
 
   /// The Flutter test harness could not run.
-  testHarnessFailed(1275, 'TEST_HARNESS_FAILED', 'The Flutter test harness could not run'),
+  testHarnessFailed(
+    1275,
+    'TEST_HARNESS_FAILED',
+    'The Flutter test harness could not run',
+  ),
 
   /// No scenario files found.
   scenarioFilesNone(1276, 'SCENARIO_FILES_NONE', 'No scenario files found'),
@@ -329,7 +549,11 @@ enum PluxErrorCode {
   pageDepthBudget(1311, 'PAGE_DEPTH_BUDGET', 'Page tree too deep'),
 
   /// Page build cost too high.
-  pageBuildCostBudget(1312, 'PAGE_BUILD_COST_BUDGET', 'Page build cost too high'),
+  pageBuildCostBudget(
+    1312,
+    'PAGE_BUILD_COST_BUDGET',
+    'Page build cost too high',
+  ),
 
   /// Page images too large.
   pageImageBudget(1313, 'PAGE_IMAGE_BUDGET', 'Page images too large'),
@@ -344,13 +568,25 @@ enum PluxErrorCode {
   limitApproaching(1321, 'LIMIT_APPROACHING', 'Limit nearly reached'),
 
   /// Interactive node without accessible name.
-  accessibleNameMissing(1401, 'ACCESSIBLE_NAME_MISSING', 'Interactive node without accessible name'),
+  accessibleNameMissing(
+    1401,
+    'ACCESSIBLE_NAME_MISSING',
+    'Interactive node without accessible name',
+  ),
 
   /// Image without alternative text.
-  imageAlternativeMissing(1402, 'IMAGE_ALTERNATIVE_MISSING', 'Image without alternative text'),
+  imageAlternativeMissing(
+    1402,
+    'IMAGE_ALTERNATIVE_MISSING',
+    'Image without alternative text',
+  ),
 
   /// Contrast below WCAG 2.2 AA.
-  contrastInsufficient(1403, 'CONTRAST_INSUFFICIENT', 'Contrast below WCAG 2.2 AA'),
+  contrastInsufficient(
+    1403,
+    'CONTRAST_INSUFFICIENT',
+    'Contrast below WCAG 2.2 AA',
+  ),
 
   /// Touch target too small.
   touchTargetTooSmall(1404, 'TOUCH_TARGET_TOO_SMALL', 'Touch target too small'),
@@ -365,49 +601,93 @@ enum PluxErrorCode {
   headingLevelInvalid(1407, 'HEADING_LEVEL_INVALID', 'Heading level skipped'),
 
   /// Live region with constant content.
-  liveRegionStatic(1408, 'LIVE_REGION_STATIC', 'Live region with constant content'),
+  liveRegionStatic(
+    1408,
+    'LIVE_REGION_STATIC',
+    'Live region with constant content',
+  ),
 
   /// Contrast not checked.
   contrastNotChecked(1409, 'CONTRAST_NOT_CHECKED', 'Contrast not checked'),
 
   /// Accessibility waiver invalid.
-  a11yWaiverInvalid(1410, 'A11Y_WAIVER_INVALID', 'Accessibility waiver invalid'),
+  a11yWaiverInvalid(
+    1410,
+    'A11Y_WAIVER_INVALID',
+    'Accessibility waiver invalid',
+  ),
 
   /// Accessibility waiver needs permission.
-  a11yWaiverPermissionRequired(1411, 'A11Y_WAIVER_PERMISSION_REQUIRED', 'Accessibility waiver needs permission'),
+  a11yWaiverPermissionRequired(
+    1411,
+    'A11Y_WAIVER_PERMISSION_REQUIRED',
+    'Accessibility waiver needs permission',
+  ),
 
   /// Secret-like value detected.
   secretLikeValue(1500, 'SECRET_LIKE_VALUE', 'Secret-like value detected'),
 
   /// Sensitive value exposed.
-  sensitiveValueExposed(1501, 'SENSITIVE_VALUE_EXPOSED', 'Sensitive value exposed'),
+  sensitiveValueExposed(
+    1501,
+    'SENSITIVE_VALUE_EXPOSED',
+    'Sensitive value exposed',
+  ),
 
   /// Insecure URL.
   insecureUrl(1502, 'INSECURE_URL', 'Insecure URL'),
 
   /// Executable content not allowed.
-  executableContent(1503, 'EXECUTABLE_CONTENT', 'Executable content not allowed'),
+  executableContent(
+    1503,
+    'EXECUTABLE_CONTENT',
+    'Executable content not allowed',
+  ),
 
   /// Direct data source assurance cannot be enforced.
-  directSourceAssuranceUnenforceable(1504, 'DIRECT_SOURCE_ASSURANCE_UNENFORCEABLE', 'Direct data source assurance cannot be enforced'),
+  directSourceAssuranceUnenforceable(
+    1504,
+    'DIRECT_SOURCE_ASSURANCE_UNENFORCEABLE',
+    'Direct data source assurance cannot be enforced',
+  ),
 
   /// Locale not supported.
   localeUnsupported(1600, 'LOCALE_UNSUPPORTED', 'Locale not supported'),
 
   /// Message syntax invalid.
-  messageSyntaxInvalid(1601, 'MESSAGE_SYNTAX_INVALID', 'Message syntax invalid'),
+  messageSyntaxInvalid(
+    1601,
+    'MESSAGE_SYNTAX_INVALID',
+    'Message syntax invalid',
+  ),
 
   /// Message argument undeclared.
-  messageArgumentUndeclared(1602, 'MESSAGE_ARGUMENT_UNDECLARED', 'Message argument undeclared'),
+  messageArgumentUndeclared(
+    1602,
+    'MESSAGE_ARGUMENT_UNDECLARED',
+    'Message argument undeclared',
+  ),
 
   /// Message argument type mismatch.
-  messageArgumentTypeMismatch(1603, 'MESSAGE_ARGUMENT_TYPE_MISMATCH', 'Message argument type mismatch'),
+  messageArgumentTypeMismatch(
+    1603,
+    'MESSAGE_ARGUMENT_TYPE_MISMATCH',
+    'Message argument type mismatch',
+  ),
 
   /// Plural category not in locale.
-  pluralCategoryInvalid(1604, 'PLURAL_CATEGORY_INVALID', 'Plural category not in locale'),
+  pluralCategoryInvalid(
+    1604,
+    'PLURAL_CATEGORY_INVALID',
+    'Plural category not in locale',
+  ),
 
   /// Plural other branch missing.
-  pluralOtherMissing(1605, 'PLURAL_OTHER_MISSING', 'Plural other branch missing'),
+  pluralOtherMissing(
+    1605,
+    'PLURAL_OTHER_MISSING',
+    'Plural other branch missing',
+  ),
 
   /// Translation missing.
   translationMissing(1606, 'TRANSLATION_MISSING', 'Translation missing'),
@@ -416,52 +696,108 @@ enum PluxErrorCode {
   translationTooLong(1607, 'TRANSLATION_TOO_LONG', 'Translation too long'),
 
   /// Translation key unused.
-  translationKeyUnused(1608, 'TRANSLATION_KEY_UNUSED', 'Translation key unused'),
+  translationKeyUnused(
+    1608,
+    'TRANSLATION_KEY_UNUSED',
+    'Translation key unused',
+  ),
 
   /// Literal text not translated.
-  literalTextUntranslated(1609, 'LITERAL_TEXT_UNTRANSLATED', 'Literal text not translated'),
+  literalTextUntranslated(
+    1609,
+    'LITERAL_TEXT_UNTRANSLATED',
+    'Literal text not translated',
+  ),
 
   /// Translation not approved.
-  translationNotApproved(1610, 'TRANSLATION_NOT_APPROVED', 'Translation not approved'),
+  translationNotApproved(
+    1610,
+    'TRANSLATION_NOT_APPROVED',
+    'Translation not approved',
+  ),
 
   /// Calendar unsupported.
   calendarUnsupported(1611, 'CALENDAR_UNSUPPORTED', 'Calendar unsupported'),
 
   /// Numbering system unsupported.
-  numberingSystemUnsupported(1612, 'NUMBERING_SYSTEM_UNSUPPORTED', 'Numbering system unsupported'),
+  numberingSystemUnsupported(
+    1612,
+    'NUMBERING_SYSTEM_UNSUPPORTED',
+    'Numbering system unsupported',
+  ),
 
   /// Locale override invalid.
-  localeOverrideInvalid(1613, 'LOCALE_OVERRIDE_INVALID', 'Locale override invalid'),
+  localeOverrideInvalid(
+    1613,
+    'LOCALE_OVERRIDE_INVALID',
+    'Locale override invalid',
+  ),
 
   /// Pseudo-locale in production.
-  pseudoLocaleInProduction(1614, 'PSEUDO_LOCALE_IN_PRODUCTION', 'Pseudo-locale in production'),
+  pseudoLocaleInProduction(
+    1614,
+    'PSEUDO_LOCALE_IN_PRODUCTION',
+    'Pseudo-locale in production',
+  ),
 
   /// Calendar outside its table.
-  calendarOutOfTable(1615, 'CALENDAR_OUT_OF_TABLE', 'Calendar outside its table'),
+  calendarOutOfTable(
+    1615,
+    'CALENDAR_OUT_OF_TABLE',
+    'Calendar outside its table',
+  ),
 
   /// Translation import invalid.
-  translationImportInvalid(1620, 'TRANSLATION_IMPORT_INVALID', 'Translation import invalid'),
+  translationImportInvalid(
+    1620,
+    'TRANSLATION_IMPORT_INVALID',
+    'Translation import invalid',
+  ),
 
   /// Imported key unknown.
-  translationImportKeyUnknown(1621, 'TRANSLATION_IMPORT_KEY_UNKNOWN', 'Imported key unknown'),
+  translationImportKeyUnknown(
+    1621,
+    'TRANSLATION_IMPORT_KEY_UNKNOWN',
+    'Imported key unknown',
+  ),
 
   /// Source text changed since translation.
-  translationImportSourceChanged(1622, 'TRANSLATION_IMPORT_SOURCE_CHANGED', 'Source text changed since translation'),
+  translationImportSourceChanged(
+    1622,
+    'TRANSLATION_IMPORT_SOURCE_CHANGED',
+    'Source text changed since translation',
+  ),
 
   /// Imported status lowered to translated.
-  translationImportDowngraded(1623, 'TRANSLATION_IMPORT_DOWNGRADED', 'Imported status lowered to translated'),
+  translationImportDowngraded(
+    1623,
+    'TRANSLATION_IMPORT_DOWNGRADED',
+    'Imported status lowered to translated',
+  ),
 
   /// Policy document invalid.
-  policyDocumentInvalid(1700, 'POLICY_DOCUMENT_INVALID', 'Policy document invalid'),
+  policyDocumentInvalid(
+    1700,
+    'POLICY_DOCUMENT_INVALID',
+    'Policy document invalid',
+  ),
 
   /// Unknown flag type.
   unknownFlagType(1701, 'UNKNOWN_FLAG_TYPE', 'Unknown flag type'),
 
   /// Variant without a control.
-  variantWithoutControl(1702, 'VARIANT_WITHOUT_CONTROL', 'Variant without a control'),
+  variantWithoutControl(
+    1702,
+    'VARIANT_WITHOUT_CONTROL',
+    'Variant without a control',
+  ),
 
   /// Variant weights do not sum to 100.
-  variantWeightsInvalid(1703, 'VARIANT_WEIGHTS_INVALID', 'Variant weights do not sum to 100'),
+  variantWeightsInvalid(
+    1703,
+    'VARIANT_WEIGHTS_INVALID',
+    'Variant weights do not sum to 100',
+  ),
 
   /// Segment rule invalid.
   segmentRuleInvalid(1704, 'SEGMENT_RULE_INVALID', 'Segment rule invalid'),
@@ -479,13 +815,21 @@ enum PluxErrorCode {
   pxlUnknownFunction(2004, 'PXL_UNKNOWN_FUNCTION', 'Unknown function'),
 
   /// Wrong number of arguments.
-  pxlWrongArgumentCount(2005, 'PXL_WRONG_ARGUMENT_COUNT', 'Wrong number of arguments'),
+  pxlWrongArgumentCount(
+    2005,
+    'PXL_WRONG_ARGUMENT_COUNT',
+    'Wrong number of arguments',
+  ),
 
   /// Access on a nullable value.
   pxlNullableAccess(2006, 'PXL_NULLABLE_ACCESS', 'Access on a nullable value'),
 
   /// Decimal division needs a scale and rounding mode.
-  pxlDecimalDivision(2007, 'PXL_DECIMAL_DIVISION', 'Decimal division needs a scale and rounding mode'),
+  pxlDecimalDivision(
+    2007,
+    'PXL_DECIMAL_DIVISION',
+    'Decimal division needs a scale and rounding mode',
+  ),
 
   /// Currency mismatch.
   pxlCurrencyMismatch(2008, 'PXL_CURRENCY_MISMATCH', 'Currency mismatch'),
@@ -494,16 +838,28 @@ enum PluxErrorCode {
   pxlInvalidLiteral(2009, 'PXL_INVALID_LITERAL', 'Invalid literal'),
 
   /// Operation budget exceeded at compile time.
-  pxlBudgetExceeded(2010, 'PXL_BUDGET_EXCEEDED', 'Operation budget exceeded at compile time'),
+  pxlBudgetExceeded(
+    2010,
+    'PXL_BUDGET_EXCEEDED',
+    'Operation budget exceeded at compile time',
+  ),
 
   /// Constant expression always fails.
-  pxlConstantError(2011, 'PXL_CONSTANT_ERROR', 'Constant expression always fails'),
+  pxlConstantError(
+    2011,
+    'PXL_CONSTANT_ERROR',
+    'Constant expression always fails',
+  ),
 
   /// Unknown field.
   pxlUnknownField(2012, 'PXL_UNKNOWN_FIELD', 'Unknown field'),
 
   /// Function needs a runtime feature.
-  pxlFeatureRequired(2013, 'PXL_FEATURE_REQUIRED', 'Function needs a runtime feature'),
+  pxlFeatureRequired(
+    2013,
+    'PXL_FEATURE_REQUIRED',
+    'Function needs a runtime feature',
+  ),
 
   /// Unknown enum member.
   pxlUnknownEnumMember(2014, 'PXL_UNKNOWN_ENUM_MEMBER', 'Unknown enum member'),
@@ -512,37 +868,73 @@ enum PluxErrorCode {
   pxlInvalidMacro(2015, 'PXL_INVALID_MACRO', 'Invalid macro call'),
 
   /// Expression too complex.
-  pxlExpressionTooComplex(2016, 'PXL_EXPRESSION_TOO_COMPLEX', 'Expression too complex'),
+  pxlExpressionTooComplex(
+    2016,
+    'PXL_EXPRESSION_TOO_COMPLEX',
+    'Expression too complex',
+  ),
 
   /// Invalid regular expression.
   pxlRegexInvalid(2020, 'PXL_REGEX_INVALID', 'Invalid regular expression'),
 
   /// Regular expression is not a constant.
-  pxlRegexNotConstant(2021, 'PXL_REGEX_NOT_CONSTANT', 'Regular expression is not a constant'),
+  pxlRegexNotConstant(
+    2021,
+    'PXL_REGEX_NOT_CONSTANT',
+    'Regular expression is not a constant',
+  ),
 
   /// Regular expression too large.
   pxlRegexTooLarge(2022, 'PXL_REGEX_TOO_LARGE', 'Regular expression too large'),
 
   /// Unknown phone region.
-  pxlUnknownPhoneRegion(2023, 'PXL_UNKNOWN_PHONE_REGION', 'Unknown phone region'),
+  pxlUnknownPhoneRegion(
+    2023,
+    'PXL_UNKNOWN_PHONE_REGION',
+    'Unknown phone region',
+  ),
 
   /// Internal compiler error.
-  internalCompilerError(2201, 'INTERNAL_COMPILER_ERROR', 'Internal compiler error'),
+  internalCompilerError(
+    2201,
+    'INTERNAL_COMPILER_ERROR',
+    'Internal compiler error',
+  ),
 
   /// Content identifier collision.
-  contentIdCollision(2202, 'CONTENT_ID_COLLISION', 'Content identifier collision'),
+  contentIdCollision(
+    2202,
+    'CONTENT_ID_COLLISION',
+    'Content identifier collision',
+  ),
 
   /// Experiment key unknown.
-  experimentKeyUnknown(2300, 'EXPERIMENT_KEY_UNKNOWN', 'Experiment key unknown'),
+  experimentKeyUnknown(
+    2300,
+    'EXPERIMENT_KEY_UNKNOWN',
+    'Experiment key unknown',
+  ),
 
   /// Winner is not a variant of the experiment.
-  winnerNotAVariant(2301, 'WINNER_NOT_A_VARIANT', 'Winner is not a variant of the experiment'),
+  winnerNotAVariant(
+    2301,
+    'WINNER_NOT_A_VARIANT',
+    'Winner is not a variant of the experiment',
+  ),
 
   /// Variant tree exceeds the node budget.
-  variantTreeExceedsBudget(2302, 'VARIANT_TREE_EXCEEDS_BUDGET', 'Variant tree exceeds the node budget'),
+  variantTreeExceedsBudget(
+    2302,
+    'VARIANT_TREE_EXCEEDS_BUDGET',
+    'Variant tree exceeds the node budget',
+  ),
 
   /// Manifest signature invalid.
-  manifestSignatureInvalid(3001, 'MANIFEST_SIGNATURE_INVALID', 'Manifest signature invalid'),
+  manifestSignatureInvalid(
+    3001,
+    'MANIFEST_SIGNATURE_INVALID',
+    'Manifest signature invalid',
+  ),
 
   /// Manifest expired.
   manifestExpired(3002, 'MANIFEST_EXPIRED', 'Manifest expired'),
@@ -551,7 +943,11 @@ enum PluxErrorCode {
   rollbackRejected(3003, 'ROLLBACK_REJECTED', 'Rollback attempt rejected'),
 
   /// Unsupported required feature.
-  unsupportedRequiredFeature(3010, 'UNSUPPORTED_REQUIRED_FEATURE', 'Unsupported required feature'),
+  unsupportedRequiredFeature(
+    3010,
+    'UNSUPPORTED_REQUIRED_FEATURE',
+    'Unsupported required feature',
+  ),
 
   /// Hash mismatch after patch.
   patchHashMismatch(3011, 'PATCH_HASH_MISMATCH', 'Hash mismatch after patch'),
@@ -560,7 +956,11 @@ enum PluxErrorCode {
   deltaMalformed(3012, 'DELTA_MALFORMED', 'Malformed delta'),
 
   /// Reverted to last known good release.
-  revertedToLastKnownGood(3020, 'REVERTED_TO_LAST_KNOWN_GOOD', 'Reverted to last known good release'),
+  revertedToLastKnownGood(
+    3020,
+    'REVERTED_TO_LAST_KNOWN_GOOD',
+    'Reverted to last known good release',
+  ),
 
   /// Disk quota exceeded.
   diskQuotaExceeded(3030, 'DISK_QUOTA_EXCEEDED', 'Disk quota exceeded'),
@@ -572,13 +972,25 @@ enum PluxErrorCode {
   sectionHashMismatch(3041, 'SECTION_HASH_MISMATCH', 'Section hash mismatch'),
 
   /// Section failed verification.
-  sectionVerificationFailed(3042, 'SECTION_VERIFICATION_FAILED', 'Section failed verification'),
+  sectionVerificationFailed(
+    3042,
+    'SECTION_VERIFICATION_FAILED',
+    'Section failed verification',
+  ),
 
   /// Encrypted bundle not supported.
-  bundleEncryptedUnsupported(3043, 'BUNDLE_ENCRYPTED_UNSUPPORTED', 'Encrypted bundle not supported'),
+  bundleEncryptedUnsupported(
+    3043,
+    'BUNDLE_ENCRYPTED_UNSUPPORTED',
+    'Encrypted bundle not supported',
+  ),
 
   /// Transport decoding failed.
-  transportDecodingFailed(3044, 'TRANSPORT_DECODING_FAILED', 'Transport decoding failed'),
+  transportDecodingFailed(
+    3044,
+    'TRANSPORT_DECODING_FAILED',
+    'Transport decoding failed',
+  ),
 
   /// Asset file hash mismatch.
   assetHashMismatch(3045, 'ASSET_HASH_MISMATCH', 'Asset file hash mismatch'),
@@ -587,55 +999,111 @@ enum PluxErrorCode {
   syncFailed(3050, 'SYNC_FAILED', 'Sync failed'),
 
   /// Accessibility check blocks publish.
-  accessibilityBlocksPublish(3060, 'ACCESSIBILITY_BLOCKS_PUBLISH', 'Accessibility check blocks publish'),
+  accessibilityBlocksPublish(
+    3060,
+    'ACCESSIBILITY_BLOCKS_PUBLISH',
+    'Accessibility check blocks publish',
+  ),
 
   /// Golden test run missing.
   goldenRunMissing(3061, 'GOLDEN_RUN_MISSING', 'Golden test run missing'),
 
   /// Golden difference not approved.
-  goldenDifferenceUnapproved(3062, 'GOLDEN_DIFFERENCE_UNAPPROVED', 'Golden difference not approved'),
+  goldenDifferenceUnapproved(
+    3062,
+    'GOLDEN_DIFFERENCE_UNAPPROVED',
+    'Golden difference not approved',
+  ),
 
   /// Release profile below the environment's.
-  releaseProfileBelowEnvironment(3063, 'RELEASE_PROFILE_BELOW_ENVIRONMENT', 'Release profile below the environment\'s'),
+  releaseProfileBelowEnvironment(
+    3063,
+    'RELEASE_PROFILE_BELOW_ENVIRONMENT',
+    'Release profile below the environment\'s',
+  ),
 
   /// Release carries pseudo-locales.
-  pseudoLocalesInProduction(3064, 'PSEUDO_LOCALES_IN_PRODUCTION', 'Release carries pseudo-locales'),
+  pseudoLocalesInProduction(
+    3064,
+    'PSEUDO_LOCALES_IN_PRODUCTION',
+    'Release carries pseudo-locales',
+  ),
 
   /// Control document signature invalid.
-  controlSignatureInvalid(3100, 'CONTROL_SIGNATURE_INVALID', 'Control document signature invalid'),
+  controlSignatureInvalid(
+    3100,
+    'CONTROL_SIGNATURE_INVALID',
+    'Control document signature invalid',
+  ),
 
   /// Control document expired.
-  controlDocumentExpired(3101, 'CONTROL_DOCUMENT_EXPIRED', 'Control document expired'),
+  controlDocumentExpired(
+    3101,
+    'CONTROL_DOCUMENT_EXPIRED',
+    'Control document expired',
+  ),
 
   /// Control rollback rejected.
-  controlRollbackRejected(3102, 'CONTROL_ROLLBACK_REJECTED', 'Control rollback rejected'),
+  controlRollbackRejected(
+    3102,
+    'CONTROL_ROLLBACK_REJECTED',
+    'Control rollback rejected',
+  ),
 
   /// Mandatory update pending.
-  mandatoryUpdatePending(3103, 'MANDATORY_UPDATE_PENDING', 'Mandatory update pending'),
+  mandatoryUpdatePending(
+    3103,
+    'MANDATORY_UPDATE_PENDING',
+    'Mandatory update pending',
+  ),
 
   /// Forced rollback applied.
-  forcedRollbackApplied(3104, 'FORCED_ROLLBACK_APPLIED', 'Forced rollback applied'),
+  forcedRollbackApplied(
+    3104,
+    'FORCED_ROLLBACK_APPLIED',
+    'Forced rollback applied',
+  ),
 
   /// Action graph switched off.
-  actionGraphSwitchedOff(3105, 'ACTION_GRAPH_SWITCHED_OFF', 'Action graph switched off'),
+  actionGraphSwitchedOff(
+    3105,
+    'ACTION_GRAPH_SWITCHED_OFF',
+    'Action graph switched off',
+  ),
 
   /// Data source switched off.
-  dataSourceSwitchedOff(3106, 'DATA_SOURCE_SWITCHED_OFF', 'Data source switched off'),
+  dataSourceSwitchedOff(
+    3106,
+    'DATA_SOURCE_SWITCHED_OFF',
+    'Data source switched off',
+  ),
 
   /// Function switched off.
   functionSwitchedOff(3107, 'FUNCTION_SWITCHED_OFF', 'Function switched off'),
 
   /// Rollout paused by a health gate.
-  rolloutPausedByHealthGate(3150, 'ROLLOUT_PAUSED_BY_HEALTH_GATE', 'Rollout paused by a health gate'),
+  rolloutPausedByHealthGate(
+    3150,
+    'ROLLOUT_PAUSED_BY_HEALTH_GATE',
+    'Rollout paused by a health gate',
+  ),
 
   /// Rollout rolled back.
   rolloutRolledBack(3151, 'ROLLOUT_ROLLED_BACK', 'Rollout rolled back'),
 
   /// Targeting rule invalid.
-  targetingRuleInvalid(3152, 'TARGETING_RULE_INVALID', 'Targeting rule invalid'),
+  targetingRuleInvalid(
+    3152,
+    'TARGETING_RULE_INVALID',
+    'Targeting rule invalid',
+  ),
 
   /// Schedule overlaps another rollout.
-  scheduleOverlapsRollout(3153, 'SCHEDULE_OVERLAPS_ROLLOUT', 'Schedule overlaps another rollout'),
+  scheduleOverlapsRollout(
+    3153,
+    'SCHEDULE_OVERLAPS_ROLLOUT',
+    'Schedule overlaps another rollout',
+  ),
 
   /// Build error in node.
   nodeBuildFailed(4001, 'NODE_BUILD_FAILED', 'Build error in node'),
@@ -647,7 +1115,11 @@ enum PluxErrorCode {
   unknownWidget(4003, 'UNKNOWN_WIDGET', 'Unknown widget type'),
 
   /// Actions not available in this runtime.
-  actionsNotAvailable(4010, 'ACTIONS_NOT_AVAILABLE', 'Actions not available in this runtime'),
+  actionsNotAvailable(
+    4010,
+    'ACTIONS_NOT_AVAILABLE',
+    'Actions not available in this runtime',
+  ),
 
   /// Plugin switched off.
   pluginDisabled(4020, 'PLUGIN_DISABLED', 'Plugin switched off'),
@@ -656,7 +1128,11 @@ enum PluxErrorCode {
   routeNotFound(4100, 'ROUTE_NOT_FOUND', 'Route not found'),
 
   /// Invalid route parameters.
-  routeParametersInvalid(4101, 'ROUTE_PARAMETERS_INVALID', 'Invalid route parameters'),
+  routeParametersInvalid(
+    4101,
+    'ROUTE_PARAMETERS_INVALID',
+    'Invalid route parameters',
+  ),
 
   /// Navigation refused.
   navigationRefused(4102, 'NAVIGATION_REFUSED', 'Navigation refused'),
@@ -665,19 +1141,39 @@ enum PluxErrorCode {
   deepLinkUnmapped(4103, 'DEEP_LINK_UNMAPPED', 'Deep link not mapped'),
 
   /// Native route not registered.
-  nativeRouteNotRegistered(4200, 'NATIVE_ROUTE_NOT_REGISTERED', 'Native route not registered'),
+  nativeRouteNotRegistered(
+    4200,
+    'NATIVE_ROUTE_NOT_REGISTERED',
+    'Native route not registered',
+  ),
 
   /// Native slot not registered.
-  nativeSlotNotRegistered(4201, 'NATIVE_SLOT_NOT_REGISTERED', 'Native slot not registered'),
+  nativeSlotNotRegistered(
+    4201,
+    'NATIVE_SLOT_NOT_REGISTERED',
+    'Native slot not registered',
+  ),
 
   /// Custom action not registered.
-  nativeActionNotRegistered(4202, 'NATIVE_ACTION_NOT_REGISTERED', 'Custom action not registered'),
+  nativeActionNotRegistered(
+    4202,
+    'NATIVE_ACTION_NOT_REGISTERED',
+    'Custom action not registered',
+  ),
 
   /// Exposed state written with the wrong type.
-  exposedStateTypeMismatch(4203, 'EXPOSED_STATE_TYPE_MISMATCH', 'Exposed state written with the wrong type'),
+  exposedStateTypeMismatch(
+    4203,
+    'EXPOSED_STATE_TYPE_MISMATCH',
+    'Exposed state written with the wrong type',
+  ),
 
   /// User context attribute ignored.
-  userContextInvalid(4204, 'USER_CONTEXT_INVALID', 'User context attribute ignored'),
+  userContextInvalid(
+    4204,
+    'USER_CONTEXT_INVALID',
+    'User context attribute ignored',
+  ),
 
   /// Host code failed.
   hostCodeFailed(4205, 'HOST_CODE_FAILED', 'Host code failed'),
@@ -686,43 +1182,83 @@ enum PluxErrorCode {
   animationUnknown(4300, 'ANIMATION_UNKNOWN', 'Unknown animation'),
 
   /// Invalid animation command.
-  animationCommandInvalid(4301, 'ANIMATION_COMMAND_INVALID', 'Invalid animation command'),
+  animationCommandInvalid(
+    4301,
+    'ANIMATION_COMMAND_INVALID',
+    'Invalid animation command',
+  ),
 
   /// Timeline cannot play.
-  animationTimelineBroken(4302, 'ANIMATION_TIMELINE_BROKEN', 'Timeline cannot play'),
+  animationTimelineBroken(
+    4302,
+    'ANIMATION_TIMELINE_BROKEN',
+    'Timeline cannot play',
+  ),
 
   /// Lottie or Rive asset failed.
-  animationAssetFailed(4303, 'ANIMATION_ASSET_FAILED', 'Lottie or Rive asset failed'),
+  animationAssetFailed(
+    4303,
+    'ANIMATION_ASSET_FAILED',
+    'Lottie or Rive asset failed',
+  ),
 
   /// Locale not in release.
   localeNotInRelease(4400, 'LOCALE_NOT_IN_RELEASE', 'Locale not in release'),
 
   /// Translation fell back to source.
-  translationFallback(4401, 'TRANSLATION_FALLBACK', 'Translation fell back to source'),
+  translationFallback(
+    4401,
+    'TRANSLATION_FALLBACK',
+    'Translation fell back to source',
+  ),
 
   /// Message could not be formatted.
-  messageFormatFailed(4402, 'MESSAGE_FORMAT_FAILED', 'Message could not be formatted'),
+  messageFormatFailed(
+    4402,
+    'MESSAGE_FORMAT_FAILED',
+    'Message could not be formatted',
+  ),
 
   /// Widget package not registered.
-  widgetPackageMissing(4403, 'WIDGET_PACKAGE_MISSING', 'Widget package not registered'),
+  widgetPackageMissing(
+    4403,
+    'WIDGET_PACKAGE_MISSING',
+    'Widget package not registered',
+  ),
 
   /// Action timed out.
   actionTimeout(5001, 'ACTION_TIMEOUT', 'Action timed out'),
 
   /// Step limit exceeded.
-  actionStepLimitExceeded(5002, 'ACTION_STEP_LIMIT_EXCEEDED', 'Step limit exceeded'),
+  actionStepLimitExceeded(
+    5002,
+    'ACTION_STEP_LIMIT_EXCEEDED',
+    'Step limit exceeded',
+  ),
 
   /// Action value of the wrong type.
-  actionValueInvalid(5003, 'ACTION_VALUE_INVALID', 'Action value of the wrong type'),
+  actionValueInvalid(
+    5003,
+    'ACTION_VALUE_INVALID',
+    'Action value of the wrong type',
+  ),
 
   /// Run failed with a custom error.
-  actionCustomError(5004, 'ACTION_CUSTOM_ERROR', 'Run failed with a custom error'),
+  actionCustomError(
+    5004,
+    'ACTION_CUSTOM_ERROR',
+    'Run failed with a custom error',
+  ),
 
   /// Action run cancelled.
   actionCancelled(5005, 'ACTION_CANCELLED', 'Action run cancelled'),
 
   /// forEach item limit exceeded.
-  actionForeachLimitExceeded(5006, 'ACTION_FOREACH_LIMIT_EXCEEDED', 'forEach item limit exceeded'),
+  actionForeachLimitExceeded(
+    5006,
+    'ACTION_FOREACH_LIMIT_EXCEEDED',
+    'forEach item limit exceeded',
+  ),
 
   /// Flow not found.
   flowNotFound(5007, 'FLOW_NOT_FOUND', 'Flow not found'),
@@ -734,19 +1270,31 @@ enum PluxErrorCode {
   actionQueueFull(5009, 'ACTION_QUEUE_FULL', 'Action queue full'),
 
   /// Request to an undeclared domain blocked.
-  dataDomainBlocked(5100, 'DATA_DOMAIN_BLOCKED', 'Request to an undeclared domain blocked'),
+  dataDomainBlocked(
+    5100,
+    'DATA_DOMAIN_BLOCKED',
+    'Request to an undeclared domain blocked',
+  ),
 
   /// Network request failed.
   dataNetworkFailed(5101, 'DATA_NETWORK_FAILED', 'Network request failed'),
 
   /// Request answered with an error status.
-  dataHttpError(5102, 'DATA_HTTP_ERROR', 'Request answered with an error status'),
+  dataHttpError(
+    5102,
+    'DATA_HTTP_ERROR',
+    'Request answered with an error status',
+  ),
 
   /// Data request timed out.
   dataRequestTimeout(5103, 'DATA_REQUEST_TIMEOUT', 'Data request timed out'),
 
   /// Response does not match its declared type.
-  dataMappingFailed(5104, 'DATA_MAPPING_FAILED', 'Response does not match its declared type'),
+  dataMappingFailed(
+    5104,
+    'DATA_MAPPING_FAILED',
+    'Response does not match its declared type',
+  ),
 
   /// Request or response too large.
   dataSizeExceeded(5105, 'DATA_SIZE_EXCEEDED', 'Request or response too large'),
@@ -758,16 +1306,28 @@ enum PluxErrorCode {
   dataUnauthorised(5107, 'DATA_UNAUTHORISED', 'Request unauthorised'),
 
   /// Data source unavailable.
-  dataSourceUnavailable(5108, 'DATA_SOURCE_UNAVAILABLE', 'Data source unavailable'),
+  dataSourceUnavailable(
+    5108,
+    'DATA_SOURCE_UNAVAILABLE',
+    'Data source unavailable',
+  ),
 
   /// Response cache unavailable.
-  dataCacheUnavailable(5109, 'DATA_CACHE_UNAVAILABLE', 'Response cache unavailable'),
+  dataCacheUnavailable(
+    5109,
+    'DATA_CACHE_UNAVAILABLE',
+    'Response cache unavailable',
+  ),
 
   /// Stream failed.
   dataStreamFailed(5110, 'DATA_STREAM_FAILED', 'Stream failed'),
 
   /// Stream message too large.
-  dataStreamMessageTooLarge(5111, 'DATA_STREAM_MESSAGE_TOO_LARGE', 'Stream message too large'),
+  dataStreamMessageTooLarge(
+    5111,
+    'DATA_STREAM_MESSAGE_TOO_LARGE',
+    'Stream message too large',
+  ),
 
   /// Too many open streams.
   dataStreamLimit(5112, 'DATA_STREAM_LIMIT', 'Too many open streams'),
@@ -788,7 +1348,11 @@ enum PluxErrorCode {
   dataTransferTooLarge(5130, 'DATA_TRANSFER_TOO_LARGE', 'Transfer too large'),
 
   /// Transfer file unavailable.
-  dataTransferFileFailed(5131, 'DATA_TRANSFER_FILE_FAILED', 'Transfer file unavailable'),
+  dataTransferFileFailed(
+    5131,
+    'DATA_TRANSFER_FILE_FAILED',
+    'Transfer file unavailable',
+  ),
 
   /// Collection migration failed.
   dbMigrationFailed(5200, 'DB_MIGRATION_FAILED', 'Collection migration failed'),
@@ -797,10 +1361,18 @@ enum PluxErrorCode {
   dbUnavailable(5201, 'DB_UNAVAILABLE', 'Local database unavailable'),
 
   /// Encrypted database required.
-  dbEncryptionRequired(5202, 'DB_ENCRYPTION_REQUIRED', 'Encrypted database required'),
+  dbEncryptionRequired(
+    5202,
+    'DB_ENCRYPTION_REQUIRED',
+    'Encrypted database required',
+  ),
 
   /// Record does not fit its collection.
-  dbRecordInvalid(5203, 'DB_RECORD_INVALID', 'Record does not fit its collection'),
+  dbRecordInvalid(
+    5203,
+    'DB_RECORD_INVALID',
+    'Record does not fit its collection',
+  ),
 
   /// Record not found.
   dbRecordNotFound(5204, 'DB_RECORD_NOT_FOUND', 'Record not found'),
@@ -818,28 +1390,56 @@ enum PluxErrorCode {
   dbStoreFailed(5208, 'DB_STORE_FAILED', 'Local database failed'),
 
   /// Unknown or inaccessible collection.
-  dbCollectionUnknown(5209, 'DB_COLLECTION_UNKNOWN', 'Unknown or inaccessible collection'),
+  dbCollectionUnknown(
+    5209,
+    'DB_COLLECTION_UNKNOWN',
+    'Unknown or inaccessible collection',
+  ),
 
   /// Key-value entry of another type.
-  dbValueTypeMismatch(5210, 'DB_VALUE_TYPE_MISMATCH', 'Key-value entry of another type'),
+  dbValueTypeMismatch(
+    5210,
+    'DB_VALUE_TYPE_MISMATCH',
+    'Key-value entry of another type',
+  ),
 
   /// State written with a value of the wrong type.
-  stateWriteTypeMismatch(5301, 'STATE_WRITE_TYPE_MISMATCH', 'State written with a value of the wrong type'),
+  stateWriteTypeMismatch(
+    5301,
+    'STATE_WRITE_TYPE_MISMATCH',
+    'State written with a value of the wrong type',
+  ),
 
   /// State write refused.
   stateWriteRefused(5302, 'STATE_WRITE_REFUSED', 'State write refused'),
 
   /// State store unavailable.
-  stateStoreUnavailable(5303, 'STATE_STORE_UNAVAILABLE', 'State store unavailable'),
+  stateStoreUnavailable(
+    5303,
+    'STATE_STORE_UNAVAILABLE',
+    'State store unavailable',
+  ),
 
   /// State store failed authentication.
-  stateStoreCorrupt(5304, 'STATE_STORE_CORRUPT', 'State store failed authentication'),
+  stateStoreCorrupt(
+    5304,
+    'STATE_STORE_CORRUPT',
+    'State store failed authentication',
+  ),
 
   /// Stored state could not be migrated.
-  stateMigrationFailed(5305, 'STATE_MIGRATION_FAILED', 'Stored state could not be migrated'),
+  stateMigrationFailed(
+    5305,
+    'STATE_MIGRATION_FAILED',
+    'Stored state could not be migrated',
+  ),
 
   /// Stored state over its limit.
-  stateLimitExceeded(5306, 'STATE_LIMIT_EXCEEDED', 'Stored state over its limit'),
+  stateLimitExceeded(
+    5306,
+    'STATE_LIMIT_EXCEEDED',
+    'Stored state over its limit',
+  ),
 
   /// Host event refused.
   hostEventRefused(5307, 'HOST_EVENT_REFUSED', 'Host event refused'),
@@ -851,16 +1451,32 @@ enum PluxErrorCode {
   formNotInScope(5351, 'FORM_NOT_IN_SCOPE', 'Form not in scope'),
 
   /// Asynchronous validator failed.
-  formAsyncValidatorFailed(5352, 'FORM_ASYNC_VALIDATOR_FAILED', 'Asynchronous validator failed'),
+  formAsyncValidatorFailed(
+    5352,
+    'FORM_ASYNC_VALIDATOR_FAILED',
+    'Asynchronous validator failed',
+  ),
 
   /// Device operation blocked.
-  deviceCapabilityBlocked(5400, 'DEVICE_CAPABILITY_BLOCKED', 'Device operation blocked'),
+  deviceCapabilityBlocked(
+    5400,
+    'DEVICE_CAPABILITY_BLOCKED',
+    'Device operation blocked',
+  ),
 
   /// Device package not installed.
-  devicePackageMissing(5401, 'DEVICE_PACKAGE_MISSING', 'Device package not installed'),
+  devicePackageMissing(
+    5401,
+    'DEVICE_PACKAGE_MISSING',
+    'Device package not installed',
+  ),
 
   /// Device permission denied.
-  devicePermissionDenied(5402, 'DEVICE_PERMISSION_DENIED', 'Device permission denied'),
+  devicePermissionDenied(
+    5402,
+    'DEVICE_PERMISSION_DENIED',
+    'Device permission denied',
+  ),
 
   /// Device feature unavailable.
   deviceUnavailable(5403, 'DEVICE_UNAVAILABLE', 'Device feature unavailable'),
@@ -872,34 +1488,66 @@ enum PluxErrorCode {
   clipboardBlocked(5405, 'CLIPBOARD_BLOCKED', 'Clipboard write blocked'),
 
   /// Host event payload invalid.
-  hostEventPayloadInvalid(5500, 'HOST_EVENT_PAYLOAD_INVALID', 'Host event payload invalid'),
+  hostEventPayloadInvalid(
+    5500,
+    'HOST_EVENT_PAYLOAD_INVALID',
+    'Host event payload invalid',
+  ),
 
   /// Device attestation failed.
   attestationFailed(6001, 'ATTESTATION_FAILED', 'Device attestation failed'),
 
   /// Device assurance insufficient.
-  assuranceInsufficient(6002, 'ASSURANCE_INSUFFICIENT', 'Device assurance insufficient'),
+  assuranceInsufficient(
+    6002,
+    'ASSURANCE_INSUFFICIENT',
+    'Device assurance insufficient',
+  ),
 
   /// Key not hardware-backed.
-  keyNotHardwareBacked(6003, 'KEY_NOT_HARDWARE_BACKED', 'Key not hardware-backed'),
+  keyNotHardwareBacked(
+    6003,
+    'KEY_NOT_HARDWARE_BACKED',
+    'Key not hardware-backed',
+  ),
 
   /// Development attestation provider in production.
-  devProviderInProduction(6004, 'DEV_PROVIDER_IN_PRODUCTION', 'Development attestation provider in production'),
+  devProviderInProduction(
+    6004,
+    'DEV_PROVIDER_IN_PRODUCTION',
+    'Development attestation provider in production',
+  ),
 
   /// Registration challenge invalid.
-  registrationChallengeInvalid(6005, 'REGISTRATION_CHALLENGE_INVALID', 'Registration challenge invalid'),
+  registrationChallengeInvalid(
+    6005,
+    'REGISTRATION_CHALLENGE_INVALID',
+    'Registration challenge invalid',
+  ),
 
   /// Device revoked.
   deviceRevoked(6006, 'DEVICE_REVOKED', 'Device revoked'),
 
   /// Re-attestation required.
-  reattestationRequired(6007, 'REATTESTATION_REQUIRED', 'Re-attestation required'),
+  reattestationRequired(
+    6007,
+    'REATTESTATION_REQUIRED',
+    'Re-attestation required',
+  ),
 
   /// Legacy registration refused.
-  legacyRegistrationRefused(6008, 'LEGACY_REGISTRATION_REFUSED', 'Legacy registration refused'),
+  legacyRegistrationRefused(
+    6008,
+    'LEGACY_REGISTRATION_REFUSED',
+    'Legacy registration refused',
+  ),
 
   /// Attestation service unavailable.
-  attestationUnavailable(6009, 'ATTESTATION_UNAVAILABLE', 'Attestation service unavailable'),
+  attestationUnavailable(
+    6009,
+    'ATTESTATION_UNAVAILABLE',
+    'Attestation service unavailable',
+  ),
 
   /// DPoP proof invalid.
   dpopProofInvalid(6010, 'DPOP_PROOF_INVALID', 'DPoP proof invalid'),
@@ -911,91 +1559,191 @@ enum PluxErrorCode {
   dpopNonceRequired(6012, 'DPOP_NONCE_REQUIRED', 'DPoP nonce required'),
 
   /// Token binding mismatch.
-  tokenBindingMismatch(6013, 'TOKEN_BINDING_MISMATCH', 'Token binding mismatch'),
+  tokenBindingMismatch(
+    6013,
+    'TOKEN_BINDING_MISMATCH',
+    'Token binding mismatch',
+  ),
 
   /// Access token invalid.
   accessTokenInvalid(6014, 'ACCESS_TOKEN_INVALID', 'Access token invalid'),
 
   /// Replay cache unavailable.
-  replayCacheUnavailable(6015, 'REPLAY_CACHE_UNAVAILABLE', 'Replay cache unavailable'),
+  replayCacheUnavailable(
+    6015,
+    'REPLAY_CACHE_UNAVAILABLE',
+    'Replay cache unavailable',
+  ),
 
   /// User token invalid.
   userTokenInvalid(6016, 'USER_TOKEN_INVALID', 'User token invalid'),
 
   /// Device key unavailable.
-  deviceKeyUnavailable(6017, 'DEVICE_KEY_UNAVAILABLE', 'Device key unavailable'),
+  deviceKeyUnavailable(
+    6017,
+    'DEVICE_KEY_UNAVAILABLE',
+    'Device key unavailable',
+  ),
 
   /// Certificate pin mismatch.
-  certificatePinMismatch(6020, 'CERTIFICATE_PIN_MISMATCH', 'Certificate pin mismatch'),
+  certificatePinMismatch(
+    6020,
+    'CERTIFICATE_PIN_MISMATCH',
+    'Certificate pin mismatch',
+  ),
 
   /// Development key in production.
-  developmentKeyInProduction(6021, 'DEVELOPMENT_KEY_IN_PRODUCTION', 'Development key in production'),
+  developmentKeyInProduction(
+    6021,
+    'DEVELOPMENT_KEY_IN_PRODUCTION',
+    'Development key in production',
+  ),
 
   /// Update metadata invalid.
-  updateMetadataInvalid(6022, 'UPDATE_METADATA_INVALID', 'Update metadata invalid'),
+  updateMetadataInvalid(
+    6022,
+    'UPDATE_METADATA_INVALID',
+    'Update metadata invalid',
+  ),
 
   /// Outbound request blocked.
-  outboundRequestBlocked(6030, 'OUTBOUND_REQUEST_BLOCKED', 'Outbound request blocked'),
+  outboundRequestBlocked(
+    6030,
+    'OUTBOUND_REQUEST_BLOCKED',
+    'Outbound request blocked',
+  ),
 
   /// Asset rejected by the malware scanner.
-  assetRejected(6031, 'ASSET_REJECTED', 'Asset rejected by the malware scanner'),
+  assetRejected(
+    6031,
+    'ASSET_REJECTED',
+    'Asset rejected by the malware scanner',
+  ),
 
   /// Security configuration hash mismatch.
-  securityConfigHashMismatch(6040, 'SECURITY_CONFIG_HASH_MISMATCH', 'Security configuration hash mismatch'),
+  securityConfigHashMismatch(
+    6040,
+    'SECURITY_CONFIG_HASH_MISMATCH',
+    'Security configuration hash mismatch',
+  ),
 
   /// Security configuration loosens its preset.
-  securityConfigLoosensPreset(6041, 'SECURITY_CONFIG_LOOSENS_PRESET', 'Security configuration loosens its preset'),
+  securityConfigLoosensPreset(
+    6041,
+    'SECURITY_CONFIG_LOOSENS_PRESET',
+    'Security configuration loosens its preset',
+  ),
 
   /// Security configuration out of bounds.
-  securityConfigOutOfBounds(6042, 'SECURITY_CONFIG_OUT_OF_BOUNDS', 'Security configuration out of bounds'),
+  securityConfigOutOfBounds(
+    6042,
+    'SECURITY_CONFIG_OUT_OF_BOUNDS',
+    'Security configuration out of bounds',
+  ),
 
   /// Confidential key unavailable.
-  confidentialKeyUnavailable(6050, 'CONFIDENTIAL_KEY_UNAVAILABLE', 'Confidential key unavailable'),
+  confidentialKeyUnavailable(
+    6050,
+    'CONFIDENTIAL_KEY_UNAVAILABLE',
+    'Confidential key unavailable',
+  ),
 
   /// Gateway upstream unknown.
-  gatewayUpstreamUnknown(6060, 'GATEWAY_UPSTREAM_UNKNOWN', 'Gateway upstream unknown'),
+  gatewayUpstreamUnknown(
+    6060,
+    'GATEWAY_UPSTREAM_UNKNOWN',
+    'Gateway upstream unknown',
+  ),
 
   /// Gateway destination refused.
-  gatewayDestinationRefused(6061, 'GATEWAY_DESTINATION_REFUSED', 'Gateway destination refused'),
+  gatewayDestinationRefused(
+    6061,
+    'GATEWAY_DESTINATION_REFUSED',
+    'Gateway destination refused',
+  ),
 
   /// Gateway upstream failed.
-  gatewayUpstreamFailed(6062, 'GATEWAY_UPSTREAM_FAILED', 'Gateway upstream failed'),
+  gatewayUpstreamFailed(
+    6062,
+    'GATEWAY_UPSTREAM_FAILED',
+    'Gateway upstream failed',
+  ),
 
   /// Direct data source refused.
-  directDataSourceRefused(6063, 'DIRECT_DATA_SOURCE_REFUSED', 'Direct data source refused'),
+  directDataSourceRefused(
+    6063,
+    'DIRECT_DATA_SOURCE_REFUSED',
+    'Direct data source refused',
+  ),
 
   /// Gateway rate limited.
   gatewayRateLimited(6064, 'GATEWAY_RATE_LIMITED', 'Gateway rate limited'),
 
   /// Request sets a server-bound location.
-  boundLocationSetByDevice(6065, 'BOUND_LOCATION_SET_BY_DEVICE', 'Request sets a server-bound location'),
+  boundLocationSetByDevice(
+    6065,
+    'BOUND_LOCATION_SET_BY_DEVICE',
+    'Request sets a server-bound location',
+  ),
 
   /// Server-held value changed since the challenge.
-  boundValueChanged(6066, 'BOUND_VALUE_CHANGED', 'Server-held value changed since the challenge'),
+  boundValueChanged(
+    6066,
+    'BOUND_VALUE_CHANGED',
+    'Server-held value changed since the challenge',
+  ),
 
   /// Live configuration is stale.
   liveConfigStale(6067, 'LIVE_CONFIG_STALE', 'Live configuration is stale'),
 
   /// Live configuration unavailable.
-  liveConfigUnavailable(6068, 'LIVE_CONFIG_UNAVAILABLE', 'Live configuration unavailable'),
+  liveConfigUnavailable(
+    6068,
+    'LIVE_CONFIG_UNAVAILABLE',
+    'Live configuration unavailable',
+  ),
 
   /// Configuration store unavailable.
-  configStoreUnavailable(6069, 'CONFIG_STORE_UNAVAILABLE', 'Configuration store unavailable'),
+  configStoreUnavailable(
+    6069,
+    'CONFIG_STORE_UNAVAILABLE',
+    'Configuration store unavailable',
+  ),
 
   /// Strong customer authentication signature invalid.
-  scaSignatureInvalid(6070, 'SCA_SIGNATURE_INVALID', 'Strong customer authentication signature invalid'),
+  scaSignatureInvalid(
+    6070,
+    'SCA_SIGNATURE_INVALID',
+    'Strong customer authentication signature invalid',
+  ),
 
   /// Strong customer authentication challenge invalid.
-  scaChallengeInvalid(6071, 'SCA_CHALLENGE_INVALID', 'Strong customer authentication challenge invalid'),
+  scaChallengeInvalid(
+    6071,
+    'SCA_CHALLENGE_INVALID',
+    'Strong customer authentication challenge invalid',
+  ),
 
   /// Authentication not linked to the request.
-  scaDynamicLinkingMismatch(6072, 'SCA_DYNAMIC_LINKING_MISMATCH', 'Authentication not linked to the request'),
+  scaDynamicLinkingMismatch(
+    6072,
+    'SCA_DYNAMIC_LINKING_MISMATCH',
+    'Authentication not linked to the request',
+  ),
 
   /// Transaction requires the gateway.
-  transactionRequiresGateway(6073, 'TRANSACTION_REQUIRES_GATEWAY', 'Transaction requires the gateway'),
+  transactionRequiresGateway(
+    6073,
+    'TRANSACTION_REQUIRES_GATEWAY',
+    'Transaction requires the gateway',
+  ),
 
   /// Fraud receipt unavailable.
-  fraudReceiptUnavailable(6080, 'FRAUD_RECEIPT_UNAVAILABLE', 'Fraud receipt unavailable'),
+  fraudReceiptUnavailable(
+    6080,
+    'FRAUD_RECEIPT_UNAVAILABLE',
+    'Fraud receipt unavailable',
+  ),
 
   /// Imported key invalid.
   importedKeyInvalid(6081, 'IMPORTED_KEY_INVALID', 'Imported key invalid'),
@@ -1010,13 +1758,21 @@ enum PluxErrorCode {
   stepUpExpired(6201, 'STEP_UP_EXPIRED', 'Step-up expired'),
 
   /// WebAuthn assertion invalid.
-  webauthnAssertionInvalid(6202, 'WEBAUTHN_ASSERTION_INVALID', 'WebAuthn assertion invalid'),
+  webauthnAssertionInvalid(
+    6202,
+    'WEBAUTHN_ASSERTION_INVALID',
+    'WebAuthn assertion invalid',
+  ),
 
   /// SAML response invalid.
   samlResponseInvalid(6210, 'SAML_RESPONSE_INVALID', 'SAML response invalid'),
 
   /// SAML assertion replayed.
-  samlAssertionReplayed(6211, 'SAML_ASSERTION_REPLAYED', 'SAML assertion replayed'),
+  samlAssertionReplayed(
+    6211,
+    'SAML_ASSERTION_REPLAYED',
+    'SAML assertion replayed',
+  ),
 
   /// SCIM request invalid.
   scimRequestInvalid(6220, 'SCIM_REQUEST_INVALID', 'SCIM request invalid'),
@@ -1028,64 +1784,128 @@ enum PluxErrorCode {
   sessionIdleTimeout(6231, 'SESSION_IDLE_TIMEOUT', 'Session idle timeout'),
 
   /// Session absolute timeout.
-  sessionAbsoluteTimeout(6232, 'SESSION_ABSOLUTE_TIMEOUT', 'Session absolute timeout'),
+  sessionAbsoluteTimeout(
+    6232,
+    'SESSION_ABSOLUTE_TIMEOUT',
+    'Session absolute timeout',
+  ),
 
   /// Function timed out.
   functionTimeout(7001, 'FUNCTION_TIMEOUT', 'Function timed out'),
 
   /// Function memory exceeded.
-  functionMemoryExceeded(7002, 'FUNCTION_MEMORY_EXCEEDED', 'Function memory exceeded'),
+  functionMemoryExceeded(
+    7002,
+    'FUNCTION_MEMORY_EXCEEDED',
+    'Function memory exceeded',
+  ),
 
   /// Function capability denied.
-  functionCapabilityDenied(7003, 'FUNCTION_CAPABILITY_DENIED', 'Function capability denied'),
+  functionCapabilityDenied(
+    7003,
+    'FUNCTION_CAPABILITY_DENIED',
+    'Function capability denied',
+  ),
 
   /// Function output too large.
-  functionOutputTooLarge(7004, 'FUNCTION_OUTPUT_TOO_LARGE', 'Function output too large'),
+  functionOutputTooLarge(
+    7004,
+    'FUNCTION_OUTPUT_TOO_LARGE',
+    'Function output too large',
+  ),
 
   /// Function call depth exceeded.
-  functionCallDepthExceeded(7005, 'FUNCTION_CALL_DEPTH_EXCEEDED', 'Function call depth exceeded'),
+  functionCallDepthExceeded(
+    7005,
+    'FUNCTION_CALL_DEPTH_EXCEEDED',
+    'Function call depth exceeded',
+  ),
 
   /// Function HTTP calls exceeded.
-  functionHttpCallsExceeded(7006, 'FUNCTION_HTTP_CALLS_EXCEEDED', 'Function HTTP calls exceeded'),
+  functionHttpCallsExceeded(
+    7006,
+    'FUNCTION_HTTP_CALLS_EXCEEDED',
+    'Function HTTP calls exceeded',
+  ),
 
   /// Function trapped.
   functionTrapped(7007, 'FUNCTION_TRAPPED', 'Function trapped'),
 
   /// Function input invalid.
-  functionInputInvalid(7008, 'FUNCTION_INPUT_INVALID', 'Function input invalid'),
+  functionInputInvalid(
+    7008,
+    'FUNCTION_INPUT_INVALID',
+    'Function input invalid',
+  ),
 
   /// Function output invalid.
-  functionOutputInvalid(7009, 'FUNCTION_OUTPUT_INVALID', 'Function output invalid'),
+  functionOutputInvalid(
+    7009,
+    'FUNCTION_OUTPUT_INVALID',
+    'Function output invalid',
+  ),
 
   /// Function egress refused.
-  functionEgressRefused(7010, 'FUNCTION_EGRESS_REFUSED', 'Function egress refused'),
+  functionEgressRefused(
+    7010,
+    'FUNCTION_EGRESS_REFUSED',
+    'Function egress refused',
+  ),
 
   /// Idempotency key reused with different input.
-  idempotencyKeyConflict(7011, 'IDEMPOTENCY_KEY_CONFLICT', 'Idempotency key reused with different input'),
+  idempotencyKeyConflict(
+    7011,
+    'IDEMPOTENCY_KEY_CONFLICT',
+    'Idempotency key reused with different input',
+  ),
 
   /// Function not found.
   functionNotFound(7012, 'FUNCTION_NOT_FOUND', 'Function not found'),
 
   /// Function alias not found.
-  functionAliasNotFound(7013, 'FUNCTION_ALIAS_NOT_FOUND', 'Function alias not found'),
+  functionAliasNotFound(
+    7013,
+    'FUNCTION_ALIAS_NOT_FOUND',
+    'Function alias not found',
+  ),
 
   /// Device functions disabled.
-  deviceFunctionsDisabled(7014, 'DEVICE_FUNCTIONS_DISABLED', 'Device functions disabled'),
+  deviceFunctionsDisabled(
+    7014,
+    'DEVICE_FUNCTIONS_DISABLED',
+    'Device functions disabled',
+  ),
 
   /// Function rate limited.
   functionRateLimited(7015, 'FUNCTION_RATE_LIMITED', 'Function rate limited'),
 
   /// Function key-value limit exceeded.
-  functionKvLimitExceeded(7016, 'FUNCTION_KV_LIMIT_EXCEEDED', 'Function key-value limit exceeded'),
+  functionKvLimitExceeded(
+    7016,
+    'FUNCTION_KV_LIMIT_EXCEEDED',
+    'Function key-value limit exceeded',
+  ),
 
   /// Function ABI unsupported.
-  functionAbiUnsupported(7017, 'FUNCTION_ABI_UNSUPPORTED', 'Function ABI unsupported'),
+  functionAbiUnsupported(
+    7017,
+    'FUNCTION_ABI_UNSUPPORTED',
+    'Function ABI unsupported',
+  ),
 
   /// Function module invalid.
-  functionModuleInvalid(7018, 'FUNCTION_MODULE_INVALID', 'Function module invalid'),
+  functionModuleInvalid(
+    7018,
+    'FUNCTION_MODULE_INVALID',
+    'Function module invalid',
+  ),
 
   /// Function artifact signature invalid.
-  functionArtifactSignatureInvalid(7019, 'FUNCTION_ARTIFACT_SIGNATURE_INVALID', 'Function artifact signature invalid'),
+  functionArtifactSignatureInvalid(
+    7019,
+    'FUNCTION_ARTIFACT_SIGNATURE_INVALID',
+    'Function artifact signature invalid',
+  ),
 
   /// Function tests failed.
   functionTestsFailed(7020, 'FUNCTION_TESTS_FAILED', 'Function tests failed'),
@@ -1094,25 +1914,53 @@ enum PluxErrorCode {
   functionCancelled(7021, 'FUNCTION_CANCELLED', 'Function cancelled'),
 
   /// Function input too large.
-  functionInputTooLarge(7022, 'FUNCTION_INPUT_TOO_LARGE', 'Function input too large'),
+  functionInputTooLarge(
+    7022,
+    'FUNCTION_INPUT_TOO_LARGE',
+    'Function input too large',
+  ),
 
   /// Device function requests a server capability.
-  deviceFunctionServerCapability(7030, 'DEVICE_FUNCTION_SERVER_CAPABILITY', 'Device function requests a server capability'),
+  deviceFunctionServerCapability(
+    7030,
+    'DEVICE_FUNCTION_SERVER_CAPABILITY',
+    'Device function requests a server capability',
+  ),
 
   /// Function reference unresolved.
-  functionReferenceUnresolved(7031, 'FUNCTION_REFERENCE_UNRESOLVED', 'Function reference unresolved'),
+  functionReferenceUnresolved(
+    7031,
+    'FUNCTION_REFERENCE_UNRESOLVED',
+    'Function reference unresolved',
+  ),
 
   /// Function type mismatch.
-  functionTypeMismatch(7032, 'FUNCTION_TYPE_MISMATCH', 'Function type mismatch'),
+  functionTypeMismatch(
+    7032,
+    'FUNCTION_TYPE_MISMATCH',
+    'Function type mismatch',
+  ),
 
   /// Function business error.
-  functionBusinessError(7100, 'FUNCTION_BUSINESS_ERROR', 'Function business error'),
+  functionBusinessError(
+    7100,
+    'FUNCTION_BUSINESS_ERROR',
+    'Function business error',
+  ),
 
   /// Cron expression invalid.
-  cronExpressionInvalid(7150, 'CRON_EXPRESSION_INVALID', 'Cron expression invalid'),
+  cronExpressionInvalid(
+    7150,
+    'CRON_EXPRESSION_INVALID',
+    'Cron expression invalid',
+  ),
 
   /// Inbound webhook signature invalid.
-  webhookSignatureInvalid(7151, 'WEBHOOK_SIGNATURE_INVALID', 'Inbound webhook signature invalid'),
+  webhookSignatureInvalid(
+    7151,
+    'WEBHOOK_SIGNATURE_INVALID',
+    'Inbound webhook signature invalid',
+  ),
 
   /// Inbound webhook replayed.
   webhookReplayed(7152, 'WEBHOOK_REPLAYED', 'Inbound webhook replayed'),
@@ -1121,28 +1969,56 @@ enum PluxErrorCode {
   functionBuildFailed(7200, 'FUNCTION_BUILD_FAILED', 'Function build failed'),
 
   /// Function dependency not vendored.
-  functionDependencyNotVendored(7201, 'FUNCTION_DEPENDENCY_NOT_VENDORED', 'Function dependency not vendored'),
+  functionDependencyNotVendored(
+    7201,
+    'FUNCTION_DEPENDENCY_NOT_VENDORED',
+    'Function dependency not vendored',
+  ),
 
   /// Function build script refused.
-  functionBuildScriptRefused(7202, 'FUNCTION_BUILD_SCRIPT_REFUSED', 'Function build script refused'),
+  functionBuildScriptRefused(
+    7202,
+    'FUNCTION_BUILD_SCRIPT_REFUSED',
+    'Function build script refused',
+  ),
 
   /// Function build limit exceeded.
-  functionBuildLimitExceeded(7203, 'FUNCTION_BUILD_LIMIT_EXCEEDED', 'Function build limit exceeded'),
+  functionBuildLimitExceeded(
+    7203,
+    'FUNCTION_BUILD_LIMIT_EXCEEDED',
+    'Function build limit exceeded',
+  ),
 
   /// Function schema derivation failed.
-  functionSchemaDerivationFailed(7204, 'FUNCTION_SCHEMA_DERIVATION_FAILED', 'Function schema derivation failed'),
+  functionSchemaDerivationFailed(
+    7204,
+    'FUNCTION_SCHEMA_DERIVATION_FAILED',
+    'Function schema derivation failed',
+  ),
 
   /// Function declaration mismatch.
-  functionDeclarationMismatch(7205, 'FUNCTION_DECLARATION_MISMATCH', 'Function declaration mismatch'),
+  functionDeclarationMismatch(
+    7205,
+    'FUNCTION_DECLARATION_MISMATCH',
+    'Function declaration mismatch',
+  ),
 
   /// Function build not reproducible.
-  functionBuildNotReproducible(7206, 'FUNCTION_BUILD_NOT_REPRODUCIBLE', 'Function build not reproducible'),
+  functionBuildNotReproducible(
+    7206,
+    'FUNCTION_BUILD_NOT_REPRODUCIBLE',
+    'Function build not reproducible',
+  ),
 
   /// Approval required.
   approvalRequired(8001, 'APPROVAL_REQUIRED', 'Approval required'),
 
   /// Approval invalidated by a content change.
-  approvalInvalidated(8002, 'APPROVAL_INVALIDATED', 'Approval invalidated by a content change'),
+  approvalInvalidated(
+    8002,
+    'APPROVAL_INVALIDATED',
+    'Approval invalidated by a content change',
+  ),
 
   /// Approver not eligible.
   approverNotEligible(8003, 'APPROVER_NOT_ELIGIBLE', 'Approver not eligible'),
@@ -1151,10 +2027,18 @@ enum PluxErrorCode {
   approvalExpired(8004, 'APPROVAL_EXPIRED', 'Approval expired'),
 
   /// Break-glass justification required.
-  breakGlassJustificationRequired(8005, 'BREAK_GLASS_JUSTIFICATION_REQUIRED', 'Break-glass justification required'),
+  breakGlassJustificationRequired(
+    8005,
+    'BREAK_GLASS_JUSTIFICATION_REQUIRED',
+    'Break-glass justification required',
+  ),
 
   /// Post-hoc review overdue.
-  postHocReviewOverdue(8006, 'POST_HOC_REVIEW_OVERDUE', 'Post-hoc review overdue'),
+  postHocReviewOverdue(
+    8006,
+    'POST_HOC_REVIEW_OVERDUE',
+    'Post-hoc review overdue',
+  ),
 
   /// Change freeze active.
   changeFreezeActive(8010, 'CHANGE_FREEZE_ACTIVE', 'Change freeze active'),
@@ -1163,10 +2047,18 @@ enum PluxErrorCode {
   multiFactorRequired(8011, 'MULTI_FACTOR_REQUIRED', 'Second factor required'),
 
   /// Authentication required.
-  authenticationRequired(8012, 'AUTHENTICATION_REQUIRED', 'Authentication required'),
+  authenticationRequired(
+    8012,
+    'AUTHENTICATION_REQUIRED',
+    'Authentication required',
+  ),
 
   /// Editing lock held by another user.
-  editingLockHeld(8020, 'EDITING_LOCK_HELD', 'Editing lock held by another user'),
+  editingLockHeld(
+    8020,
+    'EDITING_LOCK_HELD',
+    'Editing lock held by another user',
+  ),
 
   /// Permission denied.
   permissionDenied(8030, 'PERMISSION_DENIED', 'Permission denied'),
@@ -1184,97 +2076,185 @@ enum PluxErrorCode {
   rateLimited(8040, 'RATE_LIMITED', 'Rate limit exceeded'),
 
   /// Versions compiled against different sources.
-  releaseInconsistent(8050, 'RELEASE_INCONSISTENT', 'Versions compiled against different sources'),
+  releaseInconsistent(
+    8050,
+    'RELEASE_INCONSISTENT',
+    'Versions compiled against different sources',
+  ),
 
   /// Warnings not acknowledged.
-  warningsNotAcknowledged(8051, 'WARNINGS_NOT_ACKNOWLEDGED', 'Warnings not acknowledged'),
+  warningsNotAcknowledged(
+    8051,
+    'WARNINGS_NOT_ACKNOWLEDGED',
+    'Warnings not acknowledged',
+  ),
 
   /// Plugin has no published version.
-  pluginNotPublished(8052, 'PLUGIN_NOT_PUBLISHED', 'Plugin has no published version'),
+  pluginNotPublished(
+    8052,
+    'PLUGIN_NOT_PUBLISHED',
+    'Plugin has no published version',
+  ),
 
   /// Assets still being processed.
   assetsNotReady(8053, 'ASSETS_NOT_READY', 'Assets still being processed'),
 
   /// Host build lacks a native entry.
-  hostBuildIncompatible(8054, 'HOST_BUILD_INCOMPATIBLE', 'Host build lacks a native entry'),
+  hostBuildIncompatible(
+    8054,
+    'HOST_BUILD_INCOMPATIBLE',
+    'Host build lacks a native entry',
+  ),
 
   /// Internal error.
   internalServerError(8090, 'INTERNAL_SERVER_ERROR', 'Internal error'),
 
   /// A service the server depends on is unavailable.
-  upstreamUnavailable(8091, 'UPSTREAM_UNAVAILABLE', 'A service the server depends on is unavailable'),
+  upstreamUnavailable(
+    8091,
+    'UPSTREAM_UNAVAILABLE',
+    'A service the server depends on is unavailable',
+  ),
 
   /// Translation state not allowed.
-  translationStateForbidden(8092, 'TRANSLATION_STATE_FORBIDDEN', 'Translation state not allowed'),
+  translationStateForbidden(
+    8092,
+    'TRANSLATION_STATE_FORBIDDEN',
+    'Translation state not allowed',
+  ),
 
   /// Document not editable with translations.edit.
-  translationDocumentForbidden(8093, 'TRANSLATION_DOCUMENT_FORBIDDEN', 'Document not editable with translations.edit'),
+  translationDocumentForbidden(
+    8093,
+    'TRANSLATION_DOCUMENT_FORBIDDEN',
+    'Document not editable with translations.edit',
+  ),
 
   /// Role unknown.
   roleUnknown(8100, 'ROLE_UNKNOWN', 'Role unknown'),
 
   /// Permission not in the catalogue.
-  permissionNotInCatalogue(8101, 'PERMISSION_NOT_IN_CATALOGUE', 'Permission not in the catalogue'),
+  permissionNotInCatalogue(
+    8101,
+    'PERMISSION_NOT_IN_CATALOGUE',
+    'Permission not in the catalogue',
+  ),
 
   /// Scope invalid.
   scopeInvalid(8102, 'SCOPE_INVALID', 'Scope invalid'),
 
   /// Last owner cannot be removed.
-  lastOwnerCannotBeRemoved(8103, 'LAST_OWNER_CANNOT_BE_REMOVED', 'Last owner cannot be removed'),
+  lastOwnerCannotBeRemoved(
+    8103,
+    'LAST_OWNER_CANNOT_BE_REMOVED',
+    'Last owner cannot be removed',
+  ),
 
   /// Restriction pattern invalid.
-  restrictionPatternInvalid(8104, 'RESTRICTION_PATTERN_INVALID', 'Restriction pattern invalid'),
+  restrictionPatternInvalid(
+    8104,
+    'RESTRICTION_PATTERN_INVALID',
+    'Restriction pattern invalid',
+  ),
 
   /// Restriction would lock out the last owner.
-  restrictionLocksOutOwner(8105, 'RESTRICTION_LOCKS_OUT_OWNER', 'Restriction would lock out the last owner'),
+  restrictionLocksOutOwner(
+    8105,
+    'RESTRICTION_LOCKS_OUT_OWNER',
+    'Restriction would lock out the last owner',
+  ),
 
   /// Restriction exceeds the caller's own rights.
-  restrictionExceedsCaller(8106, 'RESTRICTION_EXCEEDS_CALLER', 'Restriction exceeds the caller\'s own rights'),
+  restrictionExceedsCaller(
+    8106,
+    'RESTRICTION_EXCEEDS_CALLER',
+    'Restriction exceeds the caller\'s own rights',
+  ),
 
   /// Restriction limit reached.
-  restrictionLimitReached(8107, 'RESTRICTION_LIMIT_REACHED', 'Restriction limit reached'),
+  restrictionLimitReached(
+    8107,
+    'RESTRICTION_LIMIT_REACHED',
+    'Restriction limit reached',
+  ),
 
   /// Experiment overlaps its layer.
-  experimentOverlapsLayer(8200, 'EXPERIMENT_OVERLAPS_LAYER', 'Experiment overlaps its layer'),
+  experimentOverlapsLayer(
+    8200,
+    'EXPERIMENT_OVERLAPS_LAYER',
+    'Experiment overlaps its layer',
+  ),
 
   /// Sample size not reached.
-  sampleSizeNotReached(8201, 'SAMPLE_SIZE_NOT_REACHED', 'Sample size not reached'),
+  sampleSizeNotReached(
+    8201,
+    'SAMPLE_SIZE_NOT_REACHED',
+    'Sample size not reached',
+  ),
 
   /// Sample ratio mismatch.
   sampleRatioMismatch(8202, 'SAMPLE_RATIO_MISMATCH', 'Sample ratio mismatch'),
 
   /// Flag type change refused.
-  flagTypeChangeRefused(8203, 'FLAG_TYPE_CHANGE_REFUSED', 'Flag type change refused'),
+  flagTypeChangeRefused(
+    8203,
+    'FLAG_TYPE_CHANGE_REFUSED',
+    'Flag type change refused',
+  ),
 
   /// Ingestion over quota.
   ingestionOverQuota(8300, 'INGESTION_OVER_QUOTA', 'Ingestion over quota'),
 
   /// Retention change scheduled.
-  retentionChangeScheduled(8301, 'RETENTION_CHANGE_SCHEDULED', 'Retention change scheduled'),
+  retentionChangeScheduled(
+    8301,
+    'RETENTION_CHANGE_SCHEDULED',
+    'Retention change scheduled',
+  ),
 
   /// Export destination unreachable.
-  exportDestinationUnreachable(8302, 'EXPORT_DESTINATION_UNREACHABLE', 'Export destination unreachable'),
+  exportDestinationUnreachable(
+    8302,
+    'EXPORT_DESTINATION_UNREACHABLE',
+    'Export destination unreachable',
+  ),
 
   /// Notification channel misconfigured.
-  channelMisconfigured(8400, 'CHANNEL_MISCONFIGURED', 'Notification channel misconfigured'),
+  channelMisconfigured(
+    8400,
+    'CHANNEL_MISCONFIGURED',
+    'Notification channel misconfigured',
+  ),
 
   /// Delivery failed after retries.
   deliveryFailed(8401, 'DELIVERY_FAILED', 'Delivery failed after retries'),
 
   /// SIEM destination unreachable.
-  siemDestinationUnreachable(8500, 'SIEM_DESTINATION_UNREACHABLE', 'SIEM destination unreachable'),
+  siemDestinationUnreachable(
+    8500,
+    'SIEM_DESTINATION_UNREACHABLE',
+    'SIEM destination unreachable',
+  ),
 
   /// Subject not found.
   subjectNotFound(8501, 'SUBJECT_NOT_FOUND', 'Subject not found'),
 
   /// Reconstruction data no longer retained.
-  reconstructionDataExpired(8502, 'RECONSTRUCTION_DATA_EXPIRED', 'Reconstruction data no longer retained'),
+  reconstructionDataExpired(
+    8502,
+    'RECONSTRUCTION_DATA_EXPIRED',
+    'Reconstruction data no longer retained',
+  ),
 
   /// Git remote refused.
   gitRemoteRefused(8503, 'GIT_REMOTE_REFUSED', 'Git remote refused'),
 
   /// Enterprise feature not licensed.
-  enterpriseFeatureNotLicensed(8600, 'ENTERPRISE_FEATURE_NOT_LICENSED', 'Enterprise feature not licensed'),
+  enterpriseFeatureNotLicensed(
+    8600,
+    'ENTERPRISE_FEATURE_NOT_LICENSED',
+    'Enterprise feature not licensed',
+  ),
 
   /// Licence invalid.
   licenseInvalid(8601, 'LICENSE_INVALID', 'Licence invalid'),
@@ -1283,10 +2263,18 @@ enum PluxErrorCode {
   licenseExpired(8602, 'LICENSE_EXPIRED', 'Licence expired'),
 
   /// Licence limit exceeded.
-  licenseLimitExceeded(8603, 'LICENSE_LIMIT_EXCEEDED', 'Licence limit exceeded'),
+  licenseLimitExceeded(
+    8603,
+    'LICENSE_LIMIT_EXCEEDED',
+    'Licence limit exceeded',
+  ),
 
   /// Invalid CLI configuration.
-  cliConfigurationInvalid(9100, 'CLI_CONFIGURATION_INVALID', 'Invalid CLI configuration'),
+  cliConfigurationInvalid(
+    9100,
+    'CLI_CONFIGURATION_INVALID',
+    'Invalid CLI configuration',
+  ),
 
   /// Project not found.
   projectNotFound(9101, 'PROJECT_NOT_FOUND', 'Project not found'),
@@ -1295,10 +2283,18 @@ enum PluxErrorCode {
   fileSystemError(9102, 'FILE_SYSTEM_ERROR', 'File system error'),
 
   /// Golden test harness failed.
-  goldenHarnessFailed(9300, 'GOLDEN_HARNESS_FAILED', 'Golden test harness failed'),
+  goldenHarnessFailed(
+    9300,
+    'GOLDEN_HARNESS_FAILED',
+    'Golden test harness failed',
+  ),
 
   /// Flutter SDK unavailable.
-  flutterSdkUnavailable(9301, 'FLUTTER_SDK_UNAVAILABLE', 'Flutter SDK unavailable');
+  flutterSdkUnavailable(
+    9301,
+    'FLUTTER_SDK_UNAVAILABLE',
+    'Flutter SDK unavailable',
+  );
 
   const PluxErrorCode(this.code, this.reason, this.title);
 

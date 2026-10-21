@@ -60,6 +60,11 @@ final class ControlPoller {
   /// foreground.
   bool get ticking => _ticking != null;
 
+  /// The check running now, or null when none is; completes when it has
+  /// finished. Lets a test wait for a timer-fired check without changing
+  /// how [checkNow] joins it.
+  Future<void>? get running => _running;
+
   /// The app is in the foreground: checks now and then every [interval].
   void resume() {
     if (_closed) return;
