@@ -24,8 +24,9 @@ regulated environments that cannot use a managed cloud. The cloud modules in
 ## Sizing
 
 Start from the chart's defaults and size from measurements, not from this page.
-The sizing guide (`DEP-051`, `NFR-023`, `NFR-040`) is produced by the load
-generator in `test/load` and is pending in phase P9.
+The [sizing guide](sizing.md) (`DEP-051`, `NFR-023`, `NFR-040`) gives roles,
+replicas and storage by device count and says how to measure your own numbers
+with `make load-test`.
 
 ## Networking
 
