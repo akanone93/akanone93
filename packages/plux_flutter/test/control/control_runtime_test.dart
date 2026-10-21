@@ -173,9 +173,11 @@ void main() {
   }
 
   /// Lets the sync isolate answer: its replies resume code in the test's
-  /// fake-async zone, which runs only when the tester pumps.
+  /// fake-async zone, which runs only when the tester pumps. The isolate
+  /// verifies a signed document in real time, which on a loaded machine
+  /// took longer than three seconds, so it may take up to twenty.
   Future<void> settle(WidgetTester tester, bool Function() done) async {
-    for (var i = 0; i < 300 && !done(); i++) {
+    for (var i = 0; i < 2000 && !done(); i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 10)),
       );
