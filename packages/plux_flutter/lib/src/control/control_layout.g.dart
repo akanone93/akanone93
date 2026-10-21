@@ -25,43 +25,11 @@ const List<TableLayout> controlLayouts = [
     FieldLayout('channel', 3, FieldKind.string, 0, 0, -1, required: true),
     FieldLayout('issued_at', 4, FieldKind.scalar, 8, 8, -1, required: false),
     FieldLayout('expires_at', 5, FieldKind.scalar, 8, 8, -1, required: false),
-    FieldLayout(
-      'kill_switches',
-      6,
-      FieldKind.vectorTable,
-      0,
-      0,
-      7,
-      required: false,
-    ),
-    FieldLayout(
-      'mandatory_update',
-      7,
-      FieldKind.table,
-      0,
-      0,
-      8,
-      required: false,
-    ),
-    FieldLayout(
-      'forced_rollback',
-      8,
-      FieldKind.table,
-      0,
-      0,
-      5,
-      required: false,
-    ),
+    FieldLayout('kill_switches', 6, FieldKind.vectorTable, 0, 0, 7, required: false),
+    FieldLayout('mandatory_update', 7, FieldKind.table, 0, 0, 8, required: false),
+    FieldLayout('forced_rollback', 8, FieldKind.table, 0, 0, 5, required: false),
     FieldLayout('flags', 9, FieldKind.vectorTable, 0, 0, 4, required: false),
-    FieldLayout(
-      'experiments',
-      10,
-      FieldKind.vectorTable,
-      0,
-      0,
-      2,
-      required: false,
-    ),
+    FieldLayout('experiments', 10, FieldKind.vectorTable, 0, 0, 2, required: false),
     FieldLayout('holdout', 11, FieldKind.table, 0, 0, 6, required: false),
   ]),
   // 2
@@ -94,15 +62,7 @@ const List<TableLayout> controlLayouts = [
   // 5
   TableLayout('ForcedRollback', [
     FieldLayout('release_id', 0, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout(
-      'release_sequence',
-      1,
-      FieldKind.scalar,
-      8,
-      8,
-      -1,
-      required: false,
-    ),
+    FieldLayout('release_sequence', 1, FieldKind.scalar, 8, 8, -1, required: false),
   ]),
   // 6
   TableLayout('GlobalHoldout', [
@@ -118,15 +78,7 @@ const List<TableLayout> controlLayouts = [
   // 8
   TableLayout('MandatoryUpdate', [
     FieldLayout('release_id', 0, FieldKind.string, 0, 0, -1, required: true),
-    FieldLayout(
-      'release_sequence',
-      1,
-      FieldKind.scalar,
-      8,
-      8,
-      -1,
-      required: false,
-    ),
+    FieldLayout('release_sequence', 1, FieldKind.scalar, 8, 8, -1, required: false),
     FieldLayout('message_key', 2, FieldKind.string, 0, 0, -1, required: false),
   ]),
   // 9

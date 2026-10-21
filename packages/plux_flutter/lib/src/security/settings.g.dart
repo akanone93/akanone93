@@ -10,27 +10,22 @@ library;
 enum SecurityProfile {
   /// The standard profile.
   standard,
-
   /// The strict profile.
   strict,
-
   /// The maximum profile.
-  maximum,
+  maximum;
 }
 
 /// Types of setting values.
 enum SecuritySettingType {
   /// A bool.
   boolean,
-
   /// A duration in seconds, an int.
   seconds,
-
   /// A count, an int.
   count,
-
   /// One of an ordered list of strings.
-  choice,
+  choice;
 }
 
 /// Every setting the device receives, with its default in each profile.
@@ -38,197 +33,58 @@ enum SecuritySettingType {
 enum SecuritySetting {
   /// Whether plugins may call data sources directly from the device instead of
   /// through the server.
-  allowDirectDataSources(
-    'allowDirectDataSources',
-    SecuritySettingType.boolean,
-    true,
-    true,
-    false,
-  ),
-
+  allowDirectDataSources('allowDirectDataSources', SecuritySettingType.boolean, true, true, false),
   /// Whether a device without a hardware-backed key may register with a
   /// software key.
-  allowSoftwareKeys(
-    'allowSoftwareKeys',
-    SecuritySettingType.boolean,
-    true,
-    false,
-    false,
-  ),
-
+  allowSoftwareKeys('allowSoftwareKeys', SecuritySettingType.boolean, true, false, false),
   /// Whether refreshing an Android access token requires a fresh Play Integrity
   /// verdict.
-  androidRefreshRequiresIntegrity(
-    'androidRefreshRequiresIntegrity',
-    SecuritySettingType.boolean,
-    false,
-    false,
-    false,
-  ),
-
+  androidRefreshRequiresIntegrity('androidRefreshRequiresIntegrity', SecuritySettingType.boolean, false, false, false),
   /// Whether Plux Functions placed on the device may run there; when false, the
   /// device refuses them and the app calls the server instead.
-  deviceFunctions(
-    'deviceFunctions',
-    SecuritySettingType.boolean,
-    true,
-    true,
-    false,
-  ),
-
+  deviceFunctions('deviceFunctions', SecuritySettingType.boolean, true, true, false),
   /// Whether the device encrypts its local databases and caches at rest.
-  encryptLocalStores(
-    'encryptLocalStores',
-    SecuritySettingType.boolean,
-    false,
-    true,
-    true,
-  ),
-
+  encryptLocalStores('encryptLocalStores', SecuritySettingType.boolean, false, true, true),
   /// Whether the app locks itself after a period of inactivity.
-  inactivityLock(
-    'inactivityLock',
-    SecuritySettingType.boolean,
-    false,
-    true,
-    true,
-  ),
-
+  inactivityLock('inactivityLock', SecuritySettingType.boolean, false, true, true),
   /// How long the app may sit idle before the inactivity lock engages.
-  inactivityLockTimeout(
-    'inactivityLockTimeout',
-    SecuritySettingType.seconds,
-    300,
-    300,
-    120,
-  ),
-
+  inactivityLockTimeout('inactivityLockTimeout', SecuritySettingType.seconds, 300, 300, 120),
   /// The lowest assurance level a device must hold to sync plugins.
-  minAssuranceForSync(
-    'minAssuranceForSync',
-    SecuritySettingType.choice,
-    'AL0',
-    'AL1',
-    'AL2',
-  ),
-
+  minAssuranceForSync('minAssuranceForSync', SecuritySettingType.choice, 'AL0', 'AL1', 'AL2'),
   /// Whether video and audio are downloaded through the pinned client to a
   /// temporary file before they play, because the platform players cannot pin
   /// certificates.
-  pinnedMediaOnly(
-    'pinnedMediaOnly',
-    SecuritySettingType.boolean,
-    false,
-    false,
-    true,
-  ),
-
+  pinnedMediaOnly('pinnedMediaOnly', SecuritySettingType.boolean, false, false, true),
   /// How the runtime responds when an accessibility service that can read the
   /// screen and perform gestures is enabled.
-  raspAccessibilityResponse(
-    'raspAccessibilityResponse',
-    SecuritySettingType.choice,
-    'report',
-    'warn',
-    'degrade',
-  ),
-
+  raspAccessibilityResponse('raspAccessibilityResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
   /// How the runtime responds when a debugger is attached.
-  raspDebuggerResponse(
-    'raspDebuggerResponse',
-    SecuritySettingType.choice,
-    'report',
-    'degrade',
-    'block',
-  ),
-
+  raspDebuggerResponse('raspDebuggerResponse', SecuritySettingType.choice, 'report', 'degrade', 'block'),
   /// How the runtime responds when it runs on an emulator or a simulator.
-  raspEmulatorResponse(
-    'raspEmulatorResponse',
-    SecuritySettingType.choice,
-    'report',
-    'warn',
-    'degrade',
-  ),
-
+  raspEmulatorResponse('raspEmulatorResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
   /// How the runtime responds when the app was not installed by a trusted
   /// store.
-  raspInstallerResponse(
-    'raspInstallerResponse',
-    SecuritySettingType.choice,
-    'report',
-    'warn',
-    'degrade',
-  ),
-
+  raspInstallerResponse('raspInstallerResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
   /// How the runtime responds when a touch arrives while another window covers
   /// the app.
-  raspOverlayResponse(
-    'raspOverlayResponse',
-    SecuritySettingType.choice,
-    'report',
-    'warn',
-    'degrade',
-  ),
-
+  raspOverlayResponse('raspOverlayResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
   /// How the runtime responds when the app is not signed as expected.
-  raspRepackagingResponse(
-    'raspRepackagingResponse',
-    SecuritySettingType.choice,
-    'report',
-    'degrade',
-    'block',
-  ),
-
+  raspRepackagingResponse('raspRepackagingResponse', SecuritySettingType.choice, 'report', 'degrade', 'block'),
   /// How the runtime responds when it detects a rooted or hooked device.
-  raspRootHookingResponse(
-    'raspRootHookingResponse',
-    SecuritySettingType.choice,
-    'report',
-    'degrade',
-    'block',
-  ),
-
+  raspRootHookingResponse('raspRootHookingResponse', SecuritySettingType.choice, 'report', 'degrade', 'block'),
   /// How often the runtime scans the device for hostile conditions.
   raspScanInterval('raspScanInterval', SecuritySettingType.seconds, 60, 60, 30),
-
   /// How the runtime responds when the screen is mirrored or recorded.
-  raspScreenCaptureResponse(
-    'raspScreenCaptureResponse',
-    SecuritySettingType.choice,
-    'report',
-    'warn',
-    'degrade',
-  ),
-
+  raspScreenCaptureResponse('raspScreenCaptureResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
   /// The interval after which a device must attest again to keep its assurance
   /// level.
-  reattestationInterval(
-    'reattestationInterval',
-    SecuritySettingType.seconds,
-    86400,
-    86400,
-    86400,
-  ),
-
+  reattestationInterval('reattestationInterval', SecuritySettingType.seconds, 86400, 86400, 86400),
   /// Whether every screen blocks screenshots and screen recording, as a secure
   /// page does. A page cannot opt out: protection is the default and only a
   /// configuration change lifts it.
-  screenshotBlockingDefault(
-    'screenshotBlockingDefault',
-    SecuritySettingType.boolean,
-    false,
-    false,
-    true,
-  );
+  screenshotBlockingDefault('screenshotBlockingDefault', SecuritySettingType.boolean, false, false, true);
 
-  const SecuritySetting(
-    this.key,
-    this.type,
-    this.standard,
-    this.strict,
-    this.maximum,
-  );
+  const SecuritySetting(this.key, this.type, this.standard, this.strict, this.maximum);
 
   /// The stable registry key.
   final String key;
