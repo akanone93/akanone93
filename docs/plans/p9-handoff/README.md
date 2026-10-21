@@ -124,7 +124,9 @@ This keeps the lead's output tokens tiny and the agents' shared prefix identical
 
 **Not verified:** `make check` (lint, coverage floors, govulncheck, reproducibility, REUSE over everything, spec lint after statuses); `-race` across the board; the full Flutter suite; `make e2e-starter`; any `kind`, drill, air-gapped or walkthrough run (no Docker here); OpenTofu `init/validate/test` (provider registry blocked here — CI only); CI on `feat/phase-9`.
 
-## 9. Open decisions for the maintainer (with the lead's recommendation)
+## 9. Decisions for the maintainer
+
+**2026-10-21: the maintainer accepted the recommendations of items 1–5.** To apply them (lead): note the SCIM session rule in ADR-0074; set the chart's `networkPolicy.externalHTTPS.enabled` default to `false`; add the IaC and air-gapped kind CI jobs (§7.2); add `skopeo` and `registry:2` rows to `dependencies.md`. Items 6–7 stay open.
 
 1. **SCIM deprovisioning and sessions** — deprovisioning revokes the person's tokens in the organisation at once and ends their sessions only when they belong to no other organisation (sessions are user-wide). ADR-0074 says "revokes sessions at once". *Recommend:* accept and note it in ADR-0074.
 2. **Chart egress default** — `networkPolicy.externalHTTPS.enabled` defaults to `true` (api and worker may reach any HTTPS host), which arguably conflicts with SEC-163 "by default no data leaves". *Recommend:* default `false`, enabled explicitly with the egress list; it is a security default, so it needs approval.
