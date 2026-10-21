@@ -105,6 +105,13 @@ type Config struct {
 	// X-Forwarded-For, for a server that trusts its proxy and rate-limits
 	// per address (SRV-065).
 	ForwardedFor bool
+	// InjectErrors makes every minute of use also report an error event, a
+	// synthetic regression that trips a rollout's health gate (REL-053).
+	InjectErrors bool
+	// ErrorRelease, when positive, limits InjectErrors to the devices whose
+	// manifest names this release, so that a candidate regresses while the
+	// release it replaces does not.
+	ErrorRelease int64
 	// Seed makes the jitter and the first offsets repeatable.
 	Seed uint64
 	// HTTP is the client for every call; nil uses a default one.

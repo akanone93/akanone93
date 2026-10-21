@@ -6,6 +6,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/nightCode42/plux3/backend/internal/loadgen"
@@ -33,6 +36,30 @@ func TestRunPrintsTheReport_DEP_051(t *testing.T) {
 	}
 	if report.Operations[loadgen.OpControl].Requests < 3 || report.Operations[loadgen.OpFunction].Requests == 0 {
 		t.Errorf("operations = %+v", report.Operations)
+	}
+}
+
+// Verifies: DEP-051.
+// -device-ids-file lists the registered devices, one ID per line, so that an
+// audit script can name a device of the run.
+func TestRunWritesDeviceIDs_DEP_051(t *testing.T) {
+	t.Parallel()
+	srv := loadgentest.New(t)
+	file := filepath.Join(t.TempDir(), "ids.txt")
+	var stdout, stderr bytes.Buffer
+	code := run(t.Context(), []string{"-server", srv.URL, "-app", "app", "-devices", "3", "-duration", "300ms", "-speedup", "600", "-device-ids-file", file}, &stdout, &stderr)
+	if code != exitOK {
+		t.Fatalf("exit %d: %s", code, stderr.String())
+	}
+	data, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if lines := strings.Fields(string(data)); len(lines) != 3 {
+		t.Errorf("device IDs = %q, want three", data)
+	}
+	if code := run(t.Context(), []string{"-server", srv.URL, "-app", "app", "-devices", "1", "-duration", "100ms", "-device-ids-file", t.TempDir()}, &stdout, &stderr); code != exitFailed {
+		t.Errorf("an unwritable file: exit %d, want %d", code, exitFailed)
 	}
 }
 
