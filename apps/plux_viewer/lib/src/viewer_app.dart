@@ -9,6 +9,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:plux_flutter/plux_flutter.dart' show PluxPublicKey;
 import 'package:plux_viewer/src/api.dart';
 import 'package:plux_viewer/src/controller.dart';
 import 'package:plux_viewer/src/link.dart';
@@ -59,20 +60,25 @@ final class ViewerLinks with WidgetsBindingObserver {
 
 /// The viewer host.
 final class ViewerApp extends StatefulWidget {
-  /// Creates the app over [controller]. [opener] builds the opener for a
-  /// session; tests replace it.
+  /// Creates the app over [controller], which trusts the root keys
+  /// [rootKeys] pinned at build time and opens nothing without them.
+  /// [openerFor] builds the opener for a session; tests replace it.
   const ViewerApp({
     super.key,
     required this.controller,
-    this.openerFor = _openerFor,
+    required this.rootKeys,
+    this.openerFor,
     this.apiFactory,
   });
 
   /// The viewer's state.
   final ViewerController controller;
 
-  /// Builds the opener of a signed-in client.
-  final ReconstructionOpener Function(ViewerApi api) openerFor;
+  /// The root keys the viewer was built with (SEC-051).
+  final List<PluxPublicKey> rootKeys;
+
+  /// Builds the opener of a signed-in client, or null for the default.
+  final ReconstructionOpener Function(ViewerApi api)? openerFor;
 
   /// Creates the client sign-in uses, or null for the default.
   final ApiFactory? apiFactory;
@@ -80,8 +86,6 @@ final class ViewerApp extends StatefulWidget {
   @override
   State<ViewerApp> createState() => _ViewerAppState();
 }
-
-ReconstructionOpener _openerFor(ViewerApi api) => ReconstructionOpener(api);
 
 final class _ViewerAppState extends State<ViewerApp> {
   final GlobalKey<NavigatorState> _navigator = GlobalKey<NavigatorState>();
@@ -103,6 +107,10 @@ final class _ViewerAppState extends State<ViewerApp> {
     super.dispose();
   }
 
+  ReconstructionOpener _newOpener(ViewerApi api) =>
+      widget.openerFor?.call(api) ??
+      ReconstructionOpener(api, rootKeys: widget.rootKeys);
+
   void _changed() {
     final controller = widget.controller;
     if (controller.hasRejection) {
@@ -117,7 +125,7 @@ final class _ViewerAppState extends State<ViewerApp> {
     }
     final link = controller.takeLink();
     if (link != null && session != null) {
-      final opener = _opener ??= widget.openerFor(session.api());
+      final opener = _opener ??= _newOpener(session.api());
       _navigator.currentState
         ?..popUntil((route) => route.isFirst)
         ..push(_route(link.id, opener));
@@ -149,7 +157,7 @@ final class _ViewerAppState extends State<ViewerApp> {
       key: ValueKey(session.server),
       api: session.api(),
       onOpen: (item) {
-        final opener = _opener ??= widget.openerFor(session.api());
+        final opener = _opener ??= _newOpener(session.api());
         unawaited(_navigator.currentState!.push(_route(item.id, opener)));
       },
       onSignOut: controller.signOut,

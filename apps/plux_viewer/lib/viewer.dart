@@ -13,5 +13,6 @@ export 'src/link.dart';
 export 'src/list_screen.dart';
 export 'src/opener.dart';
 export 'src/reconstruction_screen.dart';
+export 'src/root_keys.dart';
 export 'src/sign_in_screen.dart';
 export 'src/viewer_app.dart';

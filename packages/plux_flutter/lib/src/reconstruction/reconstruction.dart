@@ -47,9 +47,10 @@ final class PluxReconstructionBundle {
 /// and the viewer host downloads it: nothing in it is trusted until the
 /// runtime has verified it (SEC-052).
 ///
-/// Pass it as `PluxConfig.reconstruction`, together with the environment's
-/// `targets` keys as `PluxConfig.rootKeys`, to run the runtime in
-/// reconstruction mode.
+/// Pass it as `PluxConfig.reconstruction`, together with the root keys the
+/// host pinned at build time as `PluxConfig.rootKeys`, to run the runtime in
+/// reconstruction mode. The runtime walks [roots] from those keys to the
+/// `targets` keys, as a sync does, and verifies the manifest under them.
 final class PluxReconstruction {
   /// Creates a reconstruction release.
   const PluxReconstruction({
@@ -57,6 +58,7 @@ final class PluxReconstruction {
     required this.manifest,
     required this.signatures,
     required this.bundles,
+    required this.roots,
   });
 
   /// The release's identifier.
@@ -71,6 +73,11 @@ final class PluxReconstruction {
 
   /// The bundles the manifest names, in any order.
   final List<PluxReconstructionBundle> bundles;
+
+  /// The signed root files after the pinned root, oldest first, as
+  /// `ManifestService/GetRootKeys` returns them (SEC-051); empty while the
+  /// pinned keys are the environment's current ones.
+  final List<Uint8List> roots;
 }
 
 /// The moment a verified reconstruction manifest describes: what the

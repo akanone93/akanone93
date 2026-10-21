@@ -736,6 +736,7 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
               reconstruction: release,
               store: store,
               keys: config.sync.keys,
+              now: DateTime.now(),
               appId: config.sync.appId,
               environment: config.sync.environment,
               limits: config.sync.verifierLimits,

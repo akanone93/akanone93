@@ -117,31 +117,41 @@ void main() {
       ]);
     });
 
-    test('asks for the environment keys and keeps the targets keys', () async {
-      routes['/plux.v1.ManifestService/GetRootKeys'] = (b) {
-        expect(b['appId'], 'app_1');
-        expect(b['environment'], 'production');
-        return json({
-          'keys': [
-            for (final role in ['targets', 'root', 'targets'])
+    test(
+      'asks for the root chain after the pinned root and keeps only '
+      'the signed root files, not the keys the server lists [SEC-142]',
+      () async {
+        routes['/plux.v1.ManifestService/GetRootKeys'] = (b) {
+          expect(b['appId'], 'app_1');
+          expect(b['environment'], 'production');
+          expect(b['sinceRootVersion'], '$pinnedRootVersion');
+          return json({
+            'keys': [
               {
-                'keyId': 'k-$role',
-                'algorithm': role == 'root' ? 'ed25519' : 'ed25519',
-                'role': role,
+                'keyId': 'k-targets',
+                'algorithm': 'ed25519',
+                'role': 'targets',
                 'publicKey': base64.encode(Uint8List(32)),
               },
-            {
-              'keyId': 'old',
-              'algorithm': 'rsa',
-              'role': 'targets',
-              'publicKey': '',
-            },
-          ],
-        });
-      };
-      final keys = await api().targetKeys('app_1', 'production');
-      expect(keys.map((k) => k.keyId), ['k-targets', 'k-targets']);
-      expect(keys.every((k) => k.role == 'targets'), isTrue);
+            ],
+            'roots': [
+              base64.encode([1, 2]),
+              base64.encode([3]),
+            ],
+          });
+        };
+        final roots = await api().rootChain('app_1', 'production');
+        expect(roots, [
+          [1, 2],
+          [3],
+        ]);
+      },
+    );
+
+    test('has no chain to offer when the server lists no roots', () async {
+      routes['/plux.v1.ManifestService/GetRootKeys'] = (_) =>
+          json({'keys': <Object?>[]});
+      expect(await api().rootChain('app_1', 'production'), isEmpty);
     });
 
     test('maps an error response to its message', () async {

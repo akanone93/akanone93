@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// Opens a reconstruction release in the runtime's reconstruction mode
-/// (SEC-142, ADR-0082): fetch the release, fetch the environment's keys,
-/// download the bundles, and hand all of it to `Plux.initialize`, which
-/// verifies the manifest's signature and every bundle before it loads
-/// anything (SEC-052). The viewer trusts none of what it downloads.
+/// (SEC-142, ADR-0082): fetch the release, fetch the environment's root
+/// chain, download the bundles, and hand all of it, with the root keys the
+/// viewer was built with, to `Plux.initialize`. The runtime walks the chain
+/// from those keys to the `targets` keys (SEC-051), verifies the manifest's
+/// signature and every bundle before it loads anything (SEC-052). The viewer
+/// trusts none of what it downloads, and opens nothing without pinned keys.
 library;
 
 import 'dart:convert';
@@ -32,6 +34,12 @@ Future<String?> startRuntime(PluxConfig config) async {
       : 'The reconstruction was refused: ${error.code.id} ${error.message}';
 }
 
+/// Why a viewer built without root keys opens nothing.
+const String noRootKeysMessage =
+    'This build of the viewer pins no root keys, so it cannot tell a genuine '
+    'reconstruction from a forged one. Build it with '
+    '--dart-define=PLUX_VIEWER_ROOT_KEYS=<keys.json>.';
+
 /// Why a reconstruction could not be opened.
 final class OpenException implements Exception {
   /// Creates the exception with [message] for the auditor.
@@ -52,9 +60,12 @@ http.Client viewerHttpClient() => http.Client();
 
 /// Opens reconstructions through [api].
 final class ReconstructionOpener {
-  /// Creates an opener. [start] and [stop] default to the runtime's.
+  /// Creates an opener that trusts the root keys [rootKeys], pinned at
+  /// build time, and none other; with none it opens nothing. [start] and
+  /// [stop] default to the runtime's.
   ReconstructionOpener(
     this.api, {
+    required this.rootKeys,
     RuntimeStarter? start,
     Future<void> Function()? stop,
   }) : _start = start ?? startRuntime,
@@ -62,6 +73,9 @@ final class ReconstructionOpener {
 
   /// The signed-in client.
   final ViewerApi api;
+
+  /// The root keys the viewer was built with (SEC-051).
+  final List<PluxPublicKey> rootKeys;
 
   final RuntimeStarter _start;
   final Future<void> Function() _stop;
@@ -84,13 +98,14 @@ final class ReconstructionOpener {
     void Function(String step) progress = _ignore,
     bool Function() cancelled = _never,
   }) async {
+    if (rootKeys.isEmpty) throw const OpenException(noRootKeysMessage);
     await _stopping;
     if (Plux.isInitialized) await close();
     progress('Fetching the reconstruction');
     final release = await _fetch(id);
     final target = _target(release);
     progress('Fetching the environment keys');
-    final keys = await _keys(target);
+    final roots = await _roots(target);
     progress('Downloading ${release.bundles.length} bundles');
     final bundles = <PluxReconstructionBundle>[];
     for (final b in release.bundles) {
@@ -106,7 +121,7 @@ final class ReconstructionOpener {
         endpoint: api.server,
         environment: target.environment,
         channel: 'audit',
-        rootKeys: keys,
+        rootKeys: rootKeys,
         baseline: null,
         hostBuild: 'plux-viewer',
         httpClient: viewerHttpClient,
@@ -116,6 +131,7 @@ final class ReconstructionOpener {
           manifest: release.manifest,
           signatures: release.signatures,
           bundles: bundles,
+          roots: roots,
         ),
       ),
     );
@@ -145,19 +161,12 @@ final class ReconstructionOpener {
     return release;
   }
 
-  Future<List<PluxPublicKey>> _keys(
-    ({String app, String environment}) t,
-  ) async {
-    final List<PluxPublicKey> keys;
+  Future<List<Uint8List>> _roots(({String app, String environment}) t) async {
     try {
-      keys = await api.targetKeys(t.app, t.environment);
+      return await api.rootChain(t.app, t.environment);
     } on ViewerApiException catch (e) {
       throw OpenException(_describe(e));
     }
-    if (keys.isEmpty) {
-      throw const OpenException('The server offers no key to verify it with.');
-    }
-    return keys;
   }
 
   Future<Uint8List> _download(BundleInfo b) async {
@@ -169,7 +178,7 @@ final class ReconstructionOpener {
   }
 
   /// The app and environment the manifest names, read only to know which
-  /// keys to ask for. Nothing else of the unverified manifest is used: the
+  /// root chain to ask for. Nothing else of the unverified manifest is used: the
   /// runtime verifies the signature before it reads any other field.
   static ({String app, String environment}) _target(
     ReconstructionRelease release,

@@ -472,9 +472,11 @@ final class PluxConfig {
 
   /// A reconstruction release to show instead of the app's own content
   /// (SEC-142, ADR-0082): the runtime runs in reconstruction mode, as the
-  /// viewer host uses it. [rootKeys] must hold the environment's `targets`
-  /// keys, and [appId], [environment] and [endpoint] name the reconstructed
-  /// app, its environment and the server.
+  /// viewer host uses it. [rootKeys] must hold the root keys the host
+  /// pinned at build time, from which the runtime walks the release's signed
+  /// root chain to the `targets` keys it verifies the manifest with
+  /// (SEC-051); with none the release is refused. [appId], [environment] and
+  /// [endpoint] name the reconstructed app, its environment and the server.
   ///
   /// The release is verified like any other, before anything in it is
   /// parsed (SEC-052), and installed into a store of its own, which is

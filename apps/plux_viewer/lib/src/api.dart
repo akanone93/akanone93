@@ -14,12 +14,13 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/plux_flutter.dart';
-// The registry's bound on a bundle, which no public API carries.
-// ignore: implementation_imports
-import 'package:plux_flutter/src/schema/limits.g.dart' show PluxLimit;
 
 /// The client name the viewer gives the server when it asks for a token.
 const String viewerClientName = 'plux-viewer';
+
+/// The version of the root the runtime makes of pinned keys, so the version
+/// whose successors `GetRootKeys` is asked for (SEC-051).
+const int pinnedRootVersion = 1;
 
 /// The permissions the viewer's token asks for, and no more: opening
 /// reconstructions and reading the apps and keys they belong to.
@@ -299,27 +300,18 @@ final class ViewerApi {
     );
   }
 
-  /// The `targets` keys of an environment, which the runtime verifies a
-  /// reconstruction with (SEC-051).
-  Future<List<PluxPublicKey>> targetKeys(
-    String appId,
-    String environment,
-  ) async {
+  /// The signed root files of an environment after the root the runtime
+  /// makes of the viewer's pinned keys, oldest first. They are untrusted
+  /// until the runtime has walked them from the pinned keys (SEC-051): the
+  /// server cannot make the viewer trust a key by listing it.
+  Future<List<Uint8List>> rootChain(String appId, String environment) async {
     final r = await _call('plux.v1.ManifestService/GetRootKeys', {
       'appId': appId,
       'environment': environment,
-      'sinceRootVersion': '0',
+      'sinceRootVersion': '$pinnedRootVersion',
     });
     return [
-      for (final k in _list(r['keys']))
-        if (_string(k['role']) == 'targets' &&
-            _string(k['algorithm']) == 'ed25519')
-          PluxPublicKey(
-            keyId: _string(k['keyId']),
-            algorithm: _string(k['algorithm']),
-            role: 'targets',
-            publicKey: _bytes(k['publicKey']),
-          ),
+      for (final root in r['roots'] as List<Object?>? ?? const []) _bytes(root),
     ];
   }
 
