@@ -32,10 +32,12 @@ var registeredConstructors = []string{"Client", "Transport"}
 // build the client for it, or add the file here with its reason.
 var notEgress = map[string]string{
 	"cmd/plux/remote.go":              "the CLI talks to the server its user names, from the user's machine",
+	"cmd/plux-load/main.go":           "the load generator drives the operator's own server from a benchmark machine; not part of the server",
 	"internal/auditexport/sinks.go":   "wraps the transport built for httpx.KindAuditExport",
 	"internal/cache/sentinel.go":      "the operator's cache; infrastructure, listed as not egress",
 	"internal/cache/valkey.go":        "the operator's cache; infrastructure, listed as not egress",
 	"internal/document/scan.go":       "the operator's malware scanner; infrastructure, listed as not egress",
+	"internal/loadgen/config.go":      "the load generator's default client for the operator's own server; not part of the server",
 	"internal/egress/client.go":       "the function runner's tunnel to its egress proxy (httpx.KindFunctionEgress)",
 	"internal/egress/server.go":       "the egress proxy itself: its upstream is httpx.KindFunctionEgress (FN-013)",
 	"internal/fnrunner/host.go":       "function HTTP calls leave through the egress proxy (httpx.KindFunctionEgress)",
