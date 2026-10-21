@@ -95,6 +95,7 @@ var sharedCodecs = sync.OnceValues(func() (*media.Codecs, error) { return media.
 type fixture struct {
 	db      *storage.DB
 	tenancy *tenancy.Service
+	auth    *auth.Service
 	docs    *document.Service
 	rel     *release.Service
 	sec     *seccfg.Service
@@ -153,6 +154,7 @@ func newFixtureWith(t *testing.T, name string, securityLimits limits.Set, tweak 
 	if err != nil {
 		t.Fatal(err)
 	}
+	f.auth = authService
 	if f.tenancy, err = tenancy.NewService(tenancy.Options{DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, SigningKeyPrefix: "targets", Now: clock}); err != nil {
 		t.Fatal(err)
 	}

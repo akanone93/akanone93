@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/notify"
@@ -56,6 +57,9 @@ type Options struct {
 	// deviceFunctions (FN-055); nil reads it as false, the deny-by-default
 	// answer (SEC-080).
 	DeviceFunctions func(ctx context.Context, appID, environmentID string) (bool, error)
+	// Approvals decides whether a function may be deployed, promoted or
+	// re-pointed (FN-007, GOV-020); nil requires nothing.
+	Approvals approval.Gate
 	// Linker links the device functions of a plugin into one module on the
 	// builder role; the worker role sets it. Nil refuses to link, and a
 	// module that was linked before is still read from the cache (FN-051).

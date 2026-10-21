@@ -193,6 +193,22 @@ const (
 	DataSubjectErased   Action = "dsr.erased"
 )
 
+// The actions of the approval engine (GOV-020 to GOV-023, ADR-0076).
+const (
+	// ApprovalPolicySet and ApprovalPolicyDeleted: a policy document was
+	// written as a new version or withdrawn.
+	ApprovalPolicySet     Action = "approval.policy_set"
+	ApprovalPolicyDeleted Action = "approval.policy_deleted"
+	// ApprovalRequested: a refused change opened a request for approval.
+	ApprovalRequested Action = "approval.requested"
+	// ApprovalApproved and ApprovalRejected: a decision on a request. Each
+	// is the signed record of the decision (GOV-023).
+	ApprovalApproved Action = "approval.approved"
+	ApprovalRejected Action = "approval.rejected"
+	// ApprovalUsed: an approved request was spent by the change it approved.
+	ApprovalUsed Action = "approval.used"
+)
+
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
 const (
 	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
@@ -327,6 +343,7 @@ var actions = sorted(
 	ScimTokenCreated, ScimTokenRotated, ScimTokenRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
 	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
 	DataSubjectExported, DataSubjectErased,
+	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
 )
 
 // sorted returns its arguments in order.

@@ -1321,6 +1321,1643 @@ func (*DeleteGrantResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_governance_proto_rawDescGZIP(), []int{22}
 }
 
+// PolicyRecord is one version of a policy document.
+type PolicyRecord struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	AppId   string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Key     string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Version int32                  `protobuf:"varint,3,opt,name=version,proto3" json:"version,omitempty"`
+	// document is the policy document as JSON.
+	Document []byte `protobuf:"bytes,4,opt,name=document,proto3" json:"document,omitempty"`
+	// document_hash is the SHA-256 of the canonical document, in hex: what
+	// an approval of a policy change binds to.
+	DocumentHash  string                 `protobuf:"bytes,5,opt,name=document_hash,json=documentHash,proto3" json:"document_hash,omitempty"`
+	Deleted       bool                   `protobuf:"varint,6,opt,name=deleted,proto3" json:"deleted,omitempty"`
+	CreatedBy     string                 `protobuf:"bytes,7,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PolicyRecord) Reset() {
+	*x = PolicyRecord{}
+	mi := &file_plux_v1_governance_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PolicyRecord) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PolicyRecord) ProtoMessage() {}
+
+func (x *PolicyRecord) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PolicyRecord.ProtoReflect.Descriptor instead.
+func (*PolicyRecord) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *PolicyRecord) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *PolicyRecord) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *PolicyRecord) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *PolicyRecord) GetDocument() []byte {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+func (x *PolicyRecord) GetDocumentHash() string {
+	if x != nil {
+		return x.DocumentHash
+	}
+	return ""
+}
+
+func (x *PolicyRecord) GetDeleted() bool {
+	if x != nil {
+		return x.Deleted
+	}
+	return false
+}
+
+func (x *PolicyRecord) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *PolicyRecord) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type PutPolicyRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	// document is the policy document as JSON.
+	Document      []byte `protobuf:"bytes,2,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PutPolicyRequest) Reset() {
+	*x = PutPolicyRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PutPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PutPolicyRequest) ProtoMessage() {}
+
+func (x *PutPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PutPolicyRequest.ProtoReflect.Descriptor instead.
+func (*PutPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *PutPolicyRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *PutPolicyRequest) GetDocument() []byte {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type PutPolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policy        *PolicyRecord          `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PutPolicyResponse) Reset() {
+	*x = PutPolicyResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PutPolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PutPolicyResponse) ProtoMessage() {}
+
+func (x *PutPolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PutPolicyResponse.ProtoReflect.Descriptor instead.
+func (*PutPolicyResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *PutPolicyResponse) GetPolicy() *PolicyRecord {
+	if x != nil {
+		return x.Policy
+	}
+	return nil
+}
+
+type GetPolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPolicyRequest) Reset() {
+	*x = GetPolicyRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPolicyRequest) ProtoMessage() {}
+
+func (x *GetPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPolicyRequest.ProtoReflect.Descriptor instead.
+func (*GetPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *GetPolicyRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetPolicyRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type GetPolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policy        *PolicyRecord          `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPolicyResponse) Reset() {
+	*x = GetPolicyResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPolicyResponse) ProtoMessage() {}
+
+func (x *GetPolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPolicyResponse.ProtoReflect.Descriptor instead.
+func (*GetPolicyResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *GetPolicyResponse) GetPolicy() *PolicyRecord {
+	if x != nil {
+		return x.Policy
+	}
+	return nil
+}
+
+type ListPoliciesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPoliciesRequest) Reset() {
+	*x = ListPoliciesRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPoliciesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPoliciesRequest) ProtoMessage() {}
+
+func (x *ListPoliciesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPoliciesRequest.ProtoReflect.Descriptor instead.
+func (*ListPoliciesRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ListPoliciesRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+type ListPoliciesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policies      []*PolicyRecord        `protobuf:"bytes,1,rep,name=policies,proto3" json:"policies,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPoliciesResponse) Reset() {
+	*x = ListPoliciesResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPoliciesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPoliciesResponse) ProtoMessage() {}
+
+func (x *ListPoliciesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPoliciesResponse.ProtoReflect.Descriptor instead.
+func (*ListPoliciesResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *ListPoliciesResponse) GetPolicies() []*PolicyRecord {
+	if x != nil {
+		return x.Policies
+	}
+	return nil
+}
+
+type DeletePolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePolicyRequest) Reset() {
+	*x = DeletePolicyRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePolicyRequest) ProtoMessage() {}
+
+func (x *DeletePolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePolicyRequest.ProtoReflect.Descriptor instead.
+func (*DeletePolicyRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *DeletePolicyRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *DeletePolicyRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type DeletePolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePolicyResponse) Reset() {
+	*x = DeletePolicyResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePolicyResponse) ProtoMessage() {}
+
+func (x *DeletePolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePolicyResponse.ProtoReflect.Descriptor instead.
+func (*DeletePolicyResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{31}
+}
+
+// PolicyFile is one file of an export.
+type PolicyFile struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Content       []byte                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PolicyFile) Reset() {
+	*x = PolicyFile{}
+	mi := &file_plux_v1_governance_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PolicyFile) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PolicyFile) ProtoMessage() {}
+
+func (x *PolicyFile) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PolicyFile.ProtoReflect.Descriptor instead.
+func (*PolicyFile) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *PolicyFile) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *PolicyFile) GetContent() []byte {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+type ExportPoliciesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportPoliciesRequest) Reset() {
+	*x = ExportPoliciesRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportPoliciesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportPoliciesRequest) ProtoMessage() {}
+
+func (x *ExportPoliciesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportPoliciesRequest.ProtoReflect.Descriptor instead.
+func (*ExportPoliciesRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *ExportPoliciesRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+type ExportPoliciesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Files         []*PolicyFile          `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportPoliciesResponse) Reset() {
+	*x = ExportPoliciesResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportPoliciesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportPoliciesResponse) ProtoMessage() {}
+
+func (x *ExportPoliciesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportPoliciesResponse.ProtoReflect.Descriptor instead.
+func (*ExportPoliciesResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *ExportPoliciesResponse) GetFiles() []*PolicyFile {
+	if x != nil {
+		return x.Files
+	}
+	return nil
+}
+
+// ApprovalDecision is one signed record of a decision (GOV-023).
+type ApprovalDecision struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	DeciderId string                 `protobuf:"bytes,2,opt,name=decider_id,json=deciderId,proto3" json:"decider_id,omitempty"`
+	Decider   string                 `protobuf:"bytes,3,opt,name=decider,proto3" json:"decider,omitempty"`
+	// decision is "approve" or "reject".
+	Decision    string                 `protobuf:"bytes,4,opt,name=decision,proto3" json:"decision,omitempty"`
+	Comment     string                 `protobuf:"bytes,5,opt,name=comment,proto3" json:"comment,omitempty"`
+	ContentHash string                 `protobuf:"bytes,6,opt,name=content_hash,json=contentHash,proto3" json:"content_hash,omitempty"`
+	DecidedAt   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=decided_at,json=decidedAt,proto3" json:"decided_at,omitempty"`
+	// payload is the canonical record the signature covers.
+	Payload []byte `protobuf:"bytes,8,opt,name=payload,proto3" json:"payload,omitempty"`
+	// key_id and signature are empty until the worker has signed the record.
+	KeyId         string `protobuf:"bytes,9,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
+	Signature     []byte `protobuf:"bytes,10,opt,name=signature,proto3" json:"signature,omitempty"`
+	AuditSequence int64  `protobuf:"varint,11,opt,name=audit_sequence,json=auditSequence,proto3" json:"audit_sequence,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ApprovalDecision) Reset() {
+	*x = ApprovalDecision{}
+	mi := &file_plux_v1_governance_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApprovalDecision) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApprovalDecision) ProtoMessage() {}
+
+func (x *ApprovalDecision) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApprovalDecision.ProtoReflect.Descriptor instead.
+func (*ApprovalDecision) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *ApprovalDecision) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ApprovalDecision) GetDeciderId() string {
+	if x != nil {
+		return x.DeciderId
+	}
+	return ""
+}
+
+func (x *ApprovalDecision) GetDecider() string {
+	if x != nil {
+		return x.Decider
+	}
+	return ""
+}
+
+func (x *ApprovalDecision) GetDecision() string {
+	if x != nil {
+		return x.Decision
+	}
+	return ""
+}
+
+func (x *ApprovalDecision) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+func (x *ApprovalDecision) GetContentHash() string {
+	if x != nil {
+		return x.ContentHash
+	}
+	return ""
+}
+
+func (x *ApprovalDecision) GetDecidedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DecidedAt
+	}
+	return nil
+}
+
+func (x *ApprovalDecision) GetPayload() []byte {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *ApprovalDecision) GetKeyId() string {
+	if x != nil {
+		return x.KeyId
+	}
+	return ""
+}
+
+func (x *ApprovalDecision) GetSignature() []byte {
+	if x != nil {
+		return x.Signature
+	}
+	return nil
+}
+
+func (x *ApprovalDecision) GetAuditSequence() int64 {
+	if x != nil {
+		return x.AuditSequence
+	}
+	return 0
+}
+
+// ApprovalRequest asks for the approval of one artifact.
+type ApprovalRequest struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AppId       string                 `protobuf:"bytes,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Environment string                 `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
+	// resource is the kind of artifact, as in the policy schema.
+	Resource string `protobuf:"bytes,4,opt,name=resource,proto3" json:"resource,omitempty"`
+	Action   string `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
+	// subject names what changes, for example "release:12".
+	Subject string `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`
+	// content_hash is what an approval is bound to (GOV-022), in hex.
+	ContentHash string   `protobuf:"bytes,7,opt,name=content_hash,json=contentHash,proto3" json:"content_hash,omitempty"`
+	Summary     string   `protobuf:"bytes,8,opt,name=summary,proto3" json:"summary,omitempty"`
+	Risk        []string `protobuf:"bytes,9,rep,name=risk,proto3" json:"risk,omitempty"`
+	// status is "open", "approved", "rejected", "expired", "superseded" or
+	// "used".
+	Status      string   `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	RequestedBy string   `protobuf:"bytes,11,opt,name=requested_by,json=requestedBy,proto3" json:"requested_by,omitempty"`
+	PolicyKeys  []string `protobuf:"bytes,12,rep,name=policy_keys,json=policyKeys,proto3" json:"policy_keys,omitempty"`
+	// approvals_required is the most approvals any matching policy asks for.
+	ApprovalsRequired int32                  `protobuf:"varint,13,opt,name=approvals_required,json=approvalsRequired,proto3" json:"approvals_required,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ExpiresAt         *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	Decisions         []*ApprovalDecision    `protobuf:"bytes,16,rep,name=decisions,proto3" json:"decisions,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ApprovalRequest) Reset() {
+	*x = ApprovalRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApprovalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApprovalRequest) ProtoMessage() {}
+
+func (x *ApprovalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApprovalRequest.ProtoReflect.Descriptor instead.
+func (*ApprovalRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *ApprovalRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetContentHash() string {
+	if x != nil {
+		return x.ContentHash
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetRisk() []string {
+	if x != nil {
+		return x.Risk
+	}
+	return nil
+}
+
+func (x *ApprovalRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetRequestedBy() string {
+	if x != nil {
+		return x.RequestedBy
+	}
+	return ""
+}
+
+func (x *ApprovalRequest) GetPolicyKeys() []string {
+	if x != nil {
+		return x.PolicyKeys
+	}
+	return nil
+}
+
+func (x *ApprovalRequest) GetApprovalsRequired() int32 {
+	if x != nil {
+		return x.ApprovalsRequired
+	}
+	return 0
+}
+
+func (x *ApprovalRequest) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ApprovalRequest) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *ApprovalRequest) GetDecisions() []*ApprovalDecision {
+	if x != nil {
+		return x.Decisions
+	}
+	return nil
+}
+
+type ListApprovalsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	// status narrows the list when set.
+	Status        string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Page          *Page  `protobuf:"bytes,3,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListApprovalsRequest) Reset() {
+	*x = ListApprovalsRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListApprovalsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListApprovalsRequest) ProtoMessage() {}
+
+func (x *ListApprovalsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListApprovalsRequest.ProtoReflect.Descriptor instead.
+func (*ListApprovalsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *ListApprovalsRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ListApprovalsRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListApprovalsRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ListApprovalsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Approvals     []*ApprovalRequest     `protobuf:"bytes,1,rep,name=approvals,proto3" json:"approvals,omitempty"`
+	Page          *PageResult            `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListApprovalsResponse) Reset() {
+	*x = ListApprovalsResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListApprovalsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListApprovalsResponse) ProtoMessage() {}
+
+func (x *ListApprovalsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListApprovalsResponse.ProtoReflect.Descriptor instead.
+func (*ListApprovalsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *ListApprovalsResponse) GetApprovals() []*ApprovalRequest {
+	if x != nil {
+		return x.Approvals
+	}
+	return nil
+}
+
+func (x *ListApprovalsResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type GetApprovalRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetApprovalRequest) Reset() {
+	*x = GetApprovalRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetApprovalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetApprovalRequest) ProtoMessage() {}
+
+func (x *GetApprovalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetApprovalRequest.ProtoReflect.Descriptor instead.
+func (*GetApprovalRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *GetApprovalRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetApprovalRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetApprovalResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Approval      *ApprovalRequest       `protobuf:"bytes,1,opt,name=approval,proto3" json:"approval,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetApprovalResponse) Reset() {
+	*x = GetApprovalResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetApprovalResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetApprovalResponse) ProtoMessage() {}
+
+func (x *GetApprovalResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetApprovalResponse.ProtoReflect.Descriptor instead.
+func (*GetApprovalResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *GetApprovalResponse) GetApproval() *ApprovalRequest {
+	if x != nil {
+		return x.Approval
+	}
+	return nil
+}
+
+type GetApprovalReviewRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetApprovalReviewRequest) Reset() {
+	*x = GetApprovalReviewRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetApprovalReviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetApprovalReviewRequest) ProtoMessage() {}
+
+func (x *GetApprovalReviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetApprovalReviewRequest.ProtoReflect.Descriptor instead.
+func (*GetApprovalReviewRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *GetApprovalReviewRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetApprovalReviewRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// ReviewImage is a golden-image difference: the approved baseline and the
+// image the run produced, as PNG. The baseline is empty for a case that
+// has none yet.
+type ReviewImage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PluginKey     string                 `protobuf:"bytes,1,opt,name=plugin_key,json=pluginKey,proto3" json:"plugin_key,omitempty"`
+	CaseId        string                 `protobuf:"bytes,2,opt,name=case_id,json=caseId,proto3" json:"case_id,omitempty"`
+	Baseline      []byte                 `protobuf:"bytes,3,opt,name=baseline,proto3" json:"baseline,omitempty"`
+	Actual        []byte                 `protobuf:"bytes,4,opt,name=actual,proto3" json:"actual,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewImage) Reset() {
+	*x = ReviewImage{}
+	mi := &file_plux_v1_governance_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewImage) ProtoMessage() {}
+
+func (x *ReviewImage) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewImage.ProtoReflect.Descriptor instead.
+func (*ReviewImage) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *ReviewImage) GetPluginKey() string {
+	if x != nil {
+		return x.PluginKey
+	}
+	return ""
+}
+
+func (x *ReviewImage) GetCaseId() string {
+	if x != nil {
+		return x.CaseId
+	}
+	return ""
+}
+
+func (x *ReviewImage) GetBaseline() []byte {
+	if x != nil {
+		return x.Baseline
+	}
+	return nil
+}
+
+func (x *ReviewImage) GetActual() []byte {
+	if x != nil {
+		return x.Actual
+	}
+	return nil
+}
+
+// InstallBaseEntry counts the devices of the environment that hold one
+// release on one host build.
+type InstallBaseEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// channel is set on the entries of a channel's current release.
+	Channel         string `protobuf:"bytes,1,opt,name=channel,proto3" json:"channel,omitempty"`
+	ReleaseSequence int64  `protobuf:"varint,2,opt,name=release_sequence,json=releaseSequence,proto3" json:"release_sequence,omitempty"`
+	HostBuild       string `protobuf:"bytes,3,opt,name=host_build,json=hostBuild,proto3" json:"host_build,omitempty"`
+	Devices         int64  `protobuf:"varint,4,opt,name=devices,proto3" json:"devices,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *InstallBaseEntry) Reset() {
+	*x = InstallBaseEntry{}
+	mi := &file_plux_v1_governance_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallBaseEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallBaseEntry) ProtoMessage() {}
+
+func (x *InstallBaseEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallBaseEntry.ProtoReflect.Descriptor instead.
+func (*InstallBaseEntry) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *InstallBaseEntry) GetChannel() string {
+	if x != nil {
+		return x.Channel
+	}
+	return ""
+}
+
+func (x *InstallBaseEntry) GetReleaseSequence() int64 {
+	if x != nil {
+		return x.ReleaseSequence
+	}
+	return 0
+}
+
+func (x *InstallBaseEntry) GetHostBuild() string {
+	if x != nil {
+		return x.HostBuild
+	}
+	return ""
+}
+
+func (x *InstallBaseEntry) GetDevices() int64 {
+	if x != nil {
+		return x.Devices
+	}
+	return 0
+}
+
+// ReviewReport is a validation or accessibility report as JSON.
+type ReviewReport struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	Content       []byte                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewReport) Reset() {
+	*x = ReviewReport{}
+	mi := &file_plux_v1_governance_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewReport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewReport) ProtoMessage() {}
+
+func (x *ReviewReport) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewReport.ProtoReflect.Descriptor instead.
+func (*ReviewReport) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *ReviewReport) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *ReviewReport) GetContent() []byte {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+// ReviewRisk is the computed risk summary.
+type ReviewRisk struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// level is "low", "medium" or "high".
+	Level         string   `protobuf:"bytes,1,opt,name=level,proto3" json:"level,omitempty"`
+	Reasons       []string `protobuf:"bytes,2,rep,name=reasons,proto3" json:"reasons,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewRisk) Reset() {
+	*x = ReviewRisk{}
+	mi := &file_plux_v1_governance_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewRisk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewRisk) ProtoMessage() {}
+
+func (x *ReviewRisk) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewRisk.ProtoReflect.Descriptor instead.
+func (*ReviewRisk) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *ReviewRisk) GetLevel() string {
+	if x != nil {
+		return x.Level
+	}
+	return ""
+}
+
+func (x *ReviewRisk) GetReasons() []string {
+	if x != nil {
+		return x.Reasons
+	}
+	return nil
+}
+
+type GetApprovalReviewResponse struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Approval *ApprovalRequest       `protobuf:"bytes,1,opt,name=approval,proto3" json:"approval,omitempty"`
+	// diff is the JSON diff of the change, as JSON.
+	Diff          []byte              `protobuf:"bytes,2,opt,name=diff,proto3" json:"diff,omitempty"`
+	Reports       []*ReviewReport     `protobuf:"bytes,3,rep,name=reports,proto3" json:"reports,omitempty"`
+	GoldenDiffs   []*ReviewImage      `protobuf:"bytes,4,rep,name=golden_diffs,json=goldenDiffs,proto3" json:"golden_diffs,omitempty"`
+	InstallBase   []*InstallBaseEntry `protobuf:"bytes,5,rep,name=install_base,json=installBase,proto3" json:"install_base,omitempty"`
+	Changelog     []string            `protobuf:"bytes,6,rep,name=changelog,proto3" json:"changelog,omitempty"`
+	Notes         string              `protobuf:"bytes,7,opt,name=notes,proto3" json:"notes,omitempty"`
+	Risk          *ReviewRisk         `protobuf:"bytes,8,opt,name=risk,proto3" json:"risk,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetApprovalReviewResponse) Reset() {
+	*x = GetApprovalReviewResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetApprovalReviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetApprovalReviewResponse) ProtoMessage() {}
+
+func (x *GetApprovalReviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetApprovalReviewResponse.ProtoReflect.Descriptor instead.
+func (*GetApprovalReviewResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GetApprovalReviewResponse) GetApproval() *ApprovalRequest {
+	if x != nil {
+		return x.Approval
+	}
+	return nil
+}
+
+func (x *GetApprovalReviewResponse) GetDiff() []byte {
+	if x != nil {
+		return x.Diff
+	}
+	return nil
+}
+
+func (x *GetApprovalReviewResponse) GetReports() []*ReviewReport {
+	if x != nil {
+		return x.Reports
+	}
+	return nil
+}
+
+func (x *GetApprovalReviewResponse) GetGoldenDiffs() []*ReviewImage {
+	if x != nil {
+		return x.GoldenDiffs
+	}
+	return nil
+}
+
+func (x *GetApprovalReviewResponse) GetInstallBase() []*InstallBaseEntry {
+	if x != nil {
+		return x.InstallBase
+	}
+	return nil
+}
+
+func (x *GetApprovalReviewResponse) GetChangelog() []string {
+	if x != nil {
+		return x.Changelog
+	}
+	return nil
+}
+
+func (x *GetApprovalReviewResponse) GetNotes() string {
+	if x != nil {
+		return x.Notes
+	}
+	return ""
+}
+
+func (x *GetApprovalReviewResponse) GetRisk() *ReviewRisk {
+	if x != nil {
+		return x.Risk
+	}
+	return nil
+}
+
+type DecideApprovalRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Id    string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// decision is "approve" or "reject".
+	Decision      string `protobuf:"bytes,3,opt,name=decision,proto3" json:"decision,omitempty"`
+	Comment       string `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecideApprovalRequest) Reset() {
+	*x = DecideApprovalRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecideApprovalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecideApprovalRequest) ProtoMessage() {}
+
+func (x *DecideApprovalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecideApprovalRequest.ProtoReflect.Descriptor instead.
+func (*DecideApprovalRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *DecideApprovalRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *DecideApprovalRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *DecideApprovalRequest) GetDecision() string {
+	if x != nil {
+		return x.Decision
+	}
+	return ""
+}
+
+func (x *DecideApprovalRequest) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+type DecideApprovalResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Approval      *ApprovalRequest       `protobuf:"bytes,1,opt,name=approval,proto3" json:"approval,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecideApprovalResponse) Reset() {
+	*x = DecideApprovalResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecideApprovalResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecideApprovalResponse) ProtoMessage() {}
+
+func (x *DecideApprovalResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecideApprovalResponse.ProtoReflect.Descriptor instead.
+func (*DecideApprovalResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *DecideApprovalResponse) GetApproval() *ApprovalRequest {
+	if x != nil {
+		return x.Approval
+	}
+	return nil
+}
+
 var File_plux_v1_governance_proto protoreflect.FileDescriptor
 
 const file_plux_v1_governance_proto_rawDesc = "" +
@@ -1409,7 +3046,130 @@ const file_plux_v1_governance_proto_rawDesc = "" +
 	"\x05grant\x18\x01 \x01(\v2\x12.plux.v1.RoleGrantR\x05grant\"$\n" +
 	"\x12DeleteGrantRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x15\n" +
-	"\x13DeleteGrantResponse2\xf9\x05\n" +
+	"\x13DeleteGrantResponse\"\x86\x02\n" +
+	"\fPolicyRecord\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\x12\x18\n" +
+	"\aversion\x18\x03 \x01(\x05R\aversion\x12\x1a\n" +
+	"\bdocument\x18\x04 \x01(\fR\bdocument\x12#\n" +
+	"\rdocument_hash\x18\x05 \x01(\tR\fdocumentHash\x12\x18\n" +
+	"\adeleted\x18\x06 \x01(\bR\adeleted\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\a \x01(\tR\tcreatedBy\x129\n" +
+	"\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"E\n" +
+	"\x10PutPolicyRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
+	"\bdocument\x18\x02 \x01(\fR\bdocument\"B\n" +
+	"\x11PutPolicyResponse\x12-\n" +
+	"\x06policy\x18\x01 \x01(\v2\x15.plux.v1.PolicyRecordR\x06policy\";\n" +
+	"\x10GetPolicyRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"B\n" +
+	"\x11GetPolicyResponse\x12-\n" +
+	"\x06policy\x18\x01 \x01(\v2\x15.plux.v1.PolicyRecordR\x06policy\",\n" +
+	"\x13ListPoliciesRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"I\n" +
+	"\x14ListPoliciesResponse\x121\n" +
+	"\bpolicies\x18\x01 \x03(\v2\x15.plux.v1.PolicyRecordR\bpolicies\">\n" +
+	"\x13DeletePolicyRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"\x16\n" +
+	"\x14DeletePolicyResponse\":\n" +
+	"\n" +
+	"PolicyFile\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\fR\acontent\".\n" +
+	"\x15ExportPoliciesRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"C\n" +
+	"\x16ExportPoliciesResponse\x12)\n" +
+	"\x05files\x18\x01 \x03(\v2\x13.plux.v1.PolicyFileR\x05files\"\xe5\x02\n" +
+	"\x10ApprovalDecision\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"decider_id\x18\x02 \x01(\tR\tdeciderId\x12\x18\n" +
+	"\adecider\x18\x03 \x01(\tR\adecider\x12\x1a\n" +
+	"\bdecision\x18\x04 \x01(\tR\bdecision\x12\x18\n" +
+	"\acomment\x18\x05 \x01(\tR\acomment\x12!\n" +
+	"\fcontent_hash\x18\x06 \x01(\tR\vcontentHash\x129\n" +
+	"\n" +
+	"decided_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tdecidedAt\x12\x18\n" +
+	"\apayload\x18\b \x01(\fR\apayload\x12\x15\n" +
+	"\x06key_id\x18\t \x01(\tR\x05keyId\x12\x1c\n" +
+	"\tsignature\x18\n" +
+	" \x01(\fR\tsignature\x12%\n" +
+	"\x0eaudit_sequence\x18\v \x01(\x03R\rauditSequence\"\xb3\x04\n" +
+	"\x0fApprovalRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12 \n" +
+	"\venvironment\x18\x03 \x01(\tR\venvironment\x12\x1a\n" +
+	"\bresource\x18\x04 \x01(\tR\bresource\x12\x16\n" +
+	"\x06action\x18\x05 \x01(\tR\x06action\x12\x18\n" +
+	"\asubject\x18\x06 \x01(\tR\asubject\x12!\n" +
+	"\fcontent_hash\x18\a \x01(\tR\vcontentHash\x12\x18\n" +
+	"\asummary\x18\b \x01(\tR\asummary\x12\x12\n" +
+	"\x04risk\x18\t \x03(\tR\x04risk\x12\x16\n" +
+	"\x06status\x18\n" +
+	" \x01(\tR\x06status\x12!\n" +
+	"\frequested_by\x18\v \x01(\tR\vrequestedBy\x12\x1f\n" +
+	"\vpolicy_keys\x18\f \x03(\tR\n" +
+	"policyKeys\x12-\n" +
+	"\x12approvals_required\x18\r \x01(\x05R\x11approvalsRequired\x129\n" +
+	"\n" +
+	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"expires_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x127\n" +
+	"\tdecisions\x18\x10 \x03(\v2\x19.plux.v1.ApprovalDecisionR\tdecisions\"h\n" +
+	"\x14ListApprovalsRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12!\n" +
+	"\x04page\x18\x03 \x01(\v2\r.plux.v1.PageR\x04page\"x\n" +
+	"\x15ListApprovalsResponse\x126\n" +
+	"\tapprovals\x18\x01 \x03(\v2\x18.plux.v1.ApprovalRequestR\tapprovals\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\";\n" +
+	"\x12GetApprovalRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"K\n" +
+	"\x13GetApprovalResponse\x124\n" +
+	"\bapproval\x18\x01 \x01(\v2\x18.plux.v1.ApprovalRequestR\bapproval\"A\n" +
+	"\x18GetApprovalReviewRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"y\n" +
+	"\vReviewImage\x12\x1d\n" +
+	"\n" +
+	"plugin_key\x18\x01 \x01(\tR\tpluginKey\x12\x17\n" +
+	"\acase_id\x18\x02 \x01(\tR\x06caseId\x12\x1a\n" +
+	"\bbaseline\x18\x03 \x01(\fR\bbaseline\x12\x16\n" +
+	"\x06actual\x18\x04 \x01(\fR\x06actual\"\x90\x01\n" +
+	"\x10InstallBaseEntry\x12\x18\n" +
+	"\achannel\x18\x01 \x01(\tR\achannel\x12)\n" +
+	"\x10release_sequence\x18\x02 \x01(\x03R\x0freleaseSequence\x12\x1d\n" +
+	"\n" +
+	"host_build\x18\x03 \x01(\tR\thostBuild\x12\x18\n" +
+	"\adevices\x18\x04 \x01(\x03R\adevices\"<\n" +
+	"\fReviewReport\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\fR\acontent\"<\n" +
+	"\n" +
+	"ReviewRisk\x12\x14\n" +
+	"\x05level\x18\x01 \x01(\tR\x05level\x12\x18\n" +
+	"\areasons\x18\x02 \x03(\tR\areasons\"\xea\x02\n" +
+	"\x19GetApprovalReviewResponse\x124\n" +
+	"\bapproval\x18\x01 \x01(\v2\x18.plux.v1.ApprovalRequestR\bapproval\x12\x12\n" +
+	"\x04diff\x18\x02 \x01(\fR\x04diff\x12/\n" +
+	"\areports\x18\x03 \x03(\v2\x15.plux.v1.ReviewReportR\areports\x127\n" +
+	"\fgolden_diffs\x18\x04 \x03(\v2\x14.plux.v1.ReviewImageR\vgoldenDiffs\x12<\n" +
+	"\finstall_base\x18\x05 \x03(\v2\x19.plux.v1.InstallBaseEntryR\vinstallBase\x12\x1c\n" +
+	"\tchangelog\x18\x06 \x03(\tR\tchangelog\x12\x14\n" +
+	"\x05notes\x18\a \x01(\tR\x05notes\x12'\n" +
+	"\x04risk\x18\b \x01(\v2\x13.plux.v1.ReviewRiskR\x04risk\"t\n" +
+	"\x15DecideApprovalRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x1a\n" +
+	"\bdecision\x18\x03 \x01(\tR\bdecision\x12\x18\n" +
+	"\acomment\x18\x04 \x01(\tR\acomment\"N\n" +
+	"\x16DecideApprovalResponse\x124\n" +
+	"\bapproval\x18\x01 \x01(\v2\x18.plux.v1.ApprovalRequestR\bapproval2\xf9\x05\n" +
 	"\x11GovernanceService\x12V\n" +
 	"\x0fListPermissions\x12\x1f.plux.v1.ListPermissionsRequest\x1a .plux.v1.ListPermissionsResponse\"\x00\x12D\n" +
 	"\tListRoles\x12\x19.plux.v1.ListRolesRequest\x1a\x1a.plux.v1.ListRolesResponse\"\x00\x12>\n" +
@@ -1424,7 +3184,17 @@ const file_plux_v1_governance_proto_rawDesc = "" +
 	"ListGrants\x12\x1a.plux.v1.ListGrantsRequest\x1a\x1b.plux.v1.ListGrantsResponse\"\x00\x12J\n" +
 	"\vCreateGrant\x12\x1b.plux.v1.CreateGrantRequest\x1a\x1c.plux.v1.CreateGrantResponse\"\x00\x12J\n" +
 	"\vUpdateGrant\x12\x1b.plux.v1.UpdateGrantRequest\x1a\x1c.plux.v1.UpdateGrantResponse\"\x00\x12J\n" +
-	"\vDeleteGrant\x12\x1b.plux.v1.DeleteGrantRequest\x1a\x1c.plux.v1.DeleteGrantResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\vDeleteGrant\x12\x1b.plux.v1.DeleteGrantRequest\x1a\x1c.plux.v1.DeleteGrantResponse\"\x002\xe1\x05\n" +
+	"\x0fApprovalService\x12D\n" +
+	"\tPutPolicy\x12\x19.plux.v1.PutPolicyRequest\x1a\x1a.plux.v1.PutPolicyResponse\"\x00\x12D\n" +
+	"\tGetPolicy\x12\x19.plux.v1.GetPolicyRequest\x1a\x1a.plux.v1.GetPolicyResponse\"\x00\x12M\n" +
+	"\fListPolicies\x12\x1c.plux.v1.ListPoliciesRequest\x1a\x1d.plux.v1.ListPoliciesResponse\"\x00\x12M\n" +
+	"\fDeletePolicy\x12\x1c.plux.v1.DeletePolicyRequest\x1a\x1d.plux.v1.DeletePolicyResponse\"\x00\x12S\n" +
+	"\x0eExportPolicies\x12\x1e.plux.v1.ExportPoliciesRequest\x1a\x1f.plux.v1.ExportPoliciesResponse\"\x00\x12P\n" +
+	"\rListApprovals\x12\x1d.plux.v1.ListApprovalsRequest\x1a\x1e.plux.v1.ListApprovalsResponse\"\x00\x12J\n" +
+	"\vGetApproval\x12\x1b.plux.v1.GetApprovalRequest\x1a\x1c.plux.v1.GetApprovalResponse\"\x00\x12\\\n" +
+	"\x11GetApprovalReview\x12!.plux.v1.GetApprovalReviewRequest\x1a\".plux.v1.GetApprovalReviewResponse\"\x00\x12S\n" +
+	"\x0eDecideApproval\x12\x1e.plux.v1.DecideApprovalRequest\x1a\x1f.plux.v1.DecideApprovalResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_governance_proto_rawDescOnce sync.Once
@@ -1438,76 +3208,139 @@ func file_plux_v1_governance_proto_rawDescGZIP() []byte {
 	return file_plux_v1_governance_proto_rawDescData
 }
 
-var file_plux_v1_governance_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_plux_v1_governance_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
 var file_plux_v1_governance_proto_goTypes = []any{
-	(*PermissionEntry)(nil),         // 0: plux.v1.PermissionEntry
-	(*RoleDefinition)(nil),          // 1: plux.v1.RoleDefinition
-	(*RoleGrant)(nil),               // 2: plux.v1.RoleGrant
-	(*ListPermissionsRequest)(nil),  // 3: plux.v1.ListPermissionsRequest
-	(*ListPermissionsResponse)(nil), // 4: plux.v1.ListPermissionsResponse
-	(*ListRolesRequest)(nil),        // 5: plux.v1.ListRolesRequest
-	(*ListRolesResponse)(nil),       // 6: plux.v1.ListRolesResponse
-	(*GetRoleRequest)(nil),          // 7: plux.v1.GetRoleRequest
-	(*GetRoleResponse)(nil),         // 8: plux.v1.GetRoleResponse
-	(*CreateRoleRequest)(nil),       // 9: plux.v1.CreateRoleRequest
-	(*CreateRoleResponse)(nil),      // 10: plux.v1.CreateRoleResponse
-	(*UpdateRoleRequest)(nil),       // 11: plux.v1.UpdateRoleRequest
-	(*UpdateRoleResponse)(nil),      // 12: plux.v1.UpdateRoleResponse
-	(*DeleteRoleRequest)(nil),       // 13: plux.v1.DeleteRoleRequest
-	(*DeleteRoleResponse)(nil),      // 14: plux.v1.DeleteRoleResponse
-	(*ListGrantsRequest)(nil),       // 15: plux.v1.ListGrantsRequest
-	(*ListGrantsResponse)(nil),      // 16: plux.v1.ListGrantsResponse
-	(*CreateGrantRequest)(nil),      // 17: plux.v1.CreateGrantRequest
-	(*CreateGrantResponse)(nil),     // 18: plux.v1.CreateGrantResponse
-	(*UpdateGrantRequest)(nil),      // 19: plux.v1.UpdateGrantRequest
-	(*UpdateGrantResponse)(nil),     // 20: plux.v1.UpdateGrantResponse
-	(*DeleteGrantRequest)(nil),      // 21: plux.v1.DeleteGrantRequest
-	(*DeleteGrantResponse)(nil),     // 22: plux.v1.DeleteGrantResponse
-	(*timestamppb.Timestamp)(nil),   // 23: google.protobuf.Timestamp
-	(*Page)(nil),                    // 24: plux.v1.Page
-	(*PageResult)(nil),              // 25: plux.v1.PageResult
+	(*PermissionEntry)(nil),           // 0: plux.v1.PermissionEntry
+	(*RoleDefinition)(nil),            // 1: plux.v1.RoleDefinition
+	(*RoleGrant)(nil),                 // 2: plux.v1.RoleGrant
+	(*ListPermissionsRequest)(nil),    // 3: plux.v1.ListPermissionsRequest
+	(*ListPermissionsResponse)(nil),   // 4: plux.v1.ListPermissionsResponse
+	(*ListRolesRequest)(nil),          // 5: plux.v1.ListRolesRequest
+	(*ListRolesResponse)(nil),         // 6: plux.v1.ListRolesResponse
+	(*GetRoleRequest)(nil),            // 7: plux.v1.GetRoleRequest
+	(*GetRoleResponse)(nil),           // 8: plux.v1.GetRoleResponse
+	(*CreateRoleRequest)(nil),         // 9: plux.v1.CreateRoleRequest
+	(*CreateRoleResponse)(nil),        // 10: plux.v1.CreateRoleResponse
+	(*UpdateRoleRequest)(nil),         // 11: plux.v1.UpdateRoleRequest
+	(*UpdateRoleResponse)(nil),        // 12: plux.v1.UpdateRoleResponse
+	(*DeleteRoleRequest)(nil),         // 13: plux.v1.DeleteRoleRequest
+	(*DeleteRoleResponse)(nil),        // 14: plux.v1.DeleteRoleResponse
+	(*ListGrantsRequest)(nil),         // 15: plux.v1.ListGrantsRequest
+	(*ListGrantsResponse)(nil),        // 16: plux.v1.ListGrantsResponse
+	(*CreateGrantRequest)(nil),        // 17: plux.v1.CreateGrantRequest
+	(*CreateGrantResponse)(nil),       // 18: plux.v1.CreateGrantResponse
+	(*UpdateGrantRequest)(nil),        // 19: plux.v1.UpdateGrantRequest
+	(*UpdateGrantResponse)(nil),       // 20: plux.v1.UpdateGrantResponse
+	(*DeleteGrantRequest)(nil),        // 21: plux.v1.DeleteGrantRequest
+	(*DeleteGrantResponse)(nil),       // 22: plux.v1.DeleteGrantResponse
+	(*PolicyRecord)(nil),              // 23: plux.v1.PolicyRecord
+	(*PutPolicyRequest)(nil),          // 24: plux.v1.PutPolicyRequest
+	(*PutPolicyResponse)(nil),         // 25: plux.v1.PutPolicyResponse
+	(*GetPolicyRequest)(nil),          // 26: plux.v1.GetPolicyRequest
+	(*GetPolicyResponse)(nil),         // 27: plux.v1.GetPolicyResponse
+	(*ListPoliciesRequest)(nil),       // 28: plux.v1.ListPoliciesRequest
+	(*ListPoliciesResponse)(nil),      // 29: plux.v1.ListPoliciesResponse
+	(*DeletePolicyRequest)(nil),       // 30: plux.v1.DeletePolicyRequest
+	(*DeletePolicyResponse)(nil),      // 31: plux.v1.DeletePolicyResponse
+	(*PolicyFile)(nil),                // 32: plux.v1.PolicyFile
+	(*ExportPoliciesRequest)(nil),     // 33: plux.v1.ExportPoliciesRequest
+	(*ExportPoliciesResponse)(nil),    // 34: plux.v1.ExportPoliciesResponse
+	(*ApprovalDecision)(nil),          // 35: plux.v1.ApprovalDecision
+	(*ApprovalRequest)(nil),           // 36: plux.v1.ApprovalRequest
+	(*ListApprovalsRequest)(nil),      // 37: plux.v1.ListApprovalsRequest
+	(*ListApprovalsResponse)(nil),     // 38: plux.v1.ListApprovalsResponse
+	(*GetApprovalRequest)(nil),        // 39: plux.v1.GetApprovalRequest
+	(*GetApprovalResponse)(nil),       // 40: plux.v1.GetApprovalResponse
+	(*GetApprovalReviewRequest)(nil),  // 41: plux.v1.GetApprovalReviewRequest
+	(*ReviewImage)(nil),               // 42: plux.v1.ReviewImage
+	(*InstallBaseEntry)(nil),          // 43: plux.v1.InstallBaseEntry
+	(*ReviewReport)(nil),              // 44: plux.v1.ReviewReport
+	(*ReviewRisk)(nil),                // 45: plux.v1.ReviewRisk
+	(*GetApprovalReviewResponse)(nil), // 46: plux.v1.GetApprovalReviewResponse
+	(*DecideApprovalRequest)(nil),     // 47: plux.v1.DecideApprovalRequest
+	(*DecideApprovalResponse)(nil),    // 48: plux.v1.DecideApprovalResponse
+	(*timestamppb.Timestamp)(nil),     // 49: google.protobuf.Timestamp
+	(*Page)(nil),                      // 50: plux.v1.Page
+	(*PageResult)(nil),                // 51: plux.v1.PageResult
 }
 var file_plux_v1_governance_proto_depIdxs = []int32{
-	23, // 0: plux.v1.RoleDefinition.created_at:type_name -> google.protobuf.Timestamp
-	23, // 1: plux.v1.RoleDefinition.updated_at:type_name -> google.protobuf.Timestamp
-	23, // 2: plux.v1.RoleGrant.created_at:type_name -> google.protobuf.Timestamp
+	49, // 0: plux.v1.RoleDefinition.created_at:type_name -> google.protobuf.Timestamp
+	49, // 1: plux.v1.RoleDefinition.updated_at:type_name -> google.protobuf.Timestamp
+	49, // 2: plux.v1.RoleGrant.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: plux.v1.ListPermissionsResponse.permissions:type_name -> plux.v1.PermissionEntry
-	24, // 4: plux.v1.ListRolesRequest.page:type_name -> plux.v1.Page
+	50, // 4: plux.v1.ListRolesRequest.page:type_name -> plux.v1.Page
 	1,  // 5: plux.v1.ListRolesResponse.roles:type_name -> plux.v1.RoleDefinition
-	25, // 6: plux.v1.ListRolesResponse.page:type_name -> plux.v1.PageResult
+	51, // 6: plux.v1.ListRolesResponse.page:type_name -> plux.v1.PageResult
 	1,  // 7: plux.v1.GetRoleResponse.role:type_name -> plux.v1.RoleDefinition
 	1,  // 8: plux.v1.CreateRoleResponse.role:type_name -> plux.v1.RoleDefinition
 	1,  // 9: plux.v1.UpdateRoleResponse.role:type_name -> plux.v1.RoleDefinition
-	24, // 10: plux.v1.ListGrantsRequest.page:type_name -> plux.v1.Page
+	50, // 10: plux.v1.ListGrantsRequest.page:type_name -> plux.v1.Page
 	2,  // 11: plux.v1.ListGrantsResponse.grants:type_name -> plux.v1.RoleGrant
-	25, // 12: plux.v1.ListGrantsResponse.page:type_name -> plux.v1.PageResult
+	51, // 12: plux.v1.ListGrantsResponse.page:type_name -> plux.v1.PageResult
 	2,  // 13: plux.v1.CreateGrantResponse.grant:type_name -> plux.v1.RoleGrant
 	2,  // 14: plux.v1.UpdateGrantResponse.grant:type_name -> plux.v1.RoleGrant
-	3,  // 15: plux.v1.GovernanceService.ListPermissions:input_type -> plux.v1.ListPermissionsRequest
-	5,  // 16: plux.v1.GovernanceService.ListRoles:input_type -> plux.v1.ListRolesRequest
-	7,  // 17: plux.v1.GovernanceService.GetRole:input_type -> plux.v1.GetRoleRequest
-	9,  // 18: plux.v1.GovernanceService.CreateRole:input_type -> plux.v1.CreateRoleRequest
-	11, // 19: plux.v1.GovernanceService.UpdateRole:input_type -> plux.v1.UpdateRoleRequest
-	13, // 20: plux.v1.GovernanceService.DeleteRole:input_type -> plux.v1.DeleteRoleRequest
-	15, // 21: plux.v1.GovernanceService.ListGrants:input_type -> plux.v1.ListGrantsRequest
-	17, // 22: plux.v1.GovernanceService.CreateGrant:input_type -> plux.v1.CreateGrantRequest
-	19, // 23: plux.v1.GovernanceService.UpdateGrant:input_type -> plux.v1.UpdateGrantRequest
-	21, // 24: plux.v1.GovernanceService.DeleteGrant:input_type -> plux.v1.DeleteGrantRequest
-	4,  // 25: plux.v1.GovernanceService.ListPermissions:output_type -> plux.v1.ListPermissionsResponse
-	6,  // 26: plux.v1.GovernanceService.ListRoles:output_type -> plux.v1.ListRolesResponse
-	8,  // 27: plux.v1.GovernanceService.GetRole:output_type -> plux.v1.GetRoleResponse
-	10, // 28: plux.v1.GovernanceService.CreateRole:output_type -> plux.v1.CreateRoleResponse
-	12, // 29: plux.v1.GovernanceService.UpdateRole:output_type -> plux.v1.UpdateRoleResponse
-	14, // 30: plux.v1.GovernanceService.DeleteRole:output_type -> plux.v1.DeleteRoleResponse
-	16, // 31: plux.v1.GovernanceService.ListGrants:output_type -> plux.v1.ListGrantsResponse
-	18, // 32: plux.v1.GovernanceService.CreateGrant:output_type -> plux.v1.CreateGrantResponse
-	20, // 33: plux.v1.GovernanceService.UpdateGrant:output_type -> plux.v1.UpdateGrantResponse
-	22, // 34: plux.v1.GovernanceService.DeleteGrant:output_type -> plux.v1.DeleteGrantResponse
-	25, // [25:35] is the sub-list for method output_type
-	15, // [15:25] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	49, // 15: plux.v1.PolicyRecord.created_at:type_name -> google.protobuf.Timestamp
+	23, // 16: plux.v1.PutPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
+	23, // 17: plux.v1.GetPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
+	23, // 18: plux.v1.ListPoliciesResponse.policies:type_name -> plux.v1.PolicyRecord
+	32, // 19: plux.v1.ExportPoliciesResponse.files:type_name -> plux.v1.PolicyFile
+	49, // 20: plux.v1.ApprovalDecision.decided_at:type_name -> google.protobuf.Timestamp
+	49, // 21: plux.v1.ApprovalRequest.created_at:type_name -> google.protobuf.Timestamp
+	49, // 22: plux.v1.ApprovalRequest.expires_at:type_name -> google.protobuf.Timestamp
+	35, // 23: plux.v1.ApprovalRequest.decisions:type_name -> plux.v1.ApprovalDecision
+	50, // 24: plux.v1.ListApprovalsRequest.page:type_name -> plux.v1.Page
+	36, // 25: plux.v1.ListApprovalsResponse.approvals:type_name -> plux.v1.ApprovalRequest
+	51, // 26: plux.v1.ListApprovalsResponse.page:type_name -> plux.v1.PageResult
+	36, // 27: plux.v1.GetApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
+	36, // 28: plux.v1.GetApprovalReviewResponse.approval:type_name -> plux.v1.ApprovalRequest
+	44, // 29: plux.v1.GetApprovalReviewResponse.reports:type_name -> plux.v1.ReviewReport
+	42, // 30: plux.v1.GetApprovalReviewResponse.golden_diffs:type_name -> plux.v1.ReviewImage
+	43, // 31: plux.v1.GetApprovalReviewResponse.install_base:type_name -> plux.v1.InstallBaseEntry
+	45, // 32: plux.v1.GetApprovalReviewResponse.risk:type_name -> plux.v1.ReviewRisk
+	36, // 33: plux.v1.DecideApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
+	3,  // 34: plux.v1.GovernanceService.ListPermissions:input_type -> plux.v1.ListPermissionsRequest
+	5,  // 35: plux.v1.GovernanceService.ListRoles:input_type -> plux.v1.ListRolesRequest
+	7,  // 36: plux.v1.GovernanceService.GetRole:input_type -> plux.v1.GetRoleRequest
+	9,  // 37: plux.v1.GovernanceService.CreateRole:input_type -> plux.v1.CreateRoleRequest
+	11, // 38: plux.v1.GovernanceService.UpdateRole:input_type -> plux.v1.UpdateRoleRequest
+	13, // 39: plux.v1.GovernanceService.DeleteRole:input_type -> plux.v1.DeleteRoleRequest
+	15, // 40: plux.v1.GovernanceService.ListGrants:input_type -> plux.v1.ListGrantsRequest
+	17, // 41: plux.v1.GovernanceService.CreateGrant:input_type -> plux.v1.CreateGrantRequest
+	19, // 42: plux.v1.GovernanceService.UpdateGrant:input_type -> plux.v1.UpdateGrantRequest
+	21, // 43: plux.v1.GovernanceService.DeleteGrant:input_type -> plux.v1.DeleteGrantRequest
+	24, // 44: plux.v1.ApprovalService.PutPolicy:input_type -> plux.v1.PutPolicyRequest
+	26, // 45: plux.v1.ApprovalService.GetPolicy:input_type -> plux.v1.GetPolicyRequest
+	28, // 46: plux.v1.ApprovalService.ListPolicies:input_type -> plux.v1.ListPoliciesRequest
+	30, // 47: plux.v1.ApprovalService.DeletePolicy:input_type -> plux.v1.DeletePolicyRequest
+	33, // 48: plux.v1.ApprovalService.ExportPolicies:input_type -> plux.v1.ExportPoliciesRequest
+	37, // 49: plux.v1.ApprovalService.ListApprovals:input_type -> plux.v1.ListApprovalsRequest
+	39, // 50: plux.v1.ApprovalService.GetApproval:input_type -> plux.v1.GetApprovalRequest
+	41, // 51: plux.v1.ApprovalService.GetApprovalReview:input_type -> plux.v1.GetApprovalReviewRequest
+	47, // 52: plux.v1.ApprovalService.DecideApproval:input_type -> plux.v1.DecideApprovalRequest
+	4,  // 53: plux.v1.GovernanceService.ListPermissions:output_type -> plux.v1.ListPermissionsResponse
+	6,  // 54: plux.v1.GovernanceService.ListRoles:output_type -> plux.v1.ListRolesResponse
+	8,  // 55: plux.v1.GovernanceService.GetRole:output_type -> plux.v1.GetRoleResponse
+	10, // 56: plux.v1.GovernanceService.CreateRole:output_type -> plux.v1.CreateRoleResponse
+	12, // 57: plux.v1.GovernanceService.UpdateRole:output_type -> plux.v1.UpdateRoleResponse
+	14, // 58: plux.v1.GovernanceService.DeleteRole:output_type -> plux.v1.DeleteRoleResponse
+	16, // 59: plux.v1.GovernanceService.ListGrants:output_type -> plux.v1.ListGrantsResponse
+	18, // 60: plux.v1.GovernanceService.CreateGrant:output_type -> plux.v1.CreateGrantResponse
+	20, // 61: plux.v1.GovernanceService.UpdateGrant:output_type -> plux.v1.UpdateGrantResponse
+	22, // 62: plux.v1.GovernanceService.DeleteGrant:output_type -> plux.v1.DeleteGrantResponse
+	25, // 63: plux.v1.ApprovalService.PutPolicy:output_type -> plux.v1.PutPolicyResponse
+	27, // 64: plux.v1.ApprovalService.GetPolicy:output_type -> plux.v1.GetPolicyResponse
+	29, // 65: plux.v1.ApprovalService.ListPolicies:output_type -> plux.v1.ListPoliciesResponse
+	31, // 66: plux.v1.ApprovalService.DeletePolicy:output_type -> plux.v1.DeletePolicyResponse
+	34, // 67: plux.v1.ApprovalService.ExportPolicies:output_type -> plux.v1.ExportPoliciesResponse
+	38, // 68: plux.v1.ApprovalService.ListApprovals:output_type -> plux.v1.ListApprovalsResponse
+	40, // 69: plux.v1.ApprovalService.GetApproval:output_type -> plux.v1.GetApprovalResponse
+	46, // 70: plux.v1.ApprovalService.GetApprovalReview:output_type -> plux.v1.GetApprovalReviewResponse
+	48, // 71: plux.v1.ApprovalService.DecideApproval:output_type -> plux.v1.DecideApprovalResponse
+	53, // [53:72] is the sub-list for method output_type
+	34, // [34:53] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_governance_proto_init() }
@@ -1522,9 +3355,9 @@ func file_plux_v1_governance_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_governance_proto_rawDesc), len(file_plux_v1_governance_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   23,
+			NumMessages:   49,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_plux_v1_governance_proto_goTypes,
 		DependencyIndexes: file_plux_v1_governance_proto_depIdxs,

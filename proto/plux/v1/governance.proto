@@ -173,3 +173,217 @@ message DeleteGrantRequest {
   string id = 1;
 }
 message DeleteGrantResponse {}
+
+// ApprovalService is the approval engine (GOV-020 to GOV-023, ADR-0076):
+// the policies that say which changes need approval, and the requests the
+// engine opens when a guarded change is refused for want of one. A request
+// is opened by the refusal itself, never by a call here, and names the
+// artifact by its content hash.
+service ApprovalService {
+  // PutPolicy creates a policy document or adds a version of it. The
+  // document is checked against the policy schema (PLX-1700); stages and
+  // distinct-team rules are an enterprise feature (PLX-8600). Changing a
+  // policy is itself a change a policy can guard (resource "policy").
+  rpc PutPolicy(PutPolicyRequest) returns (PutPolicyResponse) {}
+  rpc GetPolicy(GetPolicyRequest) returns (GetPolicyResponse) {}
+  // ListPolicies lists the policies in force for an app. The first call
+  // for an app seeds the default policies of its security profile.
+  rpc ListPolicies(ListPoliciesRequest) returns (ListPoliciesResponse) {}
+  // DeletePolicy withdraws a policy; a deleted default is not seeded again.
+  rpc DeletePolicy(DeletePolicyRequest) returns (DeletePolicyResponse) {}
+  // ExportPolicies returns the policies in force as the files of the Git
+  // layout, policies/<key>.policy.json.
+  rpc ExportPolicies(ExportPoliciesRequest) returns (ExportPoliciesResponse) {}
+
+  rpc ListApprovals(ListApprovalsRequest) returns (ListApprovalsResponse) {}
+  rpc GetApproval(GetApprovalRequest) returns (GetApprovalResponse) {}
+  // GetApprovalReview returns what an approver sees before deciding: the
+  // diff, reports, golden-image differences, install base, changelog and
+  // risk summary (GOV-023).
+  rpc GetApprovalReview(GetApprovalReviewRequest) returns (GetApprovalReviewResponse) {}
+  // DecideApproval approves or rejects a request. It needs approvals.decide
+  // on the request's environment, which needs a fresh step-up (SEC-103).
+  // The requester and the author of the change are refused (PLX-8003).
+  rpc DecideApproval(DecideApprovalRequest) returns (DecideApprovalResponse) {}
+}
+
+// PolicyRecord is one version of a policy document.
+message PolicyRecord {
+  string app_id = 1;
+  string key = 2;
+  int32 version = 3;
+  // document is the policy document as JSON.
+  bytes document = 4;
+  // document_hash is the SHA-256 of the canonical document, in hex: what
+  // an approval of a policy change binds to.
+  string document_hash = 5;
+  bool deleted = 6;
+  string created_by = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message PutPolicyRequest {
+  string app_id = 1;
+  // document is the policy document as JSON.
+  bytes document = 2;
+}
+message PutPolicyResponse {
+  PolicyRecord policy = 1;
+}
+
+message GetPolicyRequest {
+  string app_id = 1;
+  string key = 2;
+}
+message GetPolicyResponse {
+  PolicyRecord policy = 1;
+}
+
+message ListPoliciesRequest {
+  string app_id = 1;
+}
+message ListPoliciesResponse {
+  repeated PolicyRecord policies = 1;
+}
+
+message DeletePolicyRequest {
+  string app_id = 1;
+  string key = 2;
+}
+message DeletePolicyResponse {}
+
+// PolicyFile is one file of an export.
+message PolicyFile {
+  string path = 1;
+  bytes content = 2;
+}
+message ExportPoliciesRequest {
+  string app_id = 1;
+}
+message ExportPoliciesResponse {
+  repeated PolicyFile files = 1;
+}
+
+// ApprovalDecision is one signed record of a decision (GOV-023).
+message ApprovalDecision {
+  string id = 1;
+  string decider_id = 2;
+  string decider = 3;
+  // decision is "approve" or "reject".
+  string decision = 4;
+  string comment = 5;
+  string content_hash = 6;
+  google.protobuf.Timestamp decided_at = 7;
+  // payload is the canonical record the signature covers.
+  bytes payload = 8;
+  // key_id and signature are empty until the worker has signed the record.
+  string key_id = 9;
+  bytes signature = 10;
+  int64 audit_sequence = 11;
+}
+
+// ApprovalRequest asks for the approval of one artifact.
+message ApprovalRequest {
+  string id = 1;
+  string app_id = 2;
+  string environment = 3;
+  // resource is the kind of artifact, as in the policy schema.
+  string resource = 4;
+  string action = 5;
+  // subject names what changes, for example "release:12".
+  string subject = 6;
+  // content_hash is what an approval is bound to (GOV-022), in hex.
+  string content_hash = 7;
+  string summary = 8;
+  repeated string risk = 9;
+  // status is "open", "approved", "rejected", "expired", "superseded" or
+  // "used".
+  string status = 10;
+  string requested_by = 11;
+  repeated string policy_keys = 12;
+  // approvals_required is the most approvals any matching policy asks for.
+  int32 approvals_required = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp expires_at = 15;
+  repeated ApprovalDecision decisions = 16;
+}
+
+message ListApprovalsRequest {
+  string app_id = 1;
+  // status narrows the list when set.
+  string status = 2;
+  Page page = 3;
+}
+message ListApprovalsResponse {
+  repeated ApprovalRequest approvals = 1;
+  PageResult page = 2;
+}
+
+message GetApprovalRequest {
+  string app_id = 1;
+  string id = 2;
+}
+message GetApprovalResponse {
+  ApprovalRequest approval = 1;
+}
+
+message GetApprovalReviewRequest {
+  string app_id = 1;
+  string id = 2;
+}
+
+// ReviewImage is a golden-image difference: the approved baseline and the
+// image the run produced, as PNG. The baseline is empty for a case that
+// has none yet.
+message ReviewImage {
+  string plugin_key = 1;
+  string case_id = 2;
+  bytes baseline = 3;
+  bytes actual = 4;
+}
+
+// InstallBaseEntry counts the devices of the environment that hold one
+// release on one host build.
+message InstallBaseEntry {
+  // channel is set on the entries of a channel's current release.
+  string channel = 1;
+  int64 release_sequence = 2;
+  string host_build = 3;
+  int64 devices = 4;
+}
+
+// ReviewReport is a validation or accessibility report as JSON.
+message ReviewReport {
+  string kind = 1;
+  bytes content = 2;
+}
+
+// ReviewRisk is the computed risk summary.
+message ReviewRisk {
+  // level is "low", "medium" or "high".
+  string level = 1;
+  repeated string reasons = 2;
+}
+
+message GetApprovalReviewResponse {
+  ApprovalRequest approval = 1;
+  // diff is the JSON diff of the change, as JSON.
+  bytes diff = 2;
+  repeated ReviewReport reports = 3;
+  repeated ReviewImage golden_diffs = 4;
+  repeated InstallBaseEntry install_base = 5;
+  repeated string changelog = 6;
+  string notes = 7;
+  ReviewRisk risk = 8;
+}
+
+message DecideApprovalRequest {
+  string app_id = 1;
+  string id = 2;
+  // decision is "approve" or "reject".
+  string decision = 3;
+  string comment = 4;
+}
+message DecideApprovalResponse {
+  ApprovalRequest approval = 1;
+}

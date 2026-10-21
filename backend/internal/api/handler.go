@@ -16,6 +16,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
@@ -49,6 +50,9 @@ type Handlers struct {
 	// Translations serves LocalisationService (I18N-009); nil leaves it
 	// unmounted.
 	Translations *localisation.Service
+	// Approvals serves ApprovalService (GOV-020 to GOV-023); nil leaves it
+	// unmounted.
+	Approvals *approval.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
 	Goldens *golden.Service
 	// Searches serves SearchService (SRV-061); nil leaves it unmounted.

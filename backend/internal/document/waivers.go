@@ -14,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -77,15 +78,38 @@ func (s *Service) reviewWaivers(ctx context.Context, q *dbgen.Queries, d draft, 
 	if err != nil {
 		return nil, err
 	}
-	if profile != schema.SecurityProfileMaximum {
-		return changed, nil
+	if profile == schema.SecurityProfileMaximum {
+		if err := p.AuthorizeApp(auth.A11yWaive, d.app); err != nil {
+			return nil, plxerr.Wrap(plxerr.A11yWaiverPermissionRequired, err,
+				"%s changes %d accessibility waiver(s) under the maximum profile, which needs %s with a second factor",
+				c.path, len(changed), auth.A11yWaive)
+		}
 	}
-	if err := p.AuthorizeApp(auth.A11yWaive, d.app); err != nil {
-		return nil, plxerr.Wrap(plxerr.A11yWaiverPermissionRequired, err,
-			"%s changes %d accessibility waiver(s) under the maximum profile, which needs %s with a second factor",
-			c.path, len(changed), auth.A11yWaive)
+	if err := s.requireWaivers(ctx, d, p, c.path, string(profile), changed, after); err != nil {
+		return nil, err
 	}
 	return changed, nil
+}
+
+// requireWaivers asks the approval engine whether the waivers a save adds or
+// changes may stand (GOV-020, A11Y-008). The approval is about the waivers
+// and their justifications, so a changed justification needs a new one. It
+// runs before the save writes anything or appends to the audit log
+// (approval.Require), which is why the draft carries the transaction.
+func (s *Service) requireWaivers(ctx context.Context, d draft, p auth.Principal, path, profile string, changed []waiverChange, justifications map[string]string) error {
+	parts := make([][]byte, 0, 2*len(changed))
+	for _, c := range changed {
+		parts = append(parts, []byte(c.Where), []byte(justifications[c.Where]))
+	}
+	subject := "waiver:" + path
+	if d.plugin != nil {
+		subject = "waiver:" + d.plugin.Key + ":" + path
+	}
+	return approval.Require(ctx, s.o.Approvals, d.tx, approval.Artifact{
+		Resource: schema.PolicyResourceWaiver, OrganizationID: p.OrganizationID, AppID: d.app, Action: approval.ActionWaive,
+		Subject: subject, Hash: approval.HashOf(parts...), Profile: profile, Requester: p.Actor(),
+		Summary: fmt.Sprintf("%d accessibility waiver(s) in %s", len(changed), path),
+	})
 }
 
 // collectWaivers lists the a11yWaivers entries of a document tree: each

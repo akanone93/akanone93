@@ -3198,7 +3198,7 @@ final class PolicyDocument {
 /// The changes a policy applies to: a change matches when it satisfies every
 /// attribute listed; an attribute left out matches anything.
 final class PolicyMatch {
-  const PolicyMatch({this.resources, this.environments, this.actions, this.risk});
+  const PolicyMatch({this.resources, this.environments, this.actions, this.production, this.risk});
 
   /// Decodes a JSON object.
   factory PolicyMatch.fromJson(Object json) {
@@ -3207,6 +3207,7 @@ final class PolicyMatch {
       resources: m['resources'] == null ? null : [for (final e in m['resources']! as List<Object?>) PolicyResource.fromJson(e!)],
       environments: m['environments'] == null ? null : [for (final e in m['environments']! as List<Object?>) e! as String],
       actions: m['actions'] == null ? null : [for (final e in m['actions']! as List<Object?>) e! as String],
+      production: m['production'] == null ? null : m['production']! as bool,
       risk: m['risk'] == null ? null : [for (final e in m['risk']! as List<Object?>) PolicyRisk.fromJson(e!)],
     );
   }
@@ -3214,6 +3215,11 @@ final class PolicyMatch {
   final List<PolicyResource>? resources;
   final List<String>? environments;
   final List<String>? actions;
+  /// Whether the change is to a production environment: true matches production
+  /// environments only, false the others, and left out both. The environment
+  /// keys of `environments` name environments one by one; this names the class,
+  /// so that a policy covers a production environment added later.
+  final bool? production;
   /// Risk attributes that must all hold.
   final List<PolicyRisk>? risk;
 
@@ -3222,6 +3228,7 @@ final class PolicyMatch {
         if (resources != null) 'resources': [for (final e in resources!) e.toJson()],
         if (environments != null) 'environments': [for (final e in environments!) e],
         if (actions != null) 'actions': [for (final e in actions!) e],
+        if (production != null) 'production': production!,
         if (risk != null) 'risk': [for (final e in risk!) e.toJson()],
       };
 }

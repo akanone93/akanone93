@@ -296,6 +296,37 @@ var matrix = map[string]entry{
 		return &pluxv1.DeleteGrantRequest{Id: unknownID}
 	})),
 
+	// ApprovalService (GOV-020 to GOV-023): reading policies and requests
+	// needs the app, writing a policy needs policies.manage and deciding
+	// needs approvals.decide.
+	"ApprovalService/PutPolicy": atPerm(auth.PoliciesManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.PutPolicyRequest{AppId: f.app, Document: []byte(`{}`)}
+	})),
+	"ApprovalService/GetPolicy": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetPolicyRequest{AppId: f.app, Key: "no-such-policy"}
+	})),
+	"ApprovalService/ListPolicies": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListPoliciesRequest{AppId: f.app}
+	})),
+	"ApprovalService/DeletePolicy": atPerm(auth.PoliciesManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DeletePolicyRequest{AppId: f.app, Key: "no-such-policy"}
+	})),
+	"ApprovalService/ExportPolicies": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ExportPoliciesRequest{AppId: f.app}
+	})),
+	"ApprovalService/ListApprovals": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListApprovalsRequest{AppId: f.app}
+	})),
+	"ApprovalService/GetApproval": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetApprovalRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ApprovalService/GetApprovalReview": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetApprovalReviewRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ApprovalService/DecideApproval": atPerm(auth.ApprovalsDecide, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DecideApprovalRequest{AppId: f.app, Id: unknownID, Decision: "approve"}
+	})),
+
 	// SearchService
 	"SearchService/Search": atPerm(auth.SearchRead, anyone(&pluxv1.SearchRequest{Query: "demo"})),
 

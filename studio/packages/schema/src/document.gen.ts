@@ -1121,6 +1121,8 @@ export interface PolicyMatch {
   readonly resources?: readonly PolicyResource[];
   readonly environments?: readonly string[];
   readonly actions?: readonly string[];
+  /** Whether the change is to a production environment: true matches production environments only, false the others, and left out both. The environment keys of `environments` name environments one by one; this names the class, so that a policy covers a production environment added later. */
+  readonly production?: boolean;
   /** Risk attributes that must all hold. */
   readonly risk?: readonly PolicyRisk[];
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */

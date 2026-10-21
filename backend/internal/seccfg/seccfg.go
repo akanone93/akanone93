@@ -16,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -48,6 +49,9 @@ type Options struct {
 	// securityConfig.patchBytes are read from them. The zero value uses
 	// the defaults.
 	Limits limits.Set
+	// Approvals decides whether a configuration may change (GOV-020); nil
+	// requires nothing.
+	Approvals approval.Gate
 	// Tenancy, when set, resolves the limits an organisation or app
 	// tightened (LIM-002); without it the installation's apply.
 	Tenancy *tenancy.Service
@@ -179,6 +183,9 @@ func (s *Service) write(ctx context.Context, tx pgx.Tx, p auth.Principal, c Chan
 		return 0, err
 	}
 	if err := checkSize(want, len(c.Overrides), lim.Get(limits.SecurityConfigBytes)); err != nil {
+		return 0, err
+	}
+	if err := s.requireApproval(ctx, tx, p, env, want); err != nil {
 		return 0, err
 	}
 	// The lock serialises the changes of one environment, so the version

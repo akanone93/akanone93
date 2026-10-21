@@ -101,6 +101,66 @@ type AppAccess struct {
 	GrantedAt      pgtype.Timestamptz
 }
 
+type ApprovalDecision struct {
+	ID             pgtype.UUID
+	RequestID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	DeciderID      string
+	Decider        string
+	Roles          []string
+	Teams          []string
+	Decision       string
+	Comment        string
+	ContentHash    string
+	DecidedAt      pgtype.Timestamptz
+	AuditSequence  int64
+	Payload        []byte
+	KeyID          *string
+	Signature      []byte
+}
+
+type ApprovalPolicy struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Key            string
+	Version        int32
+	Document       []byte
+	DocumentHash   string
+	Deleted        bool
+	CreatedByKind  string
+	CreatedByID    string
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+}
+
+type ApprovalRequest struct {
+	ID                pgtype.UUID
+	OrganizationID    pgtype.UUID
+	AppID             pgtype.UUID
+	EnvironmentID     pgtype.UUID
+	EnvironmentKey    string
+	Production        bool
+	Resource          string
+	Action            string
+	Subject           string
+	ContentHash       string
+	Summary           string
+	Risk              []string
+	Payload           []byte
+	PolicyKeys        []string
+	ApprovalsRequired int32
+	AuthorID          string
+	RequestedByKind   string
+	RequestedByID     string
+	RequestedBy       string
+	Status            string
+	CreatedAt         pgtype.Timestamptz
+	ExpiresAt         pgtype.Timestamptz
+	UsedAt            pgtype.Timestamptz
+	UsedBy            string
+}
+
 type Asset struct {
 	ID             pgtype.UUID
 	AssetID        pgtype.UUID

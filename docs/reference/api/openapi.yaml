@@ -1293,6 +1293,368 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UpdateEnvironmentResponse'
+  /plux.v1.ApprovalService/DecideApproval:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: DecideApproval
+      description: |-
+        DecideApproval approves or rejects a request. It needs approvals.decide
+         on the request's environment, which needs a fresh step-up (SEC-103).
+         The requester and the author of the change are refused (PLX-8003).
+      operationId: plux.v1.ApprovalService.DecideApproval
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DecideApprovalRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DecideApprovalResponse'
+  /plux.v1.ApprovalService/DeletePolicy:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: DeletePolicy
+      description: DeletePolicy withdraws a policy; a deleted default is not seeded again.
+      operationId: plux.v1.ApprovalService.DeletePolicy
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeletePolicyRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeletePolicyResponse'
+  /plux.v1.ApprovalService/ExportPolicies:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: ExportPolicies
+      description: |-
+        ExportPolicies returns the policies in force as the files of the Git
+         layout, policies/<key>.policy.json.
+      operationId: plux.v1.ApprovalService.ExportPolicies
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExportPoliciesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExportPoliciesResponse'
+  /plux.v1.ApprovalService/GetApproval:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: GetApproval
+      operationId: plux.v1.ApprovalService.GetApproval
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetApprovalRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetApprovalResponse'
+  /plux.v1.ApprovalService/GetApprovalReview:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: GetApprovalReview
+      description: |-
+        GetApprovalReview returns what an approver sees before deciding: the
+         diff, reports, golden-image differences, install base, changelog and
+         risk summary (GOV-023).
+      operationId: plux.v1.ApprovalService.GetApprovalReview
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetApprovalReviewRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetApprovalReviewResponse'
+  /plux.v1.ApprovalService/GetPolicy:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: GetPolicy
+      operationId: plux.v1.ApprovalService.GetPolicy
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetPolicyRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetPolicyResponse'
+  /plux.v1.ApprovalService/ListApprovals:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: ListApprovals
+      operationId: plux.v1.ApprovalService.ListApprovals
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListApprovalsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListApprovalsResponse'
+  /plux.v1.ApprovalService/ListPolicies:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: ListPolicies
+      description: |-
+        ListPolicies lists the policies in force for an app. The first call
+         for an app seeds the default policies of its security profile.
+      operationId: plux.v1.ApprovalService.ListPolicies
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListPoliciesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListPoliciesResponse'
+  /plux.v1.ApprovalService/PutPolicy:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: PutPolicy
+      description: |-
+        PutPolicy creates a policy document or adds a version of it. The
+         document is checked against the policy schema (PLX-1700); stages and
+         distinct-team rules are an enterprise feature (PLX-8600). Changing a
+         policy is itself a change a policy can guard (resource "policy").
+      operationId: plux.v1.ApprovalService.PutPolicy
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.PutPolicyRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.PutPolicyResponse'
   /plux.v1.AssetService/DeleteAsset:
     post:
       tags:
@@ -10582,6 +10944,122 @@ components:
           title: updated_at
       title: App
       additionalProperties: false
+    plux.v1.ApprovalDecision:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        deciderId:
+          type: string
+          title: decider_id
+        decider:
+          type: string
+          title: decider
+        decision:
+          type: string
+          title: decision
+          description: decision is "approve" or "reject".
+        comment:
+          type: string
+          title: comment
+        contentHash:
+          type: string
+          title: content_hash
+        decidedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: decided_at
+        payload:
+          type: string
+          title: payload
+          format: byte
+          description: payload is the canonical record the signature covers.
+        keyId:
+          type: string
+          title: key_id
+          description: key_id and signature are empty until the worker has signed the record.
+        signature:
+          type: string
+          title: signature
+          format: byte
+        auditSequence:
+          type: string
+          title: audit_sequence
+          format: int64
+      title: ApprovalDecision
+      additionalProperties: false
+      description: ApprovalDecision is one signed record of a decision (GOV-023).
+    plux.v1.ApprovalRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environment:
+          type: string
+          title: environment
+        resource:
+          type: string
+          title: resource
+          description: resource is the kind of artifact, as in the policy schema.
+        action:
+          type: string
+          title: action
+        subject:
+          type: string
+          title: subject
+          description: subject names what changes, for example "release:12".
+        contentHash:
+          type: string
+          title: content_hash
+          description: content_hash is what an approval is bound to (GOV-022), in hex.
+        summary:
+          type: string
+          title: summary
+        risk:
+          type: array
+          items:
+            type: string
+          title: risk
+        status:
+          type: string
+          title: status
+          description: |-
+            status is "open", "approved", "rejected", "expired", "superseded" or
+             "used".
+        requestedBy:
+          type: string
+          title: requested_by
+        policyKeys:
+          type: array
+          items:
+            type: string
+          title: policy_keys
+        approvalsRequired:
+          type: integer
+          title: approvals_required
+          format: int32
+          description: approvals_required is the most approvals any matching policy asks for.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+        decisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ApprovalDecision'
+          title: decisions
+      title: ApprovalRequest
+      additionalProperties: false
+      description: ApprovalRequest asks for the approval of one artifact.
     plux.v1.ApproveDeviceAuthorizationRequest:
       type: object
       properties:
@@ -12618,6 +13096,33 @@ components:
       description: |-
         DataSubjectRequest is a completed export or erasure. The subject appears
          only as a hash.
+    plux.v1.DecideApprovalRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+        decision:
+          type: string
+          title: decision
+          description: decision is "approve" or "reject".
+        comment:
+          type: string
+          title: comment
+      title: DecideApprovalRequest
+      additionalProperties: false
+    plux.v1.DecideApprovalResponse:
+      type: object
+      properties:
+        approval:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ApprovalRequest'
+          title: approval
+      title: DecideApprovalResponse
+      additionalProperties: false
     plux.v1.DeleteAppRequest:
       type: object
       properties:
@@ -12817,6 +13322,21 @@ components:
             - $ref: '#/components/schemas/plux.v1.TrashItem'
           title: trash
       title: DeletePluginResponse
+      additionalProperties: false
+    plux.v1.DeletePolicyRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        key:
+          type: string
+          title: key
+      title: DeletePolicyRequest
+      additionalProperties: false
+    plux.v1.DeletePolicyResponse:
+      type: object
+      title: DeletePolicyResponse
       additionalProperties: false
     plux.v1.DeleteRoleRequest:
       type: object
@@ -13622,6 +14142,24 @@ components:
           format: byte
       title: ExportDraftResponse
       additionalProperties: false
+    plux.v1.ExportPoliciesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ExportPoliciesRequest
+      additionalProperties: false
+    plux.v1.ExportPoliciesResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PolicyFile'
+          title: files
+      title: ExportPoliciesResponse
+      additionalProperties: false
     plux.v1.ExportSubjectRequest:
       type: object
       properties:
@@ -14058,6 +14596,78 @@ components:
             - $ref: '#/components/schemas/plux.v1.App'
           title: app
       title: GetAppResponse
+      additionalProperties: false
+    plux.v1.GetApprovalRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: GetApprovalRequest
+      additionalProperties: false
+    plux.v1.GetApprovalResponse:
+      type: object
+      properties:
+        approval:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ApprovalRequest'
+          title: approval
+      title: GetApprovalResponse
+      additionalProperties: false
+    plux.v1.GetApprovalReviewRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: GetApprovalReviewRequest
+      additionalProperties: false
+    plux.v1.GetApprovalReviewResponse:
+      type: object
+      properties:
+        approval:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ApprovalRequest'
+          title: approval
+        diff:
+          type: string
+          title: diff
+          format: byte
+          description: diff is the JSON diff of the change, as JSON.
+        reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ReviewReport'
+          title: reports
+        goldenDiffs:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ReviewImage'
+          title: golden_diffs
+        installBase:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.InstallBaseEntry'
+          title: install_base
+        changelog:
+          type: array
+          items:
+            type: string
+          title: changelog
+        notes:
+          type: string
+          title: notes
+        risk:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReviewRisk'
+          title: risk
+      title: GetApprovalReviewResponse
       additionalProperties: false
     plux.v1.GetAssetRequest:
       type: object
@@ -14837,6 +15447,26 @@ components:
             - $ref: '#/components/schemas/plux.v1.PluginVersion'
           title: version
       title: GetPluginVersionResponse
+      additionalProperties: false
+    plux.v1.GetPolicyRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        key:
+          type: string
+          title: key
+      title: GetPolicyRequest
+      additionalProperties: false
+    plux.v1.GetPolicyResponse:
+      type: object
+      properties:
+        policy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PolicyRecord'
+          title: policy
+      title: GetPolicyResponse
       additionalProperties: false
     plux.v1.GetPublishJobRequest:
       type: object
@@ -15700,6 +16330,29 @@ components:
           title: diagnostics
       title: IngestEventsResponse
       additionalProperties: false
+    plux.v1.InstallBaseEntry:
+      type: object
+      properties:
+        channel:
+          type: string
+          title: channel
+          description: channel is set on the entries of a channel's current release.
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+        hostBuild:
+          type: string
+          title: host_build
+        devices:
+          type: string
+          title: devices
+          format: int64
+      title: InstallBaseEntry
+      additionalProperties: false
+      description: |-
+        InstallBaseEntry counts the devices of the environment that hold one
+         release on one host build.
     plux.v1.InstalledBundle:
       type: object
       properties:
@@ -15954,6 +16607,36 @@ components:
             $ref: '#/components/schemas/plux.v1.LimitUsage'
           title: limits
       title: ListAppLimitsResponse
+      additionalProperties: false
+    plux.v1.ListApprovalsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        status:
+          type: string
+          title: status
+          description: status narrows the list when set.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListApprovalsRequest
+      additionalProperties: false
+    plux.v1.ListApprovalsResponse:
+      type: object
+      properties:
+        approvals:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ApprovalRequest'
+          title: approvals
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListApprovalsResponse
       additionalProperties: false
     plux.v1.ListAppsRequest:
       type: object
@@ -16769,6 +17452,24 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListPluginsResponse
+      additionalProperties: false
+    plux.v1.ListPoliciesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ListPoliciesRequest
+      additionalProperties: false
+    plux.v1.ListPoliciesResponse:
+      type: object
+      properties:
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PolicyRecord'
+          title: policies
+      title: ListPoliciesResponse
       additionalProperties: false
     plux.v1.ListPublishJobsRequest:
       type: object
@@ -18064,6 +18765,56 @@ components:
       title: PluginVersion
       additionalProperties: false
       description: PluginVersion is an immutable published plugin (REL-001).
+    plux.v1.PolicyFile:
+      type: object
+      properties:
+        path:
+          type: string
+          title: path
+        content:
+          type: string
+          title: content
+          format: byte
+      title: PolicyFile
+      additionalProperties: false
+      description: PolicyFile is one file of an export.
+    plux.v1.PolicyRecord:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        key:
+          type: string
+          title: key
+        version:
+          type: integer
+          title: version
+          format: int32
+        document:
+          type: string
+          title: document
+          format: byte
+          description: document is the policy document as JSON.
+        documentHash:
+          type: string
+          title: document_hash
+          description: |-
+            document_hash is the SHA-256 of the canonical document, in hex: what
+             an approval of a policy change binds to.
+        deleted:
+          type: boolean
+          title: deleted
+        createdBy:
+          type: string
+          title: created_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: PolicyRecord
+      additionalProperties: false
+      description: PolicyRecord is one version of a policy document.
     plux.v1.PollDeviceAuthorizationRequest:
       type: object
       properties:
@@ -18383,6 +19134,28 @@ components:
             $ref: '#/components/schemas/plux.v1.Diagnostic'
           title: diagnostics
       title: PutDocumentResponse
+      additionalProperties: false
+    plux.v1.PutPolicyRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        document:
+          type: string
+          title: document
+          format: byte
+          description: document is the policy document as JSON.
+      title: PutPolicyRequest
+      additionalProperties: false
+    plux.v1.PutPolicyResponse:
+      type: object
+      properties:
+        policy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PolicyRecord'
+          title: policy
+      title: PutPolicyResponse
       additionalProperties: false
     plux.v1.QueryRollupsRequest:
       type: object
@@ -19014,6 +19787,57 @@ components:
       description: |-
         RetentionSetting is the retention of one data class: raw_events, rollups
          or audit_production.
+    plux.v1.ReviewImage:
+      type: object
+      properties:
+        pluginKey:
+          type: string
+          title: plugin_key
+        caseId:
+          type: string
+          title: case_id
+        baseline:
+          type: string
+          title: baseline
+          format: byte
+        actual:
+          type: string
+          title: actual
+          format: byte
+      title: ReviewImage
+      additionalProperties: false
+      description: |-
+        ReviewImage is a golden-image difference: the approved baseline and the
+         image the run produced, as PNG. The baseline is empty for a case that
+         has none yet.
+    plux.v1.ReviewReport:
+      type: object
+      properties:
+        kind:
+          type: string
+          title: kind
+        content:
+          type: string
+          title: content
+          format: byte
+      title: ReviewReport
+      additionalProperties: false
+      description: ReviewReport is a validation or accessibility report as JSON.
+    plux.v1.ReviewRisk:
+      type: object
+      properties:
+        level:
+          type: string
+          title: level
+          description: level is "low", "medium" or "high".
+        reasons:
+          type: array
+          items:
+            type: string
+          title: reasons
+      title: ReviewRisk
+      additionalProperties: false
+      description: ReviewRisk is the computed risk summary.
     plux.v1.RevokeAccessRequest:
       type: object
       properties:
@@ -21471,6 +22295,13 @@ tags:
        the permission catalogue, the predefined and custom roles, and the grants
        that bind a role to a user or a team at a scope. Teams and their members
        are managed by OrgService.
+  - name: plux.v1.ApprovalService
+    description: |-
+      ApprovalService is the approval engine (GOV-020 to GOV-023, ADR-0076):
+       the policies that say which changes need approval, and the requests the
+       engine opens when a guarded change is refused for want of one. A request
+       is opened by the refusal itself, never by a call here, and names the
+       artifact by its content hash.
   - name: plux.v1.LicenseService
     description: |-
       LicenseService reports the installation's enterprise licence (GOV-030,
