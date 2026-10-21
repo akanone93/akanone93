@@ -32,6 +32,7 @@ import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/control_sync.dart';
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -100,7 +101,8 @@ sealed class _Command {
 }
 
 final class _Sync extends _Command {
-  const _Sync(super.reply);
+  const _Sync(super.reply, this.context);
+  final SyncContext context;
 }
 
 /// Checks the signed control document once (SYN-060).
@@ -131,6 +133,13 @@ final class _Settings extends _Command {
 /// Re-attests the device now (SEC-006).
 final class _Reattest extends _Command {
   const _Reattest(super.reply);
+}
+
+/// Reports the active release and what the user saw it in (SEC-142).
+final class _ReportInstalled extends _Command {
+  const _ReportInstalled(super.reply, this.sequence, this.context);
+  final int sequence;
+  final InstalledContext context;
 }
 
 final class _Flush extends _Command {
@@ -274,8 +283,13 @@ final class SyncWorker
   Future<SyncResult>? _running;
 
   /// Syncs once, reporting events to [onEvent]; a sync already running is
-  /// joined rather than started twice (ADR-0021).
-  Future<SyncResult> sync(void Function(SyncEvent) onEvent) {
+  /// joined rather than started twice (ADR-0021). [context] is what the UI
+  /// isolate knows of the device and its user for rollout targeting
+  /// (REL-051).
+  Future<SyncResult> sync(
+    void Function(SyncEvent) onEvent, {
+    SyncContext context = const SyncContext(),
+  }) {
     final running = _running;
     if (running != null) return running;
     final port = ReceivePort();
@@ -287,7 +301,7 @@ final class SyncWorker
         port.close();
       }
     });
-    _commands.send(_Sync(port.sendPort));
+    _commands.send(_Sync(port.sendPort, context));
     return _running = done.future.whenComplete(() => _running = null);
   }
 
@@ -470,6 +484,11 @@ final class SyncWorker
   /// after the telemetry sent before it: a detection is reported first.
   Future<void> reattest() => _ask(_Reattest.new);
 
+  /// Tells the server that release [sequence] is active, with [context]
+  /// (SEC-142). Never throws: a report that fails is lost.
+  Future<void> reportInstalled(int sequence, InstalledContext context) =>
+      _ask((p) => _ReportInstalled(p, sequence, context));
+
   /// Completes once the isolate has handled every message sent before.
   Future<void> settle() => _ask(_Settle.new);
 
@@ -565,6 +584,13 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         } on Object catch (e) {
           reply.send(_Failure('$e'));
         }
+      case _ReportInstalled(:final reply, :final sequence, :final context):
+        // Beside the other commands: a slow server holds up none of them.
+        track(
+          engine
+              .reportInstalled(sequence, context)
+              .whenComplete(() => reply.send(null)),
+        );
       case _Record(:final lines, :final maxBytes):
         try {
           bufferBytes = maxBytes;
@@ -664,8 +690,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         track(_serve(reply, () => engine.gateway.live.read(key)));
       case _EnrolSca(:final reply):
         track(_serve(reply, engine.gateway.ensureEnrolled));
-      case _Sync(:final reply):
-        reply.send(await engine.run(reply.send));
+      case _Sync(:final reply, :final context):
+        reply.send(await engine.run(reply.send, context: context));
       case _Baseline(:final reply, :final assets):
         final read = assets == null ? config.baseline : _servedBy(assets);
         try {

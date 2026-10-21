@@ -15,6 +15,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,6 +97,7 @@ import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/store/sealed_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/control_sync.dart' show ControlOutcome;
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -872,6 +874,21 @@ final class PluxRuntime with WidgetsBindingObserver {
     );
   }
 
+  /// What rollouts may target this device by, besides what the sync isolate
+  /// knows of the platform: the device class and locale facts and the user
+  /// context, read now (REL-051). The sync isolate hashes the user's values.
+  SyncContext _syncContext() {
+    final facts = _targetingFacts();
+    final user = environment().user;
+    return SyncContext(
+      deviceClass: facts['deviceClass'] as String? ?? '',
+      locale: facts['locale'] as String? ?? '',
+      region: facts['region'] as String? ?? '',
+      userId: user?.id,
+      userAttributes: user?.attributes ?? const {},
+    );
+  }
+
   /// The ID of this installation, made on first use and kept with the
   /// persisted state: the assignment subject of a device with no user ID.
   String _installId() {
@@ -1550,7 +1567,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     final forward = _events.stream.listen(progress.add);
     Future<SyncResult> run() async {
       try {
-        final r = await _worker.sync(_emit);
+        final r = await _worker.sync(_emit, context: _syncContext());
         if (r.settings != null) settings.value = r.settings!;
         if (r.assurance != null) {
           assurance.value = math.min(r.assurance!, _assuranceCeiling);
@@ -1661,6 +1678,40 @@ final class PluxRuntime with WidgetsBindingObserver {
     }
     previous?.retire();
     _refreshControl();
+    final now = active.value?.sequence;
+    if (now != null && now != previous?.sequence) {
+      unawaited(_reportInstalled(now));
+    }
+  }
+
+  /// Tells the server which release this device runs and what the user saw
+  /// it in (SEC-142). A report that cannot be sent is lost.
+  Future<void> _reportInstalled(int sequence) async {
+    if (_disposed) return;
+    try {
+      await _worker.reportInstalled(sequence, _installedContext());
+    } on Object catch (_) {
+      // Not reported; nothing depends on it.
+    }
+  }
+
+  /// The theme in use, the text scale and the host's pseudonymous user
+  /// identifier, read now: the inputs of a reconstruction (SEC-142). The
+  /// user reference is the identifier `setUserContext` gave, never another
+  /// personal value.
+  InstalledContext _installedContext() {
+    final dispatcher = WidgetsBinding.instance.platformDispatcher;
+    final env = environment();
+    final dark = switch (env.themeMode) {
+      ThemeMode.dark => true,
+      ThemeMode.light => false,
+      ThemeMode.system => dispatcher.platformBrightness == ui.Brightness.dark,
+    };
+    return InstalledContext(
+      theme: dark ? 'dark' : 'light',
+      textScalePercent: (dispatcher.textScaleFactor * 100).round(),
+      userRef: env.user?.id ?? '',
+    );
   }
 
   /// A page mounted: it holds the active release until [unmount].

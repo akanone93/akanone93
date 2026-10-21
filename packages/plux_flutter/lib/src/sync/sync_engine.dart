@@ -36,6 +36,7 @@ import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/control_sync.dart';
 import 'package:plux_flutter/src/sync/device_auth.dart';
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
 import 'package:plux_flutter/src/sync/gateway_agent.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
@@ -279,13 +280,20 @@ final class SyncEngine {
 
   /// Syncs once, reporting [SyncEvent]s to [emit]. Never throws: a failure
   /// is a [SyncResult] with [SyncOutcome.failed], and the active release
-  /// is untouched.
-  Future<SyncResult> run(void Function(SyncEvent) emit) async {
-    final r = await _run(emit);
+  /// is untouched. The manifest request carries what rollouts may target
+  /// this device by: its platform and runtime, and [context] (REL-051).
+  Future<SyncResult> run(
+    void Function(SyncEvent) emit, {
+    SyncContext context = const SyncContext(),
+  }) async {
+    final r = await _run(emit, DeviceTargeting.of(config.device, context));
     return r.withAssurance(_auth.assurance);
   }
 
-  Future<SyncResult> _run(void Function(SyncEvent) emit) async {
+  Future<SyncResult> _run(
+    void Function(SyncEvent) emit,
+    DeviceTargeting targeting,
+  ) async {
     final started = _clock();
     final bytes = _Counter();
     try {
@@ -328,6 +336,7 @@ final class SyncEngine {
         ifNoneMatch: ifNoneMatch ?? etag,
         installedDigest: list ? const [] : installedDigest(hashes),
         configVersion: configVersion < 0 ? sentConfig : configVersion,
+        targeting: targeting,
       );
       var res = await ask(list: etag.isEmpty);
       if (res.installedRequired) {
@@ -710,6 +719,25 @@ final class SyncEngine {
 
   /// Re-attests the device's key now, after a risk signal (SEC-006).
   Future<void> reattest() => _auth.reattestNow();
+
+  /// Tells the server that release [sequence] is the one this device runs,
+  /// with what the user saw it in ([context], SEC-142). The report is
+  /// best effort: a device that cannot reach the server, or has no
+  /// credential yet, loses it, and the next activation sends another.
+  Future<void> reportInstalled(int sequence, InstalledContext context) async {
+    try {
+      final credential = await credentials.read();
+      if (credential == null) return;
+      await api.reportInstalled(
+        await _auth.token(),
+        credential.deviceId,
+        sequence,
+        context: context,
+      );
+    } on Exception {
+      // Not reported; the sync itself is unaffected.
+    }
+  }
 
   /// Obtains one bundle: by its delta when the plan offers one against
   /// the bundle this device holds, else — or when the rebuilt bundle is
