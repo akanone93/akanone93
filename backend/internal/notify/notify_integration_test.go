@@ -160,7 +160,7 @@ func (w *world) event(t notify.EventType, title string) notify.Event {
 // SRV-062: the event types are a closed, sorted registry.
 func TestSRV062EventTypeRegistry(t *testing.T) {
 	want := []notify.EventType{
-		notify.AlertFired, notify.ApprovalRequested, notify.BreakGlassUsed, notify.FunctionFailing,
+		notify.AlertFired, notify.ApprovalRequested, notify.BreakGlassOverdue, notify.BreakGlassUsed, notify.FunctionFailing,
 		notify.LicenceExpiring, notify.LockRequested, notify.ReleasePublished, notify.RolloutPaused,
 	}
 	got := notify.Types()
