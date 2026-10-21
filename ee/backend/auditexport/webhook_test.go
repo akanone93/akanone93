@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/ee/backend/internal/stdwebhook"
 )
 
 // webhookVectors are the Standard Webhooks test vectors, copied unmodified
@@ -68,11 +69,11 @@ func webhookSinkFor(t *testing.T, url, secret string) *webhookSink {
 func TestWebhookSignatureVectors_SEC_143(t *testing.T) {
 	t.Parallel()
 	v := loadWebhookVectors(t)
-	key, err := webhookKey(v.Secret)
+	key, err := stdwebhook.ParseSecret(v.Secret)
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := sign(key, v.ID, time.Unix(v.Timestamp, 0), []byte(v.Payload))
+	got := stdwebhook.Sign(key, v.ID, time.Unix(v.Timestamp, 0), []byte(v.Payload))
 	if got != v.Signature {
 		t.Errorf("sign = %q, want %q", got, v.Signature)
 	}
@@ -99,7 +100,7 @@ func TestWebhookSignatureVectors_SEC_143(t *testing.T) {
 func TestWebhookSinkSignsMessages_SEC_143(t *testing.T) {
 	t.Parallel()
 	v := loadWebhookVectors(t)
-	key, err := webhookKey(v.Secret)
+	key, err := stdwebhook.ParseSecret(v.Secret)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +115,7 @@ func TestWebhookSinkSignsMessages_SEC_143(t *testing.T) {
 		if ts := r.Header.Get("Webhook-Timestamp"); ts != strconv.FormatInt(at.Unix(), 10) {
 			t.Errorf("webhook-timestamp = %q, want the sink's clock", ts)
 		}
-		if want := sign(key, id, at, body); r.Header.Get("Webhook-Signature") != want {
+		if want := stdwebhook.Sign(key, id, at, body); r.Header.Get("Webhook-Signature") != want {
 			t.Errorf("webhook-signature = %q, want %q", r.Header.Get("Webhook-Signature"), want)
 		}
 		if !strings.HasPrefix(id, "msg_rec-") {
@@ -141,8 +142,8 @@ func TestWebhookSecretRefused_SEC_143(t *testing.T) {
 	t.Parallel()
 	bad := []string{"", "MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw", "whsec_", "whsec_!!!", "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw "}
 	for _, secret := range bad {
-		if _, err := webhookKey(secret); err == nil {
-			t.Errorf("webhookKey(%q) accepted the secret", secret)
+		if _, err := stdwebhook.ParseSecret(secret); err == nil {
+			t.Errorf("stdwebhook.ParseSecret(%q) accepted the secret", secret)
 		}
 		d := export.Destination{Kind: KindWebhook, Address: "https://hooks.example.com/plux"}
 		if err := (Provider{}).Validate(d, []byte(secret)); err == nil {

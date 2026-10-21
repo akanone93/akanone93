@@ -12,6 +12,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/ee/backend/internal/stdwebhook"
 )
 
 // The destination kinds this package serves. They are the kind names the
@@ -43,7 +44,7 @@ func (Provider) Validate(d export.Destination, secret []byte) error {
 		if err := validateHTTPSURL(d.Address); err != nil {
 			return err
 		}
-		_, err := webhookKey(string(secret))
+		_, err := stdwebhook.ParseSecret(string(secret))
 		return err
 	}
 	return fmt.Errorf("auditexport: the kind %q is not served", d.Kind)

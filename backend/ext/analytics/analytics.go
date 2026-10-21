@@ -199,6 +199,9 @@ type Settings struct {
 // PostgreSQL store. A store that holds resources, such as connections,
 // implements io.Closer: the server closes it when the process ends.
 type Opener interface {
-	// Open returns the store. It is called once, when the process starts.
+	// Open returns the store. It is called once, when the process starts,
+	// with a context that carries the installation's licence (package
+	// edition). It returns a nil Store and no error to leave the core on
+	// PostgreSQL, such as when the licence does not allow the adapter.
 	Open(ctx context.Context, s Settings) (Store, error)
 }

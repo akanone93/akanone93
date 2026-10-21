@@ -6,3 +6,5 @@
 backend/internal/notify/webhook/testdata/standard_webhooks_vectors.json:generic-api-key:3
 # Public Standard Webhooks test vector, copied unmodified into the enterprise sinks tests (published upstream, Apache-2.0)
 ee/backend/auditexport/testdata/standard_webhooks_vectors.json:generic-api-key:3
+# Public Standard Webhooks test vector, copied unmodified into the shared signer tests (published upstream, Apache-2.0)
+ee/backend/internal/stdwebhook/testdata/standard_webhooks_vectors.json:generic-api-key:3

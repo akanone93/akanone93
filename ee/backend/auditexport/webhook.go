@@ -5,26 +5,17 @@ package auditexport
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/ee/backend/internal/stdwebhook"
 )
 
 const (
-	// secretPrefix opens a Standard Webhooks signing secret, which is the
-	// prefix followed by the base64 of the key.
-	secretPrefix = "whsec_"
-	// signatureVersion is the version tag of the webhook-signature header.
-	signatureVersion = "v1"
 	// webhookEventType is the type of every delivered message.
 	webhookEventType = "plux.audit.entry"
 )
@@ -45,7 +36,7 @@ func newWebhookSink(c export.Config) (*webhookSink, error) {
 	if c.HTTP == nil || c.Now == nil {
 		return nil, errors.New("auditexport: a webhook sink needs an HTTP client and a clock")
 	}
-	key, err := webhookKey(string(c.Secret))
+	key, err := stdwebhook.ParseSecret(string(c.Secret))
 	if err != nil {
 		return nil, err
 	}
@@ -87,12 +78,7 @@ func (s *webhookSink) post(ctx context.Context, r export.Record) error {
 	}
 	id := "msg_" + r.ID
 	at := s.now()
-	headers := http.Header{
-		"Webhook-Id":        []string{id},
-		"Webhook-Timestamp": []string{strconv.FormatInt(at.Unix(), 10)},
-		"Webhook-Signature": []string{sign(s.key, id, at, body)},
-	}
-	return postJSON(ctx, s.client, s.endpoint, headers, body)
+	return postJSON(ctx, s.client, s.endpoint, stdwebhook.Headers(s.key, id, at, body), body)
 }
 
 // webhookEnvelope is the body of a message: its type, the time it was sent
@@ -101,27 +87,4 @@ type webhookEnvelope struct {
 	Type      string          `json:"type"`
 	Timestamp time.Time       `json:"timestamp"`
 	Data      json.RawMessage `json:"data"`
-}
-
-// webhookKey decodes a signing secret. It must be "whsec_" followed by the
-// base64 of a non-empty key, as the Standard Webhooks libraries write it.
-func webhookKey(secret string) ([]byte, error) {
-	if !strings.HasPrefix(secret, secretPrefix) {
-		return nil, fmt.Errorf("a webhook secret is %s followed by base64 text", secretPrefix)
-	}
-	key, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(secret, secretPrefix))
-	if err != nil || len(key) == 0 {
-		return nil, fmt.Errorf("a webhook secret is %s followed by base64 text", secretPrefix)
-	}
-	return key, nil
-}
-
-// sign returns the Standard Webhooks v1 signature of a message: the base64
-// of HMAC-SHA256 over "id.timestamp.body", with the key, written as
-// "v1,<base64>".
-func sign(key []byte, id string, at time.Time, body []byte) string {
-	mac := hmac.New(sha256.New, key)
-	mac.Write([]byte(id + "." + strconv.FormatInt(at.Unix(), 10) + "."))
-	mac.Write(body)
-	return signatureVersion + "," + base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }

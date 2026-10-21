@@ -18,6 +18,7 @@ import (
 	"github.com/nightCode42/plux3/backend/edition/licensefile"
 	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/serverapp"
+	"github.com/nightCode42/plux3/ee/backend/analytics"
 	"github.com/nightCode42/plux3/ee/backend/auditexport"
 	"github.com/nightCode42/plux3/ee/backend/license"
 	"github.com/nightCode42/plux3/ee/backend/saml"
@@ -25,13 +26,15 @@ import (
 )
 
 // options registers the licence verifier with the keys compiled into this
-// build, the enterprise audit export sinks (SEC-143), and the SAML and
-// SCIM implementations. The SCIM server logs the failures it does not tell
+// build, the enterprise audit export sinks (SEC-143), the ClickHouse
+// analytics store named by PLUX_ANALYTICS_CLICKHOUSE_URL (ANL-010), and the
+// SAML and SCIM implementations. The SCIM server logs the failures it does not tell
 // its client about to the process's error stream.
 func options() serverapp.Options {
 	return serverapp.Options{
 		Edition:    license.Verifier{Keys: licensefile.TrustedKeys()},
 		AuditSinks: auditexport.Provider{},
+		Analytics:  analytics.OpenerFromEnv(os.Getenv),
 		Identity: identity.Extensions{
 			SAML: saml.Provider{},
 			SCIM: scim.New(scim.Options{Log: slog.New(slog.NewJSONHandler(os.Stderr, nil))}),
