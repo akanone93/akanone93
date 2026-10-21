@@ -4,11 +4,13 @@
 package release
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -44,6 +46,9 @@ type ControlState struct {
 	KillSwitches    []controldoc.KillSwitch
 	MandatoryUpdate *controldoc.MandatoryUpdate
 	ForcedRollback  *controldoc.ForcedRollback
+	// Experimentation is what the document says about flags, experiments
+	// and the global holdout (ABT-006, ABT-001, ABT-004).
+	Experimentation Experimentation
 	UpdatedBy       audit.Actor
 	UpdatedAt       time.Time
 	// SignedVersion is the newest signed version, zero when none is.
@@ -54,11 +59,21 @@ type ControlState struct {
 	Signed []byte
 }
 
+// Experimentation is the part of a control document that the feature flags
+// and experiments of an environment decide (ABT-006, ABT-001, ABT-004): the
+// same in every channel of the environment.
+type Experimentation struct {
+	Flags       []controldoc.FlagValue
+	Experiments []controldoc.Allocation
+	Holdout     *controldoc.Holdout
+}
+
 // controlContent is what a control document says apart from its envelope.
 type controlContent struct {
 	Switches  []controldoc.KillSwitch
 	Mandatory *controldoc.MandatoryUpdate
 	Rollback  *controldoc.ForcedRollback
+	Experimentation
 }
 
 // The stored forms of the content, in the jsonb columns of
@@ -99,7 +114,72 @@ func contentOf(row dbgen.ControlDocument) (controlContent, error) {
 		}
 		c.Rollback = &controldoc.ForcedRollback{ReleaseID: r.ReleaseID, ReleaseSequence: r.ReleaseSequence}
 	}
+	var err error
+	if c.Experimentation, err = experimentationOf(row.Flags, row.Experiments, row.Holdout); err != nil {
+		return controlContent{}, err
+	}
 	return c, nil
+}
+
+// experimentationOf reads the stored flags, experiments and holdout.
+func experimentationOf(flags, experiments, holdout []byte) (Experimentation, error) {
+	var out Experimentation
+	if err := json.Unmarshal(flags, &out.Flags); err != nil {
+		return Experimentation{}, fmt.Errorf("release: the stored flags: %w", err)
+	}
+	if err := json.Unmarshal(experiments, &out.Experiments); err != nil {
+		return Experimentation{}, fmt.Errorf("release: the stored experiments: %w", err)
+	}
+	if len(holdout) > 0 {
+		out.Holdout = new(controldoc.Holdout)
+		if err := json.Unmarshal(holdout, out.Holdout); err != nil {
+			return Experimentation{}, fmt.Errorf("release: the stored holdout: %w", err)
+		}
+	}
+	return out, nil
+}
+
+// stored renders the experimentation as the three jsonb columns; the lists
+// are never null, which the columns do not allow.
+func (e Experimentation) stored() (flags, experiments, holdout []byte, err error) {
+	if flags, err = json.Marshal(nonNil(e.Flags)); err != nil {
+		return nil, nil, nil, fmt.Errorf("release: %w", err)
+	}
+	if experiments, err = json.Marshal(nonNil(e.Experiments)); err != nil {
+		return nil, nil, nil, fmt.Errorf("release: %w", err)
+	}
+	if e.Holdout != nil {
+		if holdout, err = json.Marshal(e.Holdout); err != nil {
+			return nil, nil, nil, fmt.Errorf("release: %w", err)
+		}
+	}
+	return flags, experiments, holdout, nil
+}
+
+// nonNil returns an empty list for nil, so that it marshals as [].
+func nonNil[T any](list []T) []T {
+	if list == nil {
+		return []T{}
+	}
+	return list
+}
+
+// sorted returns the experimentation with flags and experiments by key.
+func (e Experimentation) sorted() Experimentation {
+	out := e
+	out.Flags = slices.Clone(e.Flags)
+	slices.SortFunc(out.Flags, func(a, b controldoc.FlagValue) int { return strings.Compare(a.Key, b.Key) })
+	out.Experiments = slices.Clone(e.Experiments)
+	slices.SortFunc(out.Experiments, func(a, b controldoc.Allocation) int { return strings.Compare(a.Key, b.Key) })
+	return out
+}
+
+// equal reports whether two experimentations say the same, nil and empty
+// lists alike.
+func (e Experimentation) equal(o Experimentation) bool {
+	af, ae, ah, aerr := e.sorted().stored()
+	bf, be, bh, berr := o.sorted().stored()
+	return aerr == nil && berr == nil && bytes.Equal(af, bf) && bytes.Equal(ae, be) && bytes.Equal(ah, bh)
 }
 
 // parts renders the content as the three jsonb columns.
@@ -145,13 +225,15 @@ func (c controlContent) sorted() controlContent {
 		return 0
 	})
 	out.Switches = slices.Compact(out.Switches)
+	out.Experimentation = c.Experimentation.sorted()
 	return out
 }
 
 // equal reports whether two contents say the same.
 func (c controlContent) equal(o controlContent) bool {
 	a, b := c.sorted(), o.sorted()
-	return slices.Equal(a.Switches, b.Switches) && equalPtr(a.Mandatory, b.Mandatory) && equalPtr(a.Rollback, b.Rollback)
+	return slices.Equal(a.Switches, b.Switches) && equalPtr(a.Mandatory, b.Mandatory) && equalPtr(a.Rollback, b.Rollback) &&
+		a.Experimentation.equal(b.Experimentation)
 }
 
 func equalPtr[T comparable](a, b *T) bool {
@@ -281,6 +363,7 @@ func (*Service) controlState(ctx context.Context, q *dbgen.Queries, ref ChannelR
 		return ControlState{}, err
 	}
 	out.Version, out.KillSwitches, out.MandatoryUpdate, out.ForcedRollback = newest.Version, content.Switches, content.Mandatory, content.Rollback
+	out.Experimentation = content.Experimentation
 	out.UpdatedBy = audit.Actor{Kind: newest.CreatedByKind, ID: newest.CreatedByID, Display: newest.CreatedBy}
 	out.UpdatedAt = storage.Time(newest.CreatedAt)
 	signed, err := q.GetNewestSignedControlDocument(ctx, ch.ID)
@@ -405,6 +488,9 @@ func (s *Service) checkContent(c controlContent) error {
 			return err
 		}
 	}
+	if err := controldoc.ValidateExperimentation(c.Flags, c.Experiments, c.Holdout); err != nil {
+		return plxerr.New(plxerr.InvalidFormat, "the flags and experiments do not fit the control document: %v", err)
+	}
 	return nil
 }
 
@@ -414,9 +500,13 @@ func (*Service) insertControl(ctx context.Context, q *dbgen.Queries, ch dbgen.Ch
 	if err != nil {
 		return err
 	}
+	flags, experiments, holdout, err := c.Experimentation.stored()
+	if err != nil {
+		return err
+	}
 	if _, err := q.InsertControlDocument(ctx, dbgen.InsertControlDocumentParams{
 		ChannelID: ch.ID, OrganizationID: ch.OrganizationID, Version: version, KillSwitches: switches,
-		MandatoryUpdate: mandatory, ForcedRollback: rollback,
+		MandatoryUpdate: mandatory, ForcedRollback: rollback, Flags: flags, Experiments: experiments, Holdout: holdout,
 		CreatedByKind: by.Kind, CreatedByID: by.ID, CreatedBy: by.Display,
 	}); err != nil {
 		return failure(err, "control document")

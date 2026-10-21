@@ -6,8 +6,8 @@ SELECT * FROM control_documents WHERE channel_id = $1 AND signed IS NOT NULL ORD
 
 -- name: InsertControlDocument :one
 INSERT INTO control_documents (channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback,
-                               created_by_kind, created_by_id, created_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                               created_by_kind, created_by_id, created_by, flags, experiments, holdout)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING *;
 
 -- name: StoreControlSignature :one
@@ -22,6 +22,14 @@ DELETE FROM control_documents d
    AND d.version < (SELECT n.version FROM control_documents n
                      WHERE n.channel_id = $1 AND n.signed IS NOT NULL
                      ORDER BY n.version DESC OFFSET sqlc.arg(keep)::int LIMIT 1);
+
+-- name: GetEnvironmentExperimentation :one
+SELECT d.flags, d.experiments, d.holdout
+  FROM control_documents d
+  JOIN channels c ON c.id = d.channel_id
+ WHERE c.environment_id = $1
+ ORDER BY d.created_at DESC, d.version DESC
+ LIMIT 1;
 
 -- name: UpsertDevicePushToken :exec
 INSERT INTO device_push_tokens (device_id, organization_id, app_id, environment_id, provider, ciphertext, wrapped_key, key_id, updated_at)

@@ -513,8 +513,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	auth.BreakglassInvoke,
 	auth.FreezesManage,
 	auth.ComplianceReport,
-	auth.FlagsManage,
-	auth.ExperimentsManage,
 	auth.LicenseManage,
 	auth.BackupManage,
 }

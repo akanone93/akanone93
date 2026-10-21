@@ -46,7 +46,7 @@ func (q *Queries) DeviceInstallAt(ctx context.Context, arg DeviceInstallAtParams
 }
 
 const getControlDocumentAt = `-- name: GetControlDocumentAt :one
-SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at FROM control_documents
+SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at, flags, experiments, holdout FROM control_documents
  WHERE channel_id = $1 AND signed IS NOT NULL AND issued_at <= $2::timestamptz
  ORDER BY version DESC LIMIT 1
 `
@@ -76,6 +76,9 @@ func (q *Queries) GetControlDocumentAt(ctx context.Context, arg GetControlDocume
 		&i.CreatedByID,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Flags,
+		&i.Experiments,
+		&i.Holdout,
 	)
 	return i, err
 }
@@ -402,7 +405,7 @@ func (q *Queries) ListReconstructions(ctx context.Context, arg ListReconstructio
 }
 
 const oldestSignedControlDocument = `-- name: OldestSignedControlDocument :one
-SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at FROM control_documents WHERE channel_id = $1 AND signed IS NOT NULL ORDER BY version LIMIT 1
+SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at, flags, experiments, holdout FROM control_documents WHERE channel_id = $1 AND signed IS NOT NULL ORDER BY version LIMIT 1
 `
 
 func (q *Queries) OldestSignedControlDocument(ctx context.Context, channelID pgtype.UUID) (ControlDocument, error) {
@@ -423,6 +426,9 @@ func (q *Queries) OldestSignedControlDocument(ctx context.Context, channelID pgt
 		&i.CreatedByID,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Flags,
+		&i.Experiments,
+		&i.Holdout,
 	)
 	return i, err
 }

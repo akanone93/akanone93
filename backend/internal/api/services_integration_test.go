@@ -33,6 +33,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
 	"github.com/nightCode42/plux3/backend/internal/dsr"
+	"github.com/nightCode42/plux3/backend/internal/experiment"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
@@ -146,6 +147,8 @@ type world struct {
 	// jobs it enqueued.
 	reconstruction *reconstruct.Service
 	reconQueue     *reconstructQueue
+	flags          pluxv1connect.FlagServiceClient
+	experiments    pluxv1connect.ExperimentServiceClient
 	// configs and resolver are the server-held configuration store and its
 	// reader, as the server wires them.
 	configs  *gateway.Configs
@@ -376,6 +379,16 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	experiments, err := experiment.New(experiment.Options{
+		DB: db, Audit: log, IDs: gen, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+		Control: releases, Documents: docs, Publisher: releases, Observations: experiment.PostgresObservations{DB: db},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	searchService, err := search.NewService(search.Options{DB: db, Tenancy: tenancyService})
 	if err != nil {
 		t.Fatal(err)
@@ -385,7 +398,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		t.Fatal(err)
 	}
 	h := &api.Handlers{
-		Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
+		Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -462,6 +475,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) {
 			return pluxv1connect.NewRolloutServiceHandler(h.RolloutAdmin(), opts)
 		},
+		func() (string, http.Handler) { return pluxv1connect.NewFlagServiceHandler(h.Flags(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewExperimentServiceHandler(h.ExperimentAdmin(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
@@ -505,6 +522,8 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		license:      pluxv1connect.NewLicenseServiceClient(srv.Client(), srv.URL),
 		audit:        pluxv1connect.NewAuditServiceClient(srv.Client(), srv.URL),
 		dsr:          pluxv1connect.NewDataSubjectServiceClient(srv.Client(), srv.URL),
+		flags:        pluxv1connect.NewFlagServiceClient(srv.Client(), srv.URL),
+		experiments:  pluxv1connect.NewExperimentServiceClient(srv.Client(), srv.URL),
 		config:       pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
 		sca:          pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
 

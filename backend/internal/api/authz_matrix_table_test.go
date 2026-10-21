@@ -538,9 +538,42 @@ var matrix = map[string]entry{
 	"DataSubjectService/EraseSubject": atPerm(auth.DSRManage, anyone(&pluxv1.EraseSubjectRequest{
 		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
 	})),
-	"DataSubjectService/GetRequest":             atPerm(auth.DSRManage, anyone(&pluxv1.GetRequestRequest{Id: unknownID})),
-	"DataSubjectService/ListRequests":           atPerm(auth.DSRManage, anyone(&pluxv1.ListRequestsRequest{})),
-	"DataSubjectService/GetPersonalDataMap":     atPerm(auth.DSRManage, anyone(&pluxv1.GetPersonalDataMapRequest{})),
+	"DataSubjectService/GetRequest":         atPerm(auth.DSRManage, anyone(&pluxv1.GetRequestRequest{Id: unknownID})),
+	"DataSubjectService/ListRequests":       atPerm(auth.DSRManage, anyone(&pluxv1.ListRequestsRequest{})),
+	"DataSubjectService/GetPersonalDataMap": atPerm(auth.DSRManage, anyone(&pluxv1.GetPersonalDataMapRequest{})),
+	"FlagService/CreateFlag": atPerm(auth.FlagsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "matrixFlag", Spec: &pluxv1.FlagSpec{Type: pluxv1.FlagType_FLAG_TYPE_BOOL, DefaultJson: "false"}}
+	})),
+	"FlagService/UpdateFlag": atPerm(auth.FlagsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.UpdateFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "absentFlag", Spec: &pluxv1.FlagSpec{DefaultJson: "false"}}
+	})),
+	"FlagService/DeleteFlag": atPerm(auth.FlagsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "absentFlag"}
+	})),
+	"FlagService/GetFlag": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "absentFlag"}
+	})),
+	"FlagService/ListFlags": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListFlagsRequest{AppId: f.app, EnvironmentId: f.prod}
+	})),
+	"ExperimentService/CreateExperiment": atPerm(auth.ExperimentsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateExperimentRequest{AppId: f.app, EnvironmentId: f.prod, Document: []byte("{}")}
+	})),
+	"ExperimentService/GetExperiment":    atPerm(auth.AppRead, anyone(&pluxv1.GetExperimentRequest{Id: unknownID})),
+	"ExperimentService/DeleteExperiment": atPerm(auth.ExperimentsManage, anyone(&pluxv1.DeleteExperimentRequest{Id: unknownID})),
+	"ExperimentService/ListExperiments": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListExperimentsRequest{AppId: f.app}
+	})),
+	"ExperimentService/StartExperiment": atPerm(auth.ExperimentsManage, anyone(&pluxv1.StartExperimentRequest{Id: unknownID})),
+	"ExperimentService/StopExperiment":  atPerm(auth.ExperimentsManage, anyone(&pluxv1.StopExperimentRequest{Id: unknownID})),
+	"ExperimentService/SetHoldout": atPerm(auth.ExperimentsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetHoldoutRequest{AppId: f.app, EnvironmentId: f.prod, Percent: 1}
+	})),
+	"ExperimentService/GetHoldout": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetHoldoutRequest{AppId: f.app, EnvironmentId: f.prod}
+	})),
+	"ExperimentService/GetResults":              atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetResultsRequest{Id: unknownID})),
+	"ExperimentService/PromoteExperiment":       atPerm(auth.ExperimentsManage, anyone(&pluxv1.PromoteExperimentRequest{Id: unknownID, Variant: "b"})),
 	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 

@@ -40,8 +40,8 @@ var (
 	ErrMalformed = errors.New("controldoc: malformed buffer")
 )
 
-// KillSwitch disables one thing. A targeting rule (E4, E5) is reserved in
-// the wire format and not modelled here: the server never writes one.
+// KillSwitch disables one thing. A targeting rule is reserved in the wire
+// format and not modelled here: the server never writes one.
 type KillSwitch struct {
 	Scope  Scope
 	Target string
@@ -78,6 +78,12 @@ type Document struct {
 	KillSwitches        []KillSwitch
 	MandatoryUpdate     *MandatoryUpdate
 	ForcedRollback      *ForcedRollback
+	// Flags are the environment's feature flags (ABT-006); Experiments its
+	// running experiments (ABT-001) and Holdout the share kept out of all of
+	// them (ABT-004). Encode writes flags and experiments sorted by key.
+	Flags       []FlagValue
+	Experiments []Allocation
+	Holdout     *Holdout
 }
 
 // MaxText bounds an identifier, a key and a kill switch target.
@@ -95,7 +101,7 @@ var (
 // Validate checks a document against the rules of the schema: a version, an
 // app, environment and channel, an expiry after the issue time, known
 // scopes, well-formed and unrepeated targets, and releases that name a
-// sequence.
+// sequence, and the flags, experiments and holdout of ABT-006 and ABT-004.
 func (d Document) Validate() error {
 	switch {
 	case d.Version < 1:
@@ -116,7 +122,10 @@ func (d Document) Validate() error {
 		}
 		seen[k] = true
 	}
-	return d.validateReleases()
+	if err := d.validateReleases(); err != nil {
+		return err
+	}
+	return d.validateExperimentation()
 }
 
 // validateReleases checks the mandatory update and the forced rollback.

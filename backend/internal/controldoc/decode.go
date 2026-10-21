@@ -50,6 +50,9 @@ func Decode(buf []byte) (d Document, err error) {
 	if r := root.ForcedRollback(nil); r != nil {
 		d.ForcedRollback = &ForcedRollback{ReleaseID: string(r.ReleaseId()), ReleaseSequence: r.ReleaseSequence()}
 	}
+	if err := readExperimentation(root, &d); err != nil {
+		return Document{}, err
+	}
 	if err := d.Validate(); err != nil {
 		return Document{}, fmt.Errorf("controldoc.Decode: %w", err)
 	}

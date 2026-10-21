@@ -58,11 +58,65 @@ enum SwitchScope : ubyte {
   Function,
 }
 
-// Which devices a kill switch or, later, a flag or experiment applies to.
-// Reserved for E4 and E5: no field is defined yet, and the server writes
-// the table only once a rule language exists. A device that reads a rule it
-// cannot evaluate treats the switch as applying to everyone.
+// How a condition of a targeting rule compares an attribute with its
+// operands (REL-051, ABT-001, ABT-006). Members are appended, never
+// reordered. Unspecified is never written by the server.
+enum RuleOperator : ubyte {
+  Unspecified = 0,
+  // The attribute equals the operand.
+  Eq,
+  // The attribute does not equal the operand.
+  Neq,
+  // The attribute equals one of the operands.
+  In,
+  // The attribute equals none of the operands.
+  NotIn,
+  // The attribute is less than, at most, greater than or at least the
+  // operand: an ordering on numbers and on versions.
+  Lt,
+  Lte,
+  Gt,
+  Gte,
+}
+
+// The type of the operands of a condition, which says how a device reads
+// them. Versions (`runtimeVersion`, `osVersion`) are Strings that the
+// device compares as dotted versions.
+enum RuleValueType : ubyte {
+  Unspecified = 0,
+  String,
+  // Operands are the shortest decimal text that reads back to the same
+  // 64-bit float, such as `42` or `0.5`.
+  Number,
+  // Operands are `true` or `false`.
+  Bool,
+}
+
+// Which devices a kill switch, a flag value or an experiment applies to
+// (ABT-001, ABT-006): the form of the rule of a segment document
+// (schema/json/segment.schema.json). A rule is a condition or a group; the
+// server writes exactly one of the two shapes.
+//
+//   - Condition: `attribute` is set. The device reads the attribute from
+//     its own context (`build`, `runtimeVersion`, `os`, `osVersion`,
+//     `deviceClass`, `locale`, `region`, `channel`, or `user.<name>`),
+//     compares it with `values` by `operator` and reads the operands as
+//     `value_type`. `values` holds one operand, or one or more for In and
+//     NotIn. An attribute the device does not have fails every operator
+//     except Neq and NotIn.
+//   - Group: `all` (every rule holds) or `any` (at least one holds) is
+//     non-empty and `attribute` is absent.
+//
+// A device that cannot evaluate a rule, because it does not know an
+// operator or a value type, treats a kill switch as applying to everyone
+// and a flag value or an experiment as not matching.
 table TargetingRule {
+  attribute: string;
+  operator: RuleOperator;
+  value_type: RuleValueType;
+  values: [string];
+  all: [TargetingRule];
+  any: [TargetingRule];
 }
 
 // One kill switch (REL-060).
@@ -98,16 +152,132 @@ table ForcedRollback {
   release_sequence: ulong;
 }
 
-// Reserved for E5: the value of one feature flag, per segment. Defined
-// empty so that the document's `flags` vector exists from the first
-// version of the format.
-table FlagValue {
+// The type of a feature flag (ABT-006). Members are appended, never
+// reordered. Unspecified is never written by the server; a device ignores a
+// flag whose type it does not know.
+enum FlagType : ubyte {
+  Unspecified = 0,
+  Bool,
+  Number,
+  String,
+  // A JSON value that satisfied the JSON Schema of the flag's definition
+  // when the server accepted it.
+  Json,
 }
 
-// Reserved for E5: the allocation of one running experiment. Defined empty
-// so that the document's `experiments` vector exists from the first
-// version of the format.
+// The value of a flag for the devices of one segment (ABT-006).
+table FlagSegmentValue {
+  // The segment's key, for reports.
+  segment: string (required);
+  // The segment's targeting rule as the server resolved it, so that a
+  // device needs no segment document.
+  rule: TargetingRule (required);
+  // The value as canonical JSON text (RFC 8785): `true`, `42`, `"text"`, or
+  // any JSON value for a Json flag. It satisfies the flag's type.
+  value: string (required);
+}
+
+// One feature flag and its value (ABT-006, ADR-0079). A device evaluates
+// the flag for itself: the value of the first entry of `segments` whose rule
+// matches the device, otherwise `default_value`. The result replaces the
+// default compiled into the app document, which a device uses until it
+// holds a verified control document that carries the flag.
+table FlagValue {
+  // The flag's key, the name after `flags.` in PXL.
+  key: string (required);
+  type: FlagType;
+  // The value for devices in none of the listed segments, as canonical JSON
+  // text.
+  default_value: string (required);
+  // The per-segment values in precedence order (the first match wins); not
+  // sorted.
+  segments: [FlagSegmentValue];
+}
+
+// What an experiment varies (ABT-001), as the experiment document's
+// `scope`. Members are appended, never reordered.
+enum ExperimentScope : ubyte {
+  Unspecified = 0,
+  Page,
+  Subtree,
+  Prop,
+  Flow,
+  PluginVersion,
+}
+
+// One variant of an experiment with its share of the experiment's
+// population (ABT-001).
+table AllocationVariant {
+  // The variant's name, as in the compiled release.
+  name: string (required);
+  // Marks the control.
+  control: bool;
+  // The share in basis points (1/10000). The weights of an experiment's
+  // variants sum to 10000.
+  weight_bp: uint;
+}
+
+// The share of subjects kept out of every experiment of the environment and
+// shown the control of each (ABT-004). A subject in it is never exposed, so
+// no exposure event is recorded for it.
+table GlobalHoldout {
+  // The share in basis points, 0 to 10000.
+  basis_points: uint;
+  // The hash salt of the holdout, so that membership does not follow that of
+  // any experiment or layer.
+  salt: string (required);
+}
+
+// The allocation of one running experiment (ABT-001, ABT-002, ABT-004,
+// ADR-0079). The server writes only experiments that are running.
+//
+// Assignment is made by the device, offline, and is sticky because every
+// input is fixed for the subject (ABT-002). `subject` is the user
+// identifier when `setUserContext` provided one and otherwise the device
+// identifier. `bucket(salt, subject)` is the first eight bytes of
+// SHA-256(UTF-8(salt) || UTF-8(subject)) read as a big-endian unsigned
+// integer, modulo 10000. The device decides in this order and stops at the
+// first step that leaves it out of the experiment, which then shows the
+// control and records no exposure:
+//
+//   1. The current time is outside [starts_at, ends_at).
+//   2. The document's `holdout` covers the subject: bucket(holdout.salt,
+//      subject) < holdout.basis_points.
+//   3. `segment` is present and does not match the device.
+//   4. `layer` is non-empty and bucket(layer, subject) is outside
+//      [layer_start, layer_end). The experiments of one layer have disjoint
+//      ranges, so a subject is in at most one of them.
+//   5. bucket(salt || ":holdout", subject) < holdout_bp puts the subject in
+//      the experiment's own holdout: it is shown the control and, because it
+//      sees the control's node, the control's exposure is recorded.
+//   6. Otherwise the variant is the first, in order, whose running total of
+//      `weight_bp` exceeds bucket(salt, subject).
+//
+// A device records the exposure event only when the chosen variant's node
+// builds (ABT-002).
 table ExperimentAllocation {
+  // The experiment's key, the name after `experiment.` in PXL.
+  key: string (required);
+  scope: ExperimentScope;
+  // The assignment salt.
+  salt: string (required);
+  // The control and the variants in the order of the experiment document.
+  // Exactly one is the control.
+  variants: [AllocationVariant];
+  // The layer's name; empty when the experiment is in no layer.
+  layer: string;
+  // The experiment's range of the layer's 10000 buckets, [layer_start,
+  // layer_end); both zero without a layer.
+  layer_start: uint;
+  layer_end: uint;
+  // The share in basis points of the experiment's population that is shown
+  // the control and kept out of the variants (step 5).
+  holdout_bp: uint;
+  // Absent means everyone.
+  segment: TargetingRule;
+  // The window in seconds since 1970-01-01T00:00Z; zero means unbounded.
+  starts_at: long;
+  ends_at: long;
 }
 
 // The control document of one app, environment and channel.
@@ -132,10 +302,12 @@ table ControlDocument {
   mandatory_update: MandatoryUpdate;
   // Absent when no rollback is forced.
   forced_rollback: ForcedRollback;
-  // Reserved for E5; empty until then.
+  // The feature flags of the environment (ABT-006), sorted by key.
   flags: [FlagValue];
-  // Reserved for E5; empty until then.
+  // The running experiments of the environment (ABT-001), sorted by key.
   experiments: [ExperimentAllocation];
+  // Absent when no share is held out of the experiments (ABT-004).
+  holdout: GlobalHoldout;
 }
 
 root_type ControlDocument;

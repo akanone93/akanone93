@@ -229,6 +229,31 @@ const (
 	RolloutReverted Action = "rollout.reverted"
 )
 
+// The actions of feature flags and experiments (ABT-001, ABT-004, ABT-005,
+// ABT-006, ADR-0079).
+const (
+	// FlagCreated, FlagUpdated and FlagDeleted: a feature flag of an
+	// environment was made, changed (its default, its segment values or its
+	// description) or removed.
+	FlagCreated Action = "flag.created"
+	FlagUpdated Action = "flag.updated"
+	FlagDeleted Action = "flag.deleted"
+	// ExperimentCreated and ExperimentDeleted: a draft experiment was made or
+	// discarded.
+	ExperimentCreated Action = "experiment.created"
+	ExperimentDeleted Action = "experiment.deleted"
+	// ExperimentStarted and ExperimentStopped: an experiment's allocation was
+	// written into, or taken out of, the environment's control documents.
+	ExperimentStarted Action = "experiment.started"
+	ExperimentStopped Action = "experiment.stopped"
+	// ExperimentPromoted: a variant was declared the winner and a publish of
+	// the project with the winner as the default was started.
+	ExperimentPromoted Action = "experiment.promoted"
+	// ExperimentHoldoutChanged: the share kept out of every experiment of an
+	// environment was set.
+	ExperimentHoldoutChanged Action = "experiment.holdout_changed"
+)
+
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
 const (
 	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
@@ -365,6 +390,8 @@ var actions = sorted(
 	DataSubjectExported, DataSubjectErased,
 	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted,
 	ReconstructionCreated, ReconstructionViewed,
+	FlagCreated, FlagUpdated, FlagDeleted, ExperimentCreated, ExperimentDeleted,
+	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,
 )
 
 // sorted returns its arguments in order.
