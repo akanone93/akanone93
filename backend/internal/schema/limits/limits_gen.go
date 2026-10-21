@@ -86,6 +86,9 @@ const (
 	// AuditExportDestinationsPerOrg: Audit export destinations one organisation
 	// may configure. (SEC-143)
 	AuditExportDestinationsPerOrg Key = "audit.exportDestinationsPerOrg"
+	// AuthExplainPerMinute: Explain calls one principal may make per minute to
+	// learn why a person can or cannot perform an action. (GOV-007)
+	AuthExplainPerMinute Key = "auth.explainPerMinute"
 	// AuthFailedSignIns: Failed passwords or one-time codes one account may
 	// present in fifteen minutes before sign-in is refused. (SEC-100)
 	AuthFailedSignIns Key = "auth.failedSignIns"
@@ -116,6 +119,10 @@ const (
 	// AuthSessionIdleTimeout: Time without a request after which a browser
 	// session ends; an organisation may shorten it. (GOV-005)
 	AuthSessionIdleTimeout Key = "auth.sessionIdleTimeout"
+	// AuthSimulatePerMinute: Explain calls with a proposed grant or restriction
+	// one principal may make per minute; each evaluates the resolver on a state
+	// that does not exist. (GOV-007)
+	AuthSimulatePerMinute Key = "auth.simulatePerMinute"
 	// AuthStepUpAttempts: Ceremonies one step-up request accepts before it is
 	// closed; each wrong assertion uses one. (SEC-103)
 	AuthStepUpAttempts Key = "auth.stepUpAttempts"
@@ -512,6 +519,7 @@ var registry = [...]Definition{
 	{Key: AttestStatusListBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 33554432, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of the Android attestation status list the server fetches or reads."},
 	{Key: AuditExportBatchEntries, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Audit entries delivered to an export destination in one batch."},
 	{Key: AuditExportDestinationsPerOrg, Unit: UnitCount, Default: 5, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Audit export destinations one organisation may configure."},
+	{Key: AuthExplainPerMinute, Unit: UnitCount, Default: 30, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Explain calls one principal may make per minute to learn why a person can or cannot perform an action."},
 	{Key: AuthFailedSignIns, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."},
 	{Key: AuthPermissionCacheSeconds, Unit: UnitCount, Default: 60, Warning: 0, Max: 600, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Seconds a replica keeps a resolved permission set before it resolves again; a change drops it sooner, and the lifetime covers a missed change message."},
 	{Key: AuthRestrictionPatterns, Unit: UnitCount, Default: 20, Warning: 0, Max: 200, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Permission names and wildcards one restriction policy may list."},
@@ -521,6 +529,7 @@ var registry = [...]Definition{
 	{Key: AuthScimTokenOverlapSeconds, Unit: UnitCount, Default: 86400, Warning: 0, Max: 604800, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over."},
 	{Key: AuthSessionAbsoluteTimeout, Unit: UnitMilliseconds, Default: 43200000, Warning: 0, Max: 2592000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Time after sign-in at which a browser session ends however active it is; an organisation may shorten it."},
 	{Key: AuthSessionIdleTimeout, Unit: UnitMilliseconds, Default: 1800000, Warning: 0, Max: 86400000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Time without a request after which a browser session ends; an organisation may shorten it."},
+	{Key: AuthSimulatePerMinute, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Explain calls with a proposed grant or restriction one principal may make per minute; each evaluates the resolver on a state that does not exist."},
 	{Key: AuthStepUpAttempts, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one."},
 	{Key: BundleDeviceFunctionModuleSize, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of the device-placed functions of one plugin."},
 	{Key: BundlePageSectionSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one page section in a bundle."},

@@ -6775,6 +6775,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CreateGrantResponse'
+  /plux.v1.GovernanceService/CreateRestriction:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: CreateRestriction
+      description: |-
+        CreateRestriction creates a restriction: a ceiling that removes
+         permissions from the organisation, a team or one person, whatever their
+         grants say (GOV-006). It needs restrictions.manage with a step-up; one
+         on the whole organisation also needs organization.manage. Patterns are
+         catalogue permissions or the wildcards "*", "<area>.*" and
+         "<area>.<feature>.*" (PLX-8104).
+      operationId: plux.v1.GovernanceService.CreateRestriction
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateRestrictionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateRestrictionResponse'
   /plux.v1.GovernanceService/CreateRole:
     post:
       tags:
@@ -6855,6 +6900,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteGrantResponse'
+  /plux.v1.GovernanceService/DeleteRestriction:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: DeleteRestriction
+      description: DeleteRestriction removes a restriction.
+      operationId: plux.v1.GovernanceService.DeleteRestriction
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteRestrictionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteRestrictionResponse'
   /plux.v1.GovernanceService/DeleteRole:
     post:
       tags:
@@ -6894,6 +6978,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteRoleResponse'
+  /plux.v1.GovernanceService/ExplainAccess:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: ExplainAccess
+      description: |-
+        ExplainAccess says why a person can or cannot perform an action in a
+         scope, naming the grants that allow it and the restrictions that remove
+         it. With a proposed grant or restriction it evaluates the change
+         without saving it. Anyone may explain their own access; another
+         person's needs members.manage (GOV-007).
+      operationId: plux.v1.GovernanceService.ExplainAccess
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExplainAccessRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExplainAccessResponse'
+  /plux.v1.GovernanceService/GetEffectivePermissions:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: GetEffectivePermissions
+      description: |-
+        GetEffectivePermissions returns the caller's permissions for an
+         organisation, optionally on an app and one of its environments, as one
+         compact set with the organisation's permissions version (GOV-007).
+      operationId: plux.v1.GovernanceService.GetEffectivePermissions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetEffectivePermissionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetEffectivePermissionsResponse'
   /plux.v1.GovernanceService/GetRole:
     post:
       tags:
@@ -7013,6 +7183,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListPermissionsResponse'
+  /plux.v1.GovernanceService/ListRestrictions:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: ListRestrictions
+      description: ListRestrictions lists the organisation's restrictions.
+      operationId: plux.v1.GovernanceService.ListRestrictions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListRestrictionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListRestrictionsResponse'
   /plux.v1.GovernanceService/ListRoles:
     post:
       tags:
@@ -7131,6 +7340,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UpdateRoleResponse'
+  /plux.v1.GovernanceService/WatchPermissions: {}
   /plux.v1.IdentityService/AcceptInvitation:
     post:
       tags:
@@ -14884,6 +15094,40 @@ components:
           title: diagnostics
       title: CreateReleaseResponse
       additionalProperties: false
+    plux.v1.CreateRestrictionRequest:
+      type: object
+      properties:
+        subjectKind:
+          type: string
+          title: subject_kind
+        subjectId:
+          type: string
+          title: subject_id
+        patterns:
+          type: array
+          items:
+            type: string
+          title: patterns
+        appId:
+          type: string
+          title: app_id
+        environment:
+          type: string
+          title: environment
+        reason:
+          type: string
+          title: reason
+      title: CreateRestrictionRequest
+      additionalProperties: false
+    plux.v1.CreateRestrictionResponse:
+      type: object
+      properties:
+        restriction:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Restriction'
+          title: restriction
+      title: CreateRestrictionResponse
+      additionalProperties: false
     plux.v1.CreateRoleRequest:
       type: object
       properties:
@@ -15581,6 +15825,18 @@ components:
     plux.v1.DeletePolicyResponse:
       type: object
       title: DeletePolicyResponse
+      additionalProperties: false
+    plux.v1.DeleteRestrictionRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteRestrictionRequest
+      additionalProperties: false
+    plux.v1.DeleteRestrictionResponse:
+      type: object
+      title: DeleteRestrictionResponse
       additionalProperties: false
     plux.v1.DeleteRoleRequest:
       type: object
@@ -16478,6 +16734,90 @@ components:
         - EXPERIMENT_STATE_STOPPED
         - EXPERIMENT_STATE_CONCLUDED
       description: ExperimentState is where an experiment is in its life.
+    plux.v1.ExplainAccessRequest:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            proposedGrant:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ProposedGrant'
+              title: proposed_grant
+          title: proposed_grant
+        - type: object
+          properties:
+            proposedRestriction:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.CreateRestrictionRequest'
+              title: proposed_restriction
+          title: proposed_restriction
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - proposedGrant
+              - required:
+                  - proposedRestriction
+          - not:
+              oneOf:
+                - required:
+                    - proposedGrant
+                - required:
+                    - proposedRestriction
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+        userId:
+          type: string
+          title: user_id
+          description: user_id is the person; empty explains the caller's own access.
+        permission:
+          type: string
+          title: permission
+          description: permission is the catalogue permission asked about.
+        appId:
+          type: string
+          title: app_id
+          description: |-
+            app_id and environment (the environment's key) name the scope; both
+             empty asks about the whole organisation.
+        environment:
+          type: string
+          title: environment
+      title: ExplainAccessRequest
+    plux.v1.ExplainAccessResponse:
+      type: object
+      properties:
+        decision:
+          type: string
+          title: decision
+          description: decision is "allow" or "deny".
+        allowingGrantIds:
+          type: array
+          items:
+            type: string
+          title: allowing_grant_ids
+          description: |-
+            allowing_grant_ids are the grants, memberships and app access entries
+             whose roles carry the permission in the scope; none means "no grant".
+        removingRestrictionIds:
+          type: array
+          items:
+            type: string
+          title: removing_restriction_ids
+          description: |-
+            removing_restriction_ids are the restrictions that take it away in the
+             scope.
+        ownerFloor:
+          type: boolean
+          title: owner_floor
+          description: |-
+            owner_floor is set when a restriction names the permission and the
+             person is an Owner, whose floor keeps it (GOV-006).
+      title: ExplainAccessResponse
+      additionalProperties: false
     plux.v1.Export:
       type: object
       properties:
@@ -17623,6 +17963,46 @@ components:
             - $ref: '#/components/schemas/plux.v1.Document'
           title: document
       title: GetDocumentResponse
+      additionalProperties: false
+    plux.v1.GetEffectivePermissionsRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+          description: |-
+            organization_id may be left empty when the call names the organisation
+             in the X-Plux-Organization header or a token is bound to one.
+        appId:
+          type: string
+          title: app_id
+          description: |-
+            app_id and environment (the environment's key, which needs an app_id)
+             narrow the set to what the caller may do there.
+        environment:
+          type: string
+          title: environment
+      title: GetEffectivePermissionsRequest
+      additionalProperties: false
+    plux.v1.GetEffectivePermissionsResponse:
+      type: object
+      properties:
+        permissions:
+          type: array
+          items:
+            type: string
+          title: permissions
+          description: |-
+            permissions are the permission names the caller holds in the scope, in
+             name order.
+        version:
+          type: string
+          title: version
+          format: int64
+          description: |-
+            version is the organisation's permissions version the set was
+             resolved at.
+      title: GetEffectivePermissionsResponse
       additionalProperties: false
     plux.v1.GetEffectiveSecurityConfigRequest:
       type: object
@@ -20711,6 +21091,36 @@ components:
           title: page
       title: ListRequestsResponse
       additionalProperties: false
+    plux.v1.ListRestrictionsRequest:
+      type: object
+      properties:
+        subjectId:
+          type: string
+          title: subject_id
+          description: subject_id and app_id each narrow the list when set.
+        appId:
+          type: string
+          title: app_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListRestrictionsRequest
+      additionalProperties: false
+    plux.v1.ListRestrictionsResponse:
+      type: object
+      properties:
+        restrictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Restriction'
+          title: restrictions
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListRestrictionsResponse
+      additionalProperties: false
     plux.v1.ListRetentionChangesRequest:
       type: object
       properties:
@@ -22178,6 +22588,33 @@ components:
           title: release
       title: PromoteReleaseResponse
       additionalProperties: false
+    plux.v1.ProposedGrant:
+      type: object
+      properties:
+        userId:
+          type: string
+          title: user_id
+          description: Exactly one of user_id and team_id is set.
+        teamId:
+          type: string
+          title: team_id
+        role:
+          type: string
+          title: role
+        scope:
+          type: string
+          title: scope
+          description: scope is "organization", "app" or "environment".
+        appId:
+          type: string
+          title: app_id
+        environment:
+          type: string
+          title: environment
+          description: environment is the key of the environment, for the scope "environment".
+      title: ProposedGrant
+      additionalProperties: false
+      description: ProposedGrant is a grant ExplainAccess evaluates without saving it.
     plux.v1.Provenance:
       type: object
       properties:
@@ -23163,6 +23600,54 @@ components:
           title: diagnostics
       title: RestoreSnapshotResponse
       additionalProperties: false
+    plux.v1.Restriction:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        subjectKind:
+          type: string
+          title: subject_kind
+          description: subject_kind is "organization", "team" or "user".
+        subjectId:
+          type: string
+          title: subject_id
+          description: subject_id is the team or the user; empty for the organisation.
+        patterns:
+          type: array
+          items:
+            type: string
+          title: patterns
+          description: |-
+            patterns are catalogue permissions or the wildcards "*", "<area>.*"
+             and "<area>.<feature>.*".
+        appId:
+          type: string
+          title: app_id
+          description: |-
+            app_id limits the restriction to one app, and environment, the key of
+             one of its environments, to that environment; both are empty for the
+             whole organisation.
+        environment:
+          type: string
+          title: environment
+        reason:
+          type: string
+          title: reason
+        createdBy:
+          type: string
+          title: created_by
+          description: created_by is the person who made it; empty when that person is gone.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: Restriction
+      additionalProperties: false
+      description: |-
+        Restriction removes permissions from its subject whatever their grants
+         say (GOV-006). It is immutable: a change is a delete and a create.
     plux.v1.ResumeRolloutRequest:
       type: object
       properties:
@@ -25907,6 +26392,29 @@ components:
             - $ref: '#/components/schemas/plux.v1.Session'
           title: session
       title: VerifySecondFactorResponse
+      additionalProperties: false
+    plux.v1.WatchPermissionsRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+      title: WatchPermissionsRequest
+      additionalProperties: false
+    plux.v1.WatchPermissionsResponse:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+        version:
+          type: string
+          title: version
+          format: int64
+          description: |-
+            version is the organisation's new permissions version; a client that
+             holds an older one refetches.
+      title: WatchPermissionsResponse
       additionalProperties: false
     plux.v1.WatchPublishRequest:
       type: object

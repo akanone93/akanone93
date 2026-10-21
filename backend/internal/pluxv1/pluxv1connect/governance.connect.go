@@ -74,6 +74,24 @@ const (
 	// GovernanceServiceDeleteGrantProcedure is the fully-qualified name of the GovernanceService's
 	// DeleteGrant RPC.
 	GovernanceServiceDeleteGrantProcedure = "/plux.v1.GovernanceService/DeleteGrant"
+	// GovernanceServiceCreateRestrictionProcedure is the fully-qualified name of the
+	// GovernanceService's CreateRestriction RPC.
+	GovernanceServiceCreateRestrictionProcedure = "/plux.v1.GovernanceService/CreateRestriction"
+	// GovernanceServiceListRestrictionsProcedure is the fully-qualified name of the GovernanceService's
+	// ListRestrictions RPC.
+	GovernanceServiceListRestrictionsProcedure = "/plux.v1.GovernanceService/ListRestrictions"
+	// GovernanceServiceDeleteRestrictionProcedure is the fully-qualified name of the
+	// GovernanceService's DeleteRestriction RPC.
+	GovernanceServiceDeleteRestrictionProcedure = "/plux.v1.GovernanceService/DeleteRestriction"
+	// GovernanceServiceGetEffectivePermissionsProcedure is the fully-qualified name of the
+	// GovernanceService's GetEffectivePermissions RPC.
+	GovernanceServiceGetEffectivePermissionsProcedure = "/plux.v1.GovernanceService/GetEffectivePermissions"
+	// GovernanceServiceWatchPermissionsProcedure is the fully-qualified name of the GovernanceService's
+	// WatchPermissions RPC.
+	GovernanceServiceWatchPermissionsProcedure = "/plux.v1.GovernanceService/WatchPermissions"
+	// GovernanceServiceExplainAccessProcedure is the fully-qualified name of the GovernanceService's
+	// ExplainAccess RPC.
+	GovernanceServiceExplainAccessProcedure = "/plux.v1.GovernanceService/ExplainAccess"
 	// ApprovalServicePutPolicyProcedure is the fully-qualified name of the ApprovalService's PutPolicy
 	// RPC.
 	ApprovalServicePutPolicyProcedure = "/plux.v1.ApprovalService/PutPolicy"
@@ -151,6 +169,32 @@ type GovernanceServiceClient interface {
 	// UpdateGrant changes the role of a grant.
 	UpdateGrant(context.Context, *connect.Request[pluxv1.UpdateGrantRequest]) (*connect.Response[pluxv1.UpdateGrantResponse], error)
 	DeleteGrant(context.Context, *connect.Request[pluxv1.DeleteGrantRequest]) (*connect.Response[pluxv1.DeleteGrantResponse], error)
+	// CreateRestriction creates a restriction: a ceiling that removes
+	// permissions from the organisation, a team or one person, whatever their
+	// grants say (GOV-006). It needs restrictions.manage with a step-up; one
+	// on the whole organisation also needs organization.manage. Patterns are
+	// catalogue permissions or the wildcards "*", "<area>.*" and
+	// "<area>.<feature>.*" (PLX-8104).
+	CreateRestriction(context.Context, *connect.Request[pluxv1.CreateRestrictionRequest]) (*connect.Response[pluxv1.CreateRestrictionResponse], error)
+	// ListRestrictions lists the organisation's restrictions.
+	ListRestrictions(context.Context, *connect.Request[pluxv1.ListRestrictionsRequest]) (*connect.Response[pluxv1.ListRestrictionsResponse], error)
+	// DeleteRestriction removes a restriction.
+	DeleteRestriction(context.Context, *connect.Request[pluxv1.DeleteRestrictionRequest]) (*connect.Response[pluxv1.DeleteRestrictionResponse], error)
+	// GetEffectivePermissions returns the caller's permissions for an
+	// organisation, optionally on an app and one of its environments, as one
+	// compact set with the organisation's permissions version (GOV-007).
+	GetEffectivePermissions(context.Context, *connect.Request[pluxv1.GetEffectivePermissionsRequest]) (*connect.Response[pluxv1.GetEffectivePermissionsResponse], error)
+	// WatchPermissions streams the organisation's permissions version
+	// whenever grants, roles, memberships or restrictions change, starting
+	// with the current one, so that a client refetches instead of polling
+	// (GOV-007).
+	WatchPermissions(context.Context, *connect.Request[pluxv1.WatchPermissionsRequest]) (*connect.ServerStreamForClient[pluxv1.WatchPermissionsResponse], error)
+	// ExplainAccess says why a person can or cannot perform an action in a
+	// scope, naming the grants that allow it and the restrictions that remove
+	// it. With a proposed grant or restriction it evaluates the change
+	// without saving it. Anyone may explain their own access; another
+	// person's needs members.manage (GOV-007).
+	ExplainAccess(context.Context, *connect.Request[pluxv1.ExplainAccessRequest]) (*connect.Response[pluxv1.ExplainAccessResponse], error)
 }
 
 // NewGovernanceServiceClient constructs a client for the plux.v1.GovernanceService service. By
@@ -224,21 +268,63 @@ func NewGovernanceServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(governanceServiceMethods.ByName("DeleteGrant")),
 			connect.WithClientOptions(opts...),
 		),
+		createRestriction: connect.NewClient[pluxv1.CreateRestrictionRequest, pluxv1.CreateRestrictionResponse](
+			httpClient,
+			baseURL+GovernanceServiceCreateRestrictionProcedure,
+			connect.WithSchema(governanceServiceMethods.ByName("CreateRestriction")),
+			connect.WithClientOptions(opts...),
+		),
+		listRestrictions: connect.NewClient[pluxv1.ListRestrictionsRequest, pluxv1.ListRestrictionsResponse](
+			httpClient,
+			baseURL+GovernanceServiceListRestrictionsProcedure,
+			connect.WithSchema(governanceServiceMethods.ByName("ListRestrictions")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteRestriction: connect.NewClient[pluxv1.DeleteRestrictionRequest, pluxv1.DeleteRestrictionResponse](
+			httpClient,
+			baseURL+GovernanceServiceDeleteRestrictionProcedure,
+			connect.WithSchema(governanceServiceMethods.ByName("DeleteRestriction")),
+			connect.WithClientOptions(opts...),
+		),
+		getEffectivePermissions: connect.NewClient[pluxv1.GetEffectivePermissionsRequest, pluxv1.GetEffectivePermissionsResponse](
+			httpClient,
+			baseURL+GovernanceServiceGetEffectivePermissionsProcedure,
+			connect.WithSchema(governanceServiceMethods.ByName("GetEffectivePermissions")),
+			connect.WithClientOptions(opts...),
+		),
+		watchPermissions: connect.NewClient[pluxv1.WatchPermissionsRequest, pluxv1.WatchPermissionsResponse](
+			httpClient,
+			baseURL+GovernanceServiceWatchPermissionsProcedure,
+			connect.WithSchema(governanceServiceMethods.ByName("WatchPermissions")),
+			connect.WithClientOptions(opts...),
+		),
+		explainAccess: connect.NewClient[pluxv1.ExplainAccessRequest, pluxv1.ExplainAccessResponse](
+			httpClient,
+			baseURL+GovernanceServiceExplainAccessProcedure,
+			connect.WithSchema(governanceServiceMethods.ByName("ExplainAccess")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // governanceServiceClient implements GovernanceServiceClient.
 type governanceServiceClient struct {
-	listPermissions *connect.Client[pluxv1.ListPermissionsRequest, pluxv1.ListPermissionsResponse]
-	listRoles       *connect.Client[pluxv1.ListRolesRequest, pluxv1.ListRolesResponse]
-	getRole         *connect.Client[pluxv1.GetRoleRequest, pluxv1.GetRoleResponse]
-	createRole      *connect.Client[pluxv1.CreateRoleRequest, pluxv1.CreateRoleResponse]
-	updateRole      *connect.Client[pluxv1.UpdateRoleRequest, pluxv1.UpdateRoleResponse]
-	deleteRole      *connect.Client[pluxv1.DeleteRoleRequest, pluxv1.DeleteRoleResponse]
-	listGrants      *connect.Client[pluxv1.ListGrantsRequest, pluxv1.ListGrantsResponse]
-	createGrant     *connect.Client[pluxv1.CreateGrantRequest, pluxv1.CreateGrantResponse]
-	updateGrant     *connect.Client[pluxv1.UpdateGrantRequest, pluxv1.UpdateGrantResponse]
-	deleteGrant     *connect.Client[pluxv1.DeleteGrantRequest, pluxv1.DeleteGrantResponse]
+	listPermissions         *connect.Client[pluxv1.ListPermissionsRequest, pluxv1.ListPermissionsResponse]
+	listRoles               *connect.Client[pluxv1.ListRolesRequest, pluxv1.ListRolesResponse]
+	getRole                 *connect.Client[pluxv1.GetRoleRequest, pluxv1.GetRoleResponse]
+	createRole              *connect.Client[pluxv1.CreateRoleRequest, pluxv1.CreateRoleResponse]
+	updateRole              *connect.Client[pluxv1.UpdateRoleRequest, pluxv1.UpdateRoleResponse]
+	deleteRole              *connect.Client[pluxv1.DeleteRoleRequest, pluxv1.DeleteRoleResponse]
+	listGrants              *connect.Client[pluxv1.ListGrantsRequest, pluxv1.ListGrantsResponse]
+	createGrant             *connect.Client[pluxv1.CreateGrantRequest, pluxv1.CreateGrantResponse]
+	updateGrant             *connect.Client[pluxv1.UpdateGrantRequest, pluxv1.UpdateGrantResponse]
+	deleteGrant             *connect.Client[pluxv1.DeleteGrantRequest, pluxv1.DeleteGrantResponse]
+	createRestriction       *connect.Client[pluxv1.CreateRestrictionRequest, pluxv1.CreateRestrictionResponse]
+	listRestrictions        *connect.Client[pluxv1.ListRestrictionsRequest, pluxv1.ListRestrictionsResponse]
+	deleteRestriction       *connect.Client[pluxv1.DeleteRestrictionRequest, pluxv1.DeleteRestrictionResponse]
+	getEffectivePermissions *connect.Client[pluxv1.GetEffectivePermissionsRequest, pluxv1.GetEffectivePermissionsResponse]
+	watchPermissions        *connect.Client[pluxv1.WatchPermissionsRequest, pluxv1.WatchPermissionsResponse]
+	explainAccess           *connect.Client[pluxv1.ExplainAccessRequest, pluxv1.ExplainAccessResponse]
 }
 
 // ListPermissions calls plux.v1.GovernanceService.ListPermissions.
@@ -291,6 +377,36 @@ func (c *governanceServiceClient) DeleteGrant(ctx context.Context, req *connect.
 	return c.deleteGrant.CallUnary(ctx, req)
 }
 
+// CreateRestriction calls plux.v1.GovernanceService.CreateRestriction.
+func (c *governanceServiceClient) CreateRestriction(ctx context.Context, req *connect.Request[pluxv1.CreateRestrictionRequest]) (*connect.Response[pluxv1.CreateRestrictionResponse], error) {
+	return c.createRestriction.CallUnary(ctx, req)
+}
+
+// ListRestrictions calls plux.v1.GovernanceService.ListRestrictions.
+func (c *governanceServiceClient) ListRestrictions(ctx context.Context, req *connect.Request[pluxv1.ListRestrictionsRequest]) (*connect.Response[pluxv1.ListRestrictionsResponse], error) {
+	return c.listRestrictions.CallUnary(ctx, req)
+}
+
+// DeleteRestriction calls plux.v1.GovernanceService.DeleteRestriction.
+func (c *governanceServiceClient) DeleteRestriction(ctx context.Context, req *connect.Request[pluxv1.DeleteRestrictionRequest]) (*connect.Response[pluxv1.DeleteRestrictionResponse], error) {
+	return c.deleteRestriction.CallUnary(ctx, req)
+}
+
+// GetEffectivePermissions calls plux.v1.GovernanceService.GetEffectivePermissions.
+func (c *governanceServiceClient) GetEffectivePermissions(ctx context.Context, req *connect.Request[pluxv1.GetEffectivePermissionsRequest]) (*connect.Response[pluxv1.GetEffectivePermissionsResponse], error) {
+	return c.getEffectivePermissions.CallUnary(ctx, req)
+}
+
+// WatchPermissions calls plux.v1.GovernanceService.WatchPermissions.
+func (c *governanceServiceClient) WatchPermissions(ctx context.Context, req *connect.Request[pluxv1.WatchPermissionsRequest]) (*connect.ServerStreamForClient[pluxv1.WatchPermissionsResponse], error) {
+	return c.watchPermissions.CallServerStream(ctx, req)
+}
+
+// ExplainAccess calls plux.v1.GovernanceService.ExplainAccess.
+func (c *governanceServiceClient) ExplainAccess(ctx context.Context, req *connect.Request[pluxv1.ExplainAccessRequest]) (*connect.Response[pluxv1.ExplainAccessResponse], error) {
+	return c.explainAccess.CallUnary(ctx, req)
+}
+
 // GovernanceServiceHandler is an implementation of the plux.v1.GovernanceService service.
 type GovernanceServiceHandler interface {
 	// ListPermissions returns the permission catalogue, in name order.
@@ -316,6 +432,32 @@ type GovernanceServiceHandler interface {
 	// UpdateGrant changes the role of a grant.
 	UpdateGrant(context.Context, *connect.Request[pluxv1.UpdateGrantRequest]) (*connect.Response[pluxv1.UpdateGrantResponse], error)
 	DeleteGrant(context.Context, *connect.Request[pluxv1.DeleteGrantRequest]) (*connect.Response[pluxv1.DeleteGrantResponse], error)
+	// CreateRestriction creates a restriction: a ceiling that removes
+	// permissions from the organisation, a team or one person, whatever their
+	// grants say (GOV-006). It needs restrictions.manage with a step-up; one
+	// on the whole organisation also needs organization.manage. Patterns are
+	// catalogue permissions or the wildcards "*", "<area>.*" and
+	// "<area>.<feature>.*" (PLX-8104).
+	CreateRestriction(context.Context, *connect.Request[pluxv1.CreateRestrictionRequest]) (*connect.Response[pluxv1.CreateRestrictionResponse], error)
+	// ListRestrictions lists the organisation's restrictions.
+	ListRestrictions(context.Context, *connect.Request[pluxv1.ListRestrictionsRequest]) (*connect.Response[pluxv1.ListRestrictionsResponse], error)
+	// DeleteRestriction removes a restriction.
+	DeleteRestriction(context.Context, *connect.Request[pluxv1.DeleteRestrictionRequest]) (*connect.Response[pluxv1.DeleteRestrictionResponse], error)
+	// GetEffectivePermissions returns the caller's permissions for an
+	// organisation, optionally on an app and one of its environments, as one
+	// compact set with the organisation's permissions version (GOV-007).
+	GetEffectivePermissions(context.Context, *connect.Request[pluxv1.GetEffectivePermissionsRequest]) (*connect.Response[pluxv1.GetEffectivePermissionsResponse], error)
+	// WatchPermissions streams the organisation's permissions version
+	// whenever grants, roles, memberships or restrictions change, starting
+	// with the current one, so that a client refetches instead of polling
+	// (GOV-007).
+	WatchPermissions(context.Context, *connect.Request[pluxv1.WatchPermissionsRequest], *connect.ServerStream[pluxv1.WatchPermissionsResponse]) error
+	// ExplainAccess says why a person can or cannot perform an action in a
+	// scope, naming the grants that allow it and the restrictions that remove
+	// it. With a proposed grant or restriction it evaluates the change
+	// without saving it. Anyone may explain their own access; another
+	// person's needs members.manage (GOV-007).
+	ExplainAccess(context.Context, *connect.Request[pluxv1.ExplainAccessRequest]) (*connect.Response[pluxv1.ExplainAccessResponse], error)
 }
 
 // NewGovernanceServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -385,6 +527,42 @@ func NewGovernanceServiceHandler(svc GovernanceServiceHandler, opts ...connect.H
 		connect.WithSchema(governanceServiceMethods.ByName("DeleteGrant")),
 		connect.WithHandlerOptions(opts...),
 	)
+	governanceServiceCreateRestrictionHandler := connect.NewUnaryHandler(
+		GovernanceServiceCreateRestrictionProcedure,
+		svc.CreateRestriction,
+		connect.WithSchema(governanceServiceMethods.ByName("CreateRestriction")),
+		connect.WithHandlerOptions(opts...),
+	)
+	governanceServiceListRestrictionsHandler := connect.NewUnaryHandler(
+		GovernanceServiceListRestrictionsProcedure,
+		svc.ListRestrictions,
+		connect.WithSchema(governanceServiceMethods.ByName("ListRestrictions")),
+		connect.WithHandlerOptions(opts...),
+	)
+	governanceServiceDeleteRestrictionHandler := connect.NewUnaryHandler(
+		GovernanceServiceDeleteRestrictionProcedure,
+		svc.DeleteRestriction,
+		connect.WithSchema(governanceServiceMethods.ByName("DeleteRestriction")),
+		connect.WithHandlerOptions(opts...),
+	)
+	governanceServiceGetEffectivePermissionsHandler := connect.NewUnaryHandler(
+		GovernanceServiceGetEffectivePermissionsProcedure,
+		svc.GetEffectivePermissions,
+		connect.WithSchema(governanceServiceMethods.ByName("GetEffectivePermissions")),
+		connect.WithHandlerOptions(opts...),
+	)
+	governanceServiceWatchPermissionsHandler := connect.NewServerStreamHandler(
+		GovernanceServiceWatchPermissionsProcedure,
+		svc.WatchPermissions,
+		connect.WithSchema(governanceServiceMethods.ByName("WatchPermissions")),
+		connect.WithHandlerOptions(opts...),
+	)
+	governanceServiceExplainAccessHandler := connect.NewUnaryHandler(
+		GovernanceServiceExplainAccessProcedure,
+		svc.ExplainAccess,
+		connect.WithSchema(governanceServiceMethods.ByName("ExplainAccess")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.GovernanceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GovernanceServiceListPermissionsProcedure:
@@ -407,6 +585,18 @@ func NewGovernanceServiceHandler(svc GovernanceServiceHandler, opts ...connect.H
 			governanceServiceUpdateGrantHandler.ServeHTTP(w, r)
 		case GovernanceServiceDeleteGrantProcedure:
 			governanceServiceDeleteGrantHandler.ServeHTTP(w, r)
+		case GovernanceServiceCreateRestrictionProcedure:
+			governanceServiceCreateRestrictionHandler.ServeHTTP(w, r)
+		case GovernanceServiceListRestrictionsProcedure:
+			governanceServiceListRestrictionsHandler.ServeHTTP(w, r)
+		case GovernanceServiceDeleteRestrictionProcedure:
+			governanceServiceDeleteRestrictionHandler.ServeHTTP(w, r)
+		case GovernanceServiceGetEffectivePermissionsProcedure:
+			governanceServiceGetEffectivePermissionsHandler.ServeHTTP(w, r)
+		case GovernanceServiceWatchPermissionsProcedure:
+			governanceServiceWatchPermissionsHandler.ServeHTTP(w, r)
+		case GovernanceServiceExplainAccessProcedure:
+			governanceServiceExplainAccessHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -454,6 +644,30 @@ func (UnimplementedGovernanceServiceHandler) UpdateGrant(context.Context, *conne
 
 func (UnimplementedGovernanceServiceHandler) DeleteGrant(context.Context, *connect.Request[pluxv1.DeleteGrantRequest]) (*connect.Response[pluxv1.DeleteGrantResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.DeleteGrant is not implemented"))
+}
+
+func (UnimplementedGovernanceServiceHandler) CreateRestriction(context.Context, *connect.Request[pluxv1.CreateRestrictionRequest]) (*connect.Response[pluxv1.CreateRestrictionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.CreateRestriction is not implemented"))
+}
+
+func (UnimplementedGovernanceServiceHandler) ListRestrictions(context.Context, *connect.Request[pluxv1.ListRestrictionsRequest]) (*connect.Response[pluxv1.ListRestrictionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.ListRestrictions is not implemented"))
+}
+
+func (UnimplementedGovernanceServiceHandler) DeleteRestriction(context.Context, *connect.Request[pluxv1.DeleteRestrictionRequest]) (*connect.Response[pluxv1.DeleteRestrictionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.DeleteRestriction is not implemented"))
+}
+
+func (UnimplementedGovernanceServiceHandler) GetEffectivePermissions(context.Context, *connect.Request[pluxv1.GetEffectivePermissionsRequest]) (*connect.Response[pluxv1.GetEffectivePermissionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.GetEffectivePermissions is not implemented"))
+}
+
+func (UnimplementedGovernanceServiceHandler) WatchPermissions(context.Context, *connect.Request[pluxv1.WatchPermissionsRequest], *connect.ServerStream[pluxv1.WatchPermissionsResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.WatchPermissions is not implemented"))
+}
+
+func (UnimplementedGovernanceServiceHandler) ExplainAccess(context.Context, *connect.Request[pluxv1.ExplainAccessRequest]) (*connect.Response[pluxv1.ExplainAccessResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.ExplainAccess is not implemented"))
 }
 
 // ApprovalServiceClient is a client for the plux.v1.ApprovalService service.

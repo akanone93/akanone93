@@ -5,7 +5,8 @@
 -- apps, plugins and the documents that carry a name worth finding. Which
 -- apps the caller may search is part of the statement: allowed is the list
 -- of app identifiers the caller holds search.read on, or NULL when the
--- permission is held for the whole organisation, and every branch is
+-- permission is held for the whole organisation; excluded lists the apps a
+-- restriction takes it away from (GOV-006). Every branch is
 -- restricted by it before a row is ranked or returned. Row-level security
 -- adds the organisation boundary underneath (SRV-022).
 --
@@ -29,6 +30,7 @@ SELECT hit.kind::text AS kind, hit.ref, hit.app_id, hit.name::text AS name, hit.
        WHERE a.deleted_at IS NULL
          AND plux_search_vector(a.name, a.key, '') @@ to_tsquery('simple', sqlc.arg(query)::text)
          AND (sqlc.narg(allowed)::uuid[] IS NULL OR a.id = ANY(sqlc.narg(allowed)::uuid[]))
+         AND NOT (a.id = ANY(sqlc.arg(excluded)::uuid[]))
          AND (cardinality(sqlc.arg(kinds)::text[]) = 0 OR 'app' = ANY(sqlc.arg(kinds)::text[]))
       UNION ALL
       SELECT 'plugin'::text, pl.id, pl.app_id, pl.name, 'plugins/' || pl.key,
@@ -39,6 +41,7 @@ SELECT hit.kind::text AS kind, hit.ref, hit.app_id, hit.name::text AS name, hit.
        WHERE pl.deleted_at IS NULL
          AND plux_search_vector(pl.name, pl.key, '') @@ to_tsquery('simple', sqlc.arg(query)::text)
          AND (sqlc.narg(allowed)::uuid[] IS NULL OR pl.app_id = ANY(sqlc.narg(allowed)::uuid[]))
+         AND NOT (pl.app_id = ANY(sqlc.arg(excluded)::uuid[]))
          AND (cardinality(sqlc.arg(kinds)::text[]) = 0 OR 'plugin' = ANY(sqlc.arg(kinds)::text[]))
       UNION ALL
       SELECT CASE d.kind WHEN 'translationKeys' THEN 'translation_key' ELSE d.kind END,
@@ -56,6 +59,7 @@ SELECT hit.kind::text AS kind, hit.ref, hit.app_id, hit.name::text AS name, hit.
          AND (dr.plugin_id IS NULL OR dp.deleted_at IS NULL)
          AND plux_search_vector(d.path, d.entity_key, d.search_text) @@ to_tsquery('simple', sqlc.arg(query)::text)
          AND (sqlc.narg(allowed)::uuid[] IS NULL OR dr.app_id = ANY(sqlc.narg(allowed)::uuid[]))
+         AND NOT (dr.app_id = ANY(sqlc.arg(excluded)::uuid[]))
          AND (cardinality(sqlc.arg(kinds)::text[]) = 0
               OR (CASE d.kind WHEN 'translationKeys' THEN 'translation_key' ELSE d.kind END) = ANY(sqlc.arg(kinds)::text[]))
     ) found

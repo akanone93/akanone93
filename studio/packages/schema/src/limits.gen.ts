@@ -314,6 +314,16 @@ export const limits = [
     description: "Audit export destinations one organisation may configure.",
   },
   {
+    key: "auth.explainPerMinute",
+    unit: "count",
+    default: 30,
+    warning: 0,
+    max: 1000,
+    scopes: ["installation"],
+    phase: "P9",
+    description: "Explain calls one principal may make per minute to learn why a person can or cannot perform an action.",
+  },
+  {
     key: "auth.failedSignIns",
     unit: "count",
     default: 10,
@@ -402,6 +412,16 @@ export const limits = [
     scopes: ["installation", "organization"],
     phase: "P9",
     description: "Time without a request after which a browser session ends; an organisation may shorten it.",
+  },
+  {
+    key: "auth.simulatePerMinute",
+    unit: "count",
+    default: 10,
+    warning: 0,
+    max: 1000,
+    scopes: ["installation"],
+    phase: "P9",
+    description: "Explain calls with a proposed grant or restriction one principal may make per minute; each evaluates the resolver on a state that does not exist.",
   },
   {
     key: "auth.stepUpAttempts",

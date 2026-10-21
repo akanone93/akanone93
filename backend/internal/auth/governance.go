@@ -253,7 +253,7 @@ func (s *Service) CreateRole(ctx context.Context, p Principal, key, name, descri
 		return RoleDefinition{}, err
 	}
 	var out RoleDefinition
-	err = s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inTxChanging(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		creator, err := storage.NullUUID(p.UserID)
 		if err != nil {
 			return fmt.Errorf("auth: %w", err)
@@ -299,7 +299,7 @@ func (s *Service) UpdateRole(ctx context.Context, p Principal, key, name, descri
 		return RoleDefinition{}, err
 	}
 	var out RoleDefinition
-	err = s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inTxChanging(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		row, err := dbgen.New(tx).UpdateCustomRole(ctx, dbgen.UpdateCustomRoleParams{
 			OrganizationID: storage.MustUUID(p.OrganizationID), Key: key, Name: name, Description: description, Permissions: perms,
 		})
@@ -324,7 +324,7 @@ func (s *Service) DeleteRole(ctx context.Context, p Principal, key string) error
 	if IsPredefined(Role(key)) {
 		return plxerr.New(plxerr.PreconditionFailed, "%q is a predefined role and cannot be deleted", key)
 	}
-	return s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	return s.inTxChanging(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		org := storage.MustUUID(p.OrganizationID)
 		if _, err := q.GetCustomRole(ctx, dbgen.GetCustomRoleParams{OrganizationID: org, Key: key}); err != nil {
@@ -523,7 +523,7 @@ func (s *Service) CreateGrant(ctx context.Context, p Principal, spec GrantSpec) 
 		return RoleGrantRecord{}, err
 	}
 	var out RoleGrantRecord
-	err = s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inTxChanging(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		org := storage.MustUUID(p.OrganizationID)
 		if err := roleHeld(ctx, q, p, spec.Role); err != nil {
@@ -582,7 +582,7 @@ func (s *Service) UpdateGrant(ctx context.Context, p Principal, grantID, role st
 		return RoleGrantRecord{}, err
 	}
 	var out RoleGrantRecord
-	err = s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inTxChanging(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		if err := roleHeld(ctx, q, p, role); err != nil {
 			return err
@@ -617,7 +617,7 @@ func (s *Service) DeleteGrant(ctx context.Context, p Principal, grantID string) 
 	if err != nil {
 		return err
 	}
-	return s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	return s.inTxChanging(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		return GuardOwners(ctx, q, storage.MustUUID(p.OrganizationID), func() error {
 			row, err := q.GetRoleGrant(ctx, gid)

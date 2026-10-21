@@ -91,6 +91,9 @@ enum PluxLimit {
   auditExportBatchEntries('audit.exportBatchEntries', PluxLimitUnit.count, 500, 0, 10000),
   /// Audit export destinations one organisation may configure.
   auditExportDestinationsPerOrg('audit.exportDestinationsPerOrg', PluxLimitUnit.count, 5, 0, 50),
+  /// Explain calls one principal may make per minute to learn why a person can
+  /// or cannot perform an action.
+  authExplainPerMinute('auth.explainPerMinute', PluxLimitUnit.count, 30, 0, 1000),
   /// Failed passwords or one-time codes one account may present in fifteen
   /// minutes before sign-in is refused.
   authFailedSignIns('auth.failedSignIns', PluxLimitUnit.count, 10, 0, 1000),
@@ -117,6 +120,9 @@ enum PluxLimit {
   /// Time without a request after which a browser session ends; an organisation
   /// may shorten it.
   authSessionIdleTimeout('auth.sessionIdleTimeout', PluxLimitUnit.milliseconds, 1800000, 0, 86400000),
+  /// Explain calls with a proposed grant or restriction one principal may make
+  /// per minute; each evaluates the resolver on a state that does not exist.
+  authSimulatePerMinute('auth.simulatePerMinute', PluxLimitUnit.count, 10, 0, 1000),
   /// Ceremonies one step-up request accepts before it is closed; each wrong
   /// assertion uses one.
   authStepUpAttempts('auth.stepUpAttempts', PluxLimitUnit.count, 5, 0, 20),

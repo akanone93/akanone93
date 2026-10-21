@@ -59,7 +59,7 @@ SELECT * FROM role_grants
 -- name: ListRoleGrantsForUser :many
 -- The grants a user holds directly or through a team, with the key of the
 -- environment a grant is limited to (GOV-003).
-SELECT g.role, g.scope, g.app_id, e.key AS environment_key
+SELECT g.id, g.role, g.scope, g.app_id, e.key AS environment_key
   FROM role_grants g
   LEFT JOIN environments e ON e.id = g.environment_id
  WHERE g.organization_id = $1

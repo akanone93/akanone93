@@ -510,8 +510,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	// them (plan §2.4).
 	auth.LicenseManage,
 	auth.BackupManage,
-	// The restriction RPCs arrive with E1e-b (GOV-006).
-	auth.RestrictionsManage,
 }
 
 // Verifies: SEC-100, SEC-102, GOV-001, QA-008.

@@ -690,6 +690,7 @@ func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limit
 
 		HTTPClient: work.IdentityHTTP, SAML: work.Identity.OrDefault().SAML,
 		PasswordLoginDisabled: !cfg.Auth.Studio.AllowPasswordLogin,
+		Notifier:              permissionNotifier(shared), Log: work.Log,
 	})
 	if err != nil {
 		return coreServices{}, fmt.Errorf("server: %w", err)
@@ -1282,4 +1283,12 @@ func gatewayRegistry(g *GatewayParts) *gateway.Registry {
 		return nil
 	}
 	return g.Upstreams
+}
+
+// permissionNotifier returns the shared cache as the channel permission
+// change notices travel on (GOV-007, ADR-0086), or nil when the cache cannot
+// carry them, in which case the permission cache stays off.
+func permissionNotifier(shared cache.Cache) cache.Notifier {
+	n, _ := shared.(cache.Notifier)
+	return n
 }

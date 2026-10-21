@@ -68,6 +68,12 @@ abstract final class PluxScreens {
       PluxScreen<void>._('product', {'id': id}, (_) {});
 }
 
+/// The app's feature flags (ABT-006).
+abstract final class PluxFlags {
+  /// The feature flag `courierEnabled`.
+  static bool get courierEnabled => plux.Plux.flag<bool>('courierEnabled') ?? true;
+}
+
 /// The type `Delivery`.
 final class Delivery {
   /// Creates a value.

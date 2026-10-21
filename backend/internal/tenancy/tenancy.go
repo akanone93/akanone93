@@ -130,6 +130,20 @@ func (s *Service) inOrg(ctx context.Context, p auth.Principal, f func(context.Co
 	return s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID, UserID: p.UserID}, f) //nolint:wrapcheck // InTx wraps its own failures
 }
 
+// inOrgChanging runs f like inOrg for a change to memberships or app access,
+// and once it has committed announces the organisation's new permissions
+// version, so that no replica serves what it cached before (GOV-007). The
+// version itself is raised in the transaction, by a trigger.
+func (s *Service) inOrgChanging(ctx context.Context, p auth.Principal, f func(context.Context, pgx.Tx) error) error {
+	if err := s.inOrg(ctx, p, f); err != nil {
+		return err
+	}
+	if s.o.Auth != nil {
+		s.o.Auth.AnnouncePermissionsChange(ctx, p.OrganizationID)
+	}
+	return nil
+}
+
 // record appends an audit entry for the principal's organisation.
 func (s *Service) record(ctx context.Context, tx pgx.Tx, p auth.Principal, action audit.Action, kind, id string) error {
 	if _, err := s.o.Audit.Append(ctx, tx, audit.Entry{

@@ -250,7 +250,7 @@ func (s *Service) DeleteTeam(ctx context.Context, p auth.Principal, teamID strin
 	if err != nil {
 		return err
 	}
-	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	return s.inOrgChanging(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		// A team can hold the owner role, so deleting it can remove the
 		// last owner (PLX-8103).
@@ -287,7 +287,7 @@ func (s *Service) AddMember(ctx context.Context, p auth.Principal, teamID, email
 		out        Member
 		invitation string
 	)
-	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inOrgChanging(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		user, inv, err := s.o.Auth.Invite(ctx, tx, email)
 		if err != nil {
@@ -375,7 +375,7 @@ func (s *Service) RemoveMember(ctx context.Context, p auth.Principal, teamID, us
 			return err
 		}
 	}
-	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	return s.inOrgChanging(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		// Removing a person can remove the last owner (PLX-8103), directly
 		// or through a team that holds the owner role.

@@ -123,7 +123,7 @@ func (s *Service) Search(ctx context.Context, p auth.Principal, q Query) (Result
 		}
 		out.PageSize = pageSize(q.PageSize, lim.Get(limits.SearchResultsPerPage))
 		rows, err := dbgen.New(tx).Search(ctx, dbgen.SearchParams{
-			Query: tsq, Allowed: allowed, Kinds: nonNil(q.Kinds), PageSize: out.PageSize, PageOffset: q.Offset,
+			Query: tsq, Allowed: allowed, Excluded: excludedApps(p), Kinds: nonNil(q.Kinds), PageSize: out.PageSize, PageOffset: q.Offset,
 		})
 		if err != nil {
 			return err //nolint:wrapcheck // databaseFailure wraps it
@@ -168,6 +168,20 @@ func searchableApps(p auth.Principal) ([]pgtype.UUID, error) {
 		return nil, p.Authorize(auth.SearchRead)
 	}
 	return allowed, nil
+}
+
+// excludedApps returns the apps a restriction takes search.read away from,
+// for the statement to leave out even when the permission is held for the
+// whole organisation (GOV-006). It is never nil, so that the driver sends
+// an empty array.
+func excludedApps(p auth.Principal) []pgtype.UUID {
+	out := []pgtype.UUID{}
+	for _, app := range p.ExcludedApps(auth.SearchRead) {
+		if id, err := storage.UUID(app); err == nil {
+			out = append(out, id)
+		}
+	}
+	return out
 }
 
 // appsOf iterates over the apps a principal holds permissions on.

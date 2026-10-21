@@ -213,6 +213,8 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	if err != nil {
 		return fail(err)
 	}
+	// Closed before the shared cache its subscription runs on.
+	closers = append(closers, services.Auth.Close)
 
 	srv, err := New(Deps{
 		Config: cfg, Log: log, Metrics: metrics, Tracer: tracer,

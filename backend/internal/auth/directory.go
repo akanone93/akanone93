@@ -230,7 +230,7 @@ func (d scimDirectory) CreateUser(ctx context.Context, org string, spec identity
 		return identity.User{}, invalidValue("userName must be an email address")
 	}
 	var out identity.User
-	err = d.s.inTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+	err = d.s.inTxChanging(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 		q, orgID := dbgen.New(tx), storage.MustUUID(org)
 		account, created, err := d.s.scimAccount(ctx, tx, email, spec.DisplayName)
 		if err != nil {
@@ -333,7 +333,7 @@ func (d scimDirectory) ReplaceUser(ctx context.Context, org, id string, spec ide
 		return identity.User{}, err
 	}
 	var out identity.User
-	err = d.s.inTx(ctx, scimTenant(org, id), func(ctx context.Context, tx pgx.Tx) error {
+	err = d.s.inTxChanging(ctx, scimTenant(org, id), func(ctx context.Context, tx pgx.Tx) error {
 		q, orgID := dbgen.New(tx), storage.MustUUID(org)
 		rec, err := q.GetScimUserForUpdate(ctx, dbgen.GetScimUserForUpdateParams{OrganizationID: orgID, UserID: user})
 		if errors.Is(err, pgx.ErrNoRows) || (err == nil && rec.DeletedAt.Valid) {
@@ -466,7 +466,7 @@ func (d scimDirectory) DeleteUser(ctx context.Context, org, id string) error {
 	if err != nil {
 		return err
 	}
-	return d.s.inTx(ctx, scimTenant(org, id), func(ctx context.Context, tx pgx.Tx) error {
+	return d.s.inTxChanging(ctx, scimTenant(org, id), func(ctx context.Context, tx pgx.Tx) error {
 		q, orgID := dbgen.New(tx), storage.MustUUID(org)
 		rec, err := q.GetScimUserForUpdate(ctx, dbgen.GetScimUserForUpdateParams{OrganizationID: orgID, UserID: user})
 		if errors.Is(err, pgx.ErrNoRows) || (err == nil && rec.DeletedAt.Valid) {
