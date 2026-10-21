@@ -1,0 +1,48 @@
+{
+  "id": "01d0c450-6c00-7000-8000-000000000215",
+  "key": "unavailable",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01d0c450-6c00-7000-8000-0000000007b1",
+    "slots": {
+      "appBar": {
+        "id": "01d0c450-6c00-7000-8000-0000000007b2",
+        "slots": {
+          "title": {
+            "id": "01d0c450-6c00-7000-8000-0000000007b3",
+            "props": {
+              "data": {
+                "$t": "01d0c450-6c00-7000-8000-000000009401"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01d0c450-6c00-7000-8000-0000000007b4",
+        "slots": {
+          "child": {
+            "id": "01d0c450-6c00-7000-8000-0000000007b5",
+            "props": {
+              "data": {
+                "$t": "01d0c450-6c00-7000-8000-000000009402"
+              }
+            },
+            "testId": "transfer-unavailable",
+            "type": "Text"
+          }
+        },
+        "type": "Center"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "transfer-unavailable",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01d0c450-6c00-7000-8000-000000009401"
+  }
+}

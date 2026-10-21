@@ -118,56 +118,79 @@
       "body": {
         "children": [
           {
-            "id": "01d0c450-6c00-7000-8000-000000005007",
-            "props": {
-              "aspectRatio": 4.0
-            },
-            "slots": {
-              "child": {
-                "children": [
-                  {
-                    "id": "01d0c450-6c00-7000-8000-000000005003",
-                    "slots": {
-                      "child": {
-                        "id": "01d0c450-6c00-7000-8000-000000005002",
-                        "props": {
-                          "data": {
-                            "$t": "01d0c450-6c00-7000-8000-000000009002"
-                          }
-                        },
-                        "type": "Text"
-                      }
+            "control": {
+              "id": "01d0c450-6c00-7000-8000-000000005007",
+              "props": {
+                "aspectRatio": 4.0
+              },
+              "slots": {
+                "child": {
+                  "children": [
+                    {
+                      "id": "01d0c450-6c00-7000-8000-000000005003",
+                      "slots": {
+                        "child": {
+                          "id": "01d0c450-6c00-7000-8000-000000005002",
+                          "props": {
+                            "data": {
+                              "$t": "01d0c450-6c00-7000-8000-000000009002"
+                            }
+                          },
+                          "type": "Text"
+                        }
+                      },
+                      "type": "Center"
                     },
-                    "type": "Center"
+                    {
+                      "id": "01d0c450-6c00-7000-8000-000000005005",
+                      "slots": {
+                        "child": {
+                          "id": "01d0c450-6c00-7000-8000-000000005004",
+                          "props": {
+                            "data": {
+                              "$t": "01d0c450-6c00-7000-8000-000000009003"
+                            }
+                          },
+                          "type": "Text"
+                        }
+                      },
+                      "type": "Center"
+                    }
+                  ],
+                  "id": "01d0c450-6c00-7000-8000-000000005006",
+                  "props": {
+                    "indicators": true,
+                    "semanticLabel": {
+                      "$t": "01d0c450-6c00-7000-8000-000000009001"
+                    }
                   },
-                  {
-                    "id": "01d0c450-6c00-7000-8000-000000005005",
-                    "slots": {
-                      "child": {
-                        "id": "01d0c450-6c00-7000-8000-000000005004",
-                        "props": {
-                          "data": {
-                            "$t": "01d0c450-6c00-7000-8000-000000009003"
-                          }
-                        },
-                        "type": "Text"
+                  "testId": "offers",
+                  "type": "Carousel"
+                }
+              },
+              "type": "AspectRatio"
+            },
+            "experiment": "catalogueBanner",
+            "id": "01d0c450-6c00-7000-8000-0000000007a3",
+            "type": "Variant",
+            "variants": {
+              "compact": {
+                "id": "01d0c450-6c00-7000-8000-0000000007a4",
+                "slots": {
+                  "child": {
+                    "id": "01d0c450-6c00-7000-8000-0000000007a5",
+                    "props": {
+                      "data": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009002"
                       }
                     },
-                    "type": "Center"
-                  }
-                ],
-                "id": "01d0c450-6c00-7000-8000-000000005006",
-                "props": {
-                  "indicators": true,
-                  "semanticLabel": {
-                    "$t": "01d0c450-6c00-7000-8000-000000009001"
+                    "type": "Text"
                   }
                 },
-                "testId": "offers",
-                "type": "Carousel"
+                "testId": "offers-compact",
+                "type": "Center"
               }
-            },
-            "type": "AspectRatio"
+            }
           },
           {
             "id": "01d0c450-6c00-7000-8000-000000003005",

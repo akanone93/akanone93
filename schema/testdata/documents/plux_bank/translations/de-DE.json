@@ -48,7 +48,9 @@
     "01d0c450-6c00-7000-8000-000000009306": "Geben Sie einen Betrag ein",
     "01d0c450-6c00-7000-8000-000000009307": "Verwenden Sie höchstens zwei Nachkommastellen",
     "01d0c450-6c00-7000-8000-000000009308": "Der Betrag muss größer als null sein und Ihr Guthaben nicht übersteigen",
-    "01d0c450-6c00-7000-8000-000000009309": "Verwenden Sie höchstens 40 Zeichen"
+    "01d0c450-6c00-7000-8000-000000009309": "Verwenden Sie höchstens 40 Zeichen",
+    "01d0c450-6c00-7000-8000-000000009401": "Überweisungen pausiert",
+    "01d0c450-6c00-7000-8000-000000009402": "Überweisungen sind vorübergehend nicht verfügbar. Ihr Geld ist sicher; bitte versuchen Sie es später erneut."
   },
   "schemaVersion": "1.0.0",
   "states": {
@@ -97,6 +99,8 @@
     "01d0c450-6c00-7000-8000-000000009306": "translated",
     "01d0c450-6c00-7000-8000-000000009307": "translated",
     "01d0c450-6c00-7000-8000-000000009308": "translated",
-    "01d0c450-6c00-7000-8000-000000009309": "translated"
+    "01d0c450-6c00-7000-8000-000000009309": "translated",
+    "01d0c450-6c00-7000-8000-000000009401": "translated",
+    "01d0c450-6c00-7000-8000-000000009402": "translated"
   }
 }

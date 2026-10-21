@@ -19,6 +19,13 @@
       }
     }
   ],
+  "flags": [
+    {
+      "default": true,
+      "name": "courierEnabled",
+      "type": "bool"
+    }
+  ],
   "icon": {
     "monogram": {
       "background": "#E4572E",
