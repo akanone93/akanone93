@@ -22,6 +22,8 @@ const controlUsage = `Usage: plux control get|kill|unkill|mandatory|rollback [fl
   get         Show a channel's control document
   kill        Switch a plugin, page, actionGraph, dataSource or function off
   unkill      Switch it back on
+
+kill, unkill and rollback take --break-glass --justification text to act as an emergency without approval.
   mandatory   Make a release mandatory, or withdraw it with --clear
   rollback    Force devices back to an earlier release, or withdraw it with --clear
 `
@@ -41,6 +43,7 @@ type controlFlags struct {
 	env, channel, message string
 	release               int64
 	clear                 bool
+	bg                    breakGlassFlags
 }
 
 // control reads and changes a channel's signed control document: kill
@@ -68,6 +71,7 @@ func (e env) control(args []string) int {
 	set.StringVar(&f.message, "message", "", "the localisation `key` of the update screen's message")
 	set.Int64Var(&f.release, "release", 0, "the release `sequence`")
 	set.BoolVar(&f.clear, "clear", false, "withdraw instead of set")
+	f.bg.register(set)
 	rest, code, ok := parse(set, args[1:], e.stderr, usage, positional)
 	if !ok {
 		return code
@@ -81,6 +85,9 @@ func (e env) control(args []string) int {
 	if f.env == "" {
 		return e.fail("control", usageError("--env names the environment"))
 	}
+	if err := f.bg.check(); err != nil {
+		return e.fail("control", err)
+	}
 	return e.controlRun(c, f, sub, rest)
 }
 
@@ -90,13 +97,13 @@ func controlSubcommand(sub string) (usage string, positional int, known bool) {
 	case "get":
 		return "Usage: plux control get --env key [--channel key] [-C dir] [--json]\n\nShows the newest control document of a channel: its version, the kill switches, the mandatory update, the forced rollback and the expiry of the signed document.", 0, true
 	case "kill":
-		return "Usage: plux control kill --env key [--channel key] [-C dir] [--json] <scope> <target>\n\nSwitches off a plugin, page, actionGraph, dataSource or function for a channel's devices.", 2, true
+		return "Usage: plux control kill --env key [--channel key] [--break-glass --justification text] [-C dir] [--json] <scope> <target>\n\nSwitches off a plugin, page, actionGraph, dataSource or function for a channel's devices. With --break-glass it is an emergency action: no approval and no change freeze, and a post-hoc review follows (GOV-024).", 2, true
 	case "unkill":
-		return "Usage: plux control unkill --env key [--channel key] [-C dir] [--json] <scope> <target>\n\nSwitches it back on.", 2, true
+		return "Usage: plux control unkill --env key [--channel key] [--break-glass --justification text] [-C dir] [--json] <scope> <target>\n\nSwitches it back on.", 2, true
 	case "mandatory":
 		return "Usage: plux control mandatory --env key [--channel key] (--release sequence [--message key] | --clear) [-C dir] [--json]\n\nMakes a release mandatory: devices activate it before they show another page. --clear withdraws it.", 0, true
 	case "rollback":
-		return "Usage: plux control rollback --env key [--channel key] (--release sequence | --clear) [-C dir] [--json]\n\nForces devices back to an earlier release they retain. --clear withdraws it.", 0, true
+		return "Usage: plux control rollback --env key [--channel key] (--release sequence | --clear) [--break-glass --justification text] [-C dir] [--json]\n\nForces devices back to an earlier release they retain. --clear withdraws it.", 0, true
 	}
 	return "", 0, false
 }
@@ -133,22 +140,22 @@ func controlCall(ctx context.Context, client pluxv1connect.ControlServiceClient,
 		}
 		return res.Msg.GetDocument(), nil
 	case "kill", "unkill":
-		return controlSwitch(ctx, client, t, sub == "kill", rest)
+		return controlSwitch(ctx, client, t, f.bg, sub == "kill", rest)
 	}
 	return controlRelease(ctx, client, t, f, sub == "mandatory")
 }
 
 // controlSwitch sets or clears a kill switch.
-func controlSwitch(ctx context.Context, client pluxv1connect.ControlServiceClient, t controlTarget, set bool, rest []string) (*pluxv1.ControlDocument, error) {
+func controlSwitch(ctx context.Context, client pluxv1connect.ControlServiceClient, t controlTarget, bg breakGlassFlags, set bool, rest []string) (*pluxv1.ControlDocument, error) {
 	scope, ok := controlScopes[controldoc.Scope(rest[0])]
 	if !ok {
 		return nil, usageError(fmt.Sprintf("%q is not a kill switch scope: use plugin, page, actionGraph, dataSource or function", rest[0]))
 	}
 	entry := &pluxv1.KillSwitchEntry{Scope: scope, Target: rest[1]}
 	if set {
-		return documentOf(client.SetKillSwitch(ctx, connect.NewRequest(&pluxv1.SetKillSwitchRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, KillSwitch: entry})))
+		return documentOf(client.SetKillSwitch(ctx, connect.NewRequest(&pluxv1.SetKillSwitchRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, KillSwitch: entry, BreakGlass: bg.on, Justification: bg.justification})))
 	}
-	return documentOf(client.ClearKillSwitch(ctx, connect.NewRequest(&pluxv1.ClearKillSwitchRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, KillSwitch: entry})))
+	return documentOf(client.ClearKillSwitch(ctx, connect.NewRequest(&pluxv1.ClearKillSwitchRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, KillSwitch: entry, BreakGlass: bg.on, Justification: bg.justification})))
 }
 
 // controlRelease sets or withdraws the mandatory update or the forced
@@ -163,9 +170,9 @@ func controlRelease(ctx context.Context, client pluxv1connect.ControlServiceClie
 	case mandatory:
 		return documentOf(client.SetMandatoryUpdate(ctx, connect.NewRequest(&pluxv1.SetMandatoryUpdateRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, ReleaseSequence: f.release, MessageKey: f.message})))
 	case f.clear:
-		return documentOf(client.ClearForcedRollback(ctx, connect.NewRequest(&pluxv1.ClearForcedRollbackRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel})))
+		return documentOf(client.ClearForcedRollback(ctx, connect.NewRequest(&pluxv1.ClearForcedRollbackRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, BreakGlass: f.bg.on, Justification: f.bg.justification})))
 	default:
-		return documentOf(client.SetForcedRollback(ctx, connect.NewRequest(&pluxv1.SetForcedRollbackRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, ReleaseSequence: f.release})))
+		return documentOf(client.SetForcedRollback(ctx, connect.NewRequest(&pluxv1.SetForcedRollbackRequest{AppId: t.app, EnvironmentId: t.env, ChannelKey: t.channel, ReleaseSequence: f.release, BreakGlass: f.bg.on, Justification: f.bg.justification})))
 	}
 }
 

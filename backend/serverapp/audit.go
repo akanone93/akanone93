@@ -5,6 +5,7 @@ package serverapp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -19,15 +20,51 @@ import (
 )
 
 // auditUsage is the usage of the audit command.
-const auditUsage = "usage: audit verify [--org <id>] [--json] [-config <path>]"
+const auditUsage = `usage: audit verify [--org <id>] [--json] [-config <path>]
+       audit public-key [-config <path>]`
 
 // auditCommand runs the audit subcommands.
 func auditCommand(ctx context.Context, args []string, stdout, stderr io.Writer) int {
-	if len(args) == 0 || args[0] != "verify" {
+	if len(args) > 0 {
+		switch args[0] {
+		case "verify":
+			return auditVerify(ctx, args[1:], stdout, stderr)
+		case "public-key":
+			return auditPublicKey(args[1:], stdout, stderr)
+		}
+	}
+	_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, auditUsage)
+	return exitUsage
+}
+
+// auditPublicKey prints the public half of the audit key as id=base64, the
+// form `plux compliance verify --key` takes. An auditor who verifies a
+// compliance report (GOV-026) or the checkpoints of the audit log (SEC-141)
+// pins this value once, from a trusted channel, and then needs nothing else
+// from the server. The private half is never read.
+func auditPublicKey(args []string, stdout, stderr io.Writer) int {
+	path, err := flags("audit public-key", args, stderr)
+	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, auditUsage)
 		return exitUsage
 	}
-	return auditVerify(ctx, args[1:], stdout, stderr)
+	cfg, err := config.Load(path, os.LookupEnv)
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "%s: %s:\n%s\n", name, path, err)
+		return exitUsage
+	}
+	backend, err := server.BuildSigning(cfg)
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, err)
+		return exitFailed
+	}
+	pub, keyID, err := backend.PublicKey(context.Background(), cfg.Signing.Keys.Audit)
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "%s: the audit key %q: %s\n", name, cfg.Signing.Keys.Audit, err)
+		return exitFailed
+	}
+	_, _ = fmt.Fprintf(stdout, "%s=%s\n", keyID, base64.StdEncoding.EncodeToString(pub))
+	return exitOK
 }
 
 // auditVerify walks each organisation's audit chain and the signed

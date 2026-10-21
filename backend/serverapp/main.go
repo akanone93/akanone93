@@ -40,6 +40,7 @@ Commands:
   migrate           Apply pending database migrations and exit
   bootstrap         Create the first installation administrator
   audit verify      Verify the audit chains and their signed checkpoints
+  audit public-key  Print the audit public key as id=base64, for plux compliance verify
   metadata          Update metadata: print the online keys, upload an offline-signed root
   keys              Imported signing keys: import an issuer's .p8 sealed, show its metadata
   seed              Development only: an administrator, organisation, app and token
