@@ -333,6 +333,7 @@ func (s *Service) writeScoped(ctx context.Context, p auth.Principal, appID, plug
 		if _, err := q.GetDraftForUpdate(ctx, d.row.ID); err != nil {
 			return failure(err, "draft")
 		}
+		d.tx = tx
 		lim, err := s.limitsFor(ctx, tx, d)
 		if err != nil {
 			return err

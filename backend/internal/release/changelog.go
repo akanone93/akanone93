@@ -48,34 +48,41 @@ func (s *Service) Changelog(ctx context.Context, p auth.Principal, appID string,
 		notes string
 	)
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		row, vs, err := s.releaseRow(ctx, q, appID, sequence)
-		if err != nil {
-			return err
-		}
-		notes = row.Notes
-		after, err := s.o.Documents.SourceHashes(ctx, tx, sourcesOf(vs))
-		if err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		before := map[string]string{}
-		if from == 0 {
-			from = sequence - 1
-		}
-		if from > 0 {
-			_, prev, err := s.releaseRow(ctx, q, appID, from)
-			if err == nil {
-				if before, err = s.o.Documents.SourceHashes(ctx, tx, sourcesOf(prev)); err != nil {
-					return err //nolint:wrapcheck // a domain error
-				}
-			} else if !isNotFound(err) || from != sequence-1 {
-				return err //nolint:wrapcheck // a domain error
-			}
-		}
-		out = diffSources(before, after)
-		return nil
+		var err error
+		out, notes, err = s.changelogIn(ctx, tx, appID, sequence, from)
+		return err
 	})
 	return out, notes, err
+}
+
+// changelogIn is Changelog inside a transaction: the entries that take
+// release from to release sequence (the one before it when from is 0), with
+// the release's notes.
+func (s *Service) changelogIn(ctx context.Context, tx pgx.Tx, appID string, sequence, from int64) ([]ChangelogEntry, string, error) {
+	q := dbgen.New(tx)
+	row, vs, err := s.releaseRow(ctx, q, appID, sequence)
+	if err != nil {
+		return nil, "", err
+	}
+	after, err := s.o.Documents.SourceHashes(ctx, tx, sourcesOf(vs))
+	if err != nil {
+		return nil, "", err //nolint:wrapcheck // a domain error
+	}
+	before := map[string]string{}
+	if from == 0 {
+		from = sequence - 1
+	}
+	if from > 0 {
+		_, prev, err := s.releaseRow(ctx, q, appID, from)
+		if err == nil {
+			if before, err = s.o.Documents.SourceHashes(ctx, tx, sourcesOf(prev)); err != nil {
+				return nil, "", err //nolint:wrapcheck // a domain error
+			}
+		} else if !isNotFound(err) || from != sequence-1 {
+			return nil, "", err
+		}
+	}
+	return diffSources(before, after), row.Notes, nil
 }
 
 // sourcesOf lists the source snapshots of versions.

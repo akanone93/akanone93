@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -54,6 +55,13 @@ func (s *Service) Deploy(ctx context.Context, p auth.Principal, buildID, alias s
 			return err
 		}
 		if err := checkDeployable(build, env.Production); err != nil {
+			return err
+		}
+		if err := s.requireDeployment(ctx, tx, p, deployment{
+			app: storage.ID(row.AppID), env: env, name: row.Name, subject: "function:" + row.Name + "@build:" + storage.ID(row.ID),
+			content: deployContent(row.Name, 0, row.ModuleSha256, row.Placement, alias),
+			summary: "function " + row.Name + " is deployed to " + env.Key,
+		}); err != nil {
 			return err
 		}
 		out, err = s.insertVersion(ctx, tx, p, row, alias, testsPassed(build))
@@ -180,6 +188,13 @@ func (s *Service) Promote(ctx context.Context, p auth.Principal, appID, fromEnvI
 		if !src.TestsPassed && to.Production {
 			return plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be promoted to a production environment", version, name)
 		}
+		if err := s.requireDeployment(ctx, tx, p, deployment{
+			app: appID, env: to, name: name, subject: "function:" + name + "@" + strconv.Itoa(int(version)),
+			content: deployContent(name, version, src.ModuleSha256, src.Placement, alias),
+			summary: "version " + strconv.Itoa(int(version)) + " of function " + name + " is promoted to " + to.Key,
+		}); err != nil {
+			return err
+		}
 		out, err = s.copyVersion(ctx, tx, p, src, to, alias)
 		return err
 	})
@@ -267,6 +282,13 @@ func (s *Service) SetAlias(ctx context.Context, p auth.Principal, appID, environ
 		v, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: env.ID, Name: name, Version: version})
 		if err != nil {
 			return versionMissing(err, name, version)
+		}
+		if err := s.requireDeployment(ctx, tx, p, deployment{
+			app: appID, env: env, name: name, subject: "function:" + name + "#alias:" + alias,
+			content: deployContent(name, version, v.ModuleSha256, v.Placement, alias),
+			summary: "alias " + alias + " of function " + name + " moves to version " + strconv.Itoa(int(version)) + " in " + env.Key,
+		}); err != nil {
+			return err
 		}
 		if _, err := q.UpsertFunctionAlias(ctx, aliasParams(p, v, alias)); err != nil {
 			return failure(err, "function alias")

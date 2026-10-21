@@ -205,19 +205,10 @@ func (*Service) versionFor(ctx context.Context, q *dbgen.Queries, app, plugin pg
 // the data sources that go through the gateway are matched by the
 // environment's registered upstreams (SEC-030, SEC-031).
 func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, environment pgtype.UUID, versions []dbgen.PluginVersion) (plxerr.Diagnostics, []functionGrant, map[ReportKind][]byte, error) {
-	sources := make([]string, 0, len(versions))
-	for _, v := range versions {
-		sources = append(sources, storage.ID(v.SourceSnapshotID))
-	}
-	fsys, err := s.o.Documents.SourceFiles(ctx, tx, appID, sources)
-	if err != nil {
-		return nil, nil, nil, err //nolint:wrapcheck // a domain error
-	}
-	opts, err := s.compileOptions(ctx, tx, p.OrganizationID, appID, storage.ID(environment), "")
+	res, opts, err := s.compileSet(ctx, tx, p.OrganizationID, appID, environment, versions)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	res := compiler.Compile(fsys, opts)
 	diags, err := s.gateAccessibility(ctx, appID, storage.ID(environment), res.Diagnostics)
 	if err != nil {
 		return nil, nil, nil, err
@@ -250,6 +241,19 @@ func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 		return nil, nil, nil, err
 	}
 	return diags, grantsOf(res, opts.Functions), reports, nil
+}
+
+// compileSet compiles the sources of a set of versions for an environment.
+func (s *Service) compileSet(ctx context.Context, tx pgx.Tx, organizationID, appID string, environment pgtype.UUID, versions []dbgen.PluginVersion) (*compiler.Result, compiler.Options, error) {
+	fsys, err := s.o.Documents.SourceFiles(ctx, tx, appID, sourcesOf(versions))
+	if err != nil {
+		return nil, compiler.Options{}, err //nolint:wrapcheck // a domain error
+	}
+	opts, err := s.compileOptions(ctx, tx, organizationID, appID, storage.ID(environment), "")
+	if err != nil {
+		return nil, compiler.Options{}, err
+	}
+	return compiler.Compile(fsys, opts), opts, nil
 }
 
 // nameOf names a version's bundle in messages.
@@ -521,6 +525,9 @@ func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID st
 			return err
 		}
 		if err := s.gatePromotion(ctx, appID, env, row, vs); err != nil {
+			return err
+		}
+		if err := s.requirePromotion(ctx, tx, p, appID, env, channelKey, row, vs); err != nil {
 			return err
 		}
 		if err := s.point(ctx, tx, p, env, channelKey, row); err != nil {

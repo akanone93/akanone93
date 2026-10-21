@@ -27,6 +27,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/klauspost/compress/zstd"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
@@ -77,6 +78,9 @@ type Options struct {
 	// SVG compiles SVGs to vector_graphics in the worker (CMP-031); nil
 	// where the server has no SVG compiler, which fails SVG assets.
 	SVG *media.SVGCompiler
+	// Approvals decides whether accessibility waivers may stand (A11Y-008,
+	// GOV-020); nil requires nothing.
+	Approvals approval.Gate
 }
 
 // Service is the domain logic of drafts.
@@ -172,6 +176,9 @@ type draft struct {
 	row    dbgen.Draft
 	app    string
 	plugin *dbgen.Plugin
+	// tx is the transaction of a write, set once the draft is locked, for the
+	// checks that ask the approval engine inside it (waivers).
+	tx pgx.Tx
 }
 
 // pluginID is the draft's plugin, or "".

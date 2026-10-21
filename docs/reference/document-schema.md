@@ -986,6 +986,7 @@ The changes a policy applies to: a change matches when it satisfies every attrib
 | `resources` | list of [PolicyResource](#policyresource) |  |  |
 | `environments` | list of string |  |  |
 | `actions` | list of string |  |  |
+| `production` | boolean |  | Whether the change is to a production environment: true matches production environments only, false the others, and left out both. The environment keys of `environments` name environments one by one; this names the class, so that a policy covers a production environment added later. |
 | `risk` | list of [PolicyRisk](#policyrisk) |  | Risk attributes that must all hold. |
 
 ### PolicyRequire

@@ -44,6 +44,8 @@ Commands:
   license     inspect a licence file and its signature
   admin       license: show the installation's enterprise licence state
   roles       list, show, create, update and delete roles
+  policies    list, show, put, delete and export approval policies
+  approvals   list, show, approve and reject requests for approval
   grants      grant roles to people and teams on the organisation, an app or an environment
   teams       list, create and delete teams; add and remove their members
   sessions    list the sessions and tokens of the organisation's members, and end one
@@ -122,7 +124,7 @@ func (e env) commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"login": e.login, "logout": e.logout, "whoami": e.whoami, "init": e.initProject, "doctor": e.doctor,
 		"diff": e.diff, "publish": e.publish, "pull": e.pull, "release": e.release, "export": e.export,
-		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "grants": e.grants, "teams": e.teams, "sessions": e.sessions, "tokens": e.tokens, "notifications": e.notifications, "webhooks": e.webhooks, "dsr": e.dsr, "rollout": e.rollout, "audit": e.audit, "flags": e.flags, "experiment": e.experiment,
+		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "policies": e.policies, "approvals": e.approvals, "grants": e.grants, "teams": e.teams, "sessions": e.sessions, "tokens": e.tokens, "notifications": e.notifications, "webhooks": e.webhooks, "dsr": e.dsr, "rollout": e.rollout, "audit": e.audit, "flags": e.flags, "experiment": e.experiment,
 		"search": e.search, "git": e.git, "analytics": e.analytics, "control": e.control,
 	}
 }

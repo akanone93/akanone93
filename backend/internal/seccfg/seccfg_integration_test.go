@@ -41,6 +41,8 @@ type fixture struct {
 	db      *storage.DB
 	log     *audit.Log
 	tenancy *tenancy.Service
+	auth    *auth.Service
+	gen     ids
 	svc     *seccfg.Service
 	now     time.Time
 	org     string
@@ -66,6 +68,7 @@ func newFixture(t *testing.T, limitSet limits.Set) *fixture {
 	if err != nil {
 		t.Fatal(err)
 	}
+	f.auth, f.gen = authService, gen
 	if f.tenancy, err = tenancy.NewService(tenancy.Options{DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, SigningKeyPrefix: "targets", Now: clock}); err != nil {
 		t.Fatal(err)
 	}

@@ -84,6 +84,10 @@ func attachTriggerInvoker(functions *function.Service, rt *functionRuntime, d fu
 // elected leader (SRV-062, SRV-063, FN-025).
 func buildScheduler(svc *Services, log *slog.Logger, db *storage.DB) (*scheduler.Scheduler, error) {
 	jobs := []scheduler.Job{
+		scheduler.JobFunc{Label: "approval decision signatures", F: func(ctx context.Context, org string) error {
+			_, err := svc.Approvals.SignDecisions(ctx, org)
+			return err //nolint:wrapcheck // a domain error
+		}},
 		scheduler.JobFunc{Label: "notification deliveries", F: func(ctx context.Context, org string) error {
 			_, err := svc.Notify.DeliverDue(ctx, org)
 			return err //nolint:wrapcheck // a domain error

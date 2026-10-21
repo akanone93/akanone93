@@ -128,6 +128,7 @@ raspScreenCaptureResponse        warn                    profile
 reattestationInterval            86400                   profile
 registrationChallengeTtl         300                     profile
 replayCacheFallback              memory                  profile
+requiredTests                    false                   profile
 riskMetricMaxAL3                 3                       profile
 screenshotBlockingDefault        false                   profile
 tls12Allowed                     false                   profile
