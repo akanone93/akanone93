@@ -43,7 +43,6 @@
     "LICENSES/**",
     "REUSE.toml",
     "docs/**",
-    "mk/iac.mk",
     "mk/l10n.mk",
     "mk/repo.mk",
     "scripts/check-commit-msg.sh",
@@ -75,6 +74,42 @@
         "**/*.md"
       ],
       "skipOnPush": true
+    },
+    "restore-drill": {
+      "description": "The backup restore drill on kind: restore into a new namespace at a random point in the last hour, verify releases, bundles and the audit chain, and measure RPO and RTO (DEP-010); it takes long, so pushes to main skip it",
+      "paths": [
+        "backend/Dockerfile",
+        "deploy/helm/**",
+        "mk/helm.mk"
+      ],
+      "exclude": [
+        "**/*.md"
+      ],
+      "skipOnPush": true
+    },
+    "airgap": {
+      "description": "The air-gapped bundle built, verified and installed on kind with outbound networking denied and images from a local registry (DEP-040); it takes long, so pushes to main skip it",
+      "paths": [
+        "backend/Dockerfile",
+        "deploy/helm/**",
+        "ee/backend/airgap/**",
+        "ee/backend/cmd/plux-airgap/**",
+        "mk/helm.mk"
+      ],
+      "exclude": [
+        "**/*.md"
+      ],
+      "skipOnPush": true
+    },
+    "iac": {
+      "description": "The OpenTofu modules for AWS, GCP and Azure: format, init, validate, the mock-provider tests and the policy checks (DEP-050)",
+      "paths": [
+        "deploy/iac/**",
+        "mk/iac.mk"
+      ],
+      "exclude": [
+        "**/*.md"
+      ]
     },
     "go-lint": {
       "description": "Format, lint and tidiness of both Go modules, and `make gen` reproducing everything it writes (CI-003) from schema/, proto/ and the licence texts",

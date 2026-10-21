@@ -1,4 +1,5 @@
-# Load — the manifest endpoint's throughput target (NFR-020), measured
+# Load — the manifest endpoint's throughput target (NFR-020), the device
+# fleet (DEP-051, NFR-023) and control propagation (NFR-024), measured
 # nightly and on demand rather than on every pull request. The Compose
 # stack is started with the load overlay, seeded with the loan calculator
 # promoted to staging, and k6 runs test/load/manifest.js against it.
@@ -56,3 +57,52 @@ jobs:
       - name: Stop the stack
         if: always()
         run: docker compose -f deploy/compose/compose.yaml down -v
+
+  # A fleet of synthetic devices against the Compose stack (DEP-051,
+  # NFR-023): the generator of backend/cmd/plux-load, nightly at a size a
+  # hosted runner holds; the report goes to the job summary.
+  fleet:
+    name: Device fleet
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.mod
+      # Verifies: DEP-051, NFR-023.
+      - name: Run the fleet
+        run: make load-test LOAD_DEVICES=1000 LOAD_DURATION=5m | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Stop the stack
+        if: always()
+        run: docker compose -f deploy/compose/compose.yaml down -v
+
+  # How long a control-document change takes to reach a fleet, by polling
+  # and with silent push through a fake FCM (NFR-024).
+  control:
+    name: Control propagation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.mod
+      # Verifies: NFR-024.
+      - name: Measure propagation
+        run: |
+          url=$(make --no-print-directory test-db | sed -n 's/^  export PLUX_TEST_DATABASE_URL=//p')
+          PLUX_TEST_DATABASE_URL="$url" make bench-control | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Remove the test database
+        if: always()
+        run: make test-db-down
