@@ -188,6 +188,10 @@ type WorkDeps struct {
 	// IdentityHTTP reads identity providers' key sets; nil is the
 	// SSRF-safe client (SEC-105).
 	IdentityHTTP *http.Client
+	// PushHTTP and PushEndpoints reach the push providers somewhere other
+	// than their production endpoints; nil and zero use those (tests only).
+	PushHTTP      *http.Client
+	PushEndpoints push.Endpoints
 	// Identity holds the enterprise implementations of SAML and SCIM
 	// (GOV-004); a nil field is the community default.
 	Identity identity.Extensions

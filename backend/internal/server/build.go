@@ -21,6 +21,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/observability"
+	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
@@ -39,6 +40,8 @@ type BuildOption func(*buildOptions)
 
 type buildOptions struct {
 	identityHTTP *http.Client
+	pushHTTP     *http.Client
+	pushEnds     push.Endpoints
 	builder      function.Builder
 	linker       function.Linker
 	edition      edition.Provider
@@ -83,6 +86,15 @@ func WithIdentityExtensions(e identity.Extensions) BuildOption {
 // serves customers never sets it.
 func WithIdentityProviderClient(c *http.Client) BuildOption {
 	return func(o *buildOptions) { o.identityHTTP = c }
+}
+
+// WithPushProvider makes silent push (SYN-060) reach the push providers at
+// the given endpoints with c, in place of the SSRF-safe client and the
+// providers' production endpoints. It is for embedders and tests that stand
+// in for FCM and APNs on a private address; a process that serves customers
+// never sets it.
+func WithPushProvider(e push.Endpoints, c *http.Client) BuildOption {
+	return func(o *buildOptions) { o.pushEnds, o.pushHTTP = e, c }
 }
 
 // WithFunctionBuilder gives the worker role b to build function sources and
@@ -240,7 +252,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, Identity: o.identity}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, PushHTTP: o.pushHTTP, PushEndpoints: o.pushEnds, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, Identity: o.identity}
 	if cfg.Has(config.RoleWorker) {
 		// Only the worker transcodes and signs: compiling the codecs costs
 		// seconds of CPU the api role need not pay, and the api role must
