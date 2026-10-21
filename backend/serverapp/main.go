@@ -79,8 +79,8 @@ type Options struct {
 	// core, which exports over syslog only.
 	AuditSinks export.Provider
 	// Analytics, when set, opens the enterprise edition's analytics store
-	// (ClickHouse) in place of PostgreSQL (ANL-010, ADR-0080). Nil is the
-	// core's PostgreSQL store.
+	// (ClickHouse) in place of PostgreSQL (ANL-010, ADR-0080). Nil, or an
+	// opener that returns no store, is the core's PostgreSQL store.
 	Analytics extanalytics.Opener
 	// Identity, when its fields are set, is the enterprise edition's SAML
 	// 2.0 single sign-on and SCIM 2.0 provisioning (GOV-004, ADR-0074). A
@@ -278,15 +278,20 @@ func serve(ctx context.Context, args []string, stderr io.Writer, opts Options) i
 	}
 	buildOpts := []server.BuildOption{server.WithEdition(provider), server.WithAuditSinks(opts.AuditSinks), server.WithIdentityExtensions(opts.Identity)}
 	if opts.Analytics != nil {
-		store, err := opts.Analytics.Open(ctx, extanalytics.Settings{Log: log})
+		// The opener reads the licence from the context, so that an
+		// unlicensed installation keeps the PostgreSQL store: it answers
+		// with a nil Store.
+		store, err := opts.Analytics.Open(edition.WithProvider(ctx, provider), extanalytics.Settings{Log: log})
 		if err != nil {
 			_, _ = fmt.Fprintf(stderr, "%s: open the analytics store: %s\n", name, err)
 			return exitFailed
 		}
-		if closer, ok := store.(io.Closer); ok {
-			defer func() { _ = closer.Close() }()
+		if store != nil {
+			if closer, ok := store.(io.Closer); ok {
+				defer func() { _ = closer.Close() }()
+			}
+			buildOpts = append(buildOpts, server.WithAnalyticsStore(store))
 		}
-		buildOpts = append(buildOpts, server.WithAnalyticsStore(store))
 	}
 	built, err := server.Build(ctx, cfg, log, buildinfo.Get().Version, buildOpts...)
 	if err != nil {
