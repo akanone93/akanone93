@@ -18,7 +18,7 @@ variables {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 buckets are versioned, encrypted and private" {
+run "DEP_050_buckets_are_versioned_encrypted_and_private" {
   command = plan
 
   assert {
@@ -48,7 +48,7 @@ run "DEP-050 buckets are versioned, encrypted and private" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cluster endpoint is private and secrets are encrypted" {
+run "DEP_050_cluster_endpoint_is_private_and_secrets_are_encrypted" {
   command = plan
 
   assert {
@@ -83,7 +83,7 @@ run "DEP-050 cluster endpoint is private and secrets are encrypted" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 managed database is private, encrypted and protected" {
+run "DEP_050_managed_database_is_private_encrypted_and_protected" {
   command = plan
 
   assert {
@@ -108,7 +108,7 @@ run "DEP-050 managed database is private, encrypted and protected" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cache is encrypted in transit and at rest" {
+run "DEP_050_cache_is_encrypted_in_transit_and_at_rest" {
   command = plan
 
   assert {
@@ -128,7 +128,7 @@ run "DEP-050 cache is encrypted in transit and at rest" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 signing key is an asymmetric key that only signs and verifies" {
+run "DEP_050_signing_key_is_an_asymmetric_key_that_only_signs_and_verifies" {
   command = plan
 
   assert {
@@ -143,7 +143,7 @@ run "DEP-050 signing key is an asymmetric key that only signs and verifies" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cnpg mode creates no managed database" {
+run "DEP_050_cnpg_mode_creates_no_managed_database" {
   command = plan
 
   variables {
@@ -162,7 +162,7 @@ run "DEP-050 cnpg mode creates no managed database" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a public database mode" {
+run "DEP_050_rejects_a_public_database_mode" {
   command = plan
 
   variables {
@@ -173,7 +173,7 @@ run "DEP-050 rejects a public database mode" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a cache password that is too short" {
+run "DEP_050_rejects_a_cache_password_that_is_too_short" {
   command = plan
 
   variables {
@@ -184,7 +184,7 @@ run "DEP-050 rejects a cache password that is too short" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a single availability zone" {
+run "DEP_050_rejects_a_single_availability_zone" {
   command = plan
 
   variables {
@@ -195,7 +195,7 @@ run "DEP-050 rejects a single availability zone" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a bucket name that is not a valid S3 name" {
+run "DEP_050_rejects_a_bucket_name_that_is_not_a_valid_S3_name" {
   command = plan
 
   variables {
@@ -206,7 +206,7 @@ run "DEP-050 rejects a bucket name that is not a valid S3 name" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 helm values carry no secret" {
+run "DEP_050_helm_values_carry_no_secret" {
   command = plan
 
   assert {

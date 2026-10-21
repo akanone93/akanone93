@@ -16,7 +16,7 @@ variables {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 bucket is versioned, encrypted and refuses public access" {
+run "DEP_050_bucket_is_versioned_encrypted_and_refuses_public_access" {
   command = plan
 
   assert {
@@ -41,7 +41,7 @@ run "DEP-050 bucket is versioned, encrypted and refuses public access" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cluster has a private endpoint, private nodes and enforced policies" {
+run "DEP_050_cluster_has_a_private_endpoint_private_nodes_and_enforced_policies" {
   command = plan
 
   assert {
@@ -71,7 +71,7 @@ run "DEP-050 cluster has a private endpoint, private nodes and enforced policies
 }
 
 # Verifies: DEP-050.
-run "DEP-050 nodes use a dedicated identity, not the default one" {
+run "DEP_050_nodes_use_a_dedicated_identity_not_the_default_one" {
   command = plan
 
   assert {
@@ -86,7 +86,7 @@ run "DEP-050 nodes use a dedicated identity, not the default one" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 managed database is private, encrypted and protected" {
+run "DEP_050_managed_database_is_private_encrypted_and_protected" {
   command = plan
 
   assert {
@@ -111,7 +111,7 @@ run "DEP-050 managed database is private, encrypted and protected" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cache is private, authenticated and encrypted in transit" {
+run "DEP_050_cache_is_private_authenticated_and_encrypted_in_transit" {
   command = plan
 
   assert {
@@ -131,7 +131,7 @@ run "DEP-050 cache is private, authenticated and encrypted in transit" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 signing key is an asymmetric signing key" {
+run "DEP_050_signing_key_is_an_asymmetric_signing_key" {
   command = plan
 
   assert {
@@ -146,7 +146,7 @@ run "DEP-050 signing key is an asymmetric signing key" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cnpg mode creates no managed database" {
+run "DEP_050_cnpg_mode_creates_no_managed_database" {
   command = plan
 
   variables {
@@ -165,7 +165,7 @@ run "DEP-050 cnpg mode creates no managed database" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a public database mode" {
+run "DEP_050_rejects_a_public_database_mode" {
   command = plan
 
   variables {
@@ -176,7 +176,7 @@ run "DEP-050 rejects a public database mode" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a control plane range that is not a /28" {
+run "DEP_050_rejects_a_control_plane_range_that_is_not_a_/28" {
   command = plan
 
   variables {
@@ -187,7 +187,7 @@ run "DEP-050 rejects a control plane range that is not a /28" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a single zone" {
+run "DEP_050_rejects_a_single_zone" {
   command = plan
 
   variables {

@@ -16,7 +16,7 @@ variables {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 storage account is private, versioned and encrypted with a managed key" {
+run "DEP_050_storage_account_is_private_versioned_and_encrypted_with_a_managed_key" {
   command = plan
 
   assert {
@@ -51,7 +51,7 @@ run "DEP-050 storage account is private, versioned and encrypted with a managed 
 }
 
 # Verifies: DEP-050.
-run "DEP-050 key vault refuses public access and keeps deleted keys" {
+run "DEP_050_key_vault_refuses_public_access_and_keeps_deleted_keys" {
   command = plan
 
   assert {
@@ -76,7 +76,7 @@ run "DEP-050 key vault refuses public access and keeps deleted keys" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cluster API is private and local accounts are off" {
+run "DEP_050_cluster_API_is_private_and_local_accounts_are_off" {
   command = plan
 
   assert {
@@ -96,7 +96,7 @@ run "DEP-050 cluster API is private and local accounts are off" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 managed database is private, Entra-only and locked against deletion" {
+run "DEP_050_managed_database_is_private_Entra-only_and_locked_against_deletion" {
   command = plan
 
   assert {
@@ -121,7 +121,7 @@ run "DEP-050 managed database is private, Entra-only and locked against deletion
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cache is private, TLS-only and zone redundant" {
+run "DEP_050_cache_is_private_TLS-only_and_zone_redundant" {
   command = plan
 
   assert {
@@ -141,7 +141,7 @@ run "DEP-050 cache is private, TLS-only and zone redundant" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 cnpg mode creates no managed database" {
+run "DEP_050_cnpg_mode_creates_no_managed_database" {
   command = plan
 
   variables {
@@ -160,7 +160,7 @@ run "DEP-050 cnpg mode creates no managed database" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a public database mode" {
+run "DEP_050_rejects_a_public_database_mode" {
   command = plan
 
   variables {
@@ -171,7 +171,7 @@ run "DEP-050 rejects a public database mode" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a storage account name with uppercase letters" {
+run "DEP_050_rejects_a_storage_account_name_with_uppercase_letters" {
   command = plan
 
   variables {
@@ -182,7 +182,7 @@ run "DEP-050 rejects a storage account name with uppercase letters" {
 }
 
 # Verifies: DEP-050.
-run "DEP-050 rejects a single availability zone" {
+run "DEP_050_rejects_a_single_availability_zone" {
   command = plan
 
   variables {

@@ -38,6 +38,9 @@ SQLC_VERSION          := v1.31.1
 HELM_VERSION          := v3.22.1
 KIND_VERSION          := v0.33.0
 KUBECONFORM_VERSION   := v0.8.0
+# OpenTofu, for the infrastructure modules (DEP-050). Built from its Go module
+# at this tag; the Go checksum database verifies the module's content.
+TOFU_VERSION          := v1.13.1
 # The CloudNativePG operator the kind test installs (release manifest, verified
 # against its SHA-256) and the chart's Cluster resource targets.
 CNPG_VERSION          := 1.30.1
@@ -61,15 +64,16 @@ SQLC          ?= $(TOOLS_BIN)/sqlc
 HELM          ?= $(TOOLS_BIN)/helm
 KIND          ?= $(TOOLS_BIN)/kind
 KUBECONFORM   ?= $(TOOLS_BIN)/kubeconform
-COVGATE       := $(GO) run ./tools/cmd/covgate
+TOFU          ?= $(TOOLS_BIN)/tofu
+COVGATE      := $(GO) run ./tools/cmd/covgate
 BIN_DIR       := bin
 FLATC_DIR     ?= $(HOME)/.cache/plux/flatc-$(FLATC_VERSION)
 FLATC         ?= $(FLATC_DIR)/flatc
 
-MK_FRAGMENTS := go codecs functions dart bench studio stack helm device repo l10n
+MK_FRAGMENTS := go codecs functions dart bench studio stack helm iac device repo l10n
 
 .PHONY: help setup hooks-install check check-changed test build gen-check clean \
-	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-helm-tools install-python-tools install-flatc \
+	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-helm-tools install-tofu install-python-tools install-flatc \
 	go-tool-pins helm-tool-pins flatc-pin
 
 help: ## Show this help
@@ -79,7 +83,7 @@ help: ## Show this help
 
 ##@ Everyday
 
-setup: install-go-tools install-helm-tools install-python-tools install-flatc ## Install pinned tools and git hooks (run once after cloning)
+setup: install-go-tools install-helm-tools install-tofu install-python-tools install-flatc ## Install pinned tools and git hooks (run once after cloning)
 	@command -v flutter >/dev/null || echo "! Install Flutter $(FLUTTER_VERSION): https://docs.flutter.dev/get-started/install"
 	@command -v bun >/dev/null || echo "! Install Bun $(BUN_VERSION): https://bun.sh/docs/installation"
 	"$(MAKE)" hooks-install
@@ -111,6 +115,13 @@ install-helm-tools: ## Install the pinned Helm, kind and kubeconform, which lint
 	$(GO_INSTALL) helm.sh/helm/v3/cmd/helm@$(HELM_VERSION)
 	$(GO_INSTALL) sigs.k8s.io/kind@$(KIND_VERSION)
 	$(GO_INSTALL) github.com/yannh/kubeconform/cmd/kubeconform@$(KUBECONFORM_VERSION)
+
+# OpenTofu has a replace directive in its go.mod, which `go install` refuses, so
+# the module is located with `go list -m` (which checks it against the checksum
+# database) and built in place.
+install-tofu: ## Build the pinned OpenTofu from its Go module into TOOLS_BIN (DEP-050)
+	@dir=$$($(GO) list -m -f '{{.Dir}}' github.com/opentofu/opentofu@$(TOFU_VERSION)) && \
+	cd "$$dir" && GOTOOLCHAIN=$(GO_TOOLCHAIN) $(GO) build -o "$(TOFU)" ./cmd/tofu && "$(TOFU)" version
 
 PYTHON_TOOLS := pre-commit==$(PRE_COMMIT_VERSION) zizmor==$(ZIZMOR_VERSION) reuse==$(REUSE_VERSION)
 

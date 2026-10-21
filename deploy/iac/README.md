@@ -43,12 +43,17 @@ the credentials, the region and the project, so none of them is written here.
 
 ## Checks
 
-`make iac-check` is the intended entry point (`DEP-050`); it is not added yet
-(see "Open questions"). It runs, for each module:
+`make iac-check` is the entry point (`DEP-050`). It builds the pinned OpenTofu
+(`make install-tofu`), then runs `tofu fmt -check` over `deploy/iac` and, for
+each module:
 
-1. `tofu init -backend=false` and `tofu validate`;
-2. `tofu test`, which plans against a mock provider and needs no account;
-3. `policy.sh` over the JSON of a credential-free plan of the module.
+1. `tofu init -backend=false` and `tofu validate`; `init` downloads the
+   providers from the registry, so it needs registry access (CI);
+2. `tofu test`, which plans against a mock provider and needs no account.
+
+`policy.sh` is not run by `make iac-check`: it needs the JSON of a
+credential-free plan, and the generator of that plan is not written (see
+"Open questions").
 
 Mock-provider tests prove the plan the module would make, not how the cloud
 behaves. They catch a removed control or a weakened default; they cannot catch
