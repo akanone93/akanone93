@@ -10,9 +10,10 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
-func at(t *testing.T, layout, value string) time.Time {
+// at parses a time in the stamp layout.
+func at(t *testing.T, value string) time.Time {
 	t.Helper()
-	v, err := time.Parse(layout, value)
+	v, err := time.Parse(stamp, value)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,8 +50,8 @@ func TestFN025CronNext(t *testing.T) {
 			t.Errorf("%q %q: %v", c.expr, c.zone, err)
 			continue
 		}
-		got := s.Next(at(t, stamp, c.after))
-		if want := at(t, stamp, c.want); !got.Equal(want) {
+		got := s.Next(at(t, c.after))
+		if want := at(t, c.want); !got.Equal(want) {
 			t.Errorf("%q in %q after %s = %s, want %s", c.expr, c.zone, c.after, got.Format(stamp), c.want)
 		}
 	}
@@ -83,16 +84,16 @@ func TestFN025CronDaylightSaving(t *testing.T) {
 	}
 	// Spring forward, 8 March 2026: 02:00 to 03:00. A 02:30 job has no 02:30
 	// that day; the days either side fire at 02:30 local.
-	eq("spring", ny("30 2 * * *", at(t, stamp, "2026-03-07 00:00"), 3),
+	eq("spring", ny("30 2 * * *", at(t, "2026-03-07 00:00"), 3),
 		[]string{"2026-03-07T07:30Z", "2026-03-09T06:30Z", "2026-03-10T06:30Z"})
 	// Fall back, 1 November 2026: 01:00 to 01:00 again. A 01:30 job fires once.
-	eq("fall", ny("30 1 * * *", at(t, stamp, "2026-10-31 00:00"), 3),
+	eq("fall", ny("30 1 * * *", at(t, "2026-10-31 00:00"), 3),
 		[]string{"2026-10-31T05:30Z", "2026-11-01T05:30Z", "2026-11-02T06:30Z"})
 	// An hourly job fires in every real hour, the repeated one included.
-	eq("hourly", ny("0 * * * *", at(t, stamp, "2026-11-01 04:30"), 4),
+	eq("hourly", ny("0 * * * *", at(t, "2026-11-01 04:30"), 4),
 		[]string{"2026-11-01T05:00Z", "2026-11-01T06:00Z", "2026-11-01T07:00Z", "2026-11-01T08:00Z"})
 	// A daily job keeps its local hour across the change.
-	eq("daily", ny("0 9 * * *", at(t, stamp, "2026-03-06 00:00"), 4),
+	eq("daily", ny("0 9 * * *", at(t, "2026-03-06 00:00"), 4),
 		[]string{"2026-03-06T14:00Z", "2026-03-07T14:00Z", "2026-03-08T13:00Z", "2026-03-09T13:00Z"})
 }
 
@@ -101,7 +102,7 @@ func TestFN025CronNextIsAfterAndMonotonic(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	last := at(t, stamp, "2026-09-25 00:00")
+	last := at(t, "2026-09-25 00:00")
 	for range 400 {
 		next := s.Next(last)
 		if !next.After(last) {
@@ -152,7 +153,7 @@ func TestFN025CronNoFireWithinHorizon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := s.Next(at(t, stamp, "2026-01-01 00:00")); !got.IsZero() {
+	if got := s.Next(at(t, "2026-01-01 00:00")); !got.IsZero() {
 		t.Fatalf("30 February fires at %s", got)
 	}
 }

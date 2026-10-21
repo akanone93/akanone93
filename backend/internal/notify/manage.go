@@ -256,27 +256,9 @@ func (s *Service) Subscribe(ctx context.Context, p auth.Principal, sub Subscript
 	if sub.SubjectKind == "" {
 		sub.SubjectKind, sub.SubjectID = "user", p.UserID
 	}
-	if sub.SubjectKind != "user" && sub.SubjectKind != "team" {
-		return Subscription{}, plxerr.New(plxerr.InvalidEnumValue, "a subscription is for a user or a team")
-	}
-	if !Known(sub.EventType) {
-		return Subscription{}, plxerr.New(plxerr.InvalidEnumValue, "%q is not an event type", sub.EventType)
-	}
-	subject, err := parseUUID(sub.SubjectID, "subject")
+	target, err := checkSubscription(p, sub)
 	if err != nil {
 		return Subscription{}, err
-	}
-	var channel pgtype.UUID
-	if sub.ChannelID != "" {
-		if channel, err = parseUUID(sub.ChannelID, "channel"); err != nil {
-			return Subscription{}, err
-		}
-	}
-	self := sub.SubjectKind == "user" && sub.SubjectID == p.UserID && p.UserID != ""
-	if self && p.OrganizationID != "" {
-		if err := p.Authorize(auth.OrganizationRead); err != nil {
-			return Subscription{}, fmt.Errorf("notify: %w", err)
-		}
 	}
 	id, err := s.newID()
 	if err != nil {
@@ -284,47 +266,104 @@ func (s *Service) Subscribe(ctx context.Context, p auth.Principal, sub Subscript
 	}
 	var out Subscription
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		needManage := !self
-		if channel.Valid {
-			ch, err := q.GetNotificationChannel(ctx, channel)
-			if err != nil {
-				return failure(err, "channel")
-			}
-			if Kind(ch.Kind) != KindSMTP {
-				needManage = true
-			}
-		}
-		if needManage {
-			if err := authorize(p, auth.NotificationsManage); err != nil {
-				return err
-			}
-		}
-		org := storage.MustUUID(p.OrganizationID)
-		switch sub.SubjectKind {
-		case "team":
-			if ok, err := q.TeamExists(ctx, subject); err != nil || !ok {
-				return orNotFound(err, "team")
-			}
-		default:
-			if ok, err := q.IsOrganizationMember(ctx, dbgen.IsOrganizationMemberParams{OrganizationID: org, UserID: subject}); err != nil || !ok {
-				return orNotFound(err, "member")
-			}
-		}
-		n, err := q.InsertNotificationSubscription(ctx, dbgen.InsertNotificationSubscriptionParams{
-			ID: storage.MustUUID(id), OrganizationID: org, SubjectKind: sub.SubjectKind, SubjectID: subject,
-			EventType: string(sub.EventType), ChannelID: channel, CreatedBy: actorUser(p),
-		})
-		if err != nil {
-			return failure(err, "subscription")
-		}
-		out = Subscription{ID: id, SubjectKind: sub.SubjectKind, SubjectID: sub.SubjectID, EventType: sub.EventType, ChannelID: sub.ChannelID}
-		if n == 0 {
-			return nil // already subscribed
-		}
-		return s.record(ctx, tx, p.OrganizationID, p.Actor(), audit.NotificationSubscriptionSet, sub.SubjectKind, sub.SubjectID, string(sub.EventType))
+		out, err = s.insertSubscription(ctx, tx, p, sub, target, id)
+		return err
 	})
 	return out, err
+}
+
+// subscriptionTarget is a subscription's subject and channel, parsed, and
+// whether the principal subscribes themselves.
+type subscriptionTarget struct {
+	subject, channel pgtype.UUID
+	self             bool
+}
+
+// checkSubscription validates a subscription's kind, event type and
+// identifiers, and that a person who subscribes themselves may read the
+// organisation.
+func checkSubscription(p auth.Principal, sub Subscription) (subscriptionTarget, error) {
+	if sub.SubjectKind != "user" && sub.SubjectKind != "team" {
+		return subscriptionTarget{}, plxerr.New(plxerr.InvalidEnumValue, "a subscription is for a user or a team")
+	}
+	if !Known(sub.EventType) {
+		return subscriptionTarget{}, plxerr.New(plxerr.InvalidEnumValue, "%q is not an event type", sub.EventType)
+	}
+	subject, err := parseUUID(sub.SubjectID, "subject")
+	if err != nil {
+		return subscriptionTarget{}, err
+	}
+	t := subscriptionTarget{subject: subject, self: sub.SubjectKind == "user" && sub.SubjectID == p.UserID && p.UserID != ""}
+	if sub.ChannelID != "" {
+		if t.channel, err = parseUUID(sub.ChannelID, "channel"); err != nil {
+			return subscriptionTarget{}, err
+		}
+	}
+	if t.self && p.OrganizationID != "" {
+		if err := p.Authorize(auth.OrganizationRead); err != nil {
+			return subscriptionTarget{}, fmt.Errorf("notify: %w", err)
+		}
+	}
+	return t, nil
+}
+
+// insertSubscription authorises the subscription, checks that its subject
+// belongs to the organisation and stores it, in the transaction of the
+// request.
+func (s *Service) insertSubscription(ctx context.Context, tx pgx.Tx, p auth.Principal, sub Subscription, t subscriptionTarget, id string) (Subscription, error) {
+	q := dbgen.New(tx)
+	if err := authorizeSubscription(ctx, q, p, t); err != nil {
+		return Subscription{}, err
+	}
+	org := storage.MustUUID(p.OrganizationID)
+	if err := subjectExists(ctx, q, org, sub.SubjectKind, t.subject); err != nil {
+		return Subscription{}, err
+	}
+	n, err := q.InsertNotificationSubscription(ctx, dbgen.InsertNotificationSubscriptionParams{
+		ID: storage.MustUUID(id), OrganizationID: org, SubjectKind: sub.SubjectKind, SubjectID: t.subject,
+		EventType: string(sub.EventType), ChannelID: t.channel, CreatedBy: actorUser(p),
+	})
+	if err != nil {
+		return Subscription{}, failure(err, "subscription")
+	}
+	out := Subscription{ID: id, SubjectKind: sub.SubjectKind, SubjectID: sub.SubjectID, EventType: sub.EventType, ChannelID: sub.ChannelID}
+	if n == 0 {
+		return out, nil // already subscribed
+	}
+	return out, s.record(ctx, tx, p.OrganizationID, p.Actor(), audit.NotificationSubscriptionSet, sub.SubjectKind, sub.SubjectID, string(sub.EventType))
+}
+
+// authorizeSubscription asks for notifications.manage unless the principal
+// subscribes themselves to their inbox or a mail channel.
+func authorizeSubscription(ctx context.Context, q *dbgen.Queries, p auth.Principal, t subscriptionTarget) error {
+	needManage := !t.self
+	if t.channel.Valid {
+		ch, err := q.GetNotificationChannel(ctx, t.channel)
+		if err != nil {
+			return failure(err, "channel")
+		}
+		if Kind(ch.Kind) != KindSMTP {
+			needManage = true
+		}
+	}
+	if needManage {
+		return authorize(p, auth.NotificationsManage)
+	}
+	return nil
+}
+
+// subjectExists checks that a team or a member exists in the organisation.
+func subjectExists(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, kind string, subject pgtype.UUID) error {
+	if kind == "team" {
+		if ok, err := q.TeamExists(ctx, subject); err != nil || !ok {
+			return orNotFound(err, "team")
+		}
+		return nil
+	}
+	if ok, err := q.IsOrganizationMember(ctx, dbgen.IsOrganizationMemberParams{OrganizationID: org, UserID: subject}); err != nil || !ok {
+		return orNotFound(err, "member")
+	}
+	return nil
 }
 
 func orNotFound(err error, what string) error {
@@ -347,7 +386,7 @@ func (s *Service) Unsubscribe(ctx context.Context, p auth.Principal, id string) 
 		if err != nil {
 			return failure(err, "subscription")
 		}
-		if !(row.SubjectKind == "user" && p.UserID != "" && storage.ID(row.SubjectID) == p.UserID) {
+		if row.SubjectKind != "user" || p.UserID == "" || storage.ID(row.SubjectID) != p.UserID {
 			if err := authorize(p, auth.NotificationsManage); err != nil {
 				return err
 			}

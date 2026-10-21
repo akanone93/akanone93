@@ -36,7 +36,10 @@ func Check(ctx context.Context, g Guard, tx pgx.Tx, environmentKey string) error
 	if g == nil {
 		return nil
 	}
-	return g.Check(ctx, tx, environmentKey)
+	if err := g.Check(ctx, tx, environmentKey); err != nil {
+		return fmt.Errorf("freeze.Check: %w", err)
+	}
+	return nil
 }
 
 // IDs generates the identifiers of windows.

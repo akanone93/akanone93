@@ -6,6 +6,7 @@ package release
 import (
 	"context"
 	"errors"
+	"fmt"
 	"maps"
 	"slices"
 
@@ -75,9 +76,11 @@ func (s *Service) changelogIn(ctx context.Context, tx pgx.Tx, appID string, sequ
 	if from > 0 {
 		_, prev, err := s.releaseRow(ctx, q, appID, from)
 		if err == nil {
-			if before, err = s.o.Documents.SourceHashes(ctx, tx, sourcesOf(prev)); err != nil {
-				return nil, "", err //nolint:wrapcheck // a domain error
+			hashes, herr := s.o.Documents.SourceHashes(ctx, tx, sourcesOf(prev))
+			if herr != nil {
+				return nil, "", fmt.Errorf("release: source hashes: %w", herr)
 			}
+			before = hashes
 		} else if !isNotFound(err) || from != sequence-1 {
 			return nil, "", err
 		}

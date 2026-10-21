@@ -90,7 +90,6 @@ type world struct {
 	svc     *experiment.Service
 	ids     ids
 	control *recordingControl
-	gate    *refusingGate
 	lim     limits.Set
 	a       tenant
 	other   tenant
@@ -267,7 +266,7 @@ func projectFiles(t *testing.T) map[string][]byte {
 	return out
 }
 
-func (d *fakeDocuments) GetDocument(context.Context, auth.Principal, string, string, string) (document.Document, error) {
+func (*fakeDocuments) GetDocument(context.Context, auth.Principal, string, string, string) (document.Document, error) {
 	return document.Document{}, plxerr.New(plxerr.ResourceNotFound, "no such document")
 }
 
@@ -288,7 +287,7 @@ func (d *fakeDocuments) Import(_ context.Context, _ auth.Principal, _, _, _ stri
 	return document.Written{}, nil
 }
 
-func (d *fakeDocuments) ReleaseLock(context.Context, auth.Principal, string, string, string) error {
+func (*fakeDocuments) ReleaseLock(context.Context, auth.Principal, string, string, string) error {
 	return nil
 }
 

@@ -15,7 +15,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
 
-func (w *world) flag(x tenant, key string) experiment.FlagRef {
+func (*world) flag(x tenant, key string) experiment.FlagRef {
 	return experiment.FlagRef{AppID: x.app, EnvironmentID: x.prod, Key: key}
 }
 

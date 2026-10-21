@@ -62,51 +62,72 @@ var telegramChat = regexp.MustCompile(`^(-?[0-9]{1,20}|@[A-Za-z][A-Za-z0-9_]{4,3
 // validateChannel checks a channel's settings and secret and returns the
 // settings to store. A misconfigured channel is PLX-8400.
 func (s *Service) validateChannel(kind Kind, settings map[string]string, secret string) (map[string]string, error) {
-	bad := func(format string, args ...any) error {
-		return plxerr.New(plxerr.ChannelMisconfigured, format, args...)
-	}
-	out := map[string]string{}
-	allowed := func(keys ...string) error {
-		for k := range settings {
-			if !contains(keys, k) {
-				return bad("%s channels have no setting %q", kind, k)
-			}
-		}
-		return nil
-	}
 	switch kind {
 	case KindSlack, KindTeams:
-		if err := allowed(); err != nil {
-			return nil, err
-		}
-		if err := s.checkWebhookURL(secret); err != nil {
-			return nil, bad("the %s webhook URL: %v", kind, err)
-		}
+		return s.validateWebhookChannel(kind, settings, secret)
 	case KindTelegram:
-		if err := allowed("chat_id"); err != nil {
-			return nil, err
-		}
-		if !telegramChat.MatchString(settings["chat_id"]) {
-			return nil, bad("chat_id is a number or an @channel name")
-		}
-		if !telegramToken.MatchString(secret) {
-			return nil, bad("the bot token looks like 123456:ABC-DEF, as @BotFather gives it")
-		}
-		out["chat_id"] = settings["chat_id"]
+		return validateTelegram(settings, secret)
 	case KindSMTP:
-		cfg, err := parseSMTP(settings, s.o.AllowInsecure)
-		if err != nil {
-			return nil, err
-		}
-		if cfg.Username != "" && secret == "" {
-			return nil, bad("a username needs the password as the secret")
-		}
-		out["host"], out["port"], out["from"], out["tls"] = cfg.Host, strconv.Itoa(cfg.Port), cfg.From, string(cfg.TLS)
-		if cfg.Username != "" {
-			out["username"] = cfg.Username
-		}
+		return s.validateSMTPChannel(settings, secret)
 	default:
 		return nil, plxerr.New(plxerr.InvalidEnumValue, "%q is not a channel kind; the kinds are smtp, slack, teams and telegram", kind)
+	}
+}
+
+// misconfigured is the error of a channel whose settings or secret are wrong.
+func misconfigured(format string, args ...any) error {
+	return plxerr.New(plxerr.ChannelMisconfigured, format, args...)
+}
+
+// onlySettings refuses a setting that is not one of keys.
+func onlySettings(kind Kind, settings map[string]string, keys ...string) error {
+	for k := range settings {
+		if !contains(keys, k) {
+			return misconfigured("%s channels have no setting %q", kind, k)
+		}
+	}
+	return nil
+}
+
+// validateWebhookChannel checks a Slack or Teams channel: no settings, and
+// the webhook URL as the secret.
+func (s *Service) validateWebhookChannel(kind Kind, settings map[string]string, secret string) (map[string]string, error) {
+	if err := onlySettings(kind, settings); err != nil {
+		return nil, err
+	}
+	if err := s.checkWebhookURL(secret); err != nil {
+		return nil, misconfigured("the %s webhook URL: %v", kind, err)
+	}
+	return map[string]string{}, nil
+}
+
+// validateTelegram checks a Telegram channel: the chat and the bot token.
+func validateTelegram(settings map[string]string, secret string) (map[string]string, error) {
+	if err := onlySettings(KindTelegram, settings, "chat_id"); err != nil {
+		return nil, err
+	}
+	if !telegramChat.MatchString(settings["chat_id"]) {
+		return nil, misconfigured("chat_id is a number or an @channel name")
+	}
+	if !telegramToken.MatchString(secret) {
+		return nil, misconfigured("the bot token looks like 123456:ABC-DEF, as @BotFather gives it")
+	}
+	return map[string]string{"chat_id": settings["chat_id"]}, nil
+}
+
+// validateSMTPChannel checks an SMTP channel: the server settings, and the
+// password as the secret when there is a username.
+func (s *Service) validateSMTPChannel(settings map[string]string, secret string) (map[string]string, error) {
+	cfg, err := parseSMTP(settings, s.o.AllowInsecure)
+	if err != nil {
+		return nil, err
+	}
+	if cfg.Username != "" && secret == "" {
+		return nil, misconfigured("a username needs the password as the secret")
+	}
+	out := map[string]string{"host": cfg.Host, "port": strconv.Itoa(cfg.Port), "from": cfg.From, "tls": string(cfg.TLS)}
+	if cfg.Username != "" {
+		out["username"] = cfg.Username
 	}
 	return out, nil
 }
@@ -129,7 +150,7 @@ func (s *Service) checkWebhookURL(raw string) error {
 	if err != nil || u.Host == "" || u.User != nil || u.Fragment != "" || len(raw) > 2048 {
 		return errors.New("it is not a valid URL")
 	}
-	if u.Scheme != "https" && !(u.Scheme == "http" && s.o.AllowInsecure) {
+	if u.Scheme != "https" && (u.Scheme != "http" || !s.o.AllowInsecure) {
 		return errors.New("it must be an https URL")
 	}
 	if err := httpx.CheckURL(u.Scheme, u.Hostname()); err != nil {

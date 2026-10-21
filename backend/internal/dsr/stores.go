@@ -5,6 +5,7 @@ package dsr
 
 import (
 	"context"
+	"slices"
 
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
@@ -34,6 +35,11 @@ func executors(kind Kind) []executor {
 
 // deviceExecutors are the stores keyed by a device.
 func deviceExecutors() []executor {
+	return slices.Concat(deviceEventExecutors(), deviceStateExecutors())
+}
+
+// deviceEventExecutors are the device-keyed stores of what a device sent.
+func deviceEventExecutors() []executor {
 	return []executor{
 		{
 			store: "telemetry_events",
@@ -62,6 +68,13 @@ func deviceExecutors() []executor {
 				return q.DsrErasePushTokens(ctx, dbgen.DsrErasePushTokensParams{OrganizationID: s.org, DeviceID: s.id})
 			},
 		},
+	}
+}
+
+// deviceStateExecutors are the device-keyed stores of what the server holds
+// about a device: its keys, tokens, bundles and the device itself.
+func deviceStateExecutors() []executor {
+	return []executor{
 		{
 			store: "device_sca_keys",
 			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {

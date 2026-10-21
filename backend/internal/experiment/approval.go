@@ -76,5 +76,8 @@ func (g EngineGate) RequireLaunch(ctx context.Context, l Launch) error {
 	if e.CreatedBy.Kind == auth.KindUser {
 		art.Author = e.CreatedBy.ID
 	}
-	return approval.Require(ctx, g.Engine, l.Tx, art)
+	if err := approval.Require(ctx, g.Engine, l.Tx, art); err != nil {
+		return fmt.Errorf("experiment.Approve: %w", err)
+	}
+	return nil
 }

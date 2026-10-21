@@ -57,27 +57,48 @@ type target struct {
 // is the worker's job. Over notifications.perHour, the excess is dropped and
 // audited once an hour.
 func (s *Service) Publish(ctx context.Context, e Event) error {
-	if err := e.validate(); err != nil {
+	pe, err := s.prepareEvent(ctx, &e)
+	if err != nil {
 		return err
+	}
+	return s.inTenant(ctx, storage.Tenant{OrganizationID: e.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		return s.queueEvent(ctx, tx, e, pe)
+	})
+}
+
+// preparedEvent is an event with its identifiers parsed, its payload
+// encoded and the organisation's hourly limit read.
+type preparedEvent struct {
+	org, app, id pgtype.UUID
+	now          time.Time
+	payload      []byte
+	perHour      int64
+}
+
+// prepareEvent validates the event, fills in its identifier and time, and
+// encodes the payload every delivery of it carries.
+func (s *Service) prepareEvent(ctx context.Context, e *Event) (preparedEvent, error) {
+	if err := e.validate(); err != nil {
+		return preparedEvent{}, err
 	}
 	org, err := parseUUID(e.OrganizationID, "organisation")
 	if err != nil {
-		return err
+		return preparedEvent{}, err
 	}
 	var app pgtype.UUID
 	if e.AppID != "" {
 		if app, err = parseUUID(e.AppID, "app"); err != nil {
-			return err
+			return preparedEvent{}, err
 		}
 	}
 	if e.ID == "" {
 		if e.ID, err = s.newID(); err != nil {
-			return err
+			return preparedEvent{}, err
 		}
 	}
 	eventID, err := parseUUID(e.ID, "event")
 	if err != nil {
-		return err
+		return preparedEvent{}, err
 	}
 	now := s.now()
 	if e.At.IsZero() {
@@ -85,7 +106,7 @@ func (s *Service) Publish(ctx context.Context, e Event) error {
 	}
 	lim, err := s.o.Limits(ctx, e.OrganizationID)
 	if err != nil {
-		return err
+		return preparedEvent{}, err
 	}
 	payload, err := json.Marshal(envelope{
 		Type: string(e.Type), Timestamp: e.At.UTC().Format(time.RFC3339Nano),
@@ -94,31 +115,35 @@ func (s *Service) Publish(ctx context.Context, e Event) error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("notify: %w", err)
+		return preparedEvent{}, fmt.Errorf("notify: %w", err)
 	}
-	return s.inTenant(ctx, storage.Tenant{OrganizationID: e.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		targets, err := s.targets(ctx, q, e.Type)
-		if err != nil {
+	return preparedEvent{org: org, app: app, id: eventID, now: now, payload: payload, perHour: lim.Get(limits.NotificationsPerHour)}, nil
+}
+
+// queueEvent writes the inbox entries and deliveries of an event, within
+// the hourly limit, and audits the first drop of the hour.
+func (s *Service) queueEvent(ctx context.Context, tx pgx.Tx, e Event, pe preparedEvent) error {
+	q := dbgen.New(tx)
+	targets, err := s.targets(ctx, q, e.Type)
+	if err != nil {
+		return err
+	}
+	kept, dropped, first, err := s.reserve(ctx, q, pe.org, pe.now, int64(len(targets)), pe.perHour)
+	if err != nil {
+		return err
+	}
+	if dropped > 0 && first {
+		if err := s.record(ctx, tx, e.OrganizationID, auth.System(e.OrganizationID).Actor(), audit.NotificationsDropped, "organization", e.OrganizationID,
+			fmt.Sprintf("notifications.perHour = %d reached; the excess is dropped", pe.perHour)); err != nil {
 			return err
 		}
-		kept, dropped, first, err := s.reserve(ctx, q, org, now, int64(len(targets)), lim.Get(limits.NotificationsPerHour))
-		if err != nil {
+	}
+	for _, t := range targets[:kept] {
+		if err := s.enqueue(ctx, q, pe.org, pe.app, pe.id, e, pe.payload, t, pe.now); err != nil {
 			return err
 		}
-		if dropped > 0 && first {
-			if err := s.record(ctx, tx, e.OrganizationID, auth.System(e.OrganizationID).Actor(), audit.NotificationsDropped, "organization", e.OrganizationID,
-				fmt.Sprintf("notifications.perHour = %d reached; the excess is dropped", lim.Get(limits.NotificationsPerHour))); err != nil {
-				return err
-			}
-		}
-		for _, t := range targets[:kept] {
-			if err := s.enqueue(ctx, q, org, app, eventID, e, payload, t, now); err != nil {
-				return err
-			}
-		}
-		return s.enqueueWebhooks(ctx, q, org, eventID, e.Type, payload, now)
-	})
+	}
+	return s.enqueueWebhooks(ctx, q, pe.org, pe.id, e.Type, pe.payload, pe.now)
 }
 
 // enqueue writes an inbox entry or a channel delivery.
@@ -165,78 +190,113 @@ func (s *Service) enqueueWebhooks(ctx context.Context, q *dbgen.Queries, org, ev
 // and channel deliveries to make, without duplicates: a person subscribed
 // as themselves and through a team gets one entry, and a chat channel
 // several subscriptions name receives one message.
-func (s *Service) targets(ctx context.Context, q *dbgen.Queries, t EventType) ([]target, error) {
+func (*Service) targets(ctx context.Context, q *dbgen.Queries, t EventType) ([]target, error) {
 	subs, err := q.ListSubscriptionsForEvent(ctx, string(t))
 	if err != nil {
 		return nil, failure(err, "subscriptions")
 	}
-	type recipient struct {
-		id    pgtype.UUID
-		email string
-	}
-	var out []target
-	seen := map[string]bool{}
-	channels := map[pgtype.UUID]*dbgen.NotificationChannel{}
-	add := func(key string, t target) {
-		if !seen[key] {
-			seen[key] = true
-			out = append(out, t)
+	c := targetSet{seen: map[string]bool{}, channels: map[pgtype.UUID]*dbgen.NotificationChannel{}}
+	for _, sub := range subs {
+		if err := c.addSubscription(ctx, q, sub); err != nil {
+			return nil, err
 		}
 	}
-	for _, sub := range subs {
-		var people []recipient
-		switch sub.SubjectKind {
-		case "team":
-			rows, err := q.ListTeamRecipients(ctx, sub.SubjectID)
-			if err != nil {
-				return nil, failure(err, "team")
-			}
-			for _, r := range rows {
-				people = append(people, recipient{r.ID, r.Email})
-			}
-		default:
-			r, err := q.GetUserRecipient(ctx, sub.SubjectID)
-			if errors.Is(err, pgx.ErrNoRows) {
-				continue // a disabled or removed user
-			} else if err != nil {
-				return nil, failure(err, "user")
-			}
+	return c.out, nil
+}
+
+// recipient is a person a subscription reaches.
+type recipient struct {
+	id    pgtype.UUID
+	email string
+}
+
+// targetSet collects the targets of one event without duplicates, and
+// remembers the channels it has read.
+type targetSet struct {
+	out      []target
+	seen     map[string]bool
+	channels map[pgtype.UUID]*dbgen.NotificationChannel
+}
+
+// add keeps a target the first time its key is seen.
+func (c *targetSet) add(key string, t target) {
+	if !c.seen[key] {
+		c.seen[key] = true
+		c.out = append(c.out, t)
+	}
+}
+
+// addSubscription adds the inbox entries or channel deliveries one
+// subscription asks for.
+func (c *targetSet) addSubscription(ctx context.Context, q *dbgen.Queries, sub dbgen.NotificationSubscription) error {
+	people, ok, err := subscribers(ctx, q, sub)
+	if err != nil || !ok {
+		return err
+	}
+	if !sub.ChannelID.Valid {
+		for _, r := range people {
+			c.add("inbox:"+storage.ID(r.id), target{user: r.id})
+		}
+		return nil
+	}
+	ch, err := c.channel(ctx, q, sub.ChannelID)
+	if err != nil || ch == nil || !ch.Enabled {
+		return err
+	}
+	if Kind(ch.Kind) == KindSMTP {
+		for _, r := range people {
+			c.add("mail:"+storage.ID(ch.ID)+":"+r.email, target{channel: ch.ID, recipient: r.email})
+		}
+		return nil
+	}
+	c.add("chat:"+storage.ID(ch.ID), target{channel: ch.ID})
+	return nil
+}
+
+// channel reads a channel once; a channel that no longer exists is nil.
+func (c *targetSet) channel(ctx context.Context, q *dbgen.Queries, id pgtype.UUID) (*dbgen.NotificationChannel, error) {
+	if ch, ok := c.channels[id]; ok {
+		return ch, nil
+	}
+	var ch *dbgen.NotificationChannel
+	row, err := q.GetNotificationChannel(ctx, id)
+	if err == nil {
+		ch = &row
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, failure(err, "channel")
+	}
+	c.channels[id] = ch
+	return ch, nil
+}
+
+// subscribers lists the people a subscription names: the members of a team,
+// or one user. ok is false for a user who is disabled or removed, whose
+// subscription reaches nobody.
+func subscribers(ctx context.Context, q *dbgen.Queries, sub dbgen.NotificationSubscription) (people []recipient, ok bool, err error) {
+	if sub.SubjectKind == "team" {
+		rows, err := q.ListTeamRecipients(ctx, sub.SubjectID)
+		if err != nil {
+			return nil, false, failure(err, "team")
+		}
+		for _, r := range rows {
 			people = append(people, recipient{r.ID, r.Email})
 		}
-		if !sub.ChannelID.Valid {
-			for _, r := range people {
-				add("inbox:"+storage.ID(r.id), target{user: r.id})
-			}
-			continue
-		}
-		ch, ok := channels[sub.ChannelID]
-		if !ok {
-			row, err := q.GetNotificationChannel(ctx, sub.ChannelID)
-			if err == nil {
-				ch = &row
-			} else if !errors.Is(err, pgx.ErrNoRows) {
-				return nil, failure(err, "channel")
-			}
-			channels[sub.ChannelID] = ch
-		}
-		if ch == nil || !ch.Enabled {
-			continue
-		}
-		if Kind(ch.Kind) == KindSMTP {
-			for _, r := range people {
-				add("mail:"+storage.ID(ch.ID)+":"+r.email, target{channel: ch.ID, recipient: r.email})
-			}
-			continue
-		}
-		add("chat:"+storage.ID(ch.ID), target{channel: ch.ID})
+		return people, true, nil
 	}
-	return out, nil
+	r, err := q.GetUserRecipient(ctx, sub.SubjectID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, false, nil
+	}
+	if err != nil {
+		return nil, false, failure(err, "user")
+	}
+	return []recipient{{r.ID, r.Email}}, true, nil
 }
 
 // reserve counts targets against notifications.perHour and returns how many
 // may be kept. first is true when this call is the first to drop in the
 // hour, which is when the drop is audited.
-func (s *Service) reserve(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, now time.Time, want, limit int64) (kept int, dropped int64, first bool, err error) {
+func (*Service) reserve(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, now time.Time, want, limit int64) (kept int, dropped int64, first bool, err error) {
 	if want == 0 {
 		return 0, 0, false, nil
 	}

@@ -148,7 +148,7 @@ func (s *Service) Search(ctx context.Context, p auth.Principal, q Query) (Result
 // permission nowhere is refused.
 func searchableApps(p auth.Principal) ([]pgtype.UUID, error) {
 	if p.OrganizationID == "" {
-		return nil, p.Authorize(auth.SearchRead)
+		return nil, authorizeSearch(p)
 	}
 	if p.Holds(auth.SearchRead) {
 		return nil, nil
@@ -165,9 +165,17 @@ func searchableApps(p auth.Principal) ([]pgtype.UUID, error) {
 		allowed = append(allowed, id)
 	}
 	if len(allowed) == 0 {
-		return nil, p.Authorize(auth.SearchRead)
+		return nil, authorizeSearch(p)
 	}
 	return allowed, nil
+}
+
+// authorizeSearch refuses a principal that does not hold search.read.
+func authorizeSearch(p auth.Principal) error {
+	if err := p.Authorize(auth.SearchRead); err != nil {
+		return fmt.Errorf("search: %w", err)
+	}
+	return nil
 }
 
 // excludedApps returns the apps a restriction takes search.read away from,

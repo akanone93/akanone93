@@ -614,7 +614,7 @@ func newSMTPServer(t *testing.T, startTLS bool) *smtpServer {
 	parsed, _ := x509.ParseCertificate(der)
 	pool := x509.NewCertPool()
 	pool.AddCert(parsed)
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -658,7 +658,7 @@ func (s *smtpServer) serve(conn net.Conn) {
 		case up == "STARTTLS":
 			say("220 ready")
 			tc := tls.Server(conn, &tls.Config{Certificates: []tls.Certificate{s.cert}, MinVersion: tls.VersionTLS12})
-			if tc.Handshake() != nil {
+			if tc.HandshakeContext(context.Background()) != nil {
 				return
 			}
 			conn, r, encrypted = tc, bufio.NewReader(tc), true

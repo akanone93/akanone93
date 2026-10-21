@@ -89,7 +89,7 @@ func (s *Service) SignControl(ctx context.Context, job ControlJob) error {
 	if err != nil {
 		return err
 	}
-	return s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: job.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: job.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		ch, err := q.GetChannelByIDForUpdate(ctx, id)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -105,6 +105,10 @@ func (s *Service) SignControl(ctx context.Context, job ControlJob) error {
 		_, err = s.signNewest(ctx, tx, env, ch)
 		return err
 	})
+	if err != nil {
+		return fmt.Errorf("release: sign the control document: %w", err)
+	}
+	return nil
 }
 
 // signNewest signs the channel's newest document when it is unsigned and
@@ -172,10 +176,14 @@ func (s *Service) signControlRow(ctx context.Context, tx pgx.Tx, env dbgen.Envir
 	if s.o.ControlNotifier == nil {
 		return nil
 	}
-	return s.o.ControlNotifier.NotifyControl(ctx, tx, ControlNotice{
+	err = s.o.ControlNotifier.NotifyControl(ctx, tx, ControlNotice{
 		OrganizationID: storage.ID(ch.OrganizationID), AppID: storage.ID(env.AppID), EnvironmentID: storage.ID(env.ID),
 		ChannelID: storage.ID(ch.ID), Version: row.Version,
 	})
+	if err != nil {
+		return fmt.Errorf("release.signControlRow: notify: %w", err)
+	}
+	return nil
 }
 
 // RefreshControl keeps the control documents of an organisation's
@@ -254,7 +262,10 @@ func (s *Service) refreshChannelControl(ctx context.Context, org string, id pgty
 		signed, err = s.signNewest(ctx, tx, env, ch)
 		return err
 	})
-	return signed, err
+	if err != nil {
+		return signed, fmt.Errorf("release: refresh a control document: %w", err)
+	}
+	return signed, nil
 }
 
 // delegatesControl reports whether the environment has a root that

@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -448,6 +449,42 @@ func BuildSigning(cfg *config.Config) (signing.Backend, error) {
 // BuildServices assembles the domain services. They are given only the
 // envelope-encryption half of the signing backend (L-3, ADR-0006).
 func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, backend signing.Crypter, work WorkDeps) (*Services, error) {
+	k, err := newServiceKit(cfg, db, shared, set, backend, work)
+	if err != nil {
+		return nil, err
+	}
+	svc := &Services{
+		Audit: k.log, Approvals: k.approvals, AuditCheckpoints: audit.NewCheckpointReader(db, k.log),
+		Metrics: work.Metrics, Identity: work.Identity.OrDefault(),
+	}
+	for _, stage := range []func(context.Context, *Services) error{k.buildFoundation, k.buildRuntime, k.buildOperations} {
+		if err := stage(ctx, svc); err != nil {
+			return nil, err
+		}
+	}
+	return svc, nil
+}
+
+// serviceKit is what the stages of BuildServices share: their inputs, and
+// the pieces every service is built on.
+type serviceKit struct {
+	cfg         *config.Config
+	db          *storage.DB
+	shared      cache.Cache
+	set         limits.Set
+	backend     signing.Crypter
+	work        WorkDeps
+	tokenSigner signing.TokenSigner
+	gen         interface{ New() (string, error) }
+	log         *audit.Log
+	approvals   *approval.Service
+	runnerLink  *runnerLink
+}
+
+// newServiceKit builds the audit log, the identifier generator and the
+// approval engine the services share. The services get only the
+// envelope-encryption half of the backend.
+func newServiceKit(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, backend signing.Crypter, work WorkDeps) (*serviceKit, error) {
 	if db == nil || shared == nil {
 		return nil, errors.New("server: the services need a database and a cache")
 	}
@@ -464,133 +501,156 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	core, err := buildCore(cfg, db, shared, set, backend, gen, log, approvals, work)
+	return &serviceKit{
+		cfg: cfg, db: db, shared: shared, set: set, backend: backend, work: work,
+		tokenSigner: tokenSigner, gen: gen, log: log, approvals: approvals,
+	}, nil
+}
+
+// buildFoundation builds the services the others rest on: sign-in, tenancy
+// and documents, the API edge, device trust, notifications, governance and
+// analytics.
+func (k *serviceKit) buildFoundation(ctx context.Context, svc *Services) error {
+	core, err := buildCore(ctx, k.cfg, k.db, k.shared, k.set, k.backend, k.gen, k.log, k.approvals, k.work)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// auth.studio.allowPasswordLogin may be false only once a provider
 	// exists, or nobody could sign in.
 	if err := core.auth.CheckPasswordPolicy(ctx); err != nil {
-		return nil, fmt.Errorf("server: %w", err)
+		return fmt.Errorf("server: %w", err)
 	}
-	authService, tenancyService, docs := core.auth, core.tenancy, core.docs
-	store, pages, err := buildEdge(ctx, db, backend, set)
+	svc.Auth, svc.Tenancy, svc.Documents = core.auth, core.tenancy, core.docs
+	if svc.Idempotency, svc.Pages, err = buildEdge(ctx, k.db, k.backend, k.set); err != nil {
+		return err
+	}
+	svc.SecurityConfig, err = seccfg.New(seccfg.Options{DB: k.db, Audit: k.log, Limits: k.set, Tenancy: svc.Tenancy, Approvals: k.approvals})
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("server: %w", err)
 	}
-	configs, err := seccfg.New(seccfg.Options{DB: db, Audit: log, Limits: set, Tenancy: tenancyService, Approvals: approvals})
-	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
-	}
-	devices, trust, status, err := buildDeviceSide(ctx, cfg, db, shared, set, deviceDeps{
-		crypter: backend, signer: tokenSigner, ids: gen, audit: log, log: work.Log, configs: configs, metrics: work.Metrics,
+	svc.Devices, svc.DeviceTrust, svc.AttestationStatus, err = buildDeviceSide(ctx, k.cfg, k.db, k.shared, k.set, deviceDeps{
+		crypter: k.backend, signer: k.tokenSigner, ids: k.gen, audit: k.log, log: k.work.Log, configs: svc.SecurityConfig, metrics: k.work.Metrics,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	reportDeviceAssurance(work.Metrics, devices)
-	runnerLink, err := buildRunnerLink(ctx, cfg, db, backend, work)
+	reportDeviceAssurance(k.work.Metrics, svc.Devices)
+	return k.buildSupport(ctx, svc)
+}
+
+// buildSupport builds the function runner link, the notification service,
+// the governance services and analytics, and gives the approval engine its
+// profiles and notifier.
+func (k *serviceKit) buildSupport(ctx context.Context, svc *Services) error {
+	var err error
+	if k.runnerLink, err = buildRunnerLink(ctx, k.cfg, k.db, k.backend, k.work); err != nil {
+		return err
+	}
+	if svc.Notify, err = buildNotify(k.cfg, k.db, k.backend, k.gen, k.log, svc.Tenancy, k.work); err != nil {
+		return err
+	}
+	k.approvals.Use(approvalProfiles(svc.SecurityConfig), svc.Notify)
+	governed, err := buildGovernance(k.cfg, k.db, k.log, k.gen, svc.Tenancy, svc.Notify, k.approvals, k.work)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	notifier, err := buildNotify(cfg, db, backend, gen, log, tenancyService, work)
+	svc.BreakGlass, svc.Freezes, svc.Reports = governed.breakGlass, governed.freezes, governed.reports
+	svc.Events, svc.Analytics, svc.EventConsumer, err = buildAnalytics(k.cfg, k.db, k.shared, k.set, k.gen, k.log, svc.Tenancy, svc.Notify, k.backend, k.work)
+	return err
+}
+
+// functionDeps is what the function runtime and its trigger invoker are
+// built from.
+func (k *serviceKit) functionDeps(svc *Services) functionDeps {
+	return functionDeps{
+		cfg: k.cfg, db: k.db, crypter: k.backend, cache: k.shared, set: k.set, service: svc.Functions, link: k.runnerLink, gateway: svc.Gateway,
+		tenancy: svc.Tenancy, configs: svc.SecurityConfig, devices: svc.Devices, keys: svc.Idempotency, metrics: k.work.Metrics,
+	}
+}
+
+// buildRuntime builds the services that run and publish what authors
+// make: functions, the gateway, Git export, search, push, golden tests,
+// releases and the function runtime.
+func (k *serviceKit) buildRuntime(ctx context.Context, svc *Services) error {
+	var err error
+	retention := time.Duration(k.cfg.Telemetry.RetentionDays) * 24 * time.Hour
+	svc.Functions, err = buildFunctions(k.db, k.work, k.log, svc.Tenancy, svc.SecurityConfig, k.gen, retention, k.runnerLink, svc.Notify, k.approvals)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	approvals.Use(approvalProfiles(configs), notifier)
-	governed, err := buildGovernance(cfg, db, log, gen, tenancyService, notifier, approvals, work)
-	if err != nil {
-		return nil, err
-	}
-	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, notifier, backend, work)
-	if err != nil {
-		return nil, err
-	}
-	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour, runnerLink, notifier, approvals)
-	if err != nil {
-		return nil, err
-	}
-	gw, err := buildGateway(gatewayDeps{
-		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, crypter: backend, ids: gen, audit: log, tenancy: tenancyService,
-		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
-		identityHTTP: work.IdentityHTTP, functions: functions,
+	svc.Gateway, err = buildGateway(gatewayDeps{
+		cfg: k.cfg, db: k.db, cache: k.shared, set: k.set, signer: k.tokenSigner, crypter: k.backend, ids: k.gen, audit: k.log, tenancy: svc.Tenancy,
+		devices: svc.Devices, configs: svc.SecurityConfig, trust: svc.DeviceTrust, metrics: k.work.Metrics, secretOf: secrets{t: svc.Tenancy},
+		identityHTTP: k.work.IdentityHTTP, functions: svc.Functions,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	gitExport, err := gitsync.New(gitsync.Options{
-		DB: db, Audit: log, Documents: docs, Secrets: tenancyService, Jobs: gitQueue{work.Queue}, IDs: gen, Limits: set,
+	if err := k.buildPublishing(svc); err != nil {
+		return err
+	}
+	if svc.Checkpointer, err = buildCheckpointer(k.cfg, k.db, k.log, k.gen, k.work.Signer); err != nil {
+		return err
+	}
+	if svc.FunctionRuntime, err = buildFunctionRuntime(ctx, k.functionDeps(svc)); err != nil {
+		return err
+	}
+	return attachTriggerInvoker(svc.Functions, svc.FunctionRuntime, k.functionDeps(svc))
+}
+
+// buildPublishing builds Git export, search, push, golden tests and the
+// release service, which publishes through them.
+func (k *serviceKit) buildPublishing(svc *Services) error {
+	var err error
+	svc.GitExport, err = gitsync.New(gitsync.Options{
+		DB: k.db, Audit: k.log, Documents: svc.Documents, Secrets: svc.Tenancy, Jobs: gitQueue{k.work.Queue}, IDs: k.gen, Limits: k.set,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
+		return fmt.Errorf("server: %w", err)
 	}
-	searchService, err := search.NewService(search.Options{DB: db, Tenancy: tenancyService})
+	svc.Search, err = search.NewService(search.Options{DB: k.db, Tenancy: svc.Tenancy})
 	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
+		return fmt.Errorf("server: %w", err)
 	}
-	pusher, err := buildPush(cfg, db, set, backend, tenancyService, work)
-	if err != nil {
-		return nil, err
+	if svc.Push, err = buildPush(k.cfg, k.db, k.set, k.backend, svc.Tenancy, k.work); err != nil {
+		return err
 	}
-	var goldens *golden.Service
-	if work.Objects != nil {
-		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set, Approvals: approvals})
+	if k.work.Objects != nil {
+		svc.Goldens = golden.New(golden.Options{DB: k.db, Audit: k.log, Objects: k.work.Objects, IDs: k.gen, Limits: k.set, Approvals: k.approvals})
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{approvals: approvals, breakGlass: governed.breakGlass, freezes: governed.freezes, goldens: goldens, published: gitExport, push: pusher, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
-	if err != nil {
-		return nil, err
-	}
-	checkpointer, err := buildCheckpointer(cfg, db, log, gen, work.Signer)
-	if err != nil {
-		return nil, err
-	}
-	fnRuntime, err := buildFunctionRuntime(ctx, functionDeps{
-		cfg: cfg, db: db, crypter: backend, cache: shared, set: set, service: functions, link: runnerLink, gateway: gw,
-		tenancy: tenancyService, configs: configs, devices: devices, keys: store, metrics: work.Metrics,
+	svc.Releases, err = buildReleases(k.cfg, k.db, k.set, k.work, releaseDeps{
+		approvals: k.approvals, breakGlass: svc.BreakGlass, freezes: svc.Freezes, goldens: svc.Goldens, published: svc.GitExport, push: svc.Push,
+		ids: k.gen, audit: k.log, tenancy: svc.Tenancy, documents: svc.Documents, devices: svc.Devices, configs: svc.SecurityConfig,
+		crypter: k.backend, gateway: gatewayRegistry(svc.Gateway), functions: svc.Functions,
 	})
-	if err != nil {
-		return nil, err
+	return err
+}
+
+// buildOperations builds the services that depend on releases: audit
+// export, reconstruction, data subject requests, rollouts and experiments.
+func (k *serviceKit) buildOperations(_ context.Context, svc *Services) error {
+	var err error
+	if svc.AuditExport, svc.AuditExporter, err = buildAuditExport(k.db, k.log, k.gen, k.backend, svc.Tenancy, k.work); err != nil {
+		return err
 	}
-	if err := attachTriggerInvoker(functions, fnRuntime, functionDeps{
-		cfg: cfg, db: db, cache: shared, set: set, service: functions, link: runnerLink, gateway: gw,
-		tenancy: tenancyService, configs: configs, devices: devices, keys: store, metrics: work.Metrics,
-	}); err != nil {
-		return nil, err
+	if svc.Reconstruction, err = buildReconstruction(k.cfg, k.db, k.gen, k.log, svc.Tenancy, svc.Releases, k.work); err != nil {
+		return err
 	}
-	auditExport, auditExporter, err := buildAuditExport(db, log, gen, backend, tenancyService, work)
-	if err != nil {
-		return nil, err
-	}
-	reconstruction, err := buildReconstruction(cfg, db, gen, log, tenancyService, releases, work)
-	if err != nil {
-		return nil, err
-	}
-	dataSubjects, err := dsr.NewService(dsr.Options{
-		DB: db, Audit: log, IDs: gen,
+	svc.DataSubjects, err = dsr.NewService(dsr.Options{
+		DB: k.db, Audit: k.log, IDs: k.gen,
 		Limits: func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
-			return tenancyService.Effective(ctx, tx, org, "", "") //nolint:wrapcheck // a domain error
+			return svc.Tenancy.Effective(ctx, tx, org, "", "") //nolint:wrapcheck // a domain error
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
+		return fmt.Errorf("server: %w", err)
 	}
-	rollouts, err := buildRollouts(db, log, gen, tenancyService, releases, analyticsService, notifier, work.Log)
+	svc.Rollouts, err = buildRollouts(k.db, k.log, k.gen, svc.Tenancy, svc.Releases, svc.Analytics, svc.Notify, k.work.Log)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	experiments, err := buildExperiments(db, log, gen, tenancyService, docs, releases, approvals)
-	if err != nil {
-		return nil, err
-	}
-	return &Services{
-		Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
-		Approvals: approvals, BreakGlass: governed.breakGlass, Freezes: governed.freezes, Reports: governed.reports, Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
-		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
-		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
-		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
-		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
-		Identity: work.Identity.OrDefault(),
-	}, nil
+	svc.Experiments, err = buildExperiments(k.db, k.log, k.gen, svc.Tenancy, svc.Documents, svc.Releases, k.approvals)
+	return err
 }
 
 // buildAuditExport builds the administration of the audit export
@@ -669,7 +729,7 @@ type coreServices struct {
 }
 
 // buildCore assembles the services of sign-in, tenancy and documents.
-func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, backend signing.Crypter, gen interface{ New() (string, error) }, log *audit.Log, gate approval.Gate, work WorkDeps) (coreServices, error) {
+func buildCore(ctx context.Context, cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, backend signing.Crypter, gen interface{ New() (string, error) }, log *audit.Log, gate approval.Gate, work WorkDeps) (coreServices, error) {
 	issuers, err := trustedIssuers(cfg)
 	if err != nil {
 		return coreServices{}, err
@@ -678,7 +738,7 @@ func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limit
 	if err != nil {
 		return coreServices{}, err
 	}
-	authService, err := auth.NewService(auth.Options{
+	authService, err := auth.NewServiceContext(ctx, auth.Options{
 		DB: db, Audit: log, Cache: shared, Limits: set, Crypter: backend, IDs: gen,
 		SessionTTL:      cfg.Auth.Studio.SessionTTL.Duration(),
 		CITokenTTL:      cfg.Auth.CI.TokenTTL.Duration(),
@@ -1011,7 +1071,17 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 // apiRegistrations lists the Connect services to mount, by service group:
 // the always-present ones first, then those that depend on a built service.
 func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption) []func() (string, http.Handler) {
-	registrations := []func() (string, http.Handler){
+	return slices.Concat(
+		coreRegistrations(h, opts),
+		authoringRegistrations(svc, h, opts),
+		operationsRegistrations(svc, h, opts),
+		notifyRegistrations(svc, h, opts),
+	)
+}
+
+// coreRegistrations lists the services every API process mounts.
+func coreRegistrations(h *api.Handlers, opts connect.HandlerOption) []func() (string, http.Handler) {
+	return []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
@@ -1030,6 +1100,12 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		func() (string, http.Handler) { return pluxv1connect.NewTokenServiceHandler(h.Token(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
 	}
+}
+
+// authoringRegistrations lists the services of releases, localisation,
+// search, Git export, analytics and golden tests, those the process built.
+func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption) []func() (string, http.Handler) {
+	var registrations []func() (string, http.Handler)
 	if svc.Releases != nil {
 		registrations = append(registrations,
 			func() (string, http.Handler) { return pluxv1connect.NewPublishServiceHandler(h.Publish(), opts) },
@@ -1068,6 +1144,14 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 			return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts)
 		})
 	}
+	return registrations
+}
+
+// operationsRegistrations lists the services of reconstruction, audit
+// export, rollouts, experiments, data subject requests, security
+// configuration, licences and functions, those the process built.
+func operationsRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption) []func() (string, http.Handler) {
+	var registrations []func() (string, http.Handler)
 	h.Reconstruction = svc.Reconstruction
 	if svc.AuditExport != nil {
 		h.AuditExport = svc.AuditExport
@@ -1108,7 +1192,7 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
 		})
 	}
-	return append(registrations, notifyRegistrations(svc, h, opts)...)
+	return registrations
 }
 
 // rejectionsOf feeds the reasons of refused proofs into the metrics.

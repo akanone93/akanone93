@@ -163,7 +163,7 @@ func (a *apnsSender) providerToken() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("push: %w", err)
 	}
-	raw, err := jwt.Signed(signer).Claims(jwt.Claims{Issuer: a.creds.TeamID, IssuedAt: jwt.NewNumericDate(now)}).Serialize()
+	raw, err := compactJWT(signer, jwt.Claims{Issuer: a.creds.TeamID, IssuedAt: jwt.NewNumericDate(now)})
 	if err != nil {
 		return "", fmt.Errorf("push: %w", err)
 	}

@@ -51,22 +51,35 @@ func (s *Service) UseRollouts(sel RolloutSelector) { s.rollouts = sel }
 // signed, fall back to the channel's, which is always safe (REL-080).
 func (s *Service) manifestFor(ctx context.Context, r ManifestRequest) (cachedManifest, error) {
 	r.Channel = channelOrDefault(r.Channel)
-	if s.rollouts != nil {
-		id, err := s.rollouts.SelectRollout(ctx, r)
-		if err != nil {
-			return cachedManifest{}, fmt.Errorf("release: select a rollout: %w", err)
-		}
-		if id != "" {
-			c, found, err := s.rolloutManifest(ctx, r, id)
-			if err != nil {
-				return cachedManifest{}, err
-			}
-			if found && !c.incompatible[r.HostBuild] {
-				return c, nil
-			}
-		}
+	c, ok, err := s.rolloutCandidate(ctx, r)
+	if err != nil {
+		return cachedManifest{}, err
+	}
+	if ok {
+		return c, nil
 	}
 	return s.latestManifest(ctx, r.OrganizationID, r.EnvironmentID, r.Channel, r.HostBuild)
+}
+
+// rolloutCandidate returns the manifest of the rollout the device is
+// inside, and whether the device may take it: there is a signed manifest and
+// the device's host build can run it.
+func (s *Service) rolloutCandidate(ctx context.Context, r ManifestRequest) (cachedManifest, bool, error) {
+	if s.rollouts == nil {
+		return cachedManifest{}, false, nil
+	}
+	id, err := s.rollouts.SelectRollout(ctx, r)
+	if err != nil {
+		return cachedManifest{}, false, fmt.Errorf("release: select a rollout: %w", err)
+	}
+	if id == "" {
+		return cachedManifest{}, false, nil
+	}
+	c, found, err := s.rolloutManifest(ctx, r, id)
+	if err != nil {
+		return cachedManifest{}, false, err
+	}
+	return c, found && !c.incompatible[r.HostBuild], nil
 }
 
 // rolloutManifest returns the newest manifest signed for a rollout, and

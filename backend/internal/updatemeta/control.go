@@ -6,6 +6,7 @@ package updatemeta
 import (
 	"encoding/base64"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/controldoc"
@@ -35,7 +36,7 @@ type Control struct {
 // encoded FlatBuffers document and the fields its header repeats.
 func NewControl(d controldoc.Document, encoded []byte) Control {
 	return Control{
-		Type: RoleControl, Version: int64(d.Version), Expires: FormatTime(d.ExpiresAt), SpecVersion: SpecVersion,
+		Type: RoleControl, Version: int64(min(d.Version, math.MaxInt64)), Expires: FormatTime(d.ExpiresAt), SpecVersion: SpecVersion,
 		App: d.AppID, Environment: d.Environment, Channel: d.Channel, IssuedAt: FormatTime(d.IssuedAt),
 		Document: base64.StdEncoding.EncodeToString(encoded),
 	}
@@ -116,7 +117,7 @@ func (c Control) document() (controldoc.Document, error) {
 	if err != nil {
 		return controldoc.Document{}, fmt.Errorf("%w: %w", ErrFormat, err)
 	}
-	if int64(doc.Version) != c.Version || doc.AppID != c.App || doc.Environment != c.Environment || doc.Channel != c.Channel ||
+	if int64(min(doc.Version, math.MaxInt64)) != c.Version || doc.AppID != c.App || doc.Environment != c.Environment || doc.Channel != c.Channel ||
 		FormatTime(doc.IssuedAt) != c.IssuedAt || FormatTime(doc.ExpiresAt) != c.Expires {
 		return controldoc.Document{}, fmt.Errorf("%w: the document disagrees with the signed header", ErrMismatch)
 	}

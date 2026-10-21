@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
 	"sync"
 	"time"
 
@@ -126,7 +127,7 @@ func (c *Consumer) Once(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("telemetry: read: %w", err)
 	}
-	entries := append(stale, fresh...)
+	entries := slices.Concat(stale, fresh)
 	var done []string
 	var errs []error
 	for _, e := range entries {

@@ -104,44 +104,70 @@ func ParseSchedule(expr, zone string) (Schedule, error) {
 // parseField reads one field into a bit set; any is true when it starts
 // with "*". names, when given, are the names of min, min+1, ….
 func parseField(field, what string, lo, hi int, names []string) (bits uint64, wild bool, err error) {
-	bad := func(format string, args ...any) error {
-		return plxerr.New(plxerr.CronExpressionInvalid, "the "+what+" field "+format, args...)
-	}
-	wild = strings.HasPrefix(field, "*")
+	f := fieldParser{what: what, lo: lo, hi: hi, names: names}
 	for _, part := range strings.Split(field, ",") {
-		rng, stepText, hasStep := strings.Cut(part, "/")
-		step := 1
-		if hasStep {
-			n, perr := strconv.Atoi(stepText)
-			if perr != nil || n <= 0 || n > hi {
-				return 0, false, bad("has the step %q; a step is a positive number up to %d", stepText, hi)
-			}
-			step = n
-		}
-		from, to := lo, hi
-		if rng != "*" {
-			a, b, isRange := strings.Cut(rng, "-")
-			var perr error
-			if from, perr = cronValue(a, lo, hi, names); perr != nil {
-				return 0, false, bad("has %q, which is not %d to %d", a, lo, hi)
-			}
-			to = from
-			if isRange {
-				if to, perr = cronValue(b, lo, hi, names); perr != nil {
-					return 0, false, bad("has %q, which is not %d to %d", b, lo, hi)
-				}
-			} else if hasStep {
-				to = hi
-			}
-			if from > to {
-				return 0, false, bad("has the range %q running backwards", rng)
-			}
+		from, to, step, err := f.part(part)
+		if err != nil {
+			return 0, false, err
 		}
 		for v := from; v <= to; v += step {
 			bits |= 1 << uint(v)
 		}
 	}
-	return bits, wild, nil
+	return bits, strings.HasPrefix(field, "*"), nil
+}
+
+// fieldParser reads the comma-separated parts of one cron field.
+type fieldParser struct {
+	what   string
+	lo, hi int
+	names  []string
+}
+
+// bad is the error of a malformed field.
+func (f fieldParser) bad(format string, args ...any) error {
+	return plxerr.New(plxerr.CronExpressionInvalid, "the "+f.what+" field "+format, args...)
+}
+
+// part reads one part, "*", "a", "a-b" or any of them with "/step", into
+// the first and last value it names and the step between them.
+func (f fieldParser) part(part string) (from, to, step int, err error) {
+	rng, stepText, hasStep := strings.Cut(part, "/")
+	step = 1
+	if hasStep {
+		n, perr := strconv.Atoi(stepText)
+		if perr != nil || n <= 0 || n > f.hi {
+			return 0, 0, 0, f.bad("has the step %q; a step is a positive number up to %d", stepText, f.hi)
+		}
+		step = n
+	}
+	if rng == "*" {
+		return f.lo, f.hi, step, nil
+	}
+	from, to, err = f.span(rng, hasStep)
+	return from, to, step, err
+}
+
+// span reads "a" or "a-b". A single value with a step runs to the top of
+// the field.
+func (f fieldParser) span(rng string, hasStep bool) (from, to int, err error) {
+	a, b, isRange := strings.Cut(rng, "-")
+	if from, err = cronValue(a, f.lo, f.hi, f.names); err != nil {
+		return 0, 0, f.bad("has %q, which is not %d to %d", a, f.lo, f.hi)
+	}
+	to = from
+	switch {
+	case isRange:
+		if to, err = cronValue(b, f.lo, f.hi, f.names); err != nil {
+			return 0, 0, f.bad("has %q, which is not %d to %d", b, f.lo, f.hi)
+		}
+	case hasStep:
+		to = f.hi
+	}
+	if from > to {
+		return 0, 0, f.bad("has the range %q running backwards", rng)
+	}
+	return from, to, nil
 }
 
 // cronValue reads a number or a name within bounds.

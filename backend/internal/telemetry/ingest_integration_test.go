@@ -190,7 +190,7 @@ func (m *memStreams) StreamAdd(_ context.Context, _ string, _ int64, payload []b
 	return id, nil
 }
 
-func (m *memStreams) StreamGroup(context.Context, string, string) error { return nil }
+func (*memStreams) StreamGroup(context.Context, string, string) error { return nil }
 
 func (m *memStreams) StreamRead(_ context.Context, _, _, consumer string, count int) ([]cache.StreamEntry, error) {
 	m.mu.Lock()

@@ -105,11 +105,15 @@ func (s *Service) requireWaivers(ctx context.Context, d draft, p auth.Principal,
 	if d.plugin != nil {
 		subject = "waiver:" + d.plugin.Key + ":" + path
 	}
-	return approval.Require(ctx, s.o.Approvals, d.tx, approval.Artifact{
+	err := approval.Require(ctx, s.o.Approvals, d.tx, approval.Artifact{
 		Resource: schema.PolicyResourceWaiver, OrganizationID: p.OrganizationID, AppID: d.app, Action: approval.ActionWaive,
 		Subject: subject, Hash: approval.HashOf(parts...), Profile: profile, Requester: p.Actor(),
 		Summary: fmt.Sprintf("%d accessibility waiver(s) in %s", len(changed), path),
 	})
+	if err != nil {
+		return fmt.Errorf("document.requireWaivers: %w", err)
+	}
+	return nil
 }
 
 // collectWaivers lists the a11yWaivers entries of a document tree: each

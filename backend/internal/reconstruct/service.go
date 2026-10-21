@@ -423,7 +423,10 @@ func (s *Service) Purge(ctx context.Context, organizationID string) (int64, erro
 		n = history + releases
 		return nil
 	})
-	return n, err
+	if err != nil {
+		return n, fmt.Errorf("reconstruct.Purge: %w", err)
+	}
+	return n, nil
 }
 
 // inOrg runs f in a transaction of the principal's organisation.

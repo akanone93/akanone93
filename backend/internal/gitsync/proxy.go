@@ -56,12 +56,12 @@ type proxy struct {
 
 // startProxy listens on a loopback port. secret authenticates the one
 // client that knows it, so another process on the host cannot use the proxy.
-func startProxy(policy httpx.Policy, resolve Resolver, secret string) (*proxy, error) {
+func startProxy(ctx context.Context, policy httpx.Policy, resolve Resolver, secret string) (*proxy, error) {
 	dialer, err := httpx.GuardedDialer(httpx.KindGitRemote, policy)
 	if err != nil {
 		return nil, fmt.Errorf("gitsync: %w", err)
 	}
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := (&net.ListenConfig{}).Listen(ctx, "tcp", "127.0.0.1:0")
 	if err != nil {
 		return nil, fmt.Errorf("gitsync: listen for the proxy: %w", err)
 	}

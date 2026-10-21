@@ -238,8 +238,7 @@ func (c controlContent) equal(o controlContent) bool {
 }
 
 func equalPtr[T comparable](a, b *T) bool {
-	switch {
-	case a == nil || b == nil:
+	if a == nil || b == nil {
 		return a == b
 	}
 	return *a == *b
@@ -512,7 +511,7 @@ func (*Service) insertControl(ctx context.Context, q *dbgen.Queries, ch dbgen.Ch
 	if err != nil {
 		return err
 	}
-	flags, experiments, holdout, err := c.Experimentation.stored()
+	flags, experiments, holdout, err := c.stored()
 	if err != nil {
 		return err
 	}

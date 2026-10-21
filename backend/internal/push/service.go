@@ -329,7 +329,10 @@ func (s *Service) sendOne(ctx context.Context, job SendJob, row dbgen.DevicePush
 	if err != nil {
 		return fmt.Errorf("%w: open a token: %w", ErrRejected, err)
 	}
-	return sender.Send(ctx, string(raw), Message{AppID: job.AppID})
+	if err := sender.Send(ctx, string(raw), Message{AppID: job.AppID}); err != nil {
+		return fmt.Errorf("push: send: %w", err)
+	}
+	return nil
 }
 
 // deleteTokens removes the tokens the providers no longer know.

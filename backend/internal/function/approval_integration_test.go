@@ -54,7 +54,7 @@ func TestProductionDeployNeedsApproval_FN_007(t *testing.T) {
 	w.builder.set(goodOutput(fnName), nil)
 	engine := w.engine(t, settings.Maximum)
 	svc := w.service(t, func(o *function.Options) { o.Approvals = engine })
-	first, second := w.member(t, "r1@example.com", "reviewer", true), w.member(t, "r2@example.com", "reviewer", true)
+	first, second := w.member(t, "r1@example.com", "reviewer"), w.member(t, "r2@example.com", "reviewer")
 	approveBy := func(request string, by ...auth.Principal) {
 		t.Helper()
 		for _, p := range by {

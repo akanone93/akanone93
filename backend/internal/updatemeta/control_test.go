@@ -58,10 +58,10 @@ func newControlRig(t testing.TB, delegate bool) controlRig {
 	return controlRig{backend: backend, root: root, scope: updatemeta.ControlScope{App: "app-1", Environment: "production", Channel: "production"}}
 }
 
-func (r controlRig) document(version uint64, expires time.Duration) controldoc.Document {
+func (r controlRig) document(version uint64) controldoc.Document {
 	return controldoc.Document{
 		Version: version, AppID: r.scope.App, Environment: r.scope.Environment, Channel: r.scope.Channel,
-		IssuedAt: at, ExpiresAt: at.Add(expires),
+		IssuedAt: at, ExpiresAt: at.Add(24 * time.Hour),
 		KillSwitches:    []controldoc.KillSwitch{{Scope: controldoc.ScopePlugin, Target: "checkout"}},
 		MandatoryUpdate: &controldoc.MandatoryUpdate{ReleaseID: "rel-4", ReleaseSequence: 4},
 	}
@@ -93,7 +93,7 @@ func (r controlRig) verifier(floor int64, now time.Time) updatemeta.Verifier {
 func TestControlSignedAndVerifiedFromRoot_SYN_060(t *testing.T) {
 	t.Parallel()
 	rig := newControlRig(t, true)
-	file := rig.sign(t, rig.document(3, 24*time.Hour))
+	file := rig.sign(t, rig.document(3))
 	got, err := rig.verifier(2, at.Add(time.Hour)).Control(file, rig.scope)
 	if err != nil {
 		t.Fatalf("Control: %v", err)
@@ -101,7 +101,7 @@ func TestControlSignedAndVerifiedFromRoot_SYN_060(t *testing.T) {
 	if got.Version != 3 || len(got.KillSwitches) != 1 || got.MandatoryUpdate == nil || got.MandatoryUpdate.ReleaseSequence != 4 {
 		t.Fatalf("document = %+v", got)
 	}
-	again := rig.sign(t, rig.document(3, 24*time.Hour))
+	again := rig.sign(t, rig.document(3))
 	if !bytes.Equal(file, again) {
 		t.Fatalf("the same document signed twice gave different files")
 	}
@@ -114,7 +114,7 @@ func TestControlSignedAndVerifiedFromRoot_SYN_060(t *testing.T) {
 func TestControlRefusals_SYN_060(t *testing.T) {
 	t.Parallel()
 	rig := newControlRig(t, true)
-	file := rig.sign(t, rig.document(5, 24*time.Hour))
+	file := rig.sign(t, rig.document(5))
 	now := at.Add(time.Hour)
 
 	flipped := bytes.Replace(file, []byte(`"version":5`), []byte(`"version":6`), 1)
@@ -130,7 +130,7 @@ func TestControlRefusals_SYN_060(t *testing.T) {
 		want  error
 	}{
 		{"tampered header", flipped, rig.verifier(1, now), rig.scope, updatemeta.ErrThreshold},
-		{"signed by another key", otherKey.sign(t, otherKey.document(5, 24*time.Hour)), rig.verifier(1, now), rig.scope, updatemeta.ErrThreshold},
+		{"signed by another key", otherKey.sign(t, otherKey.document(5)), rig.verifier(1, now), rig.scope, updatemeta.ErrThreshold},
 		{"expired", file, rig.verifier(1, at.Add(25*time.Hour)), rig.scope, updatemeta.ErrExpired},
 		{"older version", file, rig.verifier(6, now), rig.scope, updatemeta.ErrRollback},
 		{"another channel", file, rig.verifier(1, now), updatemeta.ControlScope{App: "app-1", Environment: "production", Channel: "beta"}, updatemeta.ErrMismatch},
@@ -156,7 +156,7 @@ func TestControlRootWithoutDelegation_SYN_060(t *testing.T) {
 	if _, ok := rig.root.Roles.Named(updatemeta.RoleControl); ok {
 		t.Fatal("the root delegates a control role")
 	}
-	file := rig.sign(t, rig.document(1, 24*time.Hour))
+	file := rig.sign(t, rig.document(1))
 	_, err := rig.verifier(0, at.Add(time.Hour)).Control(file, rig.scope)
 	if !errors.Is(err, updatemeta.ErrThreshold) || !strings.Contains(err.Error(), "delegates no control role") {
 		t.Fatalf("err = %v", err)
@@ -171,7 +171,7 @@ func TestControlRootWithoutDelegation_SYN_060(t *testing.T) {
 func TestControlDocumentMustMatchItsHeader_SYN_060(t *testing.T) {
 	t.Parallel()
 	rig := newControlRig(t, true)
-	inner := rig.document(2, 24*time.Hour)
+	inner := rig.document(2)
 	encoded, err := controldoc.Encode(inner)
 	if err != nil {
 		t.Fatal(err)
@@ -205,7 +205,7 @@ func TestControlMatchesTheSchemas_SYN_060(t *testing.T) {
 	rig := newControlRig(t, true)
 	docs := map[string][]byte{
 		"root":    signRoot(t, rig.root, offline(t)[0]),
-		"control": rig.sign(t, rig.document(1, 24*time.Hour)),
+		"control": rig.sign(t, rig.document(1)),
 	}
 	for kind, doc := range docs {
 		abs, err := filepath.Abs(filepath.Join(dir, kind+".schema.json"))

@@ -31,7 +31,7 @@ type calendar struct {
 }
 
 // Validate implements governance.FreezeCalendar.
-func (c *calendar) Validate(_ context.Context, w governance.Window) error {
+func (*calendar) Validate(_ context.Context, w governance.Window) error {
 	if w.TimeZone == "Mars/Olympus" {
 		return fmt.Errorf("%w: unknown zone", governance.ErrInvalidWindow)
 	}

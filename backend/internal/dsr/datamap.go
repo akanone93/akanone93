@@ -7,6 +7,7 @@ package dsr
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -65,6 +66,17 @@ const (
 // personalDataMap is the registry, listing the device stores in the order
 // erasure removes them.
 func personalDataMap() []Store {
+	return slices.Concat(
+		deviceStores(),
+		userStores(),
+		retainedStores(),
+		accountStores(),
+		operationalStores(),
+	)
+}
+
+// deviceStores lists the stores keyed by a device, in the order erasure removes them.
+func deviceStores() []Store {
 	return []Store{
 		{
 			Name: "telemetry_events", Description: "Runtime telemetry events of the first analytics tables, kept for existing installations.",
@@ -121,6 +133,12 @@ func personalDataMap() []Store {
 			Retention: retentionDevice, Erase: EraseDelete,
 			Note: "Erased last. With the record and its credentials gone, the device has to register again.",
 		},
+	}
+}
+
+// userStores lists the stores keyed by a pseudonymous user.
+func userStores() []Store {
+	return []Store{
 		{
 			Name: "notifications", Description: "The in-app inbox of a user.",
 			UserKey: "user_id", Personal: []string{"user_id", "title", "body"},
@@ -132,6 +150,12 @@ func personalDataMap() []Store {
 			Retention: "Until the subscription is removed or the organisation is deleted.", Erase: EraseDelete,
 			Note: "Only subscriptions whose subject_kind is user; team subscriptions name no person.",
 		},
+	}
+}
+
+// retainedStores lists the aggregates and the evidence that erasure leaves in place.
+func retainedStores() []Store {
+	return []Store{
 		{
 			Name: "analytics_rollups", Description: "Five-minute and coarser aggregates of the events by dimension.",
 			Personal: []string{"locale"}, Retention: "Indefinite, configurable per organisation (ANL-011).", Erase: EraseAggregate,
@@ -162,6 +186,12 @@ func personalDataMap() []Store {
 			Personal: []string{"subject_hash"}, Retention: retentionAudit, Erase: EraseRetained,
 			Note: "The proof that an erasure happened; it holds the subject's hash only.",
 		},
+	}
+}
+
+// accountStores lists the stores that go with a staff account.
+func accountStores() []Store {
+	return []Store{
 		{
 			Name: "users", Description: "Staff accounts.", Personal: []string{"email", "display name", "password_hash"},
 			Retention: retentionAccount, Erase: EraseAccount,
@@ -220,6 +250,12 @@ func personalDataMap() []Store {
 			Name: "scim_users", Description: "The users a SCIM client provisioned.",
 			UserKey: "user_id", Personal: []string{"user_id"}, Retention: retentionAccount, Erase: EraseAccount,
 		},
+	}
+}
+
+// operationalStores lists the remaining stores: short-lived data and compliance records.
+func operationalStores() []Store {
+	return []Store{
 		{
 			Name: "idempotency_keys", Description: "Stored responses of retried requests, sealed.",
 			Personal: []string{"subject"}, Retention: "The idempotency window, then the maintenance sweep.", Erase: EraseRetained,

@@ -220,9 +220,10 @@ func (f *fcmSender) assertion(now time.Time) (string, error) {
 		Issuer: f.account.ClientEmail, Audience: jwt.Audience{f.tokenURL},
 		IssuedAt: jwt.NewNumericDate(now), Expiry: jwt.NewNumericDate(now.Add(fcmAssertionLifetime)),
 	}
-	raw, err := jwt.Signed(signer).Claims(claims).Claims(struct {
+	raw, err := compactJWT(signer, struct {
+		jwt.Claims
 		Scope string `json:"scope"`
-	}{Scope: fcmScope}).Serialize()
+	}{Claims: claims, Scope: fcmScope})
 	if err != nil {
 		return "", fmt.Errorf("push: %w", err)
 	}

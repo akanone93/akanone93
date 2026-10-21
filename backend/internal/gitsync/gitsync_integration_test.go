@@ -4,16 +4,19 @@
 package gitsync_test
 
 import (
+	"bufio"
 	"context"
 	"crypto/rand"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/cgi"
 	"net/http/httptest"
+	"net/textproto"
+	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -84,21 +87,18 @@ func newRemote(t *testing.T) *remote {
 	if err != nil {
 		t.Skip("git is not installed; the export tests serve a repository with git http-backend")
 	}
-	out, err := exec.Command(gitBin, "--exec-path").Output() //nolint:gosec // the git binary found on PATH
+	out, err := exec.CommandContext(t.Context(), gitBin, "--exec-path").Output() //nolint:gosec // the git binary found on PATH
 	if err != nil {
 		t.Skipf("git --exec-path: %v", err)
 	}
 	r := &remote{dir: t.TempDir()}
 	bare := filepath.Join(r.dir, "app.git")
 	for _, args := range [][]string{{"init", "--bare", "-b", "main", bare}, {"-C", bare, "config", "http.receivepack", "true"}} {
-		if b, err := exec.Command(gitBin, args...).CombinedOutput(); err != nil { //nolint:gosec // fixed arguments
+		if b, err := exec.CommandContext(t.Context(), gitBin, args...).CombinedOutput(); err != nil { //nolint:gosec // fixed arguments
 			t.Fatalf("git %v: %v\n%s", args, err, b)
 		}
 	}
-	backend := &cgi.Handler{
-		Path: strings.TrimSpace(string(out)) + "/git-http-backend",
-		Env:  []string{"GIT_PROJECT_ROOT=" + r.dir, "GIT_HTTP_EXPORT_ALL=1"},
-	}
+	backend := &gitBackend{path: strings.TrimSpace(string(out)) + "/git-http-backend", root: r.dir}
 	r.Server = httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		if _, pass, ok := req.BasicAuth(); !ok || pass != token {
 			w.Header().Set("WWW-Authenticate", `Basic realm="git"`)
@@ -115,13 +115,59 @@ func newRemote(t *testing.T) *remote {
 				return
 			}
 		}
-		backend.ServeHTTP(w, req)
+		backend.serve(w, req)
 	}))
 	t.Cleanup(r.Close)
 	return r
 }
 
-func (r *remote) url() string { return r.Server.URL + "/app.git" }
+// gitBackend runs git http-backend as a CGI program for one request.
+type gitBackend struct {
+	path string
+	root string
+}
+
+// serve runs the backend with the request's body on its standard input and
+// relays the CGI answer: its Status header, its other headers and its body.
+func (b *gitBackend) serve(w http.ResponseWriter, req *http.Request) {
+	cmd := exec.CommandContext(req.Context(), b.path) //nolint:gosec // the backend of the git binary found on PATH
+	cmd.Stdin = req.Body
+	cmd.Env = append(os.Environ(),
+		"GIT_PROJECT_ROOT="+b.root, "GIT_HTTP_EXPORT_ALL=1", "REQUEST_METHOD="+req.Method,
+		"PATH_INFO="+req.URL.Path, "QUERY_STRING="+req.URL.RawQuery,
+		"CONTENT_TYPE="+req.Header.Get("Content-Type"), "REMOTE_USER=plux", "REMOTE_ADDR=127.0.0.1",
+		"HTTP_CONTENT_ENCODING="+req.Header.Get("Content-Encoding"), "HTTP_GIT_PROTOCOL="+req.Header.Get("Git-Protocol"),
+	)
+	if req.ContentLength > 0 {
+		cmd.Env = append(cmd.Env, "CONTENT_LENGTH="+strconv.FormatInt(req.ContentLength, 10))
+	}
+	out, err := cmd.Output()
+	if err != nil {
+		http.Error(w, "git http-backend: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	head, body, _ := strings.Cut(string(out), "\r\n\r\n")
+	header, err := textproto.NewReader(bufio.NewReader(strings.NewReader(head + "\r\n\r\n"))).ReadMIMEHeader()
+	if err != nil {
+		http.Error(w, "git http-backend: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	status := http.StatusOK
+	if line := header.Get("Status"); line != "" {
+		code, _, _ := strings.Cut(line, " ")
+		if n, err := strconv.Atoi(code); err == nil {
+			status = n
+		}
+		header.Del("Status")
+	}
+	for k, v := range header {
+		w.Header()[k] = v
+	}
+	w.WriteHeader(status)
+	_, _ = w.Write([]byte(body))
+}
+
+func (r *remote) url() string { return r.URL + "/app.git" }
 
 func (r *remote) caBundle() []byte {
 	return pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: r.Certificate().Raw})
