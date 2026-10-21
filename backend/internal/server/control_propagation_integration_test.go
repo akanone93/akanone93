@@ -4,6 +4,7 @@
 package server
 
 import (
+	"bufio"
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
@@ -16,6 +17,7 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -162,7 +164,7 @@ func propagationRun(t *testing.T, st *stack, project string, fcm *fakeFCM, withP
 	apps := &applications{baseline: baseline, at: map[string]time.Time{}}
 	fleet, err := loadgen.NewFleet(loadgen.Config{
 		BaseURL: st.server, AppID: st.app.ID, Environment: "staging", Devices: devices, Duration: time.Hour,
-		Concurrency: 8, PushTokens: withPush, Seed: 42, OnApplied: apps.record,
+		Concurrency: 8, ForwardedFor: true, PushTokens: withPush, Seed: 42, OnApplied: apps.record,
 		Pacing: loadgen.Pacing{Manifest: time.Hour, Control: poll, Telemetry: time.Hour},
 	})
 	if err != nil {
@@ -209,21 +211,31 @@ func waitUntil(t *testing.T, limit time.Duration, cond func() bool, what string)
 	}
 }
 
-// histogramCount returns the number of samples of plux_control_propagation_seconds.
+// histogramCount returns the number of samples of
+// plux_control_propagation_seconds that the running server's metrics
+// endpoint reports.
 func histogramCount(t *testing.T, st *stack) uint64 {
 	t.Helper()
-	families, err := st.svc.Metrics.Registry().Gather()
+	res, err := http.Get(st.server + "/metrics") //nolint:noctx,gosec // a test scrapes its own loopback server
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer func() { _ = res.Body.Close() }()
 	var n uint64
-	for _, fam := range families {
-		if fam.GetName() != "plux_control_propagation_seconds" {
+	lines := bufio.NewScanner(res.Body)
+	for lines.Scan() {
+		line := lines.Text()
+		if !strings.HasPrefix(line, "plux_control_propagation_seconds_count") {
 			continue
 		}
-		for _, m := range fam.GetMetric() {
-			n += m.GetHistogram().GetSampleCount()
+		v, err := strconv.ParseFloat(line[strings.LastIndexByte(line, ' ')+1:], 64)
+		if err != nil {
+			t.Fatalf("metrics line %q: %v", line, err)
 		}
+		n += uint64(v)
+	}
+	if err := lines.Err(); err != nil {
+		t.Fatal(err)
 	}
 	return n
 }
@@ -257,9 +269,12 @@ func TestBenchControlPropagation_NFR_024(t *testing.T) {
 	}
 	fcm := newFakeFCM(t)
 	st := startStackWith(t, "127.0.0.1:0", stackOptions{
-		extraYAML: "push:\n  enabled: true\n",
-		pushEnds:  &push.Endpoints{FCMSend: fcm.srv.URL, FCMToken: fcm.srv.URL + "/token"},
-		pushHTTP:  fcm.srv.Client(),
+		// Every device names its own address, so the per-address limits
+		// apply per device as in the field.
+		serverYAML: "  trustedProxies: [127.0.0.1/32]\n",
+		extraYAML:  "push:\n  enabled: true\n",
+		pushEnds:   &push.Endpoints{FCMSend: fcm.srv.URL, FCMToken: fcm.srv.URL + "/token"},
+		pushHTTP:   fcm.srv.Client(),
 	})
 	project := st.project(t, "loan-calculator")
 	delegateControl(t, st, "staging")
@@ -300,4 +315,41 @@ func TestBenchControlPropagation_NFR_024(t *testing.T) {
 	}
 	// Both changes were seen by every device and recorded by the server.
 	waitUntil(t, 10*time.Second, func() bool { return histogramCount(t, st) >= uint64(2*devices) }, fmt.Sprintf("%d propagation samples", 2*devices))
+}
+
+// Verifies: DEP-051, NFR-023.
+// A few synthetic devices run against the real server for a few seconds at
+// a hundredfold pacing: every one registers, checks the manifest, fetches
+// the control document, sends telemetry, and no request fails.
+func TestLoadGeneratorAgainstTheServer_DEP_051(t *testing.T) {
+	st := startStackWith(t, "127.0.0.1:0", stackOptions{serverYAML: "  trustedProxies: [127.0.0.1/32]\n"})
+	project := st.project(t, "loan-calculator")
+	delegateControl(t, st, "staging")
+	st.run(t, 0, "publish", "-C", project, "--promote", "staging", "--json")
+	st.run(t, 0, "control", "kill", "-C", project, "--env", "staging", "--json", "plugin", "loans")
+
+	fleet, err := loadgen.NewFleet(loadgen.Config{
+		BaseURL: st.server, AppID: st.app.ID, Environment: "staging", Devices: 4, Duration: 3 * time.Second,
+		ForwardedFor: true, Seed: 7, Scale: 100, Pacing: loadgen.DefaultPacing().Scaled(100),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := fleet.Register(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	ctx, stop := context.WithTimeout(t.Context(), 3*time.Second)
+	defer stop()
+	report := fleet.Run(ctx)
+	if report.Registered != 4 || report.Errors() != 0 {
+		t.Fatalf("registered %d of 4, %d errors: %+v", report.Registered, report.Errors(), report.Operations)
+	}
+	for _, op := range []string{loadgen.OpManifest, loadgen.OpControl, loadgen.OpTelemetry} {
+		if report.Operations[op].Requests == 0 {
+			t.Errorf("no %s request in %+v", op, report.Operations)
+		}
+	}
+	if report.ControlApplied < 4 {
+		t.Errorf("%d control_applied events from 4 devices", report.ControlApplied)
+	}
 }
