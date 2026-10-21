@@ -181,9 +181,13 @@ void main() {
         (SwitchKind.dataSource, 'd-1'),
         (SwitchKind.function, 'orders.total'),
       ]) {
-        expect(snapshot.isOff(kind, target), isTrue, reason: '$kind');
+        expect(
+          snapshot.isOff(kind, target, () => const {}),
+          isTrue,
+          reason: '$kind',
+        );
       }
-      expect(snapshot.isOff(SwitchKind.plugin, 'p-1'), isFalse);
+      expect(snapshot.isOff(SwitchKind.plugin, 'p-1', () => const {}), isFalse);
       expect(snapshot.mandatory!.releaseSequence, 9);
       expect(snapshot.mandatory!.messageKey, 'update.now');
       expect(snapshot.rollback!.releaseSequence, 3);
@@ -197,7 +201,7 @@ void main() {
             switches: [killSwitch(fbs.SwitchScope.Plugin, 'x', withRule: true)],
           ),
         );
-        expect(snapshot.isOff(SwitchKind.plugin, 'x'), isTrue);
+        expect(snapshot.isOff(SwitchKind.plugin, 'x', () => const {}), isTrue);
       },
     );
 
@@ -214,7 +218,7 @@ void main() {
       final back = ControlSnapshot.fromJson(snapshot.toJson())!;
       expect(back.version, snapshot.version);
       expect(back.expiresAt, snapshot.expiresAt);
-      expect(back.isOff(SwitchKind.plugin, 'loans'), isTrue);
+      expect(back.isOff(SwitchKind.plugin, 'loans', () => const {}), isTrue);
       expect(back.rollback!.releaseSequence, 3);
       expect(back.switchesChangedFrom(null), 1);
       expect(back.switchesChangedFrom(snapshot), 0);

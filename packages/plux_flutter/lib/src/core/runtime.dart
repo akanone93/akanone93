@@ -646,7 +646,8 @@ final class PluxRuntime with WidgetsBindingObserver {
     authoriser: _sca,
     allowDirect: () =>
         settings.value.flag(SecuritySetting.allowDirectDataSources),
-    disabled: (id) => control.value.isOff(SwitchKind.dataSource, id),
+    disabled: (id) =>
+        control.value.isOff(SwitchKind.dataSource, id, _targetingFacts),
   );
 
   /// Strong customer authentication (SEC-027, ADR-0056): challenge,
@@ -1747,6 +1748,7 @@ final class PluxRuntime with WidgetsBindingObserver {
           report: _report,
           decrypted: decrypted,
           live: () => control.value,
+          facts: _targetingFacts,
         );
       } on PluxException catch (e) {
         _report(e);
