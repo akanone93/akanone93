@@ -387,3 +387,175 @@ message DecideApprovalRequest {
 message DecideApprovalResponse {
   ApprovalRequest approval = 1;
 }
+
+// BreakGlassService lists and reviews the emergency actions taken without
+// prior approval (GOV-024, ADR-0076). The actions themselves are taken with
+// the break_glass field of the kill-switch, forced-rollback and rollback
+// calls; each opens a post-hoc review here, due within
+// governance.breakGlassReviewHours (24 hours by default) and escalated when
+// overdue (PLX-8006).
+service BreakGlassService {
+  // ListBreakGlass lists the emergency actions of the organisation, newest
+  // first. It needs audit.read.
+  rpc ListBreakGlass(ListBreakGlassRequest) returns (ListBreakGlassResponse) {}
+  // ReviewBreakGlass completes the post-hoc review of an action. It needs
+  // approvals.decide with a fresh step-up (SEC-103); whoever took the action
+  // cannot review it (PLX-8003).
+  rpc ReviewBreakGlass(ReviewBreakGlassRequest) returns (ReviewBreakGlassResponse) {}
+}
+
+// BreakGlassInvocation is one emergency action and its review.
+message BreakGlassInvocation {
+  string id = 1;
+  string app_id = 2;
+  string environment_id = 3;
+  string environment = 4;
+  // action is "killSwitch", "forcedRollback" or "rollback"; a function is
+  // disabled with a kill switch of scope function.
+  string action = 5;
+  string subject = 6;
+  string justification = 7;
+  string invoked_by_id = 8;
+  string invoked_by = 9;
+  google.protobuf.Timestamp invoked_at = 10;
+  google.protobuf.Timestamp review_due_at = 11;
+  // review_status is "open" or "reviewed".
+  string review_status = 12;
+  string reviewed_by = 13;
+  google.protobuf.Timestamp reviewed_at = 14;
+  string review_comment = 15;
+  // overdue is set while the review is open past its due time (PLX-8006).
+  bool overdue = 16;
+}
+
+message ListBreakGlassRequest {
+  // status narrows the list to "open" or "reviewed" when set.
+  string status = 1;
+  Page page = 2;
+}
+message ListBreakGlassResponse {
+  repeated BreakGlassInvocation invocations = 1;
+  PageResult page = 2;
+}
+
+message ReviewBreakGlassRequest {
+  string id = 1;
+  string comment = 2;
+}
+message ReviewBreakGlassResponse {
+  BreakGlassInvocation invocation = 1;
+}
+
+// FreezeService manages change-freeze windows (GOV-025, ADR-0076), an
+// enterprise feature (PLX-8600 without the licence). Inside a window,
+// changes to a production environment are refused with PLX-8010, except
+// through break-glass.
+service FreezeService {
+  // ListFreezes lists the windows of the organisation. It needs
+  // organization.read.
+  rpc ListFreezes(ListFreezesRequest) returns (ListFreezesResponse) {}
+  // PutFreeze creates a window, or replaces the one of the same name. It
+  // needs freezes.manage. The window is checked by the calendar (PLX-1005
+  // for a window that cannot be evaluated).
+  rpc PutFreeze(PutFreezeRequest) returns (PutFreezeResponse) {}
+  // DeleteFreeze removes a window. It needs freezes.manage.
+  rpc DeleteFreeze(DeleteFreezeRequest) returns (DeleteFreezeResponse) {}
+}
+
+// ChangeFreeze is one freeze window.
+message ChangeFreeze {
+  string id = 1;
+  string name = 2;
+  // environment_key is the environment frozen; empty freezes every
+  // production environment.
+  string environment_key = 3;
+  // time_zone is an IANA time zone name.
+  string time_zone = 4;
+  // start is the wall-clock start in time_zone, as YYYY-MM-DDTHH:MM. For a
+  // recurring window it is the first start.
+  string start = 5;
+  int32 duration_minutes = 6;
+  // recurrence is empty for a one-off window, else FREQ=DAILY or
+  // FREQ=WEEKLY;BYDAY=MO,TU,..., optionally with ;UNTIL=YYYYMMDD.
+  string recurrence = 7;
+  string reason = 8;
+  string created_by = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message ListFreezesRequest {}
+message ListFreezesResponse {
+  repeated ChangeFreeze freezes = 1;
+}
+
+message PutFreezeRequest {
+  ChangeFreeze freeze = 1;
+}
+message PutFreezeResponse {
+  ChangeFreeze freeze = 1;
+}
+
+message DeleteFreezeRequest {
+  string id = 1;
+}
+message DeleteFreezeResponse {}
+
+// ComplianceService produces compliance reports (GOV-026, ADR-0076), an
+// enterprise feature (PLX-8600 without the licence): every production
+// change of a period with author, approvers, timestamps, content hashes and
+// evidence, as a DSSE envelope signed with the audit key, and as a PDF.
+service ComplianceService {
+  // CreateComplianceReport gathers the production changes of a period into a
+  // report. The server's worker signs it a moment later; poll
+  // GetComplianceReport. It needs compliance.report.
+  rpc CreateComplianceReport(CreateComplianceReportRequest) returns (CreateComplianceReportResponse) {}
+  // GetComplianceReport returns a report as JSON (the signed envelope) or
+  // as PDF. It needs compliance.report.
+  rpc GetComplianceReport(GetComplianceReportRequest) returns (GetComplianceReportResponse) {}
+  // ListComplianceReports lists the reports requested, newest first.
+  rpc ListComplianceReports(ListComplianceReportsRequest) returns (ListComplianceReportsResponse) {}
+}
+
+// ComplianceReportInfo describes a report without its content.
+message ComplianceReportInfo {
+  string id = 1;
+  google.protobuf.Timestamp period_from = 2;
+  google.protobuf.Timestamp period_to = 3;
+  int32 changes = 4;
+  string requested_by = 5;
+  google.protobuf.Timestamp requested_at = 6;
+  // signed is false until the worker has signed the report.
+  bool signed = 7;
+  string key_id = 8;
+  google.protobuf.Timestamp signed_at = 9;
+}
+
+message CreateComplianceReportRequest {
+  // from is inclusive and to exclusive.
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+message CreateComplianceReportResponse {
+  ComplianceReportInfo report = 1;
+}
+
+message GetComplianceReportRequest {
+  string id = 1;
+  // format is "json" or "pdf".
+  string format = 2;
+}
+message GetComplianceReportResponse {
+  ComplianceReportInfo report = 1;
+  // content is empty while the report is not signed.
+  bytes content = 2;
+  string content_type = 3;
+}
+
+message ListComplianceReportsRequest {
+  Page page = 1;
+}
+message ListComplianceReportsResponse {
+  repeated ComplianceReportInfo reports = 1;
+  PageResult page = 2;
+}

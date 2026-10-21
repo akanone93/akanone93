@@ -20,6 +20,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -568,12 +569,23 @@ func (s *Service) point(ctx context.Context, tx pgx.Tx, p auth.Principal, env db
 
 // RollbackRelease creates a release whose content equals an earlier one,
 // with a higher sequence, and points the channel at it, so a device's
-// anti-rollback rule never has to be relaxed (REL-006).
+// anti-rollback rule never has to be relaxed (REL-006). Like a promotion it
+// is a production change that approval policies and change freezes guard,
+// except when the server reverts a failing rollout itself; with
+// WithBreakGlass it is an emergency action instead (GOV-024).
 func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, envID, channelKey string, toSequence int64, notes string) (Release, error) {
+	return s.RollbackReleaseWith(ctx, p, appID, envID, channelKey, toSequence, notes)
+}
+
+// RollbackReleaseWith is RollbackRelease with options, such as WithBreakGlass.
+func (s *Service) RollbackReleaseWith(ctx context.Context, p auth.Principal, appID, envID, channelKey string, toSequence int64, notes string, opts ...ChangeOption) (Release, error) {
 	if err := authorizeSomeEnvironment(p, auth.ReleasePromote, appID); err != nil {
 		return Release{}, err
 	}
-	var out Release
+	var (
+		out   Release
+		alert *breakglass.Record
+	)
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		app, env, err := s.environment(ctx, q, appID, envID)
@@ -583,15 +595,18 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		if err := authorizeEnvironment(p, auth.ReleasePromote, appID, env.Key); err != nil {
 			return err
 		}
-		if _, err := q.LockApp(ctx, app); err != nil {
-			return failure(err, "app")
-		}
 		earlier, vs, err := s.releaseRow(ctx, q, appID, toSequence)
 		if err != nil {
 			return err
 		}
 		if err := s.requireRollbackTarget(ctx, q, appID, env, earlier, vs); err != nil {
 			return err
+		}
+		if alert, err = s.gateRollback(ctx, tx, p, appID, env, channelKey, earlier, vs, opts); err != nil {
+			return err
+		}
+		if _, err := q.LockApp(ctx, app); err != nil {
+			return failure(err, "app")
 		}
 		if notes == "" {
 			notes = "Rollback to release " + strconv.FormatInt(toSequence, 10)
@@ -611,7 +626,30 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		}
 		return s.point(ctx, tx, p, env, channelKey, row)
 	})
+	if err == nil {
+		s.alert(ctx, alert)
+	}
 	return out, err
+}
+
+// gateRollback decides whether a rollback may happen. An emergency rollback
+// is recorded; the server's own revert of a failing rollout is never held;
+// any other rollback is a promotion of the earlier release as far as
+// approval policies and change freezes are concerned (GOV-020, GOV-025).
+// It runs before the app is locked and before any audit entry
+// (approval.Require).
+func (s *Service) gateRollback(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, env dbgen.Environment, channelKey string, earlier dbgen.Release, vs []dbgen.PluginVersion, opts []ChangeOption) (*breakglass.Record, error) {
+	if channelKey == "" {
+		channelKey = defaultChannel
+	}
+	subject := fmt.Sprintf("rollback of %s/%s to release %d", env.Key, channelKey, earlier.Sequence)
+	if em := emergencyOf(opts, breakglass.ActionRollback, subject, releaseHash(earlier, vs)); em != nil {
+		return s.invoke(ctx, tx, p, appID, env, em)
+	}
+	if p.Identity.Kind == auth.KindSystem {
+		return nil, nil
+	}
+	return nil, s.requirePromotion(ctx, tx, p, appID, env, channelKey, earlier, vs)
 }
 
 // requireRollbackTarget checks that the release is promoted in the

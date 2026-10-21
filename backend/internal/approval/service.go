@@ -14,6 +14,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
@@ -54,6 +55,7 @@ type Service struct {
 	reviewers map[schema.PolicyResource]Reviewer
 	profile   ProfileFunc
 	notifier  notify.Publisher
+	freezes   freeze.Guard
 }
 
 // New returns the engine.
@@ -87,6 +89,11 @@ func New(o Options) (*Service, error) {
 func (s *Service) Use(profile ProfileFunc, notifier notify.Publisher) {
 	s.profile, s.notifier = profile, notifier
 }
+
+// UseFreezes binds the guard that holds production changes back inside a
+// change-freeze window (GOV-025); without one nothing is held. Call it before
+// the engine is used.
+func (s *Service) UseFreezes(g freeze.Guard) { s.freezes = g }
 
 // Register makes r the reviewer of a resource type (GOV-023). The services
 // that supply evidence need the engine to be built, and the engine needs

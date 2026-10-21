@@ -349,6 +349,30 @@ var matrix = map[string]entry{
 		return &pluxv1.DecideApprovalRequest{AppId: f.app, Id: unknownID, Decision: "approve"}
 	})),
 
+	// BreakGlassService (GOV-024): the list needs audit.read and the review
+	// approvals.decide.
+	"BreakGlassService/ListBreakGlass": atPerm(auth.AuditRead, anyone(&pluxv1.ListBreakGlassRequest{})),
+	"BreakGlassService/ReviewBreakGlass": atPerm(auth.ApprovalsDecide, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.ReviewBreakGlassRequest{Id: unknownID}
+	})),
+
+	// FreezeService (GOV-025): reading windows needs organization.read and
+	// changing them freezes.manage. The requests are ones the domain refuses
+	// for their form after the permission is checked, so that no window is
+	// written.
+	"FreezeService/ListFreezes": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListFreezesRequest{})),
+	"FreezeService/PutFreeze":   atPerm(auth.FreezesManage, anyone(&pluxv1.PutFreezeRequest{Freeze: &pluxv1.ChangeFreeze{}})),
+	"FreezeService/DeleteFreeze": atPerm(auth.FreezesManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteFreezeRequest{Id: unknownID}
+	})),
+
+	// ComplianceService (GOV-026): every call needs compliance.report.
+	"ComplianceService/CreateComplianceReport": atPerm(auth.ComplianceReport, anyone(&pluxv1.CreateComplianceReportRequest{})),
+	"ComplianceService/GetComplianceReport": atPerm(auth.ComplianceReport, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetComplianceReportRequest{Id: unknownID, Format: "json"}
+	})),
+	"ComplianceService/ListComplianceReports": atPerm(auth.ComplianceReport, anyone(&pluxv1.ListComplianceReportsRequest{})),
+
 	// SearchService
 	"SearchService/Search": atPerm(auth.SearchRead, anyone(&pluxv1.SearchRequest{Query: "demo"})),
 
@@ -766,6 +790,14 @@ var variants = map[string]entry{
 	})),
 	"FunctionAdminService/SetAlias (production)": atPerm(auth.FunctionDeployProduction, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetAliasRequest{AppId: f.app, EnvironmentId: f.prod, Name: "matrix.fn", Alias: &pluxv1.Alias{Name: "stable", Version: 1}}
+	})),
+	// An emergency action needs break-glass on top of the call's own
+	// permission, with a fresh step-up (GOV-024, SEC-103).
+	"ControlService/SetKillSwitch (break-glass)": atPerm(auth.BreakglassInvoke, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetKillSwitchRequest{
+			AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, BreakGlass: true, Justification: "the matrix",
+			KillSwitch: &pluxv1.KillSwitchEntry{Scope: pluxv1.KillSwitchScope_KILL_SWITCH_SCOPE_PLUGIN, Target: "loans"},
+		}
 	})),
 	// Taking a lock another session holds is a separate permission.
 	"PluginService/AcquireLock (force)": atPerm(auth.PluginLockOverride, fixed(func(f *matrixFixture) proto.Message {

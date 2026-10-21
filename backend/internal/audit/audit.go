@@ -273,6 +273,26 @@ const (
 	ApprovalUsed Action = "approval.used"
 )
 
+// The actions of break-glass, change freezes and compliance reports
+// (GOV-024 to GOV-026, ADR-0076).
+const (
+	// BreakGlassInvoked: an emergency action was taken without prior
+	// approval, with its justification.
+	BreakGlassInvoked Action = "breakglass.invoked"
+	// BreakGlassReviewed: the post-hoc review of an emergency action was
+	// completed.
+	BreakGlassReviewed Action = "breakglass.reviewed"
+	// BreakGlassOverdue: a post-hoc review passed its due time still open
+	// and was escalated (PLX-8006).
+	BreakGlassOverdue Action = "breakglass.review_overdue"
+	// FreezeSet and FreezeDeleted: a change-freeze window was written or
+	// removed.
+	FreezeSet     Action = "freeze.set"
+	FreezeDeleted Action = "freeze.deleted"
+	// ComplianceReportCreated: a compliance report was requested.
+	ComplianceReportCreated Action = "compliance.report_created"
+)
+
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
 const (
 	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
@@ -427,6 +447,7 @@ var actions = sorted(
 	FlagCreated, FlagUpdated, FlagDeleted, ExperimentCreated, ExperimentDeleted,
 	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,
 	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
+	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
 )
 
 // sorted returns its arguments in order.

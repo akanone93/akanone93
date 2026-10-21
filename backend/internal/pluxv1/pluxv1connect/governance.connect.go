@@ -28,6 +28,12 @@ const (
 	GovernanceServiceName = "plux.v1.GovernanceService"
 	// ApprovalServiceName is the fully-qualified name of the ApprovalService service.
 	ApprovalServiceName = "plux.v1.ApprovalService"
+	// BreakGlassServiceName is the fully-qualified name of the BreakGlassService service.
+	BreakGlassServiceName = "plux.v1.BreakGlassService"
+	// FreezeServiceName is the fully-qualified name of the FreezeService service.
+	FreezeServiceName = "plux.v1.FreezeService"
+	// ComplianceServiceName is the fully-qualified name of the ComplianceService service.
+	ComplianceServiceName = "plux.v1.ComplianceService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -95,6 +101,29 @@ const (
 	// ApprovalServiceDecideApprovalProcedure is the fully-qualified name of the ApprovalService's
 	// DecideApproval RPC.
 	ApprovalServiceDecideApprovalProcedure = "/plux.v1.ApprovalService/DecideApproval"
+	// BreakGlassServiceListBreakGlassProcedure is the fully-qualified name of the BreakGlassService's
+	// ListBreakGlass RPC.
+	BreakGlassServiceListBreakGlassProcedure = "/plux.v1.BreakGlassService/ListBreakGlass"
+	// BreakGlassServiceReviewBreakGlassProcedure is the fully-qualified name of the BreakGlassService's
+	// ReviewBreakGlass RPC.
+	BreakGlassServiceReviewBreakGlassProcedure = "/plux.v1.BreakGlassService/ReviewBreakGlass"
+	// FreezeServiceListFreezesProcedure is the fully-qualified name of the FreezeService's ListFreezes
+	// RPC.
+	FreezeServiceListFreezesProcedure = "/plux.v1.FreezeService/ListFreezes"
+	// FreezeServicePutFreezeProcedure is the fully-qualified name of the FreezeService's PutFreeze RPC.
+	FreezeServicePutFreezeProcedure = "/plux.v1.FreezeService/PutFreeze"
+	// FreezeServiceDeleteFreezeProcedure is the fully-qualified name of the FreezeService's
+	// DeleteFreeze RPC.
+	FreezeServiceDeleteFreezeProcedure = "/plux.v1.FreezeService/DeleteFreeze"
+	// ComplianceServiceCreateComplianceReportProcedure is the fully-qualified name of the
+	// ComplianceService's CreateComplianceReport RPC.
+	ComplianceServiceCreateComplianceReportProcedure = "/plux.v1.ComplianceService/CreateComplianceReport"
+	// ComplianceServiceGetComplianceReportProcedure is the fully-qualified name of the
+	// ComplianceService's GetComplianceReport RPC.
+	ComplianceServiceGetComplianceReportProcedure = "/plux.v1.ComplianceService/GetComplianceReport"
+	// ComplianceServiceListComplianceReportsProcedure is the fully-qualified name of the
+	// ComplianceService's ListComplianceReports RPC.
+	ComplianceServiceListComplianceReportsProcedure = "/plux.v1.ComplianceService/ListComplianceReports"
 )
 
 // GovernanceServiceClient is a client for the plux.v1.GovernanceService service.
@@ -733,4 +762,378 @@ func (UnimplementedApprovalServiceHandler) GetApprovalReview(context.Context, *c
 
 func (UnimplementedApprovalServiceHandler) DecideApproval(context.Context, *connect.Request[pluxv1.DecideApprovalRequest]) (*connect.Response[pluxv1.DecideApprovalResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.DecideApproval is not implemented"))
+}
+
+// BreakGlassServiceClient is a client for the plux.v1.BreakGlassService service.
+type BreakGlassServiceClient interface {
+	// ListBreakGlass lists the emergency actions of the organisation, newest
+	// first. It needs audit.read.
+	ListBreakGlass(context.Context, *connect.Request[pluxv1.ListBreakGlassRequest]) (*connect.Response[pluxv1.ListBreakGlassResponse], error)
+	// ReviewBreakGlass completes the post-hoc review of an action. It needs
+	// approvals.decide with a fresh step-up (SEC-103); whoever took the action
+	// cannot review it (PLX-8003).
+	ReviewBreakGlass(context.Context, *connect.Request[pluxv1.ReviewBreakGlassRequest]) (*connect.Response[pluxv1.ReviewBreakGlassResponse], error)
+}
+
+// NewBreakGlassServiceClient constructs a client for the plux.v1.BreakGlassService service. By
+// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
+// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewBreakGlassServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BreakGlassServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	breakGlassServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("BreakGlassService").Methods()
+	return &breakGlassServiceClient{
+		listBreakGlass: connect.NewClient[pluxv1.ListBreakGlassRequest, pluxv1.ListBreakGlassResponse](
+			httpClient,
+			baseURL+BreakGlassServiceListBreakGlassProcedure,
+			connect.WithSchema(breakGlassServiceMethods.ByName("ListBreakGlass")),
+			connect.WithClientOptions(opts...),
+		),
+		reviewBreakGlass: connect.NewClient[pluxv1.ReviewBreakGlassRequest, pluxv1.ReviewBreakGlassResponse](
+			httpClient,
+			baseURL+BreakGlassServiceReviewBreakGlassProcedure,
+			connect.WithSchema(breakGlassServiceMethods.ByName("ReviewBreakGlass")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// breakGlassServiceClient implements BreakGlassServiceClient.
+type breakGlassServiceClient struct {
+	listBreakGlass   *connect.Client[pluxv1.ListBreakGlassRequest, pluxv1.ListBreakGlassResponse]
+	reviewBreakGlass *connect.Client[pluxv1.ReviewBreakGlassRequest, pluxv1.ReviewBreakGlassResponse]
+}
+
+// ListBreakGlass calls plux.v1.BreakGlassService.ListBreakGlass.
+func (c *breakGlassServiceClient) ListBreakGlass(ctx context.Context, req *connect.Request[pluxv1.ListBreakGlassRequest]) (*connect.Response[pluxv1.ListBreakGlassResponse], error) {
+	return c.listBreakGlass.CallUnary(ctx, req)
+}
+
+// ReviewBreakGlass calls plux.v1.BreakGlassService.ReviewBreakGlass.
+func (c *breakGlassServiceClient) ReviewBreakGlass(ctx context.Context, req *connect.Request[pluxv1.ReviewBreakGlassRequest]) (*connect.Response[pluxv1.ReviewBreakGlassResponse], error) {
+	return c.reviewBreakGlass.CallUnary(ctx, req)
+}
+
+// BreakGlassServiceHandler is an implementation of the plux.v1.BreakGlassService service.
+type BreakGlassServiceHandler interface {
+	// ListBreakGlass lists the emergency actions of the organisation, newest
+	// first. It needs audit.read.
+	ListBreakGlass(context.Context, *connect.Request[pluxv1.ListBreakGlassRequest]) (*connect.Response[pluxv1.ListBreakGlassResponse], error)
+	// ReviewBreakGlass completes the post-hoc review of an action. It needs
+	// approvals.decide with a fresh step-up (SEC-103); whoever took the action
+	// cannot review it (PLX-8003).
+	ReviewBreakGlass(context.Context, *connect.Request[pluxv1.ReviewBreakGlassRequest]) (*connect.Response[pluxv1.ReviewBreakGlassResponse], error)
+}
+
+// NewBreakGlassServiceHandler builds an HTTP handler from the service implementation. It returns
+// the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewBreakGlassServiceHandler(svc BreakGlassServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	breakGlassServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("BreakGlassService").Methods()
+	breakGlassServiceListBreakGlassHandler := connect.NewUnaryHandler(
+		BreakGlassServiceListBreakGlassProcedure,
+		svc.ListBreakGlass,
+		connect.WithSchema(breakGlassServiceMethods.ByName("ListBreakGlass")),
+		connect.WithHandlerOptions(opts...),
+	)
+	breakGlassServiceReviewBreakGlassHandler := connect.NewUnaryHandler(
+		BreakGlassServiceReviewBreakGlassProcedure,
+		svc.ReviewBreakGlass,
+		connect.WithSchema(breakGlassServiceMethods.ByName("ReviewBreakGlass")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/plux.v1.BreakGlassService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case BreakGlassServiceListBreakGlassProcedure:
+			breakGlassServiceListBreakGlassHandler.ServeHTTP(w, r)
+		case BreakGlassServiceReviewBreakGlassProcedure:
+			breakGlassServiceReviewBreakGlassHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedBreakGlassServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedBreakGlassServiceHandler struct{}
+
+func (UnimplementedBreakGlassServiceHandler) ListBreakGlass(context.Context, *connect.Request[pluxv1.ListBreakGlassRequest]) (*connect.Response[pluxv1.ListBreakGlassResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.BreakGlassService.ListBreakGlass is not implemented"))
+}
+
+func (UnimplementedBreakGlassServiceHandler) ReviewBreakGlass(context.Context, *connect.Request[pluxv1.ReviewBreakGlassRequest]) (*connect.Response[pluxv1.ReviewBreakGlassResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.BreakGlassService.ReviewBreakGlass is not implemented"))
+}
+
+// FreezeServiceClient is a client for the plux.v1.FreezeService service.
+type FreezeServiceClient interface {
+	// ListFreezes lists the windows of the organisation. It needs
+	// organization.read.
+	ListFreezes(context.Context, *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error)
+	// PutFreeze creates a window, or replaces the one of the same name. It
+	// needs freezes.manage. The window is checked by the calendar (PLX-1005
+	// for a window that cannot be evaluated).
+	PutFreeze(context.Context, *connect.Request[pluxv1.PutFreezeRequest]) (*connect.Response[pluxv1.PutFreezeResponse], error)
+	// DeleteFreeze removes a window. It needs freezes.manage.
+	DeleteFreeze(context.Context, *connect.Request[pluxv1.DeleteFreezeRequest]) (*connect.Response[pluxv1.DeleteFreezeResponse], error)
+}
+
+// NewFreezeServiceClient constructs a client for the plux.v1.FreezeService service. By default, it
+// uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and sends
+// uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or
+// connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewFreezeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) FreezeServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	freezeServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("FreezeService").Methods()
+	return &freezeServiceClient{
+		listFreezes: connect.NewClient[pluxv1.ListFreezesRequest, pluxv1.ListFreezesResponse](
+			httpClient,
+			baseURL+FreezeServiceListFreezesProcedure,
+			connect.WithSchema(freezeServiceMethods.ByName("ListFreezes")),
+			connect.WithClientOptions(opts...),
+		),
+		putFreeze: connect.NewClient[pluxv1.PutFreezeRequest, pluxv1.PutFreezeResponse](
+			httpClient,
+			baseURL+FreezeServicePutFreezeProcedure,
+			connect.WithSchema(freezeServiceMethods.ByName("PutFreeze")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteFreeze: connect.NewClient[pluxv1.DeleteFreezeRequest, pluxv1.DeleteFreezeResponse](
+			httpClient,
+			baseURL+FreezeServiceDeleteFreezeProcedure,
+			connect.WithSchema(freezeServiceMethods.ByName("DeleteFreeze")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// freezeServiceClient implements FreezeServiceClient.
+type freezeServiceClient struct {
+	listFreezes  *connect.Client[pluxv1.ListFreezesRequest, pluxv1.ListFreezesResponse]
+	putFreeze    *connect.Client[pluxv1.PutFreezeRequest, pluxv1.PutFreezeResponse]
+	deleteFreeze *connect.Client[pluxv1.DeleteFreezeRequest, pluxv1.DeleteFreezeResponse]
+}
+
+// ListFreezes calls plux.v1.FreezeService.ListFreezes.
+func (c *freezeServiceClient) ListFreezes(ctx context.Context, req *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error) {
+	return c.listFreezes.CallUnary(ctx, req)
+}
+
+// PutFreeze calls plux.v1.FreezeService.PutFreeze.
+func (c *freezeServiceClient) PutFreeze(ctx context.Context, req *connect.Request[pluxv1.PutFreezeRequest]) (*connect.Response[pluxv1.PutFreezeResponse], error) {
+	return c.putFreeze.CallUnary(ctx, req)
+}
+
+// DeleteFreeze calls plux.v1.FreezeService.DeleteFreeze.
+func (c *freezeServiceClient) DeleteFreeze(ctx context.Context, req *connect.Request[pluxv1.DeleteFreezeRequest]) (*connect.Response[pluxv1.DeleteFreezeResponse], error) {
+	return c.deleteFreeze.CallUnary(ctx, req)
+}
+
+// FreezeServiceHandler is an implementation of the plux.v1.FreezeService service.
+type FreezeServiceHandler interface {
+	// ListFreezes lists the windows of the organisation. It needs
+	// organization.read.
+	ListFreezes(context.Context, *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error)
+	// PutFreeze creates a window, or replaces the one of the same name. It
+	// needs freezes.manage. The window is checked by the calendar (PLX-1005
+	// for a window that cannot be evaluated).
+	PutFreeze(context.Context, *connect.Request[pluxv1.PutFreezeRequest]) (*connect.Response[pluxv1.PutFreezeResponse], error)
+	// DeleteFreeze removes a window. It needs freezes.manage.
+	DeleteFreeze(context.Context, *connect.Request[pluxv1.DeleteFreezeRequest]) (*connect.Response[pluxv1.DeleteFreezeResponse], error)
+}
+
+// NewFreezeServiceHandler builds an HTTP handler from the service implementation. It returns the
+// path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewFreezeServiceHandler(svc FreezeServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	freezeServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("FreezeService").Methods()
+	freezeServiceListFreezesHandler := connect.NewUnaryHandler(
+		FreezeServiceListFreezesProcedure,
+		svc.ListFreezes,
+		connect.WithSchema(freezeServiceMethods.ByName("ListFreezes")),
+		connect.WithHandlerOptions(opts...),
+	)
+	freezeServicePutFreezeHandler := connect.NewUnaryHandler(
+		FreezeServicePutFreezeProcedure,
+		svc.PutFreeze,
+		connect.WithSchema(freezeServiceMethods.ByName("PutFreeze")),
+		connect.WithHandlerOptions(opts...),
+	)
+	freezeServiceDeleteFreezeHandler := connect.NewUnaryHandler(
+		FreezeServiceDeleteFreezeProcedure,
+		svc.DeleteFreeze,
+		connect.WithSchema(freezeServiceMethods.ByName("DeleteFreeze")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/plux.v1.FreezeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case FreezeServiceListFreezesProcedure:
+			freezeServiceListFreezesHandler.ServeHTTP(w, r)
+		case FreezeServicePutFreezeProcedure:
+			freezeServicePutFreezeHandler.ServeHTTP(w, r)
+		case FreezeServiceDeleteFreezeProcedure:
+			freezeServiceDeleteFreezeHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedFreezeServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedFreezeServiceHandler struct{}
+
+func (UnimplementedFreezeServiceHandler) ListFreezes(context.Context, *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FreezeService.ListFreezes is not implemented"))
+}
+
+func (UnimplementedFreezeServiceHandler) PutFreeze(context.Context, *connect.Request[pluxv1.PutFreezeRequest]) (*connect.Response[pluxv1.PutFreezeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FreezeService.PutFreeze is not implemented"))
+}
+
+func (UnimplementedFreezeServiceHandler) DeleteFreeze(context.Context, *connect.Request[pluxv1.DeleteFreezeRequest]) (*connect.Response[pluxv1.DeleteFreezeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FreezeService.DeleteFreeze is not implemented"))
+}
+
+// ComplianceServiceClient is a client for the plux.v1.ComplianceService service.
+type ComplianceServiceClient interface {
+	// CreateComplianceReport gathers the production changes of a period into a
+	// report. The server's worker signs it a moment later; poll
+	// GetComplianceReport. It needs compliance.report.
+	CreateComplianceReport(context.Context, *connect.Request[pluxv1.CreateComplianceReportRequest]) (*connect.Response[pluxv1.CreateComplianceReportResponse], error)
+	// GetComplianceReport returns a report as JSON (the signed envelope) or
+	// as PDF. It needs compliance.report.
+	GetComplianceReport(context.Context, *connect.Request[pluxv1.GetComplianceReportRequest]) (*connect.Response[pluxv1.GetComplianceReportResponse], error)
+	// ListComplianceReports lists the reports requested, newest first.
+	ListComplianceReports(context.Context, *connect.Request[pluxv1.ListComplianceReportsRequest]) (*connect.Response[pluxv1.ListComplianceReportsResponse], error)
+}
+
+// NewComplianceServiceClient constructs a client for the plux.v1.ComplianceService service. By
+// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
+// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewComplianceServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ComplianceServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	complianceServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("ComplianceService").Methods()
+	return &complianceServiceClient{
+		createComplianceReport: connect.NewClient[pluxv1.CreateComplianceReportRequest, pluxv1.CreateComplianceReportResponse](
+			httpClient,
+			baseURL+ComplianceServiceCreateComplianceReportProcedure,
+			connect.WithSchema(complianceServiceMethods.ByName("CreateComplianceReport")),
+			connect.WithClientOptions(opts...),
+		),
+		getComplianceReport: connect.NewClient[pluxv1.GetComplianceReportRequest, pluxv1.GetComplianceReportResponse](
+			httpClient,
+			baseURL+ComplianceServiceGetComplianceReportProcedure,
+			connect.WithSchema(complianceServiceMethods.ByName("GetComplianceReport")),
+			connect.WithClientOptions(opts...),
+		),
+		listComplianceReports: connect.NewClient[pluxv1.ListComplianceReportsRequest, pluxv1.ListComplianceReportsResponse](
+			httpClient,
+			baseURL+ComplianceServiceListComplianceReportsProcedure,
+			connect.WithSchema(complianceServiceMethods.ByName("ListComplianceReports")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// complianceServiceClient implements ComplianceServiceClient.
+type complianceServiceClient struct {
+	createComplianceReport *connect.Client[pluxv1.CreateComplianceReportRequest, pluxv1.CreateComplianceReportResponse]
+	getComplianceReport    *connect.Client[pluxv1.GetComplianceReportRequest, pluxv1.GetComplianceReportResponse]
+	listComplianceReports  *connect.Client[pluxv1.ListComplianceReportsRequest, pluxv1.ListComplianceReportsResponse]
+}
+
+// CreateComplianceReport calls plux.v1.ComplianceService.CreateComplianceReport.
+func (c *complianceServiceClient) CreateComplianceReport(ctx context.Context, req *connect.Request[pluxv1.CreateComplianceReportRequest]) (*connect.Response[pluxv1.CreateComplianceReportResponse], error) {
+	return c.createComplianceReport.CallUnary(ctx, req)
+}
+
+// GetComplianceReport calls plux.v1.ComplianceService.GetComplianceReport.
+func (c *complianceServiceClient) GetComplianceReport(ctx context.Context, req *connect.Request[pluxv1.GetComplianceReportRequest]) (*connect.Response[pluxv1.GetComplianceReportResponse], error) {
+	return c.getComplianceReport.CallUnary(ctx, req)
+}
+
+// ListComplianceReports calls plux.v1.ComplianceService.ListComplianceReports.
+func (c *complianceServiceClient) ListComplianceReports(ctx context.Context, req *connect.Request[pluxv1.ListComplianceReportsRequest]) (*connect.Response[pluxv1.ListComplianceReportsResponse], error) {
+	return c.listComplianceReports.CallUnary(ctx, req)
+}
+
+// ComplianceServiceHandler is an implementation of the plux.v1.ComplianceService service.
+type ComplianceServiceHandler interface {
+	// CreateComplianceReport gathers the production changes of a period into a
+	// report. The server's worker signs it a moment later; poll
+	// GetComplianceReport. It needs compliance.report.
+	CreateComplianceReport(context.Context, *connect.Request[pluxv1.CreateComplianceReportRequest]) (*connect.Response[pluxv1.CreateComplianceReportResponse], error)
+	// GetComplianceReport returns a report as JSON (the signed envelope) or
+	// as PDF. It needs compliance.report.
+	GetComplianceReport(context.Context, *connect.Request[pluxv1.GetComplianceReportRequest]) (*connect.Response[pluxv1.GetComplianceReportResponse], error)
+	// ListComplianceReports lists the reports requested, newest first.
+	ListComplianceReports(context.Context, *connect.Request[pluxv1.ListComplianceReportsRequest]) (*connect.Response[pluxv1.ListComplianceReportsResponse], error)
+}
+
+// NewComplianceServiceHandler builds an HTTP handler from the service implementation. It returns
+// the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewComplianceServiceHandler(svc ComplianceServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	complianceServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("ComplianceService").Methods()
+	complianceServiceCreateComplianceReportHandler := connect.NewUnaryHandler(
+		ComplianceServiceCreateComplianceReportProcedure,
+		svc.CreateComplianceReport,
+		connect.WithSchema(complianceServiceMethods.ByName("CreateComplianceReport")),
+		connect.WithHandlerOptions(opts...),
+	)
+	complianceServiceGetComplianceReportHandler := connect.NewUnaryHandler(
+		ComplianceServiceGetComplianceReportProcedure,
+		svc.GetComplianceReport,
+		connect.WithSchema(complianceServiceMethods.ByName("GetComplianceReport")),
+		connect.WithHandlerOptions(opts...),
+	)
+	complianceServiceListComplianceReportsHandler := connect.NewUnaryHandler(
+		ComplianceServiceListComplianceReportsProcedure,
+		svc.ListComplianceReports,
+		connect.WithSchema(complianceServiceMethods.ByName("ListComplianceReports")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/plux.v1.ComplianceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ComplianceServiceCreateComplianceReportProcedure:
+			complianceServiceCreateComplianceReportHandler.ServeHTTP(w, r)
+		case ComplianceServiceGetComplianceReportProcedure:
+			complianceServiceGetComplianceReportHandler.ServeHTTP(w, r)
+		case ComplianceServiceListComplianceReportsProcedure:
+			complianceServiceListComplianceReportsHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedComplianceServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedComplianceServiceHandler struct{}
+
+func (UnimplementedComplianceServiceHandler) CreateComplianceReport(context.Context, *connect.Request[pluxv1.CreateComplianceReportRequest]) (*connect.Response[pluxv1.CreateComplianceReportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComplianceService.CreateComplianceReport is not implemented"))
+}
+
+func (UnimplementedComplianceServiceHandler) GetComplianceReport(context.Context, *connect.Request[pluxv1.GetComplianceReportRequest]) (*connect.Response[pluxv1.GetComplianceReportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComplianceService.GetComplianceReport is not implemented"))
+}
+
+func (UnimplementedComplianceServiceHandler) ListComplianceReports(context.Context, *connect.Request[pluxv1.ListComplianceReportsRequest]) (*connect.Response[pluxv1.ListComplianceReportsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComplianceService.ListComplianceReports is not implemented"))
 }

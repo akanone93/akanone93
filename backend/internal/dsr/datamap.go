@@ -241,6 +241,26 @@ func personalDataMap() []Store {
 			Note: "Kept as compliance evidence (GOV-026): each decision is a signed record chained into the audit log, which erasure would break (SEC-140).",
 		},
 		{
+			Name: "break_glass_invocations", Description: "Emergency actions taken without prior approval, with the justification and the post-hoc review (GOV-024).",
+			Personal: []string{"invoked_by_id", "invoked_by", "reviewed_by_id", "reviewed_by"}, Retention: retentionAudit, Erase: EraseRetained,
+			Note: "Kept as compliance evidence (GOV-026), like the audit log. People appear by identifier and display name, never an email address; the justification is free text written by the person who acted.",
+		},
+		{
+			Name: "production_changes", Description: "The ledger of production changes compliance reports are read from, with who made and who wrote each (GOV-026).",
+			Personal: []string{"author_id", "changed_by_id", "changed_by"}, Retention: retentionAudit, Erase: EraseRetained,
+			Note: "Kept as compliance evidence (GOV-026), like the audit log. People appear by identifier and display name, never an email address.",
+		},
+		{
+			Name: "change_freezes", Description: "Change-freeze windows of an organisation (GOV-025).",
+			Personal: []string{"created_by"}, Retention: "Until the window is deleted.", Erase: EraseNone,
+			Note: "Holds the display name of the administrator who last wrote the window; the window itself is not about a person.",
+		},
+		{
+			Name: "compliance_reports", Description: "Stored compliance report statements and their signatures (GOV-026).",
+			Personal: []string{"requested_by_id", "requested_by"}, Retention: retentionAudit, Erase: EraseRetained,
+			Note: "Kept as compliance evidence (GOV-026). The signed statement names people by identifier and display name only, and is never rewritten, because the signature covers it.",
+		},
+		{
 			Name: "golden_cases", Description: "Golden-test cases of an app.",
 			Retention: "Until the case is deleted.", Erase: EraseNone,
 			Note: "locale is the language the case renders in, not a person's locale.",

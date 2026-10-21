@@ -95,6 +95,9 @@ func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (
 		if err := authorizeControl(p, c.AppID, env.Key); err != nil {
 			return err
 		}
+		if _, err := s.gateChange(ctx, tx, p, c.AppID, env, nil); err != nil {
+			return err
+		}
 		ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(c.ChannelKey)})
 		if err != nil {
 			return failure(err, "channel")

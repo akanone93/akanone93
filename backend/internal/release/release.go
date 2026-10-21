@@ -27,6 +27,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -90,6 +91,11 @@ type Options struct {
 	// Approvals decides whether a release may be promoted (GOV-020); nil
 	// requires nothing.
 	Approvals approval.Gate
+	// BreakGlass records emergency actions (GOV-024); nil refuses them.
+	BreakGlass Emergency
+	// Freezes holds production changes back inside a change-freeze window
+	// (GOV-025); nil holds nothing.
+	Freezes freeze.Guard
 	// Goldens supplies the golden-image differences of a review (GOV-023);
 	// nil leaves them out.
 	Goldens *golden.Service

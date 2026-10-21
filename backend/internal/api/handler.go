@@ -19,10 +19,13 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
+	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dsr"
 	"github.com/nightCode42/plux3/backend/internal/experiment"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
@@ -56,6 +59,14 @@ type Handlers struct {
 	// Approvals serves ApprovalService (GOV-020 to GOV-023); nil leaves it
 	// unmounted.
 	Approvals *approval.Service
+	// Emergencies serves BreakGlassService (GOV-024); nil leaves it
+	// unmounted.
+	Emergencies *breakglass.Service
+	// Freezes serves FreezeService (GOV-025); nil leaves it unmounted.
+	Freezes *freeze.Service
+	// Reports serves ComplianceService (GOV-026); nil leaves it
+	// unmounted.
+	Reports *compliance.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
 	Goldens *golden.Service
 	// Searches serves SearchService (SRV-061); nil leaves it unmounted.

@@ -201,6 +201,12 @@ message RollbackReleaseRequest {
   // to_sequence is the earlier release whose content to reproduce.
   int64 to_sequence = 4;
   string notes = 5;
+  // break_glass runs the change as an emergency action without the freeze
+  // and approval checks, and needs breakglass.invoke on the environment with
+  // a fresh step-up (GOV-024, SEC-103). justification is then required
+  // (PLX-8005); it is refused without break_glass.
+  bool break_glass = 6;
+  string justification = 7;
 }
 message RollbackReleaseResponse {
   Release release = 1;

@@ -876,8 +876,27 @@ func (cl *clients) download(ctx context.Context, sha string) ([]byte, error) {
 	return data, nil
 }
 
+// moveOptions are what a promotion or a rollback takes besides where it goes.
+type moveOptions struct {
+	notes string
+	wait  time.Duration
+	// bg makes a rollback an emergency action (GOV-024).
+	bg breakGlassFlags
+}
+
+// checkBreakGlass refuses the break-glass flags on anything but a rollback:
+// a promotion is not an emergency action, and silently ignoring the flags
+// would let someone believe it was made as one.
+func checkBreakGlass(sub string, bg breakGlassFlags) error {
+	if sub != "rollback" && (bg.on || bg.justification != "") {
+		return usageError("--break-glass applies to rollback only")
+	}
+	return bg.check()
+}
+
 // releaseMove promotes a release, or rolls a channel back to one.
-func (e env) releaseMove(ctx context.Context, cl *clients, c common, sub, arg, envID, envKey, channel, notes string, wait time.Duration) int {
+func (e env) releaseMove(ctx context.Context, cl *clients, c common, sub, arg, envID, envKey, channel string, o moveOptions) int {
+	notes, wait := o.notes, o.wait
 	if envID == "" {
 		return e.fail("release", usageError("--env is required"))
 	}
@@ -895,7 +914,7 @@ func (e env) releaseMove(ctx context.Context, cl *clients, c common, sub, arg, e
 		return e.emit(c.json, map[string]any{"sequence": seq, "environment": envKey, "channel": firstOf(channel, "production")},
 			fmt.Sprintf("Release %d is now on %s/%s.", seq, envKey, firstOf(channel, "production")))
 	}
-	res, err := cl.release.RollbackRelease(ctx, connect.NewRequest(&pluxv1.RollbackReleaseRequest{AppId: c.app, EnvironmentId: envID, ChannelKey: channel, ToSequence: seq, Notes: notes}))
+	res, err := cl.release.RollbackRelease(ctx, connect.NewRequest(&pluxv1.RollbackReleaseRequest{AppId: c.app, EnvironmentId: envID, ChannelKey: channel, ToSequence: seq, Notes: notes, BreakGlass: o.bg.on, Justification: o.bg.justification}))
 	if err != nil {
 		return e.fail("release", err)
 	}
@@ -1018,6 +1037,8 @@ func (e env) release(args []string) int {
 	channel := set.String("channel", "", "the channel `key` (default production)")
 	notes := set.String("notes", "", "notes for a rollback")
 	wait := set.Duration("wait", defaultSignWait, "how long to wait for the signed manifest; 0 does not wait")
+	var bg breakGlassFlags
+	bg.register(set)
 	kind := set.String("kind", "accessibility", "the report: accessibility or localisation")
 	format := set.String("format", "json", "the report format: json or html")
 	out := set.String("out", "", "write the report to this `file` instead of standard output")
@@ -1029,7 +1050,7 @@ func (e env) release(args []string) int {
 	case "promote":
 		usage, positional = "Usage: plux release promote --env key [--channel key] [--wait duration] [-C dir] [--json] <sequence>", 1
 	case "rollback":
-		usage, positional = "Usage: plux release rollback --env key [--channel key] [--notes text] [--wait duration] [-C dir] [--json] <to-sequence>", 1
+		usage, positional = "Usage: plux release rollback --env key [--channel key] [--notes text] [--break-glass --justification text] [--wait duration] [-C dir] [--json] <to-sequence>", 1
 	case "report":
 		usage, positional = "Usage: plux release report [--kind accessibility|localisation] [--format json|html] [--out file] [-C dir] <sequence>", 1
 	default:
@@ -1044,6 +1065,9 @@ func (e env) release(args []string) int {
 		return e.fail("release", err)
 	}
 	if err := needApp(c); err != nil {
+		return e.fail("release", err)
+	}
+	if err := checkBreakGlass(args[0], bg); err != nil {
 		return e.fail("release", err)
 	}
 	cl, err := e.connect(c, true)
@@ -1063,5 +1087,5 @@ func (e env) release(args []string) int {
 	if args[0] == "report" {
 		return e.releaseReport(ctx, cl, c, rest[0], *kind, *format, *out)
 	}
-	return e.releaseMove(ctx, cl, c, args[0], rest[0], envID, *envKey, *channel, *notes, *wait)
+	return e.releaseMove(ctx, cl, c, args[0], rest[0], envID, *envKey, *channel, moveOptions{notes: *notes, wait: *wait, bg: bg})
 }

@@ -88,6 +88,14 @@ func buildScheduler(svc *Services, log *slog.Logger, db *storage.DB) (*scheduler
 			_, err := svc.Approvals.SignDecisions(ctx, org)
 			return err //nolint:wrapcheck // a domain error
 		}},
+		scheduler.JobFunc{Label: "break-glass review escalation", F: func(ctx context.Context, org string) error {
+			_, err := svc.BreakGlass.Escalate(ctx, org)
+			return err //nolint:wrapcheck // a domain error
+		}},
+		scheduler.JobFunc{Label: "compliance report signatures", F: func(ctx context.Context, org string) error {
+			_, err := svc.Reports.Sign(ctx, org)
+			return err //nolint:wrapcheck // a domain error
+		}},
 		scheduler.JobFunc{Label: "notification deliveries", F: func(ctx context.Context, org string) error {
 			_, err := svc.Notify.DeliverDue(ctx, org)
 			return err //nolint:wrapcheck // a domain error

@@ -283,6 +283,18 @@ enum PluxLimit {
   goldenCasesPerRun('golden.casesPerRun', PluxLimitUnit.count, 500, 0, 10000),
   /// Size of one golden image.
   goldenImageBytes('golden.imageBytes', PluxLimitUnit.bytes, 2097152, 0, 16777216),
+  /// Hours after a break-glass action within which its post-hoc review is due;
+  /// an overdue review is escalated (PLX-8006).
+  governanceBreakGlassReviewHours('governance.breakGlassReviewHours', PluxLimitUnit.count, 24, 0, 720),
+  /// Longest a change-freeze window may last, in hours.
+  governanceFreezeWindowHours('governance.freezeWindowHours', PluxLimitUnit.count, 720, 0, 8760),
+  /// Change-freeze windows one organisation may define.
+  governanceFreezeWindowsPerOrg('governance.freezeWindowsPerOrg', PluxLimitUnit.count, 50, 0, 1000),
+  /// Length of the written justification of a break-glass action.
+  governanceJustificationLength('governance.justificationLength', PluxLimitUnit.codepoints, 2000, 0, 20000),
+  /// Production changes one compliance report may list; a longer period is
+  /// refused and is split into shorter ones.
+  governanceReportChanges('governance.reportChanges', PluxLimitUnit.count, 20000, 0, 1000000),
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
