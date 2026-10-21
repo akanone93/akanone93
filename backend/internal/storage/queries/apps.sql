@@ -8,10 +8,12 @@ SELECT * FROM apps WHERE id = $1 AND deleted_at IS NULL;
 
 -- name: ListApps :many
 -- only_ids, when not NULL, restricts the list to the apps a caller was
--- granted one by one (GOV-001).
+-- granted one by one (GOV-001); except_ids leaves out the apps a restriction
+-- takes app.read away from (GOV-006).
 SELECT * FROM apps
  WHERE organization_id = $1 AND deleted_at IS NULL
    AND (sqlc.narg(only_ids)::uuid[] IS NULL OR id = ANY (sqlc.narg(only_ids)::uuid[]))
+   AND NOT (id = ANY (sqlc.arg(except_ids)::uuid[]))
    AND (key, id) > (sqlc.arg(after_key)::text, sqlc.arg(after_id)::uuid)
  ORDER BY key, id
  LIMIT sqlc.arg(page_size);
@@ -165,7 +167,7 @@ SELECT * FROM app_access WHERE app_id = $1 AND id > sqlc.arg(after_id)::uuid ORD
 
 -- name: ListAppRolesForUser :many
 -- The app roles a user holds directly or through a team (GOV-001).
-SELECT a.app_id, a.role FROM app_access a
+SELECT a.id, a.app_id, a.role FROM app_access a
  WHERE a.organization_id = $1
    AND (a.user_id = sqlc.arg(user_id)::uuid
         OR a.team_id IN (SELECT m.team_id FROM memberships m

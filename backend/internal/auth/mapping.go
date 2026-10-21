@@ -381,7 +381,7 @@ func desiredIn(ctx context.Context, q *dbgen.Queries, rules []MappingRule) (map[
 // reconcileOrg brings one organisation's assignments of a person in line
 // with the rules that apply there.
 func (s *Service) reconcileOrg(ctx context.Context, prov dbgen.IdentityProvider, user pgtype.UUID, orgID string, rules []MappingRule, existing []dbgen.ListFederatedAssignmentsOfUserRow) error {
-	return s.inTx(ctx, storage.Tenant{OrganizationID: orgID}, func(ctx context.Context, tx pgx.Tx) error {
+	return s.inTxChanging(ctx, storage.Tenant{OrganizationID: orgID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		grants, teams, err := desiredIn(ctx, q, rules)
 		if err != nil {
@@ -531,7 +531,7 @@ func (s *Service) dropProviderAssignments(ctx context.Context, provider pgtype.U
 		return err
 	}
 	for org, rows := range byOrg {
-		err := s.inTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+		err := s.inTxChanging(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 			q := dbgen.New(tx)
 			for _, r := range rows {
 				if r.RoleGrantID.Valid {

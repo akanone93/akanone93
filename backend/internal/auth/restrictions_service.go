@@ -65,11 +65,16 @@ func restrictionsApplying(ctx context.Context, q *dbgen.Queries, org, user pgtyp
 }
 
 // restrictionsOf is restrictionsApplying in a transaction of its own, for an
-// identity that has no grants to read, such as a workload.
-func (s *Service) restrictionsOf(ctx context.Context, organizationID string, org, user pgtype.UUID) ([]Restriction, error) {
-	var out []Restriction
+// identity that has no grants to read, such as a workload. It reads the
+// permissions version first, like loadGrants.
+func (s *Service) restrictionsOf(ctx context.Context, organizationID string, org, user pgtype.UUID) (loadedGrants, error) {
+	var out loadedGrants
 	err := s.inTx(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) (err error) {
-		out, err = restrictionsApplying(ctx, dbgen.New(tx), org, user)
+		q := dbgen.New(tx)
+		if out.version, err = q.GetPermissionsVersion(ctx, org); err != nil {
+			return fmt.Errorf("auth: read the permissions version: %w", err)
+		}
+		out.restrictions, err = restrictionsApplying(ctx, q, org, user)
 		return err
 	})
 	return out, err
@@ -173,6 +178,7 @@ func (s *Service) CreateRestriction(ctx context.Context, p Principal, spec Restr
 	if err != nil {
 		return Restriction{}, err
 	}
+	s.announce(ctx, p.OrganizationID)
 	return r, nil
 }
 
@@ -540,7 +546,7 @@ func (s *Service) DeleteRestriction(ctx context.Context, p Principal, restrictio
 	if err != nil {
 		return err
 	}
-	return s.inTxRefusing(ctx, storage.Tenant{OrganizationID: p.OrganizationID, UserID: p.UserID}, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inTxRefusing(ctx, storage.Tenant{OrganizationID: p.OrganizationID, UserID: p.UserID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		row, err := q.GetRestriction(ctx, id)
 		if err != nil {
@@ -561,4 +567,9 @@ func (s *Service) DeleteRestriction(ctx context.Context, p Principal, restrictio
 			Action: audit.RestrictionDeleted, TargetKind: "restriction", TargetID: restrictionID, Detail: restrictionDetail(r),
 		})
 	})
+	if err != nil {
+		return err
+	}
+	s.announce(ctx, p.OrganizationID)
+	return nil
 }

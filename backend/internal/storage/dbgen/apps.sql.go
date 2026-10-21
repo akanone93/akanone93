@@ -570,7 +570,7 @@ func (q *Queries) ListAppAccess(ctx context.Context, arg ListAppAccessParams) ([
 }
 
 const listAppRolesForUser = `-- name: ListAppRolesForUser :many
-SELECT a.app_id, a.role FROM app_access a
+SELECT a.id, a.app_id, a.role FROM app_access a
  WHERE a.organization_id = $1
    AND (a.user_id = $2::uuid
         OR a.team_id IN (SELECT m.team_id FROM memberships m
@@ -584,6 +584,7 @@ type ListAppRolesForUserParams struct {
 }
 
 type ListAppRolesForUserRow struct {
+	ID    pgtype.UUID
 	AppID pgtype.UUID
 	Role  string
 }
@@ -598,7 +599,7 @@ func (q *Queries) ListAppRolesForUser(ctx context.Context, arg ListAppRolesForUs
 	items := []ListAppRolesForUserRow{}
 	for rows.Next() {
 		var i ListAppRolesForUserRow
-		if err := rows.Scan(&i.AppID, &i.Role); err != nil {
+		if err := rows.Scan(&i.ID, &i.AppID, &i.Role); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -613,25 +614,29 @@ const listApps = `-- name: ListApps :many
 SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at FROM apps
  WHERE organization_id = $1 AND deleted_at IS NULL
    AND ($2::uuid[] IS NULL OR id = ANY ($2::uuid[]))
-   AND (key, id) > ($3::text, $4::uuid)
+   AND NOT (id = ANY ($3::uuid[]))
+   AND (key, id) > ($4::text, $5::uuid)
  ORDER BY key, id
- LIMIT $5
+ LIMIT $6
 `
 
 type ListAppsParams struct {
 	OrganizationID pgtype.UUID
 	OnlyIds        []pgtype.UUID
+	ExceptIds      []pgtype.UUID
 	AfterKey       string
 	AfterID        pgtype.UUID
 	PageSize       int32
 }
 
 // only_ids, when not NULL, restricts the list to the apps a caller was
-// granted one by one (GOV-001).
+// granted one by one (GOV-001); except_ids leaves out the apps a restriction
+// takes app.read away from (GOV-006).
 func (q *Queries) ListApps(ctx context.Context, arg ListAppsParams) ([]App, error) {
 	rows, err := q.db.Query(ctx, listApps,
 		arg.OrganizationID,
 		arg.OnlyIds,
+		arg.ExceptIds,
 		arg.AfterKey,
 		arg.AfterID,
 		arg.PageSize,

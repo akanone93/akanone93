@@ -128,7 +128,12 @@ func (v *Valkey) get(ctx context.Context) (*conn, error) {
 		return c, nil
 	}
 	v.mu.Unlock()
+	return v.dialNew(ctx)
+}
 
+// dialNew opens a connection that belongs to no pool: in Sentinel mode to
+// the current master, otherwise to the configured server.
+func (v *Valkey) dialNew(ctx context.Context) (*conn, error) {
 	if v.sentinel != nil {
 		return v.openMaster(ctx)
 	}

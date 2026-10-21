@@ -26,7 +26,8 @@ SELECT hit.kind::text AS kind, hit.ref, hit.app_id, hit.name::text AS name, hit.
        WHERE a.deleted_at IS NULL
          AND plux_search_vector(a.name, a.key, '') @@ to_tsquery('simple', $1::text)
          AND ($2::uuid[] IS NULL OR a.id = ANY($2::uuid[]))
-         AND (cardinality($3::text[]) = 0 OR 'app' = ANY($3::text[]))
+         AND NOT (a.id = ANY($3::uuid[]))
+         AND (cardinality($4::text[]) = 0 OR 'app' = ANY($4::text[]))
       UNION ALL
       SELECT 'plugin'::text, pl.id, pl.app_id, pl.name, 'plugins/' || pl.key,
              pl.name || ' ' || pl.key,
@@ -36,7 +37,8 @@ SELECT hit.kind::text AS kind, hit.ref, hit.app_id, hit.name::text AS name, hit.
        WHERE pl.deleted_at IS NULL
          AND plux_search_vector(pl.name, pl.key, '') @@ to_tsquery('simple', $1::text)
          AND ($2::uuid[] IS NULL OR pl.app_id = ANY($2::uuid[]))
-         AND (cardinality($3::text[]) = 0 OR 'plugin' = ANY($3::text[]))
+         AND NOT (pl.app_id = ANY($3::uuid[]))
+         AND (cardinality($4::text[]) = 0 OR 'plugin' = ANY($4::text[]))
       UNION ALL
       SELECT CASE d.kind WHEN 'translationKeys' THEN 'translation_key' ELSE d.kind END,
              d.id, dr.app_id,
@@ -53,11 +55,12 @@ SELECT hit.kind::text AS kind, hit.ref, hit.app_id, hit.name::text AS name, hit.
          AND (dr.plugin_id IS NULL OR dp.deleted_at IS NULL)
          AND plux_search_vector(d.path, d.entity_key, d.search_text) @@ to_tsquery('simple', $1::text)
          AND ($2::uuid[] IS NULL OR dr.app_id = ANY($2::uuid[]))
-         AND (cardinality($3::text[]) = 0
-              OR (CASE d.kind WHEN 'translationKeys' THEN 'translation_key' ELSE d.kind END) = ANY($3::text[]))
+         AND NOT (dr.app_id = ANY($3::uuid[]))
+         AND (cardinality($4::text[]) = 0
+              OR (CASE d.kind WHEN 'translationKeys' THEN 'translation_key' ELSE d.kind END) = ANY($4::text[]))
     ) found
     ORDER BY found.rank DESC, found.kind, found.ref
-    LIMIT $5 OFFSET $4
+    LIMIT $6 OFFSET $5
   ) hit
  ORDER BY hit.rank DESC, hit.kind, hit.ref
 `
@@ -65,6 +68,7 @@ SELECT hit.kind::text AS kind, hit.ref, hit.app_id, hit.name::text AS name, hit.
 type SearchParams struct {
 	Query      string
 	Allowed    []pgtype.UUID
+	Excluded   []pgtype.UUID
 	Kinds      []string
 	PageOffset int32
 	PageSize   int32
@@ -86,7 +90,8 @@ type SearchRow struct {
 // apps, plugins and the documents that carry a name worth finding. Which
 // apps the caller may search is part of the statement: allowed is the list
 // of app identifiers the caller holds search.read on, or NULL when the
-// permission is held for the whole organisation, and every branch is
+// permission is held for the whole organisation; excluded lists the apps a
+// restriction takes it away from (GOV-006). Every branch is
 // restricted by it before a row is ranked or returned. Row-level security
 // adds the organisation boundary underneath (SRV-022).
 //
@@ -100,6 +105,7 @@ func (q *Queries) Search(ctx context.Context, arg SearchParams) ([]SearchRow, er
 	rows, err := q.db.Query(ctx, search,
 		arg.Query,
 		arg.Allowed,
+		arg.Excluded,
 		arg.Kinds,
 		arg.PageOffset,
 		arg.PageSize,

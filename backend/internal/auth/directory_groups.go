@@ -159,7 +159,7 @@ func (d scimDirectory) CreateGroup(ctx context.Context, org string, spec identit
 		return identity.Group{}, invalidValue("displayName is required and at most 120 characters")
 	}
 	var out identity.Group
-	err := d.s.inTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+	err := d.s.inTxChanging(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 		q, orgID := dbgen.New(tx), storage.MustUUID(org)
 		members, err := memberIDs(ctx, q, orgID, spec.MemberIDs)
 		if err != nil {
@@ -252,7 +252,7 @@ func (d scimDirectory) ReplaceGroup(ctx context.Context, org, id string, spec id
 		return identity.Group{}, invalidValue("displayName is required and at most 120 characters")
 	}
 	var out identity.Group
-	err = d.s.inTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+	err = d.s.inTxChanging(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 		q, orgID := dbgen.New(tx), storage.MustUUID(org)
 		rec, err := q.GetScimGroupForUpdate(ctx, dbgen.GetScimGroupForUpdateParams{OrganizationID: orgID, TeamID: team})
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -305,7 +305,7 @@ func (d scimDirectory) DeleteGroup(ctx context.Context, org, id string) error {
 	if err != nil {
 		return err
 	}
-	return d.s.inTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+	return d.s.inTxChanging(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 		q, orgID := dbgen.New(tx), storage.MustUUID(org)
 		if _, err := q.GetScimGroupForUpdate(ctx, dbgen.GetScimGroupForUpdateParams{OrganizationID: orgID, TeamID: team}); err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {

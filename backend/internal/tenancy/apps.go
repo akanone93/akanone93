@@ -232,7 +232,7 @@ func (s *Service) ListApps(ctx context.Context, p auth.Principal, page Page) ([]
 	var out []App
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		rows, err := dbgen.New(tx).ListApps(ctx, dbgen.ListAppsParams{
-			OrganizationID: storage.MustUUID(p.OrganizationID), OnlyIds: only,
+			OrganizationID: storage.MustUUID(p.OrganizationID), OnlyIds: only, ExceptIds: excludedApps(p),
 			AfterKey: page.After.Key, AfterID: page.After.AfterID(), PageSize: page.Size,
 		})
 		if err != nil {
@@ -245,6 +245,20 @@ func (s *Service) ListApps(ctx context.Context, p auth.Principal, page Page) ([]
 		return nil
 	})
 	return out, err
+}
+
+// excludedApps returns the apps a restriction takes app.read away from, for
+// a listing to leave out even when the principal holds it across the
+// organisation (GOV-006). It is never nil, so that the driver sends an
+// empty array.
+func excludedApps(p auth.Principal) []pgtype.UUID {
+	out := []pgtype.UUID{}
+	for _, app := range p.ExcludedApps(auth.AppRead) {
+		if id, err := storage.UUID(app); err == nil {
+			out = append(out, id)
+		}
+	}
+	return out
 }
 
 // UpdateApp renames an app or changes its default plugin.

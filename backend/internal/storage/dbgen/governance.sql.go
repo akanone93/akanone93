@@ -327,7 +327,7 @@ func (q *Queries) ListRoleGrants(ctx context.Context, arg ListRoleGrantsParams) 
 }
 
 const listRoleGrantsForUser = `-- name: ListRoleGrantsForUser :many
-SELECT g.role, g.scope, g.app_id, e.key AS environment_key
+SELECT g.id, g.role, g.scope, g.app_id, e.key AS environment_key
   FROM role_grants g
   LEFT JOIN environments e ON e.id = g.environment_id
  WHERE g.organization_id = $1
@@ -343,6 +343,7 @@ type ListRoleGrantsForUserParams struct {
 }
 
 type ListRoleGrantsForUserRow struct {
+	ID             pgtype.UUID
 	Role           string
 	Scope          string
 	AppID          pgtype.UUID
@@ -361,6 +362,7 @@ func (q *Queries) ListRoleGrantsForUser(ctx context.Context, arg ListRoleGrantsF
 	for rows.Next() {
 		var i ListRoleGrantsForUserRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.Role,
 			&i.Scope,
 			&i.AppID,
