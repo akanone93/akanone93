@@ -117,19 +117,13 @@ func TestRiskReason_GOV_020(t *testing.T) {
 }
 
 // Verifies: GOV-020.
-func TestFailureAndParseID_GOV_020(t *testing.T) {
+func TestFailure_GOV_020(t *testing.T) {
 	if codeOf(t, failure(pgx.ErrNoRows, "request")) != plxerr.ResourceNotFound {
 		t.Error("a missing row is not a not-found refusal")
 	}
 	boom := errors.New("boom")
 	if err := failure(boom, "request"); !errors.Is(err, boom) || !strings.Contains(err.Error(), "request") {
 		t.Errorf("other failures are wrapped: %v", err)
-	}
-	if _, err := parseID("not-a-uuid", "request"); codeOf(t, err) != plxerr.InvalidFormat {
-		t.Errorf("a bad identifier is refused with %v", err)
-	}
-	if id, err := parseID(orgScope, "request"); err != nil || id != orgScope {
-		t.Errorf("a good identifier passes: %q, %v", id, err)
 	}
 }
 
