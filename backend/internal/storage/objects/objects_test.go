@@ -76,6 +76,58 @@ func TestKeysAreContentAddressed(t *testing.T) {
 	}
 }
 
+// ValidKey accepts the keys Key makes and the readable paths of the
+// analytics export under "exports", and nothing that could leave the
+// store's root or name a kind that does not exist.
+// Verifies: SRV-023, ANL-011.
+func TestValidKeyShapes_ANL_011(t *testing.T) {
+	t.Parallel()
+	good := []string{
+		"bundles/ab/" + strings.Repeat("a", 64),
+		"exports/analytics/org=0192b5d1-7e3a-7000-8000-000000000001/events/date=2026-10-20/1760918400-1760922000-0001.parquet",
+		"exports/a",
+	}
+	for _, k := range good {
+		if err := objects.ValidKey(k); err != nil {
+			t.Errorf("ValidKey(%q) = %v", k, err)
+		}
+	}
+	bad := []string{
+		"", "exports", "exports/", "exports/../etc/passwd", "exports/a/./b", "exports/a//b", "exports/.hidden",
+		"exports/a/..", "exports/A", "exports/a b", "/exports/a", "exports/a/", "bundles/org=1/x", "other/org=1/x",
+		"exports/" + strings.Repeat("a", 1100),
+	}
+	for _, k := range bad {
+		if err := objects.ValidKey(k); err == nil {
+			t.Errorf("ValidKey(%q) was accepted", k)
+		}
+	}
+}
+
+// A file the export names itself is stored, read back and kept as it is
+// when it is written again, on every backend.
+// Verifies: ANL-011.
+func TestNamedExportKeysRoundTrip_ANL_011(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	const key = "exports/analytics/org=0192/rollups/granularity=1h/date=2026-10-20/1-2-0001.parquet"
+	for name, s := range stores(t, "") {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if _, err := s.Put(ctx, key, []byte("PAR1"), "application/vnd.apache.parquet"); err != nil {
+				t.Fatalf("Put: %v", err)
+			}
+			if _, err := s.Put(ctx, key, []byte("PAR1"), "application/vnd.apache.parquet"); err != nil {
+				t.Fatalf("Put again: %v", err)
+			}
+			got, info, err := s.Get(ctx, key)
+			if err != nil || string(got) != "PAR1" || info.Size != 4 {
+				t.Errorf("Get = %q, %+v, %v", got, info, err)
+			}
+		})
+	}
+}
+
 // Verifies: SRV-023, REL-024.
 func TestStoreRoundTrip(t *testing.T) {
 	t.Parallel()

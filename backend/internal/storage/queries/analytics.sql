@@ -138,3 +138,37 @@ DELETE FROM analytics_exports WHERE organization_id = $1;
 UPDATE analytics_exports
    SET exported_until = $2, last_error = $3, last_attempt_at = $4
  WHERE organization_id = $1;
+
+-- The raw events of a window in the order the exports read them, after a
+-- keyset cursor (ANL-011). The first page starts at the nil UUID.
+-- name: ListEventsWindow :many
+SELECT id, organization_id, app_id, environment_id, device_id, name, time, release_sequence, plugin_key, route, category,
+       device_class, locale, fields
+  FROM analytics_events
+ WHERE organization_id = $1 AND time >= sqlc.arg(from_time)::timestamptz AND time < sqlc.arg(to_time)::timestamptz
+   AND (time, id) > (sqlc.arg(cursor_time)::timestamptz, sqlc.arg(cursor_id)::uuid)
+ ORDER BY time, id
+ LIMIT sqlc.arg(row_limit);
+
+-- name: GetAnalyticsFileExport :one
+SELECT * FROM analytics_file_exports WHERE organization_id = $1;
+
+-- The settings of the enterprise exports. A new row starts exporting at
+-- exported_until; an existing one keeps its progress.
+-- name: UpsertAnalyticsFileExport :exec
+INSERT INTO analytics_file_exports (organization_id, parquet_enabled, parquet_events, parquet_rollups, parquet_granularity,
+                                    webhook_enabled, webhook_url, secret_ciphertext, secret_wrapped_key, secret_key_id,
+                                    secret_hint, exported_until, changed_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+ON CONFLICT (organization_id) DO UPDATE
+   SET parquet_enabled = EXCLUDED.parquet_enabled, parquet_events = EXCLUDED.parquet_events,
+       parquet_rollups = EXCLUDED.parquet_rollups, parquet_granularity = EXCLUDED.parquet_granularity,
+       webhook_enabled = EXCLUDED.webhook_enabled, webhook_url = EXCLUDED.webhook_url,
+       secret_ciphertext = EXCLUDED.secret_ciphertext, secret_wrapped_key = EXCLUDED.secret_wrapped_key,
+       secret_key_id = EXCLUDED.secret_key_id, secret_hint = EXCLUDED.secret_hint,
+       changed_by = EXCLUDED.changed_by, changed_at = now();
+
+-- name: RecordFileExportAttempt :exec
+UPDATE analytics_file_exports
+   SET exported_until = $2, last_error = $3, last_attempt_at = $4
+ WHERE organization_id = $1;

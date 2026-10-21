@@ -35,6 +35,9 @@ const (
 	KindSMTP Kind = "notify.smtp"
 	// KindAnalyticsOTLP is the OTLP metrics export of an organisation.
 	KindAnalyticsOTLP Kind = "analytics.otlp"
+	// KindAnalyticsWebhook is the signed-webhook event export of an
+	// organisation (enterprise edition, ANL-011).
+	KindAnalyticsWebhook Kind = "analytics.webhook"
 	// KindAuditExport is the audit export sinks of an organisation.
 	KindAuditExport Kind = "audit.export"
 	// KindGatewayUpstream is an upstream service of the secure gateway.
@@ -158,6 +161,12 @@ var registry = []Destination{
 		Purpose:      "Sends daily aggregates of an organisation's analytics to its own collector.",
 		ConfiguredBy: ByOrganisation, Setting: "Analytics export (Studio, Analytics)",
 		Default: DefaultNone, Data: "Rollups only: counts and sums, never an event or a device identifier.",
+	},
+	{
+		Kind: KindAnalyticsWebhook, Name: "Analytics webhook export",
+		Purpose:      "Posts an organisation's analytics events to its own receiver as signed Standard Webhooks messages (enterprise edition, ANL-011).",
+		ConfiguredBy: ByOrganisation, Setting: "Analytics export files and webhook (Studio, Analytics)",
+		Default: DefaultNone, Data: "Batches of the organisation's raw events with their device class and locale; never a device secret or a user identifier.",
 	},
 	{
 		Kind: KindAuditExport, Name: "Audit export",
