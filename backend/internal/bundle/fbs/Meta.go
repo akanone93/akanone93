@@ -490,8 +490,37 @@ func (rcv *Meta) Localisation(obj *LocalisationSettings) *LocalisationSettings {
 	return nil
 }
 
+func (rcv *Meta) Experiments(obj *ExperimentDefaults, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(64))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Meta) ExperimentsByKey(obj *ExperimentDefaults, key string) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(64))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		return obj.LookupByKey(key, x, rcv._tab.Bytes)
+	}
+	return false
+}
+
+func (rcv *Meta) ExperimentsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(64))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func MetaStart(builder *flatbuffers.Builder) {
-	builder.StartObject(30)
+	builder.StartObject(31)
 }
 func MetaAddKind(builder *flatbuffers.Builder, kind BundleKind) {
 	builder.PrependByteSlot(0, byte(kind), 0)
@@ -615,6 +644,12 @@ func MetaStartHostEventsVector(builder *flatbuffers.Builder, numElems int) flatb
 }
 func MetaAddLocalisation(builder *flatbuffers.Builder, localisation flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(29, flatbuffers.UOffsetT(localisation), 0)
+}
+func MetaAddExperiments(builder *flatbuffers.Builder, experiments flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(30, flatbuffers.UOffsetT(experiments), 0)
+}
+func MetaStartExperimentsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func MetaEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

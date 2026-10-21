@@ -187,6 +187,56 @@ func (s AnalyticsHandler) SetExport(ctx context.Context, req *connect.Request[pl
 	})
 }
 
+// GetFileExport returns the settings of the Parquet and webhook exports.
+func (s AnalyticsHandler) GetFileExport(ctx context.Context, req *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetFileExportResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		e, err := s.h.Analytics.GetFileExport(ctx, p)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.GetFileExportResponse{Export: fileExportProto(e)}, nil
+	})
+}
+
+// SetFileExport sets the Parquet and webhook exports.
+func (s AnalyticsHandler) SetFileExport(ctx context.Context, req *connect.Request[pluxv1.SetFileExportRequest]) (*connect.Response[pluxv1.SetFileExportResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.SetFileExportResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		e, err := s.h.Analytics.SetFileExport(ctx, p, fileExportSettings(req.Msg.GetSettings()), req.Msg.GetWebhookSecret())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.SetFileExportResponse{Export: fileExportProto(e)}, nil
+	})
+}
+
+// fileExportSettings reads the settings of a request.
+func fileExportSettings(m *pluxv1.FileExportSettings) analytics.ExportSettings {
+	var st analytics.ExportSettings
+	st.Parquet.Enabled, st.Parquet.Events, st.Parquet.Rollups = m.GetParquetEnabled(), m.GetParquetEvents(), m.GetParquetRollups()
+	st.Parquet.Granularity = analytics.Granularity(m.GetParquetGranularity())
+	st.Webhook.Enabled, st.Webhook.URL = m.GetWebhookEnabled(), m.GetWebhookUrl()
+	return st
+}
+
+func fileExportProto(e analytics.FileExport) *pluxv1.FileExport {
+	return &pluxv1.FileExport{
+		Settings: &pluxv1.FileExportSettings{
+			ParquetEnabled: e.Settings.Parquet.Enabled, ParquetEvents: e.Settings.Parquet.Events,
+			ParquetRollups: e.Settings.Parquet.Rollups, ParquetGranularity: string(e.Settings.Parquet.Granularity),
+			WebhookEnabled: e.Settings.Webhook.Enabled, WebhookUrl: e.Settings.Webhook.URL,
+		},
+		SecretHint: e.SecretHint, ExportedUntil: ts(e.ExportedUntil), LastError: e.LastError, LastAttemptAt: ts(e.LastAttemptAt),
+	}
+}
+
 // DeleteExport removes the OTLP destination.
 func (s AnalyticsHandler) DeleteExport(ctx context.Context, req *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error) {
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.DeleteExportResponse, error) {

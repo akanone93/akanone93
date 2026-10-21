@@ -468,6 +468,82 @@ func TestReconstructionRetention_SEC_142(t *testing.T) {
 	}
 }
 
+// holdForReconstruction stores a reconstruction of the device that names
+// release sequence seq, as the service would have written it.
+func (f *reconFixture) holdForReconstruction(t *testing.T, seq int64) string {
+	t.Helper()
+	gen := ids{g: uuid7.NewGenerator(time.Now, rand.Reader)}
+	id, err := gen.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = f.db.InTx(context.Background(), storage.Tenant{OrganizationID: f.org}, func(ctx context.Context, tx pgx.Tx) error {
+		env := f.envs["production"].ID
+		var channel string
+		if err := tx.QueryRow(ctx, `SELECT id::text FROM channels WHERE environment_id = $1 LIMIT 1`, env).Scan(&channel); err != nil {
+			return err //nolint:wrapcheck // a test helper
+		}
+		_, err := tx.Exec(ctx, `INSERT INTO reconstructions (id, organization_id, app_id, environment_id, channel_id, device_id,
+				subject_kind, moment, release_sequence, manifest, created_by_kind, created_by_id, created_by)
+			VALUES ($1, $2, $3, $4, $5, $6, 'device', $7, $8, '{}', 'user', 'auditor-1', 'Auditor')`,
+			id, f.org, f.app, env, channel, f.deviceID, f.now, seq)
+		return err //nolint:wrapcheck // a test helper
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return id
+}
+
+// Verifies: SEC-142, REL-007.
+// Release retention keeps a development release that a reconstruction
+// names, however old, so the auditor can still open it (reconstructions
+// expire on their own retention), and deletes it once none does.
+func TestPurgeKeepsReconstructedReleases_SEC_142(t *testing.T) {
+	t.Parallel()
+	f := newReconFixture(t)
+	ctx := context.Background()
+	dev := f.envs["development"].ID
+	held, _, err := f.rel.CreateRelease(ctx, f.owner, f.app, dev, nil, "Held")
+	if err != nil {
+		t.Fatal(err)
+	}
+	unheld, _, err := f.rel.CreateRelease(ctx, f.owner, f.app, dev, nil, "Unheld")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := f.rel.CreateRelease(ctx, f.owner, f.app, dev, nil, "Newest"); err != nil {
+		t.Fatal(err)
+	}
+	reconstruction := f.holdForReconstruction(t, held.Sequence)
+	f.now = f.now.AddDate(0, 0, 91)
+
+	n, err := f.rel.PurgeReleases(ctx, f.org)
+	if err != nil || n != 1 {
+		t.Fatalf("purge with a reconstruction: %d %v, want only the release no reconstruction names", n, err)
+	}
+	if _, _, err := f.rel.GetRelease(ctx, f.viewer, f.app, unheld.Sequence); code(err) != plxerr.ResourceNotFound {
+		t.Errorf("the release no reconstruction names survived: %v", err)
+	}
+	if _, _, err := f.rel.GetRelease(ctx, f.viewer, f.app, held.Sequence); err != nil {
+		t.Errorf("the release a reconstruction names was purged: %v", err)
+	}
+
+	err = f.db.InTx(ctx, storage.Tenant{OrganizationID: f.org}, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `DELETE FROM reconstructions WHERE id = $1`, reconstruction)
+		return err //nolint:wrapcheck // a test helper
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n, err := f.rel.PurgeReleases(ctx, f.org); err != nil || n != 1 {
+		t.Fatalf("purge after the reconstruction expired: %d %v", n, err)
+	}
+	if _, _, err := f.rel.GetRelease(ctx, f.viewer, f.app, held.Sequence); code(err) != plxerr.ResourceNotFound {
+		t.Errorf("the release survived its reconstruction: %v", err)
+	}
+}
+
 // Verifies: SEC-142, SEC-102.
 // Creating and opening a reconstruction need reconstruction.view and are
 // audited, every opening each time; a caller without the permission is

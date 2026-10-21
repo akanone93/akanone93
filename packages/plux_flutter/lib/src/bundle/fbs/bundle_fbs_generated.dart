@@ -4158,6 +4158,278 @@ class LocalisationSettingsObjectBuilder extends fb.ObjectBuilder {
     return fbBuilder.buffer;
   }
 }
+class ExperimentVariantValue {
+  ExperimentVariantValue._(this._bc, this._bcOffset);
+  factory ExperimentVariantValue(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<ExperimentVariantValue> reader = _ExperimentVariantValueReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get variant => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
+
+  @override
+  String toString() {
+    return 'ExperimentVariantValue{variant: ${variant}, value: ${value}}';
+  }
+}
+
+class _ExperimentVariantValueReader extends fb.TableReader<ExperimentVariantValue> {
+  const _ExperimentVariantValueReader();
+
+  @override
+  ExperimentVariantValue createObject(fb.BufferContext bc, int offset) => 
+    ExperimentVariantValue._(bc, offset);
+}
+
+class ExperimentVariantValueBuilder {
+  ExperimentVariantValueBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(2);
+  }
+
+  int addVariantOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addValueOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class ExperimentVariantValueObjectBuilder extends fb.ObjectBuilder {
+  final String? _variant;
+  final ValueObjectBuilder? _value;
+
+  ExperimentVariantValueObjectBuilder({
+    String? variant,
+    ValueObjectBuilder? value,
+  })
+      : _variant = variant,
+        _value = value;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? variantOffset = _variant == null ? null
+        : fbBuilder.writeString(_variant!);
+    final int? valueOffset = _value?.getOrCreateOffset(fbBuilder);
+    fbBuilder.startTable(2);
+    fbBuilder.addOffset(0, variantOffset);
+    fbBuilder.addOffset(1, valueOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class ExperimentProp {
+  ExperimentProp._(this._bc, this._bcOffset);
+  factory ExperimentProp(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<ExperimentProp> reader = _ExperimentPropReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get name => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
+  List<ExperimentVariantValue>? get variants => const fb.ListReader<ExperimentVariantValue>(ExperimentVariantValue.reader).vTableGetNullable(_bc, _bcOffset, 8);
+
+  @override
+  String toString() {
+    return 'ExperimentProp{name: ${name}, value: ${value}, variants: ${variants}}';
+  }
+}
+
+class _ExperimentPropReader extends fb.TableReader<ExperimentProp> {
+  const _ExperimentPropReader();
+
+  @override
+  ExperimentProp createObject(fb.BufferContext bc, int offset) => 
+    ExperimentProp._(bc, offset);
+}
+
+class ExperimentPropBuilder {
+  ExperimentPropBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(3);
+  }
+
+  int addNameOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addValueOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addVariantsOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class ExperimentPropObjectBuilder extends fb.ObjectBuilder {
+  final String? _name;
+  final ValueObjectBuilder? _value;
+  final List<ExperimentVariantValueObjectBuilder>? _variants;
+
+  ExperimentPropObjectBuilder({
+    String? name,
+    ValueObjectBuilder? value,
+    List<ExperimentVariantValueObjectBuilder>? variants,
+  })
+      : _name = name,
+        _value = value,
+        _variants = variants;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? nameOffset = _name == null ? null
+        : fbBuilder.writeString(_name!);
+    final int? valueOffset = _value?.getOrCreateOffset(fbBuilder);
+    final int? variantsOffset = _variants == null ? null
+        : fbBuilder.writeList(_variants!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(3);
+    fbBuilder.addOffset(0, nameOffset);
+    fbBuilder.addOffset(1, valueOffset);
+    fbBuilder.addOffset(2, variantsOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class ExperimentDefaults {
+  ExperimentDefaults._(this._bc, this._bcOffset);
+  factory ExperimentDefaults(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<ExperimentDefaults> reader = _ExperimentDefaultsReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get key => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  String? get control => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
+  List<ExperimentProp>? get props => const fb.ListReader<ExperimentProp>(ExperimentProp.reader).vTableGetNullable(_bc, _bcOffset, 8);
+
+  @override
+  String toString() {
+    return 'ExperimentDefaults{key: ${key}, control: ${control}, props: ${props}}';
+  }
+}
+
+class _ExperimentDefaultsReader extends fb.TableReader<ExperimentDefaults> {
+  const _ExperimentDefaultsReader();
+
+  @override
+  ExperimentDefaults createObject(fb.BufferContext bc, int offset) => 
+    ExperimentDefaults._(bc, offset);
+}
+
+class ExperimentDefaultsBuilder {
+  ExperimentDefaultsBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(3);
+  }
+
+  int addKeyOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addControlOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addPropsOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class ExperimentDefaultsObjectBuilder extends fb.ObjectBuilder {
+  final String? _key;
+  final String? _control;
+  final List<ExperimentPropObjectBuilder>? _props;
+
+  ExperimentDefaultsObjectBuilder({
+    String? key,
+    String? control,
+    List<ExperimentPropObjectBuilder>? props,
+  })
+      : _key = key,
+        _control = control,
+        _props = props;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? keyOffset = _key == null ? null
+        : fbBuilder.writeString(_key!);
+    final int? controlOffset = _control == null ? null
+        : fbBuilder.writeString(_control!);
+    final int? propsOffset = _props == null ? null
+        : fbBuilder.writeList(_props!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(3);
+    fbBuilder.addOffset(0, keyOffset);
+    fbBuilder.addOffset(1, controlOffset);
+    fbBuilder.addOffset(2, propsOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
 class Meta {
   Meta._(this._bc, this._bcOffset);
   factory Meta(List<int> bytes) {
@@ -4200,10 +4472,11 @@ class Meta {
   List<Trigger>? get triggers => const fb.ListReader<Trigger>(Trigger.reader).vTableGetNullable(_bc, _bcOffset, 58);
   List<HostEvent>? get hostEvents => const fb.ListReader<HostEvent>(HostEvent.reader).vTableGetNullable(_bc, _bcOffset, 60);
   LocalisationSettings? get localisation => LocalisationSettings.reader.vTableGetNullable(_bc, _bcOffset, 62);
+  List<ExperimentDefaults>? get experiments => const fb.ListReader<ExperimentDefaults>(ExperimentDefaults.reader).vTableGetNullable(_bc, _bcOffset, 64);
 
   @override
   String toString() {
-    return 'Meta{kind: ${kind}, id: ${id}, key: ${key}, name: ${name}, version: ${version}, compilerVersion: ${compilerVersion}, schemaVersion: ${schemaVersion}, requiredFeatures: ${requiredFeatures}, minRuntime: ${minRuntime}, capabilities: ${capabilities}, limits: ${limits}, pages: ${pages}, entryPage: ${entryPage}, fallbackPage: ${fallbackPage}, plugins: ${plugins}, defaultLocale: ${defaultLocale}, supportedLocales: ${supportedLocales}, entryRoute: ${entryRoute}, flags: ${flags}, nativeCatalogue: ${nativeCatalogue}, securityProfile: ${securityProfile}, telemetrySampling: ${telemetrySampling}, notFoundRoute: ${notFoundRoute}, shells: ${shells}, deepLinks: ${deepLinks}, push: ${push}, components: ${components}, triggers: ${triggers}, hostEvents: ${hostEvents}, localisation: ${localisation}}';
+    return 'Meta{kind: ${kind}, id: ${id}, key: ${key}, name: ${name}, version: ${version}, compilerVersion: ${compilerVersion}, schemaVersion: ${schemaVersion}, requiredFeatures: ${requiredFeatures}, minRuntime: ${minRuntime}, capabilities: ${capabilities}, limits: ${limits}, pages: ${pages}, entryPage: ${entryPage}, fallbackPage: ${fallbackPage}, plugins: ${plugins}, defaultLocale: ${defaultLocale}, supportedLocales: ${supportedLocales}, entryRoute: ${entryRoute}, flags: ${flags}, nativeCatalogue: ${nativeCatalogue}, securityProfile: ${securityProfile}, telemetrySampling: ${telemetrySampling}, notFoundRoute: ${notFoundRoute}, shells: ${shells}, deepLinks: ${deepLinks}, push: ${push}, components: ${components}, triggers: ${triggers}, hostEvents: ${hostEvents}, localisation: ${localisation}, experiments: ${experiments}}';
   }
 }
 
@@ -4221,7 +4494,7 @@ class MetaBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(30);
+    fbBuilder.startTable(31);
   }
 
   int addKind(BundleKind? kind) {
@@ -4344,6 +4617,10 @@ class MetaBuilder {
     fbBuilder.addOffset(29, offset);
     return fbBuilder.offset;
   }
+  int addExperimentsOffset(int? offset) {
+    fbBuilder.addOffset(30, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -4381,6 +4658,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
   final List<TriggerObjectBuilder>? _triggers;
   final List<HostEventObjectBuilder>? _hostEvents;
   final LocalisationSettingsObjectBuilder? _localisation;
+  final List<ExperimentDefaultsObjectBuilder>? _experiments;
 
   MetaObjectBuilder({
     BundleKind? kind,
@@ -4413,6 +4691,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     List<TriggerObjectBuilder>? triggers,
     List<HostEventObjectBuilder>? hostEvents,
     LocalisationSettingsObjectBuilder? localisation,
+    List<ExperimentDefaultsObjectBuilder>? experiments,
   })
       : _kind = kind,
         _id = id,
@@ -4443,7 +4722,8 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
         _components = components,
         _triggers = triggers,
         _hostEvents = hostEvents,
-        _localisation = localisation;
+        _localisation = localisation,
+        _experiments = experiments;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -4492,7 +4772,9 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     final int? hostEventsOffset = _hostEvents == null ? null
         : fbBuilder.writeList(_hostEvents!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
     final int? localisationOffset = _localisation?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(30);
+    final int? experimentsOffset = _experiments == null ? null
+        : fbBuilder.writeList(_experiments!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(31);
     fbBuilder.addUint8(0, _kind?.value);
     if (_id != null) {
       fbBuilder.addStruct(1, _id!.finish(fbBuilder));
@@ -4531,6 +4813,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(27, triggersOffset);
     fbBuilder.addOffset(28, hostEventsOffset);
     fbBuilder.addOffset(29, localisationOffset);
+    fbBuilder.addOffset(30, experimentsOffset);
     return fbBuilder.endTable();
   }
 

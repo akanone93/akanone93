@@ -47,6 +47,7 @@ type buildOptions struct {
 	edition      edition.Provider
 	auditSinks   export.Provider
 	analytics    extanalytics.Store
+	fileExporter extanalytics.Exporter
 	identity     identity.Extensions
 }
 
@@ -70,6 +71,13 @@ func WithAuditSinks(p export.Provider) BuildOption {
 // unchanged.
 func WithAnalyticsStore(s extanalytics.Store) BuildOption {
 	return func(o *buildOptions) { o.analytics = s }
+}
+
+// WithAnalyticsExporter gives the process the enterprise edition's Parquet
+// and webhook exports (ANL-011); without it the exports are refused with
+// PLX-8600 and none is scheduled.
+func WithAnalyticsExporter(e extanalytics.Exporter) BuildOption {
+	return func(o *buildOptions) { o.fileExporter = e }
 }
 
 // WithIdentityExtensions gives the process the enterprise implementations of
@@ -252,7 +260,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, PushHTTP: o.pushHTTP, PushEndpoints: o.pushEnds, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, Identity: o.identity}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, PushHTTP: o.pushHTTP, PushEndpoints: o.pushEnds, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, AnalyticsExporter: o.fileExporter, Identity: o.identity}
 	if cfg.Has(config.RoleWorker) {
 		// Only the worker transcodes and signs: compiling the codecs costs
 		// seconds of CPU the api role need not pay, and the api role must
@@ -306,7 +314,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		CheckpointJobs(workers, services, cfg.Audit.CheckpointInterval.Duration(), log)...)
 	periodic = append(periodic, AttestationStatusJobs(workers, services, log)...)
 	periodic = append(periodic, AuditExportJobs(workers, services, o.edition, log)...)
-	periodic = append(periodic, AnalyticsJobs(workers, services, log)...)
+	periodic = append(periodic, AnalyticsJobs(workers, services, o.edition, log)...)
 	jobClient, err := jobs.New(jobs.Options{
 		Pool:     db.Pool(),
 		Workers:  workers,

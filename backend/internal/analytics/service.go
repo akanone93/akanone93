@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"sync"
 	"time"
@@ -18,6 +19,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
@@ -74,6 +76,15 @@ type Options struct {
 	// are symbolicated from (ANL-040, CMP-041); without it groups are listed
 	// without a document path.
 	Objects objects.Store
+	// Exporter runs the enterprise Parquet and webhook exports (ANL-011);
+	// without it the exports are refused with PLX-8600 and none is run.
+	Exporter Exporter
+	// Crypter seals the signing secrets of the webhook export; it is
+	// required with an Exporter.
+	Crypter signing.Crypter
+	// WebhookClient posts the webhook export; the default is an SSRF-safe
+	// client.
+	WebhookClient *http.Client
 }
 
 // Service is analytics for the API and the worker.
@@ -94,6 +105,18 @@ func New(o Options) (*Service, error) {
 	}
 	if o.Window.Location == nil {
 		return nil, errors.New("analytics: the maintenance window is required")
+	}
+	if o.Exporter != nil {
+		if o.Crypter == nil {
+			return nil, errors.New("analytics: the file exports need a crypter for their signing secrets")
+		}
+		if o.WebhookClient == nil {
+			client, err := defaultWebhookClient()
+			if err != nil {
+				return nil, err
+			}
+			o.WebhookClient = client
+		}
 	}
 	if o.Limits.IsZero() {
 		o.Limits = limits.Defaults()

@@ -13,6 +13,7 @@ import (
 
 	"github.com/riverqueue/river"
 
+	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/cache"
@@ -20,6 +21,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
@@ -32,7 +34,7 @@ const analyticsEvery = 5 * time.Minute
 // buildAnalytics assembles ingestion and analytics storage. Events go
 // through a Valkey stream to worker consumers when the shared cache is
 // Valkey, and are written directly otherwise (ADR-0080).
-func buildAnalytics(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, ids interface{ New() (string, error) }, auditLog *audit.Log, tenants *tenancy.Service, notifier *notify.Service, work WorkDeps) (*telemetry.Service, *analytics.Service, *telemetry.Consumer, error) {
+func buildAnalytics(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, ids interface{ New() (string, error) }, auditLog *audit.Log, tenants *tenancy.Service, notifier *notify.Service, crypter signing.Crypter, work WorkDeps) (*telemetry.Service, *analytics.Service, *telemetry.Consumer, error) {
 	store := work.AnalyticsStore
 	if store == nil {
 		store = analytics.NewPostgres(db, nil)
@@ -46,6 +48,7 @@ func buildAnalytics(cfg *config.Config, db *storage.DB, shared cache.Cache, set 
 		DB: db, Store: store, Audit: auditLog, IDs: ids, Limits: set, Window: win,
 		Defaults:      analytics.Defaults{RawDays: cfg.Telemetry.RetentionDays, AuditDays: years*365 + years/4},
 		Organizations: tenants.ForEachOrganization, Objects: work.Objects,
+		Exporter: work.AnalyticsExporter, Crypter: crypter,
 	}
 	if notifier != nil {
 		aopts.Notify = notifier
@@ -150,26 +153,35 @@ func (w *analyticsMaintainWorker) Work(ctx context.Context, _ *river.Job[Analyti
 
 type analyticsExportWorker struct {
 	river.WorkerDefaults[AnalyticsExport]
-	svc *analytics.Service
-	log *slog.Logger
+	svc     *analytics.Service
+	edition edition.Provider
+	log     *slog.Logger
 }
 
-// Work runs one export round; a failing destination is recorded on its
+// Work runs one export round, the OTLP destinations and then the enterprise
+// Parquet and webhook exports; a failing destination is recorded on its
 // configuration and retried at the next round, so the job itself succeeds.
+// The licence is put on the context because a job does not carry it.
 func (w *analyticsExportWorker) Work(ctx context.Context, _ *river.Job[AnalyticsExport]) error {
 	if err := w.svc.ExportAll(ctx); err != nil && w.log != nil {
 		w.log.WarnContext(ctx, "analytics export", slog.Any("error", err))
+	}
+	if w.edition != nil {
+		ctx = edition.WithProvider(ctx, w.edition)
+	}
+	if err := w.svc.ExportFiles(ctx); err != nil && w.log != nil {
+		w.log.WarnContext(ctx, "analytics file export", slog.Any("error", err))
 	}
 	return nil
 }
 
 // AnalyticsJobs registers the analytics workers and returns their schedule.
-func AnalyticsJobs(workers *jobs.Workers, svc *Services, log *slog.Logger) []*river.PeriodicJob {
+func AnalyticsJobs(workers *jobs.Workers, svc *Services, provider edition.Provider, log *slog.Logger) []*river.PeriodicJob {
 	if svc.Analytics == nil {
 		return nil
 	}
 	jobs.AddWorker(workers, &analyticsMaintainWorker{svc: svc.Analytics, log: log})
-	jobs.AddWorker(workers, &analyticsExportWorker{svc: svc.Analytics, log: log})
+	jobs.AddWorker(workers, &analyticsExportWorker{svc: svc.Analytics, edition: provider, log: log})
 	jobs.AddWorker(workers, &analyticsAlertsWorker{svc: svc.Analytics, log: log})
 	return []*river.PeriodicJob{
 		jobs.Every(analyticsEvery, AnalyticsMaintain{}), jobs.Every(analyticsEvery, AnalyticsExport{}),

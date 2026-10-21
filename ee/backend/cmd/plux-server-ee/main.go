@@ -28,13 +28,14 @@ import (
 // options registers the licence verifier with the keys compiled into this
 // build, the enterprise audit export sinks (SEC-143), the ClickHouse
 // analytics store named by PLUX_ANALYTICS_CLICKHOUSE_URL (ANL-010), and the
-// SAML and SCIM implementations. The SCIM server logs the failures it does not tell
+// Parquet and webhook analytics export (ANL-011), and the SAML and SCIM implementations. The SCIM server logs the failures it does not tell
 // its client about to the process's error stream.
 func options() serverapp.Options {
 	return serverapp.Options{
-		Edition:    license.Verifier{Keys: licensefile.TrustedKeys()},
-		AuditSinks: auditexport.Provider{},
-		Analytics:  analytics.OpenerFromEnv(os.Getenv),
+		Edition:           license.Verifier{Keys: licensefile.TrustedKeys()},
+		AuditSinks:        auditexport.Provider{},
+		Analytics:         analytics.OpenerFromEnv(os.Getenv),
+		AnalyticsExporter: analytics.FileExporter{},
 		Identity: identity.Extensions{
 			SAML: saml.Provider{},
 			SCIM: scim.New(scim.Options{Log: slog.New(slog.NewJSONHandler(os.Stderr, nil))}),

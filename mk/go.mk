@@ -65,7 +65,8 @@ gen: ## Regenerate all generated code and reference documents (CI-003)
 	"$(FLATC)" --dart -o $(CTL_DART_DIR) $(CTL_SCHEMA); \
 	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(CTL_DART_DIR)/*_generated.dart && rm -f $(CTL_DART_DIR)/*.bak; \
 	"$(FLATC)" --binary --schema -o "$$bfbs" $(FBS_SECTIONS); \
-	$(GO) run ./tools/cmd/schemagen -root . -bfbs "$$bfbs"
+	"$(FLATC)" --binary --schema -o "$$bfbs/control" $(CTL_SCHEMA); \
+	$(GO) run ./tools/cmd/schemagen -root . -bfbs "$$bfbs" -control-bfbs "$$bfbs/control"
 	@"$(MAKE)" proto
 	@"$(MAKE)" sqlc
 	@for m in $(GO_MODULES); do (cd $$m && $(GO) generate ./...); done

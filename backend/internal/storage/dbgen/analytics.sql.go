@@ -13,7 +13,7 @@ import (
 
 const aggregateRawEvents = `-- name: AggregateRawEvents :many
 SELECT date_bin('5 minutes', e.time, TIMESTAMPTZ '2000-01-01 00:00:00+00')::timestamptz AS bucket,
-       e.app_id, e.environment_id, e.name, e.release_sequence, e.plugin_key, e.route AS page, e.device_class, e.locale,
+       e.app_id, e.environment_id, s.series::text AS name, e.release_sequence, e.plugin_key, e.route AS page, e.device_class, e.locale,
        COALESCE(plux_value_bucket(plux_event_value(e.name, e.fields)), -1)::integer AS hist_bucket,
        count(*)::bigint AS events,
        count(plux_event_value(e.name, e.fields))::bigint AS value_count,
@@ -21,6 +21,7 @@ SELECT date_bin('5 minutes', e.time, TIMESTAMPTZ '2000-01-01 00:00:00+00')::time
        COALESCE(min(plux_event_value(e.name, e.fields)), 0)::double precision AS value_min,
        COALESCE(max(plux_event_value(e.name, e.fields)), 0)::double precision AS value_max
   FROM analytics_events e
+ CROSS JOIN LATERAL unnest(plux_event_series(e.name, e.fields)) AS s(series)
  WHERE e.organization_id = $1 AND e.time >= $2::timestamptz AND e.time < $3::timestamptz
  GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 `
@@ -51,7 +52,9 @@ type AggregateRawEventsRow struct {
 
 // The raw events of a time window, aggregated into five-minute buckets by
 // dimensions and histogram bucket. A NULL hist_bucket is the group of
-// events that carry no duration.
+// events that carry no duration. A failed action or function call is
+// counted under its own name and under the failure series the rollout
+// health gates read (plux_event_series, REL-053).
 func (q *Queries) AggregateRawEvents(ctx context.Context, arg AggregateRawEventsParams) ([]AggregateRawEventsRow, error) {
 	rows, err := q.db.Query(ctx, aggregateRawEvents, arg.OrganizationID, arg.FromTime, arg.ToTime)
 	if err != nil {
@@ -222,6 +225,34 @@ func (q *Queries) GetAnalyticsExport(ctx context.Context, organizationID pgtype.
 	return i, err
 }
 
+const getAnalyticsFileExport = `-- name: GetAnalyticsFileExport :one
+SELECT organization_id, parquet_enabled, parquet_events, parquet_rollups, parquet_granularity, webhook_enabled, webhook_url, secret_ciphertext, secret_wrapped_key, secret_key_id, secret_hint, exported_until, last_error, last_attempt_at, changed_by, changed_at FROM analytics_file_exports WHERE organization_id = $1
+`
+
+func (q *Queries) GetAnalyticsFileExport(ctx context.Context, organizationID pgtype.UUID) (AnalyticsFileExport, error) {
+	row := q.db.QueryRow(ctx, getAnalyticsFileExport, organizationID)
+	var i AnalyticsFileExport
+	err := row.Scan(
+		&i.OrganizationID,
+		&i.ParquetEnabled,
+		&i.ParquetEvents,
+		&i.ParquetRollups,
+		&i.ParquetGranularity,
+		&i.WebhookEnabled,
+		&i.WebhookUrl,
+		&i.SecretCiphertext,
+		&i.SecretWrappedKey,
+		&i.SecretKeyID,
+		&i.SecretHint,
+		&i.ExportedUntil,
+		&i.LastError,
+		&i.LastAttemptAt,
+		&i.ChangedBy,
+		&i.ChangedAt,
+	)
+	return i, err
+}
+
 const getDeviceDimensions = `-- name: GetDeviceDimensions :one
 SELECT device_class, locale FROM devices WHERE id = $1
 `
@@ -327,6 +358,86 @@ func (q *Queries) InsertRetentionChange(ctx context.Context, arg InsertRetention
 		arg.FinishedAt,
 	)
 	return err
+}
+
+const listEventsWindow = `-- name: ListEventsWindow :many
+SELECT id, organization_id, app_id, environment_id, device_id, name, time, release_sequence, plugin_key, route, category,
+       device_class, locale, fields
+  FROM analytics_events
+ WHERE organization_id = $1 AND time >= $2::timestamptz AND time < $3::timestamptz
+   AND (time, id) > ($4::timestamptz, $5::uuid)
+ ORDER BY time, id
+ LIMIT $6
+`
+
+type ListEventsWindowParams struct {
+	OrganizationID pgtype.UUID
+	FromTime       pgtype.Timestamptz
+	ToTime         pgtype.Timestamptz
+	CursorTime     pgtype.Timestamptz
+	CursorID       pgtype.UUID
+	RowLimit       int32
+}
+
+type ListEventsWindowRow struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	EnvironmentID   pgtype.UUID
+	DeviceID        pgtype.UUID
+	Name            string
+	Time            pgtype.Timestamptz
+	ReleaseSequence int64
+	PluginKey       string
+	Route           string
+	Category        string
+	DeviceClass     string
+	Locale          string
+	Fields          []byte
+}
+
+// The raw events of a window in the order the exports read them, after a
+// keyset cursor (ANL-011). The first page starts at the nil UUID.
+func (q *Queries) ListEventsWindow(ctx context.Context, arg ListEventsWindowParams) ([]ListEventsWindowRow, error) {
+	rows, err := q.db.Query(ctx, listEventsWindow,
+		arg.OrganizationID,
+		arg.FromTime,
+		arg.ToTime,
+		arg.CursorTime,
+		arg.CursorID,
+		arg.RowLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventsWindowRow{}
+	for rows.Next() {
+		var i ListEventsWindowRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.AppID,
+			&i.EnvironmentID,
+			&i.DeviceID,
+			&i.Name,
+			&i.Time,
+			&i.ReleaseSequence,
+			&i.PluginKey,
+			&i.Route,
+			&i.Category,
+			&i.DeviceClass,
+			&i.Locale,
+			&i.Fields,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listRetentionChanges = `-- name: ListRetentionChanges :many
@@ -545,6 +656,29 @@ func (q *Queries) RecordExportAttempt(ctx context.Context, arg RecordExportAttem
 	return err
 }
 
+const recordFileExportAttempt = `-- name: RecordFileExportAttempt :exec
+UPDATE analytics_file_exports
+   SET exported_until = $2, last_error = $3, last_attempt_at = $4
+ WHERE organization_id = $1
+`
+
+type RecordFileExportAttemptParams struct {
+	OrganizationID pgtype.UUID
+	ExportedUntil  pgtype.Timestamptz
+	LastError      string
+	LastAttemptAt  pgtype.Timestamptz
+}
+
+func (q *Queries) RecordFileExportAttempt(ctx context.Context, arg RecordFileExportAttemptParams) error {
+	_, err := q.db.Exec(ctx, recordFileExportAttempt,
+		arg.OrganizationID,
+		arg.ExportedUntil,
+		arg.LastError,
+		arg.LastAttemptAt,
+	)
+	return err
+}
+
 const scheduledRetentionChangesSince = `-- name: ScheduledRetentionChangesSince :many
 SELECT id, organization_id, data_class, days, state, requested_by, requested_at, apply_at, finished_at FROM retention_changes
  WHERE organization_id = $1 AND state = 'scheduled' AND apply_at <= $2
@@ -689,6 +823,57 @@ func (q *Queries) UpsertAnalyticsExport(ctx context.Context, arg UpsertAnalytics
 		arg.OrganizationID,
 		arg.Endpoint,
 		arg.Enabled,
+		arg.ExportedUntil,
+		arg.ChangedBy,
+	)
+	return err
+}
+
+const upsertAnalyticsFileExport = `-- name: UpsertAnalyticsFileExport :exec
+INSERT INTO analytics_file_exports (organization_id, parquet_enabled, parquet_events, parquet_rollups, parquet_granularity,
+                                    webhook_enabled, webhook_url, secret_ciphertext, secret_wrapped_key, secret_key_id,
+                                    secret_hint, exported_until, changed_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+ON CONFLICT (organization_id) DO UPDATE
+   SET parquet_enabled = EXCLUDED.parquet_enabled, parquet_events = EXCLUDED.parquet_events,
+       parquet_rollups = EXCLUDED.parquet_rollups, parquet_granularity = EXCLUDED.parquet_granularity,
+       webhook_enabled = EXCLUDED.webhook_enabled, webhook_url = EXCLUDED.webhook_url,
+       secret_ciphertext = EXCLUDED.secret_ciphertext, secret_wrapped_key = EXCLUDED.secret_wrapped_key,
+       secret_key_id = EXCLUDED.secret_key_id, secret_hint = EXCLUDED.secret_hint,
+       changed_by = EXCLUDED.changed_by, changed_at = now()
+`
+
+type UpsertAnalyticsFileExportParams struct {
+	OrganizationID     pgtype.UUID
+	ParquetEnabled     bool
+	ParquetEvents      bool
+	ParquetRollups     bool
+	ParquetGranularity string
+	WebhookEnabled     bool
+	WebhookUrl         string
+	SecretCiphertext   []byte
+	SecretWrappedKey   []byte
+	SecretKeyID        string
+	SecretHint         string
+	ExportedUntil      pgtype.Timestamptz
+	ChangedBy          string
+}
+
+// The settings of the enterprise exports. A new row starts exporting at
+// exported_until; an existing one keeps its progress.
+func (q *Queries) UpsertAnalyticsFileExport(ctx context.Context, arg UpsertAnalyticsFileExportParams) error {
+	_, err := q.db.Exec(ctx, upsertAnalyticsFileExport,
+		arg.OrganizationID,
+		arg.ParquetEnabled,
+		arg.ParquetEvents,
+		arg.ParquetRollups,
+		arg.ParquetGranularity,
+		arg.WebhookEnabled,
+		arg.WebhookUrl,
+		arg.SecretCiphertext,
+		arg.SecretWrappedKey,
+		arg.SecretKeyID,
+		arg.SecretHint,
 		arg.ExportedUntil,
 		arg.ChangedBy,
 	)

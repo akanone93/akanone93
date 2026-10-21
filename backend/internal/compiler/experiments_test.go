@@ -10,6 +10,7 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -84,6 +85,100 @@ func TestExperimentsGoldenBundles_ABT_002(t *testing.T) {
 	}
 	for _, b := range append([]*Bundle{res.App}, res.Plugins...) {
 		checkGolden(t, filepath.Join(goldenRoot, "experiments", b.Key+".pxb"), b.Data)
+	}
+}
+
+// experimentDefaultsOf returns the control arm the app bundle carries per
+// experiment, as "key=control: prop=value ..." in the bundle's order.
+func experimentDefaultsOf(t *testing.T, b *bundle.Bundle) []string {
+	t.Helper()
+	var out []string
+	for _, sec := range b.Sections {
+		if sec.Kind != bundle.SectionMeta {
+			continue
+		}
+		m := fbs.GetRootAsMeta(sec.Data, 0)
+		var e fbs.ExperimentDefaults
+		var p fbs.ExperimentProp
+		for i := range m.ExperimentsLength() {
+			m.Experiments(&e, i)
+			line := string(e.Key()) + "=" + string(e.Control()) + ":"
+			for j := range e.PropsLength() {
+				e.Props(&p, j)
+				v := p.Value(nil)
+				if v.Kind() != fbs.ValueKindString {
+					t.Fatalf("prop %s has value kind %v, want a string", p.Name(), v.Kind())
+				}
+				line += " " + string(p.Name()) + "=" + stringsOf(t, b)(v.S())
+			}
+			out = append(out, line)
+		}
+	}
+	return out
+}
+
+// TestExperimentDefaultsInTheAppBundle embeds the control arm's value of
+// each declared prop in the app bundle, so the runtime shows the control
+// when the control document has no entry for the experiment; plugin
+// bundles carry none, and an experiment without props adds nothing.
+// Verifies: ABT-002, CMP-002.
+func TestExperimentDefaultsInTheAppBundle_ABT_002(t *testing.T) {
+	t.Parallel()
+	res := Compile(experimentsProject(t), DefaultOptions())
+	if len(res.Diagnostics) > 0 {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	read := readAll(t, res)
+	if got, want := experimentDefaultsOf(t, read[0]), []string{"ctaLabel=control: label=Buy"}; !slices.Equal(got, want) {
+		t.Errorf("app bundle experiments = %v, want %v", got, want)
+	}
+	for _, b := range read[1:] {
+		if got := experimentDefaultsOf(t, b); len(got) != 0 {
+			t.Errorf("a plugin bundle carries experiment defaults %v", got)
+		}
+	}
+}
+
+// variantValuesOf returns the value of each prop for each variant the app
+// bundle carries, as "key.prop[variant]=value" in the bundle's order.
+func variantValuesOf(t *testing.T, b *bundle.Bundle) []string {
+	t.Helper()
+	var out []string
+	for _, sec := range b.Sections {
+		if sec.Kind != bundle.SectionMeta {
+			continue
+		}
+		m := fbs.GetRootAsMeta(sec.Data, 0)
+		var e fbs.ExperimentDefaults
+		var p fbs.ExperimentProp
+		var v fbs.ExperimentVariantValue
+		for i := range m.ExperimentsLength() {
+			m.Experiments(&e, i)
+			for j := range e.PropsLength() {
+				e.Props(&p, j)
+				for k := range p.VariantsLength() {
+					p.Variants(&v, k)
+					out = append(out, string(e.Key())+"."+string(p.Name())+"["+string(v.Variant())+"]="+stringsOf(t, b)(v.Value(nil).S()))
+				}
+			}
+		}
+	}
+	return out
+}
+
+// TestExperimentDefaultsCarryEveryVariant embeds each variant's value of
+// each declared prop, in the order of the experiment document, so a device
+// assigned a treatment has the value of its variant.
+// Verifies: ABT-002, CMP-002.
+func TestExperimentDefaultsCarryEveryVariant_ABT_002(t *testing.T) {
+	t.Parallel()
+	res := Compile(experimentsProject(t), DefaultOptions())
+	if len(res.Diagnostics) > 0 {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	want := []string{"ctaLabel.label[control]=Buy", "ctaLabel.label[bold]=Buy now", "ctaLabel.label[short]=Go"}
+	if got := variantValuesOf(t, readAll(t, res)[0]); !slices.Equal(got, want) {
+		t.Errorf("variant values = %v, want %v", got, want)
 	}
 }
 

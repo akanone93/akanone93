@@ -20,18 +20,17 @@ Uint8List bundle(String name) =>
 
 ControlExperiment experiment(
   String key,
-  Map<String, Map<String, Object?>> variants, {
+  List<String> variants, {
   required String shown,
 }) => ControlExperiment(
   key: key,
   salt: '$key-1',
   variants: [
-    for (final MapEntry(key: name, value: props) in variants.entries)
+    for (final name in variants)
       ControlVariant(
         name: name,
         weightBp: name == shown ? 10000 : 0,
         control: name == 'control',
-        props: props,
       ),
   ],
 );
@@ -86,11 +85,8 @@ void main() {
     await start(tester, consent: true);
     applyControl(
       control([
-        experiment('heroLayout', {'control': {}, 'wide': {}}, shown: 'wide'),
-        experiment('ctaLabel', {
-          'control': {'label': 'Buy'},
-          'bold': {'label': 'Buy now'},
-        }, shown: 'bold'),
+        experiment('heroLayout', ['control', 'wide'], shown: 'wide'),
+        experiment('ctaLabel', ['control', 'bold'], shown: 'bold'),
       ]),
     );
     await show(tester);
@@ -113,7 +109,7 @@ void main() {
     await start(tester, consent: true);
     applyControl(
       control([
-        experiment('heroLayout', {'control': {}, 'wide': {}}, shown: 'wide'),
+        experiment('heroLayout', ['control', 'wide'], shown: 'wide'),
       ]),
     );
     expect(h.runtime.experiments.variantOf('heroLayout'), 'wide');
@@ -129,10 +125,7 @@ void main() {
     // Only the prop experiment runs; the Variant's experiment is absent.
     applyControl(
       control([
-        experiment('ctaLabel', {
-          'control': {'label': 'Buy'},
-          'bold': {'label': 'Buy now'},
-        }, shown: 'bold'),
+        experiment('ctaLabel', ['control', 'bold'], shown: 'bold'),
       ]),
     );
     await show(tester);
@@ -141,16 +134,26 @@ void main() {
     expect(await exposures(tester), isEmpty);
   });
 
+  testWidgets('with no control document a prop experiment reads the control '
+      'value the compiler embedded in the app bundle [ABT-002]', (
+    tester,
+  ) async {
+    await start(tester, consent: true);
+    applyControl(null);
+    await show(tester);
+    expect(find.text('Buy'), findsOneWidget);
+    expect(find.text('Buy now'), findsNothing);
+    expect(find.text('Welcome'), findsOneWidget);
+    expect(await exposures(tester), isEmpty);
+  });
+
   testWidgets('without the experiments consent everyone gets the control '
       'and nothing is recorded [ABT-002] [SEC-161]', (tester) async {
     await start(tester, consent: false);
     applyControl(
       control([
-        experiment('heroLayout', {'control': {}, 'wide': {}}, shown: 'wide'),
-        experiment('ctaLabel', {
-          'control': {'label': 'Buy'},
-          'bold': {'label': 'Buy now'},
-        }, shown: 'bold'),
+        experiment('heroLayout', ['control', 'wide'], shown: 'wide'),
+        experiment('ctaLabel', ['control', 'bold'], shown: 'bold'),
       ]),
     );
     await show(tester);

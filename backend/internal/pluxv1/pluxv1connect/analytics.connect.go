@@ -60,6 +60,12 @@ const (
 	// AnalyticsServiceDeleteExportProcedure is the fully-qualified name of the AnalyticsService's
 	// DeleteExport RPC.
 	AnalyticsServiceDeleteExportProcedure = "/plux.v1.AnalyticsService/DeleteExport"
+	// AnalyticsServiceGetFileExportProcedure is the fully-qualified name of the AnalyticsService's
+	// GetFileExport RPC.
+	AnalyticsServiceGetFileExportProcedure = "/plux.v1.AnalyticsService/GetFileExport"
+	// AnalyticsServiceSetFileExportProcedure is the fully-qualified name of the AnalyticsService's
+	// SetFileExport RPC.
+	AnalyticsServiceSetFileExportProcedure = "/plux.v1.AnalyticsService/SetFileExport"
 	// AnalyticsServiceCreateAlertRuleProcedure is the fully-qualified name of the AnalyticsService's
 	// CreateAlertRule RPC.
 	AnalyticsServiceCreateAlertRuleProcedure = "/plux.v1.AnalyticsService/CreateAlertRule"
@@ -111,6 +117,13 @@ type AnalyticsServiceClient interface {
 	// DeleteExport removes the OTLP destination. It needs organization.manage
 	// and is audited.
 	DeleteExport(context.Context, *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error)
+	// GetFileExport returns the settings of the Parquet and webhook exports
+	// (ANL-011) and how far they have come. It needs analytics.read.
+	GetFileExport(context.Context, *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error)
+	// SetFileExport sets the Parquet and webhook exports. An export the
+	// licence does not allow is PLX-8600. It needs organization.manage and is
+	// audited.
+	SetFileExport(context.Context, *connect.Request[pluxv1.SetFileExportRequest]) (*connect.Response[pluxv1.SetFileExportResponse], error)
 	// CreateAlertRule defines an alert on a rollup metric (ANL-030). It needs
 	// alerts.manage on the app and is audited.
 	CreateAlertRule(context.Context, *connect.Request[pluxv1.CreateAlertRuleRequest]) (*connect.Response[pluxv1.CreateAlertRuleResponse], error)
@@ -194,6 +207,18 @@ func NewAnalyticsServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(analyticsServiceMethods.ByName("DeleteExport")),
 			connect.WithClientOptions(opts...),
 		),
+		getFileExport: connect.NewClient[pluxv1.GetFileExportRequest, pluxv1.GetFileExportResponse](
+			httpClient,
+			baseURL+AnalyticsServiceGetFileExportProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("GetFileExport")),
+			connect.WithClientOptions(opts...),
+		),
+		setFileExport: connect.NewClient[pluxv1.SetFileExportRequest, pluxv1.SetFileExportResponse](
+			httpClient,
+			baseURL+AnalyticsServiceSetFileExportProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("SetFileExport")),
+			connect.WithClientOptions(opts...),
+		),
 		createAlertRule: connect.NewClient[pluxv1.CreateAlertRuleRequest, pluxv1.CreateAlertRuleResponse](
 			httpClient,
 			baseURL+AnalyticsServiceCreateAlertRuleProcedure,
@@ -249,6 +274,8 @@ type analyticsServiceClient struct {
 	getExport             *connect.Client[pluxv1.GetExportRequest, pluxv1.GetExportResponse]
 	setExport             *connect.Client[pluxv1.SetExportRequest, pluxv1.SetExportResponse]
 	deleteExport          *connect.Client[pluxv1.DeleteExportRequest, pluxv1.DeleteExportResponse]
+	getFileExport         *connect.Client[pluxv1.GetFileExportRequest, pluxv1.GetFileExportResponse]
+	setFileExport         *connect.Client[pluxv1.SetFileExportRequest, pluxv1.SetFileExportResponse]
 	createAlertRule       *connect.Client[pluxv1.CreateAlertRuleRequest, pluxv1.CreateAlertRuleResponse]
 	updateAlertRule       *connect.Client[pluxv1.UpdateAlertRuleRequest, pluxv1.UpdateAlertRuleResponse]
 	deleteAlertRule       *connect.Client[pluxv1.DeleteAlertRuleRequest, pluxv1.DeleteAlertRuleResponse]
@@ -296,6 +323,16 @@ func (c *analyticsServiceClient) SetExport(ctx context.Context, req *connect.Req
 // DeleteExport calls plux.v1.AnalyticsService.DeleteExport.
 func (c *analyticsServiceClient) DeleteExport(ctx context.Context, req *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error) {
 	return c.deleteExport.CallUnary(ctx, req)
+}
+
+// GetFileExport calls plux.v1.AnalyticsService.GetFileExport.
+func (c *analyticsServiceClient) GetFileExport(ctx context.Context, req *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error) {
+	return c.getFileExport.CallUnary(ctx, req)
+}
+
+// SetFileExport calls plux.v1.AnalyticsService.SetFileExport.
+func (c *analyticsServiceClient) SetFileExport(ctx context.Context, req *connect.Request[pluxv1.SetFileExportRequest]) (*connect.Response[pluxv1.SetFileExportResponse], error) {
+	return c.setFileExport.CallUnary(ctx, req)
 }
 
 // CreateAlertRule calls plux.v1.AnalyticsService.CreateAlertRule.
@@ -361,6 +398,13 @@ type AnalyticsServiceHandler interface {
 	// DeleteExport removes the OTLP destination. It needs organization.manage
 	// and is audited.
 	DeleteExport(context.Context, *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error)
+	// GetFileExport returns the settings of the Parquet and webhook exports
+	// (ANL-011) and how far they have come. It needs analytics.read.
+	GetFileExport(context.Context, *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error)
+	// SetFileExport sets the Parquet and webhook exports. An export the
+	// licence does not allow is PLX-8600. It needs organization.manage and is
+	// audited.
+	SetFileExport(context.Context, *connect.Request[pluxv1.SetFileExportRequest]) (*connect.Response[pluxv1.SetFileExportResponse], error)
 	// CreateAlertRule defines an alert on a rollup metric (ANL-030). It needs
 	// alerts.manage on the app and is audited.
 	CreateAlertRule(context.Context, *connect.Request[pluxv1.CreateAlertRuleRequest]) (*connect.Response[pluxv1.CreateAlertRuleResponse], error)
@@ -440,6 +484,18 @@ func NewAnalyticsServiceHandler(svc AnalyticsServiceHandler, opts ...connect.Han
 		connect.WithSchema(analyticsServiceMethods.ByName("DeleteExport")),
 		connect.WithHandlerOptions(opts...),
 	)
+	analyticsServiceGetFileExportHandler := connect.NewUnaryHandler(
+		AnalyticsServiceGetFileExportProcedure,
+		svc.GetFileExport,
+		connect.WithSchema(analyticsServiceMethods.ByName("GetFileExport")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceSetFileExportHandler := connect.NewUnaryHandler(
+		AnalyticsServiceSetFileExportProcedure,
+		svc.SetFileExport,
+		connect.WithSchema(analyticsServiceMethods.ByName("SetFileExport")),
+		connect.WithHandlerOptions(opts...),
+	)
 	analyticsServiceCreateAlertRuleHandler := connect.NewUnaryHandler(
 		AnalyticsServiceCreateAlertRuleProcedure,
 		svc.CreateAlertRule,
@@ -500,6 +556,10 @@ func NewAnalyticsServiceHandler(svc AnalyticsServiceHandler, opts ...connect.Han
 			analyticsServiceSetExportHandler.ServeHTTP(w, r)
 		case AnalyticsServiceDeleteExportProcedure:
 			analyticsServiceDeleteExportHandler.ServeHTTP(w, r)
+		case AnalyticsServiceGetFileExportProcedure:
+			analyticsServiceGetFileExportHandler.ServeHTTP(w, r)
+		case AnalyticsServiceSetFileExportProcedure:
+			analyticsServiceSetFileExportHandler.ServeHTTP(w, r)
 		case AnalyticsServiceCreateAlertRuleProcedure:
 			analyticsServiceCreateAlertRuleHandler.ServeHTTP(w, r)
 		case AnalyticsServiceUpdateAlertRuleProcedure:
@@ -553,6 +613,14 @@ func (UnimplementedAnalyticsServiceHandler) SetExport(context.Context, *connect.
 
 func (UnimplementedAnalyticsServiceHandler) DeleteExport(context.Context, *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.DeleteExport is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) GetFileExport(context.Context, *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.GetFileExport is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) SetFileExport(context.Context, *connect.Request[pluxv1.SetFileExportRequest]) (*connect.Response[pluxv1.SetFileExportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.SetFileExport is not implemented"))
 }
 
 func (UnimplementedAnalyticsServiceHandler) CreateAlertRule(context.Context, *connect.Request[pluxv1.CreateAlertRuleRequest]) (*connect.Response[pluxv1.CreateAlertRuleResponse], error) {

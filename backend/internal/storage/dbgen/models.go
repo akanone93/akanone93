@@ -88,6 +88,25 @@ type AnalyticsExport struct {
 	ChangedAt      pgtype.Timestamptz
 }
 
+type AnalyticsFileExport struct {
+	OrganizationID     pgtype.UUID
+	ParquetEnabled     bool
+	ParquetEvents      bool
+	ParquetRollups     bool
+	ParquetGranularity string
+	WebhookEnabled     bool
+	WebhookUrl         string
+	SecretCiphertext   []byte
+	SecretWrappedKey   []byte
+	SecretKeyID        string
+	SecretHint         string
+	ExportedUntil      pgtype.Timestamptz
+	LastError          string
+	LastAttemptAt      pgtype.Timestamptz
+	ChangedBy          string
+	ChangedAt          pgtype.Timestamptz
+}
+
 type AnalyticsRollup struct {
 	OrganizationID  pgtype.UUID
 	AppID           pgtype.UUID

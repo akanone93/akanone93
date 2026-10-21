@@ -26,6 +26,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
@@ -76,6 +77,10 @@ type Options struct {
 	// Defaults are the installation's retention defaults; the zero value is
 	// 396 days for raw events and 3653 for the production audit log.
 	Defaults analytics.Defaults
+	// Exporter runs the Parquet and webhook exports; nil leaves them off.
+	Exporter analytics.Exporter
+	// Objects is where the Parquet exporter puts its files.
+	Objects objects.Store
 }
 
 // Fixture is a database with one organisation, one app and one device, and
@@ -168,6 +173,7 @@ func New(t *testing.T, o Options) *Fixture {
 	f.Analytics, err = analytics.New(analytics.Options{
 		DB: f.DB, Store: f.Store, Audit: f.Audit, IDs: f.IDs, Limits: o.Limits, Now: f.Clock.Now, Defaults: o.Defaults, Window: *window,
 		Organizations: func(ctx context.Context, fn func(org string) error) error { return fn(f.Org) }, Export: o.Export,
+		Exporter: o.Exporter, Objects: o.Objects, Crypter: backend,
 	})
 	if err != nil {
 		t.Fatal(err)

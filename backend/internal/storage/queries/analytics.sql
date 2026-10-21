@@ -33,10 +33,12 @@ SELECT DISTINCT date_bin('5 minutes', time, TIMESTAMPTZ '2000-01-01 00:00:00+00'
 
 -- The raw events of a time window, aggregated into five-minute buckets by
 -- dimensions and histogram bucket. A NULL hist_bucket is the group of
--- events that carry no duration.
+-- events that carry no duration. A failed action or function call is
+-- counted under its own name and under the failure series the rollout
+-- health gates read (plux_event_series, REL-053).
 -- name: AggregateRawEvents :many
 SELECT date_bin('5 minutes', e.time, TIMESTAMPTZ '2000-01-01 00:00:00+00')::timestamptz AS bucket,
-       e.app_id, e.environment_id, e.name, e.release_sequence, e.plugin_key, e.route AS page, e.device_class, e.locale,
+       e.app_id, e.environment_id, s.series::text AS name, e.release_sequence, e.plugin_key, e.route AS page, e.device_class, e.locale,
        COALESCE(plux_value_bucket(plux_event_value(e.name, e.fields)), -1)::integer AS hist_bucket,
        count(*)::bigint AS events,
        count(plux_event_value(e.name, e.fields))::bigint AS value_count,
@@ -44,6 +46,7 @@ SELECT date_bin('5 minutes', e.time, TIMESTAMPTZ '2000-01-01 00:00:00+00')::time
        COALESCE(min(plux_event_value(e.name, e.fields)), 0)::double precision AS value_min,
        COALESCE(max(plux_event_value(e.name, e.fields)), 0)::double precision AS value_max
   FROM analytics_events e
+ CROSS JOIN LATERAL unnest(plux_event_series(e.name, e.fields)) AS s(series)
  WHERE e.organization_id = $1 AND e.time >= sqlc.arg(from_time)::timestamptz AND e.time < sqlc.arg(to_time)::timestamptz
  GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;
 
@@ -133,5 +136,39 @@ DELETE FROM analytics_exports WHERE organization_id = $1;
 
 -- name: RecordExportAttempt :exec
 UPDATE analytics_exports
+   SET exported_until = $2, last_error = $3, last_attempt_at = $4
+ WHERE organization_id = $1;
+
+-- The raw events of a window in the order the exports read them, after a
+-- keyset cursor (ANL-011). The first page starts at the nil UUID.
+-- name: ListEventsWindow :many
+SELECT id, organization_id, app_id, environment_id, device_id, name, time, release_sequence, plugin_key, route, category,
+       device_class, locale, fields
+  FROM analytics_events
+ WHERE organization_id = $1 AND time >= sqlc.arg(from_time)::timestamptz AND time < sqlc.arg(to_time)::timestamptz
+   AND (time, id) > (sqlc.arg(cursor_time)::timestamptz, sqlc.arg(cursor_id)::uuid)
+ ORDER BY time, id
+ LIMIT sqlc.arg(row_limit);
+
+-- name: GetAnalyticsFileExport :one
+SELECT * FROM analytics_file_exports WHERE organization_id = $1;
+
+-- The settings of the enterprise exports. A new row starts exporting at
+-- exported_until; an existing one keeps its progress.
+-- name: UpsertAnalyticsFileExport :exec
+INSERT INTO analytics_file_exports (organization_id, parquet_enabled, parquet_events, parquet_rollups, parquet_granularity,
+                                    webhook_enabled, webhook_url, secret_ciphertext, secret_wrapped_key, secret_key_id,
+                                    secret_hint, exported_until, changed_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+ON CONFLICT (organization_id) DO UPDATE
+   SET parquet_enabled = EXCLUDED.parquet_enabled, parquet_events = EXCLUDED.parquet_events,
+       parquet_rollups = EXCLUDED.parquet_rollups, parquet_granularity = EXCLUDED.parquet_granularity,
+       webhook_enabled = EXCLUDED.webhook_enabled, webhook_url = EXCLUDED.webhook_url,
+       secret_ciphertext = EXCLUDED.secret_ciphertext, secret_wrapped_key = EXCLUDED.secret_wrapped_key,
+       secret_key_id = EXCLUDED.secret_key_id, secret_hint = EXCLUDED.secret_hint,
+       changed_by = EXCLUDED.changed_by, changed_at = now();
+
+-- name: RecordFileExportAttempt :exec
+UPDATE analytics_file_exports
    SET exported_until = $2, last_error = $3, last_attempt_at = $4
  WHERE organization_id = $1;

@@ -167,24 +167,16 @@ final class ControlVariant {
     required this.name,
     required this.weightBp,
     this.control = false,
-    this.props = const {},
   });
 
   /// Reads the stored form; null when it is not one.
   static ControlVariant? fromJson(Object? json) {
     if (json is! Map<String, Object?>) return null;
     final name = json['name'], weight = json['weightBp'];
-    final control = json['control'], props = json['props'];
+    final control = json['control'];
     if (name is! String || weight is! int || weight < 0) return null;
-    if (control is! bool || (props != null && props is! Map<String, Object?>)) {
-      return null;
-    }
-    return ControlVariant(
-      name: name,
-      weightBp: weight,
-      control: control,
-      props: (props as Map<String, Object?>?) ?? const {},
-    );
+    if (control is! bool) return null;
+    return ControlVariant(name: name, weightBp: weight, control: control);
   }
 
   /// The variant's name, as in the compiled release.
@@ -196,18 +188,11 @@ final class ControlVariant {
   /// Its share in basis points of [bucketCount].
   final int weightBp;
 
-  /// The values of the experiment's props for this variant, in JSON form
-  /// (`experiment.<key>.<prop>` in PXL). The control document carries none:
-  /// `AllocationVariant` has no such field, so a document read from the wire
-  /// leaves this empty.
-  final Map<String, Object?> props;
-
   /// The stored form.
   Map<String, Object?> toJson() => {
     'name': name,
     'control': control,
     'weightBp': weightBp,
-    'props': props,
   };
 }
 
