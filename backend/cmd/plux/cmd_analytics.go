@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	analyticsUsage = "Usage: plux analytics query|retention|export|alerts|errors [flags]\n"
+	analyticsUsage = "Usage: plux analytics query|retention|export|files|alerts|errors [flags]\n"
 	retentionUsage = "Usage: plux analytics retention show|set|list|cancel [flags]\n"
 	exportUsage    = "Usage: plux analytics export show|set|delete [flags]\n"
 )
@@ -38,6 +38,8 @@ func (e env) analytics(args []string) int {
 		return e.analyticsRetention(args[1:])
 	case "export":
 		return e.analyticsExport(args[1:])
+	case "files":
+		return e.analyticsFiles(args[1:])
 	case "alerts":
 		return e.analyticsAlerts(args[1:])
 	case "errors":

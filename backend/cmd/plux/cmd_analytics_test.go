@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -100,6 +101,35 @@ func (f fakeAnalytics) SetExport(_ context.Context, r *connect.Request[pluxv1.Se
 func (f fakeAnalytics) DeleteExport(context.Context, *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error) {
 	f.record("unexport")
 	return connect.NewResponse(&pluxv1.DeleteExportResponse{}), nil
+}
+
+func (f fakeAnalytics) GetFileExport(context.Context, *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error) {
+	return connect.NewResponse(&pluxv1.GetFileExportResponse{Export: &pluxv1.FileExport{
+		Settings: &pluxv1.FileExportSettings{
+			ParquetEnabled: true, ParquetEvents: true, ParquetGranularity: "1h",
+			WebhookEnabled: true, WebhookUrl: "https://hooks.example/plux",
+		},
+		SecretHint: "a1b2", LastError: "PLX-8303 the webhook did not answer",
+	}}), nil
+}
+
+func (f fakeAnalytics) SetFileExport(_ context.Context, r *connect.Request[pluxv1.SetFileExportRequest]) (*connect.Response[pluxv1.SetFileExportResponse], error) {
+	s, secret := r.Msg.GetSettings(), r.Msg.GetWebhookSecret()
+	f.record("files set parquet=" + yesNo(s.GetParquetEnabled()) + " events=" + yesNo(s.GetParquetEvents()) + " rollups=" + yesNo(s.GetParquetRollups()) +
+		" granularity=" + s.GetParquetGranularity() + " webhook=" + yesNo(s.GetWebhookEnabled()) + " url=" + s.GetWebhookUrl() + " secretlen=" + strconv.Itoa(len(secret)))
+	hint := ""
+	if len(secret) >= 4 {
+		hint = secret[len(secret)-4:]
+	}
+	return connect.NewResponse(&pluxv1.SetFileExportResponse{Export: &pluxv1.FileExport{Settings: s, SecretHint: hint}}), nil
+}
+
+// yesNo spells a flag the way the fake records it.
+func yesNo(b bool) string {
+	if b {
+		return "yes"
+	}
+	return "no"
 }
 
 // Verifies: ANL-010, ANL-011.
@@ -203,6 +233,7 @@ func TestAnalyticsCommandsUsage_ANL_010(t *testing.T) { //nolint:paralleltest //
 		"an unknown subcommand":  {"purge"},
 		"retention without sub":  {"retention"},
 		"export without sub":     {"export"},
+		"files without sub":      {"files"},
 		"a missing metric":       {"query", "--server", "https://x.example", "--app", "a1"},
 		"a missing app":          {"query", "--server", "https://x.example", "--metric", "render_perf"},
 		"a bad time":             {"query", "--server", "https://x.example", "--app", "a1", "--metric", "m", "--from", "yesterday"},
