@@ -365,7 +365,7 @@ func TestSearch_ScopedToApps_SRV_061(t *testing.T) {
 			for _, a := range allowed {
 				ids = append(ids, storage.MustUUID(a))
 			}
-			rows, err := dbgen.New(tx).Search(ctx, dbgen.SearchParams{Query: "ledger:*", Allowed: ids, Kinds: []string{}, PageSize: 50})
+			rows, err := dbgen.New(tx).Search(ctx, dbgen.SearchParams{Query: "ledger:*", Allowed: ids, Excluded: []pgtype.UUID{}, Kinds: []string{}, PageSize: 50})
 			n = len(rows)
 			return err
 		})
@@ -382,6 +382,41 @@ func TestSearch_ScopedToApps_SRV_061(t *testing.T) {
 	}
 	if got := count(); got != 0 {
 		t.Errorf("the statement with an empty allowed list returned %d rows, want 0", got)
+	}
+}
+
+// Verifies: SRV-061, GOV-006.
+// A caller who may search the whole organisation does not find what is on an
+// app where a restriction takes search.read away, nor does a restriction on
+// another permission, or on one environment, hide it.
+func TestSearch_LeavesOutRestrictedApps_GOV_006(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	f.put(t, f.owner, f.appA, "templates/ledger-a.template.json", template(f, t, "ledger-a", "Ledger of A", "a"))
+	f.put(t, f.owner, f.appB, "templates/ledger-b.template.json", template(f, t, "ledger-b", "Ledger of B", "b"))
+	applied := func(appID, environment string, removed ...auth.Permission) auth.Principal {
+		p := f.owner
+		p.Restrictions = []auth.AppliedRestriction{{
+			Restriction: auth.Restriction{AppID: appID, Environment: environment}, Removed: removed,
+		}}
+		return p
+	}
+
+	got := f.names(t, applied(f.appA, "", auth.SearchRead), "ledger")
+	if len(got) != 1 || got[0].AppID != f.appB {
+		t.Errorf("with search.read removed on app A the caller finds %+v, want app B's template only", got)
+	}
+	if hits := f.names(t, applied(f.appA, "", auth.SearchRead), "demo"); len(hits) != 0 {
+		t.Errorf("the restricted app itself is found: %+v", hits)
+	}
+	for name, p := range map[string]auth.Principal{
+		"another permission":  applied(f.appA, "", auth.PluginEdit),
+		"one environment":     applied(f.appA, "production", auth.SearchRead),
+		"no restriction held": f.owner,
+	} {
+		if hits := f.names(t, p, "ledger"); len(hits) != 2 {
+			t.Errorf("with %s the caller finds %d templates, want 2", name, len(hits))
+		}
 	}
 }
 

@@ -350,3 +350,34 @@ func TestOwnerFloorIsOrganisationPermissions_GOV_006(t *testing.T) {
 		t.Error("OwnerFloor returned the table itself")
 	}
 }
+
+// Verifies: GOV-006.
+// A person who reads every app across the organisation is still barred from
+// an app on which a restriction takes app.read away, and from no other: the
+// apps a listing leaves out are those whose restriction removed the
+// permission the listing needs, not those of an environment restriction or of
+// another permission.
+func TestExcludedAppsAreThoseWhoseReadIsRestricted_GOV_006(t *testing.T) {
+	t.Parallel()
+	grants := []roleGrant{{Role: RoleDeveloper, Scope: ScopeOrganization}}
+	restrictions := []Restriction{
+		{ID: "a", SubjectKind: SubjectUser, SubjectID: "u", Patterns: []string{"app.read"}, AppID: "A"},
+		{ID: "b", SubjectKind: SubjectUser, SubjectID: "u", Patterns: []string{"plugin.edit"}, AppID: "B"},
+		{ID: "c", SubjectKind: SubjectUser, SubjectID: "u", Patterns: []string{"app.read"}, AppID: "C", Environment: "production"},
+		{ID: "d", SubjectKind: SubjectUser, SubjectID: "u", Patterns: []string{"app.*"}, AppID: "D"},
+	}
+	p := resolve(session(true), "org", grants, nil, nil, restrictions...)
+	if got := p.AllowedApps(); got != nil {
+		t.Errorf("AllowedApps = %v, want nil: the permission is held across the organisation", got)
+	}
+	if got, want := p.ExcludedApps(AppRead), []string{"A", "D"}; !slices.Equal(got, want) {
+		t.Errorf("ExcludedApps(app.read) = %v, want %v", got, want)
+	}
+	if got, want := p.ExcludedApps(PluginEdit), []string{"B"}; !slices.Equal(got, want) {
+		t.Errorf("ExcludedApps(plugin.edit) = %v, want %v", got, want)
+	}
+	unrestricted := resolve(session(true), "org", grants, nil, nil)
+	if got := unrestricted.ExcludedApps(AppRead); len(got) != 0 {
+		t.Errorf("ExcludedApps without restrictions = %v", got)
+	}
+}
