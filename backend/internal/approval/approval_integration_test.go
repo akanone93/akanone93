@@ -490,7 +490,7 @@ func TestPolicies_VersionExportAndDefaults_GOV_020(t *testing.T) {
 	ctx := context.Background()
 	f.profile = settings.Maximum
 	list, err := f.svc.ListPolicies(ctx, f.owner, f.app)
-	if err != nil || len(list) != 6 {
+	if err != nil || len(list) != 8 {
 		t.Fatalf("the maximum defaults = %d policies, %v", len(list), err)
 	}
 	doc := f.policyJSON(t, "mine", `{"resources":["waiver"]}`, `{"approvers":1}`)
@@ -511,7 +511,7 @@ func TestPolicies_VersionExportAndDefaults_GOV_020(t *testing.T) {
 		wantCode(t, err, plxerr.PolicyDocumentInvalid, "invalid policy")
 	}
 	files, err := f.svc.ExportPolicies(ctx, f.owner, f.app)
-	if err != nil || len(files) != 7 || !strings.Contains(string(files["policies/mine.policy.json"]), `"approvers": 2`) {
+	if err != nil || len(files) != 9 || !strings.Contains(string(files["policies/mine.policy.json"]), `"approvers": 2`) {
 		t.Fatalf("export = %d files, %v", len(files), err)
 	}
 	if err := f.svc.DeletePolicy(ctx, f.owner, f.app, "mine"); err != nil {
@@ -520,7 +520,7 @@ func TestPolicies_VersionExportAndDefaults_GOV_020(t *testing.T) {
 	if err := f.svc.DeletePolicy(ctx, f.owner, f.app, "default-maximum-golden-baseline"); err != nil {
 		t.Fatal(err)
 	}
-	if after, _ := f.svc.ListPolicies(ctx, f.owner, f.app); len(after) != 5 {
+	if after, _ := f.svc.ListPolicies(ctx, f.owner, f.app); len(after) != 7 {
 		t.Fatalf("after two deletions %d policies remain", len(after))
 	}
 	if _, err := f.svc.GetPolicy(ctx, f.owner, f.app, "mine"); err == nil {
