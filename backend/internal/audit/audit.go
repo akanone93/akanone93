@@ -288,6 +288,20 @@ const (
 	RoleRevoked      Action = "role.revoked"
 )
 
+// The actions of restriction policies (GOV-006, ADR-0086).
+const (
+	// RestrictionCreated and RestrictionDeleted: a restriction was made or
+	// removed; the entry's detail names the subject, the patterns and the
+	// scope. A restriction is never changed, so there is no update action.
+	RestrictionCreated Action = "restriction.created"
+	RestrictionDeleted Action = "restriction.deleted"
+	// RestrictionRefused: a change was refused because it would lock the
+	// organisation's last owner out of managing members, roles and
+	// restrictions, or because the caller tried to restrict what they do
+	// not hold; the entry's detail names the reason.
+	RestrictionRefused Action = "restriction.refused"
+)
+
 // The actions of notifications, webhooks and function triggers.
 const (
 	// NotificationChannelSet, NotificationChannelDeleted,
@@ -396,6 +410,7 @@ var actions = sorted(
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,
+	RestrictionCreated, RestrictionDeleted, RestrictionRefused,
 	SessionRevoked, StepUpRequested, StepUpApproved, StepUpRefused, StepUpGrantIssued, StepUpGrantRefused,
 	LicenseStateChanged,
 	NotificationChannelSet, NotificationChannelDeleted, NotificationSubscriptionSet, NotificationsDropped,

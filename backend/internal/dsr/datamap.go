@@ -176,6 +176,11 @@ func personalDataMap() []Store {
 			UserKey: "user_id", Personal: []string{"user_id"}, Retention: retentionAccount, Erase: EraseAccount,
 		},
 		{
+			Name: "restriction_policies", Description: "Restrictions that remove permissions from the organisation, a team or a person (GOV-006).",
+			UserKey: "user_id", Personal: []string{"user_id", "created_by"}, Retention: retentionAccount, Erase: EraseAccount,
+			Note: "A person's restrictions go with the account; created_by is cleared when the author's account is deleted.",
+		},
+		{
 			Name: "app_access", Description: "Per-app access of a user.",
 			UserKey: "user_id", Personal: []string{"user_id"}, Retention: retentionAccount, Erase: EraseAccount,
 		},

@@ -108,7 +108,7 @@ func (q *Queries) CountOwners(ctx context.Context, organizationID pgtype.UUID) (
 const createOrganization = `-- name: CreateOrganization :one
 INSERT INTO organizations (id, key, name)
 VALUES ($1, $2, $3)
-RETURNING id, key, name, created_at, updated_at
+RETURNING id, key, name, created_at, updated_at, permissions_version
 `
 
 type CreateOrganizationParams struct {
@@ -126,6 +126,7 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PermissionsVersion,
 	)
 	return i, err
 }
@@ -174,7 +175,7 @@ func (q *Queries) DeleteTeam(ctx context.Context, id pgtype.UUID) (int64, error)
 }
 
 const getOrganization = `-- name: GetOrganization :one
-SELECT id, key, name, created_at, updated_at FROM organizations WHERE id = $1
+SELECT id, key, name, created_at, updated_at, permissions_version FROM organizations WHERE id = $1
 `
 
 func (q *Queries) GetOrganization(ctx context.Context, id pgtype.UUID) (Organization, error) {
@@ -186,6 +187,7 @@ func (q *Queries) GetOrganization(ctx context.Context, id pgtype.UUID) (Organiza
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PermissionsVersion,
 	)
 	return i, err
 }
@@ -376,7 +378,7 @@ func (q *Queries) ListOrganizationIDs(ctx context.Context, arg ListOrganizationI
 }
 
 const listOrganizationsForUser = `-- name: ListOrganizationsForUser :many
-SELECT o.id, o.key, o.name, o.created_at, o.updated_at FROM organizations o
+SELECT o.id, o.key, o.name, o.created_at, o.updated_at, o.permissions_version FROM organizations o
  WHERE o.id IN (SELECT m.organization_id FROM memberships m WHERE m.user_id = $1)
    AND (o.key, o.id) > ($2::text, $3::uuid)
  ORDER BY o.key, o.id
@@ -412,6 +414,7 @@ func (q *Queries) ListOrganizationsForUser(ctx context.Context, arg ListOrganiza
 			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.PermissionsVersion,
 		); err != nil {
 			return nil, err
 		}
@@ -489,7 +492,7 @@ func (q *Queries) RemoveMembership(ctx context.Context, arg RemoveMembershipPara
 }
 
 const updateOrganization = `-- name: UpdateOrganization :one
-UPDATE organizations SET name = $2, updated_at = now() WHERE id = $1 RETURNING id, key, name, created_at, updated_at
+UPDATE organizations SET name = $2, updated_at = now() WHERE id = $1 RETURNING id, key, name, created_at, updated_at, permissions_version
 `
 
 type UpdateOrganizationParams struct {
@@ -506,6 +509,7 @@ func (q *Queries) UpdateOrganization(ctx context.Context, arg UpdateOrganization
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PermissionsVersion,
 	)
 	return i, err
 }

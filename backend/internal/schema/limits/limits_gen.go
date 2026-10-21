@@ -89,6 +89,19 @@ const (
 	// AuthFailedSignIns: Failed passwords or one-time codes one account may
 	// present in fifteen minutes before sign-in is refused. (SEC-100)
 	AuthFailedSignIns Key = "auth.failedSignIns"
+	// AuthPermissionCacheSeconds: Seconds a replica keeps a resolved permission
+	// set before it resolves again; a change drops it sooner, and the lifetime
+	// covers a missed change message. (GOV-006)
+	AuthPermissionCacheSeconds Key = "auth.permissionCacheSeconds"
+	// AuthRestrictionPatterns: Permission names and wildcards one restriction
+	// policy may list. (GOV-006)
+	AuthRestrictionPatterns Key = "auth.restrictionPatterns"
+	// AuthRestrictionsPerOrg: Restriction policies one organisation may hold.
+	// (GOV-006)
+	AuthRestrictionsPerOrg Key = "auth.restrictionsPerOrg"
+	// AuthRestrictionsPerSubject: Restriction policies one organisation, team or
+	// person may be the subject of. (GOV-006)
+	AuthRestrictionsPerSubject Key = "auth.restrictionsPerSubject"
 	// AuthSamlClockSkewSeconds: Seconds of clock difference between an identity
 	// provider and the server that a SAML assertion's validity window tolerates.
 	// (GOV-004)
@@ -484,6 +497,10 @@ var registry = [...]Definition{
 	{Key: AuditExportBatchEntries, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Audit entries delivered to an export destination in one batch."},
 	{Key: AuditExportDestinationsPerOrg, Unit: UnitCount, Default: 5, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Audit export destinations one organisation may configure."},
 	{Key: AuthFailedSignIns, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."},
+	{Key: AuthPermissionCacheSeconds, Unit: UnitCount, Default: 60, Warning: 0, Max: 600, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Seconds a replica keeps a resolved permission set before it resolves again; a change drops it sooner, and the lifetime covers a missed change message."},
+	{Key: AuthRestrictionPatterns, Unit: UnitCount, Default: 20, Warning: 0, Max: 200, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Permission names and wildcards one restriction policy may list."},
+	{Key: AuthRestrictionsPerOrg, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Restriction policies one organisation may hold."},
+	{Key: AuthRestrictionsPerSubject, Unit: UnitCount, Default: 20, Warning: 0, Max: 200, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Restriction policies one organisation, team or person may be the subject of."},
 	{Key: AuthSamlClockSkewSeconds, Unit: UnitCount, Default: 120, Warning: 0, Max: 180, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Seconds of clock difference between an identity provider and the server that a SAML assertion's validity window tolerates."},
 	{Key: AuthScimTokenOverlapSeconds, Unit: UnitCount, Default: 86400, Warning: 0, Max: 604800, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over."},
 	{Key: AuthSessionAbsoluteTimeout, Unit: UnitMilliseconds, Default: 43200000, Warning: 0, Max: 2592000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Time after sign-in at which a browser session ends however active it is; an organisation may shorten it."},

@@ -2068,6 +2068,26 @@ var registry = []Definition{
 		"Make another member an owner first.", false,
 	},
 	{
+		RestrictionPatternInvalid, "RESTRICTION_PATTERN_INVALID", SeverityError, "Restriction pattern invalid",
+		"A restriction names a permission or wildcard that matches nothing in the permission catalogue, names none, or sets an environment without an app (GOV-006).",
+		"Name catalogue permissions, or the wildcards *, <area>.* or <area>.<feature>.*, and give an app when you name an environment.", false,
+	},
+	{
+		RestrictionLocksOutOwner, "RESTRICTION_LOCKS_OUT_OWNER", SeverityError, "Restriction would lock out the last owner",
+		"The change would leave no owner able to manage members, roles and restrictions (GOV-006).",
+		"Keep at least one owner who can manage members, roles and restrictions, or restrict someone else.", false,
+	},
+	{
+		RestrictionExceedsCaller, "RESTRICTION_EXCEEDS_CALLER", SeverityError, "Restriction exceeds the caller's own rights",
+		"The caller restricts a permission it does not hold in the scope named, or restricts itself in a scope wider than its own grants (GOV-006).",
+		"Restrict only permissions you hold, in a scope you hold them in; ask an owner for anything wider.", false,
+	},
+	{
+		RestrictionLimitReached, "RESTRICTION_LIMIT_REACHED", SeverityError, "Restriction limit reached",
+		"The organisation or the subject already has the most restrictions, or the restriction names more patterns than the limits registry allows (LIM-001).",
+		"Delete a restriction that is no longer needed, merge patterns, or ask an operator to raise the limit.", false,
+	},
+	{
 		ExperimentOverlapsLayer, "EXPERIMENT_OVERLAPS_LAYER", SeverityError, "Experiment overlaps its layer",
 		"Another running experiment in the same layer targets the same audience.",
 		"End the other experiment or choose another layer.", false,

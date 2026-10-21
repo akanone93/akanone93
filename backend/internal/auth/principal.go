@@ -32,6 +32,11 @@ type Principal struct {
 	// <permission>:<environment>, after a token's scopes are applied
 	// (GOV-003).
 	EnvPermissions map[EnvScope][]Permission
+	// Restrictions are the restrictions that applied to this principal,
+	// each with what it removed, so that a decision can be explained
+	// (GOV-006, GOV-007). The permission sets above are already net of
+	// them.
+	Restrictions []AppliedRestriction
 }
 
 // roleGrant is one grant as the resolver reads it: a role at a scope
@@ -58,10 +63,16 @@ func rolePermissions(r Role, custom map[Role][]ScopedPermission) []ScopedPermiss
 	return custom[r]
 }
 
-// resolve computes a principal's permissions from its grants, intersected
-// with a token's scopes when it has any. A token can therefore never do
-// more than its user can do now: removing the user's role removes it
-// from the token too.
+// resolve computes a principal's permissions from its grants, minus the
+// restrictions that apply to it, intersected with a token's scopes when it
+// has any. A token can therefore never do more than its user can do now:
+// removing the user's role removes it from the token too.
+//
+// A restriction removes permissions whatever the grants say and however
+// they combine: the grants are collected first, every restriction is
+// subtracted, and only then does an Owner of the organisation get back the
+// owner floor, so that no restriction can lock the organisation out of its
+// own administration (GOV-006, ADR-0086).
 //
 // A grant carries a permission only where the permission can be held: an
 // organisation permission only through a grant on the organisation, and an
@@ -69,7 +80,7 @@ func rolePermissions(r Role, custom map[Role][]ScopedPermission) []ScopedPermiss
 // environment, and only on that environment. A permission written
 // <permission>:<environment> in a role applies to the environment with that
 // key, within the grant's scope.
-func resolve(id Identity, organizationID string, given []roleGrant, custom map[Role][]ScopedPermission, direct []Permission) Principal {
+func resolve(id Identity, organizationID string, given []roleGrant, custom map[Role][]ScopedPermission, direct []Permission, restrictions ...Restriction) Principal {
 	p := Principal{
 		Identity: id, OrganizationID: organizationID,
 		AppPermissions: map[string][]Permission{}, EnvPermissions: map[EnvScope][]Permission{},
@@ -82,6 +93,7 @@ func resolve(id Identity, organizationID string, given []roleGrant, custom map[R
 			}
 		}
 	}
+	p.Restrictions = h.applyRestrictions(restrictions, ownerFloorFor(given))
 	org, apps, envs := h.org, h.apps, h.envs
 	p.Permissions = restrict(org, id.Scopes)
 	for app, held := range apps {
@@ -153,18 +165,22 @@ func restrict(held, scopes []Permission) []Permission {
 func (p Principal) Holds(want Permission) bool { return slices.Contains(p.Permissions, want) }
 
 // HoldsOnApp reports whether the principal holds a permission on an app,
-// through the organisation or through a grant on that app.
+// through the organisation or through a grant on that app, and no
+// restriction removes it there.
 func (p Principal) HoldsOnApp(want Permission, appID string) bool {
-	return p.Holds(want) || slices.Contains(p.AppPermissions[appID], want)
+	return (p.Holds(want) || slices.Contains(p.AppPermissions[appID], want)) && !p.restrictedOn(want, appID, "")
 }
 
 // HoldsOnEnvironment reports whether the principal holds a permission on
 // the environment with the given key of an app: across the organisation, on
-// the app, or through a grant limited to that environment (GOV-003).
+// the app, or through a grant limited to that environment (GOV-003), and no
+// restriction removes it there.
 func (p Principal) HoldsOnEnvironment(want Permission, appID, environment string) bool {
-	return p.HoldsOnApp(want, appID) ||
+	held := p.Holds(want) ||
+		slices.Contains(p.AppPermissions[appID], want) ||
 		slices.Contains(p.EnvPermissions[EnvScope{AppID: appID, Environment: environment}], want) ||
 		slices.Contains(p.EnvPermissions[EnvScope{Environment: environment}], want)
+	return held && !p.restrictedOn(want, appID, environment)
 }
 
 // HoldsInSomeEnvironment reports whether the principal holds a permission
@@ -176,11 +192,26 @@ func (p Principal) HoldsInSomeEnvironment(want Permission, appID string) bool {
 		return true
 	}
 	for scope, perms := range p.EnvPermissions {
-		if (scope.AppID == appID || scope.AppID == "") && slices.Contains(perms, want) {
+		if (scope.AppID == appID || scope.AppID == "") && slices.Contains(perms, want) &&
+			!p.restrictedOn(want, appID, scope.Environment) {
 			return true
 		}
 	}
 	return false
+}
+
+// restrictedOn reports whether a restriction limited to an app removes a
+// permission on that app, or on one of its environments when environment is
+// not empty. A restriction on the whole organisation is not asked here: it
+// is already out of every permission set. A restriction on an environment
+// does not touch a check of the app itself, which does not name one
+// (GOV-006).
+func (p Principal) restrictedOn(want Permission, appID, environment string) bool {
+	return slices.ContainsFunc(p.Restrictions, func(r AppliedRestriction) bool {
+		return r.AppID != "" && r.AppID == appID &&
+			(r.Environment == "" || r.Environment == environment) &&
+			slices.Contains(r.Removed, want)
+	})
 }
 
 // Authorize returns nil when the principal may use a permission across

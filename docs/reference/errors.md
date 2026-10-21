@@ -3254,6 +3254,38 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Make another member an owner first.
 
+### PLX-8104
+
+`RESTRICTION_PATTERN_INVALID` · error · Restriction pattern invalid
+
+**Cause.** A restriction names a permission or wildcard that matches nothing in the permission catalogue, names none, or sets an environment without an app (GOV-006).
+
+**Fix.** Name catalogue permissions, or the wildcards *, <area>.* or <area>.<feature>.*, and give an app when you name an environment.
+
+### PLX-8105
+
+`RESTRICTION_LOCKS_OUT_OWNER` · error · Restriction would lock out the last owner
+
+**Cause.** The change would leave no owner able to manage members, roles and restrictions (GOV-006).
+
+**Fix.** Keep at least one owner who can manage members, roles and restrictions, or restrict someone else.
+
+### PLX-8106
+
+`RESTRICTION_EXCEEDS_CALLER` · error · Restriction exceeds the caller's own rights
+
+**Cause.** The caller restricts a permission it does not hold in the scope named, or restricts itself in a scope wider than its own grants (GOV-006).
+
+**Fix.** Restrict only permissions you hold, in a scope you hold them in; ask an owner for anything wider.
+
+### PLX-8107
+
+`RESTRICTION_LIMIT_REACHED` · error · Restriction limit reached
+
+**Cause.** The organisation or the subject already has the most restrictions, or the restriction names more patterns than the limits registry allows (LIM-001).
+
+**Fix.** Delete a restriction that is no longer needed, merge patterns, or ask an operator to raise the limit.
+
 ### PLX-8200
 
 `EXPERIMENT_OVERLAPS_LAYER` · error · Experiment overlaps its layer

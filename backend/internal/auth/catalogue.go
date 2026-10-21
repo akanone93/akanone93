@@ -42,7 +42,12 @@ const (
 type PermissionInfo struct {
 	Name        Permission
 	Description string
-	Risk        Risk
+	// Area, Feature and Action group the catalogue as area, feature,
+	// action (GOV-002, ADR-0086). Names are not renamed: for
+	// plugin.lock.override the area and the feature are plugin and the
+	// action is lock.override.
+	Area, Feature, Action string
+	Risk                  Risk
 	// StepUp is true when the permission may be used only after a second
 	// factor (SEC-100, SEC-103).
 	StepUp bool
