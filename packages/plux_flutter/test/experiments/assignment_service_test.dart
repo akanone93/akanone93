@@ -11,7 +11,7 @@ import 'package:plux_flutter/src/state/persistence.dart';
 
 ControlExperiment cta({
   String salt = 'cta-1',
-  List<(String, int)> weights = const [('control', 50), ('bold', 50)],
+  List<(String, int)> weights = const [('control', 5000), ('bold', 5000)],
   Map<String, Object?> boldProps = const {'label': 'Buy now'},
   TargetingRule? rule,
   DateTime? endsAt,
@@ -22,11 +22,12 @@ ControlExperiment cta({
     for (final (n, w) in weights)
       ControlVariant(
         name: n,
-        weight: w,
+        weightBp: w,
+        control: n == 'control',
         props: n == 'control' ? const {'label': 'Buy'} : boldProps,
       ),
   ],
-  rule: rule,
+  segment: rule,
   endsAt: endsAt,
 );
 
@@ -100,14 +101,14 @@ void main() {
       expect(d.session().variantOf('other'), isNull);
     });
 
-    test('the variant is the weighted pick of the subject, the hashed install '
-        'ID when no user is set [ABT-002]', () {
+    test('the variant is the weighted pick of the subject, the install ID '
+        'when no user is set [ABT-002]', () {
       final e = cta();
       for (var i = 0; i < 40; i++) {
         final d = Device(install: 'install-$i', control: snapshot([e]));
         expect(
           d.session().variantOf('cta'),
-          drawVariant(e, subjectOf('install-$i'), const {'os': 'android'}),
+          drawVariant(e, 'install-$i', const {'os': 'android'}),
         );
       }
     });
@@ -129,7 +130,7 @@ void main() {
         expect(a.session().variantOf('cta'), b.session().variantOf('cta'));
         expect(
           a.session().variantOf('cta'),
-          drawVariant(e, subjectOf('user-$i'), const {}),
+          drawVariant(e, 'user-$i', const {}),
         );
       }
     });
@@ -142,7 +143,7 @@ void main() {
       // Every subject now draws the other variant, and nobody is eligible.
       d.control = snapshot([
         cta(
-          weights: [(other, 100), (first, 0)],
+          weights: [(other, 10000), (first, 0)],
           rule: const TargetingCondition('os', TargetingOperator.eq, 'ios'),
         ),
       ]);
@@ -163,7 +164,7 @@ void main() {
       expect(drawn, {'control', 'bold'});
       expect(d.session().variantOf('cta'), isNotNull);
       d.control = snapshot([
-        cta(salt: 'cta-2', weights: [('control', 0), ('bold', 100)]),
+        cta(salt: 'cta-2', weights: [('control', 0), ('bold', 10000)]),
       ]);
       expect(d.session().variantOf('cta'), 'bold');
       expect(
@@ -190,7 +191,7 @@ void main() {
       expect(d.session().variantOf('cta'), isNotNull);
       d.control = snapshot([
         cta(),
-      ], holdout: const ControlHoldout(salt: 'h', size: bucketCount));
+      ], holdout: const ControlHoldout(salt: 'h', basisPoints: bucketCount));
       expect(d.session().variantOf('cta'), isNull, reason: 'everyone held out');
       d.control = snapshot([cta(endsAt: DateTime.utc(2026, 12))]);
       expect(d.session().variantOf('cta'), isNotNull);
@@ -204,12 +205,12 @@ void main() {
             key: key,
             salt: '$key-1',
             variants: const [
-              ControlVariant(name: 'control', weight: 50),
-              ControlVariant(name: 'v', weight: 50),
+              ControlVariant(name: 'control', weightBp: 5000, control: true),
+              ControlVariant(name: 'v', weightBp: 5000),
             ],
             layer: 'checkout',
-            rangeStart: from,
-            rangeEnd: to,
+            layerStart: from,
+            layerEnd: to,
           );
       var both = 0, either = 0;
       for (var i = 0; i < 300; i++) {
@@ -230,7 +231,7 @@ void main() {
         'enrolled and carries the props of the variant shown [ABT-002]', () {
       final d = Device(
         control: snapshot([
-          cta(weights: [('control', 0), ('bold', 100)]),
+          cta(weights: [('control', 0), ('bold', 10000)]),
         ]),
       );
       expect(d.session().root(), {'cta': 'bold', 'cta.label': 'Buy now'});

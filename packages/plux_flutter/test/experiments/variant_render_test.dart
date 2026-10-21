@@ -27,7 +27,12 @@ ControlExperiment experiment(
   salt: '$key-1',
   variants: [
     for (final MapEntry(key: name, value: props) in variants.entries)
-      ControlVariant(name: name, weight: name == shown ? 100 : 0, props: props),
+      ControlVariant(
+        name: name,
+        weightBp: name == shown ? 10000 : 0,
+        control: name == 'control',
+        props: props,
+      ),
   ],
 );
 

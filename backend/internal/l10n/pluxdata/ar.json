@@ -26,6 +26,7 @@
   "plux.timeline.done": "تم",
   "plux.timeline.failed": "فشل",
   "plux.timeline.pending": "قيد الانتظار",
+  "plux.update.required": "التحديث مطلوب للمتابعة",
   "plux.uploader.choose": "اختر ملفًا",
   "plux.uploader.upload": "رفع",
   "plux.validation.aboveMax": "يجب ألا تزيد القيمة عن {max}",

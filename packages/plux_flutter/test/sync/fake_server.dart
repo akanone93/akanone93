@@ -322,6 +322,12 @@ final class FakePluxServer {
   /// The `configVersion` of each manifest request, in order.
   final List<Object?> configVersionsSeen = [];
 
+  /// The `deviceTargeting` member of every manifest request (REL-051).
+  final List<Object?> deviceTargetingSeen = [];
+
+  /// The body of every installed-release report (SEC-142).
+  final List<Map<String, Object?>> installedReports = [];
+
   /// Whether `GatewayService.Call` answers (DAT-095, DAT-096); off, it is
   /// not found, as for a server without a gateway.
   bool gatewayEnabled = false;
@@ -579,6 +585,7 @@ final class FakePluxServer {
           },
         );
       case '/plux.v1.DeviceService/ReportInstalled':
+        installedReports.add(body);
         return (200, <String, Object?>{});
       case '/plux.v1.DeviceService/ReattestDevice':
         reattestations++;
@@ -685,6 +692,7 @@ final class FakePluxServer {
     Uint8List pluginBytes(String key) =>
         sealed?.bundles[key] ?? r.plugins[key]!;
     configVersionsSeen.add(req['configVersion']);
+    deviceTargetingSeen.add(req['deviceTargeting']);
     final deviceConfig = int.parse('${req['configVersion'] ?? 0}');
     final installed = {
       for (final i

@@ -19,6 +19,7 @@ import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/dpop.dart';
 import 'package:plux_flutter/src/security/sca.dart';
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 
 /// A failed call: the HTTP status, the Connect error code and the server's
 /// `Retry-After`, when it sent one.
@@ -582,6 +583,8 @@ final class PluxApiClient {
   }
 
   /// Fetches the channel's manifest with this device's plan (REL-032).
+  /// [targeting] tells the server what a rollout may target the device by,
+  /// hashed user attributes only (REL-051).
   Future<ManifestResponse> manifest({
     required DeviceToken token,
     required String appId,
@@ -592,6 +595,7 @@ final class PluxApiClient {
     required String ifNoneMatch,
     List<int> installedDigest = const [],
     int configVersion = 0,
+    DeviceTargeting? targeting,
   }) async {
     final r = await _call('plux.v1.ManifestService/GetManifest', {
       'appId': appId,
@@ -606,6 +610,7 @@ final class PluxApiClient {
       'configVersion': '$configVersion',
       if (installedDigest.isNotEmpty)
         'installedDigest': base64.encode(installedDigest),
+      if (targeting != null) 'deviceTargeting': targeting.toJson(),
     }, token: token);
     final etag = r['etag'] as String? ?? '';
     if (r['notModified'] == true) {
@@ -791,14 +796,17 @@ final class PluxApiClient {
     return res.bodyBytes;
   }
 
-  /// Reports the release this device activated.
+  /// Reports the release this device activated, with what the user saw it
+  /// in ([context], SEC-142).
   Future<void> reportInstalled(
     DeviceToken token,
     String deviceId,
-    int sequence,
-  ) => _call('plux.v1.DeviceService/ReportInstalled', {
+    int sequence, {
+    InstalledContext context = const InstalledContext(),
+  }) => _call('plux.v1.DeviceService/ReportInstalled', {
     'deviceId': deviceId,
     'releaseSequence': '$sequence',
+    ...context.toJson(),
   }, token: token);
 
   /// Sends a batch of telemetry events (ANL-002, ADR-0034), compressed

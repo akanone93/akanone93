@@ -62,6 +62,7 @@ sealed class TargetingRule {
   /// evaluate (an unknown operator, an empty group, a malformed value).
   static TargetingRule? fromJson(Object? json) {
     if (json is! Map<String, Object?>) return null;
+    if (json['never'] == true) return const TargetingNever();
     if (json['all'] case final List<Object?> all) {
       return _group(all, any: false);
     }
@@ -97,6 +98,20 @@ sealed class TargetingRule {
 
   /// The document form.
   Object toJson();
+}
+
+/// A rule that matches no device: what a rule this runtime cannot evaluate
+/// becomes, so that its flag segment or experiment is not matched rather
+/// than matched wrongly (`schema/control.fbs`, `TargetingRule`).
+final class TargetingNever extends TargetingRule {
+  /// Creates the rule.
+  const TargetingNever();
+
+  @override
+  bool matches(TargetingFacts facts) => false;
+
+  @override
+  Object toJson() => {'never': true};
 }
 
 /// Every rule holds ([any] false) or at least one does ([any] true).
