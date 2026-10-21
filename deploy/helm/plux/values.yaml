@@ -380,10 +380,12 @@ networkPolicy:
   # public API must; set namespace or CIDR peers to narrow it.
   apiIngressFrom: []
   # HTTPS from the api role and the worker to the internet (attestation
-  # providers, OpenID Connect, Vault). Private ranges are excluded; add
-  # in-cluster or private destinations to extraEgress.
+  # providers, OpenID Connect, Vault). Off by default so no data leaves the
+  # installation (SEC-163); enable it explicitly with the egress list
+  # (docs/operations/egress.md). Private ranges are excluded; add in-cluster
+  # or private destinations to extraEgress.
   externalHTTPS:
-    enabled: true
+    enabled: false
     except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16]
   # Extra egress rules (NetworkPolicyEgressRule) per role, for an external
   # PostgreSQL, S3 or Vault inside the private network.

@@ -126,7 +126,7 @@ This keeps the lead's output tokens tiny and the agents' shared prefix identical
 
 ## 9. Decisions for the maintainer
 
-**2026-10-21: the maintainer accepted the recommendations of items 1–5.** To apply them (lead): note the SCIM session rule in ADR-0074; set the chart's `networkPolicy.externalHTTPS.enabled` default to `false`; add the IaC and air-gapped kind CI jobs (§7.2); add `skopeo` and `registry:2` rows to `dependencies.md`. Items 6–7 stay open.
+**2026-10-21: the maintainer accepted the recommendations of items 1–5.** Applied in session 3 (2026-10-21): the SCIM session rule in ADR-0074; the chart's `networkPolicy.externalHTTPS.enabled` default is `false`; `skopeo` and `registry:2` rows in `dependencies.md`. The IaC and air-gapped kind CI jobs follow with §7.2. Items 6–7 stay open.
 
 1. **SCIM deprovisioning and sessions** — deprovisioning revokes the person's tokens in the organisation at once and ends their sessions only when they belong to no other organisation (sessions are user-wide). ADR-0074 says "revokes sessions at once". *Recommend:* accept and note it in ADR-0074.
 2. **Chart egress default** — `networkPolicy.externalHTTPS.enabled` defaults to `true` (api and worker may reach any HTTPS host), which arguably conflicts with SEC-163 "by default no data leaves". *Recommend:* default `false`, enabled explicitly with the egress list; it is a security default, so it needs approval.

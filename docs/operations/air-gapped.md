@@ -107,7 +107,7 @@ By default no data leaves the installation except calls you configure (`SEC-163`
 
 - leave push, notification channels, webhooks, analytics and audit export unconfigured, or point them at endpoints inside the gap;
 - for Android attestation, set `attestation.android.statusListFile` to a copy of Google's attestation status list that you carry across the gap, so the worker never fetches it (`SEC-002`);
-- keep the chart's `networkPolicy` on and turn off its one internet rule with `networkPolicy.externalHTTPS.enabled: false` (it lets the api and worker role reach public HTTPS for attestation providers, OpenID Connect and Vault); then add a `networkPolicy.extraEgress` rule only for an endpoint inside your network;
+- keep the chart's `networkPolicy` on and its one internet rule off (`networkPolicy.externalHTTPS.enabled: false`, the default; it lets the api and worker role reach public HTTPS for attestation providers, OpenID Connect and Vault); then add a `networkPolicy.extraEgress` rule only for an endpoint inside your network;
 - use a local model through Ollama for AI features instead of a hosted provider.
 
 `make airgap-kind` in the repository installs a bundle on `kind` with the chart's internet egress rule off and a deny-all-egress network policy around the Plux namespace and checks that it still works.

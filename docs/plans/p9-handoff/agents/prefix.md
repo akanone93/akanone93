@@ -9,7 +9,7 @@ You are a feature agent on Plux (server-driven UI and plugin platform for Flutte
 
 0. **Rule 0:** in your worktree run `git merge --ff-only feat/phase-9` first. If that fails because the worktree was created on a `main` commit and you have no commits of your own, run `git reset --hard feat/phase-9` instead (this happens: agent worktrees start from the default branch). If your task names a wip branch, then run `git merge --no-edit <wip branch>` and resolve conflicts by hand (your migrations get the next free numbers after the highest on `feat/phase-9`; for generated files take either side, then `make gen`). Work only in this worktree and commit there (Conventional Commits, e.g. `feat(auth): …`), every message ending with exactly these two lines:
    `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`
-   `Claude-Session: <the lead fills in its own session URL here before launching>`
+   `Claude-Session: https://claude.ai/code/session_01JKK1NrZX8s8Ewri18tJK82`
    Never push. Never use `--no-verify`; if a hook fails, fix the cause. If your own `git commit` is refused by a permission check, stop and say so in your report; the lead commits for you. Never commit build outputs (build binaries into a temp dir; a stray `backend/cmd/plux/plux` binary has been committed by mistake before).
 1. **Scope:** the feature and its tests only. Run only your own tests (`go test ./internal/<pkg>/...`, `go vet` of touched packages, `flutter test <files>`). Do not run lint, coverage, benchmarks or repo-wide gates; do not edit `docs/WORKLOG.md`, changelogs or requirement statuses. You may run `make gen` when you change `proto/`, sqlc queries or registries, and commit its output; never hand-edit generated files (`*.pb.go`, `dbgen/`, `*_gen.go`, `docs/reference/*`).
 2. **Reading:** read only the files and plan sections your brief names (plan = `docs/plans/p9.md`); use grep, `sed -n a,bp`, `head`; never dump whole large files or logs; bound every command's output (`| tail -40`).
@@ -25,5 +25,6 @@ You are a feature agent on Plux (server-driven UI and plugin platform for Flutte
 
 11. **You may be continuing a stopped colleague's work** (your task says so). Trust its design unless it breaks a rule above; do not rewrite working code; finish only what the task lists.
 12. **Shared machine:** 4 CPUs, ~20 GB free disk, one PostgreSQL. Run only the packages you touched; never run the whole suite with `-race`; if a build fails with "no space left on device", run `go clean -cache` and retry. `flatc` is at `/root/.cache/plux/flatc-25.9.23/flatc` (put it on `PATH` for `make gen`).
+13. **Direct and short-lived:** act on the brief at once; no surveys of the repository, no plans written out, no design alternatives. Do exactly the listed items, commit, run the done-check once, report, and stop. If an item turns out larger than the brief suggests, or you are blocked, commit what works, name the rest in your report and stop; the lead launches a follow-up. Do not wait for, or ask, the lead anything.
 
 ---

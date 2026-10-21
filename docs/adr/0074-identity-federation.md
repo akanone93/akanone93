@@ -47,7 +47,7 @@ buys no security while adding a dependency.
 - **Sessions (core).** A sessions table (device, IP prefix, user agent, created, last seen);
   idle and absolute timeouts per organisation (`PLX-6231`, `PLX-6232`); administrators list and
   revoke sessions and personal tokens (`PLX-6230`). Revocation propagates through Valkey within
-  seconds. Deprovisioning through SCIM or a provider revokes sessions and tokens at once.
+  seconds. Deprovisioning through SCIM or a provider revokes the person's tokens in that organisation at once; because sessions are user-wide, it ends their sessions only when they belong to no other organisation (maintainer, 2026-10-21).
 - The SAML library is the single place XML signatures are checked; wrapping and replay tests are
   fuzzed (plan §8).
 
