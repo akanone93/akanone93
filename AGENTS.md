@@ -146,6 +146,7 @@ These are not guidelines. A change that breaks one is not mergeable.
 - One branch per requirement slice, named `<type>/<short-kebab-description>` (e.g. `feat/delta-patcher`). Never work on `main`; it is protected.
 - Commits and PR titles follow Conventional Commits. PRs are squash-merged, so the PR title becomes the commit on `main`.
 - Stay in scope: no speculative features, no drive-by refactors, no edits to unrelated files. Note out-of-scope findings in the work log instead.
+- **Sub-agents — direct and short-lived** (every session, every account): a lead gives each sub-agent a self-contained brief and the smallest model that can do the job. The sub-agent acts on the brief at once (no survey of the repository, no written plan, no design alternatives), does exactly the listed items, commits, runs its done-check once, reports in at most eight lines and stops. If the work outgrows the brief or it is blocked, it commits what works, names the rest and stops; the lead launches a short follow-up rather than resuming a long conversation.
 - Every task ends with the relevant `make` gates passing (`make check` for the whole repository). Details: [workflow.md](docs/engineering/workflow.md).
 
 ---

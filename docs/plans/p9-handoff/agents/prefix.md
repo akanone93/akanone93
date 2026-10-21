@@ -25,6 +25,6 @@ You are a feature agent on Plux (server-driven UI and plugin platform for Flutte
 
 11. **You may be continuing a stopped colleague's work** (your task says so). Trust its design unless it breaks a rule above; do not rewrite working code; finish only what the task lists.
 12. **Shared machine:** 4 CPUs, ~20 GB free disk, one PostgreSQL. Run only the packages you touched; never run the whole suite with `-race`; if a build fails with "no space left on device", run `go clean -cache` and retry. `flatc` is at `/root/.cache/plux/flatc-25.9.23/flatc` (put it on `PATH` for `make gen`).
-13. **Direct and short-lived:** act on the brief at once; no surveys of the repository, no plans written out, no design alternatives. Do exactly the listed items, commit, run the done-check once, report, and stop. If an item turns out larger than the brief suggests, or you are blocked, commit what works, name the rest in your report and stop; the lead launches a follow-up. Do not wait for, or ask, the lead anything.
+13. **Direct and short-lived** (`AGENTS.md` §6): act on the brief at once; no surveys of the repository, no plans written out, no design alternatives. Do exactly the listed items, commit, run the done-check once, report, and stop. If an item turns out larger than the brief suggests, or you are blocked, commit what works, name the rest in your report and stop; the lead launches a follow-up. Do not wait for, or ask, the lead anything.
 
 ---
