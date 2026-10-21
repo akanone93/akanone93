@@ -66,6 +66,9 @@ import 'package:plux_flutter/src/navigation/router.dart';
 import 'package:plux_flutter/src/platform/pinned_http.dart';
 import 'package:plux_flutter/src/platform/platform_services.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
+import 'package:plux_flutter/src/reconstruction/gate.dart';
+import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
+import 'package:plux_flutter/src/reconstruction/server_only_client.dart';
 import 'package:plux_flutter/src/render/owner_actions.dart';
 import 'package:plux_flutter/src/render/page_renderer.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
@@ -273,7 +276,10 @@ final class PluxRuntime with WidgetsBindingObserver {
     final task = developer.TimelineTask()..start('plux.initialize');
     // Started first: an asset load costs a round trip to the platform, which
     // overlaps the awaits below instead of adding its own (QA-007).
-    final bundledRoot = _bundledRoot(config.baseline);
+    final reconstructing = config.reconstruction != null;
+    final bundledRoot = reconstructing
+        ? Future<Uint8List?>.value()
+        : _bundledRoot(config.baseline);
     try {
       // Refuses an unpinned release build before anything is started
       // (SEC-041); a host's own client is the host's to pin.
@@ -283,19 +289,27 @@ final class PluxRuntime with WidgetsBindingObserver {
       final httpClient =
           config.httpClient ??
           PlatformHttpClients(config.endpoint, pinSet).create;
+      // Reconstruction mode reaches the Plux server and nothing else
+      // (SEC-142): the sync isolate makes no request in it, so only the
+      // client of images and of the data layer is narrowed.
+      final runtimeClient = reconstructing
+          ? () => ServerOnlyClient(httpClient(), config.endpoint)
+          : httpClient;
       final features = RuntimeFeatures(
         deviceFunctions: config.functionEngine != null,
       );
       final base = config.storageDirectory ?? await platformStorageDirectory();
-      final root =
-          '$base/${_safe(config.appId)}/${_safe(config.environment)}/${_safe(config.channel)}';
+      final root = reconstructing
+          ? _reconstructionRoot(base, config.reconstruction!.id)
+          : '$base/${_safe(config.appId)}/${_safe(config.environment)}/${_safe(config.channel)}';
+      if (reconstructing) _deleteRoot(root);
       Directory(root).createSync(recursive: true);
       // The pins a verified root gave an earlier sync hold from the first
       // connection on (SEC-041).
       if (pinSet != null) {
         MetadataSync.applyStoredPins(pinSet, MetadataStore(root).read());
       }
-      final keys = config.rootKeys.isNotEmpty
+      final keys = config.rootKeys.isNotEmpty || reconstructing
           ? config.rootKeys
           : await _bundledKeys(config.baseline);
       final store = ReleaseStore.open(root);
@@ -349,7 +363,9 @@ final class PluxRuntime with WidgetsBindingObserver {
                 .toLanguageTag(),
           ),
         ),
-        baselineAssets: overrides.baseline == null ? config.baseline : null,
+        baselineAssets: overrides.baseline == null && !reconstructing
+            ? config.baseline
+            : null,
       );
       final rt = PluxRuntime._(
         config,
@@ -360,7 +376,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         limits,
         root,
         assets,
-        httpClient,
+        runtimeClient,
         await _encryptsStores(config, overrides),
         config.httpClient == null && config.webSocketClient == null
             ? WebSocketClients(
@@ -386,6 +402,15 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// The configuration.
   final PluxConfig config;
+
+  /// Whether the runtime shows a reconstruction release (SEC-142): it syncs
+  /// nothing, records nothing and runs only the actions of
+  /// [ReconstructionGate].
+  bool get reconstructing => config.reconstruction != null;
+
+  /// The moment the verified reconstruction describes; null outside
+  /// reconstruction mode and until it has been verified.
+  PluxReconstructionMoment? reconstructionMoment;
 
   /// Test overrides.
   final RuntimeOverrides overrides;
@@ -419,9 +444,15 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Records telemetry (ANL-001, ADR-0034); the sync isolate buffers and
   /// sends what it keeps.
   late final TelemetryRecorder telemetry = TelemetryRecorder(
-    post: (lines) =>
-        _worker.recordTelemetry(lines, limit(PluxLimit.telemetryBufferBytes)),
-    withdraw: _worker.purgeTelemetry,
+    // A reconstruction records nothing: viewing the past must not leave
+    // events in the present (SEC-142).
+    post: reconstructing
+        ? (_) {}
+        : (lines) => _worker.recordTelemetry(
+            lines,
+            limit(PluxLimit.telemetryBufferBytes),
+          ),
+    withdraw: reconstructing ? (_) {} : _worker.purgeTelemetry,
     consent: config.consent,
     hostSampling: config.telemetrySampling,
     random: overrides.random,
@@ -454,7 +485,7 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// next attempt and is not reported: telemetry never adds to the
   /// problems it measures.
   Future<void> flushTelemetry() async {
-    if (_disposed) return;
+    if (_disposed || reconstructing) return;
     try {
       await _worker.flushTelemetry(limit(PluxLimit.telemetryEventsPerRequest));
     } on Object catch (e) {
@@ -682,8 +713,9 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// The host says whether the network is available
   /// (`Plux.setNetworkAvailable`, decision D13): streams waiting to
   /// reconnect do so and the outbox replays when it is back.
-  void setNetworkAvailable(bool available) =>
-      _dataServices.setNetworkAvailable(available);
+  void setNetworkAvailable(bool available) {
+    if (!reconstructing) _dataServices.setNetworkAvailable(available);
+  }
 
   /// Ends the user's session (HST-010, the `logout` action): removes every
   /// cached response, so the next user never sees the previous user's
@@ -894,7 +926,9 @@ final class PluxRuntime with WidgetsBindingObserver {
     experiments: experiments,
     assets: assets,
     verified: _verified,
-    data: _dataServices,
+    // No data layer in a reconstruction: no data source is reached
+    // (SEC-142).
+    data: reconstructing ? null : _dataServices,
     secureUi: secureUi,
     pinnedMedia: () => settings.value.flag(SecuritySetting.pinnedMediaOnly),
     actions: ActionServices(
@@ -921,6 +955,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         ConfigSource: _worker,
       },
       deviceGuard: _deviceGuard,
+      reconstruction: reconstructing ? const ReconstructionGate() : null,
     )..ownerErrors = _ownerErrors,
   );
 
@@ -1324,6 +1359,8 @@ final class PluxRuntime with WidgetsBindingObserver {
   int get mountedPages => _mounted;
 
   Future<PluxStartup> _startup() async {
+    final reconstruction = config.reconstruction;
+    if (reconstruction != null) return _startReconstruction(reconstruction);
     var pointer = _store.pointer;
     if (pointer.active == null || pointer.staged == null) {
       try {
@@ -1389,12 +1426,37 @@ final class PluxRuntime with WidgetsBindingObserver {
     return PluxStartup._(active.value?.sequence, null);
   }
 
+  /// Starts in reconstruction mode (SEC-142): the sync isolate verifies the
+  /// release against the embedded keys and installs it (SEC-052), and it is
+  /// mapped like any active release. Nothing is synced, and no control
+  /// document is fetched. A release that fails verification leaves no
+  /// active release, and the error is the startup's.
+  Future<PluxStartup> _startReconstruction(PluxReconstruction release) async {
+    try {
+      reconstructionMoment = await _worker.importReconstruction(release);
+    } on PluxException catch (e) {
+      _report(e);
+      return PluxStartup._(null, e);
+    }
+    await _load();
+    final sequence = active.value?.sequence;
+    return PluxStartup._(
+      sequence,
+      sequence == null
+          ? const PluxException(
+              PluxErrorCode.bundleMalformed,
+              'the reconstruction release could not be opened',
+            )
+          : null,
+    );
+  }
+
   /// Checks the signed control document now (SYN-060) and applies it:
   /// kill switches take effect at once, a forced rollback activates the
   /// retained release, and a mandatory update is fetched and activated
   /// before any page shows again. Never throws.
   Future<void> checkControl() async {
-    if (_disposed) return;
+    if (_disposed || reconstructing) return;
     final ControlOutcome outcome;
     try {
       outcome = await _worker.control();
@@ -1410,7 +1472,9 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// carries the Plux marker asks for an immediate control check, anything
   /// else is ignored. Completes with whether a check ran.
   Future<bool> handleSilentPush(Map<String, Object?> payload) async {
-    if (_disposed || !isControlPush(payload, config.appId)) return false;
+    if (_disposed || reconstructing || !isControlPush(payload, config.appId)) {
+      return false;
+    }
     await _controlPoller.checkNow();
     return true;
   }
@@ -1546,6 +1610,19 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Syncs now (SYN-002); a running sync is joined, and [SyncRun.progress]
   /// carries its events from now on.
   SyncRun sync() {
+    if (reconstructing) {
+      // The reconstruction is a fixed, read-only release (SEC-142).
+      return SyncRun(
+        Future.value(
+          SyncResult(
+            outcome: SyncOutcome.upToDate,
+            duration: Duration.zero,
+            sequence: active.value?.sequence,
+          ),
+        ),
+        const Stream<SyncEvent>.empty(),
+      );
+    }
     final progress = StreamController<SyncEvent>();
     final forward = _events.stream.listen(progress.add);
     Future<SyncResult> run() async {
@@ -1714,8 +1791,10 @@ final class PluxRuntime with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused) triggers.appPaused();
     if (state == AppLifecycleState.resumed) {
       triggers.appResumed();
-      _dataServices.appResumed();
-      _controlPoller.resume();
+      if (!reconstructing) {
+        _dataServices.appResumed();
+        _controlPoller.resume();
+      }
     }
     if (state == AppLifecycleState.paused) {
       _controlPoller.pause();
@@ -1768,7 +1847,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     );
     await statePersistence.flush();
     // Open streams and the outbox's replay timer stop with the runtime.
-    await _dataServices.close();
+    if (!reconstructing) await _dataServices.close();
     // A host's adapter is the host's to close.
     if (config.databaseAdapter == null) await _dbAdapter.close();
     _disposed = true;
@@ -1779,6 +1858,24 @@ final class PluxRuntime with WidgetsBindingObserver {
     await _hostEvents.close();
     active.value?.retire();
     active.value = null;
+    // A reconstruction may hold data its subject never consented to keep:
+    // its store does not outlive the runtime (SEC-142).
+    if (reconstructing) _deleteRoot(_root);
+  }
+
+  /// The store of reconstruction [id] under [base]. The ID comes from the
+  /// server, so it is reduced to safe characters and prefixed, which keeps
+  /// it a single path segment whatever it holds.
+  static String _reconstructionRoot(String base, String id) =>
+      '$base/reconstruction/r-${_safe(id)}';
+
+  static void _deleteRoot(String root) {
+    try {
+      final dir = Directory(root);
+      if (dir.existsSync()) dir.deleteSync(recursive: true);
+    } on FileSystemException catch (e) {
+      developer.log('reconstruction store not removed: $e', name: 'plux');
+    }
   }
 
   static String _safe(String s) => s.replaceAll(RegExp('[^A-Za-z0-9._-]'), '_');

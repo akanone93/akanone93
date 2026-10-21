@@ -18,6 +18,7 @@ import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
+import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
 import 'package:plux_flutter/src/render/widget_package.dart';
 import 'package:plux_flutter/src/security/rasp.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
@@ -247,6 +248,7 @@ final class PluxConfig {
     this.databaseAdapter,
     this.securityModules = const [],
     this.strongCustomerAuthentication = false,
+    this.reconstruction,
   }) : assert(downloadParallelism > 0, 'at least one download at a time'),
        assert(
          hostBuild.length <= 64,
@@ -467,4 +469,19 @@ final class PluxConfig {
   /// needs `NSFaceIDUsageDescription`. A device registered before the flag
   /// was set registers again with the key the first time it signs.
   final bool strongCustomerAuthentication;
+
+  /// A reconstruction release to show instead of the app's own content
+  /// (SEC-142, ADR-0082): the runtime runs in reconstruction mode, as the
+  /// viewer host uses it. [rootKeys] must hold the environment's `targets`
+  /// keys, and [appId], [environment] and [endpoint] name the reconstructed
+  /// app, its environment and the server.
+  ///
+  /// The release is verified like any other, before anything in it is
+  /// parsed (SEC-052), and installed into a store of its own, which is
+  /// deleted when the runtime is disposed. Nothing is synced, nothing is
+  /// reported to telemetry, no data source is reached, and no request goes
+  /// to any host but the [endpoint]. Actions that reach beyond the page
+  /// (data sources, functions, the host, the device, links out of the app)
+  /// fail with `PLX-4010`. Show the result with `PluxReconstructionView`.
+  final PluxReconstruction? reconstruction;
 }

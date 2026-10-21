@@ -177,6 +177,7 @@ final class ReleaseOwners {
         sync: services.sync,
         data: data,
         logout: services.logout,
+        reconstruction: services.reconstruction,
         device: services.deviceGuard == null
             ? null
             : DeviceScope(

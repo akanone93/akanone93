@@ -27,6 +27,7 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/navigation/router.dart';
+import 'package:plux_flutter/src/reconstruction/gate.dart';
 import 'package:plux_flutter/src/render/sections.dart';
 import 'package:plux_flutter/src/state/access.dart';
 
@@ -55,11 +56,16 @@ final class ActionServices {
     this.logout,
     this.services = const {},
     this.deviceGuard,
+    this.reconstruction,
   }) : triggers = triggers ?? TriggerHub();
 
   /// Checks the device operations of every run against its plugin's
   /// capabilities (SEC-080); null where the device actions are not wired.
   final DeviceGuard? deviceGuard;
+
+  /// Refuses the actions a reconstruction may not run (SEC-142); null
+  /// outside reconstruction mode.
+  final ReconstructionGate? reconstruction;
 
   /// The services handlers find by type through `StepContext.service`
   /// (the local database, the device, …); each runtime milestone adds its

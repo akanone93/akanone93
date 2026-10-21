@@ -19,6 +19,7 @@ import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
 import 'package:plux_flutter/src/navigation/plux_page.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
+import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/state/providers.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -72,12 +73,14 @@ abstract final class Plux {
     container.read(pluxRuntimeProvider.notifier).set(rt);
     rt.environment = () => container.read(environmentProvider);
     rt.connect(container);
+    // A reconstruction shows the page as the device presented it (SEC-142).
+    final moment = rt.reconstructionMoment;
     container
         .read(environmentProvider.notifier)
         .replace(
           PluxEnvironment(
-            locale: config.locale,
-            themeMode: config.themeMode,
+            locale: moment?.localeValue ?? config.locale,
+            themeMode: moment?.themeMode ?? config.themeMode,
             brand: config.brand,
             consent: config.consent,
             authDelegate: config.authDelegate,
@@ -92,6 +95,12 @@ abstract final class Plux {
 
   /// Whether the runtime is running.
   static bool get isInitialized => _runtime != null;
+
+  /// The moment a reconstruction shows (SEC-142), once its release has been
+  /// verified; null outside reconstruction mode and when verification
+  /// failed. `PluxReconstructionView` shows it.
+  static PluxReconstructionMoment? get reconstruction =>
+      _runtime?.reconstructionMoment;
 
   static PluxRuntime get _rt =>
       _runtime ?? (throw StateError('call Plux.initialize() first'));
