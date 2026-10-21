@@ -217,9 +217,9 @@
       "skipOnPush": true
     },
     "functions": {
-      "description": "The Rust SDK formatted, linted and tested, and the example functions built by the builder role twice and compared (FN-016, FN-019; P7 plan §2.6 M4)",
-      "paths": ["sdk/**", "backend/internal/builder/**", "backend/internal/function/rust_*", "mk/functions.mk", "!**/*.md"],
-      "make": ["rust-check", "rust-e2e"]
+      "description": "The Rust SDK formatted, linted and tested, the example functions built by the builder role twice and compared (FN-016, FN-019; P7 plan §2.6 M4), and every committed function module rebuilt and compared with the commit",
+      "paths": ["sdk/**", "backend/internal/builder/**", "backend/internal/function/rust_*", "backend/internal/function/examples_dist_*", "packages/plux_functions/test/fixtures/**", "schema/testdata/functions/**", "schema/testdata/documents/plux_express/functions/**", "mk/functions.mk", "!**/*.md"],
+      "make": ["rust-check", "rust-e2e", "wasm-check"]
     },
     "wamr": {
       "description": "The vendored WAMR subset re-created from the upstream 2.4.3 release and compared with the commit (P7 plan §2.6 M2, M4)",

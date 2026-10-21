@@ -1017,6 +1017,10 @@ jobs:
       # Verifies: FN-016, FN-019.
       - name: Build the examples with the builder role, twice, and compare
         run: make rust-e2e
+      # Every committed .wasm comes from its source (Scorecard's
+      # Binary-Artifacts alerts are dismissed on this step).
+      - name: Rebuild the committed function modules and compare them
+        run: make wasm-check
 
   wamr:
     name: Vendored WAMR matches upstream
