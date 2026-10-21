@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -108,7 +109,7 @@ func (f *fixture) promote(t *testing.T, n int) string {
 	art := approval.Artifact{
 		Resource: schema.PolicyResourceRelease, OrganizationID: f.Org, AppID: f.App, Action: approval.ActionPromote,
 		Environment: approval.Environment{ID: f.Envs["production"], Key: "production", Production: true},
-		Subject:     "release:" + string(rune('0'+n)), Hash: approval.HashOf([]byte{byte(n)}), Summary: "release", Requester: f.Owner.Actor(), Author: f.Reviewer.UserID,
+		Subject:     "release:" + strconv.Itoa(n), Hash: approval.HashOf([]byte(strconv.Itoa(n))), Summary: "release", Requester: f.Owner.Actor(), Author: f.Reviewer.UserID,
 	}
 	require := func() error {
 		return f.Tx(context.Background(), func(ctx context.Context, tx pgx.Tx) error { return f.engine.Require(ctx, tx, art) })

@@ -97,7 +97,10 @@ func (s *Service) SignDecisions(ctx context.Context, organizationID string) (int
 	err := s.o.DB.InTx(ctx, tenant, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		pending, err = dbgen.New(tx).ListUnsignedApprovalDecisions(ctx, signingBatch)
-		return err
+		if err != nil {
+			return fmt.Errorf("query: %w", err)
+		}
+		return nil
 	})
 	if err != nil {
 		return 0, fmt.Errorf("approval: list the unsigned decisions: %w", err)
@@ -109,8 +112,10 @@ func (s *Service) SignDecisions(ctx context.Context, organizationID string) (int
 			return signed, fmt.Errorf("approval: sign a decision record: %w", err)
 		}
 		err = s.o.DB.InTx(ctx, tenant, func(ctx context.Context, tx pgx.Tx) error {
-			_, err := dbgen.New(tx).SignApprovalDecision(ctx, dbgen.SignApprovalDecisionParams{ID: d.ID, KeyID: &keyID, Signature: sig})
-			return err
+			if _, err := dbgen.New(tx).SignApprovalDecision(ctx, dbgen.SignApprovalDecisionParams{ID: d.ID, KeyID: &keyID, Signature: sig}); err != nil {
+				return fmt.Errorf("update: %w", err)
+			}
+			return nil
 		})
 		if err != nil {
 			return signed, fmt.Errorf("approval: store a decision signature: %w", err)

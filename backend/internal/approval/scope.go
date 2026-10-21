@@ -4,6 +4,8 @@
 package approval
 
 import (
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
@@ -52,16 +54,24 @@ func appOf(stored pgtype.UUID) string {
 // when appID is empty.
 func authorizeScope(p auth.Principal, want auth.Permission, appID string) error {
 	if appID == "" {
-		return p.Authorize(want)
+		return wrapAuthorize(p.Authorize(want))
 	}
-	return p.AuthorizeApp(want, appID)
+	return wrapAuthorize(p.AuthorizeApp(want, appID))
 }
 
 // authorizeSomeEnvironment is the first check of a decision, made before the
 // request and so its environment is known.
 func authorizeSomeEnvironment(p auth.Principal, appID string) error {
 	if appID == "" {
-		return p.Authorize(auth.ApprovalsDecide)
+		return wrapAuthorize(p.Authorize(auth.ApprovalsDecide))
 	}
-	return p.AuthorizeSomeEnvironment(auth.ApprovalsDecide, appID)
+	return wrapAuthorize(p.AuthorizeSomeEnvironment(auth.ApprovalsDecide, appID))
+}
+
+// wrapAuthorize adds the package to a refusal, keeping its code.
+func wrapAuthorize(err error) error {
+	if err != nil {
+		return fmt.Errorf("approval: %w", err)
+	}
+	return nil
 }

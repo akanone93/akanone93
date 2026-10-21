@@ -51,7 +51,7 @@ func (f fakeAlerts) DeleteAlertRule(_ context.Context, r *connect.Request[pluxv1
 	return connect.NewResponse(&pluxv1.DeleteAlertRuleResponse{}), nil
 }
 
-func (f fakeAlerts) ListAlertRules(context.Context, *connect.Request[pluxv1.ListAlertRulesRequest]) (*connect.Response[pluxv1.ListAlertRulesResponse], error) {
+func (fakeAlerts) ListAlertRules(context.Context, *connect.Request[pluxv1.ListAlertRulesRequest]) (*connect.Response[pluxv1.ListAlertRulesResponse], error) {
 	return connect.NewResponse(&pluxv1.ListAlertRulesResponse{Rules: []*pluxv1.AlertRule{
 		{Id: "r1", Name: "crashes", Metric: "fatal_error", Aggregation: "count", WindowSeconds: 300, Comparison: ">", Threshold: 5, Severity: "critical"},
 	}}), nil

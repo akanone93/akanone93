@@ -157,10 +157,13 @@ func (s *Service) apply(ctx context.Context, tx pgx.Tx, org string, rule Rule, v
 	if err := s.announce(ctx, org, rule, next, notice); err != nil {
 		return err
 	}
-	return q.SetAlertState(ctx, dbgen.SetAlertStateParams{
+	if err := q.SetAlertState(ctx, dbgen.SetAlertStateParams{
 		RuleID: id, State: string(next.Phase), Since: storage.Timestamp(next.Since), EvaluatedAt: storage.Timestamp(next.EvaluatedAt),
 		Value: next.Value, FiredAt: storage.Timestamp(next.FiredAt), ResolvedAt: storage.Timestamp(next.ResolvedAt),
-	})
+	}); err != nil {
+		return fmt.Errorf("analytics: store the alert state: %w", err)
+	}
+	return nil
 }
 
 // announce publishes a firing or resolved notification. The recipients are

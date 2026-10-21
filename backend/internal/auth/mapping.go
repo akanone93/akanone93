@@ -190,7 +190,7 @@ func (s *Service) ruleOrganization(ctx context.Context, providerOrg pgtype.UUID,
 }
 
 // validateRule checks one rule inside its organisation.
-func (s *Service) validateRule(ctx context.Context, q *dbgen.Queries, sc ProviderScope, org pgtype.UUID, rule MappingRule) error {
+func (*Service) validateRule(ctx context.Context, q *dbgen.Queries, sc ProviderScope, org pgtype.UUID, rule MappingRule) error {
 	for _, g := range rule.Grants {
 		if err := mappingRole(ctx, q, sc, org, g.Role); err != nil {
 			return err
@@ -295,22 +295,8 @@ func (s *Service) applyMapping(ctx context.Context, prov dbgen.IdentityProvider,
 	var existing map[string][]dbgen.ListFederatedAssignmentsOfUserRow
 	err = s.inTx(ctx, storage.Tenant{Scope: storage.ScopeInstallation}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		for _, rule := range m.Rules {
-			if !slices.Contains(groups, rule.Group) {
-				continue
-			}
-			org := prov.OrganizationID
-			if !org.Valid {
-				row, err := q.GetOrganizationByKey(ctx, rule.Organization)
-				if errors.Is(err, pgx.ErrNoRows) {
-					continue
-				}
-				if err != nil {
-					return fmt.Errorf("auth: read an organisation: %w", err)
-				}
-				org = row.ID
-			}
-			byOrg[storage.ID(org)] = append(byOrg[storage.ID(org)], rule)
+		if err := rulesByOrg(ctx, q, prov, m, groups, byOrg); err != nil {
+			return err
 		}
 		rows, err := q.ListFederatedAssignmentsOfUser(ctx, dbgen.ListFederatedAssignmentsOfUserParams{ProviderID: prov.ID, UserID: user})
 		if err != nil {
@@ -333,6 +319,31 @@ func (s *Service) applyMapping(ctx context.Context, prov dbgen.IdentityProvider,
 		if err := s.reconcileOrg(ctx, prov, user, org, byOrg[org], existing[org]); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// rulesByOrg adds the rules whose group the person is in to byOrg, under the
+// organisation they apply in. A provider of one organisation maps into it
+// alone; an installation provider names the organisation in each rule, and a
+// rule naming an unknown one is skipped.
+func rulesByOrg(ctx context.Context, q *dbgen.Queries, prov dbgen.IdentityProvider, m GroupMapping, groups []string, byOrg map[string][]MappingRule) error {
+	for _, rule := range m.Rules {
+		if !slices.Contains(groups, rule.Group) {
+			continue
+		}
+		org := prov.OrganizationID
+		if !org.Valid {
+			row, err := q.GetOrganizationByKey(ctx, rule.Organization)
+			if errors.Is(err, pgx.ErrNoRows) {
+				continue
+			}
+			if err != nil {
+				return fmt.Errorf("auth: read an organisation: %w", err)
+			}
+			org = row.ID
+		}
+		byOrg[storage.ID(org)] = append(byOrg[storage.ID(org)], rule)
 	}
 	return nil
 }
@@ -382,8 +393,7 @@ func desiredIn(ctx context.Context, q *dbgen.Queries, rules []MappingRule) (map[
 // with the rules that apply there.
 func (s *Service) reconcileOrg(ctx context.Context, prov dbgen.IdentityProvider, user pgtype.UUID, orgID string, rules []MappingRule, existing []dbgen.ListFederatedAssignmentsOfUserRow) error {
 	return s.inTxChanging(ctx, storage.Tenant{OrganizationID: orgID}, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		grants, teams, err := desiredIn(ctx, q, rules)
+		grants, teams, err := desiredIn(ctx, dbgen.New(tx), rules)
 		if err != nil {
 			return err
 		}
@@ -397,22 +407,30 @@ func (s *Service) reconcileOrg(ctx context.Context, prov dbgen.IdentityProvider,
 				have[kept] = true
 			}
 		}
-		for key, g := range grants {
-			if !have["g|"+key] {
-				if err := s.addGrant(ctx, tx, prov, user, orgID, g); err != nil {
-					return err
-				}
-			}
-		}
-		for key, team := range teams {
-			if !have["t|"+key] {
-				if err := s.addTeam(ctx, tx, prov, user, orgID, team); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
+		return s.addMissing(ctx, tx, prov, user, orgID, have, grants, teams)
 	})
+}
+
+// addMissing gives a person the grants and team memberships the mapping asks
+// for and have does not hold yet.
+func (s *Service) addMissing(ctx context.Context, tx pgx.Tx, prov dbgen.IdentityProvider, user pgtype.UUID, orgID string, have map[string]bool, grants map[string]wantedGrant, teams map[string]pgtype.UUID) error {
+	for key, g := range grants {
+		if have["g|"+key] {
+			continue
+		}
+		if err := s.addGrant(ctx, tx, prov, user, orgID, g); err != nil {
+			return err
+		}
+	}
+	for key, team := range teams {
+		if have["t|"+key] {
+			continue
+		}
+		if err := s.addTeam(ctx, tx, prov, user, orgID, team); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // keepOrDrop removes an assignment the mapping no longer asks for and
@@ -532,21 +550,27 @@ func (s *Service) dropProviderAssignments(ctx context.Context, provider pgtype.U
 	}
 	for org, rows := range byOrg {
 		err := s.inTxChanging(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
-			q := dbgen.New(tx)
-			for _, r := range rows {
-				if r.RoleGrantID.Valid {
-					_, err := q.DeleteRoleGrant(ctx, r.RoleGrantID)
-					if err != nil {
-						return fmt.Errorf("auth: remove a mapped grant: %w", err)
-					}
-				} else if _, err := q.DeleteMembershipByID(ctx, r.MembershipID); err != nil {
-					return fmt.Errorf("auth: remove a mapped team membership: %w", err)
-				}
-			}
-			return nil
+			return removeAssignments(ctx, dbgen.New(tx), rows)
 		})
 		if err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// removeAssignments deletes the grants and team memberships the assignments
+// stand for.
+func removeAssignments(ctx context.Context, q *dbgen.Queries, rows []dbgen.ListFederatedAssignmentsOfProviderRow) error {
+	for _, r := range rows {
+		if r.RoleGrantID.Valid {
+			if _, err := q.DeleteRoleGrant(ctx, r.RoleGrantID); err != nil {
+				return fmt.Errorf("auth: remove a mapped grant: %w", err)
+			}
+			continue
+		}
+		if _, err := q.DeleteMembershipByID(ctx, r.MembershipID); err != nil {
+			return fmt.Errorf("auth: remove a mapped team membership: %w", err)
 		}
 	}
 	return nil

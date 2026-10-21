@@ -18,7 +18,6 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/prodchange"
-	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
@@ -56,7 +55,10 @@ func Require(ctx context.Context, g Gate, tx pgx.Tx, arts ...Artifact) error {
 	if g == nil {
 		return nil
 	}
-	return g.Require(ctx, tx, arts...)
+	if err := g.Require(ctx, tx, arts...); err != nil {
+		return fmt.Errorf("approval: %w", err)
+	}
+	return nil
 }
 
 // spendable is an approval that satisfied its artifact and awaits being spent.
@@ -394,7 +396,7 @@ func (s *Service) announce(ctx context.Context, a Artifact, id string) {
 	err := s.notifier.Publish(ctx, notify.Event{
 		Type: notify.ApprovalRequested, OrganizationID: a.OrganizationID, AppID: a.AppID,
 		Title: "Approval requested: " + a.Summary,
-		Body:  fmt.Sprintf("%s (%s) is waiting for an approver.", a.Subject, schema.PolicyResource(a.Resource)),
+		Body:  fmt.Sprintf("%s (%s) is waiting for an approver.", a.Subject, a.Resource),
 		Link:  studioLink(a.AppID, id),
 		Attributes: map[string]string{
 			"request": id, "resource": string(a.Resource), "subject": a.Subject, "environment": a.Environment.Key,

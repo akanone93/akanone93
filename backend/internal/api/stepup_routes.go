@@ -67,7 +67,8 @@ func NewStepUpRoutes(r StepUpRoutes) (*StepUpRoutes, error) {
 
 // Create handles POST /stepup/requests.
 func (s *StepUpRoutes) Create(w http.ResponseWriter, r *http.Request) {
-	ctx, id, proof, ok := s.authenticate(w, r)
+	ctx := audit.WithRequest(r.Context(), s.auditRequest(r))
+	id, proof, ok := s.authenticate(ctx, w, r)
 	if !ok {
 		return
 	}
@@ -85,7 +86,8 @@ func (s *StepUpRoutes) Create(w http.ResponseWriter, r *http.Request) {
 
 // Poll handles POST /stepup/requests/{id}/poll.
 func (s *StepUpRoutes) Poll(w http.ResponseWriter, r *http.Request) {
-	ctx, id, proof, ok := s.authenticate(w, r)
+	ctx := audit.WithRequest(r.Context(), s.auditRequest(r))
+	id, proof, ok := s.authenticate(ctx, w, r)
 	if !ok {
 		return
 	}
@@ -101,16 +103,20 @@ func (s *StepUpRoutes) Poll(w http.ResponseWriter, r *http.Request) {
 	writeStepUpJSON(w, http.StatusOK, body)
 }
 
-// authenticate checks the CLI's token and the proof of its key, and counts
-// the call against the token's allowance. It answers the refusal itself.
-func (s *StepUpRoutes) authenticate(w http.ResponseWriter, r *http.Request) (context.Context, auth.Identity, dpop.Proof, bool) {
-	ctx := audit.WithRequest(r.Context(), audit.Request{
+// auditRequest describes the call for the audit trail.
+func (s *StepUpRoutes) auditRequest(r *http.Request) audit.Request {
+	return audit.Request{
 		SourceIP:  ClientAddress(r.RemoteAddr, r.Header, s.Trusted),
 		UserAgent: truncate(r.Header.Get("User-Agent"), 512),
-	})
-	fail := func(err error) (context.Context, auth.Identity, dpop.Proof, bool) {
+	}
+}
+
+// authenticate checks the CLI's token and the proof of its key, and counts
+// the call against the token's allowance. It answers the refusal itself.
+func (s *StepUpRoutes) authenticate(ctx context.Context, w http.ResponseWriter, r *http.Request) (auth.Identity, dpop.Proof, bool) {
+	fail := func(err error) (auth.Identity, dpop.Proof, bool) {
 		writeGatewayError(w, err)
-		return ctx, auth.Identity{}, dpop.Proof{}, false
+		return auth.Identity{}, dpop.Proof{}, false
 	}
 	token, ok := bearerToken(r.Header)
 	if !ok {
@@ -129,7 +135,7 @@ func (s *StepUpRoutes) authenticate(w http.ResponseWriter, r *http.Request) (con
 			return fail(err)
 		}
 	}
-	return ctx, id, proof, true
+	return id, proof, true
 }
 
 // writeStepUpJSON answers a call of the CLI. The answers carry secrets, so

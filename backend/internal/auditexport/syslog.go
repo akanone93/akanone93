@@ -52,7 +52,10 @@ func (s *syslogSink) Deliver(ctx context.Context, records []export.Record) error
 		}
 		batch.Write(export.Frame(message))
 	}
-	return s.stream.Send(ctx, batch.Bytes())
+	if err := s.stream.Send(ctx, batch.Bytes()); err != nil {
+		return fmt.Errorf("auditexport: send: %w", err)
+	}
+	return nil
 }
 
 // SyslogMessage renders a record as an RFC 5424 message: facility 13 (log

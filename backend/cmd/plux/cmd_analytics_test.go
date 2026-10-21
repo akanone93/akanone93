@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"slices"
@@ -62,7 +63,7 @@ func (f fakeAnalytics) GetRetention(context.Context, *connect.Request[pluxv1.Get
 
 func (f fakeAnalytics) SetRetention(_ context.Context, r *connect.Request[pluxv1.SetRetentionRequest]) (*connect.Response[pluxv1.SetRetentionResponse], error) {
 	m := r.Msg
-	f.record("set " + m.GetDataClass() + " " + string(rune('0'+m.GetDays()/10)) + string(rune('0'+m.GetDays()%10)) + " immediate=" + map[bool]string{true: "yes", false: "no"}[m.GetImmediate()])
+	f.record("set " + m.GetDataClass() + " " + fmt.Sprintf("%02d", m.GetDays()) + " immediate=" + map[bool]string{true: "yes", false: "no"}[m.GetImmediate()])
 	res := &pluxv1.SetRetentionResponse{Change: &pluxv1.RetentionChange{Id: "c2", DataClass: m.GetDataClass(), Days: m.GetDays(), State: "scheduled"}}
 	if m.GetImmediate() {
 		res.Change.State = "applied"
@@ -154,13 +155,13 @@ func TestAnalyticsCommands_ANL_010(t *testing.T) { //nolint:paralleltest // the 
 		code := e.analytics(args)
 		return code, out.String(), errOut.String()
 	}
-	runSub := func(sub string, args ...string) (int, string, string) {
+	runSub := func(sub string, args ...string) (int, string) {
 		var out, errOut bytes.Buffer
 		e := newEnv(&out, &errOut)
 		e.creds = credentials{dir: t.TempDir()}
 		full := append([]string{sub, args[0], "--server", srv.URL, "--org", "org-1"}, args[1:]...)
 		code := e.analytics(full)
-		return code, out.String(), errOut.String()
+		return code, out.String()
 	}
 
 	code, out, stderr := run("query", "--app", "a1", "--metric", "render_perf", "--granularity", "5m", "--group-by", "release, page",
@@ -177,36 +178,36 @@ func TestAnalyticsCommands_ANL_010(t *testing.T) { //nolint:paralleltest // the 
 		t.Errorf("query --json: %d %v %s", code, err, out)
 	}
 
-	if code, out, _ = runSub("retention", "show"); code != exitOK ||
+	if code, out = runSub("retention", "show"); code != exitOK ||
 		!strings.Contains(out, "audit_production\t3653 days\t(recorded; nothing deletes it yet)") ||
 		!strings.Contains(out, "raw_events\t396 days\t(default)") || !strings.Contains(out, "rollups\tindefinitely") ||
 		!strings.Contains(out, "scheduled\tc1\traw_events\t90 days\tscheduled") {
 		t.Errorf("retention show: %d %q", code, out)
 	}
-	if code, out, _ = runSub("retention", "set", "--class", "raw_events", "--days", "90"); code != exitOK ||
+	if code, out = runSub("retention", "set", "--class", "raw_events", "--days", "90"); code != exitOK ||
 		!strings.Contains(out, "Set raw_events to 90 days (scheduled)") || !strings.Contains(out, "in the maintenance window") {
 		t.Errorf("retention set: %d %q", code, out)
 	}
-	if code, out, _ = runSub("retention", "set", "--class", "rollups", "--days", "0", "--immediate"); code != exitOK || !strings.Contains(out, "Set rollups to indefinitely (applied)") {
+	if code, out = runSub("retention", "set", "--class", "rollups", "--days", "0", "--immediate"); code != exitOK || !strings.Contains(out, "Set rollups to indefinitely (applied)") {
 		t.Errorf("retention set --immediate: %d %q", code, out)
 	}
-	if code, out, _ = runSub("retention", "list", "--scheduled"); code != exitOK || !strings.Contains(out, "c1\traw_events\t90 days\tscheduled") {
+	if code, out = runSub("retention", "list", "--scheduled"); code != exitOK || !strings.Contains(out, "c1\traw_events\t90 days\tscheduled") {
 		t.Errorf("retention list: %d %q", code, out)
 	}
-	if code, out, _ = runSub("retention", "cancel", "c1"); code != exitOK || !strings.Contains(out, "Cancelled the change of raw_events") {
+	if code, out = runSub("retention", "cancel", "c1"); code != exitOK || !strings.Contains(out, "Cancelled the change of raw_events") {
 		t.Errorf("retention cancel: %d %q", code, out)
 	}
-	if code, _, _ = runSub("retention", "cancel", "gone"); code != exitFailed {
+	if code, _ = runSub("retention", "cancel", "gone"); code != exitFailed {
 		t.Errorf("cancelling an unknown change: %d", code)
 	}
 
-	if code, out, _ = runSub("export", "show"); code != exitOK || !strings.Contains(out, "https://otel.example/v1/metrics\tenabled") || !strings.Contains(out, "last error: PLX-8302") {
+	if code, out = runSub("export", "show"); code != exitOK || !strings.Contains(out, "https://otel.example/v1/metrics\tenabled") || !strings.Contains(out, "last error: PLX-8302") {
 		t.Errorf("export show: %d %q", code, out)
 	}
-	if code, out, _ = runSub("export", "set", "--endpoint", "https://otel.example", "--disabled"); code != exitOK || !strings.Contains(out, "disabled") {
+	if code, out = runSub("export", "set", "--endpoint", "https://otel.example", "--disabled"); code != exitOK || !strings.Contains(out, "disabled") {
 		t.Errorf("export set: %d %q", code, out)
 	}
-	if code, out, _ = runSub("export", "delete"); code != exitOK || !strings.Contains(out, "Removed the OTLP destination") {
+	if code, out = runSub("export", "delete"); code != exitOK || !strings.Contains(out, "Removed the OTLP destination") {
 		t.Errorf("export delete: %d %q", code, out)
 	}
 

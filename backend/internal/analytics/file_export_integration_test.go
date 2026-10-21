@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"net/url"
 	"sync"
 	"testing"
 	"time"
@@ -82,7 +83,7 @@ func TestFileExport_SettingsAndSecret_ANL_011(t *testing.T) {
 		"granularity": {Parquet: ext.ParquetSettings{Enabled: true, Events: true, Granularity: "7d"}},
 		"no kind":     {Parquet: ext.ParquetSettings{Enabled: true}},
 		"http":        {Webhook: ext.WebhookSettings{Enabled: true, URL: "http://example.com/hook"}},
-		"credentials": {Webhook: ext.WebhookSettings{Enabled: true, URL: "https://user:pw@example.com/hook"}},
+		"credentials": {Webhook: ext.WebhookSettings{Enabled: true, URL: (&url.URL{Scheme: "https", User: url.UserPassword("user", "pw"), Host: "example.com", Path: "/hook"}).String()}},
 	}
 	for name, s := range bad {
 		if _, err := f.Analytics.SetFileExport(ctx, f.Owner, s, testSecret); err == nil {

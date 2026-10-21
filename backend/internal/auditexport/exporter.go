@@ -264,7 +264,7 @@ func (x *Exporter) deliver(ctx context.Context, row dbgen.AuditExportDestination
 	}
 	if err := h.sink.Deliver(ctx, recordsOf(entries)); err != nil {
 		h.close() // a failed connection is not reused
-		return err
+		return fmt.Errorf("auditexport: deliver: %w", err)
 	}
 	return nil
 }

@@ -111,7 +111,7 @@ func (s *Service) CreateScimToken(ctx context.Context, p Principal, name string)
 			return err
 		}
 		return s.record(ctx, tx, audit.Entry{
-			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: audit.ScimTokenCreated,
+			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: audit.ScimAccessCreated,
 			TargetKind: "scim_token", TargetID: out.ID, Detail: "name=" + name,
 		})
 	})
@@ -177,7 +177,7 @@ func (s *Service) RotateScimToken(ctx context.Context, p Principal, id string, o
 			previous = scimTokenOf(old)
 		}
 		return s.record(ctx, tx, audit.Entry{
-			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: audit.ScimTokenRotated,
+			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: audit.ScimAccessRotated,
 			TargetKind: "scim_token", TargetID: next.ID, Detail: fmt.Sprintf("replaces %s, which works for %s more", previous.ID, overlap),
 		})
 	})
@@ -202,7 +202,7 @@ func (s *Service) RevokeScimToken(ctx context.Context, p Principal, id string) e
 			return plxerr.New(plxerr.ResourceNotFound, "no such SCIM token")
 		}
 		return s.record(ctx, tx, audit.Entry{
-			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: audit.ScimTokenRevoked,
+			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: audit.ScimAccessRevoked,
 			TargetKind: "scim_token", TargetID: id,
 		})
 	})

@@ -58,9 +58,9 @@ func newSCIMOrganisation(t *testing.T) *scimOrganisation {
 }
 
 // scimUser is the directory's view of an email address, created through SCIM.
-func (s *scimOrganisation) scimUser(t *testing.T, email string, active bool) identity.User {
+func (s *scimOrganisation) scimUser(t *testing.T, email string) identity.User {
 	t.Helper()
-	u, err := s.dir.CreateUser(s.ctx, s.org, identity.UserSpec{UserName: email, DisplayName: "Person", Active: active})
+	u, err := s.dir.CreateUser(s.ctx, s.org, identity.UserSpec{UserName: email, DisplayName: "Person", Active: true})
 	if err != nil {
 		t.Fatalf("CreateUser(%s): %v", email, err)
 	}
@@ -217,7 +217,7 @@ func TestSCIMUsers_GOV_004(t *testing.T) {
 	if err != nil || updated.DisplayName != "Eve Two" || updated.Version <= eve.Version {
 		t.Errorf("ReplaceUser = %+v, %v", updated, err)
 	}
-	carol := s.scimUser(t, "carol@example.com", true)
+	carol := s.scimUser(t, "carol@example.com")
 	if _, err := s.dir.ReplaceUser(ctx, s.org, carol.ID, identity.UserSpec{UserName: "elsewhere@example.com", Active: true}, 0); !errors.Is(err, identity.ErrInvalid) {
 		t.Errorf("an account the directory did not create changed address: %v", err)
 	}
@@ -245,7 +245,7 @@ func TestDeprovisioningEndsAccessAtOnce_GOV_004(t *testing.T) {
 	t.Parallel()
 	s := newSCIMOrganisation(t)
 	ctx := context.Background()
-	carol := s.scimUser(t, "carol@example.com", true)
+	carol := s.scimUser(t, "carol@example.com")
 	session, _, err := s.svc.StartPasswordLogin(ctx, "carol@example.com", password)
 	if err != nil {
 		t.Fatalf("StartPasswordLogin: %v", err)
@@ -289,7 +289,7 @@ func TestDeprovisioningEndsAccessAtOnce_GOV_004(t *testing.T) {
 		t.Errorf("a reactivated person cannot sign in: %v", err)
 	}
 
-	ada := s.scimUser(t, "ada@example.com", true)
+	ada := s.scimUser(t, "ada@example.com")
 	if _, err := s.dir.ReplaceUser(s.ctx, s.org, ada.ID, identity.UserSpec{UserName: "ada@example.com", Active: false}, 0); !errors.Is(err, identity.ErrRefused) {
 		t.Errorf("the last owner was deprovisioned: %v", err)
 	}
@@ -314,8 +314,8 @@ func TestSCIMGroupsAreTeams_GOV_004(t *testing.T) {
 	t.Parallel()
 	s := newSCIMOrganisation(t)
 	ctx := s.ctx
-	carol := s.scimUser(t, "carol@example.com", true)
-	eve := s.scimUser(t, "eve@example.com", true)
+	carol := s.scimUser(t, "carol@example.com")
+	eve := s.scimUser(t, "eve@example.com")
 	group, err := s.dir.CreateGroup(ctx, s.org, identity.GroupSpec{ExternalID: "grp-web", DisplayName: "Web Engineers", MemberIDs: []string{carol.ID, eve.ID}})
 	if err != nil || len(group.Members) != 2 {
 		t.Fatalf("CreateGroup = %+v, %v", group, err)

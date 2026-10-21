@@ -8,6 +8,7 @@ package exporttest
 
 import (
 	"bufio"
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -16,6 +17,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io"
 	"math/big"
 	"net"
@@ -129,7 +131,9 @@ func (r *Receiver) handle(conn net.Conn) {
 		abort(tlsConn.NetConn())
 		return
 	}
-	if err := tlsConn.Handshake(); err != nil {
+	handshakeCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := tlsConn.HandshakeContext(handshakeCtx); err != nil {
 		abort(tlsConn.NetConn())
 		return
 	}
@@ -162,7 +166,7 @@ func abort(c net.Conn) {
 func readFrame(br *bufio.Reader) (string, error) {
 	prefix, err := br.ReadString(' ')
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("exporttest.readFrame: read the octet count: %w", err)
 	}
 	n, err := strconv.Atoi(prefix[:len(prefix)-1])
 	if err != nil || n < 0 {
@@ -170,7 +174,7 @@ func readFrame(br *bufio.Reader) (string, error) {
 	}
 	buf := make([]byte, n)
 	if _, err := io.ReadFull(br, buf); err != nil {
-		return "", err
+		return "", fmt.Errorf("exporttest.readFrame: read the message: %w", err)
 	}
 	return string(buf), nil
 }

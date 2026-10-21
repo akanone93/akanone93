@@ -264,7 +264,10 @@ func (s *Service) row(ctx context.Context, p auth.Principal, id string) (dbgen.C
 	var row dbgen.ComplianceReport
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		row, err = dbgen.New(tx).GetComplianceReport(ctx, uid)
-		return err
+		if err != nil {
+			return fmt.Errorf("query: %w", err)
+		}
+		return nil
 	})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return dbgen.ComplianceReport{}, plxerr.New(plxerr.ResourceNotFound, "no such compliance report")

@@ -175,9 +175,18 @@ func bindingOf(destinationID string) []byte {
 	return []byte("audit-export-credentials:" + destinationID)
 }
 
-// marshalCredentials encodes credentials for sealing.
+// marshalCredentials encodes credentials for sealing, in the form the
+// struct tags of Credentials read back.
 func marshalCredentials(c Credentials) ([]byte, error) {
-	b, err := json.Marshal(c)
+	fields := map[string]string{}
+	for key, value := range map[string]string{
+		"clientCertificate": c.ClientCertificatePEM, "clientKey": c.ClientKeyPEM, "signingSecret": c.SigningSecret,
+	} {
+		if value != "" {
+			fields[key] = value
+		}
+	}
+	b, err := json.Marshal(fields)
 	if err != nil {
 		return nil, fmt.Errorf("auditexport: encode the credentials: %w", err)
 	}

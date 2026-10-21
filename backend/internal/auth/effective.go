@@ -47,7 +47,7 @@ func (p Principal) Effective(scope AccessScope) (EffectivePermissions, error) {
 		set = append(set, p.AppPermissions[scope.AppID]...)
 	}
 	if scope.Environment != "" {
-		set = append(set, p.EnvPermissions[EnvScope{AppID: scope.AppID, Environment: scope.Environment}]...)
+		set = append(set, p.EnvPermissions[EnvScope(scope)]...)
 		set = append(set, p.EnvPermissions[EnvScope{Environment: scope.Environment}]...)
 	}
 	set = without(set, func(perm Permission) bool { return p.restrictedOn(perm, scope.AppID, scope.Environment) })

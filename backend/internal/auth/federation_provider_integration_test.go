@@ -28,11 +28,11 @@ type federated struct {
 
 // newFederated builds the governance organisation whose service reaches the
 // test IdP through its client, so that its certificate is trusted.
-func newFederated(t *testing.T, configure ...func(*auth.Options)) *federated {
+func newFederated(t *testing.T) *federated {
 	t.Helper()
 	p := newIDP(t)
 	trust := func(o *auth.Options) { o.HTTPClient = p.srv.Client() }
-	g := newGovernance(t, append([]func(*auth.Options){trust}, configure...)...)
+	g := newGovernance(t, trust)
 	return &federated{governance: g, idp: p}
 }
 
@@ -57,9 +57,9 @@ func (f *federated) ownerScope(t *testing.T) auth.ProviderScope {
 }
 
 // createProvider configures the organisation's provider and keeps it.
-func (f *federated) createProvider(t *testing.T, jit bool) auth.Provider {
+func (f *federated) createProvider(t *testing.T) auth.Provider {
 	t.Helper()
-	p, err := f.svc.CreateProvider(context.Background(), f.ownerScope(t), f.spec(jit))
+	p, err := f.svc.CreateProvider(context.Background(), f.ownerScope(t), f.spec(false))
 	if err != nil {
 		t.Fatalf("CreateProvider: %v", err)
 	}
@@ -195,7 +195,7 @@ func TestProviderCRUD_GOV_004(t *testing.T) {
 	if _, err := f.svc.CreateProvider(ctx, sc, auth.ProviderSpec{Key: "Not A Key", Kind: auth.ProviderOIDC, Name: "x"}); code(err) != plxerr.InvalidFormat {
 		t.Errorf("a provider with a malformed key: %v", err)
 	}
-	p := f.createProvider(t, false)
+	p := f.createProvider(t)
 	if _, err := f.svc.CreateProvider(ctx, sc, f.spec(false)); code(err) != plxerr.ResourceExists {
 		t.Errorf("a second provider with the same key: %v", err)
 	}
@@ -339,7 +339,7 @@ func TestDisabledProviderIsNotASignInOption_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
 	ctx := context.Background()
-	f.createProvider(t, false)
+	f.createProvider(t)
 	spec := f.spec(false)
 	spec.ClientSecret = ""
 	spec.Enabled = false

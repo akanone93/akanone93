@@ -295,7 +295,7 @@ func (s *Service) fileExportOf(ctx context.Context, org string) (*dbgen.Analytic
 		row, err = dbgen.New(tx).GetAnalyticsFileExport(ctx, storage.MustUUID(org))
 		return err //nolint:wrapcheck // handled below
 	})
-	if errors.Is(err, pgx.ErrNoRows) || err == nil && !(row.ParquetEnabled || row.WebhookEnabled) {
+	if errors.Is(err, pgx.ErrNoRows) || err == nil && !row.ParquetEnabled && !row.WebhookEnabled {
 		return nil, "", nil
 	}
 	if err != nil {

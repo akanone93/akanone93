@@ -31,26 +31,12 @@ func (s AnalyticsHandler) QueryRollups(ctx context.Context, req *connect.Request
 		if err != nil {
 			return nil, err
 		}
-		m := req.Msg
-		q := analytics.Query{
-			AppID: m.GetAppId(), Metric: m.GetMetric(), Granularity: analytics.Granularity(m.GetGranularity()),
-			From: m.GetFrom().AsTime(), To: m.GetTo().AsTime(), Limit: int(m.GetLimit()),
+		q, err := rollupQuery(req.Msg)
+		if err != nil {
+			return nil, err
 		}
-		if m.GetFrom() == nil || m.GetTo() == nil {
-			q.From, q.To = time.Time{}, time.Time{}
-		}
-		if tok := m.GetPageToken(); tok != "" {
-			next, err := decodeRollupToken(tok, q.From, q.To)
-			if err != nil {
-				return nil, err
-			}
-			q.From = next
-		}
-		for _, d := range m.GetGroupBy() {
-			q.GroupBy = append(q.GroupBy, analytics.Dimension(d))
-		}
-		if key := m.GetEnvironment(); key != "" {
-			env, err := s.h.Tenancy.GetEnvironmentByKey(ctx, p, m.GetAppId(), key)
+		if key := req.Msg.GetEnvironment(); key != "" {
+			env, err := s.h.Tenancy.GetEnvironmentByKey(ctx, p, req.Msg.GetAppId(), key)
 			if err != nil {
 				return nil, err //nolint:wrapcheck // a domain error
 			}
@@ -60,22 +46,51 @@ func (s AnalyticsHandler) QueryRollups(ctx context.Context, req *connect.Request
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		out := &pluxv1.QueryRollupsResponse{}
-		if series.Truncated {
-			out.NextPageToken = encodeRollupToken(series.NextFrom)
-		}
-		for _, pt := range series.Points {
-			out.Points = append(out.Points, &pluxv1.RollupPoint{
-				Bucket: ts(pt.Bucket),
-				Group: &pluxv1.RollupGroup{
-					EnvironmentId: pt.Group.EnvironmentID, ReleaseSequence: pt.Group.Release, PluginKey: pt.Group.Plugin,
-					Page: pt.Group.Page, DeviceClass: pt.Group.DeviceClass, Locale: pt.Group.Locale,
-				},
-				Events: pt.Events, ValueCount: pt.ValueCount, Sum: pt.Sum, Min: pt.Min, Max: pt.Max, P50: pt.P50, P90: pt.P90, P99: pt.P99,
-			})
-		}
-		return out, nil
+		return rollupResponse(series), nil
 	})
+}
+
+// rollupQuery turns a request into a store query, resuming after the page
+// token when there is one.
+func rollupQuery(m *pluxv1.QueryRollupsRequest) (analytics.Query, error) {
+	q := analytics.Query{
+		AppID: m.GetAppId(), Metric: m.GetMetric(), Granularity: analytics.Granularity(m.GetGranularity()),
+		From: m.GetFrom().AsTime(), To: m.GetTo().AsTime(), Limit: int(m.GetLimit()),
+	}
+	if m.GetFrom() == nil || m.GetTo() == nil {
+		q.From, q.To = time.Time{}, time.Time{}
+	}
+	if tok := m.GetPageToken(); tok != "" {
+		next, err := decodeRollupToken(tok, q.From, q.To)
+		if err != nil {
+			return analytics.Query{}, err
+		}
+		q.From = next
+	}
+	for _, d := range m.GetGroupBy() {
+		q.GroupBy = append(q.GroupBy, analytics.Dimension(d))
+	}
+	return q, nil
+}
+
+// rollupResponse turns a series into the response, with the token of the next
+// page when the series was cut short.
+func rollupResponse(series analytics.Series) *pluxv1.QueryRollupsResponse {
+	out := &pluxv1.QueryRollupsResponse{}
+	if series.Truncated {
+		out.NextPageToken = encodeRollupToken(series.NextFrom)
+	}
+	for _, pt := range series.Points {
+		out.Points = append(out.Points, &pluxv1.RollupPoint{
+			Bucket: ts(pt.Bucket),
+			Group: &pluxv1.RollupGroup{
+				EnvironmentId: pt.Group.EnvironmentID, ReleaseSequence: pt.Group.Release, PluginKey: pt.Group.Plugin,
+				Page: pt.Group.Page, DeviceClass: pt.Group.DeviceClass, Locale: pt.Group.Locale,
+			},
+			Events: pt.Events, ValueCount: pt.ValueCount, Sum: pt.Sum, Min: pt.Min, Max: pt.Max, P50: pt.P50, P90: pt.P90, P99: pt.P99,
+		})
+	}
+	return out
 }
 
 // GetRetention returns the effective retention and the waiting changes.

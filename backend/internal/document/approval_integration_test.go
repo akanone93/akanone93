@@ -72,7 +72,7 @@ func TestWaiverNeedsApprovalUnderMaximum_A11Y_008(t *testing.T) {
 		}
 	}
 	save := func(waiver string) error {
-		content, rev := pageWithWaiver(t, f, loans, waiver)
+		content, rev := pageWithWaiver(ctx, t, f, loans, waiver)
 		_, err := f.docs.PutDocument(ctx, f.owner, f.app, loans, "s", waiverPage, content, rev)
 		return err
 	}

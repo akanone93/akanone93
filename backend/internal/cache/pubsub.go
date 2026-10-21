@@ -198,15 +198,18 @@ func (v *Valkey) Publish(ctx context.Context, channel string, message []byte) er
 // Subscribe starts receiving the messages published on a channel. A
 // goroutine owned by the subscription keeps one connection subscribed and
 // reconnects, with growing pauses, when it breaks; Close stops it.
-func (v *Valkey) Subscribe(_ context.Context, channel string) (Subscription, error) {
+func (v *Valkey) Subscribe(ctx context.Context, channel string) (Subscription, error) {
 	v.mu.Lock()
 	closed := v.closed
 	v.mu.Unlock()
 	if closed {
 		return nil, ErrClosed
 	}
-	s := &valkeySubscription{inbox: newInbox(), v: v, channel: channel, stop: make(chan struct{}), done: make(chan struct{})}
-	go s.run()
+	// The subscription outlives the call that made it; it keeps the values
+	// of ctx and ends with Close.
+	runCtx, cancel := context.WithCancel(context.WithoutCancel(ctx))
+	s := &valkeySubscription{inbox: newInbox(), v: v, channel: channel, stop: make(chan struct{}), done: make(chan struct{}), cancel: cancel}
+	go s.run(runCtx)
 	return s, nil
 }
 
@@ -216,8 +219,9 @@ type valkeySubscription struct {
 	v       *Valkey
 	channel string
 
-	stop chan struct{}
-	done chan struct{}
+	stop   chan struct{}
+	done   chan struct{}
+	cancel context.CancelFunc
 
 	mu     sync.Mutex
 	conn   *conn
@@ -233,6 +237,7 @@ func (s *valkeySubscription) Close() error {
 	}
 	s.closed = true
 	close(s.stop)
+	s.cancel()
 	if s.conn != nil {
 		_ = s.conn.Close()
 	}
@@ -242,12 +247,12 @@ func (s *valkeySubscription) Close() error {
 }
 
 // run keeps the subscription connected until it is closed.
-func (s *valkeySubscription) run() {
+func (s *valkeySubscription) run(ctx context.Context) {
 	defer close(s.done)
 	defer close(s.messages)
 	delay := resubscribeFirst
 	for {
-		if s.listen() {
+		if s.listen(ctx) {
 			delay = resubscribeFirst
 		}
 		s.setLive(false)
@@ -265,8 +270,8 @@ func (s *valkeySubscription) run() {
 // listen subscribes on a new connection and delivers messages until the
 // connection breaks or the subscription is closed. It reports whether it
 // was live at all.
-func (s *valkeySubscription) listen() bool {
-	ctx, cancel := context.WithTimeout(context.Background(), s.v.timeout)
+func (s *valkeySubscription) listen(ctx context.Context) bool {
+	ctx, cancel := context.WithTimeout(ctx, s.v.timeout)
 	defer cancel()
 	c, err := s.v.dialNew(ctx)
 	if err != nil {

@@ -13,6 +13,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -55,7 +56,7 @@ func (f fakeControls) ReviewBreakGlass(_ context.Context, r *connect.Request[plu
 	return connect.NewResponse(&pluxv1.ReviewBreakGlassResponse{Invocation: &pluxv1.BreakGlassInvocation{Id: r.Msg.GetId(), InvokedAt: at, ReviewDueAt: at}}), nil
 }
 
-func (f fakeControls) ListFreezes(context.Context, *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error) {
+func (fakeControls) ListFreezes(context.Context, *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error) {
 	return connect.NewResponse(&pluxv1.ListFreezesResponse{Freezes: []*pluxv1.ChangeFreeze{
 		{Id: "f1", Name: "close", TimeZone: "Europe/Berlin", Start: "2026-12-30T18:00", DurationMinutes: 2160, Recurrence: "FREQ=WEEKLY;BYDAY=FR"},
 	}}), nil
@@ -64,7 +65,7 @@ func (f fakeControls) ListFreezes(context.Context, *connect.Request[pluxv1.ListF
 func (f fakeControls) PutFreeze(_ context.Context, r *connect.Request[pluxv1.PutFreezeRequest]) (*connect.Response[pluxv1.PutFreezeResponse], error) {
 	w := r.Msg.GetFreeze()
 	f.record("put freeze " + w.GetName() + " " + w.GetTimeZone() + " " + w.GetStart() + " " + w.GetRecurrence() + " " + w.GetEnvironmentKey())
-	f.record("minutes " + string(rune('0'+w.GetDurationMinutes()/60)))
+	f.record("minutes " + strconv.Itoa(int(w.GetDurationMinutes()/60)))
 	return connect.NewResponse(&pluxv1.PutFreezeResponse{Freeze: &pluxv1.ChangeFreeze{Id: "f2", Name: w.GetName()}}), nil
 }
 

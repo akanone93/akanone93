@@ -265,7 +265,7 @@ func (p Principal) check(want Permission, held bool) error {
 	// catalogue marks stepUp need a WebAuthn assertion with user
 	// verification from the last five minutes, in the browser session or
 	// through the CLI's grant (SEC-103, ADR-0075).
-	return p.Identity.StepUpError(StepUpWindow)
+	return p.StepUpError(StepUpWindow)
 }
 
 // ExcludedApps returns the apps on which a restriction takes a permission

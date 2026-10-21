@@ -7,7 +7,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -137,7 +136,7 @@ func (e env) rolloutRun(c common, f rolloutFlags, sub string, rest []string) int
 	var r *pluxv1.Rollout
 	switch sub {
 	case "create":
-		r, err = e.rolloutCreate(ctx, cl, client, c, f)
+		r, err = rolloutCreate(ctx, cl, client, c, f)
 	case "show":
 		var res *connect.Response[pluxv1.GetRolloutResponse]
 		if res, err = client.GetRollout(ctx, connect.NewRequest(&pluxv1.GetRolloutRequest{Id: rest[0]})); err == nil {
@@ -166,7 +165,7 @@ func (e env) rolloutRun(c common, f rolloutFlags, sub string, rest []string) int
 }
 
 // rolloutCreate builds and sends a create request.
-func (e env) rolloutCreate(ctx context.Context, cl *clients, svc pluxv1connect.RolloutServiceClient, c common, f rolloutFlags) (*pluxv1.Rollout, error) {
+func rolloutCreate(ctx context.Context, cl *clients, svc pluxv1connect.RolloutServiceClient, c common, f rolloutFlags) (*pluxv1.Rollout, error) {
 	if f.env == "" || f.release <= 0 || f.stages == "" {
 		return nil, usageError("--env, --release and --stages are required")
 	}
@@ -206,12 +205,12 @@ func createRequest(f rolloutFlags) (*pluxv1.CreateRolloutRequest, error) {
 		return nil, err
 	}
 	if f.rule != "" {
-		if req.Rule, err = os.ReadFile(f.rule); err != nil {
+		if req.Rule, err = readNamedFile(f.rule); err != nil {
 			return nil, fmt.Errorf("read the rule: %w", err)
 		}
 	}
 	for _, file := range splitList(f.segments) {
-		doc, err := os.ReadFile(file)
+		doc, err := readNamedFile(file)
 		if err != nil {
 			return nil, fmt.Errorf("read a segment: %w", err)
 		}

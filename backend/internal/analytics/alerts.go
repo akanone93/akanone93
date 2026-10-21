@@ -87,7 +87,7 @@ func (s *Service) ruleParams(ctx context.Context, q *dbgen.Queries, p auth.Princ
 }
 
 // environmentID resolves the rule's environment key, if it names one.
-func (s *Service) environmentID(ctx context.Context, q *dbgen.Queries, r Rule) (pgtype.UUID, error) {
+func (*Service) environmentID(ctx context.Context, q *dbgen.Queries, r Rule) (pgtype.UUID, error) {
 	if r.Environment == "" {
 		return pgtype.UUID{}, nil
 	}
@@ -172,7 +172,7 @@ func (s *Service) DeleteAlertRule(ctx context.Context, p auth.Principal, ruleID 
 // ownedRule loads a rule of the principal's organisation and checks the
 // permission on its app. A rule of another organisation is not found: row
 // level security hides it.
-func (s *Service) ownedRule(ctx context.Context, q *dbgen.Queries, p auth.Principal, id pgtype.UUID, want auth.Permission) (dbgen.AlertRule, error) {
+func (*Service) ownedRule(ctx context.Context, q *dbgen.Queries, p auth.Principal, id pgtype.UUID, want auth.Permission) (dbgen.AlertRule, error) {
 	row, err := q.GetAlertRule(ctx, dbgen.GetAlertRuleParams{ID: id, OrganizationID: storage.MustUUID(p.OrganizationID)})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return dbgen.AlertRule{}, plxerr.New(plxerr.ResourceNotFound, "there is no such alert rule")

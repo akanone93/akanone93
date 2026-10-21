@@ -7,7 +7,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -73,8 +72,10 @@ func (e env) experiment(args []string) int {
 	set.Float64Var(&f.layerShare, "layer-share", 0, "the `percent` of the experiment's layer to take (default all of it)")
 	set.Func("percent", "the holdout `percent`, 0 to 100", func(v string) error {
 		f.percentSet = true
-		_, err := fmt.Sscanf(v, "%g", &f.percent)
-		return err
+		if _, err := fmt.Sscanf(v, "%g", &f.percent); err != nil {
+			return fmt.Errorf("parse the percent: %w", err)
+		}
+		return nil
 	})
 	rest, code, ok := parse(set, args[1:], e.stderr, usage, positional)
 	if !ok {
@@ -212,7 +213,7 @@ func experimentCreate(ctx context.Context, client pluxv1connect.ExperimentServic
 	if t.env == "" {
 		return nil, "", usageError("--env names the environment")
 	}
-	doc, err := os.ReadFile(file)
+	doc, err := readNamedFile(file)
 	if err != nil {
 		return nil, "", fmt.Errorf("read the experiment document: %w", err)
 	}

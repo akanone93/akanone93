@@ -110,7 +110,11 @@ func (s *Service) Review(ctx context.Context, p auth.Principal, appID, id string
 // itself holds.
 func (s *Service) evidence(ctx context.Context, tx pgx.Tx, req Request) (Evidence, error) {
 	if r, ok := s.reviewers[req.Resource]; ok {
-		return r.Evidence(ctx, tx, req)
+		ev, err := r.Evidence(ctx, tx, req)
+		if err != nil {
+			return Evidence{}, fmt.Errorf("approval: collect the evidence: %w", err)
+		}
+		return ev, nil
 	}
 	return Evidence{Diff: req.Payload, Notes: req.Summary}, nil
 }

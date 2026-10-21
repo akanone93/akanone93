@@ -5,6 +5,7 @@ package approval_test
 
 import (
 	"context"
+	"strconv"
 	"testing"
 	"time"
 
@@ -53,7 +54,7 @@ func (f *fixture) limitRaise(n int) approval.Artifact {
 	return approval.Artifact{
 		Resource: schema.PolicyResourceLimit, OrganizationID: f.org, AppID: f.app, Action: approval.ActionRaiseLimit,
 		Environment: approval.Environment{ID: f.envs["production"], Key: "production", Production: true},
-		Subject:     "limit:a11y.waiversPerPlugin", Hash: approval.HashOf([]byte{byte(n)}), Summary: "raise a limit", Requester: f.owner.Actor(),
+		Subject:     "limit:a11y.waiversPerPlugin", Hash: approval.HashOf([]byte(strconv.Itoa(n))), Summary: "raise a limit", Requester: f.owner.Actor(),
 	}
 }
 

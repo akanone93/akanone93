@@ -8,6 +8,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"net"
 	"slices"
 	"testing"
@@ -36,7 +37,7 @@ func streamTo(t *testing.T, r *exporttest.Receiver) *export.Stream {
 func batch(first, n int) []byte {
 	var b bytes.Buffer
 	for i := range n {
-		b.Write(export.Frame([]byte("message " + string(rune('a'+first+i)))))
+		b.Write(export.Frame([]byte(fmt.Sprintf("message %c", 'a'+first+i))))
 	}
 	return b.Bytes()
 }

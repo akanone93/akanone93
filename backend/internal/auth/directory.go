@@ -57,8 +57,8 @@ func invalidValue(format string, args ...any) error {
 }
 
 // refused is an ErrRefused with a reason.
-func refused(format string, args ...any) error {
-	return fmt.Errorf("%w: %s", identity.ErrRefused, fmt.Sprintf(format, args...))
+func refused(reason string) error {
+	return fmt.Errorf("%w: %s", identity.ErrRefused, reason)
 }
 
 // resource parses the identifier of a resource; one that is not an
@@ -279,7 +279,7 @@ func (s *Service) scimAccount(ctx context.Context, tx pgx.Tx, email, display str
 // scimRecordFor makes the organisation's SCIM record of an account: new, or
 // the revived record of a person deleted before. A record that is live
 // already is a conflict.
-func (s *Service) scimRecordFor(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, account dbgen.User, created bool, spec identity.UserSpec) error {
+func (*Service) scimRecordFor(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, account dbgen.User, created bool, spec identity.UserSpec) error {
 	rec, err := q.GetScimUserForUpdate(ctx, dbgen.GetScimUserForUpdateParams{OrganizationID: org, UserID: account.ID})
 	switch {
 	case err == nil && !rec.DeletedAt.Valid:
@@ -412,7 +412,7 @@ func (s *Service) applyUserSpec(ctx context.Context, tx pgx.Tx, org pgtype.UUID,
 // account is disabled and all their sessions and tokens end. An installation
 // administrator, or the last owner of the organisation, is not deprovisioned
 // by an organisation's client.
-func (s *Service) deprovision(ctx context.Context, tx pgx.Tx, org pgtype.UUID, account dbgen.User) (bool, error) {
+func (*Service) deprovision(ctx context.Context, tx pgx.Tx, org pgtype.UUID, account dbgen.User) (bool, error) {
 	if account.InstallationAdmin {
 		return false, refused("an installation administrator cannot be deprovisioned by an organisation")
 	}
@@ -479,9 +479,9 @@ func (d scimDirectory) DeleteUser(ctx context.Context, org, id string) error {
 		if err != nil {
 			return fmt.Errorf("auth: read a user: %w", err)
 		}
-		disabled := rec.DisabledAccount
 		if rec.Active {
-			if disabled, err = d.s.deprovision(ctx, tx, orgID, account); err != nil {
+			disabled, err := d.s.deprovision(ctx, tx, orgID, account)
+			if err != nil {
 				return err
 			}
 			if _, err := q.UpdateScimUser(ctx, dbgen.UpdateScimUserParams{

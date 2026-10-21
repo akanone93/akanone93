@@ -51,7 +51,7 @@ func (f *federated) inTeam(t *testing.T, userID string) bool {
 func TestGroupMapping_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
-	f.createProvider(t, false)
+	f.createProvider(t)
 	f.setMapping(t, auth.GroupMapping{Rules: []auth.MappingRule{releaseOnDevelopment(), {
 		Group:  "finance",
 		Grants: []auth.GrantRule{{Role: string(auth.RoleDeveloper), Scope: auth.ScopeApp, App: "shop"}},
@@ -112,7 +112,7 @@ func TestGroupMapping_GOV_004(t *testing.T) {
 func TestMappingRefusesWhatCannotBeGiven_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
-	f.createProvider(t, false)
+	f.createProvider(t)
 	ctx := context.Background()
 	sc := f.ownerScope(t)
 	for name, rule := range map[string]auth.MappingRule{
@@ -144,7 +144,7 @@ func TestMappingRefusesWhatCannotBeGiven_GOV_004(t *testing.T) {
 func TestJustInTimeProvisioning_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
-	f.createProvider(t, false)
+	f.createProvider(t)
 	f.setMapping(t, auth.GroupMapping{Rules: []auth.MappingRule{releaseOnDevelopment()}})
 	ctx := context.Background()
 	f.person(t, "dan@example.com")

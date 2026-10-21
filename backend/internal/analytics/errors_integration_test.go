@@ -13,8 +13,9 @@ import (
 )
 
 // reportError records one error event of a device.
-func reportError(t *testing.T, f *analyticstest.Fixture, device, id, code, node, stack string) {
+func reportError(t *testing.T, f *analyticstest.Fixture, device, id, node, stack string) {
 	t.Helper()
+	const code = "PLX-4101"
 	fields := fmt.Sprintf(`{"code":%q,"node_path":%q,"frames":%q}`, code, node, stack)
 	b := analytics.Batch{OrganizationID: f.Org, AppID: f.App, EnvironmentID: f.Env, DeviceID: device, Events: []analytics.Event{{
 		ID: id, Name: analytics.EventError, Time: f.Clock.Now(), ReleaseSequence: 3, PluginKey: "main", Route: "/loans", Fields: []byte(fields),
@@ -37,11 +38,11 @@ func TestErrorGroups_ANL_040(t *testing.T) {
 	const first, second, third, fourth = "018f0000-0000-7000-8000-000000000001", "018f0000-0000-7000-8000-000000000002",
 		"018f0000-0000-7000-8000-000000000003", "018f0000-0000-7000-8000-000000000004"
 
-	reportError(t, f, f.Device, first, "PLX-4101", "root/0", stackA)
-	reportError(t, f, other, second, "PLX-4101", "root/0", stackB)
-	reportError(t, f, other, second, "PLX-4101", "root/0", stackB)
-	reportError(t, f, f.Device, third, "PLX-4101", "root/1", stackA)
-	reportError(t, f, f.Device, fourth, "PLX-4101", "", "")
+	reportError(t, f, f.Device, first, "root/0", stackA)
+	reportError(t, f, other, second, "root/0", stackB)
+	reportError(t, f, other, second, "root/0", stackB)
+	reportError(t, f, f.Device, third, "root/1", stackA)
+	reportError(t, f, f.Device, fourth, "", "")
 
 	groups, err := f.Analytics.ListErrorGroups(ctx, f.Viewer(), f.App, 0, 0, 0)
 	if err != nil {

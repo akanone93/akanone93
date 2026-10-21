@@ -253,47 +253,67 @@ func (d scimDirectory) ReplaceGroup(ctx context.Context, org, id string, spec id
 	}
 	var out identity.Group
 	err = d.s.inTxChanging(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
-		q, orgID := dbgen.New(tx), storage.MustUUID(org)
-		rec, err := q.GetScimGroupForUpdate(ctx, dbgen.GetScimGroupForUpdateParams{OrganizationID: orgID, TeamID: team})
-		if errors.Is(err, pgx.ErrNoRows) {
-			return identity.ErrNotFound
-		}
-		if err != nil {
-			return fmt.Errorf("auth: read a SCIM group: %w", err)
-		}
-		if ifVersion != 0 && ifVersion != rec.Version {
-			return identity.ErrVersionMismatch
-		}
-		members, err := memberIDs(ctx, q, orgID, spec.MemberIDs)
-		if err != nil {
-			return err
-		}
-		// Removing members can remove the last owner, through a team that
-		// holds the owner role.
-		err = GuardOwners(ctx, q, orgID, func() error {
-			if _, err := q.UpdateTeam(ctx, dbgen.UpdateTeamParams{ID: team, Name: name}); err != nil {
-				return fmt.Errorf("auth: rename a team: %w", err)
-			}
-			return d.s.setMembers(ctx, q, orgID, team, members)
-		})
-		if errors.Is(err, plxerr.Sentinel(plxerr.LastOwnerCannotBeRemoved)) {
-			return refused("the change would leave the organisation without an owner")
-		}
-		if err != nil {
-			return err
-		}
-		if _, err := q.UpdateScimGroup(ctx, dbgen.UpdateScimGroupParams{OrganizationID: orgID, TeamID: team, ExternalID: spec.ExternalID}); err != nil {
-			return scimWriteError(err, "update a SCIM group")
-		}
-		if out, err = loadGroup(ctx, q, orgID, team); err != nil {
-			return err
-		}
-		return d.s.record(ctx, tx, audit.Entry{
-			OrganizationID: org, Actor: scimActor, Action: audit.ScimGroupChanged,
-			TargetKind: "team", TargetID: id, Detail: fmt.Sprintf("members=%d", len(members)),
-		})
+		out, err = d.replaceGroup(ctx, tx, org, groupChange{id: id, team: team, name: name, spec: spec, ifVersion: ifVersion})
+		return err
 	})
 	return out, err
+}
+
+// groupChange is a validated replacement of a group.
+type groupChange struct {
+	id, name  string
+	team      pgtype.UUID
+	spec      identity.GroupSpec
+	ifVersion int64
+}
+
+// replaceGroup applies a replacement of a group inside the transaction and
+// returns the group as stored.
+func (d scimDirectory) replaceGroup(ctx context.Context, tx pgx.Tx, org string, c groupChange) (identity.Group, error) {
+	q, orgID := dbgen.New(tx), storage.MustUUID(org)
+	rec, err := q.GetScimGroupForUpdate(ctx, dbgen.GetScimGroupForUpdateParams{OrganizationID: orgID, TeamID: c.team})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return identity.Group{}, identity.ErrNotFound
+	}
+	if err != nil {
+		return identity.Group{}, fmt.Errorf("auth: read a SCIM group: %w", err)
+	}
+	if c.ifVersion != 0 && c.ifVersion != rec.Version {
+		return identity.Group{}, identity.ErrVersionMismatch
+	}
+	members, err := memberIDs(ctx, q, orgID, c.spec.MemberIDs)
+	if err != nil {
+		return identity.Group{}, err
+	}
+	if err := d.rewriteTeam(ctx, q, orgID, c, members); err != nil {
+		return identity.Group{}, err
+	}
+	if _, err := q.UpdateScimGroup(ctx, dbgen.UpdateScimGroupParams{OrganizationID: orgID, TeamID: c.team, ExternalID: c.spec.ExternalID}); err != nil {
+		return identity.Group{}, scimWriteError(err, "update a SCIM group")
+	}
+	out, err := loadGroup(ctx, q, orgID, c.team)
+	if err != nil {
+		return identity.Group{}, err
+	}
+	return out, d.s.record(ctx, tx, audit.Entry{
+		OrganizationID: org, Actor: scimActor, Action: audit.ScimGroupChanged,
+		TargetKind: "team", TargetID: c.id, Detail: fmt.Sprintf("members=%d", len(members)),
+	})
+}
+
+// rewriteTeam renames the group's team and sets its members. Removing members
+// can remove the last owner, through a team that holds the owner role.
+func (d scimDirectory) rewriteTeam(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, c groupChange, members []pgtype.UUID) error {
+	err := GuardOwners(ctx, q, org, func() error {
+		if _, err := q.UpdateTeam(ctx, dbgen.UpdateTeamParams{ID: c.team, Name: c.name}); err != nil {
+			return fmt.Errorf("auth: rename a team: %w", err)
+		}
+		return d.s.setMembers(ctx, q, org, c.team, members)
+	})
+	if errors.Is(err, plxerr.Sentinel(plxerr.LastOwnerCannotBeRemoved)) {
+		return refused("the change would leave the organisation without an owner")
+	}
+	return err
 }
 
 // DeleteGroup removes a group and its team; its members keep their accounts.

@@ -64,7 +64,7 @@ func (f *federated) sessionEnded(secret string) bool {
 func TestFederatedSignInRecordsAuthenticationContext_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
-	f.createProvider(t, false)
+	f.createProvider(t)
 	session := f.mustSignIn(t, "sub-bob", "bob@example.com", map[string]any{
 		"sid": "sid-1", "acr": "urn:example:loa2", "amr": []string{"pwd", "otp"},
 	})
@@ -100,7 +100,7 @@ func TestFederatedSignInRecordsAuthenticationContext_GOV_004(t *testing.T) {
 func TestBackChannelLogout_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
-	f.createProvider(t, false)
+	f.createProvider(t)
 	ctx := context.Background()
 	ended := f.mustSignIn(t, "sub-bob", "bob@example.com", map[string]any{"sid": "sid-1"})
 	kept := f.mustSignIn(t, "sub-bob", "bob@example.com", map[string]any{"sid": "sid-2"})
@@ -160,7 +160,7 @@ func withSid(overrides map[string]any, sid string) map[string]any {
 func TestBackChannelLogoutBySubject_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
-	f.createProvider(t, false)
+	f.createProvider(t)
 	ctx := context.Background()
 	first := f.mustSignIn(t, "sub-bob", "bob@example.com", map[string]any{"sid": "sid-1"})
 	second := f.mustSignIn(t, "sub-bob", "bob@example.com", map[string]any{"sid": "sid-2"})
@@ -187,7 +187,7 @@ func TestBackChannelLogoutBySubject_GOV_004(t *testing.T) {
 func TestFederatedSignInNeedsTheProvider_GOV_004(t *testing.T) {
 	t.Parallel()
 	f := newFederated(t)
-	f.createProvider(t, false)
+	f.createProvider(t)
 	ctx := context.Background()
 	login, err := f.svc.StartProviderLogin(ctx, f.provider.ID)
 	if err != nil {
