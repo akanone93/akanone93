@@ -32,6 +32,10 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
+// auditorUserID is the auditor's user identifier. It is a UUID because the
+// row-level-security policies cast the session user to a UUID.
+const auditorUserID = "0190c1f4-7b3a-7c2e-8a55-3d1f5e9b2a10"
+
 // signQueue records the signing jobs of reconstruction releases.
 type signQueue struct {
 	mu   sync.Mutex
@@ -127,7 +131,7 @@ func newReconFixture(t *testing.T) *reconFixture {
 		t.Fatal(err)
 	}
 	f.auditor = auth.Principal{
-		Identity:       auth.Identity{Kind: auth.KindUser, ID: "auditor-1", UserID: "auditor-1", Display: "Auditor", SecondFactor: true},
+		Identity:       auth.Identity{Kind: auth.KindUser, ID: "auditor-1", UserID: auditorUserID, Display: "Auditor", SecondFactor: true},
 		OrganizationID: f.org, Permissions: []auth.Permission{auth.ReconstructionView},
 	}
 	f.deviceID = f.registerDevice(t)
