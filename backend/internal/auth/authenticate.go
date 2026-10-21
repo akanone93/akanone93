@@ -168,7 +168,7 @@ func (s *Service) readGrants(ctx context.Context, q *dbgen.Queries, org, user pg
 		err    error
 	)
 	if loaded.version, err = q.GetPermissionsVersion(ctx, org); err != nil {
-		return loadedGrants{}, fmt.Errorf("auth: read the permissions version: %w", err)
+		return loadedGrants{}, notFound(err, "organisation")
 	}
 	if loaded.given, err = readGivenGrants(ctx, q, org, user); err != nil {
 		return loadedGrants{}, err
