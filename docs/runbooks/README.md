@@ -23,6 +23,19 @@ One runbook per alert and per failure mode introduced in a phase (DoD-9, `OBS-00
 | [Wrong calendar day](calendar-wrong-day.md) | A date shows the wrong day: Umm al-Qura table range, `PLX-1615` (`I18N-003`) | P8 |
 | [Backup and restore](backup-and-restore.md) | PostgreSQL WAL archive and base backups, object-store versioning, the consistency marker, restoring to a point in time, the restore drill (`DEP-010`) | P9 |
 | [Alert runbooks](alerts/README.md) | One page per alert of the Prometheus rules: service level objectives with burn-rate alerts, and the infrastructure and security alerts (`OBS-004`) | P9 |
+| [Approval deadlock and break-glass](approval-deadlock-and-break-glass.md) | A guarded change waits for approvals that cannot arrive, or an emergency action needs break-glass and its review: `PLX-8001`–`PLX-8006` (`GOV-020`–`GOV-024`) | P9 |
+| [Stuck rollout](stuck-rollout.md) | A staged rollout does not advance, does not end or leaves a channel on an unexpected release: `PLX-3153`, closing rollouts, the scheduler (`REL-050`–`REL-053`) | P9 |
+| [Health-gate false positives](health-gate-false-positives.md) | A health gate paused or rolled back a rollout on a figure that does not come from the release: `PLX-3150`, `PLX-3151` (`REL-053`) | P9 |
+| [Control-document key rotation](control-key-rotation.md) | Rotating the key that signs the control document through the root, and the exposure case (`SYN-060`, `REL-070`) | P9 |
+| [Telemetry backlog](telemetry-backlog.md) | Accepted telemetry batches wait in the Valkey stream for the writers; trimming is the last resort (`ANL-010`, `ANL-011`) | P9 |
+| [ClickHouse switch-over](clickhouse-switch-over.md) | Moving analytics storage from PostgreSQL to ClickHouse at the sizing threshold; the migration of existing events is an open decision (`ANL-010`) | P9 |
+| [SIEM backlog](siem-backlog.md) | An audit export destination has not acknowledged the newest entries: `PLX-8500`, `PLX-8600` (`SEC-143`) | P9 |
+| [Data subject request](data-subject-request.md) | Exporting or erasing what an organisation holds about a device or a user: `PLX-1320`, `PLX-8501` (`SEC-162`) | P9 |
+| [Licence expiry](licence-expiry.md) | The enterprise licence is in grace, expired or invalid; enterprise writes refused with `PLX-8600` (`GOV-030`, `GOV-032`) | P9 |
+| [Upgrade rollback](upgrade-rollback.md) | Returning to the previous release after a failed upgrade or migration, with expand-only migrations (`DEP-030`) | P9 |
+| [Air-gapped upgrade](air-gapped-upgrade.md) | Verifying a signed installation bundle and upgrading an installation with no route to the internet (`DEP-040`) | P9 |
+
+Restoring the installation from backups is the [backup and restore runbook](backup-and-restore.md), listed above.
 
 ## Signals
 
