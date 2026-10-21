@@ -95,5 +95,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0083](0083-kubernetes-ha-backups-and-air-gap.md) | Kubernetes: the Helm chart, HA components, backups, air-gapped bundles and IaC modules | P9 | Accepted |
 | [0084](0084-enterprise-edition-and-licence-files.md) | Enterprise edition boundary and licence files | P9 | Accepted |
 | [0085](0085-slos-dashboards-and-alert-rules.md) | Service level objectives, dashboards and alert rules | P9 | Accepted |
+| [0086](0086-restriction-policies-and-effective-permissions.md) | Restriction policies, effective permissions and explain | P9 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

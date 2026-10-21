@@ -70,17 +70,21 @@ Relaunch them with the continuation briefs in `agents/briefs/next/` (§5); they 
 
 Launch 5–6 at a time; the model is chosen for the job (Haiku where the lead can verify everything, Sonnet otherwise; never Opus for agent code). Each prompt is two lines (template in §6).
 
-| # | Brief (`agents/briefs/next/`) | Agent type | Depends on | Notes |
+Models (session 3, maintainer: smallest model that does the job). The agent-type files load only at session start, so session 3 launches `general-purpose` with `model`/`effort`.
+
+| # | Brief (`agents/briefs/next/`) | Model / effort | Depends on | Notes |
 |---|---|---|---|---|
-| 1 | `E2a-approvals-continue.md` | coder-high | — | security; also implements E5's `ApprovalGate` (ABT-007) |
-| 2 | `E9e-load-continue.md` | coder | — | |
-| 3 | `E5i-runtime-integration.md` | coder | — | Dart: control tables → models, device targeting, reconstruction inputs, translations |
-| 4 | `E5j-server-integration.md` | coder | — | Go: prop defaults in bundle, typed flag accessors, error-rate series, ee export scheduling, generated control layout, purge test |
-| 5 | `E8f-viewer-host.md` | coder | — | `apps/plux_viewer` + runtime reconstruction mode |
-| 6 | `E2b-breakglass-freezes-compliance.md` | coder-high | E2a merged | break-glass core; freezes + compliance reports ee; in-house PDF |
-| 7 | `E11b-reference-apps.md` | coder | E2a, E2b, E5i/j | |
-| 8 | `E11c-walkthrough.md` | coder-high | everything above | the exit criterion |
-| 9 | `E11a-docs.md` | coder-light | everything above | runbooks, guides, threat model, compliance pack |
+| 1 | `E2a-approvals-continue.md` | Sonnet / high | — | security; also implements E5's `ApprovalGate` (ABT-007) — running |
+| 2 | `E9e-load-continue.md` | Sonnet / medium | — | running |
+| 3 | `E5i-runtime-integration.md` | Sonnet / medium | — | running |
+| 4 | `E5j-server-integration.md` | Sonnet / medium | — | running |
+| 5 | `E8f-viewer-host.md` | Sonnet / medium | — | running |
+| 6 | `E1e-a-restrictions-core.md` | Sonnet / high | E2a merged (both touch `auth`) | GOV-006, ADR-0086 |
+| 7 | `E2b-breakglass-freezes-compliance.md` | Sonnet / high | E2a merged | break-glass core; freezes + compliance reports ee |
+| 8 | `E1e-b-restrictions-api.md` | Sonnet / high | E1e-a merged | GOV-007; cache and stream (concurrency) |
+| 9 | `E11b-reference-apps.md` | Sonnet / medium | E2a, E2b, E5i/j | |
+| 10 | `E11c-walkthrough.md` | Sonnet / medium | everything above | the exit criterion |
+| 11 | `E11a-docs.md` | Haiku / medium | everything above | runbooks, guides, threat model, compliance pack |
 
 Then the lead's own work (§7).
 
