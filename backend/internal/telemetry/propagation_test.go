@@ -83,3 +83,46 @@ func TestMeasurePropagationOffWithoutCollaborators_NFR_024(t *testing.T) {
 	s := &Service{now: time.Now}
 	s.measurePropagation(t.Context(), message{Events: []queued{appliedEvent("1", time.Now())}})
 }
+
+// countingChanges counts the questions its source is asked.
+type countingChanges struct {
+	changes
+	asked int
+}
+
+func (c *countingChanges) ChangedAt(ctx context.Context, src Source, version int64) (time.Time, bool, error) {
+	c.asked++
+	return c.changes.ChangedAt(ctx, src, version)
+}
+
+// Verifies: NFR-024.
+// A fleet applying one change costs one query: found changes are
+// remembered for the propagation window, misses are not, and a change older
+// than the window is asked again.
+func TestCachedChangesAsksOncePerChange_NFR_024(t *testing.T) {
+	change := time.Date(2026, 10, 21, 9, 0, 0, 0, time.UTC)
+	now := change
+	src := &countingChanges{changes: changes{version: 7, at: change}}
+	c := newCachedChanges(src, func() time.Time { return now })
+	ctx, env := context.Background(), Source{EnvironmentID: "e1"}
+	for range 3 {
+		if _, found, err := c.ChangedAt(ctx, env, 7); err != nil || !found {
+			t.Fatalf("ChangedAt(7) = %v, %v", found, err)
+		}
+	}
+	for range 2 {
+		if _, found, _ := c.ChangedAt(ctx, env, 6); found {
+			t.Fatal("an unknown version was found")
+		}
+	}
+	if src.asked != 3 {
+		t.Fatalf("asked %d times, want 3 (one hit cached, two misses)", src.asked)
+	}
+	now = change.Add(11 * time.Minute)
+	if _, _, err := c.ChangedAt(ctx, Source{EnvironmentID: "e2"}, 7); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := c.changed[changeKey{environmentID: "e1", version: 7}]; ok {
+		t.Fatal("a change older than the window was kept")
+	}
+}

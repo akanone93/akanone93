@@ -152,6 +152,9 @@ func NewService(o Options) (*Service, error) {
 	if o.Store == nil {
 		o.Store = analytics.NewPostgres(o.DB, now)
 	}
+	if o.Changes != nil {
+		o.Changes = newCachedChanges(o.Changes, now)
+	}
 	return &Service{o: o, now: now}, nil
 }
 

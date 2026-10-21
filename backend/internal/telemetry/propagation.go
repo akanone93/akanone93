@@ -8,10 +8,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
@@ -99,4 +101,59 @@ func appliedVersion(q queued) (int64, bool) {
 		return 0, false
 	}
 	return *f.Version, true
+}
+
+// changeKey names one control-document version of an environment.
+type changeKey struct {
+	environmentID string
+	version       int64
+}
+
+// cachedChanges remembers the change times its source found, so that the
+// control_applied events of a fleet applying one change cost one query, not
+// one per device. An entry lives as long as a report on it can still be
+// recorded (observability.ControlPropagationWindow), which bounds the map by
+// the changes of that window; misses are not remembered, so a device naming
+// an unknown version cannot grow it.
+type cachedChanges struct {
+	next    ControlChanges
+	now     func() time.Time
+	mu      sync.Mutex
+	changed map[changeKey]time.Time
+}
+
+func newCachedChanges(next ControlChanges, now func() time.Time) *cachedChanges {
+	return &cachedChanges{next: next, now: now, changed: map[changeKey]time.Time{}}
+}
+
+// ChangedAt answers from the cache when it can, and otherwise asks the
+// source and remembers a found change.
+func (c *cachedChanges) ChangedAt(ctx context.Context, src Source, version int64) (time.Time, bool, error) {
+	key := changeKey{environmentID: src.EnvironmentID, version: version}
+	c.mu.Lock()
+	at, ok := c.changed[key]
+	c.mu.Unlock()
+	if ok {
+		return at, true, nil
+	}
+	at, found, err := c.next.ChangedAt(ctx, src, version)
+	if err != nil || !found {
+		return at, found, err //nolint:wrapcheck // the source wraps its own errors
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.prune()
+	c.changed[key] = at
+	return at, true, nil
+}
+
+// prune drops the changes too old for a report on them to be recorded.
+// The caller holds mu.
+func (c *cachedChanges) prune() {
+	oldest := c.now().Add(-observability.ControlPropagationWindow)
+	for k, at := range c.changed {
+		if at.Before(oldest) {
+			delete(c.changed, k)
+		}
+	}
 }
