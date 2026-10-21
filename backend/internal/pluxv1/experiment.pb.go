@@ -549,27 +549,27 @@ func (x *UpdateFlagRequest) GetSpec() *FlagSpec {
 	return nil
 }
 
-type FlagResponse struct {
+type CreateFlagResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Flag          *Flag                  `protobuf:"bytes,1,opt,name=flag,proto3" json:"flag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FlagResponse) Reset() {
-	*x = FlagResponse{}
+func (x *CreateFlagResponse) Reset() {
+	*x = CreateFlagResponse{}
 	mi := &file_plux_v1_experiment_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FlagResponse) String() string {
+func (x *CreateFlagResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FlagResponse) ProtoMessage() {}
+func (*CreateFlagResponse) ProtoMessage() {}
 
-func (x *FlagResponse) ProtoReflect() protoreflect.Message {
+func (x *CreateFlagResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_experiment_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -581,12 +581,100 @@ func (x *FlagResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FlagResponse.ProtoReflect.Descriptor instead.
-func (*FlagResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateFlagResponse.ProtoReflect.Descriptor instead.
+func (*CreateFlagResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *FlagResponse) GetFlag() *Flag {
+func (x *CreateFlagResponse) GetFlag() *Flag {
+	if x != nil {
+		return x.Flag
+	}
+	return nil
+}
+
+type UpdateFlagResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Flag          *Flag                  `protobuf:"bytes,1,opt,name=flag,proto3" json:"flag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateFlagResponse) Reset() {
+	*x = UpdateFlagResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateFlagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateFlagResponse) ProtoMessage() {}
+
+func (x *UpdateFlagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateFlagResponse.ProtoReflect.Descriptor instead.
+func (*UpdateFlagResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateFlagResponse) GetFlag() *Flag {
+	if x != nil {
+		return x.Flag
+	}
+	return nil
+}
+
+type GetFlagResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Flag          *Flag                  `protobuf:"bytes,1,opt,name=flag,proto3" json:"flag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFlagResponse) Reset() {
+	*x = GetFlagResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFlagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFlagResponse) ProtoMessage() {}
+
+func (x *GetFlagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFlagResponse.ProtoReflect.Descriptor instead.
+func (*GetFlagResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetFlagResponse) GetFlag() *Flag {
 	if x != nil {
 		return x.Flag
 	}
@@ -604,7 +692,7 @@ type DeleteFlagRequest struct {
 
 func (x *DeleteFlagRequest) Reset() {
 	*x = DeleteFlagRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[6]
+	mi := &file_plux_v1_experiment_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -616,7 +704,7 @@ func (x *DeleteFlagRequest) String() string {
 func (*DeleteFlagRequest) ProtoMessage() {}
 
 func (x *DeleteFlagRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[6]
+	mi := &file_plux_v1_experiment_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -629,7 +717,7 @@ func (x *DeleteFlagRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFlagRequest.ProtoReflect.Descriptor instead.
 func (*DeleteFlagRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{6}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteFlagRequest) GetAppId() string {
@@ -661,7 +749,7 @@ type DeleteFlagResponse struct {
 
 func (x *DeleteFlagResponse) Reset() {
 	*x = DeleteFlagResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[7]
+	mi := &file_plux_v1_experiment_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -673,7 +761,7 @@ func (x *DeleteFlagResponse) String() string {
 func (*DeleteFlagResponse) ProtoMessage() {}
 
 func (x *DeleteFlagResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[7]
+	mi := &file_plux_v1_experiment_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -686,7 +774,7 @@ func (x *DeleteFlagResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFlagResponse.ProtoReflect.Descriptor instead.
 func (*DeleteFlagResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{7}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{9}
 }
 
 type GetFlagRequest struct {
@@ -700,7 +788,7 @@ type GetFlagRequest struct {
 
 func (x *GetFlagRequest) Reset() {
 	*x = GetFlagRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[8]
+	mi := &file_plux_v1_experiment_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -712,7 +800,7 @@ func (x *GetFlagRequest) String() string {
 func (*GetFlagRequest) ProtoMessage() {}
 
 func (x *GetFlagRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[8]
+	mi := &file_plux_v1_experiment_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -725,7 +813,7 @@ func (x *GetFlagRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFlagRequest.ProtoReflect.Descriptor instead.
 func (*GetFlagRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{8}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetFlagRequest) GetAppId() string {
@@ -759,7 +847,7 @@ type ListFlagsRequest struct {
 
 func (x *ListFlagsRequest) Reset() {
 	*x = ListFlagsRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[9]
+	mi := &file_plux_v1_experiment_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -771,7 +859,7 @@ func (x *ListFlagsRequest) String() string {
 func (*ListFlagsRequest) ProtoMessage() {}
 
 func (x *ListFlagsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[9]
+	mi := &file_plux_v1_experiment_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -784,7 +872,7 @@ func (x *ListFlagsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFlagsRequest.ProtoReflect.Descriptor instead.
 func (*ListFlagsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{9}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListFlagsRequest) GetAppId() string {
@@ -810,7 +898,7 @@ type ListFlagsResponse struct {
 
 func (x *ListFlagsResponse) Reset() {
 	*x = ListFlagsResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[10]
+	mi := &file_plux_v1_experiment_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -822,7 +910,7 @@ func (x *ListFlagsResponse) String() string {
 func (*ListFlagsResponse) ProtoMessage() {}
 
 func (x *ListFlagsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[10]
+	mi := &file_plux_v1_experiment_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -835,7 +923,7 @@ func (x *ListFlagsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFlagsResponse.ProtoReflect.Descriptor instead.
 func (*ListFlagsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{10}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListFlagsResponse) GetFlags() []*Flag {
@@ -874,7 +962,7 @@ type Experiment struct {
 
 func (x *Experiment) Reset() {
 	*x = Experiment{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[11]
+	mi := &file_plux_v1_experiment_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -886,7 +974,7 @@ func (x *Experiment) String() string {
 func (*Experiment) ProtoMessage() {}
 
 func (x *Experiment) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[11]
+	mi := &file_plux_v1_experiment_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -899,7 +987,7 @@ func (x *Experiment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Experiment.ProtoReflect.Descriptor instead.
 func (*Experiment) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Experiment) GetId() string {
@@ -1033,7 +1121,7 @@ type CreateExperimentRequest struct {
 
 func (x *CreateExperimentRequest) Reset() {
 	*x = CreateExperimentRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[12]
+	mi := &file_plux_v1_experiment_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1045,7 +1133,7 @@ func (x *CreateExperimentRequest) String() string {
 func (*CreateExperimentRequest) ProtoMessage() {}
 
 func (x *CreateExperimentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[12]
+	mi := &file_plux_v1_experiment_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1058,7 +1146,7 @@ func (x *CreateExperimentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateExperimentRequest.ProtoReflect.Descriptor instead.
 func (*CreateExperimentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateExperimentRequest) GetAppId() string {
@@ -1082,28 +1170,28 @@ func (x *CreateExperimentRequest) GetDocument() []byte {
 	return nil
 }
 
-type ExperimentResponse struct {
+type CreateExperimentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Experiment    *Experiment            `protobuf:"bytes,1,opt,name=experiment,proto3" json:"experiment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ExperimentResponse) Reset() {
-	*x = ExperimentResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[13]
+func (x *CreateExperimentResponse) Reset() {
+	*x = CreateExperimentResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ExperimentResponse) String() string {
+func (x *CreateExperimentResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExperimentResponse) ProtoMessage() {}
+func (*CreateExperimentResponse) ProtoMessage() {}
 
-func (x *ExperimentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[13]
+func (x *CreateExperimentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1114,12 +1202,144 @@ func (x *ExperimentResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExperimentResponse.ProtoReflect.Descriptor instead.
-func (*ExperimentResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{13}
+// Deprecated: Use CreateExperimentResponse.ProtoReflect.Descriptor instead.
+func (*CreateExperimentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *ExperimentResponse) GetExperiment() *Experiment {
+func (x *CreateExperimentResponse) GetExperiment() *Experiment {
+	if x != nil {
+		return x.Experiment
+	}
+	return nil
+}
+
+type GetExperimentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Experiment    *Experiment            `protobuf:"bytes,1,opt,name=experiment,proto3" json:"experiment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetExperimentResponse) Reset() {
+	*x = GetExperimentResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetExperimentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetExperimentResponse) ProtoMessage() {}
+
+func (x *GetExperimentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetExperimentResponse.ProtoReflect.Descriptor instead.
+func (*GetExperimentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetExperimentResponse) GetExperiment() *Experiment {
+	if x != nil {
+		return x.Experiment
+	}
+	return nil
+}
+
+type StartExperimentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Experiment    *Experiment            `protobuf:"bytes,1,opt,name=experiment,proto3" json:"experiment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartExperimentResponse) Reset() {
+	*x = StartExperimentResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartExperimentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartExperimentResponse) ProtoMessage() {}
+
+func (x *StartExperimentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartExperimentResponse.ProtoReflect.Descriptor instead.
+func (*StartExperimentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *StartExperimentResponse) GetExperiment() *Experiment {
+	if x != nil {
+		return x.Experiment
+	}
+	return nil
+}
+
+type StopExperimentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Experiment    *Experiment            `protobuf:"bytes,1,opt,name=experiment,proto3" json:"experiment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopExperimentResponse) Reset() {
+	*x = StopExperimentResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopExperimentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopExperimentResponse) ProtoMessage() {}
+
+func (x *StopExperimentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopExperimentResponse.ProtoReflect.Descriptor instead.
+func (*StopExperimentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *StopExperimentResponse) GetExperiment() *Experiment {
 	if x != nil {
 		return x.Experiment
 	}
@@ -1135,7 +1355,7 @@ type GetExperimentRequest struct {
 
 func (x *GetExperimentRequest) Reset() {
 	*x = GetExperimentRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[14]
+	mi := &file_plux_v1_experiment_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1147,7 +1367,7 @@ func (x *GetExperimentRequest) String() string {
 func (*GetExperimentRequest) ProtoMessage() {}
 
 func (x *GetExperimentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[14]
+	mi := &file_plux_v1_experiment_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1160,7 +1380,7 @@ func (x *GetExperimentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetExperimentRequest.ProtoReflect.Descriptor instead.
 func (*GetExperimentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetExperimentRequest) GetId() string {
@@ -1183,7 +1403,7 @@ type ListExperimentsRequest struct {
 
 func (x *ListExperimentsRequest) Reset() {
 	*x = ListExperimentsRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[15]
+	mi := &file_plux_v1_experiment_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1195,7 +1415,7 @@ func (x *ListExperimentsRequest) String() string {
 func (*ListExperimentsRequest) ProtoMessage() {}
 
 func (x *ListExperimentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[15]
+	mi := &file_plux_v1_experiment_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1208,7 +1428,7 @@ func (x *ListExperimentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExperimentsRequest.ProtoReflect.Descriptor instead.
 func (*ListExperimentsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListExperimentsRequest) GetAppId() string {
@@ -1241,7 +1461,7 @@ type ListExperimentsResponse struct {
 
 func (x *ListExperimentsResponse) Reset() {
 	*x = ListExperimentsResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[16]
+	mi := &file_plux_v1_experiment_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1253,7 +1473,7 @@ func (x *ListExperimentsResponse) String() string {
 func (*ListExperimentsResponse) ProtoMessage() {}
 
 func (x *ListExperimentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[16]
+	mi := &file_plux_v1_experiment_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1266,7 +1486,7 @@ func (x *ListExperimentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExperimentsResponse.ProtoReflect.Descriptor instead.
 func (*ListExperimentsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ListExperimentsResponse) GetExperiments() []*Experiment {
@@ -1285,7 +1505,7 @@ type DeleteExperimentRequest struct {
 
 func (x *DeleteExperimentRequest) Reset() {
 	*x = DeleteExperimentRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[17]
+	mi := &file_plux_v1_experiment_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1297,7 +1517,7 @@ func (x *DeleteExperimentRequest) String() string {
 func (*DeleteExperimentRequest) ProtoMessage() {}
 
 func (x *DeleteExperimentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[17]
+	mi := &file_plux_v1_experiment_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1310,7 +1530,7 @@ func (x *DeleteExperimentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteExperimentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteExperimentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *DeleteExperimentRequest) GetId() string {
@@ -1328,7 +1548,7 @@ type DeleteExperimentResponse struct {
 
 func (x *DeleteExperimentResponse) Reset() {
 	*x = DeleteExperimentResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[18]
+	mi := &file_plux_v1_experiment_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1340,7 +1560,7 @@ func (x *DeleteExperimentResponse) String() string {
 func (*DeleteExperimentResponse) ProtoMessage() {}
 
 func (x *DeleteExperimentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[18]
+	mi := &file_plux_v1_experiment_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1353,7 +1573,7 @@ func (x *DeleteExperimentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteExperimentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteExperimentResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{23}
 }
 
 type StartExperimentRequest struct {
@@ -1368,7 +1588,7 @@ type StartExperimentRequest struct {
 
 func (x *StartExperimentRequest) Reset() {
 	*x = StartExperimentRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[19]
+	mi := &file_plux_v1_experiment_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1380,7 +1600,7 @@ func (x *StartExperimentRequest) String() string {
 func (*StartExperimentRequest) ProtoMessage() {}
 
 func (x *StartExperimentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[19]
+	mi := &file_plux_v1_experiment_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1393,7 +1613,7 @@ func (x *StartExperimentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartExperimentRequest.ProtoReflect.Descriptor instead.
 func (*StartExperimentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *StartExperimentRequest) GetId() string {
@@ -1419,7 +1639,7 @@ type StopExperimentRequest struct {
 
 func (x *StopExperimentRequest) Reset() {
 	*x = StopExperimentRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[20]
+	mi := &file_plux_v1_experiment_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1431,7 +1651,7 @@ func (x *StopExperimentRequest) String() string {
 func (*StopExperimentRequest) ProtoMessage() {}
 
 func (x *StopExperimentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[20]
+	mi := &file_plux_v1_experiment_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1444,7 +1664,7 @@ func (x *StopExperimentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopExperimentRequest.ProtoReflect.Descriptor instead.
 func (*StopExperimentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *StopExperimentRequest) GetId() string {
@@ -1466,7 +1686,7 @@ type SetHoldoutRequest struct {
 
 func (x *SetHoldoutRequest) Reset() {
 	*x = SetHoldoutRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[21]
+	mi := &file_plux_v1_experiment_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1478,7 +1698,7 @@ func (x *SetHoldoutRequest) String() string {
 func (*SetHoldoutRequest) ProtoMessage() {}
 
 func (x *SetHoldoutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[21]
+	mi := &file_plux_v1_experiment_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1491,7 +1711,7 @@ func (x *SetHoldoutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetHoldoutRequest.ProtoReflect.Descriptor instead.
 func (*SetHoldoutRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *SetHoldoutRequest) GetAppId() string {
@@ -1525,7 +1745,7 @@ type GetHoldoutRequest struct {
 
 func (x *GetHoldoutRequest) Reset() {
 	*x = GetHoldoutRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[22]
+	mi := &file_plux_v1_experiment_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1537,7 +1757,7 @@ func (x *GetHoldoutRequest) String() string {
 func (*GetHoldoutRequest) ProtoMessage() {}
 
 func (x *GetHoldoutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[22]
+	mi := &file_plux_v1_experiment_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1550,7 +1770,7 @@ func (x *GetHoldoutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHoldoutRequest.ProtoReflect.Descriptor instead.
 func (*GetHoldoutRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetHoldoutRequest) GetAppId() string {
@@ -1567,7 +1787,7 @@ func (x *GetHoldoutRequest) GetEnvironmentId() string {
 	return ""
 }
 
-type HoldoutResponse struct {
+type SetHoldoutResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
@@ -1576,21 +1796,21 @@ type HoldoutResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *HoldoutResponse) Reset() {
-	*x = HoldoutResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[23]
+func (x *SetHoldoutResponse) Reset() {
+	*x = SetHoldoutResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *HoldoutResponse) String() string {
+func (x *SetHoldoutResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*HoldoutResponse) ProtoMessage() {}
+func (*SetHoldoutResponse) ProtoMessage() {}
 
-func (x *HoldoutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[23]
+func (x *SetHoldoutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1601,26 +1821,86 @@ func (x *HoldoutResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use HoldoutResponse.ProtoReflect.Descriptor instead.
-func (*HoldoutResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{23}
+// Deprecated: Use SetHoldoutResponse.ProtoReflect.Descriptor instead.
+func (*SetHoldoutResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *HoldoutResponse) GetAppId() string {
+func (x *SetHoldoutResponse) GetAppId() string {
 	if x != nil {
 		return x.AppId
 	}
 	return ""
 }
 
-func (x *HoldoutResponse) GetEnvironmentId() string {
+func (x *SetHoldoutResponse) GetEnvironmentId() string {
 	if x != nil {
 		return x.EnvironmentId
 	}
 	return ""
 }
 
-func (x *HoldoutResponse) GetPercent() float64 {
+func (x *SetHoldoutResponse) GetPercent() float64 {
+	if x != nil {
+		return x.Percent
+	}
+	return 0
+}
+
+type GetHoldoutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	Percent       float64                `protobuf:"fixed64,3,opt,name=percent,proto3" json:"percent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetHoldoutResponse) Reset() {
+	*x = GetHoldoutResponse{}
+	mi := &file_plux_v1_experiment_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetHoldoutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetHoldoutResponse) ProtoMessage() {}
+
+func (x *GetHoldoutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_experiment_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetHoldoutResponse.ProtoReflect.Descriptor instead.
+func (*GetHoldoutResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *GetHoldoutResponse) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetHoldoutResponse) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *GetHoldoutResponse) GetPercent() float64 {
 	if x != nil {
 		return x.Percent
 	}
@@ -1636,7 +1916,7 @@ type GetResultsRequest struct {
 
 func (x *GetResultsRequest) Reset() {
 	*x = GetResultsRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[24]
+	mi := &file_plux_v1_experiment_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1648,7 +1928,7 @@ func (x *GetResultsRequest) String() string {
 func (*GetResultsRequest) ProtoMessage() {}
 
 func (x *GetResultsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[24]
+	mi := &file_plux_v1_experiment_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1661,7 +1941,7 @@ func (x *GetResultsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResultsRequest.ProtoReflect.Descriptor instead.
 func (*GetResultsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetResultsRequest) GetId() string {
@@ -1685,7 +1965,7 @@ type VariantCount struct {
 
 func (x *VariantCount) Reset() {
 	*x = VariantCount{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[25]
+	mi := &file_plux_v1_experiment_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1697,7 +1977,7 @@ func (x *VariantCount) String() string {
 func (*VariantCount) ProtoMessage() {}
 
 func (x *VariantCount) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[25]
+	mi := &file_plux_v1_experiment_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1710,7 +1990,7 @@ func (x *VariantCount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VariantCount.ProtoReflect.Descriptor instead.
 func (*VariantCount) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *VariantCount) GetName() string {
@@ -1753,7 +2033,7 @@ type VariantMean struct {
 
 func (x *VariantMean) Reset() {
 	*x = VariantMean{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[26]
+	mi := &file_plux_v1_experiment_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1765,7 +2045,7 @@ func (x *VariantMean) String() string {
 func (*VariantMean) ProtoMessage() {}
 
 func (x *VariantMean) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[26]
+	mi := &file_plux_v1_experiment_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1778,7 +2058,7 @@ func (x *VariantMean) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VariantMean.ProtoReflect.Descriptor instead.
 func (*VariantMean) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *VariantMean) GetVariant() string {
@@ -1826,7 +2106,7 @@ type Comparison struct {
 
 func (x *Comparison) Reset() {
 	*x = Comparison{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[27]
+	mi := &file_plux_v1_experiment_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1838,7 +2118,7 @@ func (x *Comparison) String() string {
 func (*Comparison) ProtoMessage() {}
 
 func (x *Comparison) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[27]
+	mi := &file_plux_v1_experiment_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1851,7 +2131,7 @@ func (x *Comparison) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Comparison.ProtoReflect.Descriptor instead.
 func (*Comparison) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *Comparison) GetVariant() string {
@@ -1945,7 +2225,7 @@ type MetricResult struct {
 
 func (x *MetricResult) Reset() {
 	*x = MetricResult{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[28]
+	mi := &file_plux_v1_experiment_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1957,7 +2237,7 @@ func (x *MetricResult) String() string {
 func (*MetricResult) ProtoMessage() {}
 
 func (x *MetricResult) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[28]
+	mi := &file_plux_v1_experiment_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1970,7 +2250,7 @@ func (x *MetricResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricResult.ProtoReflect.Descriptor instead.
 func (*MetricResult) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *MetricResult) GetEvent() string {
@@ -2036,7 +2316,7 @@ type GetResultsResponse struct {
 
 func (x *GetResultsResponse) Reset() {
 	*x = GetResultsResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[29]
+	mi := &file_plux_v1_experiment_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2048,7 +2328,7 @@ func (x *GetResultsResponse) String() string {
 func (*GetResultsResponse) ProtoMessage() {}
 
 func (x *GetResultsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[29]
+	mi := &file_plux_v1_experiment_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2061,7 +2341,7 @@ func (x *GetResultsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResultsResponse.ProtoReflect.Descriptor instead.
 func (*GetResultsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{29}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetResultsResponse) GetExperimentId() string {
@@ -2148,7 +2428,7 @@ type PromoteExperimentRequest struct {
 
 func (x *PromoteExperimentRequest) Reset() {
 	*x = PromoteExperimentRequest{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[30]
+	mi := &file_plux_v1_experiment_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2160,7 +2440,7 @@ func (x *PromoteExperimentRequest) String() string {
 func (*PromoteExperimentRequest) ProtoMessage() {}
 
 func (x *PromoteExperimentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[30]
+	mi := &file_plux_v1_experiment_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2173,7 +2453,7 @@ func (x *PromoteExperimentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromoteExperimentRequest.ProtoReflect.Descriptor instead.
 func (*PromoteExperimentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{30}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *PromoteExperimentRequest) GetId() string {
@@ -2222,7 +2502,7 @@ type PromoteExperimentResponse struct {
 
 func (x *PromoteExperimentResponse) Reset() {
 	*x = PromoteExperimentResponse{}
-	mi := &file_plux_v1_experiment_proto_msgTypes[31]
+	mi := &file_plux_v1_experiment_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2234,7 +2514,7 @@ func (x *PromoteExperimentResponse) String() string {
 func (*PromoteExperimentResponse) ProtoMessage() {}
 
 func (x *PromoteExperimentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_experiment_proto_msgTypes[31]
+	mi := &file_plux_v1_experiment_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2247,7 +2527,7 @@ func (x *PromoteExperimentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromoteExperimentResponse.ProtoReflect.Descriptor instead.
 func (*PromoteExperimentResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{31}
+	return file_plux_v1_experiment_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *PromoteExperimentResponse) GetExperiment() *Experiment {
@@ -2309,8 +2589,12 @@ const file_plux_v1_experiment_proto_rawDesc = "" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x10\n" +
 	"\x03key\x18\x03 \x01(\tR\x03key\x12%\n" +
-	"\x04spec\x18\x04 \x01(\v2\x11.plux.v1.FlagSpecR\x04spec\"1\n" +
-	"\fFlagResponse\x12!\n" +
+	"\x04spec\x18\x04 \x01(\v2\x11.plux.v1.FlagSpecR\x04spec\"7\n" +
+	"\x12CreateFlagResponse\x12!\n" +
+	"\x04flag\x18\x01 \x01(\v2\r.plux.v1.FlagR\x04flag\"7\n" +
+	"\x12UpdateFlagResponse\x12!\n" +
+	"\x04flag\x18\x01 \x01(\v2\r.plux.v1.FlagR\x04flag\"4\n" +
+	"\x0fGetFlagResponse\x12!\n" +
 	"\x04flag\x18\x01 \x01(\v2\r.plux.v1.FlagR\x04flag\"c\n" +
 	"\x11DeleteFlagRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
@@ -2355,8 +2639,20 @@ const file_plux_v1_experiment_proto_rawDesc = "" +
 	"\x17CreateExperimentRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1a\n" +
-	"\bdocument\x18\x03 \x01(\fR\bdocument\"I\n" +
-	"\x12ExperimentResponse\x123\n" +
+	"\bdocument\x18\x03 \x01(\fR\bdocument\"O\n" +
+	"\x18CreateExperimentResponse\x123\n" +
+	"\n" +
+	"experiment\x18\x01 \x01(\v2\x13.plux.v1.ExperimentR\n" +
+	"experiment\"L\n" +
+	"\x15GetExperimentResponse\x123\n" +
+	"\n" +
+	"experiment\x18\x01 \x01(\v2\x13.plux.v1.ExperimentR\n" +
+	"experiment\"N\n" +
+	"\x17StartExperimentResponse\x123\n" +
+	"\n" +
+	"experiment\x18\x01 \x01(\v2\x13.plux.v1.ExperimentR\n" +
+	"experiment\"M\n" +
+	"\x16StopExperimentResponse\x123\n" +
 	"\n" +
 	"experiment\x18\x01 \x01(\v2\x13.plux.v1.ExperimentR\n" +
 	"experiment\"&\n" +
@@ -2382,8 +2678,12 @@ const file_plux_v1_experiment_proto_rawDesc = "" +
 	"\apercent\x18\x03 \x01(\x01R\apercent\"Q\n" +
 	"\x11GetHoldoutRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
-	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\"i\n" +
-	"\x0fHoldoutResponse\x12\x15\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\"l\n" +
+	"\x12SetHoldoutResponse\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x18\n" +
+	"\apercent\x18\x03 \x01(\x01R\apercent\"l\n" +
+	"\x12GetHoldoutResponse\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x18\n" +
 	"\apercent\x18\x03 \x01(\x01R\apercent\"#\n" +
@@ -2455,27 +2755,27 @@ const file_plux_v1_experiment_proto_rawDesc = "" +
 	"\x16EXPERIMENT_STATE_DRAFT\x10\x01\x12\x1c\n" +
 	"\x18EXPERIMENT_STATE_RUNNING\x10\x02\x12\x1c\n" +
 	"\x18EXPERIMENT_STATE_STOPPED\x10\x03\x12\x1e\n" +
-	"\x1aEXPERIMENT_STATE_CONCLUDED\x10\x042\xdf\x02\n" +
-	"\vFlagService\x12A\n" +
+	"\x1aEXPERIMENT_STATE_CONCLUDED\x10\x042\xee\x02\n" +
+	"\vFlagService\x12G\n" +
 	"\n" +
-	"CreateFlag\x12\x1a.plux.v1.CreateFlagRequest\x1a\x15.plux.v1.FlagResponse\"\x00\x12A\n" +
+	"CreateFlag\x12\x1a.plux.v1.CreateFlagRequest\x1a\x1b.plux.v1.CreateFlagResponse\"\x00\x12G\n" +
 	"\n" +
-	"UpdateFlag\x12\x1a.plux.v1.UpdateFlagRequest\x1a\x15.plux.v1.FlagResponse\"\x00\x12G\n" +
+	"UpdateFlag\x12\x1a.plux.v1.UpdateFlagRequest\x1a\x1b.plux.v1.UpdateFlagResponse\"\x00\x12G\n" +
 	"\n" +
-	"DeleteFlag\x12\x1a.plux.v1.DeleteFlagRequest\x1a\x1b.plux.v1.DeleteFlagResponse\"\x00\x12;\n" +
-	"\aGetFlag\x12\x17.plux.v1.GetFlagRequest\x1a\x15.plux.v1.FlagResponse\"\x00\x12D\n" +
-	"\tListFlags\x12\x19.plux.v1.ListFlagsRequest\x1a\x1a.plux.v1.ListFlagsResponse\"\x002\xc1\x06\n" +
-	"\x11ExperimentService\x12S\n" +
-	"\x10CreateExperiment\x12 .plux.v1.CreateExperimentRequest\x1a\x1b.plux.v1.ExperimentResponse\"\x00\x12M\n" +
-	"\rGetExperiment\x12\x1d.plux.v1.GetExperimentRequest\x1a\x1b.plux.v1.ExperimentResponse\"\x00\x12V\n" +
+	"DeleteFlag\x12\x1a.plux.v1.DeleteFlagRequest\x1a\x1b.plux.v1.DeleteFlagResponse\"\x00\x12>\n" +
+	"\aGetFlag\x12\x17.plux.v1.GetFlagRequest\x1a\x18.plux.v1.GetFlagResponse\"\x00\x12D\n" +
+	"\tListFlags\x12\x19.plux.v1.ListFlagsRequest\x1a\x1a.plux.v1.ListFlagsResponse\"\x002\xd9\x06\n" +
+	"\x11ExperimentService\x12Y\n" +
+	"\x10CreateExperiment\x12 .plux.v1.CreateExperimentRequest\x1a!.plux.v1.CreateExperimentResponse\"\x00\x12P\n" +
+	"\rGetExperiment\x12\x1d.plux.v1.GetExperimentRequest\x1a\x1e.plux.v1.GetExperimentResponse\"\x00\x12V\n" +
 	"\x0fListExperiments\x12\x1f.plux.v1.ListExperimentsRequest\x1a .plux.v1.ListExperimentsResponse\"\x00\x12Y\n" +
-	"\x10DeleteExperiment\x12 .plux.v1.DeleteExperimentRequest\x1a!.plux.v1.DeleteExperimentResponse\"\x00\x12Q\n" +
-	"\x0fStartExperiment\x12\x1f.plux.v1.StartExperimentRequest\x1a\x1b.plux.v1.ExperimentResponse\"\x00\x12O\n" +
-	"\x0eStopExperiment\x12\x1e.plux.v1.StopExperimentRequest\x1a\x1b.plux.v1.ExperimentResponse\"\x00\x12D\n" +
+	"\x10DeleteExperiment\x12 .plux.v1.DeleteExperimentRequest\x1a!.plux.v1.DeleteExperimentResponse\"\x00\x12V\n" +
+	"\x0fStartExperiment\x12\x1f.plux.v1.StartExperimentRequest\x1a .plux.v1.StartExperimentResponse\"\x00\x12S\n" +
+	"\x0eStopExperiment\x12\x1e.plux.v1.StopExperimentRequest\x1a\x1f.plux.v1.StopExperimentResponse\"\x00\x12G\n" +
 	"\n" +
-	"SetHoldout\x12\x1a.plux.v1.SetHoldoutRequest\x1a\x18.plux.v1.HoldoutResponse\"\x00\x12D\n" +
+	"SetHoldout\x12\x1a.plux.v1.SetHoldoutRequest\x1a\x1b.plux.v1.SetHoldoutResponse\"\x00\x12G\n" +
 	"\n" +
-	"GetHoldout\x12\x1a.plux.v1.GetHoldoutRequest\x1a\x18.plux.v1.HoldoutResponse\"\x00\x12G\n" +
+	"GetHoldout\x12\x1a.plux.v1.GetHoldoutRequest\x1a\x1b.plux.v1.GetHoldoutResponse\"\x00\x12G\n" +
 	"\n" +
 	"GetResults\x12\x1a.plux.v1.GetResultsRequest\x1a\x1b.plux.v1.GetResultsResponse\"\x00\x12\\\n" +
 	"\x11PromoteExperiment\x12!.plux.v1.PromoteExperimentRequest\x1a\".plux.v1.PromoteExperimentResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
@@ -2493,7 +2793,7 @@ func file_plux_v1_experiment_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_experiment_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_plux_v1_experiment_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_plux_v1_experiment_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
 var file_plux_v1_experiment_proto_goTypes = []any{
 	(FlagType)(0),                     // 0: plux.v1.FlagType
 	(ExperimentState)(0),              // 1: plux.v1.ExperimentState
@@ -2502,101 +2802,112 @@ var file_plux_v1_experiment_proto_goTypes = []any{
 	(*Flag)(nil),                      // 4: plux.v1.Flag
 	(*CreateFlagRequest)(nil),         // 5: plux.v1.CreateFlagRequest
 	(*UpdateFlagRequest)(nil),         // 6: plux.v1.UpdateFlagRequest
-	(*FlagResponse)(nil),              // 7: plux.v1.FlagResponse
-	(*DeleteFlagRequest)(nil),         // 8: plux.v1.DeleteFlagRequest
-	(*DeleteFlagResponse)(nil),        // 9: plux.v1.DeleteFlagResponse
-	(*GetFlagRequest)(nil),            // 10: plux.v1.GetFlagRequest
-	(*ListFlagsRequest)(nil),          // 11: plux.v1.ListFlagsRequest
-	(*ListFlagsResponse)(nil),         // 12: plux.v1.ListFlagsResponse
-	(*Experiment)(nil),                // 13: plux.v1.Experiment
-	(*CreateExperimentRequest)(nil),   // 14: plux.v1.CreateExperimentRequest
-	(*ExperimentResponse)(nil),        // 15: plux.v1.ExperimentResponse
-	(*GetExperimentRequest)(nil),      // 16: plux.v1.GetExperimentRequest
-	(*ListExperimentsRequest)(nil),    // 17: plux.v1.ListExperimentsRequest
-	(*ListExperimentsResponse)(nil),   // 18: plux.v1.ListExperimentsResponse
-	(*DeleteExperimentRequest)(nil),   // 19: plux.v1.DeleteExperimentRequest
-	(*DeleteExperimentResponse)(nil),  // 20: plux.v1.DeleteExperimentResponse
-	(*StartExperimentRequest)(nil),    // 21: plux.v1.StartExperimentRequest
-	(*StopExperimentRequest)(nil),     // 22: plux.v1.StopExperimentRequest
-	(*SetHoldoutRequest)(nil),         // 23: plux.v1.SetHoldoutRequest
-	(*GetHoldoutRequest)(nil),         // 24: plux.v1.GetHoldoutRequest
-	(*HoldoutResponse)(nil),           // 25: plux.v1.HoldoutResponse
-	(*GetResultsRequest)(nil),         // 26: plux.v1.GetResultsRequest
-	(*VariantCount)(nil),              // 27: plux.v1.VariantCount
-	(*VariantMean)(nil),               // 28: plux.v1.VariantMean
-	(*Comparison)(nil),                // 29: plux.v1.Comparison
-	(*MetricResult)(nil),              // 30: plux.v1.MetricResult
-	(*GetResultsResponse)(nil),        // 31: plux.v1.GetResultsResponse
-	(*PromoteExperimentRequest)(nil),  // 32: plux.v1.PromoteExperimentRequest
-	(*PromoteExperimentResponse)(nil), // 33: plux.v1.PromoteExperimentResponse
-	(*Actor)(nil),                     // 34: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),     // 35: google.protobuf.Timestamp
+	(*CreateFlagResponse)(nil),        // 7: plux.v1.CreateFlagResponse
+	(*UpdateFlagResponse)(nil),        // 8: plux.v1.UpdateFlagResponse
+	(*GetFlagResponse)(nil),           // 9: plux.v1.GetFlagResponse
+	(*DeleteFlagRequest)(nil),         // 10: plux.v1.DeleteFlagRequest
+	(*DeleteFlagResponse)(nil),        // 11: plux.v1.DeleteFlagResponse
+	(*GetFlagRequest)(nil),            // 12: plux.v1.GetFlagRequest
+	(*ListFlagsRequest)(nil),          // 13: plux.v1.ListFlagsRequest
+	(*ListFlagsResponse)(nil),         // 14: plux.v1.ListFlagsResponse
+	(*Experiment)(nil),                // 15: plux.v1.Experiment
+	(*CreateExperimentRequest)(nil),   // 16: plux.v1.CreateExperimentRequest
+	(*CreateExperimentResponse)(nil),  // 17: plux.v1.CreateExperimentResponse
+	(*GetExperimentResponse)(nil),     // 18: plux.v1.GetExperimentResponse
+	(*StartExperimentResponse)(nil),   // 19: plux.v1.StartExperimentResponse
+	(*StopExperimentResponse)(nil),    // 20: plux.v1.StopExperimentResponse
+	(*GetExperimentRequest)(nil),      // 21: plux.v1.GetExperimentRequest
+	(*ListExperimentsRequest)(nil),    // 22: plux.v1.ListExperimentsRequest
+	(*ListExperimentsResponse)(nil),   // 23: plux.v1.ListExperimentsResponse
+	(*DeleteExperimentRequest)(nil),   // 24: plux.v1.DeleteExperimentRequest
+	(*DeleteExperimentResponse)(nil),  // 25: plux.v1.DeleteExperimentResponse
+	(*StartExperimentRequest)(nil),    // 26: plux.v1.StartExperimentRequest
+	(*StopExperimentRequest)(nil),     // 27: plux.v1.StopExperimentRequest
+	(*SetHoldoutRequest)(nil),         // 28: plux.v1.SetHoldoutRequest
+	(*GetHoldoutRequest)(nil),         // 29: plux.v1.GetHoldoutRequest
+	(*SetHoldoutResponse)(nil),        // 30: plux.v1.SetHoldoutResponse
+	(*GetHoldoutResponse)(nil),        // 31: plux.v1.GetHoldoutResponse
+	(*GetResultsRequest)(nil),         // 32: plux.v1.GetResultsRequest
+	(*VariantCount)(nil),              // 33: plux.v1.VariantCount
+	(*VariantMean)(nil),               // 34: plux.v1.VariantMean
+	(*Comparison)(nil),                // 35: plux.v1.Comparison
+	(*MetricResult)(nil),              // 36: plux.v1.MetricResult
+	(*GetResultsResponse)(nil),        // 37: plux.v1.GetResultsResponse
+	(*PromoteExperimentRequest)(nil),  // 38: plux.v1.PromoteExperimentRequest
+	(*PromoteExperimentResponse)(nil), // 39: plux.v1.PromoteExperimentResponse
+	(*Actor)(nil),                     // 40: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),     // 41: google.protobuf.Timestamp
 }
 var file_plux_v1_experiment_proto_depIdxs = []int32{
 	0,  // 0: plux.v1.FlagSpec.type:type_name -> plux.v1.FlagType
 	2,  // 1: plux.v1.FlagSpec.segments:type_name -> plux.v1.FlagSegmentValue
 	0,  // 2: plux.v1.Flag.type:type_name -> plux.v1.FlagType
 	2,  // 3: plux.v1.Flag.segments:type_name -> plux.v1.FlagSegmentValue
-	34, // 4: plux.v1.Flag.created_by:type_name -> plux.v1.Actor
-	34, // 5: plux.v1.Flag.updated_by:type_name -> plux.v1.Actor
-	35, // 6: plux.v1.Flag.created_at:type_name -> google.protobuf.Timestamp
-	35, // 7: plux.v1.Flag.updated_at:type_name -> google.protobuf.Timestamp
+	40, // 4: plux.v1.Flag.created_by:type_name -> plux.v1.Actor
+	40, // 5: plux.v1.Flag.updated_by:type_name -> plux.v1.Actor
+	41, // 6: plux.v1.Flag.created_at:type_name -> google.protobuf.Timestamp
+	41, // 7: plux.v1.Flag.updated_at:type_name -> google.protobuf.Timestamp
 	3,  // 8: plux.v1.CreateFlagRequest.spec:type_name -> plux.v1.FlagSpec
 	3,  // 9: plux.v1.UpdateFlagRequest.spec:type_name -> plux.v1.FlagSpec
-	4,  // 10: plux.v1.FlagResponse.flag:type_name -> plux.v1.Flag
-	4,  // 11: plux.v1.ListFlagsResponse.flags:type_name -> plux.v1.Flag
-	1,  // 12: plux.v1.Experiment.state:type_name -> plux.v1.ExperimentState
-	35, // 13: plux.v1.Experiment.started_at:type_name -> google.protobuf.Timestamp
-	35, // 14: plux.v1.Experiment.stopped_at:type_name -> google.protobuf.Timestamp
-	34, // 15: plux.v1.Experiment.created_by:type_name -> plux.v1.Actor
-	35, // 16: plux.v1.Experiment.created_at:type_name -> google.protobuf.Timestamp
-	35, // 17: plux.v1.Experiment.updated_at:type_name -> google.protobuf.Timestamp
-	13, // 18: plux.v1.ExperimentResponse.experiment:type_name -> plux.v1.Experiment
-	1,  // 19: plux.v1.ListExperimentsRequest.state:type_name -> plux.v1.ExperimentState
-	13, // 20: plux.v1.ListExperimentsResponse.experiments:type_name -> plux.v1.Experiment
-	28, // 21: plux.v1.MetricResult.means:type_name -> plux.v1.VariantMean
-	29, // 22: plux.v1.MetricResult.comparisons:type_name -> plux.v1.Comparison
-	1,  // 23: plux.v1.GetResultsResponse.state:type_name -> plux.v1.ExperimentState
-	35, // 24: plux.v1.GetResultsResponse.at:type_name -> google.protobuf.Timestamp
-	27, // 25: plux.v1.GetResultsResponse.variants:type_name -> plux.v1.VariantCount
-	30, // 26: plux.v1.GetResultsResponse.primary:type_name -> plux.v1.MetricResult
-	30, // 27: plux.v1.GetResultsResponse.guardrails:type_name -> plux.v1.MetricResult
-	13, // 28: plux.v1.PromoteExperimentResponse.experiment:type_name -> plux.v1.Experiment
-	5,  // 29: plux.v1.FlagService.CreateFlag:input_type -> plux.v1.CreateFlagRequest
-	6,  // 30: plux.v1.FlagService.UpdateFlag:input_type -> plux.v1.UpdateFlagRequest
-	8,  // 31: plux.v1.FlagService.DeleteFlag:input_type -> plux.v1.DeleteFlagRequest
-	10, // 32: plux.v1.FlagService.GetFlag:input_type -> plux.v1.GetFlagRequest
-	11, // 33: plux.v1.FlagService.ListFlags:input_type -> plux.v1.ListFlagsRequest
-	14, // 34: plux.v1.ExperimentService.CreateExperiment:input_type -> plux.v1.CreateExperimentRequest
-	16, // 35: plux.v1.ExperimentService.GetExperiment:input_type -> plux.v1.GetExperimentRequest
-	17, // 36: plux.v1.ExperimentService.ListExperiments:input_type -> plux.v1.ListExperimentsRequest
-	19, // 37: plux.v1.ExperimentService.DeleteExperiment:input_type -> plux.v1.DeleteExperimentRequest
-	21, // 38: plux.v1.ExperimentService.StartExperiment:input_type -> plux.v1.StartExperimentRequest
-	22, // 39: plux.v1.ExperimentService.StopExperiment:input_type -> plux.v1.StopExperimentRequest
-	23, // 40: plux.v1.ExperimentService.SetHoldout:input_type -> plux.v1.SetHoldoutRequest
-	24, // 41: plux.v1.ExperimentService.GetHoldout:input_type -> plux.v1.GetHoldoutRequest
-	26, // 42: plux.v1.ExperimentService.GetResults:input_type -> plux.v1.GetResultsRequest
-	32, // 43: plux.v1.ExperimentService.PromoteExperiment:input_type -> plux.v1.PromoteExperimentRequest
-	7,  // 44: plux.v1.FlagService.CreateFlag:output_type -> plux.v1.FlagResponse
-	7,  // 45: plux.v1.FlagService.UpdateFlag:output_type -> plux.v1.FlagResponse
-	9,  // 46: plux.v1.FlagService.DeleteFlag:output_type -> plux.v1.DeleteFlagResponse
-	7,  // 47: plux.v1.FlagService.GetFlag:output_type -> plux.v1.FlagResponse
-	12, // 48: plux.v1.FlagService.ListFlags:output_type -> plux.v1.ListFlagsResponse
-	15, // 49: plux.v1.ExperimentService.CreateExperiment:output_type -> plux.v1.ExperimentResponse
-	15, // 50: plux.v1.ExperimentService.GetExperiment:output_type -> plux.v1.ExperimentResponse
-	18, // 51: plux.v1.ExperimentService.ListExperiments:output_type -> plux.v1.ListExperimentsResponse
-	20, // 52: plux.v1.ExperimentService.DeleteExperiment:output_type -> plux.v1.DeleteExperimentResponse
-	15, // 53: plux.v1.ExperimentService.StartExperiment:output_type -> plux.v1.ExperimentResponse
-	15, // 54: plux.v1.ExperimentService.StopExperiment:output_type -> plux.v1.ExperimentResponse
-	25, // 55: plux.v1.ExperimentService.SetHoldout:output_type -> plux.v1.HoldoutResponse
-	25, // 56: plux.v1.ExperimentService.GetHoldout:output_type -> plux.v1.HoldoutResponse
-	31, // 57: plux.v1.ExperimentService.GetResults:output_type -> plux.v1.GetResultsResponse
-	33, // 58: plux.v1.ExperimentService.PromoteExperiment:output_type -> plux.v1.PromoteExperimentResponse
-	44, // [44:59] is the sub-list for method output_type
-	29, // [29:44] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	4,  // 10: plux.v1.CreateFlagResponse.flag:type_name -> plux.v1.Flag
+	4,  // 11: plux.v1.UpdateFlagResponse.flag:type_name -> plux.v1.Flag
+	4,  // 12: plux.v1.GetFlagResponse.flag:type_name -> plux.v1.Flag
+	4,  // 13: plux.v1.ListFlagsResponse.flags:type_name -> plux.v1.Flag
+	1,  // 14: plux.v1.Experiment.state:type_name -> plux.v1.ExperimentState
+	41, // 15: plux.v1.Experiment.started_at:type_name -> google.protobuf.Timestamp
+	41, // 16: plux.v1.Experiment.stopped_at:type_name -> google.protobuf.Timestamp
+	40, // 17: plux.v1.Experiment.created_by:type_name -> plux.v1.Actor
+	41, // 18: plux.v1.Experiment.created_at:type_name -> google.protobuf.Timestamp
+	41, // 19: plux.v1.Experiment.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 20: plux.v1.CreateExperimentResponse.experiment:type_name -> plux.v1.Experiment
+	15, // 21: plux.v1.GetExperimentResponse.experiment:type_name -> plux.v1.Experiment
+	15, // 22: plux.v1.StartExperimentResponse.experiment:type_name -> plux.v1.Experiment
+	15, // 23: plux.v1.StopExperimentResponse.experiment:type_name -> plux.v1.Experiment
+	1,  // 24: plux.v1.ListExperimentsRequest.state:type_name -> plux.v1.ExperimentState
+	15, // 25: plux.v1.ListExperimentsResponse.experiments:type_name -> plux.v1.Experiment
+	34, // 26: plux.v1.MetricResult.means:type_name -> plux.v1.VariantMean
+	35, // 27: plux.v1.MetricResult.comparisons:type_name -> plux.v1.Comparison
+	1,  // 28: plux.v1.GetResultsResponse.state:type_name -> plux.v1.ExperimentState
+	41, // 29: plux.v1.GetResultsResponse.at:type_name -> google.protobuf.Timestamp
+	33, // 30: plux.v1.GetResultsResponse.variants:type_name -> plux.v1.VariantCount
+	36, // 31: plux.v1.GetResultsResponse.primary:type_name -> plux.v1.MetricResult
+	36, // 32: plux.v1.GetResultsResponse.guardrails:type_name -> plux.v1.MetricResult
+	15, // 33: plux.v1.PromoteExperimentResponse.experiment:type_name -> plux.v1.Experiment
+	5,  // 34: plux.v1.FlagService.CreateFlag:input_type -> plux.v1.CreateFlagRequest
+	6,  // 35: plux.v1.FlagService.UpdateFlag:input_type -> plux.v1.UpdateFlagRequest
+	10, // 36: plux.v1.FlagService.DeleteFlag:input_type -> plux.v1.DeleteFlagRequest
+	12, // 37: plux.v1.FlagService.GetFlag:input_type -> plux.v1.GetFlagRequest
+	13, // 38: plux.v1.FlagService.ListFlags:input_type -> plux.v1.ListFlagsRequest
+	16, // 39: plux.v1.ExperimentService.CreateExperiment:input_type -> plux.v1.CreateExperimentRequest
+	21, // 40: plux.v1.ExperimentService.GetExperiment:input_type -> plux.v1.GetExperimentRequest
+	22, // 41: plux.v1.ExperimentService.ListExperiments:input_type -> plux.v1.ListExperimentsRequest
+	24, // 42: plux.v1.ExperimentService.DeleteExperiment:input_type -> plux.v1.DeleteExperimentRequest
+	26, // 43: plux.v1.ExperimentService.StartExperiment:input_type -> plux.v1.StartExperimentRequest
+	27, // 44: plux.v1.ExperimentService.StopExperiment:input_type -> plux.v1.StopExperimentRequest
+	28, // 45: plux.v1.ExperimentService.SetHoldout:input_type -> plux.v1.SetHoldoutRequest
+	29, // 46: plux.v1.ExperimentService.GetHoldout:input_type -> plux.v1.GetHoldoutRequest
+	32, // 47: plux.v1.ExperimentService.GetResults:input_type -> plux.v1.GetResultsRequest
+	38, // 48: plux.v1.ExperimentService.PromoteExperiment:input_type -> plux.v1.PromoteExperimentRequest
+	7,  // 49: plux.v1.FlagService.CreateFlag:output_type -> plux.v1.CreateFlagResponse
+	8,  // 50: plux.v1.FlagService.UpdateFlag:output_type -> plux.v1.UpdateFlagResponse
+	11, // 51: plux.v1.FlagService.DeleteFlag:output_type -> plux.v1.DeleteFlagResponse
+	9,  // 52: plux.v1.FlagService.GetFlag:output_type -> plux.v1.GetFlagResponse
+	14, // 53: plux.v1.FlagService.ListFlags:output_type -> plux.v1.ListFlagsResponse
+	17, // 54: plux.v1.ExperimentService.CreateExperiment:output_type -> plux.v1.CreateExperimentResponse
+	18, // 55: plux.v1.ExperimentService.GetExperiment:output_type -> plux.v1.GetExperimentResponse
+	23, // 56: plux.v1.ExperimentService.ListExperiments:output_type -> plux.v1.ListExperimentsResponse
+	25, // 57: plux.v1.ExperimentService.DeleteExperiment:output_type -> plux.v1.DeleteExperimentResponse
+	19, // 58: plux.v1.ExperimentService.StartExperiment:output_type -> plux.v1.StartExperimentResponse
+	20, // 59: plux.v1.ExperimentService.StopExperiment:output_type -> plux.v1.StopExperimentResponse
+	30, // 60: plux.v1.ExperimentService.SetHoldout:output_type -> plux.v1.SetHoldoutResponse
+	31, // 61: plux.v1.ExperimentService.GetHoldout:output_type -> plux.v1.GetHoldoutResponse
+	37, // 62: plux.v1.ExperimentService.GetResults:output_type -> plux.v1.GetResultsResponse
+	39, // 63: plux.v1.ExperimentService.PromoteExperiment:output_type -> plux.v1.PromoteExperimentResponse
+	49, // [49:64] is the sub-list for method output_type
+	34, // [34:49] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_experiment_proto_init() }
@@ -2611,7 +2922,7 @@ func file_plux_v1_experiment_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_experiment_proto_rawDesc), len(file_plux_v1_experiment_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   32,
+			NumMessages:   38,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

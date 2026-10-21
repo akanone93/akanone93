@@ -31,44 +31,44 @@ func (f fakeControl) ListEnvironments(context.Context, *connect.Request[pluxv1.L
 	return connect.NewResponse(&pluxv1.ListEnvironmentsResponse{Environments: []*pluxv1.Environment{{Id: "env-prod", Key: "production"}}}), nil
 }
 
-func (f fakeControl) document(call string) *connect.Response[pluxv1.ControlDocumentResponse] {
+func (f fakeControl) document(call string) *pluxv1.ControlDocument {
 	*f.calls = append(*f.calls, call)
-	return connect.NewResponse(&pluxv1.ControlDocumentResponse{Document: &pluxv1.ControlDocument{
+	return &pluxv1.ControlDocument{
 		AppId: "app-1", EnvironmentId: "env-prod", ChannelKey: "production", Version: 7, SignedVersion: 6,
 		KillSwitches:    []*pluxv1.KillSwitchEntry{{Scope: pluxv1.KillSwitchScope_KILL_SWITCH_SCOPE_ACTION_GRAPH, Target: "graph-1"}},
 		MandatoryUpdate: &pluxv1.ControlRelease{ReleaseSequence: 4, MessageKey: "update.now"},
 		ForcedRollback:  &pluxv1.ControlRelease{ReleaseSequence: 3},
 		ExpiresAt:       timestamppb.New(time.Date(2026, 10, 21, 0, 0, 0, 0, time.UTC)),
-	}})
+	}
 }
 
 func (f fakeControl) GetControlDocument(_ context.Context, r *connect.Request[pluxv1.GetControlDocumentRequest]) (*connect.Response[pluxv1.GetControlDocumentResponse], error) {
 	res := f.document("get " + r.Msg.GetEnvironmentId() + " " + r.Msg.GetChannelKey())
-	return connect.NewResponse(&pluxv1.GetControlDocumentResponse{Document: res.Msg.GetDocument()}), nil
+	return connect.NewResponse(&pluxv1.GetControlDocumentResponse{Document: res}), nil
 }
 
-func (f fakeControl) SetKillSwitch(_ context.Context, r *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return f.document(fmt.Sprintf("kill %s %s", r.Msg.GetKillSwitch().GetScope(), r.Msg.GetKillSwitch().GetTarget())), nil
+func (f fakeControl) SetKillSwitch(_ context.Context, r *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.SetKillSwitchResponse], error) {
+	return connect.NewResponse(&pluxv1.SetKillSwitchResponse{Document: f.document(fmt.Sprintf("kill %s %s", r.Msg.GetKillSwitch().GetScope(), r.Msg.GetKillSwitch().GetTarget()))}), nil
 }
 
-func (f fakeControl) ClearKillSwitch(_ context.Context, r *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return f.document(fmt.Sprintf("unkill %s %s", r.Msg.GetKillSwitch().GetScope(), r.Msg.GetKillSwitch().GetTarget())), nil
+func (f fakeControl) ClearKillSwitch(_ context.Context, r *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ClearKillSwitchResponse], error) {
+	return connect.NewResponse(&pluxv1.ClearKillSwitchResponse{Document: f.document(fmt.Sprintf("unkill %s %s", r.Msg.GetKillSwitch().GetScope(), r.Msg.GetKillSwitch().GetTarget()))}), nil
 }
 
-func (f fakeControl) SetMandatoryUpdate(_ context.Context, r *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return f.document(fmt.Sprintf("mandatory %d %s", r.Msg.GetReleaseSequence(), r.Msg.GetMessageKey())), nil
+func (f fakeControl) SetMandatoryUpdate(_ context.Context, r *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.SetMandatoryUpdateResponse], error) {
+	return connect.NewResponse(&pluxv1.SetMandatoryUpdateResponse{Document: f.document(fmt.Sprintf("mandatory %d %s", r.Msg.GetReleaseSequence(), r.Msg.GetMessageKey()))}), nil
 }
 
-func (f fakeControl) ClearMandatoryUpdate(context.Context, *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return f.document("mandatory clear"), nil
+func (f fakeControl) ClearMandatoryUpdate(context.Context, *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ClearMandatoryUpdateResponse], error) {
+	return connect.NewResponse(&pluxv1.ClearMandatoryUpdateResponse{Document: f.document("mandatory clear")}), nil
 }
 
-func (f fakeControl) SetForcedRollback(_ context.Context, r *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return f.document(fmt.Sprintf("rollback %d", r.Msg.GetReleaseSequence())), nil
+func (f fakeControl) SetForcedRollback(_ context.Context, r *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.SetForcedRollbackResponse], error) {
+	return connect.NewResponse(&pluxv1.SetForcedRollbackResponse{Document: f.document(fmt.Sprintf("rollback %d", r.Msg.GetReleaseSequence()))}), nil
 }
 
-func (f fakeControl) ClearForcedRollback(context.Context, *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return f.document("rollback clear"), nil
+func (f fakeControl) ClearForcedRollback(context.Context, *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ClearForcedRollbackResponse], error) {
+	return connect.NewResponse(&pluxv1.ClearForcedRollbackResponse{Document: f.document("rollback clear")}), nil
 }
 
 // Verifies: REL-060, REL-070, SYN-060.

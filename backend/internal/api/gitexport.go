@@ -36,8 +36,8 @@ func gitExportProto(e gitsync.Export) *pluxv1.GitExport {
 }
 
 // GetSettings returns the export settings of an app.
-func (s GitExport) GetSettings(ctx context.Context, req *connect.Request[pluxv1.GetGitSettingsRequest]) (*connect.Response[pluxv1.GetGitSettingsResponse], error) {
-	return read(ctx, func(ctx context.Context) (*pluxv1.GetGitSettingsResponse, error) {
+func (s GitExport) GetSettings(ctx context.Context, req *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetSettingsResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -46,13 +46,13 @@ func (s GitExport) GetSettings(ctx context.Context, req *connect.Request[pluxv1.
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.GetGitSettingsResponse{Settings: gitSettingsProto(got)}, nil
+		return &pluxv1.GetSettingsResponse{Settings: gitSettingsProto(got)}, nil
 	})
 }
 
 // ConfigureExport sets the export of an app.
-func (s GitExport) ConfigureExport(ctx context.Context, req *connect.Request[pluxv1.ConfigureGitExportRequest]) (*connect.Response[pluxv1.ConfigureGitExportResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ConfigureGitExportResponse, error) {
+func (s GitExport) ConfigureExport(ctx context.Context, req *connect.Request[pluxv1.ConfigureExportRequest]) (*connect.Response[pluxv1.ConfigureExportResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ConfigureExportResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -65,13 +65,13 @@ func (s GitExport) ConfigureExport(ctx context.Context, req *connect.Request[plu
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.ConfigureGitExportResponse{Settings: gitSettingsProto(got)}, nil
+		return &pluxv1.ConfigureExportResponse{Settings: gitSettingsProto(got)}, nil
 	})
 }
 
 // ListExports lists the newest exports of an app.
-func (s GitExport) ListExports(ctx context.Context, req *connect.Request[pluxv1.ListGitExportsRequest]) (*connect.Response[pluxv1.ListGitExportsResponse], error) {
-	return read(ctx, func(ctx context.Context) (*pluxv1.ListGitExportsResponse, error) {
+func (s GitExport) ListExports(ctx context.Context, req *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListExportsResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -80,7 +80,7 @@ func (s GitExport) ListExports(ctx context.Context, req *connect.Request[pluxv1.
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		out := &pluxv1.ListGitExportsResponse{}
+		out := &pluxv1.ListExportsResponse{}
 		for _, r := range rows {
 			out.Exports = append(out.Exports, gitExportProto(r))
 		}
@@ -89,8 +89,8 @@ func (s GitExport) ListExports(ctx context.Context, req *connect.Request[pluxv1.
 }
 
 // RunExport queues the export of the newest published version.
-func (s GitExport) RunExport(ctx context.Context, req *connect.Request[pluxv1.RunGitExportRequest]) (*connect.Response[pluxv1.RunGitExportResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.RunGitExportResponse, error) {
+func (s GitExport) RunExport(ctx context.Context, req *connect.Request[pluxv1.RunExportRequest]) (*connect.Response[pluxv1.RunExportResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.RunExportResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -99,6 +99,6 @@ func (s GitExport) RunExport(ctx context.Context, req *connect.Request[pluxv1.Ru
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.RunGitExportResponse{Export: gitExportProto(got)}, nil
+		return &pluxv1.RunExportResponse{Export: gitExportProto(got)}, nil
 	})
 }

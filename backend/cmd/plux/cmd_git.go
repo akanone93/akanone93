@@ -109,7 +109,7 @@ func (e env) gitConfigure(args []string) int {
 	if err != nil {
 		return e.fail("git export configure", err)
 	}
-	res, err := cl.gitExp.ConfigureExport(context.Background(), connect.NewRequest(&pluxv1.ConfigureGitExportRequest{
+	res, err := cl.gitExp.ConfigureExport(context.Background(), connect.NewRequest(&pluxv1.ConfigureExportRequest{
 		Settings: &pluxv1.GitSettings{
 			AppId: c.app, Enabled: true, RemoteUrl: remote, Branch: branch,
 			CredentialEnvironmentId: environment, CredentialKey: credential,
@@ -133,11 +133,11 @@ func (e env) gitStatus(args []string) int {
 		return e.fail("git export status", err)
 	}
 	ctx := context.Background()
-	settings, err := cl.gitExp.GetSettings(ctx, connect.NewRequest(&pluxv1.GetGitSettingsRequest{AppId: c.app}))
+	settings, err := cl.gitExp.GetSettings(ctx, connect.NewRequest(&pluxv1.GetSettingsRequest{AppId: c.app}))
 	if err != nil {
 		return e.fail("git export status", err)
 	}
-	exports, err := cl.gitExp.ListExports(ctx, connect.NewRequest(&pluxv1.ListGitExportsRequest{AppId: c.app}))
+	exports, err := cl.gitExp.ListExports(ctx, connect.NewRequest(&pluxv1.ListExportsRequest{AppId: c.app}))
 	if err != nil {
 		return e.fail("git export status", err)
 	}
@@ -165,7 +165,7 @@ func (e env) gitRun(args []string) int {
 	if err != nil {
 		return e.fail("git export run", err)
 	}
-	res, err := cl.gitExp.RunExport(context.Background(), connect.NewRequest(&pluxv1.RunGitExportRequest{AppId: c.app}))
+	res, err := cl.gitExp.RunExport(context.Background(), connect.NewRequest(&pluxv1.RunExportRequest{AppId: c.app}))
 	if err != nil {
 		return e.fail("git export run", err)
 	}

@@ -60,7 +60,7 @@ func (f fakeSearchGit) Search(_ context.Context, r *connect.Request[pluxv1.Searc
 	}}}), nil
 }
 
-func (f fakeSearchGit) ConfigureExport(_ context.Context, r *connect.Request[pluxv1.ConfigureGitExportRequest]) (*connect.Response[pluxv1.ConfigureGitExportResponse], error) {
+func (f fakeSearchGit) ConfigureExport(_ context.Context, r *connect.Request[pluxv1.ConfigureExportRequest]) (*connect.Response[pluxv1.ConfigureExportResponse], error) {
 	if err := checkCredential(r.Header()); err != nil {
 		return nil, err
 	}
@@ -69,36 +69,36 @@ func (f fakeSearchGit) ConfigureExport(_ context.Context, r *connect.Request[plu
 	if !strings.HasPrefix(s.GetRemoteUrl(), "https://") {
 		return nil, connect.NewError(connect.CodeInvalidArgument, nil)
 	}
-	return connect.NewResponse(&pluxv1.ConfigureGitExportResponse{Settings: s}), nil
+	return connect.NewResponse(&pluxv1.ConfigureExportResponse{Settings: s}), nil
 }
 
-func (f fakeSearchGit) GetSettings(_ context.Context, r *connect.Request[pluxv1.GetGitSettingsRequest]) (*connect.Response[pluxv1.GetGitSettingsResponse], error) {
+func (f fakeSearchGit) GetSettings(_ context.Context, r *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error) {
 	if err := checkCredential(r.Header()); err != nil {
 		return nil, err
 	}
 	if r.Msg.GetAppId() == "unset" {
 		return nil, connect.NewError(connect.CodeNotFound, nil)
 	}
-	return connect.NewResponse(&pluxv1.GetGitSettingsResponse{Settings: &pluxv1.GitSettings{
+	return connect.NewResponse(&pluxv1.GetSettingsResponse{Settings: &pluxv1.GitSettings{
 		AppId: r.Msg.GetAppId(), Enabled: true, RemoteUrl: "https://example.com/r.git", Branch: "main", CredentialKey: "GIT_TOKEN",
 	}}), nil
 }
 
-func (f fakeSearchGit) ListExports(_ context.Context, r *connect.Request[pluxv1.ListGitExportsRequest]) (*connect.Response[pluxv1.ListGitExportsResponse], error) {
+func (f fakeSearchGit) ListExports(_ context.Context, r *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error) {
 	if err := checkCredential(r.Header()); err != nil {
 		return nil, err
 	}
-	return connect.NewResponse(&pluxv1.ListGitExportsResponse{Exports: []*pluxv1.GitExport{
+	return connect.NewResponse(&pluxv1.ListExportsResponse{Exports: []*pluxv1.GitExport{
 		{Id: "x1", AppId: r.Msg.GetAppId(), VersionId: "v1", State: "pushed", Commit: "abc"},
 	}}), nil
 }
 
-func (f fakeSearchGit) RunExport(_ context.Context, r *connect.Request[pluxv1.RunGitExportRequest]) (*connect.Response[pluxv1.RunGitExportResponse], error) {
+func (f fakeSearchGit) RunExport(_ context.Context, r *connect.Request[pluxv1.RunExportRequest]) (*connect.Response[pluxv1.RunExportResponse], error) {
 	if err := checkCredential(r.Header()); err != nil {
 		return nil, err
 	}
 	f.record("run " + r.Msg.GetAppId())
-	return connect.NewResponse(&pluxv1.RunGitExportResponse{Export: &pluxv1.GitExport{Id: "x2", AppId: r.Msg.GetAppId(), VersionId: "v2", State: "pending"}}), nil
+	return connect.NewResponse(&pluxv1.RunExportResponse{Export: &pluxv1.GitExport{Id: "x2", AppId: r.Msg.GetAppId(), VersionId: "v2", State: "pending"}}), nil
 }
 
 // ImportDraft records the app and the paths the CLI sent, as the drafts

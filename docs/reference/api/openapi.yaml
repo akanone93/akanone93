@@ -2869,7 +2869,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+                $ref: '#/components/schemas/plux.v1.ClearForcedRollbackResponse'
   /plux.v1.ControlService/ClearKillSwitch:
     post:
       tags:
@@ -2908,7 +2908,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+                $ref: '#/components/schemas/plux.v1.ClearKillSwitchResponse'
   /plux.v1.ControlService/ClearMandatoryUpdate:
     post:
       tags:
@@ -2947,7 +2947,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+                $ref: '#/components/schemas/plux.v1.ClearMandatoryUpdateResponse'
   /plux.v1.ControlService/GetControl:
     post:
       tags:
@@ -3105,7 +3105,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+                $ref: '#/components/schemas/plux.v1.SetForcedRollbackResponse'
   /plux.v1.ControlService/SetKillSwitch:
     post:
       tags:
@@ -3147,7 +3147,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+                $ref: '#/components/schemas/plux.v1.SetKillSwitchResponse'
   /plux.v1.ControlService/SetMandatoryUpdate:
     post:
       tags:
@@ -3186,7 +3186,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+                $ref: '#/components/schemas/plux.v1.SetMandatoryUpdateResponse'
   /plux.v1.DataSubjectService/EraseSubject:
     post:
       tags:
@@ -4305,7 +4305,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
+                $ref: '#/components/schemas/plux.v1.CreateExperimentResponse'
   /plux.v1.ExperimentService/DeleteExperiment:
     post:
       tags:
@@ -4383,7 +4383,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
+                $ref: '#/components/schemas/plux.v1.GetExperimentResponse'
   /plux.v1.ExperimentService/GetHoldout:
     post:
       tags:
@@ -4422,7 +4422,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.HoldoutResponse'
+                $ref: '#/components/schemas/plux.v1.GetHoldoutResponse'
   /plux.v1.ExperimentService/GetResults:
     post:
       tags:
@@ -4585,7 +4585,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.HoldoutResponse'
+                $ref: '#/components/schemas/plux.v1.SetHoldoutResponse'
   /plux.v1.ExperimentService/StartExperiment:
     post:
       tags:
@@ -4627,7 +4627,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
+                $ref: '#/components/schemas/plux.v1.StartExperimentResponse'
   /plux.v1.ExperimentService/StopExperiment:
     post:
       tags:
@@ -4666,7 +4666,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
+                $ref: '#/components/schemas/plux.v1.StopExperimentResponse'
   /plux.v1.FederationService/CompleteSamlLogin:
     post:
       tags:
@@ -5311,7 +5311,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.FlagResponse'
+                $ref: '#/components/schemas/plux.v1.CreateFlagResponse'
   /plux.v1.FlagService/DeleteFlag:
     post:
       tags:
@@ -5391,7 +5391,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.FlagResponse'
+                $ref: '#/components/schemas/plux.v1.GetFlagResponse'
   /plux.v1.FlagService/ListFlags:
     post:
       tags:
@@ -5471,7 +5471,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.FlagResponse'
+                $ref: '#/components/schemas/plux.v1.UpdateFlagResponse'
   /plux.v1.FreezeService/DeleteFreeze:
     post:
       tags:
@@ -6389,7 +6389,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/plux.v1.ConfigureGitExportRequest'
+              $ref: '#/components/schemas/plux.v1.ConfigureExportRequest'
         required: true
       responses:
         default:
@@ -6403,7 +6403,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ConfigureGitExportResponse'
+                $ref: '#/components/schemas/plux.v1.ConfigureExportResponse'
   /plux.v1.GitExportService/GetSettings:
     post:
       tags:
@@ -6430,7 +6430,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/plux.v1.GetGitSettingsRequest'
+              $ref: '#/components/schemas/plux.v1.GetSettingsRequest'
         required: true
       responses:
         default:
@@ -6444,7 +6444,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.GetGitSettingsResponse'
+                $ref: '#/components/schemas/plux.v1.GetSettingsResponse'
   /plux.v1.GitExportService/ListExports:
     post:
       tags:
@@ -6469,7 +6469,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/plux.v1.ListGitExportsRequest'
+              $ref: '#/components/schemas/plux.v1.ListExportsRequest'
         required: true
       responses:
         default:
@@ -6483,7 +6483,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ListGitExportsResponse'
+                $ref: '#/components/schemas/plux.v1.ListExportsResponse'
   /plux.v1.GitExportService/RunExport:
     post:
       tags:
@@ -6510,7 +6510,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/plux.v1.RunGitExportRequest'
+              $ref: '#/components/schemas/plux.v1.RunExportRequest'
         required: true
       responses:
         default:
@@ -6524,7 +6524,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.RunGitExportResponse'
+                $ref: '#/components/schemas/plux.v1.RunExportResponse'
   /plux.v1.GoldenService/Approve:
     post:
       tags:
@@ -12403,7 +12403,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/plux.v1.ListDeliveriesRequest'
+              $ref: '#/components/schemas/plux.v1.ListWebhookDeliveriesRequest'
         required: true
       responses:
         default:
@@ -12417,7 +12417,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.ListDeliveriesResponse'
+                $ref: '#/components/schemas/plux.v1.ListWebhookDeliveriesResponse'
   /plux.v1.WebhookService/ListWebhooks:
     post:
       tags:
@@ -13878,6 +13878,15 @@ components:
           title: justification
       title: ClearForcedRollbackRequest
       additionalProperties: false
+    plux.v1.ClearForcedRollbackResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: ClearForcedRollbackResponse
+      additionalProperties: false
     plux.v1.ClearKillSwitchRequest:
       type: object
       properties:
@@ -13905,6 +13914,15 @@ components:
           title: justification
       title: ClearKillSwitchRequest
       additionalProperties: false
+    plux.v1.ClearKillSwitchResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: ClearKillSwitchResponse
+      additionalProperties: false
     plux.v1.ClearMandatoryUpdateRequest:
       type: object
       properties:
@@ -13918,6 +13936,15 @@ components:
           type: string
           title: channel_key
       title: ClearMandatoryUpdateRequest
+      additionalProperties: false
+    plux.v1.ClearMandatoryUpdateResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: ClearMandatoryUpdateResponse
       additionalProperties: false
     plux.v1.ClearPushTokenRequest:
       type: object
@@ -14397,23 +14424,23 @@ components:
       description: |-
         ConfigValue is one server-held configuration value of an environment
          (DAT-090).
-    plux.v1.ConfigureGitExportRequest:
+    plux.v1.ConfigureExportRequest:
       type: object
       properties:
         settings:
           allOf:
             - $ref: '#/components/schemas/plux.v1.GitSettings'
           title: settings
-      title: ConfigureGitExportRequest
+      title: ConfigureExportRequest
       additionalProperties: false
-    plux.v1.ConfigureGitExportResponse:
+    plux.v1.ConfigureExportResponse:
       type: object
       properties:
         settings:
           allOf:
             - $ref: '#/components/schemas/plux.v1.GitSettings'
           title: settings
-      title: ConfigureGitExportResponse
+      title: ConfigureExportResponse
       additionalProperties: false
     plux.v1.ConfirmFactorRequest:
       type: object
@@ -14565,15 +14592,6 @@ components:
       title: ControlDocument
       additionalProperties: false
       description: ControlDocument is a channel's control document as an operator sees it.
-    plux.v1.ControlDocumentResponse:
-      type: object
-      properties:
-        document:
-          allOf:
-            - $ref: '#/components/schemas/plux.v1.ControlDocument'
-          title: document
-      title: ControlDocumentResponse
-      additionalProperties: false
     plux.v1.ControlFlags:
       type: object
       properties:
@@ -14778,6 +14796,15 @@ components:
           description: document is the experiment document (experiments/<key>.experiment.json).
       title: CreateExperimentRequest
       additionalProperties: false
+    plux.v1.CreateExperimentResponse:
+      type: object
+      properties:
+        experiment:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Experiment'
+          title: experiment
+      title: CreateExperimentResponse
+      additionalProperties: false
     plux.v1.CreateExportDestinationRequest:
       type: object
       properties:
@@ -14849,6 +14876,15 @@ components:
             - $ref: '#/components/schemas/plux.v1.FlagSpec'
           title: spec
       title: CreateFlagRequest
+      additionalProperties: false
+    plux.v1.CreateFlagResponse:
+      type: object
+      properties:
+        flag:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Flag'
+          title: flag
+      title: CreateFlagResponse
       additionalProperties: false
     plux.v1.CreateGrantRequest:
       type: object
@@ -16715,15 +16751,6 @@ components:
       title: ExperimentAssignment
       additionalProperties: false
       description: ExperimentAssignment is one experiment's variant for this device.
-    plux.v1.ExperimentResponse:
-      type: object
-      properties:
-        experiment:
-          allOf:
-            - $ref: '#/components/schemas/plux.v1.Experiment'
-          title: experiment
-      title: ExperimentResponse
-      additionalProperties: false
     plux.v1.ExperimentState:
       type: string
       title: ExperimentState
@@ -17208,15 +17235,6 @@ components:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: updated_at
       title: Flag
-      additionalProperties: false
-    plux.v1.FlagResponse:
-      type: object
-      properties:
-        flag:
-          allOf:
-            - $ref: '#/components/schemas/plux.v1.Flag'
-          title: flag
-      title: FlagResponse
       additionalProperties: false
     plux.v1.FlagSegmentValue:
       type: object
@@ -18073,6 +18091,15 @@ components:
           title: id
       title: GetExperimentRequest
       additionalProperties: false
+    plux.v1.GetExperimentResponse:
+      type: object
+      properties:
+        experiment:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Experiment'
+          title: experiment
+      title: GetExperimentResponse
+      additionalProperties: false
     plux.v1.GetExportDestinationRequest:
       type: object
       properties:
@@ -18137,6 +18164,15 @@ components:
           title: key
       title: GetFlagRequest
       additionalProperties: false
+    plux.v1.GetFlagResponse:
+      type: object
+      properties:
+        flag:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Flag'
+          title: flag
+      title: GetFlagResponse
+      additionalProperties: false
     plux.v1.GetFunctionRequest:
       type: object
       properties:
@@ -18166,23 +18202,6 @@ components:
           title: aliases
       title: GetFunctionResponse
       additionalProperties: false
-    plux.v1.GetGitSettingsRequest:
-      type: object
-      properties:
-        appId:
-          type: string
-          title: app_id
-      title: GetGitSettingsRequest
-      additionalProperties: false
-    plux.v1.GetGitSettingsResponse:
-      type: object
-      properties:
-        settings:
-          allOf:
-            - $ref: '#/components/schemas/plux.v1.GitSettings'
-          title: settings
-      title: GetGitSettingsResponse
-      additionalProperties: false
     plux.v1.GetGroupMappingRequest:
       type: object
       properties:
@@ -18210,6 +18229,21 @@ components:
           type: string
           title: environment_id
       title: GetHoldoutRequest
+      additionalProperties: false
+    plux.v1.GetHoldoutResponse:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        percent:
+          type: number
+          title: percent
+          format: double
+      title: GetHoldoutResponse
       additionalProperties: false
     plux.v1.GetIdentityProviderRequest:
       type: object
@@ -18951,6 +18985,23 @@ components:
           format: byte
       title: GetSamlMetadataResponse
       additionalProperties: false
+    plux.v1.GetSettingsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: GetSettingsRequest
+      additionalProperties: false
+    plux.v1.GetSettingsResponse:
+      type: object
+      properties:
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GitSettings'
+          title: settings
+      title: GetSettingsResponse
+      additionalProperties: false
     plux.v1.GetSignedControlRequest:
       type: object
       properties:
@@ -19352,21 +19403,6 @@ components:
         HealthGate compares the candidate with the previous release (REL-053). A
          threshold of zero switches its check off; every drop and increase is
          absolute, in basis points (1/10000) of the rate.
-    plux.v1.HoldoutResponse:
-      type: object
-      properties:
-        appId:
-          type: string
-          title: app_id
-        environmentId:
-          type: string
-          title: environment_id
-        percent:
-          type: number
-          title: percent
-          format: double
-      title: HoldoutResponse
-      additionalProperties: false
     plux.v1.HostBuild:
       type: object
       properties:
@@ -20518,6 +20554,24 @@ components:
           title: page
       title: ListExportDestinationsResponse
       additionalProperties: false
+    plux.v1.ListExportsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ListExportsRequest
+      additionalProperties: false
+    plux.v1.ListExportsResponse:
+      type: object
+      properties:
+        exports:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.GitExport'
+          title: exports
+      title: ListExportsResponse
+      additionalProperties: false
     plux.v1.ListFactorsRequest:
       type: object
       properties:
@@ -20605,24 +20659,6 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListFunctionsResponse
-      additionalProperties: false
-    plux.v1.ListGitExportsRequest:
-      type: object
-      properties:
-        appId:
-          type: string
-          title: app_id
-      title: ListGitExportsRequest
-      additionalProperties: false
-    plux.v1.ListGitExportsResponse:
-      type: object
-      properties:
-        exports:
-          type: array
-          items:
-            $ref: '#/components/schemas/plux.v1.GitExport'
-          title: exports
-      title: ListGitExportsResponse
       additionalProperties: false
     plux.v1.ListGrantsRequest:
       type: object
@@ -21565,6 +21601,31 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListVersionsResponse
+      additionalProperties: false
+    plux.v1.ListWebhookDeliveriesRequest:
+      type: object
+      properties:
+        targetId:
+          type: string
+          title: target_id
+        state:
+          type: string
+          title: state
+        limit:
+          type: integer
+          title: limit
+          format: int32
+      title: ListWebhookDeliveriesRequest
+      additionalProperties: false
+    plux.v1.ListWebhookDeliveriesResponse:
+      type: object
+      properties:
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Delivery'
+          title: deliveries
+      title: ListWebhookDeliveriesResponse
       additionalProperties: false
     plux.v1.ListWebhooksRequest:
       type: object
@@ -24269,22 +24330,22 @@ components:
           title: secret
       title: RotateWebhookSecretResponse
       additionalProperties: false
-    plux.v1.RunGitExportRequest:
+    plux.v1.RunExportRequest:
       type: object
       properties:
         appId:
           type: string
           title: app_id
-      title: RunGitExportRequest
+      title: RunExportRequest
       additionalProperties: false
-    plux.v1.RunGitExportResponse:
+    plux.v1.RunExportResponse:
       type: object
       properties:
         export:
           allOf:
             - $ref: '#/components/schemas/plux.v1.GitExport'
           title: export
-      title: RunGitExportResponse
+      title: RunExportResponse
       additionalProperties: false
     plux.v1.SamlProviderConfig:
       type: object
@@ -24769,6 +24830,15 @@ components:
           title: justification
       title: SetForcedRollbackRequest
       additionalProperties: false
+    plux.v1.SetForcedRollbackResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: SetForcedRollbackResponse
+      additionalProperties: false
     plux.v1.SetGroupMappingRequest:
       type: object
       properties:
@@ -24806,6 +24876,21 @@ components:
           description: percent is 0 to 100 with at most two decimals.
       title: SetHoldoutRequest
       additionalProperties: false
+    plux.v1.SetHoldoutResponse:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        percent:
+          type: number
+          title: percent
+          format: double
+      title: SetHoldoutResponse
+      additionalProperties: false
     plux.v1.SetKillSwitchRequest:
       type: object
       properties:
@@ -24835,6 +24920,15 @@ components:
           title: justification
       title: SetKillSwitchRequest
       additionalProperties: false
+    plux.v1.SetKillSwitchResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: SetKillSwitchResponse
+      additionalProperties: false
     plux.v1.SetMandatoryUpdateRequest:
       type: object
       properties:
@@ -24855,6 +24949,15 @@ components:
           type: string
           title: message_key
       title: SetMandatoryUpdateRequest
+      additionalProperties: false
+    plux.v1.SetMandatoryUpdateResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: SetMandatoryUpdateResponse
       additionalProperties: false
     plux.v1.SetOrganizationLimitRequest:
       type: object
@@ -25231,6 +25334,15 @@ components:
              0 and up to 100; zero takes the whole layer.
       title: StartExperimentRequest
       additionalProperties: false
+    plux.v1.StartExperimentResponse:
+      type: object
+      properties:
+        experiment:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Experiment'
+          title: experiment
+      title: StartExperimentResponse
+      additionalProperties: false
     plux.v1.StartOidcLoginRequest:
       type: object
       properties:
@@ -25318,6 +25430,15 @@ components:
           type: string
           title: id
       title: StopExperimentRequest
+      additionalProperties: false
+    plux.v1.StopExperimentResponse:
+      type: object
+      properties:
+        experiment:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Experiment'
+          title: experiment
+      title: StopExperimentResponse
       additionalProperties: false
     plux.v1.StoreCount:
       type: object
@@ -25630,6 +25751,15 @@ components:
             - $ref: '#/components/schemas/plux.v1.FlagSpec'
           title: spec
       title: UpdateFlagRequest
+      additionalProperties: false
+    plux.v1.UpdateFlagResponse:
+      type: object
+      properties:
+        flag:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Flag'
+          title: flag
+      title: UpdateFlagResponse
       additionalProperties: false
     plux.v1.UpdateGrantRequest:
       type: object

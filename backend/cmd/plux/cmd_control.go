@@ -177,11 +177,14 @@ func controlRelease(ctx context.Context, client pluxv1connect.ControlServiceClie
 }
 
 // documentOf unwraps the document of a change's response.
-func documentOf(res *connect.Response[pluxv1.ControlDocumentResponse], err error) (*pluxv1.ControlDocument, error) {
+func documentOf[T any, P interface {
+	*T
+	GetDocument() *pluxv1.ControlDocument
+}](res *connect.Response[T], err error) (*pluxv1.ControlDocument, error) {
 	if err != nil {
 		return nil, err //nolint:wrapcheck // reported as is
 	}
-	return res.Msg.GetDocument(), nil
+	return P(res.Msg).GetDocument(), nil
 }
 
 // controlView is the JSON form of a control document.

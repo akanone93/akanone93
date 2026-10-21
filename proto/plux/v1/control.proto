@@ -25,17 +25,17 @@ service ControlService {
   // SetKillSwitch switches one plugin, page, action graph, data source or
   // function off for a channel's devices (REL-060). Setting a switch that
   // is on changes nothing.
-  rpc SetKillSwitch(SetKillSwitchRequest) returns (ControlDocumentResponse) {}
+  rpc SetKillSwitch(SetKillSwitchRequest) returns (SetKillSwitchResponse) {}
   // ClearKillSwitch switches it back on.
-  rpc ClearKillSwitch(ClearKillSwitchRequest) returns (ControlDocumentResponse) {}
+  rpc ClearKillSwitch(ClearKillSwitchRequest) returns (ClearKillSwitchResponse) {}
   // SetMandatoryUpdate makes a release mandatory (REL-070).
-  rpc SetMandatoryUpdate(SetMandatoryUpdateRequest) returns (ControlDocumentResponse) {}
+  rpc SetMandatoryUpdate(SetMandatoryUpdateRequest) returns (SetMandatoryUpdateResponse) {}
   // ClearMandatoryUpdate withdraws the mandatory update.
-  rpc ClearMandatoryUpdate(ClearMandatoryUpdateRequest) returns (ControlDocumentResponse) {}
+  rpc ClearMandatoryUpdate(ClearMandatoryUpdateRequest) returns (ClearMandatoryUpdateResponse) {}
   // SetForcedRollback directs devices to an earlier release they retain.
-  rpc SetForcedRollback(SetForcedRollbackRequest) returns (ControlDocumentResponse) {}
+  rpc SetForcedRollback(SetForcedRollbackRequest) returns (SetForcedRollbackResponse) {}
   // ClearForcedRollback withdraws the forced rollback.
-  rpc ClearForcedRollback(ClearForcedRollbackRequest) returns (ControlDocumentResponse) {}
+  rpc ClearForcedRollback(ClearForcedRollbackRequest) returns (ClearForcedRollbackResponse) {}
 }
 
 // Control is the current set of switches for one channel.
@@ -128,7 +128,22 @@ message GetControlDocumentRequest {
 message GetControlDocumentResponse {
   ControlDocument document = 1;
 }
-message ControlDocumentResponse {
+message SetKillSwitchResponse {
+  ControlDocument document = 1;
+}
+message ClearKillSwitchResponse {
+  ControlDocument document = 1;
+}
+message SetMandatoryUpdateResponse {
+  ControlDocument document = 1;
+}
+message ClearMandatoryUpdateResponse {
+  ControlDocument document = 1;
+}
+message SetForcedRollbackResponse {
+  ControlDocument document = 1;
+}
+message ClearForcedRollbackResponse {
   ControlDocument document = 1;
 }
 

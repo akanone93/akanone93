@@ -54,11 +54,11 @@ func breakGlassOptions(breakGlass bool, justification string) ([]release.ChangeO
 }
 
 // controlResult answers a change with the document it produced.
-func controlResult(state release.ControlState, err error) (*pluxv1.ControlDocumentResponse, error) {
+func controlResult(state release.ControlState, err error) (*pluxv1.ControlDocument, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &pluxv1.ControlDocumentResponse{Document: controlDocumentProto(state)}, nil
+	return controlDocumentProto(state), nil
 }
 
 // controlDocumentProto converts an operator's view of a control document.
@@ -107,8 +107,8 @@ func (s Control) GetControlDocument(ctx context.Context, req *connect.Request[pl
 }
 
 // SetKillSwitch switches one thing off for a channel's devices (REL-060).
-func (s Control) SetKillSwitch(ctx context.Context, req *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ControlDocumentResponse, error) {
+func (s Control) SetKillSwitch(ctx context.Context, req *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.SetKillSwitchResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.SetKillSwitchResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -122,13 +122,17 @@ func (s Control) SetKillSwitch(ctx context.Context, req *connect.Request[pluxv1.
 		if err != nil {
 			return nil, err
 		}
-		return controlResult(s.h.Releases.SetKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k, opts...))
+		doc, err := controlResult(s.h.Releases.SetKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k, opts...))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.SetKillSwitchResponse{Document: doc}, nil
 	})
 }
 
 // ClearKillSwitch switches it back on.
-func (s Control) ClearKillSwitch(ctx context.Context, req *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ControlDocumentResponse, error) {
+func (s Control) ClearKillSwitch(ctx context.Context, req *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ClearKillSwitchResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ClearKillSwitchResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -142,37 +146,49 @@ func (s Control) ClearKillSwitch(ctx context.Context, req *connect.Request[pluxv
 		if err != nil {
 			return nil, err
 		}
-		return controlResult(s.h.Releases.ClearKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k, opts...))
+		doc, err := controlResult(s.h.Releases.ClearKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k, opts...))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.ClearKillSwitchResponse{Document: doc}, nil
 	})
 }
 
 // SetMandatoryUpdate makes a release mandatory (REL-070).
-func (s Control) SetMandatoryUpdate(ctx context.Context, req *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ControlDocumentResponse, error) {
+func (s Control) SetMandatoryUpdate(ctx context.Context, req *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.SetMandatoryUpdateResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.SetMandatoryUpdateResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
 		}
 		m := req.Msg
-		return controlResult(s.h.Releases.SetMandatoryUpdate(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), m.GetReleaseSequence(), m.GetMessageKey()))
+		doc, err := controlResult(s.h.Releases.SetMandatoryUpdate(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), m.GetReleaseSequence(), m.GetMessageKey()))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.SetMandatoryUpdateResponse{Document: doc}, nil
 	})
 }
 
 // ClearMandatoryUpdate withdraws the mandatory update.
-func (s Control) ClearMandatoryUpdate(ctx context.Context, req *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ControlDocumentResponse, error) {
+func (s Control) ClearMandatoryUpdate(ctx context.Context, req *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ClearMandatoryUpdateResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ClearMandatoryUpdateResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
 		}
 		m := req.Msg
-		return controlResult(s.h.Releases.ClearMandatoryUpdate(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey())))
+		doc, err := controlResult(s.h.Releases.ClearMandatoryUpdate(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey())))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.ClearMandatoryUpdateResponse{Document: doc}, nil
 	})
 }
 
 // SetForcedRollback directs devices to an earlier release they retain.
-func (s Control) SetForcedRollback(ctx context.Context, req *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ControlDocumentResponse, error) {
+func (s Control) SetForcedRollback(ctx context.Context, req *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.SetForcedRollbackResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.SetForcedRollbackResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -182,13 +198,17 @@ func (s Control) SetForcedRollback(ctx context.Context, req *connect.Request[plu
 		if err != nil {
 			return nil, err
 		}
-		return controlResult(s.h.Releases.SetForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), m.GetReleaseSequence(), opts...))
+		doc, err := controlResult(s.h.Releases.SetForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), m.GetReleaseSequence(), opts...))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.SetForcedRollbackResponse{Document: doc}, nil
 	})
 }
 
 // ClearForcedRollback withdraws the forced rollback.
-func (s Control) ClearForcedRollback(ctx context.Context, req *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ControlDocumentResponse, error) {
+func (s Control) ClearForcedRollback(ctx context.Context, req *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ClearForcedRollbackResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ClearForcedRollbackResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -198,7 +218,11 @@ func (s Control) ClearForcedRollback(ctx context.Context, req *connect.Request[p
 		if err != nil {
 			return nil, err
 		}
-		return controlResult(s.h.Releases.ClearForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), opts...))
+		doc, err := controlResult(s.h.Releases.ClearForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), opts...))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.ClearForcedRollbackResponse{Document: doc}, nil
 	})
 }
 

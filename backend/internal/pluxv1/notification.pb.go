@@ -1492,6 +1492,110 @@ func (x *ListDeliveriesResponse) GetDeliveries() []*Delivery {
 	return nil
 }
 
+type ListWebhookDeliveriesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TargetId      string                 `protobuf:"bytes,1,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`
+	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWebhookDeliveriesRequest) Reset() {
+	*x = ListWebhookDeliveriesRequest{}
+	mi := &file_plux_v1_notification_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWebhookDeliveriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWebhookDeliveriesRequest) ProtoMessage() {}
+
+func (x *ListWebhookDeliveriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_notification_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWebhookDeliveriesRequest.ProtoReflect.Descriptor instead.
+func (*ListWebhookDeliveriesRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *ListWebhookDeliveriesRequest) GetTargetId() string {
+	if x != nil {
+		return x.TargetId
+	}
+	return ""
+}
+
+func (x *ListWebhookDeliveriesRequest) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *ListWebhookDeliveriesRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type ListWebhookDeliveriesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Deliveries    []*Delivery            `protobuf:"bytes,1,rep,name=deliveries,proto3" json:"deliveries,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWebhookDeliveriesResponse) Reset() {
+	*x = ListWebhookDeliveriesResponse{}
+	mi := &file_plux_v1_notification_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWebhookDeliveriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWebhookDeliveriesResponse) ProtoMessage() {}
+
+func (x *ListWebhookDeliveriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_notification_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWebhookDeliveriesResponse.ProtoReflect.Descriptor instead.
+func (*ListWebhookDeliveriesResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ListWebhookDeliveriesResponse) GetDeliveries() []*Delivery {
+	if x != nil {
+		return x.Deliveries
+	}
+	return nil
+}
+
 // OutboundWebhook is an endpoint that receives events.
 type OutboundWebhook struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1510,7 +1614,7 @@ type OutboundWebhook struct {
 
 func (x *OutboundWebhook) Reset() {
 	*x = OutboundWebhook{}
-	mi := &file_plux_v1_notification_proto_msgTypes[27]
+	mi := &file_plux_v1_notification_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1522,7 +1626,7 @@ func (x *OutboundWebhook) String() string {
 func (*OutboundWebhook) ProtoMessage() {}
 
 func (x *OutboundWebhook) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[27]
+	mi := &file_plux_v1_notification_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1535,7 +1639,7 @@ func (x *OutboundWebhook) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OutboundWebhook.ProtoReflect.Descriptor instead.
 func (*OutboundWebhook) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *OutboundWebhook) GetId() string {
@@ -1598,7 +1702,7 @@ type CreateWebhookRequest struct {
 
 func (x *CreateWebhookRequest) Reset() {
 	*x = CreateWebhookRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[28]
+	mi := &file_plux_v1_notification_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1610,7 +1714,7 @@ func (x *CreateWebhookRequest) String() string {
 func (*CreateWebhookRequest) ProtoMessage() {}
 
 func (x *CreateWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[28]
+	mi := &file_plux_v1_notification_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1623,7 +1727,7 @@ func (x *CreateWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWebhookRequest.ProtoReflect.Descriptor instead.
 func (*CreateWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *CreateWebhookRequest) GetName() string {
@@ -1658,7 +1762,7 @@ type CreateWebhookResponse struct {
 
 func (x *CreateWebhookResponse) Reset() {
 	*x = CreateWebhookResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[29]
+	mi := &file_plux_v1_notification_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1670,7 +1774,7 @@ func (x *CreateWebhookResponse) String() string {
 func (*CreateWebhookResponse) ProtoMessage() {}
 
 func (x *CreateWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[29]
+	mi := &file_plux_v1_notification_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1683,7 +1787,7 @@ func (x *CreateWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWebhookResponse.ProtoReflect.Descriptor instead.
 func (*CreateWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{29}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *CreateWebhookResponse) GetWebhook() *OutboundWebhook {
@@ -1708,7 +1812,7 @@ type ListWebhooksRequest struct {
 
 func (x *ListWebhooksRequest) Reset() {
 	*x = ListWebhooksRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[30]
+	mi := &file_plux_v1_notification_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1720,7 +1824,7 @@ func (x *ListWebhooksRequest) String() string {
 func (*ListWebhooksRequest) ProtoMessage() {}
 
 func (x *ListWebhooksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[30]
+	mi := &file_plux_v1_notification_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1733,7 +1837,7 @@ func (x *ListWebhooksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWebhooksRequest.ProtoReflect.Descriptor instead.
 func (*ListWebhooksRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{30}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{32}
 }
 
 type ListWebhooksResponse struct {
@@ -1745,7 +1849,7 @@ type ListWebhooksResponse struct {
 
 func (x *ListWebhooksResponse) Reset() {
 	*x = ListWebhooksResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[31]
+	mi := &file_plux_v1_notification_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1757,7 +1861,7 @@ func (x *ListWebhooksResponse) String() string {
 func (*ListWebhooksResponse) ProtoMessage() {}
 
 func (x *ListWebhooksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[31]
+	mi := &file_plux_v1_notification_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1770,7 +1874,7 @@ func (x *ListWebhooksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWebhooksResponse.ProtoReflect.Descriptor instead.
 func (*ListWebhooksResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{31}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ListWebhooksResponse) GetWebhooks() []*OutboundWebhook {
@@ -1789,7 +1893,7 @@ type DeleteWebhookRequest struct {
 
 func (x *DeleteWebhookRequest) Reset() {
 	*x = DeleteWebhookRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[32]
+	mi := &file_plux_v1_notification_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1801,7 +1905,7 @@ func (x *DeleteWebhookRequest) String() string {
 func (*DeleteWebhookRequest) ProtoMessage() {}
 
 func (x *DeleteWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[32]
+	mi := &file_plux_v1_notification_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1814,7 +1918,7 @@ func (x *DeleteWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteWebhookRequest.ProtoReflect.Descriptor instead.
 func (*DeleteWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{32}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *DeleteWebhookRequest) GetId() string {
@@ -1832,7 +1936,7 @@ type DeleteWebhookResponse struct {
 
 func (x *DeleteWebhookResponse) Reset() {
 	*x = DeleteWebhookResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[33]
+	mi := &file_plux_v1_notification_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1844,7 +1948,7 @@ func (x *DeleteWebhookResponse) String() string {
 func (*DeleteWebhookResponse) ProtoMessage() {}
 
 func (x *DeleteWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[33]
+	mi := &file_plux_v1_notification_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1857,7 +1961,7 @@ func (x *DeleteWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteWebhookResponse.ProtoReflect.Descriptor instead.
 func (*DeleteWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{33}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{35}
 }
 
 type RotateWebhookSecretRequest struct {
@@ -1872,7 +1976,7 @@ type RotateWebhookSecretRequest struct {
 
 func (x *RotateWebhookSecretRequest) Reset() {
 	*x = RotateWebhookSecretRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[34]
+	mi := &file_plux_v1_notification_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1884,7 +1988,7 @@ func (x *RotateWebhookSecretRequest) String() string {
 func (*RotateWebhookSecretRequest) ProtoMessage() {}
 
 func (x *RotateWebhookSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[34]
+	mi := &file_plux_v1_notification_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1897,7 +2001,7 @@ func (x *RotateWebhookSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateWebhookSecretRequest.ProtoReflect.Descriptor instead.
 func (*RotateWebhookSecretRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{34}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *RotateWebhookSecretRequest) GetId() string {
@@ -1923,7 +2027,7 @@ type RotateWebhookSecretResponse struct {
 
 func (x *RotateWebhookSecretResponse) Reset() {
 	*x = RotateWebhookSecretResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[35]
+	mi := &file_plux_v1_notification_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1935,7 +2039,7 @@ func (x *RotateWebhookSecretResponse) String() string {
 func (*RotateWebhookSecretResponse) ProtoMessage() {}
 
 func (x *RotateWebhookSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[35]
+	mi := &file_plux_v1_notification_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1948,7 +2052,7 @@ func (x *RotateWebhookSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateWebhookSecretResponse.ProtoReflect.Descriptor instead.
 func (*RotateWebhookSecretResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{35}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *RotateWebhookSecretResponse) GetSecret() string {
@@ -1982,7 +2086,7 @@ type FunctionTrigger struct {
 
 func (x *FunctionTrigger) Reset() {
 	*x = FunctionTrigger{}
-	mi := &file_plux_v1_notification_proto_msgTypes[36]
+	mi := &file_plux_v1_notification_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1994,7 +2098,7 @@ func (x *FunctionTrigger) String() string {
 func (*FunctionTrigger) ProtoMessage() {}
 
 func (x *FunctionTrigger) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[36]
+	mi := &file_plux_v1_notification_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2007,7 +2111,7 @@ func (x *FunctionTrigger) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionTrigger.ProtoReflect.Descriptor instead.
 func (*FunctionTrigger) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{36}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *FunctionTrigger) GetId() string {
@@ -2109,7 +2213,7 @@ type CreateTriggerRequest struct {
 
 func (x *CreateTriggerRequest) Reset() {
 	*x = CreateTriggerRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[37]
+	mi := &file_plux_v1_notification_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2121,7 +2225,7 @@ func (x *CreateTriggerRequest) String() string {
 func (*CreateTriggerRequest) ProtoMessage() {}
 
 func (x *CreateTriggerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[37]
+	mi := &file_plux_v1_notification_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2134,7 +2238,7 @@ func (x *CreateTriggerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTriggerRequest.ProtoReflect.Descriptor instead.
 func (*CreateTriggerRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{37}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *CreateTriggerRequest) GetAppId() string {
@@ -2195,7 +2299,7 @@ type CreateTriggerResponse struct {
 
 func (x *CreateTriggerResponse) Reset() {
 	*x = CreateTriggerResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[38]
+	mi := &file_plux_v1_notification_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2207,7 +2311,7 @@ func (x *CreateTriggerResponse) String() string {
 func (*CreateTriggerResponse) ProtoMessage() {}
 
 func (x *CreateTriggerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[38]
+	mi := &file_plux_v1_notification_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2220,7 +2324,7 @@ func (x *CreateTriggerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTriggerResponse.ProtoReflect.Descriptor instead.
 func (*CreateTriggerResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{38}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CreateTriggerResponse) GetTrigger() *FunctionTrigger {
@@ -2239,7 +2343,7 @@ type ListTriggersRequest struct {
 
 func (x *ListTriggersRequest) Reset() {
 	*x = ListTriggersRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[39]
+	mi := &file_plux_v1_notification_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2251,7 +2355,7 @@ func (x *ListTriggersRequest) String() string {
 func (*ListTriggersRequest) ProtoMessage() {}
 
 func (x *ListTriggersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[39]
+	mi := &file_plux_v1_notification_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2264,7 +2368,7 @@ func (x *ListTriggersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTriggersRequest.ProtoReflect.Descriptor instead.
 func (*ListTriggersRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{39}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListTriggersRequest) GetAppId() string {
@@ -2283,7 +2387,7 @@ type ListTriggersResponse struct {
 
 func (x *ListTriggersResponse) Reset() {
 	*x = ListTriggersResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[40]
+	mi := &file_plux_v1_notification_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2295,7 +2399,7 @@ func (x *ListTriggersResponse) String() string {
 func (*ListTriggersResponse) ProtoMessage() {}
 
 func (x *ListTriggersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[40]
+	mi := &file_plux_v1_notification_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2308,7 +2412,7 @@ func (x *ListTriggersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTriggersResponse.ProtoReflect.Descriptor instead.
 func (*ListTriggersResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{40}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ListTriggersResponse) GetTriggers() []*FunctionTrigger {
@@ -2327,7 +2431,7 @@ type DeleteTriggerRequest struct {
 
 func (x *DeleteTriggerRequest) Reset() {
 	*x = DeleteTriggerRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[41]
+	mi := &file_plux_v1_notification_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2339,7 +2443,7 @@ func (x *DeleteTriggerRequest) String() string {
 func (*DeleteTriggerRequest) ProtoMessage() {}
 
 func (x *DeleteTriggerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[41]
+	mi := &file_plux_v1_notification_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2352,7 +2456,7 @@ func (x *DeleteTriggerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTriggerRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTriggerRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{41}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *DeleteTriggerRequest) GetId() string {
@@ -2370,7 +2474,7 @@ type DeleteTriggerResponse struct {
 
 func (x *DeleteTriggerResponse) Reset() {
 	*x = DeleteTriggerResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[42]
+	mi := &file_plux_v1_notification_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2382,7 +2486,7 @@ func (x *DeleteTriggerResponse) String() string {
 func (*DeleteTriggerResponse) ProtoMessage() {}
 
 func (x *DeleteTriggerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[42]
+	mi := &file_plux_v1_notification_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2395,7 +2499,7 @@ func (x *DeleteTriggerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTriggerResponse.ProtoReflect.Descriptor instead.
 func (*DeleteTriggerResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{42}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{44}
 }
 
 // FunctionHook is an inbound webhook of a function.
@@ -2416,7 +2520,7 @@ type FunctionHook struct {
 
 func (x *FunctionHook) Reset() {
 	*x = FunctionHook{}
-	mi := &file_plux_v1_notification_proto_msgTypes[43]
+	mi := &file_plux_v1_notification_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2428,7 +2532,7 @@ func (x *FunctionHook) String() string {
 func (*FunctionHook) ProtoMessage() {}
 
 func (x *FunctionHook) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[43]
+	mi := &file_plux_v1_notification_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2441,7 +2545,7 @@ func (x *FunctionHook) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionHook.ProtoReflect.Descriptor instead.
 func (*FunctionHook) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{43}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *FunctionHook) GetId() string {
@@ -2516,7 +2620,7 @@ type CreateHookRequest struct {
 
 func (x *CreateHookRequest) Reset() {
 	*x = CreateHookRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[44]
+	mi := &file_plux_v1_notification_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2528,7 +2632,7 @@ func (x *CreateHookRequest) String() string {
 func (*CreateHookRequest) ProtoMessage() {}
 
 func (x *CreateHookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[44]
+	mi := &file_plux_v1_notification_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2541,7 +2645,7 @@ func (x *CreateHookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateHookRequest.ProtoReflect.Descriptor instead.
 func (*CreateHookRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{44}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *CreateHookRequest) GetAppId() string {
@@ -2597,7 +2701,7 @@ type CreateHookResponse struct {
 
 func (x *CreateHookResponse) Reset() {
 	*x = CreateHookResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[45]
+	mi := &file_plux_v1_notification_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2609,7 +2713,7 @@ func (x *CreateHookResponse) String() string {
 func (*CreateHookResponse) ProtoMessage() {}
 
 func (x *CreateHookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[45]
+	mi := &file_plux_v1_notification_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2622,7 +2726,7 @@ func (x *CreateHookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateHookResponse.ProtoReflect.Descriptor instead.
 func (*CreateHookResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{45}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *CreateHookResponse) GetHook() *FunctionHook {
@@ -2648,7 +2752,7 @@ type ListHooksRequest struct {
 
 func (x *ListHooksRequest) Reset() {
 	*x = ListHooksRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[46]
+	mi := &file_plux_v1_notification_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2660,7 +2764,7 @@ func (x *ListHooksRequest) String() string {
 func (*ListHooksRequest) ProtoMessage() {}
 
 func (x *ListHooksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[46]
+	mi := &file_plux_v1_notification_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2673,7 +2777,7 @@ func (x *ListHooksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHooksRequest.ProtoReflect.Descriptor instead.
 func (*ListHooksRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{46}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ListHooksRequest) GetAppId() string {
@@ -2692,7 +2796,7 @@ type ListHooksResponse struct {
 
 func (x *ListHooksResponse) Reset() {
 	*x = ListHooksResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[47]
+	mi := &file_plux_v1_notification_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2704,7 +2808,7 @@ func (x *ListHooksResponse) String() string {
 func (*ListHooksResponse) ProtoMessage() {}
 
 func (x *ListHooksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[47]
+	mi := &file_plux_v1_notification_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2717,7 +2821,7 @@ func (x *ListHooksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHooksResponse.ProtoReflect.Descriptor instead.
 func (*ListHooksResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{47}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *ListHooksResponse) GetHooks() []*FunctionHook {
@@ -2736,7 +2840,7 @@ type DeleteHookRequest struct {
 
 func (x *DeleteHookRequest) Reset() {
 	*x = DeleteHookRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[48]
+	mi := &file_plux_v1_notification_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2748,7 +2852,7 @@ func (x *DeleteHookRequest) String() string {
 func (*DeleteHookRequest) ProtoMessage() {}
 
 func (x *DeleteHookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[48]
+	mi := &file_plux_v1_notification_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2761,7 +2865,7 @@ func (x *DeleteHookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteHookRequest.ProtoReflect.Descriptor instead.
 func (*DeleteHookRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{48}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *DeleteHookRequest) GetId() string {
@@ -2779,7 +2883,7 @@ type DeleteHookResponse struct {
 
 func (x *DeleteHookResponse) Reset() {
 	*x = DeleteHookResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[49]
+	mi := &file_plux_v1_notification_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2791,7 +2895,7 @@ func (x *DeleteHookResponse) String() string {
 func (*DeleteHookResponse) ProtoMessage() {}
 
 func (x *DeleteHookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[49]
+	mi := &file_plux_v1_notification_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2804,7 +2908,7 @@ func (x *DeleteHookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteHookResponse.ProtoReflect.Descriptor instead.
 func (*DeleteHookResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{49}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{51}
 }
 
 type RotateHookSecretRequest struct {
@@ -2817,7 +2921,7 @@ type RotateHookSecretRequest struct {
 
 func (x *RotateHookSecretRequest) Reset() {
 	*x = RotateHookSecretRequest{}
-	mi := &file_plux_v1_notification_proto_msgTypes[50]
+	mi := &file_plux_v1_notification_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2829,7 +2933,7 @@ func (x *RotateHookSecretRequest) String() string {
 func (*RotateHookSecretRequest) ProtoMessage() {}
 
 func (x *RotateHookSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[50]
+	mi := &file_plux_v1_notification_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2842,7 +2946,7 @@ func (x *RotateHookSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateHookSecretRequest.ProtoReflect.Descriptor instead.
 func (*RotateHookSecretRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{50}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *RotateHookSecretRequest) GetId() string {
@@ -2868,7 +2972,7 @@ type RotateHookSecretResponse struct {
 
 func (x *RotateHookSecretResponse) Reset() {
 	*x = RotateHookSecretResponse{}
-	mi := &file_plux_v1_notification_proto_msgTypes[51]
+	mi := &file_plux_v1_notification_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2880,7 +2984,7 @@ func (x *RotateHookSecretResponse) String() string {
 func (*RotateHookSecretResponse) ProtoMessage() {}
 
 func (x *RotateHookSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_notification_proto_msgTypes[51]
+	mi := &file_plux_v1_notification_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2893,7 +2997,7 @@ func (x *RotateHookSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateHookSecretResponse.ProtoReflect.Descriptor instead.
 func (*RotateHookSecretResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_notification_proto_rawDescGZIP(), []int{51}
+	return file_plux_v1_notification_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *RotateHookSecretResponse) GetSecret() string {
@@ -3015,6 +3119,14 @@ const file_plux_v1_notification_proto_rawDesc = "" +
 	"\x16ListDeliveriesResponse\x121\n" +
 	"\n" +
 	"deliveries\x18\x01 \x03(\v2\x11.plux.v1.DeliveryR\n" +
+	"deliveries\"g\n" +
+	"\x1cListWebhookDeliveriesRequest\x12\x1b\n" +
+	"\ttarget_id\x18\x01 \x01(\tR\btargetId\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"R\n" +
+	"\x1dListWebhookDeliveriesResponse\x121\n" +
+	"\n" +
+	"deliveries\x18\x01 \x03(\v2\x11.plux.v1.DeliveryR\n" +
 	"deliveries\"\xde\x01\n" +
 	"\x0fOutboundWebhook\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
@@ -3127,13 +3239,13 @@ const file_plux_v1_notification_proto_rawDesc = "" +
 	"\x18ListNotificationChannels\x12(.plux.v1.ListNotificationChannelsRequest\x1a).plux.v1.ListNotificationChannelsResponse\"\x00\x12t\n" +
 	"\x19DeleteNotificationChannel\x12).plux.v1.DeleteNotificationChannelRequest\x1a*.plux.v1.DeleteNotificationChannelResponse\"\x00\x12n\n" +
 	"\x17TestNotificationChannel\x12'.plux.v1.TestNotificationChannelRequest\x1a(.plux.v1.TestNotificationChannelResponse\"\x00\x12S\n" +
-	"\x0eListDeliveries\x12\x1e.plux.v1.ListDeliveriesRequest\x1a\x1f.plux.v1.ListDeliveriesResponse\"\x002\xc3\x03\n" +
+	"\x0eListDeliveries\x12\x1e.plux.v1.ListDeliveriesRequest\x1a\x1f.plux.v1.ListDeliveriesResponse\"\x002\xd1\x03\n" +
 	"\x0eWebhookService\x12P\n" +
 	"\rCreateWebhook\x12\x1d.plux.v1.CreateWebhookRequest\x1a\x1e.plux.v1.CreateWebhookResponse\"\x00\x12M\n" +
 	"\fListWebhooks\x12\x1c.plux.v1.ListWebhooksRequest\x1a\x1d.plux.v1.ListWebhooksResponse\"\x00\x12P\n" +
 	"\rDeleteWebhook\x12\x1d.plux.v1.DeleteWebhookRequest\x1a\x1e.plux.v1.DeleteWebhookResponse\"\x00\x12b\n" +
-	"\x13RotateWebhookSecret\x12#.plux.v1.RotateWebhookSecretRequest\x1a$.plux.v1.RotateWebhookSecretResponse\"\x00\x12Z\n" +
-	"\x15ListWebhookDeliveries\x12\x1e.plux.v1.ListDeliveriesRequest\x1a\x1f.plux.v1.ListDeliveriesResponse\"\x002\xbe\x04\n" +
+	"\x13RotateWebhookSecret\x12#.plux.v1.RotateWebhookSecretRequest\x1a$.plux.v1.RotateWebhookSecretResponse\"\x00\x12h\n" +
+	"\x15ListWebhookDeliveries\x12%.plux.v1.ListWebhookDeliveriesRequest\x1a&.plux.v1.ListWebhookDeliveriesResponse\"\x002\xbe\x04\n" +
 	"\x16FunctionTriggerService\x12P\n" +
 	"\rCreateTrigger\x12\x1d.plux.v1.CreateTriggerRequest\x1a\x1e.plux.v1.CreateTriggerResponse\"\x00\x12M\n" +
 	"\fListTriggers\x12\x1c.plux.v1.ListTriggersRequest\x1a\x1d.plux.v1.ListTriggersResponse\"\x00\x12P\n" +
@@ -3157,7 +3269,7 @@ func file_plux_v1_notification_proto_rawDescGZIP() []byte {
 	return file_plux_v1_notification_proto_rawDescData
 }
 
-var file_plux_v1_notification_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
+var file_plux_v1_notification_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
 var file_plux_v1_notification_proto_goTypes = []any{
 	(*EventTypeInfo)(nil),                     // 0: plux.v1.EventTypeInfo
 	(*ListEventTypesRequest)(nil),             // 1: plux.v1.ListEventTypesRequest
@@ -3186,113 +3298,116 @@ var file_plux_v1_notification_proto_goTypes = []any{
 	(*Delivery)(nil),                          // 24: plux.v1.Delivery
 	(*ListDeliveriesRequest)(nil),             // 25: plux.v1.ListDeliveriesRequest
 	(*ListDeliveriesResponse)(nil),            // 26: plux.v1.ListDeliveriesResponse
-	(*OutboundWebhook)(nil),                   // 27: plux.v1.OutboundWebhook
-	(*CreateWebhookRequest)(nil),              // 28: plux.v1.CreateWebhookRequest
-	(*CreateWebhookResponse)(nil),             // 29: plux.v1.CreateWebhookResponse
-	(*ListWebhooksRequest)(nil),               // 30: plux.v1.ListWebhooksRequest
-	(*ListWebhooksResponse)(nil),              // 31: plux.v1.ListWebhooksResponse
-	(*DeleteWebhookRequest)(nil),              // 32: plux.v1.DeleteWebhookRequest
-	(*DeleteWebhookResponse)(nil),             // 33: plux.v1.DeleteWebhookResponse
-	(*RotateWebhookSecretRequest)(nil),        // 34: plux.v1.RotateWebhookSecretRequest
-	(*RotateWebhookSecretResponse)(nil),       // 35: plux.v1.RotateWebhookSecretResponse
-	(*FunctionTrigger)(nil),                   // 36: plux.v1.FunctionTrigger
-	(*CreateTriggerRequest)(nil),              // 37: plux.v1.CreateTriggerRequest
-	(*CreateTriggerResponse)(nil),             // 38: plux.v1.CreateTriggerResponse
-	(*ListTriggersRequest)(nil),               // 39: plux.v1.ListTriggersRequest
-	(*ListTriggersResponse)(nil),              // 40: plux.v1.ListTriggersResponse
-	(*DeleteTriggerRequest)(nil),              // 41: plux.v1.DeleteTriggerRequest
-	(*DeleteTriggerResponse)(nil),             // 42: plux.v1.DeleteTriggerResponse
-	(*FunctionHook)(nil),                      // 43: plux.v1.FunctionHook
-	(*CreateHookRequest)(nil),                 // 44: plux.v1.CreateHookRequest
-	(*CreateHookResponse)(nil),                // 45: plux.v1.CreateHookResponse
-	(*ListHooksRequest)(nil),                  // 46: plux.v1.ListHooksRequest
-	(*ListHooksResponse)(nil),                 // 47: plux.v1.ListHooksResponse
-	(*DeleteHookRequest)(nil),                 // 48: plux.v1.DeleteHookRequest
-	(*DeleteHookResponse)(nil),                // 49: plux.v1.DeleteHookResponse
-	(*RotateHookSecretRequest)(nil),           // 50: plux.v1.RotateHookSecretRequest
-	(*RotateHookSecretResponse)(nil),          // 51: plux.v1.RotateHookSecretResponse
-	nil,                                       // 52: plux.v1.NotificationChannel.SettingsEntry
-	nil,                                       // 53: plux.v1.CreateNotificationChannelRequest.SettingsEntry
-	(*timestamppb.Timestamp)(nil),             // 54: google.protobuf.Timestamp
+	(*ListWebhookDeliveriesRequest)(nil),      // 27: plux.v1.ListWebhookDeliveriesRequest
+	(*ListWebhookDeliveriesResponse)(nil),     // 28: plux.v1.ListWebhookDeliveriesResponse
+	(*OutboundWebhook)(nil),                   // 29: plux.v1.OutboundWebhook
+	(*CreateWebhookRequest)(nil),              // 30: plux.v1.CreateWebhookRequest
+	(*CreateWebhookResponse)(nil),             // 31: plux.v1.CreateWebhookResponse
+	(*ListWebhooksRequest)(nil),               // 32: plux.v1.ListWebhooksRequest
+	(*ListWebhooksResponse)(nil),              // 33: plux.v1.ListWebhooksResponse
+	(*DeleteWebhookRequest)(nil),              // 34: plux.v1.DeleteWebhookRequest
+	(*DeleteWebhookResponse)(nil),             // 35: plux.v1.DeleteWebhookResponse
+	(*RotateWebhookSecretRequest)(nil),        // 36: plux.v1.RotateWebhookSecretRequest
+	(*RotateWebhookSecretResponse)(nil),       // 37: plux.v1.RotateWebhookSecretResponse
+	(*FunctionTrigger)(nil),                   // 38: plux.v1.FunctionTrigger
+	(*CreateTriggerRequest)(nil),              // 39: plux.v1.CreateTriggerRequest
+	(*CreateTriggerResponse)(nil),             // 40: plux.v1.CreateTriggerResponse
+	(*ListTriggersRequest)(nil),               // 41: plux.v1.ListTriggersRequest
+	(*ListTriggersResponse)(nil),              // 42: plux.v1.ListTriggersResponse
+	(*DeleteTriggerRequest)(nil),              // 43: plux.v1.DeleteTriggerRequest
+	(*DeleteTriggerResponse)(nil),             // 44: plux.v1.DeleteTriggerResponse
+	(*FunctionHook)(nil),                      // 45: plux.v1.FunctionHook
+	(*CreateHookRequest)(nil),                 // 46: plux.v1.CreateHookRequest
+	(*CreateHookResponse)(nil),                // 47: plux.v1.CreateHookResponse
+	(*ListHooksRequest)(nil),                  // 48: plux.v1.ListHooksRequest
+	(*ListHooksResponse)(nil),                 // 49: plux.v1.ListHooksResponse
+	(*DeleteHookRequest)(nil),                 // 50: plux.v1.DeleteHookRequest
+	(*DeleteHookResponse)(nil),                // 51: plux.v1.DeleteHookResponse
+	(*RotateHookSecretRequest)(nil),           // 52: plux.v1.RotateHookSecretRequest
+	(*RotateHookSecretResponse)(nil),          // 53: plux.v1.RotateHookSecretResponse
+	nil,                                       // 54: plux.v1.NotificationChannel.SettingsEntry
+	nil,                                       // 55: plux.v1.CreateNotificationChannelRequest.SettingsEntry
+	(*timestamppb.Timestamp)(nil),             // 56: google.protobuf.Timestamp
 }
 var file_plux_v1_notification_proto_depIdxs = []int32{
 	0,  // 0: plux.v1.ListEventTypesResponse.event_types:type_name -> plux.v1.EventTypeInfo
-	54, // 1: plux.v1.InboxItem.created_at:type_name -> google.protobuf.Timestamp
+	56, // 1: plux.v1.InboxItem.created_at:type_name -> google.protobuf.Timestamp
 	3,  // 2: plux.v1.ListInboxResponse.items:type_name -> plux.v1.InboxItem
-	54, // 3: plux.v1.NotificationSubscription.created_at:type_name -> google.protobuf.Timestamp
+	56, // 3: plux.v1.NotificationSubscription.created_at:type_name -> google.protobuf.Timestamp
 	8,  // 4: plux.v1.SubscribeRequest.subscription:type_name -> plux.v1.NotificationSubscription
 	8,  // 5: plux.v1.SubscribeResponse.subscription:type_name -> plux.v1.NotificationSubscription
 	8,  // 6: plux.v1.ListSubscriptionsResponse.subscriptions:type_name -> plux.v1.NotificationSubscription
-	52, // 7: plux.v1.NotificationChannel.settings:type_name -> plux.v1.NotificationChannel.SettingsEntry
-	54, // 8: plux.v1.NotificationChannel.created_at:type_name -> google.protobuf.Timestamp
-	53, // 9: plux.v1.CreateNotificationChannelRequest.settings:type_name -> plux.v1.CreateNotificationChannelRequest.SettingsEntry
+	54, // 7: plux.v1.NotificationChannel.settings:type_name -> plux.v1.NotificationChannel.SettingsEntry
+	56, // 8: plux.v1.NotificationChannel.created_at:type_name -> google.protobuf.Timestamp
+	55, // 9: plux.v1.CreateNotificationChannelRequest.settings:type_name -> plux.v1.CreateNotificationChannelRequest.SettingsEntry
 	15, // 10: plux.v1.CreateNotificationChannelResponse.channel:type_name -> plux.v1.NotificationChannel
 	15, // 11: plux.v1.ListNotificationChannelsResponse.channels:type_name -> plux.v1.NotificationChannel
-	54, // 12: plux.v1.Delivery.next_attempt:type_name -> google.protobuf.Timestamp
-	54, // 13: plux.v1.Delivery.created_at:type_name -> google.protobuf.Timestamp
-	54, // 14: plux.v1.Delivery.delivered_at:type_name -> google.protobuf.Timestamp
+	56, // 12: plux.v1.Delivery.next_attempt:type_name -> google.protobuf.Timestamp
+	56, // 13: plux.v1.Delivery.created_at:type_name -> google.protobuf.Timestamp
+	56, // 14: plux.v1.Delivery.delivered_at:type_name -> google.protobuf.Timestamp
 	24, // 15: plux.v1.ListDeliveriesResponse.deliveries:type_name -> plux.v1.Delivery
-	54, // 16: plux.v1.OutboundWebhook.created_at:type_name -> google.protobuf.Timestamp
-	27, // 17: plux.v1.CreateWebhookResponse.webhook:type_name -> plux.v1.OutboundWebhook
-	27, // 18: plux.v1.ListWebhooksResponse.webhooks:type_name -> plux.v1.OutboundWebhook
-	54, // 19: plux.v1.FunctionTrigger.next_fire_at:type_name -> google.protobuf.Timestamp
-	54, // 20: plux.v1.FunctionTrigger.last_fire_at:type_name -> google.protobuf.Timestamp
-	36, // 21: plux.v1.CreateTriggerResponse.trigger:type_name -> plux.v1.FunctionTrigger
-	36, // 22: plux.v1.ListTriggersResponse.triggers:type_name -> plux.v1.FunctionTrigger
-	54, // 23: plux.v1.FunctionHook.created_at:type_name -> google.protobuf.Timestamp
-	43, // 24: plux.v1.CreateHookResponse.hook:type_name -> plux.v1.FunctionHook
-	43, // 25: plux.v1.ListHooksResponse.hooks:type_name -> plux.v1.FunctionHook
-	1,  // 26: plux.v1.NotificationService.ListEventTypes:input_type -> plux.v1.ListEventTypesRequest
-	4,  // 27: plux.v1.NotificationService.ListInbox:input_type -> plux.v1.ListInboxRequest
-	6,  // 28: plux.v1.NotificationService.MarkRead:input_type -> plux.v1.MarkReadRequest
-	9,  // 29: plux.v1.NotificationService.Subscribe:input_type -> plux.v1.SubscribeRequest
-	11, // 30: plux.v1.NotificationService.Unsubscribe:input_type -> plux.v1.UnsubscribeRequest
-	13, // 31: plux.v1.NotificationService.ListSubscriptions:input_type -> plux.v1.ListSubscriptionsRequest
-	16, // 32: plux.v1.NotificationService.CreateNotificationChannel:input_type -> plux.v1.CreateNotificationChannelRequest
-	18, // 33: plux.v1.NotificationService.ListNotificationChannels:input_type -> plux.v1.ListNotificationChannelsRequest
-	20, // 34: plux.v1.NotificationService.DeleteNotificationChannel:input_type -> plux.v1.DeleteNotificationChannelRequest
-	22, // 35: plux.v1.NotificationService.TestNotificationChannel:input_type -> plux.v1.TestNotificationChannelRequest
-	25, // 36: plux.v1.NotificationService.ListDeliveries:input_type -> plux.v1.ListDeliveriesRequest
-	28, // 37: plux.v1.WebhookService.CreateWebhook:input_type -> plux.v1.CreateWebhookRequest
-	30, // 38: plux.v1.WebhookService.ListWebhooks:input_type -> plux.v1.ListWebhooksRequest
-	32, // 39: plux.v1.WebhookService.DeleteWebhook:input_type -> plux.v1.DeleteWebhookRequest
-	34, // 40: plux.v1.WebhookService.RotateWebhookSecret:input_type -> plux.v1.RotateWebhookSecretRequest
-	25, // 41: plux.v1.WebhookService.ListWebhookDeliveries:input_type -> plux.v1.ListDeliveriesRequest
-	37, // 42: plux.v1.FunctionTriggerService.CreateTrigger:input_type -> plux.v1.CreateTriggerRequest
-	39, // 43: plux.v1.FunctionTriggerService.ListTriggers:input_type -> plux.v1.ListTriggersRequest
-	41, // 44: plux.v1.FunctionTriggerService.DeleteTrigger:input_type -> plux.v1.DeleteTriggerRequest
-	44, // 45: plux.v1.FunctionTriggerService.CreateHook:input_type -> plux.v1.CreateHookRequest
-	46, // 46: plux.v1.FunctionTriggerService.ListHooks:input_type -> plux.v1.ListHooksRequest
-	48, // 47: plux.v1.FunctionTriggerService.DeleteHook:input_type -> plux.v1.DeleteHookRequest
-	50, // 48: plux.v1.FunctionTriggerService.RotateHookSecret:input_type -> plux.v1.RotateHookSecretRequest
-	2,  // 49: plux.v1.NotificationService.ListEventTypes:output_type -> plux.v1.ListEventTypesResponse
-	5,  // 50: plux.v1.NotificationService.ListInbox:output_type -> plux.v1.ListInboxResponse
-	7,  // 51: plux.v1.NotificationService.MarkRead:output_type -> plux.v1.MarkReadResponse
-	10, // 52: plux.v1.NotificationService.Subscribe:output_type -> plux.v1.SubscribeResponse
-	12, // 53: plux.v1.NotificationService.Unsubscribe:output_type -> plux.v1.UnsubscribeResponse
-	14, // 54: plux.v1.NotificationService.ListSubscriptions:output_type -> plux.v1.ListSubscriptionsResponse
-	17, // 55: plux.v1.NotificationService.CreateNotificationChannel:output_type -> plux.v1.CreateNotificationChannelResponse
-	19, // 56: plux.v1.NotificationService.ListNotificationChannels:output_type -> plux.v1.ListNotificationChannelsResponse
-	21, // 57: plux.v1.NotificationService.DeleteNotificationChannel:output_type -> plux.v1.DeleteNotificationChannelResponse
-	23, // 58: plux.v1.NotificationService.TestNotificationChannel:output_type -> plux.v1.TestNotificationChannelResponse
-	26, // 59: plux.v1.NotificationService.ListDeliveries:output_type -> plux.v1.ListDeliveriesResponse
-	29, // 60: plux.v1.WebhookService.CreateWebhook:output_type -> plux.v1.CreateWebhookResponse
-	31, // 61: plux.v1.WebhookService.ListWebhooks:output_type -> plux.v1.ListWebhooksResponse
-	33, // 62: plux.v1.WebhookService.DeleteWebhook:output_type -> plux.v1.DeleteWebhookResponse
-	35, // 63: plux.v1.WebhookService.RotateWebhookSecret:output_type -> plux.v1.RotateWebhookSecretResponse
-	26, // 64: plux.v1.WebhookService.ListWebhookDeliveries:output_type -> plux.v1.ListDeliveriesResponse
-	38, // 65: plux.v1.FunctionTriggerService.CreateTrigger:output_type -> plux.v1.CreateTriggerResponse
-	40, // 66: plux.v1.FunctionTriggerService.ListTriggers:output_type -> plux.v1.ListTriggersResponse
-	42, // 67: plux.v1.FunctionTriggerService.DeleteTrigger:output_type -> plux.v1.DeleteTriggerResponse
-	45, // 68: plux.v1.FunctionTriggerService.CreateHook:output_type -> plux.v1.CreateHookResponse
-	47, // 69: plux.v1.FunctionTriggerService.ListHooks:output_type -> plux.v1.ListHooksResponse
-	49, // 70: plux.v1.FunctionTriggerService.DeleteHook:output_type -> plux.v1.DeleteHookResponse
-	51, // 71: plux.v1.FunctionTriggerService.RotateHookSecret:output_type -> plux.v1.RotateHookSecretResponse
-	49, // [49:72] is the sub-list for method output_type
-	26, // [26:49] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	24, // 16: plux.v1.ListWebhookDeliveriesResponse.deliveries:type_name -> plux.v1.Delivery
+	56, // 17: plux.v1.OutboundWebhook.created_at:type_name -> google.protobuf.Timestamp
+	29, // 18: plux.v1.CreateWebhookResponse.webhook:type_name -> plux.v1.OutboundWebhook
+	29, // 19: plux.v1.ListWebhooksResponse.webhooks:type_name -> plux.v1.OutboundWebhook
+	56, // 20: plux.v1.FunctionTrigger.next_fire_at:type_name -> google.protobuf.Timestamp
+	56, // 21: plux.v1.FunctionTrigger.last_fire_at:type_name -> google.protobuf.Timestamp
+	38, // 22: plux.v1.CreateTriggerResponse.trigger:type_name -> plux.v1.FunctionTrigger
+	38, // 23: plux.v1.ListTriggersResponse.triggers:type_name -> plux.v1.FunctionTrigger
+	56, // 24: plux.v1.FunctionHook.created_at:type_name -> google.protobuf.Timestamp
+	45, // 25: plux.v1.CreateHookResponse.hook:type_name -> plux.v1.FunctionHook
+	45, // 26: plux.v1.ListHooksResponse.hooks:type_name -> plux.v1.FunctionHook
+	1,  // 27: plux.v1.NotificationService.ListEventTypes:input_type -> plux.v1.ListEventTypesRequest
+	4,  // 28: plux.v1.NotificationService.ListInbox:input_type -> plux.v1.ListInboxRequest
+	6,  // 29: plux.v1.NotificationService.MarkRead:input_type -> plux.v1.MarkReadRequest
+	9,  // 30: plux.v1.NotificationService.Subscribe:input_type -> plux.v1.SubscribeRequest
+	11, // 31: plux.v1.NotificationService.Unsubscribe:input_type -> plux.v1.UnsubscribeRequest
+	13, // 32: plux.v1.NotificationService.ListSubscriptions:input_type -> plux.v1.ListSubscriptionsRequest
+	16, // 33: plux.v1.NotificationService.CreateNotificationChannel:input_type -> plux.v1.CreateNotificationChannelRequest
+	18, // 34: plux.v1.NotificationService.ListNotificationChannels:input_type -> plux.v1.ListNotificationChannelsRequest
+	20, // 35: plux.v1.NotificationService.DeleteNotificationChannel:input_type -> plux.v1.DeleteNotificationChannelRequest
+	22, // 36: plux.v1.NotificationService.TestNotificationChannel:input_type -> plux.v1.TestNotificationChannelRequest
+	25, // 37: plux.v1.NotificationService.ListDeliveries:input_type -> plux.v1.ListDeliveriesRequest
+	30, // 38: plux.v1.WebhookService.CreateWebhook:input_type -> plux.v1.CreateWebhookRequest
+	32, // 39: plux.v1.WebhookService.ListWebhooks:input_type -> plux.v1.ListWebhooksRequest
+	34, // 40: plux.v1.WebhookService.DeleteWebhook:input_type -> plux.v1.DeleteWebhookRequest
+	36, // 41: plux.v1.WebhookService.RotateWebhookSecret:input_type -> plux.v1.RotateWebhookSecretRequest
+	27, // 42: plux.v1.WebhookService.ListWebhookDeliveries:input_type -> plux.v1.ListWebhookDeliveriesRequest
+	39, // 43: plux.v1.FunctionTriggerService.CreateTrigger:input_type -> plux.v1.CreateTriggerRequest
+	41, // 44: plux.v1.FunctionTriggerService.ListTriggers:input_type -> plux.v1.ListTriggersRequest
+	43, // 45: plux.v1.FunctionTriggerService.DeleteTrigger:input_type -> plux.v1.DeleteTriggerRequest
+	46, // 46: plux.v1.FunctionTriggerService.CreateHook:input_type -> plux.v1.CreateHookRequest
+	48, // 47: plux.v1.FunctionTriggerService.ListHooks:input_type -> plux.v1.ListHooksRequest
+	50, // 48: plux.v1.FunctionTriggerService.DeleteHook:input_type -> plux.v1.DeleteHookRequest
+	52, // 49: plux.v1.FunctionTriggerService.RotateHookSecret:input_type -> plux.v1.RotateHookSecretRequest
+	2,  // 50: plux.v1.NotificationService.ListEventTypes:output_type -> plux.v1.ListEventTypesResponse
+	5,  // 51: plux.v1.NotificationService.ListInbox:output_type -> plux.v1.ListInboxResponse
+	7,  // 52: plux.v1.NotificationService.MarkRead:output_type -> plux.v1.MarkReadResponse
+	10, // 53: plux.v1.NotificationService.Subscribe:output_type -> plux.v1.SubscribeResponse
+	12, // 54: plux.v1.NotificationService.Unsubscribe:output_type -> plux.v1.UnsubscribeResponse
+	14, // 55: plux.v1.NotificationService.ListSubscriptions:output_type -> plux.v1.ListSubscriptionsResponse
+	17, // 56: plux.v1.NotificationService.CreateNotificationChannel:output_type -> plux.v1.CreateNotificationChannelResponse
+	19, // 57: plux.v1.NotificationService.ListNotificationChannels:output_type -> plux.v1.ListNotificationChannelsResponse
+	21, // 58: plux.v1.NotificationService.DeleteNotificationChannel:output_type -> plux.v1.DeleteNotificationChannelResponse
+	23, // 59: plux.v1.NotificationService.TestNotificationChannel:output_type -> plux.v1.TestNotificationChannelResponse
+	26, // 60: plux.v1.NotificationService.ListDeliveries:output_type -> plux.v1.ListDeliveriesResponse
+	31, // 61: plux.v1.WebhookService.CreateWebhook:output_type -> plux.v1.CreateWebhookResponse
+	33, // 62: plux.v1.WebhookService.ListWebhooks:output_type -> plux.v1.ListWebhooksResponse
+	35, // 63: plux.v1.WebhookService.DeleteWebhook:output_type -> plux.v1.DeleteWebhookResponse
+	37, // 64: plux.v1.WebhookService.RotateWebhookSecret:output_type -> plux.v1.RotateWebhookSecretResponse
+	28, // 65: plux.v1.WebhookService.ListWebhookDeliveries:output_type -> plux.v1.ListWebhookDeliveriesResponse
+	40, // 66: plux.v1.FunctionTriggerService.CreateTrigger:output_type -> plux.v1.CreateTriggerResponse
+	42, // 67: plux.v1.FunctionTriggerService.ListTriggers:output_type -> plux.v1.ListTriggersResponse
+	44, // 68: plux.v1.FunctionTriggerService.DeleteTrigger:output_type -> plux.v1.DeleteTriggerResponse
+	47, // 69: plux.v1.FunctionTriggerService.CreateHook:output_type -> plux.v1.CreateHookResponse
+	49, // 70: plux.v1.FunctionTriggerService.ListHooks:output_type -> plux.v1.ListHooksResponse
+	51, // 71: plux.v1.FunctionTriggerService.DeleteHook:output_type -> plux.v1.DeleteHookResponse
+	53, // 72: plux.v1.FunctionTriggerService.RotateHookSecret:output_type -> plux.v1.RotateHookSecretResponse
+	50, // [50:73] is the sub-list for method output_type
+	27, // [27:50] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_notification_proto_init() }
@@ -3306,7 +3421,7 @@ func file_plux_v1_notification_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_notification_proto_rawDesc), len(file_plux_v1_notification_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   54,
+			NumMessages:   56,
 			NumExtensions: 0,
 			NumServices:   3,
 		},

@@ -46,24 +46,24 @@ func (f fakeExperiments) ListFlags(context.Context, *connect.Request[pluxv1.List
 	return connect.NewResponse(&pluxv1.ListFlagsResponse{Flags: []*pluxv1.Flag{f.flag}}), nil
 }
 
-func (f fakeExperiments) GetFlag(_ context.Context, r *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (f fakeExperiments) GetFlag(_ context.Context, r *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.GetFlagResponse], error) {
 	f.note("get flag %s", r.Msg.GetKey())
 	if f.flag == nil {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("no such flag"))
 	}
-	return connect.NewResponse(&pluxv1.FlagResponse{Flag: f.flag}), nil
+	return connect.NewResponse(&pluxv1.GetFlagResponse{Flag: f.flag}), nil
 }
 
-func (f fakeExperiments) CreateFlag(_ context.Context, r *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (f fakeExperiments) CreateFlag(_ context.Context, r *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.CreateFlagResponse], error) {
 	s := r.Msg.GetSpec()
 	f.note("create flag %s %s %s %d", r.Msg.GetKey(), s.GetType(), s.GetDefaultJson(), len(s.GetSegments()))
-	return connect.NewResponse(&pluxv1.FlagResponse{Flag: &pluxv1.Flag{Key: r.Msg.GetKey(), Type: s.GetType(), DefaultJson: s.GetDefaultJson(), Segments: s.GetSegments()}}), nil
+	return connect.NewResponse(&pluxv1.CreateFlagResponse{Flag: &pluxv1.Flag{Key: r.Msg.GetKey(), Type: s.GetType(), DefaultJson: s.GetDefaultJson(), Segments: s.GetSegments()}}), nil
 }
 
-func (f fakeExperiments) UpdateFlag(_ context.Context, r *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (f fakeExperiments) UpdateFlag(_ context.Context, r *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.UpdateFlagResponse], error) {
 	s := r.Msg.GetSpec()
 	f.note("update flag %s %s %s %d %q", r.Msg.GetKey(), s.GetType(), s.GetDefaultJson(), len(s.GetSegments()), s.GetDescription())
-	return connect.NewResponse(&pluxv1.FlagResponse{Flag: &pluxv1.Flag{Key: r.Msg.GetKey(), Type: f.flag.GetType(), DefaultJson: s.GetDefaultJson(), Segments: s.GetSegments()}}), nil
+	return connect.NewResponse(&pluxv1.UpdateFlagResponse{Flag: &pluxv1.Flag{Key: r.Msg.GetKey(), Type: f.flag.GetType(), DefaultJson: s.GetDefaultJson(), Segments: s.GetSegments()}}), nil
 }
 
 func (f fakeExperiments) DeleteFlag(_ context.Context, r *connect.Request[pluxv1.DeleteFlagRequest]) (*connect.Response[pluxv1.DeleteFlagResponse], error) {
@@ -75,9 +75,9 @@ func (f fakeExperiments) experiment(state pluxv1.ExperimentState) *pluxv1.Experi
 	return &pluxv1.Experiment{Id: heroID, Key: "heroLayout", State: state, LayerStart: 0, LayerEnd: 2500}
 }
 
-func (f fakeExperiments) CreateExperiment(_ context.Context, r *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (f fakeExperiments) CreateExperiment(_ context.Context, r *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.CreateExperimentResponse], error) {
 	f.note("create experiment %s %s", r.Msg.GetEnvironmentId(), r.Msg.GetDocument())
-	return connect.NewResponse(&pluxv1.ExperimentResponse{Experiment: f.experiment(pluxv1.ExperimentState_EXPERIMENT_STATE_DRAFT)}), nil
+	return connect.NewResponse(&pluxv1.CreateExperimentResponse{Experiment: f.experiment(pluxv1.ExperimentState_EXPERIMENT_STATE_DRAFT)}), nil
 }
 
 func (f fakeExperiments) ListExperiments(_ context.Context, r *connect.Request[pluxv1.ListExperimentsRequest]) (*connect.Response[pluxv1.ListExperimentsResponse], error) {
@@ -85,24 +85,24 @@ func (f fakeExperiments) ListExperiments(_ context.Context, r *connect.Request[p
 	return connect.NewResponse(&pluxv1.ListExperimentsResponse{Experiments: []*pluxv1.Experiment{f.experiment(pluxv1.ExperimentState_EXPERIMENT_STATE_RUNNING)}}), nil
 }
 
-func (f fakeExperiments) StartExperiment(_ context.Context, r *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (f fakeExperiments) StartExperiment(_ context.Context, r *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.StartExperimentResponse], error) {
 	f.note("start %s %g", r.Msg.GetId(), r.Msg.GetLayerSharePercent())
-	return connect.NewResponse(&pluxv1.ExperimentResponse{Experiment: f.experiment(pluxv1.ExperimentState_EXPERIMENT_STATE_RUNNING)}), nil
+	return connect.NewResponse(&pluxv1.StartExperimentResponse{Experiment: f.experiment(pluxv1.ExperimentState_EXPERIMENT_STATE_RUNNING)}), nil
 }
 
-func (f fakeExperiments) StopExperiment(_ context.Context, r *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (f fakeExperiments) StopExperiment(_ context.Context, r *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.StopExperimentResponse], error) {
 	f.note("stop %s", r.Msg.GetId())
-	return connect.NewResponse(&pluxv1.ExperimentResponse{Experiment: f.experiment(pluxv1.ExperimentState_EXPERIMENT_STATE_STOPPED)}), nil
+	return connect.NewResponse(&pluxv1.StopExperimentResponse{Experiment: f.experiment(pluxv1.ExperimentState_EXPERIMENT_STATE_STOPPED)}), nil
 }
 
-func (f fakeExperiments) SetHoldout(_ context.Context, r *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
+func (f fakeExperiments) SetHoldout(_ context.Context, r *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.SetHoldoutResponse], error) {
 	f.note("set holdout %g", r.Msg.GetPercent())
-	return connect.NewResponse(&pluxv1.HoldoutResponse{Percent: r.Msg.GetPercent()}), nil
+	return connect.NewResponse(&pluxv1.SetHoldoutResponse{Percent: r.Msg.GetPercent()}), nil
 }
 
-func (f fakeExperiments) GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
+func (f fakeExperiments) GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.GetHoldoutResponse], error) {
 	f.note("get holdout")
-	return connect.NewResponse(&pluxv1.HoldoutResponse{Percent: 5}), nil
+	return connect.NewResponse(&pluxv1.GetHoldoutResponse{Percent: 5}), nil
 }
 
 func (f fakeExperiments) GetResults(_ context.Context, r *connect.Request[pluxv1.GetResultsRequest]) (*connect.Response[pluxv1.GetResultsResponse], error) {

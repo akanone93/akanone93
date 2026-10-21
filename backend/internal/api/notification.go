@@ -206,29 +206,34 @@ func (s Notification) TestNotificationChannel(ctx context.Context, req *connect.
 
 // ListDeliveries reads the delivery log of channels.
 func (s Notification) ListDeliveries(ctx context.Context, req *connect.Request[pluxv1.ListDeliveriesRequest]) (*connect.Response[pluxv1.ListDeliveriesResponse], error) {
-	return deliveries(ctx, s.h, req.Header(), "channel", req.Msg)
-}
-
-// deliveries reads one kind of delivery log.
-func deliveries(ctx context.Context, h *Handlers, header http.Header, kind string, m *pluxv1.ListDeliveriesRequest) (*connect.Response[pluxv1.ListDeliveriesResponse], error) {
+	m := req.Msg
 	return read(ctx, func(ctx context.Context) (*pluxv1.ListDeliveriesResponse, error) {
-		p, err := h.principal(ctx, header, "")
+		list, err := deliveries(ctx, s.h, req.Header(), notify.DeliveryFilter{Kind: "channel", TargetID: m.GetTargetId(), State: m.GetState(), Limit: m.GetLimit()})
 		if err != nil {
 			return nil, err
 		}
-		rows, err := h.Notify.Deliveries(ctx, p, notify.DeliveryFilter{Kind: kind, TargetID: m.GetTargetId(), State: m.GetState(), Limit: m.GetLimit()})
-		if err != nil {
-			return nil, err //nolint:wrapcheck // a domain error
-		}
-		out := &pluxv1.ListDeliveriesResponse{}
-		for _, d := range rows {
-			out.Deliveries = append(out.Deliveries, &pluxv1.Delivery{
-				Id: d.ID, Kind: d.Kind, TargetId: d.TargetID, EventType: string(d.EventType), State: d.State, Attempts: d.Attempts,
-				NextAttempt: ts(d.NextAttempt), LastStatus: d.LastStatus, LastError: d.LastError, CreatedAt: ts(d.CreatedAt), DeliveredAt: ts(d.DeliveredAt),
-			})
-		}
-		return out, nil
+		return &pluxv1.ListDeliveriesResponse{Deliveries: list}, nil
 	})
+}
+
+// deliveries reads one kind of delivery log.
+func deliveries(ctx context.Context, h *Handlers, header http.Header, filter notify.DeliveryFilter) ([]*pluxv1.Delivery, error) {
+	p, err := h.principal(ctx, header, "")
+	if err != nil {
+		return nil, err
+	}
+	rows, err := h.Notify.Deliveries(ctx, p, filter)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	out := make([]*pluxv1.Delivery, 0, len(rows))
+	for _, d := range rows {
+		out = append(out, &pluxv1.Delivery{
+			Id: d.ID, Kind: d.Kind, TargetId: d.TargetID, EventType: string(d.EventType), State: d.State, Attempts: d.Attempts,
+			NextAttempt: ts(d.NextAttempt), LastStatus: d.LastStatus, LastError: d.LastError, CreatedAt: ts(d.CreatedAt), DeliveredAt: ts(d.DeliveredAt),
+		})
+	}
+	return out, nil
 }
 
 // Webhook serves WebhookService: outbound webhooks (SRV-063, ADR-0081).
@@ -322,6 +327,13 @@ func (s Webhook) RotateWebhookSecret(ctx context.Context, req *connect.Request[p
 }
 
 // ListWebhookDeliveries reads the delivery log of webhooks.
-func (s Webhook) ListWebhookDeliveries(ctx context.Context, req *connect.Request[pluxv1.ListDeliveriesRequest]) (*connect.Response[pluxv1.ListDeliveriesResponse], error) {
-	return deliveries(ctx, s.h, req.Header(), "webhook", req.Msg)
+func (s Webhook) ListWebhookDeliveries(ctx context.Context, req *connect.Request[pluxv1.ListWebhookDeliveriesRequest]) (*connect.Response[pluxv1.ListWebhookDeliveriesResponse], error) {
+	m := req.Msg
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListWebhookDeliveriesResponse, error) {
+		list, err := deliveries(ctx, s.h, req.Header(), notify.DeliveryFilter{Kind: "webhook", TargetID: m.GetTargetId(), State: m.GetState(), Limit: m.GetLimit()})
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.ListWebhookDeliveriesResponse{Deliveries: list}, nil
+	})
 }

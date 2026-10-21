@@ -54,16 +54,16 @@ const (
 type GitExportServiceClient interface {
 	// GetSettings returns the app's export settings; PLX-8031 when none were
 	// configured.
-	GetSettings(context.Context, *connect.Request[pluxv1.GetGitSettingsRequest]) (*connect.Response[pluxv1.GetGitSettingsResponse], error)
+	GetSettings(context.Context, *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error)
 	// ConfigureExport sets the export of an app. The remote must be an HTTPS
 	// address without credentials in it; one that names a reserved address
 	// is PLX-8503. Audited.
-	ConfigureExport(context.Context, *connect.Request[pluxv1.ConfigureGitExportRequest]) (*connect.Response[pluxv1.ConfigureGitExportResponse], error)
+	ConfigureExport(context.Context, *connect.Request[pluxv1.ConfigureExportRequest]) (*connect.Response[pluxv1.ConfigureExportResponse], error)
 	// ListExports lists the newest exports of an app with their state.
-	ListExports(context.Context, *connect.Request[pluxv1.ListGitExportsRequest]) (*connect.Response[pluxv1.ListGitExportsResponse], error)
+	ListExports(context.Context, *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error)
 	// RunExport queues the export of the app's newest published version, or
 	// returns the finished one; a version is exported once.
-	RunExport(context.Context, *connect.Request[pluxv1.RunGitExportRequest]) (*connect.Response[pluxv1.RunGitExportResponse], error)
+	RunExport(context.Context, *connect.Request[pluxv1.RunExportRequest]) (*connect.Response[pluxv1.RunExportResponse], error)
 }
 
 // NewGitExportServiceClient constructs a client for the plux.v1.GitExportService service. By
@@ -77,25 +77,25 @@ func NewGitExportServiceClient(httpClient connect.HTTPClient, baseURL string, op
 	baseURL = strings.TrimRight(baseURL, "/")
 	gitExportServiceMethods := pluxv1.File_plux_v1_gitexport_proto.Services().ByName("GitExportService").Methods()
 	return &gitExportServiceClient{
-		getSettings: connect.NewClient[pluxv1.GetGitSettingsRequest, pluxv1.GetGitSettingsResponse](
+		getSettings: connect.NewClient[pluxv1.GetSettingsRequest, pluxv1.GetSettingsResponse](
 			httpClient,
 			baseURL+GitExportServiceGetSettingsProcedure,
 			connect.WithSchema(gitExportServiceMethods.ByName("GetSettings")),
 			connect.WithClientOptions(opts...),
 		),
-		configureExport: connect.NewClient[pluxv1.ConfigureGitExportRequest, pluxv1.ConfigureGitExportResponse](
+		configureExport: connect.NewClient[pluxv1.ConfigureExportRequest, pluxv1.ConfigureExportResponse](
 			httpClient,
 			baseURL+GitExportServiceConfigureExportProcedure,
 			connect.WithSchema(gitExportServiceMethods.ByName("ConfigureExport")),
 			connect.WithClientOptions(opts...),
 		),
-		listExports: connect.NewClient[pluxv1.ListGitExportsRequest, pluxv1.ListGitExportsResponse](
+		listExports: connect.NewClient[pluxv1.ListExportsRequest, pluxv1.ListExportsResponse](
 			httpClient,
 			baseURL+GitExportServiceListExportsProcedure,
 			connect.WithSchema(gitExportServiceMethods.ByName("ListExports")),
 			connect.WithClientOptions(opts...),
 		),
-		runExport: connect.NewClient[pluxv1.RunGitExportRequest, pluxv1.RunGitExportResponse](
+		runExport: connect.NewClient[pluxv1.RunExportRequest, pluxv1.RunExportResponse](
 			httpClient,
 			baseURL+GitExportServiceRunExportProcedure,
 			connect.WithSchema(gitExportServiceMethods.ByName("RunExport")),
@@ -106,29 +106,29 @@ func NewGitExportServiceClient(httpClient connect.HTTPClient, baseURL string, op
 
 // gitExportServiceClient implements GitExportServiceClient.
 type gitExportServiceClient struct {
-	getSettings     *connect.Client[pluxv1.GetGitSettingsRequest, pluxv1.GetGitSettingsResponse]
-	configureExport *connect.Client[pluxv1.ConfigureGitExportRequest, pluxv1.ConfigureGitExportResponse]
-	listExports     *connect.Client[pluxv1.ListGitExportsRequest, pluxv1.ListGitExportsResponse]
-	runExport       *connect.Client[pluxv1.RunGitExportRequest, pluxv1.RunGitExportResponse]
+	getSettings     *connect.Client[pluxv1.GetSettingsRequest, pluxv1.GetSettingsResponse]
+	configureExport *connect.Client[pluxv1.ConfigureExportRequest, pluxv1.ConfigureExportResponse]
+	listExports     *connect.Client[pluxv1.ListExportsRequest, pluxv1.ListExportsResponse]
+	runExport       *connect.Client[pluxv1.RunExportRequest, pluxv1.RunExportResponse]
 }
 
 // GetSettings calls plux.v1.GitExportService.GetSettings.
-func (c *gitExportServiceClient) GetSettings(ctx context.Context, req *connect.Request[pluxv1.GetGitSettingsRequest]) (*connect.Response[pluxv1.GetGitSettingsResponse], error) {
+func (c *gitExportServiceClient) GetSettings(ctx context.Context, req *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error) {
 	return c.getSettings.CallUnary(ctx, req)
 }
 
 // ConfigureExport calls plux.v1.GitExportService.ConfigureExport.
-func (c *gitExportServiceClient) ConfigureExport(ctx context.Context, req *connect.Request[pluxv1.ConfigureGitExportRequest]) (*connect.Response[pluxv1.ConfigureGitExportResponse], error) {
+func (c *gitExportServiceClient) ConfigureExport(ctx context.Context, req *connect.Request[pluxv1.ConfigureExportRequest]) (*connect.Response[pluxv1.ConfigureExportResponse], error) {
 	return c.configureExport.CallUnary(ctx, req)
 }
 
 // ListExports calls plux.v1.GitExportService.ListExports.
-func (c *gitExportServiceClient) ListExports(ctx context.Context, req *connect.Request[pluxv1.ListGitExportsRequest]) (*connect.Response[pluxv1.ListGitExportsResponse], error) {
+func (c *gitExportServiceClient) ListExports(ctx context.Context, req *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error) {
 	return c.listExports.CallUnary(ctx, req)
 }
 
 // RunExport calls plux.v1.GitExportService.RunExport.
-func (c *gitExportServiceClient) RunExport(ctx context.Context, req *connect.Request[pluxv1.RunGitExportRequest]) (*connect.Response[pluxv1.RunGitExportResponse], error) {
+func (c *gitExportServiceClient) RunExport(ctx context.Context, req *connect.Request[pluxv1.RunExportRequest]) (*connect.Response[pluxv1.RunExportResponse], error) {
 	return c.runExport.CallUnary(ctx, req)
 }
 
@@ -136,16 +136,16 @@ func (c *gitExportServiceClient) RunExport(ctx context.Context, req *connect.Req
 type GitExportServiceHandler interface {
 	// GetSettings returns the app's export settings; PLX-8031 when none were
 	// configured.
-	GetSettings(context.Context, *connect.Request[pluxv1.GetGitSettingsRequest]) (*connect.Response[pluxv1.GetGitSettingsResponse], error)
+	GetSettings(context.Context, *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error)
 	// ConfigureExport sets the export of an app. The remote must be an HTTPS
 	// address without credentials in it; one that names a reserved address
 	// is PLX-8503. Audited.
-	ConfigureExport(context.Context, *connect.Request[pluxv1.ConfigureGitExportRequest]) (*connect.Response[pluxv1.ConfigureGitExportResponse], error)
+	ConfigureExport(context.Context, *connect.Request[pluxv1.ConfigureExportRequest]) (*connect.Response[pluxv1.ConfigureExportResponse], error)
 	// ListExports lists the newest exports of an app with their state.
-	ListExports(context.Context, *connect.Request[pluxv1.ListGitExportsRequest]) (*connect.Response[pluxv1.ListGitExportsResponse], error)
+	ListExports(context.Context, *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error)
 	// RunExport queues the export of the app's newest published version, or
 	// returns the finished one; a version is exported once.
-	RunExport(context.Context, *connect.Request[pluxv1.RunGitExportRequest]) (*connect.Response[pluxv1.RunGitExportResponse], error)
+	RunExport(context.Context, *connect.Request[pluxv1.RunExportRequest]) (*connect.Response[pluxv1.RunExportResponse], error)
 }
 
 // NewGitExportServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -198,18 +198,18 @@ func NewGitExportServiceHandler(svc GitExportServiceHandler, opts ...connect.Han
 // UnimplementedGitExportServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedGitExportServiceHandler struct{}
 
-func (UnimplementedGitExportServiceHandler) GetSettings(context.Context, *connect.Request[pluxv1.GetGitSettingsRequest]) (*connect.Response[pluxv1.GetGitSettingsResponse], error) {
+func (UnimplementedGitExportServiceHandler) GetSettings(context.Context, *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GitExportService.GetSettings is not implemented"))
 }
 
-func (UnimplementedGitExportServiceHandler) ConfigureExport(context.Context, *connect.Request[pluxv1.ConfigureGitExportRequest]) (*connect.Response[pluxv1.ConfigureGitExportResponse], error) {
+func (UnimplementedGitExportServiceHandler) ConfigureExport(context.Context, *connect.Request[pluxv1.ConfigureExportRequest]) (*connect.Response[pluxv1.ConfigureExportResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GitExportService.ConfigureExport is not implemented"))
 }
 
-func (UnimplementedGitExportServiceHandler) ListExports(context.Context, *connect.Request[pluxv1.ListGitExportsRequest]) (*connect.Response[pluxv1.ListGitExportsResponse], error) {
+func (UnimplementedGitExportServiceHandler) ListExports(context.Context, *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GitExportService.ListExports is not implemented"))
 }
 
-func (UnimplementedGitExportServiceHandler) RunExport(context.Context, *connect.Request[pluxv1.RunGitExportRequest]) (*connect.Response[pluxv1.RunGitExportResponse], error) {
+func (UnimplementedGitExportServiceHandler) RunExport(context.Context, *connect.Request[pluxv1.RunExportRequest]) (*connect.Response[pluxv1.RunExportResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GitExportService.RunExport is not implemented"))
 }

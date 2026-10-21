@@ -87,14 +87,14 @@ func (f fakeControls) GetComplianceReport(_ context.Context, r *connect.Request[
 	return connect.NewResponse(&pluxv1.GetComplianceReportResponse{Report: info, Content: f.content}), nil
 }
 
-func (f fakeControls) SetKillSwitch(_ context.Context, r *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+func (f fakeControls) SetKillSwitch(_ context.Context, r *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.SetKillSwitchResponse], error) {
 	f.record("kill " + r.Msg.GetKillSwitch().GetTarget() + " bg=" + yesNo(r.Msg.GetBreakGlass()) + " " + r.Msg.GetJustification())
-	return connect.NewResponse(&pluxv1.ControlDocumentResponse{Document: &pluxv1.ControlDocument{}}), nil
+	return connect.NewResponse(&pluxv1.SetKillSwitchResponse{Document: &pluxv1.ControlDocument{}}), nil
 }
 
-func (f fakeControls) ClearForcedRollback(_ context.Context, r *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+func (f fakeControls) ClearForcedRollback(_ context.Context, r *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ClearForcedRollbackResponse], error) {
 	f.record("unforce bg=" + yesNo(r.Msg.GetBreakGlass()) + " " + r.Msg.GetJustification())
-	return connect.NewResponse(&pluxv1.ControlDocumentResponse{Document: &pluxv1.ControlDocument{}}), nil
+	return connect.NewResponse(&pluxv1.ClearForcedRollbackResponse{Document: &pluxv1.ControlDocument{}}), nil
 }
 
 // signedReport returns the JSON of a DSSE envelope over a small report and

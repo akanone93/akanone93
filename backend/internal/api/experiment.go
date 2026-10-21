@@ -78,8 +78,8 @@ func flagRefOf(app, env, key string) experiment.FlagRef {
 }
 
 // CreateFlag makes a flag (ABT-006).
-func (s Flags) CreateFlag(ctx context.Context, req *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.FlagResponse, error) {
+func (s Flags) CreateFlag(ctx context.Context, req *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.CreateFlagResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.CreateFlagResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -93,13 +93,13 @@ func (s Flags) CreateFlag(ctx context.Context, req *connect.Request[pluxv1.Creat
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.FlagResponse{Flag: flagProto(f)}, nil
+		return &pluxv1.CreateFlagResponse{Flag: flagProto(f)}, nil
 	})
 }
 
 // UpdateFlag replaces a flag's content; its type cannot change.
-func (s Flags) UpdateFlag(ctx context.Context, req *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.FlagResponse, error) {
+func (s Flags) UpdateFlag(ctx context.Context, req *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.UpdateFlagResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.UpdateFlagResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -109,7 +109,7 @@ func (s Flags) UpdateFlag(ctx context.Context, req *connect.Request[pluxv1.Updat
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.FlagResponse{Flag: flagProto(f)}, nil
+		return &pluxv1.UpdateFlagResponse{Flag: flagProto(f)}, nil
 	})
 }
 
@@ -129,8 +129,8 @@ func (s Flags) DeleteFlag(ctx context.Context, req *connect.Request[pluxv1.Delet
 }
 
 // GetFlag returns one flag.
-func (s Flags) GetFlag(ctx context.Context, req *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
-	return read(ctx, func(ctx context.Context) (*pluxv1.FlagResponse, error) {
+func (s Flags) GetFlag(ctx context.Context, req *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.GetFlagResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetFlagResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -140,7 +140,7 @@ func (s Flags) GetFlag(ctx context.Context, req *connect.Request[pluxv1.GetFlagR
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.FlagResponse{Flag: flagProto(f)}, nil
+		return &pluxv1.GetFlagResponse{Flag: flagProto(f)}, nil
 	})
 }
 

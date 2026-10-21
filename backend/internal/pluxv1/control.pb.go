@@ -792,27 +792,27 @@ func (x *GetControlDocumentResponse) GetDocument() *ControlDocument {
 	return nil
 }
 
-type ControlDocumentResponse struct {
+type SetKillSwitchResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ControlDocumentResponse) Reset() {
-	*x = ControlDocumentResponse{}
+func (x *SetKillSwitchResponse) Reset() {
+	*x = SetKillSwitchResponse{}
 	mi := &file_plux_v1_control_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ControlDocumentResponse) String() string {
+func (x *SetKillSwitchResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ControlDocumentResponse) ProtoMessage() {}
+func (*SetKillSwitchResponse) ProtoMessage() {}
 
-func (x *ControlDocumentResponse) ProtoReflect() protoreflect.Message {
+func (x *SetKillSwitchResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_control_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -824,12 +824,232 @@ func (x *ControlDocumentResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ControlDocumentResponse.ProtoReflect.Descriptor instead.
-func (*ControlDocumentResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use SetKillSwitchResponse.ProtoReflect.Descriptor instead.
+func (*SetKillSwitchResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_control_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *ControlDocumentResponse) GetDocument() *ControlDocument {
+func (x *SetKillSwitchResponse) GetDocument() *ControlDocument {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type ClearKillSwitchResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearKillSwitchResponse) Reset() {
+	*x = ClearKillSwitchResponse{}
+	mi := &file_plux_v1_control_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearKillSwitchResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearKillSwitchResponse) ProtoMessage() {}
+
+func (x *ClearKillSwitchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearKillSwitchResponse.ProtoReflect.Descriptor instead.
+func (*ClearKillSwitchResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ClearKillSwitchResponse) GetDocument() *ControlDocument {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type SetMandatoryUpdateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetMandatoryUpdateResponse) Reset() {
+	*x = SetMandatoryUpdateResponse{}
+	mi := &file_plux_v1_control_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetMandatoryUpdateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetMandatoryUpdateResponse) ProtoMessage() {}
+
+func (x *SetMandatoryUpdateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetMandatoryUpdateResponse.ProtoReflect.Descriptor instead.
+func (*SetMandatoryUpdateResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *SetMandatoryUpdateResponse) GetDocument() *ControlDocument {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type ClearMandatoryUpdateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearMandatoryUpdateResponse) Reset() {
+	*x = ClearMandatoryUpdateResponse{}
+	mi := &file_plux_v1_control_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearMandatoryUpdateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearMandatoryUpdateResponse) ProtoMessage() {}
+
+func (x *ClearMandatoryUpdateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearMandatoryUpdateResponse.ProtoReflect.Descriptor instead.
+func (*ClearMandatoryUpdateResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ClearMandatoryUpdateResponse) GetDocument() *ControlDocument {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type SetForcedRollbackResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetForcedRollbackResponse) Reset() {
+	*x = SetForcedRollbackResponse{}
+	mi := &file_plux_v1_control_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetForcedRollbackResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetForcedRollbackResponse) ProtoMessage() {}
+
+func (x *SetForcedRollbackResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetForcedRollbackResponse.ProtoReflect.Descriptor instead.
+func (*SetForcedRollbackResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *SetForcedRollbackResponse) GetDocument() *ControlDocument {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type ClearForcedRollbackResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearForcedRollbackResponse) Reset() {
+	*x = ClearForcedRollbackResponse{}
+	mi := &file_plux_v1_control_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearForcedRollbackResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearForcedRollbackResponse) ProtoMessage() {}
+
+func (x *ClearForcedRollbackResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearForcedRollbackResponse.ProtoReflect.Descriptor instead.
+func (*ClearForcedRollbackResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ClearForcedRollbackResponse) GetDocument() *ControlDocument {
 	if x != nil {
 		return x.Document
 	}
@@ -854,7 +1074,7 @@ type SetKillSwitchRequest struct {
 
 func (x *SetKillSwitchRequest) Reset() {
 	*x = SetKillSwitchRequest{}
-	mi := &file_plux_v1_control_proto_msgTypes[11]
+	mi := &file_plux_v1_control_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -866,7 +1086,7 @@ func (x *SetKillSwitchRequest) String() string {
 func (*SetKillSwitchRequest) ProtoMessage() {}
 
 func (x *SetKillSwitchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_control_proto_msgTypes[11]
+	mi := &file_plux_v1_control_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -879,7 +1099,7 @@ func (x *SetKillSwitchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetKillSwitchRequest.ProtoReflect.Descriptor instead.
 func (*SetKillSwitchRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_control_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *SetKillSwitchRequest) GetAppId() string {
@@ -940,7 +1160,7 @@ type ClearKillSwitchRequest struct {
 
 func (x *ClearKillSwitchRequest) Reset() {
 	*x = ClearKillSwitchRequest{}
-	mi := &file_plux_v1_control_proto_msgTypes[12]
+	mi := &file_plux_v1_control_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -952,7 +1172,7 @@ func (x *ClearKillSwitchRequest) String() string {
 func (*ClearKillSwitchRequest) ProtoMessage() {}
 
 func (x *ClearKillSwitchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_control_proto_msgTypes[12]
+	mi := &file_plux_v1_control_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -965,7 +1185,7 @@ func (x *ClearKillSwitchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearKillSwitchRequest.ProtoReflect.Descriptor instead.
 func (*ClearKillSwitchRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_control_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ClearKillSwitchRequest) GetAppId() string {
@@ -1023,7 +1243,7 @@ type SetMandatoryUpdateRequest struct {
 
 func (x *SetMandatoryUpdateRequest) Reset() {
 	*x = SetMandatoryUpdateRequest{}
-	mi := &file_plux_v1_control_proto_msgTypes[13]
+	mi := &file_plux_v1_control_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1035,7 +1255,7 @@ func (x *SetMandatoryUpdateRequest) String() string {
 func (*SetMandatoryUpdateRequest) ProtoMessage() {}
 
 func (x *SetMandatoryUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_control_proto_msgTypes[13]
+	mi := &file_plux_v1_control_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1048,7 +1268,7 @@ func (x *SetMandatoryUpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetMandatoryUpdateRequest.ProtoReflect.Descriptor instead.
 func (*SetMandatoryUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_control_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SetMandatoryUpdateRequest) GetAppId() string {
@@ -1097,7 +1317,7 @@ type ClearMandatoryUpdateRequest struct {
 
 func (x *ClearMandatoryUpdateRequest) Reset() {
 	*x = ClearMandatoryUpdateRequest{}
-	mi := &file_plux_v1_control_proto_msgTypes[14]
+	mi := &file_plux_v1_control_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1109,7 +1329,7 @@ func (x *ClearMandatoryUpdateRequest) String() string {
 func (*ClearMandatoryUpdateRequest) ProtoMessage() {}
 
 func (x *ClearMandatoryUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_control_proto_msgTypes[14]
+	mi := &file_plux_v1_control_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1122,7 +1342,7 @@ func (x *ClearMandatoryUpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearMandatoryUpdateRequest.ProtoReflect.Descriptor instead.
 func (*ClearMandatoryUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_control_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ClearMandatoryUpdateRequest) GetAppId() string {
@@ -1164,7 +1384,7 @@ type SetForcedRollbackRequest struct {
 
 func (x *SetForcedRollbackRequest) Reset() {
 	*x = SetForcedRollbackRequest{}
-	mi := &file_plux_v1_control_proto_msgTypes[15]
+	mi := &file_plux_v1_control_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1176,7 +1396,7 @@ func (x *SetForcedRollbackRequest) String() string {
 func (*SetForcedRollbackRequest) ProtoMessage() {}
 
 func (x *SetForcedRollbackRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_control_proto_msgTypes[15]
+	mi := &file_plux_v1_control_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1189,7 +1409,7 @@ func (x *SetForcedRollbackRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetForcedRollbackRequest.ProtoReflect.Descriptor instead.
 func (*SetForcedRollbackRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_control_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SetForcedRollbackRequest) GetAppId() string {
@@ -1249,7 +1469,7 @@ type ClearForcedRollbackRequest struct {
 
 func (x *ClearForcedRollbackRequest) Reset() {
 	*x = ClearForcedRollbackRequest{}
-	mi := &file_plux_v1_control_proto_msgTypes[16]
+	mi := &file_plux_v1_control_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1261,7 +1481,7 @@ func (x *ClearForcedRollbackRequest) String() string {
 func (*ClearForcedRollbackRequest) ProtoMessage() {}
 
 func (x *ClearForcedRollbackRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_control_proto_msgTypes[16]
+	mi := &file_plux_v1_control_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1274,7 +1494,7 @@ func (x *ClearForcedRollbackRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearForcedRollbackRequest.ProtoReflect.Descriptor instead.
 func (*ClearForcedRollbackRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_control_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ClearForcedRollbackRequest) GetAppId() string {
@@ -1381,8 +1601,18 @@ const file_plux_v1_control_proto_rawDesc = "" +
 	"\vchannel_key\x18\x03 \x01(\tR\n" +
 	"channelKey\"R\n" +
 	"\x1aGetControlDocumentResponse\x124\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"M\n" +
+	"\x15SetKillSwitchResponse\x124\n" +
 	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"O\n" +
-	"\x17ControlDocumentResponse\x124\n" +
+	"\x17ClearKillSwitchResponse\x124\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"R\n" +
+	"\x1aSetMandatoryUpdateResponse\x124\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"T\n" +
+	"\x1cClearMandatoryUpdateResponse\x124\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"Q\n" +
+	"\x19SetForcedRollbackResponse\x124\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"S\n" +
+	"\x1bClearForcedRollbackResponse\x124\n" +
 	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"\xf7\x01\n" +
 	"\x14SetKillSwitchRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
@@ -1440,19 +1670,19 @@ const file_plux_v1_control_proto_rawDesc = "" +
 	"\x16KILL_SWITCH_SCOPE_PAGE\x10\x02\x12\"\n" +
 	"\x1eKILL_SWITCH_SCOPE_ACTION_GRAPH\x10\x03\x12!\n" +
 	"\x1dKILL_SWITCH_SCOPE_DATA_SOURCE\x10\x04\x12\x1e\n" +
-	"\x1aKILL_SWITCH_SCOPE_FUNCTION\x10\x052\xab\x06\n" +
+	"\x1aKILL_SWITCH_SCOPE_FUNCTION\x10\x052\xb7\x06\n" +
 	"\x0eControlService\x12G\n" +
 	"\n" +
 	"GetControl\x12\x1a.plux.v1.GetControlRequest\x1a\x1b.plux.v1.GetControlResponse\"\x00\x12G\n" +
 	"\n" +
 	"SetControl\x12\x1a.plux.v1.SetControlRequest\x1a\x1b.plux.v1.SetControlResponse\"\x00\x12_\n" +
-	"\x12GetControlDocument\x12\".plux.v1.GetControlDocumentRequest\x1a#.plux.v1.GetControlDocumentResponse\"\x00\x12R\n" +
-	"\rSetKillSwitch\x12\x1d.plux.v1.SetKillSwitchRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12V\n" +
-	"\x0fClearKillSwitch\x12\x1f.plux.v1.ClearKillSwitchRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12\\\n" +
-	"\x12SetMandatoryUpdate\x12\".plux.v1.SetMandatoryUpdateRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12`\n" +
-	"\x14ClearMandatoryUpdate\x12$.plux.v1.ClearMandatoryUpdateRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12Z\n" +
-	"\x11SetForcedRollback\x12!.plux.v1.SetForcedRollbackRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12^\n" +
-	"\x13ClearForcedRollback\x12#.plux.v1.ClearForcedRollbackRequest\x1a .plux.v1.ControlDocumentResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\x12GetControlDocument\x12\".plux.v1.GetControlDocumentRequest\x1a#.plux.v1.GetControlDocumentResponse\"\x00\x12P\n" +
+	"\rSetKillSwitch\x12\x1d.plux.v1.SetKillSwitchRequest\x1a\x1e.plux.v1.SetKillSwitchResponse\"\x00\x12V\n" +
+	"\x0fClearKillSwitch\x12\x1f.plux.v1.ClearKillSwitchRequest\x1a .plux.v1.ClearKillSwitchResponse\"\x00\x12_\n" +
+	"\x12SetMandatoryUpdate\x12\".plux.v1.SetMandatoryUpdateRequest\x1a#.plux.v1.SetMandatoryUpdateResponse\"\x00\x12e\n" +
+	"\x14ClearMandatoryUpdate\x12$.plux.v1.ClearMandatoryUpdateRequest\x1a%.plux.v1.ClearMandatoryUpdateResponse\"\x00\x12\\\n" +
+	"\x11SetForcedRollback\x12!.plux.v1.SetForcedRollbackRequest\x1a\".plux.v1.SetForcedRollbackResponse\"\x00\x12b\n" +
+	"\x13ClearForcedRollback\x12#.plux.v1.ClearForcedRollbackRequest\x1a$.plux.v1.ClearForcedRollbackResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_control_proto_rawDescOnce sync.Once
@@ -1467,69 +1697,79 @@ func file_plux_v1_control_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_control_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_plux_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_plux_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_plux_v1_control_proto_goTypes = []any{
-	(KillSwitchScope)(0),                // 0: plux.v1.KillSwitchScope
-	(*Control)(nil),                     // 1: plux.v1.Control
-	(*GetControlRequest)(nil),           // 2: plux.v1.GetControlRequest
-	(*GetControlResponse)(nil),          // 3: plux.v1.GetControlResponse
-	(*SetControlRequest)(nil),           // 4: plux.v1.SetControlRequest
-	(*SetControlResponse)(nil),          // 5: plux.v1.SetControlResponse
-	(*KillSwitchEntry)(nil),             // 6: plux.v1.KillSwitchEntry
-	(*ControlRelease)(nil),              // 7: plux.v1.ControlRelease
-	(*ControlDocument)(nil),             // 8: plux.v1.ControlDocument
-	(*GetControlDocumentRequest)(nil),   // 9: plux.v1.GetControlDocumentRequest
-	(*GetControlDocumentResponse)(nil),  // 10: plux.v1.GetControlDocumentResponse
-	(*ControlDocumentResponse)(nil),     // 11: plux.v1.ControlDocumentResponse
-	(*SetKillSwitchRequest)(nil),        // 12: plux.v1.SetKillSwitchRequest
-	(*ClearKillSwitchRequest)(nil),      // 13: plux.v1.ClearKillSwitchRequest
-	(*SetMandatoryUpdateRequest)(nil),   // 14: plux.v1.SetMandatoryUpdateRequest
-	(*ClearMandatoryUpdateRequest)(nil), // 15: plux.v1.ClearMandatoryUpdateRequest
-	(*SetForcedRollbackRequest)(nil),    // 16: plux.v1.SetForcedRollbackRequest
-	(*ClearForcedRollbackRequest)(nil),  // 17: plux.v1.ClearForcedRollbackRequest
-	(*Actor)(nil),                       // 18: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),       // 19: google.protobuf.Timestamp
+	(KillSwitchScope)(0),                 // 0: plux.v1.KillSwitchScope
+	(*Control)(nil),                      // 1: plux.v1.Control
+	(*GetControlRequest)(nil),            // 2: plux.v1.GetControlRequest
+	(*GetControlResponse)(nil),           // 3: plux.v1.GetControlResponse
+	(*SetControlRequest)(nil),            // 4: plux.v1.SetControlRequest
+	(*SetControlResponse)(nil),           // 5: plux.v1.SetControlResponse
+	(*KillSwitchEntry)(nil),              // 6: plux.v1.KillSwitchEntry
+	(*ControlRelease)(nil),               // 7: plux.v1.ControlRelease
+	(*ControlDocument)(nil),              // 8: plux.v1.ControlDocument
+	(*GetControlDocumentRequest)(nil),    // 9: plux.v1.GetControlDocumentRequest
+	(*GetControlDocumentResponse)(nil),   // 10: plux.v1.GetControlDocumentResponse
+	(*SetKillSwitchResponse)(nil),        // 11: plux.v1.SetKillSwitchResponse
+	(*ClearKillSwitchResponse)(nil),      // 12: plux.v1.ClearKillSwitchResponse
+	(*SetMandatoryUpdateResponse)(nil),   // 13: plux.v1.SetMandatoryUpdateResponse
+	(*ClearMandatoryUpdateResponse)(nil), // 14: plux.v1.ClearMandatoryUpdateResponse
+	(*SetForcedRollbackResponse)(nil),    // 15: plux.v1.SetForcedRollbackResponse
+	(*ClearForcedRollbackResponse)(nil),  // 16: plux.v1.ClearForcedRollbackResponse
+	(*SetKillSwitchRequest)(nil),         // 17: plux.v1.SetKillSwitchRequest
+	(*ClearKillSwitchRequest)(nil),       // 18: plux.v1.ClearKillSwitchRequest
+	(*SetMandatoryUpdateRequest)(nil),    // 19: plux.v1.SetMandatoryUpdateRequest
+	(*ClearMandatoryUpdateRequest)(nil),  // 20: plux.v1.ClearMandatoryUpdateRequest
+	(*SetForcedRollbackRequest)(nil),     // 21: plux.v1.SetForcedRollbackRequest
+	(*ClearForcedRollbackRequest)(nil),   // 22: plux.v1.ClearForcedRollbackRequest
+	(*Actor)(nil),                        // 23: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),        // 24: google.protobuf.Timestamp
 }
 var file_plux_v1_control_proto_depIdxs = []int32{
-	18, // 0: plux.v1.Control.updated_by:type_name -> plux.v1.Actor
-	19, // 1: plux.v1.Control.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 0: plux.v1.Control.updated_by:type_name -> plux.v1.Actor
+	24, // 1: plux.v1.Control.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 2: plux.v1.GetControlResponse.control:type_name -> plux.v1.Control
 	1,  // 3: plux.v1.SetControlResponse.control:type_name -> plux.v1.Control
 	0,  // 4: plux.v1.KillSwitchEntry.scope:type_name -> plux.v1.KillSwitchScope
 	6,  // 5: plux.v1.ControlDocument.kill_switches:type_name -> plux.v1.KillSwitchEntry
 	7,  // 6: plux.v1.ControlDocument.mandatory_update:type_name -> plux.v1.ControlRelease
 	7,  // 7: plux.v1.ControlDocument.forced_rollback:type_name -> plux.v1.ControlRelease
-	18, // 8: plux.v1.ControlDocument.updated_by:type_name -> plux.v1.Actor
-	19, // 9: plux.v1.ControlDocument.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 10: plux.v1.ControlDocument.issued_at:type_name -> google.protobuf.Timestamp
-	19, // 11: plux.v1.ControlDocument.expires_at:type_name -> google.protobuf.Timestamp
+	23, // 8: plux.v1.ControlDocument.updated_by:type_name -> plux.v1.Actor
+	24, // 9: plux.v1.ControlDocument.updated_at:type_name -> google.protobuf.Timestamp
+	24, // 10: plux.v1.ControlDocument.issued_at:type_name -> google.protobuf.Timestamp
+	24, // 11: plux.v1.ControlDocument.expires_at:type_name -> google.protobuf.Timestamp
 	8,  // 12: plux.v1.GetControlDocumentResponse.document:type_name -> plux.v1.ControlDocument
-	8,  // 13: plux.v1.ControlDocumentResponse.document:type_name -> plux.v1.ControlDocument
-	6,  // 14: plux.v1.SetKillSwitchRequest.kill_switch:type_name -> plux.v1.KillSwitchEntry
-	6,  // 15: plux.v1.ClearKillSwitchRequest.kill_switch:type_name -> plux.v1.KillSwitchEntry
-	2,  // 16: plux.v1.ControlService.GetControl:input_type -> plux.v1.GetControlRequest
-	4,  // 17: plux.v1.ControlService.SetControl:input_type -> plux.v1.SetControlRequest
-	9,  // 18: plux.v1.ControlService.GetControlDocument:input_type -> plux.v1.GetControlDocumentRequest
-	12, // 19: plux.v1.ControlService.SetKillSwitch:input_type -> plux.v1.SetKillSwitchRequest
-	13, // 20: plux.v1.ControlService.ClearKillSwitch:input_type -> plux.v1.ClearKillSwitchRequest
-	14, // 21: plux.v1.ControlService.SetMandatoryUpdate:input_type -> plux.v1.SetMandatoryUpdateRequest
-	15, // 22: plux.v1.ControlService.ClearMandatoryUpdate:input_type -> plux.v1.ClearMandatoryUpdateRequest
-	16, // 23: plux.v1.ControlService.SetForcedRollback:input_type -> plux.v1.SetForcedRollbackRequest
-	17, // 24: plux.v1.ControlService.ClearForcedRollback:input_type -> plux.v1.ClearForcedRollbackRequest
-	3,  // 25: plux.v1.ControlService.GetControl:output_type -> plux.v1.GetControlResponse
-	5,  // 26: plux.v1.ControlService.SetControl:output_type -> plux.v1.SetControlResponse
-	10, // 27: plux.v1.ControlService.GetControlDocument:output_type -> plux.v1.GetControlDocumentResponse
-	11, // 28: plux.v1.ControlService.SetKillSwitch:output_type -> plux.v1.ControlDocumentResponse
-	11, // 29: plux.v1.ControlService.ClearKillSwitch:output_type -> plux.v1.ControlDocumentResponse
-	11, // 30: plux.v1.ControlService.SetMandatoryUpdate:output_type -> plux.v1.ControlDocumentResponse
-	11, // 31: plux.v1.ControlService.ClearMandatoryUpdate:output_type -> plux.v1.ControlDocumentResponse
-	11, // 32: plux.v1.ControlService.SetForcedRollback:output_type -> plux.v1.ControlDocumentResponse
-	11, // 33: plux.v1.ControlService.ClearForcedRollback:output_type -> plux.v1.ControlDocumentResponse
-	25, // [25:34] is the sub-list for method output_type
-	16, // [16:25] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	8,  // 13: plux.v1.SetKillSwitchResponse.document:type_name -> plux.v1.ControlDocument
+	8,  // 14: plux.v1.ClearKillSwitchResponse.document:type_name -> plux.v1.ControlDocument
+	8,  // 15: plux.v1.SetMandatoryUpdateResponse.document:type_name -> plux.v1.ControlDocument
+	8,  // 16: plux.v1.ClearMandatoryUpdateResponse.document:type_name -> plux.v1.ControlDocument
+	8,  // 17: plux.v1.SetForcedRollbackResponse.document:type_name -> plux.v1.ControlDocument
+	8,  // 18: plux.v1.ClearForcedRollbackResponse.document:type_name -> plux.v1.ControlDocument
+	6,  // 19: plux.v1.SetKillSwitchRequest.kill_switch:type_name -> plux.v1.KillSwitchEntry
+	6,  // 20: plux.v1.ClearKillSwitchRequest.kill_switch:type_name -> plux.v1.KillSwitchEntry
+	2,  // 21: plux.v1.ControlService.GetControl:input_type -> plux.v1.GetControlRequest
+	4,  // 22: plux.v1.ControlService.SetControl:input_type -> plux.v1.SetControlRequest
+	9,  // 23: plux.v1.ControlService.GetControlDocument:input_type -> plux.v1.GetControlDocumentRequest
+	17, // 24: plux.v1.ControlService.SetKillSwitch:input_type -> plux.v1.SetKillSwitchRequest
+	18, // 25: plux.v1.ControlService.ClearKillSwitch:input_type -> plux.v1.ClearKillSwitchRequest
+	19, // 26: plux.v1.ControlService.SetMandatoryUpdate:input_type -> plux.v1.SetMandatoryUpdateRequest
+	20, // 27: plux.v1.ControlService.ClearMandatoryUpdate:input_type -> plux.v1.ClearMandatoryUpdateRequest
+	21, // 28: plux.v1.ControlService.SetForcedRollback:input_type -> plux.v1.SetForcedRollbackRequest
+	22, // 29: plux.v1.ControlService.ClearForcedRollback:input_type -> plux.v1.ClearForcedRollbackRequest
+	3,  // 30: plux.v1.ControlService.GetControl:output_type -> plux.v1.GetControlResponse
+	5,  // 31: plux.v1.ControlService.SetControl:output_type -> plux.v1.SetControlResponse
+	10, // 32: plux.v1.ControlService.GetControlDocument:output_type -> plux.v1.GetControlDocumentResponse
+	11, // 33: plux.v1.ControlService.SetKillSwitch:output_type -> plux.v1.SetKillSwitchResponse
+	12, // 34: plux.v1.ControlService.ClearKillSwitch:output_type -> plux.v1.ClearKillSwitchResponse
+	13, // 35: plux.v1.ControlService.SetMandatoryUpdate:output_type -> plux.v1.SetMandatoryUpdateResponse
+	14, // 36: plux.v1.ControlService.ClearMandatoryUpdate:output_type -> plux.v1.ClearMandatoryUpdateResponse
+	15, // 37: plux.v1.ControlService.SetForcedRollback:output_type -> plux.v1.SetForcedRollbackResponse
+	16, // 38: plux.v1.ControlService.ClearForcedRollback:output_type -> plux.v1.ClearForcedRollbackResponse
+	30, // [30:39] is the sub-list for method output_type
+	21, // [21:30] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_control_proto_init() }
@@ -1544,7 +1784,7 @@ func file_plux_v1_control_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_control_proto_rawDesc), len(file_plux_v1_control_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   17,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

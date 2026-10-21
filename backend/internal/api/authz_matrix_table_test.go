@@ -404,16 +404,16 @@ var matrix = map[string]entry{
 
 	// GitExportService
 	"GitExportService/GetSettings": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
-		return &pluxv1.GetGitSettingsRequest{AppId: f.app}
+		return &pluxv1.GetSettingsRequest{AppId: f.app}
 	})),
 	"GitExportService/ConfigureExport": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
-		return &pluxv1.ConfigureGitExportRequest{Settings: &pluxv1.GitSettings{AppId: f.app, RemoteUrl: "not a url"}}
+		return &pluxv1.ConfigureExportRequest{Settings: &pluxv1.GitSettings{AppId: f.app, RemoteUrl: "not a url"}}
 	})),
 	"GitExportService/ListExports": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
-		return &pluxv1.ListGitExportsRequest{AppId: f.app}
+		return &pluxv1.ListExportsRequest{AppId: f.app}
 	})),
 	"GitExportService/RunExport": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
-		return &pluxv1.RunGitExportRequest{AppId: f.app}
+		return &pluxv1.RunExportRequest{AppId: f.app}
 	})),
 
 	// FederationService (GOV-004): the sign-in page's calls carry no
@@ -678,7 +678,7 @@ var matrix = map[string]entry{
 	"WebhookService/ListWebhooks":                   atPerm(auth.WebhooksManage, anyone(&pluxv1.ListWebhooksRequest{})),
 	"WebhookService/DeleteWebhook":                  atPerm(auth.WebhooksManage, anyone(&pluxv1.DeleteWebhookRequest{Id: unknownID})),
 	"WebhookService/RotateWebhookSecret":            atPerm(auth.WebhooksManage, anyone(&pluxv1.RotateWebhookSecretRequest{Id: unknownID})),
-	"WebhookService/ListWebhookDeliveries":          atPerm(auth.WebhooksManage, anyone(&pluxv1.ListDeliveriesRequest{})),
+	"WebhookService/ListWebhookDeliveries":          atPerm(auth.WebhooksManage, anyone(&pluxv1.ListWebhookDeliveriesRequest{})),
 
 	// FunctionTriggerService (FN-025)
 	"FunctionTriggerService/CreateTrigger": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {

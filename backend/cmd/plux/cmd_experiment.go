@@ -177,11 +177,14 @@ func experimentCall(ctx context.Context, client pluxv1connect.ExperimentServiceC
 }
 
 // experimentOutcome renders an experiment or the error that came instead.
-func experimentOutcome(res *connect.Response[pluxv1.ExperimentResponse], err error) (any, string, error) {
+func experimentOutcome[T any, P interface {
+	*T
+	GetExperiment() *pluxv1.Experiment
+}](res *connect.Response[T], err error) (any, string, error) {
 	if err != nil {
 		return nil, "", err //nolint:wrapcheck // reported as is
 	}
-	e := res.Msg.GetExperiment()
+	e := P(res.Msg).GetExperiment()
 	return experimentView(e), experimentText(e), nil
 }
 
@@ -246,21 +249,21 @@ func experimentHoldout(ctx context.Context, client pluxv1connect.ExperimentServi
 	if t.env == "" {
 		return nil, "", usageError("--env names the environment")
 	}
-	var res *pluxv1.HoldoutResponse
+	var percent float64
 	if f.percentSet {
 		r, err := client.SetHoldout(ctx, connect.NewRequest(&pluxv1.SetHoldoutRequest{AppId: t.app, EnvironmentId: t.env, Percent: f.percent}))
 		if err != nil {
 			return nil, "", err //nolint:wrapcheck // reported as is
 		}
-		res = r.Msg
+		percent = r.Msg.GetPercent()
 	} else {
 		r, err := client.GetHoldout(ctx, connect.NewRequest(&pluxv1.GetHoldoutRequest{AppId: t.app, EnvironmentId: t.env}))
 		if err != nil {
 			return nil, "", err //nolint:wrapcheck // reported as is
 		}
-		res = r.Msg
+		percent = r.Msg.GetPercent()
 	}
-	return map[string]any{"percent": res.GetPercent()}, fmt.Sprintf("holdout %g%%", res.GetPercent()), nil
+	return map[string]any{"percent": percent}, fmt.Sprintf("holdout %g%%", percent), nil
 }
 
 func experimentPromote(ctx context.Context, client pluxv1connect.ExperimentServiceClient, t experimentTarget, f experimentFlags, id, variant string) (any, string, error) {

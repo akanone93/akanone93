@@ -18,15 +18,15 @@ service FlagService {
   // CreateFlag makes a flag. PLX-1701 for an unknown type, PLX-1702-style
   // value errors as PLX-1003 or PLX-1008, PLX-1102 for an unknown segment,
   // PLX-1101 when the key exists and PLX-1320 past flags.perApp.
-  rpc CreateFlag(CreateFlagRequest) returns (FlagResponse) {}
+  rpc CreateFlag(CreateFlagRequest) returns (CreateFlagResponse) {}
   // UpdateFlag replaces a flag's description, schema, default and segment
   // values. Changing the type is refused with PLX-8203.
-  rpc UpdateFlag(UpdateFlagRequest) returns (FlagResponse) {}
+  rpc UpdateFlag(UpdateFlagRequest) returns (UpdateFlagResponse) {}
   // DeleteFlag removes a flag; devices fall back to the default compiled into
   // the app.
   rpc DeleteFlag(DeleteFlagRequest) returns (DeleteFlagResponse) {}
   // GetFlag returns one flag.
-  rpc GetFlag(GetFlagRequest) returns (FlagResponse) {}
+  rpc GetFlag(GetFlagRequest) returns (GetFlagResponse) {}
   // ListFlags lists an environment's flags by key.
   rpc ListFlags(ListFlagsRequest) returns (ListFlagsResponse) {}
 }
@@ -36,9 +36,9 @@ service FlagService {
 // analytics.read and the rest app.read.
 service ExperimentService {
   // CreateExperiment registers a draft from an experiment document.
-  rpc CreateExperiment(CreateExperimentRequest) returns (ExperimentResponse) {}
+  rpc CreateExperiment(CreateExperimentRequest) returns (CreateExperimentResponse) {}
   // GetExperiment returns one experiment.
-  rpc GetExperiment(GetExperimentRequest) returns (ExperimentResponse) {}
+  rpc GetExperiment(GetExperimentRequest) returns (GetExperimentResponse) {}
   // ListExperiments lists an app's experiments.
   rpc ListExperiments(ListExperimentsRequest) returns (ListExperimentsResponse) {}
   // DeleteExperiment discards a draft.
@@ -46,14 +46,14 @@ service ExperimentService {
   // StartExperiment writes the allocation into the environment's control
   // documents. PLX-8200 when its layer has no free range, PLX-1320 past
   // experiments.activePerApp, PLX-8001 when approval is required.
-  rpc StartExperiment(StartExperimentRequest) returns (ExperimentResponse) {}
+  rpc StartExperiment(StartExperimentRequest) returns (StartExperimentResponse) {}
   // StopExperiment takes a running experiment out of the control documents.
-  rpc StopExperiment(StopExperimentRequest) returns (ExperimentResponse) {}
+  rpc StopExperiment(StopExperimentRequest) returns (StopExperimentResponse) {}
   // SetHoldout sets the share of subjects kept out of every experiment of an
   // environment; zero removes it.
-  rpc SetHoldout(SetHoldoutRequest) returns (HoldoutResponse) {}
+  rpc SetHoldout(SetHoldoutRequest) returns (SetHoldoutResponse) {}
   // GetHoldout returns the environment's holdout.
-  rpc GetHoldout(GetHoldoutRequest) returns (HoldoutResponse) {}
+  rpc GetHoldout(GetHoldoutRequest) returns (GetHoldoutResponse) {}
   // GetResults analyses an experiment with sequential inference valid at any
   // time. PLX-8201 until every variant has the minimum sample size; a sample
   // ratio mismatch (PLX-8202) is reported in the result.
@@ -121,7 +121,13 @@ message UpdateFlagRequest {
   string key = 3;
   FlagSpec spec = 4;
 }
-message FlagResponse {
+message CreateFlagResponse {
+  Flag flag = 1;
+}
+message UpdateFlagResponse {
+  Flag flag = 1;
+}
+message GetFlagResponse {
   Flag flag = 1;
 }
 message DeleteFlagRequest {
@@ -182,7 +188,16 @@ message CreateExperimentRequest {
   // document is the experiment document (experiments/<key>.experiment.json).
   bytes document = 3;
 }
-message ExperimentResponse {
+message CreateExperimentResponse {
+  Experiment experiment = 1;
+}
+message GetExperimentResponse {
+  Experiment experiment = 1;
+}
+message StartExperimentResponse {
+  Experiment experiment = 1;
+}
+message StopExperimentResponse {
   Experiment experiment = 1;
 }
 message GetExperimentRequest {
@@ -222,7 +237,12 @@ message GetHoldoutRequest {
   string app_id = 1;
   string environment_id = 2;
 }
-message HoldoutResponse {
+message SetHoldoutResponse {
+  string app_id = 1;
+  string environment_id = 2;
+  double percent = 3;
+}
+message GetHoldoutResponse {
   string app_id = 1;
   string environment_id = 2;
   double percent = 3;

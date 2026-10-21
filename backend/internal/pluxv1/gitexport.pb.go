@@ -129,27 +129,27 @@ func (x *GitSettings) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-type GetGitSettingsRequest struct {
+type GetSettingsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetGitSettingsRequest) Reset() {
-	*x = GetGitSettingsRequest{}
+func (x *GetSettingsRequest) Reset() {
+	*x = GetSettingsRequest{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetGitSettingsRequest) String() string {
+func (x *GetSettingsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetGitSettingsRequest) ProtoMessage() {}
+func (*GetSettingsRequest) ProtoMessage() {}
 
-func (x *GetGitSettingsRequest) ProtoReflect() protoreflect.Message {
+func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -161,39 +161,39 @@ func (x *GetGitSettingsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetGitSettingsRequest.ProtoReflect.Descriptor instead.
-func (*GetGitSettingsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetSettingsRequest.ProtoReflect.Descriptor instead.
+func (*GetSettingsRequest) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetGitSettingsRequest) GetAppId() string {
+func (x *GetSettingsRequest) GetAppId() string {
 	if x != nil {
 		return x.AppId
 	}
 	return ""
 }
 
-type GetGitSettingsResponse struct {
+type GetSettingsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Settings      *GitSettings           `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetGitSettingsResponse) Reset() {
-	*x = GetGitSettingsResponse{}
+func (x *GetSettingsResponse) Reset() {
+	*x = GetSettingsResponse{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetGitSettingsResponse) String() string {
+func (x *GetSettingsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetGitSettingsResponse) ProtoMessage() {}
+func (*GetSettingsResponse) ProtoMessage() {}
 
-func (x *GetGitSettingsResponse) ProtoReflect() protoreflect.Message {
+func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -205,39 +205,39 @@ func (x *GetGitSettingsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetGitSettingsResponse.ProtoReflect.Descriptor instead.
-func (*GetGitSettingsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetSettingsResponse.ProtoReflect.Descriptor instead.
+func (*GetSettingsResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetGitSettingsResponse) GetSettings() *GitSettings {
+func (x *GetSettingsResponse) GetSettings() *GitSettings {
 	if x != nil {
 		return x.Settings
 	}
 	return nil
 }
 
-type ConfigureGitExportRequest struct {
+type ConfigureExportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Settings      *GitSettings           `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ConfigureGitExportRequest) Reset() {
-	*x = ConfigureGitExportRequest{}
+func (x *ConfigureExportRequest) Reset() {
+	*x = ConfigureExportRequest{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ConfigureGitExportRequest) String() string {
+func (x *ConfigureExportRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ConfigureGitExportRequest) ProtoMessage() {}
+func (*ConfigureExportRequest) ProtoMessage() {}
 
-func (x *ConfigureGitExportRequest) ProtoReflect() protoreflect.Message {
+func (x *ConfigureExportRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -249,39 +249,39 @@ func (x *ConfigureGitExportRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ConfigureGitExportRequest.ProtoReflect.Descriptor instead.
-func (*ConfigureGitExportRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ConfigureExportRequest.ProtoReflect.Descriptor instead.
+func (*ConfigureExportRequest) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ConfigureGitExportRequest) GetSettings() *GitSettings {
+func (x *ConfigureExportRequest) GetSettings() *GitSettings {
 	if x != nil {
 		return x.Settings
 	}
 	return nil
 }
 
-type ConfigureGitExportResponse struct {
+type ConfigureExportResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Settings      *GitSettings           `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ConfigureGitExportResponse) Reset() {
-	*x = ConfigureGitExportResponse{}
+func (x *ConfigureExportResponse) Reset() {
+	*x = ConfigureExportResponse{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ConfigureGitExportResponse) String() string {
+func (x *ConfigureExportResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ConfigureGitExportResponse) ProtoMessage() {}
+func (*ConfigureExportResponse) ProtoMessage() {}
 
-func (x *ConfigureGitExportResponse) ProtoReflect() protoreflect.Message {
+func (x *ConfigureExportResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -293,12 +293,12 @@ func (x *ConfigureGitExportResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ConfigureGitExportResponse.ProtoReflect.Descriptor instead.
-func (*ConfigureGitExportResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ConfigureExportResponse.ProtoReflect.Descriptor instead.
+func (*ConfigureExportResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ConfigureGitExportResponse) GetSettings() *GitSettings {
+func (x *ConfigureExportResponse) GetSettings() *GitSettings {
 	if x != nil {
 		return x.Settings
 	}
@@ -418,27 +418,27 @@ func (x *GitExport) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-type ListGitExportsRequest struct {
+type ListExportsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGitExportsRequest) Reset() {
-	*x = ListGitExportsRequest{}
+func (x *ListExportsRequest) Reset() {
+	*x = ListExportsRequest{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGitExportsRequest) String() string {
+func (x *ListExportsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGitExportsRequest) ProtoMessage() {}
+func (*ListExportsRequest) ProtoMessage() {}
 
-func (x *ListGitExportsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListExportsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -450,39 +450,39 @@ func (x *ListGitExportsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGitExportsRequest.ProtoReflect.Descriptor instead.
-func (*ListGitExportsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListExportsRequest.ProtoReflect.Descriptor instead.
+func (*ListExportsRequest) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListGitExportsRequest) GetAppId() string {
+func (x *ListExportsRequest) GetAppId() string {
 	if x != nil {
 		return x.AppId
 	}
 	return ""
 }
 
-type ListGitExportsResponse struct {
+type ListExportsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Exports       []*GitExport           `protobuf:"bytes,1,rep,name=exports,proto3" json:"exports,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGitExportsResponse) Reset() {
-	*x = ListGitExportsResponse{}
+func (x *ListExportsResponse) Reset() {
+	*x = ListExportsResponse{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGitExportsResponse) String() string {
+func (x *ListExportsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGitExportsResponse) ProtoMessage() {}
+func (*ListExportsResponse) ProtoMessage() {}
 
-func (x *ListGitExportsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListExportsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -494,39 +494,39 @@ func (x *ListGitExportsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGitExportsResponse.ProtoReflect.Descriptor instead.
-func (*ListGitExportsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListExportsResponse.ProtoReflect.Descriptor instead.
+func (*ListExportsResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ListGitExportsResponse) GetExports() []*GitExport {
+func (x *ListExportsResponse) GetExports() []*GitExport {
 	if x != nil {
 		return x.Exports
 	}
 	return nil
 }
 
-type RunGitExportRequest struct {
+type RunExportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RunGitExportRequest) Reset() {
-	*x = RunGitExportRequest{}
+func (x *RunExportRequest) Reset() {
+	*x = RunExportRequest{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RunGitExportRequest) String() string {
+func (x *RunExportRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RunGitExportRequest) ProtoMessage() {}
+func (*RunExportRequest) ProtoMessage() {}
 
-func (x *RunGitExportRequest) ProtoReflect() protoreflect.Message {
+func (x *RunExportRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -538,39 +538,39 @@ func (x *RunGitExportRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RunGitExportRequest.ProtoReflect.Descriptor instead.
-func (*RunGitExportRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RunExportRequest.ProtoReflect.Descriptor instead.
+func (*RunExportRequest) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *RunGitExportRequest) GetAppId() string {
+func (x *RunExportRequest) GetAppId() string {
 	if x != nil {
 		return x.AppId
 	}
 	return ""
 }
 
-type RunGitExportResponse struct {
+type RunExportResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Export        *GitExport             `protobuf:"bytes,1,opt,name=export,proto3" json:"export,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RunGitExportResponse) Reset() {
-	*x = RunGitExportResponse{}
+func (x *RunExportResponse) Reset() {
+	*x = RunExportResponse{}
 	mi := &file_plux_v1_gitexport_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RunGitExportResponse) String() string {
+func (x *RunExportResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RunGitExportResponse) ProtoMessage() {}
+func (*RunExportResponse) ProtoMessage() {}
 
-func (x *RunGitExportResponse) ProtoReflect() protoreflect.Message {
+func (x *RunExportResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_gitexport_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -582,12 +582,12 @@ func (x *RunGitExportResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RunGitExportResponse.ProtoReflect.Descriptor instead.
-func (*RunGitExportResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use RunExportResponse.ProtoReflect.Descriptor instead.
+func (*RunExportResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_gitexport_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *RunGitExportResponse) GetExport() *GitExport {
+func (x *RunExportResponse) GetExport() *GitExport {
 	if x != nil {
 		return x.Export
 	}
@@ -609,14 +609,14 @@ const file_plux_v1_gitexport_proto_rawDesc = "" +
 	"\x19credential_environment_id\x18\x06 \x01(\tR\x17credentialEnvironmentId\x12%\n" +
 	"\x0ecredential_key\x18\a \x01(\tR\rcredentialKey\x129\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\".\n" +
-	"\x15GetGitSettingsRequest\x12\x15\n" +
-	"\x06app_id\x18\x01 \x01(\tR\x05appId\"J\n" +
-	"\x16GetGitSettingsResponse\x120\n" +
-	"\bsettings\x18\x01 \x01(\v2\x14.plux.v1.GitSettingsR\bsettings\"M\n" +
-	"\x19ConfigureGitExportRequest\x120\n" +
-	"\bsettings\x18\x01 \x01(\v2\x14.plux.v1.GitSettingsR\bsettings\"N\n" +
-	"\x1aConfigureGitExportResponse\x120\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"+\n" +
+	"\x12GetSettingsRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"G\n" +
+	"\x13GetSettingsResponse\x120\n" +
+	"\bsettings\x18\x01 \x01(\v2\x14.plux.v1.GitSettingsR\bsettings\"J\n" +
+	"\x16ConfigureExportRequest\x120\n" +
+	"\bsettings\x18\x01 \x01(\v2\x14.plux.v1.GitSettingsR\bsettings\"K\n" +
+	"\x17ConfigureExportResponse\x120\n" +
 	"\bsettings\x18\x01 \x01(\v2\x14.plux.v1.GitSettingsR\bsettings\"\xb0\x02\n" +
 	"\tGitExport\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
@@ -631,20 +631,20 @@ const file_plux_v1_gitexport_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\".\n" +
-	"\x15ListGitExportsRequest\x12\x15\n" +
-	"\x06app_id\x18\x01 \x01(\tR\x05appId\"F\n" +
-	"\x16ListGitExportsResponse\x12,\n" +
-	"\aexports\x18\x01 \x03(\v2\x12.plux.v1.GitExportR\aexports\",\n" +
-	"\x13RunGitExportRequest\x12\x15\n" +
-	"\x06app_id\x18\x01 \x01(\tR\x05appId\"B\n" +
-	"\x14RunGitExportResponse\x12*\n" +
-	"\x06export\x18\x01 \x01(\v2\x12.plux.v1.GitExportR\x06export2\xe0\x02\n" +
-	"\x10GitExportService\x12P\n" +
-	"\vGetSettings\x12\x1e.plux.v1.GetGitSettingsRequest\x1a\x1f.plux.v1.GetGitSettingsResponse\"\x00\x12\\\n" +
-	"\x0fConfigureExport\x12\".plux.v1.ConfigureGitExportRequest\x1a#.plux.v1.ConfigureGitExportResponse\"\x00\x12P\n" +
-	"\vListExports\x12\x1e.plux.v1.ListGitExportsRequest\x1a\x1f.plux.v1.ListGitExportsResponse\"\x00\x12J\n" +
-	"\tRunExport\x12\x1c.plux.v1.RunGitExportRequest\x1a\x1d.plux.v1.RunGitExportResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"+\n" +
+	"\x12ListExportsRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"C\n" +
+	"\x13ListExportsResponse\x12,\n" +
+	"\aexports\x18\x01 \x03(\v2\x12.plux.v1.GitExportR\aexports\")\n" +
+	"\x10RunExportRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"?\n" +
+	"\x11RunExportResponse\x12*\n" +
+	"\x06export\x18\x01 \x01(\v2\x12.plux.v1.GitExportR\x06export2\xc8\x02\n" +
+	"\x10GitExportService\x12J\n" +
+	"\vGetSettings\x12\x1b.plux.v1.GetSettingsRequest\x1a\x1c.plux.v1.GetSettingsResponse\"\x00\x12V\n" +
+	"\x0fConfigureExport\x12\x1f.plux.v1.ConfigureExportRequest\x1a .plux.v1.ConfigureExportResponse\"\x00\x12J\n" +
+	"\vListExports\x12\x1b.plux.v1.ListExportsRequest\x1a\x1c.plux.v1.ListExportsResponse\"\x00\x12D\n" +
+	"\tRunExport\x12\x19.plux.v1.RunExportRequest\x1a\x1a.plux.v1.RunExportResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_gitexport_proto_rawDescOnce sync.Once
@@ -660,35 +660,35 @@ func file_plux_v1_gitexport_proto_rawDescGZIP() []byte {
 
 var file_plux_v1_gitexport_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_plux_v1_gitexport_proto_goTypes = []any{
-	(*GitSettings)(nil),                // 0: plux.v1.GitSettings
-	(*GetGitSettingsRequest)(nil),      // 1: plux.v1.GetGitSettingsRequest
-	(*GetGitSettingsResponse)(nil),     // 2: plux.v1.GetGitSettingsResponse
-	(*ConfigureGitExportRequest)(nil),  // 3: plux.v1.ConfigureGitExportRequest
-	(*ConfigureGitExportResponse)(nil), // 4: plux.v1.ConfigureGitExportResponse
-	(*GitExport)(nil),                  // 5: plux.v1.GitExport
-	(*ListGitExportsRequest)(nil),      // 6: plux.v1.ListGitExportsRequest
-	(*ListGitExportsResponse)(nil),     // 7: plux.v1.ListGitExportsResponse
-	(*RunGitExportRequest)(nil),        // 8: plux.v1.RunGitExportRequest
-	(*RunGitExportResponse)(nil),       // 9: plux.v1.RunGitExportResponse
-	(*timestamppb.Timestamp)(nil),      // 10: google.protobuf.Timestamp
+	(*GitSettings)(nil),             // 0: plux.v1.GitSettings
+	(*GetSettingsRequest)(nil),      // 1: plux.v1.GetSettingsRequest
+	(*GetSettingsResponse)(nil),     // 2: plux.v1.GetSettingsResponse
+	(*ConfigureExportRequest)(nil),  // 3: plux.v1.ConfigureExportRequest
+	(*ConfigureExportResponse)(nil), // 4: plux.v1.ConfigureExportResponse
+	(*GitExport)(nil),               // 5: plux.v1.GitExport
+	(*ListExportsRequest)(nil),      // 6: plux.v1.ListExportsRequest
+	(*ListExportsResponse)(nil),     // 7: plux.v1.ListExportsResponse
+	(*RunExportRequest)(nil),        // 8: plux.v1.RunExportRequest
+	(*RunExportResponse)(nil),       // 9: plux.v1.RunExportResponse
+	(*timestamppb.Timestamp)(nil),   // 10: google.protobuf.Timestamp
 }
 var file_plux_v1_gitexport_proto_depIdxs = []int32{
 	10, // 0: plux.v1.GitSettings.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 1: plux.v1.GetGitSettingsResponse.settings:type_name -> plux.v1.GitSettings
-	0,  // 2: plux.v1.ConfigureGitExportRequest.settings:type_name -> plux.v1.GitSettings
-	0,  // 3: plux.v1.ConfigureGitExportResponse.settings:type_name -> plux.v1.GitSettings
+	0,  // 1: plux.v1.GetSettingsResponse.settings:type_name -> plux.v1.GitSettings
+	0,  // 2: plux.v1.ConfigureExportRequest.settings:type_name -> plux.v1.GitSettings
+	0,  // 3: plux.v1.ConfigureExportResponse.settings:type_name -> plux.v1.GitSettings
 	10, // 4: plux.v1.GitExport.created_at:type_name -> google.protobuf.Timestamp
 	10, // 5: plux.v1.GitExport.updated_at:type_name -> google.protobuf.Timestamp
-	5,  // 6: plux.v1.ListGitExportsResponse.exports:type_name -> plux.v1.GitExport
-	5,  // 7: plux.v1.RunGitExportResponse.export:type_name -> plux.v1.GitExport
-	1,  // 8: plux.v1.GitExportService.GetSettings:input_type -> plux.v1.GetGitSettingsRequest
-	3,  // 9: plux.v1.GitExportService.ConfigureExport:input_type -> plux.v1.ConfigureGitExportRequest
-	6,  // 10: plux.v1.GitExportService.ListExports:input_type -> plux.v1.ListGitExportsRequest
-	8,  // 11: plux.v1.GitExportService.RunExport:input_type -> plux.v1.RunGitExportRequest
-	2,  // 12: plux.v1.GitExportService.GetSettings:output_type -> plux.v1.GetGitSettingsResponse
-	4,  // 13: plux.v1.GitExportService.ConfigureExport:output_type -> plux.v1.ConfigureGitExportResponse
-	7,  // 14: plux.v1.GitExportService.ListExports:output_type -> plux.v1.ListGitExportsResponse
-	9,  // 15: plux.v1.GitExportService.RunExport:output_type -> plux.v1.RunGitExportResponse
+	5,  // 6: plux.v1.ListExportsResponse.exports:type_name -> plux.v1.GitExport
+	5,  // 7: plux.v1.RunExportResponse.export:type_name -> plux.v1.GitExport
+	1,  // 8: plux.v1.GitExportService.GetSettings:input_type -> plux.v1.GetSettingsRequest
+	3,  // 9: plux.v1.GitExportService.ConfigureExport:input_type -> plux.v1.ConfigureExportRequest
+	6,  // 10: plux.v1.GitExportService.ListExports:input_type -> plux.v1.ListExportsRequest
+	8,  // 11: plux.v1.GitExportService.RunExport:input_type -> plux.v1.RunExportRequest
+	2,  // 12: plux.v1.GitExportService.GetSettings:output_type -> plux.v1.GetSettingsResponse
+	4,  // 13: plux.v1.GitExportService.ConfigureExport:output_type -> plux.v1.ConfigureExportResponse
+	7,  // 14: plux.v1.GitExportService.ListExports:output_type -> plux.v1.ListExportsResponse
+	9,  // 15: plux.v1.GitExportService.RunExport:output_type -> plux.v1.RunExportResponse
 	12, // [12:16] is the sub-list for method output_type
 	8,  // [8:12] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name

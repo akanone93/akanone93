@@ -51,35 +51,43 @@ func experimentProto(e experiment.Experiment) *pluxv1.Experiment {
 	}
 }
 
-func experimentResult(e experiment.Experiment, err error) (*pluxv1.ExperimentResponse, error) {
+func experimentResult(e experiment.Experiment, err error) (*pluxv1.Experiment, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &pluxv1.ExperimentResponse{Experiment: experimentProto(e)}, nil
+	return experimentProto(e), nil
 }
 
 // CreateExperiment registers a draft experiment.
-func (s ExperimentAdmin) CreateExperiment(ctx context.Context, req *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ExperimentResponse, error) {
+func (s ExperimentAdmin) CreateExperiment(ctx context.Context, req *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.CreateExperimentResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.CreateExperimentResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
 		}
 		m := req.Msg
-		return experimentResult(s.h.Experiments.CreateExperiment(ctx, p, experiment.CreateExperimentRequest{
+		e, err := experimentResult(s.h.Experiments.CreateExperiment(ctx, p, experiment.CreateExperimentRequest{
 			AppID: m.GetAppId(), EnvironmentID: m.GetEnvironmentId(), Document: m.GetDocument(),
 		}))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.CreateExperimentResponse{Experiment: e}, nil
 	})
 }
 
 // GetExperiment returns one experiment.
-func (s ExperimentAdmin) GetExperiment(ctx context.Context, req *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
-	return read(ctx, func(ctx context.Context) (*pluxv1.ExperimentResponse, error) {
+func (s ExperimentAdmin) GetExperiment(ctx context.Context, req *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.GetExperimentResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetExperimentResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
 		}
-		return experimentResult(s.h.Experiments.GetExperiment(ctx, p, req.Msg.GetId()))
+		e, err := experimentResult(s.h.Experiments.GetExperiment(ctx, p, req.Msg.GetId()))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.GetExperimentResponse{Experiment: e}, nil
 	})
 }
 
@@ -118,34 +126,38 @@ func (s ExperimentAdmin) DeleteExperiment(ctx context.Context, req *connect.Requ
 }
 
 // StartExperiment writes an experiment's allocation into the control documents.
-func (s ExperimentAdmin) StartExperiment(ctx context.Context, req *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ExperimentResponse, error) {
+func (s ExperimentAdmin) StartExperiment(ctx context.Context, req *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.StartExperimentResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.StartExperimentResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
 		}
-		return experimentResult(s.h.Experiments.StartExperiment(ctx, p, req.Msg.GetId(), experiment.StartOptions{LayerShare: req.Msg.GetLayerSharePercent()}))
+		e, err := experimentResult(s.h.Experiments.StartExperiment(ctx, p, req.Msg.GetId(), experiment.StartOptions{LayerShare: req.Msg.GetLayerSharePercent()}))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.StartExperimentResponse{Experiment: e}, nil
 	})
 }
 
 // StopExperiment takes an experiment out of the control documents.
-func (s ExperimentAdmin) StopExperiment(ctx context.Context, req *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ExperimentResponse, error) {
+func (s ExperimentAdmin) StopExperiment(ctx context.Context, req *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.StopExperimentResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.StopExperimentResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
 		}
-		return experimentResult(s.h.Experiments.StopExperiment(ctx, p, req.Msg.GetId()))
+		e, err := experimentResult(s.h.Experiments.StopExperiment(ctx, p, req.Msg.GetId()))
+		if err != nil {
+			return nil, err
+		}
+		return &pluxv1.StopExperimentResponse{Experiment: e}, nil
 	})
 }
 
-func holdoutProto(h experiment.Holdout) *pluxv1.HoldoutResponse {
-	return &pluxv1.HoldoutResponse{AppId: h.AppID, EnvironmentId: h.EnvironmentID, Percent: h.Percent}
-}
-
 // SetHoldout sets the share kept out of every experiment of an environment.
-func (s ExperimentAdmin) SetHoldout(ctx context.Context, req *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
-	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.HoldoutResponse, error) {
+func (s ExperimentAdmin) SetHoldout(ctx context.Context, req *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.SetHoldoutResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.SetHoldoutResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -155,13 +167,13 @@ func (s ExperimentAdmin) SetHoldout(ctx context.Context, req *connect.Request[pl
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return holdoutProto(h), nil
+		return &pluxv1.SetHoldoutResponse{AppId: h.AppID, EnvironmentId: h.EnvironmentID, Percent: h.Percent}, nil
 	})
 }
 
 // GetHoldout returns an environment's holdout.
-func (s ExperimentAdmin) GetHoldout(ctx context.Context, req *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
-	return read(ctx, func(ctx context.Context) (*pluxv1.HoldoutResponse, error) {
+func (s ExperimentAdmin) GetHoldout(ctx context.Context, req *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.GetHoldoutResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetHoldoutResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -170,7 +182,7 @@ func (s ExperimentAdmin) GetHoldout(ctx context.Context, req *connect.Request[pl
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return holdoutProto(h), nil
+		return &pluxv1.GetHoldoutResponse{AppId: h.AppID, EnvironmentId: h.EnvironmentID, Percent: h.Percent}, nil
 	})
 }
 

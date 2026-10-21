@@ -192,6 +192,14 @@ message ListDeliveriesRequest {
 message ListDeliveriesResponse {
   repeated Delivery deliveries = 1;
 }
+message ListWebhookDeliveriesRequest {
+  string target_id = 1;
+  string state = 2;
+  int32 limit = 3;
+}
+message ListWebhookDeliveriesResponse {
+  repeated Delivery deliveries = 1;
+}
 
 // WebhookService manages outbound webhooks (SRV-063, ADR-0081): HTTPS
 // endpoints that receive events as Standard Webhooks messages. A message that
@@ -207,7 +215,7 @@ service WebhookService {
   // signatures are sent, so a receiver can change over without a gap.
   rpc RotateWebhookSecret(RotateWebhookSecretRequest) returns (RotateWebhookSecretResponse) {}
   // ListWebhookDeliveries reads the delivery log of webhooks.
-  rpc ListWebhookDeliveries(ListDeliveriesRequest) returns (ListDeliveriesResponse) {}
+  rpc ListWebhookDeliveries(ListWebhookDeliveriesRequest) returns (ListWebhookDeliveriesResponse) {}
 }
 
 // OutboundWebhook is an endpoint that receives events.

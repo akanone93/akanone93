@@ -85,15 +85,15 @@ type FlagServiceClient interface {
 	// CreateFlag makes a flag. PLX-1701 for an unknown type, PLX-1702-style
 	// value errors as PLX-1003 or PLX-1008, PLX-1102 for an unknown segment,
 	// PLX-1101 when the key exists and PLX-1320 past flags.perApp.
-	CreateFlag(context.Context, *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error)
+	CreateFlag(context.Context, *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.CreateFlagResponse], error)
 	// UpdateFlag replaces a flag's description, schema, default and segment
 	// values. Changing the type is refused with PLX-8203.
-	UpdateFlag(context.Context, *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error)
+	UpdateFlag(context.Context, *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.UpdateFlagResponse], error)
 	// DeleteFlag removes a flag; devices fall back to the default compiled into
 	// the app.
 	DeleteFlag(context.Context, *connect.Request[pluxv1.DeleteFlagRequest]) (*connect.Response[pluxv1.DeleteFlagResponse], error)
 	// GetFlag returns one flag.
-	GetFlag(context.Context, *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error)
+	GetFlag(context.Context, *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.GetFlagResponse], error)
 	// ListFlags lists an environment's flags by key.
 	ListFlags(context.Context, *connect.Request[pluxv1.ListFlagsRequest]) (*connect.Response[pluxv1.ListFlagsResponse], error)
 }
@@ -109,13 +109,13 @@ func NewFlagServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 	baseURL = strings.TrimRight(baseURL, "/")
 	flagServiceMethods := pluxv1.File_plux_v1_experiment_proto.Services().ByName("FlagService").Methods()
 	return &flagServiceClient{
-		createFlag: connect.NewClient[pluxv1.CreateFlagRequest, pluxv1.FlagResponse](
+		createFlag: connect.NewClient[pluxv1.CreateFlagRequest, pluxv1.CreateFlagResponse](
 			httpClient,
 			baseURL+FlagServiceCreateFlagProcedure,
 			connect.WithSchema(flagServiceMethods.ByName("CreateFlag")),
 			connect.WithClientOptions(opts...),
 		),
-		updateFlag: connect.NewClient[pluxv1.UpdateFlagRequest, pluxv1.FlagResponse](
+		updateFlag: connect.NewClient[pluxv1.UpdateFlagRequest, pluxv1.UpdateFlagResponse](
 			httpClient,
 			baseURL+FlagServiceUpdateFlagProcedure,
 			connect.WithSchema(flagServiceMethods.ByName("UpdateFlag")),
@@ -127,7 +127,7 @@ func NewFlagServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(flagServiceMethods.ByName("DeleteFlag")),
 			connect.WithClientOptions(opts...),
 		),
-		getFlag: connect.NewClient[pluxv1.GetFlagRequest, pluxv1.FlagResponse](
+		getFlag: connect.NewClient[pluxv1.GetFlagRequest, pluxv1.GetFlagResponse](
 			httpClient,
 			baseURL+FlagServiceGetFlagProcedure,
 			connect.WithSchema(flagServiceMethods.ByName("GetFlag")),
@@ -144,20 +144,20 @@ func NewFlagServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // flagServiceClient implements FlagServiceClient.
 type flagServiceClient struct {
-	createFlag *connect.Client[pluxv1.CreateFlagRequest, pluxv1.FlagResponse]
-	updateFlag *connect.Client[pluxv1.UpdateFlagRequest, pluxv1.FlagResponse]
+	createFlag *connect.Client[pluxv1.CreateFlagRequest, pluxv1.CreateFlagResponse]
+	updateFlag *connect.Client[pluxv1.UpdateFlagRequest, pluxv1.UpdateFlagResponse]
 	deleteFlag *connect.Client[pluxv1.DeleteFlagRequest, pluxv1.DeleteFlagResponse]
-	getFlag    *connect.Client[pluxv1.GetFlagRequest, pluxv1.FlagResponse]
+	getFlag    *connect.Client[pluxv1.GetFlagRequest, pluxv1.GetFlagResponse]
 	listFlags  *connect.Client[pluxv1.ListFlagsRequest, pluxv1.ListFlagsResponse]
 }
 
 // CreateFlag calls plux.v1.FlagService.CreateFlag.
-func (c *flagServiceClient) CreateFlag(ctx context.Context, req *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (c *flagServiceClient) CreateFlag(ctx context.Context, req *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.CreateFlagResponse], error) {
 	return c.createFlag.CallUnary(ctx, req)
 }
 
 // UpdateFlag calls plux.v1.FlagService.UpdateFlag.
-func (c *flagServiceClient) UpdateFlag(ctx context.Context, req *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (c *flagServiceClient) UpdateFlag(ctx context.Context, req *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.UpdateFlagResponse], error) {
 	return c.updateFlag.CallUnary(ctx, req)
 }
 
@@ -167,7 +167,7 @@ func (c *flagServiceClient) DeleteFlag(ctx context.Context, req *connect.Request
 }
 
 // GetFlag calls plux.v1.FlagService.GetFlag.
-func (c *flagServiceClient) GetFlag(ctx context.Context, req *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (c *flagServiceClient) GetFlag(ctx context.Context, req *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.GetFlagResponse], error) {
 	return c.getFlag.CallUnary(ctx, req)
 }
 
@@ -181,15 +181,15 @@ type FlagServiceHandler interface {
 	// CreateFlag makes a flag. PLX-1701 for an unknown type, PLX-1702-style
 	// value errors as PLX-1003 or PLX-1008, PLX-1102 for an unknown segment,
 	// PLX-1101 when the key exists and PLX-1320 past flags.perApp.
-	CreateFlag(context.Context, *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error)
+	CreateFlag(context.Context, *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.CreateFlagResponse], error)
 	// UpdateFlag replaces a flag's description, schema, default and segment
 	// values. Changing the type is refused with PLX-8203.
-	UpdateFlag(context.Context, *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error)
+	UpdateFlag(context.Context, *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.UpdateFlagResponse], error)
 	// DeleteFlag removes a flag; devices fall back to the default compiled into
 	// the app.
 	DeleteFlag(context.Context, *connect.Request[pluxv1.DeleteFlagRequest]) (*connect.Response[pluxv1.DeleteFlagResponse], error)
 	// GetFlag returns one flag.
-	GetFlag(context.Context, *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error)
+	GetFlag(context.Context, *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.GetFlagResponse], error)
 	// ListFlags lists an environment's flags by key.
 	ListFlags(context.Context, *connect.Request[pluxv1.ListFlagsRequest]) (*connect.Response[pluxv1.ListFlagsResponse], error)
 }
@@ -252,11 +252,11 @@ func NewFlagServiceHandler(svc FlagServiceHandler, opts ...connect.HandlerOption
 // UnimplementedFlagServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedFlagServiceHandler struct{}
 
-func (UnimplementedFlagServiceHandler) CreateFlag(context.Context, *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (UnimplementedFlagServiceHandler) CreateFlag(context.Context, *connect.Request[pluxv1.CreateFlagRequest]) (*connect.Response[pluxv1.CreateFlagResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FlagService.CreateFlag is not implemented"))
 }
 
-func (UnimplementedFlagServiceHandler) UpdateFlag(context.Context, *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (UnimplementedFlagServiceHandler) UpdateFlag(context.Context, *connect.Request[pluxv1.UpdateFlagRequest]) (*connect.Response[pluxv1.UpdateFlagResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FlagService.UpdateFlag is not implemented"))
 }
 
@@ -264,7 +264,7 @@ func (UnimplementedFlagServiceHandler) DeleteFlag(context.Context, *connect.Requ
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FlagService.DeleteFlag is not implemented"))
 }
 
-func (UnimplementedFlagServiceHandler) GetFlag(context.Context, *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.FlagResponse], error) {
+func (UnimplementedFlagServiceHandler) GetFlag(context.Context, *connect.Request[pluxv1.GetFlagRequest]) (*connect.Response[pluxv1.GetFlagResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FlagService.GetFlag is not implemented"))
 }
 
@@ -275,9 +275,9 @@ func (UnimplementedFlagServiceHandler) ListFlags(context.Context, *connect.Reque
 // ExperimentServiceClient is a client for the plux.v1.ExperimentService service.
 type ExperimentServiceClient interface {
 	// CreateExperiment registers a draft from an experiment document.
-	CreateExperiment(context.Context, *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	CreateExperiment(context.Context, *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.CreateExperimentResponse], error)
 	// GetExperiment returns one experiment.
-	GetExperiment(context.Context, *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	GetExperiment(context.Context, *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.GetExperimentResponse], error)
 	// ListExperiments lists an app's experiments.
 	ListExperiments(context.Context, *connect.Request[pluxv1.ListExperimentsRequest]) (*connect.Response[pluxv1.ListExperimentsResponse], error)
 	// DeleteExperiment discards a draft.
@@ -285,14 +285,14 @@ type ExperimentServiceClient interface {
 	// StartExperiment writes the allocation into the environment's control
 	// documents. PLX-8200 when its layer has no free range, PLX-1320 past
 	// experiments.activePerApp, PLX-8001 when approval is required.
-	StartExperiment(context.Context, *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	StartExperiment(context.Context, *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.StartExperimentResponse], error)
 	// StopExperiment takes a running experiment out of the control documents.
-	StopExperiment(context.Context, *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	StopExperiment(context.Context, *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.StopExperimentResponse], error)
 	// SetHoldout sets the share of subjects kept out of every experiment of an
 	// environment; zero removes it.
-	SetHoldout(context.Context, *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error)
+	SetHoldout(context.Context, *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.SetHoldoutResponse], error)
 	// GetHoldout returns the environment's holdout.
-	GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error)
+	GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.GetHoldoutResponse], error)
 	// GetResults analyses an experiment with sequential inference valid at any
 	// time. PLX-8201 until every variant has the minimum sample size; a sample
 	// ratio mismatch (PLX-8202) is reported in the result.
@@ -313,13 +313,13 @@ func NewExperimentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 	baseURL = strings.TrimRight(baseURL, "/")
 	experimentServiceMethods := pluxv1.File_plux_v1_experiment_proto.Services().ByName("ExperimentService").Methods()
 	return &experimentServiceClient{
-		createExperiment: connect.NewClient[pluxv1.CreateExperimentRequest, pluxv1.ExperimentResponse](
+		createExperiment: connect.NewClient[pluxv1.CreateExperimentRequest, pluxv1.CreateExperimentResponse](
 			httpClient,
 			baseURL+ExperimentServiceCreateExperimentProcedure,
 			connect.WithSchema(experimentServiceMethods.ByName("CreateExperiment")),
 			connect.WithClientOptions(opts...),
 		),
-		getExperiment: connect.NewClient[pluxv1.GetExperimentRequest, pluxv1.ExperimentResponse](
+		getExperiment: connect.NewClient[pluxv1.GetExperimentRequest, pluxv1.GetExperimentResponse](
 			httpClient,
 			baseURL+ExperimentServiceGetExperimentProcedure,
 			connect.WithSchema(experimentServiceMethods.ByName("GetExperiment")),
@@ -337,25 +337,25 @@ func NewExperimentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(experimentServiceMethods.ByName("DeleteExperiment")),
 			connect.WithClientOptions(opts...),
 		),
-		startExperiment: connect.NewClient[pluxv1.StartExperimentRequest, pluxv1.ExperimentResponse](
+		startExperiment: connect.NewClient[pluxv1.StartExperimentRequest, pluxv1.StartExperimentResponse](
 			httpClient,
 			baseURL+ExperimentServiceStartExperimentProcedure,
 			connect.WithSchema(experimentServiceMethods.ByName("StartExperiment")),
 			connect.WithClientOptions(opts...),
 		),
-		stopExperiment: connect.NewClient[pluxv1.StopExperimentRequest, pluxv1.ExperimentResponse](
+		stopExperiment: connect.NewClient[pluxv1.StopExperimentRequest, pluxv1.StopExperimentResponse](
 			httpClient,
 			baseURL+ExperimentServiceStopExperimentProcedure,
 			connect.WithSchema(experimentServiceMethods.ByName("StopExperiment")),
 			connect.WithClientOptions(opts...),
 		),
-		setHoldout: connect.NewClient[pluxv1.SetHoldoutRequest, pluxv1.HoldoutResponse](
+		setHoldout: connect.NewClient[pluxv1.SetHoldoutRequest, pluxv1.SetHoldoutResponse](
 			httpClient,
 			baseURL+ExperimentServiceSetHoldoutProcedure,
 			connect.WithSchema(experimentServiceMethods.ByName("SetHoldout")),
 			connect.WithClientOptions(opts...),
 		),
-		getHoldout: connect.NewClient[pluxv1.GetHoldoutRequest, pluxv1.HoldoutResponse](
+		getHoldout: connect.NewClient[pluxv1.GetHoldoutRequest, pluxv1.GetHoldoutResponse](
 			httpClient,
 			baseURL+ExperimentServiceGetHoldoutProcedure,
 			connect.WithSchema(experimentServiceMethods.ByName("GetHoldout")),
@@ -378,25 +378,25 @@ func NewExperimentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 
 // experimentServiceClient implements ExperimentServiceClient.
 type experimentServiceClient struct {
-	createExperiment  *connect.Client[pluxv1.CreateExperimentRequest, pluxv1.ExperimentResponse]
-	getExperiment     *connect.Client[pluxv1.GetExperimentRequest, pluxv1.ExperimentResponse]
+	createExperiment  *connect.Client[pluxv1.CreateExperimentRequest, pluxv1.CreateExperimentResponse]
+	getExperiment     *connect.Client[pluxv1.GetExperimentRequest, pluxv1.GetExperimentResponse]
 	listExperiments   *connect.Client[pluxv1.ListExperimentsRequest, pluxv1.ListExperimentsResponse]
 	deleteExperiment  *connect.Client[pluxv1.DeleteExperimentRequest, pluxv1.DeleteExperimentResponse]
-	startExperiment   *connect.Client[pluxv1.StartExperimentRequest, pluxv1.ExperimentResponse]
-	stopExperiment    *connect.Client[pluxv1.StopExperimentRequest, pluxv1.ExperimentResponse]
-	setHoldout        *connect.Client[pluxv1.SetHoldoutRequest, pluxv1.HoldoutResponse]
-	getHoldout        *connect.Client[pluxv1.GetHoldoutRequest, pluxv1.HoldoutResponse]
+	startExperiment   *connect.Client[pluxv1.StartExperimentRequest, pluxv1.StartExperimentResponse]
+	stopExperiment    *connect.Client[pluxv1.StopExperimentRequest, pluxv1.StopExperimentResponse]
+	setHoldout        *connect.Client[pluxv1.SetHoldoutRequest, pluxv1.SetHoldoutResponse]
+	getHoldout        *connect.Client[pluxv1.GetHoldoutRequest, pluxv1.GetHoldoutResponse]
 	getResults        *connect.Client[pluxv1.GetResultsRequest, pluxv1.GetResultsResponse]
 	promoteExperiment *connect.Client[pluxv1.PromoteExperimentRequest, pluxv1.PromoteExperimentResponse]
 }
 
 // CreateExperiment calls plux.v1.ExperimentService.CreateExperiment.
-func (c *experimentServiceClient) CreateExperiment(ctx context.Context, req *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (c *experimentServiceClient) CreateExperiment(ctx context.Context, req *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.CreateExperimentResponse], error) {
 	return c.createExperiment.CallUnary(ctx, req)
 }
 
 // GetExperiment calls plux.v1.ExperimentService.GetExperiment.
-func (c *experimentServiceClient) GetExperiment(ctx context.Context, req *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (c *experimentServiceClient) GetExperiment(ctx context.Context, req *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.GetExperimentResponse], error) {
 	return c.getExperiment.CallUnary(ctx, req)
 }
 
@@ -411,22 +411,22 @@ func (c *experimentServiceClient) DeleteExperiment(ctx context.Context, req *con
 }
 
 // StartExperiment calls plux.v1.ExperimentService.StartExperiment.
-func (c *experimentServiceClient) StartExperiment(ctx context.Context, req *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (c *experimentServiceClient) StartExperiment(ctx context.Context, req *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.StartExperimentResponse], error) {
 	return c.startExperiment.CallUnary(ctx, req)
 }
 
 // StopExperiment calls plux.v1.ExperimentService.StopExperiment.
-func (c *experimentServiceClient) StopExperiment(ctx context.Context, req *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (c *experimentServiceClient) StopExperiment(ctx context.Context, req *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.StopExperimentResponse], error) {
 	return c.stopExperiment.CallUnary(ctx, req)
 }
 
 // SetHoldout calls plux.v1.ExperimentService.SetHoldout.
-func (c *experimentServiceClient) SetHoldout(ctx context.Context, req *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
+func (c *experimentServiceClient) SetHoldout(ctx context.Context, req *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.SetHoldoutResponse], error) {
 	return c.setHoldout.CallUnary(ctx, req)
 }
 
 // GetHoldout calls plux.v1.ExperimentService.GetHoldout.
-func (c *experimentServiceClient) GetHoldout(ctx context.Context, req *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
+func (c *experimentServiceClient) GetHoldout(ctx context.Context, req *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.GetHoldoutResponse], error) {
 	return c.getHoldout.CallUnary(ctx, req)
 }
 
@@ -443,9 +443,9 @@ func (c *experimentServiceClient) PromoteExperiment(ctx context.Context, req *co
 // ExperimentServiceHandler is an implementation of the plux.v1.ExperimentService service.
 type ExperimentServiceHandler interface {
 	// CreateExperiment registers a draft from an experiment document.
-	CreateExperiment(context.Context, *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	CreateExperiment(context.Context, *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.CreateExperimentResponse], error)
 	// GetExperiment returns one experiment.
-	GetExperiment(context.Context, *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	GetExperiment(context.Context, *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.GetExperimentResponse], error)
 	// ListExperiments lists an app's experiments.
 	ListExperiments(context.Context, *connect.Request[pluxv1.ListExperimentsRequest]) (*connect.Response[pluxv1.ListExperimentsResponse], error)
 	// DeleteExperiment discards a draft.
@@ -453,14 +453,14 @@ type ExperimentServiceHandler interface {
 	// StartExperiment writes the allocation into the environment's control
 	// documents. PLX-8200 when its layer has no free range, PLX-1320 past
 	// experiments.activePerApp, PLX-8001 when approval is required.
-	StartExperiment(context.Context, *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	StartExperiment(context.Context, *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.StartExperimentResponse], error)
 	// StopExperiment takes a running experiment out of the control documents.
-	StopExperiment(context.Context, *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error)
+	StopExperiment(context.Context, *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.StopExperimentResponse], error)
 	// SetHoldout sets the share of subjects kept out of every experiment of an
 	// environment; zero removes it.
-	SetHoldout(context.Context, *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error)
+	SetHoldout(context.Context, *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.SetHoldoutResponse], error)
 	// GetHoldout returns the environment's holdout.
-	GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error)
+	GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.GetHoldoutResponse], error)
 	// GetResults analyses an experiment with sequential inference valid at any
 	// time. PLX-8201 until every variant has the minimum sample size; a sample
 	// ratio mismatch (PLX-8202) is reported in the result.
@@ -568,11 +568,11 @@ func NewExperimentServiceHandler(svc ExperimentServiceHandler, opts ...connect.H
 // UnimplementedExperimentServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedExperimentServiceHandler struct{}
 
-func (UnimplementedExperimentServiceHandler) CreateExperiment(context.Context, *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (UnimplementedExperimentServiceHandler) CreateExperiment(context.Context, *connect.Request[pluxv1.CreateExperimentRequest]) (*connect.Response[pluxv1.CreateExperimentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ExperimentService.CreateExperiment is not implemented"))
 }
 
-func (UnimplementedExperimentServiceHandler) GetExperiment(context.Context, *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (UnimplementedExperimentServiceHandler) GetExperiment(context.Context, *connect.Request[pluxv1.GetExperimentRequest]) (*connect.Response[pluxv1.GetExperimentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ExperimentService.GetExperiment is not implemented"))
 }
 
@@ -584,19 +584,19 @@ func (UnimplementedExperimentServiceHandler) DeleteExperiment(context.Context, *
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ExperimentService.DeleteExperiment is not implemented"))
 }
 
-func (UnimplementedExperimentServiceHandler) StartExperiment(context.Context, *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (UnimplementedExperimentServiceHandler) StartExperiment(context.Context, *connect.Request[pluxv1.StartExperimentRequest]) (*connect.Response[pluxv1.StartExperimentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ExperimentService.StartExperiment is not implemented"))
 }
 
-func (UnimplementedExperimentServiceHandler) StopExperiment(context.Context, *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.ExperimentResponse], error) {
+func (UnimplementedExperimentServiceHandler) StopExperiment(context.Context, *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.StopExperimentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ExperimentService.StopExperiment is not implemented"))
 }
 
-func (UnimplementedExperimentServiceHandler) SetHoldout(context.Context, *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
+func (UnimplementedExperimentServiceHandler) SetHoldout(context.Context, *connect.Request[pluxv1.SetHoldoutRequest]) (*connect.Response[pluxv1.SetHoldoutResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ExperimentService.SetHoldout is not implemented"))
 }
 
-func (UnimplementedExperimentServiceHandler) GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.HoldoutResponse], error) {
+func (UnimplementedExperimentServiceHandler) GetHoldout(context.Context, *connect.Request[pluxv1.GetHoldoutRequest]) (*connect.Response[pluxv1.GetHoldoutResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ExperimentService.GetHoldout is not implemented"))
 }
 

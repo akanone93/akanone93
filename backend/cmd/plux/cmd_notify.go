@@ -346,7 +346,7 @@ func (e env) webhooks(args []string) int {
 		}
 		return e.emit(c.json, map[string]any{"secret": res.Msg.GetSecret()}, "New secret (shown once): "+res.Msg.GetSecret())
 	case "deliveries":
-		res, err := svc.ListWebhookDeliveries(ctx, connect.NewRequest(&pluxv1.ListDeliveriesRequest{TargetId: id, Limit: int32(limit)})) //nolint:gosec // a small row count
+		res, err := svc.ListWebhookDeliveries(ctx, connect.NewRequest(&pluxv1.ListWebhookDeliveriesRequest{TargetId: id, Limit: int32(limit)})) //nolint:gosec // a small row count
 		if err != nil {
 			return e.fail("webhooks deliveries", err)
 		}

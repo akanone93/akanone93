@@ -480,7 +480,7 @@ type WebhookServiceClient interface {
 	// signatures are sent, so a receiver can change over without a gap.
 	RotateWebhookSecret(context.Context, *connect.Request[pluxv1.RotateWebhookSecretRequest]) (*connect.Response[pluxv1.RotateWebhookSecretResponse], error)
 	// ListWebhookDeliveries reads the delivery log of webhooks.
-	ListWebhookDeliveries(context.Context, *connect.Request[pluxv1.ListDeliveriesRequest]) (*connect.Response[pluxv1.ListDeliveriesResponse], error)
+	ListWebhookDeliveries(context.Context, *connect.Request[pluxv1.ListWebhookDeliveriesRequest]) (*connect.Response[pluxv1.ListWebhookDeliveriesResponse], error)
 }
 
 // NewWebhookServiceClient constructs a client for the plux.v1.WebhookService service. By default,
@@ -518,7 +518,7 @@ func NewWebhookServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(webhookServiceMethods.ByName("RotateWebhookSecret")),
 			connect.WithClientOptions(opts...),
 		),
-		listWebhookDeliveries: connect.NewClient[pluxv1.ListDeliveriesRequest, pluxv1.ListDeliveriesResponse](
+		listWebhookDeliveries: connect.NewClient[pluxv1.ListWebhookDeliveriesRequest, pluxv1.ListWebhookDeliveriesResponse](
 			httpClient,
 			baseURL+WebhookServiceListWebhookDeliveriesProcedure,
 			connect.WithSchema(webhookServiceMethods.ByName("ListWebhookDeliveries")),
@@ -533,7 +533,7 @@ type webhookServiceClient struct {
 	listWebhooks          *connect.Client[pluxv1.ListWebhooksRequest, pluxv1.ListWebhooksResponse]
 	deleteWebhook         *connect.Client[pluxv1.DeleteWebhookRequest, pluxv1.DeleteWebhookResponse]
 	rotateWebhookSecret   *connect.Client[pluxv1.RotateWebhookSecretRequest, pluxv1.RotateWebhookSecretResponse]
-	listWebhookDeliveries *connect.Client[pluxv1.ListDeliveriesRequest, pluxv1.ListDeliveriesResponse]
+	listWebhookDeliveries *connect.Client[pluxv1.ListWebhookDeliveriesRequest, pluxv1.ListWebhookDeliveriesResponse]
 }
 
 // CreateWebhook calls plux.v1.WebhookService.CreateWebhook.
@@ -557,7 +557,7 @@ func (c *webhookServiceClient) RotateWebhookSecret(ctx context.Context, req *con
 }
 
 // ListWebhookDeliveries calls plux.v1.WebhookService.ListWebhookDeliveries.
-func (c *webhookServiceClient) ListWebhookDeliveries(ctx context.Context, req *connect.Request[pluxv1.ListDeliveriesRequest]) (*connect.Response[pluxv1.ListDeliveriesResponse], error) {
+func (c *webhookServiceClient) ListWebhookDeliveries(ctx context.Context, req *connect.Request[pluxv1.ListWebhookDeliveriesRequest]) (*connect.Response[pluxv1.ListWebhookDeliveriesResponse], error) {
 	return c.listWebhookDeliveries.CallUnary(ctx, req)
 }
 
@@ -572,7 +572,7 @@ type WebhookServiceHandler interface {
 	// signatures are sent, so a receiver can change over without a gap.
 	RotateWebhookSecret(context.Context, *connect.Request[pluxv1.RotateWebhookSecretRequest]) (*connect.Response[pluxv1.RotateWebhookSecretResponse], error)
 	// ListWebhookDeliveries reads the delivery log of webhooks.
-	ListWebhookDeliveries(context.Context, *connect.Request[pluxv1.ListDeliveriesRequest]) (*connect.Response[pluxv1.ListDeliveriesResponse], error)
+	ListWebhookDeliveries(context.Context, *connect.Request[pluxv1.ListWebhookDeliveriesRequest]) (*connect.Response[pluxv1.ListWebhookDeliveriesResponse], error)
 }
 
 // NewWebhookServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -649,7 +649,7 @@ func (UnimplementedWebhookServiceHandler) RotateWebhookSecret(context.Context, *
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.WebhookService.RotateWebhookSecret is not implemented"))
 }
 
-func (UnimplementedWebhookServiceHandler) ListWebhookDeliveries(context.Context, *connect.Request[pluxv1.ListDeliveriesRequest]) (*connect.Response[pluxv1.ListDeliveriesResponse], error) {
+func (UnimplementedWebhookServiceHandler) ListWebhookDeliveries(context.Context, *connect.Request[pluxv1.ListWebhookDeliveriesRequest]) (*connect.Response[pluxv1.ListWebhookDeliveriesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.WebhookService.ListWebhookDeliveries is not implemented"))
 }
 

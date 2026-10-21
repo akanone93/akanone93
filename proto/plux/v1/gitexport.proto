@@ -16,16 +16,16 @@ option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1
 service GitExportService {
   // GetSettings returns the app's export settings; PLX-8031 when none were
   // configured.
-  rpc GetSettings(GetGitSettingsRequest) returns (GetGitSettingsResponse) {}
+  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {}
   // ConfigureExport sets the export of an app. The remote must be an HTTPS
   // address without credentials in it; one that names a reserved address
   // is PLX-8503. Audited.
-  rpc ConfigureExport(ConfigureGitExportRequest) returns (ConfigureGitExportResponse) {}
+  rpc ConfigureExport(ConfigureExportRequest) returns (ConfigureExportResponse) {}
   // ListExports lists the newest exports of an app with their state.
-  rpc ListExports(ListGitExportsRequest) returns (ListGitExportsResponse) {}
+  rpc ListExports(ListExportsRequest) returns (ListExportsResponse) {}
   // RunExport queues the export of the app's newest published version, or
   // returns the finished one; a version is exported once.
-  rpc RunExport(RunGitExportRequest) returns (RunGitExportResponse) {}
+  rpc RunExport(RunExportRequest) returns (RunExportResponse) {}
 }
 
 message GitSettings {
@@ -43,19 +43,19 @@ message GitSettings {
   google.protobuf.Timestamp updated_at = 8;
 }
 
-message GetGitSettingsRequest {
+message GetSettingsRequest {
   string app_id = 1;
 }
 
-message GetGitSettingsResponse {
+message GetSettingsResponse {
   GitSettings settings = 1;
 }
 
-message ConfigureGitExportRequest {
+message ConfigureExportRequest {
   GitSettings settings = 1;
 }
 
-message ConfigureGitExportResponse {
+message ConfigureExportResponse {
   GitSettings settings = 1;
 }
 
@@ -76,18 +76,18 @@ message GitExport {
   google.protobuf.Timestamp updated_at = 9;
 }
 
-message ListGitExportsRequest {
+message ListExportsRequest {
   string app_id = 1;
 }
 
-message ListGitExportsResponse {
+message ListExportsResponse {
   repeated GitExport exports = 1;
 }
 
-message RunGitExportRequest {
+message RunExportRequest {
   string app_id = 1;
 }
 
-message RunGitExportResponse {
+message RunExportResponse {
   GitExport export = 1;
 }
