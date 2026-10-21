@@ -36,6 +36,15 @@ type experimentProp struct {
 	// control is the checked value of the prop for the control variant;
 	// nil when it did not check, or when the page is checked alone.
 	control *value
+	// variants are the checked values of the prop for every variant that
+	// gave one that checked, in the order of the experiment document.
+	variants []variantValue
+}
+
+// variantValue is the checked value of a prop for one variant.
+type variantValue struct {
+	variant string
+	value   *value
 }
 
 // weightTolerance absorbs the rounding of decimal weights summed in
@@ -121,6 +130,9 @@ func (u *unit) checkExperimentProps(e *experiment) {
 			if v.Name == e.control {
 				p.control = checked
 			}
+			if checked != nil {
+				p.variants = append(p.variants, variantValue{variant: v.Name, value: checked})
+			}
 		}
 	}
 }
@@ -154,7 +166,7 @@ func (u *unit) experimentTypes() map[string]pxl.TypeSpec {
 // declares props, sorted by key, for the runtime to default to when the
 // control document has no entry for the experiment (ABT-002). A prop whose
 // control value did not check is left out; the diagnostic is already
-// reported. It is 0 when no experiment declares props.
+// reported. Each prop carries its value for every variant as well. It is 0 when no experiment declares props.
 func (u *unit) experimentDefaults(e *valueEnc) flatbuffers.UOffsetT {
 	b := e.b
 	var offs []flatbuffers.UOffsetT
@@ -169,10 +181,11 @@ func (u *unit) experimentDefaults(e *valueEnc) flatbuffers.UOffsetT {
 			if val == 0 {
 				continue
 			}
-			name := b.CreateString(p.name)
+			name, variants := b.CreateString(p.name), variantValues(e, p.variants)
 			fbs.ExperimentPropStart(b)
 			fbs.ExperimentPropAddName(b, name)
 			fbs.ExperimentPropAddValue(b, val)
+			fbs.ExperimentPropAddVariants(b, variants)
 			props = append(props, fbs.ExperimentPropEnd(b))
 		}
 		pv, k, c := offsetVector(b, props), b.CreateString(key), b.CreateString(exp.control)
@@ -181,6 +194,29 @@ func (u *unit) experimentDefaults(e *valueEnc) flatbuffers.UOffsetT {
 		fbs.ExperimentDefaultsAddControl(b, c)
 		fbs.ExperimentDefaultsAddProps(b, pv)
 		offs = append(offs, fbs.ExperimentDefaultsEnd(b))
+	}
+	if len(offs) == 0 {
+		return 0
+	}
+	return offsetVector(b, offs)
+}
+
+// variantValues writes the value of a prop for each variant, in the order
+// of the experiment document, so that a device assigned a treatment reads
+// its own variant's value (ABT-002). It is 0 when no variant has one.
+func variantValues(e *valueEnc, values []variantValue) flatbuffers.UOffsetT {
+	b := e.b
+	offs := make([]flatbuffers.UOffsetT, 0, len(values))
+	for _, v := range values {
+		val := e.value(v.value)
+		if val == 0 {
+			continue
+		}
+		name := b.CreateString(v.variant)
+		fbs.ExperimentVariantValueStart(b)
+		fbs.ExperimentVariantValueAddVariant(b, name)
+		fbs.ExperimentVariantValueAddValue(b, val)
+		offs = append(offs, fbs.ExperimentVariantValueEnd(b))
 	}
 	if len(offs) == 0 {
 		return 0

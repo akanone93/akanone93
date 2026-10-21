@@ -272,7 +272,7 @@ var matrix = map[string]entry{
 	"AnalyticsService/CancelRetentionChange": atPerm(auth.RetentionManage, anyone(&pluxv1.CancelRetentionChangeRequest{Id: unknownID})),
 	"AnalyticsService/SetExport":             atPerm(auth.OrganizationManage, anyone(&pluxv1.SetExportRequest{Endpoint: "https://127.0.0.1:1"})),
 	"AnalyticsService/GetFileExport":         atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetFileExportRequest{})),
-	"AnalyticsService/SetFileExport":         atPerm(auth.OrganizationManage, anyone(&pluxv1.SetFileExportRequest{})),
+	"AnalyticsService/SetFileExport":         atPerm(auth.OrganizationManage, anyone(&pluxv1.SetFileExportRequest{Settings: &pluxv1.FileExportSettings{ParquetGranularity: "7d"}})),
 	"AnalyticsService/DeleteExport":          atPerm(auth.OrganizationManage, anyone(&pluxv1.DeleteExportRequest{})),
 	"AnalyticsService/CreateAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.CreateAlertRuleRequest{Rule: &pluxv1.AlertRule{

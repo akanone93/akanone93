@@ -552,23 +552,46 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       final key = e.key, control = e.control;
       if (key == null || control == null) continue;
       final props = <String, Object?>{};
+      final variants = <String, Map<String, Object?>>{};
       for (final p in e.props ?? const <fbs.ExperimentProp>[]) {
         final name = p.name;
         if (name == null) continue;
-        try {
-          props[name] = toPxl(literal.resolve(p.value, strings));
-        } on BindingError catch (err) {
-          report(
-            PluxException(
-              PluxErrorCode.propValueInvalid,
-              'experiment $key.$name: ${err.message}',
-            ),
-          );
+        final where = 'experiment $key.$name';
+        _setProp(props, name, p.value, literal, strings, where);
+        for (final v in p.variants ?? const <fbs.ExperimentVariantValue>[]) {
+          final variant = v.variant;
+          if (variant == null) continue;
+          final arm = variants.putIfAbsent(variant, () => {});
+          _setProp(arm, name, v.value, literal, strings, '$where ($variant)');
         }
       }
-      out[key] = ExperimentDefault(key: key, control: control, props: props);
+      out[key] = ExperimentDefault(
+        key: key,
+        control: control,
+        props: props,
+        variants: variants,
+      );
     }
     return out;
+  }
+
+  /// Stores the literal [value] of an experiment prop under [name] in
+  /// [into]; a value that does not resolve is reported and left out.
+  void _setProp(
+    Map<String, Object?> into,
+    String name,
+    fbs.Value? value,
+    ValueResolver literal,
+    StringTable strings,
+    String where,
+  ) {
+    try {
+      into[name] = toPxl(literal.resolve(value, strings));
+    } on BindingError catch (err) {
+      report(
+        PluxException(PluxErrorCode.propValueInvalid, '$where: ${err.message}'),
+      );
+    }
   }
 
   /// Runs guard graph [guard] of [page] over the page's [params] (NAV-009,

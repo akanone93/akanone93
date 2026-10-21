@@ -139,6 +139,49 @@ func TestExperimentDefaultsInTheAppBundle_ABT_002(t *testing.T) {
 	}
 }
 
+// variantValuesOf returns the value of each prop for each variant the app
+// bundle carries, as "key.prop[variant]=value" in the bundle's order.
+func variantValuesOf(t *testing.T, b *bundle.Bundle) []string {
+	t.Helper()
+	var out []string
+	for _, sec := range b.Sections {
+		if sec.Kind != bundle.SectionMeta {
+			continue
+		}
+		m := fbs.GetRootAsMeta(sec.Data, 0)
+		var e fbs.ExperimentDefaults
+		var p fbs.ExperimentProp
+		var v fbs.ExperimentVariantValue
+		for i := range m.ExperimentsLength() {
+			m.Experiments(&e, i)
+			for j := range e.PropsLength() {
+				e.Props(&p, j)
+				for k := range p.VariantsLength() {
+					p.Variants(&v, k)
+					out = append(out, string(e.Key())+"."+string(p.Name())+"["+string(v.Variant())+"]="+stringsOf(t, b)(v.Value(nil).S()))
+				}
+			}
+		}
+	}
+	return out
+}
+
+// TestExperimentDefaultsCarryEveryVariant embeds each variant's value of
+// each declared prop, in the order of the experiment document, so a device
+// assigned a treatment has the value of its variant.
+// Verifies: ABT-002, CMP-002.
+func TestExperimentDefaultsCarryEveryVariant_ABT_002(t *testing.T) {
+	t.Parallel()
+	res := Compile(experimentsProject(t), DefaultOptions())
+	if len(res.Diagnostics) > 0 {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	want := []string{"ctaLabel.label[control]=Buy", "ctaLabel.label[bold]=Buy now", "ctaLabel.label[short]=Go"}
+	if got := variantValuesOf(t, readAll(t, res)[0]); !slices.Equal(got, want) {
+		t.Errorf("variant values = %v, want %v", got, want)
+	}
+}
+
 // TestExperimentsAreDeterministic compiles the project twice.
 // Verifies: ABT-002, CMP-002.
 func TestExperimentsAreDeterministic_ABT_002(t *testing.T) {

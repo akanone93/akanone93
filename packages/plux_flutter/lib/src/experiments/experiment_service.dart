@@ -28,16 +28,18 @@ typedef ExperimentEventSink = void Function(
 /// The fingerprint a stored assignment carries, which versions its form.
 const String _assignmentForm = 'experiment-assignment-1';
 
-/// The control arm of an experiment as the compiler embedded it in the app
-/// bundle: the runtime shows it for a device the control document does not
-/// enrol (ABT-002).
+/// The props of an experiment as the compiler embedded them in the app
+/// bundle: the control's values, which the runtime shows for a device the
+/// control document does not enrol, and each variant's (ABT-002).
 final class ExperimentDefault {
   /// Creates the default of experiment [key] whose control variant is
-  /// [control] and whose props have the values [props] for it.
+  /// [control] and whose props have the values [props] for it, and
+  /// [variants] for each variant by name.
   const ExperimentDefault({
     required this.key,
     required this.control,
     required this.props,
+    this.variants = const {},
   });
 
   /// The experiment key, the PXL name in `experiment.<key>`.
@@ -48,6 +50,14 @@ final class ExperimentDefault {
 
   /// The value of each declared prop for the control, by prop name.
   final Map<String, Object?> props;
+
+  /// The value of each declared prop for each variant, by variant name and
+  /// prop name; a variant the bundle names no values for is not a key.
+  final Map<String, Map<String, Object?>> variants;
+
+  /// The props of [variant]: its own values, or the control's when the
+  /// bundle carries none for it.
+  Map<String, Object?> propsOf(String variant) => variants[variant] ?? props;
 }
 
 /// Evaluates flags and assigns experiments.
@@ -214,9 +224,10 @@ final class ExperimentService {
   /// the device is not enrolled, and `<key>.<prop>` the value of each prop
   /// of that variant.
   ///
-  /// An experiment the control document does not name (no document, a
-  /// document without it, or none in force) shows the control arm the
-  /// bundle was compiled with, from [defaults] (ABT-002), so a binding to
+  /// The values come from [defaults], what the bundle was compiled with
+  /// (ABT-002): the shown variant's, else the control's. An experiment the
+  /// control document does not name (no document, a document without it, or
+  /// none in force) shows the control arm, so a binding to
   /// `experiment.<key>.<prop>` always has a value.
   Map<String, Object?> root([
     Map<String, ExperimentDefault> defaults = const {},
@@ -231,7 +242,8 @@ final class ExperimentService {
     for (final e in _snapshot()?.experiments ?? const <ControlExperiment>[]) {
       final shown = e.variant(variantOf(e.key) ?? '') ?? e.control;
       out[e.key] = shown.name;
-      for (final p in shown.props.entries) {
+      final arm = defaults[e.key]?.propsOf(shown.name) ?? const {};
+      for (final p in arm.entries) {
         out['${e.key}.${p.key}'] = p.value;
       }
     }

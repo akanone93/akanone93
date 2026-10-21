@@ -453,15 +453,25 @@ table LocalisationSettings {
   numbering_systems: [NumberingSystemEntry];
 }
 
-// The value an experiment prop has for the control (ABT-002).
-table ExperimentProp {
-  name: string;
+// The value an experiment prop has for one variant (ABT-002).
+table ExperimentVariantValue {
+  variant: string;
   value: Value;
 }
 
+// The value an experiment prop has for the control, and for every variant
+// in the order of the experiment document (ABT-002). A device assigned a
+// treatment reads its variant's value from `variants`; `value` stays the
+// control's, which is what a device without an assignment reads.
+table ExperimentProp {
+  name: string;
+  value: Value;
+  variants: [ExperimentVariantValue];
+}
+
 // The control arm of an experiment of the project: the name of the
-// control variant and the value of each declared prop for it, sorted by
-// name. The runtime reads `experiment.<key>.<prop>` from these when the
+// control variant and the value of each declared prop for it and for each
+// variant, sorted by name. The runtime reads `experiment.<key>.<prop>` from these when the
 // control document has no entry for the experiment, so a binding never
 // fails for want of a document (ABT-002).
 table ExperimentDefaults {

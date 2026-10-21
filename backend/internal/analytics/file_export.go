@@ -110,12 +110,12 @@ func (s *Service) SetFileExport(ctx context.Context, p auth.Principal, settings 
 	if err := p.Authorize(auth.OrganizationManage); err != nil {
 		return FileExport{}, fmt.Errorf("analytics: %w", err)
 	}
-	if s.o.Exporter == nil {
-		return FileExport{}, plxerr.New(plxerr.EnterpriseFeatureNotLicensed, "the Parquet and webhook exports are part of the enterprise edition")
-	}
 	settings, err := normalizeSettings(settings)
 	if err != nil {
 		return FileExport{}, err
+	}
+	if s.o.Exporter == nil {
+		return FileExport{}, plxerr.New(plxerr.EnterpriseFeatureNotLicensed, "the Parquet and webhook exports are part of the enterprise edition")
 	}
 	if err := s.o.Exporter.Validate(ctx, settings, secret); err != nil {
 		return FileExport{}, fmt.Errorf("analytics: %w", err)

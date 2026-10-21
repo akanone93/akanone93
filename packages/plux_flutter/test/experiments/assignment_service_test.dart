@@ -12,7 +12,6 @@ import 'package:plux_flutter/src/state/persistence.dart';
 ControlExperiment cta({
   String salt = 'cta-1',
   List<(String, int)> weights = const [('control', 5000), ('bold', 5000)],
-  Map<String, Object?> boldProps = const {'label': 'Buy now'},
   TargetingRule? rule,
   DateTime? endsAt,
 }) => ControlExperiment(
@@ -20,15 +19,22 @@ ControlExperiment cta({
   salt: salt,
   variants: [
     for (final (n, w) in weights)
-      ControlVariant(
-        name: n,
-        weightBp: w,
-        control: n == 'control',
-        props: n == 'control' ? const {'label': 'Buy'} : boldProps,
-      ),
+      ControlVariant(name: n, weightBp: w, control: n == 'control'),
   ],
   segment: rule,
   endsAt: endsAt,
+);
+
+/// The props of [cta] as the compiler embeds them in the app bundle: the
+/// control's value and the value of each other variant.
+const ctaDefault = ExperimentDefault(
+  key: 'cta',
+  control: 'control',
+  props: {'label': 'Buy'},
+  variants: {
+    'control': {'label': 'Buy'},
+    'bold': {'label': 'Buy now'},
+  },
 );
 
 ControlSnapshot snapshot(
@@ -83,7 +89,10 @@ void main() {
       final d = Device(consent: false, control: snapshot([cta()]));
       final s = d.session();
       expect(s.variantOf('cta'), isNull);
-      expect(s.root(), {'cta': 'control', 'cta.label': 'Buy'});
+      expect(s.root(const {'cta': ctaDefault}), {
+        'cta': 'control',
+        'cta.label': 'Buy',
+      });
       s.recordExposure('cta', 'bold');
       expect(d.events, isEmpty);
       expect(
@@ -231,11 +240,7 @@ void main() {
         'carries for an experiment the control document does not name '
         '[ABT-002]', () {
       const defaults = {
-        'cta': ExperimentDefault(
-          key: 'cta',
-          control: 'control',
-          props: {'label': 'Buy'},
-        ),
+        'cta': ctaDefault,
         'hero': ExperimentDefault(key: 'hero', control: 'base', props: {}),
       };
       expect(Device().session().root(defaults), {
@@ -243,9 +248,17 @@ void main() {
         'cta.label': 'Buy',
         'hero': 'base',
       });
+    });
+
+    test('the experiment root carries the props of the variant shown, from '
+        'the values the bundle holds for each variant [ABT-002]', () {
+      const defaults = {
+        'cta': ctaDefault,
+        'hero': ExperimentDefault(key: 'hero', control: 'base', props: {}),
+      };
       final d = Device(
         control: snapshot([
-          cta(weights: [('control', 0), ('bold', 100)]),
+          cta(weights: [('control', 0), ('bold', 10000)]),
         ]),
       );
       expect(d.session().root(defaults), {
@@ -253,16 +266,6 @@ void main() {
         'cta.label': 'Buy now',
         'hero': 'base',
       });
-    });
-
-    test('the experiment root names the control for a device that is not '
-        'enrolled and carries the props of the variant shown [ABT-002]', () {
-      final d = Device(
-        control: snapshot([
-          cta(weights: [('control', 0), ('bold', 10000)]),
-        ]),
-      );
-      expect(d.session().root(), {'cta': 'bold', 'cta.label': 'Buy now'});
       final out = Device(
         control: snapshot([
           cta(
@@ -270,7 +273,24 @@ void main() {
           ),
         ]),
       );
-      expect(out.session().root(), {'cta': 'control', 'cta.label': 'Buy'});
+      expect(out.session().root(defaults), {
+        'cta': 'control',
+        'cta.label': 'Buy',
+        'hero': 'base',
+      });
+    });
+
+    test('a variant the bundle holds no values for shows the control\'s '
+        '[ABT-002]', () {
+      final d = Device(
+        control: snapshot([
+          cta(weights: [('control', 0), ('short', 10000)]),
+        ]),
+      );
+      expect(d.session().root(const {'cta': ctaDefault}), {
+        'cta': 'short',
+        'cta.label': 'Buy',
+      });
     });
   });
 
