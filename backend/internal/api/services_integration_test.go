@@ -26,8 +26,10 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
+	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/device/devicetest"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
@@ -36,6 +38,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/dsr"
 	"github.com/nightCode42/plux3/backend/internal/experiment"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
@@ -262,9 +265,21 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	effective := func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
+		return tenancyService.Effective(ctx, tx, org, "", "")
+	}
+	freezes, err := freeze.New(freeze.Options{DB: db, Audit: log, IDs: gen, Limits: effective, Now: cfg.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	emergencies, err := breakglass.New(breakglass.Options{DB: db, Audit: log, IDs: gen, Limits: effective, Now: cfg.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
 	releases, err := release.NewService(release.Options{
 		DB: db, Audit: log, Tenancy: tenancyService, Documents: docs, Objects: files, IDs: gen, Jobs: queue, Signer: backend,
 		ProductionSigning: true, PublicBaseURL: "https://plux.example.com", Devices: devices, SecurityConfig: secConfig,
+		BreakGlass: emergencies, Freezes: freezes,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -402,7 +417,12 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	reports, err := compliance.New(compliance.Options{DB: db, Audit: log, IDs: gen, Limits: effective, Now: cfg.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
+		Emergencies: emergencies, Freezes: freezes, Reports: reports,
 		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
@@ -436,6 +456,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewBreakGlassServiceHandler(h.BreakGlass(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
