@@ -227,6 +227,34 @@ void main() {
       expect(either, 300);
     });
 
+    test('the experiment root falls back to the control arm the bundle '
+        'carries for an experiment the control document does not name '
+        '[ABT-002]', () {
+      const defaults = {
+        'cta': ExperimentDefault(
+          key: 'cta',
+          control: 'control',
+          props: {'label': 'Buy'},
+        ),
+        'hero': ExperimentDefault(key: 'hero', control: 'base', props: {}),
+      };
+      expect(Device().session().root(defaults), {
+        'cta': 'control',
+        'cta.label': 'Buy',
+        'hero': 'base',
+      });
+      final d = Device(
+        control: snapshot([
+          cta(weights: [('control', 0), ('bold', 100)]),
+        ]),
+      );
+      expect(d.session().root(defaults), {
+        'cta': 'bold',
+        'cta.label': 'Buy now',
+        'hero': 'base',
+      });
+    });
+
     test('the experiment root names the control for a device that is not '
         'enrolled and carries the props of the variant shown [ABT-002]', () {
       final d = Device(

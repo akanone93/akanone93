@@ -28,6 +28,28 @@ typedef ExperimentEventSink = void Function(
 /// The fingerprint a stored assignment carries, which versions its form.
 const String _assignmentForm = 'experiment-assignment-1';
 
+/// The control arm of an experiment as the compiler embedded it in the app
+/// bundle: the runtime shows it for a device the control document does not
+/// enrol (ABT-002).
+final class ExperimentDefault {
+  /// Creates the default of experiment [key] whose control variant is
+  /// [control] and whose props have the values [props] for it.
+  const ExperimentDefault({
+    required this.key,
+    required this.control,
+    required this.props,
+  });
+
+  /// The experiment key, the PXL name in `experiment.<key>`.
+  final String key;
+
+  /// The name of the control variant.
+  final String control;
+
+  /// The value of each declared prop for the control, by prop name.
+  final Map<String, Object?> props;
+}
+
 /// Evaluates flags and assigns experiments.
 final class ExperimentService {
   /// Creates the service.
@@ -190,10 +212,22 @@ final class ExperimentService {
   /// The PXL `experiment` root (Appendix E.2): each running experiment's
   /// key holds the variant name shown on this device, the control's when
   /// the device is not enrolled, and `<key>.<prop>` the value of each prop
-  /// of that variant. Empty without the experiment in the control
-  /// document.
-  Map<String, Object?> root() {
+  /// of that variant.
+  ///
+  /// An experiment the control document does not name (no document, a
+  /// document without it, or none in force) shows the control arm the
+  /// bundle was compiled with, from [defaults] (ABT-002), so a binding to
+  /// `experiment.<key>.<prop>` always has a value.
+  Map<String, Object?> root([
+    Map<String, ExperimentDefault> defaults = const {},
+  ]) {
     final out = <String, Object?>{};
+    for (final d in defaults.values) {
+      out[d.key] = d.control;
+      for (final p in d.props.entries) {
+        out['${d.key}.${p.key}'] = p.value;
+      }
+    }
     for (final e in _snapshot()?.experiments ?? const <ControlExperiment>[]) {
       final shown = e.variant(variantOf(e.key) ?? '') ?? e.control;
       out[e.key] = shown.name;

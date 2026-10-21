@@ -434,6 +434,12 @@ const (
 	// TelemetryEventsPerRequest: Runtime events one telemetry request may carry.
 	// (SEC-104)
 	TelemetryEventsPerRequest Key = "telemetry.eventsPerRequest"
+	// TelemetryExportBatchEvents: Events one signed-webhook message of the
+	// enterprise analytics export carries. (ANL-011)
+	TelemetryExportBatchEvents Key = "telemetry.exportBatchEvents"
+	// TelemetryExportFileRows: Rows one Parquet file of the enterprise analytics
+	// export holds; a longer window is written as several files. (ANL-011)
+	TelemetryExportFileRows Key = "telemetry.exportFileRows"
 	// TranslationImportSize: Size of one translation import file. (I18N-009)
 	TranslationImportSize Key = "translation.importSize"
 	// TranslationMessageSize: Size of one translation message. (I18N-001)
@@ -594,6 +600,8 @@ var registry = [...]Definition{
 	{Key: TelemetryBufferBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."},
 	{Key: TelemetryEventsPerDevicePerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts."},
 	{Key: TelemetryEventsPerRequest, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Runtime events one telemetry request may carry."},
+	{Key: TelemetryExportBatchEvents, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Events one signed-webhook message of the enterprise analytics export carries."},
+	{Key: TelemetryExportFileRows, Unit: UnitCount, Default: 100000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files."},
 	{Key: TranslationImportSize, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 134217728, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one translation import file."},
 	{Key: TranslationMessageSize, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Size of one translation message."},
 	{Key: UpdateMetadataBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 4194304, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P6", Description: "Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves."},

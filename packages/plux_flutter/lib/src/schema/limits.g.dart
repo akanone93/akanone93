@@ -371,6 +371,12 @@ enum PluxLimit {
   telemetryEventsPerDevicePerHour('telemetry.eventsPerDevicePerHour', PluxLimitUnit.count, 600, 0, 100000),
   /// Runtime events one telemetry request may carry.
   telemetryEventsPerRequest('telemetry.eventsPerRequest', PluxLimitUnit.count, 500, 0, 5000),
+  /// Events one signed-webhook message of the enterprise analytics export
+  /// carries.
+  telemetryExportBatchEvents('telemetry.exportBatchEvents', PluxLimitUnit.count, 500, 0, 5000),
+  /// Rows one Parquet file of the enterprise analytics export holds; a longer
+  /// window is written as several files.
+  telemetryExportFileRows('telemetry.exportFileRows', PluxLimitUnit.count, 100000, 0, 1000000),
   /// Size of one translation import file.
   translationImportSize('translation.importSize', PluxLimitUnit.bytes, 16777216, 0, 134217728),
   /// Size of one translation message.

@@ -1233,7 +1233,7 @@ func (u *unit) metaSection(o *out) {
 	e := &valueEnc{u: u, o: o, b: b, strs: o.shared}
 	features := stringVector(b, featureList(o.features))
 	lv := u.runtimeLimits(b)
-	var pages, exported, plugins, locales, flags, sampling, hostEvents flatbuffers.UOffsetT
+	var pages, exported, plugins, locales, flags, sampling, hostEvents, experiments flatbuffers.UOffsetT
 	name, key := app.Name, app.Key
 	if o.pl != nil {
 		name, key = o.pl.doc.Name, o.pl.key
@@ -1245,6 +1245,7 @@ func (u *unit) metaSection(o *out) {
 		flags = u.flagTables(e, app.Flags)
 		sampling = samplingTables(b, app.Telemetry)
 		hostEvents = hostEventTables(b, app.HostEvents)
+		experiments = u.experimentDefaults(e)
 	}
 	capabilities := u.capabilitiesOf(b, o)
 	nameOff, keyOff := b.CreateString(name), b.CreateString(key)
@@ -1298,6 +1299,7 @@ func (u *unit) metaSection(o *out) {
 		addOptional(b, links, fbs.MetaAddDeepLinks)
 		addOptional(b, push, fbs.MetaAddPush)
 		addOptional(b, localisation, fbs.MetaAddLocalisation)
+		addOptional(b, experiments, fbs.MetaAddExperiments)
 	}
 	o.add(bundle.SectionMeta, o.id, finish(b, fbs.MetaEnd(b), bundle.SectionMeta))
 }

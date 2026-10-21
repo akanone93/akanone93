@@ -37,13 +37,14 @@ func run(args []string, stdout, stderr io.Writer) int {
 	root := fs.String("root", ".", "repository root")
 	lockBase := fs.String("lock-base", "", "check the ID lock against this earlier `file` and write nothing")
 	bfbs := fs.String("bfbs", "", "also generate the bundle verifier's layout tables from the binary schemas in `dir`")
+	ctl := fs.String("control-bfbs", "", "also generate the control document's layout tables from the binary schema in `dir`")
 	if err := fs.Parse(args); err != nil || fs.NArg() != 0 {
 		return exitError
 	}
 	if *lockBase != "" {
 		return checkLock(*root, *lockBase, stdout, stderr)
 	}
-	files, err := generate(*root, *bfbs)
+	files, err := generate(*root, *bfbs, *ctl)
 	if err != nil {
 		_, _ = fmt.Fprintln(stderr, "schemagen:", err)
 		return exitInvalid
@@ -60,8 +61,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 }
 
 // generate runs every generator; the layout tables need the binary
-// schemas flatc writes, so they are generated only when bfbs names them.
-func generate(root, bfbs string) ([]codegen.File, error) {
+// schemas flatc writes, so they are generated only when bfbs (the bundle
+// sections) or ctl (the control document) names them.
+func generate(root, bfbs, ctl string) ([]codegen.File, error) {
 	steps := []func(root string) ([]codegen.File, error){
 		limitsFiles, settingsFiles, modelFiles, registryFiles, pxlFiles, phoneFiles, codegen.NoticeFiles,
 	}
@@ -73,18 +75,34 @@ func generate(root, bfbs string) ([]codegen.File, error) {
 		}
 		files = append(files, fs...)
 	}
-	if bfbs == "" {
-		return files, nil
+	for _, layout := range []struct {
+		dir    string
+		render func(*codegen.FBS) ([]codegen.File, error)
+	}{{bfbs, codegen.FBSFiles}, {ctl, codegen.ControlFiles}} {
+		if layout.dir == "" {
+			continue
+		}
+		fs, err := layoutFiles(layout.dir, layout.render)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, fs...)
 	}
-	fbs, err := codegen.LoadFBS(bfbs)
+	return files, nil
+}
+
+// layoutFiles renders the verifier layout tables of the binary schemas in
+// dir.
+func layoutFiles(dir string, render func(*codegen.FBS) ([]codegen.File, error)) ([]codegen.File, error) {
+	fbs, err := codegen.LoadFBS(dir)
 	if err != nil {
 		return nil, fmt.Errorf("fbs: %w", err)
 	}
-	fbsFiles, err := codegen.FBSFiles(fbs)
+	files, err := render(fbs)
 	if err != nil {
 		return nil, fmt.Errorf("fbs: %w", err)
 	}
-	return append(files, fbsFiles...), nil
+	return files, nil
 }
 
 // limitsFiles generates the limits registry's files.

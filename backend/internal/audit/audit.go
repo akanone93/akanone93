@@ -109,12 +109,15 @@ const (
 	// RetentionCancelled: a scheduled change was withdrawn. RetentionApplied:
 	// the window opened and a scheduled change took effect. AnalyticsExportSet
 	// and AnalyticsExportDeleted: the OTLP destination changed.
+	// AnalyticsFileExportSet: the settings of the Parquet and webhook
+	// exports changed.
 	RetentionSet           Action = "analytics.retention_set"
 	RetentionScheduled     Action = "analytics.retention_scheduled"
 	RetentionCancelled     Action = "analytics.retention_cancelled"
 	RetentionApplied       Action = "analytics.retention_applied"
 	AnalyticsExportSet     Action = "analytics.export_set"
 	AnalyticsExportDeleted Action = "analytics.export_deleted"
+	AnalyticsFileExportSet Action = "analytics.file_export_set"
 	// AlertRuleSet and AlertRuleDeleted: an alert rule was created or
 	// changed, or removed (ANL-030).
 	AlertRuleSet         Action = "analytics.alert_rule_set"
@@ -369,7 +372,7 @@ var actions = sorted(
 	PluginCreated, PluginUpdated, PluginDeleted, PluginRestored, PluginPurged,
 	DocumentWritten, DocumentDeleted, DocumentRestored, DocumentPurged, DraftImported, AssetUploaded, AssetDeleted,
 	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged, GoldensApproved,
-	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AlertRuleSet, AlertRuleDeleted,
+	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AnalyticsFileExportSet, AlertRuleSet, AlertRuleDeleted,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
