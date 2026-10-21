@@ -13,7 +13,7 @@ import (
 
 const aggregateRawEvents = `-- name: AggregateRawEvents :many
 SELECT date_bin('5 minutes', e.time, TIMESTAMPTZ '2000-01-01 00:00:00+00')::timestamptz AS bucket,
-       e.app_id, e.environment_id, e.name, e.release_sequence, e.plugin_key, e.route AS page, e.device_class, e.locale,
+       e.app_id, e.environment_id, s.series::text AS name, e.release_sequence, e.plugin_key, e.route AS page, e.device_class, e.locale,
        COALESCE(plux_value_bucket(plux_event_value(e.name, e.fields)), -1)::integer AS hist_bucket,
        count(*)::bigint AS events,
        count(plux_event_value(e.name, e.fields))::bigint AS value_count,
@@ -21,6 +21,7 @@ SELECT date_bin('5 minutes', e.time, TIMESTAMPTZ '2000-01-01 00:00:00+00')::time
        COALESCE(min(plux_event_value(e.name, e.fields)), 0)::double precision AS value_min,
        COALESCE(max(plux_event_value(e.name, e.fields)), 0)::double precision AS value_max
   FROM analytics_events e
+ CROSS JOIN LATERAL unnest(plux_event_series(e.name, e.fields)) AS s(series)
  WHERE e.organization_id = $1 AND e.time >= $2::timestamptz AND e.time < $3::timestamptz
  GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 `
@@ -51,7 +52,9 @@ type AggregateRawEventsRow struct {
 
 // The raw events of a time window, aggregated into five-minute buckets by
 // dimensions and histogram bucket. A NULL hist_bucket is the group of
-// events that carry no duration.
+// events that carry no duration. A failed action or function call is
+// counted under its own name and under the failure series the rollout
+// health gates read (plux_event_series, REL-053).
 func (q *Queries) AggregateRawEvents(ctx context.Context, arg AggregateRawEventsParams) ([]AggregateRawEventsRow, error) {
 	rows, err := q.db.Query(ctx, aggregateRawEvents, arg.OrganizationID, arg.FromTime, arg.ToTime)
 	if err != nil {
