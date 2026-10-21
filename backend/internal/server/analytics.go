@@ -58,6 +58,10 @@ func buildAnalytics(cfg *config.Config, db *storage.DB, shared cache.Cache, set 
 		DB: db, IDs: ids, Limits: set, Store: store, Errors: svc,
 		Retention: time.Duration(cfg.Telemetry.RetentionDays) * 24 * time.Hour,
 	}
+	opts.Changes = telemetry.PostgresControlChanges{DB: db}
+	if work.Metrics != nil {
+		opts.Propagation = work.Metrics
+	}
 	if c, ok := shared.(cache.Counter); ok {
 		opts.Counter = c
 	}

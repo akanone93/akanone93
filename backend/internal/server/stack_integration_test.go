@@ -28,6 +28,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
@@ -72,6 +73,9 @@ type stackOptions struct {
 	// identityHTTP reads the identity providers' key sets, for a provider
 	// the test runs on loopback behind its own authority.
 	identityHTTP *http.Client
+	// pushEnds and pushHTTP stand in for the push providers (SYN-060).
+	pushEnds *push.Endpoints
+	pushHTTP *http.Client
 	// functions makes the stack run server functions: the fnrunner and
 	// egress roles beside the server, over mutual TLS from a test
 	// authority, and the worker's builder replaced by the given one.
@@ -161,6 +165,9 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	ctx, cancel := context.WithCancel(context.Background())
 	if o.identityHTTP != nil {
 		build = append(build, WithIdentityProviderClient(o.identityHTTP))
+	}
+	if o.pushEnds != nil {
+		build = append(build, WithPushProvider(*o.pushEnds, o.pushHTTP))
 	}
 	built, err := Build(ctx, cfg, discard(), "test", build...)
 	if err != nil {

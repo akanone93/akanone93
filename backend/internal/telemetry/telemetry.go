@@ -117,6 +117,10 @@ type Options struct {
 	// no quota is enforced (a single-node development setup always has the
 	// in-memory cache, which counts).
 	Counter cache.Counter
+	// Changes and Propagation, when both are set, measure how long a
+	// control change takes to reach devices (NFR-024).
+	Changes     ControlChanges
+	Propagation Propagation
 }
 
 // Queue carries an accepted batch from the api role to a consumer.
@@ -335,6 +339,7 @@ func (s *Service) write(ctx context.Context, m message) error {
 			return fmt.Errorf("telemetry: %w", err)
 		}
 	}
+	s.measurePropagation(ctx, m)
 	return nil
 }
 

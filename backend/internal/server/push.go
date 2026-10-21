@@ -41,9 +41,12 @@ func buildPush(cfg *config.Config, db *storage.DB, set limits.Set, crypter signi
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
+	if work.PushHTTP != nil {
+		client = work.PushHTTP
+	}
 	svc, err := push.New(push.Options{
 		DB: db, Crypter: crypter, Secrets: ten, Jobs: pushQueue{work.Queue}, Enabled: cfg.Push.Enabled,
-		HTTP: client, Limits: set, Log: work.Log,
+		HTTP: client, Endpoints: work.PushEndpoints, Limits: set, Log: work.Log,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
