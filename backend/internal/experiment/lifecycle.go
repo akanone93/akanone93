@@ -46,6 +46,10 @@ func (s *Service) StartExperiment(ctx context.Context, p auth.Principal, id stri
 	if err != nil {
 		return Experiment{}, err
 	}
+	risk, err := s.launchRisk(ctx, p, draft)
+	if err != nil {
+		return Experiment{}, err
+	}
 	var out Experiment
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
@@ -66,7 +70,10 @@ func (s *Service) StartExperiment(ctx context.Context, p auth.Principal, id stri
 		if out, err = experimentOf(started); err != nil {
 			return err
 		}
-		if err := s.approval.RequireLaunch(ctx, Launch{Principal: p, Environment: env.Key, Experiment: out}); err != nil {
+		if err := s.approval.RequireLaunch(ctx, Launch{
+			Principal: p, Tx: tx, EnvironmentID: storage.ID(env.ID), Environment: env.Key, Production: env.Production,
+			Experiment: out, Risk: risk,
+		}); err != nil {
 			return err //nolint:wrapcheck // the gate's refusal is a domain error
 		}
 		return s.afterExperimentChange(ctx, tx, p, env, audit.ExperimentStarted, out, "experiment "+out.Key+" started")

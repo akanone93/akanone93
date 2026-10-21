@@ -28,6 +28,7 @@ import (
 	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
@@ -56,6 +57,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/search"
@@ -116,6 +118,8 @@ type Services struct {
 	// Gateway is the secure gateway; nil where the process runs neither
 	// role (SEC-030).
 	Gateway *GatewayParts
+	// Approvals is the approval engine (GOV-020 to GOV-023).
+	Approvals *approval.Service
 	// Notify delivers notifications and outbound webhooks (SRV-062,
 	// SRV-063); other services publish to it.
 	Notify *notify.Service
@@ -437,7 +441,13 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	backend = signing.CrypterOnly(backend)
 	gen := NewIDs()
 	log := audit.NewLog(gen, nil)
-	core, err := buildCore(cfg, db, shared, set, backend, gen, log, work)
+	approvals, err := approval.New(approval.Options{
+		DB: db, Audit: log, IDs: gen, Signer: work.Signer, SignerKey: cfg.Signing.Keys.Audit, Log: work.Log,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	core, err := buildCore(cfg, db, shared, set, backend, gen, log, approvals, work)
 	if err != nil {
 		return nil, err
 	}
@@ -451,7 +461,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	configs, err := seccfg.New(seccfg.Options{DB: db, Audit: log, Limits: set, Tenancy: tenancyService})
+	configs, err := seccfg.New(seccfg.Options{DB: db, Audit: log, Limits: set, Tenancy: tenancyService, Approvals: approvals})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
@@ -470,11 +480,12 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	approvals.Use(approvalProfiles(configs), notifier)
 	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, notifier, work)
 	if err != nil {
 		return nil, err
 	}
-	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour, runnerLink, notifier)
+	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour, runnerLink, notifier, approvals)
 	if err != nil {
 		return nil, err
 	}
@@ -500,7 +511,11 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{published: gitExport, push: pusher, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
+	var goldens *golden.Service
+	if work.Objects != nil {
+		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set, Approvals: approvals})
+	}
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{approvals: approvals, goldens: goldens, published: gitExport, push: pusher, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
 	if err != nil {
 		return nil, err
 	}
@@ -520,10 +535,6 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		tenancy: tenancyService, configs: configs, devices: devices, keys: store, metrics: work.Metrics,
 	}); err != nil {
 		return nil, err
-	}
-	var goldens *golden.Service
-	if work.Objects != nil {
-		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set})
 	}
 	auditExport, auditExporter, err := buildAuditExport(db, log, gen, backend, tenancyService, work)
 	if err != nil {
@@ -546,13 +557,13 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	experiments, err := buildExperiments(db, log, gen, tenancyService, docs, releases)
+	experiments, err := buildExperiments(db, log, gen, tenancyService, docs, releases, approvals)
 	if err != nil {
 		return nil, err
 	}
 	return &Services{
 		Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
-		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
+		Approvals: approvals, Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
@@ -637,7 +648,7 @@ type coreServices struct {
 }
 
 // buildCore assembles the services of sign-in, tenancy and documents.
-func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, backend signing.Crypter, gen interface{ New() (string, error) }, log *audit.Log, work WorkDeps) (coreServices, error) {
+func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, backend signing.Crypter, gen interface{ New() (string, error) }, log *audit.Log, gate approval.Gate, work WorkDeps) (coreServices, error) {
 	issuers, err := trustedIssuers(cfg)
 	if err != nil {
 		return coreServices{}, err
@@ -664,7 +675,7 @@ func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limit
 	}
 	tenancyService, err := tenancy.NewService(tenancy.Options{
 		DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, Limits: set,
-		TrashDays: cfg.Retention.TrashDays, SigningKeyPrefix: cfg.Signing.Keys.Targets,
+		TrashDays: cfg.Retention.TrashDays, SigningKeyPrefix: cfg.Signing.Keys.Targets, Approvals: gate,
 	})
 	if err != nil {
 		return coreServices{}, fmt.Errorf("server: %w", err)
@@ -672,7 +683,7 @@ func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limit
 	docs, err := document.NewService(document.Options{
 		DB: db, Audit: log, Tenancy: tenancyService, IDs: gen, Limits: set,
 		SnapshotDays: cfg.Retention.SnapshotDays, CompilerVersion: buildinfo.Get().Version,
-		Objects: work.Objects, Jobs: assetQueue{work.Queue}, Scanner: scanner(cfg), Codecs: work.Codecs, SVG: work.SVG,
+		Objects: work.Objects, Jobs: assetQueue{work.Queue}, Scanner: scanner(cfg), Codecs: work.Codecs, SVG: work.SVG, Approvals: gate,
 	})
 	if err != nil {
 		return coreServices{}, fmt.Errorf("server: %w", err)
@@ -718,6 +729,10 @@ func buildCheckpointer(cfg *config.Config, db *storage.DB, log *audit.Log, gen a
 
 // releaseDeps are the services the release service is built on.
 type releaseDeps struct {
+	// approvals decides whether a release may be promoted (GOV-020); goldens
+	// supplies the golden-image differences of a review.
+	approvals *approval.Service
+	goldens   *golden.Service
 	// published follows every recorded version (GOV-011).
 	published release.Published
 	ids       interface{ New() (string, error) }
@@ -759,6 +774,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
 		Metadata: metadataOptions(cfg), Published: deps.published, ControlNotifier: controlNotifier{push: deps.push},
+		Approvals: deps.approvals, Goldens: deps.goldens,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -767,6 +783,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 	// A change of an environment's configuration has its manifests signed
 	// again, so that they pin the new version (SEC-182).
 	deps.configs.OnChange(releases.EnqueueEnvironmentManifests)
+	deps.approvals.Register(schema.PolicyResourceRelease, releases)
 	return releases, nil
 }
 
@@ -946,7 +963,7 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push,
+		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push, Approvals: svc.Approvals,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
@@ -971,6 +988,7 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewFederationServiceHandler(h.Federation(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewPluginServiceHandler(h.Plugin(), opts) },

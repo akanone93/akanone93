@@ -26,6 +26,8 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// GovernanceServiceName is the fully-qualified name of the GovernanceService service.
 	GovernanceServiceName = "plux.v1.GovernanceService"
+	// ApprovalServiceName is the fully-qualified name of the ApprovalService service.
+	ApprovalServiceName = "plux.v1.ApprovalService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -66,6 +68,33 @@ const (
 	// GovernanceServiceDeleteGrantProcedure is the fully-qualified name of the GovernanceService's
 	// DeleteGrant RPC.
 	GovernanceServiceDeleteGrantProcedure = "/plux.v1.GovernanceService/DeleteGrant"
+	// ApprovalServicePutPolicyProcedure is the fully-qualified name of the ApprovalService's PutPolicy
+	// RPC.
+	ApprovalServicePutPolicyProcedure = "/plux.v1.ApprovalService/PutPolicy"
+	// ApprovalServiceGetPolicyProcedure is the fully-qualified name of the ApprovalService's GetPolicy
+	// RPC.
+	ApprovalServiceGetPolicyProcedure = "/plux.v1.ApprovalService/GetPolicy"
+	// ApprovalServiceListPoliciesProcedure is the fully-qualified name of the ApprovalService's
+	// ListPolicies RPC.
+	ApprovalServiceListPoliciesProcedure = "/plux.v1.ApprovalService/ListPolicies"
+	// ApprovalServiceDeletePolicyProcedure is the fully-qualified name of the ApprovalService's
+	// DeletePolicy RPC.
+	ApprovalServiceDeletePolicyProcedure = "/plux.v1.ApprovalService/DeletePolicy"
+	// ApprovalServiceExportPoliciesProcedure is the fully-qualified name of the ApprovalService's
+	// ExportPolicies RPC.
+	ApprovalServiceExportPoliciesProcedure = "/plux.v1.ApprovalService/ExportPolicies"
+	// ApprovalServiceListApprovalsProcedure is the fully-qualified name of the ApprovalService's
+	// ListApprovals RPC.
+	ApprovalServiceListApprovalsProcedure = "/plux.v1.ApprovalService/ListApprovals"
+	// ApprovalServiceGetApprovalProcedure is the fully-qualified name of the ApprovalService's
+	// GetApproval RPC.
+	ApprovalServiceGetApprovalProcedure = "/plux.v1.ApprovalService/GetApproval"
+	// ApprovalServiceGetApprovalReviewProcedure is the fully-qualified name of the ApprovalService's
+	// GetApprovalReview RPC.
+	ApprovalServiceGetApprovalReviewProcedure = "/plux.v1.ApprovalService/GetApprovalReview"
+	// ApprovalServiceDecideApprovalProcedure is the fully-qualified name of the ApprovalService's
+	// DecideApproval RPC.
+	ApprovalServiceDecideApprovalProcedure = "/plux.v1.ApprovalService/DecideApproval"
 )
 
 // GovernanceServiceClient is a client for the plux.v1.GovernanceService service.
@@ -396,4 +425,312 @@ func (UnimplementedGovernanceServiceHandler) UpdateGrant(context.Context, *conne
 
 func (UnimplementedGovernanceServiceHandler) DeleteGrant(context.Context, *connect.Request[pluxv1.DeleteGrantRequest]) (*connect.Response[pluxv1.DeleteGrantResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GovernanceService.DeleteGrant is not implemented"))
+}
+
+// ApprovalServiceClient is a client for the plux.v1.ApprovalService service.
+type ApprovalServiceClient interface {
+	// PutPolicy creates a policy document or adds a version of it. The
+	// document is checked against the policy schema (PLX-1700); stages and
+	// distinct-team rules are an enterprise feature (PLX-8600). Changing a
+	// policy is itself a change a policy can guard (resource "policy").
+	PutPolicy(context.Context, *connect.Request[pluxv1.PutPolicyRequest]) (*connect.Response[pluxv1.PutPolicyResponse], error)
+	GetPolicy(context.Context, *connect.Request[pluxv1.GetPolicyRequest]) (*connect.Response[pluxv1.GetPolicyResponse], error)
+	// ListPolicies lists the policies in force for an app. The first call
+	// for an app seeds the default policies of its security profile.
+	ListPolicies(context.Context, *connect.Request[pluxv1.ListPoliciesRequest]) (*connect.Response[pluxv1.ListPoliciesResponse], error)
+	// DeletePolicy withdraws a policy; a deleted default is not seeded again.
+	DeletePolicy(context.Context, *connect.Request[pluxv1.DeletePolicyRequest]) (*connect.Response[pluxv1.DeletePolicyResponse], error)
+	// ExportPolicies returns the policies in force as the files of the Git
+	// layout, policies/<key>.policy.json.
+	ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error)
+	ListApprovals(context.Context, *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error)
+	GetApproval(context.Context, *connect.Request[pluxv1.GetApprovalRequest]) (*connect.Response[pluxv1.GetApprovalResponse], error)
+	// GetApprovalReview returns what an approver sees before deciding: the
+	// diff, reports, golden-image differences, install base, changelog and
+	// risk summary (GOV-023).
+	GetApprovalReview(context.Context, *connect.Request[pluxv1.GetApprovalReviewRequest]) (*connect.Response[pluxv1.GetApprovalReviewResponse], error)
+	// DecideApproval approves or rejects a request. It needs approvals.decide
+	// on the request's environment, which needs a fresh step-up (SEC-103).
+	// The requester and the author of the change are refused (PLX-8003).
+	DecideApproval(context.Context, *connect.Request[pluxv1.DecideApprovalRequest]) (*connect.Response[pluxv1.DecideApprovalResponse], error)
+}
+
+// NewApprovalServiceClient constructs a client for the plux.v1.ApprovalService service. By default,
+// it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and
+// sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC()
+// or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewApprovalServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ApprovalServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	approvalServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("ApprovalService").Methods()
+	return &approvalServiceClient{
+		putPolicy: connect.NewClient[pluxv1.PutPolicyRequest, pluxv1.PutPolicyResponse](
+			httpClient,
+			baseURL+ApprovalServicePutPolicyProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("PutPolicy")),
+			connect.WithClientOptions(opts...),
+		),
+		getPolicy: connect.NewClient[pluxv1.GetPolicyRequest, pluxv1.GetPolicyResponse](
+			httpClient,
+			baseURL+ApprovalServiceGetPolicyProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("GetPolicy")),
+			connect.WithClientOptions(opts...),
+		),
+		listPolicies: connect.NewClient[pluxv1.ListPoliciesRequest, pluxv1.ListPoliciesResponse](
+			httpClient,
+			baseURL+ApprovalServiceListPoliciesProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("ListPolicies")),
+			connect.WithClientOptions(opts...),
+		),
+		deletePolicy: connect.NewClient[pluxv1.DeletePolicyRequest, pluxv1.DeletePolicyResponse](
+			httpClient,
+			baseURL+ApprovalServiceDeletePolicyProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("DeletePolicy")),
+			connect.WithClientOptions(opts...),
+		),
+		exportPolicies: connect.NewClient[pluxv1.ExportPoliciesRequest, pluxv1.ExportPoliciesResponse](
+			httpClient,
+			baseURL+ApprovalServiceExportPoliciesProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("ExportPolicies")),
+			connect.WithClientOptions(opts...),
+		),
+		listApprovals: connect.NewClient[pluxv1.ListApprovalsRequest, pluxv1.ListApprovalsResponse](
+			httpClient,
+			baseURL+ApprovalServiceListApprovalsProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("ListApprovals")),
+			connect.WithClientOptions(opts...),
+		),
+		getApproval: connect.NewClient[pluxv1.GetApprovalRequest, pluxv1.GetApprovalResponse](
+			httpClient,
+			baseURL+ApprovalServiceGetApprovalProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("GetApproval")),
+			connect.WithClientOptions(opts...),
+		),
+		getApprovalReview: connect.NewClient[pluxv1.GetApprovalReviewRequest, pluxv1.GetApprovalReviewResponse](
+			httpClient,
+			baseURL+ApprovalServiceGetApprovalReviewProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("GetApprovalReview")),
+			connect.WithClientOptions(opts...),
+		),
+		decideApproval: connect.NewClient[pluxv1.DecideApprovalRequest, pluxv1.DecideApprovalResponse](
+			httpClient,
+			baseURL+ApprovalServiceDecideApprovalProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("DecideApproval")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// approvalServiceClient implements ApprovalServiceClient.
+type approvalServiceClient struct {
+	putPolicy         *connect.Client[pluxv1.PutPolicyRequest, pluxv1.PutPolicyResponse]
+	getPolicy         *connect.Client[pluxv1.GetPolicyRequest, pluxv1.GetPolicyResponse]
+	listPolicies      *connect.Client[pluxv1.ListPoliciesRequest, pluxv1.ListPoliciesResponse]
+	deletePolicy      *connect.Client[pluxv1.DeletePolicyRequest, pluxv1.DeletePolicyResponse]
+	exportPolicies    *connect.Client[pluxv1.ExportPoliciesRequest, pluxv1.ExportPoliciesResponse]
+	listApprovals     *connect.Client[pluxv1.ListApprovalsRequest, pluxv1.ListApprovalsResponse]
+	getApproval       *connect.Client[pluxv1.GetApprovalRequest, pluxv1.GetApprovalResponse]
+	getApprovalReview *connect.Client[pluxv1.GetApprovalReviewRequest, pluxv1.GetApprovalReviewResponse]
+	decideApproval    *connect.Client[pluxv1.DecideApprovalRequest, pluxv1.DecideApprovalResponse]
+}
+
+// PutPolicy calls plux.v1.ApprovalService.PutPolicy.
+func (c *approvalServiceClient) PutPolicy(ctx context.Context, req *connect.Request[pluxv1.PutPolicyRequest]) (*connect.Response[pluxv1.PutPolicyResponse], error) {
+	return c.putPolicy.CallUnary(ctx, req)
+}
+
+// GetPolicy calls plux.v1.ApprovalService.GetPolicy.
+func (c *approvalServiceClient) GetPolicy(ctx context.Context, req *connect.Request[pluxv1.GetPolicyRequest]) (*connect.Response[pluxv1.GetPolicyResponse], error) {
+	return c.getPolicy.CallUnary(ctx, req)
+}
+
+// ListPolicies calls plux.v1.ApprovalService.ListPolicies.
+func (c *approvalServiceClient) ListPolicies(ctx context.Context, req *connect.Request[pluxv1.ListPoliciesRequest]) (*connect.Response[pluxv1.ListPoliciesResponse], error) {
+	return c.listPolicies.CallUnary(ctx, req)
+}
+
+// DeletePolicy calls plux.v1.ApprovalService.DeletePolicy.
+func (c *approvalServiceClient) DeletePolicy(ctx context.Context, req *connect.Request[pluxv1.DeletePolicyRequest]) (*connect.Response[pluxv1.DeletePolicyResponse], error) {
+	return c.deletePolicy.CallUnary(ctx, req)
+}
+
+// ExportPolicies calls plux.v1.ApprovalService.ExportPolicies.
+func (c *approvalServiceClient) ExportPolicies(ctx context.Context, req *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error) {
+	return c.exportPolicies.CallUnary(ctx, req)
+}
+
+// ListApprovals calls plux.v1.ApprovalService.ListApprovals.
+func (c *approvalServiceClient) ListApprovals(ctx context.Context, req *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error) {
+	return c.listApprovals.CallUnary(ctx, req)
+}
+
+// GetApproval calls plux.v1.ApprovalService.GetApproval.
+func (c *approvalServiceClient) GetApproval(ctx context.Context, req *connect.Request[pluxv1.GetApprovalRequest]) (*connect.Response[pluxv1.GetApprovalResponse], error) {
+	return c.getApproval.CallUnary(ctx, req)
+}
+
+// GetApprovalReview calls plux.v1.ApprovalService.GetApprovalReview.
+func (c *approvalServiceClient) GetApprovalReview(ctx context.Context, req *connect.Request[pluxv1.GetApprovalReviewRequest]) (*connect.Response[pluxv1.GetApprovalReviewResponse], error) {
+	return c.getApprovalReview.CallUnary(ctx, req)
+}
+
+// DecideApproval calls plux.v1.ApprovalService.DecideApproval.
+func (c *approvalServiceClient) DecideApproval(ctx context.Context, req *connect.Request[pluxv1.DecideApprovalRequest]) (*connect.Response[pluxv1.DecideApprovalResponse], error) {
+	return c.decideApproval.CallUnary(ctx, req)
+}
+
+// ApprovalServiceHandler is an implementation of the plux.v1.ApprovalService service.
+type ApprovalServiceHandler interface {
+	// PutPolicy creates a policy document or adds a version of it. The
+	// document is checked against the policy schema (PLX-1700); stages and
+	// distinct-team rules are an enterprise feature (PLX-8600). Changing a
+	// policy is itself a change a policy can guard (resource "policy").
+	PutPolicy(context.Context, *connect.Request[pluxv1.PutPolicyRequest]) (*connect.Response[pluxv1.PutPolicyResponse], error)
+	GetPolicy(context.Context, *connect.Request[pluxv1.GetPolicyRequest]) (*connect.Response[pluxv1.GetPolicyResponse], error)
+	// ListPolicies lists the policies in force for an app. The first call
+	// for an app seeds the default policies of its security profile.
+	ListPolicies(context.Context, *connect.Request[pluxv1.ListPoliciesRequest]) (*connect.Response[pluxv1.ListPoliciesResponse], error)
+	// DeletePolicy withdraws a policy; a deleted default is not seeded again.
+	DeletePolicy(context.Context, *connect.Request[pluxv1.DeletePolicyRequest]) (*connect.Response[pluxv1.DeletePolicyResponse], error)
+	// ExportPolicies returns the policies in force as the files of the Git
+	// layout, policies/<key>.policy.json.
+	ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error)
+	ListApprovals(context.Context, *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error)
+	GetApproval(context.Context, *connect.Request[pluxv1.GetApprovalRequest]) (*connect.Response[pluxv1.GetApprovalResponse], error)
+	// GetApprovalReview returns what an approver sees before deciding: the
+	// diff, reports, golden-image differences, install base, changelog and
+	// risk summary (GOV-023).
+	GetApprovalReview(context.Context, *connect.Request[pluxv1.GetApprovalReviewRequest]) (*connect.Response[pluxv1.GetApprovalReviewResponse], error)
+	// DecideApproval approves or rejects a request. It needs approvals.decide
+	// on the request's environment, which needs a fresh step-up (SEC-103).
+	// The requester and the author of the change are refused (PLX-8003).
+	DecideApproval(context.Context, *connect.Request[pluxv1.DecideApprovalRequest]) (*connect.Response[pluxv1.DecideApprovalResponse], error)
+}
+
+// NewApprovalServiceHandler builds an HTTP handler from the service implementation. It returns the
+// path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewApprovalServiceHandler(svc ApprovalServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	approvalServiceMethods := pluxv1.File_plux_v1_governance_proto.Services().ByName("ApprovalService").Methods()
+	approvalServicePutPolicyHandler := connect.NewUnaryHandler(
+		ApprovalServicePutPolicyProcedure,
+		svc.PutPolicy,
+		connect.WithSchema(approvalServiceMethods.ByName("PutPolicy")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceGetPolicyHandler := connect.NewUnaryHandler(
+		ApprovalServiceGetPolicyProcedure,
+		svc.GetPolicy,
+		connect.WithSchema(approvalServiceMethods.ByName("GetPolicy")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceListPoliciesHandler := connect.NewUnaryHandler(
+		ApprovalServiceListPoliciesProcedure,
+		svc.ListPolicies,
+		connect.WithSchema(approvalServiceMethods.ByName("ListPolicies")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceDeletePolicyHandler := connect.NewUnaryHandler(
+		ApprovalServiceDeletePolicyProcedure,
+		svc.DeletePolicy,
+		connect.WithSchema(approvalServiceMethods.ByName("DeletePolicy")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceExportPoliciesHandler := connect.NewUnaryHandler(
+		ApprovalServiceExportPoliciesProcedure,
+		svc.ExportPolicies,
+		connect.WithSchema(approvalServiceMethods.ByName("ExportPolicies")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceListApprovalsHandler := connect.NewUnaryHandler(
+		ApprovalServiceListApprovalsProcedure,
+		svc.ListApprovals,
+		connect.WithSchema(approvalServiceMethods.ByName("ListApprovals")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceGetApprovalHandler := connect.NewUnaryHandler(
+		ApprovalServiceGetApprovalProcedure,
+		svc.GetApproval,
+		connect.WithSchema(approvalServiceMethods.ByName("GetApproval")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceGetApprovalReviewHandler := connect.NewUnaryHandler(
+		ApprovalServiceGetApprovalReviewProcedure,
+		svc.GetApprovalReview,
+		connect.WithSchema(approvalServiceMethods.ByName("GetApprovalReview")),
+		connect.WithHandlerOptions(opts...),
+	)
+	approvalServiceDecideApprovalHandler := connect.NewUnaryHandler(
+		ApprovalServiceDecideApprovalProcedure,
+		svc.DecideApproval,
+		connect.WithSchema(approvalServiceMethods.ByName("DecideApproval")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/plux.v1.ApprovalService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ApprovalServicePutPolicyProcedure:
+			approvalServicePutPolicyHandler.ServeHTTP(w, r)
+		case ApprovalServiceGetPolicyProcedure:
+			approvalServiceGetPolicyHandler.ServeHTTP(w, r)
+		case ApprovalServiceListPoliciesProcedure:
+			approvalServiceListPoliciesHandler.ServeHTTP(w, r)
+		case ApprovalServiceDeletePolicyProcedure:
+			approvalServiceDeletePolicyHandler.ServeHTTP(w, r)
+		case ApprovalServiceExportPoliciesProcedure:
+			approvalServiceExportPoliciesHandler.ServeHTTP(w, r)
+		case ApprovalServiceListApprovalsProcedure:
+			approvalServiceListApprovalsHandler.ServeHTTP(w, r)
+		case ApprovalServiceGetApprovalProcedure:
+			approvalServiceGetApprovalHandler.ServeHTTP(w, r)
+		case ApprovalServiceGetApprovalReviewProcedure:
+			approvalServiceGetApprovalReviewHandler.ServeHTTP(w, r)
+		case ApprovalServiceDecideApprovalProcedure:
+			approvalServiceDecideApprovalHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedApprovalServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedApprovalServiceHandler struct{}
+
+func (UnimplementedApprovalServiceHandler) PutPolicy(context.Context, *connect.Request[pluxv1.PutPolicyRequest]) (*connect.Response[pluxv1.PutPolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.PutPolicy is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) GetPolicy(context.Context, *connect.Request[pluxv1.GetPolicyRequest]) (*connect.Response[pluxv1.GetPolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.GetPolicy is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) ListPolicies(context.Context, *connect.Request[pluxv1.ListPoliciesRequest]) (*connect.Response[pluxv1.ListPoliciesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.ListPolicies is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) DeletePolicy(context.Context, *connect.Request[pluxv1.DeletePolicyRequest]) (*connect.Response[pluxv1.DeletePolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.DeletePolicy is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.ExportPolicies is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) ListApprovals(context.Context, *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.ListApprovals is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) GetApproval(context.Context, *connect.Request[pluxv1.GetApprovalRequest]) (*connect.Response[pluxv1.GetApprovalResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.GetApproval is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) GetApprovalReview(context.Context, *connect.Request[pluxv1.GetApprovalReviewRequest]) (*connect.Response[pluxv1.GetApprovalReviewResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.GetApprovalReview is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) DecideApproval(context.Context, *connect.Request[pluxv1.DecideApprovalRequest]) (*connect.Response[pluxv1.DecideApprovalResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.DecideApproval is not implemented"))
 }

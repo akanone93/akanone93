@@ -1675,6 +1675,12 @@ type PolicyMatch struct {
 	Resources    []PolicyResource `json:"resources,omitempty"`
 	Environments []string         `json:"environments,omitempty"`
 	Actions      []string         `json:"actions,omitempty"`
+	// Production: Whether the change is to a production environment: true
+	// matches production environments only, false the others, and left out both.
+	// The environment keys of `environments` name environments one by one; this
+	// names the class, so that a policy covers a production environment added
+	// later.
+	Production *bool `json:"production,omitempty"`
 	// Risk: Risk attributes that must all hold.
 	Risk []PolicyRisk `json:"risk,omitempty"`
 }

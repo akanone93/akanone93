@@ -25,6 +25,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -50,6 +51,9 @@ type Options struct {
 	// Limits are the installation's limits, which organisations and
 	// apps tighten (LIM-002).
 	Limits limits.Set
+	// Approvals decides whether an organisation may raise a limit again
+	// (LIM-006, GOV-020); nil requires nothing.
+	Approvals approval.Gate
 	// TrashDays is how long a deleted item can be restored (GOV-031).
 	TrashDays int
 	// SigningKeyPrefix names each environment's targets key,

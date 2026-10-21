@@ -361,6 +361,12 @@ func (s *Service) gatePublish(ctx context.Context, system auth.Principal, row db
 	if diags.HasErrors() {
 		return nil, true, s.fail(ctx, system, row, diags)
 	}
+	if diags, err = s.gateCapabilities(ctx, system, row, c, diags); err != nil {
+		return nil, false, err
+	}
+	if diags.HasErrors() {
+		return nil, true, s.fail(ctx, system, row, diags)
+	}
 	builds, err := s.hostBuildChecks(ctx, system, row, c)
 	if err != nil {
 		return nil, false, err

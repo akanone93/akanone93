@@ -233,6 +233,10 @@ const (
 	// ReplayCacheFallback: What the server does when the shared replay cache is
 	// unavailable: keep a per-process cache or reject the request. (SEC-023)
 	ReplayCacheFallback Key = "replayCacheFallback"
+	// RequiredTests: Whether a release needs a canonical Plux test and golden
+	// run, with no unapproved difference, before it is published to a production
+	// environment. (TST-005)
+	RequiredTests Key = "requiredTests"
 	// RiskMetricMaxAL3: The highest platform risk metric, such as recent app
 	// activity, that still qualifies a device for assurance level AL3. (SEC-007)
 	RiskMetricMaxAL3 Key = "riskMetricMaxAL3"
@@ -457,6 +461,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: TextValue("memory"), Strict: TextValue("memory"), Maximum: TextValue("failClosed")},
 			TravelsToDevice: false, Phase: "P6", Requirements: []string{"SEC-023"},
 			Description: "What the server does when the shared replay cache is unavailable: keep a per-process cache or reject the request.",
+		},
+		{
+			Key: RequiredTests, Type: TypeBool, Tighter: TighterTrue,
+			Defaults:        Defaults{Standard: BoolValue(false), Strict: BoolValue(false), Maximum: BoolValue(true)},
+			TravelsToDevice: false, Phase: "P9", Requirements: []string{"TST-005"},
+			Description: "Whether a release needs a canonical Plux test and golden run, with no unapproved difference, before it is published to a production environment.",
 		},
 		{
 			Key: RiskMetricMaxAL3, Type: TypeCount, Tighter: TighterLower,

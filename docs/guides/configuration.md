@@ -20,7 +20,7 @@ runtime always agree on the built-in values.
 | Where it is read | Settings |
 |---|---|
 | On the device (travel in the configuration) | `allowDirectDataSources`, `allowSoftwareKeys`, `androidRefreshRequiresIntegrity`, `encryptLocalStores`, `inactivityLock`, `inactivityLockTimeout`, `minAssuranceForSync`, `rasp*Response` (eight), `raspScanInterval`, `reattestationInterval`, `screenshotBlockingDefault` |
-| On the server only (never sent) | `accessTokenLifetime`, `androidDeviceVerdictAL2`, `attestationOutageGrace`, `confidentialBundles`, `confidentialMinAssurance`, `defaultFunctionAssurance`, `dpopIatWindow`, `dpopIatWindowFallback`, `dpopNonceRotation`, `registrationChallengeTtl`, `replayCacheFallback`, `riskMetricMaxAL3`, `tls12Allowed` |
+| On the server only (never sent) | `accessTokenLifetime`, `androidDeviceVerdictAL2`, `attestationOutageGrace`, `confidentialBundles`, `confidentialMinAssurance`, `defaultFunctionAssurance`, `dpopIatWindow`, `dpopIatWindowFallback`, `dpopNonceRotation`, `registrationChallengeTtl`, `replayCacheFallback`, `requiredTests`, `riskMetricMaxAL3`, `tls12Allowed` |
 
 The presets per profile are in the [security guide](security.md) §2.
 

@@ -8,12 +8,15 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -248,10 +251,9 @@ func (s *Service) setLimit(ctx context.Context, p auth.Principal, scope limits.S
 		if err != nil {
 			return err
 		}
-		tightened, err := parent.Tighten(k, scope, value)
+		tightened, err := s.limitChange(ctx, tx, p, scope, parent, k, value)
 		if err != nil {
-			return plxerr.New(plxerr.OutOfRange,
-				"%s can be set here only between 1 and %d, the limit in force above this scope (LIM-002)", key, parent.Get(k))
+			return err
 		}
 		if _, err := q.SetLimitOverride(ctx, dbgen.SetLimitOverrideParams{
 			OrganizationID: storage.MustUUID(p.OrganizationID), Scope: name,
@@ -267,6 +269,43 @@ func (s *Service) setLimit(ctx context.Context, p auth.Principal, scope limits.S
 		return s.record(ctx, tx, p, audit.LimitSet, name, scopeID)
 	})
 	return out, err
+}
+
+// limitChange returns the limits in force with a limit set to value. Below
+// the scope above it is a tightening (LIM-002). An organisation may also
+// raise a limit it tightened earlier, up to the installation's value; that
+// needs the approval engine's agreement when a policy asks for it (LIM-006).
+func (s *Service) limitChange(ctx context.Context, tx pgx.Tx, p auth.Principal, scope limits.Scope, parent limits.Set, k limits.Key, value int64) (limits.Set, error) {
+	if scope == limits.ScopeOrganization && value > parent.Get(k) {
+		return s.raiseLimit(ctx, tx, p, k, value)
+	}
+	tightened, err := parent.Tighten(k, scope, value)
+	if err != nil {
+		return limits.Set{}, plxerr.New(plxerr.OutOfRange,
+			"%s can be set here only between 1 and %d, the limit in force above this scope (LIM-002)", k, parent.Get(k))
+	}
+	return tightened, nil
+}
+
+// raiseLimit raises an organisation's limit towards the installation's. The
+// approval is about the limit and its new value, and the engine is asked
+// before anything is written (approval.Require).
+func (s *Service) raiseLimit(ctx context.Context, tx pgx.Tx, p auth.Principal, k limits.Key, value int64) (limits.Set, error) {
+	raised, err := s.o.Limits.Tighten(k, limits.ScopeOrganization, value)
+	if err != nil {
+		return limits.Set{}, plxerr.New(plxerr.OutOfRange,
+			"%s can be raised only up to %d, the installation's limit (LIM-002)", k, s.o.Limits.Get(k))
+	}
+	v := strconv.FormatInt(value, 10)
+	err = approval.Require(ctx, s.o.Approvals, tx, approval.Artifact{
+		Resource: schema.PolicyResourceLimit, OrganizationID: p.OrganizationID, Action: approval.ActionRaiseLimit,
+		Subject: "limit:organization:" + string(k), Hash: approval.HashOf([]byte(k), []byte(v)),
+		Summary: fmt.Sprintf("the organisation's %s is raised to %s", k, v), Requester: p.Actor(),
+	})
+	if err != nil {
+		return limits.Set{}, err //nolint:wrapcheck // a refusal for the caller
+	}
+	return raised, nil
 }
 
 // OrganizationLimits returns the limits in force for an organisation,

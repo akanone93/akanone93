@@ -22,11 +22,13 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -85,6 +87,12 @@ type Functions interface {
 
 // Options configures a Service.
 type Options struct {
+	// Approvals decides whether a release may be promoted (GOV-020); nil
+	// requires nothing.
+	Approvals approval.Gate
+	// Goldens supplies the golden-image differences of a review (GOV-023);
+	// nil leaves them out.
+	Goldens *golden.Service
 	// Metrics counts finished publish jobs; nil records none.
 	Metrics   PublishMetrics
 	DB        *storage.DB
