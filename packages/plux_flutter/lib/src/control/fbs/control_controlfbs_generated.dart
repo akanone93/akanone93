@@ -236,10 +236,6 @@ class TargetingRule {
   List<TargetingRule>? get all => const fb.ListReader<TargetingRule>(TargetingRule.reader).vTableGetNullable(_bc, _bcOffset, 12);
   List<TargetingRule>? get any => const fb.ListReader<TargetingRule>(TargetingRule.reader).vTableGetNullable(_bc, _bcOffset, 14);
 
-  @override
-  String toString() {
-    return 'TargetingRule{attribute: ${attribute}, \$operator: ${$operator}, valueType: ${valueType}, values: ${values}, all: ${all}, any: ${any}}';
-  }
 }
 
 class _TargetingRuleReader extends fb.TableReader<TargetingRule> {
@@ -357,10 +353,6 @@ class KillSwitch {
   String? get target => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
   TargetingRule? get rule => TargetingRule.reader.vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'KillSwitch{scope: ${scope}, target: ${target}, rule: ${rule}}';
-  }
 }
 
 class _KillSwitchReader extends fb.TableReader<KillSwitch> {
@@ -449,10 +441,6 @@ class MandatoryUpdate {
   int get releaseSequence => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 6, 0);
   String? get messageKey => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'MandatoryUpdate{releaseId: ${releaseId}, releaseSequence: ${releaseSequence}, messageKey: ${messageKey}}';
-  }
 }
 
 class _MandatoryUpdateReader extends fb.TableReader<MandatoryUpdate> {
@@ -541,10 +529,6 @@ class ForcedRollback {
   String? get releaseId => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   int get releaseSequence => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 6, 0);
 
-  @override
-  String toString() {
-    return 'ForcedRollback{releaseId: ${releaseId}, releaseSequence: ${releaseSequence}}';
-  }
 }
 
 class _ForcedRollbackReader extends fb.TableReader<ForcedRollback> {
@@ -624,10 +608,6 @@ class FlagSegmentValue {
   TargetingRule? get rule => TargetingRule.reader.vTableGetNullable(_bc, _bcOffset, 6);
   String? get value => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'FlagSegmentValue{segment: ${segment}, rule: ${rule}, value: ${value}}';
-  }
 }
 
 class _FlagSegmentValueReader extends fb.TableReader<FlagSegmentValue> {
@@ -719,10 +699,6 @@ class FlagValue {
   String? get defaultValue => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 8);
   List<FlagSegmentValue>? get segments => const fb.ListReader<FlagSegmentValue>(FlagSegmentValue.reader).vTableGetNullable(_bc, _bcOffset, 10);
 
-  @override
-  String toString() {
-    return 'FlagValue{key: ${key}, type: ${type}, defaultValue: ${defaultValue}, segments: ${segments}}';
-  }
 }
 
 class _FlagValueReader extends fb.TableReader<FlagValue> {
@@ -822,10 +798,6 @@ class AllocationVariant {
   bool get control => const fb.BoolReader().vTableGet(_bc, _bcOffset, 6, false);
   int get weightBp => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
 
-  @override
-  String toString() {
-    return 'AllocationVariant{name: ${name}, control: ${control}, weightBp: ${weightBp}}';
-  }
 }
 
 class _AllocationVariantReader extends fb.TableReader<AllocationVariant> {
@@ -912,10 +884,6 @@ class GlobalHoldout {
   int get basisPoints => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
   String? get salt => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'GlobalHoldout{basisPoints: ${basisPoints}, salt: ${salt}}';
-  }
 }
 
 class _GlobalHoldoutReader extends fb.TableReader<GlobalHoldout> {
@@ -1003,10 +971,6 @@ class ExperimentAllocation {
   int get startsAt => const fb.Int64Reader().vTableGet(_bc, _bcOffset, 22, 0);
   int get endsAt => const fb.Int64Reader().vTableGet(_bc, _bcOffset, 24, 0);
 
-  @override
-  String toString() {
-    return 'ExperimentAllocation{key: ${key}, scope: ${scope}, salt: ${salt}, variants: ${variants}, layer: ${layer}, layerStart: ${layerStart}, layerEnd: ${layerEnd}, holdoutBp: ${holdoutBp}, segment: ${segment}, startsAt: ${startsAt}, endsAt: ${endsAt}}';
-  }
 }
 
 class _ExperimentAllocationReader extends fb.TableReader<ExperimentAllocation> {
@@ -1174,10 +1138,6 @@ class ControlDocument {
   List<ExperimentAllocation>? get experiments => const fb.ListReader<ExperimentAllocation>(ExperimentAllocation.reader).vTableGetNullable(_bc, _bcOffset, 24);
   GlobalHoldout? get holdout => GlobalHoldout.reader.vTableGetNullable(_bc, _bcOffset, 26);
 
-  @override
-  String toString() {
-    return 'ControlDocument{version: ${version}, appId: ${appId}, environment: ${environment}, channel: ${channel}, issuedAt: ${issuedAt}, expiresAt: ${expiresAt}, killSwitches: ${killSwitches}, mandatoryUpdate: ${mandatoryUpdate}, forcedRollback: ${forcedRollback}, flags: ${flags}, experiments: ${experiments}, holdout: ${holdout}}';
-  }
 }
 
 class _ControlDocumentReader extends fb.TableReader<ControlDocument> {
