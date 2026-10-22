@@ -85,6 +85,12 @@ is bound to the CLI's key, so a copied token cannot use it.
 A grant used with another key, presented after it expires, or replayed is refused. The tests of
 this flow cover expiry, replay and a grant used with another key.
 
+Every proof names the request URL in its `htu` claim, and the server compares it with its
+configured `server.publicBaseURL`, not with the address the request arrived at (a proxy or a
+port-forward changes that). When you reach the server by another address, for example with
+`kubectl port-forward`, set `PLUX_PUBLIC_URL` to the public base URL and the CLI names it in its
+proofs; without it the CLI names the address it calls.
+
 The CLI reference ([CLI reference](../reference/cli.md)) lists the command that starts the flow
 when the command ships. The server side is `CreateCLIStepUp`, `PollCLIStepUp` and
 `CheckStepUpGrant`.

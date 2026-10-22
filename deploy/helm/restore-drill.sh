@@ -241,7 +241,26 @@ PLUX_TOKEN=$(value TOKEN)
 
 cp -r "$repo/schema/testdata/documents/loan-calculator" "$work/project"
 forward "$SRC_NS" plux-api 18081
-publish() { "$work/plux" publish --server http://127.0.0.1:18081 --org "$ORG" --app "$APP" -C "$work/project" --promote staging --notes "$1" >/dev/null; }
+
+# Publishing and promoting need a step-up (SEC-103): the CLI asks the server
+# for a request and waits for a person to confirm it with a security key in a
+# browser. The drill has no person, so a background loop plays the browser as
+# the server's tests do: it records the outcome of the ceremony on every
+# pending CLI request. The CLI's side (the request, the poll, the grant bound
+# to its key) runs for real. The ceremony itself is covered by the auth tests.
+(
+	while :; do
+		sql "$SRC_NS" "update step_up_requests set state = 'approved', approved_at = now(), challenge = null where kind = 'cli' and state = 'pending'" >/dev/null 2>&1 || true
+		sleep 1
+	done
+) &
+pids+=("$!")
+
+# The CLI reaches the server through the port-forward, but the server compares
+# the htu of its DPoP proofs with its configured public base URL (SEC-022), so
+# the CLI is told that URL (the chart's server.publicBaseURL in ci/*-values.yaml).
+PUBLIC_URL=https://plux.example.com
+publish() { PLUX_PUBLIC_URL=$PUBLIC_URL "$work/plux" publish --server http://127.0.0.1:18081 --org "$ORG" --app "$APP" -C "$work/project" --promote staging --notes "$1" >/dev/null; }
 publish "drill initial"
 
 step "base backup"

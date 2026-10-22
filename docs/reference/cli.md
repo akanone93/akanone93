@@ -155,6 +155,8 @@ Each is taken from its flag, then an environment variable, then `plux.json` in t
 | Organisation | `--org` | `PLUX_ORGANIZATION` | `organization` |
 | App | `--app` | — | `app` |
 
+When you reach the server by another address than its public base URL (a port-forward, an internal service), set `PLUX_PUBLIC_URL` to the public one: the DPoP proofs of a step-up name it in their `htu` claim, which the server compares with its configured `server.publicBaseURL` (`SEC-022`, `SEC-103`).
+
 ## Credentials
 
 Following [ADR-0028](../adr/0028-cli-credential-storage.md):

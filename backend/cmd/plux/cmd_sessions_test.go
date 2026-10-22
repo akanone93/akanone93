@@ -26,8 +26,11 @@ import (
 // refuses a proof it has seen.
 type stepUpServer struct {
 	pluxv1connect.UnimplementedIdentityServiceHandler
-	t        *testing.T
-	url      string
+	t   *testing.T
+	url string
+	// public is the base URL the server is configured with and the htu of
+	// every proof must name; empty means url.
+	public   string
 	verifier dpop.Verifier
 
 	mu      sync.Mutex
@@ -46,7 +49,11 @@ const (
 
 // check verifies the proof of a request to a path and returns its key.
 func (s *stepUpServer) check(h http.Header, path string) (string, bool) {
-	proof, err := s.verifier.Verify(h.Get("DPoP"), dpop.Expect{Method: http.MethodPost, URL: s.url + path, AccessToken: testPAT, Window: time.Minute})
+	base := s.url
+	if s.public != "" {
+		base = s.public
+	}
+	proof, err := s.verifier.Verify(h.Get("DPoP"), dpop.Expect{Method: http.MethodPost, URL: base + path, AccessToken: testPAT, Window: time.Minute})
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err != nil || s.seen[proof.JTI] {
@@ -192,5 +199,44 @@ func TestStepUpRefusalFailsTheCommand_SEC_103(t *testing.T) { //nolint:parallelt
 	}
 	if len(s.revoked) != 0 {
 		t.Errorf("revoked = %v", s.revoked)
+	}
+}
+
+// Verifies: SEC-103, SEC-022.
+// A server reached by another address than its public base URL (a
+// port-forward, an internal service) compares the htu of a proof with the
+// public one, so a CLI told that URL builds every proof of the ceremony for
+// it, and the whole step-up succeeds.
+func TestStepUpProofNamesThePublicURL_SEC_103(t *testing.T) { //nolint:paralleltest // the environment is process-wide
+	s, run := startStepUpServer(t)
+	s.public = "https://plux.example.com"
+	t.Setenv(publicURLEnv, s.public+"/")
+
+	code, out, stderr := run(env.sessions, "list")
+	if code != exitOK || !strings.Contains(out, "ses1\tstudio\tu1") || s.grants != 1 {
+		t.Fatalf("sessions list: %d %q %s (grants %d)", code, out, stderr, s.grants)
+	}
+}
+
+// Verifies: SEC-103, SEC-022.
+// Without a public URL the proofs name the address the CLI calls, and the
+// server's check is not loosened for the rest: a proof for that address is
+// refused by a server whose public base URL is another.
+func TestStepUpProofDefaultsToTheServerAddress_SEC_103(t *testing.T) { //nolint:paralleltest // the environment is process-wide
+	t.Setenv(publicURLEnv, "")
+	const server, public = "http://127.0.0.1:18081", "https://plux.example.com"
+	su := newEnv(&bytes.Buffer{}, &bytes.Buffer{}).newStepUpper(server, testPAT)
+	proof, err := su.proof(http.MethodPost, su.proofBase+stepUpRequestsPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v dpop.Verifier
+	expect := dpop.Expect{Method: http.MethodPost, AccessToken: testPAT, Window: time.Minute, URL: server + stepUpRequestsPath}
+	if _, err := v.Verify(proof, expect); err != nil {
+		t.Errorf("a proof for the address the CLI calls: %v", err)
+	}
+	expect.URL = public + stepUpRequestsPath
+	if _, err := v.Verify(proof, expect); err == nil {
+		t.Error("a proof for another address verified")
 	}
 }
