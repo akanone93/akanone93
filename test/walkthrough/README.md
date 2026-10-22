@@ -18,8 +18,8 @@ go run ./tools/cmd/walkthrough verify -dir walkthrough-out   # an auditor's chec
 
 ## What the environment must supply
 
-* An **enterprise server image and a licence file** (custom roles, SCIM, federation, step-up are enterprise features, `GOV-033`). The script passes `WALKTHROUGH_HELM_ARGS` to `helm` for this; the chart has no value that mounts a licence yet.
-* `WALKTHROUGH_TOKEN_CMD`, which prints an access token for `$WALKTHROUGH_ACTOR` after that person signed in through the test provider and answered their second factor, and `WALKTHROUGH_STEPUP_CMD`, which completes the WebAuthn step-up at `$WALKTHROUGH_STEPUP_URL`. Both drive a virtual authenticator in a browser; neither is in this directory.
+* An **enterprise server image and a licence file** (custom roles, SCIM, federation, step-up are enterprise features, `GOV-033`). The script passes `WALKTHROUGH_HELM_ARGS` to `helm` for this; the chart mounts the licence from a Secret named by `license.existingSecret`.
+* Optionally `WALKTHROUGH_TOKEN_CMD`, which prints an access token for `$WALKTHROUGH_ACTOR` after that person signed in through the test provider and answered their second factor, and `WALKTHROUGH_STEPUP_CMD`, which completes the WebAuthn step-up at `$WALKTHROUGH_STEPUP_URL`. They default to `tools/cmd/webauthn-driver`, a software authenticator built for the run (ES256, `none` attestation, keys in a mode-0700 directory of the run).
 * Optionally `WALKTHROUGH_VIEWER_CMD`, which opens a reconstruction in the viewer host on an emulator (step 7b, CI only).
 
 ## Evidence
