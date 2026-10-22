@@ -21,8 +21,10 @@ machine named next to it or marked pending.
 devices against a Plux server. Each device does what the runtime does:
 
 1. registers with development evidence (the server needs `attestation.developmentProvider`, so the
-   environment must not be a production one) and obtains a DPoP-bound token,
-2. at start: reports `session_start`, checks the manifest, fetches the signed control document,
+   environment must not be a production one) and obtains a DPoP-bound token, which it renews
+   three quarters into its life (the `token` operation; tokens last minutes, `SEC-020`),
+2. at start: checks the manifest, reports `session_start` for the release it names, fetches the
+   signed control document; every event carries the release the device runs,
 3. then keeps to its pacing, each interval jittered by ±20 %:
 
 | Operation | Interval at real pacing | RPC |

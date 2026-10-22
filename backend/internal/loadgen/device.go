@@ -50,6 +50,10 @@ type device struct {
 	pending        []*pluxv1.Event
 	// release is the sequence of the release the device's manifest names.
 	release int64
+	// renewAt is when the device renews its access token: three quarters
+	// into the token's life, as the runtime renews before it expires;
+	// zero when the server gave no expiry.
+	renewAt time.Time
 	nudges  chan struct{}
 }
 
@@ -117,11 +121,9 @@ func (d *device) registerCalls(ctx context.Context) error {
 		return fmt.Errorf("loadgen.register: %w", err)
 	}
 	d.id = reg.Msg.GetDevice().GetId()
-	tok, err := d.tokens.RefreshDeviceToken(ctx, connect.NewRequest(&pluxv1.RefreshDeviceTokenRequest{DeviceId: d.id}))
-	if err != nil {
+	if err := d.takeToken(ctx); err != nil {
 		return fmt.Errorf("loadgen.register: %w", err)
 	}
-	d.sess.setToken(tok.Msg.GetAccessToken())
 	if d.pushToken == "" {
 		return nil
 	}
@@ -132,6 +134,36 @@ func (d *device) registerCalls(ctx context.Context) error {
 		return fmt.Errorf("loadgen.register: %w", err)
 	}
 	return nil
+}
+
+// takeToken obtains a fresh access token and schedules its renewal.
+func (d *device) takeToken(ctx context.Context) error {
+	now := d.cfg.Now()
+	tok, err := d.tokens.RefreshDeviceToken(ctx, connect.NewRequest(&pluxv1.RefreshDeviceTokenRequest{DeviceId: d.id}))
+	if err != nil {
+		return err //nolint:wrapcheck // wrapped by the callers
+	}
+	d.sess.setToken(tok.Msg.GetAccessToken())
+	d.renewAt = time.Time{}
+	if exp := tok.Msg.GetExpiresAt(); exp != nil && exp.AsTime().After(now) {
+		d.renewAt = now.Add(exp.AsTime().Sub(now) * 3 / 4)
+	}
+	return nil
+}
+
+// renewToken renews the access token when it is due, so that a device that
+// runs longer than a token lives keeps working (SEC-020: tokens last
+// minutes).
+func (d *device) renewToken(ctx context.Context) {
+	if d.renewAt.IsZero() || d.cfg.Now().Before(d.renewAt) {
+		return
+	}
+	start := d.cfg.Now()
+	err := d.takeToken(ctx)
+	if err != nil {
+		err = fmt.Errorf("loadgen.renewToken: %w", err)
+	}
+	d.observe(ctx, OpToken, start, err)
 }
 
 // observe records a request unless it failed because the run ended: a

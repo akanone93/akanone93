@@ -156,6 +156,25 @@ func TestInjectErrorsSendsErrorEvents_REL_053(t *testing.T) {
 	}
 }
 
+// Verifies: DEP-051, SEC-020.
+// Access tokens last minutes, so a device that runs longer than its token
+// renews it before it expires, as the runtime does, and keeps working.
+func TestDevicesRenewTheirAccessToken_DEP_051(t *testing.T) {
+	t.Parallel()
+	srv := loadgentest.New(t)
+	srv.SetTokenLifetime(time.Second)
+	report, err := loadgen.Run(t.Context(), config(srv, 2, 3*time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n := srv.Calls("TokenService/RefreshDeviceToken"); n < 2*3 {
+		t.Errorf("%d tokens issued to two devices over three one-second token lives, want each renewed", n)
+	}
+	if report.Operations[loadgen.OpToken].Requests == 0 || report.Errors() != 0 {
+		t.Errorf("renewals = %+v, errors = %d", report.Operations[loadgen.OpToken], report.Errors())
+	}
+}
+
 // Verifies: DEP-051.
 // The report is JSON with the documented keys, and nothing but counts,
 // rates and latencies.
