@@ -5,17 +5,21 @@ package walkthrough
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// killTarget is the key of the page the kill switch of step 4 disables: the
-// secure transfer page of the Plux Bank project.
-const killTarget = "transfer"
+// killPage is the document of the page the kill switch of step 4 disables:
+// the secure transfer page of the Plux Bank project. A page switch names the
+// page by its document ID, so the walkthrough reads it from the project.
+const killPage = "plugins/banking/pages/transfer.page.json"
 
 // minRegressionDevices is the smallest second fleet that gives the health
 // gate a sample to decide on.
@@ -198,6 +202,10 @@ func (e *Env) stepKillSwitch(ctx context.Context, run *Run) error {
 	if err != nil {
 		return err
 	}
+	killTarget, err := e.documentID(killPage)
+	if err != nil {
+		return err
+	}
 	if err := w.refused(ctx, "admin", freezeRefusal, "control", "kill", "--env", e.FleetEnv, "--app", e.App, "page", killTarget); err != nil {
 		return fmt.Errorf("a change during the freeze must be refused: %w", err)
 	}
@@ -213,6 +221,25 @@ func (e *Env) stepKillSwitch(ctx context.Context, run *Run) error {
 	}
 	_, err = w.plux(ctx, "admin", "freeze", "delete", freeze)
 	return err
+}
+
+// documentID returns the id of a document of the walkthrough's project, by
+// its path in the project.
+func (e *Env) documentID(path string) (string, error) {
+	data, err := os.ReadFile(filepath.Join(e.Project, path)) //nolint:gosec // the project directory is the walkthrough's own copy
+	if err != nil {
+		return "", fmt.Errorf("walkthrough.documentID: %w", err)
+	}
+	var doc struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return "", fmt.Errorf("walkthrough.documentID: %s: %w", path, err)
+	}
+	if doc.ID == "" {
+		return "", fmt.Errorf("walkthrough.documentID: %s names no id", path)
+	}
+	return doc.ID, nil
 }
 
 // reviewBreakGlass shows the open post-hoc review of the emergency action,

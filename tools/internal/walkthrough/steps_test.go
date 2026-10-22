@@ -51,6 +51,11 @@ func TestKillSwitchStep(t *testing.T) {
 	if !plux.called("freeze put", "--env-key staging") || !plux.called("breakglass review", "bob|") || !plux.called("freeze delete fz1") {
 		t.Errorf("calls = %v", plux.calls)
 	}
+	// A page switch names the page by its document ID, as the server
+	// requires; the page's key is refused (PLX-1005).
+	if !plux.called("control kill", "page "+transferPageID) {
+		t.Errorf("the kill switch does not name the transfer page's ID: calls = %v", plux.calls)
+	}
 	if env.state.deviceID != "dev-1" || env.state.killedAt.IsZero() {
 		t.Errorf("state = %+v: step 7 needs a device and a time", env.state)
 	}
