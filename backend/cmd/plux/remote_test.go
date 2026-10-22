@@ -14,6 +14,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -48,6 +49,9 @@ type fake struct {
 	promote []string
 	// refuseRelease answers CreateRelease with diagnostics and no release.
 	refuseRelease bool
+	// released lists the drafts whose lock the CLI gave up, by plugin ID
+	// ("" for the app's draft) and session.
+	released []string
 	// channels by environment ID and key; after a promotion the
 	// worker "signs" its manifest once ListChannels has been asked lag
 	// more times, and never while unsigned.
@@ -152,6 +156,13 @@ func (f *fake) ExportDraft(_ context.Context, _ *connect.Request[pluxv1.ExportDr
 		}
 	}
 	return nil
+}
+
+func (f *fake) ReleaseLock(_ context.Context, r *connect.Request[pluxv1.ReleaseLockRequest]) (*connect.Response[pluxv1.ReleaseLockResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.released = append(f.released, r.Msg.GetPluginId()+"@"+r.Msg.GetSession())
+	return connect.NewResponse(&pluxv1.ReleaseLockResponse{}), nil
 }
 
 func (f *fake) ImportDraft(_ context.Context, s *connect.ClientStream[pluxv1.ImportDraftRequest]) (*connect.Response[pluxv1.ImportDraftResponse], error) {
@@ -338,6 +349,9 @@ func TestServerCommands(t *testing.T) { //nolint:paralleltest // the keychain mo
 	}
 	if code, _, _ := cli(t, config, "import", "-C", project); code != exitOK {
 		t.Errorf("import: %d", code)
+	}
+	if !slices.Equal(f.released, []string{"@plux-cli", "p1@plux-cli"}) {
+		t.Errorf("the import kept its editing locks: released %v", f.released)
 	}
 	f.drafts["app.json"] = []byte(`{"a":2,"b":1}`) // canonical on the server
 	if code, out, _ := cli(t, config, "diff", "-C", project); code != exitOK || out != "" {
