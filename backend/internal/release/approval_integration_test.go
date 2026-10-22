@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -142,6 +143,97 @@ func TestPromotionNeedsApproval_GOV_020(t *testing.T) {
 	}
 	_, err = g.rel.PromoteRelease(ctx, g.owner, g.app, rel.Sequence, prod, "")
 	requestNamed(t, err, plxerr.ApprovalRequired)
+}
+
+// editResult changes the loans plugin's result page and publishes the plugin.
+func (f *fixture) editResult(t *testing.T, note string) {
+	t.Helper()
+	ctx := context.Background()
+	if _, _, err := f.docs.AcquireLock(ctx, f.owner, f.app, f.loans, "edit", false); err != nil {
+		t.Fatal(err)
+	}
+	page, err := f.docs.GetDocument(ctx, f.owner, f.app, f.loans, "plugins/loans/pages/result.page.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(page.Content, &doc); err != nil {
+		t.Fatal(err)
+	}
+	doc["x-note"] = note
+	changed, err := json.Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.docs.PutDocument(ctx, f.owner, f.app, f.loans, "edit", page.Path, changed, page.Revision); err != nil {
+		t.Fatal(err)
+	}
+	if job := f.publish(t, f.loans, false); job.State != release.StateSucceeded {
+		t.Fatalf("publish: %+v", job.Diagnostics)
+	}
+}
+
+// promotionDiff asks to promote a release to production and returns the
+// changes its approval request shows.
+func (g *guarded) promotionDiff(t *testing.T, sequence int64) (string, []release.ChangelogEntry) {
+	t.Helper()
+	ctx := context.Background()
+	_, err := g.rel.PromoteRelease(ctx, g.owner, g.app, sequence, g.envs["production"].ID, "")
+	var refusal *plxerr.Error
+	if !errors.As(err, &refusal) || refusal.Code != plxerr.ApprovalRequired {
+		t.Fatalf("the promotion asked for no approval: %v", err)
+	}
+	id := refusal.Details["request"]
+	review, err := g.engine.Review(ctx, g.viewer, g.app, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var diff []release.ChangelogEntry
+	if err := json.Unmarshal(review.Evidence.Diff, &diff); err != nil {
+		t.Fatal(err)
+	}
+	return id, diff
+}
+
+// Verifies: GOV-020, GOV-022.
+// A promotion's risk and the diff its approvers see are read against the
+// release the channel holds: against an empty channel every document is new,
+// however many releases came before, and against a channel several releases
+// behind the changes of all of them count, not only the last one's.
+func TestPromotionChangesAgainstTheChannel_GOV_020(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	g := newGuarded(t, settings.Standard)
+	dev := g.envs["development"].ID
+	g.releaseOfDevelopment(t)
+	g.editResult(t, "second")
+	second, _, err := g.rel.CreateRelease(ctx, g.owner, g.app, dev, map[string]int64{"loans": 2}, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, diff := g.promotionDiff(t, second.Sequence)
+	if len(diff) < 2 || slices.ContainsFunc(diff, func(e release.ChangelogEntry) bool { return e.Change != "added" }) {
+		t.Fatalf("against an empty channel every document is new, got %+v", diff)
+	}
+	if _, err := g.engine.Decide(ctx, g.reviewer(t, "r@example.com"), g.app, id, approval.DecisionApprove, ""); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := g.rel.PromoteRelease(ctx, g.owner, g.app, second.Sequence, g.envs["production"].ID, ""); err != nil {
+		t.Fatal(err)
+	}
+
+	g.editResult(t, "third")
+	if _, _, err := g.rel.CreateRelease(ctx, g.owner, g.app, dev, map[string]int64{"loans": 3}, ""); err != nil {
+		t.Fatal(err)
+	}
+	fourth, _, err := g.rel.CreateRelease(ctx, g.owner, g.app, dev, map[string]int64{"loans": 3}, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, diff = g.promotionDiff(t, fourth.Sequence)
+	if len(diff) != 1 || diff[0].Change != "changed" || diff[0].Kind != "page" || diff[0].Name != "result" {
+		t.Fatalf("against a channel two releases behind, the page change counts, got %+v", diff)
+	}
 }
 
 // Verifies: GOV-020, TST-003.

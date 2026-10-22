@@ -60,6 +60,17 @@ func (s *Service) Changelog(ctx context.Context, p auth.Principal, appID string,
 // release from to release sequence (the one before it when from is 0), with
 // the release's notes.
 func (s *Service) changelogIn(ctx context.Context, tx pgx.Tx, appID string, sequence, from int64) ([]ChangelogEntry, string, error) {
+	if from == 0 {
+		from = sequence - 1
+	}
+	return s.changesFrom(ctx, tx, appID, sequence, from)
+}
+
+// changesFrom lists the entries that take release from to release sequence,
+// with the release's notes. A from of 0 is no release, so every document of
+// the release is added; the release before sequence may be missing, as the
+// first release has none.
+func (s *Service) changesFrom(ctx context.Context, tx pgx.Tx, appID string, sequence, from int64) ([]ChangelogEntry, string, error) {
 	q := dbgen.New(tx)
 	row, vs, err := s.releaseRow(ctx, q, appID, sequence)
 	if err != nil {
@@ -70,9 +81,6 @@ func (s *Service) changelogIn(ctx context.Context, tx pgx.Tx, appID string, sequ
 		return nil, "", err //nolint:wrapcheck // a domain error
 	}
 	before := map[string]string{}
-	if from == 0 {
-		from = sequence - 1
-	}
 	if from > 0 {
 		_, prev, err := s.releaseRow(ctx, q, appID, from)
 		if err == nil {

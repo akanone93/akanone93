@@ -119,13 +119,13 @@ func (s *Service) releaseRisk(ctx context.Context, tx pgx.Tx, organizationID, ap
 }
 
 // changesInChannel lists the documents a release changes against the release
-// its channel holds now.
+// its channel holds now; against an empty channel every document is new.
 func (s *Service) changesInChannel(ctx context.Context, tx pgx.Tx, appID string, env dbgen.Environment, channelKey string, sequence int64) ([]ChangelogEntry, error) {
 	from, err := channelSequence(ctx, dbgen.New(tx), env, channelKey)
 	if err != nil {
 		return nil, err
 	}
-	entries, _, err := s.changelogIn(ctx, tx, appID, sequence, from)
+	entries, _, err := s.changesFrom(ctx, tx, appID, sequence, from)
 	return entries, err
 }
 
@@ -281,7 +281,7 @@ func (s *Service) Evidence(ctx context.Context, tx pgx.Tx, r approval.Request) (
 	if err != nil {
 		return approval.Evidence{}, err
 	}
-	entries, notes, err := s.changelogIn(ctx, tx, r.AppID, sequence, from)
+	entries, notes, err := s.changesFrom(ctx, tx, r.AppID, sequence, from)
 	if err != nil {
 		return approval.Evidence{}, err
 	}
