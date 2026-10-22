@@ -170,6 +170,21 @@ while read -r kind_word ref digest; do
 	echo "pushed $ref ($digest)"
 done <"$work/verified.txt"
 
+# The install pins every image to the digest the verified bundle holds, not
+# to the chart's upstream digests: a tag can move upstream after the chart
+# pinned it, and an image in Docker's manifest format gets a new digest when
+# it is stored as OCI in the bundle.
+bundle_digest() {
+	awk -v repo="$1" '$1 == "image" && index($2, repo ":") == 1 { print $3 }' "$work/verified.txt"
+}
+pg_digest=$(bundle_digest "${PG_IMAGE%:*}")
+valkey_digest=$(bundle_digest valkey/valkey)
+seaweedfs_digest=$(bundle_digest chrislusf/seaweedfs)
+curl_digest=$(bundle_digest curlimages/curl)
+for d in "$pg_digest" "$valkey_digest" "$seaweedfs_digest" "$curl_digest"; do
+	[[ $d == sha256:* ]] || fail "the bundle lacks an image the chart needs (verified: $(tr '\n' ' ' <"$work/verified.txt"))"
+done
+
 echo "── mirror the CloudNativePG operator (outside the bundle)"
 operator=ghcr.io/cloudnative-pg/cloudnative-pg:$CNPG_VERSION
 skopeo copy --all --dest-tls-verify=false "docker://$operator" "docker://localhost:$REGISTRY_PORT/cloudnative-pg/cloudnative-pg:$CNPG_VERSION"
@@ -228,9 +243,13 @@ echo "── install from the bundle"
 	--set image.repository="$MIRROR/$(registry_path "${IMAGE%:*}")" --set image.tag="${IMAGE##*:}" --set image.pullPolicy=IfNotPresent \
 	--set postgresql.cnpg.imageName="$MIRROR/$(registry_path "$PG_IMAGE")" \
 	--set postgresql.cnpg.backup.marker.image.repository="$MIRROR/$(registry_path "${PG_IMAGE%:*}")" \
+	--set postgresql.cnpg.backup.marker.image.digest="$pg_digest" \
 	--set valkey.sentinel.image.repository="$MIRROR/valkey/valkey" \
+	--set valkey.sentinel.image.digest="$valkey_digest" \
 	--set objectStorage.seaweedfs.image.repository="$MIRROR/chrislusf/seaweedfs" \
+	--set objectStorage.seaweedfs.image.digest="$seaweedfs_digest" \
 	--set test.image.repository="$MIRROR/curlimages/curl" \
+	--set test.image.digest="$curl_digest" \
 	--set networkPolicy.externalHTTPS.enabled=false \
 	--wait --timeout 15m
 "$KUBECTL" --namespace "$NAMESPACE" wait --for=condition=Ready cluster/plux-pg --timeout=300s
