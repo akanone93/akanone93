@@ -15,15 +15,17 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
 
 // IDP is the OpenID Connect test provider of step 1. It serves discovery, the
-// key set and the token endpoint over TLS; the "browser" is the walkthrough
-// itself, which calls [IDP.Authorize] with the sign-in URL the server gave.
-// Every person it signs in is whoever the walkthrough names: there is no
-// password, because the provider exists only inside one run.
+// key set, the authorisation endpoint and the token endpoint over TLS. The
+// walkthrough itself plays the browser with [IDP.Authorize]; a separate program
+// that does (the WebAuthn driver) visits the authorisation endpoint, naming the
+// person with login_hint. Every person it signs in is whoever is named: there
+// is no password, because the provider exists only inside one run.
 type IDP struct {
 	issuer       string
 	clientID     string
@@ -67,6 +69,7 @@ func NewIDP(listen, advertise string, hosts []string, clientID, clientSecret str
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /.well-known/openid-configuration", p.discovery)
 	mux.HandleFunc("GET /jwks", p.jwks)
+	mux.HandleFunc("GET /authorize", p.authorizeEndpoint)
 	mux.HandleFunc("POST /token", p.token)
 	p.srv = &http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}
 	p.wg.Add(1)
@@ -127,7 +130,12 @@ func (p *IDP) Authorize(loginURL, subject, email string) (string, error) {
 	if err != nil || u.Scheme+"://"+u.Host+u.Path != p.issuer+"/authorize" {
 		return "", fmt.Errorf("walkthrough.IDP.Authorize: %q is not this provider's sign-in URL", loginURL)
 	}
-	q := u.Query()
+	return p.issueCode(u.Query(), subject, email)
+}
+
+// issueCode checks that a sign-in request is a PKCE code flow for this
+// provider's client and issues the code for the person.
+func (p *IDP) issueCode(q url.Values, subject, email string) (string, error) {
 	if q.Get("client_id") != p.clientID || q.Get("code_challenge_method") != "S256" || q.Get("code_challenge") == "" || q.Get("state") == "" {
 		return "", fmt.Errorf("walkthrough.IDP.Authorize: the sign-in request is not a PKCE code flow for client %q", p.clientID)
 	}
@@ -140,6 +148,28 @@ func (p *IDP) Authorize(loginURL, subject, email string) (string, error) {
 	p.codes[code] = idpGrant{subject: subject, email: email, nonce: q.Get("nonce"), challenge: q.Get("code_challenge")}
 	p.mu.Unlock()
 	return code, nil
+}
+
+// authorizeEndpoint is the authorisation endpoint: it signs in the person that
+// login_hint names, whose subject is "sub-" and the part of the address before
+// the "@" (the subject the walkthrough's own sign-in uses), and redirects to
+// the registered redirect URL with the code and the request's state.
+func (p *IDP) authorizeEndpoint(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	email := q.Get("login_hint")
+	name, _, ok := strings.Cut(email, "@")
+	callback := p.issuer + "/callback"
+	if !ok || name == "" || (q.Get("redirect_uri") != "" && q.Get("redirect_uri") != callback) {
+		http.Error(w, `{"error":"invalid_request"}`, http.StatusBadRequest)
+		return
+	}
+	code, err := p.issueCode(q, "sub-"+name, email)
+	if err != nil {
+		http.Error(w, `{"error":"invalid_request"}`, http.StatusBadRequest)
+		return
+	}
+	back := url.Values{"code": {code}, "state": {q.Get("state")}}
+	http.Redirect(w, r, callback+"?"+back.Encode(), http.StatusFound)
 }
 
 // token redeems a code: the client authenticates, the PKCE verifier must match
