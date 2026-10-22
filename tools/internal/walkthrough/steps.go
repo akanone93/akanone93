@@ -62,6 +62,9 @@ type Env struct {
 	// Project is the directory of the writable copy of the Plux Bank
 	// project the steps publish.
 	Project string
+	// FnSDK is the SDK's directory (sdk/fn): the plux-fn crate and the
+	// example crates the project's functions are built from.
+	FnSDK string
 	// TempDir holds files the CLI writes before they become evidence.
 	TempDir string
 	// ProdEnv is the production environment, FleetEnv the environment the

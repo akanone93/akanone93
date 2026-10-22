@@ -58,6 +58,7 @@ GO=${GO:-go}
 CLUSTER=${WALKTHROUGH_CLUSTER:-plux-walkthrough}
 NAMESPACE=plux
 IMAGE=${E2E_IMAGE:-plux-server:e2e}
+BUILDER_IMAGE=${E2E_BUILDER_IMAGE:-plux-builder:e2e}
 CNPG_VERSION=${CNPG_VERSION:?set CNPG_VERSION}
 CNPG_SHA256=${CNPG_SHA256:?set CNPG_SHA256}
 API_PORT=${WALKTHROUGH_API_PORT:-18080}
@@ -88,6 +89,8 @@ install() {
 	"$HELM" upgrade --install plux "$chart" --namespace "$NAMESPACE" \
 		-f "$chart/ci/kind-values.yaml" \
 		--set image.repository="$repository" --set image.tag="$tag" --set image.pullPolicy=Never \
+		--set builder.enabled=true --set builder.replicas=1 \
+		--set builderImage.repository="${BUILDER_IMAGE%:*}" --set builderImage.tag="${BUILDER_IMAGE##*:}" --set builderImage.pullPolicy=Never \
 		--set server.publicBaseURL="https://127.0.0.1:$API_PORT" \
 		--set server.tls.existingSecret="$TLS_SECRET" \
 		--set license.existingSecret="$LICENSE_SECRET" \
@@ -187,6 +190,14 @@ step "cluster $CLUSTER"
 "$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
 "$KIND" create cluster --name "$CLUSTER" --wait 180s
 "$KIND" load docker-image "$IMAGE" --name "$CLUSTER"
+"$KIND" load docker-image "$BUILDER_IMAGE" --name "$CLUSTER"
+# The builder's sandbox creates namespaces, which Docker's default seccomp
+# profile forbids; the chart names this profile, which the kubelet loads
+# from the node (step 2 builds the Plux Bank function).
+for node in $("$KIND" get nodes --name "$CLUSTER"); do
+	docker exec "$node" mkdir -p /var/lib/kubelet/seccomp/profiles
+	docker cp "$repo/deploy/compose/seccomp-builder.json" "$node:/var/lib/kubelet/seccomp/profiles/plux-builder.json"
+done
 
 step "CloudNativePG $CNPG_VERSION"
 curl -fsSL --retry 5 -o "$work/cnpg.yaml" \
@@ -257,7 +268,7 @@ status=0
 "$work/walkthrough" run \
 	-server "https://127.0.0.1:$API_PORT" -ca-file "$work/ca.pem" -org "$ORG" -app "$APP" -fleet-env "$FLEET_ENV" -devices "$DEVICES" \
 	-plux "$work/plux" -plux-load "$work/plux-load" -out "$OUT" -project "$repo/schema/testdata/documents/plux_bank" \
-	-advertise "$gateway" -idp-port "$IDP_PORT" -sink-port "$SINK_PORT" -idp-cert "$work/idp.crt" -idp-key "$work/idp.key" -idp-ca "$work/ca.pem" \
+	-fn-sdk "$repo/sdk/fn" -advertise "$gateway" -idp-port "$IDP_PORT" -sink-port "$SINK_PORT" -idp-cert "$work/idp.crt" -idp-key "$work/idp.key" -idp-ca "$work/ca.pem" \
 	-token-cmd "$TOKEN_CMD" -stepup-cmd "$STEPUP_CMD" \
 	-audit-key-cmd "$work/audit-key.sh" -upgrade-cmd "$here/walkthrough-kind.sh upgrade" \
 	-with "$with" ${viewer[@]+"${viewer[@]}"} || status=$?

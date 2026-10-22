@@ -2090,6 +2090,15 @@ jobs:
           cache: false
       - name: Install the pinned Helm, kind and kubeconform
         run: make install-helm-tools
+      # Step 2 deploys the Plux Bank function: plux fn deploy vendors the
+      # crate with the pinned toolchain, and the builder role's sandbox,
+      # running in the kind node, needs unprivileged user namespaces, which
+      # Ubuntu 24.04 restricts through AppArmor by default.
+      - name: Install the pinned Rust toolchain
+        working-directory: sdk/fn
+        run: rustup show active-toolchain || rustup toolchain install
+      - name: Allow unprivileged user namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       # The enterprise licence is signed offline with the production key and
       # kept in the repository secret PLUX_TEST_LICENSE; no signing key for
       # licences is in the code. Without the secret (a fork, or before the
