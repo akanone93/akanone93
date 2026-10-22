@@ -240,7 +240,13 @@ func TestKeys_GOV_030(t *testing.T) {
 	if _, ok := (licensefile.KeySet{}).Lookup("x"); ok {
 		t.Error("the zero KeySet trusts a key")
 	}
-	if licensefile.TrustedKeys().Len() != 0 {
-		t.Error("the production key slot must be empty until the maintainer adds the key")
+	// The production keys are pinned: the slot holds exactly the key of the
+	// maintainer's signing ceremony (2026-10-22), by its key ID.
+	prod, err := licensefile.ParsePublicKey("92YBSPIJxFIct4/HhUXiaf1T6nVJEzGHAE15V1hRKus=")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := licensefile.TrustedKeys().Lookup(licensefile.KeyID(prod)); !ok || licensefile.TrustedKeys().Len() != 1 {
+		t.Errorf("the production keys are not exactly the pinned key %s", licensefile.KeyID(prod))
 	}
 }

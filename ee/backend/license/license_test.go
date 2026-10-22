@@ -293,9 +293,9 @@ func TestDefaultsAndLoggingDiscard_GOV_030(t *testing.T) {
 	if p.Status().State != edition.StateAbsent {
 		t.Errorf("state = %s", p.Status().State)
 	}
-	// The production slot is empty, so a build trusts no licence.
-	if licensefile.TrustedKeys().Len() != 0 {
-		t.Error("the production key slot is not empty")
+	// The build trusts exactly the pinned production key (2026-10-22).
+	if licensefile.TrustedKeys().Len() != 1 {
+		t.Errorf("the build trusts %d production keys, want 1", licensefile.TrustedKeys().Len())
 	}
 }
 

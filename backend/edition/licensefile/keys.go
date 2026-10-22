@@ -45,11 +45,13 @@ func ParsePublicKey(b64 string) (ed25519.PublicKey, error) {
 
 // productionKeys are the licence-signing public keys this build trusts, in
 // standard base64. The private keys stay offline with the maintainer
-// (ADR-0084); rotation ships a new public key beside the old one. The
-// production slot is empty until the maintainer adds the key from the
-// signing ceremony; until then a build trusts no licence.
+// (ADR-0084); rotation ships a new public key beside the old one.
 func productionKeys() []string {
-	return []string{}
+	return []string{
+		// The first production key, from the maintainer's signing ceremony
+		// (2026-10-22).
+		"92YBSPIJxFIct4/HhUXiaf1T6nVJEzGHAE15V1hRKus=",
+	}
 }
 
 // TrustedKeys returns the keys compiled into this build.

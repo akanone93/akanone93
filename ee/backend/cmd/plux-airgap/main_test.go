@@ -138,7 +138,9 @@ func TestBundleAndVerify_DEP_040(t *testing.T) {
 	if code, _, errOut := do("verify", out, "--key", other+".pub"); code != exitFailed || !strings.Contains(errOut, "not signed by a trusted key") {
 		t.Errorf("verify with the wrong key = %d %q", code, errOut)
 	}
-	if code, _, errOut := do("verify", out); code != exitFailed || !strings.Contains(errOut, "trusts no bundle key") {
+	// Without --key the compiled-in production keys decide, and they did not
+	// sign this test bundle.
+	if code, _, errOut := do("verify", out); code != exitFailed || !strings.Contains(errOut, "not signed by a trusted key") {
 		t.Errorf("verify with no key = %d %q", code, errOut)
 	}
 }
