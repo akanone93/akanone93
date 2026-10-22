@@ -49,6 +49,13 @@ GO_BUILD_FLAGS  := -trimpath -buildvcs=false -ldflags "-s -w -buildid= \
 
 ##@ Code generation (CI-003)
 
+# flatc's Dart output gives every table a toString that spells out each field.
+# The runtime never prints a table, but an overridden toString is reachable
+# through Object.toString, so the AOT compiler cannot drop it: about 165 KB of
+# libapp.so, against the size budget of RT-061. The sed script deletes the
+# four lines of each (@override, the signature, the return, the brace).
+DART_FBS_DROP_TOSTRING := sed -i.bak '/^  @override$$/{N;/String toString() {/{N;N;d;};}'
+
 # flatc writes the section accessors for Go and Dart from the one schema
 # file, and the binary schema of each section kind, from which schemagen
 # derives the verifier's layout tables (BND-001, BND-012).
@@ -60,10 +67,10 @@ gen: ## Regenerate all generated code and reference documents (CI-003)
 	rm -rf $(FBS_GO_DIR) $(FBS_DART_DIR) $(CTL_GO_DIR) $(CTL_DART_DIR); \
 	"$(FLATC)" --go -o $(dir $(FBS_GO_DIR)) $(FBS_SCHEMA); \
 	"$(FLATC)" --dart -o $(FBS_DART_DIR) $(FBS_SCHEMA); \
-	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(FBS_DART_DIR)/*_generated.dart && rm -f $(FBS_DART_DIR)/*.bak; \
+	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(FBS_DART_DIR)/*_generated.dart && $(DART_FBS_DROP_TOSTRING) $(FBS_DART_DIR)/*_generated.dart && rm -f $(FBS_DART_DIR)/*.bak; \
 	"$(FLATC)" --go -o $(dir $(CTL_GO_DIR)) $(CTL_SCHEMA); \
 	"$(FLATC)" --dart -o $(CTL_DART_DIR) $(CTL_SCHEMA); \
-	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(CTL_DART_DIR)/*_generated.dart && rm -f $(CTL_DART_DIR)/*.bak; \
+	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(CTL_DART_DIR)/*_generated.dart && $(DART_FBS_DROP_TOSTRING) $(CTL_DART_DIR)/*_generated.dart && rm -f $(CTL_DART_DIR)/*.bak; \
 	"$(FLATC)" --binary --schema -o "$$bfbs" $(FBS_SECTIONS); \
 	"$(FLATC)" --binary --schema -o "$$bfbs/control" $(CTL_SCHEMA); \
 	$(GO) run ./tools/cmd/schemagen -root . -bfbs "$$bfbs" -control-bfbs "$$bfbs/control"
