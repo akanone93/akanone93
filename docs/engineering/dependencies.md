@@ -212,6 +212,7 @@ The chart does not vendor these; it renders resources for them, or addresses an 
 | `valkey/valkey` 8.1.9 (Valkey and Sentinel) | `valkey.mode: sentinel`: three pods, each a Valkey and a Sentinel, written by the chart (`DEP-004`); the server follows the master through the Sentinels (`SEC-023`) | BSD-3-Clause | Tag and digest in `values.yaml`, the same image as Compose |
 | `chrislusf/seaweedfs` 4.47 | `objectStorage.mode: seaweedfs`: one instance on a volume, as Compose runs it; replication needs an external S3 store | Apache-2.0 | Tag and digest in `values.yaml`, the same image as Compose |
 | `curlimages/curl` 8.23.0 | The `helm test` pod only (`/readyz` and the manifest route) | curl licence (MIT-style) | Tag and digest in `values.yaml` |
+| `openbao/openbao` 2.6.4 | The audit walkthrough on kind only (`test/walkthrough`): an in-memory dev server as the run's Transit signer, since the file backend never signs for production (`SEC-056`). Not part of the chart. Approved by the maintainer, 2026-10-22 | MPL-2.0 | Tag and digest in `test/walkthrough/walkthrough-kind.sh` |
 | HashiCorp Vault Transit, any S3 API, any PostgreSQL or Valkey | The `external` modes and `signing.backend: vault`: the chart holds a reference to their Secrets and nothing else | — | Not part of the chart |
 
 ## 3. Decisions made in P0
