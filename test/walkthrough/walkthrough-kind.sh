@@ -61,6 +61,8 @@ IMAGE=${E2E_IMAGE:-plux-server:e2e}
 CNPG_VERSION=${CNPG_VERSION:?set CNPG_VERSION}
 CNPG_SHA256=${CNPG_SHA256:?set CNPG_SHA256}
 API_PORT=${WALKTHROUGH_API_PORT:-18080}
+IDP_PORT=18443
+SINK_PORT=16514
 FLEET_ENV=${WALKTHROUGH_FLEET_ENV:-staging}
 DEVICES=${WALKTHROUGH_DEVICES:-300}
 HELM_ARGS=${WALKTHROUGH_HELM_ARGS:-}
@@ -93,6 +95,8 @@ install() {
 		--set config.attestation.developmentProvider=true \
 		--set "config.auth.federation.allowPrivateNetworks[0]=$WALKTHROUGH_IDP_RANGE" \
 		--set-file config.auth.federation.trustedCAs="$WALKTHROUGH_IDP_CA_FILE" \
+		--set-json "networkPolicy.extraEgress.api=$WALKTHROUGH_EGRESS" \
+		--set-json "networkPolicy.extraEgress.worker=$WALKTHROUGH_EGRESS" \
 		$HELM_ARGS --wait --timeout 15m "$@"
 }
 
@@ -205,6 +209,9 @@ printf 'subjectAltName=IP:%s\nextendedKeyUsage=serverAuth\n' "$gateway" >"$work/
 openssl x509 -req -in "$work/idp.csr" -CA "$work/ca.pem" -CAkey "$work/ca.key" -CAcreateserial \
 	-days 1 -extfile "$work/idp.ext" -out "$work/idp.crt" 2>/dev/null
 export WALKTHROUGH_IDP_RANGE=$gateway/32 WALKTHROUGH_IDP_CA_FILE=$work/ca.pem
+# The network policies admit the api and the worker to the test provider and
+# the syslog sink on the gateway, those two ports and nothing else.
+export WALKTHROUGH_EGRESS="[{\"to\":[{\"ipBlock\":{\"cidr\":\"$gateway/32\"}}],\"ports\":[{\"protocol\":\"TCP\",\"port\":$IDP_PORT},{\"protocol\":\"TCP\",\"port\":$SINK_PORT}]}]"
 k create namespace "$NAMESPACE"
 k --namespace "$NAMESPACE" create secret tls "$TLS_SECRET" --cert="$work/tls.crt" --key="$work/tls.key"
 k --namespace "$NAMESPACE" create secret generic "$LICENSE_SECRET" --from-file=license.json="$LICENSE_FILE"
@@ -250,7 +257,7 @@ status=0
 "$work/walkthrough" run \
 	-server "https://127.0.0.1:$API_PORT" -ca-file "$work/ca.pem" -org "$ORG" -app "$APP" -fleet-env "$FLEET_ENV" -devices "$DEVICES" \
 	-plux "$work/plux" -plux-load "$work/plux-load" -out "$OUT" -project "$repo/schema/testdata/documents/plux_bank" \
-	-advertise "$gateway" -idp-cert "$work/idp.crt" -idp-key "$work/idp.key" -idp-ca "$work/ca.pem" \
+	-advertise "$gateway" -idp-port "$IDP_PORT" -sink-port "$SINK_PORT" -idp-cert "$work/idp.crt" -idp-key "$work/idp.key" -idp-ca "$work/ca.pem" \
 	-token-cmd "$TOKEN_CMD" -stepup-cmd "$STEPUP_CMD" \
 	-audit-key-cmd "$work/audit-key.sh" -upgrade-cmd "$here/walkthrough-kind.sh upgrade" \
 	-with "$with" ${viewer[@]+"${viewer[@]}"} || status=$?
