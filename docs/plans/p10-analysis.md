@@ -9,6 +9,9 @@ Status: analysis for the maintainer, written 2026-10-22 on `feat/phase-9`. It is
 the plan (`docs/plans/p10.md`) follows the maintainer's answers to section 4. Sources: spec
 §5.1 (P10 row), §20, §6.4, §6.7, §1.4, the P10 rows and the earlier-phase rows that name P10,
 ADR-0031, 0035, 0042, 0045, 0048, 0069, 0075, 0082, and the code named in section 2.
+Reviewed by the lead on 2026-10-22 against the spec rows and the code; the corrections are
+folded in (the CLI as Studio's stand-in, the existing device WebSocket transport, `DEV-002`'s
+Studio clause, the iOS release inspection, and the P9 carry-over facts).
 
 ## 1. Scope
 
@@ -110,7 +113,7 @@ L a week or more of several agents.
 | D5 | Inspect, overlays, console, screenshots, network simulation | `DEV-030`, `DEV-034`, `DEV-032`, `DEV-033`, network part of `DEV-031` | Dart `plux_devtools`, runtime hooks | D3, D4 | L |
 | D6 | `plux_devtools` pairing UI and own-host pairing | `DEV-040` | Dart `plux_devtools`, `starter` | D3 | M |
 | D7 | Dev app | `DEV-001` | `apps/plux_viewer` → Dev app, QR scan, package set | D6 | M |
-| D8 | CLI: `plux dev logs`, trace export, `dev watch` | `DEV-041`, CLI half of `DEV-021` | Go `cmd/plux` | D2, D4 | M |
+| D8 | CLI: `plux dev` (session, QR, watch and push), `plux dev logs`, trace export | `DEV-041`, CLI half of `DEV-021`, the P10 path of `DEV-002`/`DEV-010` | Go `cmd/plux` | D2, D4 | L |
 | D9 | Release-absence gate and `NFR-030` benchmark | `DEV-050`, `NFR-030`, `SEC-074` | Makefile, CI, Dart, Go | D3–D7 | M |
 | D10 | Quick start and usability sessions | `HST-034`, `DX-001` | docs, `starter`, `make` targets | D7, D8 | M |
 | D11 | P10 carry-overs (optional) | `SYN-014`, router flavours | Dart native code | none | M |
@@ -125,8 +128,8 @@ Notes per milestone:
 - **D4.** A typed event schema (log, trace, state diff, network, function, sync, frame, error with node path) with redaction at the source (`ACT-031`, `SCH-012`: sensitive values never leave the device, even in development), bounded ring buffers with drop counters, resumable by sequence number, a pause that keeps buffering to the bound. Server-side function logs merged by trace ID at the relay (the `FN-032` trace link already exists). `ACT-030` becomes `DONE` here.
 - **D5.** Inspect: hit-test that maps a render object to the node index and, with the source map, to the JSON path; highlight overlay. Network simulation on device: a debug-only wrapper at the runtime's HTTP client seam applying offline, latency, bandwidth and loss profiles; reuse the profile definitions of `netsim` (move the shared `Profile` values into a registry or schema file so Go and Dart agree, rather than copying numbers). Frame chart and rebuild counters from `FrameTiming`; touch-target and contrast highlights reuse the compiler thresholds. PXL console and screenshots are `SHOULD` and can be last.
 - **D6/D7.** `plux_devtools` gains the pairing client and a commands/stream adapter over the D3 API; the Dev app is a host that pins development root keys and installs every first-party optional package (`plux_db_drift`, `plux_lottie`, `plux_rive`, `plux_maps`, `plux_maps_google`, `plux_charts`, `plux_components`, `plux_markdown`, `plux_media`, `plux_location`, `plux_player`, `plux_scanner`, `plux_svgc`, `plux_security`, router adapters as applicable) and QR scanning.
-- **D8.** `plux dev logs [--app --env --device --filter --json --since]`, `plux dev trace export <file>`; the trace file format is shared with `DEV-021` and the Studio export. The viewer connects as a developer client of the same relay with a `devsession.observe` permission.
-- **D9.** Extend `release-inspect` to the Dev-app-free hosts with the new devtools symbols (transport, event schema, hit-test, simulator) and add an iOS leg; add a benchmark `bench-devloop` measuring autosave (patch RPC accepted) to device-applied callback with the P95 over at least 200 edits, over a netsim "good Wi-Fi" profile.
+- **D8.** The CLI is Studio's stand-in in P10, and the exit criterion's user path: `plux dev` creates the session, prints the pairing QR in the terminal, watches the local project files and sends each saved change as a document patch (so `DEV-010` and `NFR-030` are met and measured from a file save, not from Studio autosave); `plux dev logs [--app --env --device --filter --json --since]` and `plux dev trace export <file>` read the stream (`DEV-041`, `DEV-021`); the trace file format is shared with the later Studio export. The CLI connects as a developer client of the same relay with a `devsession.observe` permission. This milestone is larger than its row suggests (L, not M).
+- **D9.** Extend `release-inspect` (already run in CI for Android and iOS, `ci.yml` lines 1822 and 1916) with the new devtools symbols (transport, event schema, hit-test, simulator) and canary strings; add a benchmark `bench-devloop` measuring autosave (patch RPC accepted) to device-applied callback with the P95 over at least 200 edits, over a netsim "good Wi-Fi" profile.
 - **D10.** Written against D7 and D8; the maintainer tests by hand first (ADR-0042); the recorded sessions are a human activity that no agent can run.
 
 Dependencies: D1 ∥ D0; D2 and D3 after D0 (D2 also D1); D4 after D2+D3; D5, D6 after D3 (D5 also D4); D7 after D6; D8 after D2+D4; D9 after D3–D7; D10 after D7+D8; D12 last. Critical path: D0, D2/D3, D4, D5, D9. Suggested waves: (D0, D1), (D2, D3), (D4, D6, D8), (D5, D7), (D9, D10, D11), D12.
@@ -138,7 +141,8 @@ Dependencies: D1 ∥ D0; D2 and D3 after D0 (D2 also D1); D4 after D2+D3; D5, D6
 - *A:* WebSocket on the server through a new allowlisted dependency (ADR first; `coder/websocket`, licence to confirm), `dart:io` `WebSocket` on the device (SDK, no new Dart dependency). Matches the spec; per-message DPoP replaced by a session-bound token (needs an ADR line).
 - *B:* ConnectRPC bidirectional-over-HTTP/2 or server streaming plus unary commands; no new Go dependency but the Dart side needs a streaming client over `package:http`, which Cronet/URLSession wrappers do not give bidirectionally.
 - *C:* Server-Sent Events down, unary POST up. Smallest, DPoP per request, reuses the SSE client from the data layer; weaker for high-rate device-to-server streams.
-- *Recommend A.* It is what the spec says, the cost is one reviewed dependency; B and C change §20. Needs maintainer approval (AGENTS §7, dependency).
+- *Fact (lead review):* the device side already has a WebSocket client: the data layer's `dart:io` transport (`packages/plux_flutter/lib/src/data/stream_transport.dart`, `DAT-001`/`DAT-012`), reusable for the dev channel; the server only tunnels bytes after an HTTP upgrade (`internal/egress/server.go`, `internal/gitsync/proxy.go` hijack) and has no WebSocket framing. A hand-written RFC 6455 server is rejected: protocol code in the security path.
+- *Recommend A.* It is what the spec says, the device side exists, the cost is one reviewed server dependency; B and C change §20. Needs maintainer approval (AGENTS §7, dependency). The chart's ingress must allow the upgrade and long idle timeouts (D2/D9).
 
 **4.2 How a device accepts a dev bundle without weakening verify-before-load.**
 - *Conflict:* `SEC-052` requires signature and hash verification of metadata, manifest and bundles before anything is loaded; a draft is not a release (no TUF metadata chain, no sequence number, `SEC-055` anti-rollback). `DEV-003` says dev bundles are signed with development keys; `SEC-056` says production rejects them.
@@ -150,11 +154,12 @@ Dependencies: D1 ∥ D0; D2 and D3 after D0 (D2 also D1); D4 after D2+D3; D5, D6
 - *Conflict:* `DEV-010`, `DEV-011`, `DEV-020`, `DEV-021`, `DEV-030`, `DEV-031`, `DEV-032`, `DEV-033` are written from Studio's point of view ("from Studio autosave", "Studio MUST be able to…"); Studio is P11 (`STU-066` bottom drawer). The P10 exit criterion needs only the CLI viewer. P9 precedent: `ANL-040` stayed `WIP` for its Studio half.
 - *A:* P10 delivers device, server relay, CLI and a Go/Dart test client playing Studio; rows with a Studio-only clause stay `WIP` until P11, with the split recorded in the plan (as P9 did).
 - *B:* Re-tag the Studio clauses to P11 by splitting rows (`DEV-010a/b` style), as `FN-035`/`FN-036` and `STU-xx` were split before; P10 rows can then be `DONE`. Requires spec change and, for `MUST`, an ADR.
-- *Recommend B for `DEV-011`, `DEV-030`, `DEV-031`, `DEV-032`, `DEV-033`* (the Studio interaction is the Studio feature; the device capability is the P10 row), and A for `DEV-010`/`DEV-021`, which are properties of the channel. Trade-off: B is more spec work now, but makes `make trace` honest.
+- `DEV-002` also has a Studio clause (the token is "bound to the Studio user"); in P10 it binds to the user who creates the session, Studio or CLI. Include it in the split.
+- *Recommend B for `DEV-002` (binding wording), `DEV-011`, `DEV-030`, `DEV-031`, `DEV-032`, `DEV-033`* (the Studio interaction is the Studio feature; the device capability is the P10 row), and A for `DEV-010`/`DEV-021`, which are properties of the channel. Trade-off: B is more spec work now, but makes `make trace` honest.
 
 **4.4 `NFR-030` measured without Studio.**
 - *Conflict:* "from Studio autosave" cannot be timed before Studio exists, and a device farm is unavailable (ADR-0035: free emulators/simulators only, not representative of radio latency).
-- *A:* Define the measured interval as "patch RPC received at the server to section applied and rendered on the device runtime", over a netsim good-Wi-Fi profile, with a Dart VM client harness; add the autosave debounce and Studio render budget in P11.
+- *A:* Measure from the CLI's file save (`plux dev` watch, D8) to the section applied and rendered on the device runtime, over a netsim good-Wi-Fi profile; the server part (patch received to push sent) is also reported on its own. Studio's autosave debounce and render budget are added in P11.
 - *B:* Wait for P11. Delays an exit criterion.
 - *Recommend A,* with the method written into the `NFR-030` row (spec edit, maintainer decides). Server-side budget suggestion: incremental compile at most 100 ms p95 for a one-page edit of a 50-page plugin, sign and enqueue at most 20 ms, leaving at least 300 ms for network and device.
 
@@ -181,7 +186,7 @@ Dependencies: D1 ∥ D0; D2 and D3 after D0 (D2 also D1); D4 after D2+D3; D5, D6
 - **Usability sessions (`HST-034`).** They are human; the milestone can prepare the guide and a timing harness (scripted dry run with `make`), but the status can only move after the recorded sessions. Risk: ten minutes includes a toolchain install on a cold machine; the guide must state what is excluded.
 - **CI.** New jobs: `release-inspect` on iOS (needs macOS runner, already used by e2e); a `bench-devloop` job (Linux, Dart VM harness, netsim); device e2e of pairing on emulator/simulator (free runners only, ADR-0035); path rules in `ci/` for `apps/plux_dev` and `devsession`; coverage floors for new packages (not lowered; AGENTS §7). Flutter-tool flakiness on iOS (ADR-0035) applies to any simulator test of the Dev app.
 - **Dependencies.** WebSocket library on the server (4.1); QR scanning in the Dev app (`plux_scanner` is not published); any Dart package needs the allowlist or an ADR.
-- **Scale of the Dart side.** Roughly half of the work is Dart in `plux_flutter` and `plux_devtools`, a package the P9 hand-off treats as released at 0.6.0: new public API in `devtools_api` must be additive and debug-gated; plan a version bump for `plux_flutter` and `plux_devtools`.
+- **Scale of the Dart side.** Roughly half of the work is Dart in `plux_flutter` and `plux_devtools`, at 0.6.0 but not yet released (no 0.0.1 release exists, so incompatible changes are still allowed if called out); new public API in `devtools_api` should stay additive by habit and debug-gated; plan a version bump for `plux_flutter` and `plux_devtools`.
 
 ## 6. Carry-overs from P9
 
@@ -191,9 +196,9 @@ From `docs/WORKLOG.md` (latest note, 2026-10-22 session 3) and `docs/plans/p9-ha
 - **Step-up for dev sessions** (ADR-0075 Follow-up): decision 4.5.
 - **Statuses P10 can move:** `ACT-030`, `DAT-080`, `SEC-074`, `A11Y-005`, `I18N-007`, `I18N-010` (their P10 halves). `ANL-040`, `WGT-031` stay with P11.
 - **Open from the P9 hand-off that touch P10 areas:**
-  - §9 item 7: the ten limit defaults, the ADR-0066 native-slot locale rule, the legal review of `ee/LICENSE`. Not P10 work, but the native-slot locale rule shows in the Dev app's locale preview (`DEV-011`).
-  - The walkthrough job needs a WebAuthn driver (`tools/internal/webauthndriver`) and an enterprise image; a dev-session walkthrough should reuse it for step-up.
+  - §9 item 6 (limit defaults) was decided on 2026-10-22; item 7 remains: the ADR-0066 native-slot locale rule and the legal review of `ee/LICENSE`. Not P10 work, but the native-slot locale rule shows in the Dev app's locale preview (`DEV-011`).
+  - The walkthrough's WebAuthn driver (`tools/cmd/webauthn-driver`), `server-ee` image and licence secret (`PLUX_TEST_LICENSE`, signed with the production key added 2026-10-22) exist; a dev-session walkthrough step should reuse the driver for step-up.
   - `DEP-004`/`DEP-010` kind runs never ran in agent sessions: the Dev app's server dependencies (relay behind ingress, long-lived sockets through the chart's NetworkPolicy and ingress timeouts) are not covered by any chart test; add idle-timeout and ingress annotations for the relay in the Helm chart and check the NetworkPolicy allows device egress to the relay.
   - §10 follow-ups (ClickHouse write gate, airgap verify key, reconstruction retention, rollout attributes, experiment promotion atomicity, chart KMS values): not P10.
-- **Process lessons to apply (hand-off §6):** agents reformatted generated files (use `make gen` only); migration numbers collide (next free is 0044 on `feat/phase-9`; D2 needs its table for sessions and pairing tokens); keep briefs direct and short (AGENTS §6); the tool-sandbox note: agent sessions cannot run Docker/kind or OpenTofu, so D9/D10 CI jobs are unverified until a dispatched CI run.
-- **Not verified at P9 close** (so P10 starts on an unproven base): `make e2e-starter`, `go-vuln`, a dispatched CI run on `feat/phase-9`, the 40 race runs. The release inspection (`DEV-050`'s existing gate) runs in the same device jobs; confirm it is green before extending it.
+- **Process lessons to apply (hand-off §6):** agents reformatted generated files (use `make gen` only); migration numbers collide (the highest on `feat/phase-9` is 0048, so the next free is 0049; D2 needs its tables for sessions and pairing tokens); keep briefs direct and short (AGENTS §6); the tool-sandbox note: agent sessions cannot run Docker/kind or OpenTofu, so D9/D10 CI jobs are unverified until a dispatched CI run.
+- **P9 close state:** a dispatched CI run on `feat/phase-9` found ten failures, fixed in session 3 (Go 1.27.3 for `go-vuln`, CodeQL, IaC install, kind scripts, the CLI step-up `htu`, the Android size); the confirming run is in progress. Not yet run: `make e2e-starter` and the 40 race runs. Open: the `NFR`/QA-007 sync baseline (an update is about 11 % over the committed size). The release inspection (`DEV-050`'s existing gate) runs in the same device jobs; confirm it is green before extending it.
