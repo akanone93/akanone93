@@ -46,6 +46,10 @@ func EmailOf(actor string) (string, bool) {
 // nothing else.
 const approverRole = "release-approver"
 
+// maintainerRole is the custom role of step 1 that may change the app's
+// documents and plugins, which publishing a project needs.
+const maintainerRole = "app-maintainer"
+
 // stepSSO is step 1: the sign-in, the provisioning and the restriction.
 func (e *Env) stepSSO(ctx context.Context, run *Run) error {
 	w := e.newWalk(run)
@@ -184,8 +188,17 @@ func (e *Env) createRolesAndGrants(ctx context.Context, w *walk) error {
 		"--description", "May decide on approval requests and read; nothing else", approverRole); err != nil {
 		return err
 	}
+	// Publishing a project writes its app-level documents and creates its
+	// plugins, which release-manager does not hold: the payments team, who
+	// build the app, also maintain it.
+	if _, err := w.plux(ctx, "admin", "roles", "create", "--name", "App maintainer",
+		"--permissions", "app.manage,app.read,plugin.edit,plugin.read,organization.read",
+		"--description", "May change the app's documents and plugins", maintainerRole); err != nil {
+		return err
+	}
 	grants := []struct{ team, role string }{
 		{"payments", "release-manager"},
+		{"payments", maintainerRole},
 		{"contractors", "release-manager"},
 		{"compliance", approverRole},
 		{"compliance", "compliance-officer"},
@@ -207,8 +220,8 @@ var explainsRestriction = regexp.MustCompile(`(?i)restrict`)
 // and shows that the explanation names the restriction, although the team's
 // role grants the permission (GOV-006, GOV-007).
 func (e *Env) restrictContractors(ctx context.Context, w *walk) error {
-	args := []string{"access", "explain", "--permission", "deploy.production", "--user", e.state.users["dave"], "--app", e.App, "--environment", e.ProdEnv, "--json"}
-	out, err := w.plux(ctx, "admin", "restrictions", "create", "--patterns", "deploy.production,release.promote",
+	args := []string{"access", "explain", "--permission", "release.publish", "--user", e.state.users["dave"], "--app", e.App, "--environment", e.ProdEnv, "--json"}
+	out, err := w.plux(ctx, "admin", "restrictions", "create", "--patterns", "release.publish,release.promote",
 		"--subject-kind", "team", "--subject", e.state.teams["contractors"], "--app", e.App, "--environment", e.ProdEnv,
 		"--reason", "contractors never publish to production", "--json")
 	if err != nil {
