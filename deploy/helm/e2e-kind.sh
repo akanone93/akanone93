@@ -19,7 +19,9 @@
 #
 # Needs Docker, kind, helm and kubectl. The cluster is deleted at the end;
 # E2E_KEEP=1 keeps it.
-set -euo pipefail
+set -Eeuo pipefail
+# The failing line and command, printed last so a CI log shows it first.
+trap 'failed_at="line $LINENO: $BASH_COMMAND"' ERR
 
 HELM=${HELM:-helm}
 KIND=${KIND:-kind}
@@ -44,6 +46,16 @@ docker info >/dev/null 2>&1 || fail "the Docker daemon is not running"
 
 diagnostics() {
 	echo "── diagnostics" >&2
+	# Why pods are not running: the warning events and the description of
+	# every pod that is neither running nor finished, in every namespace.
+	echo "── warning events" >&2
+	"$KUBECTL" get events -A --field-selector type=Warning --sort-by=.lastTimestamp 2>/dev/null | tail -n 40 >&2 || true
+	"$KUBECTL" get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded \
+		-o custom-columns=NS:.metadata.namespace,NAME:.metadata.name --no-headers 2>/dev/null |
+		while read -r ns name; do
+			echo "── describe $ns/$name" >&2
+			"$KUBECTL" --namespace "$ns" describe pod "$name" 2>/dev/null | sed -n '/^Events:/,$p' >&2 || true
+		done
 	"$KUBECTL" get pods,pvc,cluster.postgresql.cnpg.io -A -o wide >&2 || true
 	"$KUBECTL" --namespace "$NAMESPACE" describe pods >&2 || true
 	for pod in $("$KUBECTL" --namespace "$NAMESPACE" get pods -o name 2>/dev/null); do
@@ -54,7 +66,10 @@ diagnostics() {
 
 cleanup() {
 	status=$?
-	if [ "$status" -ne 0 ]; then diagnostics; fi
+	if [ "$status" -ne 0 ]; then
+		diagnostics
+		echo "✗ failed at ${failed_at:-an unknown point} (exit $status)" >&2
+	fi
 	if [ -z "${E2E_KEEP:-}" ]; then "$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true; fi
 	rm -rf "$work"
 	exit "$status"
