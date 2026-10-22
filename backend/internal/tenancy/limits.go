@@ -300,7 +300,7 @@ func (s *Service) raiseLimit(ctx context.Context, tx pgx.Tx, p auth.Principal, k
 	err = approval.Require(ctx, s.o.Approvals, tx, approval.Artifact{
 		Resource: schema.PolicyResourceLimit, OrganizationID: p.OrganizationID, Action: approval.ActionRaiseLimit,
 		Subject: "limit:organization:" + string(k), Hash: approval.HashOf([]byte(k), []byte(v)),
-		Summary: fmt.Sprintf("the organisation's %s is raised to %s", k, v), Requester: p.Actor(),
+		Summary: fmt.Sprintf("the organisation's %s is raised to %s", k, v), Requester: p.Actor(), RequesterUser: p.UserID,
 	})
 	if err != nil {
 		return limits.Set{}, err //nolint:wrapcheck // a refusal for the caller

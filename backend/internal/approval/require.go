@@ -235,7 +235,7 @@ func (s *Service) settle(ctx context.Context, tx pgx.Tx, a Artifact, matched []P
 // excluded lists the people whose approval never counts for a change: who
 // makes it, who asked for it and who wrote it.
 func excluded(a Artifact, req Request) []string {
-	return slices.DeleteFunc([]string{a.Requester.ID, a.Author, req.RequestedByID, req.AuthorID}, func(id string) bool { return id == "" })
+	return slices.DeleteFunc([]string{a.requester(), a.Author, req.RequestedByID, req.AuthorID}, func(id string) bool { return id == "" })
 }
 
 // spend marks the request used by the change that is about to happen.
@@ -382,7 +382,7 @@ func (s *Service) requestParams(id string, a Artifact, matched []Policy) (dbgen.
 		EnvironmentID: env, EnvironmentKey: a.Environment.Key, Production: a.Environment.Production,
 		Resource: string(a.Resource), Action: a.Action, Subject: a.Subject, ContentHash: a.Hash, Summary: a.Summary,
 		Risk: risk, Payload: payload, PolicyKeys: keys, ApprovalsRequired: int32(needed), AuthorID: a.Author,
-		RequestedByKind: a.Requester.Kind, RequestedByID: a.Requester.ID, RequestedBy: a.Requester.Display,
+		RequestedByKind: a.Requester.Kind, RequestedByID: a.requester(), RequestedBy: a.Requester.Display,
 		CreatedAt: storage.Timestamp(now), ExpiresAt: storage.Timestamp(expiryOf(matched, now)),
 	}, nil
 }

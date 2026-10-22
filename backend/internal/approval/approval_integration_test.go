@@ -243,6 +243,22 @@ func TestDecide_AuthorRefusedApproverAccepted_GOV_021(t *testing.T) {
 }
 
 // Verifies: GOV-021.
+// A change made with a person's access token records the person as its
+// requester, so they cannot approve it in a session of their own.
+func TestDecide_TokenRequesterRefused_GOV_021(t *testing.T) {
+	f := newFixture(t)
+	art := f.release("production", 4, "d")
+	art.Requester = audit.Actor{Kind: auth.KindToken, ID: "0190a8d2-7c4e-7f00-8000-000000000001", Display: "r1@example.com"}
+	art.RequesterUser = f.reviewer.UserID
+	id := requestOf(t, f.require(t, art))
+	_, err := f.decide(f.reviewer, id, approval.DecisionApprove)
+	wantCode(t, err, plxerr.ApproverNotEligible, "the person behind the requesting token")
+	if _, err := f.decide(f.second, id, approval.DecisionApprove); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Verifies: GOV-021.
 // The author of the change, named on the artifact, is refused even when
 // someone else asked for it.
 func TestDecide_ArtifactAuthorRefused_GOV_021(t *testing.T) {

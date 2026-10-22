@@ -89,6 +89,10 @@ type Artifact struct {
 	Author string
 	// Requester is who makes the change.
 	Requester audit.Actor
+	// RequesterUser is the person behind the requester, when it is a
+	// credential such as a token; the four-eyes rules compare people, so it
+	// is what a request records as its requester (PLX-8003).
+	RequesterUser string
 	// Profile is the security profile that decides the default policies, when
 	// the caller knows it; empty has the engine ask for the environment's.
 	Profile string
@@ -109,6 +113,15 @@ func (a Artifact) validate() error {
 		return fmt.Errorf("approval: an artifact names who makes the change")
 	}
 	return nil
+}
+
+// requester is the person who makes the change: the user behind the
+// credential, or the requester itself when no person is behind it.
+func (a Artifact) requester() string {
+	if a.RequesterUser != "" {
+		return a.RequesterUser
+	}
+	return a.Requester.ID
 }
 
 // HashOf returns the hash that binds an approval to content made of the given

@@ -71,7 +71,7 @@ func (g EngineGate) RequireLaunch(ctx context.Context, l Launch) error {
 		Action:      approval.ActionLaunch, Subject: "experiment:" + e.ID,
 		Hash:    approval.HashOf([]byte(e.ID), e.Document),
 		Summary: fmt.Sprintf("Start experiment %q in %s", e.Key, l.Environment),
-		Risk:    l.Risk, Requester: l.Principal.Actor(),
+		Risk:    l.Risk, Requester: l.Principal.Actor(), RequesterUser: l.Principal.UserID,
 	}
 	if e.CreatedBy.Kind == auth.KindUser {
 		art.Author = e.CreatedBy.ID
