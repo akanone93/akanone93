@@ -195,8 +195,8 @@ func (s *Service) closeOut(ctx context.Context, org string, id pgtype.UUID, c cl
 }
 
 // finishOne does the closing work of a closing rollout, under a lock that a
-// second scheduler skips (so the work is done once), and records the end
-// state. A crash before the commit leaves the rollout closing, and the next
+// second scheduler waits for and then finds the rollout finished (so the work
+// is done once), and records the end state. A crash before the commit leaves the rollout closing, and the next
 // pass repeats the work, which finds it already done.
 func (s *Service) finishOne(ctx context.Context, org, id string) error {
 	var done dbgen.Rollout

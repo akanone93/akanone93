@@ -133,11 +133,14 @@ func (q *Queries) BeginClosingRollout(ctx context.Context, arg BeginClosingRollo
 }
 
 const claimClosingRollout = `-- name: ClaimClosingRollout :one
-SELECT id, organization_id, app_id, environment_id, channel_id, environment_key, channel_key, candidate_sequence, previous_sequence, salt, state, close_action, close_state, stages, stage_index, stage_started_at, basis_points, start_at, end_at, targeting, allow_devices, deny_devices, health, state_reason, last_check, last_check_at, reverted_sequence, created_by, created_at, updated_at FROM rollouts WHERE id = $1 AND state = 'closing' FOR UPDATE SKIP LOCKED
+SELECT id, organization_id, app_id, environment_id, channel_id, environment_key, channel_key, candidate_sequence, previous_sequence, salt, state, close_action, close_state, stages, stage_index, stage_started_at, basis_points, start_at, end_at, targeting, allow_devices, deny_devices, health, state_reason, last_check, last_check_at, reverted_sequence, created_by, created_at, updated_at FROM rollouts WHERE id = $1 AND state = 'closing' FOR UPDATE
 `
 
-// Locks a closing rollout for the caller that finishes it; a caller that finds
-// it locked skips it.
+// Locks a closing rollout for the caller that finishes it. A caller that finds
+// it locked waits, then finds it no longer closing when the holder finished
+// it. Skipping a locked row is not safe: a scheduler that lost the race to
+// begin closing holds the row until it rolls back, and the winner that
+// skipped would leave the rollout closing.
 func (q *Queries) ClaimClosingRollout(ctx context.Context, id pgtype.UUID) (Rollout, error) {
 	row := q.db.QueryRow(ctx, claimClosingRollout, id)
 	var i Rollout
