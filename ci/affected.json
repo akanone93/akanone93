@@ -50,8 +50,7 @@
     "scripts/session-start.sh",
     "scripts/test-db.sh",
     "site/**",
-    "test/load/**",
-    "test/walkthrough/**"
+    "test/load/**"
   ],
   "jobs": {
     "helm": {
@@ -96,6 +95,23 @@
         "ee/backend/airgap/**",
         "ee/backend/cmd/plux-airgap/**",
         "mk/helm.mk"
+      ],
+      "exclude": [
+        "**/*.md"
+      ],
+      "skipOnPush": true
+    },
+    "walkthrough": {
+      "description": "The scripted audit walkthrough on kind with the synthetic fleet and the software WebAuthn authenticator, and its signed evidence bundle (SEC-103, GOV-030, GOV-033); it takes long, so pushes to main skip it",
+      "paths": [
+        "backend/Dockerfile",
+        "deploy/helm/**",
+        "mk/helm.mk",
+        "test/walkthrough/**",
+        "tools/cmd/walkthrough/**",
+        "tools/cmd/webauthn-driver/**",
+        "tools/internal/walkthrough/**",
+        "tools/internal/webauthndriver/**"
       ],
       "exclude": [
         "**/*.md"

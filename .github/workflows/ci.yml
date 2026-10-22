@@ -2063,6 +2063,41 @@ jobs:
       - name: Build, verify and install the air-gapped bundle
         run: make airgap-kind
 
+  # The scripted regulated-industry audit walkthrough
+  # (test/walkthrough/walkthrough-kind.sh): the HA chart on kind, the nine
+  # steps with the plux CLI and a synthetic fleet, and the signed evidence
+  # bundle, which is kept as an artifact. The person-facing hooks are the
+  # software authenticator of tools/cmd/webauthn-driver. Daily, manual runs
+  # and pull requests that change the walkthrough, its driver, the chart or
+  # the image.
+  walkthrough:
+    name: Audit walkthrough (kind)
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['walkthrough']
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Install the pinned Helm, kind and kubeconform
+        run: make install-helm-tools
+      # Verifies: SEC-103, GOV-030, GOV-033.
+      - name: Run the walkthrough and verify its evidence bundle
+        run: make walkthrough-kind
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: walkthrough-evidence
+          path: walkthrough-out/
+          if-no-files-found: ignore
+
   # The OpenTofu modules (deploy/iac): format, init, validate, the
   # mock-provider tests and the policy checks. Init needs the provider
   # registry, which agent sessions cannot reach, so CI is where they run.
@@ -2110,6 +2145,7 @@ jobs:
       - kind
       - restore-drill
       - airgap
+      - walkthrough
       - iac
       - zap-api
       - image-arm64

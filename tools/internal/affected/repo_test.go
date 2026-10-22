@@ -151,8 +151,9 @@ func TestProjectGeneratedFilesRunGoLint(t *testing.T) {
 // TestProjectPushesLeaveOnlyTheDailyJobs checks which jobs a push to main
 // and the merge queue leave to the daily and manual runs: the iOS and
 // Android 26 device flows, the codec rebuild (ADR-0043, Revision
-// 2026-10-16), the Helm chart on kind (P9, DEP-003) and the restore drill and
-// air-gapped install on kind (DEP-010, DEP-040); and that the daily
+// 2026-10-16), the Helm chart on kind (P9, DEP-003), the restore drill and
+// air-gapped install on kind (DEP-010, DEP-040) and the audit walkthrough on
+// kind (SEC-103, GOV-030); and that the daily
 // and manual runs run every job.
 // Verifies: CI-002.
 func TestProjectPushesLeaveOnlyTheDailyJobs_CI_002(t *testing.T) {
@@ -166,7 +167,7 @@ func TestProjectPushesLeaveOnlyTheDailyJobs_CI_002(t *testing.T) {
 			}
 		}
 		slices.Sort(skipped)
-		if want := []string{"airgap", "e2e-android-26", "e2e-ios", "kind", "restore-drill", "wasm-codecs"}; !slices.Equal(skipped, want) {
+		if want := []string{"airgap", "e2e-android-26", "e2e-ios", "kind", "restore-drill", "walkthrough", "wasm-codecs"}; !slices.Equal(skipped, want) {
 			t.Errorf("a %s skips %v, want %v", event, skipped, want)
 		}
 	}
