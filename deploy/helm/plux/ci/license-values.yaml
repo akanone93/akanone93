@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# The enterprise licence: a Secret holding the licence file is mounted
+# read-only into the api and worker roles and license.file points at it
+# (GOV-030).
+server:
+  publicBaseURL: https://plux.example.com
+signing:
+  vault:
+    address: https://vault.example.com:8200
+    tokenSecret:
+      name: plux-vault
+license:
+  existingSecret: plux-license
+  key: licence.json

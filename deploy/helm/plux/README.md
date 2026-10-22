@@ -26,6 +26,7 @@ wrong kind fails `helm install`.
 | `objectStorage.mode` | `seaweedfs` or `external` (S3; recommended for production) | `seaweedfs` |
 | `signing.backend` | `vault` (Transit) or `file` | `vault` |
 | `internalTLS.mode` | `generate` or `existingSecrets` | `generate` |
+| `license.existingSecret` | a Secret holding the enterprise licence file (key `license.key`, default `license.json`), mounted read-only into the api and worker roles; `license.file` is set to it | none |
 
 Every role runs at least two replicas with PodDisruptionBudgets, horizontal autoscaling and
 topology spread (`scheduling.zoneSpread`, `scheduling.nodeSpread`). Pods run under Pod

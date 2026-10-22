@@ -49,6 +49,10 @@ signing:
     wrapKey: {{ . | quote }}
     {{- end }}
   {{- end }}
+{{- if .Values.license.existingSecret }}
+license:
+  file: {{ printf "/etc/plux/license/%s" .Values.license.key | quote }}
+{{- end }}
 {{- end -}}
 
 {{- /* The identity of a role on the internal network. Context: root, role. */ -}}

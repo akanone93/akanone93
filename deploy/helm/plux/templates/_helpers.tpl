@@ -220,6 +220,22 @@ Context: root, role.
 {{- end }}
 {{- end -}}
 
+{{- /* The enterprise licence file, mounted read-only from an existing Secret into the roles that serve (GOV-030). Context: root. */ -}}
+{{- define "plux.licenseVolumes" -}}
+{{- if .Values.license.existingSecret }}
+- name: license
+  secret:
+    secretName: {{ .Values.license.existingSecret }}
+    items: [{key: {{ .Values.license.key }}, path: {{ .Values.license.key }}}]
+{{- end }}
+{{- end -}}
+
+{{- define "plux.licenseMounts" -}}
+{{- if .Values.license.existingSecret }}
+- {name: license, mountPath: /etc/plux/license, readOnly: true}
+{{- end }}
+{{- end -}}
+
 {{- define "plux.dataMounts" -}}
 {{- if eq .Values.postgresql.mode "cnpg" }}
 - {name: postgres-ca, mountPath: /etc/plux/postgres, readOnly: true}
