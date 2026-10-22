@@ -148,6 +148,11 @@ func TestInjectErrorsSendsErrorEvents_REL_053(t *testing.T) {
 		if got := slices.Contains(srv.Events(), "error"); got != tc.want {
 			t.Errorf("%s: error event sent = %v, want %v", name, got, tc.want)
 		}
+		// Every event, the session start included, names the release the
+		// device runs: the gate counts each release's sessions and errors.
+		if releases := srv.EventReleases(); len(releases) == 0 || slices.ContainsFunc(releases, func(r int64) bool { return r != 7 }) {
+			t.Errorf("%s: event releases = %v, want all 7", name, releases)
+		}
 	}
 }
 

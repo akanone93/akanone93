@@ -37,9 +37,11 @@ type Server struct {
 	nonces   *dpop.Nonces
 	verifier dpop.Verifier
 
-	mu       sync.Mutex
-	calls    map[string]int
-	events   []string
+	mu     sync.Mutex
+	calls  map[string]int
+	events []string
+	// releases is the release sequence of each event, in the order of events.
+	releases []int64
 	tokens   []string
 	devices  int
 	control  int64
@@ -114,6 +116,14 @@ func (s *Server) Events() []string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return append([]string(nil), s.events...)
+}
+
+// EventReleases returns the release sequence each event names, in the order
+// of Events.
+func (s *Server) EventReleases() []int64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]int64(nil), s.releases...)
 }
 
 // PushTokens returns the push tokens devices registered.
@@ -254,6 +264,7 @@ func (h telemetryHandler) IngestEvents(_ context.Context, r *connect.Request[plu
 	h.s.mu.Lock()
 	for _, e := range r.Msg.GetEvents() {
 		h.s.events = append(h.s.events, e.GetName())
+		h.s.releases = append(h.s.releases, e.GetReleaseSequence())
 	}
 	h.s.mu.Unlock()
 	return connect.NewResponse(&pluxv1.IngestEventsResponse{Accepted: int32(len(r.Msg.GetEvents()))}), nil //nolint:gosec // a batch is small

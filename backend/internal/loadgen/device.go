@@ -205,10 +205,12 @@ func (d *device) applied(ctx context.Context, version int64, at time.Time) {
 	d.flush(ctx)
 }
 
-// queue buffers an event for the next batch.
+// queue buffers an event for the next batch, attributed to the release the
+// device runs, as the runtime attributes its events: a rollout's health gate
+// compares the releases by these counts (REL-053).
 func (d *device) queue(name, route, fields string) {
 	d.pending = append(d.pending, &pluxv1.Event{
-		Name: name, Time: timestamppb.New(d.cfg.Now()), DeviceId: d.id, Route: route, Fields: []byte(fields),
+		Name: name, Time: timestamppb.New(d.cfg.Now()), DeviceId: d.id, ReleaseSequence: d.release, Route: route, Fields: []byte(fields),
 	})
 }
 
