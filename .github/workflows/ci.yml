@@ -144,6 +144,11 @@ jobs:
             android_shards=$(jq -nc --arg shard "$SHARD" '[$shard]')
             ios_shards=$android_shards
           fi
+          # Iteration branch only (never merged): the jobs still failing on
+          # feat/phase-9, so each attempt waits for nothing else.
+          if [ "$GITHUB_REF_NAME" = ci/p9-failing ]; then
+            jobs=$(jq -c 'with_entries(.value = (.key | IN("walkthrough", "compose", "airgap", "restore-drill", "kind")))' <<<"$jobs")
+          fi
           # Android 35 when the device flows are affected; Android 26 as
           # well on pushes, daily and manual runs, and for changes to
           # Android-specific files (maintainer, 2026-10-01).
