@@ -108,6 +108,9 @@ func (rp *relyingParty) serve(w http.ResponseWriter, r *http.Request) {
 		"IdentityService/CreateAccessToken":          rp.createToken,
 		"IdentityService/BeginStepUp":                rp.beginStepUp,
 		"IdentityService/CompleteStepUp":             rp.completeStepUp,
+		"IdentityService/AcceptInvitation":           rp.acceptInvitation,
+		"OrgService/CreateOrganization":              rp.createOrganization,
+		"AppService/CreateApp":                       rp.createApp,
 	}
 	h, ok := handlers[procedure]
 	if !ok {
@@ -159,6 +162,9 @@ func (rp *relyingParty) completeLogin(_ *http.Request, req map[string]any) (any,
 
 // testPassword is the fake server's password for testEmail.
 const testPassword = "correct horse"
+
+// testInvitation is the invitation the fake accepts.
+const testInvitation = "invitation-1"
 
 func (rp *relyingParty) passwordLogin(_ *http.Request, req map[string]any) (any, string, error) {
 	if req["email"] != testEmail || req["password"] != testPassword {
@@ -292,6 +298,33 @@ func (rp *relyingParty) createToken(r *http.Request, req map[string]any) (any, s
 		return nil, "", errors.New("the token names no organisation or lifetime")
 	}
 	return map[string]any{"token": map[string]string{"id": "t"}, "secret": rp.token}, "", nil
+}
+
+func (*relyingParty) acceptInvitation(_ *http.Request, req map[string]any) (any, string, error) {
+	if req["invitation"] != testInvitation || req["password"] != testPassword {
+		return nil, "", errors.New("no such invitation")
+	}
+	return map[string]any{"user": map[string]string{"id": "u"}}, "", nil
+}
+
+func (rp *relyingParty) createOrganization(r *http.Request, req map[string]any) (any, string, error) {
+	if _, err := rp.session(r); err != nil {
+		return nil, "", err
+	}
+	if req["key"] != testOrgKey {
+		return nil, "", errors.New("an unexpected organisation")
+	}
+	return map[string]any{"organization": map[string]string{"id": testOrgID}}, "", nil
+}
+
+func (rp *relyingParty) createApp(r *http.Request, req map[string]any) (any, string, error) {
+	if _, err := rp.session(r); err != nil {
+		return nil, "", err
+	}
+	if req["organizationId"] != testOrgID || req["key"] != "demo" {
+		return nil, "", errors.New("an unexpected app")
+	}
+	return map[string]any{"app": map[string]string{"id": "app-1"}}, "", nil
 }
 
 func (rp *relyingParty) beginStepUp(r *http.Request, req map[string]any) (any, string, error) {

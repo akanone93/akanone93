@@ -10,7 +10,17 @@
 //	webauthn-driver token    prints an access token for $WALKTHROUGH_ACTOR
 //	                         (WALKTHROUGH_TOKEN_CMD);
 //	webauthn-driver stepup   completes the step-up at $WALKTHROUGH_STEPUP_URL
-//	                         for $WALKTHROUGH_ACTOR (WALKTHROUGH_STEPUP_CMD).
+//	                         for $WALKTHROUGH_ACTOR (WALKTHROUGH_STEPUP_CMD);
+//	webauthn-driver bootstrap
+//	                         accepts the administrator's invitation
+//	                         $WALKTHROUGH_INVITATION with $WALKTHROUGH_PASSWORD,
+//	                         enrols the key, creates the organisation
+//	                         $WALKTHROUGH_ORG_KEY and the app
+//	                         $WALKTHROUGH_APP_KEY (default "demo"), and prints
+//	                         ORGANIZATION=, APP= and TOKEN= lines.
+//
+// bootstrap runs before the walkthrough, so it needs neither WALKTHROUGH_ORG
+// nor WALKTHROUGH_IDP_CA_PEM.
 //
 // It is configured through the environment the walkthrough gives its hooks:
 // WALKTHROUGH_SERVER, WALKTHROUGH_ORG, WALKTHROUGH_ACTOR, WALKTHROUGH_EMAIL,
@@ -18,8 +28,8 @@
 // provider), plus, from the script, WALKTHROUGH_DRIVER_DIR (a directory only
 // the run's user can read, where the keys live), and optionally
 // WALKTHROUGH_PASSWORD (the person signs in with it instead of through the
-// test provider: the seeded administrator),
-// WALKTHROUGH_ORG_KEY (default "acme", the key `plux-server seed` gives the
+// test provider: the bootstrapped administrator),
+// WALKTHROUGH_ORG_KEY (default "acme", the key bootstrap gives the
 // organisation), WALKTHROUGH_IDP_KEY (default
 // "walkthrough-idp"), WALKTHROUGH_CA_FILE (the CA of the server's
 // certificate) and WALKTHROUGH_WEBAUTHN_ORIGIN. Keys are never printed. Exit
@@ -61,21 +71,36 @@ func main() {
 
 // run dispatches the subcommands.
 func run(ctx context.Context, args []string, getenv func(string) string, stdout, stderr io.Writer) int {
-	if len(args) != 1 || (args[0] != "token" && args[0] != "stepup") {
-		_, _ = fmt.Fprintln(stderr, "usage: webauthn-driver token|stepup")
+	if len(args) != 1 || (args[0] != "token" && args[0] != "stepup" && args[0] != "bootstrap") {
+		_, _ = fmt.Fprintln(stderr, "usage: webauthn-driver token|stepup|bootstrap")
 		return exitUsage
 	}
-	driver, err := newDriver(getenv)
+	driver, err := newDriver(getenv, args[0] == "bootstrap")
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "webauthn-driver: %v\n", err)
 		return exitUsage
 	}
 	ctx, cancel := context.WithTimeout(ctx, ceremonyTimeout)
 	defer cancel()
-	if args[0] == "token" {
+	switch args[0] {
+	case "token":
 		return printToken(ctx, driver, stdout, stderr)
+	case "bootstrap":
+		return bootstrap(ctx, driver, getenv, stdout, stderr)
 	}
 	return completeStepUp(ctx, driver, getenv("WALKTHROUGH_STEPUP_URL"), stderr)
+}
+
+// bootstrap prepares the installation and prints what the walkthrough needs
+// of it, once.
+func bootstrap(ctx context.Context, d *webauthndriver.Driver, getenv func(string) string, stdout, stderr io.Writer) int {
+	in, err := d.Bootstrap(ctx, getenv("WALKTHROUGH_INVITATION"), orDefault(getenv("WALKTHROUGH_ORG_KEY"), "acme"), orDefault(getenv("WALKTHROUGH_APP_KEY"), "demo"))
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "webauthn-driver: bootstrap: %v\n", err)
+		return exitFailed
+	}
+	_, _ = fmt.Fprintf(stdout, "ORGANIZATION=%s\nAPP=%s\nTOKEN=%s\n", in.OrgID, in.AppID, in.Token)
+	return exitOK
 }
 
 // printToken writes the access token and nothing else to standard output.
@@ -98,16 +123,25 @@ func completeStepUp(ctx context.Context, d *webauthndriver.Driver, url string, s
 	return exitOK
 }
 
-// newDriver reads the configuration from the environment.
-func newDriver(getenv func(string) string) (*webauthndriver.Driver, error) {
-	for _, name := range []string{"WALKTHROUGH_SERVER", "WALKTHROUGH_ORG", "WALKTHROUGH_ACTOR", "WALKTHROUGH_EMAIL", "WALKTHROUGH_DRIVER_DIR", "WALKTHROUGH_IDP_CA_PEM"} {
+// newDriver reads the configuration from the environment. A bootstrap signs
+// in with a password before the walkthrough's organisation and test provider
+// exist, so it needs neither.
+func newDriver(getenv func(string) string, bootstrap bool) (*webauthndriver.Driver, error) {
+	required := []string{"WALKTHROUGH_SERVER", "WALKTHROUGH_ACTOR", "WALKTHROUGH_EMAIL", "WALKTHROUGH_DRIVER_DIR"}
+	if !bootstrap {
+		required = append(required, "WALKTHROUGH_ORG", "WALKTHROUGH_IDP_CA_PEM")
+	}
+	for _, name := range required {
 		if getenv(name) == "" {
 			return nil, fmt.Errorf("%s is not set", name)
 		}
 	}
-	idp, err := httpClient([]byte(getenv("WALKTHROUGH_IDP_CA_PEM")), false)
-	if err != nil {
-		return nil, fmt.Errorf("WALKTHROUGH_IDP_CA_PEM: %w", err)
+	idp := &http.Client{Timeout: time.Minute, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	if !bootstrap {
+		var err error
+		if idp, err = httpClient([]byte(getenv("WALKTHROUGH_IDP_CA_PEM")), false); err != nil {
+			return nil, fmt.Errorf("WALKTHROUGH_IDP_CA_PEM: %w", err)
+		}
 	}
 	server, err := serverClient(getenv("WALKTHROUGH_CA_FILE"))
 	if err != nil {

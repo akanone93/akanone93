@@ -268,25 +268,34 @@ k --namespace "$NAMESPACE" exec "$SIGNER" -- sh -c 'BAO_ADDR=http://127.0.0.1:82
 install
 k --namespace "$NAMESPACE" wait --for=condition=Ready cluster/plux-pg --timeout=300s
 
-step "seed"
-# The administrator has no account at the test provider: the step-up hook
-# signs them in with the seeded email and password.
-export WALKTHROUGH_ADMIN_EMAIL=admin@walkthrough.example
-seeded=$(k --namespace "$NAMESPACE" exec deploy/plux-worker -- /usr/local/bin/plux-server seed -config /etc/plux/plux.yaml -email "$WALKTHROUGH_ADMIN_EMAIL" -out -)
-value() { printf '%s\n' "$seeded" | sed -n "s/^PLUX_DEV_$1=//p" | head -n 1; }
-ORG=$(value ORGANIZATION)
-APP=$(value APP)
-export WALKTHROUGH_ADMIN_TOKEN WALKTHROUGH_ADMIN_PASSWORD
-WALKTHROUGH_ADMIN_TOKEN=$(value TOKEN)
-WALKTHROUGH_ADMIN_PASSWORD=$(value PASSWORD)
-[ -n "$ORG" ] && [ -n "$APP" ] && [ -n "$WALKTHROUGH_ADMIN_TOKEN" ] && [ -n "$WALKTHROUGH_ADMIN_PASSWORD" ] ||
-	fail "seed did not print an organisation, an app, a token and a password"
-
 step "forward the api to localhost:$API_PORT"
 k --namespace "$NAMESPACE" port-forward svc/plux-api "$API_PORT:8080" >/dev/null 2>&1 &
 pids+=("$!")
 curl -fsS --cacert "$work/ca.pem" --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 "https://127.0.0.1:$API_PORT/livez" >/dev/null ||
 	fail "the port-forward to the api does not answer"
+
+step "bootstrap the installation"
+# As an operator does (`plux-server seed` prepares development installations
+# only and refuses the Transit signer): bootstrap prints the administrator's
+# invitation, and the driver accepts it with a password made for the run,
+# enrols its key as their second factor, creates the organisation and the app,
+# and mints their token. The step-up hook later signs them in with the email,
+# the password and that key.
+export WALKTHROUGH_ADMIN_EMAIL=admin@walkthrough.example
+export WALKTHROUGH_ADMIN_TOKEN WALKTHROUGH_ADMIN_PASSWORD
+WALKTHROUGH_ADMIN_PASSWORD=$(openssl rand -hex 18)
+invitation=$(k --namespace "$NAMESPACE" exec deploy/plux-worker -- /usr/local/bin/plux-server bootstrap -config /etc/plux/plux.yaml -email "$WALKTHROUGH_ADMIN_EMAIL" |
+	sed -n 's/^ *invitation ([^)]*): //p' | head -n 1)
+[ -n "$invitation" ] || fail "bootstrap printed no invitation"
+bootstrapped=$(WALKTHROUGH_SERVER="https://127.0.0.1:$API_PORT" WALKTHROUGH_CA_FILE="$work/ca.pem" WALKTHROUGH_ACTOR=admin \
+	WALKTHROUGH_EMAIL="$WALKTHROUGH_ADMIN_EMAIL" WALKTHROUGH_PASSWORD="$WALKTHROUGH_ADMIN_PASSWORD" WALKTHROUGH_INVITATION="$invitation" \
+	"$work/webauthn-driver" bootstrap)
+value() { printf '%s\n' "$bootstrapped" | sed -n "s/^$1=//p" | head -n 1; }
+ORG=$(value ORGANIZATION)
+APP=$(value APP)
+WALKTHROUGH_ADMIN_TOKEN=$(value TOKEN)
+[ -n "$ORG" ] && [ -n "$APP" ] && [ -n "$WALKTHROUGH_ADMIN_TOKEN" ] ||
+	fail "the bootstrap did not print an organisation, an app and a token"
 
 # The audit public key, as `plux compliance verify` takes it, read from the
 # installation itself.

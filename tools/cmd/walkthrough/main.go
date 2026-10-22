@@ -53,7 +53,7 @@ const (
 	keyFile       = "evidence-bundle.pub"
 	evidenceDir   = "evidence"
 	adminTokenEnv = "WALKTHROUGH_ADMIN_TOKEN"
-	// The seeded administrator's sign-in, for the step-ups of the admin
+	// The bootstrapped administrator's sign-in, for the step-ups of the admin
 	// actor: the administrator has no account at the test provider.
 	adminEmailEnv    = "WALKTHROUGH_ADMIN_EMAIL"
 	adminPasswordEnv = "WALKTHROUGH_ADMIN_PASSWORD" //nolint:gosec // the name of a variable, not a credential
@@ -425,7 +425,7 @@ func adminSignIn() []string {
 // shellStepUp returns the step-up function that runs the operator's command
 // with the shared environment, or nil when none was given. The person who
 // steps up is named by their email: a person step 1 provisions by theirs, the
-// administrator by the seeded email and password.
+// administrator by the bootstrapped email and password.
 func shellStepUp(command string, admin []string, shared ...string) walkthrough.StepUpFunc {
 	if command == "" {
 		return nil

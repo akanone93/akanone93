@@ -18,6 +18,8 @@ import (
 const (
 	identityService   = "/plux.v1.IdentityService/"
 	federationService = "/plux.v1.FederationService/"
+	orgService        = "/plux.v1.OrgService/"
+	appService        = "/plux.v1.AppService/"
 )
 
 // tokenLifetime is how long the access token of a walkthrough lasts: longer
@@ -41,8 +43,9 @@ type Config struct {
 	// provider vouches for.
 	Actor, Email string
 	// Password, when set, signs the person in with Email and Password
-	// instead of through the test provider: the seeded administrator, who
-	// has no account there and first meets the driver at a step-up.
+	// instead of through the test provider: the bootstrapped administrator,
+	// who has no account there; the driver enrols their key at the
+	// bootstrap, or at their first step-up when it did not run.
 	Password string
 	// Store keeps the credential between the token and the step-up.
 	Store FileStore
@@ -101,11 +104,17 @@ func (d *Driver) Token(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return d.mintToken(ctx, s, d.cfg.OrgID)
+}
+
+// mintToken creates an access token in the organisation from a session with
+// a second factor.
+func (d *Driver) mintToken(ctx context.Context, s *session, orgID string) (string, error) {
 	var minted struct {
 		Secret string `json:"secret"`
 	}
-	_, err = d.api.call(ctx, s, identityService+"CreateAccessToken", map[string]any{
-		"name": "walkthrough " + d.cfg.Actor, "organizationId": d.cfg.OrgID, "ttlSeconds": int64(tokenLifetime / time.Second),
+	_, err := d.api.call(ctx, s, identityService+"CreateAccessToken", map[string]any{
+		"name": "walkthrough " + d.cfg.Actor, "organizationId": orgID, "ttlSeconds": int64(tokenLifetime / time.Second),
 	}, &minted)
 	if err != nil {
 		return "", err
@@ -114,6 +123,59 @@ func (d *Driver) Token(ctx context.Context) (string, error) {
 		return "", errors.New("webauthndriver.Driver.Token: the server returned no token")
 	}
 	return minted.Secret, nil
+}
+
+// Installation is what Bootstrap prepared: the organisation, its app and the
+// administrator's access token in it.
+type Installation struct {
+	OrgID, AppID, Token string
+}
+
+// Bootstrap prepares a new installation the way its operator does: it accepts
+// the invitation `plux-server bootstrap` printed with Config.Password, enrols
+// the driver's key as the administrator's second factor, creates the
+// organisation and the app, and mints the administrator's token in the
+// organisation. The key stays in the store, so later step-ups of the
+// administrator sign in with it.
+func (d *Driver) Bootstrap(ctx context.Context, invitation, orgKey, appKey string) (Installation, error) {
+	if d.cfg.Password == "" || invitation == "" {
+		return Installation{}, errors.New("webauthndriver.Driver.Bootstrap: an invitation and a password are required")
+	}
+	_, err := d.api.call(ctx, nil, identityService+"AcceptInvitation", map[string]any{
+		"invitation": invitation, "displayName": "Administrator", "password": d.cfg.Password,
+	}, &struct{}{})
+	if err != nil {
+		return Installation{}, err
+	}
+	s, err := d.enrol(ctx)
+	if err != nil {
+		return Installation{}, err
+	}
+	var org struct {
+		Organization struct {
+			ID string `json:"id"`
+		} `json:"organization"`
+	}
+	if _, err := d.api.call(ctx, s, orgService+"CreateOrganization", map[string]any{"key": orgKey, "name": orgKey}, &org); err != nil {
+		return Installation{}, err
+	}
+	var app struct {
+		App struct {
+			ID string `json:"id"`
+		} `json:"app"`
+	}
+	_, err = d.api.call(ctx, s, appService+"CreateApp", map[string]any{"organizationId": org.Organization.ID, "key": appKey, "name": appKey}, &app)
+	if err != nil {
+		return Installation{}, err
+	}
+	if org.Organization.ID == "" || app.App.ID == "" {
+		return Installation{}, errors.New("webauthndriver.Driver.Bootstrap: the server returned no organisation or app")
+	}
+	token, err := d.mintToken(ctx, s, org.Organization.ID)
+	if err != nil {
+		return Installation{}, err
+	}
+	return Installation{OrgID: org.Organization.ID, AppID: app.App.ID, Token: token}, nil
 }
 
 // StepUp completes the step-up request the plux CLI printed the URL of, in a
