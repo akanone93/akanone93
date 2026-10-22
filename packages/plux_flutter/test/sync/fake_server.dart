@@ -597,6 +597,9 @@ final class FakePluxServer {
         final batch = (body['events']! as List<Object?>)
             .cast<Map<String, Object?>>();
         events.addAll(batch);
+        if (body['installed'] case final Map<String, Object?> installed) {
+          installedReports.add(installed);
+        }
         return (200, {'accepted': batch.length});
       case '/plux.v1.ConfigService/GetLiveConfig':
         if (!authed) {

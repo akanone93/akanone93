@@ -19672,6 +19672,15 @@ components:
              When present the server refuses events of a category the user did not
              agree to, and drops the locale without analytics consent; when absent
              the events are taken as the device gated them (ANL-003, SEC-161).
+        installed:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReportInstalledRequest'
+          title: installed
+          description: |-
+            installed, when present, is the device's report of the release it
+             activated (SEC-142), recorded as DeviceService.ReportInstalled records
+             it. It rides on the telemetry upload that follows a sync, so an update
+             costs no request of its own (QA-007); the batch may then hold no events.
       title: IngestEventsRequest
       additionalProperties: false
     plux.v1.IngestEventsResponse:

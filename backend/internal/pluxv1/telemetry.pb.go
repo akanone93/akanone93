@@ -183,7 +183,12 @@ type IngestEventsRequest struct {
 	// When present the server refuses events of a category the user did not
 	// agree to, and drops the locale without analytics consent; when absent
 	// the events are taken as the device gated them (ANL-003, SEC-161).
-	Consent       *Consent `protobuf:"bytes,4,opt,name=consent,proto3" json:"consent,omitempty"`
+	Consent *Consent `protobuf:"bytes,4,opt,name=consent,proto3" json:"consent,omitempty"`
+	// installed, when present, is the device's report of the release it
+	// activated (SEC-142), recorded as DeviceService.ReportInstalled records
+	// it. It rides on the telemetry upload that follows a sync, so an update
+	// costs no request of its own (QA-007); the batch may then hold no events.
+	Installed     *ReportInstalledRequest `protobuf:"bytes,5,opt,name=installed,proto3" json:"installed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -242,6 +247,13 @@ func (x *IngestEventsRequest) GetEvents() []*Event {
 func (x *IngestEventsRequest) GetConsent() *Consent {
 	if x != nil {
 		return x.Consent
+	}
+	return nil
+}
+
+func (x *IngestEventsRequest) GetInstalled() *ReportInstalledRequest {
+	if x != nil {
+		return x.Installed
 	}
 	return nil
 }
@@ -438,7 +450,7 @@ var File_plux_v1_telemetry_proto protoreflect.FileDescriptor
 
 const file_plux_v1_telemetry_proto_rawDesc = "" +
 	"\n" +
-	"\x17plux/v1/telemetry.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xe0\x01\n" +
+	"\x17plux/v1/telemetry.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\x1a\x14plux/v1/device.proto\"\xe0\x01\n" +
 	"\x05Event\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12.\n" +
 	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x1b\n" +
@@ -450,12 +462,13 @@ const file_plux_v1_telemetry_proto_rawDesc = "" +
 	"\x06fields\x18\a \x01(\fR\x06fields\"I\n" +
 	"\aConsent\x12\x1c\n" +
 	"\tanalytics\x18\x01 \x01(\bR\tanalytics\x12 \n" +
-	"\vexperiments\x18\x02 \x01(\bR\vexperiments\"\xa2\x01\n" +
+	"\vexperiments\x18\x02 \x01(\bR\vexperiments\"\xe1\x01\n" +
 	"\x13IngestEventsRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12&\n" +
 	"\x06events\x18\x03 \x03(\v2\x0e.plux.v1.EventR\x06events\x12*\n" +
-	"\aconsent\x18\x04 \x01(\v2\x10.plux.v1.ConsentR\aconsent\"\x85\x01\n" +
+	"\aconsent\x18\x04 \x01(\v2\x10.plux.v1.ConsentR\aconsent\x12=\n" +
+	"\tinstalled\x18\x05 \x01(\v2\x1f.plux.v1.ReportInstalledRequestR\tinstalled\"\x85\x01\n" +
 	"\x14IngestEventsResponse\x12\x1a\n" +
 	"\baccepted\x18\x01 \x01(\x05R\baccepted\x12\x1a\n" +
 	"\brejected\x18\x02 \x01(\x05R\brejected\x125\n" +
@@ -488,35 +501,37 @@ func file_plux_v1_telemetry_proto_rawDescGZIP() []byte {
 
 var file_plux_v1_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_plux_v1_telemetry_proto_goTypes = []any{
-	(*Event)(nil),                 // 0: plux.v1.Event
-	(*Consent)(nil),               // 1: plux.v1.Consent
-	(*IngestEventsRequest)(nil),   // 2: plux.v1.IngestEventsRequest
-	(*IngestEventsResponse)(nil),  // 3: plux.v1.IngestEventsResponse
-	(*ListEventsRequest)(nil),     // 4: plux.v1.ListEventsRequest
-	(*ListEventsResponse)(nil),    // 5: plux.v1.ListEventsResponse
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
-	(*Diagnostic)(nil),            // 7: plux.v1.Diagnostic
-	(*Page)(nil),                  // 8: plux.v1.Page
-	(*PageResult)(nil),            // 9: plux.v1.PageResult
+	(*Event)(nil),                  // 0: plux.v1.Event
+	(*Consent)(nil),                // 1: plux.v1.Consent
+	(*IngestEventsRequest)(nil),    // 2: plux.v1.IngestEventsRequest
+	(*IngestEventsResponse)(nil),   // 3: plux.v1.IngestEventsResponse
+	(*ListEventsRequest)(nil),      // 4: plux.v1.ListEventsRequest
+	(*ListEventsResponse)(nil),     // 5: plux.v1.ListEventsResponse
+	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
+	(*ReportInstalledRequest)(nil), // 7: plux.v1.ReportInstalledRequest
+	(*Diagnostic)(nil),             // 8: plux.v1.Diagnostic
+	(*Page)(nil),                   // 9: plux.v1.Page
+	(*PageResult)(nil),             // 10: plux.v1.PageResult
 }
 var file_plux_v1_telemetry_proto_depIdxs = []int32{
 	6,  // 0: plux.v1.Event.time:type_name -> google.protobuf.Timestamp
 	0,  // 1: plux.v1.IngestEventsRequest.events:type_name -> plux.v1.Event
 	1,  // 2: plux.v1.IngestEventsRequest.consent:type_name -> plux.v1.Consent
-	7,  // 3: plux.v1.IngestEventsResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	6,  // 4: plux.v1.ListEventsRequest.since:type_name -> google.protobuf.Timestamp
-	8,  // 5: plux.v1.ListEventsRequest.page:type_name -> plux.v1.Page
-	0,  // 6: plux.v1.ListEventsResponse.events:type_name -> plux.v1.Event
-	9,  // 7: plux.v1.ListEventsResponse.page:type_name -> plux.v1.PageResult
-	2,  // 8: plux.v1.TelemetryService.IngestEvents:input_type -> plux.v1.IngestEventsRequest
-	4,  // 9: plux.v1.TelemetryService.ListEvents:input_type -> plux.v1.ListEventsRequest
-	3,  // 10: plux.v1.TelemetryService.IngestEvents:output_type -> plux.v1.IngestEventsResponse
-	5,  // 11: plux.v1.TelemetryService.ListEvents:output_type -> plux.v1.ListEventsResponse
-	10, // [10:12] is the sub-list for method output_type
-	8,  // [8:10] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	7,  // 3: plux.v1.IngestEventsRequest.installed:type_name -> plux.v1.ReportInstalledRequest
+	8,  // 4: plux.v1.IngestEventsResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	6,  // 5: plux.v1.ListEventsRequest.since:type_name -> google.protobuf.Timestamp
+	9,  // 6: plux.v1.ListEventsRequest.page:type_name -> plux.v1.Page
+	0,  // 7: plux.v1.ListEventsResponse.events:type_name -> plux.v1.Event
+	10, // 8: plux.v1.ListEventsResponse.page:type_name -> plux.v1.PageResult
+	2,  // 9: plux.v1.TelemetryService.IngestEvents:input_type -> plux.v1.IngestEventsRequest
+	4,  // 10: plux.v1.TelemetryService.ListEvents:input_type -> plux.v1.ListEventsRequest
+	3,  // 11: plux.v1.TelemetryService.IngestEvents:output_type -> plux.v1.IngestEventsResponse
+	5,  // 12: plux.v1.TelemetryService.ListEvents:output_type -> plux.v1.ListEventsResponse
+	11, // [11:13] is the sub-list for method output_type
+	9,  // [9:11] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_telemetry_proto_init() }
@@ -525,6 +540,7 @@ func file_plux_v1_telemetry_proto_init() {
 		return
 	}
 	file_plux_v1_common_proto_init()
+	file_plux_v1_device_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -1656,11 +1656,12 @@ final class PluxRuntime with WidgetsBindingObserver {
           assurance.value = math.min(r.assurance!, _assuranceCeiling);
         }
         if (r.configError != null) _report(r.configError!);
-        if (r.outcome == SyncOutcome.staged) _onStaged();
+        final activation = r.outcome == SyncOutcome.staged ? _onStaged() : null;
         // The radio is awake: record the result and send what is buffered
-        // (SYN-015, ADR-0034).
+        // (SYN-015, ADR-0034), after an immediate activation, so the
+        // upload carries its installed report (SEC-142, QA-007).
         telemetry.record('sync_result', fields: r.toTelemetry());
-        unawaited(flushTelemetry());
+        unawaited(_flushAfter(activation));
         return r;
       } finally {
         await forward.cancel();
@@ -1678,10 +1679,21 @@ final class PluxRuntime with WidgetsBindingObserver {
     if (!_events.isClosed) _events.add(e);
   }
 
-  void _onStaged() {
+  Future<void> _onStaged() async {
     if (config.activation == ActivationPolicy.nextLaunch) return;
     _pendingActivation = true;
-    unawaited(_atSafePoint());
+    await _atSafePoint();
+  }
+
+  /// Flushes the telemetry once [activation], if any, has ended; a failed
+  /// activation is logged and still flushes.
+  Future<void> _flushAfter(Future<void>? activation) async {
+    try {
+      await activation;
+    } on Object catch (e) {
+      developer.log('activation: $e', name: 'plux');
+    }
+    await flushTelemetry();
   }
 
   /// Activates or reverts when no Plux page is mounted (SYN-004, SYN-006).

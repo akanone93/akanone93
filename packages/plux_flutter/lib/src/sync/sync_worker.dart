@@ -544,6 +544,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
   final api = PluxApiClient(client, config.endpoint);
   final outbox = TelemetryOutbox(config.storeRoot);
   var bufferBytes = PluxLimit.telemetryBufferBytes.defaultValue;
+  // The installed-release report the next telemetry upload carries.
+  (int, InstalledContext)? pendingInstalled;
   final engine = SyncEngine(
     config: config.sync,
     store: store,
@@ -602,12 +604,11 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
           reply.send(_Failure('$e'));
         }
       case _ReportInstalled(:final reply, :final sequence, :final context):
-        // Beside the other commands: a slow server holds up none of them.
-        track(
-          engine
-              .reportInstalled(sequence, context)
-              .whenComplete(() => reply.send(null)),
-        );
+        // Held for the telemetry upload that follows every sync, so an
+        // update costs no request of its own (QA-007); a later activation
+        // replaces it.
+        pendingInstalled = (sequence, context);
+        reply.send(null);
       case _Record(:final lines, :final maxBytes):
         try {
           bufferBytes = maxBytes;
@@ -623,13 +624,27 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         }
       case _Flush(:final reply, :final perRequest):
         try {
+          final pending = pendingInstalled;
+          final installed = pending == null
+              ? null
+              : await engine.installedReport(pending.$1, pending.$2);
           final r = await outbox.flush(
             api: api,
             token: engine.recentToken,
             appId: config.sync.appId,
             environment: config.sync.environment,
             perRequest: perRequest,
+            installed: installed,
           );
+          if (pending != null && identical(pendingInstalled, pending)) {
+            if (installed == null || r.installed) {
+              pendingInstalled = null;
+            } else if (r.error == null) {
+              // Refused with its batch for good: sent on its own instead.
+              pendingInstalled = null;
+              track(engine.reportInstalled(pending.$1, pending.$2));
+            }
+          }
           if (r.error?.code == 'unauthenticated') engine.forgetToken();
           reply.send(r);
         } on Object catch (e) {

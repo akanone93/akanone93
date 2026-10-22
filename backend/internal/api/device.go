@@ -194,16 +194,22 @@ func (s Device) ReportInstalled(ctx context.Context, req *connect.Request[pluxv1
 	if err != nil {
 		return nil, err
 	}
-	if id := req.Msg.GetDeviceId(); id != "" && id != d.DeviceID {
-		return nil, plxerr.New(plxerr.PermissionDenied, "a device reports only for itself")
-	}
-	if err := s.h.Devices.Report(ctx, d, device.Report{
-		Sequence: req.Msg.GetReleaseSequence(), Theme: req.Msg.GetTheme(),
-		TextScalePercent: req.Msg.GetTextScalePercent(), UserRef: req.Msg.GetUserRef(),
-	}); err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+	if err := recordInstalled(ctx, s.h, d, req.Msg); err != nil {
+		return nil, err
 	}
 	return connect.NewResponse(&pluxv1.ReportInstalledResponse{}), nil
+}
+
+// recordInstalled records a device's installed-release report, whether it
+// came on its own or with a telemetry upload (SEC-142).
+func recordInstalled(ctx context.Context, h *Handlers, d device.Identity, in *pluxv1.ReportInstalledRequest) error {
+	if id := in.GetDeviceId(); id != "" && id != d.DeviceID {
+		return plxerr.New(plxerr.PermissionDenied, "a device reports only for itself")
+	}
+	return h.Devices.Report(ctx, d, device.Report{ //nolint:wrapcheck // a domain error
+		Sequence: in.GetReleaseSequence(), Theme: in.GetTheme(),
+		TextScalePercent: in.GetTextScalePercent(), UserRef: in.GetUserRef(),
+	})
 }
 
 // evidenceOf maps the evidence of a request.
@@ -557,6 +563,11 @@ func (s Telemetry) IngestEvents(ctx context.Context, req *connect.Request[pluxv1
 	}
 	if id := req.Msg.GetAppId(); id != "" && id != d.AppID {
 		return nil, plxerr.New(plxerr.PermissionDenied, "a device reports only for its own app")
+	}
+	if in := req.Msg.GetInstalled(); in != nil {
+		if err := recordInstalled(ctx, s.h, d, in); err != nil {
+			return nil, err
+		}
 	}
 	events := make([]telemetry.Event, 0, len(req.Msg.GetEvents()))
 	for _, e := range req.Msg.GetEvents() {

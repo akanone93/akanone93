@@ -803,23 +803,42 @@ final class PluxApiClient {
     String deviceId,
     int sequence, {
     InstalledContext context = const InstalledContext(),
-  }) => _call('plux.v1.DeviceService/ReportInstalled', {
+  }) => _call(
+    'plux.v1.DeviceService/ReportInstalled',
+    installedReport(deviceId, sequence, context),
+    token: token,
+  );
+
+  /// The report that release [sequence] is active on [deviceId] (SEC-142),
+  /// sent on its own or with a telemetry upload.
+  static Map<String, Object?> installedReport(
+    String deviceId,
+    int sequence,
+    InstalledContext context,
+  ) => {
     'deviceId': deviceId,
     'releaseSequence': '$sequence',
     ...context.toJson(),
-  }, token: token);
+  };
 
   /// Sends a batch of telemetry events (ANL-002, ADR-0034), compressed
-  /// with gzip; the server's counts of accepted and refused events.
+  /// with gzip; the server's counts of accepted and refused events. An
+  /// [installedReport] rides along when given (SEC-142).
   Future<({int accepted, int rejected})> ingestEvents(
     DeviceToken token, {
     required String appId,
     required String environment,
     required List<Map<String, Object?>> events,
+    Map<String, Object?>? installed,
   }) async {
     final r = await _call(
       'plux.v1.TelemetryService/IngestEvents',
-      {'appId': appId, 'environment': environment, 'events': events},
+      {
+        'appId': appId,
+        'environment': environment,
+        'events': events,
+        'installed': ?installed,
+      },
       token: token,
       compress: true,
     );

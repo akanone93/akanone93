@@ -195,6 +195,19 @@ func TestDevicesEndToEnd(t *testing.T) {
 	if _, err := w.device.ReportInstalled(ctx, bound(t, dev, pluxv1connect.DeviceServiceReportInstalledProcedure, &pluxv1.ReportInstalledRequest{DeviceId: envs["production"], ReleaseSequence: 1})); codeOf(err) != connect.CodePermissionDenied {
 		t.Errorf("a report for another device: %v", err)
 	}
+	// The report rides on a telemetry upload too, alone or with events
+	// (SEC-142, QA-007), under the same check of the device.
+	carried := must(w.events.IngestEvents(ctx, bound(t, dev, pluxv1connect.TelemetryServiceIngestEventsProcedure, &pluxv1.IngestEventsRequest{
+		Installed: &pluxv1.ReportInstalledRequest{ReleaseSequence: 1, Theme: "dark"},
+	})))(t)
+	if carried.GetAccepted() != 0 || carried.GetRejected() != 0 {
+		t.Errorf("an installed-only upload = %+v", carried)
+	}
+	if _, err := w.events.IngestEvents(ctx, bound(t, dev, pluxv1connect.TelemetryServiceIngestEventsProcedure, &pluxv1.IngestEventsRequest{
+		Installed: &pluxv1.ReportInstalledRequest{DeviceId: envs["production"], ReleaseSequence: 1},
+	})); codeOf(err) != connect.CodePermissionDenied {
+		t.Errorf("an upload reporting for another device: %v", err)
+	}
 
 	// Telemetry: catalogued events are stored; a sensitive field is not.
 	now := timestamppb.Now()

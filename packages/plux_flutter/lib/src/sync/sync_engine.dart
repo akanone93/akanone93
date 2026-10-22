@@ -720,7 +720,22 @@ final class SyncEngine {
   /// Re-attests the device's key now, after a risk signal (SEC-006).
   Future<void> reattest() => _auth.reattestNow();
 
-  /// Tells the server that release [sequence] is the one this device runs,
+  /// The report that release [sequence] is active, for a telemetry upload
+  /// to carry (SEC-142); null before the device is registered.
+  Future<Map<String, Object?>?> installedReport(
+    int sequence,
+    InstalledContext context,
+  ) async {
+    final credential = await credentials.read();
+    if (credential == null) return null;
+    return PluxApiClient.installedReport(
+      credential.deviceId,
+      sequence,
+      context,
+    );
+  }
+
+  /// Tells the server, on its own, that release [sequence] is the one this device runs,
   /// with what the user saw it in ([context], SEC-142). The report is
   /// best effort: a device that cannot reach the server, or has no
   /// credential yet, loses it, and the next activation sends another.
