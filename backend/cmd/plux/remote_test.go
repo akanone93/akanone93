@@ -46,6 +46,8 @@ type fake struct {
 	hash    string
 	fail    bool
 	promote []string
+	// refuseRelease answers CreateRelease with diagnostics and no release.
+	refuseRelease bool
 	// channels by environment ID and key; after a promotion the
 	// worker "signs" its manifest once ListChannels has been asked lag
 	// more times, and never while unsigned.
@@ -179,9 +181,12 @@ func (f *fake) WatchPublish(_ context.Context, r *connect.Request[pluxv1.WatchPu
 	}})
 }
 
-func (*fake) CreateRelease(_ context.Context, r *connect.Request[pluxv1.CreateReleaseRequest]) (*connect.Response[pluxv1.CreateReleaseResponse], error) {
+func (f *fake) CreateRelease(_ context.Context, r *connect.Request[pluxv1.CreateReleaseRequest]) (*connect.Response[pluxv1.CreateReleaseResponse], error) {
 	if r.Msg.GetPluginVersions()["loans"] != 2 {
 		return nil, connect.NewError(connect.CodeInvalidArgument, nil)
+	}
+	if f.refuseRelease {
+		return connect.NewResponse(&pluxv1.CreateReleaseResponse{Diagnostics: []*pluxv1.Diagnostic{{Code: "PLX-7031", Message: "a function is unknown"}}}), nil
 	}
 	return connect.NewResponse(&pluxv1.CreateReleaseResponse{Release: &pluxv1.Release{Sequence: 4}}), nil
 }
@@ -354,6 +359,13 @@ func TestServerCommands(t *testing.T) { //nolint:paralleltest // the keychain mo
 	if code != exitOK || json.Unmarshal([]byte(out), &pub) != nil || !pub.OK || pub.Release != 4 || len(pub.Publishes) != 2 || f.promote[0] != "e-prod/beta" {
 		t.Errorf("publish: %d %s %v", code, out, f.promote)
 	}
+	// A release the server refuses with diagnostics fails the publish and
+	// names them, rather than reporting release 0.
+	f.refuseRelease = true
+	if code, _, stderr := cli(t, config, "publish", "-C", project, "--release"); code != exitFailed || !strings.Contains(stderr, "PLX-7031") {
+		t.Errorf("a refused release: %d %s", code, stderr)
+	}
+	f.refuseRelease = false
 	f.fail = true
 	if code, out, _ := cli(t, config, "publish", "-C", project, "--no-import"); code != exitFailed || !strings.Contains(out, "PLX-1401") {
 		t.Errorf("a failed publish: %d %s", code, out)

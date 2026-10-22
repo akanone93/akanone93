@@ -584,6 +584,9 @@ func releaseAndPromote(ctx context.Context, cl *clients, app, envID, notes, prom
 	if err != nil {
 		return 0, err //nolint:wrapcheck // reported as is
 	}
+	if rel.Msg.GetRelease() == nil {
+		return 0, fmt.Errorf("the server created no release:%s", diagnosticsLine(rel.Msg.GetDiagnostics()))
+	}
 	seq := rel.Msg.GetRelease().GetSequence()
 	if promote == "" {
 		return seq, nil
@@ -597,6 +600,15 @@ func releaseAndPromote(ctx context.Context, cl *clients, app, envID, notes, prom
 		return 0, err //nolint:wrapcheck // reported as is
 	}
 	return seq, waitSigned(ctx, cl, target, channel, seq, wait)
+}
+
+// diagnosticsLine joins diagnostics as " CODE: message;" for one error line.
+func diagnosticsLine(ds []*pluxv1.Diagnostic) string {
+	var b strings.Builder
+	for _, d := range ds {
+		fmt.Fprintf(&b, " %s: %s;", d.GetCode(), d.GetMessage())
+	}
+	return strings.TrimSuffix(b.String(), ";")
 }
 
 // latestVersions pins the release to what was just published.
