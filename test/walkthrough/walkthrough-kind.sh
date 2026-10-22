@@ -87,7 +87,11 @@ tag=${IMAGE##*:}
 fail() { echo "✗ $*" >&2; exit 1; }
 step() { echo "── $*"; }
 
-# install [extra helm args]: the HA installation. It is also the rolling
+# install [extra helm args]: the HA installation. Every client reaches the
+# api through kubectl port-forward, which connects inside the pod over
+# loopback; the api trusts loopback as a proxy, so the fleet's devices, which
+# plux-load gives an X-Forwarded-For address each, are rate-limited per
+# device and not as one address (SRV-065). It is also the rolling
 # upgrade, with a pod annotation that rolls every role (the pre-upgrade hook
 # migrates the database first).
 install() {
@@ -99,6 +103,7 @@ install() {
 		--set builderImage.repository="${BUILDER_IMAGE%:*}" --set builderImage.tag="${BUILDER_IMAGE##*:}" --set builderImage.pullPolicy=Never \
 		--set server.publicBaseURL="https://127.0.0.1:$API_PORT" \
 		--set server.tls.existingSecret="$TLS_SECRET" \
+		--set-json 'server.trustedProxies=["127.0.0.1/32","::1/128"]' \
 		--set license.existingSecret="$LICENSE_SECRET" \
 		--set api.replicas=2 --set worker.replicas=2 \
 		--set config.attestation.developmentProvider=true \
