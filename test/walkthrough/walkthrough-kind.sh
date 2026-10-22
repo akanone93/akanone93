@@ -57,6 +57,12 @@ KUBECTL=${KUBECTL:-kubectl}
 GO=${GO:-go}
 CLUSTER=${WALKTHROUGH_CLUSTER:-plux-walkthrough}
 NAMESPACE=plux
+# The Transit signer of the run: an in-memory OpenBao dev server (MPL-2.0,
+# the Vault Transit API). The file backend never signs for a production
+# environment (SEC-056), and step 2 promotes to one.
+SIGNER=plux-walkthrough-signer
+SIGNER_IMAGE=openbao/openbao:2.6.4@sha256:cf2340fc9a22cb9358ca0defd1f39b65673836bd23fe2bb8984a07e11fe13ef4
+SIGNER_EGRESS='{"to":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"plux-walkthrough-signer"}}}],"ports":[{"protocol":"TCP","port":8200}]}'
 IMAGE=${E2E_IMAGE:-plux-server:e2e}
 BUILDER_IMAGE=${E2E_BUILDER_IMAGE:-plux-builder:e2e}
 CNPG_VERSION=${CNPG_VERSION:?set CNPG_VERSION}
@@ -98,8 +104,11 @@ install() {
 		--set config.attestation.developmentProvider=true \
 		--set "config.auth.federation.allowPrivateNetworks[0]=$WALKTHROUGH_IDP_RANGE" \
 		--set-file config.auth.federation.trustedCAs="$WALKTHROUGH_IDP_CA_FILE" \
+		--set signing.backend=vault --set signing.vault.address="http://$SIGNER.$NAMESPACE.svc:8200" \
+		--set signing.vault.tokenSecret.name="$SIGNER" \
 		--set-json "networkPolicy.extraEgress.api=$WALKTHROUGH_EGRESS" \
 		--set-json "networkPolicy.extraEgress.worker=$WALKTHROUGH_EGRESS" \
+		--set-json "networkPolicy.extraEgress.migrate=[$SIGNER_EGRESS]" \
 		$HELM_ARGS --wait --timeout 15m "$@"
 }
 
@@ -222,10 +231,40 @@ openssl x509 -req -in "$work/idp.csr" -CA "$work/ca.pem" -CAkey "$work/ca.key" -
 export WALKTHROUGH_IDP_RANGE=$gateway/32 WALKTHROUGH_IDP_CA_FILE=$work/ca.pem
 # The network policies admit the api and the worker to the test provider and
 # the syslog sink on the gateway, those two ports and nothing else.
-export WALKTHROUGH_EGRESS="[{\"to\":[{\"ipBlock\":{\"cidr\":\"$gateway/32\"}}],\"ports\":[{\"protocol\":\"TCP\",\"port\":$IDP_PORT},{\"protocol\":\"TCP\",\"port\":$SINK_PORT}]}]"
+export WALKTHROUGH_EGRESS="[{\"to\":[{\"ipBlock\":{\"cidr\":\"$gateway/32\"}}],\"ports\":[{\"protocol\":\"TCP\",\"port\":$IDP_PORT},{\"protocol\":\"TCP\",\"port\":$SINK_PORT}]},$SIGNER_EGRESS]"
 k create namespace "$NAMESPACE"
 k --namespace "$NAMESPACE" create secret tls "$TLS_SECRET" --cert="$work/tls.crt" --key="$work/tls.key"
 k --namespace "$NAMESPACE" create secret generic "$LICENSE_SECRET" --from-file=license.json="$LICENSE_FILE"
+k --namespace "$NAMESPACE" create secret generic "$SIGNER" --from-literal=token="$(openssl rand -hex 24)"
+k --namespace "$NAMESPACE" apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: $SIGNER
+  labels: {app.kubernetes.io/name: $SIGNER}
+spec:
+  containers:
+    - name: openbao
+      image: $SIGNER_IMAGE
+      command: [bao, server, -dev, -dev-listen-address=0.0.0.0:8200, "-dev-root-token-id=\$(BAO_DEV_ROOT_TOKEN_ID)"]
+      env:
+        - name: BAO_DEV_ROOT_TOKEN_ID
+          valueFrom: {secretKeyRef: {name: $SIGNER, key: token}}
+      ports: [{containerPort: 8200}]
+      readinessProbe:
+        httpGet: {path: /v1/sys/health, port: 8200}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $SIGNER
+spec:
+  selector: {app.kubernetes.io/name: $SIGNER}
+  ports: [{port: 8200, targetPort: 8200}]
+EOF
+k --namespace "$NAMESPACE" wait --for=condition=Ready "pod/$SIGNER" --timeout=180s
+# shellcheck disable=SC2016 # expanded in the pod, from its own environment
+k --namespace "$NAMESPACE" exec "$SIGNER" -- sh -c 'BAO_ADDR=http://127.0.0.1:8200 BAO_TOKEN=$BAO_DEV_ROOT_TOKEN_ID bao secrets enable transit' >/dev/null
 install
 k --namespace "$NAMESPACE" wait --for=condition=Ready cluster/plux-pg --timeout=300s
 
