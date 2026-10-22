@@ -310,7 +310,10 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 	commander.StepUp = shellStepUp(o.stepUpCmd, shared...)
 	env := &walkthrough.Env{
 		Plux: commander, Creds: commander,
-		Admin:  &walkthrough.ConnectClient{BaseURL: o.server, Token: os.Getenv(adminTokenEnv), HTTP: httpClient},
+		Admin: &walkthrough.ConnectClient{
+			BaseURL: o.server, Token: os.Getenv(adminTokenEnv), HTTP: httpClient,
+			PublicURL: os.Getenv("PLUX_PUBLIC_URL"), Actor: "admin", StepUp: commander.StepUp,
+		},
 		Public: &walkthrough.ConnectClient{BaseURL: o.server, HTTP: httpClient},
 		SCIM:   &walkthrough.HTTPSCIMClient{BaseURL: o.server, HTTP: httpClient},
 		Fleet:  &walkthrough.ExecFleet{Binary: o.pluxLoad, Server: o.server, App: o.app, CAFile: o.caFile, Dir: work, Seed: 1},

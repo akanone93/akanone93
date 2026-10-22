@@ -35,10 +35,46 @@ type ConnectClient struct {
 	// sign-in calls.
 	Token string
 	HTTP  *http.Client
+	// PublicURL is the server's public base URL, which DPoP proofs name
+	// when BaseURL is a port-forward; empty means BaseURL.
+	PublicURL string
+	// Actor and StepUp complete a step-up the server asks for (PLX-6200):
+	// StepUp confirms the ceremony at a URL as Actor. Without StepUp a
+	// step-up refusal is returned as it is.
+	Actor  string
+	StepUp StepUpFunc
+
+	stepUp stepUpper
 }
 
-// Call implements [Caller].
+// proofBase is the base URL DPoP proofs name.
+func (c *ConnectClient) proofBase() string {
+	return strings.TrimSuffix(firstNonEmpty(c.PublicURL, c.BaseURL), "/")
+}
+
+// client is the HTTP client calls use.
+func (c *ConnectClient) client() *http.Client {
+	if c.HTTP == nil {
+		return http.DefaultClient
+	}
+	return c.HTTP
+}
+
+// Call implements [Caller]. A call the server refuses for want of a step-up
+// is repeated once after the step-up, when StepUp is set.
 func (c *ConnectClient) Call(ctx context.Context, procedure string, req, resp any) error {
+	err := c.call(ctx, procedure, req, resp)
+	if c.StepUp == nil || !needsStepUp(err) {
+		return err
+	}
+	if err := c.stepUp.obtain(ctx, c); err != nil {
+		return fmt.Errorf("walkthrough.ConnectClient.Call %s: %w", procedure, err)
+	}
+	return c.call(ctx, procedure, req, resp)
+}
+
+// call makes one call, with the step-up grant when one is held.
+func (c *ConnectClient) call(ctx context.Context, procedure string, req, resp any) error {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("walkthrough.ConnectClient.Call: %w", err)
@@ -51,12 +87,11 @@ func (c *ConnectClient) Call(ctx context.Context, procedure string, req, resp an
 	hr.Header.Set("Connect-Protocol-Version", "1")
 	if c.Token != "" {
 		hr.Header.Set("Authorization", "Bearer "+c.Token)
+		if err := c.stepUp.attach(hr.Header, c.Token, c.proofBase()+procedure); err != nil {
+			return fmt.Errorf("walkthrough.ConnectClient.Call: %w", err)
+		}
 	}
-	client := c.HTTP
-	if client == nil {
-		client = http.DefaultClient
-	}
-	res, err := client.Do(hr)
+	res, err := c.client().Do(hr)
 	if err != nil {
 		return fmt.Errorf("walkthrough.ConnectClient.Call %s: %w", procedure, err)
 	}
