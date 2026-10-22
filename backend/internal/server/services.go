@@ -6,6 +6,7 @@ package server
 import (
 	"context"
 	"crypto/rand"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -734,7 +735,13 @@ func buildCore(ctx context.Context, cfg *config.Config, db *storage.DB, shared c
 	if err != nil {
 		return coreServices{}, err
 	}
-	oidc, err := oidcProvider(cfg)
+	providers := work.IdentityHTTP
+	if providers == nil {
+		if providers, err = federationHTTP(cfg); err != nil {
+			return coreServices{}, err
+		}
+	}
+	oidc, err := oidcProvider(cfg, providers)
 	if err != nil {
 		return coreServices{}, err
 	}
@@ -748,7 +755,7 @@ func buildCore(ctx context.Context, cfg *config.Config, db *storage.DB, shared c
 		OIDC:            oidc,
 		WebAuthn:        webAuthn(cfg),
 
-		HTTPClient: work.IdentityHTTP, SAML: work.Identity.OrDefault().SAML,
+		HTTPClient: providers, SAML: work.Identity.OrDefault().SAML,
 		PasswordLoginDisabled: !cfg.Auth.Studio.AllowPasswordLogin,
 		Notifier:              permissionNotifier(shared), Log: work.Log,
 	})
@@ -906,16 +913,31 @@ func verificationURI(cfg *config.Config) string {
 	return strings.TrimSuffix(cfg.Server.PublicBaseURL, "/") + "/device"
 }
 
+// federationHTTP is the SSRF-safe client for identity providers (SEC-105),
+// widened only by what auth.federation names: private ranges a provider may
+// be reached on, and authorities its certificate may be issued by.
+func federationHTTP(cfg *config.Config) (*http.Client, error) {
+	f := cfg.Auth.Federation
+	var tlsConfig *tls.Config
+	if roots := f.CAPool(); roots != nil {
+		tlsConfig = &tls.Config{RootCAs: roots, MinVersion: tls.VersionTLS12}
+	}
+	client, err := httpx.NewClient(httpx.Options{
+		Destination: httpx.KindOIDC, Timeout: 15 * time.Second,
+		Policy: httpx.Policy{Allow: f.PrivateNetworks()}, TLS: tlsConfig,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return client, nil
+}
+
 // oidcProvider builds the OpenID Connect provider people sign in with,
 // when one is configured (SEC-100).
-func oidcProvider(cfg *config.Config) (*auth.OIDCProvider, error) {
+func oidcProvider(cfg *config.Config, client *http.Client) (*auth.OIDCProvider, error) {
 	o := cfg.Auth.Studio.OIDC
 	if o.Issuer == "" {
 		return nil, nil //nolint:nilnil // no provider is configured
-	}
-	client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindOIDC, Timeout: 15 * time.Second})
-	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
 	}
 	p, err := auth.NewOIDCProvider(auth.OIDCConfig{
 		Issuer: o.Issuer, ClientID: o.ClientID, ClientSecret: string(o.ClientSecret), RedirectURL: o.RedirectURL,

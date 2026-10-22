@@ -78,6 +78,7 @@ func (c *Config) Validate() error {
 	c.validateBuilder(&p)
 	c.validateLicense(&p)
 	c.validateNotifications(&p)
+	c.validateFederation(&p)
 	return errors.Join(p.errs...)
 }
 
