@@ -46,6 +46,18 @@ func (e *Env) stepSSO(ctx context.Context, run *Run) error {
 	if err := e.signInThroughOIDC(ctx, w); err != nil {
 		return fmt.Errorf("OIDC sign-in: %w", err)
 	}
+	if err := e.createRolesAndGrants(ctx, w); err != nil {
+		return fmt.Errorf("roles and grants: %w", err)
+	}
+	if err := e.issueTokens(ctx); err != nil {
+		return err
+	}
+	return e.restrictContractors(ctx, w)
+}
+
+// issueTokens gives every person an access token. It runs after the grants,
+// so that each token is issued to a person who already holds their roles.
+func (e *Env) issueTokens(ctx context.Context) error {
 	for _, p := range people {
 		token, err := e.Hooks.IssueToken(ctx, p.actor, p.email)
 		if err != nil {
@@ -53,10 +65,7 @@ func (e *Env) stepSSO(ctx context.Context, run *Run) error {
 		}
 		e.Creds.SetToken(p.actor, token)
 	}
-	if err := e.createRolesAndGrants(ctx, w); err != nil {
-		return fmt.Errorf("roles and grants: %w", err)
-	}
-	return e.restrictContractors(ctx, w)
+	return nil
 }
 
 // signInThroughOIDC creates the identity provider and signs alice in through
@@ -157,7 +166,7 @@ func (e *Env) scimCreate(ctx context.Context, w *walk, token, path string, body 
 }
 
 // createRolesAndGrants makes the custom role and grants roles to the teams at
-// the app's scope.
+// the organisation's scope.
 func (e *Env) createRolesAndGrants(ctx context.Context, w *walk) error {
 	if _, err := w.plux(ctx, "admin", "roles", "create", "--name", "Release approver",
 		"--permissions", "approvals.decide,app.read,plugin.read,organization.read",
@@ -173,7 +182,7 @@ func (e *Env) createRolesAndGrants(ctx context.Context, w *walk) error {
 		{"risk", approverRole},
 	}
 	for _, g := range grants {
-		if _, err := w.plux(ctx, "admin", "grants", "create", "--role", g.role, "--team", e.state.teams[g.team], "--scope", "app", "--app", e.App); err != nil {
+		if _, err := w.plux(ctx, "admin", "grants", "create", "--role", g.role, "--team", e.state.teams[g.team], "--scope", "organization"); err != nil {
 			return err
 		}
 	}

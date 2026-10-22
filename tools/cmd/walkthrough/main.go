@@ -296,7 +296,7 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 		return nil, nil, fmt.Errorf("copy the project: %w", err)
 	}
 	commander := &walkthrough.ExecCommander{
-		Binary: o.plux, Server: o.server, Org: o.org, Home: filepath.Join(work, "home"),
+		Binary: o.plux, Server: o.server, Org: o.org, CAFile: o.caFile, Home: filepath.Join(work, "home"),
 		Initial: map[string]string{"admin": os.Getenv(adminTokenEnv)},
 	}
 	if err := os.MkdirAll(commander.Home, 0o700); err != nil {

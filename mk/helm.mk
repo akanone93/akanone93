@@ -36,7 +36,7 @@ airgap-kind: ## Build and verify an air-gapped bundle, then install it on kind w
 
 # Verifies: DEP-004, GOV-006, GOV-007, GOV-020, GOV-021, GOV-022, GOV-024, GOV-025, GOV-026, REL-053, REL-060, SEC-142, SEC-143, SEC-162, NFR-024.
 walkthrough-kind: ## Run the scripted regulated-industry audit walkthrough (SSO and SCIM, approvals, staged rollout and health gate, kill switch through break-glass, mandatory update, audit export, reconstruction, rolling upgrade, data-subject request) against the HA chart on kind with the synthetic fleet, and verify the signed evidence bundle (needs Docker, kubectl, the enterprise image and the two browser hooks of test/walkthrough/walkthrough-kind.sh)
-	docker build -f backend/Dockerfile --target server -t $(E2E_IMAGE) .
+	docker build -f backend/Dockerfile --target server-ee -t $(E2E_IMAGE) .
 	GO="$(GO)" HELM="$(HELM)" KIND="$(KIND)" E2E_IMAGE="$(E2E_IMAGE)" CNPG_VERSION="$(CNPG_VERSION)" CNPG_SHA256="$(CNPG_SHA256)" test/walkthrough/walkthrough-kind.sh
 
 walkthrough-plan: ## Print the plan of the audit walkthrough: every step, the requirements it exercises and what it does; starts nothing

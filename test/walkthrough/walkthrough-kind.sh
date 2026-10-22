@@ -7,7 +7,9 @@
 #
 #   1. a throwaway kind cluster with CloudNativePG, and the chart installed with
 #      two replicas of every role (ci/kind-values.yaml plus the overrides
-#      below), PostgreSQL in three instances and Valkey with Sentinel;
+#      below), PostgreSQL in three instances and Valkey with Sentinel; the api
+#      terminates TLS with a certificate of a CA made for the run, so the
+#      public base URL, PLUX_SERVER and the DPoP htu are all https;
 #   2. an administrator, an organisation and an app are seeded; the api is
 #      forwarded to localhost, where the synthetic devices reach it;
 #   3. tools/cmd/walkthrough runs the nine steps (docs/compliance/walkthrough.md)
@@ -26,13 +28,15 @@
 #                            for $WALKTHROUGH_ACTOR.
 #
 # The enterprise features the steps use (custom roles, SCIM, federation) need
-# an enterprise server image and a licence file. WALKTHROUGH_HELM_ARGS holds
-# the extra helm arguments that supply them (for example --set image.repository
-# and a --values file that mounts the licence and sets config.license.file).
+# the enterprise server image (E2E_IMAGE, built from the server-ee target) and
+# a signed licence: WALKTHROUGH_LICENSE_FILE names the file, which becomes the
+# Secret plux-license (license.existingSecret). No signing key for licences
+# exists in the repository; CI takes the file from the secret
+# PLUX_TEST_LICENSE. WALKTHROUGH_HELM_ARGS holds further helm arguments.
 # WALKTHROUGH_VIEWER_CMD, when set, enables the optional emulator step.
 #
 # Any failure exits non-zero and prints diagnostics. Needs Docker, kind, helm,
-# kubectl, go and curl. The cluster is deleted at the end; WALKTHROUGH_KEEP=1
+# kubectl, go, curl and openssl. The cluster is deleted at the end; WALKTHROUGH_KEEP=1
 # keeps it. The evidence is written to WALKTHROUGH_OUT (default
 # walkthrough-out): evidence/, evidence-bundle.json and evidence-bundle.pub.
 # The signing key of the bundle exists only for the run.
@@ -58,6 +62,9 @@ API_PORT=${WALKTHROUGH_API_PORT:-18080}
 FLEET_ENV=${WALKTHROUGH_FLEET_ENV:-staging}
 DEVICES=${WALKTHROUGH_DEVICES:-300}
 HELM_ARGS=${WALKTHROUGH_HELM_ARGS:-}
+LICENSE_FILE=${WALKTHROUGH_LICENSE_FILE:-}
+TLS_SECRET=plux-api-tls
+LICENSE_SECRET=plux-license
 
 here=$(cd "$(dirname "$0")" && pwd)
 repo=$(cd "$here/../.." && pwd)
@@ -77,7 +84,9 @@ install() {
 	"$HELM" upgrade --install plux "$chart" --namespace "$NAMESPACE" \
 		-f "$chart/ci/kind-values.yaml" \
 		--set image.repository="$repository" --set image.tag="$tag" --set image.pullPolicy=Never \
-		--set server.publicBaseURL="http://127.0.0.1:$API_PORT" \
+		--set server.publicBaseURL="https://127.0.0.1:$API_PORT" \
+		--set server.tls.existingSecret="$TLS_SECRET" \
+		--set license.existingSecret="$LICENSE_SECRET" \
 		--set api.replicas=2 --set worker.replicas=2 \
 		--set config.attestation.developmentProvider=true \
 		$HELM_ARGS --wait --timeout 15m "$@"
@@ -93,10 +102,12 @@ fi
 work=$(mktemp -d)
 pids=()
 
-for tool in docker "$KIND" "$HELM" "$KUBECTL" "$GO" curl; do
+for tool in docker "$KIND" "$HELM" "$KUBECTL" "$GO" curl openssl; do
 	command -v "$tool" >/dev/null || fail "$tool is required"
 done
 docker info >/dev/null 2>&1 || fail "the Docker daemon is not running"
+[ -n "$LICENSE_FILE" ] && [ -s "$LICENSE_FILE" ] ||
+	fail "set WALKTHROUGH_LICENSE_FILE to a signed enterprise licence (CI: the secret PLUX_TEST_LICENSE)"
 
 diagnostics() {
 	echo "── diagnostics" >&2
@@ -126,6 +137,18 @@ gateway_address() {
 		tr ' ' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1
 }
 
+# make_ca: a CA made for the run and a certificate for the api, valid for the
+# address the port-forward serves on. Both keys stay in $work.
+make_ca() {
+	openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes -days 1 \
+		-subj "/CN=plux walkthrough CA" -keyout "$work/ca.key" -out "$work/ca.pem" 2>/dev/null
+	openssl req -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes \
+		-subj "/CN=plux-api" -keyout "$work/tls.key" -out "$work/tls.csr" 2>/dev/null
+	printf 'subjectAltName=IP:127.0.0.1,DNS:localhost\nextendedKeyUsage=serverAuth\n' >"$work/tls.ext"
+	openssl x509 -req -in "$work/tls.csr" -CA "$work/ca.pem" -CAkey "$work/ca.key" -CAcreateserial \
+		-days 1 -extfile "$work/tls.ext" -out "$work/tls.crt" 2>/dev/null
+}
+
 step "build the CLI, the device fleet and the walkthrough"
 (cd "$repo/backend" && "$GO" build -o "$work/plux" ./cmd/plux && "$GO" build -o "$work/plux-load" ./cmd/plux-load)
 (cd "$repo/tools" && "$GO" build -o "$work/walkthrough" ./cmd/walkthrough && "$GO" build -o "$work/webauthn-driver" ./cmd/webauthn-driver)
@@ -151,8 +174,11 @@ echo "$CNPG_SHA256  $work/cnpg.yaml" | sha256sum -c - >/dev/null || fail "cnpg-$
 k apply --server-side -f "$work/cnpg.yaml" >/dev/null
 k --namespace cnpg-system rollout status deployment/cnpg-controller-manager --timeout=300s
 
-step "installation (two replicas of every role)"
+step "installation (two replicas of every role, TLS with the run's CA)"
+make_ca
 k create namespace "$NAMESPACE"
+k --namespace "$NAMESPACE" create secret tls "$TLS_SECRET" --cert="$work/tls.crt" --key="$work/tls.key"
+k --namespace "$NAMESPACE" create secret generic "$LICENSE_SECRET" --from-file=license.json="$LICENSE_FILE"
 install
 k --namespace "$NAMESPACE" wait --for=condition=Ready cluster/plux-pg --timeout=300s
 
@@ -168,7 +194,7 @@ WALKTHROUGH_ADMIN_TOKEN=$(value TOKEN)
 step "forward the api to localhost:$API_PORT"
 k --namespace "$NAMESPACE" port-forward svc/plux-api "$API_PORT:8080" >/dev/null 2>&1 &
 pids+=("$!")
-curl -fsS --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 "http://127.0.0.1:$API_PORT/livez" >/dev/null ||
+curl -fsS --cacert "$work/ca.pem" --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 "https://127.0.0.1:$API_PORT/livez" >/dev/null ||
 	fail "the port-forward to the api does not answer"
 
 # The audit public key, as `plux compliance verify` takes it, read from the
@@ -190,7 +216,7 @@ if [ -n "${WALKTHROUGH_VIEWER_CMD:-}" ]; then
 fi
 status=0
 "$work/walkthrough" run \
-	-server "http://127.0.0.1:$API_PORT" -org "$ORG" -app "$APP" -fleet-env "$FLEET_ENV" -devices "$DEVICES" \
+	-server "https://127.0.0.1:$API_PORT" -ca-file "$work/ca.pem" -org "$ORG" -app "$APP" -fleet-env "$FLEET_ENV" -devices "$DEVICES" \
 	-plux "$work/plux" -plux-load "$work/plux-load" -out "$OUT" -project "$repo/schema/testdata/documents/plux_bank" \
 	-advertise "$gateway" \
 	-token-cmd "$TOKEN_CMD" -stepup-cmd "$STEPUP_CMD" \

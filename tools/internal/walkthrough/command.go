@@ -65,6 +65,9 @@ type ExecCommander struct {
 	Home string
 	// Timeout bounds one command; zero means five minutes.
 	Timeout time.Duration
+	// CAFile is the PEM file of the CA that signed the server's certificate;
+	// the CLI is told to trust it (SSL_CERT_FILE). Empty uses the system roots.
+	CAFile string
 
 	mu     sync.Mutex
 	tokens map[string]string
@@ -117,6 +120,9 @@ func (e *ExecCommander) Run(ctx context.Context, c Command) (Result, error) {
 	cmd.Env = []string{
 		"PATH=" + os.Getenv("PATH"), "HOME=" + e.Home,
 		"PLUX_SERVER=" + e.Server, "PLUX_ORGANIZATION=" + e.Org, "PLUX_TOKEN=" + token,
+	}
+	if e.CAFile != "" {
+		cmd.Env = append(cmd.Env, "SSL_CERT_FILE="+e.CAFile)
 	}
 	// A child of the CLI that outlives it must not hold the output pipes open.
 	cmd.WaitDelay = 2 * time.Second

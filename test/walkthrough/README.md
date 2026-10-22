@@ -18,7 +18,7 @@ go run ./tools/cmd/walkthrough verify -dir walkthrough-out   # an auditor's chec
 
 ## What the environment must supply
 
-* An **enterprise server image and a licence file** (custom roles, SCIM, federation, step-up are enterprise features, `GOV-033`). The script passes `WALKTHROUGH_HELM_ARGS` to `helm` for this; the chart mounts the licence from a Secret named by `license.existingSecret`.
+* An **enterprise server image and a signed licence** (custom roles, SCIM, federation, step-up are enterprise features, `GOV-033`). `make walkthrough-kind` builds the image from the `server-ee` target; `WALKTHROUGH_LICENSE_FILE` names the licence, which the script stores as a Secret and installs with `license.existingSecret`. No licence signing key is in the repository: CI takes the licence from the secret `PLUX_TEST_LICENSE` and skips the walkthrough, with a notice, when it is empty. The api terminates TLS with a CA made for the run, so every URL is `https`.
 * Optionally `WALKTHROUGH_TOKEN_CMD`, which prints an access token for `$WALKTHROUGH_ACTOR` after that person signed in through the test provider and answered their second factor, and `WALKTHROUGH_STEPUP_CMD`, which completes the WebAuthn step-up at `$WALKTHROUGH_STEPUP_URL`. They default to `tools/cmd/webauthn-driver`, a software authenticator built for the run (ES256, `none` attestation, keys in a mode-0700 directory of the run).
 * Optionally `WALKTHROUGH_VIEWER_CMD`, which opens a reconstruction in the viewer host on an emulator (step 7b, CI only).
 

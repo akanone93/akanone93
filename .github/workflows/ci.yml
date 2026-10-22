@@ -2088,9 +2088,36 @@ jobs:
           cache: false
       - name: Install the pinned Helm, kind and kubeconform
         run: make install-helm-tools
+      # The enterprise licence is signed offline with the production key and
+      # kept in the repository secret PLUX_TEST_LICENSE; no signing key for
+      # licences is in the code. Without the secret (a fork, or before the
+      # maintainer has added it) the walkthrough is skipped and the job passes.
+      - name: Write the test licence
+        id: licence
+        env:
+          PLUX_TEST_LICENSE: ${{ secrets.PLUX_TEST_LICENSE }}
+        run: |
+          if [ -z "$PLUX_TEST_LICENSE" ]; then
+            echo "::notice title=Audit walkthrough skipped::the secret PLUX_TEST_LICENSE is empty, so the enterprise features cannot be licensed"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          file="$(mktemp "$RUNNER_TEMP/licence.XXXXXX")"
+          chmod 600 "$file"
+          printf '%s' "$PLUX_TEST_LICENSE" > "$file"
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+          echo "present=true" >> "$GITHUB_OUTPUT"
       # Verifies: SEC-103, GOV-030, GOV-033.
       - name: Run the walkthrough and verify its evidence bundle
+        if: steps.licence.outputs.present == 'true'
+        env:
+          WALKTHROUGH_LICENSE_FILE: ${{ steps.licence.outputs.file }}
         run: make walkthrough-kind
+      - name: Remove the test licence
+        if: always() && steps.licence.outputs.present == 'true'
+        env:
+          LICENCE_FILE: ${{ steps.licence.outputs.file }}
+        run: rm -f "$LICENCE_FILE"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:

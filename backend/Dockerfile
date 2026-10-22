@@ -15,6 +15,7 @@
 # /usr/share/doc.
 #
 #   docker buildx build -f backend/Dockerfile --target server .
+#   docker buildx build -f backend/Dockerfile --target server-ee .
 #   docker buildx build -f backend/Dockerfile --target cli .
 #   docker buildx build -f backend/Dockerfile --target builder .
 #
@@ -81,6 +82,21 @@ USER nonroot:nonroot
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/plux-server"]
 CMD ["serve", "--config", "/etc/plux/plux.yaml"]
+
+# The enterprise server (GOV-030, ADR-0084): the server image with
+# plux-server-ee in place of plux-server. The ee/ module resolves the core
+# through its replace directive, so the build copies both trees. The flags
+# are those of the core build, without its version stamp, which the ee/
+# module cannot import; the image keeps the notices of the core server.
+FROM build AS build-ee
+ARG TARGETOS
+ARG TARGETARCH
+COPY ee/backend/ ./ee/backend/
+RUN cd ee/backend && go mod download && CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -trimpath -buildvcs=false \
+      -ldflags "-s -w -buildid=" -o /out-ee/plux-server ./cmd/plux-server-ee
+
+FROM server AS server-ee
+COPY --from=build-ee /out-ee/plux-server /usr/local/bin/plux-server
 
 FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab AS cli
 COPY --from=build /out/plux /usr/local/bin/plux
