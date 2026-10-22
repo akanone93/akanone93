@@ -197,6 +197,10 @@ func (c *credentialsLog) SetToken(actor, token string) {
 	c.tokens[actor] = token
 }
 
+// transferPageID is the id of the fake project's transfer page, which the
+// kill switch of step 4 names.
+const transferPageID = "01d0c450-6c00-7000-8000-000000000212"
+
 // testEnv returns an environment with fakes, a fake clock and a project copy
 // in a temporary directory.
 func testEnv(t *testing.T) (*Env, *fakePlux, *fakeFleet) {
@@ -210,6 +214,12 @@ func testEnv(t *testing.T) (*Env, *fakePlux, *fakeFleet) {
 	}
 	title := `{"messages":{"01a14bd7-5c1d-71fe-8376-851b7f675e47": "Transfer"}}`
 	if err := os.WriteFile(filepath.Join(project, "translations", "en.json"), []byte(title), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(project, filepath.Dir(killPage)), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(project, killPage), []byte(`{"id": "`+transferPageID+`", "key": "transfer"}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	return &Env{
