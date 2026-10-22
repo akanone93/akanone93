@@ -54,6 +54,18 @@ func NewIDP(listen, advertise string, hosts []string, clientID, clientSecret str
 	if err != nil {
 		return nil, fmt.Errorf("walkthrough.NewIDP: %w", err)
 	}
+	return newIDP(listen, advertise, cfg, caPEM, clientID, clientSecret, now, random)
+}
+
+// NewIDPWithCertificate is NewIDP with a certificate the caller issued from
+// the authority caPEM: one the installation was configured to trust before
+// the run (auth.federation.trustedCAs).
+func NewIDPWithCertificate(listen, advertise string, cert tls.Certificate, caPEM []byte, clientID, clientSecret string, now func() time.Time, random io.Reader) (*IDP, error) {
+	cfg := &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12}
+	return newIDP(listen, advertise, cfg, caPEM, clientID, clientSecret, now, random)
+}
+
+func newIDP(listen, advertise string, cfg *tls.Config, caPEM []byte, clientID, clientSecret string, now func() time.Time, random io.Reader) (*IDP, error) {
 	key, err := rsa.GenerateKey(random, 2048)
 	if err != nil {
 		return nil, fmt.Errorf("walkthrough.NewIDP: %w", err)

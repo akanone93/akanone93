@@ -90,6 +90,7 @@ type options struct {
 	plux, pluxLoad, caFile                   string
 	listen, advertise                        string
 	idpPort, sinkPort                        string
+	idpCert, idpKey, idpCA                   string
 	devices                                  int
 	stage, propagation, upgradeWindow        time.Duration
 	tokenCmd, stepUpCmd, auditKeyCmd         string
@@ -115,6 +116,9 @@ func parseOptions(args []string, stderr io.Writer) (options, error) {
 	fs.StringVar(&o.listen, "listen", "0.0.0.0", "address the OIDC test provider and the syslog sink listen on")
 	fs.StringVar(&o.advertise, "advertise", "", "address the installation reaches them on (the kind network's gateway)")
 	fs.StringVar(&o.idpPort, "idp-port", "18443", "port of the OIDC test provider")
+	fs.StringVar(&o.idpCert, "idp-cert", "", "PEM certificate the OIDC test provider serves, issued for -advertise by -idp-ca; empty makes one")
+	fs.StringVar(&o.idpKey, "idp-key", "", "PEM key of -idp-cert")
+	fs.StringVar(&o.idpCA, "idp-ca", "", "PEM authority that issued -idp-cert, which the installation trusts")
 	fs.StringVar(&o.sinkPort, "sink-port", "16514", "port of the syslog sink")
 	fs.IntVar(&o.devices, "devices", 300, "devices in a synthetic fleet")
 	fs.DurationVar(&o.stage, "stage-duration", time.Minute, "duration of each rollout stage")
@@ -334,7 +338,7 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 // startServices starts the OIDC test provider and the syslog sink.
 func startServices(o options) (*walkthrough.IDP, *walkthrough.Sink, error) {
 	hosts := []string{o.advertise}
-	idp, err := walkthrough.NewIDP(net.JoinHostPort(o.listen, o.idpPort), net.JoinHostPort(o.advertise, o.idpPort), hosts, "plux-walkthrough", randomSecret(), time.Now, rand.Reader)
+	idp, err := startIDP(o, hosts)
 	if err != nil {
 		return nil, nil, fmt.Errorf("start the OIDC test provider: %w", err)
 	}
@@ -344,6 +348,24 @@ func startServices(o options) (*walkthrough.IDP, *walkthrough.Sink, error) {
 		return nil, nil, fmt.Errorf("start the syslog sink: %w", err)
 	}
 	return idp, sink, nil
+}
+
+// startIDP starts the OIDC test provider, with the certificate of the flags
+// when they name one.
+func startIDP(o options, hosts []string) (*walkthrough.IDP, error) {
+	listen, advertise := net.JoinHostPort(o.listen, o.idpPort), net.JoinHostPort(o.advertise, o.idpPort)
+	if o.idpCert == "" {
+		return walkthrough.NewIDP(listen, advertise, hosts, "plux-walkthrough", randomSecret(), time.Now, rand.Reader) //nolint:wrapcheck // the caller wraps
+	}
+	cert, err := tls.LoadX509KeyPair(o.idpCert, o.idpKey)
+	if err != nil {
+		return nil, fmt.Errorf("-idp-cert: %w", err)
+	}
+	caPEM, err := os.ReadFile(o.idpCA)
+	if err != nil {
+		return nil, fmt.Errorf("-idp-ca: %w", err)
+	}
+	return walkthrough.NewIDPWithCertificate(listen, advertise, cert, caPEM, "plux-walkthrough", randomSecret(), time.Now, rand.Reader) //nolint:wrapcheck // the caller wraps
 }
 
 // randomSecret returns a client secret for the test provider, made for the run.

@@ -91,6 +91,8 @@ install() {
 		--set license.existingSecret="$LICENSE_SECRET" \
 		--set api.replicas=2 --set worker.replicas=2 \
 		--set config.attestation.developmentProvider=true \
+		--set "config.auth.federation.allowPrivateNetworks[0]=$WALKTHROUGH_IDP_RANGE" \
+		--set-file config.auth.federation.trustedCAs="$WALKTHROUGH_IDP_CA_FILE" \
 		$HELM_ARGS --wait --timeout 15m "$@"
 }
 
@@ -191,6 +193,18 @@ k --namespace cnpg-system rollout status deployment/cnpg-controller-manager --ti
 
 step "installation (two replicas of every role, TLS with the run's CA)"
 make_ca
+# The OIDC test provider runs on the kind network's gateway with a
+# certificate from the run's CA. The installation trusts that CA and that one
+# address for identity providers, nothing more (auth.federation, SEC-105);
+# the exports reach the upgrade hook of step 8, which installs again.
+gateway=$(gateway_address)
+[ -n "$gateway" ] || fail "the kind network has no IPv4 gateway"
+openssl req -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes \
+	-subj "/CN=walkthrough-idp" -keyout "$work/idp.key" -out "$work/idp.csr" 2>/dev/null
+printf 'subjectAltName=IP:%s\nextendedKeyUsage=serverAuth\n' "$gateway" >"$work/idp.ext"
+openssl x509 -req -in "$work/idp.csr" -CA "$work/ca.pem" -CAkey "$work/ca.key" -CAcreateserial \
+	-days 1 -extfile "$work/idp.ext" -out "$work/idp.crt" 2>/dev/null
+export WALKTHROUGH_IDP_RANGE=$gateway/32 WALKTHROUGH_IDP_CA_FILE=$work/ca.pem
 k create namespace "$NAMESPACE"
 k --namespace "$NAMESPACE" create secret tls "$TLS_SECRET" --cert="$work/tls.crt" --key="$work/tls.key"
 k --namespace "$NAMESPACE" create secret generic "$LICENSE_SECRET" --from-file=license.json="$LICENSE_FILE"
@@ -226,8 +240,6 @@ EOF
 chmod +x "$work/audit-key.sh"
 
 step "the walkthrough"
-gateway=$(gateway_address)
-[ -n "$gateway" ] || fail "the kind network has no IPv4 gateway"
 with=""
 viewer=()
 if [ -n "${WALKTHROUGH_VIEWER_CMD:-}" ]; then
@@ -238,7 +250,7 @@ status=0
 "$work/walkthrough" run \
 	-server "https://127.0.0.1:$API_PORT" -ca-file "$work/ca.pem" -org "$ORG" -app "$APP" -fleet-env "$FLEET_ENV" -devices "$DEVICES" \
 	-plux "$work/plux" -plux-load "$work/plux-load" -out "$OUT" -project "$repo/schema/testdata/documents/plux_bank" \
-	-advertise "$gateway" \
+	-advertise "$gateway" -idp-cert "$work/idp.crt" -idp-key "$work/idp.key" -idp-ca "$work/ca.pem" \
 	-token-cmd "$TOKEN_CMD" -stepup-cmd "$STEPUP_CMD" \
 	-audit-key-cmd "$work/audit-key.sh" -upgrade-cmd "$here/walkthrough-kind.sh upgrade" \
 	-with "$with" ${viewer[@]+"${viewer[@]}"} || status=$?
