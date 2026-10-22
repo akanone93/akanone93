@@ -16,7 +16,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -152,7 +154,7 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 			"  secretAccessKey: \"" + os.Getenv("PLUX_TEST_S3_SECRET_ACCESS_KEY") + "\"\n  cdnBaseURL: \"" + server + "/v1/objects\"\n"
 	}
 	if valkey := os.Getenv("PLUX_TEST_VALKEY_URL"); valkey != "" {
-		stores += "cache:\n  backend: valkey\n  valkeyURL: \"" + valkey + "\"\n"
+		stores += "cache:\n  backend: valkey\n  valkeyURL: \"" + valkeyDatabase(valkey) + "\"\n"
 	}
 	var build []BuildOption
 	var roles functionRoles
@@ -441,4 +443,16 @@ func approveStepUps(t *testing.T, db *storage.DB, organizationID string) {
 			}
 		}
 	}()
+}
+
+// valkeyStacks counts the stacks that used the shared Valkey.
+var valkeyStacks atomic.Int64
+
+// valkeyDatabase gives each stack a logical database of the shared Valkey of
+// its own, in turn, so that one stack never reads another's telemetry stream:
+// every server's consumer joins the same group of the same stream, and a
+// stack that is still stopping, or the batches an earlier one left pending,
+// would otherwise take this stack's batches and drop them as unwritable.
+func valkeyDatabase(url string) string {
+	return strings.TrimSuffix(url, "/") + "/" + strconv.FormatInt(1+valkeyStacks.Add(1)%15, 10)
 }
