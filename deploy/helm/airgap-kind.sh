@@ -185,6 +185,9 @@ echo "── deny outbound traffic"
 # node's own traffic (containerd pulling an image) and for forwarded pod traffic.
 # The kind network is dual-stack on current Docker: the IPv4 subnet goes to
 # iptables, the IPv6 one to ip6tables, so neither family leaves the cluster.
+# Name lookups are allowed too: kind points a node at the network's gateway,
+# which Docker rewrites to its embedded DNS at 127.0.0.11 (still on eth0 for
+# the filter), and only that resolver answers for kind-registry.
 subnets=$(docker network inspect kind -f '{{range .IPAM.Config}}{{.Subnet}} {{end}}')
 subnet4= subnet6=
 for s in $subnets; do
@@ -199,7 +202,7 @@ for node in $nodes; do
 		# Inserted at the top, ahead of kind's own rules: the DROP first, then
 		# the ACCEPTs above it.
 		docker exec "$node" iptables -I "$chain" -o eth0 -j DROP
-		for allowed in "$subnet4" 10.244.0.0/16 10.96.0.0/12; do
+		for allowed in "$subnet4" 10.244.0.0/16 10.96.0.0/12 127.0.0.11/32; do
 			docker exec "$node" iptables -I "$chain" -o eth0 -d "$allowed" -j ACCEPT
 		done
 		docker exec "$node" ip6tables -I "$chain" -o eth0 -j DROP
