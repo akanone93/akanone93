@@ -59,6 +59,17 @@ const (
 	adminPasswordEnv = "WALKTHROUGH_ADMIN_PASSWORD" //nolint:gosec // the name of a variable, not a credential
 )
 
+// defaultStage is how long each rollout stage of step 3 lasts. The health
+// gate reads the analytics rollups, which the worker folds every five minutes
+// a minute behind receipt (backend/internal/server/analytics.go,
+// backend/internal/analytics/postgres.go), and counts only buckets that begin
+// after the rollout did. Six minutes puts the regression fleet, which starts
+// at the 10% stage, past the rollout's first bucket, and leaves the gate's
+// checks before 50% and 100% six and twelve minutes after it: the errors are
+// folded by then. A shorter stage completes the rollout before the gate sees
+// them.
+const defaultStage = 6 * time.Minute
+
 // main delegates to run so that the logic is testable.
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -123,7 +134,7 @@ func parseOptions(args []string, stderr io.Writer) (options, error) {
 	fs.StringVar(&o.idpCA, "idp-ca", "", "PEM authority that issued -idp-cert, which the installation trusts")
 	fs.StringVar(&o.sinkPort, "sink-port", "16514", "port of the syslog sink")
 	fs.IntVar(&o.devices, "devices", 300, "devices in a synthetic fleet")
-	fs.DurationVar(&o.stage, "stage-duration", time.Minute, "duration of each rollout stage")
+	fs.DurationVar(&o.stage, "stage-duration", defaultStage, "duration of each rollout stage")
 	fs.DurationVar(&o.propagation, "propagation", 60*time.Second, "bound on a control document reaching the fleet (NFR-024)")
 	fs.DurationVar(&o.upgradeWindow, "upgrade-window", 8*time.Minute, "how long the fleet runs while the chart is upgraded")
 	fs.StringVar(&o.tokenCmd, "token-cmd", "", "shell command printing an access token for $WALKTHROUGH_ACTOR ($WALKTHROUGH_EMAIL)")
