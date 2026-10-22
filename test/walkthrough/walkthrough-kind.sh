@@ -15,9 +15,9 @@
 #      syslog sink on the kind network's gateway address;
 #   4. the signed evidence bundle is verified with the key written beside it.
 #
-# Two hooks need a person's browser and are supplied by the environment, because
-# they drive a virtual WebAuthn authenticator that does not belong in this
-# script:
+# Two hooks need a person's browser. They default to tools/cmd/webauthn-driver,
+# a software WebAuthn authenticator built for the run, and may be replaced
+# through the environment:
 #
 #   WALKTHROUGH_TOKEN_CMD    prints an access token for $WALKTHROUGH_ACTOR
 #                            ($WALKTHROUGH_EMAIL), signed in through the test
@@ -97,8 +97,6 @@ for tool in docker "$KIND" "$HELM" "$KUBECTL" "$GO" curl; do
 	command -v "$tool" >/dev/null || fail "$tool is required"
 done
 docker info >/dev/null 2>&1 || fail "the Docker daemon is not running"
-[ -n "${WALKTHROUGH_TOKEN_CMD:-}" ] || fail "set WALKTHROUGH_TOKEN_CMD (see the header of this script)"
-[ -n "${WALKTHROUGH_STEPUP_CMD:-}" ] || fail "set WALKTHROUGH_STEPUP_CMD (see the header of this script)"
 
 diagnostics() {
 	echo "── diagnostics" >&2
@@ -130,7 +128,16 @@ gateway_address() {
 
 step "build the CLI, the device fleet and the walkthrough"
 (cd "$repo/backend" && "$GO" build -o "$work/plux" ./cmd/plux && "$GO" build -o "$work/plux-load" ./cmd/plux-load)
-(cd "$repo/tools" && "$GO" build -o "$work/walkthrough" ./cmd/walkthrough)
+(cd "$repo/tools" && "$GO" build -o "$work/walkthrough" ./cmd/walkthrough && "$GO" build -o "$work/webauthn-driver" ./cmd/webauthn-driver)
+
+# The two person-facing hooks default to the software authenticator. Its keys
+# live in this directory (mode 0700) for the run and are deleted with it; the
+# organisation key is the one `plux-server seed` gives its organisation.
+mkdir -m 700 "$work/keys"
+export WALKTHROUGH_DRIVER_DIR=$work/keys
+export WALKTHROUGH_ORG_KEY=${WALKTHROUGH_ORG_KEY:-acme}
+TOKEN_CMD=${WALKTHROUGH_TOKEN_CMD:-"$work/webauthn-driver token"}
+STEPUP_CMD=${WALKTHROUGH_STEPUP_CMD:-"$work/webauthn-driver stepup"}
 
 step "cluster $CLUSTER"
 "$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
@@ -186,7 +193,7 @@ status=0
 	-server "http://127.0.0.1:$API_PORT" -org "$ORG" -app "$APP" -fleet-env "$FLEET_ENV" -devices "$DEVICES" \
 	-plux "$work/plux" -plux-load "$work/plux-load" -out "$OUT" -project "$repo/schema/testdata/documents/plux_bank" \
 	-advertise "$gateway" \
-	-token-cmd "$WALKTHROUGH_TOKEN_CMD" -stepup-cmd "$WALKTHROUGH_STEPUP_CMD" \
+	-token-cmd "$TOKEN_CMD" -stepup-cmd "$STEPUP_CMD" \
 	-audit-key-cmd "$work/audit-key.sh" -upgrade-cmd "$here/walkthrough-kind.sh upgrade" \
 	-with "$with" ${viewer[@]+"${viewer[@]}"} || status=$?
 

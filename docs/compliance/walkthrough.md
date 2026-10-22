@@ -115,5 +115,5 @@ The stores of personal data are listed. Everything held about one device of the 
 
 * It does not show performance: the 60 s bound is a floor on application counts here, and the percentile is a benchmark (`X3`); sizing is `X6`.
 * The devices are synthetic. Real attestation, real hardware keys and real retained bundles are the subject of the device-farm suites.
-* The second factor and the step-up are performed with a virtual authenticator in a browser, supplied by the environment (`WALKTHROUGH_TOKEN_CMD`, `WALKTHROUGH_STEPUP_CMD`). The evidence shows that the server demanded and accepted them; it does not show a person with a physical key.
+* The second factor and the step-up are performed with a software WebAuthn authenticator (`tools/cmd/webauthn-driver`, the default of `WALKTHROUGH_TOKEN_CMD` and `WALKTHROUGH_STEPUP_CMD`), not a browser. The evidence shows that the server demanded and accepted them; it does not show a person with a physical key.
 * The test provider and the syslog sink run on the host that runs the walkthrough, on the container network's gateway address, with a certificate authority made for the run. A real installation reaches its own provider and SIEM.
