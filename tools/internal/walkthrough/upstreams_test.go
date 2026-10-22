@@ -21,7 +21,11 @@ func TestProjectSources(t *testing.T) {
 	if got := slices.Sorted(maps.Keys(sources)); !slices.Equal(got, []string{"accounts", "api", "notifications", "payments", "transactions"}) {
 		t.Errorf("sources = %v", got)
 	}
-	if values["production"][sources["api"]] == "" {
+	ops := sources["payments"].operations
+	if len(ops) != 1 || ops[0]["name"] != "transfer" || ops[0]["pathPrefix"] != "/transfers" || ops[0]["transaction"] == nil {
+		t.Errorf("payments operations = %v; the transfer must be registered as a transaction", ops)
+	}
+	if values["production"][sources["api"].baseVariable] == "" {
 		t.Errorf("no production base URL for api: %v", values)
 	}
 }
