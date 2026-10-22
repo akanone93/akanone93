@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -157,7 +158,7 @@ func (d scimDirectory) GetUser(ctx context.Context, org, id string) (identity.Us
 // page clamps a query to the directory's limits and returns the page size
 // and offset.
 func (d scimDirectory) page(q identity.ListQuery) (size, offset int32) {
-	ceiling := int(d.s.o.Limits.Get(limits.APIPageSize))
+	ceiling := min(int(d.s.o.Limits.Get(limits.APIPageSize)), math.MaxInt32)
 	count := q.Count
 	if count <= 0 || count > ceiling {
 		count = ceiling

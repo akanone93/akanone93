@@ -262,11 +262,11 @@ func parseCustomGates(v string) ([]*pluxv1.CustomMetricGate, error) {
 	var out []*pluxv1.CustomMetricGate
 	for _, item := range splitList(v) {
 		event, bp, ok := strings.Cut(item, "=")
-		n, err := strconv.Atoi(bp)
+		n, err := strconv.ParseInt(bp, 10, 32)
 		if !ok || event == "" || err != nil {
 			return nil, usageError("--gate-custom takes event=basis-points pairs, such as checkout_failed=100")
 		}
-		out = append(out, &pluxv1.CustomMetricGate{Event: event, MaxIncreaseBasisPoints: int32(n)}) //nolint:gosec // bounded by the server
+		out = append(out, &pluxv1.CustomMetricGate{Event: event, MaxIncreaseBasisPoints: int32(n)})
 	}
 	return out, nil
 }

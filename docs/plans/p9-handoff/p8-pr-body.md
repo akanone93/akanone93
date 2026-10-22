@@ -1,6 +1,6 @@
 ## What
 
-Phase 8 — Localisation and accessibility (spec §5.1, plan [docs/plans/p8.md](docs/plans/p8.md)):
+Phase 8 — Localisation and accessibility (spec §5.1, plan [docs/plans/p8.md](../p8.md)):
 
 - **Locale data and formatting:** CLDR (pinned, `modern` coverage) shipped per app locale in the app bundle; MessageFormat subset; the PXL `format`, `l10n` and `calendar` groups; Gregorian, Ethiopian, Umm al-Qura Hijri and Persian calendars; Latin digits by default (ADR-0066, ADR-0067).
 - **Runtime localisation:** locale controller, `setLocale` without restart, RTL, fallback chain with `l10n_missing`, Flutter's widget strings from the SDK's ARB files, per-locale assets.
@@ -9,7 +9,7 @@ Phase 8 — Localisation and accessibility (spec §5.1, plan [docs/plans/p8.md](
 - **Golden tests:** `plux golden` with server-held baselines and the optional publish gate (ADR-0070).
 - **Catalogue catch-up:** every Appendix C widget tagged P3–P5 has a descriptor and builder (ADR-0071); optional packages `plux_components`, `plux_charts`, `plux_markdown`, `plux_player`, `plux_maps`, `plux_maps_google`, `plux_scanner`; `make catalogue-check` gates the catalogue.
 - **Reference apps** in English, German, Arabic and Amharic; `plux_flutter` 0.5.0.
-- Also: the P9 plan ([docs/plans/p9.md](docs/plans/p9.md)) with the maintainer's decisions of 2026-10-18.
+- Also: the P9 plan ([docs/plans/p9.md](../p9.md)) with the maintainer's decisions of 2026-10-18.
 
 ## Why
 

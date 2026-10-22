@@ -117,10 +117,12 @@ install-helm-tools: ## Install the pinned Helm, kind and kubeconform, which lint
 	$(GO_INSTALL) github.com/yannh/kubeconform/cmd/kubeconform@$(KUBECONFORM_VERSION)
 
 # OpenTofu has a replace directive in its go.mod, which `go install` refuses, so
-# the module is located with `go list -m` (which checks it against the checksum
-# database) and built in place.
+# the module is downloaded with `go mod download` (which checks it against the
+# checksum database and, unlike `go list -m`, fills the module cache on a fresh
+# machine) and built in place.
 install-tofu: ## Build the pinned OpenTofu from its Go module into TOOLS_BIN (DEP-050)
-	@dir=$$($(GO) list -m -f '{{.Dir}}' github.com/opentofu/opentofu@$(TOFU_VERSION)) && \
+	@dir=$$($(GO) mod download -json github.com/opentofu/opentofu@$(TOFU_VERSION) | sed -n 's/^[[:space:]]*"Dir": "\(.*\)",$$/\1/p') && \
+	test -n "$$dir" && \
 	cd "$$dir" && GOTOOLCHAIN=$(GO_TOOLCHAIN) $(GO) build -o "$(TOFU)" ./cmd/tofu && "$(TOFU)" version
 
 PYTHON_TOOLS := pre-commit==$(PRE_COMMIT_VERSION) zizmor==$(ZIZMOR_VERSION) reuse==$(REUSE_VERSION)

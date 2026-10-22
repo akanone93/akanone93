@@ -76,6 +76,10 @@ func fileExportOf(r dbgen.AnalyticsFileExport) FileExport {
 	}
 }
 
+// errWebhookSecretUnreadable is returned when the stored webhook signing
+// secret cannot be opened with the installation's keys.
+var errWebhookSecretUnreadable = errors.New("analytics: the stored webhook secret cannot be opened")
+
 // secretBinding ties a sealed signing secret to its organisation, so a
 // ciphertext copied to another row fails to open (SEC-092).
 func secretBinding(org string) []byte { return []byte("analytics-file-export:" + org) }
@@ -308,7 +312,8 @@ func (s *Service) fileExportOf(ctx context.Context, org string) (*dbgen.Analytic
 		Ciphertext: row.SecretCiphertext, WrappedKey: row.SecretWrappedKey, KeyID: row.SecretKeyID,
 	}, secretBinding(org))
 	if err != nil {
-		return nil, "", fmt.Errorf("analytics: open the webhook secret: %w", err)
+		// The cause names the wrapping key, which stays out of logs.
+		return nil, "", errWebhookSecretUnreadable
 	}
 	return &row, string(plain), nil
 }
