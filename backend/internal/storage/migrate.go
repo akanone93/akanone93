@@ -38,12 +38,6 @@ func Migrations() fs.FS {
 // that every replica of every version takes the same lock (SRV-021).
 const advisoryLockID int64 = 0x504c5558 // "PLUX"
 
-// MigrationLockID is the key of the migration lock, for a test helper that
-// must not run a schema-wide operation beside a migration: dropping a migrated
-// schema locks every object in it, and a few such drops at once with a
-// migration exhaust the server's shared lock table.
-const MigrationLockID = advisoryLockID
-
 // migrationName matches "0001_init.sql".
 var migrationName = regexp.MustCompile(`^(\d{4})_([a-z0-9_]+)\.sql$`)
 

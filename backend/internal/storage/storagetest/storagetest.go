@@ -123,15 +123,16 @@ func OpenWith(t testing.TB, migrations []storage.Migration) *storage.DB {
 	return db
 }
 
-// dropSchema drops a test's schema under the migration lock. A migrated
-// schema holds hundreds of tables, and dropping it locks every object in one
-// transaction: the drops of tests that end together, beside another test's
-// migration, exhausted the server's shared lock table ("out of shared
-// memory"). Taking the lock that migrations take makes them run one at a
-// time; it waits as long as a migration may.
+// dropSchema drops a test's schema one table at a time, each in a
+// transaction of its own, and then the schema. A migrated schema holds
+// hundreds of tables, and dropping it whole locks every object in one
+// transaction: the cleanups of tests that ended together exhausted the
+// server's shared lock table ("out of shared memory"). Dropped table by
+// table, no transaction holds more than a few locks, and no test waits for
+// another.
 func dropSchema(t testing.TB, url, schema string) {
 	t.Helper()
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	c, err := pgx.Connect(ctx, url)
 	if err != nil {
@@ -139,18 +140,25 @@ func dropSchema(t testing.TB, url, schema string) {
 		return
 	}
 	defer func() { _ = c.Close(ctx) }()
-	if _, err := c.Exec(ctx, "SELECT pg_advisory_lock($1)", storage.MigrationLockID); err != nil {
-		t.Logf("drop schema %s: take the migration lock: %v", schema, err)
+	rows, err := c.Query(ctx, "SELECT tablename FROM pg_tables WHERE schemaname = $1", schema)
+	if err != nil {
+		t.Logf("drop schema %s: list its tables: %v", schema, err)
 		return
+	}
+	tables, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	if err != nil {
+		t.Logf("drop schema %s: list its tables: %v", schema, err)
+		return
+	}
+	for _, table := range tables {
+		//nolint:misspell // Sanitize is pgx's own spelling
+		if _, err := c.Exec(ctx, "DROP TABLE IF EXISTS "+pgx.Identifier{schema, table}.Sanitize()+" CASCADE"); err != nil {
+			t.Logf("drop table %s.%s: %v", schema, table, err)
+		}
 	}
 	//nolint:misspell // Sanitize is pgx's own spelling
 	if _, err := c.Exec(ctx, "DROP SCHEMA "+pgx.Identifier{schema}.Sanitize()+" CASCADE"); err != nil {
 		t.Logf("drop schema %s: %v", schema, err)
-	}
-	// Closing the connection releases the lock; unlock first so that a
-	// pooled server does not keep it.
-	if _, err := c.Exec(ctx, "SELECT pg_advisory_unlock($1)", storage.MigrationLockID); err != nil {
-		t.Logf("drop schema %s: release the migration lock: %v", schema, err)
 	}
 }
 
