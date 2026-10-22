@@ -149,6 +149,19 @@
     "config": {
       "type": "object"
     },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "existingSecret": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "signing": {
       "type": "object",
       "additionalProperties": false,

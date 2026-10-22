@@ -64,6 +64,7 @@ spec:
             - {name: internal-tls, mountPath: /etc/plux/internal, readOnly: true}
             {{- end }}
             {{- include "plux.dataMounts" . | nindent 12 }}
+            {{- include "plux.licenseMounts" . | nindent 12 }}
       volumes:
         - name: config
           configMap: {name: {{ $name }}}
@@ -74,6 +75,7 @@ spec:
           secret: {secretName: {{ include "plux.tlsSecretName" (dict "root" . "role" "worker") }}}
         {{- end }}
         {{- include "plux.dataVolumes" . | nindent 8 }}
+        {{- include "plux.licenseVolumes" . | nindent 8 }}
 ---
 {{ include "plux.pdb" $ctx }}
 {{- if .Values.worker.autoscaling.enabled }}

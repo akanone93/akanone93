@@ -71,6 +71,17 @@ server:
 # `config` as well. Secrets belong in environment variables, not here.
 config: {}
 
+# ── Enterprise licence ────────────────────────────────────────────────────
+# The enterprise edition (image plux-server-ee) verifies a signed licence file
+# offline (GOV-030, ADR-0084). The open-source image ignores it.
+license:
+  # A Secret holding the licence file; the api and worker roles mount it
+  # read-only under /etc/plux/license and set license.file to it. Empty runs
+  # without a licence.
+  existingSecret: ""
+  # The key of the file in that Secret.
+  key: license.json
+
 # ── Signing ────────────────────────────────────────────────────────────────
 signing:
   # "vault" (HashiCorp Vault Transit; HA) or "file". The file backend keeps
