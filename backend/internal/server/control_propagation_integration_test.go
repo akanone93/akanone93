@@ -95,6 +95,9 @@ type propagationResult struct {
 	P95Seconds          float64 `json:"p95Seconds"`
 	MaxSeconds          float64 `json:"maxSeconds"`
 	Pushes              int64   `json:"pushesSent"`
+	// telemetry is how the fleet's uploads fared, for a failure message;
+	// it is not part of the benchmark's output.
+	telemetry loadgen.OpReport
 }
 
 // percentile returns the p-th percentile, 0 to 1, of sorted by nearest rank.
@@ -189,6 +192,7 @@ func propagationRun(t *testing.T, st *stack, project string, fcm *fakeFCM, withP
 	st.run(t, 0, change...)
 	waitUntil(t, 3*poll+30*time.Second, func() bool { return apps.count() == devices }, "every device to apply the change")
 	d := apps.durations(changedAt)
+	telemetry := fleet.Report(time.Second).Operations[loadgen.OpTelemetry]
 	mode := "poll"
 	if withPush {
 		mode = "push"
@@ -196,7 +200,7 @@ func propagationRun(t *testing.T, st *stack, project string, fcm *fakeFCM, withP
 	return propagationResult{
 		Mode: mode, Devices: devices, PollIntervalSeconds: poll.Seconds(),
 		P50Seconds: percentile(d, 0.5).Seconds(), P95Seconds: percentile(d, 0.95).Seconds(), MaxSeconds: d[len(d)-1].Seconds(),
-		Pushes: fcm.sent.Load() - pushesBefore,
+		Pushes: fcm.sent.Load() - pushesBefore, telemetry: telemetry,
 	}
 }
 
@@ -314,7 +318,14 @@ func TestBenchControlPropagation_NFR_024(t *testing.T) {
 		t.Errorf("polling p95 %.1f s is far beyond the %.0f s interval", poller.P95Seconds, poll.Seconds())
 	}
 	// Both changes were seen by every device and recorded by the server.
-	waitUntil(t, 10*time.Second, func() bool { return histogramCount(t, st) >= uint64(max(2*devices, 0)) }, fmt.Sprintf("%d propagation samples", 2*devices))
+	// With Valkey the uploads pass through the telemetry stream, whose
+	// delivery is at least once: a batch whose write failed is taken over
+	// after the consumer's ClaimAfter (a minute), so the wait covers that.
+	want := uint64(max(2*devices, 0))
+	waitUntil(t, time.Minute+30*time.Second, func() bool { return histogramCount(t, st) >= want }, fmt.Sprintf(
+		"%d propagation samples (the fleet's uploads: poll %d sent, %d failed %v; push %d sent, %d failed %v)", want,
+		poller.telemetry.Requests, poller.telemetry.Errors, poller.telemetry.ErrorCodes,
+		pushed.telemetry.Requests, pushed.telemetry.Errors, pushed.telemetry.ErrorCodes))
 }
 
 // Verifies: DEP-051, NFR-023.
