@@ -40,11 +40,11 @@ func (d *device) sendActivity(ctx context.Context) {
 	d.flush(ctx)
 }
 
-// start does what the runtime does when the app starts: report the session,
-// check the manifest and fetch the control document.
+// start does what the runtime does when the app starts: check the manifest,
+// report the session of the release it runs, and fetch the control document.
 func (d *device) start(ctx context.Context) {
-	d.sessionStart()
 	d.checkManifest(ctx)
+	d.sessionStart()
 	d.checkControl(ctx)
 	d.flush(ctx)
 }
