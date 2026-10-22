@@ -53,6 +53,10 @@ const (
 	keyFile       = "evidence-bundle.pub"
 	evidenceDir   = "evidence"
 	adminTokenEnv = "WALKTHROUGH_ADMIN_TOKEN"
+	// The seeded administrator's sign-in, for the step-ups of the admin
+	// actor: the administrator has no account at the test provider.
+	adminEmailEnv    = "WALKTHROUGH_ADMIN_EMAIL"
+	adminPasswordEnv = "WALKTHROUGH_ADMIN_PASSWORD" //nolint:gosec // the name of a variable, not a credential
 )
 
 // main delegates to run so that the logic is testable.
@@ -307,7 +311,7 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 		return nil, nil, err
 	}
 	shared := hookEnvironment(o, idp)
-	commander.StepUp = shellStepUp(o.stepUpCmd, shared...)
+	commander.StepUp = shellStepUp(o.stepUpCmd, adminSignIn(), shared...)
 	env := &walkthrough.Env{
 		Plux: commander, Creds: commander,
 		Admin: &walkthrough.ConnectClient{
@@ -384,14 +388,27 @@ func hookEnvironment(o options, idp *walkthrough.IDP) []string {
 	return env
 }
 
+// adminSignIn is what the step-up hook needs to sign the administrator in:
+// their email and password, from the variables the script exports.
+func adminSignIn() []string {
+	return []string{"WALKTHROUGH_EMAIL=" + os.Getenv(adminEmailEnv), "WALKTHROUGH_PASSWORD=" + os.Getenv(adminPasswordEnv)}
+}
+
 // shellStepUp returns the step-up function that runs the operator's command
-// with the shared environment, or nil when none was given.
-func shellStepUp(command string, shared ...string) walkthrough.StepUpFunc {
+// with the shared environment, or nil when none was given. The person who
+// steps up is named by their email: a person step 1 provisions by theirs, the
+// administrator by the seeded email and password.
+func shellStepUp(command string, admin []string, shared ...string) walkthrough.StepUpFunc {
 	if command == "" {
 		return nil
 	}
 	return func(ctx context.Context, actor, url string) error {
 		env := append(slices.Clone(shared), "WALKTHROUGH_ACTOR="+actor, "WALKTHROUGH_STEPUP_URL="+url)
+		if email, ok := walkthrough.EmailOf(actor); ok {
+			env = append(env, "WALKTHROUGH_EMAIL="+email)
+		} else if actor == "admin" {
+			env = append(env, admin...)
+		}
 		if _, err := walkthrough.ShellHook(ctx, command, env...); err != nil {
 			return fmt.Errorf("step-up hook: %w", err)
 		}

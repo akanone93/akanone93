@@ -198,13 +198,18 @@ install
 k --namespace "$NAMESPACE" wait --for=condition=Ready cluster/plux-pg --timeout=300s
 
 step "seed"
-seeded=$(k --namespace "$NAMESPACE" exec deploy/plux-worker -- /usr/local/bin/plux-server seed -config /etc/plux/plux.yaml -out -)
+# The administrator has no account at the test provider: the step-up hook
+# signs them in with the seeded email and password.
+export WALKTHROUGH_ADMIN_EMAIL=admin@walkthrough.example
+seeded=$(k --namespace "$NAMESPACE" exec deploy/plux-worker -- /usr/local/bin/plux-server seed -config /etc/plux/plux.yaml -email "$WALKTHROUGH_ADMIN_EMAIL" -out -)
 value() { printf '%s\n' "$seeded" | sed -n "s/^PLUX_DEV_$1=//p" | head -n 1; }
 ORG=$(value ORGANIZATION)
 APP=$(value APP)
-export WALKTHROUGH_ADMIN_TOKEN
+export WALKTHROUGH_ADMIN_TOKEN WALKTHROUGH_ADMIN_PASSWORD
 WALKTHROUGH_ADMIN_TOKEN=$(value TOKEN)
-[ -n "$ORG" ] && [ -n "$APP" ] && [ -n "$WALKTHROUGH_ADMIN_TOKEN" ] || fail "seed did not print an organisation, an app and a token"
+WALKTHROUGH_ADMIN_PASSWORD=$(value PASSWORD)
+[ -n "$ORG" ] && [ -n "$APP" ] && [ -n "$WALKTHROUGH_ADMIN_TOKEN" ] && [ -n "$WALKTHROUGH_ADMIN_PASSWORD" ] ||
+	fail "seed did not print an organisation, an app, a token and a password"
 
 step "forward the api to localhost:$API_PORT"
 k --namespace "$NAMESPACE" port-forward svc/plux-api "$API_PORT:8080" >/dev/null 2>&1 &

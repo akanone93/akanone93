@@ -31,6 +31,17 @@ var people = []person{
 	{"dave", "dave@walkthrough.example", "contractors"},
 }
 
+// EmailOf returns the email address of a person step 1 provisions, which a
+// hook signs them in with.
+func EmailOf(actor string) (string, bool) {
+	for _, p := range people {
+		if p.actor == actor {
+			return p.email, true
+		}
+	}
+	return "", false
+}
+
 // approverRole is the custom role of step 1 that may decide on approvals and
 // nothing else.
 const approverRole = "release-approver"

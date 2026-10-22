@@ -33,6 +33,38 @@ type signedIn struct {
 	challengeID string
 }
 
+// signInReply is a sign-in's answer: a session, or the challenge for a
+// second factor.
+type signInReply struct {
+	sessionReply
+	Challenge *struct {
+		ID string `json:"id"`
+	} `json:"challenge"`
+}
+
+// signedIn reads where the sign-in ended.
+func (r signInReply) signedIn(cookie string) (signedIn, error) {
+	if r.Challenge != nil {
+		return signedIn{challengeID: r.Challenge.ID}, nil
+	}
+	s, err := r.open(cookie)
+	return signedIn{session: s}, err
+}
+
+// signIn signs the person in with their password when they have one, else
+// through the test provider.
+func (d *Driver) signIn(ctx context.Context) (signedIn, error) {
+	if d.cfg.Password == "" {
+		return d.signInThroughOIDC(ctx)
+	}
+	var done signInReply
+	cookie, err := d.api.call(ctx, nil, identityService+"StartPasswordLogin", map[string]any{"email": d.cfg.Email, "password": d.cfg.Password}, &done)
+	if err != nil {
+		return signedIn{}, err
+	}
+	return done.signedIn(cookie)
+}
+
 // signInThroughOIDC plays a browser's part in the authorisation code flow with
 // PKCE: the server's sign-in URL, the provider's code (the provider vouches for
 // the person named by login_hint), the server's completion.
@@ -52,21 +84,12 @@ func (d *Driver) signInThroughOIDC(ctx context.Context) (signedIn, error) {
 	if err != nil {
 		return signedIn{}, err
 	}
-	var done struct {
-		sessionReply
-		Challenge *struct {
-			ID string `json:"id"`
-		} `json:"challenge"`
-	}
+	var done signInReply
 	cookie, err := d.api.call(ctx, nil, identityService+"CompleteOidcLogin", map[string]any{"state": start.State, "code": code}, &done)
 	if err != nil {
 		return signedIn{}, err
 	}
-	if done.Challenge != nil {
-		return signedIn{challengeID: done.Challenge.ID}, nil
-	}
-	s, err := done.open(cookie)
-	return signedIn{session: s}, err
+	return done.signedIn(cookie)
 }
 
 // providerID finds the identity provider among those a person may sign in with.
