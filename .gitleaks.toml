@@ -15,4 +15,8 @@ paths = [
   # Vendored zstd sources, re-imported only by native/zstd/import.sh
   # (ADR-0030): xxhash.h names SIMD registers data_key_lo/hi.
   '''^packages/plux_flutter/native/zstd/common/xxhash\.h$''',
+  # The Standard Webhooks test vectors (feat/phase-9), copied unmodified from
+  # github.com/standard-webhooks/standard-webhooks: the published test key
+  # whsec_MfKQ9r8G…, not a credential. Maintainer-approved, 2026-10-22.
+  '''^(ee/)?backend/internal/(notify/webhook|stdwebhook)/testdata/standard_webhooks_vectors\.json$''',
 ]
