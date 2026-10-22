@@ -329,7 +329,7 @@ func TestLoadGeneratorAgainstTheServer_DEP_051(t *testing.T) {
 	st.run(t, 0, "control", "kill", "-C", project, "--env", "staging", "--json", "plugin", "loans")
 
 	fleet, err := loadgen.NewFleet(loadgen.Config{
-		BaseURL: st.server, AppID: st.app.ID, Environment: "staging", Devices: 4, Duration: 3 * time.Second,
+		BaseURL: st.server, AppID: st.app.ID, Environment: "staging", Devices: 4, Duration: 10 * time.Second,
 		ForwardedFor: true, Seed: 7, Scale: 100, Pacing: loadgen.DefaultPacing().Scaled(100),
 	})
 	if err != nil {
@@ -338,7 +338,10 @@ func TestLoadGeneratorAgainstTheServer_DEP_051(t *testing.T) {
 	if err := fleet.Register(t.Context()); err != nil {
 		t.Fatal(err)
 	}
-	ctx, stop := context.WithTimeout(t.Context(), 3*time.Second)
+	// Ten seconds of scaled pacing gives every device several control
+	// checks; three were too few on a loaded machine (one device's first
+	// check fell after the end of the run).
+	ctx, stop := context.WithTimeout(t.Context(), 10*time.Second)
 	defer stop()
 	report := fleet.Run(ctx)
 	if report.Registered != 4 || report.Errors() != 0 {
