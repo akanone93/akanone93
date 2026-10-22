@@ -18,9 +18,11 @@ import (
 
 // The Connect services the walkthrough calls without the CLI.
 const (
-	identityService   = "/plux.v1.IdentityService/"
-	federationService = "/plux.v1.FederationService/"
-	auditService      = "/plux.v1.AuditService/"
+	identityService      = "/plux.v1.IdentityService/"
+	federationService    = "/plux.v1.FederationService/"
+	appService           = "/plux.v1.AppService/"
+	securityAdminService = "/plux.v1.SecurityAdminService/"
+	auditService         = "/plux.v1.AuditService/"
 )
 
 // Hooks are the parts of the run that only the environment can provide: the

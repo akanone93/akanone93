@@ -258,6 +258,9 @@ func (e *Env) stepApproval(ctx context.Context, run *Run) error {
 	if _, err := w.plux(ctx, "alice", "init", "--server", e.Server, "--org", e.Org, "--app", e.App, "-C", e.Project); err != nil {
 		return err
 	}
+	if err := e.registerUpstreams(ctx, w); err != nil {
+		return err
+	}
 	if err := e.deployFunctions(ctx, w, "alice"); err != nil {
 		return err
 	}
