@@ -2,7 +2,7 @@ module github.com/nightCode42/plux3/ee/backend
 
 go 1.27.0
 
-toolchain go1.27.2
+toolchain go1.27.3
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.49.0

@@ -20,7 +20,7 @@
 #
 # Base images are pinned by digest and updated by Dependabot.
 
-FROM --platform=$BUILDPLATFORM golang:1.27.2-bookworm@sha256:5cf287a799e6b94384bad13d16b14904c531f51ba65792237e122ce42b392f61 AS build
+FROM --platform=$BUILDPLATFORM golang:1.27.3-bookworm@sha256:972b4110ba0f47539a975c31e52c64765e1ff19f2d74469ae4a595c6676e80a5 AS build
 ARG TARGETOS
 ARG TARGETARCH
 ARG VERSION=dev
@@ -46,7 +46,7 @@ RUN cd backend && export CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH && \
 # the Skia path operations it loads. Both are built for the target
 # platform on Debian 12, the base of the server image, so they need no
 # newer glibc than it has.
-FROM golang:1.27.2-bookworm@sha256:5cf287a799e6b94384bad13d16b14904c531f51ba65792237e122ce42b392f61 AS pathops
+FROM golang:1.27.3-bookworm@sha256:972b4110ba0f47539a975c31e52c64765e1ff19f2d74469ae4a595c6676e80a5 AS pathops
 COPY packages/plux_svgc/native/build.sh /src/build.sh
 RUN sh /src/build.sh /out
 
