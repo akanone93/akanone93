@@ -24,7 +24,29 @@ postgresql:
 objectStorage:
   seaweedfs:
     storage: {size: 1Gi}
+# One kind node on a 4-CPU runner holds every role twice, the database three
+# times and the cache three times; at the production CPU requests a rolling
+# upgrade's surge pods do not fit and stay Pending. The test cluster asks for
+# little CPU so a rolling upgrade fits on the one node.
 api:
   autoscaling: {enabled: false}
+  resources:
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 1Gi}
+worker:
+  resources:
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 1Gi}
 fnrunner:
   autoscaling: {enabled: false}
+  resources:
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 1Gi}
+egress:
+  resources:
+    requests: {cpu: 20m, memory: 64Mi}
+    limits: {memory: 512Mi}
+builder:
+  resources:
+    requests: {cpu: 100m, memory: 512Mi}
+    limits: {memory: 2Gi}
