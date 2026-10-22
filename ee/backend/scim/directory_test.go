@@ -75,7 +75,7 @@ func (d *fakeDirectory) Authenticate(_ context.Context, token string) (string, e
 }
 
 // Limits reports a small page so that paging is easy to reach.
-func (d *fakeDirectory) Limits() identity.DirectoryLimits {
+func (*fakeDirectory) Limits() identity.DirectoryLimits {
 	return identity.DirectoryLimits{MaxResults: 3}
 }
 

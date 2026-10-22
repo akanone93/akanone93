@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"reflect"
 	"slices"
 	"strings"
@@ -136,9 +137,9 @@ type fakeRows struct {
 	at   int
 }
 
-func (r *fakeRows) Next() bool   { r.at++; return r.at <= len(r.rows) }
-func (r *fakeRows) Close() error { return nil }
-func (r *fakeRows) Err() error   { return nil }
+func (r *fakeRows) Next() bool { r.at++; return r.at <= len(r.rows) }
+func (*fakeRows) Close() error { return nil }
+func (*fakeRows) Err() error   { return nil }
 
 // Scan assigns the current row to the destinations, converting numbers.
 func (r *fakeRows) Scan(dest ...any) error {
@@ -181,7 +182,7 @@ func (f *fakeConn) Query(_ context.Context, query string, args ...any) (driver.R
 	case query == queryCountRaw:
 		return &fakeRows{rows: [][]any{{uint64(len(f.dedupe(c.namedArg("org").(string), time.Time{}, c.namedArg("before").(time.Time))))}}}, nil
 	case query == queryCountRollups:
-		return &fakeRows{rows: [][]any{{uint64(f.countRollups(c))}}}, nil
+		return &fakeRows{rows: [][]any{{nonNegative(f.countRollups(c))}}}, nil
 	case query == queryPartitions:
 		return &fakeRows{rows: f.partitions()}, nil
 	}
@@ -270,7 +271,7 @@ func (f *fakeConn) aggregate(c call) [][]any {
 		}
 		v, ok := duration(name, r[11].(string))
 		if ok {
-			k.hist = int32(ext.BucketOf(v))
+			k.hist = bucketIndex(ext.BucketOf(v))
 		}
 		g := groups[k]
 		if g == nil {
@@ -326,7 +327,7 @@ func (f *fakeConn) series(c call) [][]any {
 		rows = slices.DeleteFunc(rows, func(r []any) bool { return r[1] != env })
 	}
 	slices.SortStableFunc(rows, func(a, b []any) int { return a[4].(time.Time).Compare(b[4].(time.Time)) })
-	if limit := int(c.namedArg("row_limit").(uint64)); len(rows) > limit {
+	if limit := rowLimit(c); len(rows) > limit {
 		rows = rows[:limit]
 	}
 	return rows
@@ -345,10 +346,36 @@ func (f *fakeConn) eventPage(c call) [][]any {
 		// plugin, route, category, class, locale, fields.
 		rows = append(rows, []any{r[4], r[0], r[1], r[2], r[3], r[5], r[6], r[8], r[9], r[10], r[14], r[12], r[13], r[11]})
 	}
-	if limit := int(c.namedArg("row_limit").(uint64)); len(rows) > limit {
+	if limit := rowLimit(c); len(rows) > limit {
 		rows = rows[:limit]
 	}
 	return rows
+}
+
+// nonNegative converts a count to the unsigned type the driver reports.
+func nonNegative(n int) uint64 {
+	if n < 0 {
+		return 0
+	}
+	return uint64(n)
+}
+
+// bucketIndex converts a histogram bucket to the column type.
+func bucketIndex(n int) int32 {
+	if n < 0 || n > math.MaxInt32 {
+		return 0
+	}
+	return int32(n)
+}
+
+// rowLimit returns the row_limit argument of the call, capped to the range
+// of int.
+func rowLimit(c call) int {
+	limit := c.namedArg("row_limit").(uint64)
+	if limit > math.MaxInt32 {
+		return math.MaxInt32
+	}
+	return int(limit)
 }
 
 func (f *fakeConn) countRollups(c call) int {

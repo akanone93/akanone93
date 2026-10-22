@@ -71,7 +71,10 @@ func (s *cefSink) Deliver(ctx context.Context, records []export.Record) error {
 		}
 		batch.Write(export.Frame(message))
 	}
-	return s.stream.Send(ctx, batch.Bytes())
+	if err := s.stream.Send(ctx, batch.Bytes()); err != nil {
+		return fmt.Errorf("auditexport: send the CEF batch: %w", err)
+	}
+	return nil
 }
 
 // cefLine renders a record as a CEF:0 event. The header names the vendor,

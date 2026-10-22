@@ -16,9 +16,9 @@ import (
 
 // The values of the assertion the checks compare with.
 const (
-	bearerMethod    = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
-	transientFormat = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
-	emailFormat     = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+	confirmationMethod = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
+	transientFormat    = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
+	emailFormat        = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 )
 
 // assertion is what Plux reads of a verified SAML assertion.
@@ -88,7 +88,7 @@ func (a *assertion) readSubject(el *etree.Element) error {
 	}
 	a.nameID, a.nameIDFormat = text(name), name.SelectAttrValue("Format", "")
 	for _, sc := range children(subject, nsAssertion, "SubjectConfirmation") {
-		if sc.SelectAttrValue("Method", "") != bearerMethod {
+		if sc.SelectAttrValue("Method", "") != confirmationMethod {
 			continue
 		}
 		data, err := optional(sc, nsAssertion, "SubjectConfirmationData")

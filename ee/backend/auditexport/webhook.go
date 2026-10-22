@@ -38,7 +38,7 @@ func newWebhookSink(c export.Config) (*webhookSink, error) {
 	}
 	key, err := stdwebhook.ParseSecret(string(c.Secret))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("auditexport: %w", err)
 	}
 	return &webhookSink{client: c.HTTP, endpoint: c.Destination.Address, key: key, now: c.Now}, nil
 }

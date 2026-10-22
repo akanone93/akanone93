@@ -197,7 +197,7 @@ var punctuation = map[rune]byte{'€': 0x80, '‘': 0x91, '’': 0x92, '“': 0x
 func winAnsi(r rune) (byte, bool) {
 	switch {
 	case r >= ' ' && r <= '~', r >= 0xA0 && r <= 0xFF:
-		return byte(r), true
+		return byte(r & 0xFF), true
 	case r == '\t' || r == '\n':
 		return ' ', true
 	}

@@ -93,7 +93,7 @@ func TestVerify_IdPInitiated_GOV_004(t *testing.T) {
 func TestVerify_Refusals_GOV_004(t *testing.T) {
 	t.Parallel()
 	idp := newIdP(t)
-	later := func(d time.Duration) time.Time { return clockNow.Add(d) }
+	later := clockNow.Add
 	for name, s := range map[string]spec{
 		"unsigned":                      answering(spec{}),
 		"wrong audience":                answering(spec{signAssertion: true, audience: "https://other.example.com/"}),

@@ -111,7 +111,7 @@ func signManifest(m Manifest, key ed25519.PrivateKey) ([]byte, error) {
 func openManifest(raw []byte, keys licensefile.KeySet) (Manifest, error) {
 	var env envelope
 	if err := json.Unmarshal(raw, &env); err != nil {
-		return Manifest{}, fmt.Errorf("airgap.openManifest: %w: %v", ErrMalformed, err)
+		return Manifest{}, fmt.Errorf("airgap.openManifest: %w: %w", ErrMalformed, err)
 	}
 	var signed bytes.Buffer
 	if err := json.Compact(&signed, env.Signed); err != nil {
@@ -124,7 +124,7 @@ func openManifest(raw []byte, keys licensefile.KeySet) (Manifest, error) {
 	dec := json.NewDecoder(bytes.NewReader(signed.Bytes()))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&m); err != nil {
-		return Manifest{}, fmt.Errorf("airgap.openManifest: %w: %v", ErrMalformed, err)
+		return Manifest{}, fmt.Errorf("airgap.openManifest: %w: %w", ErrMalformed, err)
 	}
 	if err := m.validate(); err != nil {
 		return Manifest{}, fmt.Errorf("airgap.openManifest: %w", err)

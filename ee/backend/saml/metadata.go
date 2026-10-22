@@ -166,7 +166,11 @@ func withoutExpiry(document []byte) ([]byte, error) {
 	removeAttribute(doc.Root(), "validUntil")
 	doc.Indent(2)
 	doc.InsertChildAt(0, etree.NewProcInst("xml", `version="1.0" encoding="UTF-8"`))
-	return doc.WriteToBytes()
+	out, err := doc.WriteToBytes()
+	if err != nil {
+		return nil, fmt.Errorf("saml: serialise the metadata: %w", err)
+	}
+	return out, nil
 }
 
 // removeAttribute removes the attribute from el and everything below it.

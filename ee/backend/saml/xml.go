@@ -153,5 +153,9 @@ func decodeBase64(s string) ([]byte, error) {
 		}
 		return r
 	}, s)
-	return base64.StdEncoding.DecodeString(clean)
+	out, err := base64.StdEncoding.DecodeString(clean)
+	if err != nil {
+		return nil, fmt.Errorf("saml: decode base64: %w", err)
+	}
+	return out, nil
 }

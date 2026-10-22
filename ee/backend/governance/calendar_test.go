@@ -33,11 +33,11 @@ func utc(year int, month time.Month, day, hour, minute int) time.Time {
 	return time.Date(year, month, day, hour, minute, 0, 0, time.UTC)
 }
 
-// held reports whether the windows hold a change to the environment at the
+// held reports whether the windows hold a change to the production environment at the
 // instant, failing the test on an error.
-func held(t *testing.T, windows []governance.Window, env string, at time.Time) bool {
+func held(t *testing.T, windows []governance.Window, at time.Time) bool {
 	t.Helper()
-	_, ok, err := Calendar{}.InForce(licensed(edition.StateValid), windows, env, at)
+	_, ok, err := Calendar{}.InForce(licensed(edition.StateValid), windows, "production", at)
 	if err != nil {
 		t.Fatalf("InForce(%s): %v", at.Format(time.RFC3339), err)
 	}
@@ -61,7 +61,7 @@ func TestCalendar_OneOff_GOV_025(t *testing.T) {
 		{utc(2027, 1, 1, 4, 59), true},
 		{utc(2027, 1, 1, 5, 0), false},
 	} {
-		if got := held(t, w, "production", c.at); got != c.want {
+		if got := held(t, w, c.at); got != c.want {
 			t.Errorf("held at %s = %v, want %v", c.at.Format(time.RFC3339), got, c.want)
 		}
 	}
@@ -75,10 +75,10 @@ func TestCalendar_TimeZones_GOV_025(t *testing.T) {
 	tokyo := []governance.Window{{Name: "w", TimeZone: "Asia/Tokyo", Start: "2026-06-01T09:00", Duration: time.Hour}}
 	la := []governance.Window{{Name: "w", TimeZone: "America/Los_Angeles", Start: "2026-06-01T09:00", Duration: time.Hour}}
 	// 09:00 in Tokyo is 00:00Z; 09:00 in Los Angeles in June is 16:00Z.
-	if !held(t, tokyo, "production", utc(2026, 6, 1, 0, 30)) || held(t, tokyo, "production", utc(2026, 6, 1, 16, 30)) {
+	if !held(t, tokyo, utc(2026, 6, 1, 0, 30)) || held(t, tokyo, utc(2026, 6, 1, 16, 30)) {
 		t.Error("the Tokyo window is not at 00:00Z")
 	}
-	if !held(t, la, "production", utc(2026, 6, 1, 16, 30)) || held(t, la, "production", utc(2026, 6, 1, 0, 30)) {
+	if !held(t, la, utc(2026, 6, 1, 16, 30)) || held(t, la, utc(2026, 6, 1, 0, 30)) {
 		t.Error("the Los Angeles window is not at 16:00Z")
 	}
 }
@@ -105,7 +105,7 @@ func TestCalendar_WeeklyAcrossDST_GOV_025(t *testing.T) {
 		{utc(2026, 3, 14, 0, 0), false},
 		{utc(2026, 3, 7, 23, 30), false}, // Saturday is not a Friday.
 	} {
-		if got := held(t, w, "production", c.at); got != c.want {
+		if got := held(t, w, c.at); got != c.want {
 			t.Errorf("held at %s = %v, want %v", c.at.Format(time.RFC3339), got, c.want)
 		}
 	}
@@ -134,7 +134,7 @@ func TestCalendar_StartInSpringForwardGap_GOV_025(t *testing.T) {
 		{utc(2026, 3, 8, 8, 0), false},
 		{utc(2026, 3, 9, 6, 45), true}, // 02:45 EDT the day after.
 	} {
-		if got := held(t, w, "production", c.at); got != c.want {
+		if got := held(t, w, c.at); got != c.want {
 			t.Errorf("held at %s = %v, want %v", c.at.Format(time.RFC3339), got, c.want)
 		}
 	}
@@ -157,7 +157,7 @@ func TestCalendar_StartInFallBackOverlap_GOV_025(t *testing.T) {
 		{utc(2026, 11, 1, 6, 0), false},
 		{utc(2026, 11, 1, 6, 30), false}, // The second 01:30 is not the start.
 	} {
-		if got := held(t, w, "production", c.at); got != c.want {
+		if got := held(t, w, c.at); got != c.want {
 			t.Errorf("held at %s = %v, want %v", c.at.Format(time.RFC3339), got, c.want)
 		}
 	}
@@ -170,7 +170,7 @@ func TestCalendar_DurationIsElapsedTime_GOV_025(t *testing.T) {
 	t.Parallel()
 	w := []governance.Window{{Name: "long", TimeZone: "America/New_York", Start: "2026-03-06T18:00", Duration: 60 * time.Hour}}
 	// Starts 23:00Z Friday; 60 hours later is 11:00Z Monday, 07:00 EDT.
-	if !held(t, w, "production", utc(2026, 3, 9, 10, 59)) || held(t, w, "production", utc(2026, 3, 9, 11, 0)) {
+	if !held(t, w, utc(2026, 3, 9, 10, 59)) || held(t, w, utc(2026, 3, 9, 11, 0)) {
 		t.Error("the window does not end 60 elapsed hours after it starts")
 	}
 }
@@ -195,7 +195,7 @@ func TestCalendar_LongRecurringAndUntil_GOV_025(t *testing.T) {
 		{utc(2026, 1, 24, 12, 0), false},  // After UNTIL.
 		{utc(2025, 12, 27, 12, 0), false}, // Before the series began.
 	} {
-		if got := held(t, w, "production", c.at); got != c.want {
+		if got := held(t, w, c.at); got != c.want {
 			t.Errorf("held at %s = %v, want %v", c.at.Format(time.RFC3339), got, c.want)
 		}
 	}
@@ -219,7 +219,7 @@ func TestCalendar_EnvironmentsAndOccurrence_GOV_025(t *testing.T) {
 	if occ, ok, _ = (Calendar{}).InForce(licensed(edition.StateValid), windows, "staging", at); !ok || occ.Window.Name != "staging-only" {
 		t.Errorf("staging: the first window in force was %q", occ.Window.Name)
 	}
-	if held(t, windows[:1], "production", at) {
+	if held(t, windows[:1], at) {
 		t.Error("a window of staging held production")
 	}
 }
@@ -301,7 +301,7 @@ func TestCalendar_UnevaluableWindowFailsClosed_GOV_025(t *testing.T) {
 func TestCalendar_WeeklyDefaultsToTheStartWeekday_GOV_025(t *testing.T) {
 	t.Parallel()
 	w := []governance.Window{{Name: "w", TimeZone: "UTC", Start: "2026-05-01T10:00", Duration: time.Hour, Recurrence: "FREQ=WEEKLY"}} // A Friday.
-	if !held(t, w, "production", utc(2026, 5, 8, 10, 30)) || held(t, w, "production", utc(2026, 5, 9, 10, 30)) {
+	if !held(t, w, utc(2026, 5, 8, 10, 30)) || held(t, w, utc(2026, 5, 9, 10, 30)) {
 		t.Error("the window does not recur on Fridays only")
 	}
 }

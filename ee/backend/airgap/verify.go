@@ -68,7 +68,7 @@ func scan(tr *tar.Reader) (map[string]seenFile, []byte, []byte, error) {
 			return seen, rawManifest, rawIndex, nil
 		}
 		if err != nil {
-			return nil, nil, nil, fmt.Errorf("airgap.Verify: %w: %v", ErrMalformed, err)
+			return nil, nil, nil, fmt.Errorf("airgap.Verify: %w: %w", ErrMalformed, err)
 		}
 		if h.Typeflag != tar.TypeReg || !validPath(h.Name) {
 			return nil, nil, nil, fmt.Errorf("airgap.Verify: %w: %q is not a regular file with a clean path", ErrMalformed, h.Name)
@@ -98,7 +98,7 @@ func readEntry(r io.Reader, name string) (seenFile, []byte, error) {
 	if name == ManifestPath || name == indexPath {
 		raw, err := readBounded(r)
 		if err != nil {
-			return seenFile{}, nil, fmt.Errorf("airgap.Verify: %s: %w: %v", name, ErrMalformed, err)
+			return seenFile{}, nil, fmt.Errorf("airgap.Verify: %s: %w: %w", name, ErrMalformed, err)
 		}
 		sum := sha256.Sum256(raw)
 		return seenFile{size: int64(len(raw)), hash: hex.EncodeToString(sum[:])}, raw, nil
@@ -106,7 +106,7 @@ func readEntry(r io.Reader, name string) (seenFile, []byte, error) {
 	h := sha256.New()
 	n, err := io.Copy(h, r)
 	if err != nil {
-		return seenFile{}, nil, fmt.Errorf("airgap.Verify: %s: %w: %v", name, ErrMalformed, err)
+		return seenFile{}, nil, fmt.Errorf("airgap.Verify: %s: %w: %w", name, ErrMalformed, err)
 	}
 	return seenFile{size: n, hash: hex.EncodeToString(h.Sum(nil))}, nil, nil
 }

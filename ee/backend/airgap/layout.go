@@ -312,7 +312,7 @@ func (b *layoutBuilder) finish() ([]Image, error) {
 func imagesOf(rawIndex []byte) ([]Image, error) {
 	var index imageIndex
 	if err := json.Unmarshal(rawIndex, &index); err != nil {
-		return nil, fmt.Errorf("%w: index.json: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: index.json: %w", ErrMalformed, err)
 	}
 	out := make([]Image, 0, len(index.Manifests))
 	for _, d := range index.Manifests {

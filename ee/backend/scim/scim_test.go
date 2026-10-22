@@ -160,9 +160,9 @@ func patchBody(ops ...string) string {
 }
 
 // createUser makes a user and returns its id.
-func (w *world) createUser(org, name string) string {
+func (w *world) createUser(name string) string {
 	w.t.Helper()
-	return w.as(org, "POST", "/Users", userBody(name, `"displayName":"`+name+`","externalId":"ext-`+name+`"`)).expect(w.t, 201).str("id")
+	return w.as("acme", "POST", "/Users", userBody(name, `"displayName":"`+name+`","externalId":"ext-`+name+`"`)).expect(w.t, 201).str("id")
 }
 
 // Verifies: GOV-004.
@@ -222,7 +222,7 @@ func TestCreateUser_Invalid_GOV_004(t *testing.T) {
 func TestAuthentication_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	id := w.createUser("acme", "ada@acme.example")
+	id := w.createUser("ada@acme.example")
 	for name, headers := range map[string][]string{
 		"no header":      nil,
 		"basic":          {"Authorization", "Basic dXNlcjpwYXNz"},
@@ -253,8 +253,8 @@ func TestAuthentication_GOV_004(t *testing.T) {
 func TestFilter_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	ada := w.createUser("acme", "ada@acme.example")
-	w.createUser("acme", "bob@acme.example")
+	ada := w.createUser("ada@acme.example")
+	w.createUser("bob@acme.example")
 	list := func(filter string) reply {
 		return w.as("acme", "GET", "/Users?filter="+urlEscape(filter), "")
 	}
@@ -298,7 +298,7 @@ func TestPagination_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
 	for _, n := range []string{"a", "b", "c", "d", "e"} {
-		w.createUser("acme", n+"@acme.example")
+		w.createUser(n + "@acme.example")
 	}
 	names := func(r reply) []string {
 		var out []string
@@ -341,7 +341,7 @@ func TestPagination_GOV_004(t *testing.T) {
 func TestETags_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	id := w.createUser("acme", "ada@acme.example")
+	id := w.createUser("ada@acme.example")
 	body := userBody("ada@acme.example", `"displayName":"Ada Lovelace"`)
 	w.as("acme", "PUT", "/Users/"+id, body, "If-Match", `W/"7"`).problem(t, 412, "", "PLX-6220")
 	w.as("acme", "PATCH", "/Users/"+id, patchBody(`{"op":"replace","path":"displayName","value":"Changed"}`), "If-Match", `"7"`).problem(t, 412, "", "PLX-6220")
@@ -377,7 +377,7 @@ func TestPatchUser_GOV_004(t *testing.T) {
 		"an add of the attribute": `{"op":"add","path":"active","value":false}`,
 	} {
 		w := newWorld(t)
-		id := w.createUser("acme", "ada@acme.example")
+		id := w.createUser("ada@acme.example")
 		w.dir.signIn(id, "ada-api-token")
 		r := w.as("acme", "PATCH", "/Users/"+id, patchBody(op)).expect(t, 200)
 		if r.body["active"] != false || r.str("meta", "version") != `W/"2"` {
@@ -400,7 +400,7 @@ func TestPatchUser_GOV_004(t *testing.T) {
 func TestPatchUser_Attributes_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	id := w.createUser("acme", "ada@acme.example")
+	id := w.createUser("ada@acme.example")
 	patch := func(ops ...string) reply { return w.as("acme", "PATCH", "/Users/"+id, patchBody(ops...)) }
 	r := patch(
 		`{"op":"replace","path":"displayName","value":"Ada L."}`,
@@ -445,7 +445,7 @@ func TestPatchUser_Attributes_GOV_004(t *testing.T) {
 func TestDeleteUser_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	id := w.createUser("acme", "ada@acme.example")
+	id := w.createUser("ada@acme.example")
 	w.dir.signIn(id, "ada-api-token")
 	if r := w.as("acme", "DELETE", "/Users/"+id, "").expect(t, 204); r.raw != "" {
 		t.Errorf("body = %q", r.raw)
@@ -464,7 +464,7 @@ func TestDeleteUser_GOV_004(t *testing.T) {
 func TestGroups_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	ada, bob := w.createUser("acme", "ada@acme.example"), w.createUser("acme", "bob@acme.example")
+	ada, bob := w.createUser("ada@acme.example"), w.createUser("bob@acme.example")
 	body := `{"schemas":["` + groupSchema + `"],"displayName":"Engineering","externalId":"g-1","members":[{"value":"` + ada + `"},{"value":"` + ada + `"}]}`
 	r := w.as("acme", "POST", "/Groups", body).expect(t, 201)
 	id := r.str("id")
@@ -510,7 +510,7 @@ func TestGroups_GOV_004(t *testing.T) {
 func TestPatchGroup_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	ids := []string{w.createUser("acme", "a@acme.example"), w.createUser("acme", "b@acme.example"), w.createUser("acme", "c@acme.example")}
+	ids := []string{w.createUser("a@acme.example"), w.createUser("b@acme.example"), w.createUser("c@acme.example")}
 	group := w.as("acme", "POST", "/Groups", `{"schemas":["`+groupSchema+`"],"displayName":"Team"}`).expect(t, 201).str("id")
 	member := func(id string) string { return `{"value":"` + id + `"}` }
 	current := func() string {
@@ -565,7 +565,7 @@ func TestPatchGroup_GOV_004(t *testing.T) {
 func TestWritesAreLicensed_GOV_033(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	id := w.createUser("acme", "ada@acme.example")
+	id := w.createUser("ada@acme.example")
 	for name, status := range map[string]edition.Status{
 		"no licence":         {State: edition.StateAbsent},
 		"another feature":    {State: edition.StateValid, Features: []edition.Feature{edition.FeatureSAML}},
@@ -634,7 +634,7 @@ func TestDiscovery_GOV_004(t *testing.T) {
 func TestRouting_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	id := w.createUser("acme", "ada@acme.example")
+	id := w.createUser("ada@acme.example")
 	for _, path := range []string{"/", "/Nowhere", "/Users/a/b", "/Users//x", "/users", "/Users/" + id + "/emails"} {
 		w.as("acme", "GET", path, "").problem(t, 404, "", "PLX-6220")
 	}
@@ -654,7 +654,7 @@ func TestRouting_GOV_004(t *testing.T) {
 func TestUnexpectedFailure_GOV_004(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
-	id := w.createUser("acme", "ada@acme.example")
+	id := w.createUser("ada@acme.example")
 	w.dir.failWith = errors.New("pq: connection to 10.0.0.7 refused, password=hunter2")
 	r := w.as("acme", "GET", "/Users/"+id, "")
 	r.expect(t, 500)

@@ -171,12 +171,17 @@ func stageDocs(stage, docsDir string) error {
 	if err != nil {
 		return fmt.Errorf("airgap.stageDocs: %w", err)
 	}
+	root, err := os.OpenRoot(dst)
+	if err != nil {
+		return fmt.Errorf("airgap.stageDocs: %w", err)
+	}
+	defer func() { _ = root.Close() }()
 	for _, m := range matches {
 		raw, err := os.ReadFile(m) //nolint:gosec // G304: the operator names the docs directory.
 		if err != nil {
 			return fmt.Errorf("airgap.stageDocs: %w", err)
 		}
-		if err := os.WriteFile(filepath.Join(dst, filepath.Base(m)), raw, 0o600); err != nil {
+		if err := root.WriteFile(filepath.Base(m), raw, 0o600); err != nil {
 			return fmt.Errorf("airgap.stageDocs: %w", err)
 		}
 	}

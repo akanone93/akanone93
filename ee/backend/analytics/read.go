@@ -31,7 +31,10 @@ func scanRollup(r rowScanner) (rollupRow, error) {
 	err := r.Scan(&row.app, &row.env, &row.gran, &row.name, &row.bucket, &row.release, &row.plugin, &row.page,
 		&row.class, &row.locale, &row.events, &row.valueCount, &row.sum, &row.min, &row.max, &row.hist)
 	row.bucket = row.bucket.UTC()
-	return row, err
+	if err != nil {
+		return row, fmt.Errorf("analytics.scanRollup: %w", err)
+	}
+	return row, nil
 }
 
 // readRollups runs a rollup query and returns its rows.

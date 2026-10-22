@@ -92,5 +92,8 @@ func scanEvent(r rowScanner) (Record, error) {
 		&e.PluginKey, &e.Route, &e.Category, &e.DeviceClass, &e.Locale, &fields)
 	e.Time = e.Time.UTC()
 	e.Fields = json.RawMessage(fields)
-	return e, err
+	if err != nil {
+		return e, fmt.Errorf("analytics.scanEvent: %w", err)
+	}
+	return e, nil
 }

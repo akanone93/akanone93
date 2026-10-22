@@ -81,7 +81,7 @@ func matchesETag(header string, version int64) bool {
 
 // unchanged answers a conditional GET whose If-None-Match names the current
 // version with 304, and reports whether it did.
-func (s *server) unchanged(c call, version int64) bool {
+func (*server) unchanged(c call, version int64) bool {
 	if header := c.r.Header.Get("If-None-Match"); header != "" && matchesETag(header, version) {
 		c.w.Header().Set("ETag", etag(version))
 		c.w.WriteHeader(http.StatusNotModified)

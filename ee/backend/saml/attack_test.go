@@ -101,7 +101,7 @@ func TestVerify_CommentInjection_GOV_004(t *testing.T) {
 		name := r.FindElement(".//NameID")
 		name.SetText("admin@example.com")
 		name.CreateComment("")
-		name.CreateCharData(".evil.example")
+		name.CreateText(".evil.example")
 	}
 	refusedWith(t, "a comment in the subject", idp, s.build(t, idp), "comment")
 }

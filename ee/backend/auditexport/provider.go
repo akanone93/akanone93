@@ -44,8 +44,10 @@ func (Provider) Validate(d export.Destination, secret []byte) error {
 		if err := validateHTTPSURL(d.Address); err != nil {
 			return err
 		}
-		_, err := stdwebhook.ParseSecret(string(secret))
-		return err
+		if _, err := stdwebhook.ParseSecret(string(secret)); err != nil {
+			return fmt.Errorf("auditexport: %w", err)
+		}
+		return nil
 	}
 	return fmt.Errorf("auditexport: the kind %q is not served", d.Kind)
 }
@@ -93,5 +95,8 @@ func requireLicence(ctx context.Context) error {
 	if edition.EnabledForWrite(ctx, edition.FeatureSIEMExtended) {
 		return nil
 	}
-	return edition.Require(ctx, edition.FeatureSIEMExtended)
+	if err := edition.Require(ctx, edition.FeatureSIEMExtended); err != nil {
+		return fmt.Errorf("auditexport: %w", err)
+	}
+	return nil
 }
