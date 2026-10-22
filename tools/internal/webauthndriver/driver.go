@@ -40,6 +40,10 @@ type Config struct {
 	// Actor names the person in the store; Email is the address the test
 	// provider vouches for.
 	Actor, Email string
+	// Password, when set, signs the person in with Email and Password
+	// instead of through the test provider: the seeded administrator, who
+	// has no account there and first meets the driver at a step-up.
+	Password string
 	// Store keeps the credential between the token and the step-up.
 	Store FileStore
 	// ServerHTTP reaches the installation and IDPHTTP the test provider; each
@@ -120,12 +124,7 @@ func (d *Driver) StepUp(ctx context.Context, stepUpURL string) error {
 	if err != nil {
 		return err
 	}
-	cred, err := d.cfg.Store.Load(d.cfg.Actor)
-	if err != nil {
-		return err
-	}
-	key := AuthenticatorFor(cred, d.random)
-	s, err := d.secondFactorSession(ctx, key)
+	s, key, err := d.stepUpSession(ctx)
 	if err != nil {
 		return err
 	}
@@ -149,6 +148,29 @@ func (d *Driver) StepUp(ctx context.Context, stepUpURL string) error {
 	return err
 }
 
+// stepUpSession signs the person in with their security key. A person who
+// signs in with a password and has no key yet enrols one first; through the
+// test provider the key comes from Token, and its absence is an error.
+func (d *Driver) stepUpSession(ctx context.Context) (*session, *Authenticator, error) {
+	cred, err := d.cfg.Store.Load(d.cfg.Actor)
+	if errors.Is(err, ErrNoCredential) && d.cfg.Password != "" {
+		s, err := d.enrol(ctx)
+		if err != nil {
+			return nil, nil, err
+		}
+		if cred, err = d.cfg.Store.Load(d.cfg.Actor); err != nil {
+			return nil, nil, err
+		}
+		return s, AuthenticatorFor(cred, d.random), nil
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+	key := AuthenticatorFor(cred, d.random)
+	s, err := d.secondFactorSession(ctx, key)
+	return s, key, err
+}
+
 // requestOf reads the step-up request out of the URL the CLI printed.
 func requestOf(stepUpURL string) (string, error) {
 	u, err := url.Parse(stepUpURL)
@@ -164,7 +186,7 @@ func requestOf(stepUpURL string) (string, error) {
 // server confirmed and the driver forgot would lock the person out, while a
 // saved key the server never confirmed fails the run visibly.
 func (d *Driver) enrol(ctx context.Context) (*session, error) {
-	in, err := d.signInThroughOIDC(ctx)
+	in, err := d.signIn(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -206,10 +228,10 @@ func (d *Driver) enrol(ctx context.Context) (*session, error) {
 	return in.session, err
 }
 
-// secondFactorSession signs the person in through the test provider and
+// secondFactorSession signs the person in (see signIn) and
 // answers the second-factor challenge with the key.
 func (d *Driver) secondFactorSession(ctx context.Context, key *Authenticator) (*session, error) {
-	in, err := d.signInThroughOIDC(ctx)
+	in, err := d.signIn(ctx)
 	if err != nil {
 		return nil, err
 	}

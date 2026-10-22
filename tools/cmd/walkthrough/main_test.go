@@ -281,11 +281,19 @@ func TestHooks(t *testing.T) {
 	if hooksFor(options{}).Viewer != nil {
 		t.Error("without a viewer command there is no viewer hook")
 	}
-	if shellStepUp("") != nil {
+	if shellStepUp("", nil) != nil {
 		t.Error("without a step-up command there is no step-up function")
 	}
-	if err := shellStepUp(`test "$WALKTHROUGH_ACTOR" = bob && test "$WALKTHROUGH_STEPUP_URL" = https://u`)(t.Context(), "bob", "https://u"); err != nil {
+	if err := shellStepUp(`test "$WALKTHROUGH_ACTOR" = bob && test "$WALKTHROUGH_STEPUP_URL" = https://u && test "$WALKTHROUGH_EMAIL" = bob@walkthrough.example`, nil)(t.Context(), "bob", "https://u"); err != nil {
 		t.Error(err)
+	}
+	// The administrator is signed in with the seeded email and password.
+	admin := []string{"WALKTHROUGH_EMAIL=admin@x", "WALKTHROUGH_PASSWORD=pw"}
+	if err := shellStepUp(`test "$WALKTHROUGH_EMAIL" = admin@x && test "$WALKTHROUGH_PASSWORD" = pw`, admin)(t.Context(), "admin", "https://u"); err != nil {
+		t.Error(err)
+	}
+	if err := shellStepUp(`test -z "$WALKTHROUGH_PASSWORD"`, admin)(t.Context(), "bob", "https://u"); err != nil {
+		t.Error("only the administrator gets the password:", err)
 	}
 }
 
@@ -301,7 +309,7 @@ func TestHooksSharedEnvironment(t *testing.T) {
 	if tok, err := hooksFor(o, shared...).IssueToken(t.Context(), "carol", "carol@x"); err != nil || tok != "https://idp carol" {
 		t.Errorf("IssueToken = %q, %v", tok, err)
 	}
-	hook := shellStepUp(`test "$WALKTHROUGH_SERVER" = https://s && test "$WALKTHROUGH_ACTOR" = carol`, shared...)
+	hook := shellStepUp(`test "$WALKTHROUGH_SERVER" = https://s && test "$WALKTHROUGH_ACTOR" = carol`, nil, shared...)
 	if err := hook(t.Context(), "carol", "https://s/stepup?request=1"); err != nil {
 		t.Error(err)
 	}

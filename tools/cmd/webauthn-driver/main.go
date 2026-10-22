@@ -17,6 +17,8 @@
 // WALKTHROUGH_STEPUP_URL and WALKTHROUGH_IDP_CA_PEM (the CA of the test
 // provider), plus, from the script, WALKTHROUGH_DRIVER_DIR (a directory only
 // the run's user can read, where the keys live), and optionally
+// WALKTHROUGH_PASSWORD (the person signs in with it instead of through the
+// test provider: the seeded administrator),
 // WALKTHROUGH_ORG_KEY (default "acme", the key `plux-server seed` gives the
 // organisation), WALKTHROUGH_IDP_KEY (default
 // "walkthrough-idp"), WALKTHROUGH_CA_FILE (the CA of the server's
@@ -115,7 +117,7 @@ func newDriver(getenv func(string) string) (*webauthndriver.Driver, error) {
 		Server: getenv("WALKTHROUGH_SERVER"), Origin: getenv("WALKTHROUGH_WEBAUTHN_ORIGIN"),
 		OrgID: getenv("WALKTHROUGH_ORG"), OrgKey: orDefault(getenv("WALKTHROUGH_ORG_KEY"), "acme"),
 		ProviderKey: orDefault(getenv("WALKTHROUGH_IDP_KEY"), "walkthrough-idp"),
-		Actor:       getenv("WALKTHROUGH_ACTOR"), Email: getenv("WALKTHROUGH_EMAIL"),
+		Actor:       getenv("WALKTHROUGH_ACTOR"), Email: getenv("WALKTHROUGH_EMAIL"), Password: getenv("WALKTHROUGH_PASSWORD"),
 		Store:      webauthndriver.FileStore{Dir: getenv("WALKTHROUGH_DRIVER_DIR")},
 		ServerHTTP: server, IDPHTTP: idp, Random: rand.Reader,
 	})

@@ -84,6 +84,33 @@ func TestDriverStepUp_SEC103(t *testing.T) {
 	}
 }
 
+// TestDriverPasswordStepUp_SEC103 completes the step-ups of a person who
+// signs in with a password and meets the driver first at a step-up (the
+// seeded administrator): the first enrols the key, later ones sign in with it.
+//
+// Verifies: SEC-103.
+func TestDriverPasswordStepUp_SEC103(t *testing.T) {
+	rp := newRelyingParty(t)
+	dir := filepath.Join(t.TempDir(), "keys")
+	withPassword := func(c *Config) { c.Store, c.Password = FileStore{Dir: dir}, testPassword }
+	if err := newTestDriver(t, rp, withPassword).StepUp(t.Context(), "https://plux.test/stepup?request=request-1"); err != nil {
+		t.Fatal(err)
+	}
+	if rp.pub == nil {
+		t.Fatal("the key was not enrolled")
+	}
+	if err := newTestDriver(t, rp, withPassword).StepUp(t.Context(), "https://plux.test/stepup?request=request-1"); err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(rp.stepUps, []string{"request-1", "request-1"}) || slices.Contains(rp.calls, "IdentityService/StartOidcLogin") {
+		t.Fatalf("approved step-ups = %v, calls = %v", rp.stepUps, rp.calls)
+	}
+	wrong := newTestDriver(t, rp, func(c *Config) { c.Store, c.Password = FileStore{Dir: dir}, "wrong" })
+	if err := wrong.StepUp(t.Context(), "https://plux.test/stepup?request=request-1"); err == nil || !strings.Contains(err.Error(), "wrong email or password") {
+		t.Fatalf("StepUp with a wrong password = %v", err)
+	}
+}
+
 // TestDriverRefusals_SEC103 covers the ways a ceremony must fail loudly: an
 // origin the server does not accept, a missing key, an unusable URL, a
 // provider the server does not offer, and a key the server does not allow.

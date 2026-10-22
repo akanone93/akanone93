@@ -100,6 +100,7 @@ func (rp *relyingParty) serve(w http.ResponseWriter, r *http.Request) {
 		"FederationService/ListSignInProviders":      rp.listProviders,
 		"IdentityService/StartOidcLogin":             rp.startLogin,
 		"IdentityService/CompleteOidcLogin":          rp.completeLogin,
+		"IdentityService/StartPasswordLogin":         rp.passwordLogin,
 		"IdentityService/BeginWebAuthnRegistration":  rp.beginRegistration,
 		"IdentityService/FinishWebAuthnRegistration": rp.finishRegistration,
 		"IdentityService/BeginWebAuthnLogin":         rp.beginLogin,
@@ -149,6 +150,19 @@ func (rp *relyingParty) startLogin(_ *http.Request, req map[string]any) (any, st
 func (rp *relyingParty) completeLogin(_ *http.Request, req map[string]any) (any, string, error) {
 	if req["state"] != "state-1" || req["code"] != "code-for-"+testEmail {
 		return nil, "", errors.New("the code is not the provider's")
+	}
+	if rp.pub != nil {
+		return map[string]any{"challenge": map[string]any{"id": "challenge-1", "kinds": []string{"webauthn"}}}, "", nil
+	}
+	return rp.newSession(false)
+}
+
+// testPassword is the fake server's password for testEmail.
+const testPassword = "correct horse"
+
+func (rp *relyingParty) passwordLogin(_ *http.Request, req map[string]any) (any, string, error) {
+	if req["email"] != testEmail || req["password"] != testPassword {
+		return nil, "", errors.New("wrong email or password")
 	}
 	if rp.pub != nil {
 		return map[string]any{"challenge": map[string]any{"id": "challenge-1", "kinds": []string{"webauthn"}}}, "", nil
