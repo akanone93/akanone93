@@ -98,6 +98,9 @@ auth:
       clientID: "plux-studio"
       redirectURL: "https://plux.acme.example/auth/callback"
       # clientSecret: set with PLUX_AUTH_STUDIO_OIDC_CLIENT_SECRET
+  federation:                   # how identity providers are reached (SEC-105)
+    allowPrivateNetworks: []    # CIDR ranges a provider may be on; empty refuses private addresses; set ranges are logged as a warning
+    trustedCAs: ""              # PEM of authorities a provider's certificate may chain to beside the system's; logged as a warning
     mfaRequiredFor: [publish, approve, keys, members]   # at least these four (SEC-100)
     sessionTTL: "12h"
   device:

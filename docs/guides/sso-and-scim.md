@@ -50,6 +50,10 @@ checks:
 - The `groups` claim (or the claim you configure) is read and mapped as section 5 describes.
 - The authentication context (`acr` and `amr`) the provider reports is recorded on the session.
 - Back-channel logout: a logout token from the provider ends the matching sessions.
+- The server reaches the provider through its SSRF-safe client (`SEC-105`): public addresses and the
+  system's certificate authorities only. A provider on an internal network, or with a certificate from
+  an internal authority, is named in `auth.federation.allowPrivateNetworks` and
+  `auth.federation.trustedCAs`; each start with either set logs a warning.
 
 ## 4. SAML 2.0 (enterprise)
 

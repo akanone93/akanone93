@@ -100,5 +100,5 @@ func (c *Config) Warnings() []string {
 		}
 	}
 	w = append(append(w, c.egressWarnings()...), c.builderWarnings()...)
-	return append(w, c.notificationWarnings()...)
+	return append(append(w, c.notificationWarnings()...), c.federationWarnings()...)
 }

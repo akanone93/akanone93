@@ -100,6 +100,9 @@ type Options struct {
 	Timeout time.Duration
 	// MaxRedirects bounds a redirect chain; zero means ten.
 	MaxRedirects int
+	// TLS is the client TLS configuration, such as one with extra root
+	// authorities; nil uses the defaults.
+	TLS *tls.Config
 }
 
 // NewClient returns an HTTP client that enforces the policy. It is safe
@@ -113,7 +116,7 @@ func NewClient(opts Options) (*http.Client, error) {
 	if opts.MaxRedirects <= 0 {
 		opts.MaxRedirects = 10
 	}
-	transport, err := NewTransport(TransportOptions{Destination: opts.Destination, Policy: opts.Policy})
+	transport, err := NewTransport(TransportOptions{Destination: opts.Destination, Policy: opts.Policy, TLS: opts.TLS})
 	if err != nil {
 		return nil, err
 	}

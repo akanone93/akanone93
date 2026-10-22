@@ -487,6 +487,8 @@ type Auth struct {
 	Studio StudioAuth `json:"studio"`
 	Device DeviceAuth `json:"device"`
 	CI     CIAuth     `json:"ci"`
+	// Federation is how identity providers are reached (SEC-105).
+	Federation Federation `json:"federation"`
 }
 
 // StudioAuth is how people sign in (SEC-100, SEC-101).
