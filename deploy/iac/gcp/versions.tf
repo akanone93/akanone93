@@ -8,8 +8,9 @@ terraform {
 
   required_providers {
     google = {
-      source  = "hashicorp/google"
-      version = "~> 6.0"
+      source = "hashicorp/google"
+      # Pinned: CI and the plan tests run exactly what was tested.
+      version = "6.50.0"
     }
   }
 }

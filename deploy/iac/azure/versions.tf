@@ -8,8 +8,9 @@ terraform {
 
   required_providers {
     azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.0"
+      source = "hashicorp/azurerm"
+      # Pinned: CI and the plan tests run exactly what was tested.
+      version = "4.81.0"
     }
   }
 }

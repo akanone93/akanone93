@@ -168,6 +168,7 @@ resource "azurerm_kubernetes_cluster" "plux" {
 
   azure_active_directory_role_based_access_control {
     azure_rbac_enabled = true
+    tenant_id          = data.azurerm_client_config.current.tenant_id
   }
 
   default_node_pool {
@@ -309,9 +310,8 @@ resource "azurerm_role_assignment" "storage_key" {
 
 resource "azurerm_storage_account_customer_managed_key" "objects" {
   storage_account_id = azurerm_storage_account.objects.id
-  key_vault_id       = azurerm_key_vault.plux.id
-  key_name           = azurerm_key_vault_key.data.name
-  key_version        = azurerm_key_vault_key.data.version
+  # The versionless key ID: Azure Storage follows the key's rotations.
+  key_vault_key_id = azurerm_key_vault_key.data.versionless_id
 
   depends_on = [azurerm_role_assignment.storage_key]
 }

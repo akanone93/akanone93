@@ -19,6 +19,11 @@ mock_provider "aws" {
       arn = "arn:aws:kms:eu-west-1:123456789012:key/00000000-0000-0000-0000-000000000000"
     }
   }
+  mock_resource "aws_launch_template" {
+    defaults = {
+      id = "lt-0123456789abcdef0"
+    }
+  }
   mock_resource "aws_s3_bucket" {
     defaults = {
       arn = "arn:aws:s3:::plux-test-objects"
@@ -56,7 +61,7 @@ run "DEP_050_buckets_are_versioned_encrypted_and_private" {
   }
 
   assert {
-    condition     = aws_s3_bucket_server_side_encryption_configuration.objects.rule[0].apply_server_side_encryption_by_default[0].sse_algorithm == "aws:kms"
+    condition     = one(one(aws_s3_bucket_server_side_encryption_configuration.objects.rule).apply_server_side_encryption_by_default).sse_algorithm == "aws:kms"
     error_message = "the bucket must be encrypted with KMS"
   }
 
@@ -96,7 +101,7 @@ run "DEP_050_cluster_endpoint_is_private_and_secrets_are_encrypted" {
   }
 
   assert {
-    condition     = aws_launch_template.node.block_device_mappings[0].ebs[0].encrypted == true
+    condition     = tobool(aws_launch_template.node.block_device_mappings[0].ebs[0].encrypted)
     error_message = "node volumes must be encrypted"
   }
 }
@@ -136,7 +141,7 @@ run "DEP_050_cache_is_encrypted_in_transit_and_at_rest" {
   }
 
   assert {
-    condition     = aws_elasticache_replication_group.plux.at_rest_encryption_enabled == true
+    condition     = tobool(aws_elasticache_replication_group.plux.at_rest_encryption_enabled)
     error_message = "the cache must be encrypted at rest"
   }
 

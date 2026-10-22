@@ -9,8 +9,9 @@ terraform {
 
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.80"
+      source = "hashicorp/aws"
+      # Pinned: CI and the plan tests run exactly what was tested.
+      version = "5.100.0"
     }
   }
 }

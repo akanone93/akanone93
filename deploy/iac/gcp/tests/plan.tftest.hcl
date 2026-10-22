@@ -5,7 +5,43 @@
 # no network. They prove the planned resources and the secure defaults
 # (DEP-050); they cannot prove how Google Cloud behaves.
 
-mock_provider "google" {}
+# The mock provider fills computed attributes with random strings; the Google
+# provider validates resource names, self-links and e-mail addresses, so the
+# resources other resources reference get well-formed values.
+mock_provider "google" {
+  mock_resource "google_compute_network" {
+    defaults = {
+      id        = "projects/plux-test/global/networks/plux-test"
+      self_link = "https://www.googleapis.com/compute/v1/projects/plux-test/global/networks/plux-test"
+    }
+  }
+  mock_resource "google_compute_subnetwork" {
+    defaults = {
+      id        = "projects/plux-test/regions/europe-west1/subnetworks/plux-test"
+      self_link = "https://www.googleapis.com/compute/v1/projects/plux-test/regions/europe-west1/subnetworks/plux-test"
+    }
+  }
+  mock_resource "google_kms_key_ring" {
+    defaults = {
+      id = "projects/plux-test/locations/europe-west1/keyRings/plux-test"
+    }
+  }
+  mock_resource "google_kms_crypto_key" {
+    defaults = {
+      id = "projects/plux-test/locations/europe-west1/keyRings/plux-test/cryptoKeys/data"
+    }
+  }
+  mock_resource "google_service_account" {
+    defaults = {
+      email = "plux-nodes@plux-test.iam.gserviceaccount.com"
+    }
+  }
+  mock_data "google_storage_project_service_account" {
+    defaults = {
+      email_address = "service-123456789012@gs-project-accounts.iam.gserviceaccount.com"
+    }
+  }
+}
 
 variables {
   name        = "plux-test"
@@ -176,7 +212,7 @@ run "DEP_050_rejects_a_public_database_mode" {
 }
 
 # Verifies: DEP-050.
-run "DEP_050_rejects_a_control_plane_range_that_is_not_a_/28" {
+run "DEP_050_rejects_a_control_plane_range_that_is_not_a_slash_28" {
   command = plan
 
   variables {

@@ -5,7 +5,50 @@
 # no network. They prove the planned resources and the secure defaults
 # (DEP-050); they cannot prove how Azure behaves.
 
-mock_provider "azurerm" {}
+# The mock provider fills computed attributes with random strings; the Azure
+# provider parses resource IDs by their path and validates tenant IDs as
+# UUIDs, so the resources other resources reference get well-formed values.
+mock_provider "azurerm" {
+  mock_data "azurerm_client_config" {
+    defaults = {
+      tenant_id       = "11111111-1111-1111-1111-111111111111"
+      subscription_id = "00000000-0000-0000-0000-000000000000"
+      object_id       = "22222222-2222-2222-2222-222222222222"
+      client_id       = "33333333-3333-3333-3333-333333333333"
+    }
+  }
+  mock_resource "azurerm_virtual_network" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/plux-test/providers/Microsoft.Network/virtualNetworks/plux-test"
+    }
+  }
+  mock_resource "azurerm_subnet" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/plux-test/providers/Microsoft.Network/virtualNetworks/plux-test/subnets/plux-test"
+    }
+  }
+  mock_resource "azurerm_private_dns_zone" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/plux-test/providers/Microsoft.Network/privateDnsZones/privatelink.plux.test"
+    }
+  }
+  mock_resource "azurerm_key_vault" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/plux-test/providers/Microsoft.KeyVault/vaults/plux-test-kv"
+    }
+  }
+  mock_resource "azurerm_key_vault_key" {
+    defaults = {
+      id             = "https://plux-test-kv.vault.azure.net/keys/data/0123456789abcdef0123456789abcdef"
+      versionless_id = "https://plux-test-kv.vault.azure.net/keys/data"
+    }
+  }
+  mock_resource "azurerm_storage_account" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/plux-test/providers/Microsoft.Storage/storageAccounts/pluxtestobjects"
+    }
+  }
+}
 
 variables {
   name                 = "plux-test"
