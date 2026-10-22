@@ -6,11 +6,11 @@ toolchain go1.27.3
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.49.0
-	github.com/beevik/etree v1.5.0
+	github.com/beevik/etree v1.7.0
 	github.com/crewjam/saml v0.5.1
 	github.com/nightCode42/plux3/backend v0.0.0
 	github.com/parquet-go/parquet-go v0.32.0
-	github.com/russellhaering/goxmldsig v1.4.0
+	github.com/russellhaering/goxmldsig v1.6.1
 )
 
 require (
@@ -61,7 +61,7 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/jonboulle/clockwork v0.2.2 // indirect
+	github.com/jonboulle/clockwork v0.5.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/mattermost/xml-roundtrip-validator v0.1.0 // indirect
