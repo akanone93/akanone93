@@ -6,12 +6,14 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"errors"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -284,5 +286,47 @@ func TestHooks(t *testing.T) {
 	}
 	if err := shellStepUp(`test "$WALKTHROUGH_ACTOR" = bob && test "$WALKTHROUGH_STEPUP_URL" = https://u`)(t.Context(), "bob", "https://u"); err != nil {
 		t.Error(err)
+	}
+}
+
+// The person-facing hooks (token and step-up) get the run's shared environment
+// beside the person: the installation, the organisation and the test provider.
+func TestHooksSharedEnvironment(t *testing.T) {
+	t.Parallel()
+	shared := []string{"WALKTHROUGH_SERVER=https://s", "WALKTHROUGH_IDP_ISSUER=https://idp"}
+	o := options{tokenCmd: `test "$WALKTHROUGH_SERVER" = https://s && echo "$WALKTHROUGH_IDP_ISSUER $WALKTHROUGH_ACTOR"`}
+	if tok, err := hooksFor(o, shared...).IssueToken(t.Context(), "carol", "carol@x"); err != nil || tok != "https://idp carol" {
+		t.Errorf("IssueToken = %q, %v", tok, err)
+	}
+	hook := shellStepUp(`test "$WALKTHROUGH_SERVER" = https://s && test "$WALKTHROUGH_ACTOR" = carol`, shared...)
+	if err := hook(t.Context(), "carol", "https://s/stepup?request=1"); err != nil {
+		t.Error(err)
+	}
+	if err := hook(t.Context(), "dave", "https://s/stepup?request=1"); err == nil {
+		t.Error("the hook must see the actor it is run for")
+	}
+}
+
+// hookEnvironment tells the hooks where the installation and the test
+// provider are, and the server's CA only when there is one.
+func TestHookEnvironment(t *testing.T) {
+	t.Parallel()
+	port := "0"
+	idp, err := walkthrough.NewIDP("127.0.0.1:"+port, "127.0.0.1:"+port, []string{"127.0.0.1"}, "c", "s", time.Now, rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = idp.Close() })
+	env := hookEnvironment(options{server: "https://s", org: "org-1"}, idp)
+	for _, want := range []string{"WALKTHROUGH_SERVER=https://s", "WALKTHROUGH_ORG=org-1", "WALKTHROUGH_IDP_ISSUER=" + idp.Issuer(), "WALKTHROUGH_IDP_CA_PEM=" + idp.CAPEM()} {
+		if !slices.Contains(env, want) {
+			t.Errorf("the environment lacks %.40s", want)
+		}
+	}
+	if slices.ContainsFunc(env, func(s string) bool { return strings.HasPrefix(s, "WALKTHROUGH_CA_FILE=") }) {
+		t.Error("no CA file was given")
+	}
+	if with := hookEnvironment(options{caFile: "/ca.pem"}, idp); !slices.Contains(with, "WALKTHROUGH_CA_FILE=/ca.pem") {
+		t.Errorf("environment = %v", with)
 	}
 }

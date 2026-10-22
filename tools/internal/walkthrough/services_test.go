@@ -270,6 +270,72 @@ func TestIDPAuthorizeRefusesForeignRequests(t *testing.T) {
 	}
 }
 
+// The authorisation endpoint is what a separate program that plays the browser
+// (the WebAuthn driver) visits: login_hint names the person, the answer is a
+// redirect to the registered URL with the code and the state, and the code
+// redeems like any other. A request without a person, for another redirect URL
+// or for another client is refused.
+func TestIDPAuthorizeEndpoint(t *testing.T) {
+	t.Parallel()
+	port := freePort(t)
+	p, err := NewIDP("127.0.0.1:"+port, "127.0.0.1:"+port, []string{"127.0.0.1"}, "client-1", "s3cret", time.Now, rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = p.Close() })
+	client := &http.Client{
+		Transport:     &http.Transport{TLSClientConfig: tlsClient(t, p.CAPEM())},
+		Timeout:       10 * time.Second,
+		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
+	}
+	verifier, challenge := pkcePair()
+	request := func(hint, redirect, clientID string) *http.Response {
+		q := url.Values{
+			"client_id": {clientID}, "state": {"st-1"}, "nonce": {"n-1"}, "code_challenge": {challenge}, "code_challenge_method": {"S256"},
+			"login_hint": {hint}, "redirect_uri": {redirect},
+		}
+		res, err := client.Get(p.Issuer() + "/authorize?" + q.Encode())
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = res.Body.Close() })
+		return res
+	}
+	res := request("bob@walkthrough.example", p.Issuer()+"/callback", "client-1")
+	back, err := res.Location()
+	if res.StatusCode != http.StatusFound || err != nil || back.Query().Get("state") != "st-1" || back.Query().Get("code") == "" {
+		t.Fatalf("authorize: status %d, location %v, %v", res.StatusCode, back, err)
+	}
+	status, body := postForm(t, client, p.Issuer()+"/token", url.Values{
+		"grant_type": {"authorization_code"}, "code": {back.Query().Get("code")}, "code_verifier": {verifier},
+		"client_id": {"client-1"}, "client_secret": {"s3cret"},
+	})
+	if status != http.StatusOK {
+		t.Fatalf("token: status %d: %s", status, body)
+	}
+	var tok struct {
+		IDToken string `json:"id_token"`
+	}
+	if err := json.Unmarshal([]byte(body), &tok); err != nil {
+		t.Fatal(err)
+	}
+	claims := verifyIDToken(t, client, p, tok.IDToken)
+	if claims["sub"] != "sub-bob" || claims["email"] != "bob@walkthrough.example" || claims["nonce"] != "n-1" {
+		t.Errorf("claims = %v", claims)
+	}
+	for name, r := range map[string]*http.Response{
+		"no person":        request("", "", "client-1"),
+		"no address":       request("bob", "", "client-1"),
+		"another redirect": request("bob@walkthrough.example", "https://evil.example/callback", "client-1"),
+		"another client":   request("bob@walkthrough.example", "", "other"),
+		"empty local part": request("@walkthrough.example", "", "client-1"),
+	} {
+		if r.StatusCode != http.StatusBadRequest {
+			t.Errorf("%s: status %d, want 400", name, r.StatusCode)
+		}
+	}
+}
+
 // freePort returns a TCP port that was free a moment ago.
 func freePort(t *testing.T) string {
 	t.Helper()

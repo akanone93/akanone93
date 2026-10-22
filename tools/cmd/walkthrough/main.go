@@ -32,6 +32,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -297,7 +298,6 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 	commander := &walkthrough.ExecCommander{
 		Binary: o.plux, Server: o.server, Org: o.org, Home: filepath.Join(work, "home"),
 		Initial: map[string]string{"admin": os.Getenv(adminTokenEnv)},
-		StepUp:  shellStepUp(o.stepUpCmd),
 	}
 	if err := os.MkdirAll(commander.Home, 0o700); err != nil {
 		return nil, nil, fmt.Errorf("create the CLI home: %w", err)
@@ -306,13 +306,15 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	shared := hookEnvironment(o, idp)
+	commander.StepUp = shellStepUp(o.stepUpCmd, shared...)
 	env := &walkthrough.Env{
 		Plux: commander, Creds: commander,
 		Admin:  &walkthrough.ConnectClient{BaseURL: o.server, Token: os.Getenv(adminTokenEnv), HTTP: httpClient},
 		Public: &walkthrough.ConnectClient{BaseURL: o.server, HTTP: httpClient},
 		SCIM:   &walkthrough.HTTPSCIMClient{BaseURL: o.server, HTTP: httpClient},
 		Fleet:  &walkthrough.ExecFleet{Binary: o.pluxLoad, Server: o.server, App: o.app, CAFile: o.caFile, Dir: work, Seed: 1},
-		Hooks:  hooksFor(o),
+		Hooks:  hooksFor(o, shared...),
 		IDP:    idp, Sink: sink, SinkAddress: net.JoinHostPort(o.advertise, o.sinkPort),
 		Server: o.server, Org: o.org, App: o.app, Project: project, TempDir: work,
 		ProdEnv: "production", FleetEnv: o.fleetEnv, Devices: o.devices,
@@ -364,25 +366,42 @@ func clientFor(caFile string) (*http.Client, error) {
 	return client, nil
 }
 
-// shellStepUp returns the step-up function that runs the operator's command,
-// or nil when none was given.
-func shellStepUp(command string) walkthrough.StepUpFunc {
+// hookEnvironment is what the person-facing hooks (the token and the step-up)
+// are told about the run besides the person: where the installation is, which
+// organisation the run acts in and how to reach the OIDC test provider, whose
+// CA exists only inside this process. None of it is secret.
+func hookEnvironment(o options, idp *walkthrough.IDP) []string {
+	env := []string{
+		"WALKTHROUGH_SERVER=" + o.server, "WALKTHROUGH_ORG=" + o.org,
+		"WALKTHROUGH_IDP_ISSUER=" + idp.Issuer(), "WALKTHROUGH_IDP_CA_PEM=" + idp.CAPEM(),
+	}
+	if o.caFile != "" {
+		env = append(env, "WALKTHROUGH_CA_FILE="+o.caFile)
+	}
+	return env
+}
+
+// shellStepUp returns the step-up function that runs the operator's command
+// with the shared environment, or nil when none was given.
+func shellStepUp(command string, shared ...string) walkthrough.StepUpFunc {
 	if command == "" {
 		return nil
 	}
 	return func(ctx context.Context, actor, url string) error {
-		if _, err := walkthrough.ShellHook(ctx, command, "WALKTHROUGH_ACTOR="+actor, "WALKTHROUGH_STEPUP_URL="+url); err != nil {
+		env := append(slices.Clone(shared), "WALKTHROUGH_ACTOR="+actor, "WALKTHROUGH_STEPUP_URL="+url)
+		if _, err := walkthrough.ShellHook(ctx, command, env...); err != nil {
 			return fmt.Errorf("step-up hook: %w", err)
 		}
 		return nil
 	}
 }
 
-// hooksFor wires the shell commands of the flags into the steps' hooks.
-func hooksFor(o options) walkthrough.Hooks {
+// hooksFor wires the shell commands of the flags into the steps' hooks; the
+// token hook also gets the shared environment.
+func hooksFor(o options, shared ...string) walkthrough.Hooks {
 	h := walkthrough.Hooks{
 		IssueToken: func(ctx context.Context, actor, email string) (string, error) {
-			who := []string{"WALKTHROUGH_ACTOR=" + actor, "WALKTHROUGH_EMAIL=" + email}
+			who := append(slices.Clone(shared), "WALKTHROUGH_ACTOR="+actor, "WALKTHROUGH_EMAIL="+email)
 			out, err := walkthrough.ShellHook(ctx, o.tokenCmd, who...)
 			if err != nil {
 				return "", fmt.Errorf("token hook: %w", err)
