@@ -91,7 +91,7 @@ func (s *StepUpRoutes) Poll(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	grant, err := s.Auth.PollCLIStepUp(ctx, id, r.PathValue("id"), r.Header.Get(StepUpSecretHeader), proof.JKT)
+	grant, err := s.Auth.PollCLIStepUp(ctx, id, r.PathValue("id"), r.Header.Get(StepUpProofHeader), proof.JKT)
 	if err != nil {
 		writeGatewayError(w, err)
 		return

@@ -219,7 +219,7 @@ func errorDays(days int) (int, error) {
 }
 
 // withTrends converts rows and attaches each group's trend.
-func (s *Service) withTrends(ctx context.Context, q *dbgen.Queries, rows []dbgen.ErrorGroup, since time.Time) ([]ErrorGroup, error) {
+func (*Service) withTrends(ctx context.Context, q *dbgen.Queries, rows []dbgen.ErrorGroup, since time.Time) ([]ErrorGroup, error) {
 	ids := make([]pgtype.UUID, len(rows))
 	for i, r := range rows {
 		ids[i] = r.ID

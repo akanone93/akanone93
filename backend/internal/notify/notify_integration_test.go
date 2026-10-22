@@ -520,28 +520,41 @@ func TestSRV062ChatChannels(t *testing.T) {
 	}
 }
 
+// hookSpec returns the spec of a webhook channel whose endpoint URL is url.
+func hookSpec(name string, kind notify.Kind, url string) notify.ChannelSpec {
+	spec := notify.ChannelSpec{Name: name, Kind: kind}
+	spec.Secret = url
+	return spec
+}
+
+// withSettings returns spec with its settings replaced by settings.
+func withSettings(spec notify.ChannelSpec, settings map[string]string) notify.ChannelSpec {
+	spec.Settings = settings
+	return spec
+}
+
 // SRV-062, SEC-105: a channel naming an internal address is refused, and so
 // is a misconfiguration (PLX-8400).
 func TestSRV062ChannelMisconfigured(t *testing.T) {
 	w := newWorld(t, func(o *notify.Options) { o.Policy = httpx.Policy{}; o.AllowInsecure = false })
 	ctx := context.Background()
 	for name, spec := range map[string]notify.ChannelSpec{
-		"loopback":       {Name: "a", Kind: notify.KindSlack, Secret: "https://127.0.0.1/hook"},
-		"metadata":       {Name: "b", Kind: notify.KindTeams, Secret: "https://169.254.169.254/latest"},
-		"private":        {Name: "c", Kind: notify.KindSlack, Secret: "https://10.0.0.5/hook"},
-		"http":           {Name: "d", Kind: notify.KindSlack, Secret: "http://hooks.example.com/x"},
-		"credentials":    {Name: "e", Kind: notify.KindSlack, Secret: "https://user:pw@hooks.example.com/x"},
+		"loopback":       hookSpec("a", notify.KindSlack, "https://127.0.0.1/hook"),
+		"metadata":       hookSpec("b", notify.KindTeams, "https://169.254.169.254/latest"),
+		"private":        hookSpec("c", notify.KindSlack, "https://10.0.0.5/hook"),
+		"http":           hookSpec("d", notify.KindSlack, "http://hooks.example.com/x"),
+		"credentials":    hookSpec("e", notify.KindSlack, "https://user:pw@hooks.example.com/x"),
 		"no url":         {Name: "f", Kind: notify.KindSlack},
 		"bad token":      {Name: "g", Kind: notify.KindTelegram, Settings: map[string]string{"chat_id": "1"}, Secret: "nope"},
 		"bad chat":       {Name: "h", Kind: notify.KindTelegram, Settings: map[string]string{"chat_id": "a b"}, Secret: "123456:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdef"},
 		"unknown kind":   {Name: "i", Kind: "pager", Secret: "x"},
-		"unknown field":  {Name: "j", Kind: notify.KindSlack, Settings: map[string]string{"color": "red"}, Secret: "https://hooks.example.com/x"},
+		"unknown field":  withSettings(hookSpec("j", notify.KindSlack, "https://hooks.example.com/x"), map[string]string{"color": "red"}),
 		"smtp no host":   {Name: "k", Kind: notify.KindSMTP, Settings: map[string]string{"from": "a@example.com"}},
 		"smtp bad from":  {Name: "l", Kind: notify.KindSMTP, Settings: map[string]string{"host": "mail.example.com", "from": "not an address"}},
 		"smtp injection": {Name: "m", Kind: notify.KindSMTP, Settings: map[string]string{"host": "mail.example.com", "from": "a@example.com\r\nBcc: x@example.com"}},
 		"smtp no tls":    {Name: "n", Kind: notify.KindSMTP, Settings: map[string]string{"host": "mail.example.com", "from": "a@example.com", "tls": "none"}},
 		"smtp user":      {Name: "o", Kind: notify.KindSMTP, Settings: map[string]string{"host": "mail.example.com", "from": "a@example.com", "username": "u"}},
-		"empty name":     {Name: "", Kind: notify.KindSlack, Secret: "https://hooks.example.com/x"},
+		"empty name":     hookSpec("", notify.KindSlack, "https://hooks.example.com/x"),
 	} {
 		_, err := w.svc.CreateChannel(ctx, w.owner, spec)
 		if name == "unknown kind" || name == "empty name" {
@@ -554,10 +567,10 @@ func TestSRV062ChannelMisconfigured(t *testing.T) {
 			t.Errorf("%s: %v, want PLX-8400", name, err)
 		}
 	}
-	if _, err := w.svc.CreateChannel(ctx, w.owner, notify.ChannelSpec{Name: "ok", Kind: notify.KindSlack, Secret: "https://hooks.slack.com/services/T/B/x"}); err != nil {
+	if _, err := w.svc.CreateChannel(ctx, w.owner, hookSpec("ok", notify.KindSlack, "https://hooks.slack.com/services/T/B/x")); err != nil {
 		t.Fatalf("a valid channel: %v", err)
 	}
-	if _, err := w.svc.CreateChannel(ctx, w.owner, notify.ChannelSpec{Name: "ok", Kind: notify.KindSlack, Secret: "https://hooks.slack.com/services/T/B/y"}); code(err) != plxerr.ResourceExists {
+	if _, err := w.svc.CreateChannel(ctx, w.owner, hookSpec("ok", notify.KindSlack, "https://hooks.slack.com/services/T/B/y")); code(err) != plxerr.ResourceExists {
 		t.Fatalf("a duplicate name: %v", err)
 	}
 }

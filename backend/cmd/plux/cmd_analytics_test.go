@@ -50,7 +50,7 @@ func (f fakeAnalytics) QueryRollups(_ context.Context, r *connect.Request[pluxv1
 	return connect.NewResponse(&pluxv1.QueryRollupsResponse{Points: []*pluxv1.RollupPoint{{Bucket: timestamppb.New(at.Add(time.Hour)), Events: 3}}}), nil
 }
 
-func (f fakeAnalytics) GetRetention(context.Context, *connect.Request[pluxv1.GetRetentionRequest]) (*connect.Response[pluxv1.GetRetentionResponse], error) {
+func (fakeAnalytics) GetRetention(context.Context, *connect.Request[pluxv1.GetRetentionRequest]) (*connect.Response[pluxv1.GetRetentionResponse], error) {
 	return connect.NewResponse(&pluxv1.GetRetentionResponse{
 		Settings: []*pluxv1.RetentionSetting{
 			{DataClass: "audit_production", Days: 3653, IsDefault: true},
@@ -88,7 +88,7 @@ func (f fakeAnalytics) CancelRetentionChange(_ context.Context, r *connect.Reque
 	return connect.NewResponse(&pluxv1.CancelRetentionChangeResponse{Change: &pluxv1.RetentionChange{Id: r.Msg.GetId(), DataClass: "raw_events", State: "cancelled"}}), nil
 }
 
-func (f fakeAnalytics) GetExport(context.Context, *connect.Request[pluxv1.GetExportRequest]) (*connect.Response[pluxv1.GetExportResponse], error) {
+func (fakeAnalytics) GetExport(context.Context, *connect.Request[pluxv1.GetExportRequest]) (*connect.Response[pluxv1.GetExportResponse], error) {
 	return connect.NewResponse(&pluxv1.GetExportResponse{Export: &pluxv1.Export{
 		Endpoint: "https://otel.example/v1/metrics", Enabled: true, LastError: "PLX-8302 the endpoint did not answer",
 	}}), nil
@@ -104,7 +104,7 @@ func (f fakeAnalytics) DeleteExport(context.Context, *connect.Request[pluxv1.Del
 	return connect.NewResponse(&pluxv1.DeleteExportResponse{}), nil
 }
 
-func (f fakeAnalytics) GetFileExport(context.Context, *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error) {
+func (fakeAnalytics) GetFileExport(context.Context, *connect.Request[pluxv1.GetFileExportRequest]) (*connect.Response[pluxv1.GetFileExportResponse], error) {
 	return connect.NewResponse(&pluxv1.GetFileExportResponse{Export: &pluxv1.FileExport{
 		Settings: &pluxv1.FileExportSettings{
 			ParquetEnabled: true, ParquetEvents: true, ParquetGranularity: "1h",

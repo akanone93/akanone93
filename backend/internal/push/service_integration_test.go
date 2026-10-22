@@ -165,7 +165,7 @@ func (*world) credentials(t *testing.T) secrets {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return secrets{push.SecretFCM: acct}
+	return secrets{push.FCMAccountVar: acct}
 }
 
 func (w *world) service(t *testing.T, enabled bool, q *jobs, s secrets, set limits.Set) *push.Service {
@@ -222,8 +222,8 @@ func TestPushTokenIsStoredEncrypted_SYN_060(t *testing.T) {
 	svc := w.service(t, true, &jobs{}, nil, limits.Set{})
 	ctx := context.Background()
 	d := w.device(t)
-	const token = "fcm-token_ABC:123-secret-value"
-	if err := svc.RegisterToken(ctx, d, push.FCM, token); err != nil {
+	const registration = "fcm-token_ABC:123-secret-value"
+	if err := svc.RegisterToken(ctx, d, push.FCM, registration); err != nil {
 		t.Fatalf("RegisterToken: %v", err)
 	}
 	var cipher []byte
@@ -255,7 +255,7 @@ func TestPushTokenIsStoredEncrypted_SYN_060(t *testing.T) {
 	if err := svc.ClearToken(ctx, d); err != nil || w.count(t) != 0 {
 		t.Fatalf("ClearToken: %v", err)
 	}
-	if err := svc.RegisterToken(ctx, d, push.FCM, token); err != nil {
+	if err := svc.RegisterToken(ctx, d, push.FCM, registration); err != nil {
 		t.Fatal(err)
 	}
 	w.inTx(t, func(ctx context.Context, tx pgx.Tx) error {

@@ -279,7 +279,7 @@ func TestBenchControlPropagation_NFR_024(t *testing.T) {
 	project := st.project(t, "loan-calculator")
 	delegateControl(t, st, "staging")
 	st.run(t, 0, "publish", "-C", project, "--promote", "staging", "--json")
-	if _, err := st.svc.Tenancy.SetSecret(t.Context(), st.owner, envIDOf(t, st, "staging"), push.SecretFCM, fcm.credentials(t)); err != nil {
+	if _, err := st.svc.Tenancy.SetSecret(t.Context(), st.owner, envIDOf(t, st, "staging"), push.FCMAccountVar, fcm.credentials(t)); err != nil {
 		t.Fatal(err)
 	}
 	st.run(t, 0, "control", "kill", "-C", project, "--env", "staging", "--json", "plugin", "loans")

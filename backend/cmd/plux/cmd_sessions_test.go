@@ -40,13 +40,13 @@ type stepUpServer struct {
 }
 
 const (
-	testToken = "plux_pat_stepup"
+	testPAT   = "plux_pat_stepup"
 	testGrant = "plux_sug_granted"
 )
 
 // check verifies the proof of a request to a path and returns its key.
 func (s *stepUpServer) check(h http.Header, path string) (string, bool) {
-	proof, err := s.verifier.Verify(h.Get("DPoP"), dpop.Expect{Method: http.MethodPost, URL: s.url + path, AccessToken: testToken, Window: time.Minute})
+	proof, err := s.verifier.Verify(h.Get("DPoP"), dpop.Expect{Method: http.MethodPost, URL: s.url + path, AccessToken: testPAT, Window: time.Minute})
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err != nil || s.seen[proof.JTI] {
@@ -76,7 +76,7 @@ func (s *stepUpServer) routes() http.Handler {
 		jkt, ok := s.check(r.Header, stepUpRequestsPath+"/r1/poll")
 		s.mu.Lock()
 		defer s.mu.Unlock()
-		if !ok || jkt != s.jkt || r.Header.Get(stepUpSecretHeader) != "s3" {
+		if !ok || jkt != s.jkt || r.Header.Get(stepUpProofHeader) != "s3" {
 			http.Error(w, "poll", http.StatusUnauthorized)
 			return
 		}
@@ -138,7 +138,7 @@ func (s *stepUpServer) RevokeAccessToken(_ context.Context, r *connect.Request[p
 // start serves the fake and returns a runner for the CLI against it.
 func startStepUpServer(t *testing.T) (*stepUpServer, func(cmd func(env, []string) int, args ...string) (int, string, string)) {
 	t.Helper()
-	t.Setenv(tokenEnv, testToken)
+	t.Setenv(tokenEnv, testPAT)
 	t.Setenv(serverEnv, "")
 	t.Setenv(orgEnv, "")
 	s := &stepUpServer{t: t, seen: map[string]bool{}}

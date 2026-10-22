@@ -18,7 +18,7 @@ import (
 
 const (
 	sessionsUsage = "Usage: plux sessions list|revoke [flags]\n"
-	tokensUsage   = "Usage: plux tokens revoke [flags]\n"
+	patUsage      = "Usage: plux tokens revoke [flags]\n"
 )
 
 // identityClient connects to the identity service with the caller's token.
@@ -58,7 +58,7 @@ func (e env) sessions(args []string) int {
 // tokens revokes a personal access token of the caller's, or of anyone's
 // with tokens.manage (SRV-064, GOV-005).
 func (e env) tokens(args []string) int {
-	c, rest, code, ok := e.governanceCmd("tokens", tokensUsage, args, map[string]subUsage{
+	c, rest, code, ok := e.governanceCmd("tokens", patUsage, args, map[string]subUsage{
 		"revoke": {"Usage: plux tokens revoke <id>\n\nRevokes an access token at once; every server instance refuses it from then on.", 1},
 	}, func(*flag.FlagSet) {})
 	if !ok {

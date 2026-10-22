@@ -39,7 +39,7 @@ func (f *fakeAudit) Reconstruct(_ context.Context, r *connect.Request[pluxv1.Rec
 	}}), nil
 }
 
-func (f *fakeAudit) GetReconstruction(_ context.Context, r *connect.Request[pluxv1.GetReconstructionRequest]) (*connect.Response[pluxv1.GetReconstructionResponse], error) {
+func (*fakeAudit) GetReconstruction(_ context.Context, r *connect.Request[pluxv1.GetReconstructionRequest]) (*connect.Response[pluxv1.GetReconstructionResponse], error) {
 	return connect.NewResponse(&pluxv1.GetReconstructionResponse{
 		Reconstruction: &pluxv1.Reconstruction{Id: r.Msg.GetId(), State: "signed", Moment: timestamppb.Now()},
 		Manifest:       []byte(`{"type":"reconstruction"}`),
@@ -48,7 +48,7 @@ func (f *fakeAudit) GetReconstruction(_ context.Context, r *connect.Request[plux
 	}), nil
 }
 
-func (f *fakeAudit) ListReconstructions(_ context.Context, r *connect.Request[pluxv1.ListReconstructionsRequest]) (*connect.Response[pluxv1.ListReconstructionsResponse], error) {
+func (*fakeAudit) ListReconstructions(_ context.Context, r *connect.Request[pluxv1.ListReconstructionsRequest]) (*connect.Response[pluxv1.ListReconstructionsResponse], error) {
 	if r.Msg.GetPage().GetPageToken() == "" {
 		return connect.NewResponse(&pluxv1.ListReconstructionsResponse{
 			Reconstructions: []*pluxv1.Reconstruction{{Id: "rec-2", State: "signed", Moment: timestamppb.Now()}},

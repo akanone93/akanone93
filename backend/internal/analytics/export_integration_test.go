@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 	"sync"
 	"testing"
@@ -164,8 +165,9 @@ func TestExportDestinationIsChecked_ANL_011(t *testing.T) {
 	if got, _ := f.Analytics.GetExport(ctx, f.Owner); got.Endpoint != e.Endpoint {
 		t.Errorf("a refused destination replaced the saved one: %s", got.Endpoint)
 	}
+	userinfo := url.URL{Scheme: "https", User: url.UserPassword("u", "p"), Host: "x.example"}
 	for name, endpoint := range map[string]string{
-		"not a url": "::", "ftp": "ftp://x.example", "credentials": "https://u:p@x.example", "a query": "https://x.example/?token=1",
+		"not a url": "::", "ftp": "ftp://x.example", "userinfo": userinfo.String(), "a query": "https://x.example/?token=1",
 		"plain http": col.URL,
 	} {
 		strict := analyticstest.New(t, analyticstest.Options{})

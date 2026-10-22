@@ -29,10 +29,10 @@ import (
 // The names of the environment secrets that hold an operator's
 // credentials (SEC-106).
 const (
-	// SecretFCM holds the Google service account key file (JSON).
-	SecretFCM = "PUSH_FCM_SERVICE_ACCOUNT"
-	// SecretAPNs holds the APNs settings (JSON, see APNsCredentials).
-	SecretAPNs = "PUSH_APNS"
+	// FCMAccountVar holds the Google service account key file (JSON).
+	FCMAccountVar = "PUSH_FCM_SERVICE_ACCOUNT"
+	// APNsSettingsVar holds the APNs settings (JSON, see APNsCredentials).
+	APNsSettingsVar = "PUSH_APNS"
 )
 
 // Notice says that a channel has a new signed control document.
@@ -128,7 +128,7 @@ func New(o Options) (*Service, error) {
 	for _, d := range []struct {
 		dst *string
 		def string
-	}{{&e.FCMSend, fcmSendEndpoint}, {&e.FCMToken, fcmTokenEndpoint}, {&e.APNs, apnsEndpoint}, {&e.APNsSandbox, apnsSandboxEndpoint}} {
+	}{{&e.FCMSend, fcmSendEndpoint}, {&e.FCMToken, fcmOAuthEndpoint}, {&e.APNs, apnsEndpoint}, {&e.APNsSandbox, apnsSandboxEndpoint}} {
 		if *d.dst == "" {
 			*d.dst = d.def
 		}
@@ -372,9 +372,9 @@ func (s *Service) senderFor(ctx context.Context, job SendJob, provider Provider)
 	if s.o.Secrets == nil {
 		return nil, false, nil
 	}
-	name := SecretFCM
+	name := FCMAccountVar
 	if provider == APNs {
-		name = SecretAPNs
+		name = APNsSettingsVar
 	}
 	raw, err := s.o.Secrets.OpenEnvironmentSecret(ctx, job.OrganizationID, job.EnvironmentID, name)
 	if err != nil {

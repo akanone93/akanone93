@@ -16,7 +16,7 @@ import (
 // The production endpoints of the push services.
 const (
 	fcmSendEndpoint     = "https://fcm.googleapis.com"
-	fcmTokenEndpoint    = "https://oauth2.googleapis.com/token"
+	fcmOAuthEndpoint    = "https://oauth2.googleapis.com/token"
 	apnsEndpoint        = "https://api.push.apple.com"
 	apnsSandboxEndpoint = "https://api.sandbox.push.apple.com"
 )

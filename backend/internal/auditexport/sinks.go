@@ -74,7 +74,7 @@ func (o opener) validate(ctx context.Context, kind, address string, allowPrivate
 			return plxerr.New(plxerr.InvalidFormat, "the pinned roots hold no certificate")
 		}
 	}
-	if err := checkAddress(kind, address, policyOf(allowPrivate)); err != nil {
+	if err := checkAddress(ctx, kind, address, policyOf(allowPrivate)); err != nil {
 		return err
 	}
 	if kind == KindSyslog {
@@ -103,18 +103,18 @@ func (o opener) requireProvided(ctx context.Context, kind string) error {
 
 // checkAddress refuses an address of the wrong form, and one that names a
 // blocked IP address. A host name is checked by the dialer when it resolves.
-func checkAddress(kind, address string, policy httpx.Policy) error {
+func checkAddress(ctx context.Context, kind, address string, policy httpx.Policy) error {
 	if address == "" {
 		return plxerr.New(plxerr.MissingProperty, "a destination needs an address")
 	}
 	if kind == KindSyslog {
-		if err := httpx.CheckHostPort(policy, address); err != nil {
+		if err := httpx.CheckHostPort(ctx, policy, address); err != nil {
 			return blocked(err)
 		}
 		return nil
 	}
 	if !strings.Contains(address, "://") {
-		if err := httpx.CheckHostPort(policy, address); err != nil {
+		if err := httpx.CheckHostPort(ctx, policy, address); err != nil {
 			return blocked(err)
 		}
 		return nil

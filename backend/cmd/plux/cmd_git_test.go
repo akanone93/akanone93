@@ -30,13 +30,13 @@ type fakeSearchGit struct {
 	calls *[]string
 }
 
-// fakeCredential is the token every fake call must present.
-const fakeCredential = "Bearer plux_pat_search"
+// fakeAuthorization is the Authorization header value every fake call must present.
+const fakeAuthorization = "Bearer plux_pat_search"
 
 // checkCredential refuses a call that lacks the fake credential or the
 // organisation the tests use.
 func checkCredential(h http.Header) error {
-	if h.Get("Authorization") != fakeCredential || h.Get("X-Plux-Organization") != "org-1" {
+	if h.Get("Authorization") != fakeAuthorization || h.Get("X-Plux-Organization") != "org-1" {
 		return connect.NewError(connect.CodeUnauthenticated, nil)
 	}
 	return nil
@@ -72,7 +72,7 @@ func (f fakeSearchGit) ConfigureExport(_ context.Context, r *connect.Request[plu
 	return connect.NewResponse(&pluxv1.ConfigureExportResponse{Settings: s}), nil
 }
 
-func (f fakeSearchGit) GetSettings(_ context.Context, r *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error) {
+func (fakeSearchGit) GetSettings(_ context.Context, r *connect.Request[pluxv1.GetSettingsRequest]) (*connect.Response[pluxv1.GetSettingsResponse], error) {
 	if err := checkCredential(r.Header()); err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (f fakeSearchGit) GetSettings(_ context.Context, r *connect.Request[pluxv1.
 	}}), nil
 }
 
-func (f fakeSearchGit) ListExports(_ context.Context, r *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error) {
+func (fakeSearchGit) ListExports(_ context.Context, r *connect.Request[pluxv1.ListExportsRequest]) (*connect.Response[pluxv1.ListExportsResponse], error) {
 	if err := checkCredential(r.Header()); err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func TestGitCommands_GOV_011(t *testing.T) { //nolint:paralleltest // the enviro
 	}
 	code, out, _ = run("export", "configure", "--json", "--app", "a1", "--remote", "https://example.com/r.git", "--credential", "GIT_TOKEN", "--environment", "env-1")
 	var configured map[string]any
-	if err := json.Unmarshal([]byte(out), &configured); code != exitOK || err != nil || configured["credential_key"] != "GIT_TOKEN" || strings.Contains(out, fakeCredential) {
+	if err := json.Unmarshal([]byte(out), &configured); code != exitOK || err != nil || configured["credential_key"] != "GIT_TOKEN" || strings.Contains(out, fakeAuthorization) {
 		t.Errorf("export configure --json: %d %v %q", code, err, out)
 	}
 	if code, _, _ = run("export", "configure", "--app", "a1", "--remote", "http://example.com/r.git", "--credential", "GIT_TOKEN"); code != exitFailed {

@@ -112,6 +112,9 @@ func signedControl(t *testing.T, st *stack, project string) controlView {
 	}
 }
 
+// pushRegistration is the device registration string the test stores.
+const pushRegistration = "fcm:token_1-A"
+
 // Verifies: SYN-060, REL-060, REL-070.
 // Over a running server: the CLI sets a kill switch, a mandatory update
 // and a forced rollback; a device fetches the signed document with DPoP,
@@ -179,7 +182,7 @@ func TestControlDocumentOverTheWire_SYN_060(t *testing.T) {
 
 	// The push token: stored for the device, refused when malformed.
 	devices := pluxv1connect.NewDeviceServiceClient(hc, st.server, connect.WithInterceptors(dev))
-	if _, err := devices.RegisterPushToken(t.Context(), connect.NewRequest(&pluxv1.RegisterPushTokenRequest{Provider: pluxv1.PushProvider_PUSH_PROVIDER_FCM, Token: "fcm:token_1-A"})); err != nil {
+	if _, err := devices.RegisterPushToken(t.Context(), connect.NewRequest(&pluxv1.RegisterPushTokenRequest{Provider: pluxv1.PushProvider_PUSH_PROVIDER_FCM, Token: pushRegistration})); err != nil {
 		t.Errorf("RegisterPushToken: %v", err)
 	}
 	if _, err := devices.RegisterPushToken(t.Context(), connect.NewRequest(&pluxv1.RegisterPushTokenRequest{Provider: pluxv1.PushProvider_PUSH_PROVIDER_APNS, Token: "not hex!"})); connect.CodeOf(err) != connect.CodeInvalidArgument {

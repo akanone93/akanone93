@@ -53,7 +53,7 @@ func (f fakeNotify) CreateNotificationChannel(_ context.Context, r *connect.Requ
 	return connect.NewResponse(&pluxv1.CreateNotificationChannelResponse{Channel: &pluxv1.NotificationChannel{Id: "c1", Name: m.GetName(), Kind: m.GetKind(), Hint: "cret"}}), nil
 }
 
-func (f fakeNotify) ListNotificationChannels(context.Context, *connect.Request[pluxv1.ListNotificationChannelsRequest]) (*connect.Response[pluxv1.ListNotificationChannelsResponse], error) {
+func (fakeNotify) ListNotificationChannels(context.Context, *connect.Request[pluxv1.ListNotificationChannelsRequest]) (*connect.Response[pluxv1.ListNotificationChannelsResponse], error) {
 	return connect.NewResponse(&pluxv1.ListNotificationChannelsResponse{Channels: []*pluxv1.NotificationChannel{{Id: "c1", Name: "ops", Kind: "slack", Hint: "cret"}}}), nil
 }
 

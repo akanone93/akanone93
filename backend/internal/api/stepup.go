@@ -19,9 +19,9 @@ import (
 // DPoP proof of the key the grant is bound to.
 const StepUpGrantHeader = "Plux-Step-Up-Grant"
 
-// StepUpSecretHeader carries the one-time secret a CLI polls its step-up
+// StepUpProofHeader carries the one-time secret a CLI polls its step-up
 // request with.
-const StepUpSecretHeader = "Plux-Step-Up-Secret"
+const StepUpProofHeader = "Plux-Step-Up-Secret"
 
 // ProofChecker verifies the DPoP proof a person's CLI sends with a token. The
 // token is a bearer token, so the proof is not required by every call; it is

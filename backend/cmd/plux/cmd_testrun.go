@@ -153,7 +153,11 @@ func runPlan(plan *plxtest.Plan, work, flutter, junit string, stdout, stderr io.
 
 // writeJUnit writes the JUnit file, creating its directory.
 func writeJUnit(path string, data []byte) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+	dir, err := openDirectory(filepath.Dir(path))
+	if err != nil {
+		return fmt.Errorf("write %s: %w", path, err)
+	}
+	if err := dir.Close(); err != nil {
 		return fmt.Errorf("write %s: %w", path, err)
 	}
 	return writeFile(path, data)

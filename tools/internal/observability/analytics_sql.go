@@ -20,7 +20,7 @@ var (
 	// a parenthesis is a function, such as unnest, and is not a relation.
 	sqlRelation = regexp.MustCompile(`(?i)\b(?:from|join)\s+(?:lateral\s+)?([a-z_][a-z0-9_]*)\s*(\()?`)
 	// sqlCTE matches the name of a common table expression.
-	sqlCTE = regexp.MustCompile(`(?i)(?:\bwith|,)\s*([a-z_][a-z0-9_]*)\s+as\s*(?:materialized\s*)?\(`)
+	sqlCTE = regexp.MustCompile(`(?i)(?:\bwith|,)\s*([a-z_][a-z0-9_]*)\s+as\s*(?:materiali[sz]ed\s*)?\(`)
 	// sqlAnalyticsTable matches every analytics table name in a query.
 	sqlAnalyticsTable = regexp.MustCompile(`(?i)\banalytics_[a-z_]+`)
 	// sqlBindsOrganisation matches the call that binds row-level security to the organisation.

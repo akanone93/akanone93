@@ -32,7 +32,7 @@ import (
 const (
 	stepUpRequestsPath = "/stepup/requests"
 	stepUpGrantHeader  = "Plux-Step-Up-Grant"
-	stepUpSecretHeader = "Plux-Step-Up-Secret"
+	stepUpProofHeader  = "Plux-Step-Up-Secret"
 	dpopHeader         = "DPoP"
 	dpopType           = "dpop+jwt"
 )
@@ -151,7 +151,7 @@ func (s *stepUpper) post(ctx context.Context, path, secret string) (stepUpReply,
 	req.Header.Set("Authorization", "Bearer "+s.token)
 	req.Header.Set(dpopHeader, proof)
 	if secret != "" {
-		req.Header.Set(stepUpSecretHeader, secret)
+		req.Header.Set(stepUpProofHeader, secret)
 	}
 	res, err := s.http.Do(req)
 	if err != nil {

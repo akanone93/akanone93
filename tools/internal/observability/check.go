@@ -48,7 +48,7 @@ func LoadCatalogue(root string) (Catalogue, error) {
 		}
 		data, rerr := os.ReadFile(path) // #nosec G304,G122 -- walks the repository's own sources.
 		if rerr != nil {
-			return rerr
+			return fmt.Errorf("read %s: %w", path, rerr)
 		}
 		for _, m := range serverName.FindAllSubmatch(data, -1) {
 			c.Server[string(m[1])] = true

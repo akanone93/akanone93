@@ -78,31 +78,31 @@ func TestCheckAddressRefusesPrivate_SEC_143(t *testing.T) {
 		"127.0.0.1:6514", "10.0.0.5:6514", "192.168.1.1:6514", "172.16.0.1:6514",
 		"[::1]:6514", "[fc00::1]:6514", "169.254.169.254:6514", "0.0.0.0:6514",
 	} {
-		err := checkAddress(KindSyslog, address, httpx.Policy{})
+		err := checkAddress(t.Context(), KindSyslog, address, httpx.Policy{})
 		if code, _ := plxerr.CodeOf(err); code != plxerr.OutboundRequestBlocked {
 			t.Errorf("%s: err = %v, want PLX-%d", address, err, plxerr.OutboundRequestBlocked)
 		}
 	}
 	for _, address := range []string{"127.0.0.1:6514", "10.0.0.5:6514", "[::1]:6514"} {
-		if err := checkAddress(KindSyslog, address, httpx.PrivateNetworksPolicy()); err != nil {
+		if err := checkAddress(t.Context(), KindSyslog, address, httpx.PrivateNetworksPolicy()); err != nil {
 			t.Errorf("%s allowed for development: %v", address, err)
 		}
 	}
-	if err := checkAddress(KindSyslog, "169.254.169.254:6514", httpx.PrivateNetworksPolicy()); err == nil {
+	if err := checkAddress(t.Context(), KindSyslog, "169.254.169.254:6514", httpx.PrivateNetworksPolicy()); err == nil {
 		t.Error("the metadata address is reachable even when private addresses are allowed")
 	}
 	for _, address := range []string{"", "siem.example.com", "siem.example.com:", ":6514", "siem.example.com:http-alt-x"} {
-		if err := checkAddress(KindSyslog, address, httpx.Policy{}); err == nil {
+		if err := checkAddress(t.Context(), KindSyslog, address, httpx.Policy{}); err == nil {
 			t.Errorf("%q accepted", address)
 		}
 	}
-	if err := checkAddress(KindSyslog, "siem.example.com:6514", httpx.Policy{}); err != nil {
+	if err := checkAddress(t.Context(), KindSyslog, "siem.example.com:6514", httpx.Policy{}); err != nil {
 		t.Errorf("a public name is refused: %v", err)
 	}
-	if err := checkAddress(KindWebhook, "http://10.0.0.1/hook", httpx.Policy{}); err == nil {
+	if err := checkAddress(t.Context(), KindWebhook, "http://10.0.0.1/hook", httpx.Policy{}); err == nil {
 		t.Error("a private webhook URL is accepted")
 	}
-	if err := checkAddress(KindWebhook, "ftp://siem.example.com/hook", httpx.Policy{}); err == nil {
+	if err := checkAddress(t.Context(), KindWebhook, "ftp://siem.example.com/hook", httpx.Policy{}); err == nil {
 		t.Error("a non-HTTP scheme is accepted")
 	}
 }

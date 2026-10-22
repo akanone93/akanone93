@@ -218,7 +218,7 @@ func (s *Service) ListAlertRules(ctx context.Context, p auth.Principal, appID st
 }
 
 // ruleWithEnvironment converts a row and names its environment.
-func (s *Service) ruleWithEnvironment(ctx context.Context, q *dbgen.Queries, row dbgen.AlertRule) (Rule, error) {
+func (*Service) ruleWithEnvironment(ctx context.Context, q *dbgen.Queries, row dbgen.AlertRule) (Rule, error) {
 	r, err := ruleOf(row)
 	if err != nil || !row.EnvironmentID.Valid {
 		return r, err
@@ -233,7 +233,7 @@ func (s *Service) ruleWithEnvironment(ctx context.Context, q *dbgen.Queries, row
 
 // readScope checks the right to read analytics, of one app or of the
 // organisation, and returns the app to narrow a query to.
-func (s *Service) readScope(p auth.Principal, appID string) (pgtype.UUID, error) {
+func (*Service) readScope(p auth.Principal, appID string) (pgtype.UUID, error) {
 	if appID == "" {
 		return pgtype.UUID{}, p.Authorize(auth.AnalyticsRead) //nolint:wrapcheck // an authorisation error is final.
 	}

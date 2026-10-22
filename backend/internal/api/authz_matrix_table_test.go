@@ -32,6 +32,9 @@ func anyone(msg proto.Message) func(*testing.T, *matrixFixture) proto.Message {
 	return func(*testing.T, *matrixFixture) proto.Message { return proto.Clone(msg) }
 }
 
+// matrixWebhook is the endpoint the notification-channel matrix entry names.
+const matrixWebhook = "https://hooks.slack.com/services/T0/B0/xxxxxxxx"
+
 // matrix declares, for every RPC of every service, who may call it. The
 // permission is the one the handler's domain code checks; the entry is the
 // specification the test holds the code to.
@@ -668,7 +671,7 @@ var matrix = map[string]entry{
 	"NotificationService/Unsubscribe":       {kind: self, build: anyone(&pluxv1.UnsubscribeRequest{Id: unknownID})},
 	"NotificationService/ListSubscriptions": {kind: self, build: anyone(&pluxv1.ListSubscriptionsRequest{})},
 	"NotificationService/CreateNotificationChannel": atPerm(auth.NotificationsManage, anyone(&pluxv1.CreateNotificationChannelRequest{
-		Name: "matrix", Kind: "slack", Secret: "https://hooks.slack.com/services/T0/B0/xxxxxxxx",
+		Name: "matrix", Kind: "slack", Secret: matrixWebhook,
 	})),
 	"NotificationService/ListNotificationChannels":  atPerm(auth.NotificationsManage, anyone(&pluxv1.ListNotificationChannelsRequest{})),
 	"NotificationService/DeleteNotificationChannel": atPerm(auth.NotificationsManage, anyone(&pluxv1.DeleteNotificationChannelRequest{Id: unknownID})),

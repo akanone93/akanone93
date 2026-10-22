@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/nightCode42/plux3/backend/internal/dsr"
 )
@@ -25,12 +26,25 @@ func main() {
 	}
 }
 
-// write renders the map into path, creating its directory.
+// write renders the map into path, creating its directory. The file system
+// is reached through an os.Root on the volume top, so the path cannot be
+// widened by a symbolic link out of the directory it names.
 func write(path string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return fmt.Errorf("resolve %s: %w", path, err)
+	}
+	top := filepath.VolumeName(abs) + string(filepath.Separator)
+	root, err := os.OpenRoot(top)
+	if err != nil {
+		return fmt.Errorf("open %s: %w", top, err)
+	}
+	defer func() { _ = root.Close() }()
+	rel := strings.TrimPrefix(abs, top)
+	if err := root.MkdirAll(filepath.Dir(rel), 0o750); err != nil {
 		return fmt.Errorf("create directory: %w", err)
 	}
-	if err := os.WriteFile(path, []byte(dsr.Render()), 0o644); err != nil { //nolint:gosec // a committed document, not a secret
+	if err := root.WriteFile(rel, []byte(dsr.Render()), 0o644); err != nil { //nolint:gosec // a committed document, not a secret
 		return fmt.Errorf("write %s: %w", path, err)
 	}
 	return nil

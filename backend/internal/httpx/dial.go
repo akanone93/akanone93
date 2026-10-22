@@ -93,13 +93,13 @@ func PrivateNetworksPolicy() Policy {
 // CheckHostPort refuses an address that is not host:port, and a host that
 // is an IP literal the policy blocks. A name is accepted here and checked
 // by the dialer once it resolves; this is the cheap check made when a
-// destination is configured.
-func CheckHostPort(policy Policy, address string) error {
+// destination is configured. The context bounds the port lookup.
+func CheckHostPort(ctx context.Context, policy Policy, address string) error {
 	host, port, err := net.SplitHostPort(address)
 	if err != nil || host == "" || port == "" {
 		return fmt.Errorf("%w: %q is not host:port", ErrBlocked, address)
 	}
-	if n, err := net.DefaultResolver.LookupPort(context.Background(), "tcp", port); err != nil || n == 0 {
+	if n, err := net.DefaultResolver.LookupPort(ctx, "tcp", port); err != nil || n == 0 {
 		return fmt.Errorf("%w: %q is not a port", ErrBlocked, port)
 	}
 	if addr, err := netip.ParseAddr(host); err == nil {
