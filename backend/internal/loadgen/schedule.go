@@ -63,8 +63,10 @@ func (d *device) run(ctx context.Context) {
 			return
 		case <-d.nudges:
 			timer.Stop()
+			d.renewToken(ctx)
 			d.checkControl(ctx)
 		case <-timer.C:
+			d.renewToken(ctx)
 			next.run(ctx)
 			next.due = d.cfg.Now().Add(d.rng.jittered(next.every, d.cfg.Pacing.Jitter))
 		}

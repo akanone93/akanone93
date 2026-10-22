@@ -19,6 +19,7 @@ const (
 	OpControl   = "control"
 	OpTelemetry = "telemetry"
 	OpFunction  = "function"
+	OpToken     = "token"
 )
 
 // ReportSchema identifies the report's format.

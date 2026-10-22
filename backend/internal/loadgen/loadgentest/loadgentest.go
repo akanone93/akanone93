@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/internal/dpop"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
@@ -51,6 +52,8 @@ type Server struct {
 	failTelemetry atomic.Uint32
 	// release is the release sequence the manifest names.
 	release atomic.Int64
+	// tokenLifetime, when positive, is how long an issued access token lasts.
+	tokenLifetime atomic.Int64
 }
 
 // New starts a fake endpoint that serves until the test ends.
@@ -98,6 +101,11 @@ func (s *Server) SetControlVersion(v int64) {
 
 // SetReleaseSequence makes the manifests name the given release.
 func (s *Server) SetReleaseSequence(n int64) { s.release.Store(n) }
+
+// SetTokenLifetime makes every access token issued from now on expire after d,
+// as the server's do (auth.device.accessTokenTTL); zero issues tokens without
+// an expiry.
+func (s *Server) SetTokenLifetime(d time.Duration) { s.tokenLifetime.Store(int64(d)) }
 
 // FailTelemetry makes IngestEvents answer with the given Connect code from
 // now on; zero restores it.
@@ -223,8 +231,12 @@ type tokenHandler struct {
 	s *Server
 }
 
-func (tokenHandler) RefreshDeviceToken(context.Context, *connect.Request[pluxv1.RefreshDeviceTokenRequest]) (*connect.Response[pluxv1.RefreshDeviceTokenResponse], error) {
-	return connect.NewResponse(&pluxv1.RefreshDeviceTokenResponse{AccessToken: issuedAccess, TokenType: "DPoP"}), nil
+func (h tokenHandler) RefreshDeviceToken(context.Context, *connect.Request[pluxv1.RefreshDeviceTokenRequest]) (*connect.Response[pluxv1.RefreshDeviceTokenResponse], error) {
+	res := &pluxv1.RefreshDeviceTokenResponse{AccessToken: issuedAccess, TokenType: "DPoP"}
+	if d := time.Duration(h.s.tokenLifetime.Load()); d > 0 {
+		res.ExpiresAt = timestamppb.New(time.Now().Add(d))
+	}
+	return connect.NewResponse(res), nil
 }
 
 type manifestHandler struct {
