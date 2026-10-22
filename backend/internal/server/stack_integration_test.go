@@ -41,6 +41,10 @@ import (
 type stack struct {
 	ctx    context.Context
 	server string
+	// public is the server's configured public base URL, which the CLI's
+	// step-up proofs name (SEC-022); it differs from server when devices
+	// reach the server through a proxy.
+	public string
 	dir    string
 	svc    *Services
 	// cfg and db are those the stack was built with, for a test that needs
@@ -245,15 +249,22 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	if out, err := exec.CommandContext(ctx, "go", "build", "-o", cli, "../../cmd/plux").CombinedOutput(); err != nil { //nolint:gosec // G204: a path the test chose.
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
-	return &stack{ctx: ctx, server: server, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli, cfg: cfg, db: db, runner: runner, grants: grants}
+	return &stack{ctx: ctx, server: server, public: public, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli, cfg: cfg, db: db, runner: runner, grants: grants}
+}
+
+// command prepares the CLI to run with args as a user would: with the
+// stack's token, and told the public base URL its step-up proofs name.
+func (s *stack) command(args ...string) *exec.Cmd {
+	cmd := exec.CommandContext(s.ctx, s.cli, args...) //nolint:gosec // G204: the binary the test built.
+	cmd.Env = append(os.Environ(), "PLUX_TOKEN="+s.token, "PLUX_SERVER=", "PLUX_PUBLIC_URL="+s.public, "PLUX_ORGANIZATION=", "HOME="+s.dir, "XDG_CONFIG_HOME="+filepath.Join(s.dir, "config"))
+	return cmd
 }
 
 // run runs the CLI with args and fails the test unless it exits with want;
 // it returns what the CLI printed on standard output.
 func (s *stack) run(t *testing.T, want int, args ...string) []byte {
 	t.Helper()
-	cmd := exec.CommandContext(s.ctx, s.cli, args...) //nolint:gosec // G204: the binary the test built.
-	cmd.Env = append(os.Environ(), "PLUX_TOKEN="+s.token, "PLUX_SERVER=", "PLUX_ORGANIZATION=", "HOME="+s.dir, "XDG_CONFIG_HOME="+filepath.Join(s.dir, "config"))
+	cmd := s.command(args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	err := cmd.Run()

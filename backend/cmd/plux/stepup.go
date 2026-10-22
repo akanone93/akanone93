@@ -16,6 +16,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -37,6 +38,10 @@ const (
 	dpopType           = "dpop+jwt"
 )
 
+// publicURLEnv names the server's public base URL when the CLI reaches the
+// server by another address, such as a port-forward or an internal service.
+const publicURLEnv = "PLUX_PUBLIC_URL"
+
 // stepUpper obtains the step-up grant of a command and attaches it to the
 // calls that follow (SEC-103, GOV-005). A person proves presence with a
 // security key in the browser; the server binds the resulting grant to the
@@ -44,12 +49,17 @@ const (
 // without both. The key is generated for the command and never stored: it
 // lives as long as the grant is useful.
 type stepUpper struct {
-	http     *http.Client
-	server   string
-	token    string
-	interval time.Duration
-	out      io.Writer
-	now      func() time.Time
+	http   *http.Client
+	server string
+	// proofBase is the base URL the htu claim of every proof names. The
+	// server compares it with its configured public base URL and not with
+	// the address the request arrived at, which a proxy or a port-forward
+	// changes (RFC 9449 section 4.3, SEC-022).
+	proofBase string
+	token     string
+	interval  time.Duration
+	out       io.Writer
+	now       func() time.Time
 
 	mu      sync.Mutex
 	key     *ecdsa.PrivateKey
@@ -57,9 +67,12 @@ type stepUpper struct {
 	expires time.Time
 }
 
-// newStepUpper returns the step-up of one command against a server.
+// newStepUpper returns the step-up of one command against a server. Its
+// proofs name the server's public base URL: the one in publicURLEnv when the
+// CLI reaches the server by another address, otherwise the address it calls.
 func (e env) newStepUpper(server, token string) *stepUpper {
-	return &stepUpper{http: e.httpClient, server: server, token: token, interval: e.pollInterval, out: e.stderr, now: time.Now}
+	base := strings.TrimSuffix(firstOf(os.Getenv(publicURLEnv), server), "/")
+	return &stepUpper{http: e.httpClient, server: server, proofBase: base, token: token, interval: e.pollInterval, out: e.stderr, now: time.Now}
 }
 
 // needsStepUp reports whether the server refused a call for want of a
@@ -81,7 +94,7 @@ func (s *stepUpper) attach(h http.Header, procedure string) error {
 	if s.grant == "" || !s.now().Before(s.expires) {
 		return nil
 	}
-	proof, err := s.proof(http.MethodPost, s.server+procedure)
+	proof, err := s.proof(http.MethodPost, s.proofBase+procedure)
 	if err != nil {
 		return err
 	}
@@ -140,7 +153,7 @@ type stepUpReply struct {
 // post calls one of the step-up routes with the CLI's token and a DPoP
 // proof; a poll also carries the request's secret.
 func (s *stepUpper) post(ctx context.Context, path, secret string) (stepUpReply, error) {
-	proof, err := s.proof(http.MethodPost, s.server+path)
+	proof, err := s.proof(http.MethodPost, s.proofBase+path)
 	if err != nil {
 		return stepUpReply{}, err
 	}
