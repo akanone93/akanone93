@@ -107,7 +107,7 @@ func (s *Service) requireWaivers(ctx context.Context, d draft, p auth.Principal,
 	}
 	err := approval.Require(ctx, s.o.Approvals, d.tx, approval.Artifact{
 		Resource: schema.PolicyResourceWaiver, OrganizationID: p.OrganizationID, AppID: d.app, Action: approval.ActionWaive,
-		Subject: subject, Hash: approval.HashOf(parts...), Profile: profile, Requester: p.Actor(),
+		Subject: subject, Hash: approval.HashOf(parts...), Profile: profile, Requester: p.Actor(), RequesterUser: p.UserID,
 		Summary: fmt.Sprintf("%d accessibility waiver(s) in %s", len(changed), path),
 	})
 	if err != nil {

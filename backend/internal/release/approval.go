@@ -84,7 +84,7 @@ func (s *Service) requirePromotion(ctx context.Context, tx pgx.Tx, p auth.Princi
 		Resource: schema.PolicyResourceRelease, OrganizationID: p.OrganizationID, AppID: appID,
 		Environment: approval.Environment{ID: storage.ID(env.ID), Key: env.Key, Production: env.Production},
 		Action:      approval.ActionPromote, Subject: promotionSubject(row.Sequence, env.Key, channelKey),
-		Hash: releaseHash(row, versions), Risk: risk, Requester: p.Actor(),
+		Hash: releaseHash(row, versions), Risk: risk, Requester: p.Actor(), RequesterUser: p.UserID,
 		Summary: fmt.Sprintf("release %d is promoted to %s/%s", row.Sequence, env.Key, channelKey),
 	}
 	if row.CreatedByKind == auth.KindUser {

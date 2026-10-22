@@ -171,7 +171,7 @@ func (s *Service) PutPolicy(ctx context.Context, p auth.Principal, appID string,
 func policyArtifact(p auth.Principal, appID, key, summary, hash string) Artifact {
 	return Artifact{
 		Resource: schema.PolicyResourcePolicy, OrganizationID: p.OrganizationID, AppID: appID, Action: ActionChangePolicy,
-		Subject: "policy:" + key, Hash: hash, Summary: summary, Requester: p.Actor(),
+		Subject: "policy:" + key, Hash: hash, Summary: summary, Requester: p.Actor(), RequesterUser: p.UserID,
 	}
 }
 

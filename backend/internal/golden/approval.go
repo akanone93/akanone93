@@ -36,7 +36,7 @@ func (s *Service) requireApproval(ctx context.Context, tx pgx.Tx, p auth.Princip
 	err := approval.Require(ctx, s.o.Approvals, tx, approval.Artifact{
 		Resource: schema.PolicyResourceGoldenBaseline, OrganizationID: p.OrganizationID, AppID: ref.appID,
 		Action: approval.ActionApproveGoldens, Subject: "goldens:" + ref.runID + ":" + pluginKey, Hash: approval.HashOf(parts...),
-		Summary: fmt.Sprintf("%d golden image(s) of plugin %q become baselines", chosen, pluginKey), Requester: p.Actor(),
+		Summary: fmt.Sprintf("%d golden image(s) of plugin %q become baselines", chosen, pluginKey), Requester: p.Actor(), RequesterUser: p.UserID,
 	})
 	if err != nil {
 		return fmt.Errorf("golden.requireApproval: %w", err)

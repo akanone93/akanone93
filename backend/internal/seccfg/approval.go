@@ -49,7 +49,7 @@ func (s *Service) requireApproval(ctx context.Context, tx pgx.Tx, p auth.Princip
 		Action:      approval.ActionSet, Subject: "securityConfiguration:" + storage.ID(env.ID),
 		Hash:    approval.HashOf([]byte(want.Profile()), overrides),
 		Summary: fmt.Sprintf("security configuration of %s: profile %s", env.Key, want.Profile()),
-		Payload: summary(want, overrides), Requester: p.Actor(), Profile: string(current.Values.Profile()),
+		Payload: summary(want, overrides), Requester: p.Actor(), RequesterUser: p.UserID, Profile: string(current.Values.Profile()),
 	}
 	arts := []approval.Artifact{art}
 	if !current.Values.Get(settings.DeviceFunctions).Bool() && want.Get(settings.DeviceFunctions).Bool() {

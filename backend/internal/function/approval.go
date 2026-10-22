@@ -41,7 +41,7 @@ func (s *Service) requireDeployment(ctx context.Context, tx pgx.Tx, p auth.Princ
 		Resource: schema.PolicyResourceFunctionVersion, OrganizationID: p.OrganizationID, AppID: d.app,
 		Environment: approval.Environment{ID: storage.ID(d.env.ID), Key: d.env.Key, Production: d.env.Production},
 		Action:      approval.ActionDeploy, Subject: d.subject + "@" + storage.ID(d.env.ID),
-		Hash: approval.HashOf(d.content...), Summary: d.summary, Requester: p.Actor(),
+		Hash: approval.HashOf(d.content...), Summary: d.summary, Requester: p.Actor(), RequesterUser: p.UserID,
 	})
 	if err != nil {
 		return fmt.Errorf("function.requireDeployment: %w", err)
