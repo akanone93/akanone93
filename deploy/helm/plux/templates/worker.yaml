@@ -50,6 +50,7 @@ spec:
           args: [serve, --config, /etc/plux/plux.yaml]
           env:
             {{- include "plux.dataEnv" (dict "root" . "role" "worker") | nindent 12 }}
+            {{- include "plux.licenseEnv" . | nindent 12 }}
             {{- with .Values.worker.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

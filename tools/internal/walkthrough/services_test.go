@@ -289,22 +289,34 @@ func TestIDPAuthorizeEndpoint(t *testing.T) {
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 	}
 	verifier, challenge := pkcePair()
-	request := func(hint, redirect, clientID string) *http.Response {
+	// request asks /authorize and keeps only what the test reads, closing
+	// the body at once.
+	type answer struct {
+		status   int
+		location *url.URL
+		err      error
+	}
+	request := func(hint, redirect, clientID string) answer {
 		q := url.Values{
 			"client_id": {clientID}, "state": {"st-1"}, "nonce": {"n-1"}, "code_challenge": {challenge}, "code_challenge_method": {"S256"},
 			"login_hint": {hint}, "redirect_uri": {redirect},
 		}
-		res, err := client.Get(p.Issuer() + "/authorize?" + q.Encode())
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, p.Issuer()+"/authorize?"+q.Encode(), http.NoBody)
 		if err != nil {
 			t.Fatal(err)
 		}
-		t.Cleanup(func() { _ = res.Body.Close() })
-		return res
+		res, err := client.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer func() { _ = res.Body.Close() }()
+		loc, err := res.Location()
+		return answer{status: res.StatusCode, location: loc, err: err}
 	}
 	res := request("bob@walkthrough.example", p.Issuer()+"/callback", "client-1")
-	back, err := res.Location()
-	if res.StatusCode != http.StatusFound || err != nil || back.Query().Get("state") != "st-1" || back.Query().Get("code") == "" {
-		t.Fatalf("authorize: status %d, location %v, %v", res.StatusCode, back, err)
+	back, err := res.location, res.err
+	if res.status != http.StatusFound || err != nil || back.Query().Get("state") != "st-1" || back.Query().Get("code") == "" {
+		t.Fatalf("authorize: status %d, location %v, %v", res.status, back, err)
 	}
 	status, body := postForm(t, client, p.Issuer()+"/token", url.Values{
 		"grant_type": {"authorization_code"}, "code": {back.Query().Get("code")}, "code_verifier": {verifier},
@@ -323,15 +335,15 @@ func TestIDPAuthorizeEndpoint(t *testing.T) {
 	if claims["sub"] != "sub-bob" || claims["email"] != "bob@walkthrough.example" || claims["nonce"] != "n-1" {
 		t.Errorf("claims = %v", claims)
 	}
-	for name, r := range map[string]*http.Response{
+	for name, r := range map[string]answer{
 		"no person":        request("", "", "client-1"),
 		"no address":       request("bob", "", "client-1"),
 		"another redirect": request("bob@walkthrough.example", "https://evil.example/callback", "client-1"),
 		"another client":   request("bob@walkthrough.example", "", "other"),
 		"empty local part": request("@walkthrough.example", "", "client-1"),
 	} {
-		if r.StatusCode != http.StatusBadRequest {
-			t.Errorf("%s: status %d, want 400", name, r.StatusCode)
+		if r.status != http.StatusBadRequest {
+			t.Errorf("%s: status %d, want 400", name, r.status)
 		}
 	}
 }

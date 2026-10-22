@@ -55,6 +55,7 @@ spec:
             {{- end }}
           env:
             {{- include "plux.dataEnv" (dict "root" . "role" "api") | nindent 12 }}
+            {{- include "plux.licenseEnv" . | nindent 12 }}
             {{- with .Values.api.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

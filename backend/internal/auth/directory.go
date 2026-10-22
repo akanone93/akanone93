@@ -164,7 +164,18 @@ func (d scimDirectory) page(q identity.ListQuery) (size, offset int32) {
 		count = ceiling
 	}
 	start := min(max(q.StartIndex, 1), 1<<30)
-	return int32(count), int32(start - 1) //nolint:gosec // bounded by the page size limit and 1<<30
+	return clampInt32(count), clampInt32(start - 1)
+}
+
+// clampInt32 converts v to int32, saturating at the type's bounds.
+func clampInt32(v int) int32 {
+	if v > math.MaxInt32 {
+		return math.MaxInt32
+	}
+	if v < math.MinInt32 {
+		return math.MinInt32
+	}
+	return int32(v)
 }
 
 // checkFilter refuses a filter on an attribute the directory cannot search.

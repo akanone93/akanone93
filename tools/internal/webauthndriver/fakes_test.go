@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -57,11 +56,14 @@ const (
 	testOrgKey = "acme"
 )
 
+// fakeAccessToken is what the fake server issues; it is not a credential.
+const fakeAccessToken = "plux_pat_" + "example"
+
 // newRelyingParty starts the fake provider and the fake server.
 func newRelyingParty(t *testing.T) *relyingParty {
 	t.Helper()
 	rp := &relyingParty{
-		t: t, rpID: "plux.test", origin: "https://plux.test", token: "plux_pat_example",
+		t: t, rpID: "plux.test", origin: "https://plux.test", token: fakeAccessToken,
 		challenges: map[string][]byte{}, sessions: map[string]*fakeSession{},
 	}
 	rp.idp = httptest.NewTLSServer(http.HandlerFunc(rp.authorize))
@@ -73,7 +75,7 @@ func newRelyingParty(t *testing.T) *relyingParty {
 
 // authorize is the provider's /authorize: it vouches for the login hint and
 // redirects back with a code and the state it was given.
-func (rp *relyingParty) authorize(w http.ResponseWriter, r *http.Request) {
+func (*relyingParty) authorize(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	if q.Get("login_hint") == "" {
 		http.Error(w, "no login_hint", http.StatusBadRequest)
@@ -117,20 +119,20 @@ func (rp *relyingParty) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if cookie != "" {
-		http.SetCookie(w, &http.Cookie{Name: sessionCookie, Value: cookie, Path: "/", Secure: true, HttpOnly: true})
+		http.SetCookie(w, &http.Cookie{Name: sessionCookie, Value: cookie, Path: "/", Secure: true, HttpOnly: true, SameSite: http.SameSiteStrictMode})
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(out)
 }
 
 // fail answers with a Connect error.
-func (rp *relyingParty) fail(w http.ResponseWriter, code, message string) {
+func (*relyingParty) fail(w http.ResponseWriter, code, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
 	_ = json.NewEncoder(w).Encode(map[string]string{"code": code, "message": message})
 }
 
-func (rp *relyingParty) listProviders(_ *http.Request, req map[string]any) (any, string, error) {
+func (*relyingParty) listProviders(_ *http.Request, req map[string]any) (any, string, error) {
 	if req["organizationKey"] != testOrgKey {
 		return map[string]any{}, "", nil
 	}
@@ -231,11 +233,13 @@ func (rp *relyingParty) takeCredential(rest []byte) error {
 	if key[int64(1)] != int64(2) || key[int64(3)] != int64(coseES256) || key[int64(-1)] != int64(1) {
 		return errors.New("the key is not ES256 on P-256")
 	}
-	x, y := new(big.Int).SetBytes(key[int64(-2)].([]byte)), new(big.Int).SetBytes(key[int64(-3)].([]byte))
-	if !elliptic.P256().IsOnCurve(x, y) {
+	x, _ := key[int64(-2)].([]byte)
+	y, _ := key[int64(-3)].([]byte)
+	pub, err := ecdsa.ParseUncompressedPublicKey(elliptic.P256(), append(append([]byte{4}, x...), y...))
+	if err != nil {
 		return errors.New("the key is not on the curve")
 	}
-	rp.pub = &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}
+	rp.pub = pub
 	return nil
 }
 

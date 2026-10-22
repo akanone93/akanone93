@@ -230,6 +230,15 @@ Context: root, role.
 {{- end }}
 {{- end -}}
 
+{{- /* The server reads its licence path from PLUX_LICENSE_FILE; the
+configuration file has no licence section. */ -}}
+{{- define "plux.licenseEnv" -}}
+{{- if .Values.license.existingSecret }}
+- name: PLUX_LICENSE_FILE
+  value: {{ printf "/etc/plux/license/%s" .Values.license.key | quote }}
+{{- end }}
+{{- end -}}
+
 {{- define "plux.licenseMounts" -}}
 {{- if .Values.license.existingSecret }}
 - {name: license, mountPath: /etc/plux/license, readOnly: true}
@@ -364,9 +373,13 @@ spec:
 
 {{- /* The pod template metadata shared by the role deployments. */ -}}
 {{- define "plux.podAnnotations" -}}
-{{- with .v.podAnnotations }}
-{{ toYaml . }}
+{{- /* Annotation values are strings in Kubernetes; quote them so a value
+set as a number (--set x.podAnnotations.roll=1) does not break an upgrade. */ -}}
+{{- $lines := list }}
+{{- range $k, $v := .v.podAnnotations }}
+{{- $lines = append $lines (printf "%s: %s" $k ($v | toString | quote)) }}
 {{- end }}
+{{- join "\n" $lines }}
 {{- end -}}
 
 {{- /*

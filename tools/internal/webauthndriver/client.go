@@ -54,7 +54,7 @@ func (c connectClient) call(ctx context.Context, s *session, procedure string, r
 	hr.Header.Set("Content-Type", "application/json")
 	hr.Header.Set("Connect-Protocol-Version", "1")
 	if s != nil {
-		hr.AddCookie(&http.Cookie{Name: sessionCookie, Value: s.cookie})
+		hr.AddCookie(&http.Cookie{Name: sessionCookie, Value: s.cookie, Secure: true, HttpOnly: true, SameSite: http.SameSiteStrictMode})
 		hr.Header.Set(csrfHeader, s.csrf)
 	}
 	res, err := c.http.Do(hr)

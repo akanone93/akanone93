@@ -640,7 +640,9 @@ jobs:
     needs: changes
     if: fromJSON(needs.changes.outputs.jobs)['go-test']
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # P9's integration tests took the race run past 20 minutes (run
+    # 39733923984 was cancelled in internal/server).
+    timeout-minutes: 30
     permissions:
       contents: read
     strategy:

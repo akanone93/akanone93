@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 )
 
 // coseES256 is the COSE identifier of ECDSA with SHA-256 on P-256.
@@ -138,7 +139,11 @@ func (a *Authenticator) Create(o CreationOptions, origin string) (Attestation, e
 	}
 	authData := authenticatorData(o.RP.ID, flagUserPresent|flagUserVerified|flagAttested, a.cred.Counter)
 	authData = append(authData, make([]byte, 16)...) // the AAGUID of an anonymous authenticator
-	authData = binary.BigEndian.AppendUint16(authData, uint16(len(a.cred.ID)))
+	idLen := len(a.cred.ID)
+	if idLen > math.MaxUint16 {
+		return Attestation{}, errors.New("webauthndriver: the credential ID is longer than WebAuthn allows")
+	}
+	authData = binary.BigEndian.AppendUint16(authData, uint16(idLen))
 	authData = append(append(authData, a.cred.ID...), a.coseKey()...)
 	object := cborMap(
 		[2][]byte{cborText("fmt"), cborText("none")},
@@ -188,13 +193,18 @@ func (a *Authenticator) allowed(o RequestOptions) bool {
 // coseKey encodes the public key as a COSE_Key (RFC 9052) for ES256, with the
 // map keys in the order of the CTAP2 canonical form.
 func (a *Authenticator) coseKey() []byte {
-	pub := a.cred.Key.PublicKey
+	// The uncompressed SEC 1 point is 0x04 || X || Y.
+	point, err := a.cred.Key.PublicKey.Bytes()
+	if err != nil {
+		return nil
+	}
+	x, y := point[1:1+coordinateLength], point[1+coordinateLength:]
 	return cborMap(
 		[2][]byte{cborInt(1), cborInt(2)},         // kty: EC2
 		[2][]byte{cborInt(3), cborInt(coseES256)}, // alg
 		[2][]byte{cborInt(-1), cborInt(1)},        // crv: P-256
-		[2][]byte{cborInt(-2), cborBytes(pub.X.FillBytes(make([]byte, coordinateLength)))},
-		[2][]byte{cborInt(-3), cborBytes(pub.Y.FillBytes(make([]byte, coordinateLength)))},
+		[2][]byte{cborInt(-2), cborBytes(x)},
+		[2][]byte{cborInt(-3), cborBytes(y)},
 	)
 }
 

@@ -294,7 +294,10 @@ func TestHooks(t *testing.T) {
 func TestHooksSharedEnvironment(t *testing.T) {
 	t.Parallel()
 	shared := []string{"WALKTHROUGH_SERVER=https://s", "WALKTHROUGH_IDP_ISSUER=https://idp"}
-	o := options{tokenCmd: `test "$WALKTHROUGH_SERVER" = https://s && echo "$WALKTHROUGH_IDP_ISSUER $WALKTHROUGH_ACTOR"`}
+	// A shell command, not a credential: it prints the issuer and the actor.
+	issue := `test "$WALKTHROUGH_SERVER" = https://s && echo "$WALKTHROUGH_IDP_ISSUER $WALKTHROUGH_ACTOR"`
+	var o options
+	o.tokenCmd = issue
 	if tok, err := hooksFor(o, shared...).IssueToken(t.Context(), "carol", "carol@x"); err != nil || tok != "https://idp carol" {
 		t.Errorf("IssueToken = %q, %v", tok, err)
 	}

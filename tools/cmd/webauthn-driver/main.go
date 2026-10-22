@@ -111,7 +111,7 @@ func newDriver(getenv func(string) string) (*webauthndriver.Driver, error) {
 	if err != nil {
 		return nil, err
 	}
-	return webauthndriver.New(webauthndriver.Config{
+	d, err := webauthndriver.New(webauthndriver.Config{
 		Server: getenv("WALKTHROUGH_SERVER"), Origin: getenv("WALKTHROUGH_WEBAUTHN_ORIGIN"),
 		OrgID: getenv("WALKTHROUGH_ORG"), OrgKey: orDefault(getenv("WALKTHROUGH_ORG_KEY"), "acme"),
 		ProviderKey: orDefault(getenv("WALKTHROUGH_IDP_KEY"), "walkthrough-idp"),
@@ -119,6 +119,10 @@ func newDriver(getenv func(string) string) (*webauthndriver.Driver, error) {
 		Store:      webauthndriver.FileStore{Dir: getenv("WALKTHROUGH_DRIVER_DIR")},
 		ServerHTTP: server, IDPHTTP: idp, Random: rand.Reader,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("webauthn-driver: %w", err)
+	}
+	return d, nil
 }
 
 // orDefault returns v, or def when v is empty.

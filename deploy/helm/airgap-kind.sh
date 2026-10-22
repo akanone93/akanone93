@@ -168,13 +168,29 @@ echo "── deny outbound traffic"
 # Packets that leave a node's network interface for an address outside the
 # kind network, the pod network or the service network are dropped, for the
 # node's own traffic (containerd pulling an image) and for forwarded pod traffic.
-subnet=$(docker network inspect kind -f '{{(index .IPAM.Config 0).Subnet}}')
+# The kind network is dual-stack on current Docker: the IPv4 subnet goes to
+# iptables, the IPv6 one to ip6tables, so neither family leaves the cluster.
+subnets=$(docker network inspect kind -f '{{range .IPAM.Config}}{{.Subnet}} {{end}}')
+subnet4= subnet6=
+for s in $subnets; do
+	case $s in
+	*:*) subnet6=$s ;;
+	*) subnet4=$s ;;
+	esac
+done
+[ -n "$subnet4" ] || fail "the kind network has no IPv4 subnet ($subnets)"
 for node in $nodes; do
 	for chain in OUTPUT FORWARD; do
+		# Inserted at the top, ahead of kind's own rules: the DROP first, then
+		# the ACCEPTs above it.
 		docker exec "$node" iptables -I "$chain" -o eth0 -j DROP
-		for allowed in "$subnet" 10.244.0.0/16 10.96.0.0/12; do
+		for allowed in "$subnet4" 10.244.0.0/16 10.96.0.0/12; do
 			docker exec "$node" iptables -I "$chain" -o eth0 -d "$allowed" -j ACCEPT
 		done
+		docker exec "$node" ip6tables -I "$chain" -o eth0 -j DROP
+		if [ -n "$subnet6" ]; then
+			docker exec "$node" ip6tables -I "$chain" -o eth0 -d "$subnet6" -j ACCEPT
+		fi
 	done
 done
 "$KUBECTL" create namespace "$NAMESPACE"

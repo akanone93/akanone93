@@ -5,7 +5,26 @@
 # network. They prove the planned resources and the secure defaults (DEP-050);
 # they cannot prove how AWS behaves.
 
-mock_provider "aws" {}
+# The mock provider fills computed attributes with random strings; the AWS
+# provider validates ARNs it is given, so the resources whose ARNs other
+# resources take get well-formed ones.
+mock_provider "aws" {
+  mock_resource "aws_iam_role" {
+    defaults = {
+      arn = "arn:aws:iam::123456789012:role/plux-test"
+    }
+  }
+  mock_resource "aws_kms_key" {
+    defaults = {
+      arn = "arn:aws:kms:eu-west-1:123456789012:key/00000000-0000-0000-0000-000000000000"
+    }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = {
+      arn = "arn:aws:s3:::plux-test-objects"
+    }
+  }
+}
 
 variables {
   name               = "plux-test"
