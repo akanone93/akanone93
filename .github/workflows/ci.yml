@@ -379,8 +379,9 @@ jobs:
           #   BSD-3-Clause  the Dart team packages below, go_router,
           #                 material_ui and cupertino_ui (Flutter team),
           #                 intl, golang.org/x/net,
-          #                 x/sync, x/sys and x/text
-          #                 (plus the Go PATENTS grant, which adds rights);
+          #                 x/sync, x/sys and x/text, ProtonMail/go-crypto
+          #                 (go-git's; plus the Go PATENTS grant, which
+          #                 adds rights);
           #                 cross_file, file_selector_*,
           #                 image_picker_platform_interface and url_launcher*
           #                 (Flutter team), mobile_scanner, win32;
@@ -390,6 +391,8 @@ jobs:
           #                 and video_player* (Flutter team; the web
           #                 plugin also carries to_screen_location's MIT),
           #                 markdown, qr, stream_transform, dart_polylabel2
+          #   BSD-2-Clause  emirpasic/gods (go-git's), with an ISC section
+          #   MIT-0         segmentio/asm (parquet-go's and ClickHouse's)
           #   MIT           auto_route, flutter_riverpod, node_preamble,
           #                 petitparser, riverpod, xml; yaml is BSD-3-Clause
           #                 and MIT; archive, drift, sqlite3, lottie, rive,
@@ -400,7 +403,10 @@ jobs:
           #   MPL-2.0       dbus, gsettings; riverqueue/river/rivershared,
           #                 with a vendored MIT levenshtein package
           allow-dependencies-licenses: >-
+            pkg:golang/github.com/ProtonMail/go-crypto,
+            pkg:golang/github.com/emirpasic/gods,
             pkg:golang/github.com/riverqueue/river/rivershared,
+            pkg:golang/github.com/segmentio/asm,
             pkg:golang/golang.org/x/net, pkg:golang/golang.org/x/sync,
             pkg:golang/golang.org/x/sys, pkg:golang/golang.org/x/text,
             pkg:pub/_fe_analyzer_shared, pkg:pub/analyzer,
