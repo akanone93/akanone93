@@ -70,6 +70,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Every helm and kubectl call talks to the kind cluster through a kubeconfig of
+# its own, never to whatever cluster the caller's environment points at.
+export KUBECONFIG=$work/kubeconfig
+
 # registry_path maps an image reference to its path in the local registry:
 # the registry host, if the reference names one, is dropped.
 registry_path() {
@@ -93,8 +97,33 @@ cat >"$work/payload.json" <<'EOF'
 EOF
 "$work/plux-license" sign "$work/payload.json" --key "$work/licence.key" --out "$work/licence.json" >/dev/null
 
+echo "── cluster $CLUSTER with a local registry"
+"$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
+docker rm -f "$REGISTRY_NAME" >/dev/null 2>&1 || true
+cat >"$work/kind.yaml" <<'EOF'
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry]
+      config_path = "/etc/containerd/certs.d"
+EOF
+docker run -d --restart=always -p "127.0.0.1:$REGISTRY_PORT:5000" --name "$REGISTRY_NAME" "$REGISTRY_IMAGE" >/dev/null
+"$KIND" create cluster --name "$CLUSTER" --config "$work/kind.yaml" --kubeconfig "$KUBECONFIG" --wait 180s
+"$KUBECTL" version >/dev/null 2>&1 || fail "the kind cluster $CLUSTER is not reachable with the kubeconfig $KUBECONFIG"
+kube_version=$("$KUBECTL" version -o json | sed -n 's/.*"gitVersion": *"\(v[^"]*\)".*/\1/p' | tail -n 1)
+[ -n "$kube_version" ] || fail "cannot read the Kubernetes version of the cluster $CLUSTER"
+docker network connect kind "$REGISTRY_NAME" 2>/dev/null || true
+nodes=$("$KIND" get nodes --name "$CLUSTER")
+for node in $nodes; do
+	docker exec "$node" mkdir -p "/etc/containerd/certs.d/$MIRROR"
+	docker exec -i "$node" sh -c "cat >/etc/containerd/certs.d/$MIRROR/hosts.toml" <<EOF
+[host."http://$MIRROR"]
+EOF
+done
+
 echo "── images"
-set_images=(--set image.repository="${IMAGE%:*}" --set image.tag="${IMAGE##*:}")
+set_images=(--kube-version "$kube_version" --set image.repository="${IMAGE%:*}" --set image.tag="${IMAGE##*:}")
 refs=$("$HELM" template plux "$chart" -f "$chart/ci/kind-values.yaml" "${set_images[@]}" |
 	sed -n 's/^ *image: *"\{0,1\}\([^" ]*\)"\{0,1\} *$/\1/p' | sed 's/@sha256:.*//' | sort -u)
 refs=$(printf '%s\n%s\n' "$refs" "$PG_IMAGE" | sort -u)
@@ -117,28 +146,6 @@ echo "── bundle"
 "$work/plux-airgap" verify "$work/bundle.tar" --key "$work/bundle.key.pub" | tee "$work/verified.txt"
 mkdir "$work/bundle"
 tar -xf "$work/bundle.tar" -C "$work/bundle"
-
-echo "── cluster $CLUSTER with a local registry"
-"$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
-docker rm -f "$REGISTRY_NAME" >/dev/null 2>&1 || true
-cat >"$work/kind.yaml" <<'EOF'
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-containerdConfigPatches:
-  - |-
-    [plugins."io.containerd.grpc.v1.cri".registry]
-      config_path = "/etc/containerd/certs.d"
-EOF
-docker run -d --restart=always -p "127.0.0.1:$REGISTRY_PORT:5000" --name "$REGISTRY_NAME" "$REGISTRY_IMAGE" >/dev/null
-"$KIND" create cluster --name "$CLUSTER" --config "$work/kind.yaml" --wait 180s
-docker network connect kind "$REGISTRY_NAME" 2>/dev/null || true
-nodes=$("$KIND" get nodes --name "$CLUSTER")
-for node in $nodes; do
-	docker exec "$node" mkdir -p "/etc/containerd/certs.d/$MIRROR"
-	docker exec -i "$node" sh -c "cat >/etc/containerd/certs.d/$MIRROR/hosts.toml" <<EOF
-[host."http://$MIRROR"]
-EOF
-done
 
 echo "── push the bundle's images"
 while read -r kind_word ref digest; do

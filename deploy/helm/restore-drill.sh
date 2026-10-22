@@ -93,16 +93,40 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Every helm and kubectl call talks to the kind cluster through a kubeconfig of
+# its own, never to whatever cluster the caller's environment points at.
+export KUBECONFIG=$work/kubeconfig
+
 # ── helpers ────────────────────────────────────────────────────────────────
 
 k() { "$KUBECTL" "$@"; }
 
-# forward <namespace> <service> <local port>: the service's port 8080 on localhost.
+# forward <namespace> <service> <local port>: the service's port 8080 on
+# localhost. Returns once the forward answers /livez; starts it again if
+# kubectl exits (for example because no pod backs the service yet).
 forward() {
-	k --namespace "$1" port-forward "svc/$2" "$3:8080" >/dev/null 2>&1 &
-	pids+=("$!")
-	curl -fsS --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 "http://127.0.0.1:$3/livez" >/dev/null ||
-		fail "port-forward to $1/$2 does not answer"
+	local attempt pid
+	for attempt in $(seq 1 30); do
+		k --namespace "$1" port-forward "svc/$2" "$3:8080" >/dev/null 2>&1 &
+		pid=$!
+		pids+=("$pid")
+		if wait_for_forward "$pid" "$3"; then return 0; fi
+		kill "$pid" 2>/dev/null || true
+		sleep 2
+	done
+	fail "port-forward to $1/$2 does not answer"
+}
+
+# wait_for_forward <pid> <local port>: succeeds once the port-forward process
+# <pid> is alive and the port answers /livez, within about a minute.
+wait_for_forward() {
+	local i
+	for i in $(seq 1 30); do
+		kill -0 "$1" 2>/dev/null || return 1
+		if curl -fsS --max-time 5 "http://127.0.0.1:$2/livez" >/dev/null 2>&1; then return 0; fi
+		sleep 2
+	done
+	return 1
 }
 
 # primary <namespace>: the pod of the PostgreSQL primary.
@@ -140,7 +164,8 @@ step "build the CLI"
 
 step "cluster $CLUSTER"
 "$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
-"$KIND" create cluster --name "$CLUSTER" --wait 180s
+"$KIND" create cluster --name "$CLUSTER" --kubeconfig "$KUBECONFIG" --wait 180s
+"$KUBECTL" version >/dev/null 2>&1 || fail "the kind cluster $CLUSTER is not reachable with the kubeconfig $KUBECONFIG"
 "$KIND" load docker-image "$IMAGE" --name "$CLUSTER"
 
 step "CloudNativePG $CNPG_VERSION"

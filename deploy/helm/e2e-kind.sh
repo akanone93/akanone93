@@ -61,9 +61,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Every helm and kubectl call talks to the kind cluster through a kubeconfig of
+# its own, never to whatever cluster the caller's environment points at.
+export KUBECONFIG=$work/kubeconfig
+
 echo "── cluster $CLUSTER"
 "$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
-"$KIND" create cluster --name "$CLUSTER" --wait 180s
+"$KIND" create cluster --name "$CLUSTER" --kubeconfig "$KUBECONFIG" --wait 180s
+"$KUBECTL" version >/dev/null 2>&1 || fail "the kind cluster $CLUSTER is not reachable with the kubeconfig $KUBECONFIG"
 "$KIND" load docker-image "$IMAGE" --name "$CLUSTER"
 
 echo "── CloudNativePG $CNPG_VERSION"
