@@ -294,24 +294,45 @@ func exportDraft(ctx context.Context, cl *clients, app string) (map[string][]byt
 	return out, nil
 }
 
-// importDraft replaces the app's drafts with the local project.
+// importSession is the editing session the CLI imports in.
+const importSession = "plux-cli"
+
+// importDraft replaces the app's drafts with the local project. The import
+// takes the editing lock of every draft it writes; they are given up as soon
+// as it is done, so nobody else waits for them to expire (SRV-040).
 func importDraft(ctx context.Context, cl *clients, app string, files map[string][]byte) (*pluxv1.ImportDraftResponse, error) {
 	stream := cl.document.ImportDraft(ctx)
 	first := true
 	for _, path := range slices.Sorted(mapKeys(files)) {
 		m := &pluxv1.ImportDraftRequest{Path: path, Content: files[path]}
 		if first {
-			m.AppId, m.Session, first = app, "plux-cli", false
+			m.AppId, m.Session, first = app, importSession, false
 		}
 		if err := stream.Send(m); err != nil && !errors.Is(err, io.EOF) {
 			return nil, err //nolint:wrapcheck // reported as is
 		}
 	}
 	res, err := stream.CloseAndReceive()
+	releaseImportLocks(ctx, cl, app)
 	if err != nil {
 		return nil, err //nolint:wrapcheck // reported as is
 	}
 	return res.Msg, nil
+}
+
+// releaseImportLocks gives up the locks the CLI's session holds on the app's
+// draft and its plugins' drafts. It is best effort: a lock the session does
+// not hold is refused, and an unreleased one expires on its own.
+func releaseImportLocks(ctx context.Context, cl *clients, app string) {
+	ids := []string{""}
+	if res, err := cl.plugin.ListPlugins(ctx, connect.NewRequest(&pluxv1.ListPluginsRequest{AppId: app, Page: &pluxv1.Page{PageSize: 1000}})); err == nil {
+		for _, p := range res.Msg.GetPlugins() {
+			ids = append(ids, p.GetId())
+		}
+	}
+	for _, id := range ids {
+		_, _ = cl.plugin.ReleaseLock(ctx, connect.NewRequest(&pluxv1.ReleaseLockRequest{AppId: app, PluginId: id, Session: importSession}))
+	}
 }
 
 func mapKeys[V any](m map[string]V) func(func(string) bool) {
