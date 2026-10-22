@@ -111,6 +111,34 @@ func TestDriverPasswordStepUp_SEC103(t *testing.T) {
 	}
 }
 
+// TestDriverBootstrap_SEC103 prepares an installation the way its operator
+// does: it accepts the invitation with the password, enrols the key, creates
+// the organisation and the app, and mints a token in the organisation; the
+// administrator's later step-up signs in with the enrolled key.
+//
+// Verifies: SEC-103.
+func TestDriverBootstrap_SEC103(t *testing.T) {
+	rp := newRelyingParty(t)
+	dir := filepath.Join(t.TempDir(), "keys")
+	withPassword := func(c *Config) { c.Store, c.Password = FileStore{Dir: dir}, testPassword }
+	in, err := newTestDriver(t, rp, withPassword).Bootstrap(t.Context(), testInvitation, testOrgKey, "demo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if in.OrgID != testOrgID || in.AppID != "app-1" || in.Token != rp.token || rp.pub == nil {
+		t.Fatalf("Bootstrap = %+v, key enrolled %v", in, rp.pub != nil)
+	}
+	if err := newTestDriver(t, rp, withPassword).StepUp(t.Context(), "https://plux.test/stepup?request=request-1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := newTestDriver(t, rp, withPassword).Bootstrap(t.Context(), "", testOrgKey, "demo"); err == nil {
+		t.Error("Bootstrap without an invitation succeeded")
+	}
+	if _, err := newTestDriver(t, rp, withPassword).Bootstrap(t.Context(), "invitation-2", testOrgKey, "demo"); err == nil || !strings.Contains(err.Error(), "no such invitation") {
+		t.Errorf("Bootstrap with an unknown invitation = %v", err)
+	}
+}
+
 // TestDriverRefusals_SEC103 covers the ways a ceremony must fail loudly: an
 // origin the server does not accept, a missing key, an unusable URL, a
 // provider the server does not offer, and a key the server does not allow.
