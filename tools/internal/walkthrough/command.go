@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -100,6 +102,22 @@ func (e *ExecCommander) token(actor string) (string, bool) {
 	return t, ok
 }
 
+// rustHomes keeps cargo and rustup where they were installed, since the
+// CLI's HOME is the run's own: `plux fn deploy` vendors a crate with cargo.
+func rustHomes() []string {
+	home, _ := os.UserHomeDir()
+	var env []string
+	for name, dir := range map[string]string{"CARGO_HOME": ".cargo", "RUSTUP_HOME": ".rustup"} {
+		if v := os.Getenv(name); v != "" {
+			env = append(env, name+"="+v)
+		} else if home != "" {
+			env = append(env, name+"="+filepath.Join(home, dir))
+		}
+	}
+	slices.Sort(env)
+	return env
+}
+
 // stepUpLine matches the CLI's request for a step-up and captures its URL.
 var stepUpLine = regexp.MustCompile(`Open (\S+) and confirm with your security key`)
 
@@ -124,6 +142,7 @@ func (e *ExecCommander) Run(ctx context.Context, c Command) (Result, error) {
 	if e.CAFile != "" {
 		cmd.Env = append(cmd.Env, "SSL_CERT_FILE="+e.CAFile)
 	}
+	cmd.Env = append(cmd.Env, rustHomes()...)
 	// A child of the CLI that outlives it must not hold the output pipes open.
 	cmd.WaitDelay = 2 * time.Second
 	var stdout bytes.Buffer

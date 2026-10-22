@@ -87,6 +87,7 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 // options are the flags of `walkthrough run`.
 type options struct {
 	server, org, app, fleetEnv, out, project string
+	fnSDK                                    string
 	plux, pluxLoad, caFile                   string
 	listen, advertise                        string
 	idpPort, sinkPort                        string
@@ -109,6 +110,7 @@ func parseOptions(args []string, stderr io.Writer) (options, error) {
 	fs.StringVar(&o.app, "app", "", "app ID")
 	fs.StringVar(&o.fleetEnv, "fleet-env", "staging", "non-production environment the synthetic devices belong to")
 	fs.StringVar(&o.out, "out", "walkthrough-out", "directory for the evidence and the signed bundle")
+	fs.StringVar(&o.fnSDK, "fn-sdk", "sdk/fn", "the function SDK: plux-fn and the example crates the project's functions are built from")
 	fs.StringVar(&o.project, "project", "schema/testdata/documents/plux_bank", "the Plux Bank project the steps publish (copied; never changed in place)")
 	fs.StringVar(&o.plux, "plux", "plux", "path of the plux CLI")
 	fs.StringVar(&o.pluxLoad, "plux-load", "plux-load", "path of plux-load")
@@ -300,6 +302,10 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 	}
 	work := filepath.Join(o.out, "work")
 	project := filepath.Join(work, "project")
+	fnSDK, err := filepath.Abs(o.fnSDK)
+	if err != nil {
+		return nil, nil, fmt.Errorf("-fn-sdk: %w", err)
+	}
 	if err := os.CopyFS(project, os.DirFS(o.project)); err != nil {
 		return nil, nil, fmt.Errorf("copy the project: %w", err)
 	}
@@ -327,7 +333,7 @@ func buildEnv(o options) (*walkthrough.Env, func(), error) {
 		Fleet:  &walkthrough.ExecFleet{Binary: o.pluxLoad, Server: o.server, App: o.app, CAFile: o.caFile, Dir: work, Seed: 1},
 		Hooks:  hooksFor(o, shared...),
 		IDP:    idp, Sink: sink, SinkAddress: net.JoinHostPort(o.advertise, o.sinkPort),
-		Server: o.server, Org: o.org, App: o.app, Project: project, TempDir: work,
+		Server: o.server, Org: o.org, App: o.app, Project: project, FnSDK: fnSDK, TempDir: work,
 		ProdEnv: "production", FleetEnv: o.fleetEnv, Devices: o.devices,
 		StageDuration: o.stage, Propagation: o.propagation, UpgradeWindow: o.upgradeWindow,
 		Now: time.Now, Sleep: walkthrough.SleepContext,
