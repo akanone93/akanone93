@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2026 Plux contributors
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # P11 Studio — Decisions and Studio Development Rule Book
 
 - **Status:** Decided by the maintainer in a preparation session (2026-10-16 to 2026-10-18),
@@ -35,7 +40,10 @@
 4. **Every new dependency** needs an allowlist entry and an ADR first
    ([dependencies.md](../engineering/dependencies.md)). Versions below were checked in the
    session; pin exact versions when adding.
-5. **`studio-ui-language.md` is written by the maintainer.** Agents do not draft it.
+5. **`studio-ui-language.md` is the maintainer's.** Agents draft it only at the maintainer's request and from the
+   maintainer's direction; the maintainer accepts it. (Amended 2026-10-22: the accepted version is
+   [p11-studio-ui-language.md](p11-studio-ui-language.md), drafted from five mocked-up directions the
+   maintainer chose between.)
 
 ## A2. Context
 
@@ -60,7 +68,7 @@
 | Local state | Zustand + Immer patches | zustand 5.0.15, immer 11.1.21 | MIT |
 | Forms | TanStack Form + Zod 4 | react-form 1.33.5, zod 4.6.7 | MIT |
 | UI components | shadcn/ui on **Base UI** (not Radix) | shadcn 4.22.0, @base-ui/react 1.9.0 | MIT |
-| Small UI pieces | command palette on Base UI Dialog + Autocomplete (no cmdk), sonner (toasts), Lucide (icons), TanStack Table + Virtual | sonner 2.0.8, lucide-react 1.59.0, react-table 9.3.1, react-virtual 3.14.21 | MIT; Lucide ISC |
+| Small UI pieces | command palette on Base UI Dialog + Autocomplete (no cmdk), sonner (toasts), Phosphor Icons, duotone (icons; UI language U8), TanStack Table + Virtual | sonner 2.0.8, @phosphor-icons/core 2.1.1, react-table 9.3.1, react-virtual 3.14.21 | MIT |
 | Styling | Tailwind CSS v4, theme generated from tokens | tailwindcss 4.3.3, @tailwindcss/vite 4.3.3 | MIT |
 | i18n | Lingui 6 (ICU MessageFormat) | 6.10.0 (+ @lingui/vite-plugin 6.10.0) | MIT |
 | Canvas renderer | CanvasKit (Skia → WebAssembly), own trimmed build | canvaskit-wasm 0.42.0 (reference) | BSD-3-Clause |
@@ -75,14 +83,14 @@
 | Lint/format | Biome only (already in `studio/`) | 2.5.15 | MIT |
 | Tests | `bun test` + happy-dom + Testing Library; Playwright; axe | happy-dom 21.0.3, @testing-library/react 16.3.3, @playwright/test 1.64.1, @axe-core/playwright 4.14.0 | MIT; Apache-2.0; **MPL-2.0** (axe, legal review) |
 | Field metrics | `web-vitals` | 6.2.3 | Apache-2.0 |
-| Fonts | Noto Sans + Noto Sans Arabic (UI), Sora (wordmark), Roboto (Material preview) | @fontsource 5.3.0 | OFL-1.1 (verify each file at import) |
+| Fonts | Instrument Sans, Instrument Serif and DM Mono (UI; UI language U7), Arabic UI fonts open (U7), Sora (wordmark), Roboto (Material preview) | @fontsource 5.3.0 (instrument-sans, instrument-serif, dm-mono 5.3.0) | OFL-1.1 (verify each file at import) |
 
 **Rejected:** Next.js; React Router; Redux/RTK; Jotai; PixiJS; raw WebGL2; Canvas2D libraries
 (Konva, Fabric); Vello; ThorVG; Flutter Web; Yoga; Taffy; Rete.js; LiteGraph; ELK (EPL/GPL —
 reserve only, licence decision first); SWR; RTK Query; Apollo/Relay; TanStack DB; sync engines
 (Zero, Replicache); React Hook Form (fallback only); react-i18next; FormatJS; Radix (safe but
 not shadcn's direction); React Aria Components; MUI/Mantine/Chakra; Elysia; Bun bundler;
-ESLint; Oxlint; cmdk (Radix dependencies); dnd-kit; react-window; react-virtuoso; virtua; ECharts; visx; Phosphor; Tabler;
+ESLint; Oxlint; cmdk (Radix dependencies); dnd-kit; react-window; react-virtuoso; virtua; ECharts; visx; Lucide (the default set of generated interfaces, 2026-10-22); Tabler;
 Framer Motion; Storybook; Ladle; Vitest; the OpenTelemetry browser SDK; `fast-json-patch`;
 `jsondiffpatch`; WebSocket; a service worker; SharedArrayBuffer (for now); IndexedDB for undo; `oauth4webapi` and any BFF-side session store (F19).
 
@@ -262,7 +270,7 @@ it in Playwright, not with Vitest.
   Components has the strongest accessibility but shadcn does not build on it.
 - Alongside: **command palette** (`STU-013`) built on Base UI Dialog + Autocomplete, fed by the
   command registry — not cmdk, which depends on four Radix packages and would bring Radix back
-  beside Base UI; **sonner** (toasts); **lucide** (icons); **TanStack Table + Virtual**
+  beside Base UI; **sonner** (toasts); **Phosphor Icons** (A4.20); **TanStack Table + Virtual**
   (localisation grid, audit log, device lists).
 - Base UI's `CSPProvider` passes the request's nonce to the styles Base UI injects (Part B §11.2).
 
@@ -322,10 +330,15 @@ Biome only, as today (`biome ci` in `make studio-check`). No ESLint, Prettier or
   tokens, built-in accessibility layer, lazy-loaded. **uPlot 1.6** (canvas, tiny; last release
   March 2025, stable) for the live device performance stream (`STU-066`). Rejected: ECharts 6
   (heavy, separate theming), visx (too low-level).
-- **Lucide** for Studio's own UI (shadcn default, about 1,700 outline icons, tree-shakes).
-  Phosphor's last release was May 2025; Tabler's extra icons are brands and niche sets. The
-  apps' icons stay the Material Symbols and Cupertino sets the server embeds. Lucide has no
-  RTL-mirror metadata: the catalogue keeps a `mirrors` list.
+- **Phosphor Icons, duotone weight**, for Studio's own UI (maintainer, 2026-10-22; UI language U8),
+  replacing Lucide: Lucide is shadcn's default and the most recognisable mark of a generated
+  interface; Phosphor's duotone outline-with-fill suits the rounded design and gives Studio its own
+  character. MIT. *Checked:* `@phosphor-icons/core` 2.1.1 (SVG assets, last published March 2024)
+  and `@phosphor-icons/react` 2.1.10 (May 2025). The set is stable rather than active, so Studio
+  inlines the pinned SVG paths through one `Icon` component and depends on no runtime package; a
+  missing icon is drawn in the set's grid and style and recorded in the catalogue. The apps' icons
+  stay the Material Symbols and Cupertino sets the server embeds. Phosphor has no RTL-mirror
+  metadata: the catalogue keeps a `mirrors` list.
 - **No animation library:** the required animations (bundle expansion 150–200 ms, `STU-044`;
   ghost-screen pulse about 2 s, `STU-053`) run in Plux Canvas; panels and dialogs use CSS
   transitions with duration/easing tokens and Base UI state attributes; reduced motion honoured.
@@ -414,9 +427,11 @@ first.
   sandbox per session.
 
 ### A5.4 Fonts
-- **Studio UI:** Noto Sans + Noto Sans Arabic (OFL-1.1, variable weights, self-hosted per
-  Part B §11.5); one superfamily (Noto) across scripts, with matching weights and metrics
-  (Part B §4.6); covers later scripts (e.g. Ethiopic).
+- **Studio UI** (maintainer, 2026-10-22; UI language U7): Instrument Sans for controls and text,
+  Instrument Serif for names and titles, DM Mono for numbers, identifiers and code (all OFL-1.1,
+  self-hosted per Part B §11.5). They cover Latin scripts only: the Arabic pairing (proposed Noto
+  Sans Arabic and Noto Naskh Arabic) and later scripts (e.g. Ethiopic) are an open maintainer
+  decision. The earlier choice, Noto Sans with Noto Sans Arabic, is replaced.
   Sora SemiBold for the wordmark only (Appendix J).
 - **Canvas, app fonts:** the canvas worker fetches the same verified font assets the device
   loads (ADR-0032 § Fonts per script) and receives their bytes without copying.
@@ -505,15 +520,16 @@ first.
 
 The maintainer supplied this rule book in the session. It is reproduced here with every
 accepted amendment applied; the amendments are listed in C1. Its intended home is
-`docs/engineering/studio-development.md` (links below are written for that location).
+`docs/engineering/studio-development.md` (links below resolve from `docs/plans/`;
+they are rewritten for `docs/engineering/` when the file moves).
 
 ---
 
 # Studio Development
 
-How Plux Studio (`studio/`) is built: structure, design system, localisation and direction, state, canvas, testing, performance, security, and the rules that keep agents' context and token use small. It is binding for every contributor, human or agent. The specification says *what* Studio does (spec §21, `STU-001`–`STU-123`); [typescript-standards.md](typescript-standards.md) says how TypeScript is written; this document says how Studio is put together.
+How Plux Studio (`studio/`) is built: structure, design system, localisation and direction, state, canvas, testing, performance, security, and the rules that keep agents' context and token use small. It is binding for every contributor, human or agent. The specification says *what* Studio does (spec §21, `STU-001`–`STU-123`); [typescript-standards.md](../engineering/typescript-standards.md) says how TypeScript is written; this document says how Studio is put together.
 
-The stack is fixed by `STU-001` (with the wording changes of ADR-0014): Bun as runtime, package manager, test runner and BFF server; Vite on the Bun runtime as the build tool; strict TypeScript; React; TanStack Router, Query and Form; shadcn/ui on Base UI; Tailwind CSS v4; Monaco for full-screen editors and CodeMirror 6 for inline PXL fields; Connect-ES; Plux Canvas on CanvasKit. A package is installed only once it is on the [allowlist](dependencies.md).
+The stack is fixed by `STU-001` (with the wording changes of ADR-0014): Bun as runtime, package manager, test runner and BFF server; Vite on the Bun runtime as the build tool; strict TypeScript; React; TanStack Router, Query and Form; shadcn/ui on Base UI; Tailwind CSS v4; Monaco for full-screen editors and CodeMirror 6 for inline PXL fields; Connect-ES; Plux Canvas on CanvasKit. A package is installed only once it is on the [allowlist](../engineering/dependencies.md).
 
 Rules are numbered so a review can cite them ("studio-development §6.3"). A rule that no longer serves the project is changed here in a pull request, never ignored.
 
@@ -611,13 +627,13 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 4.2. **No raw values.** No hex, `rgb()`, `hsl()`, pixel, `rem` or shadow literals in components, and no Tailwind arbitrary values (`bg-[#…]`, `p-[13px]`, `rounded-[…]`). The Tailwind v4 `@theme` is generated from the tokens and Tailwind's default values are reset, so only token-backed utilities exist. A lint rule enforces this with the first component. No runtime CSS-in-JS.
 
-4.3. **The visual language is compact** ([studio-ui-language.md](studio-ui-language.md), written by the maintainer): light and whitish by default, a dark theme, and a system setting; radius tokens 4–6 px; the action bar, panels and bottom drawer docked around the canvas, separated by hairlines rather than shadows; light blue as the single accent; colour only for meaning (selection, status, arrows). Floating panels over a strongly blurred canvas are an option, off by default. A new colour use states its meaning in the token's name. This differs from the spec as written — `STU-010` and Appendix J (rounded 12–20 px, floating panels), `STU-060`–`STU-062` ("floating" action bar and panels) and the caption of Figure 21-2 ("Panels float over the canvas"); the specification change for all of them lands in the same pull request as the first implementation of this rule (`AGENTS.md` §3).
+4.3. **The visual language is Porcelain** ([studio-ui-language.md](p11-studio-ui-language.md), accepted by the maintainer 2026-10-22, with the reference page [studio-ui-reference.html](p11-studio-reference.html)): a cool, whitish workspace with a dark theme and a system setting; generous radii and pills; three floating glass capsules, floating panels and a floating drawer over the canvas; Electric Violet only for selection, focus and the primary action; colour only for meaning (selection, status, arrows); dense, information-rich presentation through a fixed set of patterns (status pills, metric strips, meters, sparklines). Studio follows `STU-010`, `STU-060`–`STU-062` and Figure 21-2 as written. A new colour use states its meaning in the token's name; a new pattern is added to the UI language and the reference page before it is built.
 
 4.4. **Themes and density** (`STU-014`): light, dark and system; compact density by default and comfortable as the option, both as token sets (CSS variables), not conditional class names. A high-contrast theme exists for the canvas preview (`STU-112`) and is offered for the shell.
 
 4.5. **Contrast is computed, not eyeballed.** Every text/background and UI-component token pair is checked with the `@plux/brand` contrast utilities in both themes: 4.5:1 for text, 3:1 for large text and components (`STU-011`). The check is a unit test over the token tables.
 
-4.6. **Typography.** The wordmark uses Sora SemiBold (Appendix J). The UI typeface is Noto Sans with Noto Sans Arabic (OFL-1.1, variable, self-hosted): one superfamily covering the scripts of every Studio locale, so English and Arabic text share weights and metrics.
+4.6. **Typography.** The wordmark uses Sora SemiBold (Appendix J). Instrument Serif names things (screens, panels, sections, plugins), Instrument Sans carries controls and sentences, DM Mono carries every number with a unit, identifier, path and code (OFL-1.1, self-hosted; UI language U7). Arabic uses the pairing the maintainer decides (UI language U7).
 
 4.7. **Motion** comes from duration and easing tokens (arrow expansion 150–200 ms, `STU-044`). No animation library: canvas animations run in Plux Canvas; panels and dialogs use CSS transitions and Base UI state attributes. Every animation honours `prefers-reduced-motion` by reducing to an instant change.
 
@@ -649,7 +665,7 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 6.4. **Contracts are generated.** Types come from `@plux/schema` and the Connect-ES clients in `@plux/api`; a hand-written duplicate of a contract type is rejected.
 
-6.5. **Errors are reasons, not strings** ([error-handling.md](error-handling.md)). The UI branches on the error reason and shows the localised message for that reason; it never parses `message`. Diagnostics show their code and JSON path and link to the node.
+6.5. **Errors are reasons, not strings** ([error-handling.md](../engineering/error-handling.md)). The UI branches on the error reason and shows the localised message for that reason; it never parses `message`. Diagnostics show their code and JSON path and link to the node.
 
 6.6. **Limits come from the registry** (`LIM-001`): editors read limits from `@plux/schema`'s generated limits; no size or count is hard-coded in the UI.
 
@@ -657,7 +673,7 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 Studio's own interface is localised and runs left-to-right and right-to-left (`STU-012`); the language is chosen in profile settings (`STU-014`). This section covers Studio's chrome. Localising the *apps users build* is spec §17 and is previewed on the canvas (§8.5).
 
-7.1. **Locales.** Studio ships in English (`en`, the source locale), German (`de`) and Arabic (`ar`), which proves right-to-left layout (`STU-012`, [ADR-0066](../adr/0066-studio-ui-languages.md)); Arabic is also the product's RTL launch locale (`I18N-002`). Adding a locale is data only: a catalogue file and an entry in the locale list, no code change.
+7.1. **Locales.** Studio ships in English (`en`, the source locale), German (`de`) and Arabic (`ar`), which proves right-to-left layout (`STU-012`, ADR-0066 (to be written, C3)); Arabic is also the product's RTL launch locale (`I18N-002`). Adding a locale is data only: a catalogue file and an entry in the locale list, no code change.
 
 7.2. **No literal UI text.** Every user-visible string — labels, placeholders, `aria-label`, `title`, tooltips, toasts, errors, empty states, document titles — comes from the message catalogue. A lint rule rejects string literals in JSX text and accessibility attributes with the first component. Product names (Plux, Plux Canvas) and user content are the only exceptions.
 
@@ -681,7 +697,7 @@ Studio's own interface is localised and runs left-to-right and right-to-left (`S
 
 8.2. **Direction is read, never assumed.** Code that needs the direction (popover placement, drawer side, drag gestures) reads it from the direction provider (Base UI); no `dir === "rtl" ? … : …` scattered through components.
 
-8.3. **Icons.** Icons with a direction (back, forward, chevrons, undo and redo arrows, "send", reply) mirror in RTL; icons without one (play, search, check, the Plux logo, clocks, media controls) never mirror. Lucide carries no mirror metadata, so the catalogue marks each icon `mirrors: true | false`.
+8.3. **Icons.** Studio's chrome uses one icon set, Phosphor duotone, through the `Icon` component (UI language U8). Icons with a direction (back, forward, chevrons, undo and redo arrows, "send", reply) mirror in RTL; icons without one (play, search, check, the Plux logo, clocks, media controls) never mirror. The set carries no mirror metadata, so the catalogue marks each icon `mirrors: true | false`.
 
 8.4. **Keyboard follows reading direction in the chrome.** In lists, tabs, menus and trees, the "next" arrow key is Right in LTR and Left in RTL.
 
@@ -753,7 +769,7 @@ Studio's own interface is localised and runs left-to-right and right-to-left (`S
 
 12.2. **Assert on meaning, not appearance.** Queries use roles and accessible names ("the button named *Publish*"), never CSS classes, test IDs on everything, or DOM structure. A test that would pass with the wrong label is wrong.
 
-12.3. **Requirement IDs in test names** in the bracket form ([testing.md](testing.md) §3): `test("blocks deleting a screen with incoming links [STU-070]", …)`.
+12.3. **Requirement IDs in test names** in the bracket form ([testing.md](../engineering/testing.md) §3): `test("blocks deleting a screen with incoming links [STU-070]", …)`.
 
 12.4. **Every component is checked in three locales**: `en`, `en-XA` (expanded) and `ar-XB` (RTL). Behaviour tests run in all three. Text overflow (content size against box size) needs real layout, which happy-dom does not compute, so it is checked by the Playwright locale sweep over the catalogue page for every catalogue component and feature root. A check fails when text overflows its container, when a physical-direction style is applied, or when a string is missing from the catalogue.
 
@@ -783,13 +799,13 @@ Frontend work is where agents waste the most context: screenshots, page dumps fr
 
 13.6. **Reuse first, by catalogue.** Read `studio/packages/ui/CATALOGUE.md` before writing markup; a shared component is used by name instead of re-writing its classes.
 
-13.7. **Design input as text.** Designs reach agents as text: tokens, the catalogue, written specs, measurements and annotated wireframes in Markdown or SVG source. An image mock-up is converted to such text by a human before an agent works from it, or falls under §13.1.
+13.7. **Design input as text.** Designs reach agents as text: tokens, the catalogue, the UI language, the reference page as HTML source, written specs, measurements and annotated wireframes in Markdown or SVG source. An image mock-up is converted to such text by a human before an agent works from it, or falls under §13.1. Every session that changes Studio's interface loads the design skill (`.claude/skills/plux-studio-design/`, drafted in [p11-studio-design-skill.md](p11-studio-design-skill.md)).
 
 13.8. **One feature per session.** An agent session works on one feature folder and the shared packages it needs; work that spreads across areas is split into sessions, each starting from the work log.
 
 ## 14. Definition of done for a Studio change
 
-In addition to [workflow.md](workflow.md) §6:
+In addition to [workflow.md](../engineering/workflow.md) §6:
 
 - [ ] `make studio-check` passes; any benchmark the change affects ran and is within budget.
 - [ ] Tests name their requirement IDs; behaviour tests run in `en`, `en-XA` and `ar-XB`, and the locale sweep passes; strings exist in `en`, `de` and `ar`.
@@ -799,6 +815,7 @@ In addition to [workflow.md](workflow.md) §6:
 - [ ] New commands are in the command registry with a shortcut-collision check.
 - [ ] Keyboard-only use and screen-reader names are covered by tests.
 - [ ] Any new server work is bounded (§1.7) and any new dependency is on the allowlist.
+- [ ] The interface is built from catalogue components in the UI language; the design skill's checklist is complete.
 - [ ] No screenshot was used, or the maintainer's approval and its purpose are noted in the pull request.
 
 ---
@@ -821,9 +838,9 @@ In addition to [workflow.md](workflow.md) §6:
 | 10 | §12.1, §12.4 | overflow check needs real layout → Playwright locale sweep; tools named per level | A4.12 |
 | 11 | §11.2 | `'wasm-unsafe-eval'` (not `'unsafe-eval'`); `worker-src` | CanvasKit and the validator are WebAssembly in workers |
 | 12 | §2.2 | "no hand-written fetch **to the API**"; own static files are fine | loading WebAssembly, fonts, catalogues |
-| 13 | §5.2, §8.3 | catalogue keeps icon `mirrors` list; `*.cases.tsx` | Lucide has no mirror metadata; A4.22 |
-| 14 | §4.6 | UI font Noto Sans + Noto Sans Arabic | A5.4 |
-| 15 | §4.3 | spec change for `STU-010`/Appendix J, `STU-060`–`STU-062` and Figure 21-2 lands in the same PR; `studio-ui-language.md` written by the maintainer | `AGENTS.md` §3; A1.5 |
+| 13 | §5.2, §8.3 | catalogue keeps icon `mirrors` list; `*.cases.tsx` | the icon set has no mirror metadata; A4.22 |
+| 14 | §4.6 | UI fonts Instrument Sans, Instrument Serif, DM Mono (2026-10-22; first Noto Sans + Noto Sans Arabic) | A5.4; UI language U7 |
+| 15 | §4.3, §8.3, §13.7, §14 | Porcelain visual language, floating as the spec says (2026-10-22; first compact and docked); Phosphor icons; design skill; checklist item | A1.5; UI language |
 | 16 | §1.7, §10.6, §11.5, §11.7, §14 (new/extended) | protect the server; static asset caching; telemetry bounds; sandboxed language servers | A1.1, A5.3, A5.7, A5.9 |
 | 17 | §10.2 | CI benchmarks without GPU; reference-laptop confirmation | A5.8 |
 | 18 | §4.2, §4.7 | Tailwind defaults reset, no CSS-in-JS; no animation library | A4.8, A4.20 |
@@ -850,8 +867,9 @@ In addition to [workflow.md](workflow.md) §6:
   - `STU-002`: the server performs sign-in (OIDC/SAML from P9) and holds sessions; the BFF serves
     the sign-in pages and passes the session through (functional decisions F19).
   - `STU-006`: text shaped with **SkParagraph at the pinned Flutter Skia revision**.
-  - `STU-010` / Appendix J, `STU-060`–`STU-062` and the Figure 21-2 caption ("floating" → docked
-    by default): per rule book §4.3 and `studio-ui-language.md`.
+  - Appendix J, `brand.violet`'s use column: arrows are navy at rest and violet only when hovered
+    or selected (UI language U19). `STU-010`, `STU-060`–`STU-062` and Figure 21-2 need no change:
+    the accepted design floats, as they say.
 - **ADRs:**
   - **ADR-0013** (Planned in `docs/adr/README.md`): Plux Canvas — CanvasKit custom build, the
     layout port and conformance suite, the canvas worker, fonts.
@@ -862,9 +880,13 @@ In addition to [workflow.md](workflow.md) §6:
     Planned and write — Lingui, locales `en`/`de`/`ar`, pseudo-locales.
   - Dependency ADRs/allowlist entries for every package in A3 not yet allowed.
 - **Rule book:** move Part B to `docs/engineering/studio-development.md` and link it from the
-  handbook and `studio/AGENTS.md`; the maintainer writes `studio-ui-language.md`.
+  handbook and `studio/AGENTS.md`; move [p11-studio-ui-language.md](p11-studio-ui-language.md) to
+  `docs/engineering/studio-ui-language.md` and its reference page to
+  `docs/engineering/studio-ui-reference.html`; add the design skill
+  ([p11-studio-design-skill.md](p11-studio-design-skill.md)) as `.claude/skills/plux-studio-design/`.
 - **Legal reviews before acceptance:** ported Flutter code (BSD-3 inside AGPL `studio/`); SF Pro
-  handling; font files (OFL-1.1, Roboto included); `axe-core` / `@axe-core/playwright`
+  handling; font files (OFL-1.1: Instrument Sans, Instrument Serif, DM Mono, Roboto, the Arabic
+  pairing); Phosphor Icons (MIT notice for the inlined paths); `axe-core` / `@axe-core/playwright`
   (MPL-2.0, dev-only, unmodified); notices for CanvasKit/Skia, Monaco, CodeMirror and every
   shipped package in the image; ELK only if ever needed (EPL-2.0 OR GPL-3.0).
 

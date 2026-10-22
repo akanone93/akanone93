@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2026 Plux contributors
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # P11 Studio — Functional, Flow and Operational Decisions
 
 - **Status:** Decided by the maintainer in the preparation session (2026-10-18 to 2026-10-19),
@@ -406,7 +411,10 @@ others see "Anna is publishing" and can view it.
 
 Each ends at the milestone exit gate used since P4: every gate passes with exit codes checked;
 repeated end-to-end runs pass; a green dispatched CI run; open items resolved or put to the
-maintainer.
+maintainer. From S0, the gate also includes the **design gate** of the UI language
+([p11-studio-ui-language.md](p11-studio-ui-language.md) U18.6): the automated AI-pattern detector over
+the catalogue page and the slice's routes, and the maintainer's local review of the slice's screens
+against the reference page.
 
 | # | Slice | Proves |
 |---|---|---|
@@ -471,4 +479,6 @@ In addition to the decisions file's C4 list:
 
 ### Z4. Dependencies (allowlist + ADR)
 
-`@leeoniya/ufuzzy` (F15). All others are in the decisions file's A3 list.
+`@leeoniya/ufuzzy` (F15). All others are in the decisions file's A3 list (fonts and icons as revised
+on 2026-10-22). The design gate's detector (proposed: Impeccable, Apache-2.0, a development tool, not
+shipped) needs an allowlist entry and the maintainer's approval as a CI gate change (`AGENTS.md` §7).

@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2026 Plux contributors
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # P11 Studio — Routing
 
 - **Status:** Accepted by the maintainer on 2026-10-20.
