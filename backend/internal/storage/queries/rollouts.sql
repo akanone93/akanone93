@@ -96,6 +96,9 @@ RETURNING *;
 SELECT * FROM manifests WHERE rollout_id = $1 ORDER BY issued_at DESC, id DESC LIMIT 1;
 
 -- name: ClaimClosingRollout :one
--- Locks a closing rollout for the caller that finishes it; a caller that finds
--- it locked skips it.
-SELECT * FROM rollouts WHERE id = $1 AND state = 'closing' FOR UPDATE SKIP LOCKED;
+-- Locks a closing rollout for the caller that finishes it. A caller that finds
+-- it locked waits, then finds it no longer closing when the holder finished
+-- it. Skipping a locked row is not safe: a scheduler that lost the race to
+-- begin closing holds the row until it rolls back, and the winner that
+-- skipped would leave the rollout closing.
+SELECT * FROM rollouts WHERE id = $1 AND state = 'closing' FOR UPDATE;
