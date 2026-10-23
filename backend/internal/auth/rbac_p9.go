@@ -66,4 +66,12 @@ const (
 	// RetentionManage changes how long events and rollups are kept and
 	// schedules or cancels such changes (ANL-010, maintainer decision Q17).
 	RetentionManage Permission = "retention.manage"
+
+	// DevSessionCreate opens dev sessions, pairs devices with them and
+	// sends patches and commands to the devices (DEV-002, DEV-010,
+	// DEV-011).
+	DevSessionCreate Permission = "devsession.create"
+	// DevSessionObserve watches and exports a dev session's event stream
+	// and lists its devices (DEV-020, DEV-021, DEV-041).
+	DevSessionObserve Permission = "devsession.observe"
 )

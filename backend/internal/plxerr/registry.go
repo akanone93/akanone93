@@ -466,6 +466,26 @@ const (
 	ProjectNotFound         Code = 9101
 	FileSystemError         Code = 9102
 
+	// Dev sessions and pairing (PLX-9200–9229, P10).
+
+	DevSessionExpired     Code = 9200
+	PairingTokenExpired   Code = 9201
+	PairingTokenUsed      Code = 9202
+	DevSessionEnvironment Code = 9203
+	DeviceNotPaired       Code = 9204
+	SocketTicketInvalid   Code = 9205
+	DevCommandNotAllowed  Code = 9206
+	DevPatchRejected      Code = 9207
+	DevSessionDeviceLimit Code = 9208
+	DevEventTooLarge      Code = 9209
+
+	// Device-side devtools (PLX-9230–9249, P10).
+
+	DevBundleSignatureInvalid Code = 9230
+	HotApplyRefused           Code = 9231
+	DevCommandUnsupported     Code = 9232
+	TraceFileUnreadable       Code = 9233
+
 	// Golden test harness (PLX-9300–9399, P8).
 
 	GoldenHarnessFailed   Code = 9300
@@ -473,26 +493,33 @@ const (
 
 	// Experiments, rollouts, governance, federation and licence (P9).
 
-	PolicyDocumentInvalid           Code = 1700
-	UnknownFlagType                 Code = 1701
-	VariantWithoutControl           Code = 1702
-	VariantWeightsInvalid           Code = 1703
-	SegmentRuleInvalid              Code = 1704
-	ExperimentKeyUnknown            Code = 2300
-	WinnerNotAVariant               Code = 2301
-	VariantTreeExceedsBudget        Code = 2302
-	ControlSignatureInvalid         Code = 3100
-	ControlDocumentExpired          Code = 3101
-	ControlRollbackRejected         Code = 3102
-	MandatoryUpdatePending          Code = 3103
-	ForcedRollbackApplied           Code = 3104
-	ActionGraphSwitchedOff          Code = 3105
-	DataSourceSwitchedOff           Code = 3106
-	FunctionSwitchedOff             Code = 3107
-	RolloutPausedByHealthGate       Code = 3150
-	RolloutRolledBack               Code = 3151
-	TargetingRuleInvalid            Code = 3152
-	ScheduleOverlapsRollout         Code = 3153
+	PolicyDocumentInvalid     Code = 1700
+	UnknownFlagType           Code = 1701
+	VariantWithoutControl     Code = 1702
+	VariantWeightsInvalid     Code = 1703
+	SegmentRuleInvalid        Code = 1704
+	ExperimentKeyUnknown      Code = 2300
+	WinnerNotAVariant         Code = 2301
+	VariantTreeExceedsBudget  Code = 2302
+	ControlSignatureInvalid   Code = 3100
+	ControlDocumentExpired    Code = 3101
+	ControlRollbackRejected   Code = 3102
+	MandatoryUpdatePending    Code = 3103
+	ForcedRollbackApplied     Code = 3104
+	ActionGraphSwitchedOff    Code = 3105
+	DataSourceSwitchedOff     Code = 3106
+	FunctionSwitchedOff       Code = 3107
+	RolloutPausedByHealthGate Code = 3150
+	RolloutRolledBack         Code = 3151
+	TargetingRuleInvalid      Code = 3152
+	ScheduleOverlapsRollout   Code = 3153
+
+	// Background sync (PLX-3500–3509, P10).
+
+	BackgroundSyncFailed            Code = 3500
+	BackgroundSyncNotConfigured     Code = 3501
+	BackgroundSyncConstraints       Code = 3502
+	StagedReleaseRejected           Code = 3503
 	StepUpRequired                  Code = 6200
 	StepUpExpired                   Code = 6201
 	WebAuthnAssertionInvalid        Code = 6202

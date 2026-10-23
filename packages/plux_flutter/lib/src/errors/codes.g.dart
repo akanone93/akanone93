@@ -637,6 +637,18 @@ enum PluxErrorCode {
   /// Schedule overlaps another rollout.
   scheduleOverlapsRollout(3153, 'SCHEDULE_OVERLAPS_ROLLOUT', 'Schedule overlaps another rollout'),
 
+  /// Background sync failed.
+  backgroundSyncFailed(3500, 'BACKGROUND_SYNC_FAILED', 'Background sync failed'),
+
+  /// Background sync not configured.
+  backgroundSyncNotConfigured(3501, 'BACKGROUND_SYNC_NOT_CONFIGURED', 'Background sync not configured'),
+
+  /// Background sync constraints not met.
+  backgroundSyncConstraintsUnmet(3502, 'BACKGROUND_SYNC_CONSTRAINTS_UNMET', 'Background sync constraints not met'),
+
+  /// Staged release verification failed.
+  stagedReleaseVerificationFailed(3503, 'STAGED_RELEASE_VERIFICATION_FAILED', 'Staged release verification failed'),
+
   /// Build error in node.
   nodeBuildFailed(4001, 'NODE_BUILD_FAILED', 'Build error in node'),
 
@@ -1293,6 +1305,48 @@ enum PluxErrorCode {
 
   /// File system error.
   fileSystemError(9102, 'FILE_SYSTEM_ERROR', 'File system error'),
+
+  /// Dev session expired.
+  devSessionExpired(9200, 'DEV_SESSION_EXPIRED', 'Dev session expired'),
+
+  /// Pairing token expired.
+  pairingTokenExpired(9201, 'PAIRING_TOKEN_EXPIRED', 'Pairing token expired'),
+
+  /// Pairing token already used.
+  pairingTokenAlreadyUsed(9202, 'PAIRING_TOKEN_ALREADY_USED', 'Pairing token already used'),
+
+  /// Environment not allowed for dev sessions.
+  devSessionEnvironmentNotAllowed(9203, 'DEV_SESSION_ENVIRONMENT_NOT_ALLOWED', 'Environment not allowed for dev sessions'),
+
+  /// Device not paired.
+  deviceNotPaired(9204, 'DEVICE_NOT_PAIRED', 'Device not paired'),
+
+  /// Socket ticket invalid.
+  socketTicketInvalid(9205, 'SOCKET_TICKET_INVALID', 'Socket ticket invalid'),
+
+  /// Command not allowed.
+  devCommandNotAllowed(9206, 'DEV_COMMAND_NOT_ALLOWED', 'Command not allowed'),
+
+  /// Patch rejected.
+  devPatchRejected(9207, 'DEV_PATCH_REJECTED', 'Patch rejected'),
+
+  /// Session device limit reached.
+  devSessionDeviceLimitReached(9208, 'DEV_SESSION_DEVICE_LIMIT_REACHED', 'Session device limit reached'),
+
+  /// Event too large.
+  devEventTooLarge(9209, 'DEV_EVENT_TOO_LARGE', 'Event too large'),
+
+  /// Dev bundle signature invalid.
+  devBundleSignatureInvalid(9230, 'DEV_BUNDLE_SIGNATURE_INVALID', 'Dev bundle signature invalid'),
+
+  /// Hot apply reset state.
+  hotApplyRefused(9231, 'HOT_APPLY_REFUSED', 'Hot apply reset state'),
+
+  /// Command unsupported by this runtime.
+  devCommandUnsupported(9232, 'DEV_COMMAND_UNSUPPORTED', 'Command unsupported by this runtime'),
+
+  /// Trace file unreadable.
+  traceFileUnreadable(9233, 'TRACE_FILE_UNREADABLE', 'Trace file unreadable'),
 
   /// Golden test harness failed.
   goldenHarnessFailed(9300, 'GOLDEN_HARNESS_FAILED', 'Golden test harness failed'),

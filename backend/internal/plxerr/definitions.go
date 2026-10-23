@@ -1077,6 +1077,26 @@ var registry = []Definition{
 		"Choose a time that does not overlap another rollout.", false,
 	},
 	{
+		BackgroundSyncFailed, "BACKGROUND_SYNC_FAILED", SeverityError, "Background sync failed",
+		"A sync that the operating system started in the background could not complete: the server was unreachable, a download failed, or the time the system grants a background task ran out (SYN-014). The cause is in the error's details.",
+		"The device keeps its current release and the next foreground start or background run tries again; check the device's connectivity and the server's health.", false,
+	},
+	{
+		BackgroundSyncNotConfigured, "BACKGROUND_SYNC_NOT_CONFIGURED", SeverityError, "Background sync not configured",
+		"The app asked for a background sync but the host app did not declare the platform task, such as the iOS background task identifier or the Android work request, that the system needs to start it (SYN-014).",
+		"Declare the background task in the host app as the runtime's integration guide describes, or turn background sync off in the app's sync settings.", false,
+	},
+	{
+		BackgroundSyncConstraints, "BACKGROUND_SYNC_CONSTRAINTS_UNMET", SeverityWarning, "Background sync constraints not met",
+		"A background sync was skipped because a constraint of the app's sync settings did not hold, such as an unmetered network, charging, or battery not low (SYN-014).",
+		"Nothing to change: the sync runs when the constraints hold; relax the constraints in the app's sync settings if it runs too rarely.", false,
+	},
+	{
+		StagedReleaseRejected, "STAGED_RELEASE_VERIFICATION_FAILED", SeverityError, "Staged release verification failed",
+		"A release downloaded in the background failed verification, so it was discarded and not staged for the next start: a signature, hash or size did not match (SYN-014, SEC-052).",
+		"Nothing to change in the app: the active release stays; sync again, and check the CDN or proxy if it persists.", false,
+	},
+	{
 		NodeBuildFailed, "NODE_BUILD_FAILED", SeverityError, "Build error in node",
 		"Building, laying out or painting a node failed, or a value it needs could not be decoded or evaluated. The page's error boundary rendered its fallback (RT-020). A PluxView that expands in unbounded constraints shows its fallback with it too (NAV-004).",
 		"Look up the node path in the report and fix the page; the source map of a development bundle names the document location.", false,
@@ -2186,6 +2206,77 @@ var registry = []Definition{
 		FileSystemError, "FILE_SYSTEM_ERROR", SeverityError, "File system error",
 		"A file or directory could not be read or written.",
 		"Check that the path exists and is accessible.", false,
+	},
+	{
+		DevSessionExpired, "DEV_SESSION_EXPIRED", SeverityError, "Dev session expired",
+		"The dev session reached its lifetime or sat idle for longer than its limits allow, or it was ended, so the server closed its device channel (DEV-002).",
+		"Start a new dev session and pair the device again.", false,
+	},
+	{
+		PairingTokenExpired, "PAIRING_TOKEN_EXPIRED", SeverityError, "Pairing token expired",
+		"The pairing token was presented after its short lifetime ended (DEV-002).",
+		"Show a fresh pairing code or QR and pair again.", false,
+	},
+	{
+		PairingTokenUsed, "PAIRING_TOKEN_ALREADY_USED", SeverityError, "Pairing token already used",
+		"The pairing token has been consumed by an earlier pairing; a token works once (DEV-002).",
+		"Show a fresh pairing code or QR and pair again.", false,
+	},
+	{
+		DevSessionEnvironment, "DEV_SESSION_ENVIRONMENT_NOT_ALLOWED", SeverityError, "Environment not allowed for dev sessions",
+		"Dev sessions are only available for environments whose kind is not production (DEV-003).",
+		"Create the dev session in a development or staging environment.", false,
+	},
+	{
+		DeviceNotPaired, "DEVICE_NOT_PAIRED", SeverityError, "Device not paired",
+		"The device is not paired with this dev session, or its pairing was revoked or ended with the session (DEV-002).",
+		"Pair the device with the session again.", false,
+	},
+	{
+		SocketTicketInvalid, "SOCKET_TICKET_INVALID", SeverityError, "Socket ticket invalid",
+		"The ticket presented at the WebSocket upgrade is unknown, expired, already used, or bound to another device key (DEV-002).",
+		"Pair again to obtain a fresh socket ticket.", false,
+	},
+	{
+		DevCommandNotAllowed, "DEV_COMMAND_NOT_ALLOWED", SeverityError, "Command not allowed",
+		"The caller may not send this command to the device, or the command is not allowed for the session's environment or the device's build (DEV-011, DEV-031).",
+		"Ask for the permission the command needs, or use a build that allows it.", false,
+	},
+	{
+		DevPatchRejected, "DEV_PATCH_REJECTED", SeverityError, "Patch rejected",
+		"The document patch did not validate or compile, so nothing was pushed to the devices; the diagnostics are in the error's details (DEV-010).",
+		"Fix the diagnostics and push the patch again.", false,
+	},
+	{
+		DevSessionDeviceLimit, "DEV_SESSION_DEVICE_LIMIT_REACHED", SeverityError, "Session device limit reached",
+		"The dev session already has as many paired devices as the limit `devSession.devicesPerSession` allows (DEV-002).",
+		"End the pairing of a device that is no longer needed, or start another session.", false,
+	},
+	{
+		DevEventTooLarge, "DEV_EVENT_TOO_LARGE", SeverityError, "Event too large",
+		"A device event exceeds the limit `devtools.eventBytes` and was dropped; the stream records the drop (DEV-021).",
+		"Nothing to change: reduce what the event carries, such as the size of a state value.", false,
+	},
+
+	{
+		DevBundleSignatureInvalid, "DEV_BUNDLE_SIGNATURE_INVALID", SeverityError, "Dev bundle signature invalid",
+		"A bundle pushed to the device in a dev session does not verify against the development root the device pinned when it paired (DEV-003, SEC-052).",
+		"Nothing to change on the device: the bundle was refused; pair again if the session's development key changed.", false,
+	},
+	{
+		HotApplyRefused, "HOT_APPLY_REFUSED", SeverityWarning, "Hot apply reset state",
+		"A pushed patch changed the state schema of a page, so the runtime reset the incompatible scopes instead of keeping them; compatible scopes were kept (DEV-010).",
+		"Nothing to change: the stream names the scopes that were reset; reopen the screen to reach the state you want.", false,
+	},
+	{
+		DevCommandUnsupported, "DEV_COMMAND_UNSUPPORTED", SeverityError, "Command unsupported by this runtime",
+		"The device's runtime or build does not implement the command, such as an overlay or a security detection the platform cannot simulate (DEV-011, DEV-031).",
+		"Update the host app to a runtime that supports the command.", false,
+	},
+	{
+		TraceFileUnreadable, "TRACE_FILE_UNREADABLE", SeverityError, "Trace file unreadable",
+		"The file is not a trace export: it is not compressed, its header is missing or has a newer format version, or an event is truncated (DEV-021).",
+		"Export the trace again, or open it with a newer version of the tool.", false,
 	},
 
 	// Golden test harness.
