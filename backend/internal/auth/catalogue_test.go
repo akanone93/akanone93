@@ -75,8 +75,8 @@ func TestCatalogueEqualsTheConstants_GOV_002(t *testing.T) {
 func TestCatalogueEntries_GOV_002(t *testing.T) {
 	t.Parallel()
 	cat := auth.Catalogue()
-	if len(cat) != 50 {
-		t.Errorf("the catalogue has %d permissions, want 50 (24 existing, 26 of P9)", len(cat))
+	if len(cat) != 52 {
+		t.Errorf("the catalogue has %d permissions, want 52 (24 existing, 26 of P9, 2 of P10)", len(cat))
 	}
 	for i, e := range cat {
 		if e.Description == "" || !strings.HasSuffix(e.Description, ".") {
@@ -150,6 +150,8 @@ func TestStepUpOfExistingPermissionsIsUnchanged_GOV_002(t *testing.T) {
 // P9: each holds exactly what it held, and the owner also holds the P9
 // permissions, which guard only calls that did not exist. The one addition
 // is restrictions.manage, which Admins hold beside the Owner (GOV-006).
+// P10 adds the two dev-session permissions: the Admin and the Developer hold
+// both, and the Viewer may observe (DEV-020, ADR-0087).
 func TestExistingRolesKeepTheirGrants_GOV_002(t *testing.T) {
 	t.Parallel()
 	held := map[auth.Role][]auth.Permission{
@@ -159,13 +161,13 @@ func TestExistingRolesKeepTheirGrants_GOV_002(t *testing.T) {
 			auth.OrganizationManage, auth.OrganizationRead, auth.PluginEdit, auth.PluginLockOverride,
 			auth.PluginRead, auth.ReleasePromote, auth.ReleasePublish, auth.SecretsManage, auth.TokensManage,
 			auth.TrashManage, auth.A11yWaive, auth.GoldensApprove, auth.TranslationsApprove, auth.TranslationsEdit,
-			auth.RestrictionsManage,
+			auth.RestrictionsManage, auth.DevSessionCreate, auth.DevSessionObserve,
 		},
 		auth.RoleDeveloper: {
 			auth.AppRead, auth.FunctionDeploy, auth.FunctionRead, auth.OrganizationRead, auth.PluginEdit,
-			auth.PluginRead, auth.ReleasePublish, auth.TranslationsEdit,
+			auth.PluginRead, auth.ReleasePublish, auth.TranslationsEdit, auth.DevSessionCreate, auth.DevSessionObserve,
 		},
-		auth.RoleViewer:     {auth.AppRead, auth.FunctionRead, auth.OrganizationRead, auth.PluginRead},
+		auth.RoleViewer:     {auth.AppRead, auth.DevSessionObserve, auth.FunctionRead, auth.OrganizationRead, auth.PluginRead},
 		auth.RoleTranslator: {auth.AppRead, auth.OrganizationRead, auth.PluginRead, auth.TranslationsEdit},
 	}
 	for role, want := range held {

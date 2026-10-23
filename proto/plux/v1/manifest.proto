@@ -58,6 +58,22 @@ message Manifest {
   // for rollback and freeze checks; part of the signed document
   // (SEC-050).
   UpdateMetadataRef metadata = 14;
+  // development_session is present only in the manifest of a dev session's
+  // development bundle (DEV-003, ADR-0087). A release manifest never
+  // carries it, and a release runtime refuses a manifest that does.
+  DevelopmentSession development_session = 15;
+}
+
+// DevelopmentSession names the dev session a development bundle belongs
+// to. It is never present in a release manifest.
+message DevelopmentSession {
+  // session_id is the dev session's identifier.
+  string session_id = 1;
+  // sequence_space is the number of the development sequence the bundle
+  // belongs to. Development bundles are numbered inside the session, apart
+  // from the app's release sequence, so a dev bundle can never be mistaken
+  // for a release.
+  uint64 sequence_space = 2;
 }
 
 // SecurityConfigRef pins one version of the effective security

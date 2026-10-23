@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/devtools/network-profiles.schema.json",
+  "title": "Plux network profiles",
+  "description": "The network profiles of dev sessions (DEV-031): the single source of the Go table in backend/internal/netsim and of the Dart table in plux_flutter.",
+  "type": "object",
+  "required": [
+    "profiles"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/profile"
+      }
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "latencyMs",
+        "jitterMs",
+        "downKbitPerSecond",
+        "upKbitPerSecond",
+        "lossPercent"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$",
+          "description": "Stable identifier; the value of NetworkProfileCommand.profile_id."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "latencyMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Added round-trip time in milliseconds."
+        },
+        "jitterMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Random variation of the latency in milliseconds, up to this much either way."
+        },
+        "downKbitPerSecond": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Download bandwidth in kbit/s; zero with an upload of zero is a link that carries nothing."
+        },
+        "upKbitPerSecond": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Upload bandwidth in kbit/s."
+        },
+        "lossPercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Packet loss in percent; 100 drops everything."
+        }
+      }
+    }
+  }
+}

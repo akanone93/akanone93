@@ -1,0 +1,428 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// The events of a dev session (DEV-020, DEV-021): what a paired device
+// streams to the server and the server relays to watchers. This file
+// declares messages only; the calls that carry them are in
+// devsession.proto. A device sends one DevEvent per binary WebSocket frame.
+//
+// Redaction happens at the source (ACT-031, SCH-012): a value of a field
+// tagged `sensitive`, a secret, a token or a DPoP proof never appears in
+// any message of this file, even in a development build. A field that
+// carries a value says so where the value could have been withheld.
+
+// DevEvent is one event of a device's stream.
+message DevEvent {
+  // sequence is the position of the event in the session's stream. It
+  // grows by one per event the session relays, across all its devices, so
+  // a watcher resumes with the last sequence it saw (DEV-021).
+  uint64 sequence = 1;
+  // device_id is the session device that produced the event; empty for an
+  // event the server produced itself, such as a drop it counted.
+  string device_id = 2;
+  // time_unix_micros is the device's clock when the event happened, in
+  // microseconds since the Unix epoch. With a faked clock (FakeClockCommand)
+  // it is the real time, not the faked one.
+  int64 time_unix_micros = 3;
+  // trace_id joins the events of one causal chain: the action run, the
+  // network call and the function call it made, and the server-side log
+  // lines of that call (DEV-020, FN-036). Empty when the event belongs to
+  // no chain.
+  string trace_id = 4;
+
+  oneof payload {
+    LogEvent log = 10;
+    ActionTraceEvent action_trace = 11;
+    StateDiffEvent state_diff = 12;
+    NetworkCallEvent network_call = 13;
+    FunctionCallEvent function_call = 14;
+    SyncEvent sync = 15;
+    FrameTimingEvent frame_timing = 16;
+    ErrorEvent error = 17;
+    SecurityDetectionEvent security_detection = 18;
+    CommandResultEvent command_result = 19;
+    HotApplyEvent hot_apply = 20;
+    ScreenshotEvent screenshot = 21;
+    InspectEvent inspect = 22;
+    DropEvent drop = 23;
+  }
+}
+
+// DevLogLevel is the level of a log line.
+enum DevLogLevel {
+  DEV_LOG_LEVEL_UNSPECIFIED = 0;
+  DEV_LOG_LEVEL_TRACE = 1;
+  DEV_LOG_LEVEL_DEBUG = 2;
+  DEV_LOG_LEVEL_INFO = 3;
+  DEV_LOG_LEVEL_WARNING = 4;
+  DEV_LOG_LEVEL_ERROR = 5;
+}
+
+// LogEvent is one runtime log line.
+message LogEvent {
+  DevLogLevel level = 1;
+  // source names what logged: "runtime", "action", "pxl", "host" or a
+  // plugin key.
+  string source = 2;
+  // message is the redacted text of the line.
+  string message = 3;
+  // node_path is the document location the line belongs to, when it has
+  // one; resolved through the development bundle's source map (CMP-041).
+  string node_path = 4;
+}
+
+// DevRunStatus is the state of an action run or one of its steps.
+enum DevRunStatus {
+  DEV_RUN_STATUS_UNSPECIFIED = 0;
+  DEV_RUN_STATUS_RUNNING = 1;
+  DEV_RUN_STATUS_SUCCEEDED = 2;
+  DEV_RUN_STATUS_FAILED = 3;
+  DEV_RUN_STATUS_CANCELLED = 4;
+  // DEV_RUN_STATUS_SKIPPED is a step on a branch that was not taken.
+  DEV_RUN_STATUS_SKIPPED = 5;
+}
+
+// DevError is a failure as the stream carries it.
+message DevError {
+  // code is the stable "PLX-NNNN" code.
+  string code = 1;
+  // reason is the code's stable name.
+  string reason = 2;
+  // message is the redacted message; it never contains a sensitive value
+  // (SEC-092).
+  string message = 3;
+}
+
+// ActionTraceEvent is the trace of one action run: the process flow of
+// ACT-030. A device sends it when the run ends, and may send earlier
+// versions with status RUNNING while it is under way; a later event of the
+// same run_id replaces an earlier one.
+message ActionTraceEvent {
+  string run_id = 1;
+  // graph names the action graph or the flow that ran.
+  string graph = 2;
+  // trigger is what started the run: an event name, "lifecycle", "timer",
+  // "deep_link" or "command".
+  string trigger = 3;
+  // node_path is the node whose event started the run, when one did.
+  string node_path = 4;
+  DevRunStatus status = 5;
+  int64 start_unix_micros = 6;
+  int64 end_unix_micros = 7;
+  repeated ActionStepTrace steps = 8;
+  // error is the failure that ended the run, when one did.
+  DevError error = 9;
+}
+
+// ActionStepTrace is one step of an action run.
+message ActionStepTrace {
+  // step_id is the step's identifier in its graph.
+  string step_id = 1;
+  // action is the action the step ran, such as "navigate" or a custom
+  // action's name.
+  string action = 2;
+  // branch is the branch of the graph the step is on: "main", "then",
+  // "else", "case:<label>", "onError", "finally", or "parallel:<n>".
+  string branch = 3;
+  DevRunStatus status = 4;
+  int64 start_unix_micros = 5;
+  int64 duration_micros = 6;
+  // inputs and outputs are the UTF-8 JSON values of the step with every
+  // sensitive field replaced by a placeholder (ACT-031). Empty when the
+  // step has none or the size limit withheld them.
+  bytes inputs = 7;
+  bytes outputs = 8;
+  // truncated is true when inputs or outputs were cut to fit
+  // `devtools.eventBytes`.
+  bool truncated = 9;
+  DevError error = 10;
+}
+
+// StateChange is one changed path of a state scope.
+message StateChange {
+  // path is the path inside the scope, in the notation of the state model.
+  string path = 1;
+  // old_value and new_value are UTF-8 JSON values. Both are empty when the
+  // path is sensitive or the diff was cut; `redacted` says which.
+  bytes old_value = 2;
+  bytes new_value = 3;
+  // redacted is true when the path is tagged sensitive and its values were
+  // withheld (SCH-012).
+  bool redacted = 4;
+}
+
+// StateDiffEvent reports a change of state in one scope.
+message StateDiffEvent {
+  // scope is "app", "page:<route>", "component:<node path>" or "form:<id>".
+  string scope = 1;
+  repeated StateChange changes = 2;
+  // truncated is true when the diff exceeded `devtools.stateDiffBytes`:
+  // `changes` then names the changed paths and carries no values.
+  bool truncated = 3;
+  // run_id is the action run that caused the change, when one did.
+  string run_id = 4;
+}
+
+// NetworkCallEvent is one HTTP call the runtime made (DEV-020).
+message NetworkCallEvent {
+  string call_id = 1;
+  string method = 2;
+  // url_template is the URL with path and query values replaced by their
+  // placeholders, so identifiers and tokens in a URL never leave the
+  // device.
+  string url_template = 3;
+  // status is the HTTP status; zero when no response arrived.
+  int32 status = 4;
+  int64 start_unix_micros = 5;
+  // timings, in microseconds from the start of the call; zero when the
+  // phase did not happen or was not measured.
+  int64 connect_micros = 6;
+  int64 first_byte_micros = 7;
+  int64 total_micros = 8;
+  int64 request_bytes = 9;
+  int64 response_bytes = 10;
+  // headers_redacted, request_body_redacted and response_body_redacted
+  // are true when the device withheld the headers or the body, which is
+  // the default. Only when a developer turned redaction down for the
+  // session are they false and the fields below filled; sensitive values
+  // stay withheld even then (SCH-012).
+  bool headers_redacted = 11;
+  bool request_body_redacted = 12;
+  bool response_body_redacted = 13;
+  map<string, string> request_headers = 14;
+  map<string, string> response_headers = 15;
+  bytes request_body = 16;
+  bytes response_body = 17;
+  // error is the failure of a call that got no usable response.
+  DevError error = 18;
+}
+
+// DevLogLine is a log line of a function, device-side or server-side.
+message DevLogLine {
+  int64 time_unix_micros = 1;
+  DevLogLevel level = 2;
+  string message = 3;
+}
+
+// FunctionCallEvent is one invocation of a Plux Function (FN-036).
+message FunctionCallEvent {
+  string call_id = 1;
+  // function is the dotted function name; version is the version that
+  // ran.
+  string function = 2;
+  uint32 version = 3;
+  // placement is "server" or "device" (FN-008).
+  string placement = 4;
+  int64 start_unix_micros = 5;
+  int64 duration_micros = 6;
+  // input and output are the redacted UTF-8 JSON values; empty when
+  // withheld.
+  bytes input = 7;
+  bytes output = 8;
+  // business_error_code is the function's own error code when it declared
+  // a business error (FN-022).
+  string business_error_code = 9;
+  // error is a system error of the call (FN-022).
+  DevError error = 10;
+  // replayed is true when the idempotency record answered (FN-021).
+  bool replayed = 11;
+  // logs are the function's log lines. For a server function the server
+  // merges the lines of the run into the event by trace ID, for the
+  // session's own app and environment only; for a device function the
+  // device sends its own.
+  repeated DevLogLine logs = 12;
+}
+
+// DevSyncPhase is a stage of a sync.
+enum DevSyncPhase {
+  DEV_SYNC_PHASE_UNSPECIFIED = 0;
+  DEV_SYNC_PHASE_CHECK = 1;
+  DEV_SYNC_PHASE_DOWNLOAD = 2;
+  DEV_SYNC_PHASE_VERIFY = 3;
+  DEV_SYNC_PHASE_APPLY = 4;
+  DEV_SYNC_PHASE_STAGED = 5;
+  DEV_SYNC_PHASE_COMPLETE = 6;
+  DEV_SYNC_PHASE_FAILED = 7;
+}
+
+// SyncEvent reports a stage of a sync (SYN-010).
+message SyncEvent {
+  DevSyncPhase phase = 1;
+  // release_sequence is the release the sync is about; zero when unknown.
+  int64 release_sequence = 2;
+  // plugin is the plugin key the stage is about; empty for the whole sync.
+  string plugin = 3;
+  // delta is true when a binary delta is used instead of a full bundle.
+  bool delta = 4;
+  int64 bytes_transferred = 5;
+  int64 duration_micros = 6;
+  DevError error = 7;
+}
+
+// FrameSample is the timing of one frame.
+message FrameSample {
+  // build_micros and raster_micros are the UI thread's and the raster
+  // thread's time for the frame.
+  int64 build_micros = 1;
+  int64 raster_micros = 2;
+  // janky is true when the frame missed its deadline.
+  bool janky = 3;
+}
+
+// FrameTimingEvent reports the frames of a short window (DEV-020).
+message FrameTimingEvent {
+  // window_micros is the length of the window the samples cover.
+  int64 window_micros = 1;
+  // route is the route that was on screen.
+  string route = 2;
+  repeated FrameSample frames = 3;
+  // rebuild_counts maps a node path to the number of times it rebuilt in
+  // the window; empty unless the rebuild-counter overlay is on (DEV-034).
+  map<string, uint32> rebuild_counts = 4;
+}
+
+// ErrorEvent is an error of the runtime with the node it belongs to.
+message ErrorEvent {
+  DevError error = 1;
+  // node_path is the document location of the node or action, resolved
+  // through the source map (CMP-041).
+  string node_path = 2;
+  Severity severity = 3;
+  // fatal is true when the error ended the screen's rendering or the app.
+  bool fatal = 4;
+}
+
+// DevSecurityDetectionKind is a detection of `plux_security` (SEC-070).
+enum DevSecurityDetectionKind {
+  DEV_SECURITY_DETECTION_KIND_UNSPECIFIED = 0;
+  DEV_SECURITY_DETECTION_KIND_ROOT = 1;
+  DEV_SECURITY_DETECTION_KIND_HOOKING = 2;
+  DEV_SECURITY_DETECTION_KIND_DEBUGGER = 3;
+  DEV_SECURITY_DETECTION_KIND_EMULATOR = 4;
+  DEV_SECURITY_DETECTION_KIND_REPACKAGING = 5;
+  DEV_SECURITY_DETECTION_KIND_UNTRUSTED_INSTALLER = 6;
+  DEV_SECURITY_DETECTION_KIND_SCREEN_CAPTURE = 7;
+  DEV_SECURITY_DETECTION_KIND_OVERLAY = 8;
+  DEV_SECURITY_DETECTION_KIND_ACCESSIBILITY = 9;
+}
+
+// SecurityDetectionEvent reports a detection and what the runtime did
+// about it.
+message SecurityDetectionEvent {
+  DevSecurityDetectionKind kind = 1;
+  // simulated is true when a developer's SimulateSecurityDetectionCommand
+  // caused the detection rather than the device's own checks.
+  bool simulated = 2;
+  // response is the response the app's policy took, such as "warn" or
+  // "block" (SEC-071).
+  string response = 3;
+}
+
+// DevCommandStatus is how a device answered a command.
+enum DevCommandStatus {
+  DEV_COMMAND_STATUS_UNSPECIFIED = 0;
+  DEV_COMMAND_STATUS_OK = 1;
+  DEV_COMMAND_STATUS_FAILED = 2;
+  // DEV_COMMAND_STATUS_UNSUPPORTED means the runtime does not implement
+  // the command (PLX-9232).
+  DEV_COMMAND_STATUS_UNSUPPORTED = 3;
+  // DEV_COMMAND_STATUS_REFUSED means the device refused the command, such
+  // as setting a sensitive state path (PLX-9206).
+  DEV_COMMAND_STATUS_REFUSED = 4;
+}
+
+// CommandResultEvent answers a SendCommand call.
+message CommandResultEvent {
+  // command_id is the identifier SendCommand returned.
+  string command_id = 1;
+  DevCommandStatus status = 2;
+  DevError error = 3;
+  // result is the UTF-8 JSON result of a command that has one, such as the
+  // value of an evaluate_pxl expression, redacted like any state value.
+  bytes result = 4;
+}
+
+// HotApplyEvent reports a hot apply of a pushed patch (DEV-010).
+message HotApplyEvent {
+  // bundle_sha256 is the hash of the development bundle that was applied,
+  // lower-case hex.
+  string bundle_sha256 = 1;
+  // pages_applied are the pages (routes) that were replaced.
+  repeated string pages_applied = 2;
+  // scopes_reset are the state scopes that were reset because the new
+  // state schema was incompatible (PLX-9231); the others were kept.
+  repeated string scopes_reset = 3;
+  // apply_micros is the time from the device's receipt of the bundle until
+  // the new tree was on screen.
+  int64 apply_micros = 4;
+}
+
+// ScreenshotEvent carries a captured screenshot (DEV-033).
+message ScreenshotEvent {
+  // command_id is the capture command this answers.
+  string command_id = 1;
+  // png is the PNG-encoded image.
+  bytes png = 2;
+  int32 width = 3;
+  int32 height = 4;
+  double pixel_ratio = 5;
+  // platform_views_not_captured is true when the screen shows platform
+  // views (native slots, maps) the capture could not include.
+  bool platform_views_not_captured = 6;
+}
+
+// InspectEvent reports a node the developer selected on the device by
+// tapping it (DEV-030).
+message InspectEvent {
+  // node_path is the document location of the selected node.
+  string node_path = 1;
+  // widget is the widget type of the node.
+  string widget = 2;
+}
+
+// DevDropReason says why events were dropped.
+enum DevDropReason {
+  DEV_DROP_REASON_UNSPECIFIED = 0;
+  // DEV_DROP_REASON_BUFFER_FULL: a buffer of `devtools.streamBufferEvents`
+  // or `devtools.streamBufferBytes` was full and its oldest events went.
+  DEV_DROP_REASON_BUFFER_FULL = 1;
+  // DEV_DROP_REASON_EVENT_TOO_LARGE: an event exceeded
+  // `devtools.eventBytes` (PLX-9209).
+  DEV_DROP_REASON_EVENT_TOO_LARGE = 2;
+}
+
+// DropEvent says how many events were dropped before this point of the
+// stream, so a watcher knows the gap is not a fault (DEV-021).
+message DropEvent {
+  uint64 dropped = 1;
+  DevDropReason reason = 2;
+}
+
+// TraceFileHeader is the first message of an exported trace file (D-2.2).
+// A trace file is a gzip-compressed stream of length-prefixed protobuf
+// messages: this header, then DevEvent messages in sequence order. Each
+// message is preceded by its length as an unsigned base-128 varint. The
+// events are redacted like the live stream.
+message TraceFileHeader {
+  // format_version is 1. A reader refuses a larger version (PLX-9233).
+  uint32 format_version = 1;
+  string session_id = 2;
+  // app_id and app_key identify the app; environment_id and
+  // environment_key the environment.
+  string app_id = 3;
+  string app_key = 4;
+  string environment_id = 5;
+  string environment_key = 6;
+  google.protobuf.Timestamp exported_at = 7;
+  // server_version is the version of the server that wrote the file.
+  string server_version = 8;
+}

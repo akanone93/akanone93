@@ -208,12 +208,37 @@ enum PluxLimit {
   dbQueryRows('db.queryRows', PluxLimitUnit.count, 1000, 0, 100000),
   /// Bytes one record of a local collection may take, encoded as JSON.
   dbRecordBytes('db.recordBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Commands one dev session may send to its devices per minute.
+  devSessionCommandsPerMinute('devSession.commandsPerMinute', PluxLimitUnit.count, 120, 0, 1200),
+  /// Devices that may be paired to one dev session at the same time.
+  devSessionDevicesPerSession('devSession.devicesPerSession', PluxLimitUnit.count, 5, 0, 20),
+  /// Minutes without any device event or command after which the server ends a
+  /// dev session.
+  devSessionIdleMinutes('devSession.idleMinutes', PluxLimitUnit.count, 30, 0, 480),
+  /// Lifetime of a dev session, in minutes, from its creation.
+  devSessionLifetimeMinutes('devSession.lifetimeMinutes', PluxLimitUnit.count, 480, 0, 1440),
+  /// Lifetime of a pairing token, in seconds; the hard maximum is the two
+  /// minutes the specification allows.
+  devSessionPairingTokenSeconds('devSession.pairingTokenSeconds', PluxLimitUnit.count, 120, 0, 120),
+  /// Size of the document patches of one PushPatch call.
+  devSessionPatchBytes('devSession.patchBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
   /// Characters copyToClipboard may put on the clipboard in one step.
   deviceClipboardChars('device.clipboardChars', PluxLimitUnit.count, 10000, 0, 100000),
   /// Disk space the runtime may use for releases on one device.
   deviceDiskQuota('device.diskQuota', PluxLimitUnit.bytes, 209715200, 0, 4294967296),
   /// Files a single pickImage or pickFile step may return.
   devicePickCount('device.pickCount', PluxLimitUnit.count, 10, 0, 100),
+  /// Size of one stream event; a larger event is dropped and counted.
+  devtoolsEventBytes('devtools.eventBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Size of the state diff in one stream event; a larger diff is replaced by
+  /// the names of the changed paths.
+  devtoolsStateDiffBytes('devtools.stateDiffBytes', PluxLimitUnit.bytes, 16384, 0, 262144),
+  /// Bytes a device and the server relay each buffer per paired device before
+  /// they drop the oldest and count the drop.
+  devtoolsStreamBufferBytes('devtools.streamBufferBytes', PluxLimitUnit.bytes, 8388608, 0, 67108864),
+  /// Events a device and the server relay each buffer per paired device before
+  /// they drop the oldest and count the drop.
+  devtoolsStreamBufferEvents('devtools.streamBufferEvents', PluxLimitUnit.count, 5000, 0, 100000),
   /// Size of one document file in the project layout, checked before parsing.
   documentFileSize('document.fileSize', PluxLimitUnit.bytes, 8388608, 0, 67108864),
   /// Nesting of arrays and objects in one document, checked while parsing.
@@ -389,6 +414,10 @@ enum PluxLimit {
   /// (plain; secure state is the encrypted one, plan p5 B6); writes beyond it
   /// stay in memory and are reported.
   stateSecureBytes('state.secureBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Minutes between background syncs the runtime asks the operating system
+  /// for; the runtime refuses less than 15 minutes, the least the platforms
+  /// grant.
+  syncBackgroundIntervalMinutes('sync.backgroundIntervalMinutes', PluxLimitUnit.count, 360, 0, 1440),
   /// Bytes one telemetry batch may carry on the wire after decompression.
   telemetryBatchBytes('telemetry.batchBytes', PluxLimitUnit.bytes, 262144, 0, 4194304),
   /// The size of the runtime's buffer of unsent telemetry events; the oldest

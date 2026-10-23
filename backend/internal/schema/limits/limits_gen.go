@@ -226,6 +226,24 @@ const (
 	// DBRecordBytes: Bytes one record of a local collection may take, encoded as
 	// JSON. (DB-006, LIM-004)
 	DBRecordBytes Key = "db.recordBytes"
+	// DevSessionCommandsPerMinute: Commands one dev session may send to its
+	// devices per minute. (DEV-011, DEV-031)
+	DevSessionCommandsPerMinute Key = "devSession.commandsPerMinute"
+	// DevSessionDevicesPerSession: Devices that may be paired to one dev session
+	// at the same time. (DEV-002)
+	DevSessionDevicesPerSession Key = "devSession.devicesPerSession"
+	// DevSessionIdleMinutes: Minutes without any device event or command after
+	// which the server ends a dev session. (DEV-001)
+	DevSessionIdleMinutes Key = "devSession.idleMinutes"
+	// DevSessionLifetimeMinutes: Lifetime of a dev session, in minutes, from its
+	// creation. (DEV-001)
+	DevSessionLifetimeMinutes Key = "devSession.lifetimeMinutes"
+	// DevSessionPairingTokenSeconds: Lifetime of a pairing token, in seconds;
+	// the hard maximum is the two minutes the specification allows. (DEV-002)
+	DevSessionPairingTokenSeconds Key = "devSession.pairingTokenSeconds"
+	// DevSessionPatchBytes: Size of the document patches of one PushPatch call.
+	// (DEV-010)
+	DevSessionPatchBytes Key = "devSession.patchBytes"
 	// DeviceClipboardChars: Characters copyToClipboard may put on the clipboard
 	// in one step. (SEC-080, LIM-004)
 	DeviceClipboardChars Key = "device.clipboardChars"
@@ -235,6 +253,20 @@ const (
 	// DevicePickCount: Files a single pickImage or pickFile step may return.
 	// (SEC-080, LIM-004)
 	DevicePickCount Key = "device.pickCount"
+	// DevtoolsEventBytes: Size of one stream event; a larger event is dropped
+	// and counted. (DEV-021)
+	DevtoolsEventBytes Key = "devtools.eventBytes"
+	// DevtoolsStateDiffBytes: Size of the state diff in one stream event; a
+	// larger diff is replaced by the names of the changed paths. (DEV-020)
+	DevtoolsStateDiffBytes Key = "devtools.stateDiffBytes"
+	// DevtoolsStreamBufferBytes: Bytes a device and the server relay each buffer
+	// per paired device before they drop the oldest and count the drop.
+	// (DEV-021)
+	DevtoolsStreamBufferBytes Key = "devtools.streamBufferBytes"
+	// DevtoolsStreamBufferEvents: Events a device and the server relay each
+	// buffer per paired device before they drop the oldest and count the drop.
+	// (DEV-021)
+	DevtoolsStreamBufferEvents Key = "devtools.streamBufferEvents"
 	// DocumentFileSize: Size of one document file in the project layout, checked
 	// before parsing. (SCH-006)
 	DocumentFileSize Key = "document.fileSize"
@@ -457,6 +489,10 @@ const (
 	// runtime's local store (plain; secure state is the encrypted one, plan p5
 	// B6); writes beyond it stay in memory and are reported. (STA-003, LIM-004)
 	StateSecureBytes Key = "state.secureBytes"
+	// SyncBackgroundIntervalMinutes: Minutes between background syncs the
+	// runtime asks the operating system for; the runtime refuses less than 15
+	// minutes, the least the platforms grant. (SYN-014)
+	SyncBackgroundIntervalMinutes Key = "sync.backgroundIntervalMinutes"
 	// TelemetryBatchBytes: Bytes one telemetry batch may carry on the wire after
 	// decompression. (ANL-010)
 	TelemetryBatchBytes Key = "telemetry.batchBytes"
@@ -563,9 +599,19 @@ var registry = [...]Definition{
 	{Key: DBKVBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the key-value store of one plugin may hold, encoded; a write beyond it fails with a typed error."},
 	{Key: DBQueryRows, Unit: UnitCount, Default: 1000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Records one query or watched query returns at most, whatever its limit asks for."},
 	{Key: DBRecordBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes one record of a local collection may take, encoded as JSON."},
+	{Key: DevSessionCommandsPerMinute, Unit: UnitCount, Default: 120, Warning: 0, Max: 1200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Commands one dev session may send to its devices per minute."},
+	{Key: DevSessionDevicesPerSession, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Devices that may be paired to one dev session at the same time."},
+	{Key: DevSessionIdleMinutes, Unit: UnitCount, Default: 30, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Minutes without any device event or command after which the server ends a dev session."},
+	{Key: DevSessionLifetimeMinutes, Unit: UnitCount, Default: 480, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a dev session, in minutes, from its creation."},
+	{Key: DevSessionPairingTokenSeconds, Unit: UnitCount, Default: 120, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows."},
+	{Key: DevSessionPatchBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Size of the document patches of one PushPatch call."},
 	{Key: DeviceClipboardChars, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Characters copyToClipboard may put on the clipboard in one step."},
 	{Key: DeviceDiskQuota, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Disk space the runtime may use for releases on one device."},
 	{Key: DevicePickCount, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Files a single pickImage or pickFile step may return."},
+	{Key: DevtoolsEventBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P10", Description: "Size of one stream event; a larger event is dropped and counted."},
+	{Key: DevtoolsStateDiffBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 262144, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P10", Description: "Size of the state diff in one stream event; a larger diff is replaced by the names of the changed paths."},
+	{Key: DevtoolsStreamBufferBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P10", Description: "Bytes a device and the server relay each buffer per paired device before they drop the oldest and count the drop."},
+	{Key: DevtoolsStreamBufferEvents, Unit: UnitCount, Default: 5000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P10", Description: "Events a device and the server relay each buffer per paired device before they drop the oldest and count the drop."},
 	{Key: DocumentFileSize, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one document file in the project layout, checked before parsing."},
 	{Key: DocumentJSONDepth, Unit: UnitCount, Default: 512, Warning: 0, Max: 4096, Scopes: ScopeInstallation, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Nesting of arrays and objects in one document, checked while parsing."},
 	{Key: DocumentStringPropSize, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one string prop value, in UTF-8 bytes."},
@@ -643,6 +689,7 @@ var registry = [...]Definition{
 	{Key: SecurityConfigPatchBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 262144, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of a security configuration patch, encoded."},
 	{Key: StatePersistedBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the persisted state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
 	{Key: StateSecureBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
+	{Key: SyncBackgroundIntervalMinutes, Unit: UnitCount, Default: 360, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P10", Description: "Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant."},
 	{Key: TelemetryBatchBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Bytes one telemetry batch may carry on the wire after decompression."},
 	{Key: TelemetryBufferBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."},
 	{Key: TelemetryEventsPerDevicePerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts."},

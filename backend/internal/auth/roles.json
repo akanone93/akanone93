@@ -15,6 +15,8 @@
         "app.manage",
         "app.read",
         "audit.read",
+        "devsession.create",
+        "devsession.observe",
         "environment.manage",
         "function.deploy",
         "function.deploy.production",
@@ -63,6 +65,8 @@
       "description": "May edit plugins, deploy functions outside production and publish.",
       "permissions": [
         "app.read",
+        "devsession.create",
+        "devsession.observe",
         "function.deploy",
         "function.read",
         "organization.read",
@@ -135,6 +139,7 @@
         "audit.export",
         "audit.read",
         "compliance.report",
+        "devsession.observe",
         "function.read",
         "organization.read",
         "plugin.read",
@@ -147,6 +152,7 @@
       "description": "May read.",
       "permissions": [
         "app.read",
+        "devsession.observe",
         "function.read",
         "organization.read",
         "plugin.read"
