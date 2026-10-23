@@ -28,7 +28,7 @@ is an event, where is it redacted, how is it bounded and resumed, and what is in
 
 ## Considered options
 
-1. Protobuf messages in binary WebSocket frames, redacted at the source, bounded ring buffers with sequence numbers; a trace file as a gzip stream of length-prefixed messages.
+1. Protobuf messages, one per WebSocket frame (the device sends the canonical proto3 JSON mapping in text frames, as its ConnectRPC calls do, so the runtime needs no protobuf library; the CLI stream and the trace file carry binary protobuf), redacted at the source, bounded ring buffers with sequence numbers; a trace file as a gzip stream of length-prefixed messages.
 2. JSON text frames and a JSON-lines trace file.
 3. Redaction at the relay instead of the device.
 4. A debugging protocol borrowed from an existing tool (for example the Chrome DevTools Protocol).
@@ -67,7 +67,7 @@ Chosen option: **1**.
 - **Positive:** a compact, versioned, additive schema; redaction cannot be bypassed by a
   forgetful relay; the trace file is the same data as the live stream, so a bug report replays
   what the developer saw.
-- **Negative:** binary frames are not readable in a browser's network tab; a protobuf change
+- **Negative:** the device's JSON frames are larger than binary protobuf would be; a protobuf change
   needs `make gen`; redaction at the source costs device time, which is why it runs off the UI
   isolate.
 - **Follow-up:** the limit keys in the registry; a redaction test for every event type; P12 uses

@@ -44,8 +44,9 @@ has, keeps `SEC-052` intact and adds one reviewed server dependency.
 - **Transport.** The server serves the device channel with `github.com/coder/websocket` (ISC; a
   `dependencies.md` row lands with the contracts milestone). The device uses `dart:io`'s
   `WebSocket` through the transport in `packages/plux_flutter/lib/src/data/stream_transport.dart`.
-  Events are binary frames, one protobuf message per frame, each with a session sequence number
-  (ADR-0090). Every command and query is a unary ConnectRPC call of `DevSessionService`
+  Events are `DevEvent` protobuf messages, one per frame, each with a session sequence number
+  (ADR-0090); the device sends their canonical proto3 JSON mapping in text frames, as its
+  ConnectRPC calls already do, and the server decodes them into the messages. Every command and query is a unary ConnectRPC call of `DevSessionService`
   (`CreateSession`, `GetPairing`, `Pair`, `ListDevices`, `EndSession`, `PushPatch`, `SendCommand`,
   `ExportTrace`); the CLI reads the stream through the server-streaming `WatchEvents`. The api
   role's ingress allows the upgrade and an idle timeout from configuration (Appendix H).
