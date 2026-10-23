@@ -12,6 +12,7 @@ library;
 export 'src/dev_session.dart'
     show
         PluxDevError,
+        PluxDevEvents,
         PluxDevIdle,
         PluxDevJoined,
         PluxDevPaired,

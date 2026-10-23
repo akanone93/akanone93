@@ -207,8 +207,20 @@ final class ReconstructionRelease {
 final class ViewerApi {
   /// Creates a client for [server] (with a trailing slash). [token] is the
   /// auditor's access token; without it only the sign-in calls work.
-  ViewerApi(this.server, {this.token, http.Client? client})
-    : _http = client ?? http.Client();
+  ViewerApi(
+    this.server, {
+    this.token,
+    http.Client? client,
+    this.clientName = viewerClientName,
+    this.scopes = viewerScopes,
+  }) : _http = client ?? http.Client();
+
+  /// The client name a device authorization is started with; the viewer's
+  /// unless the host says otherwise (the Dev app passes `plux-dev`).
+  final String clientName;
+
+  /// The permissions a device authorization asks for.
+  final List<String> scopes;
 
   /// The server.
   final Uri server;
@@ -218,11 +230,11 @@ final class ViewerApi {
 
   final http.Client _http;
 
-  /// Starts a device authorization (RFC 8628) for the viewer's scopes.
+  /// Starts a device authorization (RFC 8628) for [scopes].
   Future<DeviceGrant> startDeviceAuthorization() async {
     final r = await _call('plux.v1.IdentityService/StartDeviceAuthorization', {
-      'client': viewerClientName,
-      'scopes': viewerScopes,
+      'client': clientName,
+      'scopes': scopes,
     }, authenticated: false);
     return DeviceGrant(
       deviceCode: _string(r['deviceCode']),

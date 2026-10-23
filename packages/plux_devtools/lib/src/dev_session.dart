@@ -65,22 +65,38 @@ typedef PluxDevPairer = Future<PluxDevJoined> Function(
   required Map<String, DevCommandHandler> extensions,
 });
 
-Future<PluxDevJoined> _pairWithRuntime(
-  String link, {
-  required List<PluxPublicKey> devRootKeys,
-  required Map<String, DevCommandHandler> extensions,
-}) async {
-  final pairing = await Plux.pairDevSession(
-    link,
-    devRootKeys: devRootKeys,
-    extensions: extensions,
-  );
-  return (
-    sessionId: pairing.sessionId,
-    deviceId: pairing.deviceId,
-    close: pairing.close,
-  );
+/// Carries the events the device tools raise (an inspected node, a
+/// screenshot) to the channel of the pairing in place, and drops them when
+/// there is none. Hand it to `devExtensions` as the sink.
+final class PluxDevEvents implements DevEventSink {
+  DevEventSink? _target;
+
+  @override
+  void emit(Map<String, Object?> payload, {String? traceId}) =>
+      _target?.emit(payload, traceId: traceId);
 }
+
+PluxDevPairer _runtimePairer(PluxDevEvents events) =>
+    (
+      String link, {
+      required List<PluxPublicKey> devRootKeys,
+      required Map<String, DevCommandHandler> extensions,
+    }) async {
+      final pairing = await Plux.pairDevSession(
+        link,
+        devRootKeys: devRootKeys,
+        extensions: extensions,
+      );
+      events._target = pairing.channel;
+      return (
+        sessionId: pairing.sessionId,
+        deviceId: pairing.deviceId,
+        close: () async {
+          events._target = null;
+          await pairing.close();
+        },
+      );
+    };
 
 /// The controller of this build's pairing with a dev session.
 ///
@@ -99,9 +115,9 @@ final class PluxDevSession {
   PluxDevSession({
     required this.devRootKeys,
     this.extensions = const {},
-    @visibleForTesting PluxDevPairer? pairer,
+    @visibleForTesting this._pairer,
     this.isAvailable = kPluxDevtools,
-  }) : _pairer = pairer ?? _pairWithRuntime;
+  });
 
   /// The pinned development roots.
   final List<PluxPublicKey> devRootKeys;
@@ -110,7 +126,11 @@ final class PluxDevSession {
   /// it before [pair].
   final Map<String, DevCommandHandler> extensions;
 
-  final PluxDevPairer _pairer;
+  final PluxDevPairer? _pairer;
+
+  /// The sink for the events of the device tools; it reaches the channel
+  /// of the pairing in place.
+  final PluxDevEvents events = PluxDevEvents();
   final ValueNotifier<PluxDevSessionState> _state = ValueNotifier(
     const PluxDevIdle(),
   );
@@ -138,7 +158,7 @@ final class PluxDevSession {
     }
     _state.value = const PluxDevPairingNow();
     try {
-      final paired = await _pairer(
+      final paired = await (_pairer ?? _runtimePairer(events))(
         linkOrCode,
         devRootKeys: devRootKeys,
         extensions: extensions,
