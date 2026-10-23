@@ -32,6 +32,10 @@ import 'package:plux_flutter/src/data/stream_session.dart'
     show graphqlWsProtocol;
 import 'package:plux_flutter/src/data/stream_transport.dart';
 import 'package:plux_flutter/src/data/transport.dart';
+import 'package:plux_flutter/src/devtools_api/dev_events.dart'
+    show DevNetworkCall;
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show kPluxDevtools;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/pxl/types.dart' show toJson;
 import 'package:plux_flutter/src/schema/limit_values.dart';
@@ -206,10 +210,16 @@ final class DataClient {
     this.authoriser,
     this.allowDirect = _always,
     this.disabled = _never,
+    this.devTap,
   });
 
   static bool _always() => true;
   static bool _never(String sourceId) => false;
+
+  /// Receives one [DevNetworkCall] per request while a dev session listens
+  /// (DEV-020); null otherwise, and then nothing is measured beyond the
+  /// telemetry. Release builds never call it.
+  final void Function(DevNetworkCall call)? devTap;
 
   /// Whether the control document switches off the source with the UUID it
   /// is given (REL-060): a request to it fails before anything is sent.
@@ -411,7 +421,23 @@ final class DataClient {
       withAuth,
       onStatus: onStatus,
       transaction: transaction,
+      pathTemplate: path,
     );
+  }
+
+  /// The URL of a request as the dev stream shows it: the declared path
+  /// template and the names of the query parameters, never their values
+  /// (SCH-012, DEV-020).
+  static String _urlTemplate(
+    String base,
+    String path,
+    Iterable<String> queryNames,
+  ) {
+    final names = queryNames.toList()..sort();
+    final b = base.endsWith('/') && path.startsWith('/')
+        ? base.substring(0, base.length - 1)
+        : base;
+    return '$b$path${names.isEmpty ? '' : '?${names.map((n) => '$n={$n}').join('&')}'}';
   }
 
   /// Fails when a path placeholder took a value the [transaction] maps: the
@@ -578,10 +604,14 @@ final class DataClient {
     bool graphql = false,
     void Function(int status)? onStatus,
     TransactionMapping? transaction,
+    String? pathTemplate,
   }) async {
     final limits = this.limits();
     final watch = Stopwatch()..start();
-    var status = 0, bytes = 0;
+    final startedAt = devTap == null ? null : DateTime.now();
+    var status = 0, bytes = 0, sent = 0;
+    PluxException? failure;
+    var viaPlux = false;
     var result = 'error';
     try {
       if (disabled(s.id)) {
@@ -592,6 +622,7 @@ final class DataClient {
         );
       }
       final gateway = viaGateway(s, caller);
+      viaPlux = gateway;
       if (transaction != null && !gateway) {
         throw DataFailure(
           ActionErrorKind.permission,
@@ -622,6 +653,7 @@ final class DataClient {
       final encoded = body == null
           ? null
           : Uint8List.fromList(utf8.encode(jsonEncode(body)));
+      sent = encoded?.length ?? 0;
       if (encoded != null && encoded.length > limits.requestSize) {
         throw DataFailure(
           ActionErrorKind.validation,
@@ -733,7 +765,28 @@ final class DataClient {
       result = 'ok';
       onSuccess?.call();
       return json;
+    } on DataFailure catch (f) {
+      if (devTap != null) failure = f.toException(const {});
+      rethrow;
     } finally {
+      if (kPluxDevtools && devTap != null) {
+        devTap!(
+          DevNetworkCall(
+            method: method,
+            urlTemplate: _urlTemplate(
+              viaPlux ? '' : s.baseUrls[environment] ?? '',
+              pathTemplate ?? path,
+              query.keys,
+            ),
+            status: status,
+            startedAt: startedAt!,
+            total: watch.elapsed,
+            requestBytes: sent,
+            responseBytes: bytes,
+            error: failure,
+          ),
+        );
+      }
       record(
         'api_call',
         route: caller.route,

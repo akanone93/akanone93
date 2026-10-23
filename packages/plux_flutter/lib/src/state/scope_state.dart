@@ -15,6 +15,8 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show kPluxDevtools;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/form_state.dart';
 import 'package:plux_flutter/src/pxl/program.dart';
@@ -160,6 +162,14 @@ typedef Evaluate = Object? Function(
   Map<String, Object?> roots,
 );
 
+/// Receives every change of a scope's values while a dev session listens
+/// (DEV-020): the model that changed and the maps before and after.
+typedef DevStateTap = void Function(
+  ScopeModel model,
+  Map<String, Object?> previous,
+  Map<String, Object?> next,
+);
+
 /// What a scope instance's notifier needs.
 final class ScopeModel {
   /// Creates a model.
@@ -176,6 +186,8 @@ final class ScopeModel {
     this.forms = const [],
     this.runForm,
     this.formTexts = const FormTexts(),
+    this.devTap,
+    this.devScope = '',
   }) : decls = List.unmodifiable(decls),
        byName = {for (final d in decls) d.name: d};
 
@@ -218,6 +230,13 @@ final class ScopeModel {
 
   /// Resolves the forms' messages in the effective locale (I18N-001).
   final FormTexts formTexts;
+
+  /// Called with every change of the scope's values, in debug and dev
+  /// builds only (DEV-020); null when no dev session listens.
+  final DevStateTap? devTap;
+
+  /// The scope as the dev stream names it (`page:/home`); [root] when empty.
+  final String devScope;
 
   /// The root this scope's entries are read under.
   String get root => kind.name;
@@ -312,6 +331,12 @@ mixin ScopeValues on Notifier<Map<String, Object?>> {
     if (m == null) return const {};
     _deps.clear();
     _forms.clear();
+    final tap = m.devTap;
+    if (kPluxDevtools && tap != null) {
+      listenSelf((previous, next) {
+        if (previous != null) tap(m, previous, next);
+      });
+    }
     final values = <String, Object?>{};
     for (final d in m.decls) {
       if (d.isComputed) continue;
