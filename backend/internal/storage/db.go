@@ -151,6 +151,11 @@ const (
 	// then rescoped to that organisation (FN-025). Only function_hooks
 	// admits it.
 	ScopeHook Scope = "hook"
+	// ScopeDevSocket lets a dev-session device be found by its socket
+	// ticket before its organisation is known; the request is then
+	// rescoped to that organisation (DEV-002). Only dev_session_devices
+	// admits it, and only for reading.
+	ScopeDevSocket Scope = "devsocket"
 )
 
 // InTx runs f in a transaction bound to a tenant. The settings are set

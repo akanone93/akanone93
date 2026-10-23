@@ -167,6 +167,10 @@ const (
 	// DefaultFunctionAssurance: The assurance level a Plux Function requires
 	// when it declares none. (SEC-007)
 	DefaultFunctionAssurance Key = "defaultFunctionAssurance"
+	// DevSessionRequireStepUp: Whether creating a dev session for the
+	// environment needs a recent step-up with a security key (ADR-0075
+	// Revision). (DEV-002)
+	DevSessionRequireStepUp Key = "devSessionRequireStepUp"
 	// DeviceFunctions: Whether Plux Functions placed on the device may run
 	// there; when false, the device refuses them and the app calls the server
 	// instead. (FN-055)
@@ -318,6 +322,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: TextValue("AL1"), Strict: TextValue("AL2"), Maximum: TextValue("AL3")},
 			TravelsToDevice: false, Phase: "P6", Requirements: []string{"SEC-007"},
 			Description: "The assurance level a Plux Function requires when it declares none.",
+		},
+		{
+			Key: DevSessionRequireStepUp, Type: TypeBool, Tighter: TighterTrue,
+			Defaults:        Defaults{Standard: BoolValue(false), Strict: BoolValue(false), Maximum: BoolValue(true)},
+			TravelsToDevice: false, Phase: "P10", Requirements: []string{"DEV-002"},
+			Description: "Whether creating a dev session for the environment needs a recent step-up with a security key (ADR-0075 Revision).",
 		},
 		{
 			Key: DeviceFunctions, Type: TypeBool, Tighter: TighterFalse,

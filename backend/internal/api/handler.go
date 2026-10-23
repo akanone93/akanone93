@@ -22,6 +22,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/device"
+	"github.com/nightCode42/plux3/backend/internal/devsession"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dsr"
 	"github.com/nightCode42/plux3/backend/internal/experiment"
@@ -62,6 +63,9 @@ type Handlers struct {
 	// Emergencies serves BreakGlassService (GOV-024); nil leaves it
 	// unmounted.
 	Emergencies *breakglass.Service
+	// DevSessions serves the sessions and pairing of DevSessionService
+	// (DEV-002, DEV-003); nil answers them Unimplemented.
+	DevSessions *devsession.Service
 	// Freezes serves FreezeService (GOV-025); nil leaves it unmounted.
 	Freezes *freeze.Service
 	// Reports serves ComplianceService (GOV-026); nil leaves it

@@ -533,8 +533,8 @@ func TestAuthorisationMatrix_QA_008(t *testing.T) {
 		e := all[key]
 		procedure, _, _ := strings.Cut(key, " ")
 		t.Run(key, func(t *testing.T) {
-			if strings.HasPrefix(procedure, unmountedService) {
-				t.Skip("the service is declared by the contract and mounted by milestone D2 (plan P10 §5.2), which removes this skip")
+			if unmountedRPCs[procedure] {
+				t.Skip("the relay's RPCs are declared by the contract and served by the relay slice of milestone D2 (plan P10 §5.2), which removes this skip")
 			}
 			call := func(c caller) connect.Code {
 				if e.call != nil {
@@ -591,11 +591,16 @@ func TestAuthorisationMatrix_QA_008(t *testing.T) {
 	}
 }
 
-// unmountedService is the prefix of the RPCs whose service the contract
-// declares before the server mounts it. The matrix declares who may call
-// them (TestEveryRPCHasAnAuthorisationEntry reads the descriptors), and the
-// calls below start once the service is served.
-const unmountedService = "DevSessionService/"
+// unmountedRPCs are the RPCs the contract declares before the server serves
+// them: the dev-session relay's. The matrix declares who may call them
+// (TestEveryRPCHasAnAuthorisationEntry reads the descriptors), and the calls
+// below start once they are served.
+var unmountedRPCs = map[string]bool{
+	"DevSessionService/PushPatch":   true,
+	"DevSessionService/SendCommand": true,
+	"DevSessionService/WatchEvents": true,
+	"DevSessionService/ExportTrace": true,
+}
 
 // unknownID is a well-formed identifier no row has.
 const unknownID = "018f0000-0000-7000-8000-000000000000"

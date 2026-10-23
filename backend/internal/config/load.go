@@ -72,6 +72,12 @@ func Defaults() Config {
 		},
 		// ADR-0063: builds in namespaces, one at a time.
 		Builder: Builder{Sandbox: "namespaces", Concurrency: 1},
+		// Appendix H: dev sessions in the development environment only;
+		// the relay pings every 30 s and closes a silent socket after 120 s.
+		DevSession: DevSession{
+			EnabledEnvironments: []string{"development"},
+			IdleTimeout:         Duration(120 * time.Second), PingInterval: Duration(30 * time.Second),
+		},
 		Retention: Retention{
 			AuditYears:             10,
 			DevelopmentReleaseDays: 90,
@@ -84,7 +90,7 @@ func Defaults() Config {
 // knownSections are the top-level keys this phase accepts.
 var knownSections = []string{
 	"server", "database", "objectStorage", "cache", "signing", "auth",
-	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress", "fnrunner", "functions", "builder", "notifications", "push",
+	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress", "fnrunner", "functions", "builder", "notifications", "push", "devSession",
 }
 
 // futureSections are sections of Appendix H that belong to a later phase.

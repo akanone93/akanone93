@@ -76,6 +76,8 @@ type Config struct {
 	// Push configures the silent push of control document changes (SYN-060,
 	// Q22).
 	Push Push `json:"push"`
+	// DevSession configures dev sessions (DEV-002, DEV-003, ADR-0087).
+	DevSession DevSession `json:"devSession"`
 }
 
 // License configures the offline licence check of the enterprise edition.

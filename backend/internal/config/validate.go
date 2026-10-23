@@ -79,7 +79,24 @@ func (c *Config) Validate() error {
 	c.validateLicense(&p)
 	c.validateNotifications(&p)
 	c.validateFederation(&p)
+	c.validateDevSession(&p)
 	return errors.Join(p.errs...)
+}
+
+// validateDevSession checks the dev-session section: the relay's timers are
+// positive and it pings more often than it gives up on a silent socket.
+func (c *Config) validateDevSession(p *problems) {
+	d := c.DevSession
+	p.positive("devSession.idleTimeout", int64(d.IdleTimeout))
+	p.positive("devSession.pingInterval", int64(d.PingInterval))
+	if d.PingInterval >= d.IdleTimeout {
+		p.addf("devSession.pingInterval", "must be shorter than devSession.idleTimeout")
+	}
+	for i, key := range d.EnabledEnvironments {
+		if key == "" {
+			p.addf(fmt.Sprintf("devSession.enabledEnvironments[%d]", i), "must not be empty")
+		}
+	}
 }
 
 // validateLicense checks the licence file's path. Whether the file exists
