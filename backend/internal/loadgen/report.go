@@ -20,6 +20,7 @@ const (
 	OpTelemetry = "telemetry"
 	OpFunction  = "function"
 	OpToken     = "token"
+	OpInstalled = "installed"
 )
 
 // ReportSchema identifies the report's format.

@@ -196,8 +196,19 @@ func (d *device) checkManifest(ctx context.Context) {
 		d.manifestETag = res.Msg.GetEtag()
 	}
 	if err == nil && res.Msg.GetManifest() != nil {
-		d.release = res.Msg.GetManifest().GetReleaseSequence()
+		if seq := res.Msg.GetManifest().GetReleaseSequence(); seq != d.release {
+			d.release = seq
+			d.reportInstalled(ctx)
+		}
 	}
+}
+
+// reportInstalled reports the release the device now runs, as the runtime
+// does once it activates one, so the device's history names it (SEC-142).
+func (d *device) reportInstalled(ctx context.Context) {
+	start := d.cfg.Now()
+	_, err := d.devices.ReportInstalled(ctx, connect.NewRequest(&pluxv1.ReportInstalledRequest{DeviceId: d.id, ReleaseSequence: d.release}))
+	d.observe(ctx, OpInstalled, start, err)
 }
 
 // checkControl fetches the signed control document with its ETag and, when

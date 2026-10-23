@@ -24,7 +24,9 @@ devices against a Plux server. Each device does what the runtime does:
    environment must not be a production one) and obtains a DPoP-bound token, which it renews
    three quarters into its life (the `token` operation; tokens last minutes, `SEC-020`),
 2. at start: checks the manifest, reports `session_start` for the release it names, fetches the
-   signed control document; every event carries the release the device runs,
+   signed control document; every event carries the release the device runs, and a manifest that
+   names a new release is reported as installed (the `installed` operation), so the device's
+   history says what it ran,
 3. then keeps to its pacing, each interval jittered by ±20 %:
 
 | Operation | Interval at real pacing | RPC |

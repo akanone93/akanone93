@@ -156,6 +156,34 @@ func TestInjectErrorsSendsErrorEvents_REL_053(t *testing.T) {
 	}
 }
 
+// Verifies: DEP-051.
+// A device reports the release its manifest names once, as the runtime does
+// when it activates one, so the device's history says what it ran; a manifest
+// that names no release is not reported.
+func TestDeviceReportsInstalledRelease(t *testing.T) {
+	t.Parallel()
+	for name, tc := range map[string]struct {
+		release int64
+		want    []int64
+	}{
+		"a release": {release: 7, want: []int64{7, 7}},
+		"none yet":  {release: 0, want: nil},
+	} {
+		srv := loadgentest.New(t)
+		srv.SetReleaseSequence(tc.release)
+		report, err := loadgen.Run(t.Context(), config(srv, 2, time.Second))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := srv.Installed(); !slices.Equal(got, tc.want) {
+			t.Errorf("%s: installed reports = %v, want %v", name, got, tc.want)
+		}
+		if report.Errors() != 0 {
+			t.Errorf("%s: errors = %d", name, report.Errors())
+		}
+	}
+}
+
 // Verifies: DEP-051, SEC-020.
 // Access tokens last minutes, so a device that runs longer than its token
 // renews it before it expires, as the runtime does, and keeps working.
