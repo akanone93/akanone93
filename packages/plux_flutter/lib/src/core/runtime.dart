@@ -54,9 +54,13 @@ import 'package:plux_flutter/src/db/release_declarations.dart';
 import 'package:plux_flutter/src/db/service.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
+import 'package:plux_flutter/src/devtools_api/dev_channel.dart';
+import 'package:plux_flutter/src/devtools_api/dev_commands.dart';
+import 'package:plux_flutter/src/devtools_api/dev_overlay.dart';
+import 'package:plux_flutter/src/devtools_api/dev_pairing.dart';
 import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
 import 'package:plux_flutter/src/devtools_api/dev_session.dart'
-    show kPluxDevtools;
+    show DevCommandHandler, kPluxDevtools;
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/experiments/experiment_service.dart';
@@ -107,6 +111,7 @@ import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/background_sync.dart';
 import 'package:plux_flutter/src/sync/background_sync_entry.dart';
 import 'package:plux_flutter/src/sync/control_sync.dart' show ControlOutcome;
+import 'package:plux_flutter/src/sync/device_auth.dart';
 import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
@@ -1811,6 +1816,87 @@ final class PluxRuntime with WidgetsBindingObserver {
     await _load();
     final seq = active.value?.sequence;
     if (seq != null) _emit(SyncActivated(seq));
+  }
+
+  /// Pairs this app with the dev session of [link] (`DEV-040`).
+  ///
+  /// Builds the overlay applier over this runtime's store and active
+  /// release, verified against [devRootKeys] (the development keys the host
+  /// pinned, never the production ones), the command handler over this
+  /// runtime, and a device token of its own on the UI isolate, then pairs.
+  /// [extensions] carry out the commands of later slices. Throws a
+  /// [StateError] in a build without devtools (`DEV-050`) or before the
+  /// runtime is connected to its container.
+  Future<PluxDevPairing> pairDevSession(
+    DevPairingLink link, {
+    required List<PluxPublicKey> devRootKeys,
+    Map<String, DevCommandHandler> extensions = const {},
+    String deviceName = '',
+  }) async {
+    if (!kPluxDevtools) {
+      throw StateError('the dev channel is not part of this build');
+    }
+    final container = _container;
+    if (container == null) {
+      throw StateError('the runtime is not connected to its container');
+    }
+    final applier = DevOverlayApplier(
+      storeRoot: _root,
+      active: active,
+      app: config.appId,
+      environment: config.environment,
+      channel: config.channel,
+      devRootKeys: [for (final k in devRootKeys) k.toTrustedKey()],
+      limits: _limits,
+      supportsFeature: features.supports,
+      runtimeVersion: PluxRuntimeInfo.version,
+      reloadProduction: _load,
+      resetScopes: (page, scopes) {
+        // App and plugin scopes restart; page and component scopes are
+        // rebuilt from the overlay release when its pages render again.
+        if (scopes.contains('app')) {
+          container.read(appStateProvider.notifier).restart();
+        }
+      },
+      report: _report,
+      live: () => control.value,
+      facts: _targetingFacts,
+    );
+    final commands = RuntimeDevCommands(
+      runtime: this,
+      container: container,
+      extensions: extensions,
+    );
+    final api = PluxApiClient(_httpClient(), config.endpoint);
+    final auth = DeviceAuth(
+      api: api,
+      keys: (overrides.deviceKeys ?? PlatformDeviceKeys.new)(),
+      attestation: (overrides.attestation ?? _platformAttestation(config))(),
+      credentials: (overrides.credentials ?? _platformCredentials(config))(),
+      appId: config.appId,
+      environment: config.environment,
+      device: DeviceInfo(
+        platform: Platform.operatingSystem,
+        osVersion: deviceOsVersion(Platform.operatingSystemVersion),
+        runtimeVersion: PluxRuntimeInfo.version,
+        hostBuild: config.hostBuild,
+      ),
+    );
+    try {
+      final channel = await DevChannel.pair(
+        link,
+        api: api,
+        token: await auth.token(),
+        applier: applier,
+        commands: commands,
+        deviceName: deviceName,
+        platform: Platform.operatingSystem,
+      );
+      return PluxDevPairing(channel: channel, applier: applier);
+    } on Object {
+      await applier.discard();
+      rethrow;
+    }
   }
 
   StorePointer _reopen() => ReleaseStore.open(_store.root).pointer;

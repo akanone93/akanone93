@@ -13,9 +13,12 @@ import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
+import 'package:plux_flutter/src/devtools_api/dev_channel.dart'
+    show DevPairingLink;
+import 'package:plux_flutter/src/devtools_api/dev_pairing.dart';
 import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
 import 'package:plux_flutter/src/devtools_api/dev_session.dart'
-    show kPluxDevtools;
+    show DevCommandHandler, kPluxDevtools;
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
@@ -363,6 +366,29 @@ abstract final class Plux {
       authDelegate: delegate,
     ),
   );
+
+  /// Pairs this app with the dev session of [link], the scanned or pasted
+  /// `plux-dev://pair?...` link (`DEV-040`). [devRootKeys] are the
+  /// development keys the host pinned; production keys are never accepted
+  /// for dev bundles. Throws a [StateError] in a build without devtools
+  /// (`DEV-050`) and a [FormatException] for a link that is not a pairing
+  /// link or names another server. `plux_devtools` wraps this.
+  static Future<PluxDevPairing> pairDevSession(
+    String link, {
+    required List<PluxPublicKey> devRootKeys,
+    Map<String, DevCommandHandler> extensions = const {},
+    String deviceName = '',
+  }) async {
+    if (!kPluxDevtools) {
+      throw StateError('the dev channel is not part of this build');
+    }
+    return _rt.pairDevSession(
+      DevPairingLink.parse(link),
+      devRootKeys: devRootKeys,
+      extensions: extensions,
+      deviceName: deviceName,
+    );
+  }
 
   /// Stops the runtime: the sync isolate ends, mappings are released, and
   /// the container is disposed if Plux created it. A host that shares its
