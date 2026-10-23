@@ -31,6 +31,7 @@ final class DevBundle {
     required this.sequence,
     required this.manifest,
     required this.sections,
+    this.incompatibleScopes = const {},
   });
 
   /// The bundle's number in the session's own sequence space, which never
@@ -42,6 +43,11 @@ final class DevBundle {
 
   /// The sections the manifest names, by section ID, as received.
   final Map<String, Uint8List> sections;
+
+  /// Per page ID (the page's document UUID), the state scopes whose schema
+  /// changed, as the compiler's verdict (`DevBundleFrame.incompatible_scopes`);
+  /// a page absent from the map keeps its state.
+  final Map<String, List<String>> incompatibleScopes;
 }
 
 /// What applying a dev bundle did (`DEV-010`).
@@ -57,11 +63,18 @@ final class DevApplyResult {
   /// The pages re-rendered from the bundle.
   final List<String> pagesApplied;
 
-  /// The state scopes reset because their schema changed (`PLX-9231`).
+  /// The state scopes reset because their schema changed (`PLX-9231`), each
+  /// as `<page ID>/<scope>`.
   final List<String> scopesReset;
 
-  /// Why the bundle was refused, or null when it was applied.
+  /// Why the bundle was refused, or null when it was applied. When the
+  /// bundle was applied but state scopes were reset, `PLX-9231` as
+  /// information: [refused] is false then.
   final PluxException? error;
+
+  /// Whether the bundle was refused and nothing changed.
+  bool get refused =>
+      error != null && error!.code != PluxErrorCode.hotApplyRefused;
 }
 
 /// Verifies dev bundles against the pinned development roots and applies
