@@ -257,6 +257,35 @@ func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWrit
 	return d, nil
 }
 
+// AuthenticateProofRequest checks the DPoP proof of an HTTP request that
+// carries no token, the dev socket's upgrade (ADR-0087): the request's own
+// method and URL are htm and htu, the proof needs the current server nonce
+// and is single-use like a device call's, and the device's rate applies
+// (SEC-021). The response carries the current nonce, and a refusal the
+// challenge that names what failed. It returns the thumbprint of the
+// proof's key.
+func (a DeviceAuth) AuthenticateProofRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (string, error) {
+	w.Header().Set(nonceHeader, a.Nonces.Current())
+	c := Call{Header: r.Header, ResponseHeader: w.Header(), Procedure: r.URL.EscapedPath()}
+	rawProof, err := proofOf(r.Header)
+	if err != nil {
+		return "", a.refuse(c, err)
+	}
+	proof, err := a.Proofs.Verify(rawProof, dpop.Expect{Method: r.Method, URL: a.url(r.URL.EscapedPath()), Window: a.Window})
+	if err != nil {
+		return "", a.refuse(c, err)
+	}
+	if err := a.checkReplay(ctx, a.Replay.Policy(), proof, a.Window, a.FallbackWindow); err != nil {
+		return "", a.refuse(c, err)
+	}
+	if a.Limiter.Count != nil {
+		if _, err := a.Limiter.Allow(ctx, "rate:device:"+proof.JKT, a.PerDevice); err != nil {
+			return "", err
+		}
+	}
+	return proof.JKT, nil
+}
+
 // authenticateWith checks the token and the proof of a request made with
 // the method to the URL, and returns the verified proof with the device.
 func (a DeviceAuth) authenticateWith(ctx context.Context, h http.Header, method, url string) (device.Identity, dpop.Proof, error) {

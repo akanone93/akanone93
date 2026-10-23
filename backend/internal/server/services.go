@@ -1035,6 +1035,9 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if svc.Gateway != nil {
 		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
 	}
+	if svc.DevSessions != nil {
+		s.Register("GET "+devsession.SocketPath, svc.DevSessions.SocketHandler(deviceAuth.AuthenticateProofRequest))
+	}
 	if s.objects != nil {
 		s.Register("GET "+release.ObjectsPath, s.objectHandler())
 	}

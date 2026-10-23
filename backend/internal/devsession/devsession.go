@@ -62,18 +62,29 @@ type Options struct {
 	// StepUp, when set, says whether an environment's sessions need a
 	// step-up; nil means none does.
 	StepUp StepUpPolicy
+	// PingInterval is how often the relay pings a device socket, and
+	// IdleTimeout how long a socket may stay silent before it is closed
+	// (devSession.pingInterval, devSession.idleTimeout); zero takes the
+	// configuration's defaults.
+	PingInterval time.Duration
+	IdleTimeout  time.Duration
+	// ServerVersion is the server's version, which an exported trace
+	// names.
+	ServerVersion string
 	// Random is the source of nonces and tickets; nil uses crypto/rand.
 	Random io.Reader
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 }
 
-// Service opens dev sessions and pairs devices with them.
+// Service opens dev sessions, pairs devices with them and relays their
+// sockets.
 type Service struct {
 	o       Options
 	now     func() time.Time
 	random  io.Reader
 	compact devtoken.Compact
+	hub     *Hub
 }
 
 // New returns the service.
@@ -81,7 +92,7 @@ func New(o Options) (*Service, error) {
 	if o.DB == nil || o.Audit == nil || o.IDs == nil || o.Limits == nil || o.Tokens == nil {
 		return nil, errors.New("devsession: a database, an audit log, identifiers, limits and a token signer are required")
 	}
-	s := &Service{o: o, now: o.Now, random: o.Random}
+	s := &Service{o: o, now: o.Now, random: o.Random, hub: NewHub()}
 	if s.now == nil {
 		s.now = time.Now
 	}
@@ -371,6 +382,9 @@ func (s *Service) EndSession(ctx context.Context, p auth.Principal, sessionID st
 		out, err = s.end(ctx, tx, p, id)
 		return err
 	})
+	if err == nil {
+		s.hub.End(out.ID, plxerr.DevSessionExpired)
+	}
 	return out, err
 }
 

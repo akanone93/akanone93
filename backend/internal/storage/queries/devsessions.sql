@@ -66,3 +66,11 @@ SELECT organization_id FROM dev_session_devices WHERE ticket_hash = $1;
 UPDATE dev_session_devices SET ticket_hash = NULL, ticket_expires_at = NULL
  WHERE ticket_hash = $1 AND dpop_thumbprint = $2 AND revoked_at IS NULL AND ticket_expires_at > sqlc.arg(at)::timestamptz
  RETURNING *;
+
+-- name: RenewDevSocketTicket :one
+-- Gives a paired device a new socket ticket: the device row must be the
+-- caller's own, bound to the key the proof was made with, and still paired.
+UPDATE dev_session_devices SET ticket_hash = sqlc.arg(ticket_hash), ticket_expires_at = sqlc.arg(ticket_expires_at)
+ WHERE id = sqlc.arg(id) AND session_id = sqlc.arg(session_id) AND device_id = sqlc.arg(device_id)
+   AND dpop_thumbprint = sqlc.arg(dpop_thumbprint) AND revoked_at IS NULL
+ RETURNING id;

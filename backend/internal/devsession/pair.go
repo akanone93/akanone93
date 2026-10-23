@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -175,6 +176,86 @@ func (s *Service) pair(ctx context.Context, tx pgx.Tx, d Caller, c Claims, in Pa
 		return Paired{}, fmt.Errorf("devsession: %w", err)
 	}
 	return Paired{SessionID: session.ID, DeviceID: id, Ticket: ticket, TicketExpiresAt: expires}, nil
+}
+
+// Ticket is a socket ticket. Ticket is a credential: it goes to the device
+// in the answer that issued it and nowhere else.
+type Ticket struct {
+	Ticket    string
+	ExpiresAt time.Time
+}
+
+// RenewSocketTicket gives a paired device a new single-use socket ticket to
+// reconnect with (DEV-021). The caller must be the device paired as
+// deviceID in the session, with the key it paired with, and the session
+// must be live (PLX-9200); anything else is PLX-9204.
+func (s *Service) RenewSocketTicket(ctx context.Context, d Caller, sessionID, deviceID string) (Ticket, error) {
+	if d.Thumbprint == "" || d.OrganizationID == "" {
+		return Ticket{}, plxerr.New(plxerr.AuthenticationRequired, "renewing a ticket needs a device token bound to a key")
+	}
+	sid, err := parseID(sessionID, "session")
+	if err != nil {
+		return Ticket{}, err
+	}
+	did, err := parseID(deviceID, "device")
+	if err != nil {
+		return Ticket{}, err
+	}
+	var out Ticket
+	err = s.inTenant(ctx, storage.Tenant{OrganizationID: d.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		out, err = s.renew(ctx, tx, d, sid, did)
+		return err
+	})
+	return out, err
+}
+
+// renew checks the session and the device inside the transaction and
+// stores the new ticket.
+func (s *Service) renew(ctx context.Context, tx pgx.Tx, d Caller, sid, did pgtype.UUID) (Ticket, error) {
+	q := dbgen.New(tx)
+	row, err := q.GetDevSessionForUpdate(ctx, sid)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Ticket{}, notPaired()
+	}
+	if err != nil {
+		return Ticket{}, fmt.Errorf("devsession: find the session: %w", err)
+	}
+	session := sessionOf(row)
+	if session.AppID != d.AppID || session.EnvironmentID != d.EnvironmentID {
+		return Ticket{}, notPaired()
+	}
+	set, err := s.o.Limits(ctx, tx, session.OrganizationID, session.AppID)
+	if err != nil {
+		return Ticket{}, fmt.Errorf("devsession: read the limits: %w", err)
+	}
+	now := s.now()
+	if !session.Live(now, minutes(set, limits.DevSessionIdleMinutes)) {
+		return Ticket{}, expired()
+	}
+	ticket, err := s.ticket()
+	if err != nil {
+		return Ticket{}, err
+	}
+	expires := now.Add(ticketLifetime)
+	_, err = q.RenewDevSocketTicket(ctx, dbgen.RenewDevSocketTicketParams{
+		TicketHash: digest(ticket), TicketExpiresAt: storage.Timestamp(expires),
+		ID: did, SessionID: sid, DeviceID: d.DeviceID, DpopThumbprint: d.Thumbprint,
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Ticket{}, notPaired()
+	}
+	if err != nil {
+		return Ticket{}, fmt.Errorf("devsession: store the ticket: %w", err)
+	}
+	if err := q.TouchDevSession(ctx, dbgen.TouchDevSessionParams{ID: sid, At: storage.Timestamp(now)}); err != nil {
+		return Ticket{}, fmt.Errorf("devsession: record the activity: %w", err)
+	}
+	return Ticket{Ticket: ticket, ExpiresAt: expires}, nil
+}
+
+// notPaired is the refusal of a device that is not paired with a session.
+func notPaired() error {
+	return plxerr.New(plxerr.DeviceNotPaired, "the device is not paired with this dev session")
 }
 
 // whyUnspendable tells a used token from an expired or unknown one.

@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/devsession"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -30,6 +31,8 @@ func buildDevSessions(cfg *config.Config, db *storage.DB, log *audit.Log, ids de
 	o := devsession.Options{
 		DB: db, Audit: log, IDs: ids, Tokens: signer,
 		Environments: cfg.DevSession.EnabledEnvironments, PublicBaseURL: cfg.Server.PublicBaseURL,
+		PingInterval: cfg.DevSession.PingInterval.Duration(), IdleTimeout: cfg.DevSession.IdleTimeout.Duration(),
+		ServerVersion: buildinfo.Get().Version,
 		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
 			return ten.Effective(ctx, tx, org, app, "") //nolint:wrapcheck // a domain error
 		},
