@@ -123,6 +123,9 @@ final class DevChannel implements DevEventSink {
     _engine.emit(payload, traceId: traceId);
   }
 
+  @override
+  String toString() => kPluxDevtools ? 'DevChannel($kDevCanary)' : '';
+
   /// Closes the socket and stops reconnecting.
   Future<void> close() => _engine.close();
 }

@@ -164,11 +164,17 @@ func TestReleaseProbesNameRealStringsAndRuntimeHasNoDevtools_SEC_074(t *testing.
 	t.Parallel()
 	devtools := sourceText(t, "packages/plux_devtools/lib")
 	runtime := sourceText(t, "packages/plux_flutter/lib")
+	security := sourceText(t, "packages/plux_security/lib")
 	probes := readProbes(t)
 	kinds := map[string]bool{}
 	for _, p := range probes {
 		kinds[p.kind] = true
-		source := map[string]string{"devtools": devtools, "logging": runtime}[p.kind]
+		source := map[string]string{
+			"devtools": devtools,
+			"logging":  runtime,
+			"p10":      devtools + runtime + security,
+			"canary":   runtime,
+		}[p.kind]
 		if source == "" {
 			t.Errorf("probe kind %q has no source to check against", p.kind)
 		} else if !strings.Contains(source, p.text) {
@@ -181,8 +187,8 @@ func TestReleaseProbesNameRealStringsAndRuntimeHasNoDevtools_SEC_074(t *testing.
 			}
 		}
 	}
-	if !kinds["devtools"] || !kinds["logging"] {
-		t.Errorf("probes cover %v, want devtools and logging", kinds)
+	if !kinds["devtools"] || !kinds["logging"] || !kinds["p10"] || !kinds["canary"] {
+		t.Errorf("probes cover %v, want devtools, logging, p10 and canary", kinds)
 	}
 	pubspec, err := os.ReadFile(filepath.Join(repoRoot, "packages", "plux_flutter", "pubspec.yaml"))
 	if err != nil {

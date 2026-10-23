@@ -15,3 +15,26 @@ devtools	_SyncTab
 devtools	_ReleaseTab
 devtools	_LogTab
 logging	where actions do not run
+#
+# p10: symbols of the dev session (P10, DEV-050): the classes of
+#   plux_flutter's devtools_api, PluxDevSession of plux_devtools, the dev mode
+#   of plux_security, the socket path and the ticket header. Every one is
+#   reachable only through a kPluxDevtools branch, so a release build has none.
+# canary: a string constant compiled only under kPluxDevtools
+#   (devtools_api/dev_session.dart); it is the proof that the guard works.
+p10	DevChannel
+p10	DevOverlayApplier
+p10	RuntimeDevCommands
+p10	DevEventBridge
+p10	DevNetworkSimulation
+p10	DevToolsLayer
+p10	DevInspectHandler
+p10	DevInspectBarrier
+p10	DevPairingLink
+p10	DevEngineHandle
+p10	PluxDevSession
+p10	developmentReportOnly
+p10	pluxSecuritySimulateDetectionHandler
+p10	/dev/socket
+p10	Plux-Dev-Ticket
+canary	plux-devtools-canary-7f3a

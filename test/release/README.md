@@ -16,6 +16,10 @@ test/release/inspect.sh app.apk dir/    # inspects built artifacts or already ex
 - has no AOT snapshot (`libapp.so`, `App.framework/App`), which is a debug build or not a build;
 - holds a string of [probes.txt](probes.txt) in that snapshot: the overlay UI of `plux_devtools`
   (the `devtools` probes) or diagnostics `plux_flutter` removes from release builds (`logging`);
+- holds a P10 dev-session symbol (`p10`: `DevChannel`, `DevOverlayApplier`, `PluxDevSession`,
+  `developmentReportOnly`, `/dev/socket`, `Plux-Dev-Ticket`, ...) or the `canary` constant
+  `kDevCanary` of `devtools_api/dev_session.dart`, which only code behind `kPluxDevtools`
+  references (`DEV-050`);
 - ships `kernel_blob.bin`, a `.dill`, a JIT snapshot, a source map (`*.map`) or split-debug-info
   symbols (`*.symbols`).
 
@@ -28,3 +32,8 @@ names are not probes. A probe must occur verbatim in its package; a policy test
 (`tools/internal/policy/release_test.go`) checks that, and runs the script on small extracted trees
 to prove it fails on a planted devtools string, a source map, a debug artifact and a missing
 snapshot, and passes a clean tree.
+
+`make release-inspect-selftest` (part of `make repo-check`, no SDK needed) runs the scanner on
+[fixtures/leaky.txt](fixtures/leaky.txt) (must fail, naming a symbol and the canary) and
+[fixtures/clean.txt](fixtures/clean.txt) (must pass), and plants every probe alone to prove none
+is dead.

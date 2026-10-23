@@ -15,7 +15,9 @@
 #   - an AOT snapshot (libapp.so, or App.framework/App): a build without
 #     one is a debug or JIT build, or not a build at all, and fails;
 #   - none of the probe strings of test/release/probes.txt in that snapshot
-#     (plux_devtools code, dev-only Plux diagnostics);
+#     (plux_devtools code, dev-only Plux diagnostics, the P10 dev session's
+#     class names, socket path and ticket header, and the devtools canary
+#     constant that only a build with kPluxDevtools contains);
 #   - no kernel or JIT snapshot (kernel_blob.bin, *.dill, vm_snapshot_data,
 #     isolate_snapshot_data), no source maps (*.map) and no split-debug-info
 #     symbol files (*.symbols).
