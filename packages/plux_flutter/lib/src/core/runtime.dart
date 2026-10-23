@@ -56,11 +56,12 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
 import 'package:plux_flutter/src/devtools_api/dev_channel.dart';
 import 'package:plux_flutter/src/devtools_api/dev_commands.dart';
+import 'package:plux_flutter/src/devtools_api/dev_events.dart';
 import 'package:plux_flutter/src/devtools_api/dev_overlay.dart';
 import 'package:plux_flutter/src/devtools_api/dev_pairing.dart';
 import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
 import 'package:plux_flutter/src/devtools_api/dev_session.dart'
-    show DevCommandHandler, kPluxDevtools;
+    show DevCommandHandler, DevEventSink, kPluxDevtools;
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/experiments/experiment_service.dart';
@@ -100,6 +101,7 @@ import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
+import 'package:plux_flutter/src/state/scope_state.dart' show ScopeModel;
 import 'package:plux_flutter/src/store/baseline.dart';
 import 'package:plux_flutter/src/store/control_store.dart';
 import 'package:plux_flutter/src/store/kv_store.dart';
@@ -1021,6 +1023,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     // (SEC-142).
     data: reconstructing ? null : _dataServices,
     secureUi: secureUi,
+    devStateTap: kPluxDevtools ? _devState : null,
     pinnedMedia: () => settings.value.flag(SecuritySetting.pinnedMediaOnly),
     actions: ActionServices(
       router: router,
@@ -1908,11 +1911,56 @@ final class PluxRuntime with WidgetsBindingObserver {
         deviceName: deviceName,
         platform: Platform.operatingSystem,
       );
-      return PluxDevPairing(channel: channel, applier: applier);
+      streamDevEvents(channel);
+      return PluxDevPairing(
+        channel: channel,
+        applier: applier,
+        onClose: stopDevEvents,
+      );
     } on Object {
       await applier.discard();
       rethrow;
     }
+  }
+
+  DevEventBridge? _devBridge;
+
+  /// The bridge that streams this runtime's events to a dev session, or null
+  /// while none is paired (DEV-020).
+  DevEventBridge? get devBridge => _devBridge;
+
+  void _devState(
+    ScopeModel model,
+    Map<String, Object?> previous,
+    Map<String, Object?> next,
+  ) => _devBridge?.stateTap(model, previous, next);
+
+  /// Streams every runtime event source to [sink] until [stopDevEvents]
+  /// (DEV-020, ACT-030, FN-036): network calls, function calls, state
+  /// changes, action traces, problems, log lines, sync stages and frame
+  /// timings. Replaces an earlier sink. Does nothing without
+  /// [kPluxDevtools].
+  void streamDevEvents(DevEventSink sink) {
+    if (!kPluxDevtools) return;
+    stopDevEvents();
+    final bridge = DevEventBridge(
+      diagnostics: diagnostics,
+      stateDiffBytes: limit(PluxLimit.devtoolsStateDiffBytes),
+    );
+    _devBridge = bridge;
+    if (!reconstructing) _dataServices.client.devTap = bridge.networkTap;
+    _functions.devTap = bridge.functionTap;
+    bridge.attach(sink);
+  }
+
+  /// Stops streaming and clears every tap.
+  void stopDevEvents() {
+    final bridge = _devBridge;
+    if (bridge == null) return;
+    _devBridge = null;
+    if (!reconstructing) _dataServices.client.devTap = null;
+    _functions.devTap = null;
+    bridge.detach();
   }
 
   StorePointer _reopen() => ReleaseStore.open(_store.root).pointer;
@@ -2112,6 +2160,7 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   void _report(PluxException e) {
     developer.log(e.toString(), name: 'plux');
+    _devBridge?.logger.log(DevLogLevel.error, 'runtime', e.toString());
     diagnostics.record(e);
     telemetry.error(e);
     // A pin mismatch is a security event of its own (SEC-041): the host
@@ -2124,6 +2173,7 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// Stops the sync isolate and releases every mapping.
   Future<void> dispose() async {
+    stopDevEvents();
     detachSecurity();
     disconnect();
     secureUi.dispose();

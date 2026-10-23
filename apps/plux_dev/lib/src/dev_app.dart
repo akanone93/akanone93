@@ -101,6 +101,7 @@ final class _DevAppState extends State<DevApp> {
     );
     tooling = DevTooling(rootKeys: widget.rootKeys, navigatorKey: key);
     final packages = DevPackages(router: router);
+    tooling.attachSecurity(packages.security);
     try {
       await widget.startRuntime(
         packages.configFor(

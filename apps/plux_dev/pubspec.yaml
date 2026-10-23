@@ -33,7 +33,7 @@ dependencies:
   plux_player: ^0.5.0
   plux_rive: ^0.1.0
   plux_scanner: ^0.1.0
-  plux_security: ^0.1.0
+  plux_security: ^0.2.0
 
 dev_dependencies:
   flutter_test:

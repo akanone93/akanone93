@@ -218,8 +218,9 @@ final class DataClient {
 
   /// Receives one [DevNetworkCall] per request while a dev session listens
   /// (DEV-020); null otherwise, and then nothing is measured beyond the
-  /// telemetry. Release builds never call it.
-  final void Function(DevNetworkCall call)? devTap;
+  /// telemetry. Release builds never call it. The runtime sets and clears it
+  /// as a dev session starts and ends, so it is read at call time.
+  void Function(DevNetworkCall call)? devTap;
 
   /// Whether the control document switches off the source with the UUID it
   /// is given (REL-060): a request to it fails before anything is sent.

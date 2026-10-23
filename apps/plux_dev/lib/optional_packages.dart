@@ -23,6 +23,8 @@ import 'package:plux_rive/plux_rive.dart';
 import 'package:plux_scanner/plux_scanner.dart';
 import 'package:plux_security/plux_security.dart';
 
+import 'package:plux_dev/development_roots.dart';
+
 /// The optional packages of the Dev app and the `PluxConfig` that registers
 /// them.
 ///
@@ -50,7 +52,12 @@ final class DevPackages {
       ],
       functionEngine = PluxFunctions(),
       databaseAdapter = PluxDriftAdapter(),
-      securityModules = [PluxSecurity()];
+      security = PluxSecurity(
+        mode: PluxSecurityMode.developmentReportOnly,
+        environment: devEnvironment,
+      ) {
+    securityModules = [security];
+  }
 
   /// The app's router, which the Plux router adapter wraps.
   final GoRouter router;
@@ -69,7 +76,12 @@ final class DevPackages {
   final PluxDatabaseAdapter databaseAdapter;
 
   /// Runtime application self-protection.
-  final List<PluxSecurityModule> securityModules;
+  /// `plux_security` in its report-only development mode (DEV-001,
+  /// ADR-0057): detections go to the dev stream and lower nothing.
+  final PluxSecurity security;
+
+  /// The security modules: [security].
+  late final List<PluxSecurityModule> securityModules;
 
   /// The names of the optional packages these registrations carry, each once
   /// (media and scanner register both widgets and actions), sorted.
