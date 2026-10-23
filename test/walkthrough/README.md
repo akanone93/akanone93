@@ -22,6 +22,7 @@ go run ./tools/cmd/walkthrough verify -dir walkthrough-out   # an auditor's chec
 * **A Transit signer for the run.** The file signing backend never signs for a production environment (`SEC-056`), and step 2 promotes to one, so the script runs an in-memory OpenBao dev server (`openbao/openbao`, MPL-2.0, the Vault Transit API) in the namespace and installs with `signing.backend: vault`, a token made for the run, and an egress rule from the api, the worker and the migration Job to it. It is gone with the cluster.
 * Optionally `WALKTHROUGH_TOKEN_CMD`, which prints an access token for `$WALKTHROUGH_ACTOR` after that person signed in through the test provider and answered their second factor, and `WALKTHROUGH_STEPUP_CMD`, which completes the WebAuthn step-up at `$WALKTHROUGH_STEPUP_URL`. They default to `tools/cmd/webauthn-driver`, a software authenticator built for the run (ES256, `none` attestation, keys in a mode-0700 directory of the run).
 * Optionally `WALKTHROUGH_VIEWER_CMD`, which opens a reconstruction in the viewer host on an emulator (step 7b, CI only).
+* Optionally `WALKTHROUGH_SKIP`, the steps to leave out of a quicker, partial run (for example `03-staged-rollout`); see *Partial runs* in [the walkthrough document](../../docs/compliance/walkthrough.md).
 
 ## Evidence
 

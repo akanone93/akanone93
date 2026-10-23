@@ -55,17 +55,17 @@ A baseline release is promoted to the fleet's environment and the fleet starts. 
 
 *Requirements:* `REL-060`, `GOV-024`, `GOV-025`, `NFR-024`, `SYN-060`.
 
-A change freeze opens on production; a freeze holds back production changes only (`GOV-025`). A kill switch on the transfer page in production without break-glass is refused. The same kill switch with `--break-glass` and a written justification goes through. The fleet runs outside production, so the same switch is thrown on the fleet's environment, which no freeze holds: with the fleet online, the control document advances and at least 95% of the devices apply it within the propagation bound (60 s by default). The emergency action has an open post-hoc review; whoever acted cannot close it; Bob closes it, with a step-up; the review is listed as reviewed. The freeze is removed.
+A change freeze opens on production; a freeze holds back production changes only (`GOV-025`). A kill switch on the transfer page in production without break-glass is refused. The same kill switch with `--break-glass` and a written justification goes through. The fleet runs outside production, so the same switch is thrown on the fleet's environment, which no freeze holds: with the fleet online, the control document advances, and the transcript records how many devices applied it within the propagation bound (60 s by default); the bound itself is a manual check (see *Manual checks*). The emergency action has an open post-hoc review; whoever acted cannot close it; Bob closes it, with a step-up; the review is listed as reviewed. The freeze is removed.
 
 *Evidence:* the refusal, the break-glass command, the fleet's kill switch, the control document before and after, the fleet report (`controlApplied`), the review refusal and closure.
 
-*Proves:* a freeze blocks production changes and only break-glass overrides it (`GOV-025`); break-glass needs a justification and leaves a review a second person closes (`GOV-024`); the kill switch reaches online devices within the bound (`REL-060`, `NFR-024`, `SYN-060`). The 95% criterion is a floor on the fleet's application count (a device that already had a document applies twice, once at start and once for the kill switch), not a latency percentile; the latency percentile is measured by the control-propagation benchmark (`X3`).
+*Proves:* a freeze blocks production changes and only break-glass overrides it (`GOV-025`); break-glass needs a justification and leaves a review a second person closes (`GOV-024`); the kill switch is delivered through the signed control document (`REL-060`, `SYN-060`). That it reaches online devices within 60 s (`NFR-024`) is a manual check on a real device, and the latency percentile is measured by the control-propagation benchmark (`X3`).
 
 ### 5. A mandatory update and a forced rollback (`05-mandatory-update-forced-rollback`)
 
 *Requirements:* `SYN-060`, `REL-006`, `NFR-024`.
 
-With the fleet running, the newest release is made mandatory and the fleet is forced back to the baseline. The fleet applies the control document within the bound. Both are then withdrawn.
+With the fleet running, the newest release is made mandatory and the fleet is forced back to the baseline. The control document advances with the fleet online, and the transcript records how many devices applied it within the bound, a manual check as in step 4. Both are then withdrawn.
 
 *Evidence:* each control command, the control document, the fleet report.
 
@@ -111,9 +111,19 @@ The stores of personal data are listed. Everything held about one device of the 
 
 *Proves:* export and erasure work end to end on a live installation (`SEC-162`). Audit entries remain and name the subject by hash only; the audit chains and their checkpoints are checked by `plux-server audit verify`, which the restore drill also runs.
 
+## Manual checks
+
+These are checked by hand on a real device, beside the automated run, and recorded by whoever checks them.
+
+* **Kill switch and control propagation (`NFR-024`, `SYN-060`; steps 4 and 5).** On a real phone running the Plux Bank app in the fleet's environment, with silent push granted and the app in the foreground, throw a kill switch on the transfer page and time how long the page takes to show its fallback; withdraw it and time it again. Both must be within 60 s. The automated run cannot show this: the bound rests on silent push, which the kind stack has no provider for, and its synthetic devices poll every 5 minutes as `SYN-060` allows, so the run records their count but does not fail on it.
+
+## Partial runs
+
+`-skip` (`WALKTHROUGH_SKIP`, or the `walkthrough-skip` input of a manual CI run with `only: walkthrough`) leaves steps out of a quicker run while a later step is being fixed. A step later steps need runs only its setup: step 3 publishes the baseline and the candidate without the rollout and its fleets. The statement lists the steps left out, and `verify` reports the run as partial. A partial run is not the audit's evidence; only a full run is.
+
 ## What the walkthrough does not show
 
-* It does not show performance: the 60 s bound is a floor on application counts here, and the percentile is a benchmark (`X3`); sizing is `X6`.
+* It does not show performance: the 60 s propagation bound is a manual check, and the percentile is a benchmark (`X3`); sizing is `X6`.
 * The devices are synthetic. Real attestation, real hardware keys and real retained bundles are the subject of the device-farm suites.
 * The second factor and the step-up are performed with a software WebAuthn authenticator (`tools/cmd/webauthn-driver`, the default of `WALKTHROUGH_TOKEN_CMD` and `WALKTHROUGH_STEPUP_CMD`), not a browser. The evidence shows that the server demanded and accepted them; it does not show a person with a physical key.
 * The test provider and the syslog sink run on the host that runs the walkthrough, on the container network's gateway address, with a certificate authority made for the run. A real installation reaches its own provider and SIEM.

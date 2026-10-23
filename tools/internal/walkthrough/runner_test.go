@@ -125,6 +125,42 @@ func TestRunnerRunsOptionalStepsOnlyWhenEnabled(t *testing.T) {
 	}
 }
 
+// A step left out by Skip runs only its setup, later steps still run, and
+// the statement lists it; a failed setup fails the walkthrough.
+func TestRunnerSkipsStepsToTheirSetup(t *testing.T) {
+	t.Parallel()
+	var ran, setup bool
+	slow := Step{
+		ID: "02-b", Title: "b",
+		Run:   func(context.Context, *Run) error { ran = true; return nil },
+		Setup: func(context.Context, *Run) error { setup = true; return nil },
+	}
+	rn, out := newTestRunner(t, okStep("01-a"), slow, okStep("03-c"))
+	rn.Skip = map[string]bool{"02-b": true}
+	st, err := rn.Run(t.Context())
+	if err != nil || !st.Passed || ran || !setup {
+		t.Fatalf("passed=%v ran=%v setup=%v err=%v", st.Passed, ran, setup, err)
+	}
+	want := []Status{StatusPassed, StatusSkipped, StatusPassed}
+	for i, s := range st.Steps[:3] {
+		if s.Status != want[i] {
+			t.Errorf("step %s status = %s, want %s", s.ID, s.Status, want[i])
+		}
+	}
+	if len(st.Skipped) != 1 || st.Skipped[0] != "02-b" || !strings.Contains(out.String(), "skipped by -skip") {
+		t.Errorf("skipped = %v, transcript:\n%s", st.Skipped, out)
+	}
+
+	broken := slow
+	broken.Setup = func(context.Context, *Run) error { return errors.New("no baseline") }
+	rn, _ = newTestRunner(t, broken, okStep("03-c"))
+	rn.Skip = map[string]bool{"02-b": true}
+	st, err = rn.Run(t.Context())
+	if err == nil || st.Passed || st.Steps[0].Status != StatusFailed || st.Steps[1].Status != StatusSkipped {
+		t.Errorf("a failed setup: %+v, %v", st.Steps, err)
+	}
+}
+
 // A run seals into a bundle that verifies, including when it failed: the
 // failure is signed evidence too.
 func TestRunnerStatementSeals(t *testing.T) {

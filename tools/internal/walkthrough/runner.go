@@ -31,6 +31,9 @@ type Step struct {
 	Plan []string
 	// Run performs the step; a non-nil error fails it.
 	Run func(ctx context.Context, r *Run) error
+	// Setup, when set, does only what later steps need of this one; it runs
+	// in place of Run when the runner skips the step.
+	Setup func(ctx context.Context, r *Run) error
 }
 
 // Run is what a step sees of the runner: the transcript and the evidence of
@@ -65,6 +68,9 @@ type Runner struct {
 	Now func() time.Time
 	// Enabled names the optional steps to run.
 	Enabled map[string]bool
+	// Skip names the steps to leave out of a quicker, partial run; the
+	// statement lists them.
+	Skip map[string]bool
 
 	mu         sync.Mutex
 	transcript bytes.Buffer
@@ -108,6 +114,12 @@ func (rn *Runner) Run(ctx context.Context) (Statement, error) {
 		case first != nil || (rn.Steps[i].Optional && !rn.Enabled[rn.Steps[i].ID]):
 			rec.Status = StatusSkipped
 			rn.logf("== %s %s: skipped", rec.ID, rec.Title)
+		case rn.Skip[rn.Steps[i].ID]:
+			st.Skipped = append(st.Skipped, rec.ID)
+			rec.Status, rec.Error = rn.skipStep(ctx, &rn.Steps[i])
+			if rec.Status == StatusFailed {
+				first = fmt.Errorf("walkthrough: step %s: %s", rec.ID, rec.Error)
+			}
 		default:
 			rec.Status, rec.Error = rn.runStep(ctx, &rn.Steps[i])
 			if rec.Status == StatusFailed {
@@ -128,6 +140,20 @@ func (rn *Runner) runStep(ctx context.Context, s *Step) (Status, string) {
 	}
 	rn.logf("   passed")
 	return StatusPassed, ""
+}
+
+// skipStep leaves a step out, running only its setup when it has one.
+func (rn *Runner) skipStep(ctx context.Context, s *Step) (Status, string) {
+	rn.logf("== %s %s: skipped by -skip", s.ID, s.Title)
+	if s.Setup == nil {
+		return StatusSkipped, ""
+	}
+	if err := s.Setup(ctx, &Run{step: s, rn: rn}); err != nil {
+		rn.logf("   FAILED in setup: %v", err)
+		return StatusFailed, "setup: " + err.Error()
+	}
+	rn.logf("   setup done")
+	return StatusSkipped, ""
 }
 
 // finish stores the transcript and fills the statement's evidence lists and
