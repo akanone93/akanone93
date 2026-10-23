@@ -11,6 +11,37 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const consumeDevPairingCode = `-- name: ConsumeDevPairingCode :one
+UPDATE dev_pairing_tokens t SET consumed_at = $1::timestamptz
+  FROM dev_sessions s
+ WHERE t.code = $2::text AND t.consumed_at IS NULL AND t.expires_at > $1::timestamptz
+   AND s.id = t.session_id AND s.app_id = $3 AND s.environment_id = $4
+ RETURNING t.session_id
+`
+
+type ConsumeDevPairingCodeParams struct {
+	At            pgtype.Timestamptz
+	Code          string
+	AppID         pgtype.UUID
+	EnvironmentID pgtype.UUID
+}
+
+// Spends the unconsumed, unexpired pairing token of a code in one
+// statement, as ConsumeDevPairingToken does; only a token of a session of
+// the device's app and environment matches (row-level security keeps the
+// organisation).
+func (q *Queries) ConsumeDevPairingCode(ctx context.Context, arg ConsumeDevPairingCodeParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, consumeDevPairingCode,
+		arg.At,
+		arg.Code,
+		arg.AppID,
+		arg.EnvironmentID,
+	)
+	var session_id pgtype.UUID
+	err := row.Scan(&session_id)
+	return session_id, err
+}
+
 const consumeDevPairingToken = `-- name: ConsumeDevPairingToken :one
 UPDATE dev_pairing_tokens SET consumed_at = $2::timestamptz
  WHERE token_hash = $1 AND consumed_at IS NULL AND expires_at > $2::timestamptz
@@ -65,6 +96,23 @@ func (q *Queries) ConsumeDevSocketTicket(ctx context.Context, arg ConsumeDevSock
 	return i, err
 }
 
+const countDevPairingAttempts = `-- name: CountDevPairingAttempts :one
+SELECT count(*) FROM dev_pairing_attempts WHERE organization_id = $1 AND device_id = $2 AND at > $3::timestamptz
+`
+
+type CountDevPairingAttemptsParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       string
+	Since          pgtype.Timestamptz
+}
+
+func (q *Queries) CountDevPairingAttempts(ctx context.Context, arg CountDevPairingAttemptsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countDevPairingAttempts, arg.OrganizationID, arg.DeviceID, arg.Since)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countDevSessionDevices = `-- name: CountDevSessionDevices :one
 SELECT count(*) FROM dev_session_devices WHERE session_id = $1 AND revoked_at IS NULL
 `
@@ -74,6 +122,32 @@ func (q *Queries) CountDevSessionDevices(ctx context.Context, sessionID pgtype.U
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const deleteDevPairingAttempt = `-- name: DeleteDevPairingAttempt :exec
+DELETE FROM dev_pairing_attempts WHERE id = $1
+`
+
+// Forgets an attempt that paired: only failures count.
+func (q *Queries) DeleteDevPairingAttempt(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteDevPairingAttempt, id)
+	return err
+}
+
+const dropStaleDevPairingAttempts = `-- name: DropStaleDevPairingAttempts :exec
+DELETE FROM dev_pairing_attempts WHERE organization_id = $1 AND device_id = $2 AND at <= $3::timestamptz
+`
+
+type DropStaleDevPairingAttemptsParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       string
+	Since          pgtype.Timestamptz
+}
+
+// Drops a device's pairing-code attempts that fell out of the window.
+func (q *Queries) DropStaleDevPairingAttempts(ctx context.Context, arg DropStaleDevPairingAttemptsParams) error {
+	_, err := q.db.Exec(ctx, dropStaleDevPairingAttempts, arg.OrganizationID, arg.DeviceID, arg.Since)
+	return err
 }
 
 const endDevSession = `-- name: EndDevSession :one
@@ -120,8 +194,30 @@ func (q *Queries) FindDevSocketTicket(ctx context.Context, ticketHash []byte) (p
 	return organization_id, err
 }
 
+const getDevPairingCode = `-- name: GetDevPairingCode :one
+SELECT t.consumed_at FROM dev_pairing_tokens t JOIN dev_sessions s ON s.id = t.session_id
+ WHERE t.code = $1::text AND s.app_id = $2 AND s.environment_id = $3
+ ORDER BY t.consumed_at DESC NULLS FIRST
+ LIMIT 1
+`
+
+type GetDevPairingCodeParams struct {
+	Code          string
+	AppID         pgtype.UUID
+	EnvironmentID pgtype.UUID
+}
+
+// The latest token of a code for the device's app and environment, to tell
+// a used code from an expired or unknown one.
+func (q *Queries) GetDevPairingCode(ctx context.Context, arg GetDevPairingCodeParams) (pgtype.Timestamptz, error) {
+	row := q.db.QueryRow(ctx, getDevPairingCode, arg.Code, arg.AppID, arg.EnvironmentID)
+	var consumed_at pgtype.Timestamptz
+	err := row.Scan(&consumed_at)
+	return consumed_at, err
+}
+
 const getDevPairingToken = `-- name: GetDevPairingToken :one
-SELECT token_hash, organization_id, session_id, expires_at, consumed_at FROM dev_pairing_tokens WHERE token_hash = $1
+SELECT token_hash, organization_id, session_id, expires_at, consumed_at, code FROM dev_pairing_tokens WHERE token_hash = $1
 `
 
 func (q *Queries) GetDevPairingToken(ctx context.Context, tokenHash []byte) (DevPairingToken, error) {
@@ -133,6 +229,7 @@ func (q *Queries) GetDevPairingToken(ctx context.Context, tokenHash []byte) (Dev
 		&i.SessionID,
 		&i.ExpiresAt,
 		&i.ConsumedAt,
+		&i.Code,
 	)
 	return i, err
 }
@@ -187,8 +284,29 @@ func (q *Queries) GetDevSessionForUpdate(ctx context.Context, id pgtype.UUID) (D
 	return i, err
 }
 
+const insertDevPairingAttempt = `-- name: InsertDevPairingAttempt :exec
+INSERT INTO dev_pairing_attempts (id, organization_id, device_id, at) VALUES ($1, $2, $3, $4)
+`
+
+type InsertDevPairingAttemptParams struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	DeviceID       string
+	At             pgtype.Timestamptz
+}
+
+func (q *Queries) InsertDevPairingAttempt(ctx context.Context, arg InsertDevPairingAttemptParams) error {
+	_, err := q.db.Exec(ctx, insertDevPairingAttempt,
+		arg.ID,
+		arg.OrganizationID,
+		arg.DeviceID,
+		arg.At,
+	)
+	return err
+}
+
 const insertDevPairingToken = `-- name: InsertDevPairingToken :exec
-INSERT INTO dev_pairing_tokens (token_hash, organization_id, session_id, expires_at) VALUES ($1, $2, $3, $4)
+INSERT INTO dev_pairing_tokens (token_hash, organization_id, session_id, expires_at, code) VALUES ($1, $2, $3, $4, $5)
 `
 
 type InsertDevPairingTokenParams struct {
@@ -196,6 +314,7 @@ type InsertDevPairingTokenParams struct {
 	OrganizationID pgtype.UUID
 	SessionID      pgtype.UUID
 	ExpiresAt      pgtype.Timestamptz
+	Code           *string
 }
 
 func (q *Queries) InsertDevPairingToken(ctx context.Context, arg InsertDevPairingTokenParams) error {
@@ -204,6 +323,7 @@ func (q *Queries) InsertDevPairingToken(ctx context.Context, arg InsertDevPairin
 		arg.OrganizationID,
 		arg.SessionID,
 		arg.ExpiresAt,
+		arg.Code,
 	)
 	return err
 }
@@ -352,6 +472,22 @@ func (q *Queries) ListDevSessionDevices(ctx context.Context, sessionID pgtype.UU
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockDevPairingAttempts = `-- name: LockDevPairingAttempts :exec
+SELECT pg_advisory_xact_lock(hashtextextended('dev-pairing-attempts:' || $1::uuid::text || ':' || $2::text, 0))
+`
+
+type LockDevPairingAttemptsParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       string
+}
+
+// Serialises the pairing-code attempts of one device, so that concurrent
+// attempts each count the others.
+func (q *Queries) LockDevPairingAttempts(ctx context.Context, arg LockDevPairingAttemptsParams) error {
+	_, err := q.db.Exec(ctx, lockDevPairingAttempts, arg.OrganizationID, arg.DeviceID)
+	return err
 }
 
 const renewDevSocketTicket = `-- name: RenewDevSocketTicket :one

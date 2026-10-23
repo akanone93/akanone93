@@ -238,6 +238,10 @@ const (
 	// DevSessionLifetimeMinutes: Lifetime of a dev session, in minutes, from its
 	// creation. (DEV-001)
 	DevSessionLifetimeMinutes Key = "devSession.lifetimeMinutes"
+	// DevSessionPairingCodeAttempts: Failed pairing-code attempts one device may
+	// make in ten minutes; further attempts are refused until the window passes.
+	// (DEV-002)
+	DevSessionPairingCodeAttempts Key = "devSession.pairingCodeAttempts"
 	// DevSessionPairingTokenSeconds: Lifetime of a pairing token, in seconds;
 	// the hard maximum is the two minutes the specification allows. (DEV-002)
 	DevSessionPairingTokenSeconds Key = "devSession.pairingTokenSeconds"
@@ -603,6 +607,7 @@ var registry = [...]Definition{
 	{Key: DevSessionDevicesPerSession, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Devices that may be paired to one dev session at the same time."},
 	{Key: DevSessionIdleMinutes, Unit: UnitCount, Default: 30, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Minutes without any device event or command after which the server ends a dev session."},
 	{Key: DevSessionLifetimeMinutes, Unit: UnitCount, Default: 480, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a dev session, in minutes, from its creation."},
+	{Key: DevSessionPairingCodeAttempts, Unit: UnitCount, Default: 5, Warning: 0, Max: 5, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes."},
 	{Key: DevSessionPairingTokenSeconds, Unit: UnitCount, Default: 120, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows."},
 	{Key: DevSessionPatchBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Size of the document patches of one PushPatch call."},
 	{Key: DeviceClipboardChars, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Characters copyToClipboard may put on the clipboard in one step."},

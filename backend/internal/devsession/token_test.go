@@ -102,12 +102,29 @@ func TestVerifyPairing_Refusals_DEV_002(t *testing.T) {
 }
 
 // Verifies: DEV-002.
-// The short code is eight base32 characters derived from the token.
+// The short code is eight Crockford base32 characters derived from the
+// token, shown as XXXX-XXXX and read back whatever the case, dashes and
+// look-alike letters.
 func TestCode_DEV_002(t *testing.T) {
 	t.Parallel()
 	a, b := devsession.Code("token-a"), devsession.Code("token-b")
-	if len(a) != 8 || strings.Trim(a, "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567") != "" || a == b || a != devsession.Code("token-a") {
+	if len(a) != 8 || strings.Trim(a, "0123456789ABCDEFGHJKMNPQRSTVWXYZ") != "" || a == b || a != devsession.Code("token-a") {
 		t.Errorf("codes %q and %q", a, b)
+	}
+	if got := devsession.FormatCode("7KQ2M9XD"); got != "7KQ2-M9XD" {
+		t.Errorf("FormatCode = %q", got)
+	}
+	for typed, want := range map[string]string{
+		"7KQ2-M9XD": "7KQ2M9XD", "7kq2m9xd": "7KQ2M9XD", "7kq2 - m9xd": "7KQ2M9XD", "o1il-0000": "0111" + "0000",
+	} {
+		if got, ok := devsession.NormalizeCode(typed); !ok || got != want {
+			t.Errorf("NormalizeCode(%q) = %q, %v; want %q", typed, got, ok, want)
+		}
+	}
+	for _, typed := range []string{"", "7KQ2-M9X", "7KQ2-M9XDA", "7KQ2-M9XU", "7KQ2_M9XD"} {
+		if got, ok := devsession.NormalizeCode(typed); ok {
+			t.Errorf("NormalizeCode(%q) = %q, want a refusal", typed, got)
+		}
 	}
 }
 

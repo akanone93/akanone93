@@ -190,8 +190,10 @@ class _Fixture {
   Future<DevChannel> pair([
     String link =
         'plux-dev://pair?server=https%3A%2F%2Fdev.example&token=pair-me',
-  ]) => DevChannel.pair(
-    DevPairingLink.parse(link),
+  ]) => pairWith(DevPairingLink.parse(link));
+
+  Future<DevChannel> pairWith(DevPairingCredential pairing) => DevChannel.pair(
+    pairing,
     api: api,
     token: token,
     applier: applier,
@@ -271,7 +273,63 @@ void main() {
     });
   });
 
+  group('DEV-002 pairing code', () {
+    test('DEV-002 reads a code whatever its case, dashes and look-alikes', () {
+      for (final typed in ['7KQ2-M9XD', '7kq2m9xd', ' 7kq2 - m9xd ']) {
+        expect(DevPairingCode.parse(typed).value, '7KQ2M9XD', reason: typed);
+      }
+      expect(DevPairingCode.parse('o1il-0000').value, '01110000');
+      expect(
+        DevPairingCode.parse('7KQ2-M9XD'),
+        DevPairingCode.parse('7kq2m9xd'),
+      );
+      expect(
+        DevPairingCode.parse('7KQ2-M9XD').toString(),
+        isNot(contains('7KQ2')),
+      );
+    });
+
+    test('DEV-002 refuses what is not a code, links included', () {
+      for (final bad in [
+        '',
+        '7KQ2-M9X',
+        '7KQ2-M9XDA',
+        '7KQ2-M9XU',
+        '7KQ2_M9XD',
+        'plux-dev://pair?server=https%3A%2F%2Fa.example&token=t',
+      ]) {
+        expect(DevPairingCode.tryParse(bad), isNull, reason: bad);
+        expect(() => DevPairingCode.parse(bad), throwsFormatException);
+      }
+    });
+  });
+
   group('DevChannel', () {
+    test(
+      'DEV-002 pair with a code sends pairingCode to the API client\'s server',
+      () async {
+        final f = _Fixture();
+        final channel = await f.pairWith(DevPairingCode.parse('7kq2-m9xd'));
+        final req = f.pairRequests.single;
+        expect(
+          req.url.toString(),
+          'https://dev.example/plux.v1.DevSessionService/Pair',
+        );
+        expect(jsonDecode(req.body), {
+          'pairingCode': '7KQ2M9XD',
+          'name': 'Pixel',
+          'platform': 'android',
+          'runtimeVersion': '0.6.0',
+        });
+        await f.transport.accept();
+        expect(
+          f.transport.requests.single.url,
+          Uri.parse('wss://dev.example/dev/socket'),
+        );
+        await channel.close();
+      },
+    );
+
     test(
       'DEV-002 pair calls Pair with the token, then opens the socket',
       () async {

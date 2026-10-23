@@ -27,6 +27,13 @@ SELECT jsonb_build_object('pluginKey', plugin_key, 'bundleSha256', encode(bundle
  ORDER BY plugin_key
  LIMIT sqlc.arg(row_limit);
 
+-- name: DsrExportDevPairingAttempts :many
+SELECT jsonb_build_object('at', at)::jsonb AS document
+  FROM dev_pairing_attempts
+ WHERE organization_id = $1 AND device_id = (sqlc.arg(device_id)::uuid)::text
+ ORDER BY at, id
+ LIMIT sqlc.arg(row_limit);
+
 -- name: DsrExportDevSessionDevices :many
 SELECT jsonb_build_object('devSession', session_id, 'name', name, 'platform', platform, 'runtimeVersion', runtime_version, 'pairedAt', paired_at)::jsonb AS document
   FROM dev_session_devices
@@ -111,6 +118,9 @@ DELETE FROM device_sca_keys WHERE organization_id = $1 AND device_id = $2;
 
 -- name: DsrEraseDeviceTokens :execrows
 DELETE FROM device_tokens WHERE organization_id = $1 AND device_id = $2;
+
+-- name: DsrEraseDevPairingAttempts :execrows
+DELETE FROM dev_pairing_attempts WHERE organization_id = $1 AND device_id = (sqlc.arg(device_id)::uuid)::text;
 
 -- name: DsrEraseDevSessionDevices :execrows
 DELETE FROM dev_session_devices WHERE organization_id = $1 AND device_id = (sqlc.arg(device_id)::uuid)::text;

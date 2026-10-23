@@ -14,7 +14,7 @@ import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
 import 'package:plux_flutter/src/devtools_api/dev_channel.dart'
-    show DevPairingLink;
+    show DevPairingCode, DevPairingLink;
 import 'package:plux_flutter/src/devtools_api/dev_pairing.dart';
 import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
 import 'package:plux_flutter/src/devtools_api/dev_session.dart'
@@ -367,14 +367,16 @@ abstract final class Plux {
     ),
   );
 
-  /// Pairs this app with the dev session of [link], the scanned or pasted
-  /// `plux-dev://pair?...` link (`DEV-040`). [devRootKeys] are the
-  /// development keys the host pinned; production keys are never accepted
-  /// for dev bundles. Throws a [StateError] in a build without devtools
-  /// (`DEV-050`) and a [FormatException] for a link that is not a pairing
-  /// link or names another server. `plux_devtools` wraps this.
+  /// Pairs this app with the dev session of [linkOrCode]: the scanned or
+  /// pasted `plux-dev://pair?...` link, or the short code `plux dev` prints
+  /// beside it (`DEV-040`, `DEV-002`). A code pairs against the server this
+  /// runtime talks to. [devRootKeys] are the development keys the host
+  /// pinned; production keys are never accepted for dev bundles. Throws a
+  /// [StateError] in a build without devtools (`DEV-050`) and a
+  /// [FormatException] for text that is neither a pairing link nor a code,
+  /// or a link that names another server. `plux_devtools` wraps this.
   static Future<PluxDevPairing> pairDevSession(
-    String link, {
+    String linkOrCode, {
     required List<PluxPublicKey> devRootKeys,
     Map<String, DevCommandHandler> extensions = const {},
     String deviceName = '',
@@ -383,7 +385,7 @@ abstract final class Plux {
       throw StateError('the dev channel is not part of this build');
     }
     return _rt.pairDevSession(
-      DevPairingLink.parse(link),
+      DevPairingCode.tryParse(linkOrCode) ?? DevPairingLink.parse(linkOrCode),
       devRootKeys: devRootKeys,
       extensions: extensions,
       deviceName: deviceName,

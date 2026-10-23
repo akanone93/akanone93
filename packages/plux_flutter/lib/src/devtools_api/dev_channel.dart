@@ -31,7 +31,7 @@ export 'package:plux_flutter/src/devtools_api/dev_engine.dart'
 export 'package:plux_flutter/src/devtools_api/dev_engine_isolate.dart'
     show DevEngineStarter;
 export 'package:plux_flutter/src/devtools_api/dev_pairing_link.dart'
-    show DevPairingLink;
+    show DevPairingCode, DevPairingCredential, DevPairingLink;
 
 /// A paired device's channel to its dev session.
 final class DevChannel implements DevEventSink {
@@ -45,7 +45,8 @@ final class DevChannel implements DevEventSink {
 
   final DevEngineHandle _engine;
 
-  /// Pairs the device with the session of [link] and starts the channel.
+  /// Pairs the device with the session of [pairing], a scanned link or a
+  /// typed code, and starts the channel.
   ///
   /// Calls `DevSessionService.Pair` with [token] (DPoP-bound), then opens
   /// `wss://<server>/dev/socket` with the returned ticket and a proof of the
@@ -55,9 +56,9 @@ final class DevChannel implements DevEventSink {
   /// `devtools.streamBufferBytes`. [engine] replaces the background
   /// isolate; tests use it. Throws a [StateError] in a build without
   /// devtools (`DEV-050`) and a [FormatException] when the link's server is
-  /// not the one [api] talks to.
+  /// not the one [api] talks to; a code pairs against [api]'s server.
   static Future<DevChannel> pair(
-    DevPairingLink link, {
+    DevPairingCredential pairing, {
     required PluxApiClient api,
     required DeviceToken token,
     required DevBundleApplier applier,
@@ -74,35 +75,41 @@ final class DevChannel implements DevEventSink {
     if (!kPluxDevtools) {
       throw StateError('the dev channel is not part of this build');
     }
-    if (!_sameOrigin(link.server, api.endpoint)) {
+    final (server, pairingToken, pairingCode) = switch (pairing) {
+      DevPairingLink(:final server, token: final t) => (server, t, ''),
+      DevPairingCode(:final value) => (api.endpoint, '', value),
+    };
+    if (!_sameOrigin(server, api.endpoint)) {
       throw const FormatException(
         'the pairing server is not the server this app talks to',
       );
     }
     final request = _PairRequest(
-      link.token,
+      pairingToken,
+      pairingCode,
       deviceName,
       platform,
       runtimeVersion,
       attestation,
     );
-    final pairing = await api.devPair(
+    final paired = await api.devPair(
       token,
       pairingToken: request.token,
+      pairingCode: request.code,
       name: request.name,
       platform: request.platform,
       runtimeVersion: request.runtimeVersion,
       attestation: request.attestation,
     );
     final host = _UiHost(
-      link: link,
+      socketUrl: DevPairingLink.socketUrlOf(server),
       api: api,
       token: token,
       applier: applier,
       commands: commands,
-      sessionId: pairing.sessionId,
-      deviceId: pairing.deviceId,
-      firstTicket: pairing.socketTicket,
+      sessionId: paired.sessionId,
+      deviceId: paired.deviceId,
+      firstTicket: paired.socketTicket,
     );
     final config = DevEngineConfig(
       eventBytes: eventBytes,
@@ -114,7 +121,7 @@ final class DevChannel implements DevEventSink {
       backoffMaxMs: PluxLimit.dataStreamBackoffMax.defaultValue,
     );
     final handle = await (engine ?? startDevEngineIsolate)(config, host);
-    return DevChannel._(pairing.sessionId, pairing.deviceId, handle);
+    return DevChannel._(paired.sessionId, paired.deviceId, handle);
   }
 
   @override
@@ -138,12 +145,14 @@ bool _sameOrigin(Uri a, Uri b) =>
 final class _PairRequest {
   const _PairRequest(
     this.token,
+    this.code,
     this.name,
     this.platform,
     this.runtimeVersion,
     this.attestation,
   );
   final String token;
+  final String code;
   final String name;
   final String platform;
   final String runtimeVersion;
@@ -153,7 +162,7 @@ final class _PairRequest {
 /// The UI isolate's side of the channel.
 final class _UiHost implements DevEngineHost {
   _UiHost({
-    required this.link,
+    required this.socketUrl,
     required this.api,
     required this.token,
     required this.applier,
@@ -163,7 +172,8 @@ final class _UiHost implements DevEngineHost {
     required this.firstTicket,
   });
 
-  final DevPairingLink link;
+  /// The URL of the server's dev socket.
+  final Uri socketUrl;
   final PluxApiClient api;
   final DeviceToken token;
   final DevBundleApplier applier;
@@ -197,7 +207,7 @@ final class _UiHost implements DevEngineHost {
         rethrow;
       }
     }
-    final url = link.socketUrl;
+    final url = socketUrl;
     final proof = await token.proofs.proof(method: 'GET', uri: url);
     return DevSocketAuth(url: url, ticket: ticket, proof: proof);
   }

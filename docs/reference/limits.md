@@ -83,6 +83,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `devSession.devicesPerSession` | count | 5 | 80% | 20 | installation, organization, app | P10 | DEV-002 | Devices that may be paired to one dev session at the same time. |
 | `devSession.idleMinutes` | count | 30 | 80% | 480 | installation, organization, app | P10 | DEV-001 | Minutes without any device event or command after which the server ends a dev session. |
 | `devSession.lifetimeMinutes` | count | 480 | 80% | 1440 | installation, organization, app | P10 | DEV-001 | Lifetime of a dev session, in minutes, from its creation. |
+| `devSession.pairingCodeAttempts` | count | 5 | 80% | 5 | installation, organization, app | P10 | DEV-002 | Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes. |
 | `devSession.pairingTokenSeconds` | count | 120 | 80% | 120 | installation, organization, app | P10 | DEV-002 | Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows. |
 | `devSession.patchBytes` | bytes | 1048576 | 80% | 8388608 | installation, organization, app | P10 | DEV-010 | Size of the document patches of one PushPatch call. |
 | `device.clipboardChars` | count | 10000 | 80% | 100000 | installation, organization, app | P5 | SEC-080, LIM-004 | Characters copyToClipboard may put on the clipboard in one step. |

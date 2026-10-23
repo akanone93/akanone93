@@ -217,6 +217,9 @@ enum PluxLimit {
   devSessionIdleMinutes('devSession.idleMinutes', PluxLimitUnit.count, 30, 0, 480),
   /// Lifetime of a dev session, in minutes, from its creation.
   devSessionLifetimeMinutes('devSession.lifetimeMinutes', PluxLimitUnit.count, 480, 0, 1440),
+  /// Failed pairing-code attempts one device may make in ten minutes; further
+  /// attempts are refused until the window passes.
+  devSessionPairingCodeAttempts('devSession.pairingCodeAttempts', PluxLimitUnit.count, 5, 0, 5),
   /// Lifetime of a pairing token, in seconds; the hard maximum is the two
   /// minutes the specification allows.
   devSessionPairingTokenSeconds('devSession.pairingTokenSeconds', PluxLimitUnit.count, 120, 0, 120),

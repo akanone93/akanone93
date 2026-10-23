@@ -832,18 +832,21 @@ final class PluxApiClient {
   );
 
   /// Pairs this device with a dev session using the single-use
-  /// [pairingToken] it scanned (DEV-002); the answer carries the ticket the
-  /// device presents once at the dev socket's upgrade.
+  /// [pairingToken] it scanned, or the short [pairingCode] a person typed
+  /// instead (DEV-002); exactly one is given. The answer carries the ticket
+  /// the device presents once at the dev socket's upgrade.
   Future<DevPairing> devPair(
     DeviceToken token, {
-    required String pairingToken,
+    String pairingToken = '',
+    String pairingCode = '',
     String name = '',
     String platform = '',
     String runtimeVersion = '',
     Uint8List? attestation,
   }) async {
     final r = await _call('plux.v1.DevSessionService/Pair', {
-      'pairingToken': pairingToken,
+      if (pairingToken.isNotEmpty) 'pairingToken': pairingToken,
+      if (pairingCode.isNotEmpty) 'pairingCode': pairingCode,
       if (name.isNotEmpty) 'name': name,
       if (platform.isNotEmpty) 'platform': platform,
       if (runtimeVersion.isNotEmpty) 'runtimeVersion': runtimeVersion,

@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
@@ -146,7 +147,8 @@ type Pairing struct {
 	Token string
 	// URI is the link the QR code holds.
 	URI string
-	// Code is the short code a person may type instead.
+	// Code is the short code a person may type instead, shown as
+	// XXXX-XXXX.
 	Code      string
 	ExpiresAt time.Time
 }
@@ -305,32 +307,74 @@ func (s *Service) GetPairing(ctx context.Context, p auth.Principal, sessionID st
 	return out, err
 }
 
-// issue signs a pairing token for the session and stores its hash.
+// codeDraws is how many tokens issue signs before it gives up finding one
+// whose code no open token holds; a clash is already unlikely at 40 bits.
+const codeDraws = 3
+
+// issue signs a pairing token for the session and stores its hash and code.
+// The code must be unique among the open tokens, so a token whose code
+// clashes is dropped, inside a savepoint, and another one is signed.
 func (s *Service) issue(ctx context.Context, tx pgx.Tx, session Session, set limits.Set, now time.Time) (Pairing, error) {
+	expires := now.Add(time.Duration(set.Get(limits.DevSessionPairingTokenSeconds)) * time.Second)
+	for draw := 1; ; draw++ {
+		token, err := s.signPairing(ctx, session, expires)
+		if err != nil {
+			return Pairing{}, err
+		}
+		code := Code(token)
+		err = s.store(ctx, tx, dbgen.InsertDevPairingTokenParams{
+			TokenHash: digest(token), OrganizationID: storage.MustUUID(session.OrganizationID), SessionID: storage.MustUUID(session.ID),
+			ExpiresAt: storage.Timestamp(expires), Code: &code,
+		})
+		if uniqueViolation(err) && draw < codeDraws {
+			continue
+		}
+		if err != nil {
+			return Pairing{}, fmt.Errorf("devsession: store the pairing token: %w", err)
+		}
+		return Pairing{Token: token, URI: s.link(token), Code: FormatCode(code), ExpiresAt: expires}, nil
+	}
+}
+
+// signPairing signs a pairing token for the session.
+func (s *Service) signPairing(ctx context.Context, session Session, expires time.Time) (string, error) {
 	nonce := make([]byte, nonceBytes)
 	if _, err := io.ReadFull(s.random, nonce); err != nil {
-		return Pairing{}, fmt.Errorf("devsession: draw a nonce: %w", err)
+		return "", fmt.Errorf("devsession: draw a nonce: %w", err)
 	}
-	expires := now.Add(time.Duration(set.Get(limits.DevSessionPairingTokenSeconds)) * time.Second)
 	payload, err := json.Marshal(Claims{
 		Session: session.ID, Subject: session.Creator, App: session.AppID, Environment: session.EnvironmentID,
 		Expiry: expires.Unix(), Nonce: base64.RawURLEncoding.EncodeToString(nonce),
 	})
 	if err != nil {
-		return Pairing{}, fmt.Errorf("devsession: encode the claims: %w", err)
+		return "", fmt.Errorf("devsession: encode the claims: %w", err)
 	}
 	token, err := s.compact.Sign(ctx, s.o.Tokens, signing.TokenDevelopment, PairingType, payload)
 	if err != nil {
-		return Pairing{}, fmt.Errorf("devsession: sign the pairing token: %w", err)
+		return "", fmt.Errorf("devsession: sign the pairing token: %w", err)
 	}
-	err = dbgen.New(tx).InsertDevPairingToken(ctx, dbgen.InsertDevPairingTokenParams{
-		TokenHash: digest(token), OrganizationID: storage.MustUUID(session.OrganizationID), SessionID: storage.MustUUID(session.ID),
-		ExpiresAt: storage.Timestamp(expires),
-	})
+	return token, nil
+}
+
+// store inserts a pairing token inside a savepoint, so that a clash of its
+// code leaves the transaction usable.
+func (*Service) store(ctx context.Context, tx pgx.Tx, arg dbgen.InsertDevPairingTokenParams) error {
+	sp, err := tx.Begin(ctx)
 	if err != nil {
-		return Pairing{}, fmt.Errorf("devsession: store the pairing token: %w", err)
+		return fmt.Errorf("devsession: open a savepoint: %w", err)
 	}
-	return Pairing{Token: token, URI: s.link(token), Code: Code(token), ExpiresAt: expires}, nil
+	if err := dbgen.New(sp).InsertDevPairingToken(ctx, arg); err != nil {
+		_ = sp.Rollback(ctx)
+		return err //nolint:wrapcheck // the caller wraps it, and must see the unique violation
+	}
+	return sp.Commit(ctx) //nolint:wrapcheck // the caller wraps it
+}
+
+// uniqueViolation reports whether a database error is a unique-index
+// violation.
+func uniqueViolation(err error) bool {
+	var pg *pgconn.PgError
+	return errors.As(err, &pg) && pg.Code == "23505"
 }
 
 // link is the pairing link a QR code holds.

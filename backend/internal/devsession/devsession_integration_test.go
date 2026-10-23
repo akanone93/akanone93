@@ -207,7 +207,7 @@ func TestPair_PairsAndBinds_DEV_002(t *testing.T) {
 	f := newFixture(t, 0)
 	ctx := context.Background()
 	s, p := f.open(t)
-	if !strings.HasPrefix(p.URI, "plux-dev://pair?") || !strings.Contains(p.URI, "server=https%3A%2F%2Fplux.example.com") || len(p.Code) != 8 {
+	if !strings.HasPrefix(p.URI, "plux-dev://pair?") || !strings.Contains(p.URI, "server=https%3A%2F%2Fplux.example.com") || len(p.Code) != 9 {
 		t.Errorf("pairing = %+v", p)
 	}
 	if !p.ExpiresAt.Equal(f.Now.Add(120 * time.Second)) {
