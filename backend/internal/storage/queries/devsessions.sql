@@ -21,7 +21,45 @@ UPDATE dev_sessions SET last_activity_at = GREATEST(last_activity_at, sqlc.arg(a
 UPDATE dev_sessions SET ended_at = $2 WHERE id = $1 AND ended_at IS NULL RETURNING *;
 
 -- name: InsertDevPairingToken :exec
-INSERT INTO dev_pairing_tokens (token_hash, organization_id, session_id, expires_at) VALUES ($1, $2, $3, $4);
+INSERT INTO dev_pairing_tokens (token_hash, organization_id, session_id, expires_at, code) VALUES ($1, $2, $3, $4, $5);
+
+-- name: ConsumeDevPairingCode :one
+-- Spends the unconsumed, unexpired pairing token of a code in one
+-- statement, as ConsumeDevPairingToken does; only a token of a session of
+-- the device's app and environment matches (row-level security keeps the
+-- organisation).
+UPDATE dev_pairing_tokens t SET consumed_at = sqlc.arg(at)::timestamptz
+  FROM dev_sessions s
+ WHERE t.code = sqlc.arg(code)::text AND t.consumed_at IS NULL AND t.expires_at > sqlc.arg(at)::timestamptz
+   AND s.id = t.session_id AND s.app_id = sqlc.arg(app_id) AND s.environment_id = sqlc.arg(environment_id)
+ RETURNING t.session_id;
+
+-- name: GetDevPairingCode :one
+-- The latest token of a code for the device's app and environment, to tell
+-- a used code from an expired or unknown one.
+SELECT t.consumed_at FROM dev_pairing_tokens t JOIN dev_sessions s ON s.id = t.session_id
+ WHERE t.code = sqlc.arg(code)::text AND s.app_id = sqlc.arg(app_id) AND s.environment_id = sqlc.arg(environment_id)
+ ORDER BY t.consumed_at DESC NULLS FIRST
+ LIMIT 1;
+
+-- name: LockDevPairingAttempts :exec
+-- Serialises the pairing-code attempts of one device, so that concurrent
+-- attempts each count the others.
+SELECT pg_advisory_xact_lock(hashtextextended('dev-pairing-attempts:' || sqlc.arg(organization_id)::uuid::text || ':' || sqlc.arg(device_id)::text, 0));
+
+-- name: DropStaleDevPairingAttempts :exec
+-- Drops a device's pairing-code attempts that fell out of the window.
+DELETE FROM dev_pairing_attempts WHERE organization_id = $1 AND device_id = $2 AND at <= sqlc.arg(since)::timestamptz;
+
+-- name: InsertDevPairingAttempt :exec
+INSERT INTO dev_pairing_attempts (id, organization_id, device_id, at) VALUES ($1, $2, $3, $4);
+
+-- name: CountDevPairingAttempts :one
+SELECT count(*) FROM dev_pairing_attempts WHERE organization_id = $1 AND device_id = $2 AND at > sqlc.arg(since)::timestamptz;
+
+-- name: DeleteDevPairingAttempt :exec
+-- Forgets an attempt that paired: only failures count.
+DELETE FROM dev_pairing_attempts WHERE id = $1;
 
 -- name: ConsumeDevPairingToken :one
 -- Spends a pairing token in one statement: of two devices that present the

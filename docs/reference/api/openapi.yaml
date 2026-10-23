@@ -17089,6 +17089,15 @@ components:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: expires_at
           description: expires_at is when the token stops working.
+        code:
+          type: string
+          title: code
+          description: |-
+            code is the short code a person may type on the device instead of
+             opening the link: eight Crockford base32 characters shown as
+             XXXX-XXXX. It is a credential like the token, single-use and with the
+             token's expiry, and only pairs a device of the session's organisation,
+             app and environment (DEV-002).
       title: DevPairing
       additionalProperties: false
       description: DevPairing is a pairing token with the ways to show it.
@@ -17414,6 +17423,14 @@ components:
           description: |-
             attestation is the device's development attestation, where the
              platform gives one (DEV-002); empty otherwise.
+        pairingCode:
+          type: string
+          title: pairing_code
+          description: |-
+            pairing_code is the short code the person typed, used when
+             pairing_token is empty; case and dashes do not matter. Setting both is
+             INVALID_ARGUMENT. A device that fails devSession.pairingCodeAttempts
+             times in ten minutes is refused with RATE_LIMITED.
       title: DevSessionServicePairRequest
       additionalProperties: false
     plux.v1.DevSessionServicePairResponse:

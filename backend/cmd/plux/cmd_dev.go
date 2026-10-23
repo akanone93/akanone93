@@ -221,11 +221,22 @@ func (s *devRun) remember(file string) {
 	_ = os.WriteFile(file, []byte(s.id+"\n"), 0o600)
 }
 
-// showPairing prints the pairing link, which carries the single-use token
-// and is for the person who started the session.
+// showPairing prints the pairing link, which carries the single-use token,
+// and its short code to type instead (DEV-002); both are for the person who
+// started the session.
 func (s *devRun) showPairing(p *pluxv1.DevPairing) {
+	expires := p.GetExpiresAt().AsTime()
 	s.out.printf("pairing link: %s\n", p.GetUri())
-	s.out.printf("open it on the device (valid until %s)\n", p.GetExpiresAt().AsTime().UTC().Format(time.RFC3339))
+	if code := p.GetCode(); code != "" {
+		s.out.printf("Code: %s (expires in %s)\n", code, countdown(time.Until(expires)))
+	}
+	s.out.printf("open the link or type the code on the device (valid until %s)\n", expires.UTC().Format(time.RFC3339))
+}
+
+// countdown shows a duration to the second as minutes and seconds, 2:00.
+func countdown(d time.Duration) string {
+	secs := max(int64(d.Round(time.Second)/time.Second), 0)
+	return fmt.Sprintf("%d:%02d", secs/60, secs%60)
 }
 
 // loop scans the project and refreshes the pairing token until ctx ends.

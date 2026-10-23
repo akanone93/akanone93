@@ -446,12 +446,20 @@ type Delta struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type DevPairingAttempt struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	DeviceID       string
+	At             pgtype.Timestamptz
+}
+
 type DevPairingToken struct {
 	TokenHash      []byte
 	OrganizationID pgtype.UUID
 	SessionID      pgtype.UUID
 	ExpiresAt      pgtype.Timestamptz
 	ConsumedAt     pgtype.Timestamptz
+	Code           *string
 }
 
 type DevSession struct {

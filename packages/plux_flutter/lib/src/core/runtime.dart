@@ -1837,7 +1837,8 @@ final class PluxRuntime with WidgetsBindingObserver {
     if (seq != null) _emit(SyncActivated(seq));
   }
 
-  /// Pairs this app with the dev session of [link] (`DEV-040`).
+  /// Pairs this app with the dev session of [pairing], a scanned link or a
+  /// typed code (`DEV-040`, `DEV-002`).
   ///
   /// Builds the overlay applier over this runtime's store and active
   /// release, verified against [devRootKeys] (the development keys the host
@@ -1847,7 +1848,7 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// [StateError] in a build without devtools (`DEV-050`) or before the
   /// runtime is connected to its container.
   Future<PluxDevPairing> pairDevSession(
-    DevPairingLink link, {
+    DevPairingCredential pairing, {
     required List<PluxPublicKey> devRootKeys,
     Map<String, DevCommandHandler> extensions = const {},
     String deviceName = '',
@@ -1903,7 +1904,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     );
     try {
       final channel = await DevChannel.pair(
-        link,
+        pairing,
         api: api,
         token: await auth.token(),
         applier: applier,

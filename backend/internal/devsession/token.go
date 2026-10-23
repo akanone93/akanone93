@@ -20,8 +20,12 @@ import (
 const PairingType = "plux-pair+jwt"
 
 // codeLength is the number of characters of the code a person types instead
-// of scanning the QR code.
+// of opening the pairing link: 40 bits of the token's SHA-256.
 const codeLength = 8
+
+// crockford is Crockford's base32 alphabet: digits and capitals without I,
+// L, O and U, so that a code read aloud or typed is not misread.
+const crockford = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 // Claims are the claims of a pairing token.
 type Claims struct {
@@ -113,7 +117,40 @@ func digest(credential string) []byte {
 }
 
 // Code is the short code of a pairing token, for typing: the first eight
-// characters of the base32 form of the token's SHA-256.
+// characters of the Crockford base32 form of the token's SHA-256, as the
+// tables keep it.
 func Code(token string) string {
-	return base32.StdEncoding.EncodeToString(digest(token))[:codeLength]
+	return base32.NewEncoding(crockford).WithPadding(base32.NoPadding).EncodeToString(digest(token))[:codeLength]
+}
+
+// FormatCode shows a code as two groups of four, XXXX-XXXX.
+func FormatCode(code string) string {
+	if len(code) != codeLength {
+		return code
+	}
+	return code[:codeLength/2] + "-" + code[codeLength/2:]
+}
+
+// NormalizeCode reads a code a person typed: case, dashes and spaces do not
+// matter, and the letters Crockford's decoding reads as digits (O as 0, I
+// and L as 1) are accepted. It reports false when the result is not a code.
+func NormalizeCode(typed string) (string, bool) {
+	var b strings.Builder
+	for _, r := range strings.ToUpper(typed) {
+		switch {
+		case r == '-' || r == ' ':
+			continue
+		case r == 'O':
+			r = '0'
+		case r == 'I' || r == 'L':
+			r = '1'
+		case !strings.ContainsRune(crockford, r):
+			return "", false
+		}
+		b.WriteRune(r)
+	}
+	if b.Len() != codeLength {
+		return "", false
+	}
+	return b.String(), true
 }

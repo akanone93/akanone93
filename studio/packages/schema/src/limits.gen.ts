@@ -794,6 +794,16 @@ export const limits = [
     description: "Lifetime of a dev session, in minutes, from its creation.",
   },
   {
+    key: "devSession.pairingCodeAttempts",
+    unit: "count",
+    default: 5,
+    warning: 0,
+    max: 5,
+    scopes: ["installation", "organization", "app"],
+    phase: "P10",
+    description: "Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes.",
+  },
+  {
     key: "devSession.pairingTokenSeconds",
     unit: "count",
     default: 120,

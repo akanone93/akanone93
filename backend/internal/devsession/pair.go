@@ -42,9 +42,12 @@ type Caller struct {
 	Thumbprint string
 }
 
-// PairRequest is what a device sends to pair.
+// PairRequest is what a device sends to pair: the pairing token of the
+// link, or the short code a person typed instead.
 type PairRequest struct {
-	Token          string
+	Token string
+	// Code is the short code, used when Token is empty.
+	Code           string
 	Name           string
 	Platform       string
 	RuntimeVersion string
@@ -74,15 +77,22 @@ type DeviceBinding struct {
 	Thumbprint string
 }
 
-// Pair adds the calling device to the session its pairing token names and
-// returns a socket ticket (DEV-002, SEC-021). The token must carry a valid
-// signature of a development token key, be unexpired (PLX-9201) and unused
-// (PLX-9202), and name the device's own app and environment (PLX-9203); the
-// session must be live (PLX-9200) and have room (PLX-9208). Pairing the same
-// device again replaces its earlier pairing.
+// Pair adds the calling device to the session its pairing token or code
+// names and returns a socket ticket (DEV-002, SEC-021). The token must carry
+// a valid signature of a development token key, be unexpired (PLX-9201) and
+// unused (PLX-9202), and name the device's own app and environment
+// (PLX-9203); a code is checked by pairByCode. The session must be live
+// (PLX-9200) and have room (PLX-9208). Pairing the same device again
+// replaces its earlier pairing.
 func (s *Service) Pair(ctx context.Context, d Caller, in PairRequest) (Paired, error) {
 	if d.Thumbprint == "" || d.OrganizationID == "" {
 		return Paired{}, plxerr.New(plxerr.AuthenticationRequired, "pairing needs a device token bound to a key")
+	}
+	switch {
+	case in.Token != "" && in.Code != "":
+		return Paired{}, plxerr.New(plxerr.InvalidFormat, "a pairing names a pairing token or a pairing code, not both")
+	case in.Code != "":
+		return s.pairByCode(ctx, d, in)
 	}
 	keys, err := s.o.Tokens.TokenKeys(ctx)
 	if err != nil {
@@ -101,27 +111,127 @@ func (s *Service) Pair(ctx context.Context, d Caller, in PairRequest) (Paired, e
 	}
 	var out Paired
 	err = s.inTenant(ctx, storage.Tenant{OrganizationID: d.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
-		var err error
-		out, err = s.pair(ctx, tx, d, c, in, now)
+		q := dbgen.New(tx)
+		hash := digest(in.Token)
+		sid, err := q.ConsumeDevPairingToken(ctx, dbgen.ConsumeDevPairingTokenParams{TokenHash: hash, At: storage.Timestamp(now)})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return whyUnspendable(ctx, q, hash)
+		}
+		if err != nil {
+			return fmt.Errorf("devsession: spend the pairing token: %w", err)
+		}
+		if storage.ID(sid) != c.Session {
+			return invalidToken()
+		}
+		out, err = s.join(ctx, tx, d, sid, in, now)
 		return err
 	})
 	return out, err
 }
 
-// pair spends the token and records the device inside the transaction.
-func (s *Service) pair(ctx context.Context, tx pgx.Tx, d Caller, c Claims, in PairRequest, now time.Time) (Paired, error) {
-	q := dbgen.New(tx)
-	hash := digest(in.Token)
-	sid, err := q.ConsumeDevPairingToken(ctx, dbgen.ConsumeDevPairingTokenParams{TokenHash: hash, At: storage.Timestamp(now)})
-	if errors.Is(err, pgx.ErrNoRows) {
-		return Paired{}, whyUnspendable(ctx, q, hash)
+// codeWindow is the window in which a device may fail
+// devSession.pairingCodeAttempts (5) times to type a pairing code.
+//
+// The margin: a code is 40 bits, lives at most two minutes
+// (devSession.pairingTokenSeconds) and is spent by its first use, and only
+// pairs a device of the session's organisation, app and environment. A
+// registered device that guesses 5 codes per 10 minutes against the few
+// codes open in its environment at one time succeeds with odds of about
+// 5 * open / 2^40 per window, under one in 10^11 for a single open code.
+const codeWindow = 10 * time.Minute
+
+// pairByCode pairs with the short code of a pairing token. The code names
+// an unconsumed, unexpired token of a session of the device's own
+// organisation, app and environment; a code of any other is unknown to the
+// device (PLX-9201), and a used one is PLX-9202. A device that failed
+// devSession.pairingCodeAttempts times within codeWindow is refused
+// (RATE_LIMITED) before its code is tried.
+func (s *Service) pairByCode(ctx context.Context, d Caller, in PairRequest) (Paired, error) {
+	code, ok := NormalizeCode(in.Code)
+	if !ok {
+		return Paired{}, plxerr.New(plxerr.InvalidFormat, "a pairing code is eight letters and digits, such as 7KQ2-M9XD")
 	}
+	app, err := parseID(d.AppID, "app")
 	if err != nil {
-		return Paired{}, fmt.Errorf("devsession: spend the pairing token: %w", err)
+		return Paired{}, err
 	}
-	if storage.ID(sid) != c.Session {
-		return Paired{}, invalidToken()
+	env, err := parseID(d.EnvironmentID, "environment")
+	if err != nil {
+		return Paired{}, err
 	}
+	now := s.now()
+	attempt, err := s.attempt(ctx, d, now)
+	if err != nil {
+		return Paired{}, err
+	}
+	var out Paired
+	err = s.inTenant(ctx, storage.Tenant{OrganizationID: d.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		sid, err := q.ConsumeDevPairingCode(ctx, dbgen.ConsumeDevPairingCodeParams{At: storage.Timestamp(now), Code: code, AppID: app, EnvironmentID: env})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return whyCodeUnspendable(ctx, q, dbgen.GetDevPairingCodeParams{Code: code, AppID: app, EnvironmentID: env})
+		}
+		if err != nil {
+			return fmt.Errorf("devsession: spend the pairing code: %w", err)
+		}
+		if err := q.DeleteDevPairingAttempt(ctx, attempt); err != nil {
+			return fmt.Errorf("devsession: forget the attempt: %w", err)
+		}
+		out, err = s.join(ctx, tx, d, sid, in, now)
+		return err
+	})
+	return out, err
+}
+
+// attempt records a pairing-code attempt of the device before its code is
+// tried, in a transaction of its own so that the attempt stays counted when
+// the code fails; pairByCode forgets it when the code pairs. It refuses the
+// device once devSession.pairingCodeAttempts attempts lie within
+// codeWindow. The attempts of one device are serialised, so concurrent
+// guesses cannot pass the count together.
+func (s *Service) attempt(ctx context.Context, d Caller, now time.Time) (pgtype.UUID, error) {
+	id, err := s.o.IDs.New()
+	if err != nil {
+		return pgtype.UUID{}, fmt.Errorf("devsession: %w", err)
+	}
+	attempt := storage.MustUUID(id)
+	err = s.inTenant(ctx, storage.Tenant{OrganizationID: d.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		org := storage.MustUUID(d.OrganizationID)
+		since := storage.Timestamp(now.Add(-codeWindow))
+		if err := q.LockDevPairingAttempts(ctx, dbgen.LockDevPairingAttemptsParams{OrganizationID: org, DeviceID: d.DeviceID}); err != nil {
+			return fmt.Errorf("devsession: lock the attempts: %w", err)
+		}
+		err := q.DropStaleDevPairingAttempts(ctx, dbgen.DropStaleDevPairingAttemptsParams{OrganizationID: org, DeviceID: d.DeviceID, Since: since})
+		if err != nil {
+			return fmt.Errorf("devsession: drop the old attempts: %w", err)
+		}
+		n, err := q.CountDevPairingAttempts(ctx, dbgen.CountDevPairingAttemptsParams{OrganizationID: org, DeviceID: d.DeviceID, Since: since})
+		if err != nil {
+			return fmt.Errorf("devsession: count the attempts: %w", err)
+		}
+		set, err := s.o.Limits(ctx, tx, d.OrganizationID, d.AppID)
+		if err != nil {
+			return fmt.Errorf("devsession: read the limits: %w", err)
+		}
+		if most := set.Get(limits.DevSessionPairingCodeAttempts); n >= most {
+			return plxerr.New(plxerr.RateLimited, "too many pairing codes failed on this device (devSession.pairingCodeAttempts); wait %d minutes",
+				int(codeWindow.Minutes()))
+		}
+		err = q.InsertDevPairingAttempt(ctx, dbgen.InsertDevPairingAttemptParams{ID: attempt, OrganizationID: org, DeviceID: d.DeviceID, At: storage.Timestamp(now)})
+		if err != nil {
+			return fmt.Errorf("devsession: record the attempt: %w", err)
+		}
+		return nil
+	})
+	return attempt, err
+}
+
+// join records the device in the session of a spent token, inside the
+// transaction that spent it: the session must be live, of the device's app
+// and environment, and have room.
+func (s *Service) join(ctx context.Context, tx pgx.Tx, d Caller, sid pgtype.UUID, in PairRequest, now time.Time) (Paired, error) {
+	q := dbgen.New(tx)
 	row, err := q.GetDevSessionForUpdate(ctx, sid)
 	if err != nil {
 		return Paired{}, fmt.Errorf("devsession: find the session: %w", err)
@@ -271,6 +381,28 @@ func whyUnspendable(ctx context.Context, q *dbgen.Queries, hash []byte) error {
 	default:
 		return tokenExpired()
 	}
+}
+
+// whyCodeUnspendable tells a used code from an expired or unknown one, among
+// the codes of the device's app and environment.
+func whyCodeUnspendable(ctx context.Context, q *dbgen.Queries, arg dbgen.GetDevPairingCodeParams) error {
+	consumed, err := q.GetDevPairingCode(ctx, arg)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return codeExpired()
+	case err != nil:
+		return fmt.Errorf("devsession: find the pairing code: %w", err)
+	case consumed.Valid:
+		return plxerr.New(plxerr.PairingTokenUsed, "the pairing code was already used; ask for a new one")
+	default:
+		return codeExpired()
+	}
+}
+
+// codeExpired is the refusal of a pairing code that is past its expiry or
+// unknown to the device.
+func codeExpired() error {
+	return plxerr.New(plxerr.PairingTokenExpired, "the pairing code has expired or is not known; ask for a new one")
 }
 
 // tokenExpired is the refusal of a pairing token past its expiry.

@@ -57,10 +57,10 @@ typedef PluxDevJoined = ({
   Future<void> Function() close,
 });
 
-/// Pairs with the session of a link and returns the joined session. The
-/// default is `Plux.pairDevSession`; tests inject their own.
+/// Pairs with the session of a link or a code and returns the joined
+/// session. The default is `Plux.pairDevSession`; tests inject their own.
 typedef PluxDevPairer = Future<PluxDevJoined> Function(
-  String link, {
+  String linkOrCode, {
   required List<PluxPublicKey> devRootKeys,
   required Map<String, DevCommandHandler> extensions,
 });
@@ -78,12 +78,12 @@ final class PluxDevEvents implements DevEventSink {
 
 PluxDevPairer _runtimePairer(PluxDevEvents events) =>
     (
-      String link, {
+      String linkOrCode, {
       required List<PluxPublicKey> devRootKeys,
       required Map<String, DevCommandHandler> extensions,
     }) async {
       final pairing = await Plux.pairDevSession(
-        link,
+        linkOrCode,
         devRootKeys: devRootKeys,
         extensions: extensions,
       );
@@ -102,7 +102,7 @@ PluxDevPairer _runtimePairer(PluxDevEvents events) =>
 ///
 /// ```dart
 /// final session = PluxDevSession(devRootKeys: devKeys);
-/// await session.pair(scannedOrPastedLink);
+/// await session.pair(scannedOrPastedLink); // or the typed code
 /// ```
 final class PluxDevSession {
   /// Creates a controller.
@@ -142,16 +142,20 @@ final class PluxDevSession {
   /// The state, for the overlay and the host.
   ValueListenable<PluxDevSessionState> get state => _state;
 
-  /// Pairs with the session of [linkOrCode], the `plux-dev://pair?...` link
-  /// that was scanned or pasted. A pairing in progress or in place is
-  /// ignored. A failure becomes a [PluxDevError] state; this never throws.
+  /// Pairs with the session of [linkOrCode]: the `plux-dev://pair?...` link
+  /// that was scanned or pasted, or the short code `plux dev` prints beside
+  /// it (`XXXX-XXXX`), which pairs against the server the runtime talks to.
+  /// A pairing in progress or in place is ignored. A failure becomes a
+  /// [PluxDevError] state; this never throws.
   Future<void> pair(String linkOrCode) async {
     if (!isAvailable) return;
     if (_state.value is PluxDevPairingNow || _state.value is PluxDevPaired) {
       return;
     }
     try {
-      DevPairingLink.parse(linkOrCode);
+      if (DevPairingCode.tryParse(linkOrCode) == null) {
+        DevPairingLink.parse(linkOrCode);
+      }
     } on FormatException {
       _state.value = const PluxDevError('invalid_link');
       return;

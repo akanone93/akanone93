@@ -68,6 +68,8 @@ export 'src/devtools_api/dev_channel.dart'
         DevEngineHandle,
         DevEngineHost,
         DevEngineStarter,
+        DevPairingCode,
+        DevPairingCredential,
         DevPairingLink,
         DevSocketAuth;
 export 'src/devtools_api/dev_console.dart' show DevPxlCompiler;

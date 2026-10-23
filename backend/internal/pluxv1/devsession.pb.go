@@ -360,7 +360,13 @@ type DevPairing struct {
 	// `plux-dev://pair?server=<url>&token=<token>`.
 	Uri string `protobuf:"bytes,2,opt,name=uri,proto3" json:"uri,omitempty"`
 	// expires_at is when the token stops working.
-	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// code is the short code a person may type on the device instead of
+	// opening the link: eight Crockford base32 characters shown as
+	// XXXX-XXXX. It is a credential like the token, single-use and with the
+	// token's expiry, and only pairs a device of the session's organisation,
+	// app and environment (DEV-002).
+	Code          string `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -414,6 +420,13 @@ func (x *DevPairing) GetExpiresAt() *timestamppb.Timestamp {
 		return x.ExpiresAt
 	}
 	return nil
+}
+
+func (x *DevPairing) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
 }
 
 // DevDevice is a device paired with a session.
@@ -736,7 +749,12 @@ type DevSessionServicePairRequest struct {
 	RuntimeVersion string `protobuf:"bytes,4,opt,name=runtime_version,json=runtimeVersion,proto3" json:"runtime_version,omitempty"`
 	// attestation is the device's development attestation, where the
 	// platform gives one (DEV-002); empty otherwise.
-	Attestation   []byte `protobuf:"bytes,5,opt,name=attestation,proto3" json:"attestation,omitempty"`
+	Attestation []byte `protobuf:"bytes,5,opt,name=attestation,proto3" json:"attestation,omitempty"`
+	// pairing_code is the short code the person typed, used when
+	// pairing_token is empty; case and dashes do not matter. Setting both is
+	// INVALID_ARGUMENT. A device that fails devSession.pairingCodeAttempts
+	// times in ten minutes is refused with RATE_LIMITED.
+	PairingCode   string `protobuf:"bytes,6,opt,name=pairing_code,json=pairingCode,proto3" json:"pairing_code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -804,6 +822,13 @@ func (x *DevSessionServicePairRequest) GetAttestation() []byte {
 		return x.Attestation
 	}
 	return nil
+}
+
+func (x *DevSessionServicePairRequest) GetPairingCode() string {
+	if x != nil {
+		return x.PairingCode
+	}
+	return ""
 }
 
 type DevSessionServicePairResponse struct {
@@ -3194,13 +3219,14 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x125\n" +
-	"\bended_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\aendedAt\"o\n" +
+	"\bended_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\aendedAt\"\x83\x01\n" +
 	"\n" +
 	"DevPairing\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x10\n" +
 	"\x03uri\x18\x02 \x01(\tR\x03uri\x129\n" +
 	"\n" +
-	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\xcb\x02\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12\x12\n" +
+	"\x04code\x18\x04 \x01(\tR\x04code\"\xcb\x02\n" +
 	"\tDevDevice\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12\x12\n" +
@@ -3222,13 +3248,14 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"T\n" +
 	"#DevSessionServiceGetPairingResponse\x12-\n" +
-	"\apairing\x18\x01 \x01(\v2\x13.plux.v1.DevPairingR\apairing\"\xbe\x01\n" +
+	"\apairing\x18\x01 \x01(\v2\x13.plux.v1.DevPairingR\apairing\"\xe1\x01\n" +
 	"\x1cDevSessionServicePairRequest\x12#\n" +
 	"\rpairing_token\x18\x01 \x01(\tR\fpairingToken\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
 	"\bplatform\x18\x03 \x01(\tR\bplatform\x12'\n" +
 	"\x0fruntime_version\x18\x04 \x01(\tR\x0eruntimeVersion\x12 \n" +
-	"\vattestation\x18\x05 \x01(\fR\vattestation\"\xd5\x01\n" +
+	"\vattestation\x18\x05 \x01(\fR\vattestation\x12!\n" +
+	"\fpairing_code\x18\x06 \x01(\tR\vpairingCode\"\xd5\x01\n" +
 	"\x1dDevSessionServicePairResponse\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1b\n" +

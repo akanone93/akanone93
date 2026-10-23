@@ -96,7 +96,7 @@ func (s DevSession) Pair(ctx context.Context, req *connect.Request[pluxv1.DevSes
 	m := req.Msg
 	res, err := svc.Pair(ctx,
 		devsession.Caller{DeviceID: d.DeviceID, OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, Thumbprint: jkt},
-		devsession.PairRequest{Token: m.GetPairingToken(), Name: m.GetName(), Platform: m.GetPlatform(), RuntimeVersion: m.GetRuntimeVersion()})
+		devsession.PairRequest{Token: m.GetPairingToken(), Code: m.GetPairingCode(), Name: m.GetName(), Platform: m.GetPlatform(), RuntimeVersion: m.GetRuntimeVersion()})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
@@ -243,5 +243,5 @@ func devSessionProto(s devsession.Session) *pluxv1.DevSession {
 
 // devPairingProto converts an issued pairing token.
 func devPairingProto(p devsession.Pairing) *pluxv1.DevPairing {
-	return &pluxv1.DevPairing{Token: p.Token, Uri: p.URI, ExpiresAt: ts(p.ExpiresAt)}
+	return &pluxv1.DevPairing{Token: p.Token, Uri: p.URI, ExpiresAt: ts(p.ExpiresAt), Code: p.Code}
 }

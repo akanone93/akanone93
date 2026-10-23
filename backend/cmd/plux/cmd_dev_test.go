@@ -63,7 +63,7 @@ func (f *fakeDev) CreateSession(_ context.Context, r *connect.Request[pluxv1.Dev
 	}
 	return connect.NewResponse(&pluxv1.DevSessionServiceCreateSessionResponse{
 		Session: &pluxv1.DevSession{Id: "s1", AppId: r.Msg.GetAppId(), EnvironmentId: r.Msg.GetEnvironmentId(), ExpiresAt: timestamppb.New(time.Date(2026, 10, 23, 18, 0, 0, 0, time.UTC))},
-		Pairing: &pluxv1.DevPairing{Token: "T1", Uri: "plux-dev://pair?server=x&token=T1", ExpiresAt: timestamppb.New(expiry)},
+		Pairing: &pluxv1.DevPairing{Token: "T1", Uri: "plux-dev://pair?server=x&token=T1", Code: "7KQ2-M9XD", ExpiresAt: timestamppb.New(expiry)},
 	}), nil
 }
 
@@ -72,7 +72,7 @@ func (f *fakeDev) GetPairing(context.Context, *connect.Request[pluxv1.DevSession
 	defer f.mu.Unlock()
 	f.pairings++
 	return connect.NewResponse(&pluxv1.DevSessionServiceGetPairingResponse{
-		Pairing: &pluxv1.DevPairing{Token: "T2", Uri: "plux-dev://pair?server=x&token=T2", ExpiresAt: timestamppb.New(time.Now().Add(time.Hour))},
+		Pairing: &pluxv1.DevPairing{Token: "T2", Uri: "plux-dev://pair?server=x&token=T2", Code: "ABCD-EFGH", ExpiresAt: timestamppb.New(time.Now().Add(time.Hour))},
 	}), nil
 }
 
@@ -301,7 +301,9 @@ func TestDevSession_DEV_041(t *testing.T) { //nolint:paralleltest // the environ
 	eventually(t, "the pairing link", func() bool {
 		return strings.Contains(r.out.String(), "pairing link: plux-dev://pair?server=x&token=T1")
 	})
+	eventually(t, "the pairing code", func() bool { return strings.Contains(r.out.String(), "Code: 7KQ2-M9XD (expires in 0:0") })
 	eventually(t, "a refreshed link", func() bool { return strings.Contains(r.out.String(), "token=T2") })
+	eventually(t, "a refreshed code", func() bool { return strings.Contains(r.out.String(), "Code: ABCD-EFGH (expires in ") })
 	eventually(t, "the hot apply", func() bool { return strings.Contains(r.out.String(), "hot_apply bundle abababababab applied in 42ms") })
 	sessionFile := filepath.Join(r.project, devSessionFile)
 	if data, err := os.ReadFile(sessionFile); err != nil || strings.TrimSpace(string(data)) != "s1" {
@@ -356,6 +358,19 @@ func TestDevSession_DEV_041(t *testing.T) { //nolint:paralleltest // the environ
 	}
 	if _, err := os.Stat(sessionFile); err == nil {
 		t.Error("the session file outlived the session")
+	}
+}
+
+// Verifies: DEV-002.
+// The pairing code's lifetime is shown in minutes and seconds.
+func TestDevPairingCountdown_DEV_002(t *testing.T) {
+	t.Parallel()
+	for d, want := range map[time.Duration]string{
+		2 * time.Minute: "2:00", 119*time.Second + 600*time.Millisecond: "2:00", 5 * time.Second: "0:05", -time.Second: "0:00",
+	} {
+		if got := countdown(d); got != want {
+			t.Errorf("countdown(%s) = %q, want %q", d, got, want)
+		}
 	}
 }
 

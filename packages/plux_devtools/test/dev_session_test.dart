@@ -60,6 +60,23 @@ void main() {
     expect(fake.keys, isEmpty);
   });
 
+  test('pairs with a typed code [DEV-040] [DEV-002]', () async {
+    final s = session();
+    await s.pair('7kq2-m9xd');
+    expect(s.state.value, isA<PluxDevPaired>());
+    expect(fake.links, ['7kq2-m9xd']);
+  });
+
+  test(
+    'text that is neither a link nor a code pairs nothing [DEV-002]',
+    () async {
+      final s = session();
+      await s.pair('7KQ2-M9X');
+      expect((s.state.value as PluxDevError).code, 'invalid_link');
+      expect(fake.links, isEmpty);
+    },
+  );
+
   test(
     'an invalid link is an error state and pairs nothing [DEV-040]',
     () async {

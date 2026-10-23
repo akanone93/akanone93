@@ -97,6 +97,11 @@ func deviceStores() []Store {
 			Note: "Export reports that a token is held and its provider; the token itself is never returned.",
 		},
 		{
+			Name: "dev_pairing_attempts", Description: "When a device tried a pairing code, which bounds its failed attempts (DEV-002); dev sessions exist only for non-production environments.",
+			DeviceKey: "device_id", Personal: []string{"device_id"},
+			Retention: "Ten minutes: older attempts are deleted as the device makes new ones, and the rows go with the organisation.", Erase: EraseDelete,
+		},
+		{
 			Name: "device_sca_keys", Description: "The public key a device enrolled for strong customer authentication (SEC-027).",
 			DeviceKey: "device_id", Personal: []string{"device_id", "public_key", "jkt"},
 			Retention: retentionDevice, Erase: EraseDelete,
