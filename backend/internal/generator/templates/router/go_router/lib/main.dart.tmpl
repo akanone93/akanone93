@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_go_router/plux_go_router.dart';
+
+import 'plux/plux_options.g.dart';
+
+/// {%.Name%}, a Plux app. Its screens, flows and content ship as Plux
+/// releases, without a new build (GEN-005); this shell changes only for a
+/// new store build.
+///
+/// The app's GoRouter holds the entry page at '/' and the Plux pages at
+/// /plux/<route-name>, through which Plux navigates (NAV-006).
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding.instance.addObserver(_Links());
+  final plux = PluxGoRoutes();
+  final router = GoRouter(
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const _Home()),
+      ...plux.routes,
+    ],
+  );
+  await Plux.initialize(
+    PluxConfig(
+      appId: PluxOptions.appId,
+      endpoint: Uri.parse(PluxOptions.endpoint),
+      environment: PluxOptions.environment,
+      channel: PluxOptions.channel,
+      rootKeys: PluxOptions.rootKeys,
+      router: PluxGoRouter(router),
+    ),
+  );
+  runApp(
+    PluxScope(
+      child: MaterialApp.router(
+        title: '{%dart .Name%}',
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
+      ),
+    ),
+  );
+}
+
+/// The app's entry page: the entry route of its default plugin.
+class _Home extends StatelessWidget {
+  const _Home();
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: PluxView(
+      '{%.Plux.EntryRoute%}',
+      loadingBuilder: (_) => const Center(
+        key: ValueKey('plux-loading'),
+        child: CircularProgressIndicator(),
+      ),
+      fallbackBuilder: (_, error) => Center(
+        key: const ValueKey('plux-unavailable'),
+        child: Text('Not available (${error.code.id})'),
+      ),
+    ),
+  );
+}
+
+/// Hands the links the app is opened with to Plux, which maps them to
+/// pages through the app's deep links (NAV-008).
+final class _Links with WidgetsBindingObserver {
+  @override
+  Future<bool> didPushRouteInformation(RouteInformation routeInformation) =>
+      Plux.handleDeepLink(routeInformation.uri);
+}

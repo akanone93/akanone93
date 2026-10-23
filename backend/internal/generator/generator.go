@@ -24,6 +24,7 @@ import (
 	"image/color"
 	"io/fs"
 	"path"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
@@ -68,6 +69,9 @@ type ShellSpec struct {
 	DeepLinkSchemes []string `json:"deepLinkSchemes"`
 	// Packages are optional packages the shell adds; none in P4.
 	Packages []string `json:"packages"`
+	// Router is the router the app's navigation runs on, go_router or
+	// auto_route; empty for none, which the file leaves out (HST-034).
+	Router string `json:"router,omitempty"`
 	// Plux is where the app's content comes from.
 	Plux PluxSource `json:"plux"`
 }
@@ -108,6 +112,34 @@ type File struct {
 // RuntimeConstraint is the plux_flutter version generated projects use.
 const RuntimeConstraint = "^0.6.0"
 
+// AdapterConstraint is the version of the router adapters generated
+// projects use, as plux init adds them.
+const AdapterConstraint = "^0.1.0"
+
+// routerFlavour returns the router flavour of plux create (HST-034): the adapter
+// that runs Plux on the router, the router and its pub constraint, all as
+// the adapters' own examples use them.
+func routerFlavour(name string) (f struct{ adapter, router, routerConstraint string }, ok bool) {
+	switch name {
+	case "go_router":
+		f.adapter, f.router, f.routerConstraint = "plux_go_router", "go_router", "^18.0.2"
+	case "auto_route":
+		f.adapter, f.router, f.routerConstraint = "plux_auto_route", "auto_route", "^11.2.0"
+	default:
+		return f, false
+	}
+	return f, true
+}
+
+// CheckRouter reports whether name is a router flavour the generator
+// writes: none, go_router or auto_route (HST-034). The empty name is none.
+func CheckRouter(name string) error {
+	if _, ok := routerFlavour(name); ok || name == "" || name == "none" {
+		return nil
+	}
+	return fmt.Errorf("unknown router %q: the routers are none, go_router and auto_route", name)
+}
+
 // FlutterVersion is the Flutter the templates are written against: the
 // repository's pin (a test keeps them in step).
 const FlutterVersion = "3.47.5"
@@ -136,6 +168,9 @@ func PackageName(key string) string {
 // permissions and iOS usage descriptions — and checks every field.
 func Derive(s ShellSpec) (ShellSpec, error) {
 	s.Version = ShellVersion
+	if s.Router == "none" {
+		s.Router = ""
+	}
 	s.DeviceAPIs = sortedUnique(s.DeviceAPIs)
 	s.DeepLinkHosts = sortedUnique(s.DeepLinkHosts)
 	s.DeepLinkSchemes = sortedUnique(s.DeepLinkSchemes)
@@ -156,6 +191,9 @@ func Derive(s ShellSpec) (ShellSpec, error) {
 	check(hexColour.MatchString(s.SplashColor), "splash colour %q is not #RRGGBB", s.SplashColor)
 	check(routeName.MatchString(s.Plux.EntryRoute), "the entry route %q is not a route name", s.Plux.EntryRoute)
 	check(s.Plux.AppID != "" && s.Plux.Endpoint != "" && s.Plux.Environment != "", "the Plux app, server and environment are required")
+	if err := CheckRouter(s.Router); err != nil {
+		errs = append(errs, err)
+	}
 	for _, h := range s.DeepLinkHosts {
 		check(hostName.MatchString(h), "deep-link host %q is not a host name", h)
 	}
@@ -210,6 +248,16 @@ type view struct {
 	FlutterVersion                     string
 	PluxPath                           string
 	BaselineAssets                     bool
+	// RouterDeps are the router's dependencies, the adapter first: a
+	// version, or a path when PluxPath is set (the adapter is read from
+	// the directory beside plux_flutter's).
+	RouterDeps []pubDependency
+}
+
+// pubDependency is a dependency the pubspec names: a pub constraint, or a
+// path.
+type pubDependency struct {
+	Name, Constraint, Path string
 }
 
 // Generate renders the project of in, sorted by path, after Derive has
@@ -239,6 +287,13 @@ func Generate(in Input) ([]File, error) {
 		if strings.HasPrefix(p, "assets/") {
 			v.BaselineAssets = true
 		}
+	}
+	if r, ok := routerFlavour(spec.Router); ok {
+		adapter := pubDependency{Name: r.adapter, Constraint: AdapterConstraint}
+		if in.PluxPath != "" {
+			adapter = pubDependency{Name: r.adapter, Path: filepath.Join(filepath.Dir(in.PluxPath), r.adapter)}
+		}
+		v.RouterDeps = []pubDependency{adapter, {Name: r.router, Constraint: r.routerConstraint}}
 	}
 	files := map[string]File{}
 	if err := renderTemplates(v, files); err != nil {
@@ -284,6 +339,15 @@ func renderTemplates(v view, files map[string]File) error {
 		}
 		out := strings.TrimSuffix(strings.TrimPrefix(p, "templates/"), ".tmpl")
 		switch {
+		case strings.HasPrefix(out, "router/"):
+			// A router's own main.dart replaces lib/main.dart (HST-034).
+			flavour, rest, _ := strings.Cut(strings.TrimPrefix(out, "router/"), "/")
+			if flavour != v.Router {
+				return nil
+			}
+			out = rest
+		case out == "lib/main.dart" && v.Router != "":
+			return nil
 		case out == "ios/Runner/Runner.entitlements" && !v.Entitlements:
 			return nil
 		case out == "android/app/src/main/kotlin/MainActivity.kt":
