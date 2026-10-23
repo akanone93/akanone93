@@ -6,6 +6,7 @@ package devsession_test
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"strings"
 	"testing"
@@ -44,6 +45,13 @@ type fixture struct {
 // devSession.devicesPerSession when it is not zero.
 func newFixture(t *testing.T, devices int64) *fixture {
 	t.Helper()
+	return newFixtureWith(t, devices, nil)
+}
+
+// newFixtureWith is newFixture with the service's options changed by tune
+// before it starts; nil changes none.
+func newFixtureWith(t *testing.T, devices int64, tune func(*devsession.Options)) *fixture {
+	t.Helper()
 	w := governancetest.New(t)
 	configs, err := seccfg.New(seccfg.Options{DB: w.DB, Audit: w.Log, Tenancy: w.Tenancy, Now: w.Clock})
 	if err != nil {
@@ -63,7 +71,7 @@ func newFixture(t *testing.T, devices int64) *fixture {
 		}
 		return set, err //nolint:wrapcheck // a test
 	}
-	f.svc, err = devsession.New(devsession.Options{
+	opts := devsession.Options{
 		DB: w.DB, Audit: w.Log, IDs: w.Gen, Limits: lim, Tokens: f.signer, Environments: []string{"development"},
 		PublicBaseURL: "https://plux.example.com", Now: w.Clock,
 		StepUp: func(ctx context.Context, appID, environmentID string) (bool, error) {
@@ -73,13 +81,78 @@ func newFixture(t *testing.T, devices int64) *fixture {
 			}
 			return values.Get(settings.DevSessionRequireStepUp).Bool(), nil
 		},
-	})
+	}
+	if tune != nil {
+		tune(&opts)
+	}
+	f.svc, err = devsession.New(opts)
 	if err != nil {
 		t.Fatal(err)
 	}
 	f.Developer = f.member(t, "dev@example.com", true)
 	f.Unstepped = f.member(t, "dev2@example.com", false)
 	return f
+}
+
+// memoSignature is a signature and its key ID.
+type memoSignature struct {
+	sig []byte
+	kid string
+}
+
+// memoSigner signs the same input the same way every time.
+type memoSigner struct {
+	signing.TokenSigner
+	signed map[string]memoSignature
+}
+
+// SignToken signs an input once and returns that signature after.
+func (m *memoSigner) SignToken(ctx context.Context, class signing.TokenClass, input []byte) ([]byte, string, error) {
+	key := string(class) + "/" + string(input)
+	if got, ok := m.signed[key]; ok {
+		return got.sig, got.kid, nil
+	}
+	sig, kid, err := m.TokenSigner.SignToken(ctx, class, input)
+	if err != nil {
+		return nil, "", err //nolint:wrapcheck // a test
+	}
+	m.signed[key] = memoSignature{sig, kid}
+	return sig, kid, nil
+}
+
+// nonces is a random source that hands out the given nonces (16 bytes
+// each, which the service reads one at a time) in turn, the last one for
+// ever; any other read, such as a socket ticket, is truly random.
+type nonces struct {
+	list [][]byte
+	next int
+}
+
+func newNonces(first ...byte) *nonces {
+	n := &nonces{}
+	for _, b := range first {
+		n.list = append(n.list, bytes.Repeat([]byte{b}, 16))
+	}
+	return n
+}
+
+func (n *nonces) Read(p []byte) (int, error) {
+	if len(p) != 16 {
+		return rand.Read(p) //nolint:wrapcheck // a test
+	}
+	copy(p, n.list[min(n.next, len(n.list)-1)])
+	n.next++
+	return len(p), nil
+}
+
+// fixNonces makes the service draw the given nonces. Equal nonces then
+// make equal tokens, which needs the signatures to be equal too, and ES256
+// signatures are randomised.
+func fixNonces(n *nonces) func(*devsession.Options) {
+	return func(o *devsession.Options) {
+		o.Random = n
+		o.Tokens = &memoSigner{TokenSigner: o.Tokens, signed: map[string]memoSignature{}}
+	}
 }
 
 // member adds a developer, signed in with or without a fresh step-up.
@@ -425,4 +498,69 @@ func TestEndSession_DEV_002(t *testing.T) {
 	if err != nil || !again.EndedAt.Equal(ended.EndedAt) {
 		t.Errorf("ending again: %+v, %v", again, err)
 	}
+}
+
+// Verifies: DEV-002. A pairing token whose code clashes with an open
+// token's is dropped inside a savepoint and another one is signed, so the
+// request still succeeds and the first token keeps working.
+func TestGetPairing_RedrawsOnCodeClash_DEV_002(t *testing.T) {
+	f := newFixtureWith(t, 0, fixNonces(newNonces(1, 1, 2)))
+	s, first := f.open(t)
+	second, err := f.svc.GetPairing(context.Background(), f.Developer, s.ID)
+	if err != nil {
+		t.Fatalf("a clash of codes must be redrawn: %v", err)
+	}
+	if second.Token == first.Token || second.Code == first.Code {
+		t.Fatal("the redrawn pairing is the clashing one")
+	}
+	if _, err := f.pair(f.device("device-1", "jkt-1"), second.Token); err != nil {
+		t.Fatalf("the redrawn token does not pair: %v", err)
+	}
+	if _, err := f.pair(f.device("device-2", "jkt-2"), first.Token); err != nil {
+		t.Fatalf("the first token was lost by the clash: %v", err)
+	}
+}
+
+// Verifies: DEV-002. When every draw clashes the request fails and stores
+// nothing, and the transaction was left usable by the savepoints.
+func TestGetPairing_GivesUpAfterClashes_DEV_002(t *testing.T) {
+	f := newFixtureWith(t, 0, fixNonces(newNonces(1)))
+	s, first := f.open(t)
+	_, err := f.svc.GetPairing(context.Background(), f.Developer, s.ID)
+	if err == nil || !strings.Contains(err.Error(), "store the pairing token") {
+		t.Fatalf("GetPairing = %v, want a failure to store the token", err)
+	}
+	if _, err := f.pair(f.device("device-1", "jkt-1"), first.Token); err != nil {
+		t.Fatalf("the token of the session is gone after the failed request: %v", err)
+	}
+}
+
+// Verifies: DEV-002, DEV-003. Identifiers a caller gives are
+// checked before anything is read: malformed ones are INVALID_FORMAT, an
+// environment that is not the app's is not found, and a call made outside
+// an organisation is refused before the database is touched.
+func TestCalls_RefuseBadIdentifiers_DEV_002(t *testing.T) {
+	f := newFixture(t, 0)
+	ctx := context.Background()
+	dev := f.Envs["development"]
+
+	_, _, err := f.svc.CreateSession(ctx, f.Developer, f.App, "not-a-uuid")
+	wantCode(t, err, plxerr.InvalidFormat, "a malformed environment")
+	_, _, err = f.svc.CreateSession(ctx, f.Developer, "not-a-uuid", dev)
+	wantCode(t, err, plxerr.InvalidFormat, "a malformed app")
+
+	_, _, err = f.svc.CreateSession(ctx, f.Developer, f.App, "00000000-0000-7000-8000-000000000000")
+	wantCode(t, err, plxerr.ResourceNotFound, "an environment that does not exist")
+
+	_, err = f.svc.GetPairing(ctx, f.Developer, "not-a-uuid")
+	wantCode(t, err, plxerr.InvalidFormat, "a malformed session for a pairing")
+	_, err = f.svc.ListDevices(ctx, f.Developer, "not-a-uuid")
+	wantCode(t, err, plxerr.InvalidFormat, "a malformed session for the devices")
+
+	s, _ := f.open(t)
+	nobody := auth.Principal{}
+	_, err = f.svc.ListDevices(ctx, nobody, s.ID)
+	wantCode(t, err, plxerr.AuthenticationRequired, "a call outside an organisation")
+	_, err = f.svc.GetPairing(ctx, f.Viewer, s.ID)
+	wantCode(t, err, plxerr.PermissionDenied, "a viewer asking for a pairing")
 }

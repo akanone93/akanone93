@@ -16,6 +16,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -51,7 +52,13 @@ type relay struct {
 // newRelay serves the socket; tight tightens limits before anything runs.
 func newRelay(t *testing.T, tight map[limits.Key]int64) *relay {
 	t.Helper()
-	r := &relay{fixture: newFixture(t, 0), used: map[string]bool{}}
+	return newRelayWith(t, tight, nil)
+}
+
+// newRelayWith is newRelay with the service's options changed by tune.
+func newRelayWith(t *testing.T, tight map[limits.Key]int64, tune func(*devsession.Options)) *relay {
+	t.Helper()
+	r := &relay{fixture: newFixtureWith(t, 0, tune), used: map[string]bool{}}
 	for k, v := range tight {
 		r.tight[k] = v
 	}
@@ -629,4 +636,62 @@ func TestRenewSocketTicket_DEV_021(t *testing.T) {
 	}
 	_, err = r.svc.RenewSocketTicket(ctx, d.caller, s.ID, d.DeviceID)
 	wantCode(t, err, plxerr.DevSessionExpired, "an ended session")
+}
+
+// Verifies: DEV-020.
+// A socket that stays silent past the idle timeout is closed by the relay,
+// which does not end the session.
+func TestSocket_IdleTimeoutClosesSocket_DEV_020(t *testing.T) {
+	r := newRelayWith(t, nil, func(o *devsession.Options) {
+		o.PingInterval = 20 * time.Millisecond
+		o.IdleTimeout = 60 * time.Millisecond
+	})
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+
+	// The device reads nothing, so it answers no ping, and sends nothing.
+	time.Sleep(300 * time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), wait)
+	defer cancel()
+	var err error
+	for err == nil {
+		_, _, err = k.c.Read(ctx)
+	}
+	if got := websocket.CloseStatus(err); got != websocket.StatusGoingAway {
+		t.Errorf("the idle socket closed with %v (%v), want going away", got, err)
+	}
+	live, err := r.svc.ListDevices(context.Background(), r.Developer, s.ID)
+	if err != nil || len(live) != 1 {
+		t.Errorf("the session after the idle close: %d devices, %v; want it kept", len(live), err)
+	}
+}
+
+// Verifies: DEV-020, DEV-002.
+// A session that is no longer live (past its idle time) is ended by the
+// socket's keep-alive: the device is told PLX-9200 and the socket closes.
+func TestSocket_KeepAliveEndsExpiredSession_DEV_020(t *testing.T) {
+	var skew atomic.Int64
+	r := newRelayWith(t, nil, func(o *devsession.Options) {
+		o.PingInterval = 20 * time.Millisecond
+		o.IdleTimeout = time.Minute
+		clock := o.Now
+		o.Now = func() time.Time { return clock().Add(time.Duration(skew.Load())) }
+	})
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	k.event(t, 1, logEvent("alive"))
+	k.ackedUpTo(t, 1)
+
+	skew.Store(int64(48 * time.Hour))
+	for {
+		f := k.next(t)
+		if end := f.GetEnded(); end != nil {
+			if end.GetCode() != plxerr.DevSessionExpired.String() {
+				t.Errorf("ended with %q, want %q", end.GetCode(), plxerr.DevSessionExpired)
+			}
+			return
+		}
+	}
 }
