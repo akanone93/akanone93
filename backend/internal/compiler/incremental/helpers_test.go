@@ -10,13 +10,13 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 	"testing"
 	"testing/fstest"
 
 	"github.com/nightCode42/plux3/backend/internal/compiler"
+	"github.com/nightCode42/plux3/backend/internal/compiler/incremental/incrementaltest"
 	"github.com/nightCode42/plux3/backend/internal/icons"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
@@ -33,12 +33,6 @@ const (
 	calculatorID   = "01a0c450-6c00-7012-8000-000000022cce"
 	column         = "root/slots/body/slots/child"
 	sliderNode     = column + "/children/2"
-)
-
-// Patterns rewritten in page copies.
-var (
-	uuidPattern = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`)
-	keyPattern  = regexp.MustCompile(`"key": "([a-z-]+)"`)
 )
 
 // fixture returns the conformance project in memory.
@@ -73,90 +67,16 @@ func graphFiles(n int) []string {
 	}
 }
 
-// manyPages returns the conformance project with the given number of copies
-// of the calculator page and its action graphs added to the loans plugin,
-// each with its own IDs, keys and route, padded to the given number of nodes
-// with Text nodes that bind their own expressions.
+// manyPages returns the conformance project with copies of the calculator
+// page (incrementaltest.ManyPages).
 func manyPages(t testing.TB, copies, nodes int) fstest.MapFS {
 	t.Helper()
-	m := fixture(t)
-	docs := map[string]string{calculatorPage: string(m[calculatorPage].Data)}
-	own := map[string]bool{}
-	for file, f := range m {
-		var doc map[string]any
-		if err := json.Unmarshal(f.Data, &doc); err != nil {
-			continue
-		}
-		if file == calculatorPage || strings.HasSuffix(file, ".graph.json") && doc["page"] == calculatorID {
-			docs[file] = string(f.Data)
-			collectUUIDs(doc, own)
-		}
-	}
-	files := make([]string, 0, len(docs))
-	for file := range docs {
-		files = append(files, file)
-	}
-	slices.Sort(files)
-	var pages []any
-	for i := range copies {
-		ids := map[string]string{}
-		key := fmt.Sprintf("copy%d", i)
-		for _, file := range files {
-			copied := uuidPattern.ReplaceAllStringFunc(docs[file], func(id string) string {
-				if !own[id] {
-					return id
-				}
-				if _, ok := ids[id]; !ok {
-					ids[id] = fmt.Sprintf("01c0%04x-6c00-7000-8000-%012x", i, len(ids))
-				}
-				return ids[id]
-			})
-			copied = keyPattern.ReplaceAllString(copied, `"key": "${1}-`+key+`"`)
-			copied = strings.Replace(copied, `"route": "loan-calculator"`, `"route": "`+key+`"`, 1)
-			name := strings.Replace(file, ".", "-"+key+".", 1)
-			m[name] = &fstest.MapFile{Data: []byte(copied)}
-			if file == calculatorPage {
-				edit(t, m, name, func(doc map[string]any) { pad(t, doc, i, nodes) })
-			}
-		}
-		pages = append(pages, ids[calculatorID])
-	}
-	edit(t, m, pluginFile, func(doc map[string]any) { doc["pages"] = append(doc["pages"].([]any), pages...) })
-	return m
-}
-
-// pad adds Text nodes to the calculator page's column until the page has the
-// given number of nodes.
-func pad(t testing.TB, doc map[string]any, copy, nodes int) {
-	t.Helper()
-	col := at(t, doc, column)
-	children := col["children"].([]any)
-	for j := 12; j < nodes; j++ {
-		children = append(children, textNode(fmt.Sprintf("01c1%04x-6c00-7000-8000-%012x", copy, j), fmt.Sprintf(`"Month " + string(page.months + %d)`, j)))
-	}
-	col["children"] = children
+	return incrementaltest.ManyPages(t, filepath.Join("..", "..", "..", ".."), copies, nodes)
 }
 
 // textNode is a Text node showing an expression.
 func textNode(id, expr string) map[string]any {
 	return map[string]any{"id": id, "type": "Text", "props": map[string]any{"data": map[string]any{"$expr": expr}}}
-}
-
-// collectUUIDs adds the values of every "id" key that holds a UUID.
-func collectUUIDs(v any, ids map[string]bool) {
-	switch x := v.(type) {
-	case map[string]any:
-		for k, it := range x {
-			if s, ok := it.(string); ok && k == "id" && uuidPattern.MatchString(s) {
-				ids[s] = true
-			}
-			collectUUIDs(it, ids)
-		}
-	case []any:
-		for _, it := range x {
-			collectUUIDs(it, ids)
-		}
-	}
 }
 
 // edit changes a JSON document of m.

@@ -1,0 +1,5 @@
+SPDX-FileCopyrightText: 2026 Plux contributors
+SPDX-License-Identifier: Apache-2.0
+
+Stand-in for the text of a release AOT snapshot that holds no dev code:
+PluxView Sync now Plux.start

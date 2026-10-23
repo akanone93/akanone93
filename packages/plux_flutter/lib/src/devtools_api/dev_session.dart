@@ -21,6 +21,12 @@ import 'package:plux_flutter/src/errors/plux_exception.dart';
 /// any other build.
 const bool kPluxDevtools = kDebugMode || bool.fromEnvironment('plux.devtools');
 
+/// A string that exists only in builds with [kPluxDevtools]: the release
+/// inspection (`make release-inspect`, `test/release/probes.txt`) fails when
+/// a release binary holds it, which proves the guard removed the channel
+/// (`SEC-074`, `DEV-050`). Referenced only from a [kPluxDevtools] branch.
+const String kDevCanary = 'plux-devtools-canary-7f3a';
+
 /// A dev bundle as the session sent it: a manifest and its sections, signed
 /// with the development key of the session's environment and not yet
 /// verified (`SEC-052`).
