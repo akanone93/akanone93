@@ -148,7 +148,7 @@ func TestDevloopEditToDeviceLatency_NFR_030_DEV_010(t *testing.T) {
 	h.Set("DPoP", proof)
 	dialCtx, dialCancel := context.WithTimeout(ctx, wait)
 	defer dialCancel()
-	conn, _, err := websocket.Dial(dialCtx, "ws://"+fwd.Addr()+devsession.SocketPath, &websocket.DialOptions{HTTPHeader: h})
+	conn, _, err := websocket.Dial(dialCtx, "ws://"+fwd.Addr()+devsession.SocketPath, &websocket.DialOptions{HTTPHeader: h, CompressionMode: websocket.CompressionContextTakeover})
 	if err != nil {
 		t.Fatal(err)
 	}

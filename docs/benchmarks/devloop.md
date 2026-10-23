@@ -69,7 +69,7 @@ in the bundle, so the push carried a 1.7 KB frame and the total p95 was 92 to 10
 nothing about a real edit and was replaced by an edit of a node's expression, which changes the
 page section and with it the plugin bundle.
 
-One run of 200 edits, with the real edit:
+One run of 200 edits, with the real edit, before compression (2026-10-23):
 
 | Part | p50 (ms) | p95 (ms) | Maximum (ms) |
 |---|---:|---:|---:|
@@ -78,17 +78,22 @@ One run of 200 edits, with the real edit:
 | `transport` | 506.4 | 526.1 | 560.7 |
 | `total` | 572.6 | 618.7 | 979.9 |
 
-**Verdict: the 350 ms budget is not met.** The reading:
+The budget was not met: an edit of one page changes the plugin bundle, and the frame carried
+1.53 MB of JSON uncompressed, about 410 ms at the profile's 30 Mbit/s. The server part was
+within its share (60 ms p50, 113 ms p95).
 
-- **The server is fast.** Compile, sign and deliver take 60 ms at p50 and 113 ms at p95, within
-  the 100 ms the compiler alone is budgeted (`CMP-051`) plus signing.
-- **The transport is the whole bundle.** An edit of one page changes the plugin bundle, and the
-  dev bundle frame carries every bundle the device does not hold yet: 1.53 MB of JSON for the
-  50-page plugin, 100 nodes a page. At 30 Mbit/s that takes about 410 ms before the 10 ms of
-  latency and the write; the frame is not compressed on the socket.
-- **Compression would meet the budget.** As a diagnostic, not part of this change, enabling
-  permessage-deflate on both ends of the socket (`websocket.CompressionContextTakeover`) and
-  repeating the benchmark with 60 edits gave `transport` p50 89 ms and p95 97 ms, and `total`
-  p50 155 ms and p95 168 ms. The alternative is a smaller frame by design (sending the changed
-  page section, not the plugin bundle). Either is a change to the dev socket's protocol
-  (ADR-0087), which belongs to the maintainer.
+**The socket now compresses** (permessage-deflate with context takeover, which the runtime's
+`dart:io` WebSocket offers by default; ADR-0087 Revision 2026-10-23). A dev bundle differs little
+from the one before it, so compressing against the previous frames shrinks it most. One run of
+200 edits after the change:
+
+| Part | p50 (ms) | p95 (ms) | Maximum (ms) |
+|---|---:|---:|---:|
+| `server` | 66.1 | 116.8 | 174.6 |
+| `admit` | 3.0 | 9.1 | 32.5 |
+| `transport` | 90.5 | 118.9 | 144.4 |
+| `total` | 164.1 | 230.8 | 291.0 |
+
+**Verdict: met.** Server and transport take 231 ms at p95 against 350 ms; with the device apply
+(`make bench-devapply`, p95 20 to 49 ms against 150 ms) an edit reaches the device within
+500 ms p95 (`NFR-030`, `DEV-010`).

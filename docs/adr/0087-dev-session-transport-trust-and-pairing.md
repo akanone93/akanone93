@@ -117,3 +117,12 @@ device would hold two connections. Rejected.
 ### Option 4 — unsigned dev sections
 
 Contradicts `SEC-052`: a socket is not a signature. Rejected.
+
+## Revision (2026-10-23, P10: compression on the device socket)
+
+The device socket negotiates permessage-deflate with context takeover. A dev bundle is sent whole
+and differs little from the previous one, and uncompressed it did not reach the device within
+the 500 ms of `DEV-010` over the good Wi-Fi profile (619 ms p95 for server and transport, against
+231 ms compressed; `docs/benchmarks/devloop.md`). The runtime's `dart:io` WebSocket offers the
+extension by default. The frames carry no secret: the pairing token and the socket ticket travel
+in the upgrade's headers, so compression cannot leak one through frame sizes.

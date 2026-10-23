@@ -69,8 +69,16 @@ func (s *Service) serveSocket(w http.ResponseWriter, r *http.Request, proof Proo
 	sock := &socket{s: s, b: b, room: room, lim: lim}
 	sock.seen.Store(time.Now().UnixNano())
 	c, err := websocket.Accept(w, r, &websocket.AcceptOptions{
-		OnPingReceived: func(context.Context, []byte) bool { sock.touched(); return true },
-		OnPongReceived: func(context.Context, []byte) { sock.touched() },
+		// permessage-deflate with context takeover: a dev bundle is sent
+		// whole and differs little from the previous one, so compressing
+		// against the last frames is what brings an edit within the
+		// 500 ms of DEV-010 over Wi-Fi (docs/benchmarks/devloop.md). The
+		// runtime's dart:io WebSocket offers it by default. Frames carry no
+		// secret beside attacker-chosen text (ADR-0087), so compression
+		// leaks nothing.
+		CompressionMode: websocket.CompressionContextTakeover,
+		OnPingReceived:  func(context.Context, []byte) bool { sock.touched(); return true },
+		OnPongReceived:  func(context.Context, []byte) { sock.touched() },
 	})
 	if err != nil {
 		return
