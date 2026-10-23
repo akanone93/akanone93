@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:plux_dev/src/pairing_scanner.dart';
 import 'package:plux_devtools/plux_devtools.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_security/plux_security.dart';
 
 /// Everything the dev tools share, created once per app.
 final class DevTooling {
@@ -34,6 +35,14 @@ final class DevTooling {
         network: network,
       ),
     );
+  }
+
+  /// Reports [security]'s detections to the session and lets the session
+  /// simulate one (DEV-001, ADR-0057).
+  void attachSecurity(PluxSecurity security) {
+    security.devEventSink = session.events;
+    session.extensions['simulateSecurityDetection'] =
+        pluxSecuritySimulateDetectionHandler(security);
   }
 
   /// The navigator the scan page opens on.
