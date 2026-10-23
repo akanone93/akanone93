@@ -68,6 +68,7 @@ BUILDER_IMAGE=${E2E_BUILDER_IMAGE:-plux-builder:e2e}
 CNPG_VERSION=${CNPG_VERSION:?set CNPG_VERSION}
 CNPG_SHA256=${CNPG_SHA256:?set CNPG_SHA256}
 API_PORT=${WALKTHROUGH_API_PORT:-18080}
+API_NODE_PORT=30080
 IDP_PORT=18443
 SINK_PORT=16514
 FLEET_ENV=${WALKTHROUGH_FLEET_ENV:-staging}
@@ -88,8 +89,11 @@ fail() { echo "✗ $*" >&2; exit 1; }
 step() { echo "── $*"; }
 
 # install [extra helm args]: the HA installation. Every client reaches the
-# api through kubectl port-forward, which connects inside the pod over
-# loopback; the api trusts loopback as a proxy, so the fleet's devices, which
+# api's pods through a NodePort service that the kind node publishes on
+# localhost, so requests follow the ready pods through step 8's rolling
+# upgrade, as behind a load balancer; a kubectl port-forward holds one pod and
+# fails with it. The service keeps the client's address, the kind network's
+# gateway, which the api trusts as a proxy, so the fleet's devices, which
 # plux-load gives an X-Forwarded-For address each, are rate-limited per
 # device and not as one address (SRV-065). It is also the rolling
 # upgrade, with a pod annotation that rolls every role (the pre-upgrade hook
@@ -103,7 +107,7 @@ install() {
 		--set builderImage.repository="${BUILDER_IMAGE%:*}" --set builderImage.tag="${BUILDER_IMAGE##*:}" --set builderImage.pullPolicy=Never \
 		--set server.publicBaseURL="https://127.0.0.1:$API_PORT" \
 		--set server.tls.existingSecret="$TLS_SECRET" \
-		--set-json 'server.trustedProxies=["127.0.0.1/32","::1/128"]' \
+		--set-json "server.trustedProxies=[\"$WALKTHROUGH_PROXY_RANGE\"]" \
 		--set license.existingSecret="$LICENSE_SECRET" \
 		--set api.replicas=2 --set worker.replicas=2 \
 		--set config.attestation.developmentProvider=true \
@@ -176,7 +180,7 @@ gateway_address() {
 }
 
 # make_ca: a CA made for the run and a certificate for the api, valid for the
-# address the port-forward serves on. Both keys stay in $work.
+# address the node publishes the api on. Both keys stay in $work.
 make_ca() {
 	openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes -days 1 \
 		-subj "/CN=plux walkthrough CA" -keyout "$work/ca.key" -out "$work/ca.pem" 2>/dev/null
@@ -202,7 +206,16 @@ STEPUP_CMD=${WALKTHROUGH_STEPUP_CMD:-"$work/webauthn-driver stepup"}
 
 step "cluster $CLUSTER"
 "$KIND" delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
-"$KIND" create cluster --name "$CLUSTER" --wait 180s
+# The node publishes the api's NodePort on localhost:$API_PORT.
+cat >"$work/kind.yaml" <<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - {containerPort: $API_NODE_PORT, hostPort: $API_PORT, listenAddress: 127.0.0.1, protocol: TCP}
+EOF
+"$KIND" create cluster --name "$CLUSTER" --config "$work/kind.yaml" --wait 180s
 "$KIND" load docker-image "$IMAGE" --name "$CLUSTER"
 "$KIND" load docker-image "$BUILDER_IMAGE" --name "$CLUSTER"
 # The builder's sandbox creates namespaces, which Docker's default seccomp
@@ -233,7 +246,7 @@ openssl req -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes \
 printf 'subjectAltName=IP:%s\nextendedKeyUsage=serverAuth\n' "$gateway" >"$work/idp.ext"
 openssl x509 -req -in "$work/idp.csr" -CA "$work/ca.pem" -CAkey "$work/ca.key" -CAcreateserial \
 	-days 1 -extfile "$work/idp.ext" -out "$work/idp.crt" 2>/dev/null
-export WALKTHROUGH_IDP_RANGE=$gateway/32 WALKTHROUGH_IDP_CA_FILE=$work/ca.pem
+export WALKTHROUGH_IDP_RANGE=$gateway/32 WALKTHROUGH_IDP_CA_FILE=$work/ca.pem WALKTHROUGH_PROXY_RANGE=$gateway/32
 # The network policies admit the api and the worker to the test provider and
 # the syslog sink on the gateway, those two ports and nothing else.
 export WALKTHROUGH_EGRESS="[{\"to\":[{\"ipBlock\":{\"cidr\":\"$gateway/32\"}}],\"ports\":[{\"protocol\":\"TCP\",\"port\":$IDP_PORT},{\"protocol\":\"TCP\",\"port\":$SINK_PORT}]},$SIGNER_EGRESS]"
@@ -273,11 +286,22 @@ k --namespace "$NAMESPACE" exec "$SIGNER" -- sh -c 'BAO_ADDR=http://127.0.0.1:82
 install
 k --namespace "$NAMESPACE" wait --for=condition=Ready cluster/plux-pg --timeout=300s
 
-step "forward the api to localhost:$API_PORT"
-k --namespace "$NAMESPACE" port-forward svc/plux-api "$API_PORT:8080" >/dev/null 2>&1 &
-pids+=("$!")
+step "publish the api on localhost:$API_PORT"
+# Local keeps the client's address: the node does not masquerade it.
+k apply -f - >/dev/null <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: plux-api-walkthrough
+  namespace: $NAMESPACE
+spec:
+  type: NodePort
+  externalTrafficPolicy: Local
+  selector: {app.kubernetes.io/name: plux, app.kubernetes.io/instance: plux, app.kubernetes.io/component: api}
+  ports: [{name: http, port: 8080, targetPort: http, nodePort: $API_NODE_PORT}]
+EOF
 curl -fsS --cacert "$work/ca.pem" --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 "https://127.0.0.1:$API_PORT/livez" >/dev/null ||
-	fail "the port-forward to the api does not answer"
+	fail "the api does not answer on localhost:$API_PORT"
 
 step "bootstrap the installation"
 # As an operator does (`plux-server seed` prepares development installations
