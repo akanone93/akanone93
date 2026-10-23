@@ -5,6 +5,16 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## Unreleased
+
+- **Opt-in background sync (SYN-014, ADR-0092):** `PluxConfig.backgroundSync`
+  (`BackgroundSyncConfig`, off by default; interval default 360 minutes, never below 15;
+  network, charging and battery constraints). Android schedules a unique periodic WorkManager
+  job (`androidx.work:work-runtime`); iOS a `BGAppRefreshTask` under the identifier
+  `dev.plux.backgroundSync` that the host declares in its `Info.plist`. A headless Dart entry
+  point runs the sync worker, verifies and stages a release and never activates it.
+  `PLX-3500`–`3503`.
+
 ## 0.6.0
 
 The runtime of Plux Phase 9: controls, experiments, reconstruction and the enterprise seams.
