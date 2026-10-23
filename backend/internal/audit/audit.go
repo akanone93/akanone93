@@ -305,6 +305,9 @@ const (
 	// DevSessionCommandSent: a command was sent to the devices of a dev
 	// session; the entry names the command's kind, never its values.
 	DevSessionCommandSent Action = "devsession.command_sent"
+	// DevSessionPatched: a patch to the draft was pushed to a dev session's
+	// devices as a development bundle; the entry names documents by ID.
+	DevSessionPatched Action = "devsession.patched"
 )
 
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
@@ -462,7 +465,7 @@ var actions = sorted(
 	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,
 	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
 	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
-	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionCommandSent,
+	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionCommandSent, DevSessionPatched,
 )
 
 // sorted returns its arguments in order.

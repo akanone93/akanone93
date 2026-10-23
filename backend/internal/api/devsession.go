@@ -16,9 +16,8 @@ import (
 )
 
 // DevSession serves DevSessionService: sessions and pairing (DEV-002,
-// DEV-003, ADR-0087), and the relay's commands, stream and trace export
-// (DEV-020, DEV-021). PushPatch answers Unimplemented until the push of
-// patches is served.
+// DEV-003, ADR-0087), the push of patches (DEV-010), and the relay's
+// commands, stream and trace export (DEV-020, DEV-021).
 type DevSession struct {
 	pluxv1connect.UnimplementedDevSessionServiceHandler
 	h *Handlers
