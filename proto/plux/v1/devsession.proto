@@ -323,6 +323,13 @@ message SimulateSecurityDetectionCommand {
 // state; the result arrives redacted in the CommandResultEvent (DEV-032).
 message EvaluatePxlCommand {
   string expression = 1;
+  // program is the expression compiled to PXL bytecode. The server sets it
+  // when it relays the command and clears whatever a client sent: the device
+  // evaluates only what the server compiled.
+  bytes program = 2;
+  // roots are the state roots the expression may read; empty means every
+  // root the console offers.
+  repeated string roots = 3;
 }
 
 // CaptureScreenshotCommand captures the screen; the image arrives as a

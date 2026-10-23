@@ -29,7 +29,6 @@ final class DevTooling {
       devExtensions(
         host: host,
         sink: session.events,
-        compile: _noCompiler,
         roots: () => const {},
         captureKey: captureKey,
         network: network,
@@ -89,9 +88,3 @@ final class DevTooling {
     host.dispose();
   }
 }
-
-Program _noCompiler(String expression, Map<String, Object?> roots) =>
-    throw const PluxException(
-      PluxErrorCode.devCommandUnsupported,
-      'this build has no on-device PXL compiler',
-    );
