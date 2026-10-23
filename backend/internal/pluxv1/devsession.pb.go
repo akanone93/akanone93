@@ -879,6 +879,111 @@ func (x *DevSessionServicePairResponse) GetSocketTicketExpiresAt() *timestamppb.
 	return nil
 }
 
+type DevSessionServiceRenewSocketTicketRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	DeviceId      string                 `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevSessionServiceRenewSocketTicketRequest) Reset() {
+	*x = DevSessionServiceRenewSocketTicketRequest{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevSessionServiceRenewSocketTicketRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevSessionServiceRenewSocketTicketRequest) ProtoMessage() {}
+
+func (x *DevSessionServiceRenewSocketTicketRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevSessionServiceRenewSocketTicketRequest.ProtoReflect.Descriptor instead.
+func (*DevSessionServiceRenewSocketTicketRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DevSessionServiceRenewSocketTicketRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *DevSessionServiceRenewSocketTicketRequest) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+type DevSessionServiceRenewSocketTicketResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// socket_ticket is opaque and single-use, like Pair's (PLX-9205).
+	SocketTicket          string                 `protobuf:"bytes,1,opt,name=socket_ticket,json=socketTicket,proto3" json:"socket_ticket,omitempty"`
+	SocketTicketExpiresAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=socket_ticket_expires_at,json=socketTicketExpiresAt,proto3" json:"socket_ticket_expires_at,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *DevSessionServiceRenewSocketTicketResponse) Reset() {
+	*x = DevSessionServiceRenewSocketTicketResponse{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevSessionServiceRenewSocketTicketResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevSessionServiceRenewSocketTicketResponse) ProtoMessage() {}
+
+func (x *DevSessionServiceRenewSocketTicketResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevSessionServiceRenewSocketTicketResponse.ProtoReflect.Descriptor instead.
+func (*DevSessionServiceRenewSocketTicketResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DevSessionServiceRenewSocketTicketResponse) GetSocketTicket() string {
+	if x != nil {
+		return x.SocketTicket
+	}
+	return ""
+}
+
+func (x *DevSessionServiceRenewSocketTicketResponse) GetSocketTicketExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SocketTicketExpiresAt
+	}
+	return nil
+}
+
 type DevSessionServiceListDevicesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
@@ -888,7 +993,7 @@ type DevSessionServiceListDevicesRequest struct {
 
 func (x *DevSessionServiceListDevicesRequest) Reset() {
 	*x = DevSessionServiceListDevicesRequest{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[9]
+	mi := &file_plux_v1_devsession_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -900,7 +1005,7 @@ func (x *DevSessionServiceListDevicesRequest) String() string {
 func (*DevSessionServiceListDevicesRequest) ProtoMessage() {}
 
 func (x *DevSessionServiceListDevicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[9]
+	mi := &file_plux_v1_devsession_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -913,7 +1018,7 @@ func (x *DevSessionServiceListDevicesRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DevSessionServiceListDevicesRequest.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceListDevicesRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{9}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DevSessionServiceListDevicesRequest) GetSessionId() string {
@@ -932,7 +1037,7 @@ type DevSessionServiceListDevicesResponse struct {
 
 func (x *DevSessionServiceListDevicesResponse) Reset() {
 	*x = DevSessionServiceListDevicesResponse{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[10]
+	mi := &file_plux_v1_devsession_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -944,7 +1049,7 @@ func (x *DevSessionServiceListDevicesResponse) String() string {
 func (*DevSessionServiceListDevicesResponse) ProtoMessage() {}
 
 func (x *DevSessionServiceListDevicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[10]
+	mi := &file_plux_v1_devsession_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -957,7 +1062,7 @@ func (x *DevSessionServiceListDevicesResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DevSessionServiceListDevicesResponse.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceListDevicesResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{10}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DevSessionServiceListDevicesResponse) GetDevices() []*DevDevice {
@@ -976,7 +1081,7 @@ type DevSessionServiceEndSessionRequest struct {
 
 func (x *DevSessionServiceEndSessionRequest) Reset() {
 	*x = DevSessionServiceEndSessionRequest{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[11]
+	mi := &file_plux_v1_devsession_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -988,7 +1093,7 @@ func (x *DevSessionServiceEndSessionRequest) String() string {
 func (*DevSessionServiceEndSessionRequest) ProtoMessage() {}
 
 func (x *DevSessionServiceEndSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[11]
+	mi := &file_plux_v1_devsession_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1001,7 +1106,7 @@ func (x *DevSessionServiceEndSessionRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DevSessionServiceEndSessionRequest.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceEndSessionRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DevSessionServiceEndSessionRequest) GetSessionId() string {
@@ -1020,7 +1125,7 @@ type DevSessionServiceEndSessionResponse struct {
 
 func (x *DevSessionServiceEndSessionResponse) Reset() {
 	*x = DevSessionServiceEndSessionResponse{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[12]
+	mi := &file_plux_v1_devsession_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1032,7 +1137,7 @@ func (x *DevSessionServiceEndSessionResponse) String() string {
 func (*DevSessionServiceEndSessionResponse) ProtoMessage() {}
 
 func (x *DevSessionServiceEndSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[12]
+	mi := &file_plux_v1_devsession_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1045,7 +1150,7 @@ func (x *DevSessionServiceEndSessionResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DevSessionServiceEndSessionResponse.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceEndSessionResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DevSessionServiceEndSessionResponse) GetSession() *DevSession {
@@ -1071,7 +1176,7 @@ type DevDocumentPatch struct {
 
 func (x *DevDocumentPatch) Reset() {
 	*x = DevDocumentPatch{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[13]
+	mi := &file_plux_v1_devsession_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1083,7 +1188,7 @@ func (x *DevDocumentPatch) String() string {
 func (*DevDocumentPatch) ProtoMessage() {}
 
 func (x *DevDocumentPatch) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[13]
+	mi := &file_plux_v1_devsession_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1096,7 +1201,7 @@ func (x *DevDocumentPatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevDocumentPatch.ProtoReflect.Descriptor instead.
 func (*DevDocumentPatch) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *DevDocumentPatch) GetPluginId() string {
@@ -1139,7 +1244,7 @@ type DevSessionServicePushPatchRequest struct {
 
 func (x *DevSessionServicePushPatchRequest) Reset() {
 	*x = DevSessionServicePushPatchRequest{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[14]
+	mi := &file_plux_v1_devsession_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1151,7 +1256,7 @@ func (x *DevSessionServicePushPatchRequest) String() string {
 func (*DevSessionServicePushPatchRequest) ProtoMessage() {}
 
 func (x *DevSessionServicePushPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[14]
+	mi := &file_plux_v1_devsession_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1164,7 +1269,7 @@ func (x *DevSessionServicePushPatchRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DevSessionServicePushPatchRequest.ProtoReflect.Descriptor instead.
 func (*DevSessionServicePushPatchRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DevSessionServicePushPatchRequest) GetSessionId() string {
@@ -1196,7 +1301,7 @@ type DevPatchResult struct {
 
 func (x *DevPatchResult) Reset() {
 	*x = DevPatchResult{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[15]
+	mi := &file_plux_v1_devsession_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1208,7 +1313,7 @@ func (x *DevPatchResult) String() string {
 func (*DevPatchResult) ProtoMessage() {}
 
 func (x *DevPatchResult) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[15]
+	mi := &file_plux_v1_devsession_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1221,7 +1326,7 @@ func (x *DevPatchResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevPatchResult.ProtoReflect.Descriptor instead.
 func (*DevPatchResult) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DevPatchResult) GetDeviceId() string {
@@ -1275,7 +1380,7 @@ type DevSessionServicePushPatchResponse struct {
 
 func (x *DevSessionServicePushPatchResponse) Reset() {
 	*x = DevSessionServicePushPatchResponse{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[16]
+	mi := &file_plux_v1_devsession_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1287,7 +1392,7 @@ func (x *DevSessionServicePushPatchResponse) String() string {
 func (*DevSessionServicePushPatchResponse) ProtoMessage() {}
 
 func (x *DevSessionServicePushPatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[16]
+	mi := &file_plux_v1_devsession_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1300,7 +1405,7 @@ func (x *DevSessionServicePushPatchResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DevSessionServicePushPatchResponse.ProtoReflect.Descriptor instead.
 func (*DevSessionServicePushPatchResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DevSessionServicePushPatchResponse) GetBundleSha256() string {
@@ -1335,7 +1440,7 @@ type MockSelection struct {
 
 func (x *MockSelection) Reset() {
 	*x = MockSelection{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[17]
+	mi := &file_plux_v1_devsession_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1347,7 +1452,7 @@ func (x *MockSelection) String() string {
 func (*MockSelection) ProtoMessage() {}
 
 func (x *MockSelection) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[17]
+	mi := &file_plux_v1_devsession_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1360,7 +1465,7 @@ func (x *MockSelection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MockSelection.ProtoReflect.Descriptor instead.
 func (*MockSelection) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *MockSelection) GetSource() string {
@@ -1394,7 +1499,7 @@ type OpenScreenCommand struct {
 
 func (x *OpenScreenCommand) Reset() {
 	*x = OpenScreenCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[18]
+	mi := &file_plux_v1_devsession_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1511,7 @@ func (x *OpenScreenCommand) String() string {
 func (*OpenScreenCommand) ProtoMessage() {}
 
 func (x *OpenScreenCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[18]
+	mi := &file_plux_v1_devsession_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1524,7 @@ func (x *OpenScreenCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OpenScreenCommand.ProtoReflect.Descriptor instead.
 func (*OpenScreenCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *OpenScreenCommand) GetRoute() string {
@@ -1479,7 +1584,7 @@ type SetStateCommand struct {
 
 func (x *SetStateCommand) Reset() {
 	*x = SetStateCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[19]
+	mi := &file_plux_v1_devsession_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1491,7 +1596,7 @@ func (x *SetStateCommand) String() string {
 func (*SetStateCommand) ProtoMessage() {}
 
 func (x *SetStateCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[19]
+	mi := &file_plux_v1_devsession_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1504,7 +1609,7 @@ func (x *SetStateCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetStateCommand.ProtoReflect.Descriptor instead.
 func (*SetStateCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SetStateCommand) GetScope() string {
@@ -1539,7 +1644,7 @@ type SwitchMockCommand struct {
 
 func (x *SwitchMockCommand) Reset() {
 	*x = SwitchMockCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[20]
+	mi := &file_plux_v1_devsession_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1551,7 +1656,7 @@ func (x *SwitchMockCommand) String() string {
 func (*SwitchMockCommand) ProtoMessage() {}
 
 func (x *SwitchMockCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[20]
+	mi := &file_plux_v1_devsession_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1564,7 +1669,7 @@ func (x *SwitchMockCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SwitchMockCommand.ProtoReflect.Descriptor instead.
 func (*SwitchMockCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *SwitchMockCommand) GetSource() string {
@@ -1597,7 +1702,7 @@ type FakeClockCommand struct {
 
 func (x *FakeClockCommand) Reset() {
 	*x = FakeClockCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[21]
+	mi := &file_plux_v1_devsession_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1609,7 +1714,7 @@ func (x *FakeClockCommand) String() string {
 func (*FakeClockCommand) ProtoMessage() {}
 
 func (x *FakeClockCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[21]
+	mi := &file_plux_v1_devsession_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1622,7 +1727,7 @@ func (x *FakeClockCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FakeClockCommand.ProtoReflect.Descriptor instead.
 func (*FakeClockCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *FakeClockCommand) GetOperation() isFakeClockCommand_Operation {
@@ -1694,7 +1799,7 @@ type LifecycleCommand struct {
 
 func (x *LifecycleCommand) Reset() {
 	*x = LifecycleCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[22]
+	mi := &file_plux_v1_devsession_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1706,7 +1811,7 @@ func (x *LifecycleCommand) String() string {
 func (*LifecycleCommand) ProtoMessage() {}
 
 func (x *LifecycleCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[22]
+	mi := &file_plux_v1_devsession_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1719,7 +1824,7 @@ func (x *LifecycleCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LifecycleCommand.ProtoReflect.Descriptor instead.
 func (*LifecycleCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *LifecycleCommand) GetEvent() DevLifecycleEvent {
@@ -1742,7 +1847,7 @@ type NetworkProfileCommand struct {
 
 func (x *NetworkProfileCommand) Reset() {
 	*x = NetworkProfileCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[23]
+	mi := &file_plux_v1_devsession_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1754,7 +1859,7 @@ func (x *NetworkProfileCommand) String() string {
 func (*NetworkProfileCommand) ProtoMessage() {}
 
 func (x *NetworkProfileCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[23]
+	mi := &file_plux_v1_devsession_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1767,7 +1872,7 @@ func (x *NetworkProfileCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkProfileCommand.ProtoReflect.Descriptor instead.
 func (*NetworkProfileCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{23}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *NetworkProfileCommand) GetProfileId() string {
@@ -1788,7 +1893,7 @@ type SimulateSecurityDetectionCommand struct {
 
 func (x *SimulateSecurityDetectionCommand) Reset() {
 	*x = SimulateSecurityDetectionCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[24]
+	mi := &file_plux_v1_devsession_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1800,7 +1905,7 @@ func (x *SimulateSecurityDetectionCommand) String() string {
 func (*SimulateSecurityDetectionCommand) ProtoMessage() {}
 
 func (x *SimulateSecurityDetectionCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[24]
+	mi := &file_plux_v1_devsession_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1813,7 +1918,7 @@ func (x *SimulateSecurityDetectionCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SimulateSecurityDetectionCommand.ProtoReflect.Descriptor instead.
 func (*SimulateSecurityDetectionCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *SimulateSecurityDetectionCommand) GetKind() DevSecurityDetectionKind {
@@ -1834,7 +1939,7 @@ type EvaluatePxlCommand struct {
 
 func (x *EvaluatePxlCommand) Reset() {
 	*x = EvaluatePxlCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[25]
+	mi := &file_plux_v1_devsession_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1846,7 +1951,7 @@ func (x *EvaluatePxlCommand) String() string {
 func (*EvaluatePxlCommand) ProtoMessage() {}
 
 func (x *EvaluatePxlCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[25]
+	mi := &file_plux_v1_devsession_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1859,7 +1964,7 @@ func (x *EvaluatePxlCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EvaluatePxlCommand.ProtoReflect.Descriptor instead.
 func (*EvaluatePxlCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *EvaluatePxlCommand) GetExpression() string {
@@ -1879,7 +1984,7 @@ type CaptureScreenshotCommand struct {
 
 func (x *CaptureScreenshotCommand) Reset() {
 	*x = CaptureScreenshotCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[26]
+	mi := &file_plux_v1_devsession_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1891,7 +1996,7 @@ func (x *CaptureScreenshotCommand) String() string {
 func (*CaptureScreenshotCommand) ProtoMessage() {}
 
 func (x *CaptureScreenshotCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[26]
+	mi := &file_plux_v1_devsession_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1904,7 +2009,7 @@ func (x *CaptureScreenshotCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CaptureScreenshotCommand.ProtoReflect.Descriptor instead.
 func (*CaptureScreenshotCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{28}
 }
 
 // InspectSelectCommand highlights a node on the device (DEV-030).
@@ -1917,7 +2022,7 @@ type InspectSelectCommand struct {
 
 func (x *InspectSelectCommand) Reset() {
 	*x = InspectSelectCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[27]
+	mi := &file_plux_v1_devsession_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1929,7 +2034,7 @@ func (x *InspectSelectCommand) String() string {
 func (*InspectSelectCommand) ProtoMessage() {}
 
 func (x *InspectSelectCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[27]
+	mi := &file_plux_v1_devsession_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1942,7 +2047,7 @@ func (x *InspectSelectCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InspectSelectCommand.ProtoReflect.Descriptor instead.
 func (*InspectSelectCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *InspectSelectCommand) GetNodePath() string {
@@ -1963,7 +2068,7 @@ type ToggleOverlayCommand struct {
 
 func (x *ToggleOverlayCommand) Reset() {
 	*x = ToggleOverlayCommand{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[28]
+	mi := &file_plux_v1_devsession_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1975,7 +2080,7 @@ func (x *ToggleOverlayCommand) String() string {
 func (*ToggleOverlayCommand) ProtoMessage() {}
 
 func (x *ToggleOverlayCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[28]
+	mi := &file_plux_v1_devsession_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1988,7 +2093,7 @@ func (x *ToggleOverlayCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToggleOverlayCommand.ProtoReflect.Descriptor instead.
 func (*ToggleOverlayCommand) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ToggleOverlayCommand) GetOverlay() DevOverlay {
@@ -2031,7 +2136,7 @@ type DevSessionServiceSendCommandRequest struct {
 
 func (x *DevSessionServiceSendCommandRequest) Reset() {
 	*x = DevSessionServiceSendCommandRequest{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[29]
+	mi := &file_plux_v1_devsession_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2043,7 +2148,7 @@ func (x *DevSessionServiceSendCommandRequest) String() string {
 func (*DevSessionServiceSendCommandRequest) ProtoMessage() {}
 
 func (x *DevSessionServiceSendCommandRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[29]
+	mi := &file_plux_v1_devsession_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2056,7 +2161,7 @@ func (x *DevSessionServiceSendCommandRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DevSessionServiceSendCommandRequest.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceSendCommandRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{29}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *DevSessionServiceSendCommandRequest) GetSessionId() string {
@@ -2273,7 +2378,7 @@ type DevSessionServiceSendCommandResponse struct {
 
 func (x *DevSessionServiceSendCommandResponse) Reset() {
 	*x = DevSessionServiceSendCommandResponse{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[30]
+	mi := &file_plux_v1_devsession_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2285,7 +2390,7 @@ func (x *DevSessionServiceSendCommandResponse) String() string {
 func (*DevSessionServiceSendCommandResponse) ProtoMessage() {}
 
 func (x *DevSessionServiceSendCommandResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[30]
+	mi := &file_plux_v1_devsession_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2298,7 +2403,7 @@ func (x *DevSessionServiceSendCommandResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DevSessionServiceSendCommandResponse.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceSendCommandResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{30}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *DevSessionServiceSendCommandResponse) GetCommandId() string {
@@ -2330,7 +2435,7 @@ type DevSessionServiceWatchEventsRequest struct {
 
 func (x *DevSessionServiceWatchEventsRequest) Reset() {
 	*x = DevSessionServiceWatchEventsRequest{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[31]
+	mi := &file_plux_v1_devsession_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2342,7 +2447,7 @@ func (x *DevSessionServiceWatchEventsRequest) String() string {
 func (*DevSessionServiceWatchEventsRequest) ProtoMessage() {}
 
 func (x *DevSessionServiceWatchEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[31]
+	mi := &file_plux_v1_devsession_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2355,7 +2460,7 @@ func (x *DevSessionServiceWatchEventsRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DevSessionServiceWatchEventsRequest.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceWatchEventsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{31}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *DevSessionServiceWatchEventsRequest) GetSessionId() string {
@@ -2388,7 +2493,7 @@ type DevSessionServiceWatchEventsResponse struct {
 
 func (x *DevSessionServiceWatchEventsResponse) Reset() {
 	*x = DevSessionServiceWatchEventsResponse{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[32]
+	mi := &file_plux_v1_devsession_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2400,7 +2505,7 @@ func (x *DevSessionServiceWatchEventsResponse) String() string {
 func (*DevSessionServiceWatchEventsResponse) ProtoMessage() {}
 
 func (x *DevSessionServiceWatchEventsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[32]
+	mi := &file_plux_v1_devsession_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2413,7 +2518,7 @@ func (x *DevSessionServiceWatchEventsResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DevSessionServiceWatchEventsResponse.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceWatchEventsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{32}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *DevSessionServiceWatchEventsResponse) GetEvent() *DevEvent {
@@ -2435,7 +2540,7 @@ type DevSessionServiceExportTraceRequest struct {
 
 func (x *DevSessionServiceExportTraceRequest) Reset() {
 	*x = DevSessionServiceExportTraceRequest{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[33]
+	mi := &file_plux_v1_devsession_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2447,7 +2552,7 @@ func (x *DevSessionServiceExportTraceRequest) String() string {
 func (*DevSessionServiceExportTraceRequest) ProtoMessage() {}
 
 func (x *DevSessionServiceExportTraceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[33]
+	mi := &file_plux_v1_devsession_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2460,7 +2565,7 @@ func (x *DevSessionServiceExportTraceRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DevSessionServiceExportTraceRequest.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceExportTraceRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{33}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *DevSessionServiceExportTraceRequest) GetSessionId() string {
@@ -2491,7 +2596,7 @@ type DevSessionServiceExportTraceResponse struct {
 
 func (x *DevSessionServiceExportTraceResponse) Reset() {
 	*x = DevSessionServiceExportTraceResponse{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[34]
+	mi := &file_plux_v1_devsession_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2503,7 +2608,7 @@ func (x *DevSessionServiceExportTraceResponse) String() string {
 func (*DevSessionServiceExportTraceResponse) ProtoMessage() {}
 
 func (x *DevSessionServiceExportTraceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[34]
+	mi := &file_plux_v1_devsession_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2516,7 +2621,7 @@ func (x *DevSessionServiceExportTraceResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DevSessionServiceExportTraceResponse.ProtoReflect.Descriptor instead.
 func (*DevSessionServiceExportTraceResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{34}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *DevSessionServiceExportTraceResponse) GetTrace() []byte {
@@ -2547,7 +2652,7 @@ type DevDeviceFrame struct {
 
 func (x *DevDeviceFrame) Reset() {
 	*x = DevDeviceFrame{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[35]
+	mi := &file_plux_v1_devsession_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2559,7 +2664,7 @@ func (x *DevDeviceFrame) String() string {
 func (*DevDeviceFrame) ProtoMessage() {}
 
 func (x *DevDeviceFrame) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[35]
+	mi := &file_plux_v1_devsession_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2572,7 +2677,7 @@ func (x *DevDeviceFrame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevDeviceFrame.ProtoReflect.Descriptor instead.
 func (*DevDeviceFrame) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{35}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *DevDeviceFrame) GetPayload() isDevDeviceFrame_Payload {
@@ -2635,7 +2740,7 @@ type DevDeviceHello struct {
 
 func (x *DevDeviceHello) Reset() {
 	*x = DevDeviceHello{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[36]
+	mi := &file_plux_v1_devsession_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2647,7 +2752,7 @@ func (x *DevDeviceHello) String() string {
 func (*DevDeviceHello) ProtoMessage() {}
 
 func (x *DevDeviceHello) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[36]
+	mi := &file_plux_v1_devsession_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2660,7 +2765,7 @@ func (x *DevDeviceHello) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevDeviceHello.ProtoReflect.Descriptor instead.
 func (*DevDeviceHello) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{36}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *DevDeviceHello) GetLastServerSequence() uint64 {
@@ -2695,7 +2800,7 @@ type DevServerFrame struct {
 
 func (x *DevServerFrame) Reset() {
 	*x = DevServerFrame{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[37]
+	mi := &file_plux_v1_devsession_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2707,7 +2812,7 @@ func (x *DevServerFrame) String() string {
 func (*DevServerFrame) ProtoMessage() {}
 
 func (x *DevServerFrame) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[37]
+	mi := &file_plux_v1_devsession_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2720,7 +2825,7 @@ func (x *DevServerFrame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevServerFrame.ProtoReflect.Descriptor instead.
 func (*DevServerFrame) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{37}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *DevServerFrame) GetSequence() uint64 {
@@ -2825,7 +2930,7 @@ type DevBundleFrame struct {
 
 func (x *DevBundleFrame) Reset() {
 	*x = DevBundleFrame{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[38]
+	mi := &file_plux_v1_devsession_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2837,7 +2942,7 @@ func (x *DevBundleFrame) String() string {
 func (*DevBundleFrame) ProtoMessage() {}
 
 func (x *DevBundleFrame) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[38]
+	mi := &file_plux_v1_devsession_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2850,7 +2955,7 @@ func (x *DevBundleFrame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevBundleFrame.ProtoReflect.Descriptor instead.
 func (*DevBundleFrame) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{38}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *DevBundleFrame) GetBundleSequence() uint64 {
@@ -2891,7 +2996,7 @@ type DevScopeList struct {
 
 func (x *DevScopeList) Reset() {
 	*x = DevScopeList{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[39]
+	mi := &file_plux_v1_devsession_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2903,7 +3008,7 @@ func (x *DevScopeList) String() string {
 func (*DevScopeList) ProtoMessage() {}
 
 func (x *DevScopeList) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[39]
+	mi := &file_plux_v1_devsession_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2916,7 +3021,7 @@ func (x *DevScopeList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevScopeList.ProtoReflect.Descriptor instead.
 func (*DevScopeList) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{39}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *DevScopeList) GetScopes() []string {
@@ -2940,7 +3045,7 @@ type DevCommandFrame struct {
 
 func (x *DevCommandFrame) Reset() {
 	*x = DevCommandFrame{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[40]
+	mi := &file_plux_v1_devsession_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2952,7 +3057,7 @@ func (x *DevCommandFrame) String() string {
 func (*DevCommandFrame) ProtoMessage() {}
 
 func (x *DevCommandFrame) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[40]
+	mi := &file_plux_v1_devsession_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2965,7 +3070,7 @@ func (x *DevCommandFrame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevCommandFrame.ProtoReflect.Descriptor instead.
 func (*DevCommandFrame) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{40}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *DevCommandFrame) GetCommandId() string {
@@ -2992,7 +3097,7 @@ type DevEventAck struct {
 
 func (x *DevEventAck) Reset() {
 	*x = DevEventAck{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[41]
+	mi := &file_plux_v1_devsession_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3004,7 +3109,7 @@ func (x *DevEventAck) String() string {
 func (*DevEventAck) ProtoMessage() {}
 
 func (x *DevEventAck) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[41]
+	mi := &file_plux_v1_devsession_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3017,7 +3122,7 @@ func (x *DevEventAck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevEventAck.ProtoReflect.Descriptor instead.
 func (*DevEventAck) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{41}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *DevEventAck) GetUpTo() uint64 {
@@ -3038,7 +3143,7 @@ type DevSessionEnded struct {
 
 func (x *DevSessionEnded) Reset() {
 	*x = DevSessionEnded{}
-	mi := &file_plux_v1_devsession_proto_msgTypes[42]
+	mi := &file_plux_v1_devsession_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3050,7 +3155,7 @@ func (x *DevSessionEnded) String() string {
 func (*DevSessionEnded) ProtoMessage() {}
 
 func (x *DevSessionEnded) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devsession_proto_msgTypes[42]
+	mi := &file_plux_v1_devsession_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3063,7 +3168,7 @@ func (x *DevSessionEnded) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DevSessionEnded.ProtoReflect.Descriptor instead.
 func (*DevSessionEnded) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{42}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *DevSessionEnded) GetCode() string {
@@ -3129,7 +3234,14 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12#\n" +
 	"\rsocket_ticket\x18\x03 \x01(\tR\fsocketTicket\x12S\n" +
-	"\x18socket_ticket_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x15socketTicketExpiresAt\"D\n" +
+	"\x18socket_ticket_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x15socketTicketExpiresAt\"g\n" +
+	")DevSessionServiceRenewSocketTicketRequest\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1b\n" +
+	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\"\xa6\x01\n" +
+	"*DevSessionServiceRenewSocketTicketResponse\x12#\n" +
+	"\rsocket_ticket\x18\x01 \x01(\tR\fsocketTicket\x12S\n" +
+	"\x18socket_ticket_expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x15socketTicketExpiresAt\"D\n" +
 	"#DevSessionServiceListDevicesRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"T\n" +
@@ -3305,12 +3417,13 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"\x17DEV_OVERLAY_FRAME_CHART\x10\x01\x12 \n" +
 	"\x1cDEV_OVERLAY_REBUILD_COUNTERS\x10\x02\x12\x1d\n" +
 	"\x19DEV_OVERLAY_TOUCH_TARGETS\x10\x03\x12\x18\n" +
-	"\x14DEV_OVERLAY_CONTRAST\x10\x042\xd8\a\n" +
+	"\x14DEV_OVERLAY_CONTRAST\x10\x042\xd8\b\n" +
 	"\x11DevSessionService\x12r\n" +
 	"\rCreateSession\x12..plux.v1.DevSessionServiceCreateSessionRequest\x1a/.plux.v1.DevSessionServiceCreateSessionResponse\"\x00\x12i\n" +
 	"\n" +
 	"GetPairing\x12+.plux.v1.DevSessionServiceGetPairingRequest\x1a,.plux.v1.DevSessionServiceGetPairingResponse\"\x00\x12W\n" +
-	"\x04Pair\x12%.plux.v1.DevSessionServicePairRequest\x1a&.plux.v1.DevSessionServicePairResponse\"\x00\x12l\n" +
+	"\x04Pair\x12%.plux.v1.DevSessionServicePairRequest\x1a&.plux.v1.DevSessionServicePairResponse\"\x00\x12~\n" +
+	"\x11RenewSocketTicket\x122.plux.v1.DevSessionServiceRenewSocketTicketRequest\x1a3.plux.v1.DevSessionServiceRenewSocketTicketResponse\"\x00\x12l\n" +
 	"\vListDevices\x12,.plux.v1.DevSessionServiceListDevicesRequest\x1a-.plux.v1.DevSessionServiceListDevicesResponse\"\x00\x12i\n" +
 	"\n" +
 	"EndSession\x12+.plux.v1.DevSessionServiceEndSessionRequest\x1a,.plux.v1.DevSessionServiceEndSessionResponse\"\x00\x12f\n" +
@@ -3332,7 +3445,7 @@ func file_plux_v1_devsession_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_devsession_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_plux_v1_devsession_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_plux_v1_devsession_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
 var file_plux_v1_devsession_proto_goTypes = []any{
 	(DevPatchStatus)(0),    // 0: plux.v1.DevPatchStatus
 	(DevThemeMode)(0),      // 1: plux.v1.DevThemeMode
@@ -3341,128 +3454,133 @@ var file_plux_v1_devsession_proto_goTypes = []any{
 	(*DevSession)(nil),     // 4: plux.v1.DevSession
 	(*DevPairing)(nil),     // 5: plux.v1.DevPairing
 	(*DevDevice)(nil),      // 6: plux.v1.DevDevice
-	(*DevSessionServiceCreateSessionRequest)(nil),  // 7: plux.v1.DevSessionServiceCreateSessionRequest
-	(*DevSessionServiceCreateSessionResponse)(nil), // 8: plux.v1.DevSessionServiceCreateSessionResponse
-	(*DevSessionServiceGetPairingRequest)(nil),     // 9: plux.v1.DevSessionServiceGetPairingRequest
-	(*DevSessionServiceGetPairingResponse)(nil),    // 10: plux.v1.DevSessionServiceGetPairingResponse
-	(*DevSessionServicePairRequest)(nil),           // 11: plux.v1.DevSessionServicePairRequest
-	(*DevSessionServicePairResponse)(nil),          // 12: plux.v1.DevSessionServicePairResponse
-	(*DevSessionServiceListDevicesRequest)(nil),    // 13: plux.v1.DevSessionServiceListDevicesRequest
-	(*DevSessionServiceListDevicesResponse)(nil),   // 14: plux.v1.DevSessionServiceListDevicesResponse
-	(*DevSessionServiceEndSessionRequest)(nil),     // 15: plux.v1.DevSessionServiceEndSessionRequest
-	(*DevSessionServiceEndSessionResponse)(nil),    // 16: plux.v1.DevSessionServiceEndSessionResponse
-	(*DevDocumentPatch)(nil),                       // 17: plux.v1.DevDocumentPatch
-	(*DevSessionServicePushPatchRequest)(nil),      // 18: plux.v1.DevSessionServicePushPatchRequest
-	(*DevPatchResult)(nil),                         // 19: plux.v1.DevPatchResult
-	(*DevSessionServicePushPatchResponse)(nil),     // 20: plux.v1.DevSessionServicePushPatchResponse
-	(*MockSelection)(nil),                          // 21: plux.v1.MockSelection
-	(*OpenScreenCommand)(nil),                      // 22: plux.v1.OpenScreenCommand
-	(*SetStateCommand)(nil),                        // 23: plux.v1.SetStateCommand
-	(*SwitchMockCommand)(nil),                      // 24: plux.v1.SwitchMockCommand
-	(*FakeClockCommand)(nil),                       // 25: plux.v1.FakeClockCommand
-	(*LifecycleCommand)(nil),                       // 26: plux.v1.LifecycleCommand
-	(*NetworkProfileCommand)(nil),                  // 27: plux.v1.NetworkProfileCommand
-	(*SimulateSecurityDetectionCommand)(nil),       // 28: plux.v1.SimulateSecurityDetectionCommand
-	(*EvaluatePxlCommand)(nil),                     // 29: plux.v1.EvaluatePxlCommand
-	(*CaptureScreenshotCommand)(nil),               // 30: plux.v1.CaptureScreenshotCommand
-	(*InspectSelectCommand)(nil),                   // 31: plux.v1.InspectSelectCommand
-	(*ToggleOverlayCommand)(nil),                   // 32: plux.v1.ToggleOverlayCommand
-	(*DevSessionServiceSendCommandRequest)(nil),    // 33: plux.v1.DevSessionServiceSendCommandRequest
-	(*DevSessionServiceSendCommandResponse)(nil),   // 34: plux.v1.DevSessionServiceSendCommandResponse
-	(*DevSessionServiceWatchEventsRequest)(nil),    // 35: plux.v1.DevSessionServiceWatchEventsRequest
-	(*DevSessionServiceWatchEventsResponse)(nil),   // 36: plux.v1.DevSessionServiceWatchEventsResponse
-	(*DevSessionServiceExportTraceRequest)(nil),    // 37: plux.v1.DevSessionServiceExportTraceRequest
-	(*DevSessionServiceExportTraceResponse)(nil),   // 38: plux.v1.DevSessionServiceExportTraceResponse
-	(*DevDeviceFrame)(nil),                         // 39: plux.v1.DevDeviceFrame
-	(*DevDeviceHello)(nil),                         // 40: plux.v1.DevDeviceHello
-	(*DevServerFrame)(nil),                         // 41: plux.v1.DevServerFrame
-	(*DevBundleFrame)(nil),                         // 42: plux.v1.DevBundleFrame
-	(*DevScopeList)(nil),                           // 43: plux.v1.DevScopeList
-	(*DevCommandFrame)(nil),                        // 44: plux.v1.DevCommandFrame
-	(*DevEventAck)(nil),                            // 45: plux.v1.DevEventAck
-	(*DevSessionEnded)(nil),                        // 46: plux.v1.DevSessionEnded
-	nil,                                            // 47: plux.v1.OpenScreenCommand.ParamsEntry
-	nil,                                            // 48: plux.v1.DevBundleFrame.SectionsEntry
-	nil,                                            // 49: plux.v1.DevBundleFrame.IncompatibleScopesEntry
-	(*Actor)(nil),                                  // 50: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),                  // 51: google.protobuf.Timestamp
-	(*PatchOp)(nil),                                // 52: plux.v1.PatchOp
-	(*DevError)(nil),                               // 53: plux.v1.DevError
-	(*Diagnostic)(nil),                             // 54: plux.v1.Diagnostic
-	(DevSecurityDetectionKind)(0),                  // 55: plux.v1.DevSecurityDetectionKind
-	(*DevEvent)(nil),                               // 56: plux.v1.DevEvent
+	(*DevSessionServiceCreateSessionRequest)(nil),      // 7: plux.v1.DevSessionServiceCreateSessionRequest
+	(*DevSessionServiceCreateSessionResponse)(nil),     // 8: plux.v1.DevSessionServiceCreateSessionResponse
+	(*DevSessionServiceGetPairingRequest)(nil),         // 9: plux.v1.DevSessionServiceGetPairingRequest
+	(*DevSessionServiceGetPairingResponse)(nil),        // 10: plux.v1.DevSessionServiceGetPairingResponse
+	(*DevSessionServicePairRequest)(nil),               // 11: plux.v1.DevSessionServicePairRequest
+	(*DevSessionServicePairResponse)(nil),              // 12: plux.v1.DevSessionServicePairResponse
+	(*DevSessionServiceRenewSocketTicketRequest)(nil),  // 13: plux.v1.DevSessionServiceRenewSocketTicketRequest
+	(*DevSessionServiceRenewSocketTicketResponse)(nil), // 14: plux.v1.DevSessionServiceRenewSocketTicketResponse
+	(*DevSessionServiceListDevicesRequest)(nil),        // 15: plux.v1.DevSessionServiceListDevicesRequest
+	(*DevSessionServiceListDevicesResponse)(nil),       // 16: plux.v1.DevSessionServiceListDevicesResponse
+	(*DevSessionServiceEndSessionRequest)(nil),         // 17: plux.v1.DevSessionServiceEndSessionRequest
+	(*DevSessionServiceEndSessionResponse)(nil),        // 18: plux.v1.DevSessionServiceEndSessionResponse
+	(*DevDocumentPatch)(nil),                           // 19: plux.v1.DevDocumentPatch
+	(*DevSessionServicePushPatchRequest)(nil),          // 20: plux.v1.DevSessionServicePushPatchRequest
+	(*DevPatchResult)(nil),                             // 21: plux.v1.DevPatchResult
+	(*DevSessionServicePushPatchResponse)(nil),         // 22: plux.v1.DevSessionServicePushPatchResponse
+	(*MockSelection)(nil),                              // 23: plux.v1.MockSelection
+	(*OpenScreenCommand)(nil),                          // 24: plux.v1.OpenScreenCommand
+	(*SetStateCommand)(nil),                            // 25: plux.v1.SetStateCommand
+	(*SwitchMockCommand)(nil),                          // 26: plux.v1.SwitchMockCommand
+	(*FakeClockCommand)(nil),                           // 27: plux.v1.FakeClockCommand
+	(*LifecycleCommand)(nil),                           // 28: plux.v1.LifecycleCommand
+	(*NetworkProfileCommand)(nil),                      // 29: plux.v1.NetworkProfileCommand
+	(*SimulateSecurityDetectionCommand)(nil),           // 30: plux.v1.SimulateSecurityDetectionCommand
+	(*EvaluatePxlCommand)(nil),                         // 31: plux.v1.EvaluatePxlCommand
+	(*CaptureScreenshotCommand)(nil),                   // 32: plux.v1.CaptureScreenshotCommand
+	(*InspectSelectCommand)(nil),                       // 33: plux.v1.InspectSelectCommand
+	(*ToggleOverlayCommand)(nil),                       // 34: plux.v1.ToggleOverlayCommand
+	(*DevSessionServiceSendCommandRequest)(nil),        // 35: plux.v1.DevSessionServiceSendCommandRequest
+	(*DevSessionServiceSendCommandResponse)(nil),       // 36: plux.v1.DevSessionServiceSendCommandResponse
+	(*DevSessionServiceWatchEventsRequest)(nil),        // 37: plux.v1.DevSessionServiceWatchEventsRequest
+	(*DevSessionServiceWatchEventsResponse)(nil),       // 38: plux.v1.DevSessionServiceWatchEventsResponse
+	(*DevSessionServiceExportTraceRequest)(nil),        // 39: plux.v1.DevSessionServiceExportTraceRequest
+	(*DevSessionServiceExportTraceResponse)(nil),       // 40: plux.v1.DevSessionServiceExportTraceResponse
+	(*DevDeviceFrame)(nil),                             // 41: plux.v1.DevDeviceFrame
+	(*DevDeviceHello)(nil),                             // 42: plux.v1.DevDeviceHello
+	(*DevServerFrame)(nil),                             // 43: plux.v1.DevServerFrame
+	(*DevBundleFrame)(nil),                             // 44: plux.v1.DevBundleFrame
+	(*DevScopeList)(nil),                               // 45: plux.v1.DevScopeList
+	(*DevCommandFrame)(nil),                            // 46: plux.v1.DevCommandFrame
+	(*DevEventAck)(nil),                                // 47: plux.v1.DevEventAck
+	(*DevSessionEnded)(nil),                            // 48: plux.v1.DevSessionEnded
+	nil,                                                // 49: plux.v1.OpenScreenCommand.ParamsEntry
+	nil,                                                // 50: plux.v1.DevBundleFrame.SectionsEntry
+	nil,                                                // 51: plux.v1.DevBundleFrame.IncompatibleScopesEntry
+	(*Actor)(nil),                                      // 52: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),                      // 53: google.protobuf.Timestamp
+	(*PatchOp)(nil),                                    // 54: plux.v1.PatchOp
+	(*DevError)(nil),                                   // 55: plux.v1.DevError
+	(*Diagnostic)(nil),                                 // 56: plux.v1.Diagnostic
+	(DevSecurityDetectionKind)(0),                      // 57: plux.v1.DevSecurityDetectionKind
+	(*DevEvent)(nil),                                   // 58: plux.v1.DevEvent
 }
 var file_plux_v1_devsession_proto_depIdxs = []int32{
-	50, // 0: plux.v1.DevSession.created_by:type_name -> plux.v1.Actor
-	51, // 1: plux.v1.DevSession.created_at:type_name -> google.protobuf.Timestamp
-	51, // 2: plux.v1.DevSession.expires_at:type_name -> google.protobuf.Timestamp
-	51, // 3: plux.v1.DevSession.ended_at:type_name -> google.protobuf.Timestamp
-	51, // 4: plux.v1.DevPairing.expires_at:type_name -> google.protobuf.Timestamp
-	51, // 5: plux.v1.DevDevice.paired_at:type_name -> google.protobuf.Timestamp
-	51, // 6: plux.v1.DevDevice.last_seen_at:type_name -> google.protobuf.Timestamp
+	52, // 0: plux.v1.DevSession.created_by:type_name -> plux.v1.Actor
+	53, // 1: plux.v1.DevSession.created_at:type_name -> google.protobuf.Timestamp
+	53, // 2: plux.v1.DevSession.expires_at:type_name -> google.protobuf.Timestamp
+	53, // 3: plux.v1.DevSession.ended_at:type_name -> google.protobuf.Timestamp
+	53, // 4: plux.v1.DevPairing.expires_at:type_name -> google.protobuf.Timestamp
+	53, // 5: plux.v1.DevDevice.paired_at:type_name -> google.protobuf.Timestamp
+	53, // 6: plux.v1.DevDevice.last_seen_at:type_name -> google.protobuf.Timestamp
 	4,  // 7: plux.v1.DevSessionServiceCreateSessionResponse.session:type_name -> plux.v1.DevSession
 	5,  // 8: plux.v1.DevSessionServiceCreateSessionResponse.pairing:type_name -> plux.v1.DevPairing
 	5,  // 9: plux.v1.DevSessionServiceGetPairingResponse.pairing:type_name -> plux.v1.DevPairing
-	51, // 10: plux.v1.DevSessionServicePairResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
-	6,  // 11: plux.v1.DevSessionServiceListDevicesResponse.devices:type_name -> plux.v1.DevDevice
-	4,  // 12: plux.v1.DevSessionServiceEndSessionResponse.session:type_name -> plux.v1.DevSession
-	52, // 13: plux.v1.DevDocumentPatch.patch:type_name -> plux.v1.PatchOp
-	17, // 14: plux.v1.DevSessionServicePushPatchRequest.patches:type_name -> plux.v1.DevDocumentPatch
-	0,  // 15: plux.v1.DevPatchResult.status:type_name -> plux.v1.DevPatchStatus
-	53, // 16: plux.v1.DevPatchResult.error:type_name -> plux.v1.DevError
-	19, // 17: plux.v1.DevSessionServicePushPatchResponse.results:type_name -> plux.v1.DevPatchResult
-	54, // 18: plux.v1.DevSessionServicePushPatchResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	47, // 19: plux.v1.OpenScreenCommand.params:type_name -> plux.v1.OpenScreenCommand.ParamsEntry
-	1,  // 20: plux.v1.OpenScreenCommand.theme:type_name -> plux.v1.DevThemeMode
-	21, // 21: plux.v1.OpenScreenCommand.mocks:type_name -> plux.v1.MockSelection
-	2,  // 22: plux.v1.LifecycleCommand.event:type_name -> plux.v1.DevLifecycleEvent
-	55, // 23: plux.v1.SimulateSecurityDetectionCommand.kind:type_name -> plux.v1.DevSecurityDetectionKind
-	3,  // 24: plux.v1.ToggleOverlayCommand.overlay:type_name -> plux.v1.DevOverlay
-	22, // 25: plux.v1.DevSessionServiceSendCommandRequest.open_screen:type_name -> plux.v1.OpenScreenCommand
-	23, // 26: plux.v1.DevSessionServiceSendCommandRequest.set_state:type_name -> plux.v1.SetStateCommand
-	24, // 27: plux.v1.DevSessionServiceSendCommandRequest.switch_mock:type_name -> plux.v1.SwitchMockCommand
-	25, // 28: plux.v1.DevSessionServiceSendCommandRequest.fake_clock:type_name -> plux.v1.FakeClockCommand
-	26, // 29: plux.v1.DevSessionServiceSendCommandRequest.lifecycle:type_name -> plux.v1.LifecycleCommand
-	27, // 30: plux.v1.DevSessionServiceSendCommandRequest.network_profile:type_name -> plux.v1.NetworkProfileCommand
-	28, // 31: plux.v1.DevSessionServiceSendCommandRequest.simulate_security_detection:type_name -> plux.v1.SimulateSecurityDetectionCommand
-	29, // 32: plux.v1.DevSessionServiceSendCommandRequest.evaluate_pxl:type_name -> plux.v1.EvaluatePxlCommand
-	30, // 33: plux.v1.DevSessionServiceSendCommandRequest.capture_screenshot:type_name -> plux.v1.CaptureScreenshotCommand
-	31, // 34: plux.v1.DevSessionServiceSendCommandRequest.inspect_select:type_name -> plux.v1.InspectSelectCommand
-	32, // 35: plux.v1.DevSessionServiceSendCommandRequest.toggle_overlay:type_name -> plux.v1.ToggleOverlayCommand
-	56, // 36: plux.v1.DevSessionServiceWatchEventsResponse.event:type_name -> plux.v1.DevEvent
-	40, // 37: plux.v1.DevDeviceFrame.hello:type_name -> plux.v1.DevDeviceHello
-	56, // 38: plux.v1.DevDeviceFrame.event:type_name -> plux.v1.DevEvent
-	42, // 39: plux.v1.DevServerFrame.bundle:type_name -> plux.v1.DevBundleFrame
-	44, // 40: plux.v1.DevServerFrame.command:type_name -> plux.v1.DevCommandFrame
-	45, // 41: plux.v1.DevServerFrame.ack:type_name -> plux.v1.DevEventAck
-	46, // 42: plux.v1.DevServerFrame.ended:type_name -> plux.v1.DevSessionEnded
-	48, // 43: plux.v1.DevBundleFrame.sections:type_name -> plux.v1.DevBundleFrame.SectionsEntry
-	49, // 44: plux.v1.DevBundleFrame.incompatible_scopes:type_name -> plux.v1.DevBundleFrame.IncompatibleScopesEntry
-	33, // 45: plux.v1.DevCommandFrame.command:type_name -> plux.v1.DevSessionServiceSendCommandRequest
-	43, // 46: plux.v1.DevBundleFrame.IncompatibleScopesEntry.value:type_name -> plux.v1.DevScopeList
-	7,  // 47: plux.v1.DevSessionService.CreateSession:input_type -> plux.v1.DevSessionServiceCreateSessionRequest
-	9,  // 48: plux.v1.DevSessionService.GetPairing:input_type -> plux.v1.DevSessionServiceGetPairingRequest
-	11, // 49: plux.v1.DevSessionService.Pair:input_type -> plux.v1.DevSessionServicePairRequest
-	13, // 50: plux.v1.DevSessionService.ListDevices:input_type -> plux.v1.DevSessionServiceListDevicesRequest
-	15, // 51: plux.v1.DevSessionService.EndSession:input_type -> plux.v1.DevSessionServiceEndSessionRequest
-	18, // 52: plux.v1.DevSessionService.PushPatch:input_type -> plux.v1.DevSessionServicePushPatchRequest
-	33, // 53: plux.v1.DevSessionService.SendCommand:input_type -> plux.v1.DevSessionServiceSendCommandRequest
-	35, // 54: plux.v1.DevSessionService.WatchEvents:input_type -> plux.v1.DevSessionServiceWatchEventsRequest
-	37, // 55: plux.v1.DevSessionService.ExportTrace:input_type -> plux.v1.DevSessionServiceExportTraceRequest
-	8,  // 56: plux.v1.DevSessionService.CreateSession:output_type -> plux.v1.DevSessionServiceCreateSessionResponse
-	10, // 57: plux.v1.DevSessionService.GetPairing:output_type -> plux.v1.DevSessionServiceGetPairingResponse
-	12, // 58: plux.v1.DevSessionService.Pair:output_type -> plux.v1.DevSessionServicePairResponse
-	14, // 59: plux.v1.DevSessionService.ListDevices:output_type -> plux.v1.DevSessionServiceListDevicesResponse
-	16, // 60: plux.v1.DevSessionService.EndSession:output_type -> plux.v1.DevSessionServiceEndSessionResponse
-	20, // 61: plux.v1.DevSessionService.PushPatch:output_type -> plux.v1.DevSessionServicePushPatchResponse
-	34, // 62: plux.v1.DevSessionService.SendCommand:output_type -> plux.v1.DevSessionServiceSendCommandResponse
-	36, // 63: plux.v1.DevSessionService.WatchEvents:output_type -> plux.v1.DevSessionServiceWatchEventsResponse
-	38, // 64: plux.v1.DevSessionService.ExportTrace:output_type -> plux.v1.DevSessionServiceExportTraceResponse
-	56, // [56:65] is the sub-list for method output_type
-	47, // [47:56] is the sub-list for method input_type
-	47, // [47:47] is the sub-list for extension type_name
-	47, // [47:47] is the sub-list for extension extendee
-	0,  // [0:47] is the sub-list for field type_name
+	53, // 10: plux.v1.DevSessionServicePairResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
+	53, // 11: plux.v1.DevSessionServiceRenewSocketTicketResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
+	6,  // 12: plux.v1.DevSessionServiceListDevicesResponse.devices:type_name -> plux.v1.DevDevice
+	4,  // 13: plux.v1.DevSessionServiceEndSessionResponse.session:type_name -> plux.v1.DevSession
+	54, // 14: plux.v1.DevDocumentPatch.patch:type_name -> plux.v1.PatchOp
+	19, // 15: plux.v1.DevSessionServicePushPatchRequest.patches:type_name -> plux.v1.DevDocumentPatch
+	0,  // 16: plux.v1.DevPatchResult.status:type_name -> plux.v1.DevPatchStatus
+	55, // 17: plux.v1.DevPatchResult.error:type_name -> plux.v1.DevError
+	21, // 18: plux.v1.DevSessionServicePushPatchResponse.results:type_name -> plux.v1.DevPatchResult
+	56, // 19: plux.v1.DevSessionServicePushPatchResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	49, // 20: plux.v1.OpenScreenCommand.params:type_name -> plux.v1.OpenScreenCommand.ParamsEntry
+	1,  // 21: plux.v1.OpenScreenCommand.theme:type_name -> plux.v1.DevThemeMode
+	23, // 22: plux.v1.OpenScreenCommand.mocks:type_name -> plux.v1.MockSelection
+	2,  // 23: plux.v1.LifecycleCommand.event:type_name -> plux.v1.DevLifecycleEvent
+	57, // 24: plux.v1.SimulateSecurityDetectionCommand.kind:type_name -> plux.v1.DevSecurityDetectionKind
+	3,  // 25: plux.v1.ToggleOverlayCommand.overlay:type_name -> plux.v1.DevOverlay
+	24, // 26: plux.v1.DevSessionServiceSendCommandRequest.open_screen:type_name -> plux.v1.OpenScreenCommand
+	25, // 27: plux.v1.DevSessionServiceSendCommandRequest.set_state:type_name -> plux.v1.SetStateCommand
+	26, // 28: plux.v1.DevSessionServiceSendCommandRequest.switch_mock:type_name -> plux.v1.SwitchMockCommand
+	27, // 29: plux.v1.DevSessionServiceSendCommandRequest.fake_clock:type_name -> plux.v1.FakeClockCommand
+	28, // 30: plux.v1.DevSessionServiceSendCommandRequest.lifecycle:type_name -> plux.v1.LifecycleCommand
+	29, // 31: plux.v1.DevSessionServiceSendCommandRequest.network_profile:type_name -> plux.v1.NetworkProfileCommand
+	30, // 32: plux.v1.DevSessionServiceSendCommandRequest.simulate_security_detection:type_name -> plux.v1.SimulateSecurityDetectionCommand
+	31, // 33: plux.v1.DevSessionServiceSendCommandRequest.evaluate_pxl:type_name -> plux.v1.EvaluatePxlCommand
+	32, // 34: plux.v1.DevSessionServiceSendCommandRequest.capture_screenshot:type_name -> plux.v1.CaptureScreenshotCommand
+	33, // 35: plux.v1.DevSessionServiceSendCommandRequest.inspect_select:type_name -> plux.v1.InspectSelectCommand
+	34, // 36: plux.v1.DevSessionServiceSendCommandRequest.toggle_overlay:type_name -> plux.v1.ToggleOverlayCommand
+	58, // 37: plux.v1.DevSessionServiceWatchEventsResponse.event:type_name -> plux.v1.DevEvent
+	42, // 38: plux.v1.DevDeviceFrame.hello:type_name -> plux.v1.DevDeviceHello
+	58, // 39: plux.v1.DevDeviceFrame.event:type_name -> plux.v1.DevEvent
+	44, // 40: plux.v1.DevServerFrame.bundle:type_name -> plux.v1.DevBundleFrame
+	46, // 41: plux.v1.DevServerFrame.command:type_name -> plux.v1.DevCommandFrame
+	47, // 42: plux.v1.DevServerFrame.ack:type_name -> plux.v1.DevEventAck
+	48, // 43: plux.v1.DevServerFrame.ended:type_name -> plux.v1.DevSessionEnded
+	50, // 44: plux.v1.DevBundleFrame.sections:type_name -> plux.v1.DevBundleFrame.SectionsEntry
+	51, // 45: plux.v1.DevBundleFrame.incompatible_scopes:type_name -> plux.v1.DevBundleFrame.IncompatibleScopesEntry
+	35, // 46: plux.v1.DevCommandFrame.command:type_name -> plux.v1.DevSessionServiceSendCommandRequest
+	45, // 47: plux.v1.DevBundleFrame.IncompatibleScopesEntry.value:type_name -> plux.v1.DevScopeList
+	7,  // 48: plux.v1.DevSessionService.CreateSession:input_type -> plux.v1.DevSessionServiceCreateSessionRequest
+	9,  // 49: plux.v1.DevSessionService.GetPairing:input_type -> plux.v1.DevSessionServiceGetPairingRequest
+	11, // 50: plux.v1.DevSessionService.Pair:input_type -> plux.v1.DevSessionServicePairRequest
+	13, // 51: plux.v1.DevSessionService.RenewSocketTicket:input_type -> plux.v1.DevSessionServiceRenewSocketTicketRequest
+	15, // 52: plux.v1.DevSessionService.ListDevices:input_type -> plux.v1.DevSessionServiceListDevicesRequest
+	17, // 53: plux.v1.DevSessionService.EndSession:input_type -> plux.v1.DevSessionServiceEndSessionRequest
+	20, // 54: plux.v1.DevSessionService.PushPatch:input_type -> plux.v1.DevSessionServicePushPatchRequest
+	35, // 55: plux.v1.DevSessionService.SendCommand:input_type -> plux.v1.DevSessionServiceSendCommandRequest
+	37, // 56: plux.v1.DevSessionService.WatchEvents:input_type -> plux.v1.DevSessionServiceWatchEventsRequest
+	39, // 57: plux.v1.DevSessionService.ExportTrace:input_type -> plux.v1.DevSessionServiceExportTraceRequest
+	8,  // 58: plux.v1.DevSessionService.CreateSession:output_type -> plux.v1.DevSessionServiceCreateSessionResponse
+	10, // 59: plux.v1.DevSessionService.GetPairing:output_type -> plux.v1.DevSessionServiceGetPairingResponse
+	12, // 60: plux.v1.DevSessionService.Pair:output_type -> plux.v1.DevSessionServicePairResponse
+	14, // 61: plux.v1.DevSessionService.RenewSocketTicket:output_type -> plux.v1.DevSessionServiceRenewSocketTicketResponse
+	16, // 62: plux.v1.DevSessionService.ListDevices:output_type -> plux.v1.DevSessionServiceListDevicesResponse
+	18, // 63: plux.v1.DevSessionService.EndSession:output_type -> plux.v1.DevSessionServiceEndSessionResponse
+	22, // 64: plux.v1.DevSessionService.PushPatch:output_type -> plux.v1.DevSessionServicePushPatchResponse
+	36, // 65: plux.v1.DevSessionService.SendCommand:output_type -> plux.v1.DevSessionServiceSendCommandResponse
+	38, // 66: plux.v1.DevSessionService.WatchEvents:output_type -> plux.v1.DevSessionServiceWatchEventsResponse
+	40, // 67: plux.v1.DevSessionService.ExportTrace:output_type -> plux.v1.DevSessionServiceExportTraceResponse
+	58, // [58:68] is the sub-list for method output_type
+	48, // [48:58] is the sub-list for method input_type
+	48, // [48:48] is the sub-list for extension type_name
+	48, // [48:48] is the sub-list for extension extendee
+	0,  // [0:48] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_devsession_proto_init() }
@@ -3472,12 +3590,12 @@ func file_plux_v1_devsession_proto_init() {
 	}
 	file_plux_v1_common_proto_init()
 	file_plux_v1_devevents_proto_init()
-	file_plux_v1_devsession_proto_msgTypes[21].OneofWrappers = []any{
+	file_plux_v1_devsession_proto_msgTypes[23].OneofWrappers = []any{
 		(*FakeClockCommand_SetUnixMicros)(nil),
 		(*FakeClockCommand_AdvanceMicros)(nil),
 		(*FakeClockCommand_Reset_)(nil),
 	}
-	file_plux_v1_devsession_proto_msgTypes[29].OneofWrappers = []any{
+	file_plux_v1_devsession_proto_msgTypes[31].OneofWrappers = []any{
 		(*DevSessionServiceSendCommandRequest_OpenScreen)(nil),
 		(*DevSessionServiceSendCommandRequest_SetState)(nil),
 		(*DevSessionServiceSendCommandRequest_SwitchMock)(nil),
@@ -3490,11 +3608,11 @@ func file_plux_v1_devsession_proto_init() {
 		(*DevSessionServiceSendCommandRequest_InspectSelect)(nil),
 		(*DevSessionServiceSendCommandRequest_ToggleOverlay)(nil),
 	}
-	file_plux_v1_devsession_proto_msgTypes[35].OneofWrappers = []any{
+	file_plux_v1_devsession_proto_msgTypes[37].OneofWrappers = []any{
 		(*DevDeviceFrame_Hello)(nil),
 		(*DevDeviceFrame_Event)(nil),
 	}
-	file_plux_v1_devsession_proto_msgTypes[37].OneofWrappers = []any{
+	file_plux_v1_devsession_proto_msgTypes[39].OneofWrappers = []any{
 		(*DevServerFrame_Bundle)(nil),
 		(*DevServerFrame_Command)(nil),
 		(*DevServerFrame_Ack)(nil),
@@ -3506,7 +3624,7 @@ func file_plux_v1_devsession_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_devsession_proto_rawDesc), len(file_plux_v1_devsession_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   46,
+			NumMessages:   48,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

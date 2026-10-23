@@ -823,6 +823,7 @@ var matrix = map[string]entry{
 	"ScaService/CreateTransactionChallenge":     {kind: deviceRPC, build: anyone(&pluxv1.CreateTransactionChallengeRequest{})},
 	"FunctionService/Invoke":                    {kind: deviceRPC, build: anyone(&pluxv1.FunctionServiceInvokeRequest{})},
 	"DevSessionService/Pair":                    {kind: deviceRPC, build: anyone(&pluxv1.DevSessionServicePairRequest{})},
+	"DevSessionService/RenewSocketTicket":       {kind: deviceRPC, build: anyone(&pluxv1.DevSessionServiceRenewSocketTicketRequest{})},
 }
 
 // variants are calls of an RPC that need more than the RPC's own entry

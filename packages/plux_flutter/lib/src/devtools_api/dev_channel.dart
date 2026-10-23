@@ -100,7 +100,8 @@ final class DevChannel implements DevEventSink {
       token: token,
       applier: applier,
       commands: commands,
-      request: request,
+      sessionId: pairing.sessionId,
+      deviceId: pairing.deviceId,
       firstTicket: pairing.socketTicket,
     );
     final config = DevEngineConfig(
@@ -154,7 +155,8 @@ final class _UiHost implements DevEngineHost {
     required this.token,
     required this.applier,
     required this.commands,
-    required this.request,
+    required this.sessionId,
+    required this.deviceId,
     required this.firstTicket,
   });
 
@@ -163,7 +165,8 @@ final class _UiHost implements DevEngineHost {
   final DeviceToken token;
   final DevBundleApplier applier;
   final DevCommandHandler commands;
-  final _PairRequest request;
+  final String sessionId;
+  final String deviceId;
 
   /// The ticket Pair returned, used by the first connection only.
   String? firstTicket;
@@ -173,16 +176,14 @@ final class _UiHost implements DevEngineHost {
     var ticket = firstTicket;
     firstTicket = null;
     if (ticket == null) {
-      // A ticket is presented once, so a reconnect pairs again.
+      // A ticket is presented once and the pairing token was consumed, so
+      // a reconnect asks for a new ticket (DEV-021).
       try {
-        ticket = (await api.devPair(
+        ticket = await api.devRenewSocketTicket(
           token,
-          pairingToken: request.token,
-          name: request.name,
-          platform: request.platform,
-          runtimeVersion: request.runtimeVersion,
-          attestation: request.attestation,
-        )).socketTicket;
+          sessionId: sessionId,
+          deviceId: deviceId,
+        );
       } on ApiError catch (e) {
         final permanent =
             e.status >= 400 &&

@@ -40,6 +40,8 @@ var DeviceProcedures = map[string]bool{
 	// A device pairs with a dev session using the pairing token and its
 	// proof (DEV-002, ADR-0087).
 	pluxv1connect.DevSessionServicePairProcedure: true,
+	// A paired device renews its socket ticket to reconnect (DEV-021).
+	pluxv1connect.DevSessionServiceRenewSocketTicketProcedure: true,
 	// The live configuration of the device's environment (DAT-094).
 	pluxv1connect.ConfigServiceGetLiveConfigProcedure: true,
 }

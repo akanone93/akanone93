@@ -37,6 +37,10 @@ service DevSessionService {
   // short-lived ticket the device presents once at the WebSocket upgrade
   // (DEV-002, PLX-9201, PLX-9202, PLX-9208).
   rpc Pair(DevSessionServicePairRequest) returns (DevSessionServicePairResponse) {}
+  // RenewSocketTicket gives a paired device a new socket ticket to reconnect
+  // with; the device calls it with its access token and a DPoP proof of the
+  // key it paired with, while its session is live (DEV-021, PLX-9204).
+  rpc RenewSocketTicket(DevSessionServiceRenewSocketTicketRequest) returns (DevSessionServiceRenewSocketTicketResponse) {}
   // ListDevices lists the devices paired with a session and whether each
   // is connected.
   rpc ListDevices(DevSessionServiceListDevicesRequest) returns (DevSessionServiceListDevicesResponse) {}
@@ -150,6 +154,17 @@ message DevSessionServicePairResponse {
   string socket_ticket = 3;
   // socket_ticket_expires_at is when the ticket stops being accepted.
   google.protobuf.Timestamp socket_ticket_expires_at = 4;
+}
+
+message DevSessionServiceRenewSocketTicketRequest {
+  string session_id = 1;
+  string device_id = 2;
+}
+
+message DevSessionServiceRenewSocketTicketResponse {
+  // socket_ticket is opaque and single-use, like Pair's (PLX-9205).
+  string socket_ticket = 1;
+  google.protobuf.Timestamp socket_ticket_expires_at = 2;
 }
 
 message DevSessionServiceListDevicesRequest {

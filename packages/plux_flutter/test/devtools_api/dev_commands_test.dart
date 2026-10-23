@@ -9,7 +9,6 @@ import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/data/mocks.dart';
 import 'package:plux_flutter/src/devtools_api/dev_commands.dart';
-import 'package:plux_flutter/src/devtools_api/dev_session.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/render/scope.dart';

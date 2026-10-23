@@ -3683,6 +3683,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DevSessionServicePushPatchResponse'
+  /plux.v1.DevSessionService/RenewSocketTicket:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: RenewSocketTicket
+      description: |-
+        RenewSocketTicket gives a paired device a new socket ticket to reconnect
+         with; the device calls it with its access token and a DPoP proof of the
+         key it paired with, while its session is live (DEV-021, PLX-9204).
+      operationId: plux.v1.DevSessionService.RenewSocketTicket
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceRenewSocketTicketRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceRenewSocketTicketResponse'
   /plux.v1.DevSessionService/SendCommand:
     post:
       tags:
@@ -17438,6 +17480,30 @@ components:
             diagnostics are the findings of validation and compilation, including
              warnings of an applied patch.
       title: DevSessionServicePushPatchResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceRenewSocketTicketRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        deviceId:
+          type: string
+          title: device_id
+      title: DevSessionServiceRenewSocketTicketRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceRenewSocketTicketResponse:
+      type: object
+      properties:
+        socketTicket:
+          type: string
+          title: socket_ticket
+          description: socket_ticket is opaque and single-use, like Pair's (PLX-9205).
+        socketTicketExpiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: socket_ticket_expires_at
+      title: DevSessionServiceRenewSocketTicketResponse
       additionalProperties: false
     plux.v1.DevSessionServiceSendCommandRequest:
       type: object

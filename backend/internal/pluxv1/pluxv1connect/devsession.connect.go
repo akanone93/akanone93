@@ -44,6 +44,9 @@ const (
 	DevSessionServiceGetPairingProcedure = "/plux.v1.DevSessionService/GetPairing"
 	// DevSessionServicePairProcedure is the fully-qualified name of the DevSessionService's Pair RPC.
 	DevSessionServicePairProcedure = "/plux.v1.DevSessionService/Pair"
+	// DevSessionServiceRenewSocketTicketProcedure is the fully-qualified name of the
+	// DevSessionService's RenewSocketTicket RPC.
+	DevSessionServiceRenewSocketTicketProcedure = "/plux.v1.DevSessionService/RenewSocketTicket"
 	// DevSessionServiceListDevicesProcedure is the fully-qualified name of the DevSessionService's
 	// ListDevices RPC.
 	DevSessionServiceListDevicesProcedure = "/plux.v1.DevSessionService/ListDevices"
@@ -79,6 +82,10 @@ type DevSessionServiceClient interface {
 	// short-lived ticket the device presents once at the WebSocket upgrade
 	// (DEV-002, PLX-9201, PLX-9202, PLX-9208).
 	Pair(context.Context, *connect.Request[pluxv1.DevSessionServicePairRequest]) (*connect.Response[pluxv1.DevSessionServicePairResponse], error)
+	// RenewSocketTicket gives a paired device a new socket ticket to reconnect
+	// with; the device calls it with its access token and a DPoP proof of the
+	// key it paired with, while its session is live (DEV-021, PLX-9204).
+	RenewSocketTicket(context.Context, *connect.Request[pluxv1.DevSessionServiceRenewSocketTicketRequest]) (*connect.Response[pluxv1.DevSessionServiceRenewSocketTicketResponse], error)
 	// ListDevices lists the devices paired with a session and whether each
 	// is connected.
 	ListDevices(context.Context, *connect.Request[pluxv1.DevSessionServiceListDevicesRequest]) (*connect.Response[pluxv1.DevSessionServiceListDevicesResponse], error)
@@ -132,6 +139,12 @@ func NewDevSessionServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(devSessionServiceMethods.ByName("Pair")),
 			connect.WithClientOptions(opts...),
 		),
+		renewSocketTicket: connect.NewClient[pluxv1.DevSessionServiceRenewSocketTicketRequest, pluxv1.DevSessionServiceRenewSocketTicketResponse](
+			httpClient,
+			baseURL+DevSessionServiceRenewSocketTicketProcedure,
+			connect.WithSchema(devSessionServiceMethods.ByName("RenewSocketTicket")),
+			connect.WithClientOptions(opts...),
+		),
 		listDevices: connect.NewClient[pluxv1.DevSessionServiceListDevicesRequest, pluxv1.DevSessionServiceListDevicesResponse](
 			httpClient,
 			baseURL+DevSessionServiceListDevicesProcedure,
@@ -173,15 +186,16 @@ func NewDevSessionServiceClient(httpClient connect.HTTPClient, baseURL string, o
 
 // devSessionServiceClient implements DevSessionServiceClient.
 type devSessionServiceClient struct {
-	createSession *connect.Client[pluxv1.DevSessionServiceCreateSessionRequest, pluxv1.DevSessionServiceCreateSessionResponse]
-	getPairing    *connect.Client[pluxv1.DevSessionServiceGetPairingRequest, pluxv1.DevSessionServiceGetPairingResponse]
-	pair          *connect.Client[pluxv1.DevSessionServicePairRequest, pluxv1.DevSessionServicePairResponse]
-	listDevices   *connect.Client[pluxv1.DevSessionServiceListDevicesRequest, pluxv1.DevSessionServiceListDevicesResponse]
-	endSession    *connect.Client[pluxv1.DevSessionServiceEndSessionRequest, pluxv1.DevSessionServiceEndSessionResponse]
-	pushPatch     *connect.Client[pluxv1.DevSessionServicePushPatchRequest, pluxv1.DevSessionServicePushPatchResponse]
-	sendCommand   *connect.Client[pluxv1.DevSessionServiceSendCommandRequest, pluxv1.DevSessionServiceSendCommandResponse]
-	watchEvents   *connect.Client[pluxv1.DevSessionServiceWatchEventsRequest, pluxv1.DevSessionServiceWatchEventsResponse]
-	exportTrace   *connect.Client[pluxv1.DevSessionServiceExportTraceRequest, pluxv1.DevSessionServiceExportTraceResponse]
+	createSession     *connect.Client[pluxv1.DevSessionServiceCreateSessionRequest, pluxv1.DevSessionServiceCreateSessionResponse]
+	getPairing        *connect.Client[pluxv1.DevSessionServiceGetPairingRequest, pluxv1.DevSessionServiceGetPairingResponse]
+	pair              *connect.Client[pluxv1.DevSessionServicePairRequest, pluxv1.DevSessionServicePairResponse]
+	renewSocketTicket *connect.Client[pluxv1.DevSessionServiceRenewSocketTicketRequest, pluxv1.DevSessionServiceRenewSocketTicketResponse]
+	listDevices       *connect.Client[pluxv1.DevSessionServiceListDevicesRequest, pluxv1.DevSessionServiceListDevicesResponse]
+	endSession        *connect.Client[pluxv1.DevSessionServiceEndSessionRequest, pluxv1.DevSessionServiceEndSessionResponse]
+	pushPatch         *connect.Client[pluxv1.DevSessionServicePushPatchRequest, pluxv1.DevSessionServicePushPatchResponse]
+	sendCommand       *connect.Client[pluxv1.DevSessionServiceSendCommandRequest, pluxv1.DevSessionServiceSendCommandResponse]
+	watchEvents       *connect.Client[pluxv1.DevSessionServiceWatchEventsRequest, pluxv1.DevSessionServiceWatchEventsResponse]
+	exportTrace       *connect.Client[pluxv1.DevSessionServiceExportTraceRequest, pluxv1.DevSessionServiceExportTraceResponse]
 }
 
 // CreateSession calls plux.v1.DevSessionService.CreateSession.
@@ -197,6 +211,11 @@ func (c *devSessionServiceClient) GetPairing(ctx context.Context, req *connect.R
 // Pair calls plux.v1.DevSessionService.Pair.
 func (c *devSessionServiceClient) Pair(ctx context.Context, req *connect.Request[pluxv1.DevSessionServicePairRequest]) (*connect.Response[pluxv1.DevSessionServicePairResponse], error) {
 	return c.pair.CallUnary(ctx, req)
+}
+
+// RenewSocketTicket calls plux.v1.DevSessionService.RenewSocketTicket.
+func (c *devSessionServiceClient) RenewSocketTicket(ctx context.Context, req *connect.Request[pluxv1.DevSessionServiceRenewSocketTicketRequest]) (*connect.Response[pluxv1.DevSessionServiceRenewSocketTicketResponse], error) {
+	return c.renewSocketTicket.CallUnary(ctx, req)
 }
 
 // ListDevices calls plux.v1.DevSessionService.ListDevices.
@@ -244,6 +263,10 @@ type DevSessionServiceHandler interface {
 	// short-lived ticket the device presents once at the WebSocket upgrade
 	// (DEV-002, PLX-9201, PLX-9202, PLX-9208).
 	Pair(context.Context, *connect.Request[pluxv1.DevSessionServicePairRequest]) (*connect.Response[pluxv1.DevSessionServicePairResponse], error)
+	// RenewSocketTicket gives a paired device a new socket ticket to reconnect
+	// with; the device calls it with its access token and a DPoP proof of the
+	// key it paired with, while its session is live (DEV-021, PLX-9204).
+	RenewSocketTicket(context.Context, *connect.Request[pluxv1.DevSessionServiceRenewSocketTicketRequest]) (*connect.Response[pluxv1.DevSessionServiceRenewSocketTicketResponse], error)
 	// ListDevices lists the devices paired with a session and whether each
 	// is connected.
 	ListDevices(context.Context, *connect.Request[pluxv1.DevSessionServiceListDevicesRequest]) (*connect.Response[pluxv1.DevSessionServiceListDevicesResponse], error)
@@ -293,6 +316,12 @@ func NewDevSessionServiceHandler(svc DevSessionServiceHandler, opts ...connect.H
 		connect.WithSchema(devSessionServiceMethods.ByName("Pair")),
 		connect.WithHandlerOptions(opts...),
 	)
+	devSessionServiceRenewSocketTicketHandler := connect.NewUnaryHandler(
+		DevSessionServiceRenewSocketTicketProcedure,
+		svc.RenewSocketTicket,
+		connect.WithSchema(devSessionServiceMethods.ByName("RenewSocketTicket")),
+		connect.WithHandlerOptions(opts...),
+	)
 	devSessionServiceListDevicesHandler := connect.NewUnaryHandler(
 		DevSessionServiceListDevicesProcedure,
 		svc.ListDevices,
@@ -337,6 +366,8 @@ func NewDevSessionServiceHandler(svc DevSessionServiceHandler, opts ...connect.H
 			devSessionServiceGetPairingHandler.ServeHTTP(w, r)
 		case DevSessionServicePairProcedure:
 			devSessionServicePairHandler.ServeHTTP(w, r)
+		case DevSessionServiceRenewSocketTicketProcedure:
+			devSessionServiceRenewSocketTicketHandler.ServeHTTP(w, r)
 		case DevSessionServiceListDevicesProcedure:
 			devSessionServiceListDevicesHandler.ServeHTTP(w, r)
 		case DevSessionServiceEndSessionProcedure:
@@ -368,6 +399,10 @@ func (UnimplementedDevSessionServiceHandler) GetPairing(context.Context, *connec
 
 func (UnimplementedDevSessionServiceHandler) Pair(context.Context, *connect.Request[pluxv1.DevSessionServicePairRequest]) (*connect.Response[pluxv1.DevSessionServicePairResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DevSessionService.Pair is not implemented"))
+}
+
+func (UnimplementedDevSessionServiceHandler) RenewSocketTicket(context.Context, *connect.Request[pluxv1.DevSessionServiceRenewSocketTicketRequest]) (*connect.Response[pluxv1.DevSessionServiceRenewSocketTicketResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DevSessionService.RenewSocketTicket is not implemented"))
 }
 
 func (UnimplementedDevSessionServiceHandler) ListDevices(context.Context, *connect.Request[pluxv1.DevSessionServiceListDevicesRequest]) (*connect.Response[pluxv1.DevSessionServiceListDevicesResponse], error) {

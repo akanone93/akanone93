@@ -857,6 +857,20 @@ final class PluxApiClient {
     );
   }
 
+  /// A new single-use socket ticket for a device paired with the dev
+  /// session [sessionId], to reconnect with (DEV-021, ADR-0087).
+  Future<String> devRenewSocketTicket(
+    DeviceToken token, {
+    required String sessionId,
+    required String deviceId,
+  }) async {
+    final r = await _call('plux.v1.DevSessionService/RenewSocketTicket', {
+      'sessionId': sessionId,
+      'deviceId': deviceId,
+    }, token: token);
+    return r['socketTicket'] as String? ?? '';
+  }
+
   /// The report that release [sequence] is active on [deviceId] (SEC-142),
   /// sent on its own or with a telemetry upload.
   static Map<String, Object?> installedReport(
