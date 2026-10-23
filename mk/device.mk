@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the end-to-end jobs
 # on a pull request (ci/affected.json, ADR-0043).
 
-.PHONY: e2e-starter e2e-android e2e-ios compat
+.PHONY: e2e-starter e2e-android e2e-ios compat quickstart-dry-run devloop-session
 
 ##@ End to end (QA-006, QA-010)
 
@@ -48,3 +48,13 @@ e2e-ios: ## Run the starter's and the Swift add-to-app host's flows on an iOS si
 compat: ## Run the compatibility matrix: released runtimes against today's server, today's runtime against released servers (QA-010)
 	@test -n "$${PLUX_TEST_DATABASE_URL:-}" || { echo "✗ set PLUX_TEST_DATABASE_URL: run 'make test-db' and export what it prints (docs/engineering/testing.md)"; exit 1; }
 	test/compat/run.sh
+
+# Verifies: HST-034, DX-001.
+quickstart-dry-run: ## Time the quick start's scripted steps that need no device (plux create --router go_router, flutter pub get and analyze, plux validate and build) and print the timings as JSON; fails over 5 minutes (HST-034, DX-001; the recorded sessions decide the status)
+	cd backend && PLUX_QUICKSTART_REPORT="$(CURDIR)/quickstart-dry-run.json" $(GO) test -tags quickstart -count=1 -timeout 15m -run '^TestQuickstartDryRun$$' ./cmd/plux
+	@cat quickstart-dry-run.json && rm -f quickstart-dry-run.json
+
+# Verifies: DEV-041, DEV-021, DEV-020, FN-036.
+devloop-session: ## Run the scripted debugging session: plux dev against an in-process server, a simulated device on the real dev socket, a failed action, a state diff and a function call read back with plux dev logs and trace (exit criterion X2; needs PLUX_TEST_DATABASE_URL)
+	@test -n "$${PLUX_TEST_DATABASE_URL:-}" || { echo "✗ set PLUX_TEST_DATABASE_URL: run 'make test-db' and export what it prints (docs/engineering/testing.md)"; exit 1; }
+	cd backend && $(GO) test -count=1 -race -timeout 5m -run '^TestDevLoopSession_' -v ./internal/devsession

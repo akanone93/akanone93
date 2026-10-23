@@ -140,7 +140,7 @@ with `go_router` or `auto_route` in the pubspec: `lib/main.dart` then wires the 
 the adapter's example does, with the entry page at `/` and the Plux pages at
 `/plux/<route-name>` (`HST-034`). The adapters are not published yet, so a router flavour
 resolves its adapter only with `--plux-path`, which reads each adapter from the directory
-beside `plux_flutter`'s.
+beside `plux_flutter`'s. The pubspec then overrides `plux_flutter` with the same path, because the adapters require a released version of it.
 
 The same input gives the same files and the same zip bytes. Until `plux_flutter` is
 published, `--plux-path` points the project at a checkout of it.

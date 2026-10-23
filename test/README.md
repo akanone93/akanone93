@@ -8,6 +8,7 @@ Cross-component suites. Unit tests live next to the code they test.
 | [`compat/`](compat/README.md) | Old-runtime/new-bundle compatibility matrix (`QA-010`) | P3 |
 | `load/` | k6 manifest load test (`QA-007`, P2); the device load generator is `backend/cmd/plux-load`, run by `make load-test` (`DEP-051`, P9) | P2 |
 | [`walkthrough/`](walkthrough/README.md) | The scripted regulated-industry audit walkthrough on `kind` with the synthetic fleet, and its signed evidence bundle (`make walkthrough-kind`; P9 exit criterion) | P9 |
+| [`devloop/`](devloop/README.md) | The scripted dev-loop debugging session: `plux dev` against an in-process server, a simulated device, logs and trace (`DEV-041`, `DEV-021`; P10 exit criterion X2) | P10 |
 | [`bench/runtime/`](bench/runtime/README.md) | Runtime benchmark app in profile mode, and the device half of the sync benchmark (`QA-007`) | P3 |
 | [`size/`](size/README.md) | Blank and Plux host apps for the size job (`RT-061`) | P3 |
 | `security/` | DPoP, attestation and tampering suites (`QA-008`) | P6 |
