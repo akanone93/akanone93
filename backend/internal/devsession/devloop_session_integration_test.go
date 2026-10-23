@@ -152,7 +152,7 @@ func newSession(t *testing.T) *session {
 	}
 
 	bin := filepath.Join(t.TempDir(), "plux")
-	build := exec.CommandContext(t.Context(), "go", "build", "-o", bin, "../../cmd/plux")
+	build := exec.CommandContext(t.Context(), "go", "build", "-o", bin, "../../cmd/plux") //nolint:gosec // G204: the test builds the CLI into its own temporary directory
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("build the CLI: %v\n%s", err, out)
 	}

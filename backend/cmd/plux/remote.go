@@ -99,7 +99,7 @@ func (c *common) register(set *flag.FlagSet, withApp bool) {
 func (c *common) resolve() error {
 	var p projectConfig
 	if c.dir != "" {
-		if data, err := os.ReadFile(filepath.Join(c.dir, projectFile)); err == nil {
+		if data, err := os.ReadFile(filepath.Join(c.dir, projectFile)); err == nil { //nolint:gosec // G703: the project directory the user named
 			if err := json.Unmarshal(data, &p); err != nil {
 				return fmt.Errorf("read %s: %w", projectFile, err)
 			}

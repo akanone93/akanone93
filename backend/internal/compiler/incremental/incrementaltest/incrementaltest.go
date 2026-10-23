@@ -51,13 +51,39 @@ func Fixture(t testing.TB, dir string) fstest.MapFS {
 			return err
 		}
 		data, err := fs.ReadFile(root, p)
+		if err != nil {
+			return fmt.Errorf("incrementaltest: %w", err)
+		}
 		m[p] = &fstest.MapFile{Data: data}
-		return err
+		return nil
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	return m
+}
+
+// calculatorDocuments returns the calculator page and its action graphs
+// by file, the IDs they declare, and their files in order.
+func calculatorDocuments(m fstest.MapFS) (docs map[string]string, own map[string]bool, files []string) {
+	docs = map[string]string{CalculatorPage: string(m[CalculatorPage].Data)}
+	own = map[string]bool{}
+	for file, f := range m {
+		var doc map[string]any
+		if err := json.Unmarshal(f.Data, &doc); err != nil {
+			continue
+		}
+		if file == CalculatorPage || strings.HasSuffix(file, ".graph.json") && doc["page"] == CalculatorID {
+			docs[file] = string(f.Data)
+			collectUUIDs(doc, own)
+		}
+	}
+	files = make([]string, 0, len(docs))
+	for file := range docs {
+		files = append(files, file)
+	}
+	slices.Sort(files)
+	return docs, own, files
 }
 
 // PageFile is the document file of the n-th copy of the calculator page.
@@ -73,23 +99,7 @@ func PageFile(n int) string {
 func ManyPages(t testing.TB, root string, copies, nodes int) fstest.MapFS {
 	t.Helper()
 	m := Fixture(t, root)
-	docs := map[string]string{CalculatorPage: string(m[CalculatorPage].Data)}
-	own := map[string]bool{}
-	for file, f := range m {
-		var doc map[string]any
-		if err := json.Unmarshal(f.Data, &doc); err != nil {
-			continue
-		}
-		if file == CalculatorPage || strings.HasSuffix(file, ".graph.json") && doc["page"] == CalculatorID {
-			docs[file] = string(f.Data)
-			collectUUIDs(doc, own)
-		}
-	}
-	files := make([]string, 0, len(docs))
-	for file := range docs {
-		files = append(files, file)
-	}
-	slices.Sort(files)
+	docs, own, files := calculatorDocuments(m)
 	var pages []any
 	for i := range copies {
 		ids := map[string]string{}
