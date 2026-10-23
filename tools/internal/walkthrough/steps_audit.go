@@ -6,6 +6,7 @@ package walkthrough
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -75,10 +76,47 @@ func (e *Env) complianceReport(ctx context.Context, w *walk) error {
 	if err != nil {
 		return fmt.Errorf("read the report: %w", err)
 	}
-	if !bytes.Contains(bytes.ToLower(data), []byte("approv")) {
+	approved, err := reportApproved(data)
+	if err != nil {
+		return err
+	}
+	if !approved {
 		return errors.New("the compliance report lists no approval")
 	}
 	return w.run.Evidence("compliance-report.json", data)
+}
+
+// reportApproved reports whether a compliance report, a DSSE envelope whose
+// payload is the base64 statement, lists a change with approvals: step 2's
+// promotion. Other changes, such as step 4's break-glass, carry none.
+func reportApproved(data []byte) (bool, error) {
+	var env struct {
+		Payload string `json:"payload"`
+	}
+	if err := json.Unmarshal(data, &env); err != nil {
+		return false, fmt.Errorf("the compliance report is not an envelope: %w", err)
+	}
+	if env.Payload == "" {
+		return false, errors.New("the compliance report is an envelope without a payload")
+	}
+	statement, err := base64.StdEncoding.DecodeString(env.Payload)
+	if err != nil {
+		return false, fmt.Errorf("the compliance report's payload: %w", err)
+	}
+	var report struct {
+		Changes []struct {
+			Approvals []json.RawMessage `json:"approvals"`
+		} `json:"changes"`
+	}
+	if err := json.Unmarshal(statement, &report); err != nil {
+		return false, fmt.Errorf("the compliance report's statement: %w", err)
+	}
+	for _, c := range report.Changes {
+		if len(c.Approvals) > 0 {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 // stepReconstruct is step 7: what a device of step 4 saw at the time.
