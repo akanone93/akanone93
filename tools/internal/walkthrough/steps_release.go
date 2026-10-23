@@ -367,6 +367,12 @@ func (e *Env) stepMandatoryAndRollback(ctx context.Context, run *Run) error {
 	if e.state.baseline == "" {
 		return errors.New("step 3 recorded no baseline release to roll back to")
 	}
+	// The channel holds the baseline (step 3 publishes the candidate, and its
+	// rollout ends rolled back), and a mandatory update names a release the
+	// channel has reached (PLX-8033), so the newest is promoted first.
+	if _, err := w.plux(ctx, "admin", "release", "promote", "--app", e.App, "--env", e.FleetEnv, newest); err != nil {
+		return err
+	}
 	if err := e.propagate(ctx, w, "mandatory-and-rollback", func() error {
 		if _, err := w.plux(ctx, "admin", "control", "mandatory", "--env", e.FleetEnv, "--app", e.App, "--release", newest); err != nil {
 			return err
