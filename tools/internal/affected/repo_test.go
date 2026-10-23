@@ -244,7 +244,7 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 		{
 			name:  "a compiler change",
 			files: []string{"backend/internal/compiler/compiler.go"},
-			want:  sorted(append([]string{"go-build", "go-determinism", "go-vuln", "image-arm64", "goldens"}, goServer...)),
+			want:  sorted(append([]string{"go-build", "go-determinism", "go-vuln", "image-arm64", "goldens", "bench-devloop", "devloop-session"}, goServer...)),
 		},
 		{
 			name:  "a server test",

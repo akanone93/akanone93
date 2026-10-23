@@ -66,6 +66,19 @@ server:
   # An OTLP/HTTP endpoint for traces, such as an OpenTelemetry Collector.
   otlpEndpoint: ""
 
+# ── Dev sessions (DEV-002, DEV-003, ADR-0087) ──────────────────────────────
+# The server's devSession section (spec Appendix H). Dev sessions run only in
+# the listed environments, never in a production one (DEV-003); an empty list
+# disables them. The device socket (/dev/socket) is a WebSocket that the api
+# ingress keeps open for at least idleTimeout (plus a margin) when the ingress
+# class is nginx; for any other class set the equivalent annotations under
+# api.ingress.annotations. Durations are whole seconds, minutes or hours
+# ("120s", "2m"); pingInterval stays shorter than idleTimeout.
+devSession:
+  enabledEnvironments: [development]
+  idleTimeout: 120s
+  pingInterval: 30s
+
 # Configuration keys merged into the api and worker configuration files after
 # the chart's own (plux-server.yaml, spec Appendix H). Each role has its own
 # `config` as well. Secrets belong in environment variables, not here.

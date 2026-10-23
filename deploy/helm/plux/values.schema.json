@@ -149,6 +149,27 @@
     "config": {
       "type": "object"
     },
+    "devSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabledEnvironments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "idleTimeout": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*[smh]$"
+        },
+        "pingInterval": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*[smh]$"
+        }
+      }
+    },
     "license": {
       "type": "object",
       "additionalProperties": false,

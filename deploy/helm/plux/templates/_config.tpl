@@ -102,6 +102,10 @@ server:
   {{- end }}
 {{ include "plux.config.data" . }}
 {{ include "plux.config.observability" . }}
+devSession:
+  enabledEnvironments: {{ toJson .Values.devSession.enabledEnvironments }}
+  idleTimeout: {{ .Values.devSession.idleTimeout | quote }}
+  pingInterval: {{ .Values.devSession.pingInterval | quote }}
 {{- if .Values.functions.enabled }}
 functions:
   runnerURL: {{ printf "https://%s-fnrunner:8445" (include "plux.fullname" .) | quote }}
