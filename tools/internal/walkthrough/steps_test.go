@@ -5,6 +5,7 @@ package walkthrough
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -293,6 +294,13 @@ func TestViewerStep(t *testing.T) {
 	}
 }
 
+// envelope wraps a statement as the CLI writes a JSON compliance report: a
+// DSSE envelope with the statement in base64.
+func envelope(statement string) string {
+	return `{"payloadType":"application/vnd.plux.compliance-report+json","payload":"` +
+		base64.StdEncoding.EncodeToString([]byte(statement)) + `","signatures":[{"keyid":"audit-1","sig":"c2ln"}]}`
+}
+
 // Step 6: the syslog destination is created with the sink's CA, messages that
 // are not RFC 5424 fail it, and the compliance report must verify and list
 // approvals.
@@ -304,10 +312,11 @@ func TestAuditExportStep(t *testing.T) {
 		verify   Result
 		want     string
 	}{
-		"verified":     {messages: validSyslog(), report: `{"changes":[{"approvals":["bob","carol"]}]}`},
-		"not syslog":   {messages: append(validSyslog()[:4], "plain text"), report: `{"approvals":[]}`, want: "not RFC 5424"},
-		"verify fails": {messages: validSyslog(), report: `{"approvals":[]}`, verify: Result{ExitCode: 1, Stderr: "signature invalid"}, want: "does not verify"},
-		"no approvals": {messages: validSyslog(), report: `{"changes":[]}`, want: "lists no approval"},
+		"verified":        {messages: validSyslog(), report: envelope(`{"changes":[{"breakGlass":{}},{"approvals":[{"approver":"bob"},{"approver":"carol"}]}]}`)},
+		"not syslog":      {messages: append(validSyslog()[:4], "plain text"), report: envelope(`{"changes":[]}`), want: "not RFC 5424"},
+		"verify fails":    {messages: validSyslog(), report: envelope(`{"changes":[]}`), verify: Result{ExitCode: 1, Stderr: "signature invalid"}, want: "does not verify"},
+		"no approvals":    {messages: validSyslog(), report: envelope(`{"changes":[{"breakGlass":{}},{"approvals":[]}]}`), want: "lists no approval"},
+		"not an envelope": {messages: validSyslog(), report: `{"changes":[{"approvals":[{"approver":"bob"}]}]}`, want: "payload"},
 	} {
 		env, plux, _ := testEnv(t)
 		sink := newTestSink(t)
