@@ -194,7 +194,7 @@ func (e *Env) stepKillSwitch(ctx context.Context, run *Run) error {
 	w := e.newWalk(run)
 	out, err := w.plux(ctx, "admin", "freeze", "put", "--name", "walkthrough-close", "--tz", "UTC",
 		"--start", e.Now().UTC().Add(-time.Minute).Format("2006-01-02T15:04"), "--duration", "60m",
-		"--env-key", e.FleetEnv, "--reason", "walkthrough: month-end close", "--json")
+		"--env-key", e.ProdEnv, "--reason", "walkthrough: month-end close", "--json")
 	if err != nil {
 		return err
 	}
@@ -206,12 +206,18 @@ func (e *Env) stepKillSwitch(ctx context.Context, run *Run) error {
 	if err != nil {
 		return err
 	}
-	if err := w.refused(ctx, "admin", freezeRefusal, "control", "kill", "--env", e.FleetEnv, "--app", e.App, "page", killTarget); err != nil {
+	// A freeze holds back production changes only (GOV-025), and the fleet
+	// runs outside production, so the freeze and break-glass are shown on
+	// production and the fleet applies the same switch on its environment.
+	if err := w.refused(ctx, "admin", freezeRefusal, "control", "kill", "--env", e.ProdEnv, "--app", e.App, "page", killTarget); err != nil {
 		return fmt.Errorf("a change during the freeze must be refused: %w", err)
 	}
+	if _, err := w.plux(ctx, "admin", "control", "kill", "--env", e.ProdEnv, "--app", e.App,
+		"--break-glass", "--justification", "walkthrough: the transfer page misbehaves", "page", killTarget); err != nil {
+		return err
+	}
 	if err := e.propagate(ctx, w, "kill-switch", func() error {
-		_, err := w.plux(ctx, "admin", "control", "kill", "--env", e.FleetEnv, "--app", e.App,
-			"--break-glass", "--justification", "walkthrough: the transfer page misbehaves", "page", killTarget)
+		_, err := w.plux(ctx, "admin", "control", "kill", "--env", e.FleetEnv, "--app", e.App, "page", killTarget)
 		return err
 	}); err != nil {
 		return err

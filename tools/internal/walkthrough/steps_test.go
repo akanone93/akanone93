@@ -15,12 +15,15 @@ import (
 	"time"
 )
 
-// killSwitchRules scripts step 4 against a control document that starts at
-// the given version and advances when the break-glass kill switch is thrown.
+// killSwitchRules scripts step 4 against a fleet control document that
+// starts at the given version and advances when the fleet's kill switch is
+// thrown; production is frozen, so only its break-glass kill switch goes
+// through.
 func killSwitchRules(version *int, opts ...func(*[]rule)) []rule {
 	rules := []rule{
 		{[]string{"freeze put"}, out(`{"id":"fz1"}`)},
-		{[]string{"control kill", "--break-glass"}, func(Command) Result { *version++; return Result{} }},
+		{[]string{"control kill", "--env production", "--break-glass"}, out("")},
+		{[]string{"control kill", "--env staging"}, func(Command) Result { *version++; return Result{} }},
 		{[]string{"control kill"}, refuse("PLX-8020 the environment is under a change freeze")},
 		{[]string{"control get"}, func(Command) Result { return Result{Stdout: fmt.Sprintf(`{"version":%d}`, *version)} }},
 		{[]string{"breakglass list", "open"}, out(`{"items":[{"id":"bg1"}]}`)},
@@ -35,8 +38,9 @@ func killSwitchRules(version *int, opts ...func(*[]rule)) []rule {
 	return rules
 }
 
-// Step 4: the freeze refuses an ordinary kill switch, the break-glass one goes
-// through, the fleet applies it, the review is refused to the actor, closed by
+// Step 4: the production freeze refuses an ordinary kill switch, the
+// break-glass one goes through, the fleet applies the switch on its own
+// environment, the review is refused to the actor, closed by
 // a second person, and the freeze is lifted.
 func TestKillSwitchStep(t *testing.T) {
 	t.Parallel()
@@ -48,12 +52,13 @@ func TestKillSwitchStep(t *testing.T) {
 	if err != nil || !st.Passed {
 		t.Fatalf("step failed: %v", err)
 	}
-	if !plux.called("freeze put", "--env-key staging") || !plux.called("breakglass review", "bob|") || !plux.called("freeze delete fz1") {
+	if !plux.called("freeze put", "--env-key production") || !plux.called("breakglass review", "bob|") || !plux.called("freeze delete fz1") {
 		t.Errorf("calls = %v", plux.calls)
 	}
 	// A page switch names the page by its document ID, as the server
 	// requires; the page's key is refused (PLX-1005).
-	if !plux.called("control kill", "page "+transferPageID) {
+	if !plux.called("control kill", "--env production", "--break-glass", "page "+transferPageID) ||
+		!plux.called("control kill", "--env staging", "page "+transferPageID) {
 		t.Errorf("the kill switch does not name the transfer page's ID: calls = %v", plux.calls)
 	}
 	if env.state.deviceID != "dev-1" || env.state.killedAt.IsZero() {
@@ -77,7 +82,7 @@ func TestKillSwitchStepFailures(t *testing.T) {
 		"fleet too slow": {applied: 12, want: "control applications"},
 		"freeze ignored": {applied: 20, tweak: func(r *[]rule, _ *int) { *r = append([]rule{{[]string{"control kill"}, out("")}}, *r...) }, want: "must be refused"},
 		"version stuck": {applied: 20, tweak: func(r *[]rule, v *int) {
-			*r = append([]rule{{[]string{"control kill", "--break-glass"}, out("")}}, *r...)
+			*r = append([]rule{{[]string{"control kill", "--env staging"}, out("")}}, *r...)
 		}, want: "did not advance"},
 		"self review ok": {applied: 20, tweak: func(r *[]rule, _ *int) { *r = append([]rule{{[]string{"admin|breakglass review"}, out("")}}, *r...) }, want: "must not review"},
 		"no open review": {applied: 20, tweak: func(r *[]rule, _ *int) { *r = append([]rule{{[]string{"breakglass list", "open"}, out(`{}`)}}, *r...) }, want: "no open break-glass review"},

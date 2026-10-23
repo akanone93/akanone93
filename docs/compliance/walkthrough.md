@@ -55,11 +55,11 @@ A baseline release is promoted to the fleet's environment and the fleet starts. 
 
 *Requirements:* `REL-060`, `GOV-024`, `GOV-025`, `NFR-024`, `SYN-060`.
 
-A change freeze opens on the fleet's environment. A kill switch on the transfer page without break-glass is refused. The same kill switch with `--break-glass` and a written justification goes through. With the fleet online, the control document advances and at least 95% of the devices apply it within the propagation bound (60 s by default). The emergency action has an open post-hoc review; whoever acted cannot close it; Bob closes it, with a step-up; the review is listed as reviewed. The freeze is removed.
+A change freeze opens on production; a freeze holds back production changes only (`GOV-025`). A kill switch on the transfer page in production without break-glass is refused. The same kill switch with `--break-glass` and a written justification goes through. The fleet runs outside production, so the same switch is thrown on the fleet's environment, which no freeze holds: with the fleet online, the control document advances and at least 95% of the devices apply it within the propagation bound (60 s by default). The emergency action has an open post-hoc review; whoever acted cannot close it; Bob closes it, with a step-up; the review is listed as reviewed. The freeze is removed.
 
-*Evidence:* the refusal, the break-glass command, the control document before and after, the fleet report (`controlApplied`), the review refusal and closure.
+*Evidence:* the refusal, the break-glass command, the fleet's kill switch, the control document before and after, the fleet report (`controlApplied`), the review refusal and closure.
 
-*Proves:* a freeze blocks changes and only break-glass overrides it (`GOV-025`); break-glass needs a justification and leaves a review a second person closes (`GOV-024`); the kill switch reaches online devices within the bound (`REL-060`, `NFR-024`, `SYN-060`). The 95% criterion is a floor on the fleet's application count (a device that already had a document applies twice, once at start and once for the kill switch), not a latency percentile; the latency percentile is measured by the control-propagation benchmark (`X3`).
+*Proves:* a freeze blocks production changes and only break-glass overrides it (`GOV-025`); break-glass needs a justification and leaves a review a second person closes (`GOV-024`); the kill switch reaches online devices within the bound (`REL-060`, `NFR-024`, `SYN-060`). The 95% criterion is a floor on the fleet's application count (a device that already had a document applies twice, once at start and once for the kill switch), not a latency percentile; the latency percentile is measured by the control-propagation benchmark (`X3`).
 
 ### 5. A mandatory update and a forced rollback (`05-mandatory-update-forced-rollback`)
 
