@@ -370,6 +370,53 @@ void main() {
       expect(comparison['status'], _ok);
     });
 
+    group('with the program the server compiled', () {
+      late Map<String, DevCommandHandler> served;
+
+      setUp(() {
+        served = devExtensions(
+          host: host,
+          sink: sink,
+          roots: () => {'n': 7},
+          captureKey: capture,
+          network: network,
+        );
+      });
+
+      Future<Map<String, Object?>> serve(Map<String, Object?> body) =>
+          served['evaluatePxl']!.handle(_command('evaluatePxl', body));
+
+      test('evaluates the program bytes against the state [DEV-032]', () async {
+        final r = await serve({'expression': 'n + 3', 'program': _addProgram});
+        expect(r['status'], _ok);
+        expect(_decode(r['result']! as String), {'value': 10});
+      });
+
+      test('refuses writes even with a program [DEV-032]', () async {
+        final r = await serve({'expression': 'n = 4', 'program': _addProgram});
+        expect(r['status'], _refused);
+        expect((r['error']! as Map)['code'], 'PLX-9206');
+      });
+
+      test('refuses a program that does not verify [DEV-032]', () async {
+        final r = await serve({
+          'expression': 'n + 3',
+          'program': base64.encode([1, 2, 3]),
+        });
+        expect(r['status'], _failed);
+        expect((r['error']! as Map)['code'], 'PLX-2001');
+      });
+
+      test(
+        'without a program or a compiler it is unsupported [DEV-032]',
+        () async {
+          final r = await serve({'expression': 'n + 3'});
+          expect(r['status'], _failed);
+          expect((r['error']! as Map)['code'], 'PLX-9232');
+        },
+      );
+    });
+
     test('reports errors with their code [DEV-032]', () async {
       final divide = await send('evaluatePxl', {'expression': 'n / (n - 7)'});
       expect(divide['status'], _failed);

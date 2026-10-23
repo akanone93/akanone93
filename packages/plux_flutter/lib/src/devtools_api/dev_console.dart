@@ -11,6 +11,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:plux_flutter/src/devtools_api/dev_nodes.dart';
 import 'package:plux_flutter/src/devtools_api/dev_session.dart';
@@ -27,17 +28,19 @@ typedef DevPxlCompiler = FutureOr<Program> Function(
 );
 
 /// Carries out `evaluatePxl`.
+///
+/// The server compiles the expression and sends the program with the
+/// command; the handler decodes and verifies it before it runs. A
+/// [compile] function is the fallback for a command that carries no
+/// program; without one, such a command is unsupported (`PLX-9232`).
 final class DevConsoleHandler implements DevCommandHandler {
   /// Creates the handler. [roots] gives the PXL roots of the page on screen
   /// (`app`, `page`, `plugin`, and so on) without sensitive values.
-  DevConsoleHandler({
-    required this.compile,
-    required this.roots,
-    PxlLimits? limits,
-  }) : limits = limits ?? PxlLimits.defaults();
+  DevConsoleHandler({required this.roots, this.compile, PxlLimits? limits})
+    : limits = limits ?? PxlLimits.defaults();
 
-  /// Compiles the expressions.
-  final DevPxlCompiler compile;
+  /// Compiles the expressions of commands without a program.
+  final DevPxlCompiler? compile;
 
   /// The values of the page on screen.
   final Map<String, Object?> Function() roots;
@@ -62,7 +65,26 @@ final class DevConsoleHandler implements DevCommandHandler {
     final values = roots();
     final Program program;
     try {
-      program = await compile(expression, values);
+      final bytes = _programBytes(body?['program']);
+      if (bytes != null) {
+        program = Program.decode(bytes);
+      } else {
+        final compiler = compile;
+        if (compiler == null) {
+          return devFailure(
+            devStatusFailed,
+            'the command carries no compiled program',
+            PluxErrorCode.devCommandUnsupported,
+          );
+        }
+        program = await compiler(expression, values);
+      }
+    } on InvalidProgram catch (e) {
+      return devFailure(
+        devStatusFailed,
+        'the program is invalid: ${e.message}',
+        PluxErrorCode.pxlSyntaxError,
+      );
     } on PluxException catch (e) {
       return devFailure(devStatusFailed, e.message, e.code);
     } on Object catch (e) {
@@ -86,6 +108,14 @@ final class DevConsoleHandler implements DevCommandHandler {
       ),
     };
   }
+}
+
+/// The bytes of the `program` field, which the JSON form of the command
+/// carries as base64; null when it is absent or empty.
+Uint8List? _programBytes(Object? field) {
+  if (field is Uint8List) return field.isEmpty ? null : field;
+  if (field is! String || field.isEmpty) return null;
+  return base64.decode(field);
 }
 
 final RegExp _literals = RegExp(

@@ -1956,8 +1956,15 @@ func (x *SimulateSecurityDetectionCommand) GetKind() DevSecurityDetectionKind {
 // EvaluatePxlCommand evaluates a PXL expression against the device's live
 // state; the result arrives redacted in the CommandResultEvent (DEV-032).
 type EvaluatePxlCommand struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Expression    string                 `protobuf:"bytes,1,opt,name=expression,proto3" json:"expression,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Expression string                 `protobuf:"bytes,1,opt,name=expression,proto3" json:"expression,omitempty"`
+	// program is the expression compiled to PXL bytecode. The server sets it
+	// when it relays the command and clears whatever a client sent: the device
+	// evaluates only what the server compiled.
+	Program []byte `protobuf:"bytes,2,opt,name=program,proto3" json:"program,omitempty"`
+	// roots are the state roots the expression may read; empty means every
+	// root the console offers.
+	Roots         []string `protobuf:"bytes,3,rep,name=roots,proto3" json:"roots,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1997,6 +2004,20 @@ func (x *EvaluatePxlCommand) GetExpression() string {
 		return x.Expression
 	}
 	return ""
+}
+
+func (x *EvaluatePxlCommand) GetProgram() []byte {
+	if x != nil {
+		return x.Program
+	}
+	return nil
+}
+
+func (x *EvaluatePxlCommand) GetRoots() []string {
+	if x != nil {
+		return x.Roots
+	}
+	return nil
 }
 
 // CaptureScreenshotCommand captures the screen; the image arrives as a
@@ -3331,11 +3352,13 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\"Y\n" +
 	" SimulateSecurityDetectionCommand\x125\n" +
-	"\x04kind\x18\x01 \x01(\x0e2!.plux.v1.DevSecurityDetectionKindR\x04kind\"4\n" +
+	"\x04kind\x18\x01 \x01(\x0e2!.plux.v1.DevSecurityDetectionKindR\x04kind\"d\n" +
 	"\x12EvaluatePxlCommand\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x01 \x01(\tR\n" +
-	"expression\"\x1a\n" +
+	"expression\x12\x18\n" +
+	"\aprogram\x18\x02 \x01(\fR\aprogram\x12\x14\n" +
+	"\x05roots\x18\x03 \x03(\tR\x05roots\"\x1a\n" +
 	"\x18CaptureScreenshotCommand\"3\n" +
 	"\x14InspectSelectCommand\x12\x1b\n" +
 	"\tnode_path\x18\x01 \x01(\tR\bnodePath\"_\n" +

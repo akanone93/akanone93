@@ -71,6 +71,10 @@ func (s *Service) SendCommand(ctx context.Context, p auth.Principal, req *pluxv1
 	if kind == "" {
 		return CommandSent{}, plxerr.New(plxerr.InvalidFormat, "the request carries no command")
 	}
+	cmd := proto.CloneOf(req)
+	if err := prepareConsole(cmd); err != nil {
+		return CommandSent{}, err
+	}
 	var out CommandSent
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		out, err = s.command(ctx, tx, p, id, req.GetDeviceId(), kind)
@@ -79,7 +83,6 @@ func (s *Service) SendCommand(ctx context.Context, p auth.Principal, req *pluxv1
 	if err != nil {
 		return CommandSent{}, err
 	}
-	cmd := proto.CloneOf(req)
 	cmd.SessionId, cmd.DeviceId = "", ""
 	frame := &pluxv1.DevServerFrame{Payload: &pluxv1.DevServerFrame_Command{Command: &pluxv1.DevCommandFrame{CommandId: out.CommandID, Command: cmd}}}
 	for _, device := range out.DeviceIDs {

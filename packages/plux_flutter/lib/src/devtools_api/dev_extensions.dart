@@ -25,10 +25,10 @@ import 'package:plux_flutter/src/pxl/vm.dart';
 Map<String, DevCommandHandler> devExtensions({
   required DevNodeHost host,
   required DevEventSink sink,
-  required DevPxlCompiler compile,
   required Map<String, Object?> Function() roots,
   required GlobalKey captureKey,
   required DevNetworkSimulation network,
+  DevPxlCompiler? compile,
   PxlLimits? limits,
   bool Function(RenderObject boundary)? platformViews,
 }) => {

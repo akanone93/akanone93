@@ -18284,6 +18284,22 @@ components:
         expression:
           type: string
           title: expression
+        program:
+          type: string
+          title: program
+          format: byte
+          description: |-
+            program is the expression compiled to PXL bytecode. The server sets it
+             when it relays the command and clears whatever a client sent: the device
+             evaluates only what the server compiled.
+        roots:
+          type: array
+          items:
+            type: string
+          title: roots
+          description: |-
+            roots are the state roots the expression may read; empty means every
+             root the console offers.
       title: EvaluatePxlCommand
       additionalProperties: false
       description: |-
