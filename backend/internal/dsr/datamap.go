@@ -123,6 +123,11 @@ func deviceStores() []Store {
 			Retention: "reconstruction.retentionDays, 365 by default; the maintenance sweep deletes older history.", Erase: EraseDelete,
 		},
 		{
+			Name: "dev_session_devices", Description: "The devices paired with a dev session, with the name, platform and runtime version the device reported and the thumbprint of its key (DEV-002); dev sessions exist only for non-production environments.",
+			DeviceKey: "device_id", Personal: []string{"device_id", "dpop_thumbprint", "name"},
+			Retention: "The life of the dev session, at most devSession.lifetimeMinutes; the rows go with the session.", Erase: EraseDelete,
+		},
+		{
 			Name: "reconstructions", Description: "Reconstruction releases of what a device ran and showed at a past moment, with the device and pseudonymous user they name (SEC-142).",
 			DeviceKey: "device_id", Personal: []string{"device_id", "manifest"},
 			Retention: "reconstruction.retentionDays, 365 by default; the maintenance sweep deletes older releases.", Erase: EraseDelete,

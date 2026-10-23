@@ -103,6 +103,15 @@ func deviceStateExecutors() []executor {
 			},
 		},
 		{
+			store: "dev_session_devices",
+			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
+				return q.DsrExportDevSessionDevices(ctx, dbgen.DsrExportDevSessionDevicesParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
+			},
+			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
+				return q.DsrEraseDevSessionDevices(ctx, dbgen.DsrEraseDevSessionDevicesParams{OrganizationID: s.org, DeviceID: s.id})
+			},
+		},
+		{
 			store: "device_bundles",
 			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
 				return q.DsrExportDeviceBundles(ctx, dbgen.DsrExportDeviceBundlesParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})

@@ -44,6 +44,23 @@ func (q *Queries) DsrEraseAnalyticsEvents(ctx context.Context, arg DsrEraseAnaly
 	return result.RowsAffected(), nil
 }
 
+const dsrEraseDevSessionDevices = `-- name: DsrEraseDevSessionDevices :execrows
+DELETE FROM dev_session_devices WHERE organization_id = $1 AND device_id = ($2::uuid)::text
+`
+
+type DsrEraseDevSessionDevicesParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+}
+
+func (q *Queries) DsrEraseDevSessionDevices(ctx context.Context, arg DsrEraseDevSessionDevicesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, dsrEraseDevSessionDevices, arg.OrganizationID, arg.DeviceID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const dsrEraseDevice = `-- name: DsrEraseDevice :execrows
 DELETE FROM devices WHERE organization_id = $1 AND id = $2
 `
@@ -252,6 +269,40 @@ type DsrExportAnalyticsEventsParams struct {
 
 func (q *Queries) DsrExportAnalyticsEvents(ctx context.Context, arg DsrExportAnalyticsEventsParams) ([][]byte, error) {
 	rows, err := q.db.Query(ctx, dsrExportAnalyticsEvents, arg.OrganizationID, arg.DeviceID, arg.RowLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := [][]byte{}
+	for rows.Next() {
+		var document []byte
+		if err := rows.Scan(&document); err != nil {
+			return nil, err
+		}
+		items = append(items, document)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const dsrExportDevSessionDevices = `-- name: DsrExportDevSessionDevices :many
+SELECT jsonb_build_object('devSession', session_id, 'name', name, 'platform', platform, 'runtimeVersion', runtime_version, 'pairedAt', paired_at)::jsonb AS document
+  FROM dev_session_devices
+ WHERE organization_id = $1 AND device_id = ($2::uuid)::text
+ ORDER BY paired_at, id
+ LIMIT $3
+`
+
+type DsrExportDevSessionDevicesParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+	RowLimit       int32
+}
+
+func (q *Queries) DsrExportDevSessionDevices(ctx context.Context, arg DsrExportDevSessionDevicesParams) ([][]byte, error) {
+	rows, err := q.db.Query(ctx, dsrExportDevSessionDevices, arg.OrganizationID, arg.DeviceID, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}
