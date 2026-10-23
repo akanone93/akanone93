@@ -120,10 +120,13 @@ type StepRecord struct {
 // hash of every evidence file and of the transcript. It holds times in
 // RFC 3339, hashes and counts, never a secret.
 type Statement struct {
-	Schema           string       `json:"schema"`
-	StartedAt        string       `json:"startedAt"`
-	FinishedAt       string       `json:"finishedAt"`
-	Passed           bool         `json:"passed"`
+	Schema     string `json:"schema"`
+	StartedAt  string `json:"startedAt"`
+	FinishedAt string `json:"finishedAt"`
+	Passed     bool   `json:"passed"`
+	// Skipped lists the steps a partial run left out (-skip); Passed then
+	// speaks only for the steps that ran.
+	Skipped          []string     `json:"skipped,omitempty"`
 	TranscriptSHA256 string       `json:"transcriptSha256"`
 	Steps            []StepRecord `json:"steps"`
 }

@@ -108,6 +108,7 @@ type options struct {
 	tokenCmd, stepUpCmd, auditKeyCmd         string
 	upgradeCmd, viewerCmd                    string
 	with                                     string
+	skip                                     string
 	dryRun                                   bool
 }
 
@@ -143,6 +144,7 @@ func parseOptions(args []string, stderr io.Writer) (options, error) {
 	fs.StringVar(&o.upgradeCmd, "upgrade-cmd", "", "shell command that rolls the chart upgrade")
 	fs.StringVar(&o.viewerCmd, "viewer-cmd", "", "shell command opening $WALKTHROUGH_RECONSTRUCTION for $WALKTHROUGH_DEVICE in the viewer on an emulator")
 	fs.StringVar(&o.with, "with", "", "comma-separated optional steps to run, such as 07b-viewer-on-emulator")
+	fs.StringVar(&o.skip, "skip", "", "comma-separated steps to leave out of a quicker, partial run, such as 03-staged-rollout; a step later steps need runs only its setup")
 	fs.BoolVar(&o.dryRun, "dry-run", false, "print the plan and exit; starts and changes nothing")
 	if err := fs.Parse(args); err != nil {
 		return o, fmt.Errorf("parse the flags: %w", err)
@@ -201,7 +203,7 @@ func execute(ctx context.Context, o options, stdout io.Writer) error {
 		return err
 	}
 	defer closeAll()
-	runner := &walkthrough.Runner{Steps: walkthrough.Steps(env), Store: store, Out: stdout, Now: time.Now, Enabled: enabledSteps(o.with)}
+	runner := &walkthrough.Runner{Steps: walkthrough.Steps(env), Store: store, Out: stdout, Now: time.Now, Enabled: enabledSteps(o.with), Skip: enabledSteps(o.skip)}
 	st, runErr := runner.Run(ctx)
 	if err := seal(o.out, st); err != nil {
 		return errors.Join(runErr, err)
@@ -266,6 +268,9 @@ func verifyBundle(args []string, stdout, stderr io.Writer) int {
 		return exitFailed
 	}
 	_, _ = fmt.Fprintf(stdout, "evidence bundle verified: %d steps, passed=%v, transcript sha256 %s\n", len(st.Steps), st.Passed, st.TranscriptSHA256)
+	if len(st.Skipped) > 0 {
+		_, _ = fmt.Fprintf(stdout, "partial run: %s left out by -skip\n", strings.Join(st.Skipped, ", "))
+	}
 	if !st.Passed {
 		return exitFailed
 	}

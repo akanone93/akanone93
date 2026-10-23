@@ -54,6 +54,10 @@ on:
         description: With only e2e-ios, e2e-android or e2e-android-26, run only this flow (bank, say)
         type: string
         default: ""
+      walkthrough-skip:
+        description: With only walkthrough, the steps to leave out of a quicker, partial run (03-staged-rollout, say); a step later steps need runs only its setup
+        type: string
+        default: ""
 
 permissions: {}
 
@@ -2128,6 +2132,8 @@ jobs:
         if: steps.licence.outputs.present == 'true'
         env:
           WALKTHROUGH_LICENSE_FILE: ${{ steps.licence.outputs.file }}
+          # Set only by a manual run that leaves steps out.
+          WALKTHROUGH_SKIP: ${{ inputs.walkthrough-skip }}
         run: make walkthrough-kind
       - name: Remove the test licence
         if: always() && steps.licence.outputs.present == 'true'

@@ -156,14 +156,15 @@ func (e *Env) releaseSteps() []Step {
 				"start a second fleet whose devices on the candidate report errors",
 				"the gate trips, the rollout pauses and rolls back, and the channel returns to the baseline",
 			},
-			Run: e.stepRollout,
+			Run:   e.stepRollout,
+			Setup: e.rolloutSetup,
 		},
 		{
 			ID: "04-kill-switch-break-glass", Title: "Kill switch through break-glass during a change freeze",
 			Verifies: []string{"REL-060", "GOV-024", "GOV-025", "NFR-024", "SYN-060"},
 			Plan: []string{
-				"open a change freeze; a kill switch without break-glass is refused",
-				"the kill switch through break-glass with a justification; the fleet applies it within the propagation bound",
+				"open a change freeze on production; a kill switch there without break-glass is refused",
+				"the kill switch through break-glass with a justification; the fleet's environment gets the same switch and the control document advances",
 				"the post-hoc review is opened by the action and closed by a second person",
 			},
 			Run: e.stepKillSwitch,
@@ -173,7 +174,7 @@ func (e *Env) releaseSteps() []Step {
 			Verifies: []string{"SYN-060", "REL-006", "NFR-024"},
 			Plan: []string{
 				"make the newest release mandatory and force a rollback to the baseline, with the fleet running",
-				"the fleet applies the control document within the propagation bound; both are withdrawn",
+				"the control document advances with the fleet online; both are withdrawn",
 			},
 			Run: e.stepMandatoryAndRollback,
 		},

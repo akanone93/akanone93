@@ -324,9 +324,13 @@ status=0
 	-fn-sdk "$repo/sdk/fn" -advertise "$gateway" -idp-port "$IDP_PORT" -sink-port "$SINK_PORT" -idp-cert "$work/idp.crt" -idp-key "$work/idp.key" -idp-ca "$work/ca.pem" \
 	-token-cmd "$TOKEN_CMD" -stepup-cmd "$STEPUP_CMD" \
 	-audit-key-cmd "$work/audit-key.sh" -upgrade-cmd "$here/walkthrough-kind.sh upgrade" \
-	-with "$with" ${viewer[@]+"${viewer[@]}"} || status=$?
+	-with "$with" -skip "${WALKTHROUGH_SKIP:-}" ${viewer[@]+"${viewer[@]}"} || status=$?
 
 step "verify the evidence bundle"
 "$work/walkthrough" verify -dir "$OUT"
 [ "$status" -eq 0 ] || fail "the walkthrough failed (exit $status); the failure is recorded in the signed bundle"
-echo "✓ walkthrough: nine steps passed; evidence in $OUT"
+if [ -n "${WALKTHROUGH_SKIP:-}" ]; then
+	echo "✓ walkthrough: a partial run passed, leaving out $WALKTHROUGH_SKIP; evidence in $OUT"
+else
+	echo "✓ walkthrough: nine steps passed; evidence in $OUT"
+fi

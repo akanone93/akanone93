@@ -19,8 +19,8 @@ import (
 // starts at the given version and advances when the fleet's kill switch is
 // thrown; production is frozen, so only its break-glass kill switch goes
 // through.
-func killSwitchRules(version *int, opts ...func(*[]rule)) []rule {
-	rules := []rule{
+func killSwitchRules(version *int) []rule {
+	return []rule{
 		{[]string{"freeze put"}, out(`{"id":"fz1"}`)},
 		{[]string{"control kill", "--env production", "--break-glass"}, out("")},
 		{[]string{"control kill", "--env staging"}, func(Command) Result { *version++; return Result{} }},
@@ -32,10 +32,6 @@ func killSwitchRules(version *int, opts ...func(*[]rule)) []rule {
 		{[]string{"breakglass list", "reviewed"}, out(`{"items":[{"id":"bg1"}]}`)},
 		{[]string{"freeze delete"}, out("deleted")},
 	}
-	for _, o := range opts {
-		o(&rules)
-	}
-	return rules
 }
 
 // Step 4: the production freeze refuses an ordinary kill switch, the
@@ -69,7 +65,24 @@ func TestKillSwitchStep(t *testing.T) {
 	}
 }
 
-// Step 4 fails when the fleet is too slow, when the kill switch is not
+// The propagation bound is a manual device check: a fleet that applies the
+// kill switch late still passes step 4, and the transcript records its count.
+func TestKillSwitchStepRecordsPropagation(t *testing.T) {
+	t.Parallel()
+	env, plux, fleet := testEnv(t)
+	version := 1
+	plux.rules = killSwitchRules(&version)
+	fleet.report.ControlApplied = 12
+	st, dir, err := runOneStep(t, env, "04-kill-switch-break-glass")
+	if err != nil || !st.Passed {
+		t.Fatalf("step failed: %v", err)
+	}
+	if got := allEvidence(t, dir); !strings.Contains(got, "12 control applications from") || !strings.Contains(got, "manual device check") {
+		t.Errorf("the transcript does not record the propagation: %s", got)
+	}
+}
+
+// Step 4 fails when the kill switch is not
 // refused under the freeze, when the control document does not advance and
 // when the actor may review their own action.
 func TestKillSwitchStepFailures(t *testing.T) {
@@ -79,7 +92,6 @@ func TestKillSwitchStepFailures(t *testing.T) {
 		tweak   func(*[]rule, *int)
 		want    string
 	}{
-		"fleet too slow": {applied: 12, want: "control applications"},
 		"freeze ignored": {applied: 20, tweak: func(r *[]rule, _ *int) { *r = append([]rule{{[]string{"control kill"}, out("")}}, *r...) }, want: "must be refused"},
 		"version stuck": {applied: 20, tweak: func(r *[]rule, v *int) {
 			*r = append([]rule{{[]string{"control kill", "--env staging"}, out("")}}, *r...)
