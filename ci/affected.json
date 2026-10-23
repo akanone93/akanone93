@@ -358,6 +358,27 @@
       "paths": ["schema/**", "mk/bench.mk"],
       "exclude": ["**/*.md", "**/android/**", "**/ios/**"]
     },
+    "bench-devloop": {
+      "description": "The dev loop's edit-to-device latency, server and transport (NFR-030, DEV-010): 200 edits over good_wifi, p95 under 350 ms; path-selected, and on the daily and manual runs (P10 plan, section 2.3)",
+      "goTest": ["backend/internal/devsession"],
+      "paths": ["backend/internal/devsession/**", "backend/internal/compiler/incremental/**", "packages/plux_flutter/lib/src/devtools_api/**", "mk/bench.mk"],
+      "exclude": ["**/*.md", "**/android/**", "**/ios/**"]
+    },
+    "bench-devapply": {
+      "description": "The device's share of the dev loop: applying a signed one-page dev bundle (NFR-030, DEV-010), p95 under 150 ms; path-selected, and on the daily and manual runs (P10 plan, section 2.3)",
+      "paths": ["packages/plux_flutter/lib/src/devtools_api/**", "packages/plux_flutter/test/devtools_api/dev_apply_bench_test.dart", "backend/internal/compiler/incremental/**", "mk/bench.mk"],
+      "exclude": ["**/*.md", "**/android/**", "**/ios/**"]
+    },
+    "devloop-session": {
+      "description": "The scripted debugging session: plux dev against an in-process server and a simulated device on the real dev socket (exit criterion X2; P10 plan, section 2.3)",
+      "goTest": ["backend/internal/devsession"],
+      "paths": ["backend/internal/devsession/**", "backend/cmd/plux/cmd_dev*.go", "mk/device.mk"],
+      "exclude": ["**/*.md"]
+    },
+    "quickstart-dry-run": {
+      "description": "The quick start's scripted steps that need no device, timed (HST-034, DX-001): plux create, pub get and analyze, validate and build, under five minutes (P10 plan, section 2.3)",
+      "paths": ["backend/internal/generator/templates/**", "backend/internal/generator/*.go", "backend/cmd/plux/cmd_create*.go", "backend/cmd/plux/quickstart_dry_run_test.go", "docs/guides/quick-start.md", "mk/device.mk"]
+    },
     "size-android": {
       "description": "What plux_flutter adds to the release APKs and App Bundle downloads (RT-061)",
       "go": ["tools/cmd/sizegate"],

@@ -103,4 +103,28 @@ fi
 if "$HELM" lint "$chart" -f "$chart/ci/backup-values.yaml" --set postgresql.cnpg.backup.archiveTimeout=10m >/dev/null 2>&1; then
 	fail "values.schema.json accepted an archiveTimeout above five minutes"
 fi
+
+echo "── dev sessions (DEV-002)"
+# The api ingress routes the WebSocket upgrade path and, on nginx, holds an idle
+# upgraded connection longer than devSession.idleTimeout (120 s by default).
+ing=$(render -f "$chart/ci/ha-values.yaml" --show-only templates/api.yaml)
+grep -q 'path: /dev/socket' <<<"$ing" || fail "the api ingress does not route /dev/socket"
+grep -q 'nginx.ingress.kubernetes.io/proxy-read-timeout: "150"' <<<"$ing" || fail "the ingress read timeout is not idleTimeout (120s) plus 30 s"
+grep -q 'nginx.ingress.kubernetes.io/proxy-send-timeout: "150"' <<<"$ing" || fail "the ingress send timeout is not idleTimeout (120s) plus 30 s"
+ing=$(render -f "$chart/ci/ha-values.yaml" --set devSession.idleTimeout=10m --show-only templates/api.yaml)
+grep -q 'proxy-read-timeout: "630"' <<<"$ing" || fail "the ingress read timeout does not follow devSession.idleTimeout"
+# The server's devSession section comes from the values.
+cfg=$(render -f "$chart/ci/ha-values.yaml" --set devSession.pingInterval=20s --set 'devSession.enabledEnvironments={development,staging}' --show-only templates/configmap.yaml)
+grep -Pzq 'devSession:\n +enabledEnvironments:\n +- development\n +- staging\n' <<<"$cfg" || fail "devSession.enabledEnvironments is not in the api configuration"
+grep -q 'idleTimeout: 120s' <<<"$cfg" || fail "devSession.idleTimeout is not in the api configuration"
+grep -q 'pingInterval: 20s' <<<"$cfg" || fail "devSession.pingInterval is not in the api configuration"
+# Disabled, the ingress carries neither the path nor the timeouts; a bad duration is refused.
+ing=$(render -f "$chart/ci/ha-values.yaml" --set 'devSession.enabledEnvironments=null' --show-only templates/api.yaml)
+if grep -Eq '/dev/socket|proxy-read-timeout' <<<"$ing"; then
+	fail "the ingress routes /dev/socket although dev sessions are disabled"
+fi
+if "$HELM" lint "$chart" -f "$chart/ci/default-values.yaml" --set devSession.idleTimeout=soon >/dev/null 2>&1; then
+	fail "values.schema.json accepted a devSession.idleTimeout that is not a duration"
+fi
+
 echo "✓ chart: ${#values[@]} values files rendered and validated"

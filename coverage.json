@@ -9,7 +9,9 @@
       "backend/internal/builderrole": 85,
       "backend/internal/bundle": 85,
       "backend/internal/compiler": 85,
+      "backend/internal/compiler/incremental": 80,
       "backend/internal/delta": 85,
+      "backend/internal/devsession": 85,
       "backend/internal/dpop": 85,
       "backend/internal/egress": 85,
       "backend/internal/fnhost": 85,
@@ -22,6 +24,7 @@
   "dart": {
     "floor": 80,
     "packages": {
+      "apps/plux_dev/lib": 80,
       "packages/plux_flutter/lib/src/bundle": 85,
       "packages/plux_flutter/lib/src/delta": 85,
       "packages/plux_flutter/lib/src/mmap": 85,
