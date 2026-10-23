@@ -67,3 +67,13 @@ Phishable and not hardware-bound; `SEC-103` names WebAuthn. Rejected.
 
 Platform-specific, large, and a new attack surface in a tool that runs on developer machines.
 The browser already solves it. Rejected.
+
+## Revision (2026-10-22, P10: step-up for dev sessions)
+
+The follow-up above left open whether starting a dev session needs step-up. Decided by the
+maintainer (P10 plan D-5; ADR-0087): creating a dev session requires step-up (`SEC-103`) **only
+when the organisation's policy requires it** for the environment. The default is off, because a
+dev session exists only for non-production environments and its pairing token is short-lived and
+single-use. The rule is core, not edition-gated (`GOV-032`). The new permissions are
+`devsession.create` (Developer and above: start, push, command) and `devsession.observe` (read
+the stream). The CLI uses the browser step-up of this ADR when the policy asks for it.

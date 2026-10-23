@@ -96,5 +96,12 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0084](0084-enterprise-edition-and-licence-files.md) | Enterprise edition boundary and licence files | P9 | Accepted |
 | [0085](0085-slos-dashboards-and-alert-rules.md) | Service level objectives, dashboards and alert rules | P9 | Accepted |
 | [0086](0086-restriction-policies-and-effective-permissions.md) | Restriction policies, effective permissions and explain | P9 | Accepted |
+| [0087](0087-dev-session-transport-trust-and-pairing.md) | Dev-session transport, trust and pairing: WebSocket device channel, development-signed dev bundles, pairing token, socket ticket | P10 | Accepted |
+| [0088](0088-splitting-the-studio-clauses.md) | Splitting the Studio clauses of the dev-session requirements | P10 | Accepted |
+| [0089](0089-incremental-compilation-and-hot-apply.md) | Incremental compilation and hot apply | P10 | Accepted |
+| [0090](0090-dev-stream-events-redaction-and-trace-file.md) | Dev stream event schema, redaction and the trace file | P10 | Accepted |
+| [0091](0091-devtools-in-host-apps-and-release-absence.md) | Devtools in host apps, release absence and the `plux_security` development mode | P10 | Accepted |
+| [0092](0092-background-sync.md) | Background sync | P10 | Accepted |
+| [0093](0093-dev-app-and-host-kit.md) | The Dev app and the host kit | P10 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

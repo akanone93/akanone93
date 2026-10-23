@@ -87,3 +87,13 @@ its output approximate evidence. Rejected.
 ### Option 3 — device screenshots
 
 Captures personal and secure content by design, contradicts secure UI (ADR-0059) by design, and only works for devices that opted in. Rejected.
+
+## Revision (2026-10-22, P10: the viewer stays a separate app)
+
+The Decision above says the viewer host is "a minimal host that P10 grows into the Dev app".
+Decided by the maintainer (P10 plan D-6; ADR-0093): `apps/plux_viewer` does **not** become the Dev
+app. The Dev app is a second app, `apps/plux_dev`, and the two share the new unpublished package
+`packages/plux_host_kit` (sign-in, link handling, root-key pinning, release opener). The viewer
+keeps pinning production root keys and opening reconstruction releases; the Dev app pins
+development root keys. One binary never trusts both sets (`SEC-056`). The viewer's behaviour does
+not change.
