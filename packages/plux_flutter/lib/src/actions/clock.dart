@@ -44,3 +44,116 @@ class ActionClock {
         '${h.substring(16, 20)}-${h.substring(20)}';
   }
 }
+
+/// A clock that a development session can fix at an instant, advance and
+/// hand back to the real time (`DEV-031`). Until it is set it behaves as
+/// [ActionClock]; while it is set, time passes only through [advance], which
+/// runs the timers and waits that fall due, in order. Only builds with
+/// `kPluxDevtools` use it.
+class FakeableActionClock extends ActionClock {
+  /// Creates a clock that follows real time.
+  FakeableActionClock();
+
+  Duration? _fixed;
+  int _next = 0;
+  final List<_FakeTimer> _timers = [];
+
+  /// Whether the clock is fixed.
+  bool get isFaked => _fixed != null;
+
+  @override
+  Duration get now => _fixed ?? super.now;
+
+  /// Fixes the clock at [instant]. Timers made while it follows real time
+  /// keep running on real time.
+  void set(Duration instant) => _fixed = instant;
+
+  /// Moves the fixed clock forward by [d], running what falls due on the
+  /// way; throws [StateError] when the clock is not fixed or [d] is
+  /// negative.
+  void advance(Duration d) {
+    final from = _fixed;
+    if (from == null) throw StateError('the clock is not fixed');
+    if (d.isNegative) throw StateError('time cannot go back');
+    final target = from + d;
+    while (true) {
+      final due = _timers.where((t) => t.due <= target).toList()
+        ..sort((a, b) {
+          final c = a.due.compareTo(b.due);
+          return c != 0 ? c : a.order.compareTo(b.order);
+        });
+      if (due.isEmpty) break;
+      final t = due.first;
+      _fixed = t.due > _fixed! ? t.due : _fixed;
+      t.fire();
+    }
+    _fixed = target;
+  }
+
+  /// Returns to real time; the timers still waiting on the fixed clock are
+  /// cancelled.
+  void reset() {
+    _fixed = null;
+    for (final t in _timers.toList()) {
+      t.cancel();
+    }
+  }
+
+  @override
+  Timer timer(Duration d, void Function() f) =>
+      isFaked ? _add(d, f, periodic: false) : super.timer(d, f);
+
+  @override
+  Timer periodic(Duration d, void Function() f) =>
+      isFaked ? _add(d, f, periodic: true) : super.periodic(d, f);
+
+  @override
+  Future<void> sleep(Duration d) {
+    if (!isFaked) return super.sleep(d);
+    final done = Completer<void>();
+    _add(d, done.complete, periodic: false);
+    return done.future;
+  }
+
+  _FakeTimer _add(Duration d, void Function() f, {required bool periodic}) {
+    final t = _FakeTimer(this, now + d, periodic ? d : null, f, _next++);
+    _timers.add(t);
+    return t;
+  }
+}
+
+final class _FakeTimer implements Timer {
+  _FakeTimer(this._clock, this.due, this._every, this._f, this.order);
+
+  final FakeableActionClock _clock;
+  final Duration? _every;
+  final void Function() _f;
+  final int order;
+  Duration due;
+  bool _active = true;
+  int _ticks = 0;
+
+  void fire() {
+    _ticks++;
+    final every = _every;
+    if (every == null) {
+      _active = false;
+      _clock._timers.remove(this);
+    } else {
+      due += every <= Duration.zero ? const Duration(microseconds: 1) : every;
+    }
+    _f();
+  }
+
+  @override
+  void cancel() {
+    _active = false;
+    _clock._timers.remove(this);
+  }
+
+  @override
+  bool get isActive => _active;
+
+  @override
+  int get tick => _ticks;
+}

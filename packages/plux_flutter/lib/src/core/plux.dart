@@ -13,6 +13,9 @@ import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
+import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show kPluxDevtools;
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
@@ -403,8 +406,12 @@ final class PluxScope extends StatelessWidget {
     } on StateError {
       enclosing = null;
     }
-    if (identical(enclosing, container)) return child;
-    return UncontrolledProviderScope(container: container, child: child);
+    final scoped = identical(enclosing, container)
+        ? child
+        : UncontrolledProviderScope(container: container, child: child);
+    final rt = container.read(pluxRuntimeProvider);
+    if (!kPluxDevtools || rt == null) return scoped;
+    return DevPreviewScope(overrides: rt.devPreview, child: scoped);
   }
 }
 

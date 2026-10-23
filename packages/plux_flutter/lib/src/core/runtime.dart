@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/action_error.dart';
+import 'package:plux_flutter/src/actions/clock.dart';
 import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/actions/trace.dart';
 import 'package:plux_flutter/src/actions/triggers.dart';
@@ -44,6 +45,7 @@ import 'package:plux_flutter/src/core/plux_view.dart';
 import 'package:plux_flutter/src/core/trigger_sources.dart';
 import 'package:plux_flutter/src/data/client.dart' show AuthSession;
 import 'package:plux_flutter/src/data/live_config.dart' show ConfigSource;
+import 'package:plux_flutter/src/data/mocks.dart';
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/worker.dart';
 import 'package:plux_flutter/src/db/adapter.dart';
@@ -52,6 +54,9 @@ import 'package:plux_flutter/src/db/release_declarations.dart';
 import 'package:plux_flutter/src/db/service.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
+import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show kPluxDevtools;
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/experiments/experiment_service.dart';
@@ -665,6 +670,20 @@ final class PluxRuntime with WidgetsBindingObserver {
     ),
   );
 
+  /// The mock selection of a dev session (`DAT-080`, `DEV-031`); only builds
+  /// with `kPluxDevtools` give it to the data layer.
+  final MutableDataMocks dataMocks = MutableDataMocks();
+
+  /// The clock a dev session fixes and advances (`DEV-031`).
+  final FakeableActionClock devClock = FakeableActionClock();
+
+  /// The clock the action engine runs on: the dev session's in builds with
+  /// `kPluxDevtools`, the real one in every other.
+  ActionClock get actionClock => kPluxDevtools ? devClock : const ActionClock();
+
+  /// The locale, theme and text scale a dev session previews (`DEV-011`).
+  final DevPreviewOverrides devPreview = DevPreviewOverrides();
+
   /// The data layer's services (ADR-0048): loads and failures of data
   /// sources become trigger events (ACT-002).
   late final DataServices _dataServices = DataServices(
@@ -675,6 +694,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     environment: config.environment,
     record: telemetry.record,
     report: _report,
+    mocks: kPluxDevtools ? dataMocks : const DataMocks(),
     events: DataTriggers(triggers),
     ioEvents: DataTriggers(triggers),
     streamTransport: _dataWorker,
@@ -1001,6 +1021,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       ),
       triggers: triggers,
       traces: traces,
+      clock: actionClock,
       sync: () => unawaited(sync().then((_) {}, onError: (Object _) {})),
       logout: logout,
       services: {
@@ -1250,6 +1271,23 @@ final class PluxRuntime with WidgetsBindingObserver {
       return false;
     }
     return _openTarget(r, target);
+  }
+
+  /// Opens [route] with [params] on the host's navigator, through its
+  /// guards, as a deep link would (`DEV-011`); false, reported, when it
+  /// cannot be opened.
+  Future<bool> openRoute(String route, Map<String, Object?> params) async {
+    final r = active.value;
+    if (r == null) {
+      _report(
+        const PluxException(
+          PluxErrorCode.navigationRefused,
+          'no release yet to open a route of',
+        ),
+      );
+      return false;
+    }
+    return _openTarget(r, (route: route, params: params));
   }
 
   /// Opens the route a notification's [payload] names under the app's
