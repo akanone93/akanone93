@@ -113,7 +113,7 @@ void main() {
   tearDown(() => bridge.detach());
 
   test(
-    'DEV-020 ACT-030: a new action run is sent once, keyed by its run id',
+    'a new action run is sent once, keyed by its run id [DEV-020] [ACT-030]',
     () {
       diag.actionTraces.value = [_trace(1)];
       diag.actionTraces.value = [_trace(1), _trace(2)];
@@ -130,7 +130,7 @@ void main() {
     },
   );
 
-  test('DEV-020: a reported problem becomes an error event with its node', () {
+  test('a reported problem becomes an error event with its node [DEV-020]', () {
     diag.log.value = [
       PluxDiagnostic(
         at: DateTime(2026),
@@ -147,7 +147,7 @@ void main() {
     expect(e['severity'], 'SEVERITY_ERROR');
   });
 
-  test('DEV-020: the logger sends a log line', () {
+  test('the logger sends a log line [DEV-020]', () {
     bridge.logger.log(DevLogLevel.info, 'runtime', 'ready', nodePath: '/a');
     expect(sink.only('log'), {
       'level': 'DEV_LOG_LEVEL_INFO',
@@ -157,27 +157,30 @@ void main() {
     });
   });
 
-  test('DEV-020 SCH-012: a sensitive state value is withheld and flagged', () {
-    final model = _model();
-    bridge.stateTap(
-      model,
-      {'token': 'a', 'count': 1},
-      {'token': 'b', 'count': 2},
-    );
-    final d = sink.only('stateDiff');
-    expect(d['scope'], 'page');
-    final changes = (d['changes']! as List).cast<Map<String, Object?>>();
-    final token = changes.firstWhere((c) => c['path'] == 'token');
-    expect(token['redacted'], true);
-    expect(token.containsKey('oldValue'), isFalse);
-    expect(token.containsKey('newValue'), isFalse);
-    final count = changes.firstWhere((c) => c['path'] == 'count');
-    expect(_decode(count['oldValue']), '1');
-    expect(_decode(count['newValue']), '2');
-    expect(jsonEncode(d), isNot(contains(base64.encode(utf8.encode('"a"')))));
-  });
+  test(
+    'a sensitive state value is withheld and flagged [DEV-020] [SCH-012]',
+    () {
+      final model = _model();
+      bridge.stateTap(
+        model,
+        {'token': 'a', 'count': 1},
+        {'token': 'b', 'count': 2},
+      );
+      final d = sink.only('stateDiff');
+      expect(d['scope'], 'page');
+      final changes = (d['changes']! as List).cast<Map<String, Object?>>();
+      final token = changes.firstWhere((c) => c['path'] == 'token');
+      expect(token['redacted'], true);
+      expect(token.containsKey('oldValue'), isFalse);
+      expect(token.containsKey('newValue'), isFalse);
+      final count = changes.firstWhere((c) => c['path'] == 'count');
+      expect(_decode(count['oldValue']), '1');
+      expect(_decode(count['newValue']), '2');
+      expect(jsonEncode(d), isNot(contains(base64.encode(utf8.encode('"a"')))));
+    },
+  );
 
-  test('DEV-020: a state diff over stateDiffBytes keeps paths only', () {
+  test('a state diff over stateDiffBytes keeps paths only [DEV-020]', () {
     bridge.stateTap(_model(), {'count': 1}, {'count': 'x' * 200});
     final d = sink.only('stateDiff');
     expect(d['truncated'], true);
@@ -186,7 +189,7 @@ void main() {
     expect(c.containsKey('newValue'), isFalse);
   });
 
-  test('DEV-020: a scope write reaches the tap through the model', () {
+  test('a scope write reaches the tap through the model [DEV-020]', () {
     final seen = <String>[];
     final model = ScopeModel(
       kind: StateScopeKind.app,
@@ -211,7 +214,7 @@ void main() {
   });
 
   test(
-    'DEV-020 SCH-012: a network event has no headers, bodies or queries',
+    'a network event has no headers, bodies or queries [DEV-020] [SCH-012]',
     () {
       bridge.networkTap(
         DevNetworkCall(
@@ -243,7 +246,7 @@ void main() {
     },
   );
 
-  test('FN-036: a function call carries the trace id of its run', () {
+  test('a function call carries the trace id of its run [FN-036]', () {
     bridge.functionTap(
       DevFunctionCall(
         function: 'orders.price',
@@ -265,7 +268,7 @@ void main() {
     expect(f['businessErrorCode'], 'OUT_OF_STOCK');
   });
 
-  test('DEV-020: sync stages map to sync events', () {
+  test('sync stages map to sync events [DEV-020]', () {
     diag.syncStatus.value = const SyncChecking();
     diag.syncStatus.value = const SyncDownloading(10, 100);
     diag.syncStatus.value = const SyncStaged(7);
@@ -282,7 +285,7 @@ void main() {
     expect(staged['releaseSequence'], '7');
   });
 
-  test('DEV-020: frame timings are batched per window', () {
+  test('frame timings are batched per window [DEV-020]', () {
     int us(int v) => v;
     SchedulerBinding.instance.platformDispatcher.onReportTimings!([
       FrameTiming(
@@ -304,7 +307,7 @@ void main() {
     expect(frame['janky'], true);
   });
 
-  test('DEV-020: detaching stops every source', () {
+  test('detaching stops every source [DEV-020]', () {
     bridge.detach();
     diag.actionTraces.value = [_trace(1)];
     diag.syncStatus.value = const SyncChecking();
@@ -324,7 +327,7 @@ void main() {
     expect(sink.events, isEmpty);
   });
 
-  test('DEV-020: a bridge that was never attached emits nothing', () {
+  test('a bridge that was never attached emits nothing [DEV-020]', () {
     final other = DevEventBridge(diagnostics: diag);
     diag.actionTraces.value = [_trace(9)];
     other.stateTap(_model(), {'count': 1}, {'count': 2});

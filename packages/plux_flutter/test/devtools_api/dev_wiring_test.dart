@@ -97,17 +97,18 @@ void main() {
     await Future<void>.delayed(Duration.zero);
   }
 
-  testWidgets('DEV-020 ACT-030 FN-036: with no pairing the taps are null', (
-    tester,
-  ) async {
-    await start(tester);
-    expect(h.runtime.devBridge, isNull);
-    expect(renderer().data!.client.devTap, isNull);
-    expect(functions().devTap, isNull);
-  });
+  testWidgets(
+    'with no pairing the taps are null [DEV-020] [ACT-030] [FN-036]',
+    (tester) async {
+      await start(tester);
+      expect(h.runtime.devBridge, isNull);
+      expect(renderer().data!.client.devTap, isNull);
+      expect(functions().devTap, isNull);
+    },
+  );
 
   testWidgets(
-    'DEV-020 ACT-030 FN-036: every source streams once attached and none '
+    'every source streams once attached and none [DEV-020] [ACT-030] [FN-036]'
     'after detach',
     (tester) async {
       await start(tester);

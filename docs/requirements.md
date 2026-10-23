@@ -728,7 +728,7 @@ The full catalogue with phases is in Appendix C.
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `CMP-050` | P1 | MUST | Compiling a 50-page plugin without asset processing **MUST** complete in ≤ 1 s on the CI reference runner. | DONE |
-| `CMP-051` | P10 | MUST | Incremental compilation **MUST** recompile only changed pages and their dependants, enabling edit-to-device latency within `DEV-010`. | SPEC |
+| `CMP-051` | P10 | MUST | Incremental compilation **MUST** recompile only changed pages and their dependants, enabling edit-to-device latency within `DEV-010`. | DONE |
 | `CMP-052` | P1 | MUST | The compiler **MUST** be fuzzed continuously (`QA-004`) and **MUST NOT** panic on any input. | DONE |
 
 ### 9.5 Bundle format
@@ -846,7 +846,7 @@ sequenceDiagram
 | `SYN-011` | P3 | MUST | After patching, every section and bundle hash **MUST** match the manifest; on mismatch the runtime **MUST** discard the result and download the full bundle once before failing the sync. | DONE |
 | `SYN-012` | P3 | MUST | The runtime **MUST** garbage-collect releases other than active, staged and last known good, enforce the device disk quota of the limits framework (§30.4), and handle low-storage conditions without corrupting the active release. | DONE |
 | `SYN-013` | P3 | MUST | The runtime **MUST** publish typed sync events (`checking`, `upToDate`, `downloading(progress)`, `staged`, `activated`, `failed(error)`, `rolledBack`) on `Plux.syncEvents`. | DONE |
-| `SYN-014` | P10 | SHOULD | The runtime **SHOULD** offer opt-in background sync (Android WorkManager, iOS BGTaskScheduler) so updates are staged before the next app start. Deferred from P3 to P10 with the other host tooling (P3 closing decisions; P10 plan D-9); the background task verifies and stages a release and never activates it (ADR-0092). | SPEC |
+| `SYN-014` | P10 | SHOULD | The runtime **SHOULD** offer opt-in background sync (Android WorkManager, iOS BGTaskScheduler) so updates are staged before the next app start. Deferred from P3 to P10 with the other host tooling (P3 closing decisions; P10 plan D-9); the background task verifies and stages a release and never activates it (ADR-0092). | WIP |
 | `SYN-015` | P3 | MUST | Sync **MUST** emit telemetry: duration, bytes transferred, delta ratio, number of plugins updated, failures by reason (`ANL-001`). | DONE |
 | `SYN-060` | P9 | MUST | The runtime **MUST** check a lightweight signed **control document** (kill switches, forced rollback, mandatory update) on app resume and at most every 5 minutes while in foreground, and **SHOULD** accept silent push notifications (FCM/APNs) that trigger an immediate check. Target propagation for online devices: ≤ 60 s p95. | DONE |
 
@@ -1010,7 +1010,7 @@ A Plux screen is addressed by its **app-wide unique route name** with typed para
 | `HST-021` | P4 | MUST | **Mixed screens** **MUST** be supported in both directions: a plugin page may contain native slots (`WGT-033`), and a native screen may contain any number of `PluxView`s (`NAV-004`). Both sides share state through exposed state entries (`STA-030`), which are observable from native code as streams, so native and plugin content on one screen stay consistent. | DONE |
 | `HST-032` | P4 | MUST | `plux init` **MUST** add the dependencies, create configuration, embed the signing root public keys, wire initialisation into `main.dart` where it can do so safely (or print exact instructions), and run `plux doctor`. | DONE |
 | `HST-033` | P4 | MUST | The runtime **MUST** work inside Flutter modules embedded in native Android and iOS apps (add-to-app). | DONE |
-| `HST-034` | P10 | MUST | Time from `flutter create` to rendering a published Plux page on a device, following the quick-start guide, **MUST** be ≤ 10 minutes for a developer new to Plux (verified by recorded usability sessions, `DX-001`). | SPEC |
+| `HST-034` | P10 | MUST | Time from `flutter create` to rendering a published Plux page on a device, following the quick-start guide, **MUST** be ≤ 10 minutes for a developer new to Plux (verified by recorded usability sessions, `DX-001`). | WIP |
 
 ---
 
@@ -1031,7 +1031,7 @@ An **action graph** is a small, typed, bounded program attached to a trigger. No
 | `ACT-007` | P5 | MUST | Mutating API and function steps **MUST** support **optimistic updates**: apply a state change immediately and roll it back automatically if the step fails. | DONE |
 | `ACT-008` | P5 | MUST | Interpreter overhead **MUST** be ≤ 20 µs per step p95 on the mid-tier reference device, excluding the step's own work. | WIP |
 | `ACT-020` | P5 | MUST | Errors **MUST** be typed (`network`, `http(status)`, `timeout`, `validation`, `function(code)`, `permission`, `cancelled`, `custom`) and routed to the step's `onError` edge, then the page, plugin and app error handlers in that order; unhandled errors show a themed, localised error message and are reported. | DONE |
-| `ACT-030` | P5 | MUST | Every action run **MUST** produce a structured trace (run ID, trigger, steps with start/end, status, redacted inputs/outputs, errors). Traces are streamed to paired Studio sessions in development (`DEV-020`) and sampled into telemetry in production. | WIP |
+| `ACT-030` | P5 | MUST | Every action run **MUST** produce a structured trace (run ID, trigger, steps with start/end, status, redacted inputs/outputs, errors). Traces are streamed to paired Studio sessions in development (`DEV-020`) and sampled into telemetry in production. | DONE |
 | `ACT-031` | P5 | MUST | Values tagged `sensitive` **MUST** never appear in traces, logs or telemetry, even in development. | DONE |
 | `ACT-060` | P4 | MUST | Host apps **MUST** be able to register custom actions with typed inputs and outputs in the one-place startup registration (`HST-031`), without modifying existing code; Studio lists them in the action catalogue. | WIP |
 | `ACT-061` | P5 | MUST | Plugins **MUST** be able to declare reusable named action graphs ("flows") callable from other graphs with typed inputs and outputs, within the plugin or across plugins through declared exports. | DONE |
@@ -1433,7 +1433,7 @@ plux_fn::function!(calculate_schedule);
 | `FN-033` | P11 | MUST | Studio **MUST** provide a Rust editor (Monaco) with `rust-analyzer`-backed completion, diagnostics and formatting (served through a language-server bridge in the `worker`), starter templates (loan schedule, fee calculator, eligibility, currency conversion), dependency management and a test runner. | SPEC |
 | `FN-034` | P11 | MUST | Stored test cases **MUST** be runnable in Studio (split from `FN-031`). | SPEC |
 | `FN-035` | P11 | MUST | Per-function metrics and logs **MUST** be shown in Studio (split from `FN-032`). | SPEC |
-| `FN-036` | P10 | MUST | Device invocations **MUST** appear in dev-session traces (`DEV-020`; split from `FN-032`). | SPEC |
+| `FN-036` | P10 | MUST | Device invocations **MUST** appear in dev-session traces (`DEV-020`; split from `FN-032`). | DONE |
 | `FN-040` | P15 | MAY | Go and other languages that compile to WASM **MAY** be supported later, using the language-neutral ABI of `FN-015`. | SPEC |
 
 ---
@@ -1605,21 +1605,21 @@ sequenceDiagram
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `DEV-001` | P10 | MUST | The Plux Dev app **MUST** be a Flutter host app built on `plux_flutter` and `plux_devtools`, installable on Android and iOS, including every first-party optional package so that any plugin can be previewed. `plux_security` **MUST** run in the Dev app in a report-only development mode: its detections appear in the dev stream and a dev command can simulate one, so plugin authors can test how secure pages and strong-customer-authentication steps react, but a detection does not lower the assurance level, and this mode exists only for development environments (ADR-0091). | SPEC |
-| `DEV-002` | P10 | MUST | Pairing **MUST** use a QR code containing a short-lived (≤ 2 min), single-use, signed pairing token bound to the user who creates the session (in Studio or with the CLI), the app and the development environment; several devices **MAY** be paired to one session. | SPEC |
-| `DEV-003` | P10 | MUST | Dev sessions **MUST** be possible only for non-production environments, and dev bundles **MUST** be signed with development keys that production runtimes reject (`SEC-056`). | SPEC |
-| `DEV-010` | P10 | MUST | Draft edits **MUST** reach paired devices within 500 ms p95 from the edit being saved (Studio's autosave, or a file save in `plux dev`) on a normal broadband/Wi-Fi connection, via incremental compilation (`CMP-051`), and **MUST** be hot-applied while preserving page state where the state schema is compatible. P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile (`NFR-030`); Studio's autosave joins the measurement in P11. | SPEC |
-| `DEV-011` | P10 | MUST | A paired client — the CLI in P10 — **MUST** be able to open any screen on a chosen paired device with chosen parameters, locale (including the pseudo-locale), theme, text scale and data-source mock state. The device carries out the command and reports the result in the stream. | SPEC |
-| `DEV-020` | P10 | MUST | Devices **MUST** stream to Studio: runtime logs; **action traces as a process flow** (every run, step, branch, timing, redacted inputs and outputs, errors); state changes; network calls (method, URL, status, timing, redacted headers and bodies); function calls with the server-side function logs merged by trace ID; sync events; frame timings; errors with node paths. | SPEC |
-| `DEV-021` | P10 | MUST | The stream **MUST** be filterable, searchable, pausable and exportable (a shareable trace file for bug reports), and **MUST** keep working over flaky networks with bounded buffering. | SPEC |
-| `DEV-030` | P10 | MUST | **Inspect mode** **MUST** let a developer tap any widget on the device and receive the corresponding node, identified by node index and document path, in the stream; a command from a paired client **MUST** highlight a chosen node on the device. | SPEC |
-| `DEV-031` | P10 | MUST | A paired client **MUST** be able to edit state values, switch data-source mocks and their states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock, and trigger lifecycle events on a paired device. | SPEC |
-| `DEV-032` | P10 | SHOULD | A paired client **SHOULD** be able to evaluate a PXL expression against the live state of a paired device, read-only by default. | SPEC |
-| `DEV-033` | P10 | SHOULD | A paired client **SHOULD** be able to capture a screenshot of the current page of a paired device; platform views are marked as not captured. | SPEC |
-| `DEV-034` | P10 | MUST | Performance and accessibility overlays (frame chart, rebuild counters, touch-target and contrast highlights) **MUST** be toggleable on the device. | SPEC |
-| `DEV-040` | P10 | MUST | Developers **MUST** be able to pair their own host app in debug builds with `plux_devtools`, with the same capabilities as the Dev app. | SPEC |
-| `DEV-041` | P10 | MUST | A terminal viewer (`plux dev logs`) **MUST** stream the same data for developers who are not using Studio. | SPEC |
-| `DEV-050` | P10 | MUST | `plux_devtools` **MUST** be excluded from release builds by compile-time constants and tree shaking, verified by a CI test that inspects a release build for devtools symbols (`SEC-074`). | SPEC |
+| `DEV-001` | P10 | MUST | The Plux Dev app **MUST** be a Flutter host app built on `plux_flutter` and `plux_devtools`, installable on Android and iOS, including every first-party optional package so that any plugin can be previewed. `plux_security` **MUST** run in the Dev app in a report-only development mode: its detections appear in the dev stream and a dev command can simulate one, so plugin authors can test how secure pages and strong-customer-authentication steps react, but a detection does not lower the assurance level, and this mode exists only for development environments (ADR-0091). | WIP |
+| `DEV-002` | P10 | MUST | Pairing **MUST** use a QR code containing a short-lived (≤ 2 min), single-use, signed pairing token bound to the user who creates the session (in Studio or with the CLI), the app and the development environment; several devices **MAY** be paired to one session. | DONE |
+| `DEV-003` | P10 | MUST | Dev sessions **MUST** be possible only for non-production environments, and dev bundles **MUST** be signed with development keys that production runtimes reject (`SEC-056`). | DONE |
+| `DEV-010` | P10 | MUST | Draft edits **MUST** reach paired devices within 500 ms p95 from the edit being saved (Studio's autosave, or a file save in `plux dev`) on a normal broadband/Wi-Fi connection, via incremental compilation (`CMP-051`), and **MUST** be hot-applied while preserving page state where the state schema is compatible. P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile (`NFR-030`); Studio's autosave joins the measurement in P11. | DONE |
+| `DEV-011` | P10 | MUST | A paired client — the CLI in P10 — **MUST** be able to open any screen on a chosen paired device with chosen parameters, locale (including the pseudo-locale), theme, text scale and data-source mock state. The device carries out the command and reports the result in the stream. | DONE |
+| `DEV-020` | P10 | MUST | Devices **MUST** stream to Studio: runtime logs; **action traces as a process flow** (every run, step, branch, timing, redacted inputs and outputs, errors); state changes; network calls (method, URL, status, timing, redacted headers and bodies); function calls with the server-side function logs merged by trace ID; sync events; frame timings; errors with node paths. | WIP |
+| `DEV-021` | P10 | MUST | The stream **MUST** be filterable, searchable, pausable and exportable (a shareable trace file for bug reports), and **MUST** keep working over flaky networks with bounded buffering. | DONE |
+| `DEV-030` | P10 | MUST | **Inspect mode** **MUST** let a developer tap any widget on the device and receive the corresponding node, identified by node index and document path, in the stream; a command from a paired client **MUST** highlight a chosen node on the device. | DONE |
+| `DEV-031` | P10 | MUST | A paired client **MUST** be able to edit state values, switch data-source mocks and their states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock, and trigger lifecycle events on a paired device. | DONE |
+| `DEV-032` | P10 | SHOULD | A paired client **SHOULD** be able to evaluate a PXL expression against the live state of a paired device, read-only by default. | DONE |
+| `DEV-033` | P10 | SHOULD | A paired client **SHOULD** be able to capture a screenshot of the current page of a paired device; platform views are marked as not captured. | DONE |
+| `DEV-034` | P10 | MUST | Performance and accessibility overlays (frame chart, rebuild counters, touch-target and contrast highlights) **MUST** be toggleable on the device. | DONE |
+| `DEV-040` | P10 | MUST | Developers **MUST** be able to pair their own host app in debug builds with `plux_devtools`, with the same capabilities as the Dev app. | DONE |
+| `DEV-041` | P10 | MUST | A terminal viewer (`plux dev logs`) **MUST** stream the same data for developers who are not using Studio. | DONE |
+| `DEV-050` | P10 | MUST | `plux_devtools` **MUST** be excluded from release builds by compile-time constants and tree shaking, verified by a CI test that inspects a release build for devtools symbols (`SEC-074`). | WIP |
 
 ---
 
@@ -1845,7 +1845,7 @@ Studio's side of the live debugging of §20. The device, server and CLI capabili
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `DX-001` | P10 | MUST | The quick start **MUST** get a new developer from `flutter create` to a published Plux page on a device in ≤ 10 minutes (`HST-034`). | SPEC |
+| `DX-001` | P10 | MUST | The quick start **MUST** get a new developer from `flutter create` to a published Plux page on a device in ≤ 10 minutes (`HST-034`). | WIP |
 | `DX-002` | P3 | MUST | A documentation site **MUST** cover concepts, quick start, guides per use case (financial services, delivery, campaigns, super-app, no-code apps), the widget catalogue (generated from descriptors), the action catalogue, PXL reference, API references (dartdoc, Go doc, protobuf docs), the security whitepaper, the compliance pack and runbooks. | WIP |
 | `DX-003` | P1 | MUST | Every error and diagnostic **MUST** have a stable code (Appendix F), a clear message, the likely cause, a suggested fix and a link to its documentation page. | DONE |
 | `DX-004` | P5 | MUST | Reference host apps **MUST** be maintained: **Plux Bank** (accounts, transfers with SCA, loan calculator via Functions, KYC capture, secure PIN, English/German/Arabic/Amharic, `maximum` profile) and **Plux Express** (catalogue, cart, scheduled campaign, A/B banners, live order tracking via WebSocket, courier flow with offline outbox), plus a minimal **Starter** app. | DONE |
@@ -2037,7 +2037,7 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `NFR-023` | P9 | MUST | Scale of one HA installation (with CDN) | ≥ 1,000,000 active devices, ≥ 100 apps | DONE |
 | `NFR-024` | P9 | MUST | Kill-switch / control propagation | ≤ 60 s p95 for online devices | DONE |
 | `NFR-025` | P6 | MUST | Gateway overhead and device-request verification at the server | gateway ≤ 5 ms p95 added per request, excluding the upstream's time, at 1,000 req/s per `api` replica (`SEC-031`); DPoP and access-token verification ≤ 1 ms p95 (`SEC-022`) | WIP |
-| `NFR-030` | P10 | MUST | Edit → paired device | ≤ 500 ms p95 (`DEV-010`). P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile, and reports the server part separately; Studio's autosave joins the measurement in P11 | SPEC |
+| `NFR-030` | P10 | MUST | Edit → paired device | ≤ 500 ms p95 (`DEV-010`). P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile, and reports the server part separately; Studio's autosave joins the measurement in P11 | DONE |
 | `NFR-031` | P11 | MUST | Studio canvas frame rate | 60 fps with 100 screens / 200 plugins (`STU-120`) | SPEC |
 | `NFR-032` | P11 | MUST | Studio property change → canvas | ≤ 50 ms p95 (`STU-121`) | SPEC |
 | `NFR-033` | P1 | MUST | Incremental validation of one page | ≤ 50 ms p95 (`SCH-042`) | DONE |
