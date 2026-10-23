@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:plux_charts/plux_charts.dart';
 import 'package:plux_components/plux_components.dart';
 import 'package:plux_db_drift/plux_db_drift.dart';
+import 'package:plux_dev/development_roots.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_functions/plux_functions.dart';
 import 'package:plux_go_router/plux_go_router.dart';
@@ -22,8 +23,6 @@ import 'package:plux_player/plux_player.dart';
 import 'package:plux_rive/plux_rive.dart';
 import 'package:plux_scanner/plux_scanner.dart';
 import 'package:plux_security/plux_security.dart';
-
-import 'package:plux_dev/development_roots.dart';
 
 /// The optional packages of the Dev app and the `PluxConfig` that registers
 /// them.
