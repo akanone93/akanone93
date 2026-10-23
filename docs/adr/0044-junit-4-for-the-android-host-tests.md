@@ -42,3 +42,11 @@ shell scripts that read the screen through text dumps.
 - **Negative:** the allowlist holds one weak copyleft library, scoped to test code.
 - **Follow-up:** the acceptance covers `androidTest` only; JUnit 4 in any shipped
   configuration, or another EPL dependency, needs its own ADR.
+
+## Revision (2026-10-23, P10: the runtime's background-sync tests)
+
+Decided by the maintainer: the acceptance also covers the JVM unit tests (`testImplementation`) of
+`plux_flutter`'s Android library, which test the background-sync scheduler (`SYN-014`,
+ADR-0092). The reasoning is unchanged: JUnit 4 is test code, compiled into no library and no app,
+and never distributed. Any shipped configuration, or another EPL dependency, still needs its own
+ADR.

@@ -6,6 +6,7 @@ package incremental
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
 	"testing"
 	"testing/fstest"
@@ -68,8 +69,8 @@ func percentile(ds []time.Duration, p int) time.Duration {
 // depend on the machine and are meaningless under the race detector, so the
 // test runs in neither -short nor -race.
 func TestEditLatency(t *testing.T) {
-	if testing.Short() || raceEnabled {
-		t.Skip("timing budgets run without -short and without the race detector")
+	if os.Getenv("PLUX_BUDGETS") == "" || raceEnabled {
+		t.Skip("timing budgets run on the CI reference runner without the race detector: make go-budgets")
 	}
 	m := fiftyPages(t)
 	c := NewCache(opts())

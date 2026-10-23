@@ -172,8 +172,9 @@ go-cover: ## Run Go tests with coverage; enforce floors (QA-001)
 go-determinism: ## Compile the conformance vectors and projects and compare with the goldens byte for byte (CMP-002)
 	cd backend && $(GO) test -count=1 -run 'Golden|Determinism|Repeated|Conformance' -skip '^TestGolden(Run|Approve)' ./internal/pxl ./internal/bundle ./internal/compiler ./cmd/plux
 
-go-budgets: ## Check the compiler's timing budgets on this machine (CMP-050, SCH-042)
+go-budgets: ## Check the compiler's timing budgets on this machine (CMP-050, CMP-051, SCH-042)
 	cd backend && PLUX_BUDGETS=1 $(GO) test -count=1 -v -run '^TestPerformanceBudgets$$' ./internal/compiler
+	cd backend && PLUX_BUDGETS=1 $(GO) test -count=1 -v -run '^TestEditLatency$$' ./internal/compiler/incremental
 
 go-fuzz: ## Run every Go fuzz target for FUZZTIME each (QA-004, CMP-052)
 	@for m in $(GO_MODULES); do (cd $$m && for pkg in $$($(GO) list ./...); do \
