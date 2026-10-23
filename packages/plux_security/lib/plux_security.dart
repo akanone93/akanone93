@@ -14,6 +14,8 @@ library;
 export 'src/detection.dart' show PluxDetection, PluxDetectionKind, PluxSeverity;
 export 'src/detector.dart'
     show PlatformRaspDetector, PluxRaspDetector, PluxRaspExpectations;
+export 'src/dev_handler.dart' show pluxSecuritySimulateDetectionHandler;
+export 'src/dev_mode.dart' show PluxSecurityMode;
 export 'src/gate.dart'
     show PluxBlockedBuilder, PluxSecurityGate, PluxWarningBuilder;
 export 'src/response.dart' show PluxRaspPolicy, PluxRaspResponse;

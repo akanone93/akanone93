@@ -95,6 +95,24 @@ DPoP-protected telemetry call. It carries no path, identifier or other personal 
 that suggests a modified environment also lowers the device's level at the server to `AL1`
 until it attests again, and makes the device offer fresh attestation evidence (`SEC-006`).
 
+## Development mode (Plux Dev app)
+
+`PluxSecurity(mode: PluxSecurityMode.developmentReportOnly, environment: 'dev')` is a report-only
+mode for the Plux Dev app (`DEV-001`, ADR-0057 Revision 2026-10-22). Each detection is recorded in
+`status.detections` and sent to `devEventSink` as a `securityDetection` dev event, but it is **not**
+reported to the server, does not lower the assurance level, does not make the device attest again
+and applies no response: nothing degrades or blocks. Pass the same `environment` as
+`PluxConfig.environment`.
+
+The mode runs only in builds with `kPluxDevtools` (debug builds and the Dev app) and only when
+`environment` is not `production`. Anywhere else it is refused with a warning in the log
+(`developmentRefusal` names the reason) and the module behaves as in production; the
+`environment` defaults to `production`, so leaving it out refuses the mode.
+
+The Dev app registers `pluxSecuritySimulateDetectionHandler(security)` under the key
+`simulateSecurityDetection` in `RuntimeDevCommands.extensions`. The command injects a detection of
+the chosen kind through the same pipeline as the real detectors; the event is marked `simulated`.
+
 ## Testing your app
 
 `package:plux_security/testing.dart` has `FakeRaspDetector`: pass it as `PluxSecurity(detector: …)`
