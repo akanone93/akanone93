@@ -61,6 +61,23 @@ export 'src/device/types.dart'
         PluxPickedFile,
         PluxPosition,
         PluxScanResult;
+export 'src/devtools_api/dev_channel.dart'
+    show
+        DevChannel,
+        DevEngineConfig,
+        DevEngineHandle,
+        DevEngineHost,
+        DevEngineStarter,
+        DevPairingLink,
+        DevSocketAuth;
+export 'src/devtools_api/dev_session.dart'
+    show
+        DevApplyResult,
+        DevBundle,
+        DevBundleApplier,
+        DevCommandHandler,
+        DevEventSink,
+        kPluxDevtools;
 export 'src/devtools_api/diagnostics.dart'
     show PluxDiagnostic, PluxDiagnostics, PluxPluginInfo, PluxReleaseInfo;
 export 'src/errors/plux_exception.dart' show PluxErrorCode, PluxException;
