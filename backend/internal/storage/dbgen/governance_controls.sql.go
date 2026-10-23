@@ -47,7 +47,7 @@ func (q *Queries) DeleteChangeFreeze(ctx context.Context, id pgtype.UUID) (Chang
 }
 
 const getBreakGlassForUpdate = `-- name: GetBreakGlassForUpdate :one
-SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations WHERE id = $1 FOR UPDATE
+SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetBreakGlassForUpdate(ctx context.Context, id pgtype.UUID) (BreakGlassInvocation, error) {
@@ -66,6 +66,7 @@ func (q *Queries) GetBreakGlassForUpdate(ctx context.Context, id pgtype.UUID) (B
 		&i.InvokedByKind,
 		&i.InvokedByID,
 		&i.InvokedBy,
+		&i.InvokedByUser,
 		&i.InvokedAt,
 		&i.ReviewDueAt,
 		&i.ReviewStatus,
@@ -129,9 +130,9 @@ func (q *Queries) GetComplianceReport(ctx context.Context, id pgtype.UUID) (Comp
 const insertBreakGlass = `-- name: InsertBreakGlass :one
 
 INSERT INTO break_glass_invocations (id, organization_id, app_id, environment_id, environment_key, production, action, subject,
-                                     justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-RETURNING id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at
+                                     justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+RETURNING id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at
 `
 
 type InsertBreakGlassParams struct {
@@ -147,6 +148,7 @@ type InsertBreakGlassParams struct {
 	InvokedByKind  string
 	InvokedByID    string
 	InvokedBy      string
+	InvokedByUser  string
 	InvokedAt      pgtype.Timestamptz
 	ReviewDueAt    pgtype.Timestamptz
 }
@@ -167,6 +169,7 @@ func (q *Queries) InsertBreakGlass(ctx context.Context, arg InsertBreakGlassPara
 		arg.InvokedByKind,
 		arg.InvokedByID,
 		arg.InvokedBy,
+		arg.InvokedByUser,
 		arg.InvokedAt,
 		arg.ReviewDueAt,
 	)
@@ -184,6 +187,7 @@ func (q *Queries) InsertBreakGlass(ctx context.Context, arg InsertBreakGlassPara
 		&i.InvokedByKind,
 		&i.InvokedByID,
 		&i.InvokedBy,
+		&i.InvokedByUser,
 		&i.InvokedAt,
 		&i.ReviewDueAt,
 		&i.ReviewStatus,
@@ -335,7 +339,7 @@ func (q *Queries) InsertProductionChange(ctx context.Context, arg InsertProducti
 }
 
 const listBreakGlass = `-- name: ListBreakGlass :many
-SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations
+SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations
  WHERE ($1::text = '' OR review_status = $1::text)
    AND (invoked_at, id) < ($2::timestamptz, $3::uuid)
  ORDER BY invoked_at DESC, id DESC
@@ -376,6 +380,7 @@ func (q *Queries) ListBreakGlass(ctx context.Context, arg ListBreakGlassParams) 
 			&i.InvokedByKind,
 			&i.InvokedByID,
 			&i.InvokedBy,
+			&i.InvokedByUser,
 			&i.InvokedAt,
 			&i.ReviewDueAt,
 			&i.ReviewStatus,
@@ -396,7 +401,7 @@ func (q *Queries) ListBreakGlass(ctx context.Context, arg ListBreakGlassParams) 
 }
 
 const listBreakGlassByIDs = `-- name: ListBreakGlassByIDs :many
-SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations WHERE id = ANY($1::uuid[])
+SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations WHERE id = ANY($1::uuid[])
 `
 
 func (q *Queries) ListBreakGlassByIDs(ctx context.Context, ids []pgtype.UUID) ([]BreakGlassInvocation, error) {
@@ -421,6 +426,7 @@ func (q *Queries) ListBreakGlassByIDs(ctx context.Context, ids []pgtype.UUID) ([
 			&i.InvokedByKind,
 			&i.InvokedByID,
 			&i.InvokedBy,
+			&i.InvokedByUser,
 			&i.InvokedAt,
 			&i.ReviewDueAt,
 			&i.ReviewStatus,
@@ -576,7 +582,7 @@ func (q *Queries) ListDecisionsOfRequests(ctx context.Context, requestIds []pgty
 }
 
 const listOverdueBreakGlass = `-- name: ListOverdueBreakGlass :many
-SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations
+SELECT id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at FROM break_glass_invocations
  WHERE review_status = 'open' AND escalated_at IS NULL AND review_due_at <= $1::timestamptz
  ORDER BY review_due_at, id
  LIMIT $2
@@ -612,6 +618,7 @@ func (q *Queries) ListOverdueBreakGlass(ctx context.Context, arg ListOverdueBrea
 			&i.InvokedByKind,
 			&i.InvokedByID,
 			&i.InvokedBy,
+			&i.InvokedByUser,
 			&i.InvokedAt,
 			&i.ReviewDueAt,
 			&i.ReviewStatus,
@@ -737,7 +744,7 @@ const reviewBreakGlass = `-- name: ReviewBreakGlass :one
 UPDATE break_glass_invocations
    SET review_status = 'reviewed', reviewed_by_id = $2, reviewed_by = $3, reviewed_at = $4, review_comment = $5
  WHERE id = $1 AND review_status = 'open'
-RETURNING id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at
+RETURNING id, organization_id, app_id, environment_id, environment_key, production, action, subject, justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at, review_status, reviewed_by_id, reviewed_by, reviewed_at, review_comment, escalated_at
 `
 
 type ReviewBreakGlassParams struct {
@@ -770,6 +777,7 @@ func (q *Queries) ReviewBreakGlass(ctx context.Context, arg ReviewBreakGlassPara
 		&i.InvokedByKind,
 		&i.InvokedByID,
 		&i.InvokedBy,
+		&i.InvokedByUser,
 		&i.InvokedAt,
 		&i.ReviewDueAt,
 		&i.ReviewStatus,

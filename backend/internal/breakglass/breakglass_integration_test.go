@@ -234,6 +234,24 @@ func TestReview_FourEyes_GOV_024(t *testing.T) {
 }
 
 // Verifies: GOV-024.
+// An action taken through an access token is the token owner's: the owner,
+// signed in, cannot review it, although the token's ID is the actor recorded.
+func TestReview_TokenInvokerRefused_GOV_024(t *testing.T) {
+	f := newFixture(t, 0)
+	viaToken := f.Manager
+	viaToken.Kind, viaToken.ID = auth.KindToken, f.NewID(t)
+	rec, err := f.invoke(t, viaToken, f.invocation("the fleet is down"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rec.InvokedBy.ID == f.Manager.UserID {
+		t.Fatalf("the actor recorded is the person, not the token: %+v", rec.InvokedBy)
+	}
+	_, err = f.svc.Review(context.Background(), f.Manager, rec.ID, "fine")
+	wantCode(t, err, plxerr.ApproverNotEligible, "the person behind the invoking token")
+}
+
+// Verifies: GOV-024.
 // The list shows reviews newest first, narrowed by status, and marks an open
 // review past its due time as overdue.
 func TestList_StatusAndOverdue_GOV_024(t *testing.T) {
