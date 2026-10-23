@@ -87,6 +87,18 @@ type proofKey struct{}
 // access token.
 type proofIDKey struct{}
 
+// proofKeyKey carries the thumbprint of the DPoP key of a call with an
+// access token.
+type proofKeyKey struct{}
+
+// DeviceKeyFrom returns the JWK thumbprint of the DPoP key that signed the
+// verified proof of a device call made with an access token; the token is
+// bound to the same key (SEC-021).
+func DeviceKeyFrom(ctx context.Context) (string, bool) {
+	jkt, ok := ctx.Value(proofKeyKey{}).(string)
+	return jkt, ok && jkt != ""
+}
+
 // ProofIDFrom returns the jti of the verified DPoP proof of a device call.
 // The replay check has made it single-use, which is what binds the
 // platform evidence of a function invocation to this request (FN-020).
@@ -213,6 +225,7 @@ func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Co
 		}
 	}
 	ctx = context.WithValue(ctx, proofIDKey{}, proof.JTI)
+	ctx = context.WithValue(ctx, proofKeyKey{}, proof.JKT)
 	return next(context.WithValue(ctx, deviceKey{}, d))
 }
 

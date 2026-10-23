@@ -200,6 +200,22 @@
       "description": "The assurance level a Plux Function requires when it declares none."
     },
     {
+      "key": "devSessionRequireStepUp",
+      "type": "bool",
+      "tighter": "true",
+      "defaults": {
+        "standard": false,
+        "strict": false,
+        "maximum": true
+      },
+      "travelsToDevice": false,
+      "phase": "P10",
+      "requirements": [
+        "DEV-002"
+      ],
+      "description": "Whether creating a dev session for the environment needs a recent step-up with a security key (ADR-0075 Revision)."
+    },
+    {
       "key": "deviceFunctions",
       "type": "bool",
       "tighter": "false",

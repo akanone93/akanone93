@@ -42,6 +42,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
+	"github.com/nightCode42/plux3/backend/internal/devsession"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
 	"github.com/nightCode42/plux3/backend/internal/dsr"
@@ -162,6 +163,9 @@ type Services struct {
 	// Experiments administers feature flags and experiments and analyses
 	// experiments (ABT-001, ABT-006).
 	Experiments *experiment.Service
+	// DevSessions opens dev sessions and pairs devices with them (DEV-002,
+	// DEV-003); nil where the process issues no device tokens.
+	DevSessions *devsession.Service
 	// Search is the full-text search (SRV-061).
 	Search *search.Service
 	// GitExport exports apps to Git on publish (GOV-011).
@@ -651,6 +655,10 @@ func (k *serviceKit) buildOperations(_ context.Context, svc *Services) error {
 		return err
 	}
 	svc.Experiments, err = buildExperiments(k.db, k.log, k.gen, svc.Tenancy, svc.Documents, svc.Releases, k.approvals)
+	if err != nil {
+		return err
+	}
+	svc.DevSessions, err = buildDevSessions(k.cfg, k.db, k.log, k.gen, svc.Tenancy, svc.SecurityConfig, k.tokenSigner)
 	return err
 }
 
@@ -1194,6 +1202,12 @@ func operationsRegistrations(svc *Services, h *api.Handlers, opts connect.Handle
 			func() (string, http.Handler) {
 				return pluxv1connect.NewExperimentServiceHandler(h.ExperimentAdmin(), opts)
 			})
+	}
+	if svc.DevSessions != nil {
+		h.DevSessions = svc.DevSessions
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewDevSessionServiceHandler(h.DevSession(), opts)
+		})
 	}
 	if svc.DataSubjects != nil {
 		h.DataSubjects = svc.DataSubjects

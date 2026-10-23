@@ -32,6 +32,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/device/devicetest"
+	"github.com/nightCode42/plux3/backend/internal/devsession"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
@@ -163,6 +164,9 @@ type world struct {
 	breakGlass pluxv1connect.BreakGlassServiceClient
 	freeze     pluxv1connect.FreezeServiceClient
 	compliance pluxv1connect.ComplianceServiceClient
+	// devSession is the client of the sessions and pairing of
+	// DevSessionService (DEV-002).
+	devSession pluxv1connect.DevSessionServiceClient
 	// functions is the function service, and fn the fakes it runs builds
 	// with, as the worker role would.
 	functions     *function.Service
@@ -427,7 +431,24 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	devSessions, err := devsession.New(devsession.Options{
+		DB: db, Audit: log, IDs: gen, Tokens: tokenSigner, Environments: []string{"development"}, PublicBaseURL: base, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+		StepUp: func(ctx context.Context, appID, environmentID string) (bool, error) {
+			values, _, err := secConfig.Effective(ctx, appID, environmentID)
+			if err != nil {
+				return false, err
+			}
+			return values.Get(settings.DevSessionRequireStepUp).Bool(), nil
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
+		DevSessions: devSessions,
 		Emergencies: emergencies, Freezes: freezes, Reports: reports,
 		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
@@ -463,6 +484,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewBreakGlassServiceHandler(h.BreakGlass(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewDevSessionServiceHandler(h.DevSession(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },
@@ -554,6 +576,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		native:       pluxv1connect.NewNativeCatalogueServiceClient(srv.Client(), srv.URL),
 		control:      pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
 		breakGlass:   pluxv1connect.NewBreakGlassServiceClient(srv.Client(), srv.URL),
+		devSession:   pluxv1connect.NewDevSessionServiceClient(srv.Client(), srv.URL),
 		freeze:       pluxv1connect.NewFreezeServiceClient(srv.Client(), srv.URL),
 		compliance:   pluxv1connect.NewComplianceServiceClient(srv.Client(), srv.URL),
 		secAdmin:     pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
