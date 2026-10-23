@@ -7,7 +7,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plux_viewer/viewer.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 
 /// The server calls of the viewer [SEC-142].
 void main() {

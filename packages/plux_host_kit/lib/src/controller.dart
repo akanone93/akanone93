@@ -9,8 +9,8 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:plux_viewer/src/api.dart';
-import 'package:plux_viewer/src/link.dart';
+import 'package:plux_host_kit/src/api.dart';
+import 'package:plux_host_kit/src/link.dart';
 
 /// A signed-in auditor.
 final class ViewerSession {

@@ -9,7 +9,7 @@ library;
 
 import 'dart:async';
 
-import 'package:plux_viewer/src/api.dart';
+import 'package:plux_host_kit/src/api.dart';
 
 /// Why a sign-in did not complete.
 enum SignInFailure {

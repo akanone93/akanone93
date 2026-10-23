@@ -11,7 +11,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:plux_flutter/plux_flutter.dart';
-import 'package:plux_viewer/src/opener.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 
 /// Shows reconstruction [id] through [opener].
 final class ReconstructionScreen extends StatefulWidget {

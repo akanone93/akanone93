@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:plux_flutter/plux_flutter.dart';
-import 'package:plux_viewer/viewer.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 
 /// Opening a reconstruction in the runtime's reconstruction mode [SEC-142].
 void main() {
@@ -47,6 +47,7 @@ void main() {
   }) => ReconstructionOpener(
     api(),
     rootKeys: rootKeys ?? pinned,
+    hostBuild: 'plux-test-host',
     start: (config) async {
       started.add(config);
       return refusal;
@@ -104,6 +105,7 @@ void main() {
     expect(c.appId, 'app_1');
     expect(c.environment, 'production');
     expect(c.channel, 'audit');
+    expect(c.hostBuild, 'plux-test-host');
     expect(c.endpoint, server);
     expect(c.baseline, isNull);
     // The keys the server lists are not the runtime's: only the pinned
@@ -262,6 +264,7 @@ void main() {
     final o = ReconstructionOpener(
       api(),
       rootKeys: pinned,
+      hostBuild: 'plux-test-host',
       start: (config) async {
         left = true;
         return null;
@@ -280,6 +283,7 @@ void main() {
     final o = ReconstructionOpener(
       api(),
       rootKeys: pinned,
+      hostBuild: 'plux-test-host',
       start: (config) async {
         events.add('start');
         return null;

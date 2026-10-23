@@ -11,10 +11,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:plux_viewer/src/api.dart';
-import 'package:plux_viewer/src/controller.dart';
-import 'package:plux_viewer/src/device_sign_in.dart';
-import 'package:plux_viewer/src/link.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 
 /// Creates the client a sign-in uses; tests replace it.
 typedef ApiFactory = ViewerApi Function(Uri server);

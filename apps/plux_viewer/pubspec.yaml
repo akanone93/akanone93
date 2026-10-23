@@ -19,6 +19,7 @@ dependencies:
   http: ^1.6.0
   plux_components: ^0.1.0
   plux_flutter: ^0.6.0
+  plux_host_kit: ^0.1.0
 
 dev_dependencies:
   flutter_test:

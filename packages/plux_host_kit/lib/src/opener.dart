@@ -16,7 +16,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
-import 'package:plux_viewer/src/api.dart';
+import 'package:plux_host_kit/src/api.dart';
 
 /// Starts the runtime; [startRuntime] in the app, a stand-in in tests.
 /// Completes with null when the reconstruction is ready to show, else with
@@ -34,11 +34,11 @@ Future<String?> startRuntime(PluxConfig config) async {
       : 'The reconstruction was refused: ${error.code.id} ${error.message}';
 }
 
-/// Why a viewer built without root keys opens nothing.
+/// Why a host built without root keys opens nothing, when its build gives no
+/// message of its own.
 const String noRootKeysMessage =
-    'This build of the viewer pins no root keys, so it cannot tell a genuine '
-    'reconstruction from a forged one. Build it with '
-    '--dart-define=PLUX_VIEWER_ROOT_KEYS=<keys.json>.';
+    'This build pins no root keys, so it cannot tell a genuine '
+    'reconstruction from a forged one.';
 
 /// Why a reconstruction could not be opened.
 final class OpenException implements Exception {
@@ -61,11 +61,14 @@ http.Client viewerHttpClient() => http.Client();
 /// Opens reconstructions through [api].
 final class ReconstructionOpener {
   /// Creates an opener that trusts the root keys [rootKeys], pinned at
-  /// build time, and none other; with none it opens nothing. [start] and
-  /// [stop] default to the runtime's.
+  /// build time, and none other; with none it opens nothing and says
+  /// [missingKeysMessage]. [hostBuild] names the host build to the runtime.
+  /// [start] and [stop] default to the runtime's.
   ReconstructionOpener(
     this.api, {
     required this.rootKeys,
+    required this.hostBuild,
+    this.missingKeysMessage = noRootKeysMessage,
     RuntimeStarter? start,
     Future<void> Function()? stop,
   }) : _start = start ?? startRuntime,
@@ -74,8 +77,16 @@ final class ReconstructionOpener {
   /// The signed-in client.
   final ViewerApi api;
 
-  /// The root keys the viewer was built with (SEC-051).
+  /// The root keys the host was built with (SEC-051). The set is the
+  /// caller's: a production host passes production roots, a development host
+  /// development roots, and one binary never holds both.
   final List<PluxPublicKey> rootKeys;
+
+  /// The host build the runtime is told it runs in.
+  final String hostBuild;
+
+  /// What an auditor is told when [rootKeys] is empty.
+  final String missingKeysMessage;
 
   final RuntimeStarter _start;
   final Future<void> Function() _stop;
@@ -98,7 +109,7 @@ final class ReconstructionOpener {
     void Function(String step) progress = _ignore,
     bool Function() cancelled = _never,
   }) async {
-    if (rootKeys.isEmpty) throw const OpenException(noRootKeysMessage);
+    if (rootKeys.isEmpty) throw OpenException(missingKeysMessage);
     await _stopping;
     if (Plux.isInitialized) await close();
     progress('Fetching the reconstruction');
@@ -123,7 +134,7 @@ final class ReconstructionOpener {
         channel: 'audit',
         rootKeys: rootKeys,
         baseline: null,
-        hostBuild: 'plux-viewer',
+        hostBuild: hostBuild,
         httpClient: viewerHttpClient,
         widgetPackages: const [PluxComponents()],
         reconstruction: PluxReconstruction(

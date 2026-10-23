@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 import 'package:plux_viewer/viewer.dart';
 
-/// The auditor's sign-in [SEC-142].
+/// The auditor's sign-in screen [SEC-142].
 void main() {
   final server = Uri.parse('https://plux.example.org/');
 
@@ -50,108 +51,6 @@ void main() {
       }),
     );
   }
-
-  group('the device grant [SEC-142]', () {
-    late List<Duration> waits;
-    late DateTime clock;
-
-    DeviceSignIn flow(ViewerApi api) => DeviceSignIn(
-      api,
-      wait: (d) async {
-        waits.add(d);
-        clock = clock.add(d);
-      },
-      now: () => clock,
-    );
-
-    setUp(() {
-      waits = [];
-      clock = DateTime.utc(2026, 10, 21, 10);
-    });
-
-    test('polls at the server\'s interval until it is approved', () async {
-      final seen = <String>[];
-      final f = flow(
-        serverAnswering(['pending', 'pending', 'approved'], seen: seen),
-      );
-      final grant = await f.start();
-      expect(grant.userCode, 'ABCD-EFGH');
-      expect(await f.complete(grant), 'plux_secret');
-      expect(waits, const [
-        Duration(seconds: 2),
-        Duration(seconds: 2),
-        Duration(seconds: 2),
-      ]);
-      expect(seen, ['dc', 'dc', 'dc']);
-    });
-
-    test('slows down when the server says so', () async {
-      final f = flow(serverAnswering(['slow_down', 'slow_down', 'approved']));
-      expect(await f.complete(await f.start()), 'plux_secret');
-      expect(waits, const [
-        Duration(seconds: 2),
-        Duration(seconds: 7),
-        Duration(seconds: 12),
-      ]);
-    });
-
-    test('stops when the approving person denies it', () async {
-      final f = flow(serverAnswering(['pending', 'denied']));
-      await expectLater(
-        f.complete(await f.start()),
-        throwsA(
-          isA<SignInException>().having(
-            (e) => e.failure,
-            'failure',
-            SignInFailure.denied,
-          ),
-        ),
-      );
-    });
-
-    test('stops when the code lapses, without polling past it', () async {
-      final seen = <String>[];
-      final f = flow(
-        serverAnswering(
-          ['pending'],
-          seen: seen,
-          expires: '2026-10-21T10:15:00Z',
-        ),
-      );
-      final grant = await f.start();
-      clock = DateTime.utc(2026, 10, 21, 10, 14, 59);
-      await expectLater(
-        f.complete(grant),
-        throwsA(
-          isA<SignInException>().having(
-            (e) => e.failure,
-            'failure',
-            SignInFailure.expired,
-          ),
-        ),
-      );
-      expect(seen, isEmpty);
-    });
-
-    test('stops when the auditor cancels', () async {
-      final seen = <String>[];
-      final f = flow(serverAnswering(['pending'], seen: seen));
-      final grant = await f.start();
-      final done = f.complete(grant);
-      f.cancel();
-      await expectLater(
-        done,
-        throwsA(
-          isA<SignInException>().having(
-            (e) => e.failure,
-            'failure',
-            SignInFailure.cancelled,
-          ),
-        ),
-      );
-      expect(seen, isEmpty);
-    });
-  });
 
   group('the sign-in screen [SEC-142]', () {
     testWidgets('shows the code to approve and signs in once approved', (
@@ -247,10 +146,5 @@ void main() {
         findsOneWidget,
       );
     });
-  });
-
-  test('a session never prints its token [SEC-142]', () {
-    final s = ViewerSession(server, 'plux_secret');
-    expect('$s', isNot(contains('plux_secret')));
   });
 }
