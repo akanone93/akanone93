@@ -170,8 +170,10 @@ final class FunctionRuntime {
   });
 
   /// Receives one [DevFunctionCall] per invocation while a dev session
-  /// listens (FN-036); null otherwise. Release builds never call it.
-  final void Function(DevFunctionCall call)? devTap;
+  /// listens (FN-036); null otherwise. Release builds never call it. The
+  /// runtime sets and clears it as a dev session starts and ends, so it is
+  /// read at call time.
+  void Function(DevFunctionCall call)? devTap;
 
   /// The function [function] that [plugin] calls, or null when the plugin
   /// holds no grant for it (deny by default, FN-012). Throws
