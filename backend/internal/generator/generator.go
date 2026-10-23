@@ -116,18 +116,25 @@ const RuntimeConstraint = "^0.6.0"
 // projects use, as plux init adds them.
 const AdapterConstraint = "^0.1.0"
 
-// routers are the router flavours of plux create (HST-034): the adapter
+// routerFlavour returns the router flavour of plux create (HST-034): the adapter
 // that runs Plux on the router, the router and its pub constraint, all as
 // the adapters' own examples use them.
-var routers = map[string]struct{ adapter, router, routerConstraint string }{
-	"go_router":  {adapter: "plux_go_router", router: "go_router", routerConstraint: "^18.0.2"},
-	"auto_route": {adapter: "plux_auto_route", router: "auto_route", routerConstraint: "^11.2.0"},
+func routerFlavour(name string) (f struct{ adapter, router, routerConstraint string }, ok bool) {
+	switch name {
+	case "go_router":
+		f.adapter, f.router, f.routerConstraint = "plux_go_router", "go_router", "^18.0.2"
+	case "auto_route":
+		f.adapter, f.router, f.routerConstraint = "plux_auto_route", "auto_route", "^11.2.0"
+	default:
+		return f, false
+	}
+	return f, true
 }
 
 // CheckRouter reports whether name is a router flavour the generator
 // writes: none, go_router or auto_route (HST-034). The empty name is none.
 func CheckRouter(name string) error {
-	if _, ok := routers[name]; ok || name == "" || name == "none" {
+	if _, ok := routerFlavour(name); ok || name == "" || name == "none" {
 		return nil
 	}
 	return fmt.Errorf("unknown router %q: the routers are none, go_router and auto_route", name)
@@ -281,7 +288,7 @@ func Generate(in Input) ([]File, error) {
 			v.BaselineAssets = true
 		}
 	}
-	if r, ok := routers[spec.Router]; ok {
+	if r, ok := routerFlavour(spec.Router); ok {
 		adapter := pubDependency{Name: r.adapter, Constraint: AdapterConstraint}
 		if in.PluxPath != "" {
 			adapter = pubDependency{Name: r.adapter, Path: filepath.Join(filepath.Dir(in.PluxPath), r.adapter)}
