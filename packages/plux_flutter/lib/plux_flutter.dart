@@ -192,6 +192,7 @@ export 'src/security/security_config.dart'
         SecuritySettings;
 export 'src/store/kv_store.dart'
     show SecretStore, StoreException, StoreFailure, installationKey;
+export 'src/sync/background_sync_config.dart' show BackgroundSyncConfig;
 export 'src/sync/sync_event.dart'
     show
         SyncActivated,

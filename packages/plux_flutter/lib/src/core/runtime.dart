@@ -99,6 +99,8 @@ import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/store/sealed_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/background_sync.dart';
+import 'package:plux_flutter/src/sync/background_sync_entry.dart';
 import 'package:plux_flutter/src/sync/control_sync.dart' show ControlOutcome;
 import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
@@ -147,7 +149,12 @@ final class RuntimeOverrides {
     this.secure = const SecurePlatforms(),
     this.userAuthSigner,
     this.controlTimer,
+    this.backgroundSync,
   });
+
+  /// The platform scheduler of background sync (SYN-014); the platform's
+  /// when null.
+  final BackgroundSyncPlatform? backgroundSync;
 
   /// Makes the timer of the foreground control checks (SYN-060); a timer of
   /// the root zone, every five minutes, when null.
@@ -396,6 +403,36 @@ final class PluxRuntime with WidgetsBindingObserver {
         flushInterval,
         (_) => unawaited(rt._inForeground ? rt.flushTelemetry() : null),
       );
+      if (!reconstructing) {
+        final rootDocument = await bundledRoot;
+        unawaited(
+          rt._applyBackgroundSync(
+            () => BackgroundSyncDescriptor(
+              storeRoot: root,
+              endpoint: config.endpoint,
+              appId: config.appId,
+              environment: config.environment,
+              channel: config.channel,
+              keys: [for (final k in keys) k.toTrustedKey()],
+              rootDocument: rootDocument,
+              pins: config.pins,
+              hostBuild: config.hostBuild,
+              parallelism: config.downloadParallelism,
+              diskQuota: config.diskQuota ?? PluxLimit.deviceDiskQuota.max,
+              credentialName:
+                  'device.${_safe(config.appId)}.${_safe(config.environment)}'
+                      .toLowerCase(),
+              locale: (config.locale ?? ui.PlatformDispatcher.instance.locale)
+                  .toLanguageTag(),
+              pixelRatio: assets.pixelRatio,
+              avif: assets.avif,
+              cloudProjectNumber: config.playIntegrityCloudProjectNumber,
+              enrolSca: config.strongCustomerAuthentication,
+              deviceFunctions: config.functionEngine != null,
+            ),
+          ),
+        );
+      }
       return (rt, startup);
     } finally {
       task.finish();
@@ -1884,6 +1921,52 @@ final class PluxRuntime with WidgetsBindingObserver {
         _foregroundSince = _clock();
         _backgroundSince = null;
       }
+    }
+  }
+
+  /// Schedules or cancels the background sync task as the configuration
+  /// says (SYN-014). A refusal is reported and never fails the start.
+  Future<void> _applyBackgroundSync(
+    BackgroundSyncDescriptor Function() descriptor,
+  ) async {
+    final sync = config.backgroundSync;
+    try {
+      if (sync.enabled && config.httpClient != null) {
+        throw const PluxException(
+          PluxErrorCode.backgroundSyncFailed,
+          'background sync uses the platform HTTP client and cannot run '
+          'with PluxConfig.httpClient',
+        );
+      }
+      await BackgroundSyncScheduler(
+        platform:
+            overrides.backgroundSync ?? const ChannelBackgroundSyncPlatform(),
+        storeRoot: _root,
+      ).apply(
+        sync,
+        descriptor: descriptor,
+        callbackHandle: () {
+          final handle = ui.PluginUtilities.getCallbackHandle(
+            pluxBackgroundSyncMain,
+          );
+          if (handle == null) {
+            throw const PluxException(
+              PluxErrorCode.backgroundSyncFailed,
+              'the background entry point has no callback handle',
+            );
+          }
+          return handle.toRawHandle();
+        },
+      );
+    } on PluxException catch (e) {
+      _report(e);
+    } on Object catch (e) {
+      _report(
+        PluxException(
+          PluxErrorCode.backgroundSyncFailed,
+          'background sync cannot be scheduled: ${e.runtimeType}',
+        ),
+      );
     }
   }
 

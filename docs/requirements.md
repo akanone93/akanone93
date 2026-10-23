@@ -2958,7 +2958,7 @@ retention:
 | `themeMode` | `ThemeMode` | host | `THM-002` |
 | `locale` | `Locale?` | host | `I18N-005` |
 | `consent` | `PluxConsent` | necessary only | `SEC-161` |
-| `backgroundSync` | `bool` | `false` | Opt-in background sync that stages a verified release and never activates it (`SYN-014`, ADR-0092); the interval is the limit `sync.backgroundIntervalMinutes` |
+| `backgroundSync` | `BackgroundSyncConfig` | `BackgroundSyncConfig()` (`enabled: false`) | Opt-in background sync that stages a verified release and never activates it (`SYN-014`, ADR-0092). `enabled`, `interval` (the limit `sync.backgroundIntervalMinutes`: default 360 minutes, at least 15), `requiresUnmeteredNetwork`, `requiresCharging`, `requiresBatteryNotLow` |
 | `pins` | `List<String>` | – (at least two required from P6) | SPKI SHA-256 pins of the Plux server, one a backup key; later updated only through signed metadata (`SEC-041`) |
 | `onError` | callback | – | Host error hook |
 
