@@ -16,7 +16,7 @@ import (
 )
 
 // DevSession serves DevSessionService: sessions and pairing (DEV-002,
-// DEV-003, ADR-0087). The relay's calls (PushPatch, SendCommand,
+// DEV-003, ADR-0087). The rest of the relay's calls (SendCommand,
 // WatchEvents, ExportTrace) answer Unimplemented until the relay is served.
 type DevSession struct {
 	pluxv1connect.UnimplementedDevSessionServiceHandler

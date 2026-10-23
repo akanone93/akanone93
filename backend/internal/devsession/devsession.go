@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/url"
 	"slices"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -62,6 +63,14 @@ type Options struct {
 	// StepUp, when set, says whether an environment's sessions need a
 	// step-up; nil means none does.
 	StepUp StepUpPolicy
+	// Drafts, CompileOptions, Signer and Deliverer enable PushPatch
+	// (DEV-010); a service without all four cannot push. Channel is the
+	// channel the development manifests name; "" means production.
+	Drafts         DraftSource
+	CompileOptions CompileOptionsFunc
+	Signer         ManifestSigner
+	Deliverer      Deliverer
+	Channel        string
 	// Random is the source of nonces and tickets; nil uses crypto/rand.
 	Random io.Reader
 	// Now is the clock; nil uses time.Now.
@@ -74,6 +83,9 @@ type Service struct {
 	now     func() time.Time
 	random  io.Reader
 	compact devtoken.Compact
+	// drafts holds the draft state of each live session that pushed.
+	draftsMu sync.Mutex
+	drafts   map[string]*draftState
 }
 
 // New returns the service.
@@ -81,7 +93,7 @@ func New(o Options) (*Service, error) {
 	if o.DB == nil || o.Audit == nil || o.IDs == nil || o.Limits == nil || o.Tokens == nil {
 		return nil, errors.New("devsession: a database, an audit log, identifiers, limits and a token signer are required")
 	}
-	s := &Service{o: o, now: o.Now, random: o.Random}
+	s := &Service{o: o, now: o.Now, random: o.Random, drafts: map[string]*draftState{}}
 	if s.now == nil {
 		s.now = time.Now
 	}
@@ -377,6 +389,7 @@ func (s *Service) EndSession(ctx context.Context, p auth.Principal, sessionID st
 // end marks a session ended, unpairs its devices and audits it.
 func (s *Service) end(ctx context.Context, tx pgx.Tx, p auth.Principal, id pgtype.UUID) (Session, error) {
 	q := dbgen.New(tx)
+	s.forget(storage.ID(id))
 	at := storage.Timestamp(s.now())
 	row, err := q.EndDevSession(ctx, dbgen.EndDevSessionParams{ID: id, EndedAt: at})
 	if err != nil {

@@ -596,7 +596,6 @@ func TestAuthorisationMatrix_QA_008(t *testing.T) {
 // (TestEveryRPCHasAnAuthorisationEntry reads the descriptors), and the calls
 // below start once they are served.
 var unmountedRPCs = map[string]bool{
-	"DevSessionService/PushPatch":   true,
 	"DevSessionService/SendCommand": true,
 	"DevSessionService/WatchEvents": true,
 	"DevSessionService/ExportTrace": true,

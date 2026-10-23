@@ -302,6 +302,9 @@ const (
 	DevSessionPaired Action = "devsession.paired"
 	// DevSessionEnded: a dev session was ended and its devices unpaired.
 	DevSessionEnded Action = "devsession.ended"
+	// DevSessionPatched: a patch to the draft was pushed to a dev session's
+	// devices as a development bundle; the entry names documents by ID.
+	DevSessionPatched Action = "devsession.patched"
 )
 
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
@@ -459,7 +462,7 @@ var actions = sorted(
 	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,
 	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
 	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
-	DevSessionCreated, DevSessionPaired, DevSessionEnded,
+	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionPatched,
 )
 
 // sorted returns its arguments in order.
