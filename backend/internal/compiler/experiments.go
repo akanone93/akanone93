@@ -138,7 +138,7 @@ func (u *unit) checkVariantProp(e *experiment, p *experimentProp, v schema.Exper
 		u.reportDoc(plxerr.MissingRequiredProp, e.file, vp, "variant %q gives no value for the prop %q", v.Name, p.name)
 		return
 	}
-	if u.focus != "" {
+	if u.validating {
 		return
 	}
 	checked := u.checkRaw(vctx{file: e.file, ptr: vp + plxerr.Pointer(p.name), code: plxerr.ValueTypeMismatch}, raw, p.te)

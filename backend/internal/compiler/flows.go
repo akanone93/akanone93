@@ -70,7 +70,7 @@ func (u *unit) checkFlowCycles() {
 		for _, c := range calls[g] {
 			switch state[c.to] {
 			case 1:
-				if u.focus == "" || u.graphInFocus(g) {
+				if u.focus == nil || u.graphInFocus(g) {
 					u.report(plxerr.FlowCallCycle, c.file, c.ptr, "flow %q calls back into a graph that calls it", c.to.key)
 				}
 			case 0:
