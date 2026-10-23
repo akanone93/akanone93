@@ -16,6 +16,14 @@ dependencies:
 {%- else%}
   plux_flutter: {%.RuntimeConstraint%}
 {%- end%}
+{%- range .RouterDeps%}
+{%- if .Path%}
+  {%.Name%}:
+    path: {%.Path%}
+{%- else%}
+  {%.Name%}: {%.Constraint%}
+{%- end%}
+{%- end%}
 
 dev_dependencies:
   flutter_test:

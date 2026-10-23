@@ -52,7 +52,7 @@ sha256sum --check --ignore-missing SHA256SUMS
 | `plux config get <key>`, `list`, `delete <key>` `[--env key] [--json]` | Shows a value (a sensitive one without its content), lists an environment's values with their tier, type, version and the epoch, or removes a value. |
 | `plux native scan [--host dir] [-o file] [--build id]` | Writes the host app's native catalogue, `plux.catalogue.json`, by static analysis, with no change to its code (`CLI-006`, [ADR-0041](../adr/0041-native-catalogue-and-host-builds.md)): it runs `dart run plux_native_scan` in the host project (`--host`, default `.`), which needs `plux_native_scan` as a dev dependency, with the slot classes `plux.yaml` lists and the host build (below). The scanner's problems, such as a type with no document type, are printed with their locations; its exit code is the command's. |
 | `plux native sync [--build id] [--host dir] [--catalogue file] [-C dir]` | Uploads the catalogue of one host build (`NativeCatalogueService`). A build's catalogue never changes: the same content again changes nothing, and other content is refused (`PLX-8032`), so a new build needs its own identifier. Needs the `release.publish` permission. |
-| `plux create <app> --out dir \| --zip file \| --git remote [--branch name] [--env key] [--channel key] [--name text] [--application-id id] [--bundle-id id] [--version x.y.z+n] [--icon file.png] [--splash #RRGGBB] [--plux-path dir]` | Generates the ready-to-build Flutter project of a no-code app (`GEN-001`, [ADR-0024](../adr/0024-no-code-generated-projects.md), below), written into a new or empty directory, as one zip, or committed and pushed to a Git remote and branch (default `main`) with your own `git` and credentials (`GEN-003`); a remote that starts with `-` or holds spaces, or a branch name git would refuse, is rejected before anything runs. |
+| `plux create <app> --out dir \| --zip file \| --git remote [--branch name] [--env key] [--channel key] [--name text] [--application-id id] [--bundle-id id] [--version x.y.z+n] [--icon file.png] [--splash #RRGGBB] [--router none\|go_router\|auto_route] [--plux-path dir]` | Generates the ready-to-build Flutter project of a no-code app (`GEN-001`, [ADR-0024](../adr/0024-no-code-generated-projects.md), below), written into a new or empty directory, as one zip, or committed and pushed to a Git remote and branch (default `main`) with your own `git` and credentials (`GEN-003`); a remote that starts with `-` or holds spaces, or a branch name git would refuse, is rejected before anything runs. |
 | `plux fn new <name> [--placement server\|device] [--sdk dir] [-C dir]` | Creates `functions/<name>/` with a Rust crate on the `plux-fn` SDK, a typed handler and `function.json` with a test case ([functions guide](../guides/functions.md)). |
 | `plux fn build <name> [--verify] [--sdk dir] [-C dir] [--json]` | Vendors the dependencies and builds the module with the local toolchain, without a sandbox, for development only: the server rebuilds in its sandbox on deploy. Writes the module, the schemas and the provenance to `functions/<name>/target/plux/`, which `validate`, `build` and `codegen` read offline (`CLI-005`); `--verify` builds twice and compares (`FN-019`). |
 | `plux fn test <name> [--skip-native] [--sdk dir] [-C dir] [--json]` | Runs `cargo test`, builds the module and runs every stored case of `function.json` on the function host; a device function also runs on `wazero`'s interpreter, the stand-in for the device engine (`FN-030`, `FN-031`). |
@@ -120,6 +120,13 @@ colour) and the splash colour (default `#FFFFFF`). The project holds:
 - `integration_test/app_test.dart`, which waits for the entry page on a device;
 - `scripts/build_android.sh` and `scripts/build_ios.sh`, and GitHub Actions and GitLab
   CI templates for signed release builds, which read their secrets by name and hold none.
+
+`--router` (default `none`) runs the navigation on `plux_go_router` or `plux_auto_route`,
+with `go_router` or `auto_route` in the pubspec: `lib/main.dart` then wires the router as
+the adapter's example does, with the entry page at `/` and the Plux pages at
+`/plux/<route-name>` (`HST-034`). The adapters are not published yet, so a router flavour
+resolves its adapter only with `--plux-path`, which reads each adapter from the directory
+beside `plux_flutter`'s.
 
 The same input gives the same files and the same zip bytes. Until `plux_flutter` is
 published, `--plux-path` points the project at a checkout of it.

@@ -25,7 +25,7 @@ import (
 type createFlags struct {
 	env, channel, out, zip, remote, branch       *string
 	name, applicationID, bundleID, version, icon *string
-	splash, pluxPath                             *string
+	splash, pluxPath, router                     *string
 }
 
 func registerCreate(set *flag.FlagSet) createFlags {
@@ -43,6 +43,7 @@ func registerCreate(set *flag.FlagSet) createFlags {
 		icon:          set.String("icon", "", "the icon, a square PNG `file` of 1024 to 4096 pixels (default a generated icon)"),
 		splash:        set.String("splash", "#FFFFFF", "the launch screen's `colour`, #RRGGBB"),
 		pluxPath:      set.String("plux-path", "", "depend on plux_flutter at this `directory` instead of its release (development, CI)"),
+		router:        set.String("router", "none", "the `router` the navigation runs on: none, go_router or auto_route"),
 	}
 }
 
@@ -59,8 +60,9 @@ func (e env) create(args []string) int {
 		"Generates a ready-to-build Flutter project for a Plux app: its name, identifiers,\n"+
 		"icons, splash, permissions from its plugins' device APIs, push and deep links, the\n"+
 		"runtime wired in with the environment's root keys, the channel's release embedded,\n"+
-		"build scripts and CI templates for signed releases. --git commits and pushes with\n"+
-		"your own git and credentials; nothing is stored.", 1)
+		"build scripts and CI templates for signed releases. --router runs the navigation on\n"+
+		"plux_go_router or plux_auto_route. --git commits and pushes with your own git and\n"+
+		"credentials; nothing is stored.", 1)
 	if !ok {
 		return code
 	}
@@ -72,6 +74,9 @@ func (e env) create(args []string) int {
 	}
 	if outputs != 1 {
 		return e.fail("create", usageError("give exactly one of --out, --zip and --git"))
+	}
+	if err := generator.CheckRouter(*f.router); err != nil {
+		return e.fail("create", usageError(err.Error()))
 	}
 	if *f.remote != "" {
 		if err := generator.CheckGitTarget(*f.remote, *f.branch); err != nil {
@@ -129,6 +134,7 @@ func (f createFlags) apply(in *generator.Input, pkg, key, appID, server string) 
 	in.Spec.BundleID = firstOf(*f.bundleID, in.Spec.ApplicationID)
 	in.Spec.AppVersion = *f.version
 	in.Spec.SplashColor = *f.splash
+	in.Spec.Router = *f.router
 	in.Spec.Plux = generator.PluxSource{AppKey: key, AppID: appID, Endpoint: server, Environment: *f.env, Channel: *f.channel, EntryRoute: in.Spec.Plux.EntryRoute}
 	in.PluxPath = *f.pluxPath
 	if *f.icon != "" {
