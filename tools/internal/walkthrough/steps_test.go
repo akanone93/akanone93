@@ -133,16 +133,23 @@ func TestPropagationWithoutAnEarlierDocument(t *testing.T) {
 	}
 }
 
-// Step 5 makes the newest release mandatory, forces the rollback to the
-// baseline step 3 promoted, and withdraws both.
+// Step 5 promotes the newest release, makes it mandatory, forces the
+// rollback to the baseline step 3 promoted, and withdraws both.
 func TestMandatoryAndRollbackStep(t *testing.T) {
 	t.Parallel()
 	env, plux, fleet := testEnv(t)
 	env.state.baseline = "4"
-	version := 1
+	version, promoted := 1, false
 	plux.rules = []rule{
 		{[]string{"release list"}, out(`{"releases":[{"sequence":9},{"sequence":8}]}`)},
-		{[]string{"control mandatory", "--release 9"}, func(Command) Result { version++; return Result{} }},
+		{[]string{"release promote", "--env staging", " 9"}, func(Command) Result { promoted = true; return Result{} }},
+		{[]string{"control mandatory", "--release 9"}, func(Command) Result {
+			if !promoted {
+				return Result{ExitCode: 1, Stderr: "PLX-8033: promote it first"}
+			}
+			version++
+			return Result{}
+		}},
 		{[]string{"control rollback", "--release 4"}, func(Command) Result { version++; return Result{} }},
 		{[]string{"control mandatory", "--clear"}, out("")},
 		{[]string{"control rollback", "--clear"}, out("")},
