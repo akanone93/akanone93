@@ -4,7 +4,7 @@ The scripted regulated-industry audit walkthrough, the exit criterion of phase 9
 
 | Piece | Where |
 |---|---|
-| The cluster, the chart, the seed, the port-forward, the hooks | [`walkthrough-kind.sh`](walkthrough-kind.sh) |
+| The cluster, the chart, the seed, the api published on localhost, the hooks | [`walkthrough-kind.sh`](walkthrough-kind.sh) |
 | The step runner, the steps, the evidence store and bundle signing | [`tools/internal/walkthrough`](../../tools/internal/walkthrough) |
 | The command (`run`, `verify`) | [`tools/cmd/walkthrough`](../../tools/cmd/walkthrough) |
 | The project the steps publish | [`schema/testdata/documents/plux_bank`](../../schema/testdata/documents/plux_bank), copied for the run and never changed in place |
