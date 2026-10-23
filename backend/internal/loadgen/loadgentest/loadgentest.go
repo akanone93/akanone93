@@ -44,9 +44,11 @@ type Server struct {
 	// releases is the release sequence of each event, in the order of events.
 	releases []int64
 	tokens   []string
-	devices  int
-	control  int64
-	seenJTIs map[string]bool
+	// installed is each release a device reported it runs, in order.
+	installed []int64
+	devices   int
+	control   int64
+	seenJTIs  map[string]bool
 
 	// FailTelemetry, when set, makes IngestEvents fail with that code.
 	failTelemetry atomic.Uint32
@@ -141,6 +143,13 @@ func (s *Server) PushTokens() []string {
 	return append([]string(nil), s.tokens...)
 }
 
+// Installed returns each release a device reported it runs, in order.
+func (s *Server) Installed() []int64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]int64(nil), s.installed...)
+}
+
 // WrapUnary verifies the DPoP proof of every call, which is what the
 // server's authentication does for the device procedures, and answers with
 // the current nonce.
@@ -224,6 +233,13 @@ func (h deviceHandler) RegisterPushToken(_ context.Context, r *connect.Request[p
 	h.s.tokens = append(h.s.tokens, r.Msg.GetToken())
 	h.s.mu.Unlock()
 	return connect.NewResponse(&pluxv1.RegisterPushTokenResponse{}), nil
+}
+
+func (h deviceHandler) ReportInstalled(_ context.Context, r *connect.Request[pluxv1.ReportInstalledRequest]) (*connect.Response[pluxv1.ReportInstalledResponse], error) {
+	h.s.mu.Lock()
+	h.s.installed = append(h.s.installed, r.Msg.GetReleaseSequence())
+	h.s.mu.Unlock()
+	return connect.NewResponse(&pluxv1.ReportInstalledResponse{}), nil
 }
 
 type tokenHandler struct {
