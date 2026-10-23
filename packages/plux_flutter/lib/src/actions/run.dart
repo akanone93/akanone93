@@ -208,7 +208,8 @@ final class ActionRun {
     required this.limits,
     this.event,
     this.tracer,
-  }) : scope = RunScope(context.state) {
+    int runId = 0,
+  }) : scope = RunScope(context.state, runId: runId) {
     this.context = context.forRun(scope);
   }
 

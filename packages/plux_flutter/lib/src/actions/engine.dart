@@ -572,6 +572,7 @@ final class ActionHost {
       limits: limits,
       event: event,
       tracer: tracer,
+      runId: buffer?.nextRunId() ?? 0,
     );
     (_active[key] ??= {}).add(run);
     if (!detached) {
@@ -630,7 +631,7 @@ final class ActionHost {
     if (buffer != null && tracer != null) {
       buffer.add(
         PluxActionTrace(
-          runId: buffer.nextRunId(),
+          runId: run.scope.runId,
           graphId: graph.id,
           trigger: trigger.name,
           route: route,

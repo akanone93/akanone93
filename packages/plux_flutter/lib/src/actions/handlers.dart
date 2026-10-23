@@ -156,7 +156,13 @@ final class OptimisticLog {
 /// What one run gives its handlers.
 final class RunScope {
   /// Creates the scope of a run that writes [state].
-  RunScope(ActionState state) : optimistic = OptimisticLog(state);
+  RunScope(ActionState state, {this.runId = 0})
+    : optimistic = OptimisticLog(state);
+
+  /// The run's ID in the trace buffer, assigned when the run starts, so
+  /// that what the run causes (a function call, say) names its run in the
+  /// dev stream (DEV-020); 0 for a run that is not traced.
+  final int runId;
 
   /// Changes rolled back when the run fails, such as a `patchState` with
   /// `optimistic` set (ACT-007).
