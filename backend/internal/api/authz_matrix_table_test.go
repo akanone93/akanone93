@@ -803,9 +803,21 @@ var matrix = map[string]entry{
 		Command:   &pluxv1.DevSessionServiceSendCommandRequest_CaptureScreenshot{CaptureScreenshot: &pluxv1.CaptureScreenshotCommand{}},
 	})),
 	"DevSessionService/ExportTrace": atPerm(auth.DevSessionObserve, anyone(&pluxv1.DevSessionServiceExportTraceRequest{SessionId: unknownID})),
-	// WatchEvents streams; D2 replaces this build with a call that reads
-	// the stream, as WatchPermissions does, when it mounts the service.
-	"DevSessionService/WatchEvents": atPerm(auth.DevSessionObserve, anyone(&pluxv1.DevSessionServiceWatchEventsRequest{SessionId: unknownID})),
+	// WatchEvents streams; the call reads the stream as WatchPermissions
+	// does.
+	"DevSessionService/WatchEvents": {kind: needs, perm: auth.DevSessionObserve, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		stream, err := f.w.devSession.WatchEvents(ctx, req(c, &pluxv1.DevSessionServiceWatchEventsRequest{SessionId: unknownID}))
+		if err != nil {
+			return err //nolint:wrapcheck // the code is what the test reads
+		}
+		defer func() { _ = stream.Close() }()
+		if !stream.Receive() {
+			return stream.Err() //nolint:wrapcheck // the code is what the test reads
+		}
+		return nil
+	}},
 
 	// The device's side: a person's session never satisfies these.
 	"DeviceService/RegisterDevice":              {kind: deviceRPC, build: anyone(&pluxv1.RegisterDeviceRequest{})},

@@ -354,6 +354,38 @@ func (q *Queries) ListDevSessionDevices(ctx context.Context, sessionID pgtype.UU
 	return items, nil
 }
 
+const renewDevSocketTicket = `-- name: RenewDevSocketTicket :one
+UPDATE dev_session_devices SET ticket_hash = $1, ticket_expires_at = $2
+ WHERE id = $3 AND session_id = $4 AND device_id = $5
+   AND dpop_thumbprint = $6 AND revoked_at IS NULL
+ RETURNING id
+`
+
+type RenewDevSocketTicketParams struct {
+	TicketHash      []byte
+	TicketExpiresAt pgtype.Timestamptz
+	ID              pgtype.UUID
+	SessionID       pgtype.UUID
+	DeviceID        string
+	DpopThumbprint  string
+}
+
+// Gives a paired device a new socket ticket: the device row must be the
+// caller's own, bound to the key the proof was made with, and still paired.
+func (q *Queries) RenewDevSocketTicket(ctx context.Context, arg RenewDevSocketTicketParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, renewDevSocketTicket,
+		arg.TicketHash,
+		arg.TicketExpiresAt,
+		arg.ID,
+		arg.SessionID,
+		arg.DeviceID,
+		arg.DpopThumbprint,
+	)
+	var id pgtype.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const revokeDevSessionDevice = `-- name: RevokeDevSessionDevice :exec
 UPDATE dev_session_devices SET revoked_at = $3, ticket_hash = NULL, ticket_expires_at = NULL
  WHERE session_id = $1 AND device_id = $2 AND revoked_at IS NULL

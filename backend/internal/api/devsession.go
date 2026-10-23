@@ -16,8 +16,9 @@ import (
 )
 
 // DevSession serves DevSessionService: sessions and pairing (DEV-002,
-// DEV-003, ADR-0087). The relay's calls (PushPatch, SendCommand,
-// WatchEvents, ExportTrace) answer Unimplemented until the relay is served.
+// DEV-003, ADR-0087), and the relay's commands, stream and trace export
+// (DEV-020, DEV-021). PushPatch answers Unimplemented until the push of
+// patches is served.
 type DevSession struct {
 	pluxv1connect.UnimplementedDevSessionServiceHandler
 	h *Handlers
@@ -103,6 +104,90 @@ func (s DevSession) Pair(ctx context.Context, req *connect.Request[pluxv1.DevSes
 	return connect.NewResponse(&pluxv1.DevSessionServicePairResponse{
 		SessionId: res.SessionID, DeviceId: res.DeviceID, SocketTicket: res.Ticket, SocketTicketExpiresAt: ts(res.TicketExpiresAt),
 	}), nil
+}
+
+// RenewSocketTicket gives the calling device, authenticated by its access
+// token and DPoP proof, a new socket ticket for the session it is paired
+// with (DEV-021).
+func (s DevSession) RenewSocketTicket(ctx context.Context, req *connect.Request[pluxv1.DevSessionServiceRenewSocketTicketRequest]) (*connect.Response[pluxv1.DevSessionServiceRenewSocketTicketResponse], error) {
+	svc, err := s.service()
+	if err != nil {
+		return nil, err
+	}
+	d, err := deviceOf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	jkt, ok := DeviceKeyFrom(ctx)
+	if !ok {
+		return nil, plxerr.New(plxerr.AuthenticationRequired, "this call needs a device token and its proof")
+	}
+	t, err := svc.RenewSocketTicket(ctx,
+		devsession.Caller{DeviceID: d.DeviceID, OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, Thumbprint: jkt},
+		req.Msg.GetSessionId(), req.Msg.GetDeviceId())
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.DevSessionServiceRenewSocketTicketResponse{
+		SocketTicket: t.Ticket, SocketTicketExpiresAt: ts(t.ExpiresAt),
+	}), nil
+}
+
+// SendCommand sends a command to a device of the session, or to all of
+// them (DEV-011, DEV-031).
+func (s DevSession) SendCommand(ctx context.Context, req *connect.Request[pluxv1.DevSessionServiceSendCommandRequest]) (*connect.Response[pluxv1.DevSessionServiceSendCommandResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.DevSessionServiceSendCommandResponse, error) {
+		svc, err := s.service()
+		if err != nil {
+			return nil, err
+		}
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		sent, err := svc.SendCommand(ctx, p, req.Msg)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.DevSessionServiceSendCommandResponse{CommandId: sent.CommandID, DeviceIds: sent.DeviceIDs}, nil
+	})
+}
+
+// WatchEvents streams the session's events, resuming after a sequence
+// (DEV-021).
+func (s DevSession) WatchEvents(ctx context.Context, req *connect.Request[pluxv1.DevSessionServiceWatchEventsRequest], stream *connect.ServerStream[pluxv1.DevSessionServiceWatchEventsResponse]) error {
+	svc, err := s.service()
+	if err != nil {
+		return err
+	}
+	p, err := s.h.principal(ctx, req.Header(), "")
+	if err != nil {
+		return err
+	}
+	m := req.Msg
+	return svc.Watch(ctx, p, m.GetSessionId(), m.GetDeviceIds(), m.GetAfterSequence(), func(ev *pluxv1.DevEvent) error { //nolint:wrapcheck // a domain error
+		return stream.Send(&pluxv1.DevSessionServiceWatchEventsResponse{Event: ev}) //nolint:wrapcheck // the stream's own error
+	})
+}
+
+// ExportTrace returns the session's retained events as a trace file
+// (DEV-021).
+func (s DevSession) ExportTrace(ctx context.Context, req *connect.Request[pluxv1.DevSessionServiceExportTraceRequest]) (*connect.Response[pluxv1.DevSessionServiceExportTraceResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.DevSessionServiceExportTraceResponse, error) {
+		svc, err := s.service()
+		if err != nil {
+			return nil, err
+		}
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		trace, err := svc.ExportTrace(ctx, p, req.Msg.GetSessionId(), req.Msg.GetDeviceIds())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.DevSessionServiceExportTraceResponse{Trace: trace.File, EventCount: trace.Events}, nil
+	})
 }
 
 // ListDevices lists the devices paired with a session.

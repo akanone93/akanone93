@@ -35,6 +35,9 @@ type fixture struct {
 	// is the same kind of person without one.
 	Developer auth.Principal
 	Unstepped auth.Principal
+	// tight tightens limits for the organisation; a test sets it before
+	// it starts anything that reads the limits.
+	tight map[limits.Key]int64
 }
 
 // newFixture builds the world and the service; devices overrides
@@ -46,13 +49,19 @@ func newFixture(t *testing.T, devices int64) *fixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	f := &fixture{World: w, configs: configs, signer: devicetest.NewTokenSigner(t)}
+	f := &fixture{World: w, configs: configs, signer: devicetest.NewTokenSigner(t), tight: map[limits.Key]int64{}}
+	if devices != 0 {
+		f.tight[limits.DevSessionDevicesPerSession] = devices
+	}
 	lim := func(ctx context.Context, tx pgx.Tx, org, _ string) (limits.Set, error) {
 		set, err := w.Limits(ctx, tx, org)
-		if err != nil || devices == 0 {
-			return set, err
+		for k, v := range f.tight {
+			if err != nil {
+				break
+			}
+			set, err = set.Tighten(k, limits.ScopeOrganization, v)
 		}
-		return set.Tighten(limits.DevSessionDevicesPerSession, limits.ScopeOrganization, devices) //nolint:wrapcheck // a test
+		return set, err //nolint:wrapcheck // a test
 	}
 	f.svc, err = devsession.New(devsession.Options{
 		DB: w.DB, Audit: w.Log, IDs: w.Gen, Limits: lim, Tokens: f.signer, Environments: []string{"development"},
