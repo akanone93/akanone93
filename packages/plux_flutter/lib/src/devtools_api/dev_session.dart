@@ -11,8 +11,6 @@
 /// it (`DEV-050`).
 library;
 
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 
 import 'package:plux_flutter/src/errors/plux_exception.dart';
