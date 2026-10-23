@@ -2533,6 +2533,546 @@ func (x *DevSessionServiceExportTraceResponse) GetEventCount() uint64 {
 	return 0
 }
 
+// DevDeviceFrame is one frame a paired device sends.
+type DevDeviceFrame struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*DevDeviceFrame_Hello
+	//	*DevDeviceFrame_Event
+	Payload       isDevDeviceFrame_Payload `protobuf_oneof:"payload"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevDeviceFrame) Reset() {
+	*x = DevDeviceFrame{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevDeviceFrame) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevDeviceFrame) ProtoMessage() {}
+
+func (x *DevDeviceFrame) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevDeviceFrame.ProtoReflect.Descriptor instead.
+func (*DevDeviceFrame) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *DevDeviceFrame) GetPayload() isDevDeviceFrame_Payload {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *DevDeviceFrame) GetHello() *DevDeviceHello {
+	if x != nil {
+		if x, ok := x.Payload.(*DevDeviceFrame_Hello); ok {
+			return x.Hello
+		}
+	}
+	return nil
+}
+
+func (x *DevDeviceFrame) GetEvent() *DevEvent {
+	if x != nil {
+		if x, ok := x.Payload.(*DevDeviceFrame_Event); ok {
+			return x.Event
+		}
+	}
+	return nil
+}
+
+type isDevDeviceFrame_Payload interface {
+	isDevDeviceFrame_Payload()
+}
+
+type DevDeviceFrame_Hello struct {
+	// hello is the first frame after every upgrade.
+	Hello *DevDeviceHello `protobuf:"bytes,1,opt,name=hello,proto3,oneof"`
+}
+
+type DevDeviceFrame_Event struct {
+	// event is something that happened on the device. Its sequence is the
+	// device's own, counted from 1 for the device's first event; the
+	// server replaces it with the session's sequence when it relays it.
+	Event *DevEvent `protobuf:"bytes,2,opt,name=event,proto3,oneof"`
+}
+
+func (*DevDeviceFrame_Hello) isDevDeviceFrame_Payload() {}
+
+func (*DevDeviceFrame_Event) isDevDeviceFrame_Payload() {}
+
+// DevDeviceHello resumes a device's stream after a reconnect (DEV-021).
+type DevDeviceHello struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// last_server_sequence is the last server frame the device carried out;
+	// the server sends the frames after it that it still holds.
+	LastServerSequence uint64 `protobuf:"varint,1,opt,name=last_server_sequence,json=lastServerSequence,proto3" json:"last_server_sequence,omitempty"`
+	// last_acknowledged_event is the last device event sequence the device
+	// saw acknowledged; it resends from the next one.
+	LastAcknowledgedEvent uint64 `protobuf:"varint,2,opt,name=last_acknowledged_event,json=lastAcknowledgedEvent,proto3" json:"last_acknowledged_event,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *DevDeviceHello) Reset() {
+	*x = DevDeviceHello{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevDeviceHello) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevDeviceHello) ProtoMessage() {}
+
+func (x *DevDeviceHello) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevDeviceHello.ProtoReflect.Descriptor instead.
+func (*DevDeviceHello) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *DevDeviceHello) GetLastServerSequence() uint64 {
+	if x != nil {
+		return x.LastServerSequence
+	}
+	return 0
+}
+
+func (x *DevDeviceHello) GetLastAcknowledgedEvent() uint64 {
+	if x != nil {
+		return x.LastAcknowledgedEvent
+	}
+	return 0
+}
+
+// DevServerFrame is one frame the server sends a paired device.
+type DevServerFrame struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// sequence numbers the server's frames to the device, from 1.
+	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*DevServerFrame_Bundle
+	//	*DevServerFrame_Command
+	//	*DevServerFrame_Ack
+	//	*DevServerFrame_Ended
+	Payload       isDevServerFrame_Payload `protobuf_oneof:"payload"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevServerFrame) Reset() {
+	*x = DevServerFrame{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevServerFrame) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevServerFrame) ProtoMessage() {}
+
+func (x *DevServerFrame) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevServerFrame.ProtoReflect.Descriptor instead.
+func (*DevServerFrame) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *DevServerFrame) GetSequence() uint64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+func (x *DevServerFrame) GetPayload() isDevServerFrame_Payload {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *DevServerFrame) GetBundle() *DevBundleFrame {
+	if x != nil {
+		if x, ok := x.Payload.(*DevServerFrame_Bundle); ok {
+			return x.Bundle
+		}
+	}
+	return nil
+}
+
+func (x *DevServerFrame) GetCommand() *DevCommandFrame {
+	if x != nil {
+		if x, ok := x.Payload.(*DevServerFrame_Command); ok {
+			return x.Command
+		}
+	}
+	return nil
+}
+
+func (x *DevServerFrame) GetAck() *DevEventAck {
+	if x != nil {
+		if x, ok := x.Payload.(*DevServerFrame_Ack); ok {
+			return x.Ack
+		}
+	}
+	return nil
+}
+
+func (x *DevServerFrame) GetEnded() *DevSessionEnded {
+	if x != nil {
+		if x, ok := x.Payload.(*DevServerFrame_Ended); ok {
+			return x.Ended
+		}
+	}
+	return nil
+}
+
+type isDevServerFrame_Payload interface {
+	isDevServerFrame_Payload()
+}
+
+type DevServerFrame_Bundle struct {
+	// bundle is a dev bundle to verify and apply (DEV-010).
+	Bundle *DevBundleFrame `protobuf:"bytes,10,opt,name=bundle,proto3,oneof"`
+}
+
+type DevServerFrame_Command struct {
+	// command is a command to carry out (DEV-011, DEV-031).
+	Command *DevCommandFrame `protobuf:"bytes,11,opt,name=command,proto3,oneof"`
+}
+
+type DevServerFrame_Ack struct {
+	// ack acknowledges the device's events up to and including a sequence.
+	Ack *DevEventAck `protobuf:"bytes,12,opt,name=ack,proto3,oneof"`
+}
+
+type DevServerFrame_Ended struct {
+	// ended says the session ended; the server closes the socket after it.
+	Ended *DevSessionEnded `protobuf:"bytes,13,opt,name=ended,proto3,oneof"`
+}
+
+func (*DevServerFrame_Bundle) isDevServerFrame_Payload() {}
+
+func (*DevServerFrame_Command) isDevServerFrame_Payload() {}
+
+func (*DevServerFrame_Ack) isDevServerFrame_Payload() {}
+
+func (*DevServerFrame_Ended) isDevServerFrame_Payload() {}
+
+// DevBundleFrame carries a dev bundle: a manifest signed with the
+// development key of the session's environment and the sections it names.
+type DevBundleFrame struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// bundle_sequence is the bundle's number in the session's own sequence
+	// space, which never meets the production store's.
+	BundleSequence uint64 `protobuf:"varint,1,opt,name=bundle_sequence,json=bundleSequence,proto3" json:"bundle_sequence,omitempty"`
+	Manifest       []byte `protobuf:"bytes,2,opt,name=manifest,proto3" json:"manifest,omitempty"`
+	// sections are the section bytes by section ID.
+	Sections map[string][]byte `protobuf:"bytes,3,rep,name=sections,proto3" json:"sections,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// incompatible_scopes lists, per page ID, the state scopes whose schema
+	// changed (the compiler's verdict); a page absent from the map keeps its
+	// state.
+	IncompatibleScopes map[string]*DevScopeList `protobuf:"bytes,4,rep,name=incompatible_scopes,json=incompatibleScopes,proto3" json:"incompatible_scopes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *DevBundleFrame) Reset() {
+	*x = DevBundleFrame{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevBundleFrame) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevBundleFrame) ProtoMessage() {}
+
+func (x *DevBundleFrame) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevBundleFrame.ProtoReflect.Descriptor instead.
+func (*DevBundleFrame) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *DevBundleFrame) GetBundleSequence() uint64 {
+	if x != nil {
+		return x.BundleSequence
+	}
+	return 0
+}
+
+func (x *DevBundleFrame) GetManifest() []byte {
+	if x != nil {
+		return x.Manifest
+	}
+	return nil
+}
+
+func (x *DevBundleFrame) GetSections() map[string][]byte {
+	if x != nil {
+		return x.Sections
+	}
+	return nil
+}
+
+func (x *DevBundleFrame) GetIncompatibleScopes() map[string]*DevScopeList {
+	if x != nil {
+		return x.IncompatibleScopes
+	}
+	return nil
+}
+
+// DevScopeList is a list of state scope names.
+type DevScopeList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Scopes        []string               `protobuf:"bytes,1,rep,name=scopes,proto3" json:"scopes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevScopeList) Reset() {
+	*x = DevScopeList{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevScopeList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevScopeList) ProtoMessage() {}
+
+func (x *DevScopeList) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevScopeList.ProtoReflect.Descriptor instead.
+func (*DevScopeList) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *DevScopeList) GetScopes() []string {
+	if x != nil {
+		return x.Scopes
+	}
+	return nil
+}
+
+// DevCommandFrame carries one command to the device.
+type DevCommandFrame struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// command_id is echoed in the device's CommandResultEvent.
+	CommandId string `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
+	// command holds the command in its oneof; session_id and device_id are
+	// not set.
+	Command       *DevSessionServiceSendCommandRequest `protobuf:"bytes,2,opt,name=command,proto3" json:"command,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevCommandFrame) Reset() {
+	*x = DevCommandFrame{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevCommandFrame) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevCommandFrame) ProtoMessage() {}
+
+func (x *DevCommandFrame) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevCommandFrame.ProtoReflect.Descriptor instead.
+func (*DevCommandFrame) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *DevCommandFrame) GetCommandId() string {
+	if x != nil {
+		return x.CommandId
+	}
+	return ""
+}
+
+func (x *DevCommandFrame) GetCommand() *DevSessionServiceSendCommandRequest {
+	if x != nil {
+		return x.Command
+	}
+	return nil
+}
+
+// DevEventAck acknowledges a device's events.
+type DevEventAck struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UpTo          uint64                 `protobuf:"varint,1,opt,name=up_to,json=upTo,proto3" json:"up_to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevEventAck) Reset() {
+	*x = DevEventAck{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevEventAck) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevEventAck) ProtoMessage() {}
+
+func (x *DevEventAck) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevEventAck.ProtoReflect.Descriptor instead.
+func (*DevEventAck) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *DevEventAck) GetUpTo() uint64 {
+	if x != nil {
+		return x.UpTo
+	}
+	return 0
+}
+
+// DevSessionEnded tells a device its session ended.
+type DevSessionEnded struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// code is the error code of the reason, such as PLX-9200.
+	Code          string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevSessionEnded) Reset() {
+	*x = DevSessionEnded{}
+	mi := &file_plux_v1_devsession_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevSessionEnded) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevSessionEnded) ProtoMessage() {}
+
+func (x *DevSessionEnded) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devsession_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevSessionEnded.ProtoReflect.Descriptor instead.
+func (*DevSessionEnded) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *DevSessionEnded) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
 var File_plux_v1_devsession_proto protoreflect.FileDescriptor
 
 const file_plux_v1_devsession_proto_rawDesc = "" +
@@ -2704,7 +3244,43 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"$DevSessionServiceExportTraceResponse\x12\x14\n" +
 	"\x05trace\x18\x01 \x01(\fR\x05trace\x12\x1f\n" +
 	"\vevent_count\x18\x02 \x01(\x04R\n" +
-	"eventCount*\xb5\x01\n" +
+	"eventCount\"w\n" +
+	"\x0eDevDeviceFrame\x12/\n" +
+	"\x05hello\x18\x01 \x01(\v2\x17.plux.v1.DevDeviceHelloH\x00R\x05hello\x12)\n" +
+	"\x05event\x18\x02 \x01(\v2\x11.plux.v1.DevEventH\x00R\x05eventB\t\n" +
+	"\apayload\"z\n" +
+	"\x0eDevDeviceHello\x120\n" +
+	"\x14last_server_sequence\x18\x01 \x01(\x04R\x12lastServerSequence\x126\n" +
+	"\x17last_acknowledged_event\x18\x02 \x01(\x04R\x15lastAcknowledgedEvent\"\xfc\x01\n" +
+	"\x0eDevServerFrame\x12\x1a\n" +
+	"\bsequence\x18\x01 \x01(\x04R\bsequence\x121\n" +
+	"\x06bundle\x18\n" +
+	" \x01(\v2\x17.plux.v1.DevBundleFrameH\x00R\x06bundle\x124\n" +
+	"\acommand\x18\v \x01(\v2\x18.plux.v1.DevCommandFrameH\x00R\acommand\x12(\n" +
+	"\x03ack\x18\f \x01(\v2\x14.plux.v1.DevEventAckH\x00R\x03ack\x120\n" +
+	"\x05ended\x18\r \x01(\v2\x18.plux.v1.DevSessionEndedH\x00R\x05endedB\t\n" +
+	"\apayload\"\x95\x03\n" +
+	"\x0eDevBundleFrame\x12'\n" +
+	"\x0fbundle_sequence\x18\x01 \x01(\x04R\x0ebundleSequence\x12\x1a\n" +
+	"\bmanifest\x18\x02 \x01(\fR\bmanifest\x12A\n" +
+	"\bsections\x18\x03 \x03(\v2%.plux.v1.DevBundleFrame.SectionsEntryR\bsections\x12`\n" +
+	"\x13incompatible_scopes\x18\x04 \x03(\v2/.plux.v1.DevBundleFrame.IncompatibleScopesEntryR\x12incompatibleScopes\x1a;\n" +
+	"\rSectionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\x1a\\\n" +
+	"\x17IncompatibleScopesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12+\n" +
+	"\x05value\x18\x02 \x01(\v2\x15.plux.v1.DevScopeListR\x05value:\x028\x01\"&\n" +
+	"\fDevScopeList\x12\x16\n" +
+	"\x06scopes\x18\x01 \x03(\tR\x06scopes\"x\n" +
+	"\x0fDevCommandFrame\x12\x1d\n" +
+	"\n" +
+	"command_id\x18\x01 \x01(\tR\tcommandId\x12F\n" +
+	"\acommand\x18\x02 \x01(\v2,.plux.v1.DevSessionServiceSendCommandRequestR\acommand\"\"\n" +
+	"\vDevEventAck\x12\x13\n" +
+	"\x05up_to\x18\x01 \x01(\x04R\x04upTo\"%\n" +
+	"\x0fDevSessionEnded\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code*\xb5\x01\n" +
 	"\x0eDevPatchStatus\x12 \n" +
 	"\x1cDEV_PATCH_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18DEV_PATCH_STATUS_APPLIED\x10\x01\x12'\n" +
@@ -2756,7 +3332,7 @@ func file_plux_v1_devsession_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_devsession_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_plux_v1_devsession_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_plux_v1_devsession_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
 var file_plux_v1_devsession_proto_goTypes = []any{
 	(DevPatchStatus)(0),    // 0: plux.v1.DevPatchStatus
 	(DevThemeMode)(0),      // 1: plux.v1.DevThemeMode
@@ -2797,40 +3373,50 @@ var file_plux_v1_devsession_proto_goTypes = []any{
 	(*DevSessionServiceWatchEventsResponse)(nil),   // 36: plux.v1.DevSessionServiceWatchEventsResponse
 	(*DevSessionServiceExportTraceRequest)(nil),    // 37: plux.v1.DevSessionServiceExportTraceRequest
 	(*DevSessionServiceExportTraceResponse)(nil),   // 38: plux.v1.DevSessionServiceExportTraceResponse
-	nil,                           // 39: plux.v1.OpenScreenCommand.ParamsEntry
-	(*Actor)(nil),                 // 40: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil), // 41: google.protobuf.Timestamp
-	(*PatchOp)(nil),               // 42: plux.v1.PatchOp
-	(*DevError)(nil),              // 43: plux.v1.DevError
-	(*Diagnostic)(nil),            // 44: plux.v1.Diagnostic
-	(DevSecurityDetectionKind)(0), // 45: plux.v1.DevSecurityDetectionKind
-	(*DevEvent)(nil),              // 46: plux.v1.DevEvent
+	(*DevDeviceFrame)(nil),                         // 39: plux.v1.DevDeviceFrame
+	(*DevDeviceHello)(nil),                         // 40: plux.v1.DevDeviceHello
+	(*DevServerFrame)(nil),                         // 41: plux.v1.DevServerFrame
+	(*DevBundleFrame)(nil),                         // 42: plux.v1.DevBundleFrame
+	(*DevScopeList)(nil),                           // 43: plux.v1.DevScopeList
+	(*DevCommandFrame)(nil),                        // 44: plux.v1.DevCommandFrame
+	(*DevEventAck)(nil),                            // 45: plux.v1.DevEventAck
+	(*DevSessionEnded)(nil),                        // 46: plux.v1.DevSessionEnded
+	nil,                                            // 47: plux.v1.OpenScreenCommand.ParamsEntry
+	nil,                                            // 48: plux.v1.DevBundleFrame.SectionsEntry
+	nil,                                            // 49: plux.v1.DevBundleFrame.IncompatibleScopesEntry
+	(*Actor)(nil),                                  // 50: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),                  // 51: google.protobuf.Timestamp
+	(*PatchOp)(nil),                                // 52: plux.v1.PatchOp
+	(*DevError)(nil),                               // 53: plux.v1.DevError
+	(*Diagnostic)(nil),                             // 54: plux.v1.Diagnostic
+	(DevSecurityDetectionKind)(0),                  // 55: plux.v1.DevSecurityDetectionKind
+	(*DevEvent)(nil),                               // 56: plux.v1.DevEvent
 }
 var file_plux_v1_devsession_proto_depIdxs = []int32{
-	40, // 0: plux.v1.DevSession.created_by:type_name -> plux.v1.Actor
-	41, // 1: plux.v1.DevSession.created_at:type_name -> google.protobuf.Timestamp
-	41, // 2: plux.v1.DevSession.expires_at:type_name -> google.protobuf.Timestamp
-	41, // 3: plux.v1.DevSession.ended_at:type_name -> google.protobuf.Timestamp
-	41, // 4: plux.v1.DevPairing.expires_at:type_name -> google.protobuf.Timestamp
-	41, // 5: plux.v1.DevDevice.paired_at:type_name -> google.protobuf.Timestamp
-	41, // 6: plux.v1.DevDevice.last_seen_at:type_name -> google.protobuf.Timestamp
+	50, // 0: plux.v1.DevSession.created_by:type_name -> plux.v1.Actor
+	51, // 1: plux.v1.DevSession.created_at:type_name -> google.protobuf.Timestamp
+	51, // 2: plux.v1.DevSession.expires_at:type_name -> google.protobuf.Timestamp
+	51, // 3: plux.v1.DevSession.ended_at:type_name -> google.protobuf.Timestamp
+	51, // 4: plux.v1.DevPairing.expires_at:type_name -> google.protobuf.Timestamp
+	51, // 5: plux.v1.DevDevice.paired_at:type_name -> google.protobuf.Timestamp
+	51, // 6: plux.v1.DevDevice.last_seen_at:type_name -> google.protobuf.Timestamp
 	4,  // 7: plux.v1.DevSessionServiceCreateSessionResponse.session:type_name -> plux.v1.DevSession
 	5,  // 8: plux.v1.DevSessionServiceCreateSessionResponse.pairing:type_name -> plux.v1.DevPairing
 	5,  // 9: plux.v1.DevSessionServiceGetPairingResponse.pairing:type_name -> plux.v1.DevPairing
-	41, // 10: plux.v1.DevSessionServicePairResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
+	51, // 10: plux.v1.DevSessionServicePairResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
 	6,  // 11: plux.v1.DevSessionServiceListDevicesResponse.devices:type_name -> plux.v1.DevDevice
 	4,  // 12: plux.v1.DevSessionServiceEndSessionResponse.session:type_name -> plux.v1.DevSession
-	42, // 13: plux.v1.DevDocumentPatch.patch:type_name -> plux.v1.PatchOp
+	52, // 13: plux.v1.DevDocumentPatch.patch:type_name -> plux.v1.PatchOp
 	17, // 14: plux.v1.DevSessionServicePushPatchRequest.patches:type_name -> plux.v1.DevDocumentPatch
 	0,  // 15: plux.v1.DevPatchResult.status:type_name -> plux.v1.DevPatchStatus
-	43, // 16: plux.v1.DevPatchResult.error:type_name -> plux.v1.DevError
+	53, // 16: plux.v1.DevPatchResult.error:type_name -> plux.v1.DevError
 	19, // 17: plux.v1.DevSessionServicePushPatchResponse.results:type_name -> plux.v1.DevPatchResult
-	44, // 18: plux.v1.DevSessionServicePushPatchResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	39, // 19: plux.v1.OpenScreenCommand.params:type_name -> plux.v1.OpenScreenCommand.ParamsEntry
+	54, // 18: plux.v1.DevSessionServicePushPatchResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	47, // 19: plux.v1.OpenScreenCommand.params:type_name -> plux.v1.OpenScreenCommand.ParamsEntry
 	1,  // 20: plux.v1.OpenScreenCommand.theme:type_name -> plux.v1.DevThemeMode
 	21, // 21: plux.v1.OpenScreenCommand.mocks:type_name -> plux.v1.MockSelection
 	2,  // 22: plux.v1.LifecycleCommand.event:type_name -> plux.v1.DevLifecycleEvent
-	45, // 23: plux.v1.SimulateSecurityDetectionCommand.kind:type_name -> plux.v1.DevSecurityDetectionKind
+	55, // 23: plux.v1.SimulateSecurityDetectionCommand.kind:type_name -> plux.v1.DevSecurityDetectionKind
 	3,  // 24: plux.v1.ToggleOverlayCommand.overlay:type_name -> plux.v1.DevOverlay
 	22, // 25: plux.v1.DevSessionServiceSendCommandRequest.open_screen:type_name -> plux.v1.OpenScreenCommand
 	23, // 26: plux.v1.DevSessionServiceSendCommandRequest.set_state:type_name -> plux.v1.SetStateCommand
@@ -2843,30 +3429,40 @@ var file_plux_v1_devsession_proto_depIdxs = []int32{
 	30, // 33: plux.v1.DevSessionServiceSendCommandRequest.capture_screenshot:type_name -> plux.v1.CaptureScreenshotCommand
 	31, // 34: plux.v1.DevSessionServiceSendCommandRequest.inspect_select:type_name -> plux.v1.InspectSelectCommand
 	32, // 35: plux.v1.DevSessionServiceSendCommandRequest.toggle_overlay:type_name -> plux.v1.ToggleOverlayCommand
-	46, // 36: plux.v1.DevSessionServiceWatchEventsResponse.event:type_name -> plux.v1.DevEvent
-	7,  // 37: plux.v1.DevSessionService.CreateSession:input_type -> plux.v1.DevSessionServiceCreateSessionRequest
-	9,  // 38: plux.v1.DevSessionService.GetPairing:input_type -> plux.v1.DevSessionServiceGetPairingRequest
-	11, // 39: plux.v1.DevSessionService.Pair:input_type -> plux.v1.DevSessionServicePairRequest
-	13, // 40: plux.v1.DevSessionService.ListDevices:input_type -> plux.v1.DevSessionServiceListDevicesRequest
-	15, // 41: plux.v1.DevSessionService.EndSession:input_type -> plux.v1.DevSessionServiceEndSessionRequest
-	18, // 42: plux.v1.DevSessionService.PushPatch:input_type -> plux.v1.DevSessionServicePushPatchRequest
-	33, // 43: plux.v1.DevSessionService.SendCommand:input_type -> plux.v1.DevSessionServiceSendCommandRequest
-	35, // 44: plux.v1.DevSessionService.WatchEvents:input_type -> plux.v1.DevSessionServiceWatchEventsRequest
-	37, // 45: plux.v1.DevSessionService.ExportTrace:input_type -> plux.v1.DevSessionServiceExportTraceRequest
-	8,  // 46: plux.v1.DevSessionService.CreateSession:output_type -> plux.v1.DevSessionServiceCreateSessionResponse
-	10, // 47: plux.v1.DevSessionService.GetPairing:output_type -> plux.v1.DevSessionServiceGetPairingResponse
-	12, // 48: plux.v1.DevSessionService.Pair:output_type -> plux.v1.DevSessionServicePairResponse
-	14, // 49: plux.v1.DevSessionService.ListDevices:output_type -> plux.v1.DevSessionServiceListDevicesResponse
-	16, // 50: plux.v1.DevSessionService.EndSession:output_type -> plux.v1.DevSessionServiceEndSessionResponse
-	20, // 51: plux.v1.DevSessionService.PushPatch:output_type -> plux.v1.DevSessionServicePushPatchResponse
-	34, // 52: plux.v1.DevSessionService.SendCommand:output_type -> plux.v1.DevSessionServiceSendCommandResponse
-	36, // 53: plux.v1.DevSessionService.WatchEvents:output_type -> plux.v1.DevSessionServiceWatchEventsResponse
-	38, // 54: plux.v1.DevSessionService.ExportTrace:output_type -> plux.v1.DevSessionServiceExportTraceResponse
-	46, // [46:55] is the sub-list for method output_type
-	37, // [37:46] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	56, // 36: plux.v1.DevSessionServiceWatchEventsResponse.event:type_name -> plux.v1.DevEvent
+	40, // 37: plux.v1.DevDeviceFrame.hello:type_name -> plux.v1.DevDeviceHello
+	56, // 38: plux.v1.DevDeviceFrame.event:type_name -> plux.v1.DevEvent
+	42, // 39: plux.v1.DevServerFrame.bundle:type_name -> plux.v1.DevBundleFrame
+	44, // 40: plux.v1.DevServerFrame.command:type_name -> plux.v1.DevCommandFrame
+	45, // 41: plux.v1.DevServerFrame.ack:type_name -> plux.v1.DevEventAck
+	46, // 42: plux.v1.DevServerFrame.ended:type_name -> plux.v1.DevSessionEnded
+	48, // 43: plux.v1.DevBundleFrame.sections:type_name -> plux.v1.DevBundleFrame.SectionsEntry
+	49, // 44: plux.v1.DevBundleFrame.incompatible_scopes:type_name -> plux.v1.DevBundleFrame.IncompatibleScopesEntry
+	33, // 45: plux.v1.DevCommandFrame.command:type_name -> plux.v1.DevSessionServiceSendCommandRequest
+	43, // 46: plux.v1.DevBundleFrame.IncompatibleScopesEntry.value:type_name -> plux.v1.DevScopeList
+	7,  // 47: plux.v1.DevSessionService.CreateSession:input_type -> plux.v1.DevSessionServiceCreateSessionRequest
+	9,  // 48: plux.v1.DevSessionService.GetPairing:input_type -> plux.v1.DevSessionServiceGetPairingRequest
+	11, // 49: plux.v1.DevSessionService.Pair:input_type -> plux.v1.DevSessionServicePairRequest
+	13, // 50: plux.v1.DevSessionService.ListDevices:input_type -> plux.v1.DevSessionServiceListDevicesRequest
+	15, // 51: plux.v1.DevSessionService.EndSession:input_type -> plux.v1.DevSessionServiceEndSessionRequest
+	18, // 52: plux.v1.DevSessionService.PushPatch:input_type -> plux.v1.DevSessionServicePushPatchRequest
+	33, // 53: plux.v1.DevSessionService.SendCommand:input_type -> plux.v1.DevSessionServiceSendCommandRequest
+	35, // 54: plux.v1.DevSessionService.WatchEvents:input_type -> plux.v1.DevSessionServiceWatchEventsRequest
+	37, // 55: plux.v1.DevSessionService.ExportTrace:input_type -> plux.v1.DevSessionServiceExportTraceRequest
+	8,  // 56: plux.v1.DevSessionService.CreateSession:output_type -> plux.v1.DevSessionServiceCreateSessionResponse
+	10, // 57: plux.v1.DevSessionService.GetPairing:output_type -> plux.v1.DevSessionServiceGetPairingResponse
+	12, // 58: plux.v1.DevSessionService.Pair:output_type -> plux.v1.DevSessionServicePairResponse
+	14, // 59: plux.v1.DevSessionService.ListDevices:output_type -> plux.v1.DevSessionServiceListDevicesResponse
+	16, // 60: plux.v1.DevSessionService.EndSession:output_type -> plux.v1.DevSessionServiceEndSessionResponse
+	20, // 61: plux.v1.DevSessionService.PushPatch:output_type -> plux.v1.DevSessionServicePushPatchResponse
+	34, // 62: plux.v1.DevSessionService.SendCommand:output_type -> plux.v1.DevSessionServiceSendCommandResponse
+	36, // 63: plux.v1.DevSessionService.WatchEvents:output_type -> plux.v1.DevSessionServiceWatchEventsResponse
+	38, // 64: plux.v1.DevSessionService.ExportTrace:output_type -> plux.v1.DevSessionServiceExportTraceResponse
+	56, // [56:65] is the sub-list for method output_type
+	47, // [47:56] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_devsession_proto_init() }
@@ -2894,13 +3490,23 @@ func file_plux_v1_devsession_proto_init() {
 		(*DevSessionServiceSendCommandRequest_InspectSelect)(nil),
 		(*DevSessionServiceSendCommandRequest_ToggleOverlay)(nil),
 	}
+	file_plux_v1_devsession_proto_msgTypes[35].OneofWrappers = []any{
+		(*DevDeviceFrame_Hello)(nil),
+		(*DevDeviceFrame_Event)(nil),
+	}
+	file_plux_v1_devsession_proto_msgTypes[37].OneofWrappers = []any{
+		(*DevServerFrame_Bundle)(nil),
+		(*DevServerFrame_Command)(nil),
+		(*DevServerFrame_Ack)(nil),
+		(*DevServerFrame_Ended)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_devsession_proto_rawDesc), len(file_plux_v1_devsession_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   36,
+			NumMessages:   46,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

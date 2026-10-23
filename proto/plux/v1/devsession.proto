@@ -391,3 +391,88 @@ message DevSessionServiceExportTraceResponse {
   // event_count is the number of events in the file.
   uint64 event_count = 2;
 }
+
+// The frames of the device's WebSocket (ADR-0087). The device opens the
+// socket at /dev/socket with the ticket of Pair in the Plux-Dev-Ticket
+// header and a DPoP proof of the key the ticket is bound to in the DPoP
+// header (htm GET, htu the socket URL). Both directions carry one frame per
+// WebSocket message: the device sends the proto3 JSON mapping in text
+// messages, the server answers in kind.
+
+// DevDeviceFrame is one frame a paired device sends.
+message DevDeviceFrame {
+  oneof payload {
+    // hello is the first frame after every upgrade.
+    DevDeviceHello hello = 1;
+    // event is something that happened on the device. Its sequence is the
+    // device's own, counted from 1 for the device's first event; the
+    // server replaces it with the session's sequence when it relays it.
+    DevEvent event = 2;
+  }
+}
+
+// DevDeviceHello resumes a device's stream after a reconnect (DEV-021).
+message DevDeviceHello {
+  // last_server_sequence is the last server frame the device carried out;
+  // the server sends the frames after it that it still holds.
+  uint64 last_server_sequence = 1;
+  // last_acknowledged_event is the last device event sequence the device
+  // saw acknowledged; it resends from the next one.
+  uint64 last_acknowledged_event = 2;
+}
+
+// DevServerFrame is one frame the server sends a paired device.
+message DevServerFrame {
+  // sequence numbers the server's frames to the device, from 1.
+  uint64 sequence = 1;
+  oneof payload {
+    // bundle is a dev bundle to verify and apply (DEV-010).
+    DevBundleFrame bundle = 10;
+    // command is a command to carry out (DEV-011, DEV-031).
+    DevCommandFrame command = 11;
+    // ack acknowledges the device's events up to and including a sequence.
+    DevEventAck ack = 12;
+    // ended says the session ended; the server closes the socket after it.
+    DevSessionEnded ended = 13;
+  }
+}
+
+// DevBundleFrame carries a dev bundle: a manifest signed with the
+// development key of the session's environment and the sections it names.
+message DevBundleFrame {
+  // bundle_sequence is the bundle's number in the session's own sequence
+  // space, which never meets the production store's.
+  uint64 bundle_sequence = 1;
+  bytes manifest = 2;
+  // sections are the section bytes by section ID.
+  map<string, bytes> sections = 3;
+  // incompatible_scopes lists, per page ID, the state scopes whose schema
+  // changed (the compiler's verdict); a page absent from the map keeps its
+  // state.
+  map<string, DevScopeList> incompatible_scopes = 4;
+}
+
+// DevScopeList is a list of state scope names.
+message DevScopeList {
+  repeated string scopes = 1;
+}
+
+// DevCommandFrame carries one command to the device.
+message DevCommandFrame {
+  // command_id is echoed in the device's CommandResultEvent.
+  string command_id = 1;
+  // command holds the command in its oneof; session_id and device_id are
+  // not set.
+  DevSessionServiceSendCommandRequest command = 2;
+}
+
+// DevEventAck acknowledges a device's events.
+message DevEventAck {
+  uint64 up_to = 1;
+}
+
+// DevSessionEnded tells a device its session ended.
+message DevSessionEnded {
+  // code is the error code of the reason, such as PLX-9200.
+  string code = 1;
+}

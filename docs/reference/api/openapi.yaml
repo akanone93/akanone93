@@ -16550,6 +16550,61 @@ components:
           title: version
       title: DeployResponse
       additionalProperties: false
+    plux.v1.DevBundleFrame:
+      type: object
+      properties:
+        bundleSequence:
+          type: string
+          title: bundle_sequence
+          format: int64
+          description: |-
+            bundle_sequence is the bundle's number in the session's own sequence
+             space, which never meets the production store's.
+        manifest:
+          type: string
+          title: manifest
+          format: byte
+        sections:
+          type: object
+          title: sections
+          additionalProperties:
+            type: string
+            title: value
+            format: byte
+          description: sections are the section bytes by section ID.
+        incompatibleScopes:
+          type: object
+          title: incompatible_scopes
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/plux.v1.DevScopeList'
+            title: value
+          description: |-
+            incompatible_scopes lists, per page ID, the state scopes whose schema
+             changed (the compiler's verdict); a page absent from the map keeps its
+             state.
+      title: DevBundleFrame
+      additionalProperties: false
+      description: |-
+        DevBundleFrame carries a dev bundle: a manifest signed with the
+         development key of the session's environment and the sections it names.
+    plux.v1.DevCommandFrame:
+      type: object
+      properties:
+        commandId:
+          type: string
+          title: command_id
+          description: command_id is echoed in the device's CommandResultEvent.
+        command:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSessionServiceSendCommandRequest'
+          title: command
+          description: |-
+            command holds the command in its oneof; session_id and device_id are
+             not set.
+      title: DevCommandFrame
+      additionalProperties: false
+      description: DevCommandFrame carries one command to the device.
     plux.v1.DevCommandStatus:
       type: string
       title: DevCommandStatus
@@ -16606,6 +16661,64 @@ components:
       title: DevDevice
       additionalProperties: false
       description: DevDevice is a device paired with a session.
+    plux.v1.DevDeviceFrame:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            event:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevEvent'
+              title: event
+              description: |-
+                event is something that happened on the device. Its sequence is the
+                 device's own, counted from 1 for the device's first event; the
+                 server replaces it with the session's sequence when it relays it.
+          title: event
+        - type: object
+          properties:
+            hello:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevDeviceHello'
+              title: hello
+              description: hello is the first frame after every upgrade.
+          title: hello
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - event
+              - required:
+                  - hello
+          - not:
+              oneOf:
+                - required:
+                    - event
+                - required:
+                    - hello
+      title: DevDeviceFrame
+      description: DevDeviceFrame is one frame a paired device sends.
+    plux.v1.DevDeviceHello:
+      type: object
+      properties:
+        lastServerSequence:
+          type: string
+          title: last_server_sequence
+          format: int64
+          description: |-
+            last_server_sequence is the last server frame the device carried out;
+             the server sends the frames after it that it still holds.
+        lastAcknowledgedEvent:
+          type: string
+          title: last_acknowledged_event
+          format: int64
+          description: |-
+            last_acknowledged_event is the last device event sequence the device
+             saw acknowledged; it resends from the next one.
+      title: DevDeviceHello
+      additionalProperties: false
+      description: DevDeviceHello resumes a device's stream after a reconnect (DEV-021).
     plux.v1.DevDocumentPatch:
       type: object
       properties:
@@ -16855,6 +16968,16 @@ components:
              no chain.
       title: DevEvent
       description: DevEvent is one event of a device's stream.
+    plux.v1.DevEventAck:
+      type: object
+      properties:
+        upTo:
+          type: string
+          title: up_to
+          format: int64
+      title: DevEventAck
+      additionalProperties: false
+      description: DevEventAck acknowledges a device's events.
     plux.v1.DevLifecycleEvent:
       type: string
       title: DevLifecycleEvent
@@ -16976,6 +17099,17 @@ components:
         - DEV_RUN_STATUS_CANCELLED
         - DEV_RUN_STATUS_SKIPPED
       description: DevRunStatus is the state of an action run or one of its steps.
+    plux.v1.DevScopeList:
+      type: object
+      properties:
+        scopes:
+          type: array
+          items:
+            type: string
+          title: scopes
+      title: DevScopeList
+      additionalProperties: false
+      description: DevScopeList is a list of state scope names.
     plux.v1.DevSecurityDetectionKind:
       type: string
       title: DevSecurityDetectionKind
@@ -16991,6 +17125,71 @@ components:
         - DEV_SECURITY_DETECTION_KIND_OVERLAY
         - DEV_SECURITY_DETECTION_KIND_ACCESSIBILITY
       description: DevSecurityDetectionKind is a detection of `plux_security` (SEC-070).
+    plux.v1.DevServerFrame:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            ack:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevEventAck'
+              title: ack
+              description: ack acknowledges the device's events up to and including a sequence.
+          title: ack
+        - type: object
+          properties:
+            bundle:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevBundleFrame'
+              title: bundle
+              description: bundle is a dev bundle to verify and apply (DEV-010).
+          title: bundle
+        - type: object
+          properties:
+            command:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevCommandFrame'
+              title: command
+              description: command is a command to carry out (DEV-011, DEV-031).
+          title: command
+        - type: object
+          properties:
+            ended:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevSessionEnded'
+              title: ended
+              description: ended says the session ended; the server closes the socket after it.
+          title: ended
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - ack
+              - required:
+                  - bundle
+              - required:
+                  - command
+              - required:
+                  - ended
+          - not:
+              oneOf:
+                - required:
+                    - ack
+                - required:
+                    - bundle
+                - required:
+                    - command
+                - required:
+                    - ended
+      properties:
+        sequence:
+          type: string
+          title: sequence
+          format: int64
+          description: sequence numbers the server's frames to the device, from 1.
+      title: DevServerFrame
+      description: DevServerFrame is one frame the server sends a paired device.
     plux.v1.DevSession:
       type: object
       properties:
@@ -17027,6 +17226,16 @@ components:
       title: DevSession
       additionalProperties: false
       description: DevSession is a dev session.
+    plux.v1.DevSessionEnded:
+      type: object
+      properties:
+        code:
+          type: string
+          title: code
+          description: code is the error code of the reason, such as PLX-9200.
+      title: DevSessionEnded
+      additionalProperties: false
+      description: DevSessionEnded tells a device its session ended.
     plux.v1.DevSessionServiceCreateSessionRequest:
       type: object
       properties:
