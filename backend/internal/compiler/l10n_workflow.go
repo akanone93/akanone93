@@ -87,7 +87,7 @@ func (u *unit) localisation() {
 			u.translatableMessages(c.file, c.doc.Forms)
 		}
 	}
-	if u.focus == "" {
+	if u.focus == nil {
 		u.unusedKeys()
 	}
 }
@@ -198,14 +198,20 @@ func (u *unit) markKeyUses(tk *schema.Loaded[schema.TranslationKeysDocument]) ma
 	used := map[string]bool{}
 	u.l10n.uses = map[string]map[string]bool{}
 	owner := u.pluginOwner()
-	mark := func(id, file string) {
+	u.eachKeyUse(tk, func(id, file string) {
 		used[id] = true
 		who := owner(file)
 		if u.l10n.uses[who] == nil {
 			u.l10n.uses[who] = map[string]bool{}
 		}
 		u.l10n.uses[who][id] = true
-	}
+	})
+	return used
+}
+
+// eachKeyUse calls mark with the ID of every translation key something
+// references and the file that references it.
+func (u *unit) eachKeyUse(tk *schema.Loaded[schema.TranslationKeysDocument], mark func(id, file string)) {
 	for _, e := range u.graph.Edges {
 		if e.Kind == EdgeUsesTranslation {
 			mark(e.To, e.File)
@@ -228,7 +234,6 @@ func (u *unit) markKeyUses(tk *schema.Loaded[schema.TranslationKeysDocument]) ma
 		}
 	}
 	u.markIDsIn(u.project.App.Doc, "app.json", tk.Doc.Keys, mark)
-	return used
 }
 
 // pluginOwner returns a function naming the plugin whose directory holds a

@@ -37,6 +37,9 @@ type out struct {
 	srcmap    *sourceMap
 	// srcmapData is the encoded source map of a release bundle.
 	srcmapData []byte
+	// merged holds the encodings of the programs and styles that
+	// unit.merge registered, to compare content IDs.
+	merged *contribution
 }
 
 // style is a deduplicated value-type object (CMP-020).

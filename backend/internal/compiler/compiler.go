@@ -5,6 +5,7 @@ package compiler
 
 import (
 	"crypto/sha256"
+	"fmt"
 	"io/fs"
 	"runtime/debug"
 	"sync"
@@ -159,10 +160,18 @@ var pipeline = []stage{
 
 // Compile compiles the project in fsys, laid out as in SCH-006. It never
 // panics: an unexpected failure is reported as PLX-2201 (CMP-052).
-func Compile(fsys fs.FS, opts Options) (res *Result) {
+func Compile(fsys fs.FS, opts Options) *Result {
+	res, _ := compileWith(fsys, opts, false)
+	return res
+}
+
+// compileWith is Compile; with capture it also returns what Recompile reuses
+// when the compilation has no diagnostics.
+func compileWith(fsys fs.FS, opts Options, capture bool) (res *Result, memo *Memo) {
 	res = &Result{}
 	defer func() {
 		if r := recover(); r != nil {
+			memo = nil
 			res.App, res.Plugins = nil, nil
 			res.Diagnostics = append(res.Diagnostics, plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{},
 				"the compiler failed unexpectedly: %v\n%s", r, debug.Stack()))
@@ -170,13 +179,15 @@ func Compile(fsys fs.FS, opts Options) (res *Result) {
 		}
 	}()
 	u := newUnit(opts)
-	v, err := sharedValidator()
-	if err != nil {
-		u.internalError("the embedded JSON Schemas do not compile: %v", err)
-		res.Diagnostics = u.diags
-		return res
+	if capture {
+		u.next = newMemo()
 	}
-	loader := schema.NewLoader(v, schema.DefaultMigrator(), opts.Limits)
+	loader, err := NewLoader(opts)
+	if err != nil {
+		u.internalError("%v", err)
+		res.Diagnostics = u.diags
+		return res, nil
+	}
 	project, diags := loader.Load(fsys)
 	u.project = project
 	u.diags = append(u.diags, diags...)
@@ -200,8 +211,21 @@ func Compile(fsys fs.FS, opts Options) (res *Result) {
 		res.DeviceUses = u.sortedDeviceUses()
 		res.Collections = u.collectionsOf()
 		res.GatewaySources = u.sortedGatewaySources()
+		if capture && res.App != nil && len(u.diags) == 0 {
+			memo = u.finishMemo()
+		}
 	}
-	return res
+	return res, memo
+}
+
+// NewLoader returns the loader Compile uses for the limits of opts, so that
+// a caller of Recompile can load the documents that changed.
+func NewLoader(opts Options) (*schema.Loader, error) {
+	v, err := sharedValidator()
+	if err != nil {
+		return nil, fmt.Errorf("compiler.NewLoader: the embedded JSON Schemas do not compile: %w", err)
+	}
+	return schema.NewLoader(v, schema.DefaultMigrator(), opts.Limits), nil
 }
 
 // run executes stages in order. Nothing runs without an app document, and

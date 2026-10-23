@@ -4,6 +4,7 @@
 package compiler
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"slices"
 	"strings"
@@ -169,30 +170,63 @@ func docMentionsMoney(doc any) bool {
 // format a money argument.
 func (u *unit) declaresMoney() bool {
 	p := u.project
-	docs := []any{p.App.Doc}
+	var docs []moneyDoc
+	add := func(doc any, src *schema.Source) { docs = append(docs, moneyDoc{doc, src}) }
+	add(p.App.Doc, p.App.Source)
 	for i := range p.Components {
-		docs = append(docs, p.Components[i].Doc)
+		add(p.Components[i].Doc, p.Components[i].Source)
 	}
 	for i := range p.Templates {
-		docs = append(docs, p.Templates[i].Doc)
+		add(p.Templates[i].Doc, p.Templates[i].Source)
 	}
 	for i := range p.Functions {
-		docs = append(docs, p.Functions[i].Doc)
+		add(p.Functions[i].Doc, p.Functions[i].Source)
 	}
 	for i := range p.Plugins {
 		pl := &p.Plugins[i]
-		docs = append(docs, pl.Doc)
+		add(pl.Doc, pl.Source)
 		for j := range pl.Pages {
-			docs = append(docs, pl.Pages[j].Doc)
+			add(pl.Pages[j].Doc, pl.Pages[j].Source)
 		}
 		for j := range pl.Components {
-			docs = append(docs, pl.Components[j].Doc)
+			add(pl.Components[j].Doc, pl.Components[j].Source)
 		}
 		for j := range pl.Graphs {
-			docs = append(docs, pl.Graphs[j].Doc)
+			add(pl.Graphs[j].Doc, pl.Graphs[j].Source)
 		}
 	}
-	return slices.ContainsFunc(docs, docMentionsMoney)
+	return slices.ContainsFunc(docs, u.mentionsMoney)
+}
+
+// moneyDoc is a document and its source.
+type moneyDoc struct {
+	doc any
+	src *schema.Source
+}
+
+// moneyEntry is whether the document with a hash declares money.
+type moneyEntry struct {
+	hash  [sha256.Size]byte
+	money bool
+}
+
+// mentionsMoney is docMentionsMoney for a document of the project. A
+// compilation that keeps a Memo remembers the answer by the document's hash,
+// because encoding the project's documents again to answer it dominates the
+// cost of recompiling one page (CMP-051).
+func (u *unit) mentionsMoney(d moneyDoc) bool {
+	if u.next == nil || d.src == nil {
+		return docMentionsMoney(d.doc)
+	}
+	if u.memo != nil {
+		if e, ok := u.memo.money[d.src.File]; ok && e.hash == d.src.Hash {
+			u.next.money[d.src.File] = e
+			return e.money
+		}
+	}
+	e := moneyEntry{hash: d.src.Hash, money: docMentionsMoney(d.doc)}
+	u.next.money[d.src.File] = e
+	return e.money
 }
 
 // hasNativeSlots reports whether the host app registers native widgets that

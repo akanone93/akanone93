@@ -67,7 +67,8 @@ func (v *Validator) ValidatePage(file string, data []byte) (diags plxerr.Diagnos
 	}
 	u := newUnit(v.opts)
 	u.project = project
-	u.focus = file
+	u.focus = map[string]bool{file: true}
+	u.validating = true
 	checks := slices.DeleteFunc(slices.Clone(pipeline), func(s stage) bool { return !s.checking })
 	run(u, checks)
 	files := map[string]bool{file: true}

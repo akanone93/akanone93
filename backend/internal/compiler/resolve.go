@@ -61,7 +61,7 @@ func (u *unit) claimID(id, file, ptr string) {
 // first declaration is there and the second elsewhere, it is reported at
 // the first.
 func (u *unit) duplicate(code plxerr.Code, loc, first plxerr.Location, format string, args ...any) {
-	if u.focus != "" && first.File == u.focus && loc.File != u.focus {
+	if u.focus != nil && u.focus[first.File] && !u.focus[loc.File] {
 		loc, first = first, loc
 	}
 	u.diags = append(u.diags, plxerr.NewDiagnostic(code, loc, format, args...).WithRelated(first))

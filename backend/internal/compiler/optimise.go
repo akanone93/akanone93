@@ -21,14 +21,20 @@ import (
 // descriptor default are omitted, and rendering hints are added.
 func optimise(u *unit) {
 	for _, c := range u.shared {
-		u.optimiseTree(c.root, false)
+		if u.inFocus(c.file) {
+			u.optimiseTree(c.root, false)
+		}
 	}
 	for _, pl := range u.plugins {
 		for _, c := range pl.components {
-			u.optimiseTree(c.root, false)
+			if u.inFocus(c.file) {
+				u.optimiseTree(c.root, false)
+			}
 		}
 		for _, pg := range pl.pages {
-			u.optimiseTree(pg.root, true)
+			if u.inFocus(pg.file) {
+				u.optimiseTree(pg.root, true)
+			}
 		}
 	}
 }

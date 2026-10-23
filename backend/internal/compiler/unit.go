@@ -33,9 +33,18 @@ type unit struct {
 	a11y a11yState
 	// l10n collects the localisation report's findings (I18N-008).
 	l10n l10nState
-	// focus is the page file ValidatePage checks: the checking stages
-	// then skip every other page, component and flow. Empty in Compile.
-	focus string
+	// focus holds the document files the checking stages check: they then
+	// skip every other page, component and flow. Nil in Compile; one page
+	// in ValidatePage; the pages being recompiled in Recompile.
+	focus map[string]bool
+	// validating is set by ValidatePage, which checks no document but the
+	// edited page; Recompile checks the project's other documents as
+	// Compile does, because the bundles are built from them.
+	validating bool
+	// memo is what Recompile reuses for the pages not in focus; next
+	// collects the Memo of the compilation in progress (CompileMemo,
+	// Recompile). Both are nil in Compile.
+	memo, next *Memo
 	// sensitiveByOwner caches the sensitive paths each page or component
 	// reads (SEC-092).
 	sensitiveByOwner map[owner][]string
@@ -112,18 +121,20 @@ func newUnit(opts Options) *unit {
 }
 
 // inFocus reports whether the checking stages check a document of a
-// file: every file in Compile, the edited page in ValidatePage.
-func (u *unit) inFocus(file string) bool { return u.focus == "" || u.focus == file }
+// file: every file in Compile, the edited pages in ValidatePage and
+// Recompile.
+func (u *unit) inFocus(file string) bool { return u.focus == nil || u.focus[file] }
 
 // graphInFocus reports whether the checking stages check a graph: in
-// ValidatePage, only the graphs of the edited page, inline or not.
+// ValidatePage and Recompile, only the graphs of the edited pages, inline
+// or not.
 func (u *unit) graphInFocus(g *graph) bool {
-	return u.inFocus(g.file) || g.page != nil && g.page.file == u.focus
+	return u.inFocus(g.file) || g.page != nil && u.focus[g.page.file]
 }
 
 // finishGraph sorts the reference graph; ValidatePage does not return it.
 func (u *unit) finishGraph() {
-	if u.focus == "" {
+	if u.focus == nil {
 		u.graph.finish()
 	}
 }

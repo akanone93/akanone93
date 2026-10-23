@@ -20,7 +20,7 @@ import (
 // experiment or policy); ValidatePage checks only the edited page, so the
 // documents are checked in Compile alone.
 func (u *unit) reportDoc(code plxerr.Code, file, ptr, format string, args ...any) {
-	if u.focus == "" {
+	if !u.validating {
 		u.report(code, file, ptr, format, args...)
 	}
 }
