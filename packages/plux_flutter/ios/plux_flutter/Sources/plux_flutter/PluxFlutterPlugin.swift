@@ -24,6 +24,10 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
   private let attestation = PluxAttestation()
   private let http = PluxPinnedHttp()
   private let background = PluxBackgroundSync()
+  /// Whether this engine's runtime holds `PluxSyncLock`; an engine that
+  /// goes away lets go of it.
+  private var holdsSyncLock = false
+  private let holdLock = NSLock()
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     PluxAead.retain()
@@ -58,6 +62,13 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
       http.handle(call.method, args, result: result)
     case "backgroundSyncSchedule", "backgroundSyncCancel":
       background.handle(call.method, args, result: result)
+    case "syncLock.tryAcquire":
+      let acquired = PluxSyncLock.tryAcquire()
+      if acquired { setHolds(true) }
+      result(acquired)
+    case "syncLock.release":
+      releaseSyncLock()
+      result(nil)
     case "share":
       device.share(args, result: result)
     case "permissionRequest":
@@ -69,6 +80,30 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func setHolds(_ value: Bool) {
+    holdLock.lock()
+    holdsSyncLock = value
+    holdLock.unlock()
+  }
+
+  /// Frees the sync lock if this engine took it; a lock another engine
+  /// holds stays.
+  private func releaseSyncLock() {
+    holdLock.lock()
+    let holds = holdsSyncLock
+    holdsSyncLock = false
+    holdLock.unlock()
+    if holds { PluxSyncLock.release() }
+  }
+
+  public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
+    releaseSyncLock()
+  }
+
+  deinit {
+    releaseSyncLock()
   }
 
   private static let badName = FlutterError(code: "PLUX_PLATFORM", message: "name", details: nil)

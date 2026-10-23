@@ -111,6 +111,7 @@ import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
+import 'package:plux_flutter/src/sync/sync_lock.dart';
 import 'package:plux_flutter/src/sync/sync_worker.dart';
 import 'package:plux_flutter/src/telemetry/recorder.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
@@ -155,11 +156,16 @@ final class RuntimeOverrides {
     this.userAuthSigner,
     this.controlTimer,
     this.backgroundSync,
+    this.syncLock,
   });
 
   /// The platform scheduler of background sync (SYN-014); the platform's
   /// when null.
   final BackgroundSyncPlatform? backgroundSync;
+
+  /// The process-wide sync lock shared with background sync (SYN-014); the
+  /// platform's when null.
+  final SyncLock? syncLock;
 
   /// Makes the timer of the foreground control checks (SYN-060); a timer of
   /// the root zone, every five minutes, when null.
@@ -1725,7 +1731,9 @@ final class PluxRuntime with WidgetsBindingObserver {
     final forward = _events.stream.listen(progress.add);
     Future<SyncResult> run() async {
       try {
-        final r = await _worker.sync(_emit, context: _syncContext());
+        final r = await _syncLock.guard(
+          () => _worker.sync(_emit, context: _syncContext()),
+        );
         if (r.settings != null) settings.value = r.settings!;
         if (r.assurance != null) {
           assurance.value = math.min(r.assurance!, _assuranceCeiling);
@@ -1747,6 +1755,11 @@ final class PluxRuntime with WidgetsBindingObserver {
 
     return SyncRun(run(), progress.stream);
   }
+
+  late final ForegroundSyncLock _syncLock = ForegroundSyncLock(
+    overrides.syncLock ?? const ChannelSyncLock(),
+    onWarning: (m) => developer.log(m, name: 'plux', level: 900),
+  );
 
   void _emit(SyncEvent e) {
     lastEvent.value = e;

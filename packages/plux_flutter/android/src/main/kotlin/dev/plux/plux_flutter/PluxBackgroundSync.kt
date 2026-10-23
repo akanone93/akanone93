@@ -22,6 +22,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.FlutterCallbackInformation
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -140,6 +141,8 @@ class PluxBackgroundSyncWorker(context: Context, params: WorkerParameters) : Wor
             "staged", "upToDate" -> Result.success()
             // The release failed verification (PLX-3503): trying again changes nothing.
             "rejected" -> Result.success()
+            // A foreground sync held the sync lock; the next period tries again.
+            "skipped" -> Result.success()
             else -> Result.retry()
         }
     }
@@ -218,5 +221,23 @@ internal class PluxHeadlessEngine(private val context: Context, private val stor
 
     private companion object {
         const val CHANNEL = "dev.plux/background-sync"
+    }
+}
+
+/**
+ * The process-wide sync lock (SYN-014). The headless background engine and
+ * the foreground engine run in one process and write the same release
+ * store; the Dart isolates share no memory, so the lock is held here and
+ * reached over the runtime channel from both engines.
+ */
+object PluxSyncLock {
+    private val held = AtomicBoolean(false)
+
+    /** Takes the lock if it is free; false when another run holds it. */
+    fun tryAcquire(): Boolean = held.compareAndSet(false, true)
+
+    /** Frees the lock. */
+    fun release() {
+        held.set(false)
     }
 }

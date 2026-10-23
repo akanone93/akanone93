@@ -103,6 +103,31 @@ final class PluxBackgroundSync {
   }
 }
 
+/// The process-wide sync lock (SYN-014). The headless background engine and
+/// the foreground engine run in one process and write the same release
+/// store; the Dart isolates share no memory, so the lock is held here and
+/// reached over the runtime channel from both engines.
+final class PluxSyncLock {
+  private static let guardLock = NSLock()
+  private static var held = false
+
+  /// Takes the lock if it is free; false when another run holds it.
+  static func tryAcquire() -> Bool {
+    guardLock.lock()
+    defer { guardLock.unlock() }
+    if held { return false }
+    held = true
+    return true
+  }
+
+  /// Frees the lock.
+  static func release() {
+    guardLock.lock()
+    held = false
+    guardLock.unlock()
+  }
+}
+
 /// One run of the task: checks the constraints, asks for the next run, and
 /// runs the Dart entry point in a headless engine until it reports `done` or
 /// the system expires the task.

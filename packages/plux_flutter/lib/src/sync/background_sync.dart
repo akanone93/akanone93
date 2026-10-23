@@ -21,6 +21,7 @@ import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/background_sync_config.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
+import 'package:plux_flutter/src/sync/sync_lock.dart';
 import 'package:plux_flutter/src/sync/sync_worker.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 
@@ -317,6 +318,10 @@ enum BackgroundSyncOutcome {
   /// The release failed verification and was not staged (`PLX-3503`);
   /// trying again changes nothing until the release does.
   rejected,
+
+  /// A foreground sync held the sync lock, so nothing ran; not an error
+  /// (SYN-014). The next scheduled run tries again.
+  skipped,
 }
 
 /// The result of a background run, as the platform scheduler hears it.
@@ -366,19 +371,51 @@ final class BackgroundSyncRunner {
     this.config, {
     Future<SyncWorker> Function(SyncWorkerConfig)? startWorker,
     StorePointer Function(String root)? readPointer,
+    SyncLock? lock,
   }) : _startWorker = startWorker ?? SyncWorker.start,
-       _readPointer = readPointer ?? _pointerOf;
+       _readPointer = readPointer ?? _pointerOf,
+       _lock = lock ?? const ChannelSyncLock();
 
   /// The sync worker's configuration.
   final SyncWorkerConfig config;
   final Future<SyncWorker> Function(SyncWorkerConfig) _startWorker;
   final StorePointer Function(String root) _readPointer;
+  final SyncLock _lock;
 
   static StorePointer _pointerOf(String root) =>
       ReleaseStore.open(root).pointer;
 
-  /// Syncs once. Never throws.
+  /// Syncs once, unless a foreground sync holds the process-wide sync lock,
+  /// which ends the run at once as [BackgroundSyncOutcome.skipped]. Never
+  /// throws.
   Future<BackgroundSyncReport> run() async {
+    final bool acquired;
+    try {
+      acquired = await _lock.tryAcquire();
+    } on Object catch (e) {
+      return BackgroundSyncReport(
+        BackgroundSyncOutcome.failed,
+        error: PluxException(
+          PluxErrorCode.backgroundSyncFailed,
+          'the sync lock could not be asked: ${e.runtimeType}',
+        ),
+      );
+    }
+    if (!acquired) {
+      return const BackgroundSyncReport(BackgroundSyncOutcome.skipped);
+    }
+    try {
+      return await _sync();
+    } finally {
+      try {
+        await _lock.release();
+      } on Object {
+        // The platform drops a hold with its engine; nothing else to do.
+      }
+    }
+  }
+
+  Future<BackgroundSyncReport> _sync() async {
     SyncWorker? worker;
     try {
       final before = _readPointer(config.storeRoot);

@@ -41,6 +41,9 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
     private lateinit var background: PluxBackgroundSync
     private var activityBinding: ActivityPluginBinding? = null
 
+    /** Whether this engine's runtime holds [PluxSyncLock]; an engine that dies lets go of it. */
+    @Volatile private var holdsSyncLock = false
+
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activityBinding = binding
         device.activity = binding.activity
@@ -80,6 +83,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        releaseSyncLock()
         keys.close()
         dataKeys.close()
         http.close()
@@ -107,6 +111,15 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
                 "httpOpen", "httpRead", "httpClose" -> http.handle(call, result)
                 "smsConsent", "smsConsentCancel" -> sms.handle(call, result)
                 "backgroundSyncSchedule", "backgroundSyncCancel" -> background.handle(call, result)
+                "syncLock.tryAcquire" -> {
+                    val acquired = PluxSyncLock.tryAcquire()
+                    if (acquired) holdsSyncLock = true
+                    result.success(acquired)
+                }
+                "syncLock.release" -> {
+                    releaseSyncLock()
+                    result.success(null)
+                }
                 "share" -> device.share(call, result)
                 "permissionRequest" -> device.requestPermission(call, result)
                 "secureScreen" -> device.secureScreen(call, result)
@@ -115,6 +128,14 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
             }
         } catch (e: Exception) {
             result.error("PLUX_PLATFORM", e.javaClass.simpleName, null)
+        }
+    }
+
+    /** Frees the sync lock if this engine took it; a lock another engine holds stays. */
+    private fun releaseSyncLock() {
+        if (holdsSyncLock) {
+            holdsSyncLock = false
+            PluxSyncLock.release()
         }
     }
 

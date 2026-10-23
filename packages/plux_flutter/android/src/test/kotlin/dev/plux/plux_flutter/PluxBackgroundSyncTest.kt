@@ -4,13 +4,15 @@
 package dev.plux.plux_flutter
 
 import androidx.work.NetworkType
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** The rules of the Android scheduler for background sync (SYN-014). */
+/** The rules of the Android scheduler and of the process-wide sync lock for background sync (SYN-014). */
 class PluxBackgroundSyncTest {
     @Test
     fun theDefaultsAreTheSafestConstraintsAndSixHours() {
@@ -75,5 +77,49 @@ class PluxBackgroundSyncTest {
     @Test
     fun theUniqueWorkNameIsOnePerApp() {
         assertEquals("dev.plux.backgroundSync", PluxBackgroundSync.UNIQUE_WORK_NAME)
+    }
+
+    @Test
+    fun theSyncLockIsHeldByOneRunAtATime() {
+        PluxSyncLock.release()
+        try {
+            assertTrue(PluxSyncLock.tryAcquire())
+            assertFalse(PluxSyncLock.tryAcquire())
+            PluxSyncLock.release()
+            assertTrue(PluxSyncLock.tryAcquire())
+        } finally {
+            PluxSyncLock.release()
+        }
+    }
+
+    @Test
+    fun releasingAFreeSyncLockChangesNothing() {
+        PluxSyncLock.release()
+        PluxSyncLock.release()
+        try {
+            assertTrue(PluxSyncLock.tryAcquire())
+        } finally {
+            PluxSyncLock.release()
+        }
+    }
+
+    @Test
+    fun aSingleThreadWinsTheSyncLockWhenManyRaceForIt() {
+        PluxSyncLock.release()
+        val winners = AtomicInteger(0)
+        val start = CountDownLatch(1)
+        val threads = (1..16).map {
+            Thread {
+                start.await()
+                if (PluxSyncLock.tryAcquire()) winners.incrementAndGet()
+            }.also { it.start() }
+        }
+        start.countDown()
+        threads.forEach { it.join() }
+        try {
+            assertEquals(1, winners.get())
+        } finally {
+            PluxSyncLock.release()
+        }
     }
 }
