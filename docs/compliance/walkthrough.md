@@ -105,9 +105,9 @@ The fleet runs with an error budget of zero. In the middle of the run, the chart
 
 *Requirements:* `SEC-162`.
 
-The stores of personal data are listed. Everything held about one device of the fleet is exported, the device is erased, and the export is taken again. Both archives must be real JSON and must differ.
+The stores of personal data are listed. Everything held about one device of the fleet is exported, which must be a real JSON archive, and the device is erased. The export is then taken again and must be refused because nothing is held about the device (`PLX-8501`), and a second erasure must report the device already erased.
 
-*Evidence:* the map of stores, both archives, the request status. The archives hold what the installation held about a synthetic device; they are personal data in a real installation and should be handled as such.
+*Evidence:* the map of stores, the archive, the refused export, both erasures, the request status. The archive holds what the installation held about a synthetic device; it is personal data in a real installation and should be handled as such.
 
 *Proves:* export and erasure work end to end on a live installation (`SEC-162`). Audit entries remain and name the subject by hash only; the audit chains and their checkpoints are checked by `plux-server audit verify`, which the restore drill also runs.
 
