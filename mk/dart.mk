@@ -4,9 +4,9 @@
 # Included by the Makefile. A change to this file runs the Dart job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: dart-check dart-get dart-lock-check dart-fmt dart-fmt-check dart-analyze dart-test dart-cover widgets-api widgets-api-check
+.PHONY: dart-check dart-get dart-lock-check dart-fmt dart-fmt-check dart-analyze dart-test dev-app-build dart-cover widgets-api widgets-api-check
 
-DART_PACKAGES := apps/add_to_app/plux_module apps/plux_bank apps/plux_express apps/plux_viewer apps/starter packages/plux_auto_route packages/plux_charts packages/plux_components packages/plux_db_drift packages/plux_devtools packages/plux_flutter packages/plux_functions packages/plux_go_router packages/plux_host_kit packages/plux_location packages/plux_lottie packages/plux_maps packages/plux_maps_google packages/plux_markdown packages/plux_media packages/plux_native_scan packages/plux_player packages/plux_rive packages/plux_scanner packages/plux_security packages/plux_svgc packages/plux_widget_api test/bench/runtime
+DART_PACKAGES := apps/add_to_app/plux_module apps/plux_bank apps/plux_dev apps/plux_express apps/plux_viewer apps/starter packages/plux_auto_route packages/plux_charts packages/plux_components packages/plux_db_drift packages/plux_devtools packages/plux_flutter packages/plux_functions packages/plux_go_router packages/plux_host_kit packages/plux_location packages/plux_lottie packages/plux_maps packages/plux_maps_google packages/plux_markdown packages/plux_media packages/plux_native_scan packages/plux_player packages/plux_rive packages/plux_scanner packages/plux_security packages/plux_svgc packages/plux_widget_api test/bench/runtime
 # Generated Dart code is verified by regeneration (CI-003), not by the formatter.
 DART_SOURCES  := find packages apps test/bench test/size -name '*.dart' ! -name '*.g.dart' ! -name '*_generated.dart' ! -path '*/build/*' ! -path '*/.dart_tool/*' -print0
 
@@ -35,6 +35,17 @@ dart-analyze: ## Analyze Dart code with strict rules; infos are fatal
 
 dart-test: ## Run Dart and Flutter tests
 	@for p in $(DART_PACKAGES); do (cd $$p && flutter test); done
+
+# The Dev app is the one build with the dev channel in it (DEV-050): without
+# plux.devtools=true it cannot pair. PLUX_DEV_ROOT_KEYS is the development
+# keys.json of the installation (`plux pull`); without it the app pairs with
+# nothing. DEV_APP_TARGET is apk, appbundle or ios.
+DEV_APP_TARGET ?= apk
+DEV_APP_KEYS ?= /dev/null
+
+dev-app-build: ## Build the Plux Dev app (DEV-001) with the dev channel in it: DEV_APP_TARGET=apk|appbundle|ios, DEV_APP_KEYS=<development keys.json>
+	cd apps/plux_dev && flutter build $(DEV_APP_TARGET) --dart-define=plux.devtools=true \
+		--dart-define=PLUX_DEV_ROOT_KEYS="$$(cat $(DEV_APP_KEYS))"
 
 # How many packages dart-cover tests at once. Each package's output is kept
 # and printed whole, in package order, once all have finished; a line per
