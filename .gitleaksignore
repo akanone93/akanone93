@@ -2,3 +2,11 @@
 # docs/requirements.md runtime layout line about design tokens (not a credential);
 # the line was reworded in a later commit.
 55f069aa50e81a0565d9c837458326d1e49e5be7:docs/requirements.md:generic-api-key:505
+# Public Standard Webhooks test vector (published upstream, Apache-2.0)
+backend/internal/notify/webhook/testdata/standard_webhooks_vectors.json:generic-api-key:3
+faa4f8d972ff63d1316ceaafb985bcb2a9aa5f5e:backend/internal/notify/webhook/testdata/standard_webhooks_vectors.json:generic-api-key:3
+# Public Standard Webhooks test vector, copied unmodified into the enterprise sinks tests (published upstream, Apache-2.0)
+ee/backend/auditexport/testdata/standard_webhooks_vectors.json:generic-api-key:3
+# Public Standard Webhooks test vector, copied unmodified into the shared signer tests (published upstream, Apache-2.0)
+ee/backend/internal/stdwebhook/testdata/standard_webhooks_vectors.json:generic-api-key:3
+9621a540dfb4385443450440be837fdcbb059881:ee/backend/internal/stdwebhook/testdata/standard_webhooks_vectors.json:generic-api-key:3

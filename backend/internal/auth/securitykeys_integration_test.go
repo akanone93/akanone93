@@ -69,6 +69,8 @@ type authenticator struct {
 	ec      *ecdsa.PrivateKey
 	ed      ed25519.PrivateKey
 	counter uint32
+	// verified sets the user-verified flag of the assertions the key makes.
+	verified bool
 }
 
 func newAuthenticator(t *testing.T, ed bool) *authenticator {
@@ -100,6 +102,9 @@ func (a *authenticator) authData(attested bool) []byte {
 	flags := byte(0x01)
 	if attested {
 		flags |= 0x40
+	}
+	if a.verified {
+		flags |= 0x04
 	}
 	out := append(rp[:], flags)
 	out = binary.BigEndian.AppendUint32(out, a.counter)

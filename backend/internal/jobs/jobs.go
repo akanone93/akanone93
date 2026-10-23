@@ -42,6 +42,13 @@ const (
 	QueueMaintenance = "maintenance"
 	// QueueFunction runs function builds on the builder role (FN-016).
 	QueueFunction = "function"
+	// QueueExport pushes publishes to Git remotes (GOV-011); a slow or
+	// unreachable remote must not hold up a publish.
+	QueueExport = "export"
+	// QueueControl signs control documents and sends the silent pushes
+	// that follow, apart from the publish lane so that a kill switch never
+	// waits behind a long publish (SYN-060, NFR-024).
+	QueueControl = "control"
 )
 
 // queues are the queues a worker serves, with how many jobs each runs at
@@ -52,6 +59,8 @@ var queues = map[string]river.QueueConfig{
 	QueueAsset:       {MaxWorkers: 4},
 	QueueMaintenance: {MaxWorkers: 1},
 	QueueFunction:    {MaxWorkers: 2},
+	QueueExport:      {MaxWorkers: 2},
+	QueueControl:     {MaxWorkers: 4},
 }
 
 // Workers is the set of job types a worker process runs. It wraps

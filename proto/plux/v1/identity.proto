@@ -48,6 +48,19 @@ service IdentityService {
   rpc VerifySecondFactor(VerifySecondFactorRequest) returns (VerifySecondFactorResponse) {}
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {}
   rpc Logout(LogoutRequest) returns (LogoutResponse) {}
+  // BeginStepUp starts a WebAuthn step-up in the caller's browser
+  // session, or for a request of the CLI's that the session performs:
+  // it returns the options for navigator.credentials.get() with user
+  // verification required. CompleteStepUp verifies the assertion and
+  // records stepUpAt on the session, or approves the CLI's request
+  // (SEC-103, ADR-0075).
+  rpc BeginStepUp(BeginStepUpRequest) returns (BeginStepUpResponse) {}
+  rpc CompleteStepUp(CompleteStepUpRequest) returns (CompleteStepUpResponse) {}
+  // ListSessions lists the sessions of the organisation's members and
+  // the organisation's tokens, with where and when each was last used;
+  // RevokeSession ends one at once (GOV-005).
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {}
+  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse) {}
 
   rpc EnrollTotp(EnrollTotpRequest) returns (EnrollTotpResponse) {}
   // BeginWebAuthnRegistration adds a security key waiting for the
@@ -123,6 +136,9 @@ message Session {
   google.protobuf.Timestamp expires_at = 4;
   // second_factor is true when a second factor was presented in it.
   bool second_factor = 5;
+  // step_up_at is when a WebAuthn step-up last succeeded in it; unset
+  // when none did (SEC-103).
+  google.protobuf.Timestamp step_up_at = 6;
 }
 
 // MfaChallenge is a sign-in waiting for its second factor.
@@ -169,7 +185,12 @@ message CompleteMfaResponse {
   Session session = 1;
 }
 
-message StartOidcLoginRequest {}
+message StartOidcLoginRequest {
+  // provider_id is the provider the person chose from
+  // FederationService.ListSignInProviders. Empty selects the provider in
+  // the server's configuration file.
+  string provider_id = 1;
+}
 message StartOidcLoginResponse {
   // url is the provider's authorization URL.
   string url = 1;
@@ -416,3 +437,66 @@ message ListAuditEntriesResponse {
   repeated AuditEntry entries = 1;
   PageResult page = 2;
 }
+
+message BeginStepUpRequest {
+  // cli_request_id names a step-up the CLI asked for with
+  // POST /stepup/requests, which the caller's browser session performs
+  // for it (ADR-0075). Empty steps up the caller's own session.
+  string cli_request_id = 1;
+}
+message BeginStepUpResponse {
+  // request_id names the step-up for CompleteStepUp.
+  string request_id = 1;
+  // options_json is PublicKeyCredentialRequestOptions in WebAuthn's JSON
+  // serialisation, with user verification required.
+  string options_json = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message CompleteStepUpRequest {
+  string request_id = 1;
+  bytes credential_id = 2;
+  bytes client_data_json = 3;
+  bytes authenticator_data = 4;
+  bytes signature = 5;
+}
+message CompleteStepUpResponse {
+  // step_up_at is when the assertion verified; for a step-up of the
+  // CLI's, it starts the five minutes its grant is good for.
+  google.protobuf.Timestamp step_up_at = 1;
+}
+
+// SessionInfo is one session or token of a person, as an administrator
+// sees it (GOV-005). The secret is never part of it.
+message SessionInfo {
+  string id = 1;
+  string user_id = 2;
+  // client_kind is "studio" for a browser session, "cli" for a token from
+  // `plux login`, and "token" for a personal access token or a CI token.
+  string client_kind = 3;
+  // name is a token's name; empty for a browser session.
+  string name = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp last_seen_at = 6;
+  google.protobuf.Timestamp expires_at = 7;
+  // ip_prefix is the /24 (IPv4) or /48 (IPv6) the last request came from.
+  string ip_prefix = 8;
+  string user_agent = 9;
+  // step_up_at is when a step-up last succeeded in a browser session.
+  google.protobuf.Timestamp step_up_at = 10;
+}
+
+message ListSessionsRequest {
+  string organization_id = 1;
+  Page page = 2;
+}
+message ListSessionsResponse {
+  repeated SessionInfo sessions = 1;
+  PageResult page = 2;
+}
+
+message RevokeSessionRequest {
+  // id is a session's or a token's identifier, as ListSessions gives it.
+  string id = 1;
+}
+message RevokeSessionResponse {}

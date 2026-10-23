@@ -22,6 +22,8 @@ import (
 type unit struct {
 	// calendars are the calendars nodes name as literals (I18N-003).
 	calendars map[string]bool
+	// use is what the documents reference of the locale data (I18N-002).
+	use localeUse
 	// gateway are the data sources that go through the gateway.
 	gateway []GatewaySource
 	opts    Options
@@ -54,6 +56,10 @@ type unit struct {
 	tokens      map[string]*token
 	assetIDs    map[string]*schema.AssetEntry
 	natives     natives
+	// experiments are the project's experiments by key (ABT-001);
+	// segments the keys of its segments (REL-051).
+	experiments map[string]*experiment
+	segments    map[string]bool
 	deviceUses  []DeviceUse
 	types       *universe
 	graph       *Graph
@@ -230,7 +236,9 @@ type node struct {
 	widget   *registry.Widget
 	target   *component
 	children []*node
-	slots    []*slotFill
+	// variant is set on a Variant node, whose children are its subtrees.
+	variant *variantInfo
+	slots   []*slotFill
 	// graphs are the event handlers' graphs by event name.
 	graphs map[string]*graph
 	scope  *scope

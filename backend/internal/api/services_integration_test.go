@@ -18,31 +18,46 @@ import (
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
+	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
+	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/device/devicetest"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/dsr"
+	"github.com/nightCode42/plux3/backend/internal/experiment"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
+	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
@@ -78,6 +93,20 @@ func (q *assetQueue) Enqueue(_ context.Context, _ pgx.Tx, j document.AssetJob) e
 	return nil
 }
 
+// reconstructQueue records the signing jobs of reconstruction releases for
+// the test to run.
+type reconstructQueue struct {
+	mu   sync.Mutex
+	jobs []reconstruct.SignJob
+}
+
+func (q *reconstructQueue) Enqueue(_ context.Context, _ pgx.Tx, j reconstruct.SignJob) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.jobs = append(q.jobs, j)
+	return nil
+}
+
 // sharedCodecs are the image codecs the worker transcodes assets with,
 // compiled once for the package's tests: compiling costs seconds.
 var sharedCodecs = sync.OnceValues(func() (*media.Codecs, error) { return media.NewCodecs(context.Background()) })
@@ -90,33 +119,50 @@ func (u uuids) New() (string, error) {
 // world is the three services of this phase served over HTTP, the way
 // the api role serves them.
 type world struct {
-	auth     *auth.Service
-	releases *release.Service
-	queue    *publishQueue
-	assets   *assetQueue
-	docs     *document.Service
-	identity pluxv1connect.IdentityServiceClient
-	org      pluxv1connect.OrgServiceClient
-	app      pluxv1connect.AppServiceClient
-	plugin   pluxv1connect.PluginServiceClient
-	document pluxv1connect.DocumentServiceClient
-	comp     pluxv1connect.ComponentServiceClient
-	template pluxv1connect.TemplateServiceClient
-	asset    pluxv1connect.AssetServiceClient
-	publish  pluxv1connect.PublishServiceClient
-	release  pluxv1connect.ReleaseServiceClient
-	device   pluxv1connect.DeviceServiceClient
-	token    pluxv1connect.TokenServiceClient
-	manifest pluxv1connect.ManifestServiceClient
-	native   pluxv1connect.NativeCatalogueServiceClient
-	secAdmin pluxv1connect.SecurityAdminServiceClient
-	config   pluxv1connect.ConfigServiceClient
-	sca      pluxv1connect.ScaServiceClient
+	auth         *auth.Service
+	releases     *release.Service
+	queue        *publishQueue
+	assets       *assetQueue
+	docs         *document.Service
+	identity     pluxv1connect.IdentityServiceClient
+	org          pluxv1connect.OrgServiceClient
+	govern       pluxv1connect.GovernanceServiceClient
+	app          pluxv1connect.AppServiceClient
+	plugin       pluxv1connect.PluginServiceClient
+	document     pluxv1connect.DocumentServiceClient
+	comp         pluxv1connect.ComponentServiceClient
+	template     pluxv1connect.TemplateServiceClient
+	asset        pluxv1connect.AssetServiceClient
+	publish      pluxv1connect.PublishServiceClient
+	release      pluxv1connect.ReleaseServiceClient
+	device       pluxv1connect.DeviceServiceClient
+	token        pluxv1connect.TokenServiceClient
+	manifest     pluxv1connect.ManifestServiceClient
+	native       pluxv1connect.NativeCatalogueServiceClient
+	secAdmin     pluxv1connect.SecurityAdminServiceClient
+	license      pluxv1connect.LicenseServiceClient
+	audit        pluxv1connect.AuditServiceClient
+	dsr          pluxv1connect.DataSubjectServiceClient
+	config       pluxv1connect.ConfigServiceClient
+	sca          pluxv1connect.ScaServiceClient
+	analytics    pluxv1connect.AnalyticsServiceClient
+	analyticsSvc *analytics.Service
+	// reconstruction is the reconstruction service and reconQueue the signing
+	// jobs it enqueued.
+	reconstruction *reconstruct.Service
+	reconQueue     *reconstructQueue
+	flags          pluxv1connect.FlagServiceClient
+	experiments    pluxv1connect.ExperimentServiceClient
 	// configs and resolver are the server-held configuration store and its
 	// reader, as the server wires them.
 	configs  *gateway.Configs
 	resolver *gateway.ConfigResolver
 	control  pluxv1connect.ControlServiceClient
+	// breakGlass, freeze and compliance are the clients of the governance
+	// controls of GOV-024 to GOV-026.
+	breakGlass pluxv1connect.BreakGlassServiceClient
+	freeze     pluxv1connect.FreezeServiceClient
+	compliance pluxv1connect.ComplianceServiceClient
 	// functions is the function service, and fn the fakes it runs builds
 	// with, as the worker role would.
 	functions     *function.Service
@@ -175,10 +221,12 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	shared := cache.NewMemory(cfg.Now)
 	authService, err := auth.NewService(auth.Options{
 		DB: db, Audit: log, Cache: shared, Crypter: backend, IDs: gen, VerificationURI: "https://p.example/device",
+		CustomRolesEnabled: func() bool { return true }, Notifier: shared,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(authService.Close)
 	tenancyService, err := tenancy.NewService(tenancy.Options{
 		DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, SigningKeyPrefix: "targets",
 	})
@@ -223,9 +271,21 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	effective := func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
+		return tenancyService.Effective(ctx, tx, org, "", "")
+	}
+	freezes, err := freeze.New(freeze.Options{DB: db, Audit: log, IDs: gen, Limits: effective, Now: cfg.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	emergencies, err := breakglass.New(breakglass.Options{DB: db, Audit: log, IDs: gen, Limits: effective, Now: cfg.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
 	releases, err := release.NewService(release.Options{
 		DB: db, Audit: log, Tenancy: tenancyService, Documents: docs, Objects: files, IDs: gen, Jobs: queue, Signer: backend,
 		ProductionSigning: true, PublicBaseURL: "https://plux.example.com", Devices: devices, SecurityConfig: secConfig,
+		BreakGlass: emergencies, Freezes: freezes,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -253,6 +313,18 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	window, err := analytics.ParseWindow("02:00", "04:00", "UTC")
+	if err != nil {
+		t.Fatal(err)
+	}
+	analyticsService, err := analytics.New(analytics.Options{
+		DB: db, Store: analytics.NewPostgres(db, nil), Audit: log, IDs: gen, Window: window,
+		Defaults:      analytics.Defaults{RawDays: 396, AuditDays: 3653},
+		Organizations: func(context.Context, func(string) error) error { return nil },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	upstreams, err := gateway.NewRegistry(gateway.RegistryOptions{DB: db, Audit: log, IDs: gen})
 	if err != nil {
 		t.Fatal(err)
@@ -277,6 +349,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	notifier, err := notify.New(notify.Options{DB: db, Audit: log, Crypter: backend, IDs: gen})
+	if err != nil {
+		t.Fatal(err)
+	}
 	fnrt := newFnRuntime(t, fnRuntimeDeps{
 		db: db, backend: backend, service: functions, keys: store, devices: devices, resolver: resolver, set: set, count: shared.Increment,
 		defaultAssurance: func(ctx context.Context, appID, environmentID string) (string, error) {
@@ -287,15 +363,84 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return values.Get(settings.DefaultFunctionAssurance).Text(), nil
 		},
 	})
+	auditExport, err := auditexport.NewService(auditexport.Options{
+		DB: db, Audit: log, IDs: gen, Crypter: backend, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, "", "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	dataSubjects, err := dsr.NewService(dsr.Options{
+		DB: db, Audit: log, IDs: gen, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, "", "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	reconQueue := &reconstructQueue{}
+	reconstruction, err := reconstruct.NewService(reconstruct.Options{
+		DB: db, Audit: log, IDs: gen, Objects: files, Locator: releases, Signer: releases, Jobs: reconQueue,
+		PublicBaseURL: base, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rollouts, err := rollout.NewService(rollout.Options{
+		DB: db, Audit: log, IDs: gen, Releases: releases, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	experiments, err := experiment.New(experiment.Options{
+		DB: db, Audit: log, IDs: gen, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+		Control: releases, Documents: docs, Publisher: releases, Observations: experiment.PostgresObservations{DB: db},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	searchService, err := search.NewService(search.Options{DB: db, Tenancy: tenancyService})
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitService, err := gitsync.New(gitsync.Options{DB: db, Audit: log, Documents: docs, Secrets: tenancyService, IDs: gen})
+	if err != nil {
+		t.Fatal(err)
+	}
+	approvals, err := approval.New(approval.Options{DB: db, Audit: log, IDs: gen, Now: cfg.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	reports, err := compliance.New(compliance.Options{DB: db, Audit: log, IDs: gen, Limits: effective, Now: cfg.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
-		Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
+		Emergencies: emergencies, Freezes: freezes, Reports: reports,
+		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
-		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
+		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
-		Goldens:      golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
+		Searches:     searchService, GitExports: gitService,
+		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
 	}
-	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, set.Get(limits.APIRequestsPerMinute))
+	// The world's one signed-in person calls every RPC of the authorisation
+	// matrix within a minute, which is more than one person's default
+	// allowance; the allowance itself is tested at the edge (edge_test.go).
+	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, 10*set.Get(limits.APIRequestsPerMinute))
 	nonceKey := make([]byte, 32)
 	if _, err := rand.Read(nonceKey); err != nil {
 		t.Fatal(err)
@@ -311,12 +456,20 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Limiter: limiter, PerDevice: set.Get(limits.APIRequestsPerMinutePerDevice), People: people,
 	}
 	authn := api.DeviceAuthentication(deviceAuth)
-	opts := connect.WithInterceptors(api.Interceptors(api.Deps{Before: []api.Around{authn}})...)
+	opts := connect.WithInterceptors(api.Interceptors(api.Deps{Before: []api.Around{licensed(), authn}})...)
 	mux := http.NewServeMux()
 	for _, r := range []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewBreakGlassServiceHandler(h.BreakGlass(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewFederationServiceHandler(h.Federation(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewPluginServiceHandler(h.Plugin(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDocumentServiceHandler(h.Document(), opts) },
@@ -339,6 +492,28 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewAnalyticsServiceHandler(h.AnalyticsService(), opts)
+		},
+		func() (string, http.Handler) { return pluxv1connect.NewLicenseServiceHandler(h.License(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewNotificationServiceHandler(h.Notification(), opts)
+		},
+		func() (string, http.Handler) { return pluxv1connect.NewWebhookServiceHandler(h.Webhook(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewFunctionTriggerServiceHandler(h.FunctionTrigger(), opts)
+		},
+		func() (string, http.Handler) { return pluxv1connect.NewAuditServiceHandler(h.Audit(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewDataSubjectServiceHandler(h.DataSubject(), opts)
+		},
+		func() (string, http.Handler) {
+			return pluxv1connect.NewRolloutServiceHandler(h.RolloutAdmin(), opts)
+		},
+		func() (string, http.Handler) { return pluxv1connect.NewFlagServiceHandler(h.Flags(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewExperimentServiceHandler(h.ExperimentAdmin(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
@@ -357,27 +532,38 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	srv.Config.Handler = mux
 	srv.Start()
 	return &world{
-		auth:     authService,
-		assets:   assets,
-		docs:     docs,
-		identity: pluxv1connect.NewIdentityServiceClient(srv.Client(), srv.URL),
-		org:      pluxv1connect.NewOrgServiceClient(srv.Client(), srv.URL),
-		app:      pluxv1connect.NewAppServiceClient(srv.Client(), srv.URL),
-		plugin:   pluxv1connect.NewPluginServiceClient(srv.Client(), srv.URL),
-		document: pluxv1connect.NewDocumentServiceClient(srv.Client(), srv.URL),
-		comp:     pluxv1connect.NewComponentServiceClient(srv.Client(), srv.URL),
-		template: pluxv1connect.NewTemplateServiceClient(srv.Client(), srv.URL),
-		asset:    pluxv1connect.NewAssetServiceClient(srv.Client(), srv.URL),
-		publish:  pluxv1connect.NewPublishServiceClient(srv.Client(), srv.URL),
-		release:  pluxv1connect.NewReleaseServiceClient(srv.Client(), srv.URL),
-		device:   pluxv1connect.NewDeviceServiceClient(srv.Client(), srv.URL),
-		token:    pluxv1connect.NewTokenServiceClient(srv.Client(), srv.URL),
-		manifest: pluxv1connect.NewManifestServiceClient(srv.Client(), srv.URL),
-		native:   pluxv1connect.NewNativeCatalogueServiceClient(srv.Client(), srv.URL),
-		control:  pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
-		secAdmin: pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
-		config:   pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
-		sca:      pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
+		auth:         authService,
+		analyticsSvc: analyticsService,
+		assets:       assets,
+		docs:         docs,
+		identity:     pluxv1connect.NewIdentityServiceClient(srv.Client(), srv.URL),
+		org:          pluxv1connect.NewOrgServiceClient(srv.Client(), srv.URL),
+		govern:       pluxv1connect.NewGovernanceServiceClient(srv.Client(), srv.URL),
+		app:          pluxv1connect.NewAppServiceClient(srv.Client(), srv.URL),
+		analytics:    pluxv1connect.NewAnalyticsServiceClient(srv.Client(), srv.URL),
+		plugin:       pluxv1connect.NewPluginServiceClient(srv.Client(), srv.URL),
+		document:     pluxv1connect.NewDocumentServiceClient(srv.Client(), srv.URL),
+		comp:         pluxv1connect.NewComponentServiceClient(srv.Client(), srv.URL),
+		template:     pluxv1connect.NewTemplateServiceClient(srv.Client(), srv.URL),
+		asset:        pluxv1connect.NewAssetServiceClient(srv.Client(), srv.URL),
+		publish:      pluxv1connect.NewPublishServiceClient(srv.Client(), srv.URL),
+		release:      pluxv1connect.NewReleaseServiceClient(srv.Client(), srv.URL),
+		device:       pluxv1connect.NewDeviceServiceClient(srv.Client(), srv.URL),
+		token:        pluxv1connect.NewTokenServiceClient(srv.Client(), srv.URL),
+		manifest:     pluxv1connect.NewManifestServiceClient(srv.Client(), srv.URL),
+		native:       pluxv1connect.NewNativeCatalogueServiceClient(srv.Client(), srv.URL),
+		control:      pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
+		breakGlass:   pluxv1connect.NewBreakGlassServiceClient(srv.Client(), srv.URL),
+		freeze:       pluxv1connect.NewFreezeServiceClient(srv.Client(), srv.URL),
+		compliance:   pluxv1connect.NewComplianceServiceClient(srv.Client(), srv.URL),
+		secAdmin:     pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
+		license:      pluxv1connect.NewLicenseServiceClient(srv.Client(), srv.URL),
+		audit:        pluxv1connect.NewAuditServiceClient(srv.Client(), srv.URL),
+		dsr:          pluxv1connect.NewDataSubjectServiceClient(srv.Client(), srv.URL),
+		flags:        pluxv1connect.NewFlagServiceClient(srv.Client(), srv.URL),
+		experiments:  pluxv1connect.NewExperimentServiceClient(srv.Client(), srv.URL),
+		config:       pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
+		sca:          pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
 
 		functions:     functions,
 		functionAdmin: pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),
@@ -395,6 +581,8 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		issuer:     issuer,
 		releases:   releases,
 		queue:      queue,
+
+		reconstruction: reconstruction, reconQueue: reconQueue,
 	}
 }
 
@@ -440,8 +628,42 @@ func codeOf(err error) connect.Code {
 	return 0
 }
 
-// signIn signs a person in through the API and returns the caller.
+// signIn signs a person in through the API and returns the caller, whose
+// session has stepped up just now. The ceremony itself (a WebAuthn assertion
+// with user verification) is exercised by the auth and step-up tests; here the
+// session only carries its outcome, recorded the way the ceremony records it.
 func (w *world) signIn(t *testing.T, email string) caller {
+	t.Helper()
+	c := w.signInWithoutStepUp(t, email)
+	w.recordStepUp(t, c)
+	return c
+}
+
+// recordStepUp stamps the caller's session as having stepped up now.
+func (w *world) recordStepUp(t *testing.T, c caller) {
+	t.Helper()
+	ctx := context.Background()
+	_, secret, _ := strings.Cut(c.cookie, "=")
+	id, err := w.auth.AuthenticateSession(ctx, secret)
+	if err != nil {
+		t.Fatalf("AuthenticateSession: %v", err)
+	}
+	sessionID, err := storage.UUID(id.SessionID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = w.db.InTx(ctx, storage.Tenant{}, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := dbgen.New(tx).SetSessionStepUp(ctx, dbgen.SetSessionStepUpParams{ID: sessionID, At: storage.Timestamp(time.Now())})
+		return err
+	})
+	if err != nil {
+		t.Fatalf("record a step-up: %v", err)
+	}
+}
+
+// signInWithoutStepUp signs a person in through the API; the session has not
+// stepped up, so permissions the catalogue marks stepUp are refused (GOV-005).
+func (w *world) signInWithoutStepUp(t *testing.T, email string) caller {
 	const password = "correct horse battery"
 	t.Helper()
 	res, err := w.identity.StartPasswordLogin(context.Background(), connect.NewRequest(&pluxv1.StartPasswordLoginRequest{Email: email, Password: password}))
@@ -772,4 +994,21 @@ func TestSignInWithChallengeOverTheAPI(t *testing.T) {
 		t.Error("a session opened with a second factor does not say so")
 	}
 	must(w.identity.GetCurrentUser(ctx, req(session, &pluxv1.GetCurrentUserRequest{})))(t)
+}
+
+// fullLicence is a valid licence that lists every enterprise feature.
+type fullLicence struct{}
+
+// Status returns a valid status with every feature.
+func (fullLicence) Status() edition.Status {
+	return edition.Status{State: edition.StateValid, Features: edition.Features()}
+}
+
+// licensed puts a licence with every enterprise feature into each request's
+// context, as the server's edition interceptor does with the installation's
+// own, so that the calls of enterprise features are reached.
+func licensed() api.Around {
+	return func(ctx context.Context, _ api.Call, next func(context.Context) error) error {
+		return next(edition.WithProvider(ctx, fullLicence{}))
+	}
 }

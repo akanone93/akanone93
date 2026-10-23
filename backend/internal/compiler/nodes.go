@@ -117,6 +117,11 @@ func findMember(ms []member, name string) (member, bool) {
 // props, events, children, slots, visibility, semantics and responsive
 // overrides.
 func (u *unit) checkNode(n *node) {
+	if n.variant != nil {
+		u.checkVariant(n)
+		return
+	}
+	u.strayVariantFields(n)
 	sh := u.shapeOf(n)
 	if sh == nil {
 		return
@@ -143,6 +148,7 @@ func (u *unit) checkNode(n *node) {
 		n.semantics = u.checkSemantics(n, sem, c)
 	}
 	u.noteCalendar(n.doc.Props)
+	u.noteLocaleUse(n.doc)
 	u.localeOverrides(n, sh, c)
 	if r := n.doc.Responsive; r != nil {
 		for _, layer := range []struct {

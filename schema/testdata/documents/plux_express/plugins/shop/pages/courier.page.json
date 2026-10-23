@@ -122,6 +122,13 @@
     "type": "Scaffold"
   },
   "route": "courier",
+  "routeOptions": {
+    "guards": [
+      {
+        "$graph": "01d0c450-6c00-7000-8000-0000000007a2"
+      }
+    ]
+  },
   "schemaVersion": "1.0.0",
   "title": {
     "$t": "01a14cd1-ca0e-703f-b903-b2e42c4c85c0"

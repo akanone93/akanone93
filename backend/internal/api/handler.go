@@ -14,16 +14,31 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/internal/analytics"
+	"github.com/nightCode42/plux3/backend/internal/approval"
+	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
+	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/dsr"
+	"github.com/nightCode42/plux3/backend/internal/experiment"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/push"
+	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
@@ -41,11 +56,30 @@ type Handlers struct {
 	// Translations serves LocalisationService (I18N-009); nil leaves it
 	// unmounted.
 	Translations *localisation.Service
+	// Approvals serves ApprovalService (GOV-020 to GOV-023); nil leaves it
+	// unmounted.
+	Approvals *approval.Service
+	// Emergencies serves BreakGlassService (GOV-024); nil leaves it
+	// unmounted.
+	Emergencies *breakglass.Service
+	// Freezes serves FreezeService (GOV-025); nil leaves it unmounted.
+	Freezes *freeze.Service
+	// Reports serves ComplianceService (GOV-026); nil leaves it
+	// unmounted.
+	Reports *compliance.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
-	Goldens  *golden.Service
-	Releases *release.Service
-	Devices  *device.Service
-	Events   *telemetry.Service
+	Goldens *golden.Service
+	// Searches serves SearchService (SRV-061); nil leaves it unmounted.
+	Searches *search.Service
+	// GitExports serves GitExportService (GOV-011); nil leaves it
+	// unmounted.
+	GitExports *gitsync.Service
+	Releases   *release.Service
+	Devices    *device.Service
+	Events     *telemetry.Service
+	// Analytics serves AnalyticsService (ANL-010, ANL-011); nil leaves it
+	// unmounted.
+	Analytics *analytics.Service
 	// SecurityConfig serves SecurityAdminService (SEC-182); nil leaves
 	// the service unmounted.
 	SecurityConfig *seccfg.Service
@@ -63,9 +97,32 @@ type Handlers struct {
 	// Unimplemented.
 	Configs    *gateway.Configs
 	LiveConfig *gateway.ConfigResolver
+	// AuditExport serves AuditService (SEC-143); nil leaves it unmounted.
+	AuditExport *auditexport.Service
+	// Reconstruction serves the reconstruction calls of AuditService
+	// (SEC-142); nil leaves them unimplemented.
+	Reconstruction *reconstruct.Service
+	// DataSubjects serves DataSubjectService (SEC-162); nil leaves it
+	// unmounted.
+	DataSubjects *dsr.Service
+	// Rollouts serves RolloutService (REL-050 to REL-053); nil leaves it
+	// unmounted.
+	Rollouts *rollout.Service
+	// Experiments serves FlagService and ExperimentService (ABT-001,
+	// ABT-006); nil leaves them unmounted.
+	Experiments *experiment.Service
+	// Edition answers what the licence allows (GOV-030); nil is the
+	// community provider.
+	Edition edition.Provider
 	// Functions administers functions (FN-006, FN-016); nil leaves
 	// FunctionAdminService unmounted.
 	Functions *function.Service
+	// Notify serves NotificationService and WebhookService (SRV-062,
+	// SRV-063); nil leaves them unmounted.
+	Notify *notify.Service
+	// Push stores device push tokens (SYN-060); nil refuses them as a
+	// server with silent push off does.
+	Push *push.Service
 	// FunctionHosting serves FunctionHostService to the function runner on
 	// the internal listener (ADR-0064); nil leaves it unmounted.
 	FunctionHosting *function.Host

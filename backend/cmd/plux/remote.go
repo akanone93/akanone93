@@ -65,6 +65,9 @@ type env struct {
 	// vendor runs `cargo vendor` in a crate; nil runs cargo. Replaceable in
 	// tests, which must not reach the network.
 	vendor func(ctx context.Context, dir string) error
+	// clone fetches a repository into an empty dir for plux git import;
+	// nil in tests that must not reach the network.
+	clone func(ctx context.Context, url, dir string) error
 }
 
 // newEnv returns the environment of a real run.
@@ -73,7 +76,7 @@ func newEnv(stdout, stderr io.Writer) env {
 	if err != nil {
 		dir = "."
 	}
-	return env{stdout: stdout, stderr: stderr, stdin: os.Stdin, creds: credentials{dir: filepath.Join(dir, "plux")}, httpClient: &http.Client{Timeout: 5 * time.Minute}, pollInterval: 500 * time.Millisecond}
+	return env{stdout: stdout, stderr: stderr, stdin: os.Stdin, creds: credentials{dir: filepath.Join(dir, "plux")}, httpClient: &http.Client{Timeout: 5 * time.Minute}, pollInterval: 500 * time.Millisecond, clone: cloneRepository}
 }
 
 // common are the flags of every server command.
@@ -145,6 +148,8 @@ type clients struct {
 	release  pluxv1connect.ReleaseServiceClient
 	manifest pluxv1connect.ManifestServiceClient
 	fn       pluxv1connect.FunctionAdminServiceClient
+	search   pluxv1connect.SearchServiceClient
+	gitExp   pluxv1connect.GitExportServiceClient
 	http     *http.Client
 	server   string
 	token    string
@@ -160,7 +165,7 @@ func (e env) connect(c common, needToken bool) (*clients, error) {
 	if needToken && token == "" {
 		return nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
 	}
-	opts := connect.WithInterceptors(headers{token: token, org: c.org})
+	opts := connect.WithInterceptors(e.headers(c.server, token, c.org))
 	return &clients{
 		identity: pluxv1connect.NewIdentityServiceClient(e.httpClient, c.server, opts),
 		app:      pluxv1connect.NewAppServiceClient(e.httpClient, c.server, opts),
@@ -170,12 +175,29 @@ func (e env) connect(c common, needToken bool) (*clients, error) {
 		release:  pluxv1connect.NewReleaseServiceClient(e.httpClient, c.server, opts),
 		manifest: pluxv1connect.NewManifestServiceClient(e.httpClient, c.server, opts),
 		fn:       pluxv1connect.NewFunctionAdminServiceClient(e.httpClient, c.server, opts),
+		search:   pluxv1connect.NewSearchServiceClient(e.httpClient, c.server, opts),
+		gitExp:   pluxv1connect.NewGitExportServiceClient(e.httpClient, c.server, opts),
 		http:     e.httpClient, server: c.server, token: token,
 	}, nil
 }
 
 // headers adds the credential and organisation to every call.
-type headers struct{ token, org string }
+type headers struct {
+	token, org string
+	// step, when set, obtains and attaches a step-up grant: a call the
+	// server refuses with PLX-6200 or PLX-6201 is repeated once with the
+	// grant of a ceremony the person completes in the browser (SEC-103).
+	step *stepUpper
+}
+
+// headers returns the interceptor that signs a command's calls.
+func (e env) headers(server, token, org string) headers {
+	h := headers{token: token, org: org}
+	if token != "" {
+		h.step = e.newStepUpper(server, token)
+	}
+	return h
+}
 
 func (h headers) set(hd http.Header) {
 	if h.token != "" {
@@ -189,8 +211,32 @@ func (h headers) set(hd http.Header) {
 func (h headers) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return func(ctx context.Context, r connect.AnyRequest) (connect.AnyResponse, error) {
 		h.set(r.Header())
-		return next(ctx, r)
+		if h.step == nil {
+			return next(ctx, r)
+		}
+		return h.withStepUp(ctx, r, next)
 	}
+}
+
+// withStepUp sends a call with the grant the command holds and, when the
+// server refuses it for want of a step-up, runs the ceremony and sends it
+// once more.
+func (h headers) withStepUp(ctx context.Context, r connect.AnyRequest, next connect.UnaryFunc) (connect.AnyResponse, error) {
+	procedure := r.Spec().Procedure
+	if err := h.step.attach(r.Header(), procedure); err != nil {
+		return nil, err
+	}
+	res, err := next(ctx, r)
+	if !needsStepUp(err) {
+		return res, err
+	}
+	if serr := h.step.obtain(ctx); serr != nil {
+		return nil, fmt.Errorf("%w\n%w", err, serr)
+	}
+	if err := h.step.attach(r.Header(), procedure); err != nil {
+		return nil, err
+	}
+	return next(ctx, r)
 }
 
 func (h headers) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {

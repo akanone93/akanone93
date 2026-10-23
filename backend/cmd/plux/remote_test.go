@@ -14,6 +14,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -46,6 +47,11 @@ type fake struct {
 	hash    string
 	fail    bool
 	promote []string
+	// refuseRelease answers CreateRelease with diagnostics and no release.
+	refuseRelease bool
+	// released lists the drafts whose lock the CLI gave up, by plugin ID
+	// ("" for the app's draft) and session.
+	released []string
 	// channels by environment ID and key; after a promotion the
 	// worker "signs" its manifest once ListChannels has been asked lag
 	// more times, and never while unsigned.
@@ -152,6 +158,13 @@ func (f *fake) ExportDraft(_ context.Context, _ *connect.Request[pluxv1.ExportDr
 	return nil
 }
 
+func (f *fake) ReleaseLock(_ context.Context, r *connect.Request[pluxv1.ReleaseLockRequest]) (*connect.Response[pluxv1.ReleaseLockResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.released = append(f.released, r.Msg.GetPluginId()+"@"+r.Msg.GetSession())
+	return connect.NewResponse(&pluxv1.ReleaseLockResponse{}), nil
+}
+
 func (f *fake) ImportDraft(_ context.Context, s *connect.ClientStream[pluxv1.ImportDraftRequest]) (*connect.Response[pluxv1.ImportDraftResponse], error) {
 	files := map[string][]byte{}
 	for s.Receive() {
@@ -179,9 +192,12 @@ func (f *fake) WatchPublish(_ context.Context, r *connect.Request[pluxv1.WatchPu
 	}})
 }
 
-func (*fake) CreateRelease(_ context.Context, r *connect.Request[pluxv1.CreateReleaseRequest]) (*connect.Response[pluxv1.CreateReleaseResponse], error) {
+func (f *fake) CreateRelease(_ context.Context, r *connect.Request[pluxv1.CreateReleaseRequest]) (*connect.Response[pluxv1.CreateReleaseResponse], error) {
 	if r.Msg.GetPluginVersions()["loans"] != 2 {
 		return nil, connect.NewError(connect.CodeInvalidArgument, nil)
+	}
+	if f.refuseRelease {
+		return connect.NewResponse(&pluxv1.CreateReleaseResponse{Diagnostics: []*pluxv1.Diagnostic{{Code: "PLX-7031", Message: "a function is unknown"}}}), nil
 	}
 	return connect.NewResponse(&pluxv1.CreateReleaseResponse{Release: &pluxv1.Release{Sequence: 4}}), nil
 }
@@ -334,6 +350,9 @@ func TestServerCommands(t *testing.T) { //nolint:paralleltest // the keychain mo
 	if code, _, _ := cli(t, config, "import", "-C", project); code != exitOK {
 		t.Errorf("import: %d", code)
 	}
+	if !slices.Equal(f.released, []string{"@plux-cli", "p1@plux-cli"}) {
+		t.Errorf("the import kept its editing locks: released %v", f.released)
+	}
 	f.drafts["app.json"] = []byte(`{"a":2,"b":1}`) // canonical on the server
 	if code, out, _ := cli(t, config, "diff", "-C", project); code != exitOK || out != "" {
 		t.Errorf("diff after import: %d %q", code, out)
@@ -354,6 +373,13 @@ func TestServerCommands(t *testing.T) { //nolint:paralleltest // the keychain mo
 	if code != exitOK || json.Unmarshal([]byte(out), &pub) != nil || !pub.OK || pub.Release != 4 || len(pub.Publishes) != 2 || f.promote[0] != "e-prod/beta" {
 		t.Errorf("publish: %d %s %v", code, out, f.promote)
 	}
+	// A release the server refuses with diagnostics fails the publish and
+	// names them, rather than reporting release 0.
+	f.refuseRelease = true
+	if code, _, stderr := cli(t, config, "publish", "-C", project, "--release"); code != exitFailed || !strings.Contains(stderr, "PLX-7031") {
+		t.Errorf("a refused release: %d %s", code, stderr)
+	}
+	f.refuseRelease = false
 	f.fail = true
 	if code, out, _ := cli(t, config, "publish", "-C", project, "--no-import"); code != exitFailed || !strings.Contains(out, "PLX-1401") {
 		t.Errorf("a failed publish: %d %s", code, out)

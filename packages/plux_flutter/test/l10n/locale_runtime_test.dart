@@ -253,6 +253,8 @@ void main() {
                 firstJdn: 2460565,
                 lastJdn: 2461000,
                 onChanged: null,
+                // 11 September 2024 is 1 Meskerem: the grid opens on today.
+                now: () => DateTime(2024, 9, 11),
               ),
             ),
           ),

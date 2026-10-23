@@ -24,6 +24,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
+	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
@@ -74,7 +75,10 @@ type entry struct {
 }
 
 // roles are the callers of the matrix, in the order they are checked.
-var matrixRoles = []auth.Role{auth.RoleViewer, auth.RoleTranslator, auth.RoleDeveloper, auth.RoleAdmin, auth.RoleOwner}
+var matrixRoles = []auth.Role{
+	auth.RoleViewer, auth.RoleTranslator, auth.RoleDeveloper, auth.RoleAdmin, auth.RoleOwner,
+	auth.RoleReleaseManager, auth.RoleDesigner, auth.RoleReviewer, auth.RoleComplianceOfficer, auth.RoleAuditor,
+}
 
 // matrixFixture is an organisation with one member per role and the
 // resources the RPCs act on.
@@ -90,10 +94,16 @@ type matrixFixture struct {
 	plugin   string
 	team     string
 	template string
-	snaps    []string
-	device   string
-	job      string
-	count    int
+	// destination is the fixture's shared export destination (sharedDestination).
+	destination string
+	snaps       []string
+	device      string
+	job         string
+	count       int
+	// rule and group are the alert rule and error group the read and update
+	// entries share, made on first use to spare the rate limit.
+	rule  *pluxv1.AlertRule
+	group string
 }
 
 func (f *matrixFixture) owner() caller { return f.callers[auth.RoleOwner] }
@@ -148,7 +158,10 @@ func newMatrixFixture(t *testing.T) *matrixFixture {
 	owner.org = f.org
 	w.withSecondFactor(t, owner)
 	f.callers[auth.RoleOwner] = owner
-	for _, role := range []auth.Role{auth.RoleAdmin, auth.RoleDeveloper, auth.RoleTranslator, auth.RoleViewer} {
+	for _, role := range matrixRoles {
+		if role == auth.RoleOwner {
+			continue
+		}
 		email := string(role) + "@example.com"
 		added := must(w.org.AddMember(ctx, req(owner, &pluxv1.AddMemberRequest{Email: email, Role: string(role)})))(t)
 		must(w.identity.AcceptInvitation(ctx, connect.NewRequest(&pluxv1.AcceptInvitationRequest{Invitation: added.GetInvitation(), DisplayName: string(role), Password: password})))(t)
@@ -212,6 +225,37 @@ func (f *matrixFixture) freshApp(t *testing.T) string {
 	return must(f.w.app.CreateApp(context.Background(), req(f.owner(), &pluxv1.CreateAppRequest{Key: k, Name: k})))(t).GetApp().GetId()
 }
 
+func (f *matrixFixture) freshDestination(t *testing.T) string {
+	t.Helper()
+	return must(f.w.audit.CreateExportDestination(context.Background(), req(f.owner(), &pluxv1.CreateExportDestinationRequest{
+		Name: "d" + f.name(), Kind: "syslog", Address: "siem.example.com:6514",
+	})))(t).GetDestination().GetId()
+}
+
+// sharedDestination returns the fixture's destination, creating it on first
+// use. Read and update calls share it so the matrix stays under the org's
+// destination limit (audit.exportDestinationsPerOrg).
+func (f *matrixFixture) sharedDestination(t *testing.T) string {
+	t.Helper()
+	if f.destination == "" {
+		f.destination = f.freshDestination(t)
+	}
+	return f.destination
+}
+
+// deleteFreshDestination deletes a new destination as c and returns the
+// outcome. A refused delete leaves its destination behind, so the owner
+// removes it.
+func (f *matrixFixture) deleteFreshDestination(t *testing.T, c caller) error {
+	t.Helper()
+	id := f.freshDestination(t)
+	_, err := f.w.audit.DeleteExportDestination(context.Background(), req(c, &pluxv1.DeleteExportDestinationRequest{Id: id}))
+	if err != nil {
+		must(f.w.audit.DeleteExportDestination(context.Background(), req(f.owner(), &pluxv1.DeleteExportDestinationRequest{Id: id})))(t)
+	}
+	return err //nolint:wrapcheck // the code is what the test reads
+}
+
 func (f *matrixFixture) freshEnvironment(t *testing.T) string {
 	t.Helper()
 	k := f.name()
@@ -221,6 +265,51 @@ func (f *matrixFixture) freshEnvironment(t *testing.T) string {
 func (f *matrixFixture) freshChannel(t *testing.T) string {
 	t.Helper()
 	return must(f.w.app.CreateChannel(context.Background(), req(f.owner(), &pluxv1.CreateChannelRequest{EnvironmentId: f.prod, Key: f.name()})))(t).GetChannel().GetId()
+}
+
+// freshAlertRule creates an alert rule as the owner and returns it.
+func (f *matrixFixture) freshAlertRule(t *testing.T) *pluxv1.AlertRule {
+	t.Helper()
+	rule := &pluxv1.AlertRule{
+		AppId: f.app, Name: f.name(), Metric: "fatal_error", Aggregation: "count", WindowSeconds: 300,
+		Comparison: ">", Threshold: 5, Severity: "warning",
+	}
+	return must(f.w.analytics.CreateAlertRule(context.Background(), req(f.owner(), &pluxv1.CreateAlertRuleRequest{Rule: rule})))(t).GetRule()
+}
+
+// errorGroup records one error event, which is delivered once however often
+// this runs, and returns the group it falls into.
+func (f *matrixFixture) errorGroup(t *testing.T) string {
+	t.Helper()
+	if f.group != "" {
+		return f.group
+	}
+	ctx := context.Background()
+	b := analytics.Batch{OrganizationID: f.org, AppID: f.app, DeviceID: f.device, Events: []analytics.Event{{
+		ID: "018f0000-0000-7000-8000-0000000000e1", Name: analytics.EventError, Time: time.Now(), ReleaseSequence: 1, PluginKey: "main",
+		Fields: []byte(`{"code":"PLX-4101","node_path":"root/0"}`),
+	}}}
+	if err := f.w.analyticsSvc.RecordErrors(ctx, b); err != nil {
+		t.Fatalf("RecordErrors: %v", err)
+	}
+	groups := must(f.w.analytics.ListErrorGroups(ctx, req(f.owner(), &pluxv1.ListErrorGroupsRequest{AppId: f.app})))(t).GetGroups()
+	if len(groups) == 0 {
+		t.Fatal("no error group was recorded")
+	}
+	f.group = groups[0].GetId()
+	return f.group
+}
+
+// sharedAlertRule is an alert rule that entries may change but not remove.
+func (f *matrixFixture) sharedAlertRule(t *testing.T) *pluxv1.AlertRule {
+	t.Helper()
+	if f.rule == nil {
+		f.rule = f.freshAlertRule(t)
+	}
+	return &pluxv1.AlertRule{
+		Id: f.rule.GetId(), Name: f.rule.GetName(), Metric: f.rule.GetMetric(), Aggregation: f.rule.GetAggregation(),
+		WindowSeconds: f.rule.GetWindowSeconds(), Comparison: f.rule.GetComparison(), Threshold: 9, Severity: f.rule.GetSeverity(),
+	}
 }
 
 func (f *matrixFixture) freshPlugin(t *testing.T) string {
@@ -416,6 +505,11 @@ func TestEveryPermissionGuardsAnRPC(t *testing.T) {
 // service (translations) or arrive with their RPCs (waivers).
 var permissionsWithoutRPC = []auth.Permission{
 	auth.A11yWaive, auth.KeysManage, auth.TranslationsApprove,
+	// The P9 permissions whose RPCs a later milestone adds; each milestone
+	// removes its permissions from this list when its first call checks
+	// them (plan §2.4).
+	auth.LicenseManage,
+	auth.BackupManage,
 }
 
 // Verifies: SEC-100, SEC-102, GOV-001, QA-008.

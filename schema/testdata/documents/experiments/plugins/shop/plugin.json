@@ -1,0 +1,19 @@
+{
+  "description": "A plugin with an experiment.",
+  "entryPage": "01f0c450-6c00-7000-8000-00000000070a",
+  "icon": {
+    "monogram": {
+      "background": "#0B6E4F",
+      "text": "S"
+    }
+  },
+  "id": "01f0c450-6c00-7000-8000-000000000709",
+  "key": "shop",
+  "kind": "plugin",
+  "name": "Shop",
+  "pages": [
+    "01f0c450-6c00-7000-8000-00000000070a"
+  ],
+  "schemaVersion": "1.0.0",
+  "team": "experiments"
+}

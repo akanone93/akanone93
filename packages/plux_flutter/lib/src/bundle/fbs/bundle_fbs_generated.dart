@@ -748,10 +748,6 @@ class Uuid {
   int get hi => const fb.Uint64Reader().read(_bc, _bcOffset + 0);
   int get lo => const fb.Uint64Reader().read(_bc, _bcOffset + 8);
 
-  @override
-  String toString() {
-    return 'Uuid{hi: ${hi}, lo: ${lo}}';
-  }
 }
 
 class _UuidReader extends fb.StructReader<Uuid> {
@@ -828,10 +824,6 @@ class Value {
   List<Value>? get items => const fb.ListReader<Value>(Value.reader).vTableGetNullable(_bc, _bcOffset, 20);
   List<Entry>? get entries => const fb.ListReader<Entry>(Entry.reader).vTableGetNullable(_bc, _bcOffset, 22);
 
-  @override
-  String toString() {
-    return 'Value{kind: ${kind}, i: ${i}, offset: ${offset}, d: ${d}, s: ${s}, unscaled: ${unscaled}, scale: ${scale}, uuid: ${uuid}, items: ${items}, entries: ${entries}}';
-  }
 }
 
 class _ValueReader extends fb.TableReader<Value> {
@@ -980,10 +972,6 @@ class Entry {
   int get key => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
   Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'Entry{key: ${key}, value: ${value}}';
-  }
 }
 
 class _EntryReader extends fb.TableReader<Entry> {
@@ -1061,10 +1049,6 @@ class Prop {
   int get id => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
   Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'Prop{id: ${id}, value: ${value}}';
-  }
 }
 
 class _PropReader extends fb.TableReader<Prop> {
@@ -1145,10 +1129,6 @@ class Handler {
   int get intervalMs => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
   bool get detached => const fb.BoolReader().vTableGet(_bc, _bcOffset, 12, false);
 
-  @override
-  String toString() {
-    return 'Handler{event: ${event}, graph: ${graph}, concurrency: ${concurrency}, intervalMs: ${intervalMs}, detached: ${detached}}';
-  }
 }
 
 class _HandlerReader extends fb.TableReader<Handler> {
@@ -1254,10 +1234,6 @@ class Trigger {
   bool get repeat => const fb.BoolReader().vTableGet(_bc, _bcOffset, 10, false);
   Handler? get handler => Handler.reader.vTableGetNullable(_bc, _bcOffset, 12);
 
-  @override
-  String toString() {
-    return 'Trigger{kind: ${kind}, name: ${name}, intervalMs: ${intervalMs}, repeat: ${repeat}, handler: ${handler}}';
-  }
 }
 
 class _TriggerReader extends fb.TableReader<Trigger> {
@@ -1365,10 +1341,6 @@ class Param {
   Value? get $default => Value.reader.vTableGetNullable(_bc, _bcOffset, 12);
   bool get sensitive => const fb.BoolReader().vTableGet(_bc, _bcOffset, 14, false);
 
-  @override
-  String toString() {
-    return 'Param{id: ${id}, name: ${name}, type: ${type}, \$required: ${$required}, \$default: ${$default}, sensitive: ${sensitive}}';
-  }
 }
 
 class _ParamReader extends fb.TableReader<Param> {
@@ -1491,10 +1463,6 @@ class StateEntry {
   bool get migrationReset => const fb.BoolReader().vTableGet(_bc, _bcOffset, 26, false);
   int get migrationType => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 28, 0);
 
-  @override
-  String toString() {
-    return 'StateEntry{id: ${id}, name: ${name}, type: ${type}, \$default: ${$default}, computed: ${computed}, persistence: ${persistence}, sensitive: ${sensitive}, exposed: ${exposed}, fingerprint: ${fingerprint}, migrationFrom: ${migrationFrom}, migration: ${migration}, migrationReset: ${migrationReset}, migrationType: ${migrationType}}';
-  }
 }
 
 class _StateEntryReader extends fb.TableReader<StateEntry> {
@@ -1665,10 +1633,6 @@ class DataSource {
   int get type => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
   Value? get config => Value.reader.vTableGetNullable(_bc, _bcOffset, 12);
 
-  @override
-  String toString() {
-    return 'DataSource{id: ${id}, name: ${name}, kind: ${kind}, type: ${type}, config: ${config}}';
-  }
 }
 
 class _DataSourceReader extends fb.TableReader<DataSource> {
@@ -1773,10 +1737,6 @@ class TypeDecl {
   List<Param>? get fields => const fb.ListReader<Param>(Param.reader).vTableGetNullable(_bc, _bcOffset, 6);
   List<int>? get members => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'TypeDecl{name: ${name}, fields: ${fields}, members: ${members}}';
-  }
 }
 
 class _TypeDeclReader extends fb.TableReader<TypeDecl> {
@@ -1866,10 +1826,6 @@ class Override {
   int get key => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
   List<Prop>? get props => const fb.ListReader<Prop>(Prop.reader).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'Override{kind: ${kind}, key: ${key}, props: ${props}}';
-  }
 }
 
 class _OverrideReader extends fb.TableReader<Override> {
@@ -1965,10 +1921,6 @@ class Semantics {
   int get headingLevel => const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 22, 0);
   bool get decorative => const fb.BoolReader().vTableGet(_bc, _bcOffset, 24, false);
 
-  @override
-  String toString() {
-    return 'Semantics{label: ${label}, hint: ${hint}, value: ${value}, header: ${header}, button: ${button}, liveRegion: ${liveRegion}, exclude: ${exclude}, focusOrder: ${focusOrder}, group: ${group}, headingLevel: ${headingLevel}, decorative: ${decorative}}';
-  }
 }
 
 class _SemanticsReader extends fb.TableReader<Semantics> {
@@ -2120,10 +2072,6 @@ class SlotFill {
   int get id => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
   List<int>? get nodes => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'SlotFill{id: ${id}, nodes: ${nodes}}';
-  }
 }
 
 class _SlotFillReader extends fb.TableReader<SlotFill> {
@@ -2216,11 +2164,8 @@ class Node {
   int get nativeSlot => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 32, 0);
   NodeAnimation? get animation => NodeAnimation.reader.vTableGetNullable(_bc, _bcOffset, 34);
   TextDirectionOverride get direction => TextDirectionOverride.fromValue(const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 36, 0));
+  Variant? get variant => Variant.reader.vTableGetNullable(_bc, _bcOffset, 38);
 
-  @override
-  String toString() {
-    return 'Node{id: ${id}, widget: ${widget}, component: ${component}, componentVersion: ${componentVersion}, props: ${props}, handlers: ${handlers}, children: ${children}, slots: ${slots}, visible: ${visible}, semantics: ${semantics}, testId: ${testId}, overrides: ${overrides}, hints: ${hints}, typeArguments: ${typeArguments}, nativeSlot: ${nativeSlot}, animation: ${animation}, direction: ${direction}}';
-  }
 }
 
 class _NodeReader extends fb.TableReader<Node> {
@@ -2237,7 +2182,7 @@ class NodeBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(17);
+    fbBuilder.startTable(18);
   }
 
   int addId(int offset) {
@@ -2308,6 +2253,10 @@ class NodeBuilder {
     fbBuilder.addUint8(16, direction?.value);
     return fbBuilder.offset;
   }
+  int addVariantOffset(int? offset) {
+    fbBuilder.addOffset(17, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -2332,6 +2281,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
   final int? _nativeSlot;
   final NodeAnimationObjectBuilder? _animation;
   final TextDirectionOverride? _direction;
+  final VariantObjectBuilder? _variant;
 
   NodeObjectBuilder({
     UuidObjectBuilder? id,
@@ -2351,6 +2301,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     int? nativeSlot,
     NodeAnimationObjectBuilder? animation,
     TextDirectionOverride? direction,
+    VariantObjectBuilder? variant,
   })
       : _id = id,
         _widget = widget,
@@ -2368,7 +2319,8 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
         _typeArguments = typeArguments,
         _nativeSlot = nativeSlot,
         _animation = animation,
-        _direction = direction;
+        _direction = direction,
+        _variant = variant;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2388,7 +2340,8 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     final int? typeArgumentsOffset = _typeArguments == null ? null
         : fbBuilder.writeListUint32(_typeArguments!);
     final int? animationOffset = _animation?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(17);
+    final int? variantOffset = _variant?.getOrCreateOffset(fbBuilder);
+    fbBuilder.startTable(18);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
@@ -2410,6 +2363,161 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addUint32(14, _nativeSlot);
     fbBuilder.addOffset(15, animationOffset);
     fbBuilder.addUint8(16, _direction?.value);
+    fbBuilder.addOffset(17, variantOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class VariantArm {
+  VariantArm._(this._bc, this._bcOffset);
+  factory VariantArm(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<VariantArm> reader = _VariantArmReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  int get name => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
+  int get node => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
+
+}
+
+class _VariantArmReader extends fb.TableReader<VariantArm> {
+  const _VariantArmReader();
+
+  @override
+  VariantArm createObject(fb.BufferContext bc, int offset) => 
+    VariantArm._(bc, offset);
+}
+
+class VariantArmBuilder {
+  VariantArmBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(2);
+  }
+
+  int addName(int? name) {
+    fbBuilder.addUint32(0, name);
+    return fbBuilder.offset;
+  }
+  int addNode(int? node) {
+    fbBuilder.addUint32(1, node);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class VariantArmObjectBuilder extends fb.ObjectBuilder {
+  final int? _name;
+  final int? _node;
+
+  VariantArmObjectBuilder({
+    int? name,
+    int? node,
+  })
+      : _name = name,
+        _node = node;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    fbBuilder.startTable(2);
+    fbBuilder.addUint32(0, _name);
+    fbBuilder.addUint32(1, _node);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class Variant {
+  Variant._(this._bc, this._bcOffset);
+  factory Variant(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<Variant> reader = _VariantReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  int get experiment => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
+  List<VariantArm>? get arms => const fb.ListReader<VariantArm>(VariantArm.reader).vTableGetNullable(_bc, _bcOffset, 6);
+
+}
+
+class _VariantReader extends fb.TableReader<Variant> {
+  const _VariantReader();
+
+  @override
+  Variant createObject(fb.BufferContext bc, int offset) => 
+    Variant._(bc, offset);
+}
+
+class VariantBuilder {
+  VariantBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(2);
+  }
+
+  int addExperiment(int? experiment) {
+    fbBuilder.addUint32(0, experiment);
+    return fbBuilder.offset;
+  }
+  int addArmsOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class VariantObjectBuilder extends fb.ObjectBuilder {
+  final int? _experiment;
+  final List<VariantArmObjectBuilder>? _arms;
+
+  VariantObjectBuilder({
+    int? experiment,
+    List<VariantArmObjectBuilder>? arms,
+  })
+      : _experiment = experiment,
+        _arms = arms;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? armsOffset = _arms == null ? null
+        : fbBuilder.writeList(_arms!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(2);
+    fbBuilder.addUint32(0, _experiment);
+    fbBuilder.addOffset(1, armsOffset);
     return fbBuilder.endTable();
   }
 
@@ -2437,10 +2545,6 @@ class PageEntry {
   String? get key => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
   String? get route => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'PageEntry{id: ${id}, key: ${key}, route: ${route}}';
-  }
 }
 
 class _PageEntryReader extends fb.TableReader<PageEntry> {
@@ -2531,10 +2635,6 @@ class ComponentEntry {
   Uuid? get id => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 4);
   String? get key => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'ComponentEntry{id: ${id}, key: ${key}}';
-  }
 }
 
 class _ComponentEntryReader extends fb.TableReader<ComponentEntry> {
@@ -2619,10 +2719,6 @@ class FunctionGrant {
   bool get requiresAttestation => const fb.BoolReader().vTableGet(_bc, _bcOffset, 12, false);
   bool get requiresSca => const fb.BoolReader().vTableGet(_bc, _bcOffset, 14, false);
 
-  @override
-  String toString() {
-    return 'FunctionGrant{id: ${id}, function: ${function}, alias: ${alias}, version: ${version}, requiresAttestation: ${requiresAttestation}, requiresSca: ${requiresSca}}';
-  }
 }
 
 class _FunctionGrantReader extends fb.TableReader<FunctionGrant> {
@@ -2740,10 +2836,6 @@ class Capabilities {
   List<String>? get nativeRoutes => const fb.ListReader<String>(fb.StringReader()).vTableGetNullable(_bc, _bcOffset, 10);
   List<DomainPins>? get networkPins => const fb.ListReader<DomainPins>(DomainPins.reader).vTableGetNullable(_bc, _bcOffset, 12);
 
-  @override
-  String toString() {
-    return 'Capabilities{networkDomains: ${networkDomains}, functions: ${functions}, deviceApis: ${deviceApis}, nativeRoutes: ${nativeRoutes}, networkPins: ${networkPins}}';
-  }
 }
 
 class _CapabilitiesReader extends fb.TableReader<Capabilities> {
@@ -2854,10 +2946,6 @@ class DomainPins {
   String? get host => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   List<String>? get pins => const fb.ListReader<String>(fb.StringReader()).vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'DomainPins{host: ${host}, pins: ${pins}}';
-  }
 }
 
 class _DomainPinsReader extends fb.TableReader<DomainPins> {
@@ -2938,10 +3026,6 @@ class Limit {
   String? get key => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   int get value => const fb.Int64Reader().vTableGet(_bc, _bcOffset, 6, 0);
 
-  @override
-  String toString() {
-    return 'Limit{key: ${key}, value: ${value}}';
-  }
 }
 
 class _LimitReader extends fb.TableReader<Limit> {
@@ -3020,10 +3104,6 @@ class Sampling {
   String? get event => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   int get rate => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
 
-  @override
-  String toString() {
-    return 'Sampling{event: ${event}, rate: ${rate}}';
-  }
 }
 
 class _SamplingReader extends fb.TableReader<Sampling> {
@@ -3104,10 +3184,6 @@ class ShellTab {
   Value? get icon => Value.reader.vTableGetNullable(_bc, _bcOffset, 8);
   String? get initialRoute => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 10);
 
-  @override
-  String toString() {
-    return 'ShellTab{key: ${key}, label: ${label}, icon: ${icon}, initialRoute: ${initialRoute}}';
-  }
 }
 
 class _ShellTabReader extends fb.TableReader<ShellTab> {
@@ -3206,10 +3282,6 @@ class Shell {
   String? get key => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   List<ShellTab>? get tabs => const fb.ListReader<ShellTab>(ShellTab.reader).vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'Shell{key: ${key}, tabs: ${tabs}}';
-  }
 }
 
 class _ShellReader extends fb.TableReader<Shell> {
@@ -3290,10 +3362,6 @@ class DeepLinkRoute {
   String? get path => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   String? get route => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'DeepLinkRoute{path: ${path}, route: ${route}}';
-  }
 }
 
 class _DeepLinkRouteReader extends fb.TableReader<DeepLinkRoute> {
@@ -3375,10 +3443,6 @@ class DeepLinks {
   List<String>? get schemes => const fb.ListReader<String>(fb.StringReader()).vTableGetNullable(_bc, _bcOffset, 6);
   List<DeepLinkRoute>? get routes => const fb.ListReader<DeepLinkRoute>(DeepLinkRoute.reader).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'DeepLinks{hosts: ${hosts}, schemes: ${schemes}, routes: ${routes}}';
-  }
 }
 
 class _DeepLinksReader extends fb.TableReader<DeepLinks> {
@@ -3469,10 +3533,6 @@ class Push {
   bool get enabled => const fb.BoolReader().vTableGet(_bc, _bcOffset, 4, false);
   String? get payloadKey => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'Push{enabled: ${enabled}, payloadKey: ${payloadKey}}';
-  }
 }
 
 class _PushReader extends fb.TableReader<Push> {
@@ -3552,10 +3612,6 @@ class Flag {
   String? get type => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
   Value? get $default => Value.reader.vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'Flag{name: ${name}, type: ${type}, \$default: ${$default}}';
-  }
 }
 
 class _FlagReader extends fb.TableReader<Flag> {
@@ -3645,10 +3701,6 @@ class HostEventField {
   String? get name => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   String? get type => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'HostEventField{name: ${name}, type: ${type}}';
-  }
 }
 
 class _HostEventFieldReader extends fb.TableReader<HostEventField> {
@@ -3730,10 +3782,6 @@ class HostEvent {
   HostEventDirection get direction => HostEventDirection.fromValue(const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 6, 0));
   List<HostEventField>? get fields => const fb.ListReader<HostEventField>(HostEventField.reader).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'HostEvent{name: ${name}, direction: ${direction}, fields: ${fields}}';
-  }
 }
 
 class _HostEventReader extends fb.TableReader<HostEvent> {
@@ -3822,10 +3870,6 @@ class NumberingSystemEntry {
   String? get locale => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   String? get system => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'NumberingSystemEntry{locale: ${locale}, system: ${system}}';
-  }
 }
 
 class _NumberingSystemEntryReader extends fb.TableReader<NumberingSystemEntry> {
@@ -3907,10 +3951,6 @@ class LocalisationSettings {
   String? get secondaryCalendar => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
   List<NumberingSystemEntry>? get numberingSystems => const fb.ListReader<NumberingSystemEntry>(NumberingSystemEntry.reader).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'LocalisationSettings{calendar: ${calendar}, secondaryCalendar: ${secondaryCalendar}, numberingSystems: ${numberingSystems}}';
-  }
 }
 
 class _LocalisationSettingsReader extends fb.TableReader<LocalisationSettings> {
@@ -3986,6 +4026,266 @@ class LocalisationSettingsObjectBuilder extends fb.ObjectBuilder {
     return fbBuilder.buffer;
   }
 }
+class ExperimentVariantValue {
+  ExperimentVariantValue._(this._bc, this._bcOffset);
+  factory ExperimentVariantValue(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<ExperimentVariantValue> reader = _ExperimentVariantValueReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get variant => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
+
+}
+
+class _ExperimentVariantValueReader extends fb.TableReader<ExperimentVariantValue> {
+  const _ExperimentVariantValueReader();
+
+  @override
+  ExperimentVariantValue createObject(fb.BufferContext bc, int offset) => 
+    ExperimentVariantValue._(bc, offset);
+}
+
+class ExperimentVariantValueBuilder {
+  ExperimentVariantValueBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(2);
+  }
+
+  int addVariantOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addValueOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class ExperimentVariantValueObjectBuilder extends fb.ObjectBuilder {
+  final String? _variant;
+  final ValueObjectBuilder? _value;
+
+  ExperimentVariantValueObjectBuilder({
+    String? variant,
+    ValueObjectBuilder? value,
+  })
+      : _variant = variant,
+        _value = value;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? variantOffset = _variant == null ? null
+        : fbBuilder.writeString(_variant!);
+    final int? valueOffset = _value?.getOrCreateOffset(fbBuilder);
+    fbBuilder.startTable(2);
+    fbBuilder.addOffset(0, variantOffset);
+    fbBuilder.addOffset(1, valueOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class ExperimentProp {
+  ExperimentProp._(this._bc, this._bcOffset);
+  factory ExperimentProp(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<ExperimentProp> reader = _ExperimentPropReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get name => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
+  List<ExperimentVariantValue>? get variants => const fb.ListReader<ExperimentVariantValue>(ExperimentVariantValue.reader).vTableGetNullable(_bc, _bcOffset, 8);
+
+}
+
+class _ExperimentPropReader extends fb.TableReader<ExperimentProp> {
+  const _ExperimentPropReader();
+
+  @override
+  ExperimentProp createObject(fb.BufferContext bc, int offset) => 
+    ExperimentProp._(bc, offset);
+}
+
+class ExperimentPropBuilder {
+  ExperimentPropBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(3);
+  }
+
+  int addNameOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addValueOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addVariantsOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class ExperimentPropObjectBuilder extends fb.ObjectBuilder {
+  final String? _name;
+  final ValueObjectBuilder? _value;
+  final List<ExperimentVariantValueObjectBuilder>? _variants;
+
+  ExperimentPropObjectBuilder({
+    String? name,
+    ValueObjectBuilder? value,
+    List<ExperimentVariantValueObjectBuilder>? variants,
+  })
+      : _name = name,
+        _value = value,
+        _variants = variants;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? nameOffset = _name == null ? null
+        : fbBuilder.writeString(_name!);
+    final int? valueOffset = _value?.getOrCreateOffset(fbBuilder);
+    final int? variantsOffset = _variants == null ? null
+        : fbBuilder.writeList(_variants!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(3);
+    fbBuilder.addOffset(0, nameOffset);
+    fbBuilder.addOffset(1, valueOffset);
+    fbBuilder.addOffset(2, variantsOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class ExperimentDefaults {
+  ExperimentDefaults._(this._bc, this._bcOffset);
+  factory ExperimentDefaults(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<ExperimentDefaults> reader = _ExperimentDefaultsReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get key => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  String? get control => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
+  List<ExperimentProp>? get props => const fb.ListReader<ExperimentProp>(ExperimentProp.reader).vTableGetNullable(_bc, _bcOffset, 8);
+
+}
+
+class _ExperimentDefaultsReader extends fb.TableReader<ExperimentDefaults> {
+  const _ExperimentDefaultsReader();
+
+  @override
+  ExperimentDefaults createObject(fb.BufferContext bc, int offset) => 
+    ExperimentDefaults._(bc, offset);
+}
+
+class ExperimentDefaultsBuilder {
+  ExperimentDefaultsBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(3);
+  }
+
+  int addKeyOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addControlOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addPropsOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class ExperimentDefaultsObjectBuilder extends fb.ObjectBuilder {
+  final String? _key;
+  final String? _control;
+  final List<ExperimentPropObjectBuilder>? _props;
+
+  ExperimentDefaultsObjectBuilder({
+    String? key,
+    String? control,
+    List<ExperimentPropObjectBuilder>? props,
+  })
+      : _key = key,
+        _control = control,
+        _props = props;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? keyOffset = _key == null ? null
+        : fbBuilder.writeString(_key!);
+    final int? controlOffset = _control == null ? null
+        : fbBuilder.writeString(_control!);
+    final int? propsOffset = _props == null ? null
+        : fbBuilder.writeList(_props!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(3);
+    fbBuilder.addOffset(0, keyOffset);
+    fbBuilder.addOffset(1, controlOffset);
+    fbBuilder.addOffset(2, propsOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
 class Meta {
   Meta._(this._bc, this._bcOffset);
   factory Meta(List<int> bytes) {
@@ -4028,11 +4328,8 @@ class Meta {
   List<Trigger>? get triggers => const fb.ListReader<Trigger>(Trigger.reader).vTableGetNullable(_bc, _bcOffset, 58);
   List<HostEvent>? get hostEvents => const fb.ListReader<HostEvent>(HostEvent.reader).vTableGetNullable(_bc, _bcOffset, 60);
   LocalisationSettings? get localisation => LocalisationSettings.reader.vTableGetNullable(_bc, _bcOffset, 62);
+  List<ExperimentDefaults>? get experiments => const fb.ListReader<ExperimentDefaults>(ExperimentDefaults.reader).vTableGetNullable(_bc, _bcOffset, 64);
 
-  @override
-  String toString() {
-    return 'Meta{kind: ${kind}, id: ${id}, key: ${key}, name: ${name}, version: ${version}, compilerVersion: ${compilerVersion}, schemaVersion: ${schemaVersion}, requiredFeatures: ${requiredFeatures}, minRuntime: ${minRuntime}, capabilities: ${capabilities}, limits: ${limits}, pages: ${pages}, entryPage: ${entryPage}, fallbackPage: ${fallbackPage}, plugins: ${plugins}, defaultLocale: ${defaultLocale}, supportedLocales: ${supportedLocales}, entryRoute: ${entryRoute}, flags: ${flags}, nativeCatalogue: ${nativeCatalogue}, securityProfile: ${securityProfile}, telemetrySampling: ${telemetrySampling}, notFoundRoute: ${notFoundRoute}, shells: ${shells}, deepLinks: ${deepLinks}, push: ${push}, components: ${components}, triggers: ${triggers}, hostEvents: ${hostEvents}, localisation: ${localisation}}';
-  }
 }
 
 class _MetaReader extends fb.TableReader<Meta> {
@@ -4049,7 +4346,7 @@ class MetaBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(30);
+    fbBuilder.startTable(31);
   }
 
   int addKind(BundleKind? kind) {
@@ -4172,6 +4469,10 @@ class MetaBuilder {
     fbBuilder.addOffset(29, offset);
     return fbBuilder.offset;
   }
+  int addExperimentsOffset(int? offset) {
+    fbBuilder.addOffset(30, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -4209,6 +4510,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
   final List<TriggerObjectBuilder>? _triggers;
   final List<HostEventObjectBuilder>? _hostEvents;
   final LocalisationSettingsObjectBuilder? _localisation;
+  final List<ExperimentDefaultsObjectBuilder>? _experiments;
 
   MetaObjectBuilder({
     BundleKind? kind,
@@ -4241,6 +4543,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     List<TriggerObjectBuilder>? triggers,
     List<HostEventObjectBuilder>? hostEvents,
     LocalisationSettingsObjectBuilder? localisation,
+    List<ExperimentDefaultsObjectBuilder>? experiments,
   })
       : _kind = kind,
         _id = id,
@@ -4271,7 +4574,8 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
         _components = components,
         _triggers = triggers,
         _hostEvents = hostEvents,
-        _localisation = localisation;
+        _localisation = localisation,
+        _experiments = experiments;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -4320,7 +4624,9 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     final int? hostEventsOffset = _hostEvents == null ? null
         : fbBuilder.writeList(_hostEvents!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
     final int? localisationOffset = _localisation?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(30);
+    final int? experimentsOffset = _experiments == null ? null
+        : fbBuilder.writeList(_experiments!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(31);
     fbBuilder.addUint8(0, _kind?.value);
     if (_id != null) {
       fbBuilder.addStruct(1, _id!.finish(fbBuilder));
@@ -4359,6 +4665,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(27, triggersOffset);
     fbBuilder.addOffset(28, hostEventsOffset);
     fbBuilder.addOffset(29, localisationOffset);
+    fbBuilder.addOffset(30, experimentsOffset);
     return fbBuilder.endTable();
   }
 
@@ -4402,10 +4709,6 @@ class Page {
   List<Form>? get forms => const fb.ListReader<Form>(Form.reader).vTableGetNullable(_bc, _bcOffset, 38);
   int get transitionTimeline => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 40, 0);
 
-  @override
-  String toString() {
-    return 'Page{id: ${id}, key: ${key}, route: ${route}, kind: ${kind}, title: ${title}, params: ${params}, state: ${state}, dataSources: ${dataSources}, lifecycle: ${lifecycle}, transition: ${transition}, guards: ${guards}, secure: ${secure}, requiresAssurance: ${requiresAssurance}, nodes: ${nodes}, strings: ${strings}, result: ${result}, triggers: ${triggers}, forms: ${forms}, transitionTimeline: ${transitionTimeline}}';
-  }
 }
 
 class _PageReader extends fb.TableReader<Page> {
@@ -4649,10 +4952,6 @@ class FormValidator {
   int get debounceMs => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 24, 0);
   Value? get messageRef => Value.reader.vTableGetNullable(_bc, _bcOffset, 26);
 
-  @override
-  String toString() {
-    return 'FormValidator{kind: ${kind}, message: ${message}, min: ${min}, max: ${max}, pattern: ${pattern}, region: ${region}, maxScale: ${maxScale}, maxIntegerDigits: ${maxIntegerDigits}, rule: ${rule}, graph: ${graph}, debounceMs: ${debounceMs}, messageRef: ${messageRef}}';
-  }
 }
 
 class _FormValidatorReader extends fb.TableReader<FormValidator> {
@@ -4817,10 +5116,6 @@ class FormField {
   List<FormValidator>? get validators => const fb.ListReader<FormValidator>(FormValidator.reader).vTableGetNullable(_bc, _bcOffset, 10);
   bool get sensitive => const fb.BoolReader().vTableGet(_bc, _bcOffset, 12, false);
 
-  @override
-  String toString() {
-    return 'FormField{name: ${name}, type: ${type}, initial: ${initial}, validators: ${validators}, sensitive: ${sensitive}}';
-  }
 }
 
 class _FormFieldReader extends fb.TableReader<FormField> {
@@ -4925,10 +5220,6 @@ class Form {
   int get name => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
   List<FormField>? get fields => const fb.ListReader<FormField>(FormField.reader).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'Form{id: ${id}, name: ${name}, fields: ${fields}}';
-  }
 }
 
 class _FormReader extends fb.TableReader<Form> {
@@ -5018,10 +5309,6 @@ class ComponentSlot {
   bool get $required => const fb.BoolReader().vTableGet(_bc, _bcOffset, 6, false);
   bool get multiple => const fb.BoolReader().vTableGet(_bc, _bcOffset, 8, false);
 
-  @override
-  String toString() {
-    return 'ComponentSlot{name: ${name}, \$required: ${$required}, multiple: ${multiple}}';
-  }
 }
 
 class _ComponentSlotReader extends fb.TableReader<ComponentSlot> {
@@ -5106,10 +5393,6 @@ class ComponentEvent {
   int get name => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
   int get payload => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
 
-  @override
-  String toString() {
-    return 'ComponentEvent{name: ${name}, payload: ${payload}}';
-  }
 }
 
 class _ComponentEventReader extends fb.TableReader<ComponentEvent> {
@@ -5194,10 +5477,6 @@ class Component {
   List<String>? get strings => const fb.ListReader<String>(fb.StringReader()).vTableGetNullable(_bc, _bcOffset, 20);
   List<Form>? get forms => const fb.ListReader<Form>(Form.reader).vTableGetNullable(_bc, _bcOffset, 22);
 
-  @override
-  String toString() {
-    return 'Component{id: ${id}, key: ${key}, version: ${version}, props: ${props}, slots: ${slots}, events: ${events}, state: ${state}, nodes: ${nodes}, strings: ${strings}, forms: ${forms}}';
-  }
 }
 
 class _ComponentReader extends fb.TableReader<Component> {
@@ -5357,10 +5636,6 @@ class Retry {
   bool get jitter => const fb.BoolReader().vTableGet(_bc, _bcOffset, 10, false);
   List<ErrorKind>? get $on => const fb.ListReader<ErrorKind>(ErrorKind.reader).vTableGetNullable(_bc, _bcOffset, 12);
 
-  @override
-  String toString() {
-    return 'Retry{count: ${count}, backoffMs: ${backoffMs}, maxBackoffMs: ${maxBackoffMs}, jitter: ${jitter}, \$on: ${$on}}';
-  }
 }
 
 class _RetryReader extends fb.TableReader<Retry> {
@@ -5463,10 +5738,6 @@ class Branch {
   int get name => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
   int get step => const fb.Int32Reader().vTableGet(_bc, _bcOffset, 6, -1);
 
-  @override
-  String toString() {
-    return 'Branch{name: ${name}, step: ${step}}';
-  }
 }
 
 class _BranchReader extends fb.TableReader<Branch> {
@@ -5551,10 +5822,6 @@ class Step {
   int get timeoutMs => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 20, 0);
   List<int>? get redact => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 22);
 
-  @override
-  String toString() {
-    return 'Step{id: ${id}, action: ${action}, input: ${input}, next: ${next}, onSuccess: ${onSuccess}, onError: ${onError}, branches: ${branches}, retry: ${retry}, timeoutMs: ${timeoutMs}, redact: ${redact}}';
-  }
 }
 
 class _StepReader extends fb.TableReader<Step> {
@@ -5708,10 +5975,6 @@ class Graph {
   List<Step>? get steps => const fb.ListReader<Step>(Step.reader).vTableGetNullable(_bc, _bcOffset, 16);
   List<StateEntry>? get state => const fb.ListReader<StateEntry>(StateEntry.reader).vTableGetNullable(_bc, _bcOffset, 18);
 
-  @override
-  String toString() {
-    return 'Graph{id: ${id}, key: ${key}, page: ${page}, exported: ${exported}, inputs: ${inputs}, output: ${output}, steps: ${steps}, state: ${state}}';
-  }
 }
 
 class _GraphReader extends fb.TableReader<Graph> {
@@ -5845,10 +6108,6 @@ class Actions {
 
   List<Graph>? get graphs => const fb.ListReader<Graph>(Graph.reader).vTableGetNullable(_bc, _bcOffset, 4);
 
-  @override
-  String toString() {
-    return 'Actions{graphs: ${graphs}}';
-  }
 }
 
 class _ActionsReader extends fb.TableReader<Actions> {
@@ -5919,10 +6178,6 @@ class Program {
   int get id => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 4, 0);
   List<int>? get code => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'Program{id: ${id}, code: ${code}}';
-  }
 }
 
 class _ProgramReader extends fb.TableReader<Program> {
@@ -6000,10 +6255,6 @@ class Programs {
 
   List<Program>? get programs => const fb.ListReader<Program>(Program.reader).vTableGetNullable(_bc, _bcOffset, 4);
 
-  @override
-  String toString() {
-    return 'Programs{programs: ${programs}}';
-  }
 }
 
 class _ProgramsReader extends fb.TableReader<Programs> {
@@ -6075,10 +6326,6 @@ class Style {
   int get type => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
   Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'Style{id: ${id}, type: ${type}, value: ${value}}';
-  }
 }
 
 class _StyleReader extends fb.TableReader<Style> {
@@ -6166,10 +6413,6 @@ class Token {
   Value? get dark => Value.reader.vTableGetNullable(_bc, _bcOffset, 8);
   String? get type => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 10);
 
-  @override
-  String toString() {
-    return 'Token{path: ${path}, light: ${light}, dark: ${dark}, type: ${type}}';
-  }
 }
 
 class _TokenReader extends fb.TableReader<Token> {
@@ -6268,10 +6511,6 @@ class Styles {
   List<Style>? get styles => const fb.ListReader<Style>(Style.reader).vTableGetNullable(_bc, _bcOffset, 4);
   List<Token>? get tokens => const fb.ListReader<Token>(Token.reader).vTableGetNullable(_bc, _bcOffset, 6);
 
-  @override
-  String toString() {
-    return 'Styles{styles: ${styles}, tokens: ${tokens}}';
-  }
 }
 
 class _StylesReader extends fb.TableReader<Styles> {
@@ -6351,10 +6590,6 @@ class Strings {
 
   List<String>? get strings => const fb.ListReader<String>(fb.StringReader()).vTableGetNullable(_bc, _bcOffset, 4);
 
-  @override
-  String toString() {
-    return 'Strings{strings: ${strings}}';
-  }
 }
 
 class _StringsReader extends fb.TableReader<Strings> {
@@ -6426,10 +6661,6 @@ class Message {
   String? get text => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
   List<int>? get ast => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'Message{key: ${key}, text: ${text}, ast: ${ast}}';
-  }
 }
 
 class _MessageReader extends fb.TableReader<Message> {
@@ -6523,10 +6754,6 @@ class Locale {
   List<int>? get flutter => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 10);
   String? get tagResolved => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 12);
 
-  @override
-  String toString() {
-    return 'Locale{tag: ${tag}, messages: ${messages}, data: ${data}, flutter: ${flutter}, tagResolved: ${tagResolved}}';
-  }
 }
 
 class _LocaleReader extends fb.TableReader<Locale> {
@@ -6638,10 +6865,6 @@ class Keyframe {
   Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
   int get curve => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
 
-  @override
-  String toString() {
-    return 'Keyframe{atUs: ${atUs}, value: ${value}, curve: ${curve}}';
-  }
 }
 
 class _KeyframeReader extends fb.TableReader<Keyframe> {
@@ -6728,10 +6951,6 @@ class Track {
   List<Keyframe>? get keyframes => const fb.ListReader<Keyframe>(Keyframe.reader).vTableGetNullable(_bc, _bcOffset, 6);
   Uuid? get node => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'Track{prop: ${prop}, keyframes: ${keyframes}, node: ${node}}';
-  }
 }
 
 class _TrackReader extends fb.TableReader<Track> {
@@ -6821,10 +7040,6 @@ class Spring {
   double get damping => const fb.Float64Reader().vTableGet(_bc, _bcOffset, 6, 0.0);
   double get mass => const fb.Float64Reader().vTableGet(_bc, _bcOffset, 8, 0.0);
 
-  @override
-  String toString() {
-    return 'Spring{stiffness: ${stiffness}, damping: ${damping}, mass: ${mass}}';
-  }
 }
 
 class _SpringReader extends fb.TableReader<Spring> {
@@ -6924,10 +7139,6 @@ class Timeline {
   double get driverExtent => const fb.Float64Reader().vTableGet(_bc, _bcOffset, 34, 0.0);
   Spring? get spring => Spring.reader.vTableGetNullable(_bc, _bcOffset, 36);
 
-  @override
-  String toString() {
-    return 'Timeline{id: ${id}, durationUs: ${durationUs}, repeat: ${repeat}, tracks: ${tracks}, name: ${name}, page: ${page}, delayUs: ${delayUs}, forever: ${forever}, reverse: ${reverse}, staggerUs: ${staggerUs}, reduceMotion: ${reduceMotion}, route: ${route}, autoplay: ${autoplay}, driver: ${driver}, driverNode: ${driverNode}, driverExtent: ${driverExtent}, spring: ${spring}}';
-  }
 }
 
 class _TimelineReader extends fb.TableReader<Timeline> {
@@ -7134,10 +7345,6 @@ class Transition {
   int get durationUs => const fb.Int64Reader().vTableGet(_bc, _bcOffset, 6, 0);
   int get curve => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
 
-  @override
-  String toString() {
-    return 'Transition{kind: ${kind}, durationUs: ${durationUs}, curve: ${curve}}';
-  }
 }
 
 class _TransitionReader extends fb.TableReader<Transition> {
@@ -7228,10 +7435,6 @@ class NodeAnimation {
   Transition? get exit => Transition.reader.vTableGetNullable(_bc, _bcOffset, 16);
   Value? get hero => Value.reader.vTableGetNullable(_bc, _bcOffset, 18);
 
-  @override
-  String toString() {
-    return 'NodeAnimation{durationUs: ${durationUs}, curve: ${curve}, delayUs: ${delayUs}, props: ${props}, reduceMotion: ${reduceMotion}, enter: ${enter}, exit: ${exit}, hero: ${hero}}';
-  }
 }
 
 class _NodeAnimationReader extends fb.TableReader<NodeAnimation> {
@@ -7360,10 +7563,6 @@ class Timelines {
 
   List<Timeline>? get timelines => const fb.ListReader<Timeline>(Timeline.reader).vTableGetNullable(_bc, _bcOffset, 4);
 
-  @override
-  String toString() {
-    return 'Timelines{timelines: ${timelines}}';
-  }
 }
 
 class _TimelinesReader extends fb.TableReader<Timelines> {
@@ -7433,10 +7632,6 @@ class Index {
 
   List<int>? get fields => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 4);
 
-  @override
-  String toString() {
-    return 'Index{fields: ${fields}}';
-  }
 }
 
 class _IndexReader extends fb.TableReader<Index> {
@@ -7507,10 +7702,6 @@ class FieldRename {
   int get to => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
   int get from => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
 
-  @override
-  String toString() {
-    return 'FieldRename{to: ${to}, from: ${from}}';
-  }
 }
 
 class _FieldRenameReader extends fb.TableReader<FieldRename> {
@@ -7589,10 +7780,6 @@ class CollectionMigration {
   List<int>? get drop => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 8);
   List<int>? get reset => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 10);
 
-  @override
-  String toString() {
-    return 'CollectionMigration{from: ${from}, rename: ${rename}, drop: ${drop}, reset: ${reset}}';
-  }
 }
 
 class _CollectionMigrationReader extends fb.TableReader<CollectionMigration> {
@@ -7696,10 +7883,6 @@ class Collection {
   int get version => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 14, 0);
   List<CollectionMigration>? get migrations => const fb.ListReader<CollectionMigration>(CollectionMigration.reader).vTableGetNullable(_bc, _bcOffset, 16);
 
-  @override
-  String toString() {
-    return 'Collection{id: ${id}, key: ${key}, fields: ${fields}, primaryKey: ${primaryKey}, indexes: ${indexes}, version: ${version}, migrations: ${migrations}}';
-  }
 }
 
 class _CollectionReader extends fb.TableReader<Collection> {
@@ -7827,10 +8010,6 @@ class NativeRouteDecl {
   List<Param>? get params => const fb.ListReader<Param>(Param.reader).vTableGetNullable(_bc, _bcOffset, 6);
   int get result => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
 
-  @override
-  String toString() {
-    return 'NativeRouteDecl{name: ${name}, params: ${params}, result: ${result}}';
-  }
 }
 
 class _NativeRouteDeclReader extends fb.TableReader<NativeRouteDecl> {
@@ -7918,10 +8097,6 @@ class NativeSlotDecl {
   List<Param>? get props => const fb.ListReader<Param>(Param.reader).vTableGetNullable(_bc, _bcOffset, 6);
   List<ComponentEvent>? get events => const fb.ListReader<ComponentEvent>(ComponentEvent.reader).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'NativeSlotDecl{type: ${type}, props: ${props}, events: ${events}}';
-  }
 }
 
 class _NativeSlotDeclReader extends fb.TableReader<NativeSlotDecl> {
@@ -8011,10 +8186,6 @@ class NativeActionDecl {
   List<Param>? get inputs => const fb.ListReader<Param>(Param.reader).vTableGetNullable(_bc, _bcOffset, 6);
   int get output => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
 
-  @override
-  String toString() {
-    return 'NativeActionDecl{name: ${name}, inputs: ${inputs}, output: ${output}}';
-  }
 }
 
 class _NativeActionDeclReader extends fb.TableReader<NativeActionDecl> {
@@ -8109,10 +8280,6 @@ class Schemas {
   List<NativeActionDecl>? get nativeActions => const fb.ListReader<NativeActionDecl>(NativeActionDecl.reader).vTableGetNullable(_bc, _bcOffset, 20);
   List<Uuid>? get droppedCollections => const fb.ListReader<Uuid>(Uuid.reader).vTableGetNullable(_bc, _bcOffset, 22);
 
-  @override
-  String toString() {
-    return 'Schemas{types: ${types}, state: ${state}, dataSources: ${dataSources}, collections: ${collections}, variables: ${variables}, userContext: ${userContext}, nativeRoutes: ${nativeRoutes}, nativeSlots: ${nativeSlots}, nativeActions: ${nativeActions}, droppedCollections: ${droppedCollections}}';
-  }
 }
 
 class _SchemasReader extends fb.TableReader<Schemas> {
@@ -8277,10 +8444,6 @@ class AssetVariant {
   List<int>? get hash => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 12);
   int get size => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 14, 0);
 
-  @override
-  String toString() {
-    return 'AssetVariant{mediaType: ${mediaType}, density: ${density}, width: ${width}, height: ${height}, hash: ${hash}, size: ${size}}';
-  }
 }
 
 class _AssetVariantReader extends fb.TableReader<AssetVariant> {
@@ -8398,10 +8561,6 @@ class Asset {
   List<AssetVariant>? get variants => const fb.ListReader<AssetVariant>(AssetVariant.reader).vTableGetNullable(_bc, _bcOffset, 14);
   List<AssetLocaleFile>? get localeFiles => const fb.ListReader<AssetLocaleFile>(AssetLocaleFile.reader).vTableGetNullable(_bc, _bcOffset, 16);
 
-  @override
-  String toString() {
-    return 'Asset{id: ${id}, key: ${key}, mediaType: ${mediaType}, hash: ${hash}, size: ${size}, variants: ${variants}, localeFiles: ${localeFiles}}';
-  }
 }
 
 class _AssetReader extends fb.TableReader<Asset> {
@@ -8531,10 +8690,6 @@ class AssetLocaleFile {
   List<int>? get hash => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 6);
   int get size => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 8, 0);
 
-  @override
-  String toString() {
-    return 'AssetLocaleFile{tag: ${tag}, hash: ${hash}, size: ${size}}';
-  }
 }
 
 class _AssetLocaleFileReader extends fb.TableReader<AssetLocaleFile> {
@@ -8622,10 +8777,6 @@ class AssetIndex {
 
   List<Asset>? get assets => const fb.ListReader<Asset>(Asset.reader).vTableGetNullable(_bc, _bcOffset, 4);
 
-  @override
-  String toString() {
-    return 'AssetIndex{assets: ${assets}}';
-  }
 }
 
 class _AssetIndexReader extends fb.TableReader<AssetIndex> {
@@ -8699,10 +8850,6 @@ class DeviceFunction {
   int get timeoutMs => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
   int get memoryBytes => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 12, 0);
 
-  @override
-  String toString() {
-    return 'DeviceFunction{name: ${name}, index: ${index}, version: ${version}, timeoutMs: ${timeoutMs}, memoryBytes: ${memoryBytes}}';
-  }
 }
 
 class _DeviceFunctionReader extends fb.TableReader<DeviceFunction> {
@@ -8808,10 +8955,6 @@ class WasmModule {
   int get abiVersion => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
   List<DeviceFunction>? get functions => const fb.ListReader<DeviceFunction>(DeviceFunction.reader).vTableGetNullable(_bc, _bcOffset, 12);
 
-  @override
-  String toString() {
-    return 'WasmModule{id: ${id}, hash: ${hash}, module: ${module}, abiVersion: ${abiVersion}, functions: ${functions}}';
-  }
 }
 
 class _WasmModuleReader extends fb.TableReader<WasmModule> {
@@ -8922,10 +9065,6 @@ class Location {
   int get file => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
   String? get pointer => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 10);
 
-  @override
-  String toString() {
-    return 'Location{section: ${section}, index: ${index}, file: ${file}, pointer: ${pointer}}';
-  }
 }
 
 class _LocationReader extends fb.TableReader<Location> {
@@ -9023,10 +9162,6 @@ class SourceMap {
   List<Location>? get nodes => const fb.ListReader<Location>(Location.reader).vTableGetNullable(_bc, _bcOffset, 6);
   List<Location>? get steps => const fb.ListReader<Location>(Location.reader).vTableGetNullable(_bc, _bcOffset, 8);
 
-  @override
-  String toString() {
-    return 'SourceMap{files: ${files}, nodes: ${nodes}, steps: ${steps}}';
-  }
 }
 
 class _SourceMapReader extends fb.TableReader<SourceMap> {

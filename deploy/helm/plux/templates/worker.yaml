@@ -1,0 +1,85 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# The worker role: durable jobs (publishing, deltas, assets, function builds).
+# It is the only role that signs. It opens no listener, so it has no HTTP
+# probes: a crashed process is restarted, and the Deployment waits
+# minReadySeconds before it replaces the next pod.
+{{- $name := printf "%s-worker" (include "plux.fullname" .) }}
+{{- $ctx := dict "root" . "role" "worker" "v" .Values.worker }}
+{{- $builder := and .Values.functions.enabled .Values.builder.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "worker") | nindent 4 }}
+spec:
+  {{- if not .Values.worker.autoscaling.enabled }}
+  replicas: {{ .Values.worker.replicas }}
+  {{- end }}
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  selector:
+    matchLabels:
+      {{- include "plux.selectorLabels" (dict "root" . "component" "worker") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include "plux.config.worker" . | sha256sum }}
+        {{- include "plux.podAnnotations" $ctx | nindent 8 }}
+      labels:
+        {{- include "plux.labels" (dict "root" . "component" "worker") | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "plux.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ include "plux.terminationGrace" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "plux.podSecurityContext" (dict "root" . "role" "worker") | nindent 8 }}
+      {{- include "plux.scheduling" $ctx | nindent 6 }}
+      containers:
+        - name: plux
+          image: {{ include "plux.serverImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: [serve, --config, /etc/plux/plux.yaml]
+          env:
+            {{- include "plux.dataEnv" (dict "root" . "role" "worker") | nindent 12 }}
+            {{- include "plux.licenseEnv" . | nindent 12 }}
+            {{- with .Values.worker.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          securityContext:
+            {{- include "plux.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - {name: config, mountPath: /etc/plux/plux.yaml, subPath: plux.yaml, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+            {{- if $builder }}
+            - {name: internal-tls, mountPath: /etc/plux/internal, readOnly: true}
+            {{- end }}
+            {{- include "plux.dataMounts" . | nindent 12 }}
+            {{- include "plux.licenseMounts" . | nindent 12 }}
+      volumes:
+        - name: config
+          configMap: {name: {{ $name }}}
+        - name: tmp
+          emptyDir: {sizeLimit: 1Gi}
+        {{- if $builder }}
+        - name: internal-tls
+          secret: {secretName: {{ include "plux.tlsSecretName" (dict "root" . "role" "worker") }}}
+        {{- end }}
+        {{- include "plux.dataVolumes" . | nindent 8 }}
+        {{- include "plux.licenseVolumes" . | nindent 8 }}
+---
+{{ include "plux.pdb" $ctx }}
+{{- if .Values.worker.autoscaling.enabled }}
+---
+{{ include "plux.hpa" $ctx }}
+{{- end }}

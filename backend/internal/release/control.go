@@ -14,6 +14,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/controldoc"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -62,17 +63,37 @@ func (s *Service) GetControl(ctx context.Context, p auth.Principal, appID, envID
 
 // SetControl replaces a channel's switches and has a manifest carrying
 // them signed; devices obey it at their next manifest check (REL-006).
+// The plugin kill switches and the mandatory update flag are also written
+// to the channel's signed control document (SYN-060), which supersedes
+// this call; the app-wide kill switch and the message exist only here and
+// in the manifest, for one release.
 func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (Control, error) {
-	if err := authorize(p, auth.ReleasePromote, c.AppID); err != nil {
+	if err := authorizeSomeControl(p, c.AppID); err != nil {
 		return Control{}, err
 	}
+	kills, err := checkedKillSwitches(c)
+	if err != nil {
+		return Control{}, err
+	}
+	var out Control
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		out, err = s.setControlTx(ctx, tx, p, c, kills)
+		return err
+	})
+	return out, err
+}
+
+// checkedKillSwitches validates the message and the plugin kill switches of
+// a legacy control call and returns the switches sorted and without
+// duplicates.
+func checkedKillSwitches(c Control) ([]string, error) {
 	if len(c.Message) > maxControlMessage {
-		return Control{}, plxerr.New(plxerr.InvalidFormat, "the message is longer than %d characters", maxControlMessage)
+		return nil, plxerr.New(plxerr.InvalidFormat, "the message is longer than %d characters", maxControlMessage)
 	}
 	kills := slices.Clone(c.KillSwitchPlugins)
 	for _, k := range kills {
 		if !schema.ValidKey(k) {
-			return Control{}, plxerr.New(plxerr.InvalidFormat, "%q is not a plugin key", k)
+			return nil, plxerr.New(plxerr.InvalidFormat, "%q is not a plugin key", k)
 		}
 	}
 	slices.Sort(kills)
@@ -80,39 +101,79 @@ func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (
 	if kills == nil {
 		kills = []string{}
 	}
-	var out Control
-	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		_, env, err := s.environment(ctx, q, c.AppID, c.EnvironmentID)
-		if err != nil {
-			return err
-		}
-		ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(c.ChannelKey)})
-		if err != nil {
-			return failure(err, "channel")
-		}
-		actor := p.Actor()
-		row, err := q.UpsertChannelControl(ctx, dbgen.UpsertChannelControlParams{
-			ChannelID: ch.ID, OrganizationID: ch.OrganizationID, KillSwitchPlugins: kills,
-			AppKillSwitch: c.AppKillSwitch, MandatoryUpdate: c.MandatoryUpdate, Message: c.Message,
-			UpdatedByKind: actor.Kind, UpdatedByID: actor.ID, UpdatedBy: actor.Display,
-		})
-		if err != nil {
-			return failure(err, "control")
-		}
-		if err := s.enqueueManifest(ctx, tx, ch); err != nil {
-			return err
-		}
-		if err := s.record(ctx, tx, p, audit.Entry{
-			Action: audit.ControlChanged, TargetKind: "channel", TargetID: storage.ID(ch.ID),
-			Detail: "kill switches [" + strings.Join(kills, ", ") + "]" + onOff(" app kill switch", c.AppKillSwitch) + onOff(" mandatory update", c.MandatoryUpdate),
-		}); err != nil {
-			return err
-		}
-		out = controlOf(c.AppID, c.EnvironmentID, ch.Key, row)
-		return nil
+	return kills, nil
+}
+
+// setControlTx writes the legacy control row and the control document of
+// the channel, queues its manifest and audits the change, in the
+// transaction of the request.
+func (s *Service) setControlTx(ctx context.Context, tx pgx.Tx, p auth.Principal, c Control, kills []string) (Control, error) {
+	q := dbgen.New(tx)
+	app, env, err := s.environment(ctx, q, c.AppID, c.EnvironmentID)
+	if err != nil {
+		return Control{}, err
+	}
+	if err := authorizeControl(p, c.AppID, env.Key); err != nil {
+		return Control{}, err
+	}
+	if _, err := s.gateChange(ctx, tx, p, c.AppID, env, nil); err != nil {
+		return Control{}, err
+	}
+	ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(c.ChannelKey)})
+	if err != nil {
+		return Control{}, failure(err, "channel")
+	}
+	actor := p.Actor()
+	change := controlChange{detail: "set through the legacy control call", apply: legacyApply(s, kills, c.MandatoryUpdate)}
+	if _, _, err := s.applyControl(ctx, tx, controlTarget{app: app, env: env, ch: ch}, change, actor); err != nil {
+		return Control{}, err
+	}
+	row, err := q.UpsertChannelControl(ctx, dbgen.UpsertChannelControlParams{
+		ChannelID: ch.ID, OrganizationID: ch.OrganizationID, KillSwitchPlugins: kills,
+		AppKillSwitch: c.AppKillSwitch, MandatoryUpdate: c.MandatoryUpdate, Message: c.Message,
+		UpdatedByKind: actor.Kind, UpdatedByID: actor.ID, UpdatedBy: actor.Display,
 	})
-	return out, err
+	if err != nil {
+		return Control{}, failure(err, "control")
+	}
+	if err := s.enqueueManifest(ctx, tx, ch); err != nil {
+		return Control{}, err
+	}
+	if err := s.record(ctx, tx, p, audit.Entry{
+		Action: audit.ControlChanged, TargetKind: "channel", TargetID: storage.ID(ch.ID),
+		Detail: "kill switches [" + strings.Join(kills, ", ") + "]" + onOff(" app kill switch", c.AppKillSwitch) + onOff(" mandatory update", c.MandatoryUpdate),
+	}); err != nil {
+		return Control{}, err
+	}
+	return controlOf(c.AppID, c.EnvironmentID, ch.Key, row), nil
+}
+
+// legacyApply is the change a legacy SetControl makes to the document: the
+// plugin kill switches are replaced, and the mandatory flag becomes a
+// mandatory update of the channel's current release. A channel without a
+// release cannot name one, so its flag stays in the legacy row only.
+func legacyApply(s *Service, kills []string, mandatory bool) func(context.Context, *dbgen.Queries, controlTarget, *controlContent) error {
+	return func(ctx context.Context, q *dbgen.Queries, t controlTarget, c *controlContent) error {
+		c.Switches = slices.DeleteFunc(c.Switches, func(k controldoc.KillSwitch) bool { return k.Scope == controldoc.ScopePlugin })
+		for _, k := range kills {
+			c.Switches = append(c.Switches, controldoc.KillSwitch{Scope: controldoc.ScopePlugin, Target: k})
+		}
+		switch {
+		case !mandatory:
+			c.Mandatory = nil
+		case t.ch.ReleaseSequence > 0:
+			rel, err := s.channelRelease(ctx, q, t, t.ch.ReleaseSequence, false)
+			if err != nil {
+				return err
+			}
+			next := &controldoc.MandatoryUpdate{ReleaseID: storage.ID(rel.ID), ReleaseSequence: uint64(rel.Sequence)} //nolint:gosec // a sequence is positive
+			if c.Mandatory != nil && c.Mandatory.ReleaseSequence == next.ReleaseSequence {
+				next.MessageKey = c.Mandatory.MessageKey
+			}
+			c.Mandatory = next
+		}
+		return nil
+	}
 }
 
 // controlRow reads a channel's switches, all off when never set.
@@ -135,6 +196,9 @@ func controlOf(appID, envID, channel string, r dbgen.ChannelControl) Control {
 		UpdatedAt: storage.Time(r.UpdatedAt),
 	}
 }
+
+// ChannelOrDefault is the channel a device without a named one follows.
+func ChannelOrDefault(key string) string { return channelOrDefault(key) }
 
 func channelOrDefault(key string) string {
 	if key == "" {

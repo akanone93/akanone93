@@ -7,7 +7,7 @@
 export type JsonValue = null | boolean | number | string | readonly JsonValue[] | { readonly [key: string]: JsonValue };
 
 /** The `kind` of every document type (SCH-006). */
-export type DocumentKind = "actionGraph" | "app" | "assetIndex" | "component" | "function" | "nativeCatalogue" | "page" | "plugin" | "scenarios" | "template" | "theme" | "translationKeys" | "translations";
+export type DocumentKind = "actionGraph" | "app" | "assetIndex" | "component" | "experiment" | "flag" | "function" | "nativeCatalogue" | "page" | "plugin" | "policy" | "scenarios" | "segment" | "template" | "theme" | "translationKeys" | "translations";
 
 /** A named action graph: page-scoped when `page` is set, otherwise a plugin flow callable with typed inputs (§14.1, ACT-061). File: `plugins/<plugin>/actions/<key>.graph.json`. */
 export interface ActionGraphDocument {
@@ -257,7 +257,7 @@ export interface ComponentDocument {
   readonly state?: readonly StateEntry[];
   /** Embeddable by the host with `PluxView` (NAV-004). */
   readonly exported?: boolean;
-  /** A node of a page or component tree: a widget or a component instance (SCH-023). */
+  /** A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001). */
   readonly root: Node;
   /** The forms of the component (STA-020). */
   readonly forms?: readonly Form[];
@@ -424,6 +424,83 @@ export interface EventHandler {
   readonly [extension: `x-${string}`]: unknown;
 }
 
+/** An experiment: a control and variants with their allocation, audience, schedule and metrics (ABT-001). Its `key` is the PXL name in `experiment.<key>` and the `experiment` of a `Variant` node. File: `experiments/<key>.experiment.json`. */
+export interface ExperimentDocument {
+  /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
+  readonly schemaVersion: string;
+  readonly kind: "experiment";
+  /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
+  readonly id: string;
+  /** Identifier used in PXL and generated code: lowerCamelCase. */
+  readonly key: string;
+  readonly name?: string;
+  /** Human-readable description. */
+  readonly description?: string;
+  /** What varies: a whole page, a component subtree (a `Variant` node), a prop value, a flow, or the version of a plugin. */
+  readonly scope: ExperimentScope;
+  /** The props a `prop` experiment varies, read in PXL as `experiment.<key>.<name>`; every variant gives each a value. */
+  readonly props?: readonly Field[];
+  /** The control and the variants. Exactly one is the control and the weights sum to 100 (PLX-1702, PLX-1703). */
+  readonly variants: readonly ExperimentVariant[];
+  /** Identifier used in PXL and generated code: lowerCamelCase. */
+  readonly layer?: string;
+  /** The share of subjects, in percent, kept out of the experiment and shown the control. */
+  readonly holdout?: number;
+  /** Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. */
+  readonly segment?: string;
+  /** When the experiment runs; both bounds are optional. */
+  readonly schedule?: ExperimentSchedule;
+  readonly primaryMetric: ExperimentMetric;
+  readonly guardrailMetrics?: readonly ExperimentMetric[];
+  /** Subjects per variant before a result may be read. */
+  readonly minimumSampleSize?: number;
+  /** Mixed into the hash that assigns a subject to a variant, so two experiments split the same subjects differently (ABT-002). */
+  readonly salt?: string;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+export interface ExperimentMetric {
+  /** The analytics event the metric counts. */
+  readonly event: string;
+  /** How a metric is analysed: the share of subjects that did the event, or the mean of a numeric property of the event. */
+  readonly kind?: MetricKind;
+  /** Identifier used in PXL and generated code: lowerCamelCase. */
+  readonly property?: string;
+  /** Which change of the metric is an improvement. */
+  readonly direction?: MetricDirection;
+  /** For a guardrail: the largest relative worsening tolerated, as a fraction. */
+  readonly maxRegression?: number;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** When the experiment runs; both bounds are optional. */
+export interface ExperimentSchedule {
+  readonly start?: string;
+  readonly end?: string;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** What varies: a whole page, a component subtree (a `Variant` node), a prop value, a flow, or the version of a plugin. */
+export type ExperimentScope = "page" | "subtree" | "prop" | "flow" | "pluginVersion";
+
+export interface ExperimentVariant {
+  /** Identifier used in PXL and generated code: lowerCamelCase. */
+  readonly name: string;
+  /** Marks the control. */
+  readonly control?: boolean;
+  /** The share of subjects, in percent. */
+  readonly weight: number;
+  /** The value of each declared prop for this variant. */
+  readonly props?: { readonly [key: string]: JsonValue };
+  /** Human-readable description. */
+  readonly description?: string;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
 /** PXL binding (SCH-011). */
 export interface Expr {
   /** PXL expression (Appendix E). */
@@ -456,6 +533,38 @@ export interface FlagDecl {
   readonly default: JsonValue;
   /** Human-readable description. */
   readonly description?: string;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** A typed feature flag with its default and its value per segment, read in PXL as `flags.<key>` and through generated host accessors (ABT-006). File: `flags/<key>.flag.json`. */
+export interface FlagDocument {
+  /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
+  readonly schemaVersion: string;
+  readonly kind: "flag";
+  /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
+  readonly id: string;
+  /** Identifier used in PXL and generated code: lowerCamelCase. */
+  readonly key: string;
+  /** Human-readable description. */
+  readonly description?: string;
+  /** The flag's type: `bool`, `number`, `string` or `json`. The compiler refuses any other (PLX-1701). */
+  readonly type: string;
+  /** For a `json` flag: the JSON Schema its values must satisfy. */
+  readonly schema?: JsonValue;
+  /** A JSON value interpreted against a declared type (defaults, mocks, environment values). */
+  readonly default: JsonValue;
+  /** The value for each segment, in order: the first segment a subject belongs to wins. */
+  readonly segments?: readonly FlagSegmentValue[];
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+export interface FlagSegmentValue {
+  /** Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. */
+  readonly segment: string;
+  /** A JSON value interpreted against a declared type (defaults, mocks, environment values). */
+  readonly value: JsonValue;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -720,6 +829,12 @@ export interface LocalisationSettings {
 /** Media type of an asset. */
 export type MediaType = "image/png" | "image/jpeg" | "image/webp" | "image/gif" | "image/svg+xml" | "font/ttf" | "font/otf" | "application/lottie+zip" | "application/riv";
 
+/** Which change of the metric is an improvement. */
+export type MetricDirection = "increase" | "decrease";
+
+/** How a metric is analysed: the share of subjects that did the event, or the mean of a numeric property of the event. */
+export type MetricKind = "proportion" | "mean";
+
 /** Generated monogram icon. */
 export interface Monogram {
   readonly text: string;
@@ -804,7 +919,7 @@ export interface NavigationPolicy {
   readonly [extension: `x-${string}`]: unknown;
 }
 
-/** A node of a page or component tree: a widget or a component instance (SCH-023). */
+/** A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001). */
 export interface Node {
   /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
   readonly id: string;
@@ -833,6 +948,12 @@ export interface Node {
   readonly localeOverrides?: { readonly [key: string]: { readonly [key: string]: JsonValue } };
   /** Accessibility checks waived, each with its justification (A11Y-008). */
   readonly a11yWaivers?: { readonly [key: string]: string };
+  /** On a `Variant` node: the key of the experiment whose assigned variant this node shows (ABT-001, ABT-002). */
+  readonly experiment?: string;
+  /** On a `Variant` node: the subtree shown for the control, and for a variant that has no subtree of its own (ABT-001). */
+  readonly control?: Node;
+  /** On a `Variant` node: the subtree of each non-control variant, by the variant's name (ABT-001). */
+  readonly variants?: { readonly [key: string]: Node };
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -890,7 +1011,7 @@ export interface PageDocument {
   readonly routeOptions?: RouteOptions;
   /** Security flags (SCH-022). */
   readonly security?: PageSecurity;
-  /** A node of a page or component tree: a widget or a component instance (SCH-023). */
+  /** A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001). */
   readonly root: Node;
   /** The forms of the page (STA-020). */
   readonly forms?: readonly Form[];
@@ -974,6 +1095,68 @@ export interface PluginDocument {
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
+
+/** An approval policy: which changes it applies to and what approval they need (GOV-020). File: `policies/<key>.policy.json`. */
+export interface PolicyDocument {
+  /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
+  readonly schemaVersion: string;
+  readonly kind: "policy";
+  /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
+  readonly id: string;
+  /** Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. */
+  readonly key: string;
+  readonly name: string;
+  /** Human-readable description. */
+  readonly description?: string;
+  /** The changes a policy applies to: a change matches when it satisfies every attribute listed; an attribute left out matches anything. */
+  readonly match: PolicyMatch;
+  /** What approval a matching change needs. */
+  readonly require: PolicyRequire;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** The changes a policy applies to: a change matches when it satisfies every attribute listed; an attribute left out matches anything. */
+export interface PolicyMatch {
+  readonly resources?: readonly PolicyResource[];
+  readonly environments?: readonly string[];
+  readonly actions?: readonly string[];
+  /** Whether the change is to a production environment: true matches production environments only, false the others, and left out both. The environment keys of `environments` name environments one by one; this names the class, so that a policy covers a production environment added later. */
+  readonly production?: boolean;
+  /** Risk attributes that must all hold. */
+  readonly risk?: readonly PolicyRisk[];
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** What approval a matching change needs. */
+export interface PolicyRequire {
+  /** How many approvals are needed. */
+  readonly approvers: number;
+  /** Roles whose members may approve. */
+  readonly roles?: readonly string[];
+  /** Named approvers, by user identifier. */
+  readonly users?: readonly string[];
+  /** The author's own approval does not count. */
+  readonly distinctFromAuthor?: boolean;
+  /** The approvals must come from different teams. */
+  readonly distinctTeams?: boolean;
+  /** Whether approvers decide one after the other, in the order of the roles and names listed, or all at once. */
+  readonly stages?: PolicyStages;
+  /** How long a request stays open and how long an approval counts. */
+  readonly expiryHours?: number;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** A kind of artifact an approval can guard. */
+export type PolicyResource = "release" | "functionVersion" | "policy" | "securityConfiguration" | "limit" | "capabilitySet" | "experiment" | "waiver" | "goldenBaseline";
+
+/** A risk attribute the compiler and the release service compute from a change. */
+export type PolicyRisk = "touchesSecurePage" | "touchesMoneyFlow" | "changesFunctionUsedBy";
+
+/** Whether approvers decide one after the other, in the order of the roles and names listed, or all at once. */
+export type PolicyStages = "sequential" | "parallel";
 
 /** Push notifications (NAV-008, ADR-0040): whether the app uses them, so a generated project carries the platform configuration, and the payload key under which a notification names `{route, params}` for `Plux.handlePushPayload`. */
 export interface PushPolicy {
@@ -1174,6 +1357,41 @@ export interface ScenarioWaitFor {
 /** Security profile (§15.12). */
 export type SecurityProfile = "standard" | "strict" | "maximum";
 
+/** A named audience: a rule over the attributes of a device, its build and its user, evaluated by rollouts on the server and by flags and experiments on the device (REL-051, ABT-001, ABT-006). File: `segments/<key>.segment.json`. */
+export interface SegmentDocument {
+  /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
+  readonly schemaVersion: string;
+  readonly kind: "segment";
+  /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
+  readonly id: string;
+  /** Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. */
+  readonly key: string;
+  readonly name: string;
+  /** Human-readable description. */
+  readonly description?: string;
+  /** One condition (`attribute`, `operator`, `value`) or a group of rules combined with `all` (every rule holds) or `any` (at least one holds). The compiler checks the attribute, the operator and the value (PLX-1704). */
+  readonly rule: SegmentRule;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** How a condition compares an attribute with its value: equality, membership in a list, or an ordering on numbers and versions. */
+export type SegmentOperator = "eq" | "neq" | "in" | "notIn" | "lt" | "lte" | "gt" | "gte";
+
+/** One condition (`attribute`, `operator`, `value`) or a group of rules combined with `all` (every rule holds) or `any` (at least one holds). The compiler checks the attribute, the operator and the value (PLX-1704). */
+export interface SegmentRule {
+  /** A targeting attribute: `build`, `runtimeVersion`, `os`, `osVersion`, `deviceClass`, `locale`, `region`, `channel`, or `user.<name>` for an attribute of the user context. */
+  readonly attribute?: string;
+  /** How a condition compares an attribute with its value: equality, membership in a list, or an ordering on numbers and versions. */
+  readonly operator?: SegmentOperator;
+  /** The value to compare with: a string, a number, a boolean or, for `in` and `notIn`, a list of them. */
+  readonly value?: JsonValue;
+  readonly all?: readonly SegmentRule[];
+  readonly any?: readonly SegmentRule[];
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
 /** Accessibility semantics of a node (A11Y-002). */
 export interface Semantics {
   /** A prop value: a literal of the prop's type, or a binding (SCH-011). Literal objects and lists may contain bindings in their fields and items. */
@@ -1364,7 +1582,7 @@ export interface TemplateDocument {
   readonly visibility: TemplateVisibility;
   /** What the subtree uses. */
   readonly dependencies?: TemplateDependencies;
-  /** A node of a page or component tree: a widget or a component instance (SCH-023). */
+  /** A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001). */
   readonly root: Node;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;

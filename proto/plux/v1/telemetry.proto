@@ -7,6 +7,7 @@ package plux.v1;
 
 import "google/protobuf/timestamp.proto";
 import "plux/v1/common.proto";
+import "plux/v1/device.proto";
 
 option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
 
@@ -33,10 +34,27 @@ message Event {
   bytes fields = 7;
 }
 
+// Consent is what the host app's user agreed to (SEC-161). Operational
+// events need none.
+message Consent {
+  bool analytics = 1;
+  bool experiments = 2;
+}
+
 message IngestEventsRequest {
   string app_id = 1;
   string environment = 2;
   repeated Event events = 3;
+  // consent is the consent the runtime had when it recorded the events.
+  // When present the server refuses events of a category the user did not
+  // agree to, and drops the locale without analytics consent; when absent
+  // the events are taken as the device gated them (ANL-003, SEC-161).
+  Consent consent = 4;
+  // installed, when present, is the device's report of the release it
+  // activated (SEC-142), recorded as DeviceService.ReportInstalled records
+  // it. It rides on the telemetry upload that follows a sync, so an update
+  // costs no request of its own (QA-007); the batch may then hold no events.
+  ReportInstalledRequest installed = 5;
 }
 message IngestEventsResponse {
   int32 accepted = 1;

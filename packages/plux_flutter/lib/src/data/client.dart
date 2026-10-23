@@ -205,9 +205,15 @@ final class DataClient {
     this.gateway,
     this.authoriser,
     this.allowDirect = _always,
+    this.disabled = _never,
   });
 
   static bool _always() => true;
+  static bool _never(String sourceId) => false;
+
+  /// Whether the control document switches off the source with the UUID it
+  /// is given (REL-060): a request to it fails before anything is sent.
+  final bool Function(String sourceId) disabled;
 
   /// Sends requests.
   final DataTransport transport;
@@ -578,6 +584,13 @@ final class DataClient {
     var status = 0, bytes = 0;
     var result = 'error';
     try {
+      if (disabled(s.id)) {
+        throw DataFailure(
+          ActionErrorKind.custom,
+          PluxErrorCode.dataSourceSwitchedOff,
+          'the data source ${s.name} is switched off',
+        );
+      }
       final gateway = viaGateway(s, caller);
       if (transaction != null && !gateway) {
         throw DataFailure(

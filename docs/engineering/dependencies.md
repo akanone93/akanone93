@@ -46,6 +46,12 @@ Every third-party dependency is a long-term commitment: code we ship but did not
 | `github.com/go-jose/go-jose/v4` | Access tokens and DPoP proofs (JWS), Play Integrity tokens (JWE) (`SEC-003`, `SEC-020`–`SEC-022`) | Apache-2.0 | [0012](../adr/0012-dpop-hardware-keys-and-attestation.md) | Approved (maintainer, 2026-10-07, P6 S0); v4.1.5 |
 | `github.com/fxamacker/cbor/v2` | App Attest attestation objects (`SEC-004`) | MIT | [0012](../adr/0012-dpop-hardware-keys-and-attestation.md) | Not used: S2 chose the in-house decoder in `internal/cbor` (ADR-0012, Revision) |
 | `github.com/miekg/pkcs11` | The PKCS#11 helper binary only, never `plux-server` (`SEC-120`) | BSD-3-Clause | [0060](../adr/0060-signing-backends-and-audit-checkpoints.md) | Approved (maintainer, 2026-10-07, P6 S0), not yet in use |
+| `github.com/go-git/go-git/v5` | Git export of an app on publish and `plux git import` (`GOV-011`); pure Go, since the images have no `git` binary | Apache-2.0 | [0082](../adr/0082-audit-export-reconstruction-and-egress.md) | Approved (maintainer, 2026-10-18, P9 A1), in use (`backend`) |
+| `github.com/crewjam/saml` | SAML 2.0 types, metadata and assertion decryption for the enterprise single sign-on (`GOV-004`); `ee/backend` only | BSD-2-Clause | [0074](../adr/0074-identity-federation.md) | Approved (maintainer, 2026-10-18, P9 Q18); in use (`ee/backend`) |
+| `github.com/russellhaering/goxmldsig` | XML signature validation of SAML responses, with an injected clock (`GOV-004`); `ee/backend` only | Apache-2.0 | [0074](../adr/0074-identity-federation.md) | Approved (maintainer, 2026-10-18, P9 Q18, named with `crewjam/saml`); in use (`ee/backend`) |
+| `github.com/beevik/etree` | The XML element tree `goxmldsig` and `crewjam/saml` exchange (`GOV-004`); `ee/backend` only | BSD-2-Clause | [0074](../adr/0074-identity-federation.md) | Required by the two above; in use (`ee/backend`) |
+| `github.com/ClickHouse/clickhouse-go/v2` | The ClickHouse analytics store behind `analytics.Store` (`ANL-010`); `ee/backend` only | Apache-2.0 | [0080](../adr/0080-telemetry-and-analytics-storage.md) | Approved (maintainer, 2026-10-18, P9 Q18); in use (`ee/backend`) |
+| `github.com/parquet-go/parquet-go` | Snappy-compressed Parquet export of events and rollups (`ANL-011`); `ee/backend` only | Apache-2.0 | [0080](../adr/0080-telemetry-and-analytics-storage.md) | Approved (maintainer, 2026-10-18, P9 Q18); in use (`ee/backend`) |
 
 `tools/` stays standard-library only (§3). Build tools pinned in the Makefile: `sqlc` v1.31.1 generates the query code from the migrations ([0007](../adr/0007-postgresql-and-object-storage.md)). The image codecs are C libraries compiled to WebAssembly by `backend/internal/compiler/media/codecs/build.sh` from pinned commits with clang 18 and wasi-libc; `codecs.lock` pins the modules' hashes, and their notices travel with them in `THIRD_PARTY_NOTICES.txt` ([0027](../adr/0027-asset-pipeline.md)). WebAuthn verification and the CBOR and COSE decoding it needs are written in-house on the standard library (the CBOR decoder lives in `internal/cbor` and App Attest uses it too), so `go-webauthn/webauthn` is not a dependency ([0026](../adr/0026-identity-tenancy-and-access.md), Revision). HashiCorp Vault Transit is reached over its HTTP API with the standard library, so no Vault client is a dependency ([0004](../adr/0004-tuf-style-update-security.md)).
 
@@ -169,6 +175,12 @@ Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Radix
 | golangci-lint, govulncheck, gitleaks, actionlint | Makefile (built with the project toolchain), CI | Lint, vulnerabilities, secrets, workflows |
 | pre-commit, zizmor, reuse, git-cliff | Makefile, CI | Hooks, workflow security, licensing, release notes |
 | `buf`, `protoc-gen-go`, `protoc-gen-connect-go`, `protoc-gen-connect-openapi` | Makefile (`BUF_VERSION` and the plugin versions), built with the project toolchain | API contract lint, breaking-change detection and code generation ([ADR-0005](../adr/0005-connectrpc-and-protobuf.md)) |
+| Helm 3.22.1 (Apache-2.0), kind 0.33.0 (Apache-2.0), kubeconform 0.8.0 (Apache-2.0) | Makefile (`HELM_VERSION`, `KIND_VERSION`, `KUBECONFORM_VERSION`), built with the project toolchain by `make install-helm-tools`; cached in CI keyed on `make helm-tool-pins` | Render, lint and schema-validate the chart (`make helm-lint`) and run it on a throwaway cluster (`make e2e-kind`) (`DEP-003`, `DEP-004`). Approved (maintainer, 2026-10-18, P9 plan A3). Helm 4.3.1 is current; the chart is `apiVersion: v2`, which both read, and Helm 3 stays the pin until the chart tests run on 4 |
+| OpenTofu 1.13.1 (MPL-2.0) | Makefile (`TOFU_VERSION`), built with the project toolchain by `make install-tofu` from its Go module (`github.com/opentofu/opentofu`), which the Go checksum database verifies; `go install` is refused because the module has a `replace` directive | Format, initialise, validate and test the infrastructure modules (`make iac-check`) (`DEP-050`). Approved (maintainer, 2026-10-18, P9 plan A2) |
+| chart-testing (`ct`) 3.15.0 (Apache-2.0) | Approved with the tools above (P9 plan A3), not pinned: `ct lint` runs the Python tools `yamale` and `yamllint`, and `ct install` installs every `ci/*-values.yaml`, while `make helm-lint` runs `helm lint --strict` and the schema checks for each of them without either | Not used |
+| skopeo (Apache-2.0) | The runner's or the developer's own; not built or pinned here | `make airgap-kind` copies the chart's images into OCI layouts for the air-gapped bundle (`DEP-040`). Approved (maintainer, 2026-10-21, P9 hand-off 2 §9.4) |
+| `registry:2` image (Apache-2.0) | `deploy/helm/airgap-kind.sh` (`REGISTRY_IMAGE`) | The local registry `make airgap-kind` serves the bundle's images from, with outbound networking denied (`DEP-040`). Approved (maintainer, 2026-10-21, P9 hand-off 2 §9.4) |
+| kubectl | The runner's or the developer's own | `make e2e-kind` applies the pinned CloudNativePG manifest and waits on the cluster with it; not built or pinned here (Apache-2.0) |
 | `flatc` (FlatBuffers compiler) | Makefile (`FLATC_VERSION`, tag commit), built from source; cached in CI | Bundle code generation ([ADR-0002](../adr/0002-flatbuffers-sectioned-bundles.md)) |
 | GitHub Actions | Full commit SHAs in `.github/workflows/` | CI |
 | cosign (sigstore/cosign-installer), Syft (anchore/sbom-action), Docker Buildx and QEMU | Action SHAs in `release.yml` and `image.yml` | Keyless signatures, CycloneDX SBOMs and multi-arch images (`DEP-001`, `CI-004`) |
@@ -189,6 +201,19 @@ Pinned by tag and digest in `backend/Dockerfile` and `deploy/compose/compose.yam
 | `valkey/valkey` | Compose stack cache |
 | `otel/opentelemetry-collector-contrib`, `prom/prometheus`, `grafana/grafana` | Compose stack telemetry |
 | `keycloak/keycloak`, `ollama/ollama` | Optional Compose profiles |
+
+### Deploy-time dependencies of the Helm chart (`deploy/helm/plux`)
+
+The chart does not vendor these; it renders resources for them, or addresses an existing installation. Approved with the chart (maintainer, 2026-10-18, P9 plan A4). `make e2e-kind` installs the first and the images below on a throwaway cluster.
+
+| Dependency | Used for | Licence | Pinned in |
+|---|---|---|---|
+| CloudNativePG operator 1.30.1 (`ghcr.io/cloudnative-pg/cloudnative-pg`), with its `Cluster` custom resource (`postgresql.cnpg.io/v1`) | The three-instance PostgreSQL cluster of `postgresql.mode: cnpg` (`DEP-004`); installed by the operator's owner, not by the chart. The PostgreSQL image is the operator's default unless `postgresql.cnpg.imageName` names one | Apache-2.0 | `CNPG_VERSION` and `CNPG_SHA256` (the release manifest) in the Makefile; the `Cluster` schema is checked against the Datree CRDs catalogue by `make helm-lint` |
+| `valkey/valkey` 8.1.9 (Valkey and Sentinel) | `valkey.mode: sentinel`: three pods, each a Valkey and a Sentinel, written by the chart (`DEP-004`); the server follows the master through the Sentinels (`SEC-023`) | BSD-3-Clause | Tag and digest in `values.yaml`, the same image as Compose |
+| `chrislusf/seaweedfs` 4.47 | `objectStorage.mode: seaweedfs`: one instance on a volume, as Compose runs it; replication needs an external S3 store | Apache-2.0 | Tag and digest in `values.yaml`, the same image as Compose |
+| `curlimages/curl` 8.23.0 | The `helm test` pod only (`/readyz` and the manifest route) | curl licence (MIT-style) | Tag and digest in `values.yaml` |
+| `openbao/openbao` 2.6.4 | The audit walkthrough on kind only (`test/walkthrough`): an in-memory dev server as the run's Transit signer, since the file backend never signs for production (`SEC-056`). Not part of the chart. Approved by the maintainer, 2026-10-22 | MPL-2.0 | Tag and digest in `test/walkthrough/walkthrough-kind.sh` |
+| HashiCorp Vault Transit, any S3 API, any PostgreSQL or Valkey | The `external` modes and `signing.backend: vault`: the chart holds a reference to their Secrets and nothing else | — | Not part of the chart |
 
 ## 3. Decisions made in P0
 

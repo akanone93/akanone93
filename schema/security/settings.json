@@ -624,6 +624,22 @@
       "description": "What the server does when the shared replay cache is unavailable: keep a per-process cache or reject the request."
     },
     {
+      "key": "requiredTests",
+      "type": "bool",
+      "tighter": "true",
+      "defaults": {
+        "standard": false,
+        "strict": false,
+        "maximum": true
+      },
+      "travelsToDevice": false,
+      "phase": "P9",
+      "requirements": [
+        "TST-005"
+      ],
+      "description": "Whether a release needs a canonical Plux test and golden run, with no unapproved difference, before it is published to a production environment."
+    },
+    {
       "key": "riskMetricMaxAL3",
       "type": "count",
       "tighter": "lower",

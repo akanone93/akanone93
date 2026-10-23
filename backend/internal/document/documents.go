@@ -40,11 +40,13 @@ const anyRevision = -1
 
 // change is one document a write sets or deletes.
 type change struct {
-	path       string
-	kind       string
-	content    []byte
-	entityID   string
-	entityKey  string
+	path      string
+	kind      string
+	content   []byte
+	entityID  string
+	entityKey string
+	// searchText is what the document adds to the text search (SRV-061).
+	searchText string
 	ifRevision int64
 	delete     bool
 }
@@ -79,6 +81,7 @@ func (s *Service) prepare(d draft, lim limits.Set, path string, data []byte, ifR
 		return change{}, diags, refusal(diags)
 	}
 	c := change{path: path, kind: string(place.Kind), content: src.Canonical, ifRevision: ifRevision}
+	c.searchText = searchText(place.Kind, src.Tree)
 	c.entityID, _ = src.Tree["id"].(string)
 	c.entityKey, _ = src.Tree["key"].(string)
 	name := c.entityKey
@@ -195,7 +198,7 @@ func (s *Service) applyPut(ctx context.Context, q *dbgen.Queries, tx pgx.Tx, d d
 		before = hexHash(existing.Sha256)
 		row, err = q.UpdateDocument(ctx, dbgen.UpdateDocumentParams{
 			ID: existing.ID, Kind: c.kind, EntityID: entityID, EntityKey: c.entityKey, Sha256: sum,
-			UpdatedByKind: p.Kind, UpdatedByID: p.ID, UpdatedBy: p.Display,
+			UpdatedByKind: p.Kind, UpdatedByID: p.ID, UpdatedBy: p.Display, SearchText: c.searchText,
 		})
 	} else {
 		id, idErr := s.newID()
@@ -205,7 +208,7 @@ func (s *Service) applyPut(ctx context.Context, q *dbgen.Queries, tx pgx.Tx, d d
 		row, err = q.InsertDocument(ctx, dbgen.InsertDocumentParams{
 			ID: storage.MustUUID(id), OrganizationID: d.row.OrganizationID, DraftID: d.row.ID, Path: c.path, Kind: c.kind,
 			EntityID: entityID, EntityKey: c.entityKey, Sha256: sum,
-			UpdatedByKind: p.Kind, UpdatedByID: p.ID, UpdatedBy: p.Display,
+			UpdatedByKind: p.Kind, UpdatedByID: p.ID, UpdatedBy: p.Display, SearchText: c.searchText,
 		})
 	}
 	if err != nil {
@@ -330,6 +333,7 @@ func (s *Service) writeScoped(ctx context.Context, p auth.Principal, appID, plug
 		if _, err := q.GetDraftForUpdate(ctx, d.row.ID); err != nil {
 			return failure(err, "draft")
 		}
+		d.tx = tx
 		lim, err := s.limitsFor(ctx, tx, d)
 		if err != nil {
 			return err

@@ -101,7 +101,27 @@ const (
 	A11yWaiverChanged Action = "a11y.waiver_changed"
 	// GoldensApproved: golden images were promoted to baselines (TST-003,
 	// ADR-0070).
-	GoldensApproved      Action = "goldens.approved"
+	GoldensApproved Action = "goldens.approved"
+
+	// Analytics retention and export (ANL-010, ANL-011, ADR-0080).
+	// RetentionSet: a retention value was changed at once. RetentionScheduled:
+	// a change was queued for the maintenance window (PLX-8301).
+	// RetentionCancelled: a scheduled change was withdrawn. RetentionApplied:
+	// the window opened and a scheduled change took effect. AnalyticsExportSet
+	// and AnalyticsExportDeleted: the OTLP destination changed.
+	// AnalyticsFileExportSet: the settings of the Parquet and webhook
+	// exports changed.
+	RetentionSet           Action = "analytics.retention_set"
+	RetentionScheduled     Action = "analytics.retention_scheduled"
+	RetentionCancelled     Action = "analytics.retention_cancelled"
+	RetentionApplied       Action = "analytics.retention_applied"
+	AnalyticsExportSet     Action = "analytics.export_set"
+	AnalyticsExportDeleted Action = "analytics.export_deleted"
+	AnalyticsFileExportSet Action = "analytics.file_export_set"
+	// AlertRuleSet and AlertRuleDeleted: an alert rule was created or
+	// changed, or removed (ANL-030).
+	AlertRuleSet         Action = "analytics.alert_rule_set"
+	AlertRuleDeleted     Action = "analytics.alert_rule_deleted"
 	ReleasesPurged       Action = "release.purged"
 	ControlChanged       Action = "release.control_changed"
 	SnapshotRestored     Action = "snapshot.restored"
@@ -150,6 +170,241 @@ const (
 	// UpdateMetadataRootUploaded: an operator stored a root signed
 	// offline (SEC-051, SEC-140).
 	UpdateMetadataRootUploaded Action = "update_metadata.root_uploaded"
+
+	// LicenseStateChanged: the enterprise licence entered grace, expired or
+	// became invalid, or came back to a valid state (GOV-030). It is
+	// recorded in the installation's own chain.
+	LicenseStateChanged Action = "license.state_changed"
+	// GitExportConfigured: an app's Git export setting was set (GOV-011).
+	GitExportConfigured Action = "git.export_configured"
+	// GitExported: a publish was pushed to the app's Git remote (GOV-011).
+	GitExported Action = "git.exported"
+)
+
+// The actions of the audit export (SEC-143, ADR-0082).
+const (
+	// ExportDestinationCreated, ExportDestinationUpdated and
+	// ExportDestinationDeleted: a SIEM destination was registered, changed or
+	// removed; the entry names its kind and host, never a credential.
+	ExportDestinationCreated Action = "audit_export.destination_created"
+	ExportDestinationUpdated Action = "audit_export.destination_updated"
+	ExportDestinationDeleted Action = "audit_export.destination_deleted"
+)
+
+// The actions of reconstruction (SEC-142).
+const (
+	// ReconstructionCreated and ReconstructionViewed: a reconstruction
+	// release was made, or opened by an auditor. The entry names the
+	// reconstruction and the moment, never the device or user.
+	ReconstructionCreated Action = "reconstruction.created"
+	ReconstructionViewed  Action = "reconstruction.viewed"
+)
+
+// The actions of data subject requests (SEC-162).
+const (
+	// DataSubjectExported and DataSubjectErased: the data of a device or a
+	// pseudonymous user was exported or erased. The entry names the subject
+	// by its hash only, so the chain itself holds no erased identifier.
+	DataSubjectExported Action = "dsr.exported"
+	DataSubjectErased   Action = "dsr.erased"
+)
+
+// The actions of rollouts (REL-050 to REL-053, ADR-0078).
+const (
+	// RolloutCreated: a rollout was scheduled; the entry's detail names the
+	// channel, the candidate release and the schedule.
+	RolloutCreated Action = "rollout.created"
+	// RolloutStarted and RolloutAdvanced: the scheduler started a rollout or
+	// moved it to its next stage; the actor is the system.
+	RolloutStarted  Action = "rollout.started"
+	RolloutAdvanced Action = "rollout.advanced"
+	// RolloutPaused and RolloutResumed: a person or the health gate stopped a
+	// rollout from advancing, or let it continue; the detail gives the reason
+	// and, for a gate, the figures.
+	RolloutPaused  Action = "rollout.paused"
+	RolloutResumed Action = "rollout.resumed"
+	// RolloutCompleted: the rollout reached every device and the channel
+	// points at the candidate.
+	RolloutCompleted Action = "rollout.completed"
+	// RolloutReverted: the rollout was ended by its schedule, a person or the
+	// health gate and the channel returned to the previous release as a new
+	// release; the detail says which.
+	RolloutReverted Action = "rollout.reverted"
+)
+
+// The actions of feature flags and experiments (ABT-001, ABT-004, ABT-005,
+// ABT-006, ADR-0079).
+const (
+	// FlagCreated, FlagUpdated and FlagDeleted: a feature flag of an
+	// environment was made, changed (its default, its segment values or its
+	// description) or removed.
+	FlagCreated Action = "flag.created"
+	FlagUpdated Action = "flag.updated"
+	FlagDeleted Action = "flag.deleted"
+	// ExperimentCreated and ExperimentDeleted: a draft experiment was made or
+	// discarded.
+	ExperimentCreated Action = "experiment.created"
+	ExperimentDeleted Action = "experiment.deleted"
+	// ExperimentStarted and ExperimentStopped: an experiment's allocation was
+	// written into, or taken out of, the environment's control documents.
+	ExperimentStarted Action = "experiment.started"
+	ExperimentStopped Action = "experiment.stopped"
+	// ExperimentPromoted: a variant was declared the winner and a publish of
+	// the project with the winner as the default was started.
+	ExperimentPromoted Action = "experiment.promoted"
+	// ExperimentHoldoutChanged: the share kept out of every experiment of an
+	// environment was set.
+	ExperimentHoldoutChanged Action = "experiment.holdout_changed"
+)
+
+// The actions of the approval engine (GOV-020 to GOV-023, ADR-0076).
+const (
+	// ApprovalPolicySet and ApprovalPolicyDeleted: a policy document was
+	// written as a new version or withdrawn.
+	ApprovalPolicySet     Action = "approval.policy_set"
+	ApprovalPolicyDeleted Action = "approval.policy_deleted"
+	// ApprovalRequested: a refused change opened a request for approval.
+	ApprovalRequested Action = "approval.requested"
+	// ApprovalApproved and ApprovalRejected: a decision on a request. Each
+	// is the signed record of the decision (GOV-023).
+	ApprovalApproved Action = "approval.approved"
+	ApprovalRejected Action = "approval.rejected"
+	// ApprovalUsed: an approved request was spent by the change it approved.
+	ApprovalUsed Action = "approval.used"
+)
+
+// The actions of break-glass, change freezes and compliance reports
+// (GOV-024 to GOV-026, ADR-0076).
+const (
+	// BreakGlassInvoked: an emergency action was taken without prior
+	// approval, with its justification.
+	BreakGlassInvoked Action = "breakglass.invoked"
+	// BreakGlassReviewed: the post-hoc review of an emergency action was
+	// completed.
+	BreakGlassReviewed Action = "breakglass.reviewed"
+	// BreakGlassOverdue: a post-hoc review passed its due time still open
+	// and was escalated (PLX-8006).
+	BreakGlassOverdue Action = "breakglass.review_overdue"
+	// FreezeSet and FreezeDeleted: a change-freeze window was written or
+	// removed.
+	FreezeSet     Action = "freeze.set"
+	FreezeDeleted Action = "freeze.deleted"
+	// ComplianceReportCreated: a compliance report was requested.
+	ComplianceReportCreated Action = "compliance.report_created"
+)
+
+// The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
+const (
+	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
+	// changed or removed; the entry's detail lists its permissions.
+	RoleCreated Action = "role.created"
+	RoleUpdated Action = "role.updated"
+	RoleDeleted Action = "role.deleted"
+	// RoleGranted, RoleGrantChanged and RoleRevoked: a role was bound to a
+	// user or a team at a scope, the role of a grant changed, or a grant
+	// removed; the entry's detail names the holder, role and scope.
+	RoleGranted      Action = "role.granted"
+	RoleGrantChanged Action = "role.grant_changed"
+	RoleRevoked      Action = "role.revoked"
+)
+
+// The actions of restriction policies (GOV-006, ADR-0086).
+const (
+	// RestrictionCreated and RestrictionDeleted: a restriction was made or
+	// removed; the entry's detail names the subject, the patterns and the
+	// scope. A restriction is never changed, so there is no update action.
+	RestrictionCreated Action = "restriction.created"
+	RestrictionDeleted Action = "restriction.deleted"
+	// RestrictionRefused: a change was refused because it would lock the
+	// organisation's last owner out of managing members, roles and
+	// restrictions, or because the caller tried to restrict what they do
+	// not hold; the entry's detail names the reason.
+	RestrictionRefused Action = "restriction.refused"
+)
+
+// The actions of notifications, webhooks and function triggers.
+const (
+	// NotificationChannelSet, NotificationChannelDeleted,
+	// NotificationSubscriptionSet, NotificationsDropped, the Webhook*
+	// actions and DeliveryFailed: a channel, subscription or outbound
+	// webhook changed, a webhook's secret was rotated, notifications over
+	// notifications.perHour were dropped, or a delivery was given up on
+	// (SRV-062, SRV-063, ADR-0081).
+	NotificationChannelSet      Action = "notification.channel_set"
+	NotificationChannelDeleted  Action = "notification.channel_deleted"
+	NotificationSubscriptionSet Action = "notification.subscription_set"
+	NotificationsDropped        Action = "notification.dropped"
+	WebhookSet                  Action = "webhook.set"
+	WebhookDeleted              Action = "webhook.deleted"
+	WebhookSecretRotated        Action = "webhook.secret_rotated"
+	DeliveryFailed              Action = "notification.delivery_failed"
+
+	// FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet,
+	// FunctionHookDeleted and FunctionHookSecretRotated: a schedule or an
+	// inbound webhook of a function changed (FN-025, ADR-0081).
+	FunctionTriggerSet        Action = "function.trigger_set"
+	FunctionTriggerDeleted    Action = "function.trigger_deleted"
+	FunctionHookSet           Action = "function.hook_set"
+	FunctionHookDeleted       Action = "function.hook_deleted"
+	FunctionHookSecretRotated Action = "function.hook_secret_rotated"
+)
+
+// The actions of identity federation (GOV-004, ADR-0074).
+const (
+	// ProviderCreated, ProviderUpdated and ProviderDeleted: an identity
+	// provider was configured, changed or removed. The entry never carries
+	// the provider's secret.
+	ProviderCreated Action = "identity_provider.created"
+	ProviderUpdated Action = "identity_provider.updated"
+	ProviderDeleted Action = "identity_provider.deleted"
+	// MappingSet: a provider's group mapping document was replaced.
+	MappingSet Action = "identity_provider.mapping_set"
+	// UserProvisioned: a provider's just-in-time provisioning created an
+	// account.
+	UserProvisioned Action = "user.provisioned"
+	// FederatedSignIn: a person signed in through a provider; the detail
+	// names it and the authentication context and methods it reported.
+	FederatedSignIn Action = "user.federated_sign_in"
+	// FederatedSignOut: a provider's back-channel logout ended sessions.
+	FederatedSignOut Action = "user.federated_sign_out"
+	// ScimAccessCreated, ScimAccessRotated and ScimAccessRevoked: a SCIM bearer
+	// token was made, replaced or withdrawn.
+	ScimAccessCreated Action = "scim.token_created"
+	ScimAccessRotated Action = "scim.token_rotated"
+	ScimAccessRevoked Action = "scim.token_revoked"
+	// ScimUserProvisioned, ScimUserChanged and ScimUserDeprovisioned: the
+	// organisation's SCIM client created or adopted a person, changed them,
+	// or removed their access.
+	ScimUserProvisioned   Action = "scim.user_provisioned"
+	ScimUserChanged       Action = "scim.user_changed"
+	ScimUserDeprovisioned Action = "scim.user_deprovisioned"
+	// ScimGroupCreated, ScimGroupChanged and ScimGroupDeleted: the SCIM
+	// client made, changed or removed a group, which is a team.
+	ScimGroupCreated Action = "scim.group_created"
+	ScimGroupChanged Action = "scim.group_changed"
+	ScimGroupDeleted Action = "scim.group_deleted"
+)
+
+// The actions of sessions and step-up (GOV-005, SEC-103, ADR-0075).
+const (
+	// SessionRevoked: an administrator ended a browser session; the entry
+	// names the session, and the person it belonged to in the detail. A
+	// revoked token is recorded as TokenRevoked.
+	SessionRevoked Action = "session.revoked"
+	// StepUpRequested: the CLI asked for a step-up, bound to its token and
+	// the thumbprint of its DPoP key.
+	StepUpRequested Action = "stepup.requested"
+	// StepUpApproved: a WebAuthn assertion with user verification verified,
+	// for a browser session or for a request of the CLI's.
+	StepUpApproved Action = "stepup.approved"
+	// StepUpRefused: an assertion did not verify, or the request was
+	// closed after too many ceremonies.
+	StepUpRefused Action = "stepup.refused"
+	// StepUpGrantIssued: the CLI collected the grant of an approved request.
+	StepUpGrantIssued Action = "stepup.grant_issued"
+	// StepUpGrantRefused: a grant was presented with another token or
+	// another key than the ones it is bound to.
+	StepUpGrantRefused Action = "stepup.grant_refused"
 )
 
 // actions is the registry, sorted, so that Registered can search it and
@@ -167,11 +422,32 @@ var actions = sorted(
 	PluginCreated, PluginUpdated, PluginDeleted, PluginRestored, PluginPurged,
 	DocumentWritten, DocumentDeleted, DocumentRestored, DocumentPurged, DraftImported, AssetUploaded, AssetDeleted,
 	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged, GoldensApproved,
+	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AnalyticsFileExportSet, AlertRuleSet, AlertRuleDeleted,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
 	ConfigValueSet, ConfigValueDeleted,
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
+	RoleCreated, RoleUpdated, RoleDeleted,
+	RoleGranted, RoleGrantChanged, RoleRevoked,
+	RestrictionCreated, RestrictionDeleted, RestrictionRefused,
+	SessionRevoked, StepUpRequested, StepUpApproved, StepUpRefused, StepUpGrantIssued, StepUpGrantRefused,
+	LicenseStateChanged,
+	NotificationChannelSet, NotificationChannelDeleted, NotificationSubscriptionSet, NotificationsDropped,
+	WebhookSet, WebhookDeleted, WebhookSecretRotated, DeliveryFailed,
+	FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet, FunctionHookDeleted, FunctionHookSecretRotated,
+	ExportDestinationCreated, ExportDestinationUpdated, ExportDestinationDeleted,
+	GitExportConfigured, GitExported,
+	ProviderCreated, ProviderUpdated, ProviderDeleted, MappingSet, UserProvisioned, FederatedSignIn, FederatedSignOut,
+	ScimAccessCreated, ScimAccessRotated, ScimAccessRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
+	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
+	DataSubjectExported, DataSubjectErased,
+	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted,
+	ReconstructionCreated, ReconstructionViewed,
+	FlagCreated, FlagUpdated, FlagDeleted, ExperimentCreated, ExperimentDeleted,
+	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,
+	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
+	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
 )
 
 // sorted returns its arguments in order.

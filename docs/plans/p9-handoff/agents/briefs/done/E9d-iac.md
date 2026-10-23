@@ -1,0 +1,11 @@
+## Your task: P9 E9d — infrastructure-as-code modules with OpenTofu (`DEP-050`)
+
+Read: `docs/plans/p9.md` lines 634–639 (§5.11 item 6) and the A2 row of §2.3 (OpenTofu approved as a pinned binary); `grep -n "DEP-050" docs/requirements.md`; `docs/adr/0083-*.md` (IaC section); how other tools are pinned and installed in the `Makefile` (grep `HELM_VERSION\|KIND_VERSION\|install-helm-tools`) and `mk/helm.mk`; `docs/engineering/dependencies.md` "Build and CI tools" rows (format).
+
+Deliver:
+1. Pin OpenTofu in the `Makefile` like Helm (version, SHA-256 of the linux-amd64 archive, `make install-tofu` downloading from the official GitHub release and checking the hash); a `dependencies.md` row ("Approved (maintainer, 2026-10-18, P9 A2)").
+2. Modules `deploy/iac/aws`, `deploy/iac/gcp`, `deploy/iac/azure`, each: managed Kubernetes cluster, managed PostgreSQL (or a variable choosing CloudNativePG on the cluster), object storage bucket with versioning, managed Valkey/Redis-compatible cache, KMS key for the signing keys where the provider has one, private networking; variables with descriptions and validation, outputs that feed the Helm chart's values (`deploy/helm/plux/values.yaml` keys), no credentials in code. Secure defaults: no public buckets, encryption at rest on, private endpoints, deletion protection on the database.
+3. **Verified without cloud accounts:** `tofu init -backend=false`, `tofu validate`, and `tofu test` with `mock_provider` blocks asserting the planned resources and the secure defaults (`deploy/iac/<cloud>/tests/*.tftest.hcl`); a policy check script `deploy/iac/policy.sh` (no public buckets, encryption on, private networking) over `tofu show -json` of the mocked plan.
+4. `make iac-check` running all of the above for the three modules (`# Verifies: DEP-050.`), and a short `deploy/iac/README.md` plus an on-premises reference architecture page `docs/operations/on-premises.md` (one page: components, sizing pointer, networking, backups).
+Run `make install-tofu` and `make iac-check`; if the download is blocked, report it and stop at writing the modules and tests.
+Done when: `make iac-check` passes and `reuse lint` (or `make reuse-lint`) reports the new files licensed.

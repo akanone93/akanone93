@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# `helm test <release>`: the api role answers on its Service, is ready (every
+# dependency answers), and the manifest endpoint is routed and refuses a caller
+# without a device token and DPoP proof (SEC-021): a 401 that carries the
+# server's DPoP nonce, not a 404 or a gateway error.
+{{- $scheme := ternary "https" "http" (eq (include "plux.apiTLS" .) "true") }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "plux.fullname" . }}-test
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "test") | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  {{- with .Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  securityContext:
+    {{- include "plux.podSecurityContext" (dict "root" . "role" "test") | nindent 4 }}
+  containers:
+    - name: test
+      image: {{ include "plux.image" (dict "image" .Values.test.image) | quote }}
+      command:
+        - sh
+        - -ec
+        - |
+          base="{{ $scheme }}://{{ include "plux.fullname" . }}-api:{{ .Values.api.service.port }}"
+          # -k: the certificate names the public host, not the Service.
+          curl="curl -sS --max-time 10 {{ if eq $scheme "https" }}-k {{ end }}"
+          echo "GET /livez"
+          $curl --retry 20 --retry-all-errors --retry-delay 3 -f "$base/livez"
+          echo; echo "GET /readyz"
+          $curl --retry 20 --retry-all-errors --retry-delay 3 -f "$base/readyz"
+          echo; echo "POST /plux.v1.ManifestService/GetManifest without credentials"
+          status=$($curl -o /dev/null -D /tmp/headers -w '%{http_code}' -X POST \
+            -H 'Content-Type: application/json' -H 'Connect-Protocol-Version: 1' -d '{}' \
+            "$base/plux.v1.ManifestService/GetManifest")
+          cat /tmp/headers
+          test "$status" = 401
+          grep -qi '^dpop-nonce:' /tmp/headers
+          echo "ok"
+      resources:
+        {{- toYaml .Values.test.resources | nindent 8 }}
+      securityContext:
+        {{- include "plux.containerSecurityContext" . | nindent 8 }}
+      volumeMounts:
+        - {name: tmp, mountPath: /tmp}
+  volumes:
+    - name: tmp
+      emptyDir: {sizeLimit: 8Mi}

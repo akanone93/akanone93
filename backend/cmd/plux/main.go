@@ -41,6 +41,31 @@ Commands:
   l10n        pull | push | export | import | status | extract | pseudo of an app's translations
   golden      run | approve | status of golden (visual regression) tests
   config      set | get | list | delete an environment's server-held configuration values
+  license     inspect a licence file and its signature
+  admin       license: show the installation's enterprise licence state
+  roles       list, show, create, update and delete roles
+  policies    list, show, put, delete and export approval policies
+  approvals   list, show, approve and reject requests for approval
+  breakglass  list emergency actions and complete their post-hoc reviews
+  freeze      list, put and delete change-freeze windows
+  compliance  produce a signed compliance report and verify one offline
+  grants      grant roles to people and teams on the organisation, an app or an environment
+  restrictions  create, list and delete restrictions that remove permissions whatever the grants
+  access      explain why a person can or cannot use a permission, or simulate a change
+  teams       list, create and delete teams; add and remove their members
+  sessions    list the sessions and tokens of the organisation's members, and end one
+  tokens      revoke an access token
+  notifications  inbox, subscriptions and channels for events
+  webhooks    outbound webhooks (Standard Webhooks)
+  rollout     create | show | pause | resume | abort | list staged rollouts with health gates
+  flags       list | get | set | delete an environment's feature flags
+  experiment  create | start | stop | results | holdout | promote experiments
+  dsr         export | erase | status of data subject requests; map of where personal data is stored
+  audit       reconstruct what a user saw (a signed, read-only reconstruction release); list reconstructions
+  search      full-text search over the apps, plugins, pages, components, templates, translation keys and functions
+  git         export | import an app's source through a Git repository
+  analytics   query rollups; show and change retention; set the OTLP export
+  control     kill switches, mandatory update and forced rollback of a channel
   create      Generate the Flutter project of a no-code app
   completion  Print a shell completion script (bash, zsh, fish, powershell)
   version     Print version information
@@ -104,6 +129,7 @@ func (e env) commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"login": e.login, "logout": e.logout, "whoami": e.whoami, "init": e.initProject, "doctor": e.doctor,
 		"diff": e.diff, "publish": e.publish, "pull": e.pull, "release": e.release, "export": e.export,
-		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden,
+		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "policies": e.policies, "approvals": e.approvals, "breakglass": e.breakglass, "freeze": e.freeze, "compliance": e.compliance, "grants": e.grants, "restrictions": e.restrictions, "access": e.access, "teams": e.teams, "sessions": e.sessions, "tokens": e.tokens, "notifications": e.notifications, "webhooks": e.webhooks, "dsr": e.dsr, "rollout": e.rollout, "audit": e.audit, "flags": e.flags, "experiment": e.experiment,
+		"search": e.search, "git": e.git, "analytics": e.analytics, "control": e.control,
 	}
 }

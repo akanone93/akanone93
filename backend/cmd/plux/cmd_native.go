@@ -132,7 +132,7 @@ func (e env) nativeSync(args []string) int {
 	if err != nil {
 		return e.fail("native sync", err)
 	}
-	native := pluxv1connect.NewNativeCatalogueServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	native := pluxv1connect.NewNativeCatalogueServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	res, err := native.UploadNativeCatalogue(context.Background(), connect.NewRequest(&pluxv1.UploadNativeCatalogueRequest{
 		AppId: c.app, HostBuild: b, Catalogue: data,
 	}))

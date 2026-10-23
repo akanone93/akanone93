@@ -76,7 +76,25 @@ func (c *Config) Validate() error {
 	c.validateFnRunner(&p)
 	c.validateFunctions(&p)
 	c.validateBuilder(&p)
+	c.validateLicense(&p)
+	c.validateNotifications(&p)
+	c.validateFederation(&p)
 	return errors.Join(p.errs...)
+}
+
+// validateLicense checks the licence file's path. Whether the file exists
+// and verifies is decided when the server starts and every hour after, never
+// here: validation makes no file access and an absent licence is a normal
+// state (GOV-030).
+func (c *Config) validateLicense(p *problems) {
+	f := c.License.File
+	switch {
+	case f == "":
+	case strings.ContainsRune(f, 0):
+		p.addf("license.file", "must not contain a NUL byte")
+	case !filepath.IsAbs(f):
+		p.addf("license.file", "must be an absolute path, got %q", f)
+	}
 }
 
 func (c *Config) validateServer(p *problems) {
@@ -206,7 +224,7 @@ func (c *Config) validateSigning(p *problems) {
 	// the 64 characters a key reference may have.
 	prefixes := map[string]string{
 		"signing.keys.targets": c.Signing.Keys.Targets, "signing.keys.snapshot": c.Signing.Keys.Snapshot,
-		"signing.keys.timestamp": c.Signing.Keys.Timestamp,
+		"signing.keys.timestamp": c.Signing.Keys.Timestamp, "signing.keys.control": c.Signing.Keys.Control,
 	}
 	seen := map[string]string{}
 	for _, path := range slices.Sorted(maps.Keys(prefixes)) {
@@ -340,6 +358,19 @@ func (c *Config) validateTelemetry(p *problems) {
 		p.addf("telemetry.store", "clickhouse arrives in P9 (ANL-010)")
 	}
 	p.positive("telemetry.retentionDays", int64(c.Telemetry.RetentionDays))
+	p.positive("telemetry.queueMaxEntries", int64(c.Telemetry.QueueMaxEntries))
+	if _, err := time.LoadLocation(c.Telemetry.TimeZone); err != nil || c.Telemetry.TimeZone == "" || c.Telemetry.TimeZone == "Local" {
+		p.addf("telemetry.timeZone", "%q is not an IANA time zone such as UTC or Europe/Berlin", c.Telemetry.TimeZone)
+	}
+	start, end := c.Telemetry.MaintenanceWindow.Start, c.Telemetry.MaintenanceWindow.End
+	for _, f := range []struct{ path, value string }{{"telemetry.maintenanceWindow.start", start}, {"telemetry.maintenanceWindow.end", end}} {
+		if _, err := time.Parse("15:04", f.value); err != nil {
+			p.addf(f.path, "%q is not a time of day as HH:MM", f.value)
+		}
+	}
+	if start == end {
+		p.addf("telemetry.maintenanceWindow", "the window must not be empty: start and end are both %q", start)
+	}
 }
 
 // validateLimits checks the installation-level tightenings against the

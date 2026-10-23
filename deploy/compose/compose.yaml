@@ -193,6 +193,7 @@ services:
     image: prom/prometheus:v3.6.0@sha256:76947e7ef22f8a698fc638f706685909be425dbe09bd7a2cd7aca849f79b5f64
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../observability/rules:/etc/prometheus/rules:ro
       - ./.secrets/tls/ca.crt:/etc/prometheus/plux-ca.crt:ro
       - prometheus:/prometheus
     ports: ["127.0.0.1:9090:9090"]
@@ -203,6 +204,7 @@ services:
     env_file: [.secrets/grafana.env]
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../observability/dashboards:/var/lib/plux-dashboards:ro
       - grafana:/var/lib/grafana
     ports: ["127.0.0.1:3000:3000"]
     restart: unless-stopped

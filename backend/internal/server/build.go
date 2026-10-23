@@ -11,16 +11,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nightCode42/plux3/backend/internal/compiler/media"
-
+	"github.com/nightCode42/plux3/backend/edition"
+	extanalytics "github.com/nightCode42/plux3/backend/ext/analytics"
+	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/backend/ext/governance"
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/compiler/media"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/observability"
+	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
+	"github.com/nightCode42/plux3/backend/internal/telemetry"
 )
 
 // Built is an assembled process together with the function that
@@ -35,8 +42,52 @@ type BuildOption func(*buildOptions)
 
 type buildOptions struct {
 	identityHTTP *http.Client
+	pushHTTP     *http.Client
+	pushEnds     push.Endpoints
 	builder      function.Builder
 	linker       function.Linker
+	edition      edition.Provider
+	auditSinks   export.Provider
+	analytics    extanalytics.Store
+	fileExporter extanalytics.Exporter
+	identity     identity.Extensions
+	governance   governance.Extensions
+}
+
+// WithEdition gives the process the licence provider of the enterprise
+// edition; without it the process is the open-source core and enables no
+// enterprise feature (GOV-030, GOV-033).
+func WithEdition(p edition.Provider) BuildOption {
+	return func(o *buildOptions) { o.edition = p }
+}
+
+// WithAuditSinks gives the worker role the enterprise sinks of the audit
+// export (CEF, OTLP logs, signed webhooks); without it the process exports
+// over syslog only (SEC-143, GOV-033).
+func WithAuditSinks(p export.Provider) BuildOption {
+	return func(o *buildOptions) { o.auditSinks = p }
+}
+
+// WithAnalyticsStore replaces the PostgreSQL analytics store with the
+// enterprise edition's (ANL-010, ADR-0080). The store must implement the
+// whole of Store; the core's rollup, retention and export logic runs on it
+// unchanged.
+func WithAnalyticsStore(s extanalytics.Store) BuildOption {
+	return func(o *buildOptions) { o.analytics = s }
+}
+
+// WithAnalyticsExporter gives the process the enterprise edition's Parquet
+// and webhook exports (ANL-011); without it the exports are refused with
+// PLX-8600 and none is scheduled.
+func WithAnalyticsExporter(e extanalytics.Exporter) BuildOption {
+	return func(o *buildOptions) { o.fileExporter = e }
+}
+
+// WithIdentityExtensions gives the process the enterprise implementations of
+// SAML and SCIM (GOV-004); without it the process serves the community
+// defaults, which refuse with PLX-8600.
+func WithIdentityExtensions(e identity.Extensions) BuildOption {
+	return func(o *buildOptions) { o.identity = e }
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -46,6 +97,15 @@ type buildOptions struct {
 // serves customers never sets it.
 func WithIdentityProviderClient(c *http.Client) BuildOption {
 	return func(o *buildOptions) { o.identityHTTP = c }
+}
+
+// WithPushProvider makes silent push (SYN-060) reach the push providers at
+// the given endpoints with c, in place of the SSRF-safe client and the
+// providers' production endpoints. It is for embedders and tests that stand
+// in for FCM and APNs on a private address; a process that serves customers
+// never sets it.
+func WithPushProvider(e push.Endpoints, c *http.Client) BuildOption {
+	return func(o *buildOptions) { o.pushEnds, o.pushHTTP = e, c }
 }
 
 // WithFunctionBuilder gives the worker role b to build function sources and
@@ -90,14 +150,9 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	for _, apply := range opts {
 		apply(&o)
 	}
-	var closers []func()
-	closeAll := func() {
-		for i := len(closers) - 1; i >= 0; i-- {
-			closers[i]()
-		}
-	}
+	var closers closeStack
 	fail := func(err error) (*Built, error) {
-		closeAll()
+		closers.closeAll()
 		return nil, err
 	}
 
@@ -114,7 +169,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 		if err != nil {
 			return fail(err)
 		}
-		return &Built{Server: srv, Close: closeAll}, nil
+		return &Built{Server: srv, Close: closers.closeAll}, nil
 	}
 
 	db, err := storage.Open(ctx, storage.Options{
@@ -126,7 +181,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	if err != nil {
 		return fail(err)
 	}
-	closers = append(closers, db.Close)
+	closers.push(db.Close)
 
 	if cfg.Database.MigrateOnStart {
 		if err := migrateAll(ctx, db); err != nil {
@@ -143,7 +198,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	if err != nil {
 		return fail(err)
 	}
-	closers = append(closers, func() { _ = shared.Close() })
+	closers.push(func() { _ = shared.Close() })
 
 	limitSet, err := cfg.LimitSet()
 	if err != nil {
@@ -154,19 +209,53 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	if err != nil {
 		return fail(err)
 	}
+	// Closed before the shared cache its subscription runs on.
+	closers.push(services.Auth.Close)
 
 	srv, err := New(Deps{
 		Config: cfg, Log: log, Metrics: metrics, Tracer: tracer,
 		DB: db, Objects: store, Cache: shared, Jobs: jobClient, Limits: limitSet,
-		KMS: services.KMS,
+		KMS: services.KMS, Edition: o.edition,
 	})
 	if err != nil {
 		return fail(err)
 	}
-	if err := registerRole(cfg, srv, services); err != nil {
+	if err := addRoleComponents(cfg, srv, services, log, db); err != nil {
 		return fail(err)
 	}
-	return &Built{Server: srv, Close: closeAll}, nil
+	return &Built{Server: srv, Close: closers.closeAll}, nil
+}
+
+// closeStack holds the functions that release what Build opened.
+type closeStack struct{ fns []func() }
+
+// push adds a function to run when the stack closes.
+func (c *closeStack) push(f func()) { c.fns = append(c.fns, f) }
+
+// closeAll runs the functions in the reverse of the order they were pushed.
+func (c *closeStack) closeAll() {
+	for i := len(c.fns) - 1; i >= 0; i-- {
+		c.fns[i]()
+	}
+}
+
+// addRoleComponents mounts the handlers of the serving role and adds the
+// background components of the process's roles to the server.
+func addRoleComponents(cfg *config.Config, srv *Server, services *Services, log *slog.Logger, db *storage.DB) error {
+	if err := registerRole(cfg, srv, services); err != nil {
+		return err
+	}
+	if cfg.Has(config.RoleWorker) {
+		sched, err := buildScheduler(services, log, db)
+		if err != nil {
+			return err
+		}
+		srv.AddComponent(sched)
+	}
+	if services.EventConsumer != nil {
+		srv.AddComponent(&telemetry.Component{Consumer: services.EventConsumer})
+	}
+	return nil
 }
 
 // registerRole mounts the handlers of the process's serving role: the
@@ -181,6 +270,55 @@ func registerRole(cfg *config.Config, srv *Server, services *Services) error {
 	return nil
 }
 
+// addWorkerDeps gives the dependencies of the worker role: the codecs, the
+// signer and the function builder. Only the worker transcodes and signs:
+// compiling the codecs costs seconds of CPU the api role need not pay, and
+// the api role must never hold a signer (SRV-052, ADR-0006). The codecs
+// compile while the server starts and serves; asset jobs wait for them.
+func addWorkerDeps(ctx context.Context, cfg *config.Config, log *slog.Logger, store objects.Store, backend signing.Backend, o buildOptions, deps *WorkDeps) error {
+	codecs := media.StartCodecs(ctx)
+	deps.Codecs = codecs
+	go func() {
+		if err := codecs.Ready(ctx); err != nil && ctx.Err() == nil {
+			log.ErrorContext(ctx, "the image codecs failed to compile; asset jobs will fail", slog.Any("error", err))
+		}
+	}()
+	deps.SVG = svgCompiler(ctx, cfg, log)
+	deps.Signer = backend
+	deps.ProductionSigning = backend.AllowedInProduction()
+	if err := attachBuilder(cfg, store, deps); err != nil {
+		return err
+	}
+	if o.builder != nil {
+		deps.Builder, deps.Linker, deps.FunctionKey = o.builder, o.linker, cfg.Signing.Keys.FunctionArtifact
+	}
+	return nil
+}
+
+// addWorkers registers the job workers the services and dependencies of
+// the process allow.
+func addWorkers(workers *jobs.Workers, services *Services, deps WorkDeps, log *slog.Logger) {
+	if deps.Codecs != nil {
+		jobs.AddWorker(workers, &assetWorker{svc: services})
+	}
+	if deps.Signer != nil && services.Releases != nil {
+		jobs.AddWorker(workers, &publishWorker{svc: services})
+		jobs.AddWorker(workers, &manifestWorker{svc: services})
+		jobs.AddWorker(workers, &controlWorker{svc: services})
+		if services.Reconstruction != nil {
+			jobs.AddWorker(workers, &reconstructWorker{svc: services})
+		}
+		jobs.AddWorker(workers, &pushWorker{svc: services})
+		jobs.AddWorker(workers, &deltaWorker{svc: services})
+	}
+	if services.GitExport != nil && services.Documents != nil {
+		jobs.AddWorker(workers, &gitExportWorker{svc: services})
+	}
+	if services.Functions != nil && deps.Builder != nil && deps.Signer != nil {
+		jobs.AddWorker(workers, &functionBuildWorker{runner: services.Functions, log: log})
+	}
+}
+
 // buildWork assembles the domain services and the job client that runs
 // their background work (SRV-024).
 func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metrics *observability.Metrics, db *storage.DB, shared cache.Cache, set limits.Set, store objects.Store, o buildOptions) (*Services, *jobs.Client, error) {
@@ -193,27 +331,10 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, PushHTTP: o.pushHTTP, PushEndpoints: o.pushEnds, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, AnalyticsExporter: o.fileExporter, Identity: o.identity, Governance: o.governance}
 	if cfg.Has(config.RoleWorker) {
-		// Only the worker transcodes and signs: compiling the codecs costs
-		// seconds of CPU the api role need not pay, and the api role must
-		// never hold a signer (SRV-052, ADR-0006). They compile while the
-		// server starts and serves; asset jobs wait for them.
-		codecs := media.StartCodecs(ctx)
-		deps.Codecs = codecs
-		go func() {
-			if err := codecs.Ready(ctx); err != nil && ctx.Err() == nil {
-				log.ErrorContext(ctx, "the image codecs failed to compile; asset jobs will fail", slog.Any("error", err))
-			}
-		}()
-		deps.SVG = svgCompiler(ctx, cfg, log)
-		deps.Signer = backend
-		deps.ProductionSigning = backend.AllowedInProduction()
-		if err := attachBuilder(cfg, store, &deps); err != nil {
+		if err := addWorkerDeps(ctx, cfg, log, store, backend, o, &deps); err != nil {
 			return nil, nil, err
-		}
-		if o.builder != nil {
-			deps.Builder, deps.Linker, deps.FunctionKey = o.builder, o.linker, cfg.Signing.Keys.FunctionArtifact
 		}
 	}
 	services, err := BuildServices(ctx, cfg, db, shared, set, backend, deps)
@@ -224,20 +345,12 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		return nil, nil, err
 	}
 	workers := jobs.NewWorkers()
-	if deps.Codecs != nil {
-		jobs.AddWorker(workers, &assetWorker{svc: services})
-	}
-	if deps.Signer != nil && services.Releases != nil {
-		jobs.AddWorker(workers, &publishWorker{svc: services})
-		jobs.AddWorker(workers, &manifestWorker{svc: services})
-		jobs.AddWorker(workers, &deltaWorker{svc: services})
-	}
-	if services.Functions != nil && deps.Builder != nil && deps.Signer != nil {
-		jobs.AddWorker(workers, &functionBuildWorker{runner: services.Functions, log: log})
-	}
+	addWorkers(workers, services, deps, log)
 	periodic := append(MaintenanceJobs(workers, services, log),
 		CheckpointJobs(workers, services, cfg.Audit.CheckpointInterval.Duration(), log)...)
 	periodic = append(periodic, AttestationStatusJobs(workers, services, log)...)
+	periodic = append(periodic, AuditExportJobs(workers, services, o.edition, log)...)
+	periodic = append(periodic, AnalyticsJobs(workers, services, o.edition, log)...)
 	jobClient, err := jobs.New(jobs.Options{
 		Pool:     db.Pool(),
 		Workers:  workers,

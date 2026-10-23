@@ -21,6 +21,12 @@ service DeviceService {
   rpc ListDevices(ListDevicesRequest) returns (ListDevicesResponse) {}
   // ReportInstalled records the release a device activated.
   rpc ReportInstalled(ReportInstalledRequest) returns (ReportInstalledResponse) {}
+  // RegisterPushToken stores the device's push token for the silent push
+  // that tells it to check its control document (SYN-060). A server that
+  // has silent push off refuses it with a failed precondition.
+  rpc RegisterPushToken(RegisterPushTokenRequest) returns (RegisterPushTokenResponse) {}
+  // ClearPushToken deletes the device's push token.
+  rpc ClearPushToken(ClearPushTokenRequest) returns (ClearPushTokenResponse) {}
   // CreateRegistrationChallenge issues the single-use, short-lived
   // challenge a registration binds its attestation to (SEC-005). It is
   // anonymous: the device has no identity yet.
@@ -266,5 +272,30 @@ message ListDevicesResponse {
 message ReportInstalledRequest {
   string device_id = 1;
   int64 release_sequence = 2;
+  // theme is the theme in use, such as "dark"; empty when not reported. It,
+  // text_scale_percent and user_ref are kept in the device's history so that
+  // a reconstruction can show the page as the user saw it (SEC-142).
+  string theme = 3;
+  // text_scale_percent is the text scale in percent, 100 for the default;
+  // zero when not reported.
+  int32 text_scale_percent = 4;
+  // user_ref is the host's pseudonymous user identifier (HST-011); empty when
+  // the host set none.
+  string user_ref = 5;
 }
 message ReportInstalledResponse {}
+
+// PushProvider is the push service a token belongs to.
+enum PushProvider {
+  PUSH_PROVIDER_UNSPECIFIED = 0;
+  PUSH_PROVIDER_FCM = 1;
+  PUSH_PROVIDER_APNS = 2;
+}
+
+message RegisterPushTokenRequest {
+  PushProvider provider = 1;
+  string token = 2;
+}
+message RegisterPushTokenResponse {}
+message ClearPushTokenRequest {}
+message ClearPushTokenResponse {}

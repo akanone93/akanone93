@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/v1/experiment.schema.json",
+  "title": "Plux experiment document",
+  "description": "An experiment: a control and variants with their allocation, audience, schedule and metrics (ABT-001). Its `key` is the PXL name in `experiment.<key>` and the `experiment` of a `Variant` node. File: `experiments/<key>.experiment.json`.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "id",
+    "key",
+    "scope",
+    "variants",
+    "primaryMetric"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "kind": {
+      "const": "experiment"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "key": {
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "name": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "description": {
+      "$ref": "common.schema.json#/$defs/description"
+    },
+    "scope": {
+      "$ref": "#/$defs/experimentScope"
+    },
+    "props": {
+      "type": "array",
+      "description": "The props a `prop` experiment varies, read in PXL as `experiment.<key>.<name>`; every variant gives each a value.",
+      "items": {
+        "$ref": "common.schema.json#/$defs/field"
+      }
+    },
+    "variants": {
+      "type": "array",
+      "description": "The control and the variants. Exactly one is the control and the weights sum to 100 (PLX-1702, PLX-1703).",
+      "items": {
+        "$ref": "#/$defs/experimentVariant"
+      },
+      "minItems": 2
+    },
+    "layer": {
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "holdout": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "The share of subjects, in percent, kept out of the experiment and shown the control."
+    },
+    "segment": {
+      "$ref": "common.schema.json#/$defs/key"
+    },
+    "schedule": {
+      "$ref": "#/$defs/experimentSchedule"
+    },
+    "primaryMetric": {
+      "$ref": "#/$defs/experimentMetric"
+    },
+    "guardrailMetrics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/experimentMetric"
+      }
+    },
+    "minimumSampleSize": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Subjects per variant before a result may be read."
+    },
+    "salt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Mixed into the hash that assigns a subject to a variant, so two experiments split the same subjects differently (ABT-002)."
+    }
+  },
+  "patternProperties": {
+    "^x-": true
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "experimentScope": {
+      "enum": [
+        "page",
+        "subtree",
+        "prop",
+        "flow",
+        "pluginVersion"
+      ],
+      "description": "What varies: a whole page, a component subtree (a `Variant` node), a prop value, a flow, or the version of a plugin."
+    },
+    "metricKind": {
+      "enum": [
+        "proportion",
+        "mean"
+      ],
+      "description": "How a metric is analysed: the share of subjects that did the event, or the mean of a numeric property of the event."
+    },
+    "metricDirection": {
+      "enum": [
+        "increase",
+        "decrease"
+      ],
+      "description": "Which change of the metric is an improvement."
+    },
+    "experimentVariant": {
+      "type": "object",
+      "required": [
+        "name",
+        "weight"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "control": {
+          "type": "boolean",
+          "description": "Marks the control."
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "The share of subjects, in percent."
+        },
+        "props": {
+          "type": "object",
+          "description": "The value of each declared prop for this variant.",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/value"
+          }
+        },
+        "description": {
+          "$ref": "common.schema.json#/$defs/description"
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "ExperimentVariant"
+    },
+    "experimentSchedule": {
+      "type": "object",
+      "description": "When the experiment runs; both bounds are optional.",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "ExperimentSchedule"
+    },
+    "experimentMetric": {
+      "type": "object",
+      "required": [
+        "event"
+      ],
+      "properties": {
+        "event": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9_]*$",
+          "maxLength": 64,
+          "description": "The analytics event the metric counts."
+        },
+        "kind": {
+          "$ref": "#/$defs/metricKind"
+        },
+        "property": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "direction": {
+          "$ref": "#/$defs/metricDirection"
+        },
+        "maxRegression": {
+          "type": "number",
+          "minimum": 0,
+          "description": "For a guardrail: the largest relative worsening tolerated, as a fraction."
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "ExperimentMetric"
+    }
+  }
+}

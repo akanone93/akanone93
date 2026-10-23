@@ -2,6 +2,7 @@
   "go": {
     "floor": 80,
     "packages": {
+      "backend/edition": 85,
       "backend/internal/approval": 85,
       "backend/internal/buildclient": 85,
       "backend/internal/builder": 85,
@@ -14,7 +15,8 @@
       "backend/internal/fnhost": 85,
       "backend/internal/fnrunner": 85,
       "backend/internal/function": 85,
-      "backend/internal/pxl": 85
+      "backend/internal/pxl": 85,
+      "ee/backend/license": 85
     }
   },
   "dart": {

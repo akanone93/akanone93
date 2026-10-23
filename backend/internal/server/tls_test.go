@@ -24,10 +24,10 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/observability"
 )
 
-// identity writes a self-signed certificate for 127.0.0.1 that serves
+// testIdentity writes a self-signed certificate for 127.0.0.1 that serves
 // as server certificate, client certificate and CA alike, and returns
 // its files.
-func identity(t *testing.T) (certFile, keyFile string, pool *x509.CertPool) {
+func testIdentity(t *testing.T) (certFile, keyFile string, pool *x509.CertPool) {
 	t.Helper()
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -146,7 +146,7 @@ func TestHSTSFollowsTheConfiguration(t *testing.T) {
 // and refuse TLS 1.2 unless the installation allows it.
 func TestAPIRoleTerminatesTLS(t *testing.T) {
 	t.Parallel()
-	certFile, keyFile, pool := identity(t)
+	certFile, keyFile, pool := testIdentity(t)
 	tlsBody := func(extra string) string {
 		return "server:\n  publicBaseURL: \"https://plux.example\"\n  tls:\n    certFile: " + certFile +
 			"\n    keyFile: " + keyFile + "\n" + extra + "database:\n  url: \"postgres://plux@db/plux\"\n"
@@ -215,7 +215,7 @@ func TestNewRefusesAnUnreadableCertificate(t *testing.T) {
 // of the internal CA.
 func TestInternalListenerRequiresMutualTLS(t *testing.T) {
 	t.Parallel()
-	certFile, keyFile, pool := identity(t)
+	certFile, keyFile, pool := testIdentity(t)
 	s := newServer(t, "server:\n  publicBaseURL: \"https://plux.example\"\n  internalListen: \"127.0.0.1:0\"\n"+
 		"  internalTLS:\n    caFile: "+certFile+"\n    certFile: "+certFile+"\n    keyFile: "+keyFile+"\n"+
 		"database:\n  url: \"postgres://plux@db/plux\"\n")

@@ -1,0 +1,156 @@
+{
+  "roles": [
+    {
+      "name": "owner",
+      "description": "May do everything, including managing members, roles, identity providers, keys and the licence.",
+      "permissions": [
+        "*"
+      ]
+    },
+    {
+      "name": "admin",
+      "description": "May do everything except manage members and keys.",
+      "permissions": [
+        "a11y.waive",
+        "app.manage",
+        "app.read",
+        "audit.read",
+        "environment.manage",
+        "function.deploy",
+        "function.deploy.production",
+        "function.read",
+        "goldens.approve",
+        "limits.manage",
+        "organization.manage",
+        "organization.read",
+        "plugin.edit",
+        "plugin.lock.override",
+        "plugin.read",
+        "release.promote",
+        "release.publish",
+        "restrictions.manage",
+        "secrets.manage",
+        "tokens.manage",
+        "translations.approve",
+        "translations.edit",
+        "trash.manage"
+      ]
+    },
+    {
+      "name": "release-manager",
+      "description": "May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code.",
+      "permissions": [
+        "analytics.read",
+        "app.read",
+        "approvals.decide",
+        "breakglass.invoke",
+        "experiments.manage",
+        "flags.manage",
+        "function.deploy",
+        "function.deploy.production",
+        "function.read",
+        "killswitch.manage",
+        "organization.read",
+        "plugin.read",
+        "release.promote",
+        "release.publish",
+        "rollout.manage",
+        "search.read"
+      ]
+    },
+    {
+      "name": "developer",
+      "description": "May edit plugins, deploy functions outside production and publish.",
+      "permissions": [
+        "app.read",
+        "function.deploy",
+        "function.read",
+        "organization.read",
+        "plugin.edit",
+        "plugin.read",
+        "release.publish",
+        "translations.edit"
+      ]
+    },
+    {
+      "name": "designer",
+      "description": "May edit plugins, pages and translations; may not publish.",
+      "permissions": [
+        "app.read",
+        "function.read",
+        "organization.read",
+        "plugin.edit",
+        "plugin.read",
+        "search.read",
+        "translations.edit"
+      ]
+    },
+    {
+      "name": "translator",
+      "description": "May read and edit translations, and nothing else.",
+      "permissions": [
+        "app.read",
+        "organization.read",
+        "plugin.read",
+        "translations.edit"
+      ]
+    },
+    {
+      "name": "reviewer",
+      "description": "May read everything an approver needs and approve or reject changes.",
+      "permissions": [
+        "app.read",
+        "approvals.decide",
+        "function.read",
+        "organization.read",
+        "plugin.read",
+        "search.read"
+      ]
+    },
+    {
+      "name": "compliance-officer",
+      "description": "May read the audit log and reconstructions, manage approval policies and change freezes, handle data-subject requests and produce compliance reports.",
+      "permissions": [
+        "analytics.read",
+        "app.read",
+        "audit.export",
+        "audit.read",
+        "compliance.report",
+        "dsr.manage",
+        "freezes.manage",
+        "function.read",
+        "organization.read",
+        "plugin.read",
+        "policies.manage",
+        "reconstruction.view",
+        "search.read"
+      ]
+    },
+    {
+      "name": "auditor",
+      "description": "Read-only access to everything, including the audit log, reconstructions and compliance reports.",
+      "permissions": [
+        "analytics.read",
+        "app.read",
+        "audit.export",
+        "audit.read",
+        "compliance.report",
+        "function.read",
+        "organization.read",
+        "plugin.read",
+        "reconstruction.view",
+        "search.read"
+      ]
+    },
+    {
+      "name": "viewer",
+      "description": "May read.",
+      "permissions": [
+        "app.read",
+        "function.read",
+        "organization.read",
+        "plugin.read"
+      ]
+    }
+  ]
+}

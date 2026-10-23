@@ -10,6 +10,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:plux_flutter/src/control/live_control.dart';
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
@@ -51,6 +52,26 @@ final activeReleaseProvider =
       ActiveReleaseNotifier.new,
       dependencies: [pluxRuntimeProvider],
     );
+
+/// Follows the control document in force (SYN-060): a switch or a pending
+/// mandatory update rebuilds the pages that ask.
+final class LiveControlNotifier extends Notifier<LiveControl> {
+  @override
+  LiveControl build() {
+    final rt = ref.watch(pluxRuntimeProvider);
+    if (rt == null) return LiveControl.none;
+    void follow() => state = rt.control.value;
+    rt.control.addListener(follow);
+    ref.onDispose(() => rt.control.removeListener(follow));
+    return rt.control.value;
+  }
+}
+
+/// The control document in force.
+final liveControlProvider = NotifierProvider<LiveControlNotifier, LiveControl>(
+  LiveControlNotifier.new,
+  dependencies: [pluxRuntimeProvider],
+);
 
 /// Follows the latest sync event (SYN-013).
 final class SyncStatusNotifier extends Notifier<SyncEvent?> {

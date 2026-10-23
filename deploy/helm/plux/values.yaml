@@ -1,0 +1,453 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Defaults of the Plux chart (DEP-003, DEP-004). They describe a highly
+# available installation: at least two replicas of every role, a three-node
+# CloudNativePG cluster, Valkey with Sentinel, TLS to PostgreSQL and Valkey,
+# default-deny NetworkPolicies and Pod Security "restricted". Nothing secret
+# is set here: credentials live in Secrets that the chart references
+# (existingSecret) or, for the dependencies it runs itself, generates once and
+# keeps. values.schema.json rejects keys that do not exist.
+
+nameOverride: ""
+fullnameOverride: ""
+
+# The cluster's DNS domain, used in the names the generated certificates carry.
+clusterDomain: cluster.local
+
+# The server image runs the api, worker, fnrunner and egress roles.
+image:
+  repository: ghcr.io/nightcode42/plux-server
+  # Defaults to the chart's appVersion.
+  tag: ""
+  # A digest, "sha256:...", replaces the tag when set.
+  digest: ""
+  pullPolicy: IfNotPresent
+
+# The builder role needs the Rust toolchain and ships in its own image
+# (backend/Dockerfile, target builder).
+builderImage:
+  repository: ghcr.io/nightcode42/plux-builder
+  tag: ""
+  digest: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# How replicas of one role are spread by default. "DoNotSchedule" on nodes
+# keeps two replicas off one node (it needs as many nodes as replicas); use
+# "ScheduleAnyway" on a small or single-node cluster.
+scheduling:
+  zoneSpread: ScheduleAnyway
+  nodeSpread: DoNotSchedule
+
+# ── The server ─────────────────────────────────────────────────────────────
+server:
+  # The address devices and Studio reach the api role at (required).
+  publicBaseURL: ""
+  # A production installation refuses a plain transport to PostgreSQL and
+  # Valkey and requires TLS 1.3 at the api role or behind a proxy (SEC-040).
+  production: true
+  # Set when a proxy or ingress terminates TLS 1.3 in front of the api role.
+  # Ignored when tls.existingSecret is set: the api role then terminates TLS.
+  behindTLSProxy: true
+  tls:
+    # A kubernetes.io/tls Secret (tls.crt, tls.key) for the api role.
+    existingSecret: ""
+  # CIDR ranges whose X-Forwarded-For header the api role believes.
+  trustedProxies: []
+  shutdownGrace: 30s
+  logLevel: info
+  # An OTLP/HTTP endpoint for traces, such as an OpenTelemetry Collector.
+  otlpEndpoint: ""
+
+# Configuration keys merged into the api and worker configuration files after
+# the chart's own (plux-server.yaml, spec Appendix H). Each role has its own
+# `config` as well. Secrets belong in environment variables, not here.
+config: {}
+
+# ── Enterprise licence ────────────────────────────────────────────────────
+# The enterprise edition (image plux-server-ee) verifies a signed licence file
+# offline (GOV-030, ADR-0084). The open-source image ignores it.
+license:
+  # A Secret holding the licence file; the api and worker roles mount it
+  # read-only under /etc/plux/license and set license.file to it. Empty runs
+  # without a licence.
+  existingSecret: ""
+  # The key of the file in that Secret.
+  key: license.json
+
+# ── Signing ────────────────────────────────────────────────────────────────
+signing:
+  # "vault" (HashiCorp Vault Transit; HA) or "file". The file backend keeps
+  # keys on disk, never signs for a production environment (SEC-056) and
+  # supports a single worker replica: development and CI only.
+  backend: vault
+  vault:
+    address: ""
+    mount: ""
+    namespace: ""
+    wrapKey: ""
+    # The Secret that holds the Vault token (PLUX_SIGNING_VAULT_TOKEN).
+    tokenSecret:
+      name: ""
+      key: token
+  file:
+    persistence:
+      existingClaim: ""
+      size: 1Gi
+      storageClass: ""
+
+# ── Internal mutual TLS between the roles (SEC-043) ────────────────────────
+internalTLS:
+  # "generate": the chart makes a CA and one identity per role at install and
+  # keeps them across upgrades; delete the Secrets and upgrade to rotate.
+  # "existing": every role's Secret (tls.crt, tls.key, ca.crt) is supplied.
+  mode: generate
+  validityDays: 365
+  existingSecrets:
+    api: ""
+    worker: ""
+    fnrunner: ""
+    egress: ""
+    builder: ""
+
+# ── Server functions (FN-020) ──────────────────────────────────────────────
+functions:
+  # Runs the fnrunner and egress roles, and the builder when builder.enabled.
+  enabled: false
+  # The public keys that may have signed a function artifact (FN-009): the
+  # public half of signing.keys.functionArtifact.
+  artifactKeys: []
+  #  - keyID: "0123456789abcdef0123456789abcdef"
+  #    publicKey: "<base64 of the 32-byte Ed25519 public key>"
+
+# ── PostgreSQL ─────────────────────────────────────────────────────────────
+postgresql:
+  # "cnpg": a CloudNativePG Cluster (the operator must be installed).
+  # "external": a PostgreSQL the chart does not manage.
+  mode: cnpg
+  database: plux
+  maxConnections: 20
+  cnpg:
+    clusterName: ""
+    instances: 3
+    imageName: ""
+    storage:
+      size: 20Gi
+      storageClass: ""
+    # Quorum-based synchronous replication: a commit waits for `number`
+    # standbys, and a failover happens only to a standby that has it.
+    synchronous:
+      enabled: true
+      number: 1
+    resources: {}
+    # The namespace of the CloudNativePG operator, whose instance-manager
+    # calls the NetworkPolicy lets through.
+    operatorNamespace: cnpg-system
+    # Keys merged into the Cluster's spec after the chart's own.
+    spec: {}
+    # Continuous backup (DEP-010, README "Backup and restore"): every WAL
+    # segment goes to object storage as it fills or after archiveTimeout, and a
+    # base backup is taken on a schedule, so the cluster restores to any second
+    # inside the retention (point-in-time recovery). Keep the store apart from
+    # the data bucket and the cluster: a backup that dies with what it protects
+    # is no backup. Off by default because it needs a store you have chosen.
+    backup:
+      enabled: false
+      # The store. Empty values use the chart's object storage (its endpoint,
+      # bucket and credential); set them to use a separate S3 store.
+      bucket: ""
+      # Folder in the bucket; the cluster's server name is a sub-folder.
+      path: postgresql
+      endpoint: ""
+      region: ""
+      # A Secret with the access key pair; empty uses the object storage's, and
+      # no Secret at all uses the pod's ambient credential (IRSA).
+      existingSecret: ""
+      accessKeyIDKey: accessKeyID
+      secretAccessKeyKey: secretAccessKey
+      # A Secret key with the CA bundle of a private S3 endpoint.
+      caSecret: ""
+      caKey: ca.crt
+      # The folder under which this cluster archives; empty is the cluster's
+      # name. A cluster restored from another must archive under a new name.
+      serverName: ""
+      # Six fields, seconds first (not a Kubernetes cron expression).
+      schedule: "0 0 */6 * * *"
+      # Backups and WAL older than this are deleted (days, weeks or months: 30d).
+      retention: 30d
+      # The longest a committed transaction can wait outside the archive when
+      # the primary is quiet. With the synchronous standby it bounds the data a
+      # lost cluster takes with it: the recovery point objective (RPO <= 5 min).
+      archiveTimeout: 60s
+      compression: gzip
+      walMaxParallel: 2
+      immediateCheckpoint: false
+      # A consistency marker (README "Consistency marker") every minute:
+      # a WAL message and an object in the data bucket that name the same
+      # instant, so a database point and an object-store point can be matched.
+      marker:
+        enabled: true
+        schedule: "* * * * *"
+        # The folder in the data bucket.
+        prefix: markers/postgresql
+        image:
+          repository: ghcr.io/cloudnative-pg/postgresql
+          tag: 18-standard-trixie
+          digest: sha256:5c11341a777f9780b35cb5be3956d53df2b81d455495272668e730106bb44138
+        # curl signs the upload (SigV4), so the marker needs an access key pair:
+        # the data bucket's by default, or this Secret.
+        existingSecret: ""
+        accessKeyIDKey: accessKeyID
+        secretAccessKeyKey: secretAccessKey
+        resources:
+          requests: {cpu: 10m, memory: 32Mi}
+          limits: {memory: 128Mi}
+    # Create the cluster from a backup store instead of empty (a restore, or
+    # the restore drill). Uses the store of `backup` above.
+    restore:
+      enabled: false
+      # The folder of the cluster to restore from; empty is this cluster's name.
+      sourceServerName: ""
+      # RFC 3339, e.g. 2026-10-19T08:30:00Z; empty restores to the end of the
+      # archive. Or an exact WAL position: the lsn of a consistency marker.
+      targetTime: ""
+      targetLSN: ""
+  external:
+    # A Secret with the connection URL (postgres://...?sslmode=verify-full).
+    existingSecret: ""
+    key: url
+
+# ── Valkey (rate limits, the DPoP replay cache) ────────────────────────────
+valkey:
+  # "sentinel": three Valkey pods with a Sentinel each, run by the chart.
+  # "external": a Valkey or Sentinel URL in a Secret.
+  mode: sentinel
+  sentinel:
+    replicas: 3
+    quorum: 2
+    masterName: plux
+    # TLS 1.3 between clients, replicas and Sentinels, with the internal CA.
+    tls: true
+    image:
+      repository: valkey/valkey
+      tag: 8.1.9-trixie
+      digest: sha256:d5e642b89ee060a784f322cad2daad61c35d55530c32b74ce38b73ae01cd9fb3
+    # A Secret with the key "password"; generated when empty.
+    existingSecret: ""
+    resources: {}
+  external:
+    # A Secret with the URL (rediss://, valkeys:// or a +sentinel form).
+    existingSecret: ""
+    key: url
+    # A PEM bundle that signs the server's certificate, when private.
+    caSecret: ""
+    caKey: ca.crt
+
+# ── Object storage ─────────────────────────────────────────────────────────
+objectStorage:
+  # "seaweedfs": one SeaweedFS instance run by the chart (see the README for
+  # its limits); "external": any S3 API - recommended for production.
+  mode: seaweedfs
+  bucket: plux
+  region: ""
+  pathStyle: true
+  # Where devices download bundles from; empty uses the api role's object
+  # route when the store is not reachable from devices (DEP-041).
+  cdnBaseURL: ""
+  seaweedfs:
+    image:
+      repository: chrislusf/seaweedfs
+      tag: "4.47"
+      digest: sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882
+    storage:
+      size: 50Gi
+      storageClass: ""
+    # A Secret with accessKeyID and secretAccessKey; generated when empty.
+    existingSecret: ""
+    resources: {}
+  external:
+    endpoint: ""
+    # A Secret with accessKeyID and secretAccessKey; both empty uses the
+    # pod's ambient credential (IRSA, workload identity).
+    existingSecret: ""
+    accessKeyIDKey: accessKeyID
+    secretAccessKeyKey: secretAccessKey
+
+# ── Roles ──────────────────────────────────────────────────────────────────
+# Every role has the same scaling and scheduling keys. An empty
+# topologySpreadConstraints or affinity uses the chart's default: spread over
+# zones (best effort) and nodes (required) and prefer different nodes.
+api:
+  replicas: 2
+  resources:
+    requests: {cpu: 250m, memory: 256Mi}
+    limits: {memory: 1Gi}
+  autoscaling: {enabled: true, minReplicas: 2, maxReplicas: 6, targetCPUUtilizationPercentage: 70}
+  podDisruptionBudget: {maxUnavailable: 1}
+  topologySpreadConstraints: []
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  extraEnv: []
+  config: {}
+  service: {type: ClusterIP, port: 8080, annotations: {}}
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts: []
+    #  - host: plux.example.com
+    #    path: /
+    tls: []
+    #  - secretName: plux-tls
+    #    hosts: [plux.example.com]
+
+worker:
+  replicas: 2
+  resources:
+    requests: {cpu: 500m, memory: 512Mi}
+    limits: {memory: 2Gi}
+  autoscaling: {enabled: false, minReplicas: 2, maxReplicas: 4, targetCPUUtilizationPercentage: 70}
+  podDisruptionBudget: {maxUnavailable: 1}
+  topologySpreadConstraints: []
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  extraEnv: []
+  config: {}
+
+fnrunner:
+  replicas: 2
+  resources:
+    requests: {cpu: 500m, memory: 1Gi}
+    limits: {memory: 2Gi}
+  autoscaling: {enabled: true, minReplicas: 2, maxReplicas: 6, targetCPUUtilizationPercentage: 70}
+  podDisruptionBudget: {maxUnavailable: 1}
+  topologySpreadConstraints: []
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  extraEnv: []
+  config: {}
+
+egress:
+  replicas: 2
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {memory: 512Mi}
+  autoscaling: {enabled: false, minReplicas: 2, maxReplicas: 4, targetCPUUtilizationPercentage: 70}
+  podDisruptionBudget: {maxUnavailable: 1}
+  topologySpreadConstraints: []
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  extraEnv: []
+  config: {}
+
+builder:
+  # Compiles uploaded function sources (FN-016). Needs functions.enabled and a
+  # node that carries the seccomp profile below.
+  enabled: false
+  replicas: 2
+  resources:
+    requests: {cpu: "1", memory: 2Gi}
+    limits: {memory: 4Gi}
+  # The scratch directory of builds: memory-backed, executable (cargo runs
+  # build scripts from it), owned by the builder's user.
+  scratchSize: 2Gi
+  # deploy/compose/seccomp-builder.json is Docker's default profile plus one
+  # rule that lets the build sandbox create namespaces. Kubernetes loads a
+  # Localhost profile from the node's kubelet seccomp directory.
+  seccompProfile: profiles/plux-builder.json
+  autoscaling: {enabled: false, minReplicas: 2, maxReplicas: 4, targetCPUUtilizationPercentage: 70}
+  podDisruptionBudget: {maxUnavailable: 1}
+  topologySpreadConstraints: []
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  extraEnv: []
+  config: {}
+
+# ── Network isolation ──────────────────────────────────────────────────────
+networkPolicy:
+  enabled: true
+  # Where the pods resolve names.
+  dns:
+    namespaceSelector: {kubernetes.io/metadata.name: kube-system}
+    podSelector: {k8s-app: kube-dns}
+  # Who may reach the api role's public port. Empty allows any source, as a
+  # public API must; set namespace or CIDR peers to narrow it.
+  apiIngressFrom: []
+  # HTTPS from the api role and the worker to the internet (attestation
+  # providers, OpenID Connect, Vault). Off by default so no data leaves the
+  # installation (SEC-163); enable it explicitly with the egress list
+  # (docs/operations/egress.md). Private ranges are excluded; add in-cluster
+  # or private destinations to extraEgress.
+  externalHTTPS:
+    enabled: false
+    except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16]
+  # Extra egress rules (NetworkPolicyEgressRule) per role, for an external
+  # PostgreSQL, S3 or Vault inside the private network.
+  extraEgress:
+    api: []
+    worker: []
+    migrate: []
+    # The PostgreSQL pods' backups to a store outside the cluster, and the
+    # consistency marker Job (port 443 of a private S3 endpoint, for example).
+    postgresql: []
+    backup: []
+
+# ── helm test ──────────────────────────────────────────────────────────────
+test:
+  image:
+    repository: curlimages/curl
+    tag: 8.23.0
+    digest: sha256:a134550be58ab783810e613ae96fd253c38f7bdd16d9bf9be350700c7a29ac06
+  # The test reaches the api role over HTTP; with server.tls it uses HTTPS and
+  # does not verify the certificate (it checks that the route answers).
+  resources:
+    requests: {cpu: 10m, memory: 16Mi}
+    limits: {memory: 64Mi}
+
+# ── Alerts and dashboards ──────────────────────────────────────────────────
+# The rules (service level objectives with burn-rate alerts, and the alerts of
+# the runbooks) and the Grafana dashboards of deploy/observability (OBS-004,
+# OBS-005). Every alert links to docs/runbooks/alerts/<alert>.md. The chart
+# ships no Prometheus or Grafana; both flags need the Prometheus Operator and
+# Grafana's dashboard sidecar. Scrape every role with a job name that starts
+# with "plux"; the rules also read CloudNativePG, redis_exporter and
+# kube-state-metrics series (deploy/observability/external-metrics.txt).
+observability:
+  prometheusRule:
+    enabled: false
+    # Labels the Prometheus resource selects rules by (release: kube-prometheus-stack).
+    labels: {}
+  dashboards:
+    enabled: false
+    # The label Grafana's sidecar selects ConfigMaps by.
+    label: grafana_dashboard
+    annotations: {}
+    # The label Grafana's sidecar selects the analytics datasource ConfigMap by.
+    datasourceLabel: grafana_datasource
+    # The read-only datasource over analytics_rollups (ANL-020). The role's
+    # grants are in deploy/observability/analytics-reader.sql.
+    analytics:
+      # host:port of the PostgreSQL primary, for example plux-postgresql-rw:5432.
+      url: ""
+      database: plux
+      user: plux_analytics_reader
+      # The environment variable Grafana reads the reader's password from. The
+      # operator sets it on the Grafana pod from an existing Secret (secretKeyRef).
+      passwordEnv: PLUX_ANALYTICS_READER_PASSWORD

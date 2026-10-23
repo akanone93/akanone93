@@ -167,6 +167,10 @@ final class AccessibilityTreeTests: XCTestCase {
       while (field.value(forKey: "hasKeyboardFocus") as? Bool) != true, Date() < deadline {
         Thread.sleep(forTimeInterval: 0.2)
       }
+      // A tap that lands while the page is still settling gives no focus,
+      // and typing then fails the test outright (run 39860327949): tap
+      // again instead.
+      if (field.value(forKey: "hasKeyboardFocus") as? Bool) != true { continue }
       let current = self.text(of: field)
       if !current.isEmpty {
         field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))

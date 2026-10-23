@@ -196,6 +196,14 @@ func PlaceOf(p string) (Place, bool) {
 		return keyed(parts[1], ".component.json", Place{Kind: KindComponent})
 	case len(parts) == 2 && parts[0] == "templates":
 		return keyed(parts[1], ".template.json", Place{Kind: KindTemplate})
+	case len(parts) == 2 && parts[0] == "segments":
+		return keyed(parts[1], ".segment.json", Place{Kind: KindSegment})
+	case len(parts) == 2 && parts[0] == "policies":
+		return keyed(parts[1], ".policy.json", Place{Kind: KindPolicy})
+	case len(parts) == 2 && parts[0] == "flags":
+		return namedKey(parts[1], ".flag.json", Place{Kind: KindFlag})
+	case len(parts) == 2 && parts[0] == "experiments":
+		return namedKey(parts[1], ".experiment.json", Place{Kind: KindExperiment})
 	case len(parts) == 3 && parts[0] == "functions" && parts[2] == "function.json":
 		return Place{Kind: KindFunction, Key: parts[1]}, ValidFunctionName(parts[1])
 	case len(parts) == 3 && parts[0] == "plugins" && parts[2] == "plugin.json":
@@ -226,6 +234,20 @@ func keyed(name, suffix string, in Place) (Place, bool) {
 	in.Key = key
 	return in, in.Kind == KindTranslations || validKey(key)
 }
+
+// namedKey reads, from a file name with a suffix, a key that is a PXL name
+// (flags and experiments), as common.schema.json defines it.
+func namedKey(name, suffix string, in Place) (Place, bool) {
+	key, ok := strings.CutSuffix(name, suffix)
+	if !ok || len(key) > 64 || !namePattern.MatchString(key) {
+		return Place{}, false
+	}
+	in.Key = key
+	return in, true
+}
+
+// namePattern is the form of a PXL name, as common.schema.json defines it.
+var namePattern = regexp.MustCompile(`^[a-z][a-zA-Z0-9]*$`)
 
 // keyPattern is the form of a key (SCH-002), as common.schema.json
 // defines it.

@@ -128,7 +128,7 @@ func TestSecretsAndUserCodes(t *testing.T) {
 // refused before anything else.
 func TestRolesAndAuthorisation(t *testing.T) {
 	t.Parallel()
-	if got := auth.Roles(); len(got) != 5 || got[0] != auth.RoleAdmin {
+	if got := auth.Roles(); len(got) != 10 || got[0] != auth.RoleAdmin {
 		t.Errorf("Roles = %v", got)
 	}
 	for _, p := range []auth.Permission{

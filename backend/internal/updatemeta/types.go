@@ -55,6 +55,10 @@ type Roles struct {
 	Targets   RoleKeys `json:"targets"`
 	Snapshot  RoleKeys `json:"snapshot"`
 	Timestamp RoleKeys `json:"timestamp"`
+	// Control delegates the control document (ADR-0077). It is absent
+	// from a root made before P9, which then delegates none: a device
+	// accepts no control document under it.
+	Control *RoleKeys `json:"control,omitempty"`
 }
 
 // Named returns the keys of a role by its name.
@@ -68,6 +72,11 @@ func (r Roles) Named(role string) (RoleKeys, bool) {
 		return r.Snapshot, true
 	case RoleTimestamp:
 		return r.Timestamp, true
+	case RoleControl:
+		if r.Control == nil {
+			return RoleKeys{}, false
+		}
+		return *r.Control, true
 	}
 	return RoleKeys{}, false
 }
@@ -303,8 +312,11 @@ func ParseRoot(signed []byte) (Root, error) {
 			return Root{}, fmt.Errorf("%w: key %q is not the hash of its public key", ErrFormat, id)
 		}
 	}
-	for _, role := range []string{RoleRoot, RoleTargets, RoleSnapshot, RoleTimestamp} {
-		keys, _ := r.Roles.Named(role)
+	for _, role := range []string{RoleRoot, RoleTargets, RoleSnapshot, RoleTimestamp, RoleControl} {
+		keys, ok := r.Roles.Named(role)
+		if !ok && role == RoleControl {
+			continue
+		}
 		if err := r.checkRole(role, keys); err != nil {
 			return Root{}, err
 		}

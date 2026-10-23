@@ -5,7 +5,9 @@
 // anything a user can name, and the guards that bound what it reads
 // (SEC-104, SEC-105).
 //
-// Every server-side fetch of a user-supplied URL — an OpenAPI import, an
+// Every outbound connection is built for a registered Destination, and the
+// registry is the source of the generated egress list (SEC-163). Every
+// server-side fetch of a user-supplied URL — an OpenAPI import, an
 // AI provider, a function's HTTP call, a webhook — goes through Client.
 // It refuses private, loopback, link-local and cloud-metadata addresses
 // unless an allowlist names them, and it checks the address again after
@@ -18,11 +20,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"net/netip"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -91,37 +91,52 @@ func (p Policy) Check(addr netip.Addr) error {
 
 // Options configures NewClient.
 type Options struct {
+	// Destination is the registered kind of destination the client
+	// reaches; the client is refused for an unregistered kind (SEC-163).
+	Destination Kind
 	// Policy decides which addresses may be reached.
 	Policy Policy
 	// Timeout bounds a whole request, redirects included.
 	Timeout time.Duration
 	// MaxRedirects bounds a redirect chain; zero means ten.
 	MaxRedirects int
+	// TLS is the client TLS configuration, such as one with extra root
+	// authorities; nil uses the defaults.
+	TLS *tls.Config
 }
 
 // NewClient returns an HTTP client that enforces the policy. It is safe
-// for concurrent use and should be built once and shared.
-func NewClient(opts Options) *http.Client {
+// for concurrent use and should be built once and shared. It fails for a
+// destination kind the registry does not list, and the client then reaches
+// only the hosts the kind lists.
+func NewClient(opts Options) (*http.Client, error) {
 	if opts.Timeout <= 0 {
 		opts.Timeout = 30 * time.Second
 	}
 	if opts.MaxRedirects <= 0 {
 		opts.MaxRedirects = 10
 	}
+	transport, err := NewTransport(TransportOptions{Destination: opts.Destination, Policy: opts.Policy, TLS: opts.TLS})
+	if err != nil {
+		return nil, err
+	}
 	return &http.Client{
 		Timeout:   opts.Timeout,
-		Transport: NewTransport(TransportOptions{Policy: opts.Policy}),
+		Transport: transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if len(via) >= opts.MaxRedirects {
 				return fmt.Errorf("httpx: more than %d redirects", opts.MaxRedirects)
 			}
 			return CheckURL(req.URL.Scheme, req.URL.Hostname())
 		},
-	}
+	}, nil
 }
 
 // TransportOptions configures NewTransport.
 type TransportOptions struct {
+	// Destination is the registered kind of destination the transport
+	// reaches (SEC-163).
+	Destination Kind
 	// Policy decides which addresses may be reached.
 	Policy Policy
 	// TLS is the client TLS configuration, such as one that presents a
@@ -139,25 +154,12 @@ type TransportOptions struct {
 // address the name resolved to, so a name that resolves differently than
 // it did a moment ago cannot reach an internal service. It never uses a
 // proxy, which would resolve the name itself. Share one transport per
-// destination: it pools connections.
-func NewTransport(opts TransportOptions) *http.Transport {
-	policy := opts.Policy
-	dialer := &net.Dialer{
-		Timeout:   10 * time.Second,
-		KeepAlive: 30 * time.Second,
-		// Control runs after the name has been resolved, with the
-		// address the connection will actually use.
-		Control: func(_, address string, _ syscall.RawConn) error {
-			host, _, err := net.SplitHostPort(address)
-			if err != nil {
-				return fmt.Errorf("%w: %s", ErrBlocked, address)
-			}
-			addr, err := netip.ParseAddr(host)
-			if err != nil {
-				return fmt.Errorf("%w: %s is not an IP address", ErrBlocked, host)
-			}
-			return policy.Check(addr)
-		},
+// destination: it pools connections. It fails for a destination kind the
+// registry does not list.
+func NewTransport(opts TransportOptions) (*http.Transport, error) {
+	dialer, err := GuardedDialer(opts.Destination, opts.Policy)
+	if err != nil {
+		return nil, err
 	}
 	perHost := opts.MaxIdleConnsPerHost
 	if perHost <= 0 {
@@ -174,7 +176,7 @@ func NewTransport(opts TransportOptions) *http.Transport {
 		ExpectContinueTimeout: time.Second,
 		ResponseHeaderTimeout: opts.ResponseHeaderTimeout,
 		Proxy:                 nil,
-	}
+	}, nil
 }
 
 // CheckURL refuses a scheme or a host that must never be fetched. It is

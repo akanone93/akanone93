@@ -15,12 +15,13 @@
 # /usr/share/doc.
 #
 #   docker buildx build -f backend/Dockerfile --target server .
+#   docker buildx build -f backend/Dockerfile --target server-ee .
 #   docker buildx build -f backend/Dockerfile --target cli .
 #   docker buildx build -f backend/Dockerfile --target builder .
 #
 # Base images are pinned by digest and updated by Dependabot.
 
-FROM --platform=$BUILDPLATFORM golang:1.27.2-bookworm@sha256:5cf287a799e6b94384bad13d16b14904c531f51ba65792237e122ce42b392f61 AS build
+FROM --platform=$BUILDPLATFORM golang:1.27.3-bookworm@sha256:972b4110ba0f47539a975c31e52c64765e1ff19f2d74469ae4a595c6676e80a5 AS build
 ARG TARGETOS
 ARG TARGETARCH
 ARG VERSION=dev
@@ -46,7 +47,7 @@ RUN cd backend && export CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH && \
 # the Skia path operations it loads. Both are built for the target
 # platform on Debian 12, the base of the server image, so they need no
 # newer glibc than it has.
-FROM golang:1.27.2-bookworm@sha256:5cf287a799e6b94384bad13d16b14904c531f51ba65792237e122ce42b392f61 AS pathops
+FROM golang:1.27.3-bookworm@sha256:972b4110ba0f47539a975c31e52c64765e1ff19f2d74469ae4a595c6676e80a5 AS pathops
 COPY packages/plux_svgc/native/build.sh /src/build.sh
 RUN sh /src/build.sh /out
 
@@ -81,6 +82,21 @@ USER nonroot:nonroot
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/plux-server"]
 CMD ["serve", "--config", "/etc/plux/plux.yaml"]
+
+# The enterprise server (GOV-030, ADR-0084): the server image with
+# plux-server-ee in place of plux-server. The ee/ module resolves the core
+# through its replace directive, so the build copies both trees. The flags
+# are those of the core build, without its version stamp, which the ee/
+# module cannot import; the image keeps the notices of the core server.
+FROM build AS build-ee
+ARG TARGETOS
+ARG TARGETARCH
+COPY ee/backend/ ./ee/backend/
+RUN cd ee/backend && go mod download && CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -trimpath -buildvcs=false \
+      -ldflags "-s -w -buildid=" -o /out-ee/plux-server ./cmd/plux-server-ee
+
+FROM server AS server-ee
+COPY --from=build-ee /out-ee/plux-server /usr/local/bin/plux-server
 
 FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab AS cli
 COPY --from=build /out/plux /usr/local/bin/plux

@@ -68,6 +68,24 @@ type Config struct {
 	// Builder configures the builder role, and the worker's route to it
 	// (FN-016, ADR-0063).
 	Builder Builder `json:"builder"`
+	// License names the enterprise licence file (GOV-030, ADR-0084).
+	License License `json:"license"`
+	// Notifications configures notification and webhook delivery (SRV-062,
+	// SRV-063).
+	Notifications Notifications `json:"notifications"`
+	// Push configures the silent push of control document changes (SYN-060,
+	// Q22).
+	Push Push `json:"push"`
+}
+
+// License configures the offline licence check of the enterprise edition.
+// The open-source core ignores it: it has no enterprise features to enable
+// (GOV-033).
+type License struct {
+	// File is the absolute path of the signed licence file, or empty for
+	// none. A missing or invalid file never stops the server; enterprise
+	// features stay off.
+	File string `json:"file"`
 }
 
 // Builder configures the builder role. The role's fields are read only when
@@ -432,6 +450,10 @@ type SigningKeys struct {
 	// production (SEC-050, SEC-056).
 	Snapshot  string `json:"snapshot"`
 	Timestamp string `json:"timestamp"`
+	// Control is the prefix of the control document's key, named like the
+	// others. The key is online and limited to control documents; the root
+	// delegates to it (ADR-0077).
+	Control string `json:"control"`
 }
 
 // Vault is a HashiCorp Vault Transit engine (SEC-120).
@@ -465,6 +487,8 @@ type Auth struct {
 	Studio StudioAuth `json:"studio"`
 	Device DeviceAuth `json:"device"`
 	CI     CIAuth     `json:"ci"`
+	// Federation is how identity providers are reached (SEC-105).
+	Federation Federation `json:"federation"`
 }
 
 // StudioAuth is how people sign in (SEC-100, SEC-101).
@@ -542,9 +566,27 @@ type Observability struct {
 type Telemetry struct {
 	// Store is "postgres"; "clickhouse" arrives with ANL-010 in P9.
 	Store string `json:"store"`
-	// RetentionDays is how long events are kept before the maintenance
-	// sweep deletes them (SEC-160).
+	// RetentionDays is how long raw events are kept before the maintenance
+	// sweep deletes them, unless an organisation sets its own (SEC-160,
+	// ADR-0080). The default is 396 days, 13 months.
 	RetentionDays int `json:"retentionDays"`
+	// TimeZone is the installation's IANA time zone, in which the
+	// maintenance window is read. The default is "UTC".
+	TimeZone string `json:"timeZone"`
+	// QueueMaxEntries bounds the Valkey stream that carries event batches
+	// to the worker role; the oldest are dropped past it. It is a last
+	// resort against a full Valkey when no worker consumes (ADR-0080).
+	QueueMaxEntries int `json:"queueMaxEntries"`
+	// MaintenanceWindow is when a scheduled retention change is applied
+	// (maintainer decision Q17); the default is 02:00 to 04:00.
+	MaintenanceWindow MaintenanceWindow `json:"maintenanceWindow"`
+}
+
+// MaintenanceWindow is a daily off-peak window in the installation's time
+// zone, as "HH:MM". A window whose end is before its start spans midnight.
+type MaintenanceWindow struct {
+	Start string `json:"start"`
+	End   string `json:"end"`
 }
 
 // Retention is how long history is kept.

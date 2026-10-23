@@ -1,0 +1,207 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// RolloutService serves staged rollouts of a release to a share of a
+// channel's devices (REL-050 to REL-053, ADR-0078). Every call needs the
+// rollout.manage permission on the app, and on the environment for calls that
+// name one.
+service RolloutService {
+  // CreateRollout schedules a rollout of a release on a channel. PLX-3153 when
+  // its window overlaps another rollout of the channel, PLX-3152 when a
+  // targeting rule is invalid, PLX-1320 when the app already has the most
+  // rollouts the rollouts.activePerApp limit allows.
+  rpc CreateRollout(CreateRolloutRequest) returns (CreateRolloutResponse) {}
+  // GetRollout returns one rollout with the figures of its newest health
+  // check.
+  rpc GetRollout(GetRolloutRequest) returns (GetRolloutResponse) {}
+  // ListRollouts lists an app's rollouts, newest first.
+  rpc ListRollouts(ListRolloutsRequest) returns (ListRolloutsResponse) {}
+  // PauseRollout stops a rollout from advancing; devices keep the release
+  // they were offered.
+  rpc PauseRollout(PauseRolloutRequest) returns (PauseRolloutResponse) {}
+  // ResumeRollout continues a paused rollout with the current stage afresh.
+  rpc ResumeRollout(ResumeRolloutRequest) returns (ResumeRolloutResponse) {}
+  // AbortRollout ends a rollout and returns the channel to the release it had
+  // before, as a new release (REL-006).
+  rpc AbortRollout(AbortRolloutRequest) returns (AbortRolloutResponse) {}
+}
+
+// RolloutState is where a rollout is in its life.
+enum RolloutState {
+  ROLLOUT_STATE_UNSPECIFIED = 0;
+  // ROLLOUT_STATE_SCHEDULED waits for its start time.
+  ROLLOUT_STATE_SCHEDULED = 1;
+  // ROLLOUT_STATE_ACTIVE offers the candidate to its share of devices.
+  ROLLOUT_STATE_ACTIVE = 2;
+  // ROLLOUT_STATE_PAUSED keeps its share but does not advance.
+  ROLLOUT_STATE_PAUSED = 3;
+  // ROLLOUT_STATE_CLOSING is being ended by the worker.
+  ROLLOUT_STATE_CLOSING = 4;
+  // ROLLOUT_STATE_COMPLETED reached every device; the channel points at the candidate.
+  ROLLOUT_STATE_COMPLETED = 5;
+  // ROLLOUT_STATE_ENDED reached its scheduled end and reverted.
+  ROLLOUT_STATE_ENDED = 6;
+  // ROLLOUT_STATE_ABORTED was aborted by a person and reverted.
+  ROLLOUT_STATE_ABORTED = 7;
+  // ROLLOUT_STATE_ROLLED_BACK was reverted by its health gate.
+  ROLLOUT_STATE_ROLLED_BACK = 8;
+}
+
+// HealthAction says what a failed health gate does.
+enum HealthAction {
+  HEALTH_ACTION_UNSPECIFIED = 0;
+  // HEALTH_ACTION_PAUSE pauses the rollout (PLX-3150), the default.
+  HEALTH_ACTION_PAUSE = 1;
+  // HEALTH_ACTION_ROLLBACK reverts the rollout (PLX-3151).
+  HEALTH_ACTION_ROLLBACK = 2;
+}
+
+// Stage is one step of a rollout's schedule.
+message Stage {
+  // basis_points is the share of devices offered the candidate, in 1/10000;
+  // it never decreases from one stage to the next.
+  int32 basis_points = 1;
+  // duration_seconds is how long the stage lasts before the next begins. The
+  // last stage has none unless it is 10000: a full rollout soaks for its
+  // duration and is then promoted; a last stage below 10000 holds until the
+  // rollout ends.
+  int64 duration_seconds = 2;
+}
+
+// CustomMetricGate gates on the rate of a custom event.
+message CustomMetricGate {
+  // event is the event name the analytics rollups count.
+  string event = 1;
+  // max_increase_basis_points is the most the candidate's events per session
+  // may exceed the previous release's, in 1/10000.
+  int32 max_increase_basis_points = 2;
+}
+
+// HealthGate compares the candidate with the previous release (REL-053). A
+// threshold of zero switches its check off; every drop and increase is
+// absolute, in basis points (1/10000) of the rate.
+message HealthGate {
+  // min_sample is the fewest sessions both releases need in the window
+  // before a verdict is made; zero is the server's default.
+  int64 min_sample = 1;
+  // window_seconds is how far back the comparison reaches; zero is six hours.
+  int64 window_seconds = 2;
+  int32 max_crash_free_drop_basis_points = 3;
+  int32 max_error_rate_increase_basis_points = 4;
+  int32 max_action_error_rate_increase_basis_points = 5;
+  int32 max_function_error_rate_increase_basis_points = 6;
+  repeated CustomMetricGate custom = 7;
+  // action is what a failed gate does; unspecified is pause.
+  HealthAction action = 8;
+}
+
+// Rollout is a release offered to a share of a channel's devices.
+message Rollout {
+  string id = 1;
+  string app_id = 2;
+  string environment_id = 3;
+  string channel = 4;
+  int64 candidate_sequence = 5;
+  // previous_sequence is the channel's release when the rollout started; zero
+  // while it is scheduled.
+  int64 previous_sequence = 6;
+  RolloutState state = 7;
+  string state_reason = 8;
+  repeated Stage stages = 9;
+  int32 stage_index = 10;
+  // basis_points is the share offered the candidate now.
+  int32 basis_points = 11;
+  google.protobuf.Timestamp start_at = 12;
+  google.protobuf.Timestamp end_at = 13;
+  // rule is the targeting rule as JSON, empty for none.
+  bytes rule = 14;
+  // segments are the named segments the rollout targets, as the documents
+  // given at creation.
+  repeated bytes segments = 15;
+  repeated string allow_devices = 16;
+  repeated string deny_devices = 17;
+  HealthGate health = 18;
+  // last_check is the figures of the gate's newest check as JSON.
+  bytes last_check = 19;
+  google.protobuf.Timestamp last_check_at = 20;
+  // reverted_sequence is the release made to revert the rollout, zero if none.
+  int64 reverted_sequence = 21;
+  string created_by = 22;
+  google.protobuf.Timestamp created_at = 23;
+  google.protobuf.Timestamp updated_at = 24;
+  // environment_key is the key of the rollout's environment.
+  string environment_key = 25;
+}
+
+message CreateRolloutRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  // channel defaults to production.
+  string channel = 3;
+  int64 candidate_sequence = 4;
+  repeated Stage stages = 5;
+  // start_at defaults to now.
+  google.protobuf.Timestamp start_at = 6;
+  // end_at, when set, reverts the rollout at that time (REL-052).
+  google.protobuf.Timestamp end_at = 7;
+  // rule is a segment rule as JSON that devices must satisfy.
+  bytes rule = 8;
+  // segments are segment documents as JSON; devices must satisfy every one.
+  repeated bytes segments = 9;
+  repeated string allow_devices = 10;
+  repeated string deny_devices = 11;
+  HealthGate health = 12;
+}
+message CreateRolloutResponse {
+  Rollout rollout = 1;
+}
+
+message GetRolloutRequest {
+  string id = 1;
+}
+message GetRolloutResponse {
+  Rollout rollout = 1;
+}
+
+message ListRolloutsRequest {
+  string app_id = 1;
+  // only_open leaves out finished rollouts.
+  bool only_open = 2;
+  Page page = 3;
+}
+message ListRolloutsResponse {
+  repeated Rollout rollouts = 1;
+  PageResult page = 2;
+}
+
+message PauseRolloutRequest {
+  string id = 1;
+  string reason = 2;
+}
+message PauseRolloutResponse {
+  Rollout rollout = 1;
+}
+
+message ResumeRolloutRequest {
+  string id = 1;
+}
+message ResumeRolloutResponse {
+  Rollout rollout = 1;
+}
+
+message AbortRolloutRequest {
+  string id = 1;
+  string reason = 2;
+}
+message AbortRolloutResponse {
+  Rollout rollout = 1;
+}

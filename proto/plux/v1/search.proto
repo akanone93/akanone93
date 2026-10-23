@@ -1,0 +1,55 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// SearchService searches the apps the caller may read (SRV-061, ADR-0082).
+service SearchService {
+  // Search returns the results for the words of a query, best first. Every
+  // word matches as a prefix and all words must match. Only apps the caller
+  // holds search.read on are searched; the restriction is part of the
+  // database statement, so the rows of other apps are never fetched. The
+  // page size is search.resultsPerPage. Words absent from the query are
+  // PLX-1002; an unknown kind is PLX-1004.
+  rpc Search(SearchRequest) returns (SearchResponse) {}
+}
+
+message SearchRequest {
+  // query holds the words to find; punctuation separates words.
+  string query = 1;
+  // kinds restricts the results to "app", "plugin", "page", "component",
+  // "template", "translation_key" or "function"; empty means all.
+  repeated string kinds = 2;
+  // page selects the page; only page_size and page_token are read.
+  Page page = 3;
+}
+
+message SearchHit {
+  // kind is one of the kinds a request may name.
+  string kind = 1;
+  // id is the identifier of the app, plugin or document.
+  string id = 2;
+  string app_id = 3;
+  // name is the name of an app or plugin, or the key of a document.
+  string name = 4;
+  // path is the key path of an app or plugin, or the document's path in
+  // the project layout.
+  string path = 5;
+  // snippet is the matching text with each hit between « and ». It is
+  // plain text from the document and must be escaped before it is shown as
+  // markup.
+  string snippet = 6;
+  // rank orders results; higher is a better match.
+  float rank = 7;
+}
+
+message SearchResponse {
+  repeated SearchHit hits = 1;
+  PageResult page = 2;
+}

@@ -721,8 +721,9 @@ final class ComponentDocument {
   final List<StateEntry>? state;
   /// Embeddable by the host with `PluxView` (NAV-004).
   final bool? exported;
-  /// A node of a page or component tree: a widget or a component instance
-  /// (SCH-023).
+  /// A node of a page or component tree: a widget, a component instance or,
+  /// with the reserved type `Variant`, the subtrees of an experiment's variants
+  /// (SCH-023, ABT-001).
   final Node root;
   /// The forms of the component (STA-020).
   final List<Form>? forms;
@@ -1255,6 +1256,215 @@ final class EventHandler {
       };
 }
 
+/// An experiment: a control and variants with their allocation, audience,
+/// schedule and metrics (ABT-001). Its `key` is the PXL name in
+/// `experiment.<key>` and the `experiment` of a `Variant` node. File:
+/// `experiments/<key>.experiment.json`.
+final class ExperimentDocument {
+  const ExperimentDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, this.name, this.description, required this.scope, this.props, required this.variants, this.layer, this.holdout, this.segment, this.schedule, required this.primaryMetric, this.guardrailMetrics, this.minimumSampleSize, this.salt});
+
+  /// Decodes a JSON object.
+  factory ExperimentDocument.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return ExperimentDocument(
+      schemaVersion: m['schemaVersion']! as String,
+      kind: m['kind']! as String,
+      id: m['id']! as String,
+      key: m['key']! as String,
+      name: m['name'] == null ? null : m['name']! as String,
+      description: m['description'] == null ? null : m['description']! as String,
+      scope: ExperimentScope.fromJson(m['scope']!),
+      props: m['props'] == null ? null : [for (final e in m['props']! as List<Object?>) Field.fromJson(e!)],
+      variants: [for (final e in m['variants']! as List<Object?>) ExperimentVariant.fromJson(e!)],
+      layer: m['layer'] == null ? null : m['layer']! as String,
+      holdout: m['holdout'] == null ? null : (m['holdout']! as num).toDouble(),
+      segment: m['segment'] == null ? null : m['segment']! as String,
+      schedule: m['schedule'] == null ? null : ExperimentSchedule.fromJson(m['schedule']!),
+      primaryMetric: ExperimentMetric.fromJson(m['primaryMetric']!),
+      guardrailMetrics: m['guardrailMetrics'] == null ? null : [for (final e in m['guardrailMetrics']! as List<Object?>) ExperimentMetric.fromJson(e!)],
+      minimumSampleSize: m['minimumSampleSize'] == null ? null : (m['minimumSampleSize']! as num).toInt(),
+      salt: m['salt'] == null ? null : m['salt']! as String,
+    );
+  }
+
+  /// Version of the document schema (SCH-000). Older documents are migrated
+  /// before validation.
+  final String schemaVersion;
+  final String kind;
+  /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+  final String id;
+  /// Identifier used in PXL and generated code: lowerCamelCase.
+  final String key;
+  final String? name;
+  /// Human-readable description.
+  final String? description;
+  /// What varies: a whole page, a component subtree (a `Variant` node), a prop
+  /// value, a flow, or the version of a plugin.
+  final ExperimentScope scope;
+  /// The props a `prop` experiment varies, read in PXL as
+  /// `experiment.<key>.<name>`; every variant gives each a value.
+  final List<Field>? props;
+  /// The control and the variants. Exactly one is the control and the weights
+  /// sum to 100 (PLX-1702, PLX-1703).
+  final List<ExperimentVariant> variants;
+  /// Identifier used in PXL and generated code: lowerCamelCase.
+  final String? layer;
+  /// The share of subjects, in percent, kept out of the experiment and shown
+  /// the control.
+  final double? holdout;
+  /// Human-readable lower-kebab slug, unique within its parent (SCH-002). Files
+  /// in the Git layout are named after it.
+  final String? segment;
+  /// When the experiment runs; both bounds are optional.
+  final ExperimentSchedule? schedule;
+  final ExperimentMetric primaryMetric;
+  final List<ExperimentMetric>? guardrailMetrics;
+  /// Subjects per variant before a result may be read.
+  final int? minimumSampleSize;
+  /// Mixed into the hash that assigns a subject to a variant, so two
+  /// experiments split the same subjects differently (ABT-002).
+  final String? salt;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'schemaVersion': schemaVersion,
+        'kind': kind,
+        'id': id,
+        'key': key,
+        if (name != null) 'name': name!,
+        if (description != null) 'description': description!,
+        'scope': scope.toJson(),
+        if (props != null) 'props': [for (final e in props!) e.toJson()],
+        'variants': [for (final e in variants) e.toJson()],
+        if (layer != null) 'layer': layer!,
+        if (holdout != null) 'holdout': holdout!,
+        if (segment != null) 'segment': segment!,
+        if (schedule != null) 'schedule': schedule!.toJson(),
+        'primaryMetric': primaryMetric.toJson(),
+        if (guardrailMetrics != null) 'guardrailMetrics': [for (final e in guardrailMetrics!) e.toJson()],
+        if (minimumSampleSize != null) 'minimumSampleSize': minimumSampleSize!,
+        if (salt != null) 'salt': salt!,
+      };
+}
+
+final class ExperimentMetric {
+  const ExperimentMetric({required this.event, this.kind, this.property, this.direction, this.maxRegression});
+
+  /// Decodes a JSON object.
+  factory ExperimentMetric.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return ExperimentMetric(
+      event: m['event']! as String,
+      kind: m['kind'] == null ? null : MetricKind.fromJson(m['kind']!),
+      property: m['property'] == null ? null : m['property']! as String,
+      direction: m['direction'] == null ? null : MetricDirection.fromJson(m['direction']!),
+      maxRegression: m['maxRegression'] == null ? null : (m['maxRegression']! as num).toDouble(),
+    );
+  }
+
+  /// The analytics event the metric counts.
+  final String event;
+  /// How a metric is analysed: the share of subjects that did the event, or the
+  /// mean of a numeric property of the event.
+  final MetricKind? kind;
+  /// Identifier used in PXL and generated code: lowerCamelCase.
+  final String? property;
+  /// Which change of the metric is an improvement.
+  final MetricDirection? direction;
+  /// For a guardrail: the largest relative worsening tolerated, as a fraction.
+  final double? maxRegression;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'event': event,
+        if (kind != null) 'kind': kind!.toJson(),
+        if (property != null) 'property': property!,
+        if (direction != null) 'direction': direction!.toJson(),
+        if (maxRegression != null) 'maxRegression': maxRegression!,
+      };
+}
+
+/// When the experiment runs; both bounds are optional.
+final class ExperimentSchedule {
+  const ExperimentSchedule({this.start, this.end});
+
+  /// Decodes a JSON object.
+  factory ExperimentSchedule.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return ExperimentSchedule(
+      start: m['start'] == null ? null : m['start']! as String,
+      end: m['end'] == null ? null : m['end']! as String,
+    );
+  }
+
+  final String? start;
+  final String? end;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (start != null) 'start': start!,
+        if (end != null) 'end': end!,
+      };
+}
+
+/// What varies: a whole page, a component subtree (a `Variant` node), a prop
+/// value, a flow, or the version of a plugin.
+enum ExperimentScope {
+  page('page'),
+  subtree('subtree'),
+  prop('prop'),
+  flow('flow'),
+  pluginVersion('pluginVersion');
+
+  const ExperimentScope(this.json);
+
+  /// Decodes a JSON value.
+  factory ExperimentScope.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown ExperimentScope', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
+final class ExperimentVariant {
+  const ExperimentVariant({required this.name, this.control, required this.weight, this.props, this.description});
+
+  /// Decodes a JSON object.
+  factory ExperimentVariant.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return ExperimentVariant(
+      name: m['name']! as String,
+      control: m['control'] == null ? null : m['control']! as bool,
+      weight: (m['weight']! as num).toDouble(),
+      props: m['props'] == null ? null : {for (final e in (m['props']! as Map<String, Object?>).entries) e.key: e.value},
+      description: m['description'] == null ? null : m['description']! as String,
+    );
+  }
+
+  /// Identifier used in PXL and generated code: lowerCamelCase.
+  final String name;
+  /// Marks the control.
+  final bool? control;
+  /// The share of subjects, in percent.
+  final double weight;
+  /// The value of each declared prop for this variant.
+  final Map<String, Object?>? props;
+  /// Human-readable description.
+  final String? description;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'name': name,
+        if (control != null) 'control': control!,
+        'weight': weight,
+        if (props != null) 'props': {for (final e in props!.entries) e.key: e.value},
+        if (description != null) 'description': description!,
+      };
+}
+
 /// PXL binding (SCH-011).
 final class Expr {
   const Expr({required this.expr});
@@ -1342,6 +1552,90 @@ final class FlagDecl {
         'type': type.toJson(),
         'default': defaultValue,
         if (description != null) 'description': description!,
+      };
+}
+
+/// A typed feature flag with its default and its value per segment, read in PXL
+/// as `flags.<key>` and through generated host accessors (ABT-006). File:
+/// `flags/<key>.flag.json`.
+final class FlagDocument {
+  const FlagDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, this.description, required this.type, this.schema, required this.defaultValue, this.segments});
+
+  /// Decodes a JSON object.
+  factory FlagDocument.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FlagDocument(
+      schemaVersion: m['schemaVersion']! as String,
+      kind: m['kind']! as String,
+      id: m['id']! as String,
+      key: m['key']! as String,
+      description: m['description'] == null ? null : m['description']! as String,
+      type: m['type']! as String,
+      schema: m.containsKey('schema') ? JsonValue(m['schema']) : null,
+      defaultValue: m['default'],
+      segments: m['segments'] == null ? null : [for (final e in m['segments']! as List<Object?>) FlagSegmentValue.fromJson(e!)],
+    );
+  }
+
+  /// Version of the document schema (SCH-000). Older documents are migrated
+  /// before validation.
+  final String schemaVersion;
+  final String kind;
+  /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+  final String id;
+  /// Identifier used in PXL and generated code: lowerCamelCase.
+  final String key;
+  /// Human-readable description.
+  final String? description;
+  /// The flag's type: `bool`, `number`, `string` or `json`. The compiler
+  /// refuses any other (PLX-1701).
+  final String type;
+  /// For a `json` flag: the JSON Schema its values must satisfy.
+  final JsonValue? schema;
+  /// A JSON value interpreted against a declared type (defaults, mocks,
+  /// environment values).
+  final Object? defaultValue;
+  /// The value for each segment, in order: the first segment a subject belongs
+  /// to wins.
+  final List<FlagSegmentValue>? segments;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'schemaVersion': schemaVersion,
+        'kind': kind,
+        'id': id,
+        'key': key,
+        if (description != null) 'description': description!,
+        'type': type,
+        if (schema != null) 'schema': schema!.value,
+        'default': defaultValue,
+        if (segments != null) 'segments': [for (final e in segments!) e.toJson()],
+      };
+}
+
+final class FlagSegmentValue {
+  const FlagSegmentValue({required this.segment, required this.value});
+
+  /// Decodes a JSON object.
+  factory FlagSegmentValue.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FlagSegmentValue(
+      segment: m['segment']! as String,
+      value: m['value'],
+    );
+  }
+
+  /// Human-readable lower-kebab slug, unique within its parent (SCH-002). Files
+  /// in the Git layout are named after it.
+  final String segment;
+  /// A JSON value interpreted against a declared type (defaults, mocks,
+  /// environment values).
+  final Object? value;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'segment': segment,
+        'value': value,
       };
 }
 
@@ -2096,6 +2390,43 @@ enum MediaType {
   String toJson() => json;
 }
 
+/// Which change of the metric is an improvement.
+enum MetricDirection {
+  increase('increase'),
+  decrease('decrease');
+
+  const MetricDirection(this.json);
+
+  /// Decodes a JSON value.
+  factory MetricDirection.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown MetricDirection', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
+/// How a metric is analysed: the share of subjects that did the event, or the
+/// mean of a numeric property of the event.
+enum MetricKind {
+  proportion('proportion'),
+  mean('mean');
+
+  const MetricKind(this.json);
+
+  /// Decodes a JSON value.
+  factory MetricKind.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown MetricKind', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
 /// Generated monogram icon.
 final class Monogram {
   const Monogram({required this.text, required this.background});
@@ -2322,10 +2653,11 @@ final class NavigationPolicy {
       };
 }
 
-/// A node of a page or component tree: a widget or a component instance
-/// (SCH-023).
+/// A node of a page or component tree: a widget, a component instance or, with
+/// the reserved type `Variant`, the subtrees of an experiment's variants
+/// (SCH-023, ABT-001).
 final class Node {
-  const Node({required this.id, this.type, this.component, this.props, this.events, this.children, this.slots, this.visible, this.semantics, this.testId, this.responsive, this.animation, this.direction, this.localeOverrides, this.a11yWaivers});
+  const Node({required this.id, this.type, this.component, this.props, this.events, this.children, this.slots, this.visible, this.semantics, this.testId, this.responsive, this.animation, this.direction, this.localeOverrides, this.a11yWaivers, this.experiment, this.control, this.variants});
 
   /// Decodes a JSON object.
   factory Node.fromJson(Object json) {
@@ -2346,6 +2678,9 @@ final class Node {
       direction: m['direction'] == null ? null : TextDirection.fromJson(m['direction']!),
       localeOverrides: m['localeOverrides'] == null ? null : {for (final e in (m['localeOverrides']! as Map<String, Object?>).entries) e.key: {for (final e in (e.value! as Map<String, Object?>).entries) e.key: e.value}},
       a11yWaivers: m['a11yWaivers'] == null ? null : {for (final e in (m['a11yWaivers']! as Map<String, Object?>).entries) e.key: e.value! as String},
+      experiment: m['experiment'] == null ? null : m['experiment']! as String,
+      control: m['control'] == null ? null : Node.fromJson(m['control']!),
+      variants: m['variants'] == null ? null : {for (final e in (m['variants']! as Map<String, Object?>).entries) e.key: Node.fromJson(e.value!)},
     );
   }
 
@@ -2380,6 +2715,15 @@ final class Node {
   final Map<String, Map<String, Object?>>? localeOverrides;
   /// Accessibility checks waived, each with its justification (A11Y-008).
   final Map<String, String>? a11yWaivers;
+  /// On a `Variant` node: the key of the experiment whose assigned variant this
+  /// node shows (ABT-001, ABT-002).
+  final String? experiment;
+  /// On a `Variant` node: the subtree shown for the control, and for a variant
+  /// that has no subtree of its own (ABT-001).
+  final Node? control;
+  /// On a `Variant` node: the subtree of each non-control variant, by the
+  /// variant's name (ABT-001).
+  final Map<String, Node>? variants;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -2398,6 +2742,9 @@ final class Node {
         if (direction != null) 'direction': direction!.toJson(),
         if (localeOverrides != null) 'localeOverrides': {for (final e in localeOverrides!.entries) e.key: {for (final e in e.value.entries) e.key: e.value}},
         if (a11yWaivers != null) 'a11yWaivers': {for (final e in a11yWaivers!.entries) e.key: e.value},
+        if (experiment != null) 'experiment': experiment!,
+        if (control != null) 'control': control!.toJson(),
+        if (variants != null) 'variants': {for (final e in variants!.entries) e.key: e.value.toJson()},
       };
 }
 
@@ -2537,8 +2884,9 @@ final class PageDocument {
   final RouteOptions? routeOptions;
   /// Security flags (SCH-022).
   final PageSecurity? security;
-  /// A node of a page or component tree: a widget or a component instance
-  /// (SCH-023).
+  /// A node of a page or component tree: a widget, a component instance or,
+  /// with the reserved type `Variant`, the subtrees of an experiment's variants
+  /// (SCH-023, ABT-001).
   final Node root;
   /// The forms of the page (STA-020).
   final List<Form>? forms;
@@ -2794,6 +3142,204 @@ final class PluginDocument {
         if (dataSources != null) 'dataSources': [for (final e in dataSources!) e.toJson()],
         if (triggers != null) 'triggers': triggers!.toJson(),
       };
+}
+
+/// An approval policy: which changes it applies to and what approval they need
+/// (GOV-020). File: `policies/<key>.policy.json`.
+final class PolicyDocument {
+  const PolicyDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, required this.name, this.description, required this.match, required this.require});
+
+  /// Decodes a JSON object.
+  factory PolicyDocument.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return PolicyDocument(
+      schemaVersion: m['schemaVersion']! as String,
+      kind: m['kind']! as String,
+      id: m['id']! as String,
+      key: m['key']! as String,
+      name: m['name']! as String,
+      description: m['description'] == null ? null : m['description']! as String,
+      match: PolicyMatch.fromJson(m['match']!),
+      require: PolicyRequire.fromJson(m['require']!),
+    );
+  }
+
+  /// Version of the document schema (SCH-000). Older documents are migrated
+  /// before validation.
+  final String schemaVersion;
+  final String kind;
+  /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+  final String id;
+  /// Human-readable lower-kebab slug, unique within its parent (SCH-002). Files
+  /// in the Git layout are named after it.
+  final String key;
+  final String name;
+  /// Human-readable description.
+  final String? description;
+  /// The changes a policy applies to: a change matches when it satisfies every
+  /// attribute listed; an attribute left out matches anything.
+  final PolicyMatch match;
+  /// What approval a matching change needs.
+  final PolicyRequire require;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'schemaVersion': schemaVersion,
+        'kind': kind,
+        'id': id,
+        'key': key,
+        'name': name,
+        if (description != null) 'description': description!,
+        'match': match.toJson(),
+        'require': require.toJson(),
+      };
+}
+
+/// The changes a policy applies to: a change matches when it satisfies every
+/// attribute listed; an attribute left out matches anything.
+final class PolicyMatch {
+  const PolicyMatch({this.resources, this.environments, this.actions, this.production, this.risk});
+
+  /// Decodes a JSON object.
+  factory PolicyMatch.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return PolicyMatch(
+      resources: m['resources'] == null ? null : [for (final e in m['resources']! as List<Object?>) PolicyResource.fromJson(e!)],
+      environments: m['environments'] == null ? null : [for (final e in m['environments']! as List<Object?>) e! as String],
+      actions: m['actions'] == null ? null : [for (final e in m['actions']! as List<Object?>) e! as String],
+      production: m['production'] == null ? null : m['production']! as bool,
+      risk: m['risk'] == null ? null : [for (final e in m['risk']! as List<Object?>) PolicyRisk.fromJson(e!)],
+    );
+  }
+
+  final List<PolicyResource>? resources;
+  final List<String>? environments;
+  final List<String>? actions;
+  /// Whether the change is to a production environment: true matches production
+  /// environments only, false the others, and left out both. The environment
+  /// keys of `environments` name environments one by one; this names the class,
+  /// so that a policy covers a production environment added later.
+  final bool? production;
+  /// Risk attributes that must all hold.
+  final List<PolicyRisk>? risk;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (resources != null) 'resources': [for (final e in resources!) e.toJson()],
+        if (environments != null) 'environments': [for (final e in environments!) e],
+        if (actions != null) 'actions': [for (final e in actions!) e],
+        if (production != null) 'production': production!,
+        if (risk != null) 'risk': [for (final e in risk!) e.toJson()],
+      };
+}
+
+/// What approval a matching change needs.
+final class PolicyRequire {
+  const PolicyRequire({required this.approvers, this.roles, this.users, this.distinctFromAuthor, this.distinctTeams, this.stages, this.expiryHours});
+
+  /// Decodes a JSON object.
+  factory PolicyRequire.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return PolicyRequire(
+      approvers: (m['approvers']! as num).toInt(),
+      roles: m['roles'] == null ? null : [for (final e in m['roles']! as List<Object?>) e! as String],
+      users: m['users'] == null ? null : [for (final e in m['users']! as List<Object?>) e! as String],
+      distinctFromAuthor: m['distinctFromAuthor'] == null ? null : m['distinctFromAuthor']! as bool,
+      distinctTeams: m['distinctTeams'] == null ? null : m['distinctTeams']! as bool,
+      stages: m['stages'] == null ? null : PolicyStages.fromJson(m['stages']!),
+      expiryHours: m['expiryHours'] == null ? null : (m['expiryHours']! as num).toInt(),
+    );
+  }
+
+  /// How many approvals are needed.
+  final int approvers;
+  /// Roles whose members may approve.
+  final List<String>? roles;
+  /// Named approvers, by user identifier.
+  final List<String>? users;
+  /// The author's own approval does not count.
+  final bool? distinctFromAuthor;
+  /// The approvals must come from different teams.
+  final bool? distinctTeams;
+  /// Whether approvers decide one after the other, in the order of the roles
+  /// and names listed, or all at once.
+  final PolicyStages? stages;
+  /// How long a request stays open and how long an approval counts.
+  final int? expiryHours;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'approvers': approvers,
+        if (roles != null) 'roles': [for (final e in roles!) e],
+        if (users != null) 'users': [for (final e in users!) e],
+        if (distinctFromAuthor != null) 'distinctFromAuthor': distinctFromAuthor!,
+        if (distinctTeams != null) 'distinctTeams': distinctTeams!,
+        if (stages != null) 'stages': stages!.toJson(),
+        if (expiryHours != null) 'expiryHours': expiryHours!,
+      };
+}
+
+/// A kind of artifact an approval can guard.
+enum PolicyResource {
+  release('release'),
+  functionVersion('functionVersion'),
+  policy('policy'),
+  securityConfiguration('securityConfiguration'),
+  limit('limit'),
+  capabilitySet('capabilitySet'),
+  experiment('experiment'),
+  waiver('waiver'),
+  goldenBaseline('goldenBaseline');
+
+  const PolicyResource(this.json);
+
+  /// Decodes a JSON value.
+  factory PolicyResource.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown PolicyResource', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
+/// A risk attribute the compiler and the release service compute from a change.
+enum PolicyRisk {
+  touchesSecurePage('touchesSecurePage'),
+  touchesMoneyFlow('touchesMoneyFlow'),
+  changesFunctionUsedBy('changesFunctionUsedBy');
+
+  const PolicyRisk(this.json);
+
+  /// Decodes a JSON value.
+  factory PolicyRisk.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown PolicyRisk', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
+/// Whether approvers decide one after the other, in the order of the roles and
+/// names listed, or all at once.
+enum PolicyStages {
+  sequential('sequential'),
+  parallel('parallel');
+
+  const PolicyStages(this.json);
+
+  /// Decodes a JSON value.
+  factory PolicyStages.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown PolicyStages', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
 }
 
 /// Push notifications (NAV-008, ADR-0040): whether the app uses them, so a
@@ -3389,6 +3935,121 @@ enum SecurityProfile {
   String toJson() => json;
 }
 
+/// A named audience: a rule over the attributes of a device, its build and its
+/// user, evaluated by rollouts on the server and by flags and experiments on
+/// the device (REL-051, ABT-001, ABT-006). File: `segments/<key>.segment.json`.
+final class SegmentDocument {
+  const SegmentDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, required this.name, this.description, required this.rule});
+
+  /// Decodes a JSON object.
+  factory SegmentDocument.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return SegmentDocument(
+      schemaVersion: m['schemaVersion']! as String,
+      kind: m['kind']! as String,
+      id: m['id']! as String,
+      key: m['key']! as String,
+      name: m['name']! as String,
+      description: m['description'] == null ? null : m['description']! as String,
+      rule: SegmentRule.fromJson(m['rule']!),
+    );
+  }
+
+  /// Version of the document schema (SCH-000). Older documents are migrated
+  /// before validation.
+  final String schemaVersion;
+  final String kind;
+  /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+  final String id;
+  /// Human-readable lower-kebab slug, unique within its parent (SCH-002). Files
+  /// in the Git layout are named after it.
+  final String key;
+  final String name;
+  /// Human-readable description.
+  final String? description;
+  /// One condition (`attribute`, `operator`, `value`) or a group of rules
+  /// combined with `all` (every rule holds) or `any` (at least one holds). The
+  /// compiler checks the attribute, the operator and the value (PLX-1704).
+  final SegmentRule rule;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'schemaVersion': schemaVersion,
+        'kind': kind,
+        'id': id,
+        'key': key,
+        'name': name,
+        if (description != null) 'description': description!,
+        'rule': rule.toJson(),
+      };
+}
+
+/// How a condition compares an attribute with its value: equality, membership
+/// in a list, or an ordering on numbers and versions.
+enum SegmentOperator {
+  eq('eq'),
+  neq('neq'),
+  inValue('in'),
+  notIn('notIn'),
+  lt('lt'),
+  lte('lte'),
+  gt('gt'),
+  gte('gte');
+
+  const SegmentOperator(this.json);
+
+  /// Decodes a JSON value.
+  factory SegmentOperator.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown SegmentOperator', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
+/// One condition (`attribute`, `operator`, `value`) or a group of rules
+/// combined with `all` (every rule holds) or `any` (at least one holds). The
+/// compiler checks the attribute, the operator and the value (PLX-1704).
+final class SegmentRule {
+  const SegmentRule({this.attribute, this.operator, this.value, this.all, this.any});
+
+  /// Decodes a JSON object.
+  factory SegmentRule.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return SegmentRule(
+      attribute: m['attribute'] == null ? null : m['attribute']! as String,
+      operator: m['operator'] == null ? null : SegmentOperator.fromJson(m['operator']!),
+      value: m.containsKey('value') ? JsonValue(m['value']) : null,
+      all: m['all'] == null ? null : [for (final e in m['all']! as List<Object?>) SegmentRule.fromJson(e!)],
+      any: m['any'] == null ? null : [for (final e in m['any']! as List<Object?>) SegmentRule.fromJson(e!)],
+    );
+  }
+
+  /// A targeting attribute: `build`, `runtimeVersion`, `os`, `osVersion`,
+  /// `deviceClass`, `locale`, `region`, `channel`, or `user.<name>` for an
+  /// attribute of the user context.
+  final String? attribute;
+  /// How a condition compares an attribute with its value: equality, membership
+  /// in a list, or an ordering on numbers and versions.
+  final SegmentOperator? operator;
+  /// The value to compare with: a string, a number, a boolean or, for `in` and
+  /// `notIn`, a list of them.
+  final JsonValue? value;
+  final List<SegmentRule>? all;
+  final List<SegmentRule>? any;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (attribute != null) 'attribute': attribute!,
+        if (operator != null) 'operator': operator!.toJson(),
+        if (value != null) 'value': value!.value,
+        if (all != null) 'all': [for (final e in all!) e.toJson()],
+        if (any != null) 'any': [for (final e in any!) e.toJson()],
+      };
+}
+
 /// Accessibility semantics of a node (A11Y-002).
 final class Semantics {
   const Semantics({this.label, this.hint, this.value, this.header, this.button, this.liveRegion, this.excludeSemantics, this.focusOrder, this.group, this.headingLevel, this.decorative});
@@ -3900,8 +4561,9 @@ final class TemplateDocument {
   final TemplateVisibility visibility;
   /// What the subtree uses.
   final TemplateDependencies? dependencies;
-  /// A node of a page or component tree: a widget or a component instance
-  /// (SCH-023).
+  /// A node of a page or component tree: a widget, a component instance or,
+  /// with the reserved type `Variant`, the subtrees of an experiment's variants
+  /// (SCH-023, ABT-001).
   final Node root;
 
   /// Encodes a JSON object.

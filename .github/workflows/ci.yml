@@ -54,6 +54,10 @@ on:
         description: With only e2e-ios, e2e-android or e2e-android-26, run only this flow (bank, say)
         type: string
         default: ""
+      walkthrough-skip:
+        description: With only walkthrough, the steps to leave out of a quicker, partial run (03-staged-rollout, say); a step later steps need runs only its setup
+        type: string
+        default: ""
 
 permissions: {}
 
@@ -379,8 +383,9 @@ jobs:
           #   BSD-3-Clause  the Dart team packages below, go_router,
           #                 material_ui and cupertino_ui (Flutter team),
           #                 intl, golang.org/x/net,
-          #                 x/sync, x/sys and x/text
-          #                 (plus the Go PATENTS grant, which adds rights);
+          #                 x/sync, x/sys and x/text, ProtonMail/go-crypto
+          #                 (go-git's; plus the Go PATENTS grant, which
+          #                 adds rights);
           #                 cross_file, file_selector_*,
           #                 image_picker_platform_interface and url_launcher*
           #                 (Flutter team), mobile_scanner, win32;
@@ -390,6 +395,8 @@ jobs:
           #                 and video_player* (Flutter team; the web
           #                 plugin also carries to_screen_location's MIT),
           #                 markdown, qr, stream_transform, dart_polylabel2
+          #   BSD-2-Clause  emirpasic/gods (go-git's), with an ISC section
+          #   MIT-0         segmentio/asm (parquet-go's and ClickHouse's)
           #   MIT           auto_route, flutter_riverpod, node_preamble,
           #                 petitparser, riverpod, xml; yaml is BSD-3-Clause
           #                 and MIT; archive, drift, sqlite3, lottie, rive,
@@ -400,7 +407,10 @@ jobs:
           #   MPL-2.0       dbus, gsettings; riverqueue/river/rivershared,
           #                 with a vendored MIT levenshtein package
           allow-dependencies-licenses: >-
+            pkg:golang/github.com/ProtonMail/go-crypto,
+            pkg:golang/github.com/emirpasic/gods,
             pkg:golang/github.com/riverqueue/river/rivershared,
+            pkg:golang/github.com/segmentio/asm,
             pkg:golang/golang.org/x/net, pkg:golang/golang.org/x/sync,
             pkg:golang/golang.org/x/sys, pkg:golang/golang.org/x/text,
             pkg:pub/_fe_analyzer_shared, pkg:pub/analyzer,
@@ -640,7 +650,9 @@ jobs:
     needs: changes
     if: fromJSON(needs.changes.outputs.jobs)['go-test']
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # P9's integration tests took the race run past 20 minutes (run
+    # 39733923984 was cancelled in internal/server).
+    timeout-minutes: 30
     permissions:
       contents: read
     strategy:
@@ -877,6 +889,9 @@ jobs:
           cache: false # reproducibility is checked with cold caches
       - name: Build
         run: make go-build
+      # Verifies: GOV-033.
+      - name: The core builds and tests without ee/
+        run: make go-test-core
       # Verifies: CI-006.
       - name: Reproducible build
         run: make go-reproducible
@@ -1956,6 +1971,206 @@ jobs:
 
   # ── Gate ─────────────────────────────────────────────────────────────────
 
+  # The Helm chart (DEP-003, DEP-004): lint, render for every ci/*-values.yaml
+  # and validate against the Kubernetes and CloudNativePG schemas, Pod
+  # Security "restricted" and L-4 (deploy/helm/lint.sh).
+  helm:
+    name: Helm lint and render
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['helm']
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Install the pinned Helm, kind and kubeconform
+        run: make install-helm-tools
+      # Verifies: DEP-003, DEP-004.
+      - name: Lint, render and validate the chart
+        run: make helm-lint
+
+  # The chart installed on a kind cluster with CloudNativePG: helm test, a
+  # rolling upgrade and failovers (deploy/helm/e2e-kind.sh). It takes long,
+  # so pushes skip it; the daily run, manual runs and pull requests that
+  # change the chart or the server image run it (ADR-0043).
+  kind:
+    name: Kubernetes HA (kind)
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['kind']
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Install the pinned Helm, kind and kubeconform
+        run: make install-helm-tools
+      # Verifies: DEP-003, DEP-004.
+      - name: Install the chart on kind, test, upgrade and fail over
+        run: make e2e-kind
+
+  # The backup restore drill on kind (deploy/helm/restore-drill.sh): restore
+  # into a new namespace at a random point in the last hour, verify
+  # releases, bundles and the audit chain, and measure RPO and RTO. Daily,
+  # manual runs and pull requests that change the chart or the image.
+  restore-drill:
+    name: Restore drill (kind)
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['restore-drill']
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Install the pinned Helm, kind and kubeconform
+        run: make install-helm-tools
+      # Verifies: DEP-010.
+      - name: Restore from the backups and verify the installation
+        run: make restore-drill
+
+  # The air-gapped install (deploy/helm/airgap-kind.sh): build and verify
+  # the bundle, then install it on kind with outbound networking denied and
+  # images from a local registry (skopeo and registry:2, approved
+  # 2026-10-21). Daily, manual runs and pull requests that change the
+  # chart, the image or the bundle tool.
+  airgap:
+    name: Air-gapped install (kind)
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['airgap']
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Install the pinned Helm, kind and kubeconform
+        run: make install-helm-tools
+      # Verifies: DEP-040.
+      - name: Build, verify and install the air-gapped bundle
+        run: make airgap-kind
+
+  # The scripted regulated-industry audit walkthrough
+  # (test/walkthrough/walkthrough-kind.sh): the HA chart on kind, the nine
+  # steps with the plux CLI and a synthetic fleet, and the signed evidence
+  # bundle, which is kept as an artifact. The person-facing hooks are the
+  # software authenticator of tools/cmd/webauthn-driver. Daily, manual runs
+  # and pull requests that change the walkthrough, its driver, the chart or
+  # the image.
+  walkthrough:
+    name: Audit walkthrough (kind)
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['walkthrough']
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Install the pinned Helm, kind and kubeconform
+        run: make install-helm-tools
+      # Step 2 deploys the Plux Bank function: plux fn deploy vendors the
+      # crate with the pinned toolchain, and the builder role's sandbox,
+      # running in the kind node, needs unprivileged user namespaces, which
+      # Ubuntu 24.04 restricts through AppArmor by default.
+      - name: Install the pinned Rust toolchain
+        working-directory: sdk/fn
+        run: rustup show active-toolchain || rustup toolchain install
+      - name: Allow unprivileged user namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      # The enterprise licence is signed offline with the production key and
+      # kept in the repository secret PLUX_TEST_LICENSE; no signing key for
+      # licences is in the code. Without the secret (a fork, or before the
+      # maintainer has added it) the walkthrough is skipped and the job passes.
+      - name: Write the test licence
+        id: licence
+        env:
+          PLUX_TEST_LICENSE: ${{ secrets.PLUX_TEST_LICENSE }}
+        run: |
+          if [ -z "$PLUX_TEST_LICENSE" ]; then
+            echo "::notice title=Audit walkthrough skipped::the secret PLUX_TEST_LICENSE is empty, so the enterprise features cannot be licensed"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          file="$(mktemp "$RUNNER_TEMP/licence.XXXXXX")"
+          chmod 600 "$file"
+          printf '%s' "$PLUX_TEST_LICENSE" > "$file"
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+          echo "present=true" >> "$GITHUB_OUTPUT"
+      # Verifies: SEC-103, GOV-030, GOV-033.
+      - name: Run the walkthrough and verify its evidence bundle
+        if: steps.licence.outputs.present == 'true'
+        env:
+          WALKTHROUGH_LICENSE_FILE: ${{ steps.licence.outputs.file }}
+          # Set only by a manual run that leaves steps out.
+          WALKTHROUGH_SKIP: ${{ inputs.walkthrough-skip }}
+        run: make walkthrough-kind
+      - name: Remove the test licence
+        if: always() && steps.licence.outputs.present == 'true'
+        env:
+          LICENCE_FILE: ${{ steps.licence.outputs.file }}
+        run: rm -f "$LICENCE_FILE"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: walkthrough-evidence
+          path: walkthrough-out/
+          if-no-files-found: ignore
+
+  # The OpenTofu modules (deploy/iac): format, init, validate, the
+  # mock-provider tests and the policy checks. Init needs the provider
+  # registry, which agent sessions cannot reach, so CI is where they run.
+  iac:
+    name: Infrastructure as code
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['iac']
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      # Verifies: DEP-050.
+      - name: Check, validate and test the OpenTofu modules
+        run: make iac-check
+
   ci-ok:
     name: CI OK
     if: always()
@@ -1976,6 +2191,12 @@ jobs:
       - api-contract
       - go-test
       - compose
+      - helm
+      - kind
+      - restore-drill
+      - airgap
+      - walkthrough
+      - iac
       - zap-api
       - image-arm64
       - wasm-codecs

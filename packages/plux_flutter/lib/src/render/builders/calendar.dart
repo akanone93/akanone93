@@ -6,6 +6,8 @@
 /// The ID comes from the generated registry (BND-011).
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:plux_flutter/src/l10n/calendar/calendar.dart';
 import 'package:plux_flutter/src/l10n/scope.dart';
@@ -158,7 +160,12 @@ class DualCalendarView extends StatefulWidget {
     required this.firstJdn,
     required this.lastJdn,
     required this.onChanged,
+    this.now,
   });
+
+  /// The clock that gives today when there is no [value]; the system clock
+  /// when null.
+  final DateTime Function()? now;
 
   /// The calendar of the grid.
   final CalendarSystem primary;
@@ -189,13 +196,26 @@ class _DualCalendarViewState extends State<DualCalendarView> {
   @override
   void initState() {
     super.initState();
-    _show(widget.value ?? widget.firstJdn);
+    _show(_openingJdn);
   }
 
   @override
   void didUpdateWidget(DualCalendarView old) {
     super.didUpdateWidget(old);
-    if (old.primary != widget.primary) _show(widget.value ?? widget.firstJdn);
+    if (old.primary != widget.primary) _show(_openingJdn);
+  }
+
+  /// The day the grid opens on: the value, else today clamped into the
+  /// selectable range. Only the displayed month depends on this; the range
+  /// itself is unchanged.
+  int get _openingJdn {
+    final v = widget.value;
+    if (v != null) return v;
+    final now = (widget.now ?? DateTime.now)();
+    final today = calendarSystem(gregorianId)!
+        .toJdn(CalendarYmd(now.year, now.month, now.day));
+    // min(max(...)) rather than clamp, so an inverted range never throws.
+    return math.min(math.max(today, widget.firstJdn), widget.lastJdn);
   }
 
   void _show(int jdn) {

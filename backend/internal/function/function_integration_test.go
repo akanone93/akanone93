@@ -213,7 +213,7 @@ func (w *world) populate(t *testing.T) {
 	if _, err := w.auth.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	w.adminID = auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	w.adminID = auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	o, err := w.tenancy.CreateOrganization(ctx, w.adminID, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)
@@ -224,8 +224,8 @@ func (w *world) populate(t *testing.T) {
 	}
 	w.app, w.envs = w.makeApp(t, "demo")
 	w.otherApp, w.otherEnvs = w.makeApp(t, "other")
-	w.developer = w.member(t, "dev@example.com", "developer", true)
-	w.viewer = w.member(t, "viewer@example.com", "viewer", true)
+	w.developer = w.member(t, "dev@example.com", "developer")
+	w.viewer = w.member(t, "viewer@example.com", "viewer")
 }
 
 func (w *world) makeApp(t *testing.T, key string) (string, map[string]string) {
@@ -246,13 +246,14 @@ func (w *world) makeApp(t *testing.T, key string) (string, map[string]string) {
 	return a.ID, out
 }
 
-func (w *world) member(t *testing.T, email, role string, secondFactor bool) auth.Principal {
+func (w *world) member(t *testing.T, email, role string) auth.Principal {
 	t.Helper()
 	m, _, err := w.tenancy.AddMember(context.Background(), w.owner, "", email, role)
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := w.auth.Resolve(context.Background(), auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: role, SecondFactor: secondFactor}, w.org)
+	id := auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: role, SecondFactor: true}.WithStepUp(0)
+	p, err := w.auth.Resolve(context.Background(), id, w.org)
 	if err != nil {
 		t.Fatal(err)
 	}

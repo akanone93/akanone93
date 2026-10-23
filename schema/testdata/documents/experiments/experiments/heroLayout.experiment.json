@@ -1,0 +1,24 @@
+{
+  "id": "01f0c450-6c00-7000-8000-000000000706",
+  "key": "heroLayout",
+  "kind": "experiment",
+  "primaryMetric": {
+    "direction": "increase",
+    "event": "purchase",
+    "kind": "proportion"
+  },
+  "salt": "hero-layout-1",
+  "schemaVersion": "1.0.0",
+  "scope": "subtree",
+  "variants": [
+    {
+      "control": true,
+      "name": "control",
+      "weight": 50
+    },
+    {
+      "name": "wide",
+      "weight": 50
+    }
+  ]
+}

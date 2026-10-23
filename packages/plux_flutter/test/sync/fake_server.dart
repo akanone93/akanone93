@@ -231,6 +231,14 @@ final class FakePluxServer {
   /// (SEC-050); the manifest then carries the targets version.
   FakeMetadata? metadata;
 
+  /// The signed control document `GetSignedControl` serves (SYN-060), or
+  /// null for none, and its ETag.
+  Uint8List? controlFile;
+  String controlEtag = '"c1"';
+
+  /// The `If-None-Match` of every control request, in order.
+  final List<String> controlAsked = [];
+
   /// Deltas it can serve, by `from→to` bundle hashes.
   final Map<String, Uint8List> deltas = {};
 
@@ -313,6 +321,12 @@ final class FakePluxServer {
 
   /// The `configVersion` of each manifest request, in order.
   final List<Object?> configVersionsSeen = [];
+
+  /// The `deviceTargeting` member of every manifest request (REL-051).
+  final List<Object?> deviceTargetingSeen = [];
+
+  /// The body of every installed-release report (SEC-142).
+  final List<Map<String, Object?>> installedReports = [];
 
   /// Whether `GatewayService.Call` answers (DAT-095, DAT-096); off, it is
   /// not found, as for a server without a gateway.
@@ -571,6 +585,7 @@ final class FakePluxServer {
           },
         );
       case '/plux.v1.DeviceService/ReportInstalled':
+        installedReports.add(body);
         return (200, <String, Object?>{});
       case '/plux.v1.DeviceService/ReattestDevice':
         reattestations++;
@@ -582,6 +597,9 @@ final class FakePluxServer {
         final batch = (body['events']! as List<Object?>)
             .cast<Map<String, Object?>>();
         events.addAll(batch);
+        if (body['installed'] case final Map<String, Object?> installed) {
+          installedReports.add(installed);
+        }
         return (200, {'accepted': batch.length});
       case '/plux.v1.ConfigService/GetLiveConfig':
         if (!authed) {
@@ -622,13 +640,30 @@ final class FakePluxServer {
           },
         );
       case '/plux.v1.ManifestService/GetRootKeys':
-        if (!authed || metadata == null) {
+        if (!authed || (metadata == null && controlFile == null)) {
           return (401, {'code': 'unauthenticated', 'message': 'no token'});
+        }
+        if (metadata == null) {
+          return (200, {'keys': <Object?>[], 'roots': <Object?>[]});
         }
         return (
           200,
           metadata!.rootKeys(int.parse(body['sinceRootVersion']! as String)),
         );
+      case '/plux.v1.ManifestService/GetSignedControl':
+        if (!authed) {
+          return (401, {'code': 'unauthenticated', 'message': 'no token'});
+        }
+        final file = controlFile;
+        if (file == null) {
+          return (404, {'code': 'not_found', 'message': 'no control document'});
+        }
+        final held = body['ifNoneMatch'] as String? ?? '';
+        controlAsked.add(held);
+        if (held == controlEtag) {
+          return (200, {'notModified': true, 'etag': controlEtag});
+        }
+        return (200, {'etag': controlEtag, 'signed': base64.encode(file)});
       case '/plux.v1.ManifestService/GetManifest':
         if (!authed) {
           return (401, {'code': 'unauthenticated', 'message': 'no token'});
@@ -660,6 +695,7 @@ final class FakePluxServer {
     Uint8List pluginBytes(String key) =>
         sealed?.bundles[key] ?? r.plugins[key]!;
     configVersionsSeen.add(req['configVersion']);
+    deviceTargetingSeen.add(req['deviceTargeting']);
     final deviceConfig = int.parse('${req['configVersion'] ?? 0}');
     final installed = {
       for (final i

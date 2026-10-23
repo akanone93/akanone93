@@ -1,0 +1,1231 @@
+{
+ "description": "Events and queries every analytics.Store must answer identically (ANL-010). Expected holds the points of each query, as the PostgreSQL store returns them; identifiers are symbolic. Durations are exact binary fractions so that sums do not depend on the order of addition.",
+ "from": "2026-10-20T00:00:00Z",
+ "to": "2026-10-22T00:00:00Z",
+ "events": [
+  {
+   "id": "00000000-0000-7000-8000-000000000001",
+   "name": "screen_view",
+   "at": "2026-10-20T10:01:00Z",
+   "release": 3,
+   "plugin": "",
+   "route": "/home",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 12
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000002",
+   "name": "screen_view",
+   "at": "2026-10-20T10:02:30Z",
+   "release": 3,
+   "plugin": "",
+   "route": "/home",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 48
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000003",
+   "name": "screen_view",
+   "at": "2026-10-20T10:04:59Z",
+   "release": 3,
+   "plugin": "",
+   "route": "/cart",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 700
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000004",
+   "name": "screen_view",
+   "at": "2026-10-20T10:05:00Z",
+   "release": 4,
+   "plugin": "",
+   "route": "/home",
+   "class": "tablet",
+   "locale": "en-GB",
+   "fields": {
+    "duration_ms": 3
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000005",
+   "name": "screen_view",
+   "at": "2026-10-20T10:58:00Z",
+   "release": 4,
+   "plugin": "",
+   "route": "/home",
+   "class": "tablet",
+   "locale": "en-GB",
+   "fields": {
+    "duration_ms": 80000
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000006",
+   "name": "screen_view",
+   "at": "2026-10-20T11:00:00Z",
+   "release": 4,
+   "plugin": "",
+   "route": "/home",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 0.5
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000007",
+   "name": "render_perf",
+   "at": "2026-10-20T10:03:00Z",
+   "release": 3,
+   "plugin": "shop",
+   "route": "/cart",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "build_ms": 7,
+    "duration_ms": 999
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000008",
+   "name": "render_perf",
+   "at": "2026-10-20T10:03:10Z",
+   "release": 3,
+   "plugin": "shop",
+   "route": "/cart",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 5
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000009",
+   "name": "session_start",
+   "at": "2026-10-20T10:00:00Z",
+   "release": 3,
+   "plugin": "",
+   "route": "",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {}
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000010",
+   "name": "session_start",
+   "at": "2026-10-20T10:00:01Z",
+   "release": 4,
+   "plugin": "",
+   "route": "",
+   "class": "tablet",
+   "locale": "en-GB",
+   "fields": {}
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000011",
+   "name": "screen_view",
+   "at": "2026-10-20T23:58:00Z",
+   "release": 4,
+   "plugin": "",
+   "route": "/home",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 200
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000012",
+   "name": "screen_view",
+   "at": "2026-10-21T00:03:00Z",
+   "release": 4,
+   "plugin": "",
+   "route": "/home",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 9000
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000013",
+   "name": "screen_view",
+   "at": "2026-10-20T10:01:10Z",
+   "release": 3,
+   "plugin": "",
+   "route": "/home",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": "12"
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000014",
+   "name": "render_perf",
+   "at": "2026-10-20T10:20:00Z",
+   "release": 3,
+   "plugin": "shop",
+   "route": "/cart",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "build_ms": 130,
+    "duration_ms": 1
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000015",
+   "name": "render_perf",
+   "at": "2026-10-20T10:21:00Z",
+   "release": 3,
+   "plugin": "shop",
+   "route": "/cart",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "build_ms": true
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000001",
+   "name": "screen_view",
+   "at": "2026-10-20T10:01:00Z",
+   "release": 3,
+   "plugin": "",
+   "route": "/home",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "duration_ms": 12
+   }
+  },
+  {
+   "id": "00000000-0000-7000-8000-000000000007",
+   "name": "render_perf",
+   "at": "2026-10-20T10:03:00Z",
+   "release": 3,
+   "plugin": "shop",
+   "route": "/cart",
+   "class": "phone",
+   "locale": "de-DE",
+   "fields": {
+    "build_ms": 7,
+    "duration_ms": 999
+   }
+  }
+ ],
+ "queries": [
+  {
+   "metric": "screen_view",
+   "granularity": "5m",
+   "group_by": []
+  },
+  {
+   "metric": "screen_view",
+   "granularity": "1h",
+   "group_by": [
+    "page",
+    "device_class"
+   ]
+  },
+  {
+   "metric": "screen_view",
+   "granularity": "1d",
+   "group_by": [
+    "release"
+   ]
+  },
+  {
+   "metric": "screen_view",
+   "granularity": "1h",
+   "group_by": [
+    "locale",
+    "environment"
+   ]
+  },
+  {
+   "metric": "render_perf",
+   "granularity": "5m",
+   "group_by": [
+    "plugin"
+   ]
+  },
+  {
+   "metric": "render_perf",
+   "granularity": "1d",
+   "group_by": []
+  },
+  {
+   "metric": "session_start",
+   "granularity": "1d",
+   "group_by": [
+    "device_class"
+   ]
+  }
+ ],
+ "expected": [
+  {
+   "points": [
+    {
+     "bucket": "2026-10-20T10:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 4,
+     "value_count": 3,
+     "sum": 760,
+     "min": 12,
+     "max": 700,
+     "p50": 35,
+     "p90": 640,
+     "p99": 694,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T10:05:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 3,
+     "min": 3,
+     "max": 3,
+     "p50": 3,
+     "p90": 3,
+     "p99": 3,
+     "histogram": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T10:55:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 80000,
+     "min": 80000,
+     "max": 80000,
+     "p50": 80000,
+     "p90": 80000,
+     "p99": 80000,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "bucket": "2026-10-20T11:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 0.5,
+     "min": 0.5,
+     "max": 0.5,
+     "p50": 0.5,
+     "p90": 0.5,
+     "p99": 0.5,
+     "histogram": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T23:55:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 200,
+     "min": 200,
+     "max": 200,
+     "p50": 200,
+     "p90": 200,
+     "p99": 200,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-21T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 9000,
+     "min": 9000,
+     "max": 9000,
+     "p50": 9000,
+     "p90": 9000,
+     "p99": 9000,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "points": [
+    {
+     "bucket": "2026-10-20T10:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "/cart",
+      "DeviceClass": "phone",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 700,
+     "min": 700,
+     "max": 700,
+     "p50": 700,
+     "p90": 700,
+     "p99": 700,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T10:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "/home",
+      "DeviceClass": "phone",
+      "Locale": ""
+     },
+     "events": 3,
+     "value_count": 2,
+     "sum": 60,
+     "min": 12,
+     "max": 48,
+     "p50": 20,
+     "p90": 42.400000000000006,
+     "p99": 47.44,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T10:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "/home",
+      "DeviceClass": "tablet",
+      "Locale": ""
+     },
+     "events": 2,
+     "value_count": 2,
+     "sum": 80003,
+     "min": 3,
+     "max": 80000,
+     "p50": 5,
+     "p90": 76000,
+     "p99": 79600,
+     "histogram": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "bucket": "2026-10-20T11:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "/home",
+      "DeviceClass": "phone",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 0.5,
+     "min": 0.5,
+     "max": 0.5,
+     "p50": 0.5,
+     "p90": 0.5,
+     "p99": 0.5,
+     "histogram": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T23:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "/home",
+      "DeviceClass": "phone",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 200,
+     "min": 200,
+     "max": 200,
+     "p50": 200,
+     "p90": 200,
+     "p99": 200,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-21T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "/home",
+      "DeviceClass": "phone",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 9000,
+     "min": 9000,
+     "max": 9000,
+     "p50": 9000,
+     "p90": 9000,
+     "p99": 9000,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "points": [
+    {
+     "bucket": "2026-10-20T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 3,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 4,
+     "value_count": 3,
+     "sum": 760,
+     "min": 12,
+     "max": 700,
+     "p50": 35,
+     "p90": 640,
+     "p99": 694,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 4,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 4,
+     "value_count": 4,
+     "sum": 80203.5,
+     "min": 0.5,
+     "max": 80000,
+     "p50": 5,
+     "p90": 72000,
+     "p99": 79200,
+     "histogram": [
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "bucket": "2026-10-21T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 4,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 9000,
+     "min": 9000,
+     "max": 9000,
+     "p50": 9000,
+     "p90": 9000,
+     "p99": 9000,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "points": [
+    {
+     "bucket": "2026-10-20T10:00:00Z",
+     "group": {
+      "EnvironmentID": "env",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": "de-DE"
+     },
+     "events": 4,
+     "value_count": 3,
+     "sum": 760,
+     "min": 12,
+     "max": 700,
+     "p50": 35,
+     "p90": 640,
+     "p99": 694,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T10:00:00Z",
+     "group": {
+      "EnvironmentID": "env",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": "en-GB"
+     },
+     "events": 2,
+     "value_count": 2,
+     "sum": 80003,
+     "min": 3,
+     "max": 80000,
+     "p50": 5,
+     "p90": 76000,
+     "p99": 79600,
+     "histogram": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "bucket": "2026-10-20T11:00:00Z",
+     "group": {
+      "EnvironmentID": "env",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": "de-DE"
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 0.5,
+     "min": 0.5,
+     "max": 0.5,
+     "p50": 0.5,
+     "p90": 0.5,
+     "p99": 0.5,
+     "histogram": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T23:00:00Z",
+     "group": {
+      "EnvironmentID": "env",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": "de-DE"
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 200,
+     "min": 200,
+     "max": 200,
+     "p50": 200,
+     "p90": 200,
+     "p99": 200,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-21T00:00:00Z",
+     "group": {
+      "EnvironmentID": "env",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": "de-DE"
+     },
+     "events": 1,
+     "value_count": 1,
+     "sum": 9000,
+     "min": 9000,
+     "max": 9000,
+     "p50": 9000,
+     "p90": 9000,
+     "p99": 9000,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "points": [
+    {
+     "bucket": "2026-10-20T10:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "shop",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 2,
+     "value_count": 1,
+     "sum": 7,
+     "min": 7,
+     "max": 7,
+     "p50": 7,
+     "p90": 7,
+     "p99": 7,
+     "histogram": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T10:20:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "shop",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 2,
+     "value_count": 1,
+     "sum": 130,
+     "min": 130,
+     "max": 130,
+     "p50": 130,
+     "p90": 130,
+     "p99": 130,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "points": [
+    {
+     "bucket": "2026-10-20T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "",
+      "Locale": ""
+     },
+     "events": 4,
+     "value_count": 2,
+     "sum": 137,
+     "min": 7,
+     "max": 130,
+     "p50": 10,
+     "p90": 124,
+     "p99": 129.4,
+     "histogram": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "points": [
+    {
+     "bucket": "2026-10-20T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "phone",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 0,
+     "sum": 0,
+     "min": 0,
+     "max": 0,
+     "p50": 0,
+     "p90": 0,
+     "p99": 0,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "bucket": "2026-10-20T00:00:00Z",
+     "group": {
+      "EnvironmentID": "",
+      "Release": 0,
+      "Plugin": "",
+      "Page": "",
+      "DeviceClass": "tablet",
+      "Locale": ""
+     },
+     "events": 1,
+     "value_count": 0,
+     "sum": 0,
+     "min": 0,
+     "max": 0,
+     "p50": 0,
+     "p90": 0,
+     "p99": 0,
+     "histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  }
+ ]
+}

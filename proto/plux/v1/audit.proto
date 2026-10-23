@@ -1,0 +1,234 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// AuditService serves the audit log's outward faces (ADR-0082): the export
+// of an organisation's chain to a SIEM (SEC-143), and, in later milestones
+// of the same ADR, the reconstruction of what a user saw (SEC-142) and the
+// data-subject requests (SEC-162). Reading the chain itself is not here.
+service AuditService {
+  // CreateExportDestination registers a SIEM destination. The organisation's
+  // whole chain is delivered, in order, from start_after_sequence. The
+  // syslog kind is part of the core; cef, otlp and webhook are an
+  // enterprise feature (PLX-8600 without a licence).
+  rpc CreateExportDestination(CreateExportDestinationRequest) returns (CreateExportDestinationResponse) {}
+  // GetExportDestination returns a destination with its status: the cursor,
+  // the entries not yet delivered and the last error (PLX-8500).
+  rpc GetExportDestination(GetExportDestinationRequest) returns (GetExportDestinationResponse) {}
+  rpc ListExportDestinations(ListExportDestinationsRequest) returns (ListExportDestinationsResponse) {}
+  // UpdateExportDestination replaces a destination's address and settings.
+  // Its cursor is kept.
+  rpc UpdateExportDestination(UpdateExportDestinationRequest) returns (UpdateExportDestinationResponse) {}
+  rpc DeleteExportDestination(DeleteExportDestinationRequest) returns (DeleteExportDestinationResponse) {}
+  // Reconstruct resolves what a device, or the device a pseudonymous user was
+  // last on, was running at a moment and packages it as a signed, read-only
+  // reconstruction release on the environment's audit channel (SEC-142). The
+  // moment must lie within reconstruction.retentionDays and the bundles must
+  // still be retained (PLX-8502 otherwise). Creating one is audited. The
+  // release is signed by the worker, so it is pending for a moment.
+  rpc Reconstruct(ReconstructRequest) returns (ReconstructResponse) {}
+  // GetReconstruction returns a reconstruction release: its signed manifest,
+  // signatures and where to download its bundles. Every call is audited.
+  rpc GetReconstruction(GetReconstructionRequest) returns (GetReconstructionResponse) {}
+  // ListReconstructions lists an app's reconstruction releases, newest first.
+  rpc ListReconstructions(ListReconstructionsRequest) returns (ListReconstructionsResponse) {}
+}
+
+// ExportDestination is a SIEM destination and how far delivery has got.
+message ExportDestination {
+  string id = 1;
+  // name is a lower-case key, unique in the organisation.
+  string name = 2;
+  // kind is "syslog", "cef", "otlp" or "webhook".
+  string kind = 3;
+  // address is host:port for syslog and cef, and an https URL for otlp and
+  // webhook.
+  string address = 4;
+  bool enabled = 5;
+  // allow_private is true when the destination may be a private or loopback
+  // address. It is for development; warnings says so.
+  bool allow_private = 6;
+  // ca_pem pins the roots that verify the destination's certificate.
+  string ca_pem = 7;
+  // credentials_hint names what is stored sealed, such as "client certificate"
+  // or "signing secret ...a1b2"; the credentials themselves are never
+  // returned.
+  string credentials_hint = 8;
+  // cursor_sequence is the last entry of the chain the destination
+  // acknowledged; cursor_hash is that entry's hash.
+  int64 cursor_sequence = 9;
+  string cursor_hash = 10;
+  int64 exported_count = 11;
+  // failures counts consecutive failed attempts; last_error is the last
+  // failure, prefixed with its PLX code.
+  int32 failures = 12;
+  string last_error = 13;
+  google.protobuf.Timestamp last_error_at = 14;
+  google.protobuf.Timestamp last_success_at = 15;
+  // next_attempt_at is when the exporter will try again after a failure.
+  google.protobuf.Timestamp next_attempt_at = 16;
+  int64 version = 17;
+  google.protobuf.Timestamp created_at = 18;
+  google.protobuf.Timestamp updated_at = 19;
+  // warnings are unsafe settings of the destination, for example a private
+  // address allowed for development.
+  repeated string warnings = 20;
+}
+
+message CreateExportDestinationRequest {
+  string name = 1;
+  string kind = 2;
+  string address = 3;
+  bool allow_private = 4;
+  // ca_pem pins the roots that verify the destination's certificate; empty
+  // uses the system roots.
+  string ca_pem = 5;
+  // client_certificate_pem and client_key_pem are the client certificate for
+  // mutual TLS; both or neither.
+  string client_certificate_pem = 6;
+  string client_key_pem = 7;
+  // signing_secret is the signing secret of a webhook destination
+  // ("whsec_" and base64).
+  string signing_secret = 8;
+  // start_after_sequence is the last entry the destination already has;
+  // zero delivers the chain from its first entry.
+  int64 start_after_sequence = 9;
+}
+message CreateExportDestinationResponse {
+  ExportDestination destination = 1;
+}
+
+message GetExportDestinationRequest {
+  string id = 1;
+}
+message GetExportDestinationResponse {
+  ExportDestination destination = 1;
+  // chain_head_sequence is the newest entry of the organisation's chain, so
+  // the lag is chain_head_sequence - destination.cursor_sequence.
+  int64 chain_head_sequence = 2;
+}
+
+message ListExportDestinationsRequest {
+  Page page = 1;
+}
+message ListExportDestinationsResponse {
+  repeated ExportDestination destinations = 1;
+  PageResult page = 2;
+}
+
+message UpdateExportDestinationRequest {
+  string id = 1;
+  string address = 2;
+  bool enabled = 3;
+  bool allow_private = 4;
+  string ca_pem = 5;
+  // The credentials are replaced when any is set; all empty keeps what is
+  // stored. clear_credentials removes them.
+  string client_certificate_pem = 6;
+  string client_key_pem = 7;
+  string signing_secret = 8;
+  bool clear_credentials = 9;
+}
+message UpdateExportDestinationResponse {
+  ExportDestination destination = 1;
+}
+
+message DeleteExportDestinationRequest {
+  string id = 1;
+}
+message DeleteExportDestinationResponse {}
+
+// Reconstruction is a reconstruction release: the state of one device at one
+// moment, packaged for the viewer host (SEC-142).
+message Reconstruction {
+  // id is the release identifier; the viewer opens the release by it.
+  string id = 1;
+  string app_id = 2;
+  string environment_id = 3;
+  // device_id is the device the moment was resolved on.
+  string device_id = 4;
+  // user_ref is the pseudonymous user the request named; empty when it named
+  // a device.
+  string user_ref = 5;
+  // moment is the point in time that was reconstructed.
+  google.protobuf.Timestamp moment = 6;
+  // release_sequence is the release the device ran at the moment.
+  int64 release_sequence = 7;
+  // state is "pending" until the worker has signed the release, then
+  // "signed". A pending release cannot be opened.
+  string state = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp signed_at = 10;
+  // created_by names who asked for it.
+  string created_by = 11;
+  // open_uri is what opens the release in the viewer host:
+  // plux-viewer://reconstruction/<id>?server=<server URL>. The viewer
+  // authenticates as the auditor and calls GetReconstruction.
+  string open_uri = 12;
+}
+
+message ReconstructRequest {
+  string app_id = 1;
+  // device_id or user_ref, exactly one: the device to reconstruct, or the
+  // host's pseudonymous user identifier (HST-011) whose device at the moment
+  // is.
+  string device_id = 2;
+  string user_ref = 3;
+  // at is the moment to reconstruct.
+  google.protobuf.Timestamp at = 4;
+}
+message ReconstructResponse {
+  Reconstruction reconstruction = 1;
+}
+
+message GetReconstructionRequest {
+  string id = 1;
+}
+
+// ReconstructionBundle is one bundle of a reconstruction release, exactly as
+// it was shipped.
+message ReconstructionBundle {
+  // key is the plugin key, empty for the app bundle.
+  string key = 1;
+  // sha256 is "sha256:<hex>" of the bundle, as the manifest names it.
+  string sha256 = 2;
+  int64 size = 3;
+  // url is where the bundle is downloaded from.
+  string url = 4;
+}
+
+// ReconstructionSignature is one signature over the manifest.
+message ReconstructionSignature {
+  string key_id = 1;
+  string algorithm = 2;
+  // signature is base64 of the signature.
+  string signature = 3;
+}
+
+message GetReconstructionResponse {
+  Reconstruction reconstruction = 1;
+  // manifest is the canonical JSON (RFC 8785) of the reconstruction manifest,
+  // which the signatures cover; empty while the release is pending. Its form
+  // is schema/json/reconstruction.schema.json. The viewer verifies the
+  // signatures against the environment's root keys before it parses it.
+  bytes manifest = 2;
+  repeated ReconstructionSignature signatures = 3;
+  repeated ReconstructionBundle bundles = 4;
+}
+
+message ListReconstructionsRequest {
+  string app_id = 1;
+  Page page = 2;
+}
+message ListReconstructionsResponse {
+  repeated Reconstruction reconstructions = 1;
+  PageResult page = 2;
+}

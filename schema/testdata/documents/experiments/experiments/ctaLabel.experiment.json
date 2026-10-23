@@ -1,0 +1,58 @@
+{
+  "guardrailMetrics": [
+    {
+      "direction": "decrease",
+      "event": "refund",
+      "kind": "proportion",
+      "maxRegression": 0.1
+    }
+  ],
+  "holdout": 5,
+  "id": "01f0c450-6c00-7000-8000-000000000705",
+  "key": "ctaLabel",
+  "kind": "experiment",
+  "layer": "checkout",
+  "minimumSampleSize": 1000,
+  "primaryMetric": {
+    "direction": "increase",
+    "event": "purchase",
+    "kind": "proportion"
+  },
+  "props": [
+    {
+      "name": "label",
+      "type": "string"
+    }
+  ],
+  "salt": "cta-label-1",
+  "schedule": {
+    "start": "2026-11-01T00:00:00Z"
+  },
+  "schemaVersion": "1.0.0",
+  "scope": "prop",
+  "segment": "beta-testers",
+  "variants": [
+    {
+      "control": true,
+      "name": "control",
+      "props": {
+        "label": "Buy"
+      },
+      "weight": 50
+    },
+    {
+      "name": "bold",
+      "props": {
+        "label": "Buy now"
+      },
+      "weight": 30
+    },
+    {
+      "name": "short",
+      "props": {
+        "label": "Go"
+      },
+      "weight": 20
+    }
+  ]
+}

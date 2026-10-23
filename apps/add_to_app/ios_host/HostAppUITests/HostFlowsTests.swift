@@ -43,8 +43,7 @@ final class HostFlowsTests: XCTestCase {
   /// the server out of reach.
   func testRendersOfflineFromTheBaseline() {
     let app = launch()
-    tap(app, "Open welcome")
-    waitFor(app, "Welcome to Plux", exact: true)
+    open(app, "Open welcome", shows: "Welcome to Plux", exact: true)
     tap(app, "Back", exact: true)
     waitFor(app, "Open welcome")
   }
@@ -56,8 +55,7 @@ final class HostFlowsTests: XCTestCase {
     let app = launch()
     let deadline = Date().addingTimeInterval(60)
     while true {
-      tap(app, "Open welcome")
-      waitFor(app, "Welcome to Plux")
+      open(app, "Open welcome", shows: "Welcome to Plux")
       if element(app, "Welcome to Plux, again", exact: true).exists { break }
       XCTAssertLessThan(Date(), deadline, "the update never applied")
       tap(app, "Back", exact: true)
@@ -67,8 +65,7 @@ final class HostFlowsTests: XCTestCase {
     tap(app, "Back", exact: true)
     waitFor(app, "Open welcome")
 
-    tap(app, "Open host link")
-    waitFor(app, "Native header", exact: true)
+    open(app, "Open host link", shows: "Native header", exact: true)
     tap(app, "Open host settings")
     waitFor(app, "Host settings", exact: true)
     tap(app, "Close", exact: true)
@@ -126,5 +123,22 @@ final class HostFlowsTests: XCTestCase {
 
   private func tap(_ app: XCUIApplication, _ label: String, exact: Bool = false) {
     waitFor(app, label, exact: exact).tap()
+  }
+
+  // Taps a native button that opens a Plux page and waits for the page. A
+  // tap XCTest sends while Dart holds the app's main thread can be lost (CI
+  // run 39873491978: "Open welcome" was tapped as the first sync failed,
+  // 36 s after launch, and the page never opened), so the tap is sent
+  // again while the button is still on screen.
+  private func open(_ app: XCUIApplication, _ button: String, shows label: String, exact: Bool = false) {
+    let page = element(app, label, exact: exact)
+    for _ in 0..<3 {
+      tap(app, button)
+      waiting = true
+      let opened = page.waitForExistence(timeout: 20) || !element(app, button, exact: false).exists
+      waiting = false
+      if opened { break }
+    }
+    waitFor(app, label, exact: exact)
   }
 }

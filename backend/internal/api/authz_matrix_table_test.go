@@ -8,8 +8,10 @@ import (
 	"errors"
 	"io"
 	"testing"
+	"time"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
@@ -29,6 +31,9 @@ func fixed(f func(f *matrixFixture) proto.Message) func(*testing.T, *matrixFixtu
 func anyone(msg proto.Message) func(*testing.T, *matrixFixture) proto.Message {
 	return func(*testing.T, *matrixFixture) proto.Message { return proto.Clone(msg) }
 }
+
+// matrixWebhook is the endpoint the notification-channel matrix entry names.
+const matrixWebhook = "https://hooks.slack.com/services/T0/B0/xxxxxxxx"
 
 // matrix declares, for every RPC of every service, who may call it. The
 // permission is the one the handler's domain code checks; the entry is the
@@ -106,15 +111,15 @@ var matrix = map[string]entry{
 	"OrgService/UpdateOrganization": atPerm(auth.OrganizationManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UpdateOrganizationRequest{Id: f.org, Name: "Acme"}
 	})),
-	"OrgService/CreateTeam": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"OrgService/CreateTeam": atPerm(auth.TeamsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		k := f.name()
 		return &pluxv1.CreateTeamRequest{Key: k, Name: k}
 	}),
 	"OrgService/ListTeams": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListTeamsRequest{})),
-	"OrgService/UpdateTeam": atPerm(auth.MembersManage, fixed(func(f *matrixFixture) proto.Message {
+	"OrgService/UpdateTeam": atPerm(auth.TeamsManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UpdateTeamRequest{Id: f.team, Name: "Web"}
 	})),
-	"OrgService/DeleteTeam": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"OrgService/DeleteTeam": atPerm(auth.TeamsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteTeamRequest{Id: f.freshTeam(t)}
 	}),
 	"OrgService/AddMember": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
@@ -255,6 +260,199 @@ var matrix = map[string]entry{
 		return &pluxv1.SetStatesRequest{AppId: f.app, Locale: "de", States: map[string]string{unknownID: "reviewed"}}
 	})),
 
+	// GovernanceService (GOV-002, GOV-003)
+	"GovernanceService/ListPermissions": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListPermissionsRequest{})),
+	"AnalyticsService/QueryRollups": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.QueryRollupsRequest{
+			AppId: f.app, Metric: "screen_view", Granularity: "1h",
+			From: timestamppb.New(time.Unix(0, 0)), To: timestamppb.New(time.Unix(3600, 0)),
+		}
+	})),
+	"AnalyticsService/GetRetention":          atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetRetentionRequest{})),
+	"AnalyticsService/ListRetentionChanges":  atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListRetentionChangesRequest{})),
+	"AnalyticsService/GetExport":             atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetExportRequest{})),
+	"AnalyticsService/SetRetention":          atPerm(auth.RetentionManage, anyone(&pluxv1.SetRetentionRequest{DataClass: "raw_events", Days: 90})),
+	"AnalyticsService/CancelRetentionChange": atPerm(auth.RetentionManage, anyone(&pluxv1.CancelRetentionChangeRequest{Id: unknownID})),
+	"AnalyticsService/SetExport":             atPerm(auth.OrganizationManage, anyone(&pluxv1.SetExportRequest{Endpoint: "https://127.0.0.1:1"})),
+	"AnalyticsService/GetFileExport":         atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetFileExportRequest{})),
+	"AnalyticsService/SetFileExport":         atPerm(auth.OrganizationManage, anyone(&pluxv1.SetFileExportRequest{Settings: &pluxv1.FileExportSettings{ParquetGranularity: "7d"}})),
+	"AnalyticsService/DeleteExport":          atPerm(auth.OrganizationManage, anyone(&pluxv1.DeleteExportRequest{})),
+	"AnalyticsService/CreateAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateAlertRuleRequest{Rule: &pluxv1.AlertRule{
+			AppId: f.app, Name: f.name(), Metric: "fatal_error", Aggregation: "count", WindowSeconds: 300,
+			Comparison: ">", Threshold: 5, Severity: "warning",
+		}}
+	}),
+	"AnalyticsService/UpdateAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.UpdateAlertRuleRequest{Rule: f.sharedAlertRule(t)}
+	}),
+	"AnalyticsService/DeleteAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteAlertRuleRequest{Id: f.freshAlertRule(t).GetId()}
+	}),
+	"AnalyticsService/ListAlertRules":  atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertRulesRequest{})),
+	"AnalyticsService/ListAlertStates": atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertStatesRequest{})),
+	"AnalyticsService/ListErrorGroups": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListErrorGroupsRequest{AppId: f.app}
+	})),
+	"AnalyticsService/GetErrorGroup": atPerm(auth.AnalyticsRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.GetErrorGroupRequest{Id: f.errorGroup(t)}
+	}),
+	"GovernanceService/ListRoles": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListRolesRequest{})),
+	"GovernanceService/GetRole": atPerm(auth.OrganizationRead, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetRoleRequest{Key: "viewer"}
+	})),
+	"GovernanceService/CreateRole": atPerm(auth.RolesManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateRoleRequest{Key: "role-" + f.name(), Name: "Role", Permissions: []string{"app.read"}}
+	}),
+	"GovernanceService/UpdateRole": atPerm(auth.RolesManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.UpdateRoleRequest{Key: "no-such-role", Name: "Role", Permissions: []string{"app.read"}}
+	})),
+	"GovernanceService/DeleteRole": atPerm(auth.RolesManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteRoleRequest{Key: "no-such-role"}
+	})),
+	"GovernanceService/ListGrants": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListGrantsRequest{})),
+	"GovernanceService/CreateGrant": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateGrantRequest{TeamId: f.freshTeam(t), Role: "viewer", Scope: "organization"}
+	}),
+	"GovernanceService/UpdateGrant": atPerm(auth.MembersManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.UpdateGrantRequest{Id: unknownID, Role: "viewer"}
+	})),
+	"GovernanceService/DeleteGrant": atPerm(auth.MembersManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteGrantRequest{Id: unknownID}
+	})),
+
+	// Restrictions and effective permissions (GOV-006, GOV-007): managing
+	// restrictions needs restrictions.manage; a person's own effective
+	// permissions, change notices and explanation need nothing.
+	"GovernanceService/CreateRestriction": atPerm(auth.RestrictionsManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.CreateRestrictionRequest{SubjectKind: "user", SubjectId: unknownID, Patterns: []string{"app.read"}}
+	})),
+	"GovernanceService/ListRestrictions": atPerm(auth.RestrictionsManage, anyone(&pluxv1.ListRestrictionsRequest{})),
+	"GovernanceService/DeleteRestriction": atPerm(auth.RestrictionsManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteRestrictionRequest{Id: unknownID}
+	})),
+	"GovernanceService/GetEffectivePermissions": {kind: self, build: anyone(&pluxv1.GetEffectivePermissionsRequest{})},
+	"GovernanceService/WatchPermissions": {kind: self, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		stream, err := f.w.govern.WatchPermissions(ctx, req(c, &pluxv1.WatchPermissionsRequest{}))
+		if err != nil {
+			return err //nolint:wrapcheck // the code is what the test reads
+		}
+		defer func() { _ = stream.Close() }()
+		if !stream.Receive() {
+			return stream.Err() //nolint:wrapcheck // the code is what the test reads
+		}
+		return nil
+	}},
+	"GovernanceService/ExplainAccess": {kind: self, build: anyone(&pluxv1.ExplainAccessRequest{Permission: "app.read"})},
+
+	// ApprovalService (GOV-020 to GOV-023): reading policies and requests
+	// needs the app, writing a policy needs policies.manage and deciding
+	// needs approvals.decide.
+	"ApprovalService/PutPolicy": atPerm(auth.PoliciesManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.PutPolicyRequest{AppId: f.app, Document: []byte(`{}`)}
+	})),
+	"ApprovalService/GetPolicy": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetPolicyRequest{AppId: f.app, Key: "no-such-policy"}
+	})),
+	"ApprovalService/ListPolicies": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListPoliciesRequest{AppId: f.app}
+	})),
+	"ApprovalService/DeletePolicy": atPerm(auth.PoliciesManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DeletePolicyRequest{AppId: f.app, Key: "no-such-policy"}
+	})),
+	"ApprovalService/ExportPolicies": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ExportPoliciesRequest{AppId: f.app}
+	})),
+	"ApprovalService/ListApprovals": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListApprovalsRequest{AppId: f.app}
+	})),
+	"ApprovalService/GetApproval": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetApprovalRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ApprovalService/GetApprovalReview": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetApprovalReviewRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ApprovalService/DecideApproval": atPerm(auth.ApprovalsDecide, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DecideApprovalRequest{AppId: f.app, Id: unknownID, Decision: "approve"}
+	})),
+
+	// BreakGlassService (GOV-024): the list needs audit.read and the review
+	// approvals.decide.
+	"BreakGlassService/ListBreakGlass": atPerm(auth.AuditRead, anyone(&pluxv1.ListBreakGlassRequest{})),
+	"BreakGlassService/ReviewBreakGlass": atPerm(auth.ApprovalsDecide, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.ReviewBreakGlassRequest{Id: unknownID}
+	})),
+
+	// FreezeService (GOV-025): reading windows needs organization.read and
+	// changing them freezes.manage. The requests are ones the domain refuses
+	// for their form after the permission is checked, so that no window is
+	// written.
+	"FreezeService/ListFreezes": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListFreezesRequest{})),
+	"FreezeService/PutFreeze":   atPerm(auth.FreezesManage, anyone(&pluxv1.PutFreezeRequest{Freeze: &pluxv1.ChangeFreeze{}})),
+	"FreezeService/DeleteFreeze": atPerm(auth.FreezesManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteFreezeRequest{Id: unknownID}
+	})),
+
+	// ComplianceService (GOV-026): every call needs compliance.report.
+	"ComplianceService/CreateComplianceReport": atPerm(auth.ComplianceReport, anyone(&pluxv1.CreateComplianceReportRequest{})),
+	"ComplianceService/GetComplianceReport": atPerm(auth.ComplianceReport, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetComplianceReportRequest{Id: unknownID, Format: "json"}
+	})),
+	"ComplianceService/ListComplianceReports": atPerm(auth.ComplianceReport, anyone(&pluxv1.ListComplianceReportsRequest{})),
+
+	// SearchService
+	"SearchService/Search": atPerm(auth.SearchRead, anyone(&pluxv1.SearchRequest{Query: "demo"})),
+
+	// GitExportService
+	"GitExportService/GetSettings": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetSettingsRequest{AppId: f.app}
+	})),
+	"GitExportService/ConfigureExport": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ConfigureExportRequest{Settings: &pluxv1.GitSettings{AppId: f.app, RemoteUrl: "not a url"}}
+	})),
+	"GitExportService/ListExports": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListExportsRequest{AppId: f.app}
+	})),
+	"GitExportService/RunExport": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RunExportRequest{AppId: f.app}
+	})),
+
+	// FederationService (GOV-004): the sign-in page's calls carry no
+	// credential; every call that configures federation needs sso.manage.
+	"FederationService/ListSignInProviders":   {kind: public, build: anyone(&pluxv1.ListSignInProvidersRequest{})},
+	"FederationService/StartSamlLogin":        {kind: public, build: anyone(&pluxv1.StartSamlLoginRequest{})},
+	"FederationService/CompleteSamlLogin":     {kind: public, build: anyone(&pluxv1.CompleteSamlLoginRequest{})},
+	"FederationService/GetSamlMetadata":       {kind: public, build: anyone(&pluxv1.GetSamlMetadataRequest{})},
+	"FederationService/ListIdentityProviders": atPerm(auth.SSOManage, anyone(&pluxv1.ListIdentityProvidersRequest{})),
+	"FederationService/GetIdentityProvider": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetIdentityProviderRequest{Id: unknownID}
+	})),
+	"FederationService/CreateIdentityProvider": atPerm(auth.SSOManage, anyone(&pluxv1.CreateIdentityProviderRequest{})),
+	"FederationService/UpdateIdentityProvider": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.UpdateIdentityProviderRequest{Provider: &pluxv1.IdentityProvider{Id: unknownID}}
+	})),
+	"FederationService/DeleteIdentityProvider": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteIdentityProviderRequest{Id: unknownID}
+	})),
+	"FederationService/GetGroupMapping": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetGroupMappingRequest{ProviderId: unknownID}
+	})),
+	"FederationService/SetGroupMapping": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.SetGroupMappingRequest{ProviderId: unknownID, Mapping: &pluxv1.GroupMapping{}}
+	})),
+	"FederationService/ListScimTokens": atPerm(auth.SSOManage, anyone(&pluxv1.ListScimTokensRequest{})),
+	"FederationService/CreateScimToken": atPerm(auth.SSOManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateScimTokenRequest{Name: "scim-" + f.name()}
+	}),
+	"FederationService/RotateScimToken": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.RotateScimTokenRequest{Id: unknownID}
+	})),
+	"FederationService/RevokeScimToken": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.RevokeScimTokenRequest{Id: unknownID}
+	})),
+
 	// GoldenService
 	"GoldenService/GetBaselines": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetBaselinesRequest{AppId: f.app}
@@ -316,6 +514,30 @@ var matrix = map[string]entry{
 	"ControlService/SetControl": atPerm(auth.ReleasePromote, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetControlRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
 	})),
+	"ControlService/GetControlDocument": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetControlDocumentRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
+	})),
+	"ControlService/SetKillSwitch": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetKillSwitchRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, KillSwitch: &pluxv1.KillSwitchEntry{Scope: pluxv1.KillSwitchScope_KILL_SWITCH_SCOPE_PLUGIN, Target: "loans"}}
+	})),
+	"ControlService/ClearKillSwitch": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ClearKillSwitchRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, KillSwitch: &pluxv1.KillSwitchEntry{Scope: pluxv1.KillSwitchScope_KILL_SWITCH_SCOPE_PLUGIN, Target: "loans"}}
+	})),
+	"ControlService/SetMandatoryUpdate": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetMandatoryUpdateRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, ReleaseSequence: 1}
+	})),
+	"ControlService/ClearMandatoryUpdate": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ClearMandatoryUpdateRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
+	})),
+	"ControlService/SetForcedRollback": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetForcedRollbackRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, ReleaseSequence: 1}
+	})),
+	"ControlService/ClearForcedRollback": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ClearForcedRollbackRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
+	})),
+	"ManifestService/GetSignedControl": {kind: deviceRPC, build: anyone(&pluxv1.GetSignedControlRequest{})},
+	"DeviceService/RegisterPushToken":  {kind: deviceRPC, build: anyone(&pluxv1.RegisterPushTokenRequest{})},
+	"DeviceService/ClearPushToken":     {kind: deviceRPC, build: anyone(&pluxv1.ClearPushTokenRequest{})},
 	"NativeCatalogueService/UploadNativeCatalogue": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UploadNativeCatalogueRequest{AppId: f.app, HostBuild: "1.0.0+1", Catalogue: []byte(`{}`)}
 	})),
@@ -365,9 +587,118 @@ var matrix = map[string]entry{
 	"SecurityAdminService/DeleteConfigValue": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteConfigValueRequest{AppId: f.app, EnvironmentId: f.dev, Key: "absent"}
 	})),
-	"ConfigService/GetLiveConfig":               {kind: deviceRPC, build: anyone(&pluxv1.GetLiveConfigRequest{})},
-	"DeviceService/EnrolScaKey":                 {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
+	"ConfigService/GetLiveConfig": {kind: deviceRPC, build: anyone(&pluxv1.GetLiveConfigRequest{})},
+	"DeviceService/EnrolScaKey":   {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
+	"AuditService/CreateExportDestination": atPerm(auth.AuditExport, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateExportDestinationRequest{Name: "d" + f.name(), Kind: "syslog", Address: "siem.example.com:6514"}
+	}),
+	"AuditService/GetExportDestination": atPerm(auth.AuditExport, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.GetExportDestinationRequest{Id: f.sharedDestination(t)}
+	}),
+	"AuditService/ListExportDestinations": atPerm(auth.AuditExport, anyone(&pluxv1.ListExportDestinationsRequest{})),
+	"AuditService/UpdateExportDestination": atPerm(auth.AuditExport, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.UpdateExportDestinationRequest{Id: f.sharedDestination(t), Address: "siem.example.com:6514", Enabled: true}
+	}),
+	"AuditService/DeleteExportDestination": {kind: needs, perm: auth.AuditExport, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		return f.deleteFreshDestination(t, c)
+	}},
+	"RolloutService/CreateRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.CreateRolloutRequest{
+		AppId: unknownID, EnvironmentId: unknownID, CandidateSequence: 2, Stages: []*pluxv1.Stage{{BasisPoints: 10000}},
+	})),
+	"RolloutService/GetRollout":    atPerm(auth.RolloutManage, anyone(&pluxv1.GetRolloutRequest{Id: unknownID})),
+	"RolloutService/ListRollouts":  atPerm(auth.RolloutManage, anyone(&pluxv1.ListRolloutsRequest{AppId: unknownID})),
+	"RolloutService/PauseRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.PauseRolloutRequest{Id: unknownID})),
+	"RolloutService/ResumeRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.ResumeRolloutRequest{Id: unknownID})),
+	"RolloutService/AbortRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.AbortRolloutRequest{Id: unknownID})),
+
+	"AuditService/Reconstruct": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ReconstructRequest{AppId: f.app, DeviceId: unknownID, At: timestamppb.Now()}
+	})),
+	"AuditService/GetReconstruction": atPerm(auth.ReconstructionView, anyone(&pluxv1.GetReconstructionRequest{Id: unknownID})),
+	"AuditService/ListReconstructions": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListReconstructionsRequest{AppId: f.app}
+	})),
+	"DataSubjectService/ExportSubject": atPerm(auth.DSRManage, anyone(&pluxv1.ExportSubjectRequest{
+		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
+	})),
+	"DataSubjectService/EraseSubject": atPerm(auth.DSRManage, anyone(&pluxv1.EraseSubjectRequest{
+		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
+	})),
+	"DataSubjectService/GetRequest":         atPerm(auth.DSRManage, anyone(&pluxv1.GetRequestRequest{Id: unknownID})),
+	"DataSubjectService/ListRequests":       atPerm(auth.DSRManage, anyone(&pluxv1.ListRequestsRequest{})),
+	"DataSubjectService/GetPersonalDataMap": atPerm(auth.DSRManage, anyone(&pluxv1.GetPersonalDataMapRequest{})),
+	"FlagService/CreateFlag": atPerm(auth.FlagsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "matrixFlag", Spec: &pluxv1.FlagSpec{Type: pluxv1.FlagType_FLAG_TYPE_BOOL, DefaultJson: "false"}}
+	})),
+	"FlagService/UpdateFlag": atPerm(auth.FlagsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.UpdateFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "absentFlag", Spec: &pluxv1.FlagSpec{DefaultJson: "false"}}
+	})),
+	"FlagService/DeleteFlag": atPerm(auth.FlagsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "absentFlag"}
+	})),
+	"FlagService/GetFlag": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetFlagRequest{AppId: f.app, EnvironmentId: f.prod, Key: "absentFlag"}
+	})),
+	"FlagService/ListFlags": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListFlagsRequest{AppId: f.app, EnvironmentId: f.prod}
+	})),
+	"ExperimentService/CreateExperiment": atPerm(auth.ExperimentsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateExperimentRequest{AppId: f.app, EnvironmentId: f.prod, Document: []byte("{}")}
+	})),
+	"ExperimentService/GetExperiment":    atPerm(auth.AppRead, anyone(&pluxv1.GetExperimentRequest{Id: unknownID})),
+	"ExperimentService/DeleteExperiment": atPerm(auth.ExperimentsManage, anyone(&pluxv1.DeleteExperimentRequest{Id: unknownID})),
+	"ExperimentService/ListExperiments": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListExperimentsRequest{AppId: f.app}
+	})),
+	"ExperimentService/StartExperiment": atPerm(auth.ExperimentsManage, anyone(&pluxv1.StartExperimentRequest{Id: unknownID})),
+	"ExperimentService/StopExperiment":  atPerm(auth.ExperimentsManage, anyone(&pluxv1.StopExperimentRequest{Id: unknownID})),
+	"ExperimentService/SetHoldout": atPerm(auth.ExperimentsManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetHoldoutRequest{AppId: f.app, EnvironmentId: f.prod, Percent: 1}
+	})),
+	"ExperimentService/GetHoldout": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetHoldoutRequest{AppId: f.app, EnvironmentId: f.prod}
+	})),
+	"ExperimentService/GetResults":              atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetResultsRequest{Id: unknownID})),
+	"ExperimentService/PromoteExperiment":       atPerm(auth.ExperimentsManage, anyone(&pluxv1.PromoteExperimentRequest{Id: unknownID, Variant: "b"})),
+	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
+
+	// NotificationService, WebhookService (SRV-062, SRV-063)
+	"NotificationService/ListEventTypes":    {kind: self, build: anyone(&pluxv1.ListEventTypesRequest{})},
+	"NotificationService/ListInbox":         {kind: self, build: anyone(&pluxv1.ListInboxRequest{})},
+	"NotificationService/MarkRead":          {kind: self, build: anyone(&pluxv1.MarkReadRequest{})},
+	"NotificationService/Subscribe":         {kind: self, build: anyone(&pluxv1.SubscribeRequest{Subscription: &pluxv1.NotificationSubscription{EventType: "release.published"}})},
+	"NotificationService/Unsubscribe":       {kind: self, build: anyone(&pluxv1.UnsubscribeRequest{Id: unknownID})},
+	"NotificationService/ListSubscriptions": {kind: self, build: anyone(&pluxv1.ListSubscriptionsRequest{})},
+	"NotificationService/CreateNotificationChannel": atPerm(auth.NotificationsManage, anyone(&pluxv1.CreateNotificationChannelRequest{
+		Name: "matrix", Kind: "slack", Secret: matrixWebhook,
+	})),
+	"NotificationService/ListNotificationChannels":  atPerm(auth.NotificationsManage, anyone(&pluxv1.ListNotificationChannelsRequest{})),
+	"NotificationService/DeleteNotificationChannel": atPerm(auth.NotificationsManage, anyone(&pluxv1.DeleteNotificationChannelRequest{Id: unknownID})),
+	"NotificationService/TestNotificationChannel":   atPerm(auth.NotificationsManage, anyone(&pluxv1.TestNotificationChannelRequest{Id: unknownID})),
+	"NotificationService/ListDeliveries":            atPerm(auth.NotificationsManage, anyone(&pluxv1.ListDeliveriesRequest{})),
+	"WebhookService/CreateWebhook":                  atPerm(auth.WebhooksManage, anyone(&pluxv1.CreateWebhookRequest{Name: "matrix", Url: "https://example.invalid/hook"})),
+	"WebhookService/ListWebhooks":                   atPerm(auth.WebhooksManage, anyone(&pluxv1.ListWebhooksRequest{})),
+	"WebhookService/DeleteWebhook":                  atPerm(auth.WebhooksManage, anyone(&pluxv1.DeleteWebhookRequest{Id: unknownID})),
+	"WebhookService/RotateWebhookSecret":            atPerm(auth.WebhooksManage, anyone(&pluxv1.RotateWebhookSecretRequest{Id: unknownID})),
+	"WebhookService/ListWebhookDeliveries":          atPerm(auth.WebhooksManage, anyone(&pluxv1.ListWebhookDeliveriesRequest{})),
+
+	// FunctionTriggerService (FN-025)
+	"FunctionTriggerService/CreateTrigger": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateTriggerRequest{AppId: f.app, EnvironmentId: f.dev, Function: "matrix.fn", Alias: "stable", Expression: "@daily"}
+	})),
+	"FunctionTriggerService/ListTriggers": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListTriggersRequest{AppId: f.app}
+	})),
+	"FunctionTriggerService/DeleteTrigger": atPerm(auth.FunctionDeploy, anyone(&pluxv1.DeleteTriggerRequest{Id: unknownID})),
+	"FunctionTriggerService/CreateHook": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateHookRequest{AppId: f.app, EnvironmentId: f.dev, Function: "matrix.fn", Alias: "stable"}
+	})),
+	"FunctionTriggerService/ListHooks": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListHooksRequest{AppId: f.app}
+	})),
+	"FunctionTriggerService/DeleteHook":       atPerm(auth.FunctionDeploy, anyone(&pluxv1.DeleteHookRequest{Id: unknownID})),
+	"FunctionTriggerService/RotateHookSecret": atPerm(auth.FunctionDeploy, anyone(&pluxv1.RotateHookSecretRequest{Id: unknownID})),
 
 	// FunctionAdminService
 	"FunctionAdminService/UploadSource": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
@@ -452,6 +783,10 @@ var matrix = map[string]entry{
 	})),
 	"IdentityService/ListWorkloadIdentities": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListWorkloadIdentitiesRequest{})),
 	"IdentityService/DeleteWorkloadIdentity": atPerm(auth.TokensManage, anyone(&pluxv1.DeleteWorkloadIdentityRequest{Id: unknownID})),
+	"IdentityService/BeginStepUp":            {kind: self, build: anyone(&pluxv1.BeginStepUpRequest{})},
+	"IdentityService/CompleteStepUp":         {kind: self, build: anyone(&pluxv1.CompleteStepUpRequest{RequestId: unknownID})},
+	"IdentityService/ListSessions":           atPerm(auth.SessionsManage, anyone(&pluxv1.ListSessionsRequest{})),
+	"IdentityService/RevokeSession":          atPerm(auth.SessionsManage, anyone(&pluxv1.RevokeSessionRequest{Id: unknownID})),
 	"IdentityService/ListAuditEntries":       atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditEntriesRequest{})),
 
 	// The device's side: a person's session never satisfies these.
@@ -474,8 +809,8 @@ var matrix = map[string]entry{
 // variants are calls of an RPC that need more than the RPC's own entry
 // declares.
 var variants = map[string]entry{
-	// Deploying to a production environment is the stand-in for an
-	// approval until P9, with a second factor (FN-007).
+	// Deploying to a production environment needs a fresh step-up
+	// with a security key (FN-007, GOV-005).
 	"FunctionAdminService/Deploy (production)": atPerm(auth.FunctionDeployProduction, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.prod)}
 	}),
@@ -484,6 +819,14 @@ var variants = map[string]entry{
 	})),
 	"FunctionAdminService/SetAlias (production)": atPerm(auth.FunctionDeployProduction, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetAliasRequest{AppId: f.app, EnvironmentId: f.prod, Name: "matrix.fn", Alias: &pluxv1.Alias{Name: "stable", Version: 1}}
+	})),
+	// An emergency action needs break-glass on top of the call's own
+	// permission, with a fresh step-up (GOV-024, SEC-103).
+	"ControlService/SetKillSwitch (break-glass)": atPerm(auth.BreakglassInvoke, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetKillSwitchRequest{
+			AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, BreakGlass: true, Justification: "the matrix",
+			KillSwitch: &pluxv1.KillSwitchEntry{Scope: pluxv1.KillSwitchScope_KILL_SWITCH_SCOPE_PLUGIN, Target: "loans"},
+		}
 	})),
 	// Taking a lock another session holds is a separate permission.
 	"PluginService/AcquireLock (force)": atPerm(auth.PluginLockOverride, fixed(func(f *matrixFixture) proto.Message {

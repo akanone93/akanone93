@@ -28,12 +28,15 @@ import 'package:plux_flutter/src/security/content_key.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/pins.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
+import 'package:plux_flutter/src/store/control_store.dart';
 import 'package:plux_flutter/src/store/kv_store.dart' show SecretStore;
 import 'package:plux_flutter/src/store/metadata_state.dart';
 import 'package:plux_flutter/src/store/release_record.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/control_sync.dart';
 import 'package:plux_flutter/src/sync/device_auth.dart';
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
 import 'package:plux_flutter/src/sync/gateway_agent.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
@@ -211,6 +214,16 @@ final class SyncEngine {
       production: config.production,
       clock: _clock,
     );
+    _control = ControlSync(
+      api: api,
+      metadata: _metadata,
+      releases: store,
+      documents: ControlDocumentStore(store.root),
+      limits: config.verifierLimits,
+      channel: config.channel,
+      token: _auth.token,
+      clock: _clock,
+    );
   }
 
   /// The configuration.
@@ -244,6 +257,7 @@ final class SyncEngine {
   /// (SEC-030).
   late final GatewayAgent gateway;
   late final MetadataSync _metadata;
+  late final ControlSync _control;
   final SecurityConfigStore? _configs;
 
   /// The settings in force: the verified stored configuration, or the
@@ -259,15 +273,27 @@ final class SyncEngine {
       ? SecuritySettings.builtIn
       : SecuritySettings.fromDocument(stored.document, version: stored.version);
 
+  /// Fetches the signed control document once (SYN-060) and carries out the
+  /// forced rollback it orders. Never throws; runs beside a sync, since it
+  /// shares only the token and the metadata state.
+  Future<ControlOutcome> checkControl() => _control.check();
+
   /// Syncs once, reporting [SyncEvent]s to [emit]. Never throws: a failure
   /// is a [SyncResult] with [SyncOutcome.failed], and the active release
-  /// is untouched.
-  Future<SyncResult> run(void Function(SyncEvent) emit) async {
-    final r = await _run(emit);
+  /// is untouched. The manifest request carries what rollouts may target
+  /// this device by: its platform and runtime, and [context] (REL-051).
+  Future<SyncResult> run(
+    void Function(SyncEvent) emit, {
+    SyncContext context = const SyncContext(),
+  }) async {
+    final r = await _run(emit, DeviceTargeting.of(config.device, context));
     return r.withAssurance(_auth.assurance);
   }
 
-  Future<SyncResult> _run(void Function(SyncEvent) emit) async {
+  Future<SyncResult> _run(
+    void Function(SyncEvent) emit,
+    DeviceTargeting targeting,
+  ) async {
     final started = _clock();
     final bytes = _Counter();
     try {
@@ -310,6 +336,7 @@ final class SyncEngine {
         ifNoneMatch: ifNoneMatch ?? etag,
         installedDigest: list ? const [] : installedDigest(hashes),
         configVersion: configVersion < 0 ? sentConfig : configVersion,
+        targeting: targeting,
       );
       var res = await ask(list: etag.isEmpty);
       if (res.installedRequired) {
@@ -692,6 +719,40 @@ final class SyncEngine {
 
   /// Re-attests the device's key now, after a risk signal (SEC-006).
   Future<void> reattest() => _auth.reattestNow();
+
+  /// The report that release [sequence] is active, for a telemetry upload
+  /// to carry (SEC-142); null before the device is registered.
+  Future<Map<String, Object?>?> installedReport(
+    int sequence,
+    InstalledContext context,
+  ) async {
+    final credential = await credentials.read();
+    if (credential == null) return null;
+    return PluxApiClient.installedReport(
+      credential.deviceId,
+      sequence,
+      context,
+    );
+  }
+
+  /// Tells the server, on its own, that release [sequence] is the one this device runs,
+  /// with what the user saw it in ([context], SEC-142). The report is
+  /// best effort: a device that cannot reach the server, or has no
+  /// credential yet, loses it, and the next activation sends another.
+  Future<void> reportInstalled(int sequence, InstalledContext context) async {
+    try {
+      final credential = await credentials.read();
+      if (credential == null) return;
+      await api.reportInstalled(
+        await _auth.token(),
+        credential.deviceId,
+        sequence,
+        context: context,
+      );
+    } on Exception {
+      // Not reported; the sync itself is unaffected.
+    }
+  }
 
   /// Obtains one bundle: by its delta when the plan offers one against
   /// the bundle this device holds, else — or when the rebuilt bundle is

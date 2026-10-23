@@ -37,6 +37,11 @@ import 'package:plux_flutter/src/verify/manifest.dart';
 /// The roles of the update metadata (SEC-050).
 const List<String> metadataRoles = ['root', 'targets', 'snapshot', 'timestamp'];
 
+/// The online role that signs the control document (ADR-0077, ADR-0004
+/// Revision). A root may delegate it; one made before P9 does not, and a
+/// device then accepts no control document under it.
+const String controlRole = 'control';
+
 /// The signature algorithm names of SEC-122, as the schema spells them.
 const String algEd25519 = 'Ed25519';
 
@@ -177,6 +182,10 @@ final class RootMetadata {
 
   /// The keys of [role].
   RoleKeys role(String role) => roles[role] ?? const RoleKeys([], 1);
+
+  /// Whether the root names keys for [role]; only the optional [controlRole]
+  /// can be missing.
+  bool delegates(String role) => roles.containsKey(role);
 }
 
 /// The signed part of a timestamp: the newest snapshot and its hash.
@@ -234,6 +243,7 @@ final class MetadataFloor {
     this.timestamp = 0,
     this.snapshot = 0,
     this.targets = 0,
+    this.control = 0,
   });
 
   /// The timestamp's.
@@ -245,11 +255,15 @@ final class MetadataFloor {
   /// The targets', that is the manifest's.
   final int targets;
 
+  /// The newest control document's of the channel (SYN-060).
+  final int control;
+
   /// The higher of each role's version here and in [other].
   MetadataFloor raisedTo(MetadataFloor other) => MetadataFloor(
     timestamp: other.timestamp > timestamp ? other.timestamp : timestamp,
     snapshot: other.snapshot > snapshot ? other.snapshot : snapshot,
     targets: other.targets > targets ? other.targets : targets,
+    control: other.control > control ? other.control : control,
   );
 }
 
@@ -449,9 +463,12 @@ RootMetadata parseRoot(MetadataDocument document) {
     }
     keys[key] = MetadataKey(alg, pub);
   }
-  final rolesJson = _object(signed['roles'], 'roles', metadataRoles.toSet());
+  final delegated = _map(signed['roles'], 'roles').containsKey(controlRole)
+      ? [...metadataRoles, controlRole]
+      : metadataRoles;
+  final rolesJson = _object(signed['roles'], 'roles', delegated.toSet());
   final roles = <String, RoleKeys>{};
-  for (final role in metadataRoles) {
+  for (final role in delegated) {
     final r = _object(rolesJson[role], 'role $role', const {
       'keyids',
       'threshold',
@@ -649,6 +666,7 @@ Future<List<String>> _validSigners(
 RootMetadata rootFromKeys(Iterable<TrustedKey> keys) {
   final listed = <String, MetadataKey>{};
   final byRole = <String, List<String>>{for (final r in metadataRoles) r: []};
+  if (keys.any((k) => k.role == controlRole)) byRole[controlRole] = [];
   for (final k in keys) {
     final ids = byRole[k.role];
     if (ids == null) continue;
@@ -660,10 +678,10 @@ RootMetadata rootFromKeys(Iterable<TrustedKey> keys) {
     expires: null,
     keys: listed,
     roles: {
-      for (final r in metadataRoles)
-        r: RoleKeys(
-          List.unmodifiable(byRole[r]!),
-          r == 'root' ? byRole[r]!.length ~/ 2 + 1 : 1,
+      for (final MapEntry(:key, :value) in byRole.entries)
+        key: RoleKeys(
+          List.unmodifiable(value),
+          key == 'root' ? value.length ~/ 2 + 1 : 1,
         ),
     },
   );
@@ -814,6 +832,40 @@ final class MetadataVerifier {
     return t;
   }
 
+  /// Verifies a control document file (SYN-060, ADR-0077) in the order a
+  /// device must: the signatures meet the threshold the root gives the
+  /// control role (`PLX-3100`; a root that delegates none never does), the
+  /// document has not expired (`PLX-3101`), its version is not below the
+  /// newest already trusted (`PLX-3102`), and it is for [scope]. The signed
+  /// fields are read only after the signature holds, and the FlatBuffers
+  /// document inside is not touched at all (SEC-052): the caller verifies
+  /// and reads it from [ControlEnvelope.document].
+  Future<ControlEnvelope> control(Uint8List raw, ControlScope scope) async {
+    try {
+      final d = parseMetadataDocument(raw);
+      if (!root.delegates(controlRole)) {
+        throw _fail(
+          MetadataFault.threshold,
+          'the root delegates no control role',
+        );
+      }
+      await _signedBy(controlRole, d.signed, d.signatures);
+      final c = parseControlEnvelope(d);
+      _checkLife(controlRole, c.expires, c.version, floor.control);
+      if (c.app != scope.app ||
+          c.environment != scope.environment ||
+          c.channel != scope.channel) {
+        throw _fail(
+          MetadataFault.mismatch,
+          'the control document is for ${c.app}/${c.environment}/${c.channel}',
+        );
+      }
+      return c;
+    } on PluxException catch (e) {
+      throw controlFailure(e);
+    }
+  }
+
   /// The signature and environment checks every role shares: the
   /// threshold under the root's keys for [role], and in production only
   /// production keys.
@@ -859,4 +911,105 @@ final class MetadataVerifier {
       );
     }
   }
+}
+
+/// The document a verifier expects: the app, environment and channel a
+/// device asks about.
+final class ControlScope {
+  /// Creates the scope.
+  const ControlScope(this.app, this.environment, this.channel);
+
+  /// The app.
+  final String app;
+
+  /// The environment key.
+  final String environment;
+
+  /// The channel key.
+  final String channel;
+}
+
+/// The signed part of a control document file (`control.schema.json`): the
+/// header a device checks before it reads the document, and the encoded
+/// FlatBuffers document of `schema/control.fbs`.
+final class ControlEnvelope {
+  const ControlEnvelope._({
+    required this.version,
+    required this.expires,
+    required this.app,
+    required this.environment,
+    required this.channel,
+    required this.issuedAt,
+    required this.document,
+  });
+
+  /// The document's version, which only increases.
+  final int version;
+
+  /// When the document stops being fresh.
+  final DateTime expires;
+
+  /// The app it is for.
+  final String app;
+
+  /// The environment it is for.
+  final String environment;
+
+  /// The channel it is for.
+  final String channel;
+
+  /// When the server signed it.
+  final DateTime issuedAt;
+
+  /// The encoded FlatBuffers document; not yet verified as FlatBuffers.
+  final Uint8List document;
+}
+
+/// Reads the signed part of a control document file. Call it only after the
+/// signature has been verified (SEC-052).
+ControlEnvelope parseControlEnvelope(MetadataDocument document) {
+  final signed = _object(document._fields, 'the control document', const {
+    '_type',
+    'version',
+    'expires',
+    'specVersion',
+    'app',
+    'environment',
+    'channel',
+    'issuedAt',
+    'document',
+  });
+  final h = _header(signed, controlRole);
+  String text(String name) {
+    final v = signed[name];
+    if (v is! String || v.isEmpty) throw _format('$name is not text');
+    return v;
+  }
+
+  final encoded = text('document');
+  final bytes = _base64Pattern.hasMatch(encoded) ? _base64(encoded) : null;
+  if (bytes == null || bytes.isEmpty) throw _format('document is not base64');
+  return ControlEnvelope._(
+    version: h.version,
+    expires: h.expires,
+    app: text('app'),
+    environment: text('environment'),
+    channel: text('channel'),
+    issuedAt: _time(signed['issuedAt'], 'issuedAt'),
+    document: bytes,
+  );
+}
+
+/// A failure of the control document as the device reports it: a bad or
+/// undelegated signature, a malformed file or one for another channel is
+/// `PLX-3100`, an expired one `PLX-3101` and an older one `PLX-3102`; a
+/// development key in production keeps its own code (SEC-056).
+PluxException controlFailure(PluxException e) {
+  final code = switch (metadataFault(e)) {
+    MetadataFault.expired => PluxErrorCode.controlDocumentExpired,
+    MetadataFault.rollback => PluxErrorCode.controlRollbackRejected,
+    MetadataFault.developmentKey => PluxErrorCode.developmentKeyInProduction,
+    _ => PluxErrorCode.controlSignatureInvalid,
+  };
+  return PluxException(code, e.message, details: e.details);
 }

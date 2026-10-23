@@ -22,6 +22,11 @@ service ManifestService {
   rpc GetManifest(GetManifestRequest) returns (GetManifestResponse) {}
   // GetRootKeys returns the public keys host projects embed (SEC-051).
   rpc GetRootKeys(GetRootKeysRequest) returns (GetRootKeysResponse) {}
+  // GetSignedControl returns the signed control document of the device's
+  // channel, with the same ETag and If-None-Match handling as the manifest
+  // (SYN-060). The device verifies the file against its trusted root
+  // before it reads the document (SEC-052).
+  rpc GetSignedControl(GetSignedControlRequest) returns (GetSignedControlResponse) {}
 }
 
 // Manifest describes one release as a device sees it (REL-030,
@@ -156,6 +161,31 @@ message GetManifestRequest {
   // config_version is the security configuration version the device
   // holds, zero for none (SEC-182).
   int64 config_version = 8;
+  // targeting tells the server what rollouts may target the device by
+  // (REL-051); a device that sends none is outside every targeted rollout.
+  DeviceTargeting targeting = 9;
+}
+
+// DeviceTargeting is what a device reports about itself so that the server
+// can decide, when it fetches its manifest, which release a rollout offers it
+// (REL-050, REL-051, ADR-0078). The host build and the channel are the
+// server's own knowledge and are not repeated here.
+message DeviceTargeting {
+  string os = 1;
+  string os_version = 2;
+  string runtime_version = 3;
+  string device_class = 4;
+  string locale = 5;
+  // region is the device's region setting, never derived from its address.
+  string region = 6;
+  // user_hash is the hex SHA-256 of the pseudonymous user identifier that
+  // setUserContext provided, empty if there is none. It places the device in
+  // a rollout's bucket in place of its own identifier.
+  string user_hash = 7;
+  // user_attributes maps the name of a user-context attribute to the hex
+  // SHA-256 of the name, a zero byte and the value; plain values never leave
+  // the device.
+  map<string, string> user_attributes = 8;
 }
 
 message GetManifestResponse {
@@ -220,4 +250,19 @@ message PublicKey {
   // environment_type is "production" or "development"; a production
   // runtime refuses metadata signed by a development key (SEC-056).
   string environment_type = 5;
+}
+
+message GetSignedControlRequest {
+  // channel names the channel; empty is the default channel.
+  string channel = 1;
+  // if_none_match is the ETag of the document the device already holds.
+  string if_none_match = 2;
+}
+message GetSignedControlResponse {
+  // not_modified is true when if_none_match matched; signed is unset.
+  bool not_modified = 1;
+  string etag = 2;
+  int64 version = 3;
+  // signed is the control document file a device verifies.
+  bytes signed = 4;
 }

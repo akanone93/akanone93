@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# A highly available installation with every role: functions, the builder,
+# TLS at the api role, an ingress and autoscaling.
+server:
+  publicBaseURL: https://plux.example.com
+  tls:
+    existingSecret: plux-api-tls
+  trustedProxies: [10.0.0.0/8]
+signing:
+  vault:
+    address: https://vault.example.com:8200
+    tokenSecret:
+      name: plux-vault
+functions:
+  enabled: true
+  artifactKeys:
+    - keyID: "000102030405060708090a0b0c0d0e0f"
+      publicKey: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
+builder:
+  enabled: true
+postgresql:
+  cnpg:
+    instances: 3
+    synchronous: {enabled: true, number: 1}
+    storage: {size: 50Gi, storageClass: fast}
+    # Backups to an S3 store of their own, apart from the data bucket.
+    backup:
+      enabled: true
+      bucket: plux-pg-backups
+      endpoint: https://s3.backup.example.com
+      existingSecret: plux-pg-backup
+api:
+  replicas: 3
+  autoscaling: {enabled: true, minReplicas: 3, maxReplicas: 10, targetCPUUtilizationPercentage: 65}
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: plux.example.com
+        path: /
+    tls:
+      - secretName: plux-edge-tls
+        hosts: [plux.example.com]
+worker:
+  autoscaling: {enabled: true, minReplicas: 2, maxReplicas: 4, targetCPUUtilizationPercentage: 70}
+networkPolicy:
+  apiIngressFrom:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-nginx
+observability:
+  prometheusRule: {enabled: true, labels: {release: prometheus}}
+  dashboards:
+    enabled: true
+    analytics: {url: plux-postgresql-rw:5432}

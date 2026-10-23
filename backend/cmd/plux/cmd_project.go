@@ -294,24 +294,45 @@ func exportDraft(ctx context.Context, cl *clients, app string) (map[string][]byt
 	return out, nil
 }
 
-// importDraft replaces the app's drafts with the local project.
+// importSession is the editing session the CLI imports in.
+const importSession = "plux-cli"
+
+// importDraft replaces the app's drafts with the local project. The import
+// takes the editing lock of every draft it writes; they are given up as soon
+// as it is done, so nobody else waits for them to expire (SRV-040).
 func importDraft(ctx context.Context, cl *clients, app string, files map[string][]byte) (*pluxv1.ImportDraftResponse, error) {
 	stream := cl.document.ImportDraft(ctx)
 	first := true
 	for _, path := range slices.Sorted(mapKeys(files)) {
 		m := &pluxv1.ImportDraftRequest{Path: path, Content: files[path]}
 		if first {
-			m.AppId, m.Session, first = app, "plux-cli", false
+			m.AppId, m.Session, first = app, importSession, false
 		}
 		if err := stream.Send(m); err != nil && !errors.Is(err, io.EOF) {
 			return nil, err //nolint:wrapcheck // reported as is
 		}
 	}
 	res, err := stream.CloseAndReceive()
+	releaseImportLocks(ctx, cl, app)
 	if err != nil {
 		return nil, err //nolint:wrapcheck // reported as is
 	}
 	return res.Msg, nil
+}
+
+// releaseImportLocks gives up the locks the CLI's session holds on the app's
+// draft and its plugins' drafts. It is best effort: a lock the session does
+// not hold is refused, and an unreleased one expires on its own.
+func releaseImportLocks(ctx context.Context, cl *clients, app string) {
+	ids := []string{""}
+	if res, err := cl.plugin.ListPlugins(ctx, connect.NewRequest(&pluxv1.ListPluginsRequest{AppId: app, Page: &pluxv1.Page{PageSize: 1000}})); err == nil {
+		for _, p := range res.Msg.GetPlugins() {
+			ids = append(ids, p.GetId())
+		}
+	}
+	for _, id := range ids {
+		_, _ = cl.plugin.ReleaseLock(ctx, connect.NewRequest(&pluxv1.ReleaseLockRequest{AppId: app, PluginId: id, Session: importSession}))
+	}
 }
 
 func mapKeys[V any](m map[string]V) func(func(string) bool) {
@@ -584,6 +605,9 @@ func releaseAndPromote(ctx context.Context, cl *clients, app, envID, notes, prom
 	if err != nil {
 		return 0, err //nolint:wrapcheck // reported as is
 	}
+	if rel.Msg.GetRelease() == nil {
+		return 0, fmt.Errorf("the server created no release:%s", diagnosticsLine(rel.Msg.GetDiagnostics()))
+	}
 	seq := rel.Msg.GetRelease().GetSequence()
 	if promote == "" {
 		return seq, nil
@@ -597,6 +621,15 @@ func releaseAndPromote(ctx context.Context, cl *clients, app, envID, notes, prom
 		return 0, err //nolint:wrapcheck // reported as is
 	}
 	return seq, waitSigned(ctx, cl, target, channel, seq, wait)
+}
+
+// diagnosticsLine joins diagnostics as " CODE: message;" for one error line.
+func diagnosticsLine(ds []*pluxv1.Diagnostic) string {
+	var b strings.Builder
+	for _, d := range ds {
+		fmt.Fprintf(&b, " %s: %s;", d.GetCode(), d.GetMessage())
+	}
+	return strings.TrimSuffix(b.String(), ";")
 }
 
 // latestVersions pins the release to what was just published.
@@ -876,8 +909,27 @@ func (cl *clients) download(ctx context.Context, sha string) ([]byte, error) {
 	return data, nil
 }
 
+// moveOptions are what a promotion or a rollback takes besides where it goes.
+type moveOptions struct {
+	notes string
+	wait  time.Duration
+	// bg makes a rollback an emergency action (GOV-024).
+	bg breakGlassFlags
+}
+
+// checkBreakGlass refuses the break-glass flags on anything but a rollback:
+// a promotion is not an emergency action, and silently ignoring the flags
+// would let someone believe it was made as one.
+func checkBreakGlass(sub string, bg breakGlassFlags) error {
+	if sub != "rollback" && (bg.on || bg.justification != "") {
+		return usageError("--break-glass applies to rollback only")
+	}
+	return bg.check()
+}
+
 // releaseMove promotes a release, or rolls a channel back to one.
-func (e env) releaseMove(ctx context.Context, cl *clients, c common, sub, arg, envID, envKey, channel, notes string, wait time.Duration) int {
+func (e env) releaseMove(ctx context.Context, cl *clients, c common, sub, arg, envID, envKey, channel string, o moveOptions) int {
+	notes, wait := o.notes, o.wait
 	if envID == "" {
 		return e.fail("release", usageError("--env is required"))
 	}
@@ -895,7 +947,7 @@ func (e env) releaseMove(ctx context.Context, cl *clients, c common, sub, arg, e
 		return e.emit(c.json, map[string]any{"sequence": seq, "environment": envKey, "channel": firstOf(channel, "production")},
 			fmt.Sprintf("Release %d is now on %s/%s.", seq, envKey, firstOf(channel, "production")))
 	}
-	res, err := cl.release.RollbackRelease(ctx, connect.NewRequest(&pluxv1.RollbackReleaseRequest{AppId: c.app, EnvironmentId: envID, ChannelKey: channel, ToSequence: seq, Notes: notes}))
+	res, err := cl.release.RollbackRelease(ctx, connect.NewRequest(&pluxv1.RollbackReleaseRequest{AppId: c.app, EnvironmentId: envID, ChannelKey: channel, ToSequence: seq, Notes: notes, BreakGlass: o.bg.on, Justification: o.bg.justification}))
 	if err != nil {
 		return e.fail("release", err)
 	}
@@ -1005,45 +1057,63 @@ func (e env) keys(args []string) int {
 	return e.emit(c.json, map[string]any{"keys": keys}, text.String())
 }
 
+// releaseFlags are the flags of the release subcommands.
+type releaseFlags struct {
+	env, channel, notes, kind, format, out string
+	wait                                   time.Duration
+	bg                                     breakGlassFlags
+}
+
+// register declares the release flags on set.
+func (r *releaseFlags) register(set *flag.FlagSet) {
+	set.StringVar(&r.env, "env", "", "the environment `key`")
+	set.StringVar(&r.channel, "channel", "", "the channel `key` (default production)")
+	set.StringVar(&r.notes, "notes", "", "notes for a rollback")
+	set.DurationVar(&r.wait, "wait", defaultSignWait, "how long to wait for the signed manifest; 0 does not wait")
+	r.bg.register(set)
+	set.StringVar(&r.kind, "kind", "accessibility", "the report: accessibility or localisation")
+	set.StringVar(&r.format, "format", "json", "the report format: json or html")
+	set.StringVar(&r.out, "out", "", "write the report to this `file` instead of standard output")
+}
+
+// releaseUsage returns the usage line and the positional count of a release
+// subcommand; ok is false for an unknown subcommand.
+func releaseUsage(sub string) (usage string, positional int, ok bool) {
+	switch sub {
+	case "list":
+		return "Usage: plux release list [-C dir] [--env key] [--json]", 0, true
+	case "promote":
+		return "Usage: plux release promote --env key [--channel key] [--wait duration] [-C dir] [--json] <sequence>", 1, true
+	case "rollback":
+		return "Usage: plux release rollback --env key [--channel key] [--notes text] [--break-glass --justification text] [--wait duration] [-C dir] [--json] <to-sequence>", 1, true
+	case "report":
+		return "Usage: plux release report [--kind accessibility|localisation] [--format json|html] [--out file] [-C dir] <sequence>", 1, true
+	default:
+		return "", 0, false
+	}
+}
+
 // release lists, promotes and rolls back releases.
 func (e env) release(args []string) int {
 	if len(args) == 0 {
 		_, _ = fmt.Fprint(e.stderr, "Usage: plux release list|promote|rollback|report [flags]\n")
 		return exitUsage
 	}
-	var c common
-	set := flag.NewFlagSet("release "+args[0], flag.ContinueOnError)
-	c.register(set, true)
-	envKey := set.String("env", "", "the environment `key`")
-	channel := set.String("channel", "", "the channel `key` (default production)")
-	notes := set.String("notes", "", "notes for a rollback")
-	wait := set.Duration("wait", defaultSignWait, "how long to wait for the signed manifest; 0 does not wait")
-	kind := set.String("kind", "accessibility", "the report: accessibility or localisation")
-	format := set.String("format", "json", "the report format: json or html")
-	out := set.String("out", "", "write the report to this `file` instead of standard output")
-	var usage string
-	positional := 0
-	switch args[0] {
-	case "list":
-		usage = "Usage: plux release list [-C dir] [--env key] [--json]"
-	case "promote":
-		usage, positional = "Usage: plux release promote --env key [--channel key] [--wait duration] [-C dir] [--json] <sequence>", 1
-	case "rollback":
-		usage, positional = "Usage: plux release rollback --env key [--channel key] [--notes text] [--wait duration] [-C dir] [--json] <to-sequence>", 1
-	case "report":
-		usage, positional = "Usage: plux release report [--kind accessibility|localisation] [--format json|html] [--out file] [-C dir] <sequence>", 1
-	default:
+	usage, positional, known := releaseUsage(args[0])
+	if !known {
 		_, _ = fmt.Fprintf(e.stderr, "%s release: unknown subcommand %q\n", name, args[0])
 		return exitUsage
 	}
+	var c common
+	var rf releaseFlags
+	set := flag.NewFlagSet("release "+args[0], flag.ContinueOnError)
+	c.register(set, true)
+	rf.register(set)
 	rest, code, ok := parse(set, args[1:], e.stderr, usage, positional)
 	if !ok {
 		return code
 	}
-	if err := c.resolve(); err != nil {
-		return e.fail("release", err)
-	}
-	if err := needApp(c); err != nil {
+	if err := releasePrepare(&c, args[0], rf.bg); err != nil {
 		return e.fail("release", err)
 	}
 	cl, err := e.connect(c, true)
@@ -1052,16 +1122,28 @@ func (e env) release(args []string) int {
 	}
 	ctx := context.Background()
 	var envID string
-	if *envKey != "" {
-		if envID, err = environmentID(ctx, cl, c.app, *envKey); err != nil {
+	if rf.env != "" {
+		if envID, err = environmentID(ctx, cl, c.app, rf.env); err != nil {
 			return e.fail("release", err)
 		}
 	}
-	if args[0] == "list" {
+	switch args[0] {
+	case "list":
 		return e.releaseList(ctx, cl, c, envID)
+	case "report":
+		return e.releaseReport(ctx, cl, c, rest[0], rf.kind, rf.format, rf.out)
 	}
-	if args[0] == "report" {
-		return e.releaseReport(ctx, cl, c, rest[0], *kind, *format, *out)
+	return e.releaseMove(ctx, cl, c, args[0], rest[0], envID, rf.env, rf.channel, moveOptions{notes: rf.notes, wait: rf.wait, bg: rf.bg})
+}
+
+// releasePrepare resolves the shared flags and checks the break-glass flags
+// against the subcommand.
+func releasePrepare(c *common, sub string, bg breakGlassFlags) error {
+	if err := c.resolve(); err != nil {
+		return err
 	}
-	return e.releaseMove(ctx, cl, c, args[0], rest[0], envID, *envKey, *channel, *notes, *wait)
+	if err := needApp(*c); err != nil {
+		return err
+	}
+	return checkBreakGlass(sub, bg)
 }

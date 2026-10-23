@@ -1,0 +1,711 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// GovernanceService manages who may do what (GOV-002, GOV-003, ADR-0073):
+// the permission catalogue, the predefined and custom roles, and the grants
+// that bind a role to a user or a team at a scope. Teams and their members
+// are managed by OrgService.
+service GovernanceService {
+  // ListPermissions returns the permission catalogue, in name order.
+  rpc ListPermissions(ListPermissionsRequest) returns (ListPermissionsResponse) {}
+
+  // ListRoles lists the predefined roles and the organisation's custom
+  // roles, by key.
+  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {}
+  rpc GetRole(GetRoleRequest) returns (GetRoleResponse) {}
+  // CreateRole creates a custom role composed of catalogue permissions the
+  // caller holds. Unknown permissions are PLX-8101. Custom roles are an
+  // enterprise feature.
+  rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {}
+  rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {}
+  // DeleteRole deletes a custom role that no grant uses.
+  rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse) {}
+
+  // ListGrants lists the grants made through this service. The role of a
+  // direct membership and the roles on apps (AppService.GrantAccess) are
+  // grants too, and are managed where they are made.
+  rpc ListGrants(ListGrantsRequest) returns (ListGrantsResponse) {}
+  // CreateGrant binds a role to a user or a team at a scope: the
+  // organisation, one app, or one environment of an app.
+  rpc CreateGrant(CreateGrantRequest) returns (CreateGrantResponse) {}
+  // UpdateGrant changes the role of a grant.
+  rpc UpdateGrant(UpdateGrantRequest) returns (UpdateGrantResponse) {}
+  rpc DeleteGrant(DeleteGrantRequest) returns (DeleteGrantResponse) {}
+
+  // CreateRestriction creates a restriction: a ceiling that removes
+  // permissions from the organisation, a team or one person, whatever their
+  // grants say (GOV-006). It needs restrictions.manage with a step-up; one
+  // on the whole organisation also needs organization.manage. Patterns are
+  // catalogue permissions or the wildcards "*", "<area>.*" and
+  // "<area>.<feature>.*" (PLX-8104).
+  rpc CreateRestriction(CreateRestrictionRequest) returns (CreateRestrictionResponse) {}
+  // ListRestrictions lists the organisation's restrictions.
+  rpc ListRestrictions(ListRestrictionsRequest) returns (ListRestrictionsResponse) {}
+  // DeleteRestriction removes a restriction.
+  rpc DeleteRestriction(DeleteRestrictionRequest) returns (DeleteRestrictionResponse) {}
+
+  // GetEffectivePermissions returns the caller's permissions for an
+  // organisation, optionally on an app and one of its environments, as one
+  // compact set with the organisation's permissions version (GOV-007).
+  rpc GetEffectivePermissions(GetEffectivePermissionsRequest) returns (GetEffectivePermissionsResponse) {}
+  // WatchPermissions streams the organisation's permissions version
+  // whenever grants, roles, memberships or restrictions change, starting
+  // with the current one, so that a client refetches instead of polling
+  // (GOV-007).
+  rpc WatchPermissions(WatchPermissionsRequest) returns (stream WatchPermissionsResponse) {}
+  // ExplainAccess says why a person can or cannot perform an action in a
+  // scope, naming the grants that allow it and the restrictions that remove
+  // it. With a proposed grant or restriction it evaluates the change
+  // without saving it. Anyone may explain their own access; another
+  // person's needs members.manage (GOV-007).
+  rpc ExplainAccess(ExplainAccessRequest) returns (ExplainAccessResponse) {}
+}
+
+// PermissionEntry is one permission of the catalogue.
+message PermissionEntry {
+  // name is the dotted permission name, for example "release.publish".
+  string name = 1;
+  string description = 2;
+  // risk is "low", "medium" or "high".
+  string risk = 3;
+  // step_up is true when the permission needs a second factor in the
+  // session (SEC-100, SEC-103).
+  bool step_up = 4;
+  // scope is the narrowest scope the permission can be granted at:
+  // "organization", "app" or "environment".
+  string scope = 5;
+  // read_only is true when the permission changes nothing.
+  bool read_only = 6;
+}
+
+// RoleDefinition is a role and the permissions it holds.
+message RoleDefinition {
+  // key names the role: the name of a predefined role, or the key of a
+  // custom role.
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  bool predefined = 4;
+  // permissions are catalogue names, bare or limited to an environment as
+  // "<permission>:<environment>".
+  repeated string permissions = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// RoleGrant binds a role to a user or a team at a scope (GOV-003).
+message RoleGrant {
+  string id = 1;
+  string organization_id = 2;
+  // Exactly one of user_id and team_id is set.
+  string user_id = 3;
+  string team_id = 4;
+  string role = 5;
+  // scope is "organization", "app" or "environment".
+  string scope = 6;
+  // app_id is set for the scopes "app" and "environment".
+  string app_id = 7;
+  // environment_id is set for the scope "environment".
+  string environment_id = 8;
+  google.protobuf.Timestamp created_at = 9;
+}
+
+message ListPermissionsRequest {}
+message ListPermissionsResponse {
+  repeated PermissionEntry permissions = 1;
+}
+
+message ListRolesRequest {
+  Page page = 1;
+}
+message ListRolesResponse {
+  repeated RoleDefinition roles = 1;
+  PageResult page = 2;
+}
+
+message GetRoleRequest {
+  string key = 1;
+}
+message GetRoleResponse {
+  RoleDefinition role = 1;
+}
+
+message CreateRoleRequest {
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  repeated string permissions = 4;
+}
+message CreateRoleResponse {
+  RoleDefinition role = 1;
+}
+
+message UpdateRoleRequest {
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  repeated string permissions = 4;
+}
+message UpdateRoleResponse {
+  RoleDefinition role = 1;
+}
+
+message DeleteRoleRequest {
+  string key = 1;
+}
+message DeleteRoleResponse {}
+
+message ListGrantsRequest {
+  // user_id, team_id and app_id each narrow the list when set.
+  string user_id = 1;
+  string team_id = 2;
+  string app_id = 3;
+  Page page = 4;
+}
+message ListGrantsResponse {
+  repeated RoleGrant grants = 1;
+  PageResult page = 2;
+}
+
+message CreateGrantRequest {
+  // Exactly one of user_id and team_id is set.
+  string user_id = 1;
+  string team_id = 2;
+  string role = 3;
+  string scope = 4;
+  string app_id = 5;
+  string environment_id = 6;
+}
+message CreateGrantResponse {
+  RoleGrant grant = 1;
+}
+
+message UpdateGrantRequest {
+  string id = 1;
+  string role = 2;
+}
+message UpdateGrantResponse {
+  RoleGrant grant = 1;
+}
+
+message DeleteGrantRequest {
+  string id = 1;
+}
+message DeleteGrantResponse {}
+
+// Restriction removes permissions from its subject whatever their grants
+// say (GOV-006). It is immutable: a change is a delete and a create.
+message Restriction {
+  string id = 1;
+  // subject_kind is "organization", "team" or "user".
+  string subject_kind = 2;
+  // subject_id is the team or the user; empty for the organisation.
+  string subject_id = 3;
+  // patterns are catalogue permissions or the wildcards "*", "<area>.*"
+  // and "<area>.<feature>.*".
+  repeated string patterns = 4;
+  // app_id limits the restriction to one app, and environment, the key of
+  // one of its environments, to that environment; both are empty for the
+  // whole organisation.
+  string app_id = 5;
+  string environment = 6;
+  string reason = 7;
+  // created_by is the person who made it; empty when that person is gone.
+  string created_by = 8;
+  google.protobuf.Timestamp created_at = 9;
+}
+
+message CreateRestrictionRequest {
+  string subject_kind = 1;
+  string subject_id = 2;
+  repeated string patterns = 3;
+  string app_id = 4;
+  string environment = 5;
+  string reason = 6;
+}
+message CreateRestrictionResponse {
+  Restriction restriction = 1;
+}
+
+message ListRestrictionsRequest {
+  // subject_id and app_id each narrow the list when set.
+  string subject_id = 1;
+  string app_id = 2;
+  Page page = 3;
+}
+message ListRestrictionsResponse {
+  repeated Restriction restrictions = 1;
+  PageResult page = 2;
+}
+
+message DeleteRestrictionRequest {
+  string id = 1;
+}
+message DeleteRestrictionResponse {}
+
+message GetEffectivePermissionsRequest {
+  // organization_id may be left empty when the call names the organisation
+  // in the X-Plux-Organization header or a token is bound to one.
+  string organization_id = 1;
+  // app_id and environment (the environment's key, which needs an app_id)
+  // narrow the set to what the caller may do there.
+  string app_id = 2;
+  string environment = 3;
+}
+message GetEffectivePermissionsResponse {
+  // permissions are the permission names the caller holds in the scope, in
+  // name order.
+  repeated string permissions = 1;
+  // version is the organisation's permissions version the set was
+  // resolved at.
+  int64 version = 2;
+}
+
+message WatchPermissionsRequest {
+  string organization_id = 1;
+}
+message WatchPermissionsResponse {
+  string organization_id = 1;
+  // version is the organisation's new permissions version; a client that
+  // holds an older one refetches.
+  int64 version = 2;
+}
+
+// ProposedGrant is a grant ExplainAccess evaluates without saving it.
+message ProposedGrant {
+  // Exactly one of user_id and team_id is set.
+  string user_id = 1;
+  string team_id = 2;
+  string role = 3;
+  // scope is "organization", "app" or "environment".
+  string scope = 4;
+  string app_id = 5;
+  // environment is the key of the environment, for the scope "environment".
+  string environment = 6;
+}
+
+message ExplainAccessRequest {
+  string organization_id = 1;
+  // user_id is the person; empty explains the caller's own access.
+  string user_id = 2;
+  // permission is the catalogue permission asked about.
+  string permission = 3;
+  // app_id and environment (the environment's key) name the scope; both
+  // empty asks about the whole organisation.
+  string app_id = 4;
+  string environment = 5;
+  // proposal, when set, is evaluated on top of the stored state and
+  // nothing is saved. Its identifier in the response is "proposed".
+  oneof proposal {
+    ProposedGrant proposed_grant = 6;
+    CreateRestrictionRequest proposed_restriction = 7;
+  }
+}
+message ExplainAccessResponse {
+  // decision is "allow" or "deny".
+  string decision = 1;
+  // allowing_grant_ids are the grants, memberships and app access entries
+  // whose roles carry the permission in the scope; none means "no grant".
+  repeated string allowing_grant_ids = 2;
+  // removing_restriction_ids are the restrictions that take it away in the
+  // scope.
+  repeated string removing_restriction_ids = 3;
+  // owner_floor is set when a restriction names the permission and the
+  // person is an Owner, whose floor keeps it (GOV-006).
+  bool owner_floor = 4;
+}
+
+// ApprovalService is the approval engine (GOV-020 to GOV-023, ADR-0076):
+// the policies that say which changes need approval, and the requests the
+// engine opens when a guarded change is refused for want of one. A request
+// is opened by the refusal itself, never by a call here, and names the
+// artifact by its content hash.
+service ApprovalService {
+  // PutPolicy creates a policy document or adds a version of it. The
+  // document is checked against the policy schema (PLX-1700); stages and
+  // distinct-team rules are an enterprise feature (PLX-8600). Changing a
+  // policy is itself a change a policy can guard (resource "policy").
+  rpc PutPolicy(PutPolicyRequest) returns (PutPolicyResponse) {}
+  rpc GetPolicy(GetPolicyRequest) returns (GetPolicyResponse) {}
+  // ListPolicies lists the policies in force for an app. The first call
+  // for an app seeds the default policies of its security profile.
+  rpc ListPolicies(ListPoliciesRequest) returns (ListPoliciesResponse) {}
+  // DeletePolicy withdraws a policy; a deleted default is not seeded again.
+  rpc DeletePolicy(DeletePolicyRequest) returns (DeletePolicyResponse) {}
+  // ExportPolicies returns the policies in force as the files of the Git
+  // layout, policies/<key>.policy.json.
+  rpc ExportPolicies(ExportPoliciesRequest) returns (ExportPoliciesResponse) {}
+
+  rpc ListApprovals(ListApprovalsRequest) returns (ListApprovalsResponse) {}
+  rpc GetApproval(GetApprovalRequest) returns (GetApprovalResponse) {}
+  // GetApprovalReview returns what an approver sees before deciding: the
+  // diff, reports, golden-image differences, install base, changelog and
+  // risk summary (GOV-023).
+  rpc GetApprovalReview(GetApprovalReviewRequest) returns (GetApprovalReviewResponse) {}
+  // DecideApproval approves or rejects a request. It needs approvals.decide
+  // on the request's environment, which needs a fresh step-up (SEC-103).
+  // The requester and the author of the change are refused (PLX-8003).
+  rpc DecideApproval(DecideApprovalRequest) returns (DecideApprovalResponse) {}
+}
+
+// PolicyRecord is one version of a policy document.
+message PolicyRecord {
+  string app_id = 1;
+  string key = 2;
+  int32 version = 3;
+  // document is the policy document as JSON.
+  bytes document = 4;
+  // document_hash is the SHA-256 of the canonical document, in hex: what
+  // an approval of a policy change binds to.
+  string document_hash = 5;
+  bool deleted = 6;
+  string created_by = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message PutPolicyRequest {
+  string app_id = 1;
+  // document is the policy document as JSON.
+  bytes document = 2;
+}
+message PutPolicyResponse {
+  PolicyRecord policy = 1;
+}
+
+message GetPolicyRequest {
+  string app_id = 1;
+  string key = 2;
+}
+message GetPolicyResponse {
+  PolicyRecord policy = 1;
+}
+
+message ListPoliciesRequest {
+  string app_id = 1;
+}
+message ListPoliciesResponse {
+  repeated PolicyRecord policies = 1;
+}
+
+message DeletePolicyRequest {
+  string app_id = 1;
+  string key = 2;
+}
+message DeletePolicyResponse {}
+
+// PolicyFile is one file of an export.
+message PolicyFile {
+  string path = 1;
+  bytes content = 2;
+}
+message ExportPoliciesRequest {
+  string app_id = 1;
+}
+message ExportPoliciesResponse {
+  repeated PolicyFile files = 1;
+}
+
+// ApprovalDecision is one signed record of a decision (GOV-023).
+message ApprovalDecision {
+  string id = 1;
+  string decider_id = 2;
+  string decider = 3;
+  // decision is "approve" or "reject".
+  string decision = 4;
+  string comment = 5;
+  string content_hash = 6;
+  google.protobuf.Timestamp decided_at = 7;
+  // payload is the canonical record the signature covers.
+  bytes payload = 8;
+  // key_id and signature are empty until the worker has signed the record.
+  string key_id = 9;
+  bytes signature = 10;
+  int64 audit_sequence = 11;
+}
+
+// ApprovalRequest asks for the approval of one artifact.
+message ApprovalRequest {
+  string id = 1;
+  string app_id = 2;
+  string environment = 3;
+  // resource is the kind of artifact, as in the policy schema.
+  string resource = 4;
+  string action = 5;
+  // subject names what changes, for example "release:12".
+  string subject = 6;
+  // content_hash is what an approval is bound to (GOV-022), in hex.
+  string content_hash = 7;
+  string summary = 8;
+  repeated string risk = 9;
+  // status is "open", "approved", "rejected", "expired", "superseded" or
+  // "used".
+  string status = 10;
+  string requested_by = 11;
+  repeated string policy_keys = 12;
+  // approvals_required is the most approvals any matching policy asks for.
+  int32 approvals_required = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp expires_at = 15;
+  repeated ApprovalDecision decisions = 16;
+}
+
+message ListApprovalsRequest {
+  string app_id = 1;
+  // status narrows the list when set.
+  string status = 2;
+  Page page = 3;
+}
+message ListApprovalsResponse {
+  repeated ApprovalRequest approvals = 1;
+  PageResult page = 2;
+}
+
+message GetApprovalRequest {
+  string app_id = 1;
+  string id = 2;
+}
+message GetApprovalResponse {
+  ApprovalRequest approval = 1;
+}
+
+message GetApprovalReviewRequest {
+  string app_id = 1;
+  string id = 2;
+}
+
+// ReviewImage is a golden-image difference: the approved baseline and the
+// image the run produced, as PNG. The baseline is empty for a case that
+// has none yet.
+message ReviewImage {
+  string plugin_key = 1;
+  string case_id = 2;
+  bytes baseline = 3;
+  bytes actual = 4;
+}
+
+// InstallBaseEntry counts the devices of the environment that hold one
+// release on one host build.
+message InstallBaseEntry {
+  // channel is set on the entries of a channel's current release.
+  string channel = 1;
+  int64 release_sequence = 2;
+  string host_build = 3;
+  int64 devices = 4;
+}
+
+// ReviewReport is a validation or accessibility report as JSON.
+message ReviewReport {
+  string kind = 1;
+  bytes content = 2;
+}
+
+// ReviewRisk is the computed risk summary.
+message ReviewRisk {
+  // level is "low", "medium" or "high".
+  string level = 1;
+  repeated string reasons = 2;
+}
+
+message GetApprovalReviewResponse {
+  ApprovalRequest approval = 1;
+  // diff is the JSON diff of the change, as JSON.
+  bytes diff = 2;
+  repeated ReviewReport reports = 3;
+  repeated ReviewImage golden_diffs = 4;
+  repeated InstallBaseEntry install_base = 5;
+  repeated string changelog = 6;
+  string notes = 7;
+  ReviewRisk risk = 8;
+}
+
+message DecideApprovalRequest {
+  string app_id = 1;
+  string id = 2;
+  // decision is "approve" or "reject".
+  string decision = 3;
+  string comment = 4;
+}
+message DecideApprovalResponse {
+  ApprovalRequest approval = 1;
+}
+
+// BreakGlassService lists and reviews the emergency actions taken without
+// prior approval (GOV-024, ADR-0076). The actions themselves are taken with
+// the break_glass field of the kill-switch, forced-rollback and rollback
+// calls; each opens a post-hoc review here, due within
+// governance.breakGlassReviewHours (24 hours by default) and escalated when
+// overdue (PLX-8006).
+service BreakGlassService {
+  // ListBreakGlass lists the emergency actions of the organisation, newest
+  // first. It needs audit.read.
+  rpc ListBreakGlass(ListBreakGlassRequest) returns (ListBreakGlassResponse) {}
+  // ReviewBreakGlass completes the post-hoc review of an action. It needs
+  // approvals.decide with a fresh step-up (SEC-103); whoever took the action
+  // cannot review it (PLX-8003).
+  rpc ReviewBreakGlass(ReviewBreakGlassRequest) returns (ReviewBreakGlassResponse) {}
+}
+
+// BreakGlassInvocation is one emergency action and its review.
+message BreakGlassInvocation {
+  string id = 1;
+  string app_id = 2;
+  string environment_id = 3;
+  string environment = 4;
+  // action is "killSwitch", "forcedRollback" or "rollback"; a function is
+  // disabled with a kill switch of scope function.
+  string action = 5;
+  string subject = 6;
+  string justification = 7;
+  string invoked_by_id = 8;
+  string invoked_by = 9;
+  google.protobuf.Timestamp invoked_at = 10;
+  google.protobuf.Timestamp review_due_at = 11;
+  // review_status is "open" or "reviewed".
+  string review_status = 12;
+  string reviewed_by = 13;
+  google.protobuf.Timestamp reviewed_at = 14;
+  string review_comment = 15;
+  // overdue is set while the review is open past its due time (PLX-8006).
+  bool overdue = 16;
+}
+
+message ListBreakGlassRequest {
+  // status narrows the list to "open" or "reviewed" when set.
+  string status = 1;
+  Page page = 2;
+}
+message ListBreakGlassResponse {
+  repeated BreakGlassInvocation invocations = 1;
+  PageResult page = 2;
+}
+
+message ReviewBreakGlassRequest {
+  string id = 1;
+  string comment = 2;
+}
+message ReviewBreakGlassResponse {
+  BreakGlassInvocation invocation = 1;
+}
+
+// FreezeService manages change-freeze windows (GOV-025, ADR-0076), an
+// enterprise feature (PLX-8600 without the licence). Inside a window,
+// changes to a production environment are refused with PLX-8010, except
+// through break-glass.
+service FreezeService {
+  // ListFreezes lists the windows of the organisation. It needs
+  // organization.read.
+  rpc ListFreezes(ListFreezesRequest) returns (ListFreezesResponse) {}
+  // PutFreeze creates a window, or replaces the one of the same name. It
+  // needs freezes.manage. The window is checked by the calendar (PLX-1005
+  // for a window that cannot be evaluated).
+  rpc PutFreeze(PutFreezeRequest) returns (PutFreezeResponse) {}
+  // DeleteFreeze removes a window. It needs freezes.manage.
+  rpc DeleteFreeze(DeleteFreezeRequest) returns (DeleteFreezeResponse) {}
+}
+
+// ChangeFreeze is one freeze window.
+message ChangeFreeze {
+  string id = 1;
+  string name = 2;
+  // environment_key is the environment frozen; empty freezes every
+  // production environment.
+  string environment_key = 3;
+  // time_zone is an IANA time zone name.
+  string time_zone = 4;
+  // start is the wall-clock start in time_zone, as YYYY-MM-DDTHH:MM. For a
+  // recurring window it is the first start.
+  string start = 5;
+  int32 duration_minutes = 6;
+  // recurrence is empty for a one-off window, else FREQ=DAILY or
+  // FREQ=WEEKLY;BYDAY=MO,TU,..., optionally with ;UNTIL=YYYYMMDD.
+  string recurrence = 7;
+  string reason = 8;
+  string created_by = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message ListFreezesRequest {}
+message ListFreezesResponse {
+  repeated ChangeFreeze freezes = 1;
+}
+
+message PutFreezeRequest {
+  ChangeFreeze freeze = 1;
+}
+message PutFreezeResponse {
+  ChangeFreeze freeze = 1;
+}
+
+message DeleteFreezeRequest {
+  string id = 1;
+}
+message DeleteFreezeResponse {}
+
+// ComplianceService produces compliance reports (GOV-026, ADR-0076), an
+// enterprise feature (PLX-8600 without the licence): every production
+// change of a period with author, approvers, timestamps, content hashes and
+// evidence, as a DSSE envelope signed with the audit key, and as a PDF.
+service ComplianceService {
+  // CreateComplianceReport gathers the production changes of a period into a
+  // report. The server's worker signs it a moment later; poll
+  // GetComplianceReport. It needs compliance.report.
+  rpc CreateComplianceReport(CreateComplianceReportRequest) returns (CreateComplianceReportResponse) {}
+  // GetComplianceReport returns a report as JSON (the signed envelope) or
+  // as PDF. It needs compliance.report.
+  rpc GetComplianceReport(GetComplianceReportRequest) returns (GetComplianceReportResponse) {}
+  // ListComplianceReports lists the reports requested, newest first.
+  rpc ListComplianceReports(ListComplianceReportsRequest) returns (ListComplianceReportsResponse) {}
+}
+
+// ComplianceReportInfo describes a report without its content.
+message ComplianceReportInfo {
+  string id = 1;
+  google.protobuf.Timestamp period_from = 2;
+  google.protobuf.Timestamp period_to = 3;
+  int32 changes = 4;
+  string requested_by = 5;
+  google.protobuf.Timestamp requested_at = 6;
+  // signed is false until the worker has signed the report.
+  bool signed = 7;
+  string key_id = 8;
+  google.protobuf.Timestamp signed_at = 9;
+}
+
+message CreateComplianceReportRequest {
+  // from is inclusive and to exclusive.
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+message CreateComplianceReportResponse {
+  ComplianceReportInfo report = 1;
+}
+
+message GetComplianceReportRequest {
+  string id = 1;
+  // format is "json" or "pdf".
+  string format = 2;
+}
+message GetComplianceReportResponse {
+  ComplianceReportInfo report = 1;
+  // content is empty while the report is not signed.
+  bytes content = 2;
+  string content_type = 3;
+}
+
+message ListComplianceReportsRequest {
+  Page page = 1;
+}
+message ListComplianceReportsResponse {
+  repeated ComplianceReportInfo reports = 1;
+  PageResult page = 2;
+}

@@ -19,7 +19,7 @@ dependencies:
     sdk: flutter
   hooks: ^2.2.0
   native_toolchain_c: ^0.19.3
-  plux_flutter: ^0.5.0
+  plux_flutter: ^0.6.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0

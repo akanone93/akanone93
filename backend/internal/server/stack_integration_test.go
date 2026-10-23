@@ -16,15 +16,21 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
@@ -37,13 +43,21 @@ import (
 type stack struct {
 	ctx    context.Context
 	server string
+	// public is the server's configured public base URL, which the CLI's
+	// step-up proofs name (SEC-022); it differs from server when devices
+	// reach the server through a proxy.
+	public string
 	dir    string
 	svc    *Services
-	owner  auth.Principal
-	org    string
-	app    tenancy.App
-	token  string
-	cli    string
+	// cfg and db are those the stack was built with, for a test that needs
+	// a service of its own beside the running roles.
+	cfg   *config.Config
+	db    *storage.DB
+	owner auth.Principal
+	org   string
+	app   tenancy.App
+	token string
+	cli   string
 	// runner is the fnrunner role of a stack that runs functions, as the
 	// api role's internal identity calls it; nil otherwise.
 	runner fnpbconnect.FunctionRunnerServiceClient
@@ -65,6 +79,9 @@ type stackOptions struct {
 	// identityHTTP reads the identity providers' key sets, for a provider
 	// the test runs on loopback behind its own authority.
 	identityHTTP *http.Client
+	// pushEnds and pushHTTP stand in for the push providers (SYN-060).
+	pushEnds *push.Endpoints
+	pushHTTP *http.Client
 	// functions makes the stack run server functions: the fnrunner and
 	// egress roles beside the server, over mutual TLS from a test
 	// authority, and the worker's builder replaced by the given one.
@@ -137,7 +154,7 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 			"  secretAccessKey: \"" + os.Getenv("PLUX_TEST_S3_SECRET_ACCESS_KEY") + "\"\n  cdnBaseURL: \"" + server + "/v1/objects\"\n"
 	}
 	if valkey := os.Getenv("PLUX_TEST_VALKEY_URL"); valkey != "" {
-		stores += "cache:\n  backend: valkey\n  valkeyURL: \"" + valkey + "\"\n"
+		stores += "cache:\n  backend: valkey\n  valkeyURL: \"" + valkeyDatabase(valkey) + "\"\n"
 	}
 	var build []BuildOption
 	var roles functionRoles
@@ -154,6 +171,9 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	ctx, cancel := context.WithCancel(context.Background())
 	if o.identityHTTP != nil {
 		build = append(build, WithIdentityProviderClient(o.identityHTTP))
+	}
+	if o.pushEnds != nil {
+		build = append(build, WithPushProvider(*o.pushEnds, o.pushHTTP))
 	}
 	built, err := Build(ctx, cfg, discard(), "test", build...)
 	if err != nil {
@@ -199,7 +219,7 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	if _, err := svc.Auth.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	id := auth.Identity{Kind: auth.KindUser, ID: user.ID, UserID: user.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	id := auth.Identity{Kind: auth.KindUser, ID: user.ID, UserID: user.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	org, err := svc.Tenancy.CreateOrganization(ctx, id, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)
@@ -217,6 +237,8 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 		t.Fatal(err)
 	}
 
+	approveStepUps(t, db, org.ID)
+
 	var grants *function.Grants
 	if o.functions != nil {
 		if grants, err = function.OpenGrants(ctx, db, backend, nil); err != nil {
@@ -229,15 +251,22 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	if out, err := exec.CommandContext(ctx, "go", "build", "-o", cli, "../../cmd/plux").CombinedOutput(); err != nil { //nolint:gosec // G204: a path the test chose.
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
-	return &stack{ctx: ctx, server: server, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli, runner: runner, grants: grants}
+	return &stack{ctx: ctx, server: server, public: public, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli, cfg: cfg, db: db, runner: runner, grants: grants}
+}
+
+// command prepares the CLI to run with args as a user would: with the
+// stack's token, and told the public base URL its step-up proofs name.
+func (s *stack) command(args ...string) *exec.Cmd {
+	cmd := exec.CommandContext(s.ctx, s.cli, args...) //nolint:gosec // G204: the binary the test built.
+	cmd.Env = append(os.Environ(), "PLUX_TOKEN="+s.token, "PLUX_SERVER=", "PLUX_PUBLIC_URL="+s.public, "PLUX_ORGANIZATION=", "HOME="+s.dir, "XDG_CONFIG_HOME="+filepath.Join(s.dir, "config"))
+	return cmd
 }
 
 // run runs the CLI with args and fails the test unless it exits with want;
 // it returns what the CLI printed on standard output.
 func (s *stack) run(t *testing.T, want int, args ...string) []byte {
 	t.Helper()
-	cmd := exec.CommandContext(s.ctx, s.cli, args...) //nolint:gosec // G204: the binary the test built.
-	cmd.Env = append(os.Environ(), "PLUX_TOKEN="+s.token, "PLUX_SERVER=", "PLUX_ORGANIZATION=", "HOME="+s.dir, "XDG_CONFIG_HOME="+filepath.Join(s.dir, "config"))
+	cmd := s.command(args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	err := cmd.Run()
@@ -382,4 +411,48 @@ func (s *stack) setIdentityProvider(t *testing.T, environment string, idp gatewa
 	if err := s.svc.Gateway.Upstreams.SetProvider(s.ctx, s.owner, idp); err != nil {
 		t.Fatalf("set the identity provider: %v", err)
 	}
+}
+
+// approveStepUps plays the person's browser for the CLI: it approves every
+// step-up request the CLI makes, recording the outcome of the ceremony the way
+// the ceremony records it. The ceremony itself (a WebAuthn assertion with user
+// verification) is exercised by the auth tests (SEC-103); the CLI's side, the
+// request, the poll and the grant bound to its key, runs for real.
+func approveStepUps(t *testing.T, db *storage.DB, organizationID string) {
+	t.Helper()
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	t.Cleanup(func() {
+		cancel()
+		<-done
+	})
+	go func() {
+		defer close(done)
+		tick := time.NewTicker(50 * time.Millisecond)
+		defer tick.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-tick.C:
+				_ = db.InTx(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) error {
+					_, err := tx.Exec(ctx, `UPDATE step_up_requests SET state = 'approved', approved_at = $1, challenge = NULL
+						WHERE kind = 'cli' AND state = 'pending'`, time.Now())
+					return err
+				})
+			}
+		}
+	}()
+}
+
+// valkeyStacks counts the stacks that used the shared Valkey.
+var valkeyStacks atomic.Int64
+
+// valkeyDatabase gives each stack a logical database of the shared Valkey of
+// its own, in turn, so that one stack never reads another's telemetry stream:
+// every server's consumer joins the same group of the same stream, and a
+// stack that is still stopping, or the batches an earlier one left pending,
+// would otherwise take this stack's batches and drop them as unwritable.
+func valkeyDatabase(url string) string {
+	return strings.TrimSuffix(url, "/") + "/" + strconv.FormatInt(1+valkeyStacks.Add(1)%15, 10)
 }

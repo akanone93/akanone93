@@ -10,6 +10,7 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/telemetry/events.dart';
@@ -22,6 +23,7 @@ final class TelemetryFlush {
     required this.dropped,
     required this.left,
     this.error,
+    this.installed = false,
   });
 
   /// Events the server answered for, accepted or refused.
@@ -35,6 +37,10 @@ final class TelemetryFlush {
 
   /// Why the flush stopped early, when it did.
   final ApiError? error;
+
+  /// Whether the server took the installed-release report the flush
+  /// carried (SEC-142).
+  final bool installed;
 }
 
 /// The buffer.
@@ -110,28 +116,36 @@ final class TelemetryOutbox {
   /// authentication) is dropped, so a bad event is never retried for
   /// ever; a retryable failure or a lost token stops the flush and keeps
   /// the rest for the next one.
+  ///
+  /// An [installed] report (SEC-142) rides on the first request, alone
+  /// when nothing is buffered, so an update costs no request of its own
+  /// (QA-007).
   Future<TelemetryFlush> flush({
     required PluxApiClient api,
     required Future<DeviceToken> Function() token,
     required String appId,
     required String environment,
     required int perRequest,
+    Map<String, Object?>? installed,
   }) async {
     var sent = 0;
     var dropped = 0;
+    var report = installed;
     for (var i = 0; i < maxBatches; i++) {
       final lines = _lines();
-      if (lines.isEmpty) break;
-      final batch = lines.take(perRequest.clamp(1, lines.length)).toList();
+      if (lines.isEmpty && report == null) break;
+      final batch = lines.take(math.max(1, perRequest)).toList();
       final events = [for (final l in batch) ?TelemetryLine.parse(l)?.event];
       try {
-        if (events.isNotEmpty) {
+        if (events.isNotEmpty || report != null) {
           await api.ingestEvents(
             await token(),
             appId: appId,
             environment: environment,
             events: events,
+            installed: report,
           );
+          report = null;
         }
         sent += events.length;
       } on ApiError catch (e) {
@@ -141,12 +155,19 @@ final class TelemetryOutbox {
             dropped: dropped,
             left: lines.length,
             error: e,
+            installed: installed != null && report == null,
           );
         }
         dropped += batch.length;
+        if (lines.isEmpty) break;
       }
-      _write(_lines().sublist(batch.length));
+      if (batch.isNotEmpty) _write(_lines().sublist(batch.length));
     }
-    return TelemetryFlush(sent: sent, dropped: dropped, left: length);
+    return TelemetryFlush(
+      sent: sent,
+      dropped: dropped,
+      left: length,
+      installed: installed != null && report == null,
+    );
   }
 }

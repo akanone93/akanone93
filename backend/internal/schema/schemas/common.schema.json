@@ -1097,7 +1097,7 @@
     },
     "node": {
       "type": "object",
-      "description": "A node of a page or component tree: a widget or a component instance (SCH-023).",
+      "description": "A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001).",
       "required": [
         "id"
       ],
@@ -1184,6 +1184,24 @@
         },
         "a11yWaivers": {
           "$ref": "#/$defs/a11yWaivers"
+        },
+        "experiment": {
+          "$ref": "#/$defs/name",
+          "description": "On a `Variant` node: the key of the experiment whose assigned variant this node shows (ABT-001, ABT-002)."
+        },
+        "control": {
+          "$ref": "#/$defs/node",
+          "description": "On a `Variant` node: the subtree shown for the control, and for a variant that has no subtree of its own (ABT-001)."
+        },
+        "variants": {
+          "type": "object",
+          "description": "On a `Variant` node: the subtree of each non-control variant, by the variant's name (ABT-001).",
+          "propertyNames": {
+            "$ref": "#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/node"
+          }
         }
       },
       "patternProperties": {

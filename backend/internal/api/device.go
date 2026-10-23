@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
@@ -193,13 +194,22 @@ func (s Device) ReportInstalled(ctx context.Context, req *connect.Request[pluxv1
 	if err != nil {
 		return nil, err
 	}
-	if id := req.Msg.GetDeviceId(); id != "" && id != d.DeviceID {
-		return nil, plxerr.New(plxerr.PermissionDenied, "a device reports only for itself")
-	}
-	if err := s.h.Devices.ReportInstalled(ctx, d, req.Msg.GetReleaseSequence(), nil); err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+	if err := recordInstalled(ctx, s.h, d, req.Msg); err != nil {
+		return nil, err
 	}
 	return connect.NewResponse(&pluxv1.ReportInstalledResponse{}), nil
+}
+
+// recordInstalled records a device's installed-release report, whether it
+// came on its own or with a telemetry upload (SEC-142).
+func recordInstalled(ctx context.Context, h *Handlers, d device.Identity, in *pluxv1.ReportInstalledRequest) error {
+	if id := in.GetDeviceId(); id != "" && id != d.DeviceID {
+		return plxerr.New(plxerr.PermissionDenied, "a device reports only for itself")
+	}
+	return h.Devices.Report(ctx, d, device.Report{ //nolint:wrapcheck // a domain error
+		Sequence: in.GetReleaseSequence(), Theme: in.GetTheme(),
+		TextScalePercent: in.GetTextScalePercent(), UserRef: in.GetUserRef(),
+	})
 }
 
 // evidenceOf maps the evidence of a request.
@@ -365,6 +375,7 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 		DeviceID:          d.DeviceID,
 		InstalledSequence: m.GetInstalledSequence(), Installed: installed, IfNoneMatch: m.GetIfNoneMatch(),
 		InstalledDigest: m.GetInstalledDigest(), ConfigVersion: m.GetConfigVersion(),
+		Targeting: targetingOf(m.GetTargeting()),
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
@@ -376,7 +387,7 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 	if served.NotModified || served.InstalledRequired {
 		return res, nil
 	}
-	if err := s.h.Devices.ReportInstalled(ctx, d, m.GetInstalledSequence(), bundles); err != nil {
+	if err := s.h.Devices.Report(ctx, d, device.Report{Sequence: m.GetInstalledSequence(), Bundles: bundles, Channel: m.GetChannel()}); err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	res.Msg.Manifest = manifestProto(d, served)
@@ -553,6 +564,11 @@ func (s Telemetry) IngestEvents(ctx context.Context, req *connect.Request[pluxv1
 	if id := req.Msg.GetAppId(); id != "" && id != d.AppID {
 		return nil, plxerr.New(plxerr.PermissionDenied, "a device reports only for its own app")
 	}
+	if in := req.Msg.GetInstalled(); in != nil {
+		if err := recordInstalled(ctx, s.h, d, in); err != nil {
+			return nil, err
+		}
+	}
 	events := make([]telemetry.Event, 0, len(req.Msg.GetEvents()))
 	for _, e := range req.Msg.GetEvents() {
 		events = append(events, telemetry.Event{
@@ -572,9 +588,14 @@ func (s Telemetry) IngestEvents(ctx context.Context, req *connect.Request[pluxv1
 	if err := s.h.Devices.RecordRiskEvents(ctx, d, risk); err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
-	n, diags, err := s.h.Events.Ingest(ctx, telemetry.Source{
+	src := telemetry.Source{
 		OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, DeviceID: d.DeviceID,
-	}, events)
+		Bytes: proto.Size(req.Msg),
+	}
+	if c := req.Msg.GetConsent(); c != nil {
+		src.Consent = &telemetry.Consent{Analytics: c.GetAnalytics(), Experiments: c.GetExperiments()}
+	}
+	n, diags, err := s.h.Events.Ingest(ctx, src, events)
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
@@ -639,4 +660,13 @@ func decodeBase64(s string) ([]byte, error) {
 		return nil, err //nolint:wrapcheck // callers skip the value
 	}
 	return b, nil
+}
+
+// targetingOf converts what a device reports about itself for rollouts
+// (REL-051); a device that reports nothing has an empty targeting.
+func targetingOf(t *pluxv1.DeviceTargeting) release.Targeting {
+	return release.Targeting{
+		OS: t.GetOs(), OSVersion: t.GetOsVersion(), RuntimeVersion: t.GetRuntimeVersion(), DeviceClass: t.GetDeviceClass(),
+		Locale: t.GetLocale(), Region: t.GetRegion(), UserHash: t.GetUserHash(), UserAttributes: t.GetUserAttributes(),
+	}
 }

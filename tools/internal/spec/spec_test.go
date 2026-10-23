@@ -87,7 +87,7 @@ func TestLintReportsEveryDefect_QA_073(t *testing.T) {
 	}{
 		{"duplicate id", "| `SYN-001` | P3 | MUST | a | SPEC |\n| `SYN-001` | P3 | MUST | b | SPEC |", "duplicates the identifier"},
 		{"unknown area", "| `ABC-001` | P3 | MUST | a | SPEC |", `uses area "ABC"`},
-		{"phase out of range", "| `SYN-001` | P16 | MUST | a | SPEC |", "outside P0–P15"},
+		{"phase out of range", "| `SYN-001` | P17 | MUST | a | SPEC |", "outside P0–P16"},
 		{"withdrawn with priority", "| `SYN-001` | P3 | MUST | Withdrawn: x. | WITHDRAWN |", "still has priority"},
 		{"withdrawn without rationale", "| `SYN-001` | P3 | — | Gone. | WITHDRAWN |", "without a \"Withdrawn: <rationale>\""},
 		{"missing priority", "| `SYN-001` | P3 | — | a | SPEC |", "has no priority"},

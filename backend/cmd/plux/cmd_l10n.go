@@ -75,7 +75,7 @@ func (e env) l10nConnect(c common) (l10nTarget, error) {
 	if err != nil {
 		return l10nTarget{}, err
 	}
-	client := pluxv1connect.NewLocalisationServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewLocalisationServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	return l10nTarget{c: c, cl: cl, client: client}, nil
 }
 

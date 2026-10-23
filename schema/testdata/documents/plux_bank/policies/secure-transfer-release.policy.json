@@ -1,0 +1,26 @@
+{
+  "description": "A production release that touches the secure transfer page needs two approvers from distinct teams, neither the author.",
+  "id": "01d0c450-6c00-7000-8000-0000000007b0",
+  "key": "secure-transfer-release",
+  "kind": "policy",
+  "match": {
+    "environments": [
+      "production"
+    ],
+    "resources": [
+      "release"
+    ],
+    "risk": [
+      "touchesSecurePage"
+    ]
+  },
+  "name": "Secure transfer releases",
+  "require": {
+    "approvers": 2,
+    "distinctFromAuthor": true,
+    "distinctTeams": true,
+    "expiryHours": 72,
+    "stages": "parallel"
+  },
+  "schemaVersion": "1.0.0"
+}

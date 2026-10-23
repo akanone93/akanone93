@@ -62,6 +62,10 @@ abstract final class PluxScreens {
   /// The page `transfer`.
   static PluxScreen<void> transfer({required int balanceCents}) =>
       PluxScreen<void>._('transfer', {'balanceCents': balanceCents}, (_) {});
+
+  /// The page `transfer-unavailable`.
+  static PluxScreen<void> transferUnavailable() =>
+      PluxScreen<void>._('transfer-unavailable', {}, (_) {});
 }
 
 /// The type `Account`.

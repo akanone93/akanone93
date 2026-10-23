@@ -517,6 +517,59 @@
       "description": "Size of the Android attestation status list the server fetches or reads."
     },
     {
+      "key": "audit.exportBatchEntries",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-143"
+      ],
+      "description": "Audit entries delivered to an export destination in one batch."
+    },
+    {
+      "key": "audit.exportDestinationsPerOrg",
+      "unit": "count",
+      "default": 5,
+      "max": 50,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-143"
+      ],
+      "description": "Audit export destinations one organisation may configure."
+    },
+    {
+      "key": "auth.explainPerMinute",
+      "unit": "count",
+      "default": 30,
+      "max": 1000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-007"
+      ],
+      "description": "Explain calls one principal may make per minute to learn why a person can or cannot perform an action."
+    },
+    {
       "key": "auth.failedSignIns",
       "unit": "count",
       "default": 10,
@@ -532,6 +585,181 @@
         "SEC-100"
       ],
       "description": "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."
+    },
+    {
+      "key": "auth.permissionCacheSeconds",
+      "unit": "count",
+      "default": 60,
+      "max": 600,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Seconds a replica keeps a resolved permission set before it resolves again; a change drops it sooner, and the lifetime covers a missed change message."
+    },
+    {
+      "key": "auth.restrictionPatterns",
+      "unit": "count",
+      "default": 20,
+      "max": 200,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Permission names and wildcards one restriction policy may list."
+    },
+    {
+      "key": "auth.restrictionsPerOrg",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Restriction policies one organisation may hold."
+    },
+    {
+      "key": "auth.restrictionsPerSubject",
+      "unit": "count",
+      "default": 20,
+      "max": 200,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Restriction policies one organisation, team or person may be the subject of."
+    },
+    {
+      "key": "auth.samlClockSkewSeconds",
+      "unit": "count",
+      "default": 120,
+      "max": 180,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-004"
+      ],
+      "description": "Seconds of clock difference between an identity provider and the server that a SAML assertion's validity window tolerates."
+    },
+    {
+      "key": "auth.scimTokenOverlapSeconds",
+      "unit": "count",
+      "default": 86400,
+      "max": 604800,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-004"
+      ],
+      "description": "Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over."
+    },
+    {
+      "key": "auth.sessionAbsoluteTimeout",
+      "unit": "milliseconds",
+      "default": 43200000,
+      "max": 2592000000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-005"
+      ],
+      "description": "Time after sign-in at which a browser session ends however active it is; an organisation may shorten it."
+    },
+    {
+      "key": "auth.sessionIdleTimeout",
+      "unit": "milliseconds",
+      "default": 1800000,
+      "max": 86400000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-005"
+      ],
+      "description": "Time without a request after which a browser session ends; an organisation may shorten it."
+    },
+    {
+      "key": "auth.simulatePerMinute",
+      "unit": "count",
+      "default": 10,
+      "max": 1000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-007"
+      ],
+      "description": "Explain calls with a proposed grant or restriction one principal may make per minute; each evaluates the resolver on a state that does not exist."
+    },
+    {
+      "key": "auth.stepUpAttempts",
+      "unit": "count",
+      "default": 5,
+      "max": 20,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-103"
+      ],
+      "description": "Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one."
     },
     {
       "key": "bundle.deviceFunctionModuleSize",
@@ -695,6 +923,44 @@
         "LIM-004"
       ],
       "description": "Server-held configuration values one environment holds."
+    },
+    {
+      "key": "control.expiry",
+      "unit": "milliseconds",
+      "default": 86400000,
+      "max": 604800000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SYN-060"
+      ],
+      "description": "How long a signed control document is valid after the server signs it; a device keeps the kill switches of an expired document in force."
+    },
+    {
+      "key": "control.killSwitches",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "REL-060"
+      ],
+      "description": "Kill switches one channel's control document may carry."
     },
     {
       "key": "data.cacheBytes",
@@ -1311,6 +1577,63 @@
       "description": "Proof identifiers the DPoP replay cache holds."
     },
     {
+      "key": "dsr.exportBytes",
+      "unit": "bytes",
+      "default": 268435456,
+      "max": 4294967296,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-162"
+      ],
+      "description": "Size of one data subject export archive."
+    },
+    {
+      "key": "experiments.activePerApp",
+      "unit": "count",
+      "default": 20,
+      "max": 500,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Experiments that may be running at once in one app."
+    },
+    {
+      "key": "flags.perApp",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Feature flags one app may define."
+    },
+    {
       "key": "function.buildMemory",
       "unit": "bytes",
       "default": 4294967296,
@@ -1852,6 +2175,96 @@
       "description": "Size of one golden image."
     },
     {
+      "key": "governance.breakGlassReviewHours",
+      "unit": "count",
+      "default": 24,
+      "max": 720,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-024"
+      ],
+      "description": "Hours after a break-glass action within which its post-hoc review is due; an overdue review is escalated (PLX-8006)."
+    },
+    {
+      "key": "governance.freezeWindowHours",
+      "unit": "count",
+      "default": 720,
+      "max": 8760,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-025"
+      ],
+      "description": "Longest a change-freeze window may last, in hours."
+    },
+    {
+      "key": "governance.freezeWindowsPerOrg",
+      "unit": "count",
+      "default": 50,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-025"
+      ],
+      "description": "Change-freeze windows one organisation may define."
+    },
+    {
+      "key": "governance.justificationLength",
+      "unit": "codepoints",
+      "default": 2000,
+      "max": 20000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-024"
+      ],
+      "description": "Length of the written justification of a break-glass action."
+    },
+    {
+      "key": "governance.reportChanges",
+      "unit": "count",
+      "default": 20000,
+      "max": 1000000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-026"
+      ],
+      "description": "Production changes one compliance report may list; a longer period is refused and is split into shorter ones."
+    },
+    {
       "key": "http.responseSize",
       "unit": "bytes",
       "default": 1048576,
@@ -1887,6 +2300,25 @@
         "SEC-041"
       ],
       "description": "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."
+    },
+    {
+      "key": "notifications.perHour",
+      "unit": "count",
+      "default": 600,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."
     },
     {
       "key": "page.animations",
@@ -2059,6 +2491,40 @@
         "REL-003"
       ],
       "description": "Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails."
+    },
+    {
+      "key": "push.batchSize",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SYN-060"
+      ],
+      "description": "Devices one silent-push job sends to before it hands the rest to a follow-up job."
+    },
+    {
+      "key": "push.tokenBytes",
+      "unit": "bytes",
+      "default": 1024,
+      "max": 4096,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SYN-060"
+      ],
+      "description": "Length of the push token a device may register for silent push."
     },
     {
       "key": "pxl.collectionSize",
@@ -2261,6 +2727,25 @@
       "description": "Length of a string produced during one PXL evaluation."
     },
     {
+      "key": "reconstruction.retentionDays",
+      "unit": "count",
+      "default": 365,
+      "max": 3650,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-142"
+      ],
+      "description": "Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable."
+    },
+    {
       "key": "release.appSize",
       "unit": "bytes",
       "default": 104857600,
@@ -2279,6 +2764,25 @@
         "BND-010"
       ],
       "description": "Total size of one app release: the app bundle and every plugin bundle."
+    },
+    {
+      "key": "rollouts.activePerApp",
+      "unit": "count",
+      "default": 10,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "REL-050"
+      ],
+      "description": "Staged rollouts that may be in progress at once in one app."
     },
     {
       "key": "runtime.imageDiskCacheBytes",
@@ -2379,6 +2883,25 @@
       "description": "Milliseconds a strong customer authentication challenge stays valid."
     },
     {
+      "key": "search.resultsPerPage",
+      "unit": "count",
+      "default": 50,
+      "max": 200,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SRV-061"
+      ],
+      "description": "Results one search page may return."
+    },
+    {
       "key": "securityConfig.bytes",
       "unit": "bytes",
       "default": 65536,
@@ -2459,6 +2982,25 @@
       "description": "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."
     },
     {
+      "key": "telemetry.batchBytes",
+      "unit": "bytes",
+      "default": 262144,
+      "max": 4194304,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ANL-010"
+      ],
+      "description": "Bytes one telemetry batch may carry on the wire after decompression."
+    },
+    {
       "key": "telemetry.bufferBytes",
       "unit": "bytes",
       "default": 262144,
@@ -2478,6 +3020,25 @@
       "description": "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."
     },
     {
+      "key": "telemetry.eventsPerDevicePerHour",
+      "unit": "count",
+      "default": 600,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ANL-010"
+      ],
+      "description": "Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts."
+    },
+    {
       "key": "telemetry.eventsPerRequest",
       "unit": "count",
       "default": 500,
@@ -2495,6 +3056,42 @@
         "SEC-104"
       ],
       "description": "Runtime events one telemetry request may carry."
+    },
+    {
+      "key": "telemetry.exportBatchEvents",
+      "unit": "count",
+      "default": 500,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ANL-011"
+      ],
+      "description": "Events one signed-webhook message of the enterprise analytics export carries."
+    },
+    {
+      "key": "telemetry.exportFileRows",
+      "unit": "count",
+      "default": 100000,
+      "max": 1000000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ANL-011"
+      ],
+      "description": "Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files."
     },
     {
       "key": "translation.importSize",
@@ -2553,6 +3150,25 @@
         "SEC-050"
       ],
       "description": "Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves."
+    },
+    {
+      "key": "webhooks.perOrg",
+      "unit": "count",
+      "default": 50,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Outbound webhook endpoints one organisation may configure."
     }
   ]
 }

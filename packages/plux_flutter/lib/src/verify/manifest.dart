@@ -321,6 +321,16 @@ Future<bool> verifyBundleSignature(
   List<TrustedKey> keys,
 ) => _signedByRole(hash, [signature], keys, 'targets');
 
+/// Whether one of [signatures] over the canonical [signed] document
+/// verifies under an embedded `targets` key: how the signed documents that
+/// are not manifests, such as a reconstruction release's (SEC-142), are
+/// authenticated before anything is parsed (SEC-052).
+Future<bool> verifyDocumentSignature(
+  Uint8List signed,
+  List<DocumentSignature> signatures,
+  List<TrustedKey> keys,
+) => _signedByRole(signed, signatures, keys, 'targets');
+
 Future<bool> _signedByRole(
   Uint8List message,
   List<DocumentSignature> signatures,

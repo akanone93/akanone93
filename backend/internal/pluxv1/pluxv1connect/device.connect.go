@@ -47,6 +47,12 @@ const (
 	// DeviceServiceReportInstalledProcedure is the fully-qualified name of the DeviceService's
 	// ReportInstalled RPC.
 	DeviceServiceReportInstalledProcedure = "/plux.v1.DeviceService/ReportInstalled"
+	// DeviceServiceRegisterPushTokenProcedure is the fully-qualified name of the DeviceService's
+	// RegisterPushToken RPC.
+	DeviceServiceRegisterPushTokenProcedure = "/plux.v1.DeviceService/RegisterPushToken"
+	// DeviceServiceClearPushTokenProcedure is the fully-qualified name of the DeviceService's
+	// ClearPushToken RPC.
+	DeviceServiceClearPushTokenProcedure = "/plux.v1.DeviceService/ClearPushToken"
 	// DeviceServiceCreateRegistrationChallengeProcedure is the fully-qualified name of the
 	// DeviceService's CreateRegistrationChallenge RPC.
 	DeviceServiceCreateRegistrationChallengeProcedure = "/plux.v1.DeviceService/CreateRegistrationChallenge"
@@ -71,6 +77,12 @@ type DeviceServiceClient interface {
 	ListDevices(context.Context, *connect.Request[pluxv1.ListDevicesRequest]) (*connect.Response[pluxv1.ListDevicesResponse], error)
 	// ReportInstalled records the release a device activated.
 	ReportInstalled(context.Context, *connect.Request[pluxv1.ReportInstalledRequest]) (*connect.Response[pluxv1.ReportInstalledResponse], error)
+	// RegisterPushToken stores the device's push token for the silent push
+	// that tells it to check its control document (SYN-060). A server that
+	// has silent push off refuses it with a failed precondition.
+	RegisterPushToken(context.Context, *connect.Request[pluxv1.RegisterPushTokenRequest]) (*connect.Response[pluxv1.RegisterPushTokenResponse], error)
+	// ClearPushToken deletes the device's push token.
+	ClearPushToken(context.Context, *connect.Request[pluxv1.ClearPushTokenRequest]) (*connect.Response[pluxv1.ClearPushTokenResponse], error)
 	// CreateRegistrationChallenge issues the single-use, short-lived
 	// challenge a registration binds its attestation to (SEC-005). It is
 	// anonymous: the device has no identity yet.
@@ -127,6 +139,18 @@ func NewDeviceServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(deviceServiceMethods.ByName("ReportInstalled")),
 			connect.WithClientOptions(opts...),
 		),
+		registerPushToken: connect.NewClient[pluxv1.RegisterPushTokenRequest, pluxv1.RegisterPushTokenResponse](
+			httpClient,
+			baseURL+DeviceServiceRegisterPushTokenProcedure,
+			connect.WithSchema(deviceServiceMethods.ByName("RegisterPushToken")),
+			connect.WithClientOptions(opts...),
+		),
+		clearPushToken: connect.NewClient[pluxv1.ClearPushTokenRequest, pluxv1.ClearPushTokenResponse](
+			httpClient,
+			baseURL+DeviceServiceClearPushTokenProcedure,
+			connect.WithSchema(deviceServiceMethods.ByName("ClearPushToken")),
+			connect.WithClientOptions(opts...),
+		),
 		createRegistrationChallenge: connect.NewClient[pluxv1.CreateRegistrationChallengeRequest, pluxv1.CreateRegistrationChallengeResponse](
 			httpClient,
 			baseURL+DeviceServiceCreateRegistrationChallengeProcedure,
@@ -166,6 +190,8 @@ type deviceServiceClient struct {
 	getDevice                   *connect.Client[pluxv1.GetDeviceRequest, pluxv1.GetDeviceResponse]
 	listDevices                 *connect.Client[pluxv1.ListDevicesRequest, pluxv1.ListDevicesResponse]
 	reportInstalled             *connect.Client[pluxv1.ReportInstalledRequest, pluxv1.ReportInstalledResponse]
+	registerPushToken           *connect.Client[pluxv1.RegisterPushTokenRequest, pluxv1.RegisterPushTokenResponse]
+	clearPushToken              *connect.Client[pluxv1.ClearPushTokenRequest, pluxv1.ClearPushTokenResponse]
 	createRegistrationChallenge *connect.Client[pluxv1.CreateRegistrationChallengeRequest, pluxv1.CreateRegistrationChallengeResponse]
 	registerAttestedDevice      *connect.Client[pluxv1.RegisterAttestedDeviceRequest, pluxv1.RegisterAttestedDeviceResponse]
 	reattestDevice              *connect.Client[pluxv1.ReattestDeviceRequest, pluxv1.ReattestDeviceResponse]
@@ -191,6 +217,16 @@ func (c *deviceServiceClient) ListDevices(ctx context.Context, req *connect.Requ
 // ReportInstalled calls plux.v1.DeviceService.ReportInstalled.
 func (c *deviceServiceClient) ReportInstalled(ctx context.Context, req *connect.Request[pluxv1.ReportInstalledRequest]) (*connect.Response[pluxv1.ReportInstalledResponse], error) {
 	return c.reportInstalled.CallUnary(ctx, req)
+}
+
+// RegisterPushToken calls plux.v1.DeviceService.RegisterPushToken.
+func (c *deviceServiceClient) RegisterPushToken(ctx context.Context, req *connect.Request[pluxv1.RegisterPushTokenRequest]) (*connect.Response[pluxv1.RegisterPushTokenResponse], error) {
+	return c.registerPushToken.CallUnary(ctx, req)
+}
+
+// ClearPushToken calls plux.v1.DeviceService.ClearPushToken.
+func (c *deviceServiceClient) ClearPushToken(ctx context.Context, req *connect.Request[pluxv1.ClearPushTokenRequest]) (*connect.Response[pluxv1.ClearPushTokenResponse], error) {
+	return c.clearPushToken.CallUnary(ctx, req)
 }
 
 // CreateRegistrationChallenge calls plux.v1.DeviceService.CreateRegistrationChallenge.
@@ -225,6 +261,12 @@ type DeviceServiceHandler interface {
 	ListDevices(context.Context, *connect.Request[pluxv1.ListDevicesRequest]) (*connect.Response[pluxv1.ListDevicesResponse], error)
 	// ReportInstalled records the release a device activated.
 	ReportInstalled(context.Context, *connect.Request[pluxv1.ReportInstalledRequest]) (*connect.Response[pluxv1.ReportInstalledResponse], error)
+	// RegisterPushToken stores the device's push token for the silent push
+	// that tells it to check its control document (SYN-060). A server that
+	// has silent push off refuses it with a failed precondition.
+	RegisterPushToken(context.Context, *connect.Request[pluxv1.RegisterPushTokenRequest]) (*connect.Response[pluxv1.RegisterPushTokenResponse], error)
+	// ClearPushToken deletes the device's push token.
+	ClearPushToken(context.Context, *connect.Request[pluxv1.ClearPushTokenRequest]) (*connect.Response[pluxv1.ClearPushTokenResponse], error)
 	// CreateRegistrationChallenge issues the single-use, short-lived
 	// challenge a registration binds its attestation to (SEC-005). It is
 	// anonymous: the device has no identity yet.
@@ -277,6 +319,18 @@ func NewDeviceServiceHandler(svc DeviceServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(deviceServiceMethods.ByName("ReportInstalled")),
 		connect.WithHandlerOptions(opts...),
 	)
+	deviceServiceRegisterPushTokenHandler := connect.NewUnaryHandler(
+		DeviceServiceRegisterPushTokenProcedure,
+		svc.RegisterPushToken,
+		connect.WithSchema(deviceServiceMethods.ByName("RegisterPushToken")),
+		connect.WithHandlerOptions(opts...),
+	)
+	deviceServiceClearPushTokenHandler := connect.NewUnaryHandler(
+		DeviceServiceClearPushTokenProcedure,
+		svc.ClearPushToken,
+		connect.WithSchema(deviceServiceMethods.ByName("ClearPushToken")),
+		connect.WithHandlerOptions(opts...),
+	)
 	deviceServiceCreateRegistrationChallengeHandler := connect.NewUnaryHandler(
 		DeviceServiceCreateRegistrationChallengeProcedure,
 		svc.CreateRegistrationChallenge,
@@ -317,6 +371,10 @@ func NewDeviceServiceHandler(svc DeviceServiceHandler, opts ...connect.HandlerOp
 			deviceServiceListDevicesHandler.ServeHTTP(w, r)
 		case DeviceServiceReportInstalledProcedure:
 			deviceServiceReportInstalledHandler.ServeHTTP(w, r)
+		case DeviceServiceRegisterPushTokenProcedure:
+			deviceServiceRegisterPushTokenHandler.ServeHTTP(w, r)
+		case DeviceServiceClearPushTokenProcedure:
+			deviceServiceClearPushTokenHandler.ServeHTTP(w, r)
 		case DeviceServiceCreateRegistrationChallengeProcedure:
 			deviceServiceCreateRegistrationChallengeHandler.ServeHTTP(w, r)
 		case DeviceServiceRegisterAttestedDeviceProcedure:
@@ -350,6 +408,14 @@ func (UnimplementedDeviceServiceHandler) ListDevices(context.Context, *connect.R
 
 func (UnimplementedDeviceServiceHandler) ReportInstalled(context.Context, *connect.Request[pluxv1.ReportInstalledRequest]) (*connect.Response[pluxv1.ReportInstalledResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DeviceService.ReportInstalled is not implemented"))
+}
+
+func (UnimplementedDeviceServiceHandler) RegisterPushToken(context.Context, *connect.Request[pluxv1.RegisterPushTokenRequest]) (*connect.Response[pluxv1.RegisterPushTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DeviceService.RegisterPushToken is not implemented"))
+}
+
+func (UnimplementedDeviceServiceHandler) ClearPushToken(context.Context, *connect.Request[pluxv1.ClearPushTokenRequest]) (*connect.Response[pluxv1.ClearPushTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DeviceService.ClearPushToken is not implemented"))
 }
 
 func (UnimplementedDeviceServiceHandler) CreateRegistrationChallenge(context.Context, *connect.Request[pluxv1.CreateRegistrationChallengeRequest]) (*connect.Response[pluxv1.CreateRegistrationChallengeResponse], error) {

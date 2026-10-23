@@ -60,7 +60,7 @@ func TestClientRefusesAResolvedInternalAddress(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	blocked := NewClient(Options{Timeout: 5 * time.Second})
+	blocked := newTestClient(t, Options{Timeout: 5 * time.Second})
 	resp, err := Get(context.Background(), blocked, srv.URL)
 	if err == nil {
 		_ = resp.Body.Close()
@@ -69,7 +69,7 @@ func TestClientRefusesAResolvedInternalAddress(t *testing.T) {
 		t.Errorf("error %v does not say the address is refused", err)
 	}
 
-	allowed := NewClient(Options{Policy: Policy{AllowLoopback: true}, Timeout: 5 * time.Second})
+	allowed := newTestClient(t, Options{Policy: Policy{AllowLoopback: true}, Timeout: 5 * time.Second})
 	resp, err = Get(context.Background(), allowed, srv.URL)
 	if err != nil {
 		t.Fatalf("an allowed address was refused: %v", err)
@@ -94,7 +94,7 @@ func TestClientRefusesARedirectToAnInternalAddress(t *testing.T) {
 	// Loopback is allowed so that the first hop succeeds; the second hop
 	// is refused by scheme, which stands in for the address check the
 	// dialer makes in a deployment.
-	c := NewClient(Options{Policy: Policy{AllowLoopback: true}, MaxRedirects: 1, Timeout: 5 * time.Second})
+	c := newTestClient(t, Options{Policy: Policy{AllowLoopback: true}, MaxRedirects: 1, Timeout: 5 * time.Second})
 	resp, err := Get(context.Background(), c, redirector.URL)
 	if err == nil {
 		_ = resp.Body.Close()
@@ -120,14 +120,14 @@ func TestCheckURLRefusesOtherSchemes(t *testing.T) {
 			t.Errorf("%s was blocked: %v", scheme, err)
 		}
 	}
-	resp, err := Get(context.Background(), NewClient(Options{}), "file:///etc/passwd")
+	resp, err := Get(context.Background(), newTestClient(t, Options{}), "file:///etc/passwd")
 	if !errors.Is(err, ErrBlocked) {
 		if err == nil {
 			_ = resp.Body.Close()
 		}
 		t.Errorf("Get of a file URL = %v", err)
 	}
-	resp, err = Get(context.Background(), NewClient(Options{}), "://bad")
+	resp, err = Get(context.Background(), newTestClient(t, Options{}), "://bad")
 	if err == nil {
 		_ = resp.Body.Close()
 		t.Error("an unparsable URL was accepted")
@@ -183,4 +183,16 @@ func TestMaxBytesRefusesALargeRequest(t *testing.T) {
 	if rec.Code != http.StatusRequestEntityTooLarge {
 		t.Errorf("a body larger than its declared length was accepted with %d", rec.Code)
 	}
+}
+
+// newTestClient builds a client for a destination without fixed hosts, so
+// that a test server on loopback can be reached.
+func newTestClient(t *testing.T, o Options) *http.Client {
+	t.Helper()
+	o.Destination = KindGatewayUpstream
+	c, err := NewClient(o)
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	return c
 }

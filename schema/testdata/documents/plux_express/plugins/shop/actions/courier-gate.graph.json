@@ -1,0 +1,39 @@
+{
+  "id": "01d0c450-6c00-7000-8000-0000000007a2",
+  "key": "courier-gate",
+  "kind": "actionGraph",
+  "output": "GuardResult",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "condition",
+      "branches": {
+        "else": "no",
+        "then": "yes"
+      },
+      "id": "gate",
+      "input": {
+        "when": {
+          "$expr": "flags.courierEnabled"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "yes",
+      "input": {
+        "result": "allow"
+      }
+    },
+    {
+      "action": "stop",
+      "id": "no",
+      "input": {
+        "result": {
+          "decision": "redirect",
+          "route": "catalogue"
+        }
+      }
+    }
+  ]
+}

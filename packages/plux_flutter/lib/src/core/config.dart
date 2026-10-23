@@ -18,6 +18,7 @@ import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
+import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
 import 'package:plux_flutter/src/render/widget_package.dart';
 import 'package:plux_flutter/src/security/rasp.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
@@ -183,6 +184,15 @@ typedef PluxErrorHandler = void Function(
   StackTrace? stack,
 );
 
+/// Builds the screen Plux shows in place of every page while a mandatory
+/// update is pending (REL-070): [messageKey] is the translation key the
+/// control document names. The update has already been requested; the
+/// screen only informs, and goes away once the release is active.
+typedef PluxUpdateScreenBuilder = Widget Function(
+  BuildContext context,
+  String messageKey,
+);
+
 /// Builds what Plux shows in place of content it cannot render: a page or
 /// component instance that failed to build (RT-020), a plugin switched off
 /// or failing verification (RT-022), or no release yet.
@@ -222,6 +232,7 @@ final class PluxConfig {
     this.webSocketClient,
     this.onError,
     this.fallbackBuilder,
+    this.updateScreen,
     this.pluginFallbackBuilders = const {},
     this.notFoundBuilder,
     this.navigationDelegate,
@@ -237,6 +248,7 @@ final class PluxConfig {
     this.databaseAdapter,
     this.securityModules = const [],
     this.strongCustomerAuthentication = false,
+    this.reconstruction,
   }) : assert(downloadParallelism > 0, 'at least one download at a time'),
        assert(
          hostBuild.length <= 64,
@@ -359,6 +371,11 @@ final class PluxConfig {
   /// `PluxDefaultFallback` when null.
   final PluxFallbackBuilder? fallbackBuilder;
 
+  /// The screen shown in place of every Plux page while a mandatory update
+  /// is pending (REL-070); Plux's simple `PluxDefaultUpdateScreen` when
+  /// null.
+  final PluxUpdateScreenBuilder? updateScreen;
+
   /// Fallbacks for single plugins by plugin key, used instead of
   /// [fallbackBuilder] for that plugin's pages and component instances
   /// (RT-020). A plugin that is switched off shows the fallback page it
@@ -452,4 +469,21 @@ final class PluxConfig {
   /// needs `NSFaceIDUsageDescription`. A device registered before the flag
   /// was set registers again with the key the first time it signs.
   final bool strongCustomerAuthentication;
+
+  /// A reconstruction release to show instead of the app's own content
+  /// (SEC-142, ADR-0082): the runtime runs in reconstruction mode, as the
+  /// viewer host uses it. [rootKeys] must hold the root keys the host
+  /// pinned at build time, from which the runtime walks the release's signed
+  /// root chain to the `targets` keys it verifies the manifest with
+  /// (SEC-051); with none the release is refused. [appId], [environment] and
+  /// [endpoint] name the reconstructed app, its environment and the server.
+  ///
+  /// The release is verified like any other, before anything in it is
+  /// parsed (SEC-052), and installed into a store of its own, which is
+  /// deleted when the runtime is disposed. Nothing is synced, nothing is
+  /// reported to telemetry, no data source is reached, and no request goes
+  /// to any host but the [endpoint]. Actions that reach beyond the page
+  /// (data sources, functions, the host, the device, links out of the app)
+  /// fail with `PLX-4010`. Show the result with `PluxReconstructionView`.
+  final PluxReconstruction? reconstruction;
 }

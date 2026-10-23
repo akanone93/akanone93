@@ -36,9 +36,13 @@ func buildFraudReceipt(cfg *config.Config, signer receipt.ES256Signer) (device.F
 	if signer == nil {
 		return nil, errors.New("server: attestation.apple.fraudReceipt needs the imported key signer")
 	}
+	client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindAppleReceipt, Timeout: fraudReceiptTimeout})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	c, err := receipt.New(receipt.Config{
 		KeyID: f.KeyID, TeamID: f.TeamID, Signer: signer, Now: time.Now, Timeout: fraudReceiptTimeout,
-		HTTP: httpx.NewClient(httpx.Options{Timeout: fraudReceiptTimeout}),
+		HTTP: client,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)

@@ -95,6 +95,7 @@ var sharedCodecs = sync.OnceValues(func() (*media.Codecs, error) { return media.
 type fixture struct {
 	db      *storage.DB
 	tenancy *tenancy.Service
+	auth    *auth.Service
 	docs    *document.Service
 	rel     *release.Service
 	sec     *seccfg.Service
@@ -153,6 +154,7 @@ func newFixtureWith(t *testing.T, name string, securityLimits limits.Set, tweak 
 	if err != nil {
 		t.Fatal(err)
 	}
+	f.auth = authService
 	if f.tenancy, err = tenancy.NewService(tenancy.Options{DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, SigningKeyPrefix: "targets", Now: clock}); err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +191,7 @@ func newFixtureWith(t *testing.T, name string, securityLimits limits.Set, tweak 
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	o, err := f.tenancy.CreateOrganization(ctx, adminID, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)
@@ -214,7 +216,7 @@ func newFixtureWith(t *testing.T, name string, securityLimits limits.Set, tweak 
 	if err != nil {
 		t.Fatal(err)
 	}
-	if f.viewer, err = authService.Resolve(ctx, auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: "v", SecondFactor: true}, f.org); err != nil {
+	if f.viewer, err = authService.Resolve(ctx, auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: "v", SecondFactor: true}.WithStepUp(0), f.org); err != nil {
 		t.Fatal(err)
 	}
 	files := projectOf(t, name)
@@ -303,6 +305,8 @@ func (f *fixture) run(t *testing.T) {
 				err = f.rel.RunPublish(ctx, j)
 			case release.ManifestJob:
 				err = f.rel.SignManifest(ctx, j)
+			case release.ControlJob:
+				err = f.rel.SignControl(ctx, j)
 			case release.DeltaJob:
 				err = f.rel.PrecomputeDeltas(ctx, j)
 			}

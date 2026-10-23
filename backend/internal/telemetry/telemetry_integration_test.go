@@ -41,9 +41,9 @@ func code(err error) plxerr.Code {
 
 // Verifies: SCH-012, REL-080.
 // A device's events are stored when catalogued and clean, refused one by
-// one otherwise, listed for people who can read the app, and purged
-// after their retention.
-func TestIngestListPurge(t *testing.T) {
+// one otherwise and listed for people who can read the app. Retention is
+// in package analytics.
+func TestIngestList(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	db := storagetest.Open(t)
@@ -68,7 +68,7 @@ func TestIngestListPurge(t *testing.T) {
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	o, err := ten.CreateOrganization(ctx, id, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)
@@ -148,9 +148,5 @@ func TestIngestListPurge(t *testing.T) {
 		return tx.QueryRow(ctx, "SELECT runtime_version, host_build, os_version FROM devices WHERE id = $1", d.ID).Scan(&runtime, &host, &osVersion)
 	}); err != nil || runtime != "1.2.0" || host != "42" || osVersion != "18.1" {
 		t.Errorf("the device runs %q %q %q (%v)", runtime, host, osVersion, err)
-	}
-	now = now.Add(telemetry.DefaultRetention + time.Hour)
-	if n, err := svc.Purge(ctx, o.ID); err != nil || n != 5 {
-		t.Errorf("Purge: %d %v", n, err)
 	}
 }

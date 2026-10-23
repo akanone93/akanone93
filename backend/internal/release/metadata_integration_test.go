@@ -56,6 +56,9 @@ type ceremony struct {
 	expiry time.Time
 	// pins are the certificate pins the root carries, when set (SEC-041).
 	pins map[string][]string
+	// noControl leaves the control role undelegated, as a root made before
+	// P9 does.
+	noControl bool
 }
 
 // root builds and signs a root of the given version with the root keys
@@ -74,6 +77,9 @@ func (c ceremony) root(version int64, rootKeys []offlineKey, threshold int, sign
 	}
 	r.Roles.Root = updatemeta.RoleKeys{KeyIDs: rootIDs, Threshold: threshold}
 	for _, k := range c.online {
+		if k.Role == updatemeta.RoleControl && c.noControl {
+			continue
+		}
 		r.Keys[k.KeyID] = updatemeta.Key{Alg: k.Algorithm, Public: base64.StdEncoding.EncodeToString(k.PublicKey)}
 		keys := updatemeta.RoleKeys{KeyIDs: []string{k.KeyID}, Threshold: 1}
 		switch k.Role {
@@ -83,6 +89,8 @@ func (c ceremony) root(version int64, rootKeys []offlineKey, threshold int, sign
 			r.Roles.Snapshot = keys
 		case updatemeta.RoleTimestamp:
 			r.Roles.Timestamp = keys
+		case updatemeta.RoleControl:
+			r.Roles.Control = &keys
 		}
 	}
 	canonical, err := updatemeta.Canonical(r)

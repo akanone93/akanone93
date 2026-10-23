@@ -1,0 +1,25 @@
+# Metrics the rules and dashboards use that the Plux server does not export, and the exporter that does.
+# tools/internal/observability fails on a metric that is neither registered by the server nor listed here.
+# Format: <metric> <exporter>. Histogram suffixes (_bucket, _sum, _count) are accepted for a listed histogram.
+up                                                  Prometheus (built in)
+cnpg_collector_up                                   CloudNativePG instance manager (port 9187)
+cnpg_collector_last_available_backup_timestamp      CloudNativePG instance manager
+cnpg_pg_replication_lag                             CloudNativePG instance manager
+cnpg_pg_replication_streaming_replicas              CloudNativePG instance manager
+cnpg_pg_stat_archiver_last_archived_time            CloudNativePG instance manager
+cnpg_pg_stat_archiver_failed_count                  CloudNativePG instance manager
+cnpg_pg_database_size_bytes                         CloudNativePG instance manager
+cnpg_backends_total                                 CloudNativePG instance manager
+redis_up                                            redis_exporter (works with Valkey)
+redis_memory_used_bytes                             redis_exporter
+redis_memory_max_bytes                              redis_exporter
+redis_connected_clients                             redis_exporter
+redis_commands_processed_total                      redis_exporter
+redis_connected_slaves                              redis_exporter
+redis_evicted_keys_total                            redis_exporter
+kube_deployment_status_replicas_available           kube-state-metrics
+kube_statefulset_status_replicas_ready              kube-state-metrics
+kube_cronjob_status_last_successful_time            kube-state-metrics
+kubelet_volume_stats_available_bytes                kubelet
+kubelet_volume_stats_capacity_bytes                 kubelet
+certmanager_certificate_expiration_timestamp_seconds cert-manager

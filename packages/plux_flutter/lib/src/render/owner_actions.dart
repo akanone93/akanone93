@@ -130,6 +130,7 @@ final class ReleaseOwners {
       if (key.isNotEmpty) 'plugin': container.read(pluginStateProvider(key)),
       'user': renderer.userRoot(release, environment()),
       'flags': renderer.flagsRoot(release),
+      'experiment': renderer.experimentRoot(release),
       'device': _device(),
       'data': data?.root ?? const <String, Object?>{},
     };
@@ -137,6 +138,7 @@ final class ReleaseOwners {
     final navigator = navigatorKey;
     final host = ActionHost(
       lease: release.hold,
+      disabled: release.graphDisabled,
       context: StepContext(
         services: services.services,
         navigator: PageNavigator(
@@ -175,6 +177,7 @@ final class ReleaseOwners {
         sync: services.sync,
         data: data,
         logout: services.logout,
+        reconstruction: services.reconstruction,
         device: services.deviceGuard == null
             ? null
             : DeviceScope(

@@ -16,6 +16,10 @@ A project is a directory with one JSON file per page, component, action graph an
 | `assets/index.json` | `assetIndex` | Optional: assets, whose files live under `assets/` |
 | `components/<key>.component.json` | `component` | Components shared by all plugins (`SCH-030`) |
 | `templates/<key>.template.json` | `template` | Templates for Studio (`SCH-031`) |
+| `segments/<key>.segment.json` | `segment` | A named audience: a rule of conditions combined with `all` and `any` over the targeting attributes (`REL-051`) |
+| `flags/<name>.flag.json` | `flag` | A typed flag (`bool`, `number`, `string`, `json`) with its default and its value per segment (`ABT-006`) |
+| `experiments/<name>.experiment.json` | `experiment` | An experiment: scope, a control and variants with weights summing to 100, layer, holdout, audience, schedule, metrics, minimum sample size and salt (`ABT-001`) |
+| `policies/<key>.policy.json` | `policy` | An approval policy: what it matches and what approval it requires (`GOV-020`) |
 | `plugins/<key>/plugin.json` | `plugin` | A plugin: pages, capabilities, state, collections (`SCH-021`) |
 | `plugins/<key>/pages/<key>.page.json` | `page` | A page and its node tree (`SCH-022`) |
 | `plugins/<key>/components/<key>.component.json` | `component` | Components private to the plugin |
@@ -76,6 +80,8 @@ Fields, parameters and state entries may be tagged `"sensitive": true` (`SCH-012
 ## 4. Nodes
 
 A node is a widget (`type`) or a component instance (`component` with its `id` and `version`), never both (`SCH-023`). It may have `props`; `events`, each handled by a reference to an action graph (`{"$graph": "<id>"}`) or an inline graph (`{"steps": […]}`), with an optional concurrency policy (`parallel`, `drop`, `restart`, `queue`, `debounce:<ms>`, `throttle:<ms>`); either `children` or named `slots` (a slot holds one node or a list), never both; `visible` (a boolean or a PXL binding); `semantics`; `testId`; and `responsive` prop overrides for the window-size classes `medium` and `expanded`, cascading over the `compact` base (`WGT-010`).
+
+A node of the reserved type `Variant` shows the subtree of an experiment's variant (`ABT-001`): `experiment` names the experiment (its key is a PXL name), `control` is the subtree for the control, and `variants` maps the name of each other variant to its subtree. It carries nothing else. A variant without a subtree shows the control. The subtrees are compiled into the release and the runtime picks one by the variant assigned to the device (`ABT-002`); a bundle with a `Variant` node requires the feature `experiments.variant.v1`. In PXL, `experiment.<key>` is the assigned variant, an enum of the experiment's variant names, and `experiment.<key>.<prop>` the value of a prop the experiment declares for that variant.
 
 ## 5. Action graphs
 

@@ -40,6 +40,8 @@ void main() {
       'data/shop.pxb',
       'db/db.pxb',
       'db/todo.pxb',
+      'experiments/experiments.pxb',
+      'experiments/shop.pxb',
       'features/features.dev.pxb',
       'features/features.pxb',
       'features/tasks.dev.pxb',
@@ -48,6 +50,10 @@ void main() {
       'forms/signup.pxb',
       'loan-calculator/demo.pxb',
       'loan-calculator/loans.pxb',
+      'plux_bank/bank.pxb',
+      'plux_bank/banking.pxb',
+      'plux_express/express.pxb',
+      'plux_express/shop.pxb',
       'routing/nav.pxb',
       'routing/routing.pxb',
       'state/notes.pxb',
@@ -69,6 +75,7 @@ void main() {
             ? 3
             : (path.contains('/tasks') ||
                       path.contains('/loans') ||
+                      path.contains('/banking') ||
                       path.contains('/nav') ||
                       path.contains('/shop') ||
                       path.contains('/notes') ||
@@ -105,6 +112,16 @@ void main() {
             // menus and the P8 widget set).
             : path.startsWith('widgets/')
             ? '0.5.0'
+            // The experiments project has Variant nodes, which need 0.6.0
+            // (ABT-002).
+            : path.startsWith('experiments/')
+            ? '0.6.0'
+            // The reference apps declare their own minimum: Plux Bank the P8
+            // runtime, Plux Express the P9 one for its Variant node.
+            : path.startsWith('plux_bank/')
+            ? '0.5.0'
+            : path.startsWith('plux_express/')
+            ? '0.6.0'
             : '0.3.0',
         reason: path,
       );
@@ -127,11 +144,13 @@ void main() {
             n.widget != 0,
             n.component != null,
             n.nativeSlot != 0,
+            n.variant != null,
           ].where((k) => k);
           expect(
             kinds.length,
             1,
-            reason: '$path: a node is one widget, instance or native slot',
+            reason:
+                '$path: a node is one widget, instance, native slot or variant',
           );
           for (final c in [
             ...?n.children,

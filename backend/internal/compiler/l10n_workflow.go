@@ -341,7 +341,7 @@ func (u *unit) pseudoSections(o *out) {
 	if def == nil {
 		return
 	}
-	opts := l10n.ReduceOptions{Calendars: u.calendarsUsed(app)}
+	opts := u.reduceOptions(app)
 	for _, tag := range pseudo.Tags() {
 		if u.hasTranslations(tag) {
 			continue // `plux l10n pseudo` wrote the project's own document

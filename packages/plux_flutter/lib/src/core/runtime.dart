@@ -13,6 +13,9 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform, visibleForTesting;
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +29,9 @@ import 'package:plux_flutter/src/assets/avif_probe.dart';
 import 'package:plux_flutter/src/assets/fonts.dart';
 import 'package:plux_flutter/src/assets/icon_fonts.dart';
 import 'package:plux_flutter/src/assets/image_providers.dart';
+import 'package:plux_flutter/src/control/control_poller.dart';
+import 'package:plux_flutter/src/control/control_snapshot.dart';
+import 'package:plux_flutter/src/control/live_control.dart';
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/core/confidential_bundles.dart';
@@ -48,6 +54,9 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/experiments/experiment_service.dart';
+import 'package:plux_flutter/src/experiments/targeting.dart';
+import 'package:plux_flutter/src/experiments/targeting_facts.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/functions/invoke_function.dart';
 import 'package:plux_flutter/src/native_catalogue/host.dart';
@@ -58,6 +67,9 @@ import 'package:plux_flutter/src/navigation/router.dart';
 import 'package:plux_flutter/src/platform/pinned_http.dart';
 import 'package:plux_flutter/src/platform/platform_services.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
+import 'package:plux_flutter/src/reconstruction/gate.dart';
+import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
+import 'package:plux_flutter/src/reconstruction/server_only_client.dart';
 import 'package:plux_flutter/src/render/owner_actions.dart';
 import 'package:plux_flutter/src/render/page_renderer.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
@@ -80,12 +92,15 @@ import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
 import 'package:plux_flutter/src/store/baseline.dart';
+import 'package:plux_flutter/src/store/control_store.dart';
 import 'package:plux_flutter/src/store/kv_store.dart';
 import 'package:plux_flutter/src/store/metadata_state.dart';
 import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/store/sealed_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/control_sync.dart' show ControlOutcome;
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -131,7 +146,12 @@ final class RuntimeOverrides {
     this.aead,
     this.secure = const SecurePlatforms(),
     this.userAuthSigner,
+    this.controlTimer,
   });
+
+  /// Makes the timer of the foreground control checks (SYN-060); a timer of
+  /// the root zone, every five minutes, when null.
+  final PeriodicTimerFactory? controlTimer;
 
   /// Creates the credential store on the sync isolate.
   final CredentialStore Function()? credentials;
@@ -258,7 +278,10 @@ final class PluxRuntime with WidgetsBindingObserver {
     final task = developer.TimelineTask()..start('plux.initialize');
     // Started first: an asset load costs a round trip to the platform, which
     // overlaps the awaits below instead of adding its own (QA-007).
-    final bundledRoot = _bundledRoot(config.baseline);
+    final reconstructing = config.reconstruction != null;
+    final bundledRoot = reconstructing
+        ? Future<Uint8List?>.value()
+        : _bundledRoot(config.baseline);
     try {
       // Refuses an unpinned release build before anything is started
       // (SEC-041); a host's own client is the host's to pin.
@@ -268,19 +291,27 @@ final class PluxRuntime with WidgetsBindingObserver {
       final httpClient =
           config.httpClient ??
           PlatformHttpClients(config.endpoint, pinSet).create;
+      // Reconstruction mode reaches the Plux server and nothing else
+      // (SEC-142): the sync isolate makes no request in it, so only the
+      // client of images and of the data layer is narrowed.
+      final runtimeClient = reconstructing
+          ? () => ServerOnlyClient(httpClient(), config.endpoint)
+          : httpClient;
       final features = RuntimeFeatures(
         deviceFunctions: config.functionEngine != null,
       );
       final base = config.storageDirectory ?? await platformStorageDirectory();
-      final root =
-          '$base/${_safe(config.appId)}/${_safe(config.environment)}/${_safe(config.channel)}';
+      final root = reconstructing
+          ? _reconstructionRoot(base, config.reconstruction!.id)
+          : '$base/${_safe(config.appId)}/${_safe(config.environment)}/${_safe(config.channel)}';
+      if (reconstructing) _deleteRoot(root);
       Directory(root).createSync(recursive: true);
       // The pins a verified root gave an earlier sync hold from the first
       // connection on (SEC-041).
       if (pinSet != null) {
         MetadataSync.applyStoredPins(pinSet, MetadataStore(root).read());
       }
-      final keys = config.rootKeys.isNotEmpty
+      final keys = config.rootKeys.isNotEmpty || reconstructing
           ? config.rootKeys
           : await _bundledKeys(config.baseline);
       final store = ReleaseStore.open(root);
@@ -334,7 +365,9 @@ final class PluxRuntime with WidgetsBindingObserver {
                 .toLanguageTag(),
           ),
         ),
-        baselineAssets: overrides.baseline == null ? config.baseline : null,
+        baselineAssets: overrides.baseline == null && !reconstructing
+            ? config.baseline
+            : null,
       );
       final rt = PluxRuntime._(
         config,
@@ -345,7 +378,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         limits,
         root,
         assets,
-        httpClient,
+        runtimeClient,
         await _encryptsStores(config, overrides),
         config.httpClient == null && config.webSocketClient == null
             ? WebSocketClients(
@@ -371,6 +404,15 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// The configuration.
   final PluxConfig config;
+
+  /// Whether the runtime shows a reconstruction release (SEC-142): it syncs
+  /// nothing, records nothing and runs only the actions of
+  /// [ReconstructionGate].
+  bool get reconstructing => config.reconstruction != null;
+
+  /// The moment the verified reconstruction describes; null outside
+  /// reconstruction mode and until it has been verified.
+  PluxReconstructionMoment? reconstructionMoment;
 
   /// Test overrides.
   final RuntimeOverrides overrides;
@@ -404,9 +446,15 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Records telemetry (ANL-001, ADR-0034); the sync isolate buffers and
   /// sends what it keeps.
   late final TelemetryRecorder telemetry = TelemetryRecorder(
-    post: (lines) =>
-        _worker.recordTelemetry(lines, limit(PluxLimit.telemetryBufferBytes)),
-    withdraw: _worker.purgeTelemetry,
+    // A reconstruction records nothing: viewing the past must not leave
+    // events in the present (SEC-142).
+    post: reconstructing
+        ? (_) {}
+        : (lines) => _worker.recordTelemetry(
+            lines,
+            limit(PluxLimit.telemetryBufferBytes),
+          ),
+    withdraw: reconstructing ? (_) {} : _worker.purgeTelemetry,
     consent: config.consent,
     hostSampling: config.telemetrySampling,
     random: overrides.random,
@@ -439,7 +487,7 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// next attempt and is not reported: telemetry never adds to the
   /// problems it measures.
   Future<void> flushTelemetry() async {
-    if (_disposed) return;
+    if (_disposed || reconstructing) return;
     try {
       await _worker.flushTelemetry(limit(PluxLimit.telemetryEventsPerRequest));
     } on Object catch (e) {
@@ -485,6 +533,23 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// The latest sync event, for status displays.
   final ValueNotifier<SyncEvent?> lastEvent = ValueNotifier(null);
+
+  /// The control document in force (SYN-060): the kill switches, and the
+  /// mandatory update while one is pending. Pages and runs ask it as they
+  /// decide, so a change applies without a restart.
+  final ValueNotifier<LiveControl> control = ValueNotifier(LiveControl.none);
+  late final ControlPoller _controlPoller = ControlPoller(
+    check: checkControl,
+    timer: overrides.controlTimer,
+  );
+
+  /// The control check running now, or null; a test awaits it so that a
+  /// timer-fired check has finished before the next lifecycle change.
+  @visibleForTesting
+  Future<void>? get controlCheckInFlight => _controlPoller.running;
+  final Set<PluxErrorCode> _reportedControl = {};
+  int _updateReportedVersion = 0;
+  bool _fulfilling = false;
 
   /// The security settings in force (SEC-182): the built-in defaults until
   /// the stored configuration has been read, then the verified remote
@@ -586,6 +651,8 @@ final class PluxRuntime with WidgetsBindingObserver {
     authoriser: _sca,
     allowDirect: () =>
         settings.value.flag(SecuritySetting.allowDirectDataSources),
+    disabled: (id) =>
+        control.value.isOff(SwitchKind.dataSource, id, _targetingFacts),
   );
 
   /// Strong customer authentication (SEC-027, ADR-0056): challenge,
@@ -654,8 +721,9 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// The host says whether the network is available
   /// (`Plux.setNetworkAvailable`, decision D13): streams waiting to
   /// reconnect do so and the outbox replays when it is back.
-  void setNetworkAvailable(bool available) =>
-      _dataServices.setNetworkAvailable(available);
+  void setNetworkAvailable(bool available) {
+    if (!reconstructing) _dataServices.setNetworkAvailable(available);
+  }
 
   /// Ends the user's session (HST-010, the `logout` action): removes every
   /// cached response, so the next user never sees the previous user's
@@ -816,6 +884,60 @@ final class PluxRuntime with WidgetsBindingObserver {
     platforms: overrides.secure,
   );
 
+  /// Evaluates feature flags and assigns experiment variants from the
+  /// control document in force (ABT-002, ABT-006, ADR-0079).
+  late final ExperimentService experiments = ExperimentService(
+    snapshot: () => control.value.snapshot,
+    consent: () => telemetry.consent.experiments,
+    facts: _targetingFacts,
+    userId: () => environment().user?.id,
+    installId: _installId,
+    persistence: statePersistence,
+    record: (name, {fields = const {}}) =>
+        telemetry.record(name, fields: fields),
+    clock: _clock,
+  );
+
+  /// What targeting rules compare, read now.
+  TargetingFacts _targetingFacts() {
+    final dispatcher = ui.PlatformDispatcher.instance;
+    final view = dispatcher.views.firstOrNull;
+    return targetingFacts(
+      hostBuild: config.hostBuild,
+      channel: config.channel,
+      os: defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+      locale: environment().locale ?? dispatcher.locale,
+      width: view == null ? 0 : view.physicalSize.width / view.devicePixelRatio,
+      user: environment().user,
+    );
+  }
+
+  /// What rollouts may target this device by, besides what the sync isolate
+  /// knows of the platform: the device class and locale facts and the user
+  /// context, read now (REL-051). The sync isolate hashes the user's values.
+  SyncContext _syncContext() {
+    final facts = _targetingFacts();
+    final user = environment().user;
+    return SyncContext(
+      deviceClass: facts['deviceClass'] as String? ?? '',
+      locale: facts['locale'] as String? ?? '',
+      region: facts['region'] as String? ?? '',
+      userId: user?.id,
+      userAttributes: user?.attributes ?? const {},
+    );
+  }
+
+  /// The ID of this installation, made on first use and kept with the
+  /// persisted state: the assignment subject of a device with no user ID.
+  String _installId() {
+    const key = 'plux.experiment/installation';
+    final stored = statePersistence.read(Persistence.persisted, key)?.value;
+    if (stored is String && stored.isNotEmpty) return stored;
+    final id = newInstallId(math.Random.secure());
+    statePersistence.write(Persistence.persisted, key, 'installation-1', id);
+    return id;
+  }
+
   /// Turns page sections into widgets (ADR-0031).
   late PageRenderer? renderer = PluxRenderer(
     config: config,
@@ -824,9 +946,12 @@ final class PluxRuntime with WidgetsBindingObserver {
     imageCacheDirectory: '$_root/images',
     httpClient: _httpClient,
     statePersistence: statePersistence,
+    experiments: experiments,
     assets: assets,
     verified: _verified,
-    data: _dataServices,
+    // No data layer in a reconstruction: no data source is reached
+    // (SEC-142).
+    data: reconstructing ? null : _dataServices,
     secureUi: secureUi,
     pinnedMedia: () => settings.value.flag(SecuritySetting.pinnedMediaOnly),
     actions: ActionServices(
@@ -853,6 +978,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         ConfigSource: _worker,
       },
       deviceGuard: _deviceGuard,
+      reconstruction: reconstructing ? const ReconstructionGate() : null,
     )..ownerErrors = _ownerErrors,
   );
 
@@ -888,6 +1014,9 @@ final class PluxRuntime with WidgetsBindingObserver {
   FunctionTarget? _resolveFunction(String plugin, String function) {
     final release = active.value;
     if (release == null) return null;
+    if (release.functionDisabled(function)) {
+      throw LiveControl.disabled(SwitchKind.function, function);
+    }
     final grant = (release.meta(plugin).capabilities?.functions ?? const [])
         .where((g) => g.function == function)
         .firstOrNull;
@@ -1253,6 +1382,8 @@ final class PluxRuntime with WidgetsBindingObserver {
   int get mountedPages => _mounted;
 
   Future<PluxStartup> _startup() async {
+    final reconstruction = config.reconstruction;
+    if (reconstruction != null) return _startReconstruction(reconstruction);
     var pointer = _store.pointer;
     if (pointer.active == null || pointer.staged == null) {
       try {
@@ -1284,10 +1415,14 @@ final class PluxRuntime with WidgetsBindingObserver {
         ),
       );
     }
+    // The switches and the pending update of the last document, before any
+    // page shows; the check for a newer one follows below.
+    _applyStoredControl();
     await _load();
     // Before the first sync, so the flush after it carries the session's
     // start with the release the device runs.
     _startSession();
+    _controlPoller.resume();
     final timeout = config.startup.timeout;
     if (active.value == null) {
       final r = await sync();
@@ -1314,24 +1449,219 @@ final class PluxRuntime with WidgetsBindingObserver {
     return PluxStartup._(active.value?.sequence, null);
   }
 
+  /// Starts in reconstruction mode (SEC-142): the sync isolate verifies the
+  /// release against the embedded keys and installs it (SEC-052), and it is
+  /// mapped like any active release. Nothing is synced, and no control
+  /// document is fetched. A release that fails verification leaves no
+  /// active release, and the error is the startup's.
+  Future<PluxStartup> _startReconstruction(PluxReconstruction release) async {
+    try {
+      reconstructionMoment = await _worker.importReconstruction(release);
+    } on PluxException catch (e) {
+      _report(e);
+      return PluxStartup._(null, e);
+    }
+    await _load();
+    final sequence = active.value?.sequence;
+    return PluxStartup._(
+      sequence,
+      sequence == null
+          ? const PluxException(
+              PluxErrorCode.bundleMalformed,
+              'the reconstruction release could not be opened',
+            )
+          : null,
+    );
+  }
+
+  /// Checks the signed control document now (SYN-060) and applies it:
+  /// kill switches take effect at once, a forced rollback activates the
+  /// retained release, and a mandatory update is fetched and activated
+  /// before any page shows again. Never throws.
+  Future<void> checkControl() async {
+    if (_disposed || reconstructing) return;
+    final ControlOutcome outcome;
+    try {
+      outcome = await _worker.control();
+    } on Object catch (e) {
+      developer.log('control check failed: ${e.runtimeType}', name: 'plux');
+      return;
+    }
+    if (_disposed) return;
+    await _applyControl(outcome);
+  }
+
+  /// Handles the data message of a silent push (SYN-060, Q22): one that
+  /// carries the Plux marker asks for an immediate control check, anything
+  /// else is ignored. Completes with whether a check ran.
+  Future<bool> handleSilentPush(Map<String, Object?> payload) async {
+    if (_disposed || reconstructing || !isControlPush(payload, config.appId)) {
+      return false;
+    }
+    await _controlPoller.checkNow();
+    return true;
+  }
+
+  /// Puts the document kept from the last launch in force (SYN-060): its
+  /// switches hold, and so does its mandatory update while it is fresh.
+  void _applyStoredControl() {
+    final stored = ControlDocumentStore(_root).read();
+    if (stored != null) _refreshControl(stored.snapshot);
+  }
+
+  Future<void> _applyControl(ControlOutcome outcome) async {
+    final snapshot = outcome.snapshot;
+    if (outcome.fresh) _reportedControl.clear();
+    if (outcome.error case final PluxException error) _reportControl(error);
+    if (outcome.expired && snapshot != null) {
+      _reportControl(
+        PluxException(
+          PluxErrorCode.controlDocumentExpired,
+          'control document ${snapshot.version} has expired; its kill '
+          'switches stay in force',
+        ),
+      );
+    }
+    if (snapshot == null) return;
+    final before = control.value.snapshot;
+    _refreshControl(snapshot);
+    final rolledBack = outcome.rolledBackTo;
+    if (rolledBack != null) {
+      await _serially(_load);
+      _report(
+        PluxException(
+          PluxErrorCode.forcedRollbackApplied,
+          'release $rolledBack is active again by order of control '
+          'document ${snapshot.version}',
+          details: {'sequence': '$rolledBack'},
+        ),
+      );
+    }
+    if (outcome.fresh || rolledBack != null) {
+      _recordApplied(snapshot, before, rolledBack);
+    }
+  }
+
+  /// Reports a control problem once until a fresh document arrives, so a
+  /// server that keeps answering the same wrong thing is not a stream of
+  /// reports every five minutes.
+  void _reportControl(PluxException error) {
+    if (_reportedControl.add(error.code)) _report(error);
+  }
+
+  void _recordApplied(
+    ControlSnapshot snapshot,
+    ControlSnapshot? before,
+    int? rolledBack,
+  ) {
+    final pending = control.value.pendingUpdate;
+    telemetry.record(
+      'control_applied',
+      fields: {
+        'version': snapshot.version,
+        'switches': snapshot.switches.length,
+        'switches_changed': snapshot.switchesChangedFrom(before),
+        'outcome': rolledBack != null
+            ? 'rolled_back'
+            : pending != null
+            ? 'update_pending'
+            : 'applied',
+        'rolled_back_to': ?rolledBack,
+      },
+    );
+  }
+
+  /// Makes [next], or the document in force, current: recomputes whether a
+  /// mandatory update is pending and asks the pages to rebuild when
+  /// something they depend on changed.
+  void _refreshControl([ControlSnapshot? next]) {
+    final snapshot = next ?? control.value.snapshot;
+    if (snapshot == null) return;
+    final pending = _pendingUpdate(snapshot);
+    final now = control.value;
+    final unchanged =
+        now.snapshot?.version == snapshot.version &&
+        now.pendingUpdate?.releaseSequence == pending?.releaseSequence;
+    if (!unchanged) {
+      control.value = LiveControl(snapshot: snapshot, pendingUpdate: pending);
+    }
+    if (pending != null) _awaitUpdate(snapshot.version, pending);
+  }
+
+  /// The mandatory update of [snapshot] still to be activated, or null.
+  /// An expired document no longer holds the app back: only its switches
+  /// are kept in force.
+  MandatoryUpdate? _pendingUpdate(ControlSnapshot snapshot) {
+    final update = snapshot.mandatory;
+    if (update == null || !_clock().isBefore(snapshot.expiresAt)) return null;
+    final have = active.value?.sequence;
+    return have != null && have >= update.releaseSequence ? null : update;
+  }
+
+  void _awaitUpdate(int version, MandatoryUpdate update) {
+    if (_updateReportedVersion != version) {
+      _updateReportedVersion = version;
+      _report(
+        PluxException(
+          PluxErrorCode.mandatoryUpdatePending,
+          'release ${update.releaseId} must be active before a page shows',
+          details: {'sequence': '${update.releaseSequence}'},
+        ),
+      );
+    }
+    unawaited(_fulfilUpdate());
+  }
+
+  /// Fetches the release a mandatory update names and activates it, now:
+  /// the update screen has replaced the pages, so nothing holds the old
+  /// release (REL-070). A sync that cannot reach the server leaves the
+  /// update pending; the next check tries again.
+  Future<void> _fulfilUpdate() async {
+    if (_fulfilling || _disposed) return;
+    _fulfilling = true;
+    try {
+      final r = await sync();
+      if (r.outcome == SyncOutcome.staged || _reopen().staged != null) {
+        await _activateNow();
+      }
+    } finally {
+      _fulfilling = false;
+    }
+    _refreshControl();
+  }
+
   /// Syncs now (SYN-002); a running sync is joined, and [SyncRun.progress]
   /// carries its events from now on.
   SyncRun sync() {
+    if (reconstructing) {
+      // The reconstruction is a fixed, read-only release (SEC-142).
+      return SyncRun(
+        Future.value(
+          SyncResult(
+            outcome: SyncOutcome.upToDate,
+            duration: Duration.zero,
+            sequence: active.value?.sequence,
+          ),
+        ),
+        const Stream<SyncEvent>.empty(),
+      );
+    }
     final progress = StreamController<SyncEvent>();
     final forward = _events.stream.listen(progress.add);
     Future<SyncResult> run() async {
       try {
-        final r = await _worker.sync(_emit);
+        final r = await _worker.sync(_emit, context: _syncContext());
         if (r.settings != null) settings.value = r.settings!;
         if (r.assurance != null) {
           assurance.value = math.min(r.assurance!, _assuranceCeiling);
         }
         if (r.configError != null) _report(r.configError!);
-        if (r.outcome == SyncOutcome.staged) _onStaged();
+        final activation = r.outcome == SyncOutcome.staged ? _onStaged() : null;
         // The radio is awake: record the result and send what is buffered
-        // (SYN-015, ADR-0034).
+        // (SYN-015, ADR-0034), after an immediate activation, so the
+        // upload carries its installed report (SEC-142, QA-007).
         telemetry.record('sync_result', fields: r.toTelemetry());
-        unawaited(flushTelemetry());
+        unawaited(_flushAfter(activation));
         return r;
       } finally {
         await forward.cancel();
@@ -1349,10 +1679,21 @@ final class PluxRuntime with WidgetsBindingObserver {
     if (!_events.isClosed) _events.add(e);
   }
 
-  void _onStaged() {
+  Future<void> _onStaged() async {
     if (config.activation == ActivationPolicy.nextLaunch) return;
     _pendingActivation = true;
-    unawaited(_atSafePoint());
+    await _atSafePoint();
+  }
+
+  /// Flushes the telemetry once [activation], if any, has ended; a failed
+  /// activation is logged and still flushes.
+  Future<void> _flushAfter(Future<void>? activation) async {
+    try {
+      await activation;
+    } on Object catch (e) {
+      developer.log('activation: $e', name: 'plux');
+    }
+    await flushTelemetry();
   }
 
   /// Activates or reverts when no Plux page is mounted (SYN-004, SYN-006).
@@ -1423,6 +1764,8 @@ final class PluxRuntime with WidgetsBindingObserver {
           _limits,
           report: _report,
           decrypted: decrypted,
+          live: () => control.value,
+          facts: _targetingFacts,
         );
       } on PluxException catch (e) {
         _report(e);
@@ -1430,6 +1773,41 @@ final class PluxRuntime with WidgetsBindingObserver {
       }
     }
     previous?.retire();
+    _refreshControl();
+    final now = active.value?.sequence;
+    if (now != null && now != previous?.sequence) {
+      unawaited(_reportInstalled(now));
+    }
+  }
+
+  /// Tells the server which release this device runs and what the user saw
+  /// it in (SEC-142). A report that cannot be sent is lost.
+  Future<void> _reportInstalled(int sequence) async {
+    if (_disposed) return;
+    try {
+      await _worker.reportInstalled(sequence, _installedContext());
+    } on Object catch (_) {
+      // Not reported; nothing depends on it.
+    }
+  }
+
+  /// The theme in use, the text scale and the host's pseudonymous user
+  /// identifier, read now: the inputs of a reconstruction (SEC-142). The
+  /// user reference is the identifier `setUserContext` gave, never another
+  /// personal value.
+  InstalledContext _installedContext() {
+    final dispatcher = WidgetsBinding.instance.platformDispatcher;
+    final env = environment();
+    final dark = switch (env.themeMode) {
+      ThemeMode.dark => true,
+      ThemeMode.light => false,
+      ThemeMode.system => dispatcher.platformBrightness == ui.Brightness.dark,
+    };
+    return InstalledContext(
+      theme: dark ? 'dark' : 'light',
+      textScalePercent: (dispatcher.textScaleFactor * 100).round(),
+      userRef: env.user?.id ?? '',
+    );
   }
 
   /// A page mounted: it holds the active release until [unmount].
@@ -1483,9 +1861,13 @@ final class PluxRuntime with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused) triggers.appPaused();
     if (state == AppLifecycleState.resumed) {
       triggers.appResumed();
-      _dataServices.appResumed();
+      if (!reconstructing) {
+        _dataServices.appResumed();
+        _controlPoller.resume();
+      }
     }
     if (state == AppLifecycleState.paused) {
+      _controlPoller.pause();
       // Reaching the background normally ends the launch healthily.
       if (_healthyScheduled) unawaited(_worker.markHealthy());
       if (_inForeground) {
@@ -1524,6 +1906,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     secureUi.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _flushEvery?.cancel();
+    _controlPoller.close();
     if (_inForeground) _endStretch();
     // The sync isolate handles messages in order: once this answers, every
     // event recorded before it is in the buffer, for the next launch. A
@@ -1534,7 +1917,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     );
     await statePersistence.flush();
     // Open streams and the outbox's replay timer stop with the runtime.
-    await _dataServices.close();
+    if (!reconstructing) await _dataServices.close();
     // A host's adapter is the host's to close.
     if (config.databaseAdapter == null) await _dbAdapter.close();
     _disposed = true;
@@ -1545,6 +1928,24 @@ final class PluxRuntime with WidgetsBindingObserver {
     await _hostEvents.close();
     active.value?.retire();
     active.value = null;
+    // A reconstruction may hold data its subject never consented to keep:
+    // its store does not outlive the runtime (SEC-142).
+    if (reconstructing) _deleteRoot(_root);
+  }
+
+  /// The store of reconstruction [id] under [base]. The ID comes from the
+  /// server, so it is reduced to safe characters and prefixed, which keeps
+  /// it a single path segment whatever it holds.
+  static String _reconstructionRoot(String base, String id) =>
+      '$base/reconstruction/r-${_safe(id)}';
+
+  static void _deleteRoot(String root) {
+    try {
+      final dir = Directory(root);
+      if (dir.existsSync()) dir.deleteSync(recursive: true);
+    } on FileSystemException catch (e) {
+      developer.log('reconstruction store not removed: $e', name: 'plux');
+    }
   }
 
   static String _safe(String s) => s.replaceAll(RegExp('[^A-Za-z0-9._-]'), '_');

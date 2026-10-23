@@ -24,6 +24,10 @@ var DeviceProcedures = map[string]bool{
 	pluxv1connect.DeviceServiceReportInstalledProcedure: true,
 	pluxv1connect.TelemetryServiceIngestEventsProcedure: true,
 	pluxv1connect.ManifestServiceGetRootKeysProcedure:   true,
+	// The signed control document and the push token (SYN-060).
+	pluxv1connect.ManifestServiceGetSignedControlProcedure: true,
+	pluxv1connect.DeviceServiceRegisterPushTokenProcedure:  true,
+	pluxv1connect.DeviceServiceClearPushTokenProcedure:     true,
 	// The gateway's procedures: a device calls its upstreams, confirms a
 	// transaction and exchanges its user's token with an access token and
 	// a proof like any other call (SEC-030, SEC-026, SEC-027).

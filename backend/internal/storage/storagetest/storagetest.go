@@ -60,20 +60,7 @@ func SchemaURL(t testing.TB) string {
 	if _, err := admin.Exec(ctx, "CREATE SCHEMA "+pgx.Identifier{schema}.Sanitize()); err != nil {
 		t.Fatalf("create schema: %v", err)
 	}
-	t.Cleanup(func() {
-		drop, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-		c, err := pgx.Connect(drop, url)
-		if err != nil {
-			t.Logf("drop schema %s: %v", schema, err)
-			return
-		}
-		defer func() { _ = c.Close(drop) }()
-		//nolint:misspell // Sanitize is pgx's own spelling
-		if _, err := c.Exec(drop, "DROP SCHEMA "+pgx.Identifier{schema}.Sanitize()+" CASCADE"); err != nil {
-			t.Logf("drop schema %s: %v", schema, err)
-		}
-	})
+	t.Cleanup(func() { dropSchema(t, url, schema) })
 	return withSchema(url, schema)
 }
 
@@ -131,20 +118,48 @@ func OpenWith(t testing.TB, migrations []storage.Migration) *storage.DB {
 	}
 	t.Cleanup(func() {
 		db.Close()
-		drop, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-		c, err := pgx.Connect(drop, url)
-		if err != nil {
-			t.Logf("drop schema %s: %v", schema, err)
-			return
-		}
-		defer func() { _ = c.Close(drop) }()
-		//nolint:misspell // Sanitize is pgx's own spelling
-		if _, err := c.Exec(drop, "DROP SCHEMA "+pgx.Identifier{schema}.Sanitize()+" CASCADE"); err != nil {
-			t.Logf("drop schema %s: %v", schema, err)
-		}
+		dropSchema(t, url, schema)
 	})
 	return db
+}
+
+// dropSchema drops a test's schema one table at a time, each in a
+// transaction of its own, and then the schema. A migrated schema holds
+// hundreds of tables, and dropping it whole locks every object in one
+// transaction: the cleanups of tests that ended together exhausted the
+// server's shared lock table ("out of shared memory"). Dropped table by
+// table, no transaction holds more than a few locks, and no test waits for
+// another.
+func dropSchema(t testing.TB, url, schema string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	c, err := pgx.Connect(ctx, url)
+	if err != nil {
+		t.Logf("drop schema %s: %v", schema, err)
+		return
+	}
+	defer func() { _ = c.Close(ctx) }()
+	rows, err := c.Query(ctx, "SELECT tablename FROM pg_tables WHERE schemaname = $1", schema)
+	if err != nil {
+		t.Logf("drop schema %s: list its tables: %v", schema, err)
+		return
+	}
+	tables, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	if err != nil {
+		t.Logf("drop schema %s: list its tables: %v", schema, err)
+		return
+	}
+	for _, table := range tables {
+		//nolint:misspell // Sanitize is pgx's own spelling
+		if _, err := c.Exec(ctx, "DROP TABLE IF EXISTS "+pgx.Identifier{schema, table}.Sanitize()+" CASCADE"); err != nil {
+			t.Logf("drop table %s.%s: %v", schema, table, err)
+		}
+	}
+	//nolint:misspell // Sanitize is pgx's own spelling
+	if _, err := c.Exec(ctx, "DROP SCHEMA "+pgx.Identifier{schema}.Sanitize()+" CASCADE"); err != nil {
+		t.Logf("drop schema %s: %v", schema, err)
+	}
 }
 
 // withSchema returns the URL with the search path set to one schema, so

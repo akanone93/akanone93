@@ -1,0 +1,29 @@
+{
+  "id": "01f0c450-6c00-7000-8000-000000000707",
+  "key": "secure-release",
+  "kind": "policy",
+  "match": {
+    "environments": [
+      "production"
+    ],
+    "resources": [
+      "release",
+      "experiment"
+    ],
+    "risk": [
+      "touchesSecurePage"
+    ]
+  },
+  "name": "Secure releases",
+  "require": {
+    "approvers": 2,
+    "distinctFromAuthor": true,
+    "distinctTeams": true,
+    "expiryHours": 72,
+    "roles": [
+      "release-manager"
+    ],
+    "stages": "parallel"
+  },
+  "schemaVersion": "1.0.0"
+}

@@ -9,14 +9,18 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"log/slog"
+	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -72,6 +76,32 @@ type Options struct {
 	// WebAuthn names the relying party security keys are registered
 	// for; an empty RPID disables WebAuthn factors.
 	WebAuthn WebAuthnConfig
+	// CustomRolesEnabled overrides whether the installation may create
+	// and change custom roles, an enterprise feature (GOV-002, ADR-0073),
+	// for tests. Nil asks the licence provider in the request's context
+	// (backend/edition), which is no in the community edition.
+	CustomRolesEnabled func() bool
+	// HTTPClient is the SSRF-safe client for the endpoints of identity
+	// providers configured in the database (SEC-105); nil builds one.
+	HTTPClient *http.Client
+	// SAML verifies SAML 2.0 responses, an enterprise feature (GOV-004); nil
+	// is the community edition's, which refuses with PLX-8600.
+	SAML identity.SAMLProvider
+	// Sessions ends sessions on behalf of federation: a provider's
+	// back-channel logout. Nil ends them by user in the sessions table.
+	Sessions SessionEnder
+	// PasswordLoginDisabled turns password sign-in off once an installation
+	// provider exists (auth.studio.allowPasswordLogin is false).
+	PasswordLoginDisabled bool
+	// Notifier carries permission change notices between replicas
+	// (GOV-007, ADR-0086). With one the service keeps a per-replica cache of
+	// resolved permissions, announces every change to grants, roles,
+	// memberships and restrictions, and serves WatchPermissions; without
+	// one it resolves every call afresh and cannot watch.
+	Notifier cache.Notifier
+	// Log receives the failures of best-effort work, such as announcing a
+	// change; nil discards them.
+	Log *slog.Logger
 }
 
 // Durations the requirements or RFCs fix rather than configuration.
@@ -100,10 +130,27 @@ const (
 type Service struct {
 	o   Options
 	now func() time.Time
+	log *slog.Logger
+	// bus is the replica's side of the permission change notices; nil when
+	// Options.Notifier is.
+	bus *permissionBus
+
+	// oidc caches the runtime of the providers configured in the database,
+	// by identifier; mu guards it.
+	mu   sync.Mutex
+	oidc map[string]cachedOIDC
 }
 
-// NewService returns the service.
+// NewService returns the service. Its permission subscription lasts until
+// Close.
 func NewService(o Options) (*Service, error) {
+	return NewServiceContext(context.Background(), o)
+}
+
+// NewServiceContext returns the service, setting up its permission
+// subscription with ctx. The subscription belongs to the service, not to
+// ctx: Close ends it.
+func NewServiceContext(ctx context.Context, o Options) (*Service, error) {
 	switch {
 	case o.DB == nil:
 		return nil, errors.New("auth: a database is required")
@@ -135,7 +182,66 @@ func NewService(o Options) (*Service, error) {
 	if o.Issuer == "" {
 		o.Issuer = "Plux"
 	}
-	return &Service{o: o, now: now}, nil
+	if o.SAML == nil {
+		o.SAML = identity.NoSAML{}
+	}
+	if o.Sessions == nil {
+		o.Sessions = userSessionEnder{}
+	}
+	s := &Service{o: o, now: now, log: o.Log, oidc: map[string]cachedOIDC{}}
+	if s.log == nil {
+		s.log = slog.New(slog.DiscardHandler)
+	}
+	if o.Notifier != nil {
+		lifetime := time.Duration(o.Limits.Get(limits.AuthPermissionCacheSeconds)) * time.Second
+		// The subscription belongs to the service, not to a request: Close
+		// ends it.
+		bus, err := newPermissionBus(ctx, o.Notifier, lifetime, now)
+		if err != nil {
+			return nil, err
+		}
+		s.bus = bus
+	}
+	return s, nil
+}
+
+// Close stops the goroutine that listens for permission changes. It is
+// for shutdown, and does nothing for a service without a notifier.
+func (s *Service) Close() {
+	if s.bus != nil {
+		s.bus.close()
+	}
+}
+
+// inTxChanging runs f like inTx for a transaction that changes grants,
+// roles, memberships or restrictions, and once it has committed announces
+// the organisation's new permissions version, so that every replica drops
+// what it cached (GOV-007). The version itself is raised in the
+// transaction, by a trigger, whoever writes.
+func (s *Service) inTxChanging(ctx context.Context, t storage.Tenant, f func(context.Context, pgx.Tx) error) error {
+	if err := s.inTx(ctx, t, f); err != nil {
+		return err
+	}
+	s.announce(ctx, t.OrganizationID)
+	return nil
+}
+
+// announce publishes an organisation's current permissions version. It is
+// best effort: a notice that is lost costs a stale cache entry for at most
+// its lifetime, never a failed change that has already committed.
+func (s *Service) announce(ctx context.Context, organizationID string) {
+	if s.bus == nil || organizationID == "" {
+		return
+	}
+	ctx = context.WithoutCancel(ctx)
+	version, err := s.PermissionsVersion(ctx, organizationID)
+	if err == nil {
+		err = s.bus.publish(ctx, organizationID, version)
+	}
+	if err != nil {
+		s.log.WarnContext(ctx, "a permissions change was not announced to the other replicas; their caches expire on their own",
+			slog.String("organization_id", organizationID), slog.Any("error", err))
+	}
 }
 
 // Kinds of identity.
@@ -177,6 +283,9 @@ type Identity struct {
 	SecondFactor bool
 	// InstallationAdmin may create organisations.
 	InstallationAdmin bool
+	// stepUp is the identity's last step-up, set by the authenticator
+	// that verified it (SEC-103).
+	stepUp stepUp
 }
 
 // Actor is how the audit log records the identity.

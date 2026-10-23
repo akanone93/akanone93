@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/telemetry/events.dart';
 import 'package:plux_flutter/src/telemetry/outbox.dart';
 import 'package:plux_flutter/src/telemetry/recorder.dart';
@@ -285,14 +286,18 @@ void main() {
           eventJson(name: 'error', time: DateTime.utc(2026), fields: {'n': i}),
         ).encode();
 
-    Future<TelemetryFlush> flush(TelemetryOutbox o, {int perRequest = 2}) =>
-        o.flush(
-          api: api,
-          token: () async => fakeToken('plux_dat_dev'),
-          appId: FakePluxServer.app,
-          environment: 'production',
-          perRequest: perRequest,
-        );
+    Future<TelemetryFlush> flush(
+      TelemetryOutbox o, {
+      int perRequest = 2,
+      Map<String, Object?>? installed,
+    }) => o.flush(
+      api: api,
+      token: () async => fakeToken('plux_dat_dev'),
+      appId: FakePluxServer.app,
+      environment: 'production',
+      perRequest: perRequest,
+      installed: installed,
+    );
 
     test('the buffer keeps the newest events within its byte bound '
         '[ANL-002] [LIM-001]', () {
@@ -359,6 +364,33 @@ void main() {
         perRequest: 10,
       );
       expect((r.left, r.error?.code), (1, 'unauthenticated'));
+    });
+
+    test('an installed-release report rides on the first batch, or alone '
+        'when nothing is buffered [SEC-142] [QA-007]', () async {
+      const path = '/plux.v1.TelemetryService/IngestEvents';
+      final report = PluxApiClient.installedReport(
+        'dev',
+        7,
+        const InstalledContext(),
+      );
+      final o = TelemetryOutbox(dir.path)
+        ..append([for (var i = 0; i < 3; i++) line(i)], 1 << 20);
+      var r = await flush(o, installed: report);
+      expect((r.sent, r.installed), (3, true));
+      expect(server.installedReports, [report]);
+      expect(server.compressedRequests.where((p) => p == path), hasLength(2));
+      r = await flush(o, installed: report);
+      expect((r.sent, r.installed), (0, true));
+      expect(server.installedReports, hasLength(2));
+      expect(server.compressedRequests.where((p) => p == path), hasLength(3));
+      server.faults[path] = [const StatusFault(503)];
+      r = await flush(o, installed: report);
+      expect((r.installed, r.error?.status), (false, 503));
+      server.faults[path] = [const StatusFault(400, code: 'invalid_argument')];
+      r = await flush(o, installed: report);
+      expect((r.installed, r.error), (false, null));
+      expect(server.installedReports, hasLength(2));
     });
 
     test('at most a few batches go per flush, so a long-offline device '

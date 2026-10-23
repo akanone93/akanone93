@@ -139,3 +139,7 @@ in relational columns. The maintainer chose to reword `SRV-020` to match (spec 1
 ## Revision (2026-10-07, P6 plan)
 
 The DPoP replay cache (`SEC-023`) uses Valkey with Sentinel failover and replicas through the in-house client; each `api` replica watches its health. Under `standard` and `strict` an unavailable Valkey falls back to a bounded in-memory cache with a narrower window and a distinct alert; under `maximum` device requests fail closed (ADR-0012, P6 plan B9).
+
+## Revision (2026-10-18, P9: ClickHouse as the analytics alternative)
+
+PostgreSQL remains the system of record and, by default, the store for telemetry events and rollups (monthly partitions, 5-minute, hourly and daily rollups). For high volume the enterprise edition offers ClickHouse behind the same `analytics.Store` interface; the sizing guide names roughly 10 million events per day or 1 million active devices as the point to switch (ADR-0080). ClickHouse never holds the system of record.

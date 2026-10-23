@@ -86,7 +86,7 @@ type PublishRequest struct {
 // An empty plugin ID publishes the app bundle. Idempotency of repeated
 // calls is the API edge's (SRV-005).
 func (s *Service) Publish(ctx context.Context, p auth.Principal, r PublishRequest) (PublishJob, error) {
-	if err := authorize(p, auth.ReleasePublish, r.AppID); err != nil {
+	if err := authorizeSomeEnvironment(p, auth.ReleasePublish, r.AppID); err != nil {
 		return PublishJob{}, err
 	}
 	if s.o.Jobs == nil {
@@ -111,6 +111,9 @@ func (s *Service) enqueuePublish(ctx context.Context, tx pgx.Tx, p auth.Principa
 	q := dbgen.New(tx)
 	app, env, err := s.environment(ctx, q, r.AppID, r.EnvironmentID)
 	if err != nil {
+		return PublishJob{}, err
+	}
+	if err := authorizeEnvironment(p, auth.ReleasePublish, r.AppID, env.Key); err != nil {
 		return PublishJob{}, err
 	}
 	frozen, err := s.o.Documents.FreezeDraft(ctx, tx, r.AppID, r.PluginID, r.Revision)
@@ -270,6 +273,9 @@ func (s *Service) CancelPublishJob(ctx context.Context, p auth.Principal, jobID 
 		out = jobOf(cancelled)
 		return s.record(ctx, tx, p, audit.Entry{Action: audit.PublishCancelled, TargetKind: "publish", TargetID: jobID})
 	})
+	if err == nil {
+		s.publishFinished(StateCancelled)
+	}
 	return out, err
 }
 
@@ -350,6 +356,12 @@ func (s *Service) gatePublish(ctx context.Context, system auth.Principal, row db
 		return nil, true, s.fail(ctx, system, row, diags)
 	}
 	if diags, err = s.gateGoldens(ctx, system, row, c, diags); err != nil {
+		return nil, false, err
+	}
+	if diags.HasErrors() {
+		return nil, true, s.fail(ctx, system, row, diags)
+	}
+	if diags, err = s.gateCapabilities(ctx, system, row, c, diags); err != nil {
 		return nil, false, err
 	}
 	if diags.HasErrors() {
@@ -660,40 +672,66 @@ func (s *Service) store(ctx context.Context, kind objects.Kind, sum, data []byte
 // recordVersion records a published version and finishes the job, in
 // one transaction: until it commits, nothing of the publish is visible.
 func (s *Service) recordVersion(ctx context.Context, p auth.Principal, row dbgen.PublishJob, b *compiler.Bundle, c compiled, sig versionSignature, diags plxerr.Diagnostics) error {
-	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		if _, err := q.LockApp(ctx, row.AppID); err != nil {
-			return failure(err, "app")
+	succeeded := false
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		succeeded, err = s.recordVersionTx(ctx, tx, p, row, b, c, sig, diags)
+		return err
+	})
+	if err == nil && succeeded {
+		s.publishFinished(StateSucceeded)
+	}
+	return err
+}
+
+// recordVersionTx inserts the version, finishes the job and queues what
+// follows from the publish, in the transaction of the request. It reports
+// false when the job was cancelled while it ran, and records nothing then.
+func (s *Service) recordVersionTx(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.PublishJob, b *compiler.Bundle, c compiled, sig versionSignature, diags plxerr.Diagnostics) (bool, error) {
+	q := dbgen.New(tx)
+	if _, err := q.LockApp(ctx, row.AppID); err != nil {
+		return false, failure(err, "app")
+	}
+	current, err := q.GetPublishJobForUpdate(ctx, row.ID)
+	if err != nil {
+		return false, failure(err, "publish job")
+	}
+	if current.State != StateRunning {
+		return false, nil // cancelled while it ran
+	}
+	id, next, err := s.insertVersion(ctx, q, row, b, c, sig)
+	if err != nil {
+		return false, err
+	}
+	uses, err := encodeUses(compiler.NativeUses(c.result, draftFiles(c.key)))
+	if err != nil {
+		return false, err
+	}
+	if err := q.SetVersionNativeUses(ctx, dbgen.SetVersionNativeUsesParams{ID: storage.MustUUID(id), NativeUses: uses}); err != nil {
+		return false, failure(err, "version")
+	}
+	if err := s.finishTx(ctx, q, row, StateSucceeded, diags, next); err != nil {
+		return false, err
+	}
+	if err := s.enqueueDeltas(ctx, tx, p.OrganizationID, storage.ID(row.AppID), c.key, b.Hash[:]); err != nil {
+		return true, err
+	}
+	return true, s.announceVersion(ctx, tx, p, row, b, id, next)
+}
+
+// announceVersion tells the publish listener about a new version and audits
+// it.
+func (s *Service) announceVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.PublishJob, b *compiler.Bundle, id string, next int64) error {
+	summary := fmt.Sprintf("%s version %d", keyOrApp(b.Key, row), next)
+	if s.o.Published != nil {
+		if err := s.o.Published.Published(ctx, tx, p.OrganizationID, storage.ID(row.AppID), id, summary, row.ActorID, row.ActorDisplay); err != nil {
+			return fmt.Errorf("release: %w", err)
 		}
-		current, err := q.GetPublishJobForUpdate(ctx, row.ID)
-		if err != nil {
-			return failure(err, "publish job")
-		}
-		if current.State != StateRunning {
-			return nil // cancelled while it ran
-		}
-		id, next, err := s.insertVersion(ctx, q, row, b, c, sig)
-		if err != nil {
-			return err
-		}
-		uses, err := encodeUses(compiler.NativeUses(c.result, draftFiles(c.key)))
-		if err != nil {
-			return err
-		}
-		if err := q.SetVersionNativeUses(ctx, dbgen.SetVersionNativeUsesParams{ID: storage.MustUUID(id), NativeUses: uses}); err != nil {
-			return failure(err, "version")
-		}
-		if err := s.finishTx(ctx, q, row, StateSucceeded, diags, next); err != nil {
-			return err
-		}
-		if err := s.enqueueDeltas(ctx, tx, p.OrganizationID, storage.ID(row.AppID), c.key, b.Hash[:]); err != nil {
-			return err
-		}
-		actor := auth.Principal{Identity: auth.Identity{Kind: row.ActorKind, ID: row.ActorID, Display: row.ActorDisplay}, OrganizationID: p.OrganizationID}
-		return s.record(ctx, tx, actor, audit.Entry{
-			Action: audit.VersionPublished, TargetKind: "version", TargetID: id,
-			AfterHash: hex.EncodeToString(b.Hash[:]), Detail: fmt.Sprintf("%s version %d", keyOrApp(b.Key, row), next),
-		})
+	}
+	actor := auth.Principal{Identity: auth.Identity{Kind: row.ActorKind, ID: row.ActorID, Display: row.ActorDisplay}, OrganizationID: p.OrganizationID}
+	return s.record(ctx, tx, actor, audit.Entry{
+		Action: audit.VersionPublished, TargetKind: "version", TargetID: id,
+		AfterHash: hex.EncodeToString(b.Hash[:]), Detail: summary,
 	})
 }
 
@@ -740,9 +778,21 @@ func keyOrApp(key string, row dbgen.PublishJob) string {
 
 // fail ends a job without a version.
 func (s *Service) fail(ctx context.Context, p auth.Principal, row dbgen.PublishJob, diags plxerr.Diagnostics) error {
-	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		return s.finishTx(ctx, dbgen.New(tx), row, StateFailed, diags, 0)
 	})
+	if err == nil {
+		s.publishFinished(StateFailed)
+	}
+	return err
+}
+
+// publishFinished counts a publish job that ended, once its transaction
+// committed (plux_publish_jobs_total, the publish SLO of OBS-005).
+func (s *Service) publishFinished(state string) {
+	if s.o.Metrics != nil {
+		s.o.Metrics.PublishFinished(state)
+	}
 }
 
 // finishTx ends a job in the caller's transaction.

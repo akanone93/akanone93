@@ -49,3 +49,25 @@ flutter test test/bank_test.dart       # host tests of the configuration, the au
 
 The end-to-end driver (`TestPluxBankAgainstTheServer`) builds [`test/refapi`](../../test/refapi),
 publishes the fixture with its environment URLs pointed at it, and runs the flows.
+
+## P9 scenarios (DX-004)
+
+The app's security profile is `maximum`. [`tool/p9_bank.sh`](tool/p9_bank.sh) runs the server side
+of its P9 scenarios with the `plux` CLI (its header lists the environment it reads):
+
+| Scenario | In the fixture | Script step |
+|---|---|---|
+| Production releases under the `maximum` policy | the profile's default policy asks two approvers for a production release; `policies/secure-transfer-release.policy.json` adds that a release touching the `secure` transfer page needs two approvers from distinct teams, neither the author (GOV-020, ABT-007) | `policies`, `release`, `approvals` |
+| A kill-switch drill on the transfer page | the plugin's `fallbackPage`, `unavailable`; switching `transfer` off shows it and the device reports `control_applied` (REL-060, RT-022) | `kill`, `unkill`, `control` |
+| The reconstruction of a device's moment on the transfer page | the signed, read-only reconstruction release the viewer host opens (the view is audited) | `reconstruct` |
+
+```bash
+PLUX_ARGS="--app $APP" apps/plux_bank/tool/p9_bank.sh kill    # the drill
+PLUX_ARGS="--app $APP" DEVICE_ID=$DEVICE MOMENT=2026-12-01T10:00:00Z \
+  apps/plux_bank/tool/p9_bank.sh reconstruct
+```
+
+The compiler's output for the fixture is pinned in `schema/testdata/bundles/plux_bank`
+(`cd backend && go test ./cmd/plux -run TestReferenceApps -update` rewrites it), and
+`packages/plux_flutter/test/experiments/reference_apps_p9_test.dart` runs the fallback on those
+bundles. The steps that talk to a server, and the device flows, run in CI.

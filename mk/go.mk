@@ -6,7 +6,7 @@
 
 .PHONY: gen proto sqlc sqlc-check go-check proto-check proto-lint proto-format-check proto-breaking go-fmt go-fmt-check \
 	go-lint go-tidy go-tidy-check go-gen-check registry-lock-check go-test go-test-race go-cover \
-	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible catalogue-check
+	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible catalogue-check go-test-core
 
 # Phase and flags of `make catalogue-check`; it fails on any finding since the
 # P8 catch-up (plan p8 §5.12); `CATALOGUE_FLAGS=-report` only lists them.
@@ -15,7 +15,7 @@ CATALOGUE_FLAGS ?=
 
 # How long `make go-fuzz` runs each fuzz target.
 FUZZTIME      ?= 30s
-GO_MODULES    := backend tools test/refapi
+GO_MODULES    := backend tools test/refapi ee/backend
 # Everything `make gen` writes; `go-gen-check` fails if any of it changes.
 GEN_PATHS     := backend tools docs/reference packages studio/packages schema
 PROTO_DIR     := proto
@@ -29,6 +29,10 @@ FBS_SCHEMA    := schema/fbs/bundle.fbs
 FBS_SECTIONS  := schema/fbs/sections/*.fbs
 FBS_GO_DIR    := backend/internal/bundle/fbs
 FBS_DART_DIR  := packages/plux_flutter/lib/src/bundle/fbs
+# The control document (SYN-060, ADR-0077) has its own schema and namespace.
+CTL_SCHEMA    := schema/control.fbs
+CTL_GO_DIR    := backend/internal/controldoc/controlfbs
+CTL_DART_DIR  := packages/plux_flutter/lib/src/control/fbs
 
 # ── Reproducible build metadata (CI-006) ────────────────────────────────────
 # Everything below is derived from the commit, never from the build machine
@@ -45,6 +49,13 @@ GO_BUILD_FLAGS  := -trimpath -buildvcs=false -ldflags "-s -w -buildid= \
 
 ##@ Code generation (CI-003)
 
+# flatc's Dart output gives every table a toString that spells out each field.
+# The runtime never prints a table, but an overridden toString is reachable
+# through Object.toString, so the AOT compiler cannot drop it: about 165 KB of
+# libapp.so, against the size budget of RT-061. The sed script deletes the
+# four lines of each (@override, the signature, the return, the brace).
+DART_FBS_DROP_TOSTRING := sed -i.bak '/^  @override$$/{N;/String toString() {/{N;N;d;};}'
+
 # flatc writes the section accessors for Go and Dart from the one schema
 # file, and the binary schema of each section kind, from which schemagen
 # derives the verifier's layout tables (BND-001, BND-012).
@@ -53,12 +64,16 @@ GO_BUILD_FLAGS  := -trimpath -buildvcs=false -ldflags "-s -w -buildid= \
 gen: ## Regenerate all generated code and reference documents (CI-003)
 	@"$(FLATC)" --version 2>/dev/null | grep -qx "flatc version $(FLATC_VERSION)" || { echo "✗ flatc $(FLATC_VERSION) not found at $(FLATC); run 'make install-flatc'" >&2; exit 1; }
 	@bfbs=$$(mktemp -d); trap 'rm -rf "$$bfbs"' EXIT; \
-	rm -rf $(FBS_GO_DIR) $(FBS_DART_DIR); \
+	rm -rf $(FBS_GO_DIR) $(FBS_DART_DIR) $(CTL_GO_DIR) $(CTL_DART_DIR); \
 	"$(FLATC)" --go -o $(dir $(FBS_GO_DIR)) $(FBS_SCHEMA); \
 	"$(FLATC)" --dart -o $(FBS_DART_DIR) $(FBS_SCHEMA); \
-	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(FBS_DART_DIR)/*_generated.dart && rm -f $(FBS_DART_DIR)/*.bak; \
+	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(FBS_DART_DIR)/*_generated.dart && $(DART_FBS_DROP_TOSTRING) $(FBS_DART_DIR)/*_generated.dart && rm -f $(FBS_DART_DIR)/*.bak; \
+	"$(FLATC)" --go -o $(dir $(CTL_GO_DIR)) $(CTL_SCHEMA); \
+	"$(FLATC)" --dart -o $(CTL_DART_DIR) $(CTL_SCHEMA); \
+	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(CTL_DART_DIR)/*_generated.dart && $(DART_FBS_DROP_TOSTRING) $(CTL_DART_DIR)/*_generated.dart && rm -f $(CTL_DART_DIR)/*.bak; \
 	"$(FLATC)" --binary --schema -o "$$bfbs" $(FBS_SECTIONS); \
-	$(GO) run ./tools/cmd/schemagen -root . -bfbs "$$bfbs"
+	"$(FLATC)" --binary --schema -o "$$bfbs/control" $(CTL_SCHEMA); \
+	$(GO) run ./tools/cmd/schemagen -root . -bfbs "$$bfbs" -control-bfbs "$$bfbs/control"
 	@"$(MAKE)" proto
 	@"$(MAKE)" sqlc
 	@for m in $(GO_MODULES); do (cd $$m && $(GO) generate ./...); done
@@ -187,6 +202,12 @@ go-vuln: ## Scan Go dependencies for known vulnerabilities
 go-build: ## Build reproducible binaries into bin/ (CI-006)
 	@mkdir -p $(BIN_DIR)
 	cd backend && CGO_ENABLED=0 $(GO) build $(GO_BUILD_FLAGS) -o ../$(BIN_DIR)/ ./cmd/...
+
+# Verifies: GOV-033. With the workspace off, the backend module resolves only
+# its own go.mod, which does not require ee/, so the core builds, vets and
+# tests its edition boundary without the enterprise module.
+go-test-core: ## Build, vet and test the open-source core without the ee/ module (GOV-033)
+	cd backend && GOWORK=off $(GO) build ./... && GOWORK=off $(GO) vet ./... && GOWORK=off $(GO) test ./edition/... ./serverapp/...
 
 # Verifies: CI-006.
 go-reproducible: ## Build twice with cold caches and fail unless the binaries are identical (CI-006)

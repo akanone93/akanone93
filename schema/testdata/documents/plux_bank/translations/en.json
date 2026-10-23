@@ -48,7 +48,9 @@
     "01d0c450-6c00-7000-8000-000000009306": "Enter an amount",
     "01d0c450-6c00-7000-8000-000000009307": "Use at most two decimals",
     "01d0c450-6c00-7000-8000-000000009308": "The amount must be above zero and within your balance",
-    "01d0c450-6c00-7000-8000-000000009309": "Use at most 40 characters"
+    "01d0c450-6c00-7000-8000-000000009309": "Use at most 40 characters",
+    "01d0c450-6c00-7000-8000-000000009401": "Transfers are paused",
+    "01d0c450-6c00-7000-8000-000000009402": "Transfers are unavailable for now. Your money is safe; please try again later."
   },
   "schemaVersion": "1.0.0"
 }

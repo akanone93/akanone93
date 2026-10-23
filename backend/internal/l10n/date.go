@@ -107,6 +107,23 @@ func compileCalendar(r rawCalendar) (*calendar, error) {
 	return c, nil
 }
 
+// bestFormat returns the index in avail of the format closest to want, the
+// first of equals in key order; false when none has the requested fields.
+func bestFormat(avail []availableFormat, want skeleton) (int, bool) {
+	best := -1
+	bestDist := 0
+	for i, a := range avail {
+		dist, ok := distance(want, a.fields)
+		if !ok {
+			continue
+		}
+		if best < 0 || dist < bestDist {
+			best, bestDist = i, dist
+		}
+	}
+	return best, best >= 0
+}
+
 // FormatDate formats d in a calendar ("gregorian", "ethiopic",
 // "islamic-umalqura" or "persian") from the locale's date and time styles or
 // skeleton (I18N-001). Pattern letters G y M L d E c a h H K k m s are
@@ -275,18 +292,8 @@ func (s skeleton) split() (date, tm skeleton) {
 // widths, with its field widths adjusted to the request the way CLDR's
 // DateTimePatternGenerator does.
 func (c *calendar) match(want skeleton) (string, error) {
-	best := -1
-	bestDist := 0
-	for i, a := range c.avail {
-		dist, ok := distance(want, a.fields)
-		if !ok {
-			continue
-		}
-		if best < 0 || dist < bestDist {
-			best, bestDist = i, dist
-		}
-	}
-	if best < 0 {
+	best, ok := bestFormat(c.avail, want)
+	if !ok {
 		return "", fmt.Errorf("%w: no format for the requested fields", ErrUnsupported)
 	}
 	a := c.avail[best]

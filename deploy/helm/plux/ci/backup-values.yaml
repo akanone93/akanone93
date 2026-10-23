@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Backups to the chart's own SeaweedFS, in a bucket of their own, as the kind
+# test and the restore drill (make restore-drill) run them (DEP-010). A real
+# installation keeps the backups in a store apart from the data.
+server:
+  publicBaseURL: https://plux.example.com
+signing:
+  backend: file
+postgresql:
+  cnpg:
+    instances: 3
+    storage: {size: 1Gi}
+    backup:
+      enabled: true
+      bucket: plux-backups
+      schedule: "0 */30 * * * *"
+      retention: 7d
+      archiveTimeout: 30s

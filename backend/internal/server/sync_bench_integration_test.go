@@ -214,8 +214,7 @@ func (b *syncBench) newestRelease() (int64, error) {
 // cli runs the CLI against the stack and returns its standard output,
 // with its standard error appended when it fails.
 func (b *syncBench) cli(args ...string) ([]byte, error) {
-	cmd := exec.CommandContext(b.st.ctx, b.st.cli, args...) //nolint:gosec // G204: the binary the test built.
-	cmd.Env = append(os.Environ(), "PLUX_TOKEN="+b.st.token, "PLUX_SERVER=", "PLUX_ORGANIZATION=", "HOME="+b.st.dir, "XDG_CONFIG_HOME="+filepath.Join(b.st.dir, "config"))
+	cmd := b.st.command(args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	if err := cmd.Run(); err != nil {

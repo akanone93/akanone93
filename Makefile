@@ -33,6 +33,18 @@ PROTOC_GEN_GO_VERSION := v1.36.12
 PROTOC_GEN_CONNECT_GO_VERSION := v1.21.0
 PROTOC_GEN_CONNECT_OPENAPI_VERSION := v0.27.3
 SQLC_VERSION          := v1.31.1
+# The chart's tools (DEP-003, mk/helm.mk). Helm 3 is the maintained line the
+# chart's apiVersion v2 targets; kind runs the HA end-to-end test.
+HELM_VERSION          := v3.22.1
+KIND_VERSION          := v0.33.0
+KUBECONFORM_VERSION   := v0.8.0
+# OpenTofu, for the infrastructure modules (DEP-050). Built from its Go module
+# at this tag; the Go checksum database verifies the module's content.
+TOFU_VERSION          := v1.13.1
+# The CloudNativePG operator the kind test installs (release manifest, verified
+# against its SHA-256) and the chart's Cluster resource targets.
+CNPG_VERSION          := 1.30.1
+CNPG_SHA256           := 37237f145d8138256ea25ae830f87759255665ff08f8d552fdd8224a5ec032fb
 # flatc is built from source at the commit of its release tag (ADR-0002).
 FLATC_VERSION         := 25.9.23
 FLATC_COMMIT          := 187240970746d00bbd26b0f5873ed54d2477f9f3
@@ -49,16 +61,20 @@ GITLEAKS      ?= $(TOOLS_BIN)/gitleaks
 ACTIONLINT    ?= $(TOOLS_BIN)/actionlint
 BUF           ?= $(TOOLS_BIN)/buf
 SQLC          ?= $(TOOLS_BIN)/sqlc
-COVGATE       := $(GO) run ./tools/cmd/covgate
+HELM          ?= $(TOOLS_BIN)/helm
+KIND          ?= $(TOOLS_BIN)/kind
+KUBECONFORM   ?= $(TOOLS_BIN)/kubeconform
+TOFU          ?= $(TOOLS_BIN)/tofu
+COVGATE      := $(GO) run ./tools/cmd/covgate
 BIN_DIR       := bin
 FLATC_DIR     ?= $(HOME)/.cache/plux/flatc-$(FLATC_VERSION)
 FLATC         ?= $(FLATC_DIR)/flatc
 
-MK_FRAGMENTS := go codecs functions dart bench studio stack device repo l10n
+MK_FRAGMENTS := go codecs functions dart bench studio stack helm iac device repo l10n
 
 .PHONY: help setup hooks-install check check-changed test build gen-check clean \
-	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-python-tools install-flatc \
-	go-tool-pins flatc-pin
+	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-helm-tools install-tofu install-python-tools install-flatc \
+	go-tool-pins helm-tool-pins flatc-pin
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage: make \033[36m<target>\033[0m\n"} \
@@ -67,7 +83,7 @@ help: ## Show this help
 
 ##@ Everyday
 
-setup: install-go-tools install-python-tools install-flatc ## Install pinned tools and git hooks (run once after cloning)
+setup: install-go-tools install-helm-tools install-tofu install-python-tools install-flatc ## Install pinned tools and git hooks (run once after cloning)
 	@command -v flutter >/dev/null || echo "! Install Flutter $(FLUTTER_VERSION): https://docs.flutter.dev/get-started/install"
 	@command -v bun >/dev/null || echo "! Install Bun $(BUN_VERSION): https://bun.sh/docs/installation"
 	"$(MAKE)" hooks-install
@@ -95,6 +111,20 @@ install-buf: ## Install buf and the protoc plugins the API contract needs (ADR-0
 install-sqlc: ## Install the pinned sqlc, which type-checks the server's SQL (ADR-0007)
 	$(GO_INSTALL) github.com/sqlc-dev/sqlc/cmd/sqlc@$(SQLC_VERSION)
 
+install-helm-tools: ## Install the pinned Helm, kind and kubeconform, which lint, render and test the chart (DEP-003)
+	$(GO_INSTALL) helm.sh/helm/v3/cmd/helm@$(HELM_VERSION)
+	$(GO_INSTALL) sigs.k8s.io/kind@$(KIND_VERSION)
+	$(GO_INSTALL) github.com/yannh/kubeconform/cmd/kubeconform@$(KUBECONFORM_VERSION)
+
+# OpenTofu has a replace directive in its go.mod, which `go install` refuses, so
+# the module is downloaded with `go mod download` (which checks it against the
+# checksum database and, unlike `go list -m`, fills the module cache on a fresh
+# machine) and built in place.
+install-tofu: ## Build the pinned OpenTofu from its Go module into TOOLS_BIN (DEP-050)
+	@dir=$$($(GO) mod download -json github.com/opentofu/opentofu@$(TOFU_VERSION) | sed -n 's/^[[:space:]]*"Dir": "\(.*\)",$$/\1/p') && \
+	test -n "$$dir" && \
+	cd "$$dir" && GOTOOLCHAIN=$(GO_TOOLCHAIN) $(GO) build -o "$(TOFU)" ./cmd/tofu && "$(TOFU)" version
+
 PYTHON_TOOLS := pre-commit==$(PRE_COMMIT_VERSION) zizmor==$(ZIZMOR_VERSION) reuse==$(REUSE_VERSION)
 
 # pipx where available (required on PEP 668 "externally managed" systems such as Ubuntu 23.04+), pip --user otherwise.
@@ -110,6 +140,10 @@ install-python-tools: ## Install the pinned pre-commit, zizmor and reuse
 # elsewhere in the Makefile or a dependency update keeps them (ci.yml).
 go-tool-pins: ## Print the pins of the Go tools install-golangci-lint, install-buf and install-sqlc build
 	@echo "$(GO_TOOLCHAIN) golangci-lint@$(GOLANGCI_LINT_VERSION) buf@$(BUF_VERSION) protoc-gen-go@$(PROTOC_GEN_GO_VERSION) protoc-gen-connect-go@$(PROTOC_GEN_CONNECT_GO_VERSION) protoc-gen-connect-openapi@$(PROTOC_GEN_CONNECT_OPENAPI_VERSION) sqlc@$(SQLC_VERSION)"
+
+# What the Helm job keys its cache of the chart's tools on.
+helm-tool-pins: ## Print the pins of the tools install-helm-tools builds
+	@echo "$(GO_TOOLCHAIN) helm@$(HELM_VERSION) kind@$(KIND_VERSION) kubeconform@$(KUBECONFORM_VERSION)"
 
 flatc-pin: ## Print the pinned flatc release and commit install-flatc builds
 	@echo "$(FLATC_VERSION)-$(FLATC_COMMIT)"
@@ -131,7 +165,7 @@ install-flatc: ## Build the pinned flatc from source into FLATC_DIR (ADR-0002)
 hooks-install: ## Register the git hooks (pre-commit, commit-msg, pre-push)
 	pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 
-check: repo-check go-check dart-check studio-check ## Run every quality gate CI runs
+check: repo-check go-check dart-check studio-check helm-lint ## Run every quality gate CI runs
 	@echo "✓ All checks passed"
 
 # What check-changed compares the working tree with: by default the merge

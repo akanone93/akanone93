@@ -12,11 +12,15 @@ Every Plux document is JSON validated by the JSON Schema 2020-12 files in `schem
 | `app` | [AppDocument](#appdocument) | `schema/json/app.schema.json` | An app: its plugins, theme, locales, environments, shared data and policies (SCH-020). File: `app.json`. |
 | `assetIndex` | [AssetIndexDocument](#assetindexdocument) | `schema/json/asset-index.schema.json` | The assets of an app, stored under `assets/` and referenced by identifier (§14.8). File: `assets/index.json`. |
 | `component` | [ComponentDocument](#componentdocument) | `schema/json/component.schema.json` | A reusable component with typed props, slots, events and internal state (SCH-030). File: `components/<key>.component.json` (app-shared) or `plugins/<plugin>/components/<key>.component.json`. |
+| `experiment` | [ExperimentDocument](#experimentdocument) | `schema/json/experiment.schema.json` | An experiment: a control and variants with their allocation, audience, schedule and metrics (ABT-001). Its `key` is the PXL name in `experiment.<key>` and the `experiment` of a `Variant` node. File: `experiments/<key>.experiment.json`. |
+| `flag` | [FlagDocument](#flagdocument) | `schema/json/flag.schema.json` | A typed feature flag with its default and its value per segment, read in PXL as `flags.<key>` and through generated host accessors (ABT-006). File: `flags/<key>.flag.json`. |
 | `function` | [FunctionDocument](#functiondocument) | `schema/json/function.schema.json` | A Plux Function: its name, placement, capabilities, limits, required assurance and test cases (FN-008, FN-011, FN-012, FN-031). The input and output schemas are derived from the function's types at build time (FN-004) and never written here. File: `functions/<name>/function.json`. |
 | `nativeCatalogue` | [NativeCatalogueDocument](#nativecataloguedocument) | `schema/json/native-catalogue.schema.json` | The native routes, native slots and custom actions of one host app build (SCH-032). File: `native-catalogue.json`. |
 | `page` | [PageDocument](#pagedocument) | `schema/json/page.schema.json` | A page: route, parameters, state, data, lifecycle and node tree (SCH-022). File: `plugins/<plugin>/pages/<key>.page.json`. |
 | `plugin` | [PluginDocument](#plugindocument) | `schema/json/plugin.schema.json` | A plugin: its pages, state, collections and requested capabilities (SCH-021). File: `plugins/<key>/plugin.json`. |
+| `policy` | [PolicyDocument](#policydocument) | `schema/json/policy.schema.json` | An approval policy: which changes it applies to and what approval they need (GOV-020). File: `policies/<key>.policy.json`. |
 | `scenarios` | [ScenarioDocument](#scenariodocument) | `schema/json/scenario.schema.json` | One or more declarative test scenarios of pages or flows (TST-001). Files: `tests/**/*.scenario.yaml` or `.json`, found through `tests` in `plux.yaml`. |
+| `segment` | [SegmentDocument](#segmentdocument) | `schema/json/segment.schema.json` | A named audience: a rule over the attributes of a device, its build and its user, evaluated by rollouts on the server and by flags and experiments on the device (REL-051, ABT-001, ABT-006). File: `segments/<key>.segment.json`. |
 | `template` | [TemplateDocument](#templatedocument) | `schema/json/template.schema.json` | A reusable subtree snapshot, copied with fresh identifiers when inserted (SCH-031). File: `templates/<key>.template.json`. |
 | `theme` | [ThemeDocument](#themedocument) | `schema/json/theme.schema.json` | Design tokens for light and dark modes (THM-001, THM-002). File: `theme.json`. |
 | `translationKeys` | [TranslationKeysDocument](#translationkeysdocument) | `schema/json/translation-keys.schema.json` | The translation keys of an app, referenced by identifier (I18N-007). File: `translations/keys.json`. |
@@ -236,7 +240,7 @@ A reusable component with typed props, slots, events and internal state (SCH-030
 | `events` | list of [ComponentEvent](#componentevent) |  |  |
 | `state` | list of [StateEntry](#stateentry) |  |  |
 | `exported` | boolean |  | Embeddable by the host with `PluxView` (NAV-004). |
-| `root` | [Node](#node) | yes | A node of a page or component tree: a widget or a component instance (SCH-023). |
+| `root` | [Node](#node) | yes | A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001). |
 | `forms` | list of [Form](#form) |  | The forms of the component (STA-020). |
 
 ### ComponentEvent
@@ -389,6 +393,65 @@ A trigger's handler: a reference to an action graph or an inline graph (SCH-023)
 | `concurrency` | string |  | Concurrency policy of a trigger (ACT-003): parallel, drop, restart, queue, debounce:<ms> or throttle:<ms>. |
 | `detached` | boolean |  | Not cancelled when the owner is disposed (ACT-004). |
 
+### ExperimentDocument
+
+An experiment: a control and variants with their allocation, audience, schedule and metrics (ABT-001). Its `key` is the PXL name in `experiment.<key>` and the `experiment` of a `Variant` node. File: `experiments/<key>.experiment.json`.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `schemaVersion` | string | yes | Version of the document schema (SCH-000). Older documents are migrated before validation. |
+| `kind` | `"experiment"` | yes |  |
+| `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
+| `key` | string | yes | Identifier used in PXL and generated code: lowerCamelCase. |
+| `name` | string |  |  |
+| `description` | string |  | Human-readable description. |
+| `scope` | [ExperimentScope](#experimentscope) | yes | What varies: a whole page, a component subtree (a `Variant` node), a prop value, a flow, or the version of a plugin. |
+| `props` | list of [Field](#field) |  | The props a `prop` experiment varies, read in PXL as `experiment.<key>.<name>`; every variant gives each a value. |
+| `variants` | list of [ExperimentVariant](#experimentvariant) | yes | The control and the variants. Exactly one is the control and the weights sum to 100 (PLX-1702, PLX-1703). |
+| `layer` | string |  | Identifier used in PXL and generated code: lowerCamelCase. |
+| `holdout` | number |  | The share of subjects, in percent, kept out of the experiment and shown the control. |
+| `segment` | string |  | Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. |
+| `schedule` | [ExperimentSchedule](#experimentschedule) |  | When the experiment runs; both bounds are optional. |
+| `primaryMetric` | [ExperimentMetric](#experimentmetric) | yes |  |
+| `guardrailMetrics` | list of [ExperimentMetric](#experimentmetric) |  |  |
+| `minimumSampleSize` | integer |  | Subjects per variant before a result may be read. |
+| `salt` | string |  | Mixed into the hash that assigns a subject to a variant, so two experiments split the same subjects differently (ABT-002). |
+
+### ExperimentMetric
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `event` | string | yes | The analytics event the metric counts. |
+| `kind` | [MetricKind](#metrickind) |  | How a metric is analysed: the share of subjects that did the event, or the mean of a numeric property of the event. |
+| `property` | string |  | Identifier used in PXL and generated code: lowerCamelCase. |
+| `direction` | [MetricDirection](#metricdirection) |  | Which change of the metric is an improvement. |
+| `maxRegression` | number |  | For a guardrail: the largest relative worsening tolerated, as a fraction. |
+
+### ExperimentSchedule
+
+When the experiment runs; both bounds are optional.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `start` | string |  |  |
+| `end` | string |  |  |
+
+### ExperimentScope
+
+What varies: a whole page, a component subtree (a `Variant` node), a prop value, a flow, or the version of a plugin.
+
+One of `page`, `subtree`, `prop`, `flow`, `pluginVersion`.
+
+### ExperimentVariant
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `name` | string | yes | Identifier used in PXL and generated code: lowerCamelCase. |
+| `control` | boolean |  | Marks the control. |
+| `weight` | number | yes | The share of subjects, in percent. |
+| `props` | map of JSON value |  | The value of each declared prop for this variant. |
+| `description` | string |  | Human-readable description. |
+
 ### Expr
 
 PXL binding (SCH-011).
@@ -418,6 +481,29 @@ A typed feature flag, available in PXL as `flags.<name>` (ABT-006).
 | `type` | [FlagType](#flagtype) | yes | Type of a feature flag (ABT-006). |
 | `default` | JSON value | yes | A JSON value interpreted against a declared type (defaults, mocks, environment values). |
 | `description` | string |  | Human-readable description. |
+
+### FlagDocument
+
+A typed feature flag with its default and its value per segment, read in PXL as `flags.<key>` and through generated host accessors (ABT-006). File: `flags/<key>.flag.json`.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `schemaVersion` | string | yes | Version of the document schema (SCH-000). Older documents are migrated before validation. |
+| `kind` | `"flag"` | yes |  |
+| `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
+| `key` | string | yes | Identifier used in PXL and generated code: lowerCamelCase. |
+| `description` | string |  | Human-readable description. |
+| `type` | string | yes | The flag's type: `bool`, `number`, `string` or `json`. The compiler refuses any other (PLX-1701). |
+| `schema` | JSON value |  | For a `json` flag: the JSON Schema its values must satisfy. |
+| `default` | JSON value | yes | A JSON value interpreted against a declared type (defaults, mocks, environment values). |
+| `segments` | list of [FlagSegmentValue](#flagsegmentvalue) |  | The value for each segment, in order: the first segment a subject belongs to wins. |
+
+### FlagSegmentValue
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `segment` | string | yes | Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. |
+| `value` | JSON value | yes | A JSON value interpreted against a declared type (defaults, mocks, environment values). |
 
 ### FlagType
 
@@ -649,6 +735,18 @@ Media type of an asset.
 
 One of `image/png`, `image/jpeg`, `image/webp`, `image/gif`, `image/svg+xml`, `font/ttf`, `font/otf`, `application/lottie+zip`, `application/riv`.
 
+### MetricDirection
+
+Which change of the metric is an improvement.
+
+One of `increase`, `decrease`.
+
+### MetricKind
+
+How a metric is analysed: the share of subjects that did the event, or the mean of a numeric property of the event.
+
+One of `proportion`, `mean`.
+
 ### Monogram
 
 Generated monogram icon.
@@ -727,7 +825,7 @@ App-wide navigation: the page for unknown routes, deep links and tabbed shells (
 
 ### Node
 
-A node of a page or component tree: a widget or a component instance (SCH-023).
+A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001).
 
 | Property | Type | Required | Description |
 |---|---|---|---|
@@ -746,6 +844,9 @@ A node of a page or component tree: a widget or a component instance (SCH-023).
 | `direction` | [TextDirection](#textdirection) |  | Text direction of a subtree (I18N-005). |
 | `localeOverrides` | map of map of JSON value |  | Prop overrides per locale (I18N-012). |
 | `a11yWaivers` | map of string |  | Accessibility checks waived, each with its justification (A11Y-008). |
+| `experiment` | string |  | On a `Variant` node: the key of the experiment whose assigned variant this node shows (ABT-001, ABT-002). |
+| `control` | [Node](#node) |  | On a `Variant` node: the subtree shown for the control, and for a variant that has no subtree of its own (ABT-001). |
+| `variants` | map of [Node](#node) |  | On a `Variant` node: the subtree of each non-control variant, by the variant's name (ABT-001). |
 
 ### NodeAnimation
 
@@ -790,7 +891,7 @@ A page: route, parameters, state, data, lifecycle and node tree (SCH-022). File:
 | `triggers` | [Triggers](#triggers) |  | Triggers besides widget events and page lifecycle (ACT-002), and the owner's error handler (ACT-020). A page's runs are cancelled with the page; a plugin's and the app's run while the release is active. |
 | `routeOptions` | [RouteOptions](#routeoptions) |  | Route options (SCH-022, NAV-010). |
 | `security` | [PageSecurity](#pagesecurity) |  | Security flags (SCH-022). |
-| `root` | [Node](#node) | yes | A node of a page or component tree: a widget or a component instance (SCH-023). |
+| `root` | [Node](#node) | yes | A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001). |
 | `forms` | list of [Form](#form) |  | The forms of the page (STA-020). |
 | `animations` | list of [Timeline](#timeline) |  |  |
 | `a11yWaivers` | map of string |  | Accessibility checks waived, each with its justification (A11Y-008). |
@@ -860,6 +961,65 @@ A plugin: its pages, state, collections and requested capabilities (SCH-021). Fi
 | `droppedCollections` | list of string |  | IDs of collections this document no longer declares. Their data is deleted from devices that still hold it; the publisher acknowledges the warning this raises (DB-005). |
 | `dataSources` | list of [DataSource](#datasource) |  |  |
 | `triggers` | [Triggers](#triggers) |  | Triggers besides widget events and page lifecycle (ACT-002), and the owner's error handler (ACT-020). A page's runs are cancelled with the page; a plugin's and the app's run while the release is active. |
+
+### PolicyDocument
+
+An approval policy: which changes it applies to and what approval they need (GOV-020). File: `policies/<key>.policy.json`.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `schemaVersion` | string | yes | Version of the document schema (SCH-000). Older documents are migrated before validation. |
+| `kind` | `"policy"` | yes |  |
+| `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
+| `key` | string | yes | Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. |
+| `name` | string | yes |  |
+| `description` | string |  | Human-readable description. |
+| `match` | [PolicyMatch](#policymatch) | yes | The changes a policy applies to: a change matches when it satisfies every attribute listed; an attribute left out matches anything. |
+| `require` | [PolicyRequire](#policyrequire) | yes | What approval a matching change needs. |
+
+### PolicyMatch
+
+The changes a policy applies to: a change matches when it satisfies every attribute listed; an attribute left out matches anything.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `resources` | list of [PolicyResource](#policyresource) |  |  |
+| `environments` | list of string |  |  |
+| `actions` | list of string |  |  |
+| `production` | boolean |  | Whether the change is to a production environment: true matches production environments only, false the others, and left out both. The environment keys of `environments` name environments one by one; this names the class, so that a policy covers a production environment added later. |
+| `risk` | list of [PolicyRisk](#policyrisk) |  | Risk attributes that must all hold. |
+
+### PolicyRequire
+
+What approval a matching change needs.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `approvers` | integer | yes | How many approvals are needed. |
+| `roles` | list of string |  | Roles whose members may approve. |
+| `users` | list of string |  | Named approvers, by user identifier. |
+| `distinctFromAuthor` | boolean |  | The author's own approval does not count. |
+| `distinctTeams` | boolean |  | The approvals must come from different teams. |
+| `stages` | [PolicyStages](#policystages) |  | Whether approvers decide one after the other, in the order of the roles and names listed, or all at once. |
+| `expiryHours` | integer |  | How long a request stays open and how long an approval counts. |
+
+### PolicyResource
+
+A kind of artifact an approval can guard.
+
+One of `release`, `functionVersion`, `policy`, `securityConfiguration`, `limit`, `capabilitySet`, `experiment`, `waiver`, `goldenBaseline`.
+
+### PolicyRisk
+
+A risk attribute the compiler and the release service compute from a change.
+
+One of `touchesSecurePage`, `touchesMoneyFlow`, `changesFunctionUsedBy`.
+
+### PolicyStages
+
+Whether approvers decide one after the other, in the order of the roles and names listed, or all at once.
+
+One of `sequential`, `parallel`.
 
 ### PushPolicy
 
@@ -1054,6 +1214,38 @@ Security profile (§15.12).
 
 One of `standard`, `strict`, `maximum`.
 
+### SegmentDocument
+
+A named audience: a rule over the attributes of a device, its build and its user, evaluated by rollouts on the server and by flags and experiments on the device (REL-051, ABT-001, ABT-006). File: `segments/<key>.segment.json`.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `schemaVersion` | string | yes | Version of the document schema (SCH-000). Older documents are migrated before validation. |
+| `kind` | `"segment"` | yes |  |
+| `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
+| `key` | string | yes | Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. |
+| `name` | string | yes |  |
+| `description` | string |  | Human-readable description. |
+| `rule` | [SegmentRule](#segmentrule) | yes | One condition (`attribute`, `operator`, `value`) or a group of rules combined with `all` (every rule holds) or `any` (at least one holds). The compiler checks the attribute, the operator and the value (PLX-1704). |
+
+### SegmentOperator
+
+How a condition compares an attribute with its value: equality, membership in a list, or an ordering on numbers and versions.
+
+One of `eq`, `neq`, `in`, `notIn`, `lt`, `lte`, `gt`, `gte`.
+
+### SegmentRule
+
+One condition (`attribute`, `operator`, `value`) or a group of rules combined with `all` (every rule holds) or `any` (at least one holds). The compiler checks the attribute, the operator and the value (PLX-1704).
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `attribute` | string |  | A targeting attribute: `build`, `runtimeVersion`, `os`, `osVersion`, `deviceClass`, `locale`, `region`, `channel`, or `user.<name>` for an attribute of the user context. |
+| `operator` | [SegmentOperator](#segmentoperator) |  | How a condition compares an attribute with its value: equality, membership in a list, or an ordering on numbers and versions. |
+| `value` | JSON value |  | The value to compare with: a string, a number, a boolean or, for `in` and `notIn`, a list of them. |
+| `all` | list of [SegmentRule](#segmentrule) |  |  |
+| `any` | list of [SegmentRule](#segmentrule) |  |  |
+
 ### Semantics
 
 Accessibility semantics of a node (A11Y-002).
@@ -1223,7 +1415,7 @@ A reusable subtree snapshot, copied with fresh identifiers when inserted (SCH-03
 | `parameters` | list of [TemplateParameter](#templateparameter) |  |  |
 | `visibility` | [TemplateVisibility](#templatevisibility) | yes | Who can insert the template (SCH-031). |
 | `dependencies` | [TemplateDependencies](#templatedependencies) |  | What the subtree uses. |
-| `root` | [Node](#node) | yes | A node of a page or component tree: a widget or a component instance (SCH-023). |
+| `root` | [Node](#node) | yes | A node of a page or component tree: a widget, a component instance or, with the reserved type `Variant`, the subtrees of an experiment's variants (SCH-023, ABT-001). |
 
 ### TemplateParameter
 

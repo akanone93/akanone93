@@ -1,0 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2026 Plux contributors
+SPDX-License-Identifier: Apache-2.0
+-->
+
+## Your task: P9 E11c — the scripted regulated-industry audit walkthrough (the P9 exit criterion, X1/X5)
+
+Read: `docs/plans/p9.md` §1 (exit criteria table, lines 41–66) and §5.12 (lines 643–665); `deploy/helm/e2e-kind.sh`, `deploy/helm/restore-drill.sh`, `mk/helm.mk`; the load generator's synthetic devices (`test/load` or `backend/cmd/plux-load`, from E9e — reuse its device client); every CLI command the steps need (`docs/reference/cli.md`).
+
+Deliver `test/walkthrough/` + `make walkthrough-kind` (`# Verifies:` the IDs of §3.1 the steps exercise) that drives the HA install on `kind` with the CLI and the synthetic fleet: (1) OIDC sign-in with a test provider, a custom role, SCIM provisioning of a team, a restriction policy that removes production publishing from that team and `plux access explain` naming it (`GOV-006`, `GOV-007`); (2) a release touching a `secure` page — the `maximum` policy needs two approvers from distinct teams, the author cannot approve, a content change invalidates an approval; (3) staged rollout 1% → 10% → 50%, a synthetic regression trips the health gate, the rollout pauses and rolls back; (4) kill switch on a page through break-glass during a change freeze, the fleet applies it within 60 s, the post-hoc review opened and closed; (5) a mandatory update and a forced rollback on the fleet; (6) audit export to a syslog sink and a compliance report for the period, verified; (7) "what did the user see": reconstruct a device's moment (the emulator viewer step is CI-only — make it a separate optional step); (8) a rolling upgrade of the chart mid-run without a failed device request; (9) a data-subject export and erasure. Each step writes evidence; the run ends with a signed evidence bundle (sign with a key generated for the run; never commit keys). Write `docs/compliance/walkthrough.md` (the auditors' version of the same steps, with what each piece of evidence proves).
+Not runnable here (no Docker): make it correct by following the existing kind scripts' patterns, add a `--dry-run` that prints the plan, unit-test the step runner and the evidence-bundle signing, and say exactly what is untested.

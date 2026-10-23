@@ -342,6 +342,9 @@ final class ActionRun {
       for (;;) {
         try {
           inputs = _inputs(f, step, descriptor);
+          // An action that reaches beyond the page is refused before its
+          // handler is reached, in reconstruction mode (SEC-142).
+          if (descriptor != null) _ctx.reconstruction?.admit(descriptor.name);
           // A device operation the plugin does not declare is blocked
           // before it reaches the device (SEC-080).
           final device = _ctx.device;

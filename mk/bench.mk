@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the benchmark and
 # size jobs on a pull request (ci/affected.json, ADR-0043).
 
-.PHONY: bench-runtime bench-runtime-ab bench-sync bench-fn bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios release-inspect
+.PHONY: load-test bench-control bench-runtime bench-runtime-ab bench-sync bench-fn bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios release-inspect
 
 ##@ Benchmarks and size (QA-007)
 
@@ -28,6 +28,26 @@ bench-runtime-ab: ## Compare the runtime benchmark with BASE's runtime; fail on 
 bench-sync: ## Sync the benchmark app on the simulated slow network against a server built from source (needs PLUX_TEST_DATABASE_URL)
 	@test -n "$${PLUX_TEST_DATABASE_URL:-}" || { echo "✗ set PLUX_TEST_DATABASE_URL: run 'make test-db' and export what it prints (docs/engineering/testing.md)"; exit 1; }
 	cd backend && PLUX_E2E_FLUTTER="$$(command -v flutter)" $(GO) test -count=1 -timeout 30m -run TestSyncOnSlowNetwork -v ./internal/server
+
+# The scaled run: LOAD_DEVICES synthetic devices at the runtime's pacing
+# divided by LOAD_SPEEDUP, for LOAD_DURATION, against the Compose stack with
+# the load overlay (docs/operations/sizing.md). The report is JSON.
+LOAD_DEVICES  ?= 1000
+LOAD_DURATION ?= 5m
+LOAD_SPEEDUP  ?= 10
+LOAD_OUT      ?= $(abspath $(COMPOSE_DIR))/.secrets/load-report.json
+
+# Verifies: DEP-051, NFR-023.
+load-test: ## Run a fleet of synthetic devices against the Compose stack and print the JSON report (LOAD_DEVICES=1000, LOAD_DURATION=5m, LOAD_SPEEDUP=10; needs Docker)
+	"$(MAKE)" --no-print-directory compose-seed COMPOSE_OVERLAY=deploy/compose/compose.load.yaml
+	. ./$(COMPOSE_DIR)/.secrets/dev.env && cd backend && $(GO) run ./cmd/plux-load \
+		-server https://localhost:8080 -app "$$PLUX_DEV_APP" -env staging -forwarded-for \
+		-ca-file "$(DEV_CA)" -devices $(LOAD_DEVICES) -duration $(LOAD_DURATION) -speedup $(LOAD_SPEEDUP) | tee "$(LOAD_OUT)"
+
+# Verifies: NFR-024.
+bench-control: ## Measure how long a control-document change takes to reach a fleet by polling and with silent push through a fake FCM; prints JSON (PLUX_BENCH_DEVICES=20, PLUX_BENCH_POLL=15s; needs PLUX_TEST_DATABASE_URL)
+	@test -n "$${PLUX_TEST_DATABASE_URL:-}" || { echo "✗ set PLUX_TEST_DATABASE_URL: run 'make test-db' and export what it prints (docs/engineering/testing.md)"; exit 1; }
+	cd backend && $(GO) test -count=1 -timeout 15m -run TestBenchControlPropagation -v ./internal/server
 
 # Verifies: NFR-022, FN-023.
 bench-fn: ## Measure the overhead of a server function invocation, warm and first after deploy (NFR-022; prints JSON; fails over budget)

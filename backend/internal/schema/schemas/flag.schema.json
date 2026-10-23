@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/v1/flag.schema.json",
+  "title": "Plux flag document",
+  "description": "A typed feature flag with its default and its value per segment, read in PXL as `flags.<key>` and through generated host accessors (ABT-006). File: `flags/<key>.flag.json`.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "id",
+    "key",
+    "type",
+    "default"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "kind": {
+      "const": "flag"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "key": {
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "common.schema.json#/$defs/description"
+    },
+    "type": {
+      "type": "string",
+      "pattern": "^[a-z][A-Za-z0-9]*$",
+      "maxLength": 32,
+      "description": "The flag's type: `bool`, `number`, `string` or `json`. The compiler refuses any other (PLX-1701)."
+    },
+    "schema": {
+      "description": "For a `json` flag: the JSON Schema its values must satisfy.",
+      "x-plux-raw": true
+    },
+    "default": {
+      "$ref": "common.schema.json#/$defs/value"
+    },
+    "segments": {
+      "type": "array",
+      "description": "The value for each segment, in order: the first segment a subject belongs to wins.",
+      "items": {
+        "type": "object",
+        "x-plux-type": "FlagSegmentValue",
+        "required": [
+          "segment",
+          "value"
+        ],
+        "properties": {
+          "segment": {
+            "$ref": "common.schema.json#/$defs/key"
+          },
+          "value": {
+            "$ref": "common.schema.json#/$defs/value"
+          }
+        },
+        "patternProperties": {
+          "^x-": true
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "patternProperties": {
+    "^x-": true
+  },
+  "additionalProperties": false
+}

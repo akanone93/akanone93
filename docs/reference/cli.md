@@ -62,6 +62,13 @@ sha256sum --check --ignore-missing SHA256SUMS
 | `plux fn alias <name> <alias> <version> [--env key] [-C dir] [--app id] [--json]` | Points an alias at an existing version of the environment. |
 | `plux fn versions <name> [--env key] [-C dir] [--app id] [--json]` | Lists the versions of a function in an environment, newest first, with their aliases. |
 | `plux fn logs <name> [--version n] [--since 15m] [-n lines] [--follow] [--env key] [-C dir] [--app id] [--json]` | Shows the lines a function logged, oldest first (`FN-032`). |
+| `plux roles list\|show <key>\|create <key>\|update <key>\|delete <key> [--name text] [--description text] [--permissions a,b] [--json]` | Lists the ten predefined roles and the organisation's custom roles, shows one with its permissions, and creates, changes or deletes a custom role (`GOV-002`, [permissions](permissions.md)). A custom role holds only permissions its creator holds; a permission may be limited to an environment as `<permission>:<environment>` (`GOV-003`). Creating and changing custom roles is an enterprise feature: without a licence that lists `custom-roles` the server refuses it (`PLX-8600`), while roles that exist keep working. Needs `roles.manage`. |
+| `plux grants list [--user id] [--team id] [--app id]`, `create --role key (--user id \| --team id) [--scope organization\|app\|environment] [--app id] [--environment id]`, `update --role key <id>`, `delete <id>` `[--json]` | Lists, creates, changes and revokes role grants: a role held by a person or a team on the organisation, one app or one environment of an app (`GOV-003`). Needs `members.manage`. An organisation always keeps an owner (`PLX-8103`). |
+| `plux restrictions create --patterns a,b [--subject-kind organization\|team\|user] [--subject id] [--app id] [--environment key] [--reason text]`, `list [--subject id] [--app id]`, `delete <id>` `[--json]` | Creates, lists and deletes restrictions: ceilings that remove permissions (names or the wildcards `*`, `area.*`, `area.feature.*`) from an organisation, a team or a person, whatever their grants say (`GOV-006`). Needs `restrictions.manage` with a step-up; one on the whole organisation needs an Owner. |
+| `plux access explain --permission name [--user id] [--app id] [--environment key] [--grant-role key [--grant-team id] \| --restrict a,b [--restrict-kind kind] [--restrict-subject id]]` `[--json]` | Says why a person can or cannot use a permission in a scope, naming the grants that allow it and the restrictions that remove it (`GOV-007`). With `--grant-role` or `--restrict` it evaluates that change and saves nothing. Explaining your own access needs no permission; another person's needs `members.manage`. Rate-limited. |
+| `plux teams list`, `create --name text <key>`, `delete <id>`, `add --team id <email>`, `remove --team id <user-id>` `[--json]` | Manages the organisation's teams and their members; grant a team its roles with `plux grants`. Adding someone without an account creates it and prints its invitation, once. |
+| `plux license inspect [--public-key base64]... [--json] <file>` | Verifies a licence file offline and prints its organisation, expiry, grace period, features and limits (`GOV-030`, [ADR-0084](../adr/0084-enterprise-edition-and-licence-files.md)). |
+| `plux admin license [--json]` | Shows the installation's licence state as the server reports it: absent, valid, grace, expired or invalid, with what it enables. Needs `organization.manage`. |
 | `plux completion bash\|zsh\|fish\|powershell` | Prints a shell completion script (`CLI-008`), e.g. `source <(plux completion bash)`. |
 | `plux version` | Prints the version, commit, commit date, Go version and platform of the binary. |
 | `plux help` | Lists the commands. `plux <command> -h` lists a command's flags. |
@@ -147,6 +154,8 @@ Each is taken from its flag, then an environment variable, then `plux.json` in t
 | Server URL | `--server` | `PLUX_SERVER` | `server` |
 | Organisation | `--org` | `PLUX_ORGANIZATION` | `organization` |
 | App | `--app` | — | `app` |
+
+When you reach the server by another address than its public base URL (a port-forward, an internal service), set `PLUX_PUBLIC_URL` to the public one: the DPoP proofs of a step-up name it in their `htu` claim, which the server compares with its configured `server.publicBaseURL` (`SEC-022`, `SEC-103`).
 
 ## Credentials
 

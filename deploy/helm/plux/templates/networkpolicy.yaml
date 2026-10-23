@@ -1,0 +1,365 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Default deny, then exactly the flows the roles need (L-4, SEC-043, FN-013).
+# NetworkPolicies add up, so each policy below allows one flow:
+#
+#   devices ──► api ──► postgresql, valkey, object storage, https (Vault, OIDC)
+#                 │  ▲
+#                 ▼  │ modules, key-value store
+#             fnrunner ──► egress ──► the internet (443 and 80; no private ranges)
+#   worker ──► postgresql, valkey, object storage, builder, https
+#
+# fnrunner and builder reach no database, cache, store or Vault; builder reaches
+# nothing at all (no DNS either: it is only ever called). Enforcement needs a
+# CNI that implements NetworkPolicy.
+{{- define "plux.sel" -}}
+{{ include "plux.releaseSelector" .root }}
+app.kubernetes.io/component: {{ .component }}
+{{- end -}}
+
+{{- define "plux.peer" -}}
+- podSelector:
+    matchLabels:
+      {{- include "plux.sel" . | nindent 6 }}
+{{- end -}}
+
+{{- define "plux.np.head" -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "plux.fullname" .root }}-{{ .name }}
+  labels:
+    {{- include "plux.labels" (dict "root" .root "component" "networkpolicy") | nindent 4 }}
+{{- end -}}
+
+{{- /* HTTPS to the internet without the private ranges. Context: root. */ -}}
+{{- define "plux.np.https" -}}
+{{- if .Values.networkPolicy.externalHTTPS.enabled }}
+- to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+          {{- toYaml .Values.networkPolicy.externalHTTPS.except | nindent 10 }}
+  ports:
+    - {protocol: TCP, port: 443}
+{{- end }}
+{{- end -}}
+
+{{- if .Values.networkPolicy.enabled }}
+{{- $np := .Values.networkPolicy }}
+{{- $storeInside := eq .Values.objectStorage.mode "seaweedfs" }}
+{{- $pgInside := eq .Values.postgresql.mode "cnpg" }}
+{{- $valkeyInside := eq .Values.valkey.mode "sentinel" }}
+{{- $functions := .Values.functions.enabled }}
+{{- $builder := and $functions .Values.builder.enabled }}
+---
+{{ include "plux.np.head" (dict "root" . "name" "default-deny") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.releaseSelector" . | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+---
+# Name resolution for every pod but the builder, which resolves nothing.
+{{ include "plux.np.head" (dict "root" . "name" "allow-dns") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.releaseSelector" . | nindent 6 }}
+    matchExpressions:
+      - {key: app.kubernetes.io/component, operator: NotIn, values: [builder]}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              {{- toYaml $np.dns.namespaceSelector | nindent 14 }}
+          podSelector:
+            matchLabels:
+              {{- toYaml $np.dns.podSelector | nindent 14 }}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+---
+# Devices, Studio and the CLI reach the public port; narrow it with
+# networkPolicy.apiIngressFrom.
+{{ include "plux.np.head" (dict "root" . "name" "api-ingress") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "api") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - {protocol: TCP, port: 8080}
+      {{- with $np.apiIngressFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{ include "plux.np.head" (dict "root" . "name" "api-egress") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "api") | nindent 6 }}
+  policyTypes: [Egress]
+  egress:
+    {{- if $pgInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+      ports: [{protocol: TCP, port: 5432}]
+    {{- end }}
+    {{- if $valkeyInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "valkey") | nindent 8 }}
+      ports: [{protocol: TCP, port: 6379}, {protocol: TCP, port: 26379}]
+    {{- end }}
+    {{- if $storeInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "seaweedfs") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8333}]
+    {{- end }}
+    {{- if $functions }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "fnrunner") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8445}]
+    {{- end }}
+    {{- include "plux.np.https" . | nindent 4 }}
+    {{- with $np.extraEgress.api }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+---
+{{ include "plux.np.head" (dict "root" . "name" "worker-egress") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "worker") | nindent 6 }}
+  policyTypes: [Egress]
+  egress:
+    {{- if $pgInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+      ports: [{protocol: TCP, port: 5432}]
+    {{- end }}
+    {{- if $valkeyInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "valkey") | nindent 8 }}
+      ports: [{protocol: TCP, port: 6379}, {protocol: TCP, port: 26379}]
+    {{- end }}
+    {{- if $storeInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "seaweedfs") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8333}]
+    {{- end }}
+    {{- if $builder }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "builder") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8446}]
+    {{- end }}
+    {{- include "plux.np.https" . | nindent 4 }}
+    {{- with $np.extraEgress.worker }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+---
+# The migration Job needs the database and nothing else.
+{{ include "plux.np.head" (dict "root" . "name" "migrate-egress") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "migrate") | nindent 6 }}
+  policyTypes: [Egress]
+  egress:
+    {{- if $pgInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+      ports: [{protocol: TCP, port: 5432}]
+    {{- end }}
+    {{- with $np.extraEgress.migrate }}
+    {{- toYaml . | nindent 4 }}
+    {{- else }}
+    {{- if not $pgInside }}
+    []
+    {{- end }}
+    {{- end }}
+{{- if $functions }}
+---
+# The function runner is called by the api role alone.
+{{ include "plux.np.head" (dict "root" . "name" "fnrunner") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "fnrunner") | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8445}]
+  # Modules and the key-value store from the api role's internal listener, and
+  # the internet through the egress role: nothing else.
+  egress:
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8443}]
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "egress") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8444}]
+---
+# The egress role is the only route out for tenant code.
+{{ include "plux.np.head" (dict "root" . "name" "egress") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "egress") | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "fnrunner") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8444}]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              {{- toYaml $np.externalHTTPS.except | nindent 14 }}
+      ports: [{protocol: TCP, port: 443}, {protocol: TCP, port: 80}]
+{{- end }}
+{{- if $builder }}
+---
+# The builder is called by the worker and reaches nothing.
+{{ include "plux.np.head" (dict "root" . "name" "builder") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "builder") | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "worker") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8446}]
+  egress: []
+{{- end }}
+{{- if $pgInside }}
+---
+{{ include "plux.np.head" (dict "root" . "name" "postgresql") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "postgresql") | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
+        {{- include "plux.peer" (dict "root" . "component" "worker") | nindent 8 }}
+        {{- include "plux.peer" (dict "root" . "component" "migrate") | nindent 8 }}
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+        {{- if and .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.backup.marker.enabled }}
+        # The consistency marker job writes its WAL message here.
+        {{- include "plux.peer" (dict "root" . "component" "backup-marker") | nindent 8 }}
+        {{- end }}
+      ports: [{protocol: TCP, port: 5432}]
+    # The operator's calls to the instance manager and its connections.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.postgresql.cnpg.operatorNamespace }}
+      ports: [{protocol: TCP, port: 5432}, {protocol: TCP, port: 8000}]
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8000}]
+  egress:
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+      ports: [{protocol: TCP, port: 5432}, {protocol: TCP, port: 8000}]
+    # The instance manager watches its Cluster at the Kubernetes API server.
+    - ports: [{protocol: TCP, port: 443}, {protocol: TCP, port: 6443}]
+    {{- if or .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.restore.enabled }}
+    # WAL archive and base backups (or the archive a restore reads) in the
+    # backup store.
+    {{- if and $storeInside (not .Values.postgresql.cnpg.backup.endpoint) }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "seaweedfs") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8333}]
+    {{- end }}
+    {{- include "plux.np.https" . | nindent 4 }}
+    {{- with $np.extraEgress.postgresql }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- end }}
+{{- end }}
+{{- if and $pgInside .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.backup.marker.enabled }}
+---
+# The consistency marker Job emits a WAL message and uploads one object.
+{{ include "plux.np.head" (dict "root" . "name" "backup-marker") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "backup-marker") | nindent 6 }}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+      ports: [{protocol: TCP, port: 5432}]
+    {{- if $storeInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "seaweedfs") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8333}]
+    {{- end }}
+    {{- include "plux.np.https" . | nindent 4 }}
+    {{- with $np.extraEgress.backup }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}
+{{- if $valkeyInside }}
+---
+{{ include "plux.np.head" (dict "root" . "name" "valkey") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "valkey") | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
+        {{- include "plux.peer" (dict "root" . "component" "worker") | nindent 8 }}
+        {{- include "plux.peer" (dict "root" . "component" "valkey") | nindent 8 }}
+      ports: [{protocol: TCP, port: 6379}, {protocol: TCP, port: 26379}]
+  egress:
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "valkey") | nindent 8 }}
+      ports: [{protocol: TCP, port: 6379}, {protocol: TCP, port: 26379}]
+{{- end }}
+{{- if $storeInside }}
+---
+{{ include "plux.np.head" (dict "root" . "name" "seaweedfs") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "seaweedfs") | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
+        {{- include "plux.peer" (dict "root" . "component" "worker") | nindent 8 }}
+        {{- if or .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.restore.enabled }}
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+        {{- end }}
+        {{- if and $pgInside .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.backup.marker.enabled }}
+        {{- include "plux.peer" (dict "root" . "component" "backup-marker") | nindent 8 }}
+        {{- end }}
+      ports: [{protocol: TCP, port: 8333}]
+  egress: []
+{{- end }}
+---
+# helm test calls the api role.
+{{ include "plux.np.head" (dict "root" . "name" "test") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "test") | nindent 6 }}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8080}]
+{{- end }}

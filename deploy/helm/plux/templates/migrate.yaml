@@ -1,0 +1,72 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Database migrations before an upgrade (SRV-021, DEP-004). Migrations are
+# backward compatible for one minor release (expand, then contract), so the old
+# pods keep serving on the migrated schema while the new ones roll out. On the
+# first install the pods migrate on start instead, under the server's advisory
+# lock: PostgreSQL does not exist yet when a pre-install hook would run.
+{{- $name := printf "%s-migrate" (include "plux.fullname" .) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "migrate") | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+data:
+  plux.yaml: |
+    {{- include "plux.config.worker" . | nindent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "migrate") | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 900
+  template:
+    metadata:
+      labels:
+        {{- include "plux.labels" (dict "root" . "component" "migrate") | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: {{ include "plux.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "plux.podSecurityContext" (dict "root" . "role" "migrate") | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "plux.serverImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: [migrate, --config, /etc/plux/plux.yaml]
+          env:
+            {{- include "plux.dataEnv" (dict "root" . "role" "migrate") | nindent 12 }}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {memory: 512Mi}
+          securityContext:
+            {{- include "plux.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - {name: config, mountPath: /etc/plux/plux.yaml, subPath: plux.yaml, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+            {{- include "plux.dataMounts" . | nindent 12 }}
+      volumes:
+        - name: config
+          configMap: {name: {{ $name }}}
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
+        {{- include "plux.dataVolumes" . | nindent 8 }}

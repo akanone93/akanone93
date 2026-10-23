@@ -22,11 +22,14 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -62,6 +65,12 @@ type Enqueuer interface {
 	Enqueue(ctx context.Context, tx pgx.Tx, job Work) error
 }
 
+// Published follows a recorded version. summary says what was published
+// and actorID and actor who published it. *gitsync.Service is one.
+type Published interface {
+	Published(ctx context.Context, tx pgx.Tx, organizationID, appID, versionID, summary, actorID, actor string) error
+}
+
 // Devices counts the registered devices of an app that cannot use a
 // release, for REL-080: by runtime, or by host build; nil counts none.
 type Devices interface {
@@ -79,6 +88,19 @@ type Functions interface {
 
 // Options configures a Service.
 type Options struct {
+	// Approvals decides whether a release may be promoted (GOV-020); nil
+	// requires nothing.
+	Approvals approval.Gate
+	// BreakGlass records emergency actions (GOV-024); nil refuses them.
+	BreakGlass Emergency
+	// Freezes holds production changes back inside a change-freeze window
+	// (GOV-025); nil holds nothing.
+	Freezes freeze.Guard
+	// Goldens supplies the golden-image differences of a review (GOV-023);
+	// nil leaves them out.
+	Goldens *golden.Service
+	// Metrics counts finished publish jobs; nil records none.
+	Metrics   PublishMetrics
 	DB        *storage.DB
 	Audit     *audit.Log
 	Tenancy   *tenancy.Service
@@ -116,6 +138,9 @@ type Options struct {
 	// compilation packs. Nil compiles without functions: grants are then not
 	// resolved, which is for installations that run none.
 	Functions Functions
+	// ControlNotifier is told when a control document has been signed, to
+	// send the silent push of Q22; nil sends none.
+	ControlNotifier ControlNotifier
 	// Limits are the installation's limits.
 	Limits limits.Set
 	// CompilerVersion is recorded in every bundle (CMP-005).
@@ -125,6 +150,11 @@ type Options struct {
 	DevelopmentDays int
 	// Metadata configures the update metadata roles (SEC-050).
 	Metadata MetadataOptions
+	// Published is told of every version a publish records, in the
+	// transaction that records it, so that work which follows a publish,
+	// such as the Git export (GOV-011), is queued with it or not at all.
+	// Nil does nothing.
+	Published Published
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 }
@@ -136,8 +166,16 @@ type Service struct {
 	flights   *flightGroup
 	manifests *manifestCache
 	metadata  *metadataCache
+	// rollouts decides which release a device receives; see UseRollouts.
+	rollouts RolloutSelector
 	// validator checks uploaded native catalogues.
 	validator *schema.Validator
+}
+
+// PublishMetrics receives the outcome of every finished publish job:
+// "succeeded", "failed" or "cancelled". *observability.Metrics implements it.
+type PublishMetrics interface {
+	PublishFinished(result string)
 }
 
 // NewService returns the service.
@@ -150,6 +188,9 @@ func NewService(o Options) (*Service, error) {
 	}
 	if o.Limits.IsZero() {
 		o.Limits = limits.Defaults()
+	}
+	if time.Duration(o.Limits.Get(limits.ControlExpiry))*time.Millisecond < MinControlExpiry {
+		return nil, fmt.Errorf("release: control.expiry is below %s, the least the hourly sweep can keep ahead of expiry", MinControlExpiry)
 	}
 	if o.CompilerVersion == "" {
 		o.CompilerVersion = "dev"
@@ -196,6 +237,27 @@ func (s *Service) record(ctx context.Context, tx pgx.Tx, p auth.Principal, e aud
 // package's.
 func authorize(p auth.Principal, want auth.Permission, appID string) error {
 	if err := p.AuthorizeApp(want, appID); err != nil {
+		return fmt.Errorf("release: %w", err)
+	}
+	return nil
+}
+
+// authorizeSomeEnvironment is the first check of a call that acts on one
+// environment, made before the environment is read: it passes for a
+// principal who holds the permission on the app or on some environment of
+// it. The call then checks the environment with authorizeEnvironment
+// (GOV-003).
+func authorizeSomeEnvironment(p auth.Principal, want auth.Permission, appID string) error {
+	if err := p.AuthorizeSomeEnvironment(want, appID); err != nil {
+		return fmt.Errorf("release: %w", err)
+	}
+	return nil
+}
+
+// authorizeEnvironment is Principal.AuthorizeEnvironment with the refusal
+// marked as this package's.
+func authorizeEnvironment(p auth.Principal, want auth.Permission, appID, environment string) error {
+	if err := p.AuthorizeEnvironment(want, appID, environment); err != nil {
 		return fmt.Errorf("release: %w", err)
 	}
 	return nil

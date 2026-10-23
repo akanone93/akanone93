@@ -1,0 +1,93 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// GitExportService exports an app to a Git repository on every publish
+// (GOV-011, ADR-0082). The export is off until configured. The credential
+// is a secret of an environment, held under envelope encryption; it is never
+// returned. Every call needs git.export on the app.
+service GitExportService {
+  // GetSettings returns the app's export settings; PLX-8031 when none were
+  // configured.
+  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {}
+  // ConfigureExport sets the export of an app. The remote must be an HTTPS
+  // address without credentials in it; one that names a reserved address
+  // is PLX-8503. Audited.
+  rpc ConfigureExport(ConfigureExportRequest) returns (ConfigureExportResponse) {}
+  // ListExports lists the newest exports of an app with their state.
+  rpc ListExports(ListExportsRequest) returns (ListExportsResponse) {}
+  // RunExport queues the export of the app's newest published version, or
+  // returns the finished one; a version is exported once.
+  rpc RunExport(RunExportRequest) returns (RunExportResponse) {}
+}
+
+message GitSettings {
+  string app_id = 1;
+  bool enabled = 2;
+  // remote_url is the HTTPS address of the repository.
+  string remote_url = 3;
+  string branch = 4;
+  // username is sent with the credential; empty uses "x-access-token".
+  string username = 5;
+  // credential_environment_id and credential_key name the environment
+  // secret that holds the token.
+  string credential_environment_id = 6;
+  string credential_key = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message GetSettingsRequest {
+  string app_id = 1;
+}
+
+message GetSettingsResponse {
+  GitSettings settings = 1;
+}
+
+message ConfigureExportRequest {
+  GitSettings settings = 1;
+}
+
+message ConfigureExportResponse {
+  GitSettings settings = 1;
+}
+
+message GitExport {
+  string id = 1;
+  string app_id = 2;
+  // version_id is the published version, the release identifier of the
+  // commit message.
+  string version_id = 3;
+  // state is "pending", "pushed" or "failed" (the last attempt failed and
+  // is retried).
+  string state = 4;
+  string commit = 5;
+  int32 attempts = 6;
+  // error_code is the PLX code of the last failure, or zero.
+  int32 error_code = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ListExportsRequest {
+  string app_id = 1;
+}
+
+message ListExportsResponse {
+  repeated GitExport exports = 1;
+}
+
+message RunExportRequest {
+  string app_id = 1;
+}
+
+message RunExportResponse {
+  GitExport export = 1;
+}

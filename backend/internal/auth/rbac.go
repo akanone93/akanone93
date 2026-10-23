@@ -13,11 +13,12 @@ import (
 
 // Permission is one entry of the permission catalogue. Every call names
 // the permission it needs; a principal that does not hold it is refused
-// (SEC-102). The catalogue grows with each phase; custom roles composed
-// from it arrive with GOV-002 in P9.
+// (SEC-102). The catalogue, with each permission's description, risk,
+// step-up flag and scope, is permissions.json (GOV-002); a test keeps the
+// constants below and in rbac_p9.go equal to it.
 type Permission string
 
-// The permissions this phase defines.
+// The permissions of phases 2 to 8; those of phase 9 are in rbac_p9.go.
 const (
 	OrganizationRead   Permission = "organization.read"
 	OrganizationManage Permission = "organization.manage"
@@ -42,8 +43,8 @@ const (
 	// production (FN-006).
 	FunctionDeploy Permission = "function.deploy"
 	// FunctionDeployProduction deploys a function to a production
-	// environment. It is the stand-in for the approval engine until P9
-	// (FN-007), so it requires a second factor.
+	// environment (FN-007). It needs a fresh step-up with a security key
+	// (GOV-005, SEC-103); the approval engine (GOV-020) adds a second person.
 	FunctionDeployProduction Permission = "function.deploy.production"
 	// TranslationsEdit saves the messages and states of translations
 	// documents, under the per-locale lock (I18N-008).
@@ -59,68 +60,57 @@ const (
 	GoldensApprove Permission = "goldens.approve"
 )
 
-// permissions is the catalogue, sorted.
-var permissions = []Permission{
-	A11yWaive, AppManage, AppRead, AuditRead, EnvironmentManage, FunctionDeploy,
-	FunctionDeployProduction, FunctionRead, GoldensApprove, KeysManage, LimitsManage,
-	MembersManage, OrganizationManage, OrganizationRead, PluginEdit,
-	PluginLockOverride, PluginRead, ReleasePromote, ReleasePublish,
-	SecretsManage, TokensManage, TranslationsApprove, TranslationsEdit, TrashManage,
+// allPermissions is every permission of the catalogue, sorted.
+var allPermissions = catalogueNames()
+
+// catalogueNames lists the names of the generated catalogue.
+func catalogueNames() []Permission {
+	out := make([]Permission, len(catalogue))
+	for i, e := range catalogue {
+		out[i] = e.Name
+	}
+	return out
 }
 
-// Permissions returns the catalogue, in order.
-func Permissions() []Permission { return slices.Clone(permissions) }
+// Permissions returns the catalogue's permissions, in order.
+func Permissions() []Permission { return slices.Clone(allPermissions) }
 
-// appPermissions are the permissions that make sense on one app; an
-// app-level grant carries only these, whatever its role (GOV-001).
-var appPermissions = []Permission{
-	A11yWaive, AppManage, AppRead, EnvironmentManage, FunctionDeploy, FunctionDeployProduction,
-	FunctionRead, GoldensApprove, PluginEdit, PluginLockOverride, PluginRead,
-	ReleasePromote, ReleasePublish, SecretsManage, TrashManage,
-	TranslationsApprove, TranslationsEdit,
-}
-
-// Role is a named set of permissions. P2 defines the four roles a
-// small team needs; the full catalogue of GOV-002 arrives in P9, and
-// this set is a subset of it, so no role is renamed later.
+// Role is a named set of permissions. The predefined roles are those of
+// GOV-002; the grants of each are generated from roles.json. An
+// organisation's custom roles (GOV-002) are Roles too, named by their key,
+// and resolve through the database.
 type Role string
 
-// The roles of this phase.
+// The predefined roles. Their permissions are in roles.json.
 const (
 	// RoleOwner may do everything, including managing members and keys.
 	RoleOwner Role = "owner"
 	// RoleAdmin may do everything except manage members and keys.
 	RoleAdmin Role = "admin"
-	// RoleDeveloper may edit plugins and publish, but not promote,
-	// manage secrets or read the audit log.
+	// RoleReleaseManager may publish, promote and roll back, but not edit
+	// code.
+	RoleReleaseManager Role = "release-manager"
+	// RoleDeveloper may edit plugins and publish to development, but not
+	// promote, manage secrets or read the audit log.
 	RoleDeveloper Role = "developer"
-	// RoleViewer may read.
-	RoleViewer Role = "viewer"
+	// RoleDesigner may edit plugins and translations, and not publish.
+	RoleDesigner Role = "designer"
 	// RoleTranslator may read and edit translations, and nothing else
 	// (I18N-008).
 	RoleTranslator Role = "translator"
+	// RoleReviewer may read and decide on approvals.
+	RoleReviewer Role = "reviewer"
+	// RoleComplianceOfficer may read the audit log, manage policies and
+	// freezes, and produce compliance reports.
+	RoleComplianceOfficer Role = "compliance-officer"
+	// RoleAuditor may read everything, including the audit log, and
+	// export it.
+	RoleAuditor Role = "auditor"
+	// RoleViewer may read.
+	RoleViewer Role = "viewer"
 )
 
-// grants maps each role to the permissions it holds. A role holds
-// exactly what is listed: there is no inheritance to reason about.
-var grants = map[Role][]Permission{
-	RoleOwner: permissions,
-	RoleAdmin: {
-		AppManage, AppRead, AuditRead, EnvironmentManage, FunctionDeploy,
-		FunctionDeployProduction, FunctionRead, LimitsManage,
-		OrganizationManage, OrganizationRead, PluginEdit, PluginLockOverride,
-		PluginRead, ReleasePromote, ReleasePublish, SecretsManage, TokensManage,
-		TrashManage, A11yWaive, GoldensApprove, TranslationsApprove, TranslationsEdit,
-	},
-	RoleDeveloper: {
-		AppRead, FunctionDeploy, FunctionRead, OrganizationRead, PluginEdit,
-		PluginRead, ReleasePublish, TranslationsEdit,
-	},
-	RoleViewer:     {AppRead, FunctionRead, OrganizationRead, PluginRead},
-	RoleTranslator: {AppRead, OrganizationRead, PluginRead, TranslationsEdit},
-}
-
-// Roles returns every role, in order.
+// Roles returns every predefined role, in name order.
 func Roles() []Role {
 	out := make([]Role, 0, len(grants))
 	for r := range grants {
@@ -130,138 +120,34 @@ func Roles() []Role {
 	return out
 }
 
-// ParseRole reads a role name, refusing anything that is not a role.
+// IsPredefined reports whether a name is a predefined role.
+func IsPredefined(r Role) bool {
+	_, ok := grants[r]
+	return ok
+}
+
+// ParseRole reads a predefined role's name, refusing anything that is not
+// one with PLX-8100.
 func ParseRole(s string) (Role, error) {
 	r := Role(s)
-	if _, ok := grants[r]; !ok {
-		return "", plxerr.New(plxerr.InvalidEnumValue, "%q is not a role; the roles are owner, admin, developer, translator and viewer", s)
+	if !IsPredefined(r) {
+		names := make([]string, len(predefined))
+		for i, info := range predefined {
+			names[i] = string(info.Name)
+		}
+		return "", plxerr.New(plxerr.RoleUnknown, "%q is not a role; the roles are %s", s, strings.Join(names, ", "))
 	}
 	return r, nil
 }
 
-// RolePermissions returns the permissions a role holds, in order.
+// RolePermissions returns the permissions a predefined role holds, in order.
 func RolePermissions(r Role) []Permission { return slices.Clone(grants[r]) }
 
-// stepUp lists the permissions that require a second factor (SEC-100):
-// publishing, approving (promotion, until approvals arrive in P9),
-// managing keys and managing members — and, beyond the requirement,
-// secrets and tokens, which carry the same power by other means. Deploying
-// a function to production is the stand-in for an approval until P9
-// (FN-007).
-var stepUp = []Permission{
-	A11yWaive, FunctionDeployProduction, GoldensApprove, KeysManage, MembersManage,
-	ReleasePromote, ReleasePublish, SecretsManage, TokensManage, TranslationsApprove,
-}
-
 // NeedsSecondFactor reports whether a permission may be used only after
-// a second factor.
-func NeedsSecondFactor(p Permission) bool { return slices.Contains(stepUp, p) }
-
-// Principal is who is calling, resolved against one organisation.
-type Principal struct {
-	Identity
-	// OrganizationID is the organisation this call acts in.
-	OrganizationID string
-	// Permissions are those held across the organisation, after a
-	// token's scopes are applied.
-	Permissions []Permission
-	// AppPermissions are those held on single apps, by app ID, after a
-	// token's scopes are applied (GOV-001).
-	AppPermissions map[string][]Permission
-}
-
-// resolve computes a principal's permissions from its roles, intersected
-// with a token's scopes when it has any. A token can therefore never do
-// more than its user can do now: removing the user's role removes it
-// from the token too.
-func resolve(id Identity, organizationID string, roles []Role, appRoles map[string][]Role, direct []Permission) Principal {
-	p := Principal{Identity: id, OrganizationID: organizationID, AppPermissions: map[string][]Permission{}}
-	held := slices.Clone(direct)
-	for _, r := range roles {
-		held = append(held, grants[r]...)
-	}
-	p.Permissions = restrict(held, id.Scopes)
-	for app, rs := range appRoles {
-		var appHeld []Permission
-		for _, r := range rs {
-			for _, perm := range grants[r] {
-				if slices.Contains(appPermissions, perm) {
-					appHeld = append(appHeld, perm)
-				}
-			}
-		}
-		if perms := restrict(appHeld, id.Scopes); len(perms) > 0 {
-			p.AppPermissions[app] = perms
-		}
-	}
-	return p
-}
-
-// restrict sorts and de-duplicates held. scopes is nil for a session,
-// which is not restricted, and never nil for a token, whose scopes are
-// fixed when it is created: a token with no scopes can do nothing.
-func restrict(held, scopes []Permission) []Permission {
-	out := make([]Permission, 0, len(held))
-	for _, perm := range held {
-		if scopes != nil && !slices.Contains(scopes, perm) {
-			continue
-		}
-		out = append(out, perm)
-	}
-	slices.Sort(out)
-	return slices.Compact(out)
-}
-
-// Holds reports whether the principal holds a permission across the
-// organisation, ignoring the second-factor rule.
-func (p Principal) Holds(want Permission) bool { return slices.Contains(p.Permissions, want) }
-
-// HoldsOnApp reports whether the principal holds a permission on an app,
-// through the organisation or through a grant on that app.
-func (p Principal) HoldsOnApp(want Permission, appID string) bool {
-	return p.Holds(want) || slices.Contains(p.AppPermissions[appID], want)
-}
-
-// Authorize returns nil when the principal may use a permission across
-// the organisation, and otherwise the refusal. It is the only way a call
-// is allowed: there is no default yes (SEC-102).
-func (p Principal) Authorize(want Permission) error {
-	return p.check(want, p.Holds(want))
-}
-
-// AuthorizeApp is Authorize for a permission on one app.
-func (p Principal) AuthorizeApp(want Permission, appID string) error {
-	return p.check(want, p.HoldsOnApp(want, appID))
-}
-
-// check turns a decision into the error the edge reports.
-func (p Principal) check(want Permission, held bool) error {
-	if p.OrganizationID == "" {
-		return plxerr.New(plxerr.AuthenticationRequired, "this call acts in an organisation, and none was named")
-	}
-	if !held {
-		return plxerr.New(plxerr.PermissionDenied, "%s is required", want)
-	}
-	if NeedsSecondFactor(want) && !p.SecondFactor {
-		return plxerr.New(plxerr.MultiFactorRequired, "%s requires a second factor in this session", want)
-	}
-	return nil
-}
-
-// AllowedApps returns nil when the principal may read every app, and
-// otherwise the apps it was granted one by one.
-func (p Principal) AllowedApps() []string {
-	if p.Holds(AppRead) {
-		return nil
-	}
-	out := make([]string, 0, len(p.AppPermissions))
-	for app, perms := range p.AppPermissions {
-		if slices.Contains(perms, AppRead) {
-			out = append(out, app)
-		}
-	}
-	slices.Sort(out)
-	return out
+// a second factor (SEC-100, SEC-103); the catalogue says which do.
+func NeedsSecondFactor(p Permission) bool {
+	info, ok := Describe(p)
+	return ok && info.StepUp
 }
 
 // Actor is how the audit log records the principal.
@@ -275,6 +161,7 @@ func System(organizationID string) Principal {
 		OrganizationID: organizationID,
 		Permissions:    Permissions(),
 		AppPermissions: map[string][]Permission{},
+		EnvPermissions: map[EnvScope][]Permission{},
 	}
 }
 
@@ -284,8 +171,8 @@ func ParseScopes(values []string) ([]Permission, error) {
 	out := make([]Permission, 0, len(values))
 	for _, v := range values {
 		p := Permission(strings.TrimSpace(v))
-		if !slices.Contains(permissions, p) {
-			return nil, plxerr.New(plxerr.InvalidEnumValue, "%q is not a permission; see the catalogue", v)
+		if !InCatalogue(p) {
+			return nil, plxerr.New(plxerr.PermissionNotInCatalogue, "%q is not a permission; see the catalogue", v)
 		}
 		out = append(out, p)
 	}

@@ -19,6 +19,7 @@ import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/dpop.dart';
 import 'package:plux_flutter/src/security/sca.dart';
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 
 /// A failed call: the HTTP status, the Connect error code and the server's
 /// `Retry-After`, when it sent one.
@@ -378,6 +379,24 @@ final class ManifestResponse {
   final ({Uint8List ephemeralPublicKey, Uint8List wrappedKey})? contentKey;
 }
 
+/// A control document response: not modified, or the signed file.
+final class ControlResponse {
+  const ControlResponse._({
+    required this.notModified,
+    required this.etag,
+    this.signed,
+  });
+
+  /// Whether the document matches the ETag the device sent.
+  final bool notModified;
+
+  /// The document's ETag.
+  final String etag;
+
+  /// The signed file, not yet verified.
+  final Uint8List? signed;
+}
+
 /// What a device sends in place of its installed bundles on an
 /// up-to-date check (NFR-006, ADR-0037): the SHA-256 of one line
 /// `<key>:<sha256 hex>\n` per bundle, sorted by key, the app bundle's key
@@ -564,6 +583,8 @@ final class PluxApiClient {
   }
 
   /// Fetches the channel's manifest with this device's plan (REL-032).
+  /// [targeting] tells the server what a rollout may target the device by,
+  /// hashed user attributes only (REL-051).
   Future<ManifestResponse> manifest({
     required DeviceToken token,
     required String appId,
@@ -574,6 +595,7 @@ final class PluxApiClient {
     required String ifNoneMatch,
     List<int> installedDigest = const [],
     int configVersion = 0,
+    DeviceTargeting? targeting,
   }) async {
     final r = await _call('plux.v1.ManifestService/GetManifest', {
       'appId': appId,
@@ -588,6 +610,7 @@ final class PluxApiClient {
       'configVersion': '$configVersion',
       if (installedDigest.isNotEmpty)
         'installedDigest': base64.encode(installedDigest),
+      if (targeting != null) 'deviceTargeting': targeting.toJson(),
     }, token: token);
     final etag = r['etag'] as String? ?? '';
     if (r['notModified'] == true) {
@@ -668,6 +691,41 @@ final class PluxApiClient {
     );
   }
 
+  /// Fetches the signed control document of [channel] (SYN-060), with the
+  /// ETag of the one the device holds; the answer is not modified, or the
+  /// file to verify. Nothing in it is trusted yet (SEC-052).
+  Future<ControlResponse> signedControl({
+    required DeviceToken token,
+    required String channel,
+    required String ifNoneMatch,
+  }) async {
+    final r = await _call('plux.v1.ManifestService/GetSignedControl', {
+      'channel': channel,
+      'ifNoneMatch': ifNoneMatch,
+    }, token: token);
+    final etag = r['etag'] as String? ?? '';
+    if (r['notModified'] == true) {
+      return ControlResponse._(notModified: true, etag: etag);
+    }
+    final signed = r['signed'];
+    if (signed is! String || signed.isEmpty) {
+      throw const ApiError(200, 'unknown', 'the control document is missing');
+    }
+    try {
+      return ControlResponse._(
+        notModified: false,
+        etag: etag,
+        signed: base64.decode(signed),
+      );
+    } on FormatException {
+      throw const ApiError(
+        200,
+        'unknown',
+        'the control document is not base64',
+      );
+    }
+  }
+
   /// Fetches the root files after [sinceRootVersion] and the keys of the
   /// current root (SEC-051).
   Future<RootKeys> rootKeys({
@@ -738,27 +796,49 @@ final class PluxApiClient {
     return res.bodyBytes;
   }
 
-  /// Reports the release this device activated.
+  /// Reports the release this device activated, with what the user saw it
+  /// in ([context], SEC-142).
   Future<void> reportInstalled(
     DeviceToken token,
     String deviceId,
+    int sequence, {
+    InstalledContext context = const InstalledContext(),
+  }) => _call(
+    'plux.v1.DeviceService/ReportInstalled',
+    installedReport(deviceId, sequence, context),
+    token: token,
+  );
+
+  /// The report that release [sequence] is active on [deviceId] (SEC-142),
+  /// sent on its own or with a telemetry upload.
+  static Map<String, Object?> installedReport(
+    String deviceId,
     int sequence,
-  ) => _call('plux.v1.DeviceService/ReportInstalled', {
+    InstalledContext context,
+  ) => {
     'deviceId': deviceId,
     'releaseSequence': '$sequence',
-  }, token: token);
+    ...context.toJson(),
+  };
 
   /// Sends a batch of telemetry events (ANL-002, ADR-0034), compressed
-  /// with gzip; the server's counts of accepted and refused events.
+  /// with gzip; the server's counts of accepted and refused events. An
+  /// [installedReport] rides along when given (SEC-142).
   Future<({int accepted, int rejected})> ingestEvents(
     DeviceToken token, {
     required String appId,
     required String environment,
     required List<Map<String, Object?>> events,
+    Map<String, Object?>? installed,
   }) async {
     final r = await _call(
       'plux.v1.TelemetryService/IngestEvents',
-      {'appId': appId, 'environment': environment, 'events': events},
+      {
+        'appId': appId,
+        'environment': environment,
+        'events': events,
+        'installed': ?installed,
+      },
       token: token,
       compress: true,
     );

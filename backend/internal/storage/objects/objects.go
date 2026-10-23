@@ -6,7 +6,11 @@
 //
 // Every object is immutable: its key contains the SHA-256 of its bytes,
 // so writing the same content twice is a no-op and a stored object can
-// be cached for ever by a CDN (REL-024). Two backends implement the same
+// be cached for ever by a CDN (REL-024). The one exception is the file
+// the enterprise analytics export names by organisation and window
+// (ANL-011): its path is readable, so that a data lake can partition on
+// it, and it is written once for its closed window. A CDN must not serve
+// the "exports" prefix. Two backends implement the same
 // interface — S3-compatible storage for deployments, and the local
 // filesystem for development and tests.
 package objects
@@ -70,15 +74,26 @@ func Key(k Kind, digest string) (string, error) {
 	return "", fmt.Errorf("objects: unknown kind %q", k)
 }
 
-// safeKey matches the only shape a key may have: lower-case segments
-// with no traversal, exactly as Key produces them. Validating the shape
-// rather than sanitising it means a key that is not one this package
-// made is refused instead of being silently rewritten.
+// safeKey matches the shape a key made by Key has: lower-case segments
+// with no traversal. Validating the shape rather than sanitising it means
+// a key that is not one this package made is refused instead of being
+// silently rewritten.
 var safeKey = regexp.MustCompile(`^[a-z]+(/[0-9a-z]+)+$`)
+
+// namedExportKey matches the one other shape a key may have: a file the
+// enterprise analytics export names itself, such as
+// "exports/analytics/org=<id>/events/date=2026-10-20/<window>-0001.parquet"
+// (ANL-011). Partitioned object layouts need readable paths, so the
+// segments below "exports" may also hold "=", "_", "-" and "."; each begins
+// with a letter or digit, so none is "." or "..".
+var namedExportKey = regexp.MustCompile(`^exports(/[0-9a-z][0-9a-z=_.-]*)+$`)
+
+// maxKeyLength is the longest key S3 accepts.
+const maxKeyLength = 1024
 
 // ValidKey reports whether a key is well formed.
 func ValidKey(key string) error {
-	if !safeKey.MatchString(key) {
+	if len(key) > maxKeyLength || !safeKey.MatchString(key) && !namedExportKey.MatchString(key) {
 		return fmt.Errorf("objects: %q is not a valid key", key)
 	}
 	return nil

@@ -1,0 +1,19 @@
+<!--
+SPDX-FileCopyrightText: 2026 Plux contributors
+SPDX-License-Identifier: Apache-2.0
+-->
+
+## Your task: P9 E1e-a — restriction policies, core (`GOV-002`, `GOV-006`, `SEC-102`)
+
+The design is decided: read `docs/adr/0086-restriction-policies-and-effective-permissions.md` (all of it) and the `GOV-002`, `GOV-006` rows (`grep -n "GOV-00[26]" docs/requirements.md`). Implement exactly that; do not redesign. No API, cache or explain here (E1e-b does them).
+
+Where things are: the resolver is `resolve` in `backend/internal/auth/principal.go` (builds `Principal.Permissions/AppPermissions/EnvPermissions`; `Holds*`/`Authorize*` below it); grants, custom roles and `GuardOwners` in `backend/internal/auth/governance.go`; the catalogue `backend/internal/auth/permissions.json` → `make gen` (Go `catalogue_gen.go`, plus Dart/TS); tenancy RLS helpers in `backend/internal/storage/migrations/0002_tenancy.sql`, session settings in `backend/internal/storage/db.go:190–200`; registries `schema/errors.json`, `schema/limits.json`.
+
+Deliver:
+1. **Catalogue:** add `area`, `feature`, `action` to every entry of `permissions.json` (no renames; area and feature are the first name segment, action the rest: `plugin.lock.override` → plugin / plugin / `lock.override`); add `restrictions.manage` (risk high, stepUp true, scope organisation; granted to Owner and Admin); generator and docs table grouped by area → feature; `make gen`.
+2. **Registries:** codes `PLX-8104`–`8107` (ADR text) in `errors.json`; limits `auth.restrictionsPerOrg`, `auth.restrictionsPerSubject`, `auth.restrictionPatterns`, `auth.permissionCacheSeconds` in `limits.json` (moderate defaults, documented); `make gen`.
+3. **Migration** (next free number on your base): `restriction_policies` per ADR (immutable rows, tenant RLS like its neighbours), `organizations.permissions_version bigint not null default 0`, function `plux_app_restricted(app_id uuid)` (STABLE, reads restrictions with pattern `*` for `current_setting('plux.user_id')` and the user's teams), and a restrictive policy on every RLS-enabled table that has an `app_id` column. Add a test that fails if such a table lacks the policy.
+4. **Domain** (`backend/internal/auth/restrictions.go`, sqlc queries): `CreateRestriction`, `ListRestrictions`, `DeleteRestriction` with: pattern validation against the catalogue (`PLX-8104`), `restrictions.manage` + step-up, organisation subject also needs `organization.manage`, caller may restrict only permissions/scope they hold (`PLX-8106`), last-Owner guard (`PLX-8105`, audited when refused), limits (`PLX-8107`), audit entry per change, `permissions_version` bumped in the same transaction — also in every existing grant, role and team-membership change.
+5. **Resolver:** load the restrictions that apply (organisation, the person's teams, the person) with the grants and subtract them in `resolve`, honouring app and environment scope — an org-wide permission restricted on app A must fail `AuthorizeApp(…, A)` and still pass on app B; then re-add the Owner floor (ADR). `Principal` keeps which restriction removed what (E1e-b's explain reads it).
+Tests (`_GOV_006`, `_GOV_002`, `_SEC_102`): deny wins over every grant combination (table over org/app/env grants × org/team/person restrictions × wildcard levels), app and environment scope, Owner floor, last-Owner refusal audited, escalation refused, version bumps, RLS blocks a restricted person's reads with the service layer bypassed (query as that user through `storage`), catalogue fields complete.
+Done when: `cd backend && go build ./... && GOWORK=off go build ./... && go test -count=1 ./internal/auth/... ./internal/storage/... ./internal/dsr/ && go test -count=1 ./internal/api/ -run 'Matrix|EveryRPC|EveryPermission|PublicRPCs'` passes. New tables go into the personal-data map (`backend/internal/dsr/datamap.go`).

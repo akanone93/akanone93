@@ -48,7 +48,7 @@ func (b *lockedBuffer) String() string {
 // sandbox when it starts, and drains on shutdown.
 func TestBuilderRoleRunsAlone_FN_016(t *testing.T) {
 	t.Parallel()
-	certFile, keyFile, pool := identity(t)
+	certFile, keyFile, pool := testIdentity(t)
 	addr := freeAddr(t)
 	cfg := testConfig(t, "server:\n  roles: [builder]\n  shutdownGrace: 5s\nbuilder:\n  listen: \""+addr+"\"\n  sandbox: none\n"+
 		"  sdkDir: /opt/plux/sdk/plux-fn\n  wasmOpt: [bun, /opt/binaryen/wasm-opt]\n"+

@@ -31,6 +31,8 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
       - id: check-yaml
+        # Helm templates are Go templates; make helm-lint validates what they render.
+        exclude: ^deploy/helm/[^/]+/templates/
       - id: check-toml
       - id: check-json
       - id: check-merge-conflict

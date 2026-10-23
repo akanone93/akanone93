@@ -20,6 +20,8 @@ import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/transport.dart' show DataResponse;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/invoke_function.dart';
+import 'package:plux_flutter/src/reconstruction/import.dart';
+import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
@@ -31,6 +33,8 @@ import 'package:plux_flutter/src/store/kv_store.dart' show SecretStore;
 import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/control_sync.dart';
+import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -99,7 +103,13 @@ sealed class _Command {
 }
 
 final class _Sync extends _Command {
-  const _Sync(super.reply);
+  const _Sync(super.reply, this.context);
+  final SyncContext context;
+}
+
+/// Checks the signed control document once (SYN-060).
+final class _Control extends _Command {
+  const _Control(super.reply);
 }
 
 final class _Store extends _Command {
@@ -111,6 +121,12 @@ final class _Store extends _Command {
 final class _Baseline extends _Command {
   const _Baseline(super.reply, this.assets);
   final SendPort? assets;
+}
+
+/// Verifies and installs a reconstruction release (SEC-142).
+final class _Reconstruction extends _Command {
+  const _Reconstruction(super.reply, this.release);
+  final PluxReconstruction release;
 }
 
 final class _Settle extends _Command {
@@ -125,6 +141,13 @@ final class _Settings extends _Command {
 /// Re-attests the device now (SEC-006).
 final class _Reattest extends _Command {
   const _Reattest(super.reply);
+}
+
+/// Reports the active release and what the user saw it in (SEC-142).
+final class _ReportInstalled extends _Command {
+  const _ReportInstalled(super.reply, this.sequence, this.context);
+  final int sequence;
+  final InstalledContext context;
 }
 
 final class _Flush extends _Command {
@@ -268,8 +291,13 @@ final class SyncWorker
   Future<SyncResult>? _running;
 
   /// Syncs once, reporting events to [onEvent]; a sync already running is
-  /// joined rather than started twice (ADR-0021).
-  Future<SyncResult> sync(void Function(SyncEvent) onEvent) {
+  /// joined rather than started twice (ADR-0021). [context] is what the UI
+  /// isolate knows of the device and its user for rollout targeting
+  /// (REL-051).
+  Future<SyncResult> sync(
+    void Function(SyncEvent) onEvent, {
+    SyncContext context = const SyncContext(),
+  }) {
     final running = _running;
     if (running != null) return running;
     final port = ReceivePort();
@@ -281,9 +309,15 @@ final class SyncWorker
         port.close();
       }
     });
-    _commands.send(_Sync(port.sendPort));
+    _commands.send(_Sync(port.sendPort, context));
     return _running = done.future.whenComplete(() => _running = null);
   }
+
+  /// Fetches, verifies and keeps the signed control document, and carries
+  /// out the forced rollback it orders (SYN-060, REL-060). It does not wait
+  /// for a sync that is running. Never throws.
+  Future<ControlOutcome> control() async =>
+      await _ask(_Control.new) as ControlOutcome;
 
   /// Imports the embedded baseline; the sequence, or null.
   ///
@@ -308,6 +342,15 @@ final class SyncWorker
       assets.close();
     }
   }
+
+  /// Verifies a reconstruction release and installs it as the store's
+  /// active release (SEC-142, SEC-052); the moment its manifest describes.
+  /// Throws the [PluxException] that failed verification.
+  Future<PluxReconstructionMoment> importReconstruction(
+    PluxReconstruction release,
+  ) async =>
+      await _ask((p) => _Reconstruction(p, release))
+          as PluxReconstructionMoment;
 
   /// The security settings in force when the isolate started, as
   /// [loadSettings] reads them; throws [StateError] when they could not be
@@ -458,6 +501,11 @@ final class SyncWorker
   /// after the telemetry sent before it: a detection is reported first.
   Future<void> reattest() => _ask(_Reattest.new);
 
+  /// Tells the server that release [sequence] is active, with [context]
+  /// (SEC-142). Never throws: a report that fails is lost.
+  Future<void> reportInstalled(int sequence, InstalledContext context) =>
+      _ask((p) => _ReportInstalled(p, sequence, context));
+
   /// Completes once the isolate has handled every message sent before.
   Future<void> settle() => _ask(_Settle.new);
 
@@ -496,6 +544,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
   final api = PluxApiClient(client, config.endpoint);
   final outbox = TelemetryOutbox(config.storeRoot);
   var bufferBytes = PluxLimit.telemetryBufferBytes.defaultValue;
+  // The installed-release report the next telemetry upload carries.
+  (int, InstalledContext)? pendingInstalled;
   final engine = SyncEngine(
     config: config.sync,
     store: store,
@@ -553,6 +603,12 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         } on Object catch (e) {
           reply.send(_Failure('$e'));
         }
+      case _ReportInstalled(:final reply, :final sequence, :final context):
+        // Held for the telemetry upload that follows every sync, so an
+        // update costs no request of its own (QA-007); a later activation
+        // replaces it.
+        pendingInstalled = (sequence, context);
+        reply.send(null);
       case _Record(:final lines, :final maxBytes):
         try {
           bufferBytes = maxBytes;
@@ -568,13 +624,27 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         }
       case _Flush(:final reply, :final perRequest):
         try {
+          final pending = pendingInstalled;
+          final installed = pending == null
+              ? null
+              : await engine.installedReport(pending.$1, pending.$2);
           final r = await outbox.flush(
             api: api,
             token: engine.recentToken,
             appId: config.sync.appId,
             environment: config.sync.environment,
             perRequest: perRequest,
+            installed: installed,
           );
+          if (pending != null && identical(pendingInstalled, pending)) {
+            if (installed == null || r.installed) {
+              pendingInstalled = null;
+            } else if (r.error == null) {
+              // Refused with its batch for good: sent on its own instead.
+              pendingInstalled = null;
+              track(engine.reportInstalled(pending.$1, pending.$2));
+            }
+          }
           if (r.error?.code == 'unauthenticated') engine.forgetToken();
           reply.send(r);
         } on Object catch (e) {
@@ -646,12 +716,14 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
             ),
           ),
         );
+      case _Control(:final reply):
+        track(_serve(reply, engine.checkControl));
       case _ReadConfig(:final reply, :final key):
         track(_serve(reply, () => engine.gateway.live.read(key)));
       case _EnrolSca(:final reply):
         track(_serve(reply, engine.gateway.ensureEnrolled));
-      case _Sync(:final reply):
-        reply.send(await engine.run(reply.send));
+      case _Sync(:final reply, :final context):
+        reply.send(await engine.run(reply.send, context: context));
       case _Baseline(:final reply, :final assets):
         final read = assets == null ? config.baseline : _servedBy(assets);
         try {
@@ -671,6 +743,25 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
           );
         } on PluxException catch (e) {
           reply.send(e);
+        }
+      case _Reconstruction(:final reply, :final release):
+        try {
+          reply.send(
+            await importReconstruction(
+              reconstruction: release,
+              store: store,
+              keys: config.sync.keys,
+              now: DateTime.now(),
+              appId: config.sync.appId,
+              environment: config.sync.environment,
+              limits: config.sync.verifierLimits,
+              supportsFeature: config.sync.supportsFeature,
+            ),
+          );
+        } on PluxException catch (e) {
+          reply.send(e);
+        } on Object catch (e) {
+          reply.send(_Failure('$e'));
         }
       case _Store(:final reply, :final op):
         try {

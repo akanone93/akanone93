@@ -26,6 +26,7 @@
   "plux.timeline.done": "ተጠናቅቋል",
   "plux.timeline.failed": "አልተሳካም",
   "plux.timeline.pending": "በመጠባበቅ ላይ",
+  "plux.update.required": "ለመቀጠል ዝማኔ ያስፈልጋል",
   "plux.uploader.choose": "ፋይል ምረጥ",
   "plux.uploader.upload": "ጫን",
   "plux.validation.aboveMax": "ቢበዛ {max} መሆን አለበት",

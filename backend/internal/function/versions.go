@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -54,6 +55,13 @@ func (s *Service) Deploy(ctx context.Context, p auth.Principal, buildID, alias s
 			return err
 		}
 		if err := checkDeployable(build, env.Production); err != nil {
+			return err
+		}
+		if err := s.requireDeployment(ctx, tx, p, deployment{
+			app: storage.ID(row.AppID), env: env, name: row.Name, subject: "function:" + row.Name + "@build:" + storage.ID(row.ID),
+			content: deployContent(row.Name, 0, row.ModuleSha256, row.Placement, alias),
+			summary: "function " + row.Name + " is deployed to " + env.Key,
+		}); err != nil {
 			return err
 		}
 		out, err = s.insertVersion(ctx, tx, p, row, alias, testsPassed(build))
@@ -145,42 +153,13 @@ func manifestEntry(row dbgen.FunctionBuild) (Export, error) {
 // (FN-031). Promoting a version the target already holds is a no-op, and
 // alias, when set, is pointed at the version either way.
 func (s *Service) Promote(ctx context.Context, p auth.Principal, appID, fromEnvID, toEnvID, name string, version int32, alias string) (Version, error) {
-	if err := ValidateName(name); err != nil {
+	if err := validatePromotion(name, alias, version); err != nil {
 		return Version{}, err
-	}
-	if alias != "" {
-		if err := ValidateAlias(alias); err != nil {
-			return Version{}, err
-		}
-	}
-	if version < 1 {
-		return Version{}, plxerr.New(plxerr.InvalidFormat, "a function version is a positive number")
 	}
 	var out Version
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		from, err := environmentOf(ctx, q, appID, fromEnvID)
-		if err != nil {
-			return err
-		}
-		to, err := environmentOf(ctx, q, appID, toEnvID)
-		if err != nil {
-			return err
-		}
-		if from.ID == to.ID {
-			return plxerr.New(plxerr.InvalidFormat, "the source and the target of a promotion are the same environment")
-		}
-		if err := authorize(p, deployPermission(to.Production), appID); err != nil {
-			return err
-		}
-		src, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: from.ID, Name: name, Version: version})
-		if err != nil {
-			return versionMissing(err, name, version)
-		}
-		if !src.TestsPassed && to.Production {
-			return plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be promoted to a production environment", version, name)
-		}
-		out, err = s.copyVersion(ctx, tx, p, src, to, alias)
+		var err error
+		out, err = s.promoteTx(ctx, tx, p, appID, fromEnvID, toEnvID, name, version, alias)
 		return err
 	})
 	if err != nil {
@@ -188,6 +167,57 @@ func (s *Service) Promote(ctx context.Context, p auth.Principal, appID, fromEnvI
 	}
 	s.prepare(ctx, p.OrganizationID, out)
 	return out, nil
+}
+
+// validatePromotion checks the names and the number a promotion is asked for.
+func validatePromotion(name, alias string, version int32) error {
+	if err := ValidateName(name); err != nil {
+		return err
+	}
+	if alias != "" {
+		if err := ValidateAlias(alias); err != nil {
+			return err
+		}
+	}
+	if version < 1 {
+		return plxerr.New(plxerr.InvalidFormat, "a function version is a positive number")
+	}
+	return nil
+}
+
+// promoteTx checks the permission, the tests and the approval policy of a
+// promotion and copies the version, in the transaction of the request.
+func (s *Service) promoteTx(ctx context.Context, tx pgx.Tx, p auth.Principal, appID, fromEnvID, toEnvID, name string, version int32, alias string) (Version, error) {
+	q := dbgen.New(tx)
+	from, err := environmentOf(ctx, q, appID, fromEnvID)
+	if err != nil {
+		return Version{}, err
+	}
+	to, err := environmentOf(ctx, q, appID, toEnvID)
+	if err != nil {
+		return Version{}, err
+	}
+	if from.ID == to.ID {
+		return Version{}, plxerr.New(plxerr.InvalidFormat, "the source and the target of a promotion are the same environment")
+	}
+	if err := authorize(p, deployPermission(to.Production), appID); err != nil {
+		return Version{}, err
+	}
+	src, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: from.ID, Name: name, Version: version})
+	if err != nil {
+		return Version{}, versionMissing(err, name, version)
+	}
+	if !src.TestsPassed && to.Production {
+		return Version{}, plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be promoted to a production environment", version, name)
+	}
+	if err := s.requireDeployment(ctx, tx, p, deployment{
+		app: appID, env: to, name: name, subject: "function:" + name + "@" + strconv.Itoa(int(version)),
+		content: deployContent(name, version, src.ModuleSha256, src.Placement, alias),
+		summary: "version " + strconv.Itoa(int(version)) + " of function " + name + " is promoted to " + to.Key,
+	}); err != nil {
+		return Version{}, err
+	}
+	return s.copyVersion(ctx, tx, p, src, to, alias)
 }
 
 // copyVersion stores a copy of a version in the target environment under
@@ -267,6 +297,13 @@ func (s *Service) SetAlias(ctx context.Context, p auth.Principal, appID, environ
 		v, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: env.ID, Name: name, Version: version})
 		if err != nil {
 			return versionMissing(err, name, version)
+		}
+		if err := s.requireDeployment(ctx, tx, p, deployment{
+			app: appID, env: env, name: name, subject: "function:" + name + "#alias:" + alias,
+			content: deployContent(name, version, v.ModuleSha256, v.Placement, alias),
+			summary: "alias " + alias + " of function " + name + " moves to version " + strconv.Itoa(int(version)) + " in " + env.Key,
+		}); err != nil {
+			return err
 		}
 		if _, err := q.UpsertFunctionAlias(ctx, aliasParams(p, v, alias)); err != nil {
 			return failure(err, "function alias")

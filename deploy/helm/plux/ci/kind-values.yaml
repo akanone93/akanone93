@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# The end-to-end installation on a single-node kind cluster (make e2e-kind):
+# every dependency in the chart, every role but the builder (which needs a
+# node seccomp profile), spreading best effort, no metrics server, and the
+# file signing backend because the cluster has no Vault. Images are set by the
+# make target (--set image.*).
+scheduling:
+  nodeSpread: ScheduleAnyway
+server:
+  publicBaseURL: https://plux.example.com
+signing:
+  backend: file
+functions:
+  enabled: true
+  artifactKeys:
+    - keyID: "000102030405060708090a0b0c0d0e0f"
+      publicKey: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
+postgresql:
+  cnpg:
+    instances: 3
+    storage: {size: 1Gi}
+objectStorage:
+  seaweedfs:
+    storage: {size: 1Gi}
+# One kind node on a 4-CPU runner holds every role twice, the database three
+# times and the cache three times; at the production CPU requests a rolling
+# upgrade's surge pods do not fit and stay Pending. The test cluster asks for
+# little CPU so a rolling upgrade fits on the one node.
+api:
+  autoscaling: {enabled: false}
+  resources:
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 1Gi}
+worker:
+  resources:
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 1Gi}
+fnrunner:
+  autoscaling: {enabled: false}
+  resources:
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 1Gi}
+egress:
+  resources:
+    requests: {cpu: 20m, memory: 64Mi}
+    limits: {memory: 512Mi}
+builder:
+  resources:
+    requests: {cpu: 100m, memory: 512Mi}
+    limits: {memory: 2Gi}

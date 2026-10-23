@@ -9,13 +9,16 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -54,6 +57,9 @@ type Options struct {
 	// deviceFunctions (FN-055); nil reads it as false, the deny-by-default
 	// answer (SEC-080).
 	DeviceFunctions func(ctx context.Context, appID, environmentID string) (bool, error)
+	// Approvals decides whether a function may be deployed, promoted or
+	// re-pointed (FN-007, GOV-020); nil requires nothing.
+	Approvals approval.Gate
 	// Linker links the device functions of a plugin into one module on the
 	// builder role; the worker role sets it. Nil refuses to link, and a
 	// module that was linked before is still read from the cache (FN-051).
@@ -72,12 +78,44 @@ type Options struct {
 	// Log receives the failures of recording logs and invocations, which
 	// never fail an invocation; nil discards them.
 	Log *slog.Logger
+	// Secrets keeps the signing secrets of inbound hooks (FN-025); nil
+	// refuses to create hooks.
+	Secrets HookSecrets
+	// Notify receives the function.failing event when a scheduled run
+	// starts failing (SRV-062); nil sends nothing.
+	Notify notify.Publisher
+	// Verifiers are provider-specific inbound verifiers by name, beside the
+	// built-in "standard-webhooks" (FN-025, PAY-006).
+	Verifiers map[string]Verifier
 }
 
 // Service stores functions and administers them. It is safe for
 // concurrent use: it holds no state beyond its options, and the database
 // serialises the deploys and the key-value writes of one function.
-type Service struct{ o Options }
+type Service struct {
+	o Options
+	// invoker runs schedules and hooks; it is set by UseInvoker once the
+	// invoker, which needs the service itself, has been built.
+	invoker atomic.Pointer[invokerBox]
+}
+
+// invokerBox lets an interface value sit in an atomic pointer.
+type invokerBox struct{ ServerInvoker }
+
+// UseInvoker gives the service the invoker that runs schedules and inbound
+// hooks (FN-025). The invoker depends on the service for declarations and
+// versions, so it cannot be an option; the server calls this once, while it
+// assembles, before anything fires. Without one, triggers are recorded but
+// never fire and a hook answers 404.
+func (s *Service) UseInvoker(inv ServerInvoker) { s.invoker.Store(&invokerBox{inv}) }
+
+// serverInvoker returns the invoker, or nil.
+func (s *Service) serverInvoker() ServerInvoker {
+	if b := s.invoker.Load(); b != nil {
+		return b.ServerInvoker
+	}
+	return nil
+}
 
 // NewService returns the function service.
 func NewService(o Options) (*Service, error) {
@@ -279,8 +317,12 @@ func (s *Service) record(ctx context.Context, tx pgx.Tx, p auth.Principal, actio
 	return nil
 }
 
-// failure turns a database error into the refusal a caller understands.
+// failure turns a database error into the refusal a caller understands;
+// nil stays nil, so a call can wrap the result of a query directly.
 func failure(err error, what string) error {
+	if err == nil {
+		return nil
+	}
 	if errors.Is(err, pgx.ErrNoRows) {
 		return plxerr.New(plxerr.ResourceNotFound, "no such %s", what)
 	}

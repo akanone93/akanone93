@@ -62,7 +62,7 @@ func (u *unit) calendarsUsed(app *schema.AppDocument) []string {
 // translates, by the tag as written. A supported locale CLDR has no data for
 // is PLX-1600 at its place in app.json.
 func (u *unit) localeBlobs(app *schema.AppDocument) map[string]*localeBlob {
-	opts := l10n.ReduceOptions{Calendars: u.calendarsUsed(app)}
+	opts := u.reduceOptions(app)
 	out := map[string]*localeBlob{}
 	build := func(tag string) *localeBlob {
 		if b, ok := out[tag]; ok {

@@ -16,7 +16,10 @@ import (
 // The single sign-on and security-key procedures are reachable without
 // a credential where they must be, need a session where they must, and
 // report an installation without a provider or relying party as a
-// failed precondition rather than an error.
+// failed precondition rather than an error. Completing a provider sign-in
+// answers by its state, which names the provider (ADR-0074): a state that
+// is unknown is a sign-in that has expired, whether or not a provider is
+// configured, and it reveals nothing about the configuration.
 func TestSingleSignOnAndSecurityKeysOverTheAPI(t *testing.T) {
 	t.Parallel()
 	w := newWorld(t)
@@ -24,8 +27,8 @@ func TestSingleSignOnAndSecurityKeysOverTheAPI(t *testing.T) {
 	if _, err := w.identity.StartOidcLogin(ctx, connect.NewRequest(&pluxv1.StartOidcLoginRequest{})); codeOf(err) != connect.CodeFailedPrecondition {
 		t.Errorf("StartOidcLogin without a provider: %v", err)
 	}
-	if _, err := w.identity.CompleteOidcLogin(ctx, connect.NewRequest(&pluxv1.CompleteOidcLoginRequest{State: "x", Code: "y"})); codeOf(err) != connect.CodeFailedPrecondition {
-		t.Errorf("CompleteOidcLogin without a provider: %v", err)
+	if _, err := w.identity.CompleteOidcLogin(ctx, connect.NewRequest(&pluxv1.CompleteOidcLoginRequest{State: "x", Code: "y"})); codeOf(err) != connect.CodeUnauthenticated {
+		t.Errorf("CompleteOidcLogin with an unknown state: %v", err)
 	}
 	if _, err := w.identity.BeginWebAuthnLogin(ctx, connect.NewRequest(&pluxv1.BeginWebAuthnLoginRequest{ChallengeId: "plux_mfa_x"})); codeOf(err) != connect.CodeFailedPrecondition {
 		t.Errorf("BeginWebAuthnLogin without a relying party: %v", err)

@@ -1,0 +1,327 @@
+{
+  "uid": "plux-analytics-usage",
+  "title": "Plux analytics: page and plugin usage, funnels",
+  "description": "Screen views per page, events per plugin and funnel step volumes (ANL-020).",
+  "tags": [
+    "plux",
+    "analytics"
+  ],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "timezone": "utc",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "refresh": "5m",
+  "templating": {
+    "list": [
+      {
+        "name": "organization",
+        "label": "Organisation ID",
+        "type": "textbox",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "description": "The organisation UUID. Row-level security binds every query to it (SRV-022)."
+      },
+      {
+        "name": "app",
+        "label": "App",
+        "description": "The apps of the organisation with rollups.",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "plux-analytics"
+        },
+        "definition": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid;\n",
+        "query": {
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid;\n",
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "rawQuery": true,
+          "editorMode": "code"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0
+      },
+      {
+        "name": "release",
+        "label": "Release sequence",
+        "description": "The release sequences of the selected apps with rollups.",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "plux-analytics"
+        },
+        "definition": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.app_id::text IN ($app);\n",
+        "query": {
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.app_id::text IN ($app);\n",
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "rawQuery": true,
+          "editorMode": "code"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0
+      },
+      {
+        "name": "granularity",
+        "label": "Granularity",
+        "type": "custom",
+        "query": "5m,1h,1d",
+        "current": {
+          "text": "1h",
+          "value": "1h"
+        },
+        "hide": 0,
+        "options": [
+          {
+            "text": "5m",
+            "value": "5m",
+            "selected": false
+          },
+          {
+            "text": "1h",
+            "value": "1h",
+            "selected": true
+          },
+          {
+            "text": "1d",
+            "value": "1d",
+            "selected": false
+          }
+        ],
+        "description": "The rollup grain: 5m, 1h or 1d (ANL-010)."
+      },
+      {
+        "name": "funnel",
+        "label": "Funnel steps",
+        "type": "textbox",
+        "query": "home,checkout,paid",
+        "current": {
+          "text": "home,checkout,paid",
+          "value": "home,checkout,paid"
+        },
+        "hide": 0,
+        "description": "Comma-separated page or event names, in funnel order."
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Screen views by page",
+      "description": "Screen views per page over time.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT $__timeGroupAlias(r.bucket, $__interval), r.page AS metric, SUM(r.events) AS value\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'screen_view'\nGROUP BY 1, 2\nORDER BY 1;\n"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Top pages",
+      "description": "Screen views per page in the range. Capped at 100 rows.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT r.page AS \"Page\", SUM(r.events) AS \"Events\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'screen_view'\nGROUP BY 1\nORDER BY 2 DESC\nLIMIT 100;\n"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Plugin usage",
+      "description": "Events per plugin in the range, with screen views. Events with no plugin are left out.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT r.plugin_key AS \"Plugin\", SUM(r.events) FILTER (WHERE r.event_name = 'screen_view') AS \"Screen views\",\n  SUM(r.events) AS \"Events\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.plugin_key <> ''\nGROUP BY 1\nORDER BY 3 DESC\nLIMIT 100;\n"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Events by plugin",
+      "description": "Events per plugin over time.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 24,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT $__timeGroupAlias(r.bucket, $__interval), r.plugin_key AS metric, SUM(r.events) AS value\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\nGROUP BY 1, 2\nORDER BY 1;\n"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Funnel",
+      "description": "Ordered steps from the Funnel steps variable. Each step counts the events named after it, or the screen views of that page. The counts are events, not users, and the order is not checked per user, so a step can exceed the one before it.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 24,
+        "h": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nWITH steps AS (\n  SELECT btrim(s.name) AS name, s.ord\n  FROM unnest(string_to_array(${funnel:sqlstring}, ',')) WITH ORDINALITY AS s(name, ord)\n), counts AS (\n  SELECT st.ord, st.name, SUM(r.events) AS events\n  FROM steps st\n  LEFT JOIN analytics_rollups r\n    ON r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n    AND r.granularity = ${granularity:sqlstring}\n    AND $__timeFilter(r.bucket)\n    AND r.app_id::text IN ($app)\n    AND r.release_sequence::text IN ($release)\n    AND (r.event_name = st.name OR (r.event_name = 'screen_view' AND r.page = st.name))\n  GROUP BY st.ord, st.name\n)\nSELECT ord AS \"Step\", name AS \"Page or event\", COALESCE(events, 0) AS \"Events\",\n  100.0 * COALESCE(events, 0) / NULLIF(FIRST_VALUE(events) OVER (ORDER BY ord), 0) AS \"Of step 1 (%)\"\nFROM counts\nORDER BY ord;\n"
+        }
+      ]
+    }
+  ]
+}

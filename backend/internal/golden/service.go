@@ -20,6 +20,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -41,6 +42,9 @@ type Options struct {
 	// Limits are the installation's limits (LIM-001); zero means the
 	// defaults.
 	Limits limits.Set
+	// Approvals decides whether baselines may be approved (GOV-020); nil
+	// requires nothing.
+	Approvals approval.Gate
 }
 
 // Service stores golden runs and baselines.
@@ -402,6 +406,9 @@ func (s *Service) approveRun(ctx context.Context, tx pgx.Tx, p auth.Principal, r
 	wanted := map[string]bool{}
 	for _, id := range caseIDs {
 		wanted[id] = true
+	}
+	if err := s.requireApproval(ctx, tx, p, ref, r.PluginKey, diffs, wanted); err != nil {
+		return nil, err
 	}
 	used, err := q.GoldenBaselineBytes(ctx, dbgen.GoldenBaselineBytesParams{AppID: ref.app, PluginKey: r.PluginKey})
 	if err != nil {

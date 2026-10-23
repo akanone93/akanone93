@@ -33,7 +33,20 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `attest.keyAttestationChainCerts` | count | 10 | 80% | 16 | installation | P6 | SEC-002 | Certificates an Android Key Attestation chain may hold. |
 | `attest.playIntegrityTokenBytes` | bytes | 16384 | 80% | 65536 | installation | P6 | SEC-003 | Size of a Play Integrity token the server accepts. |
 | `attest.statusListBytes` | bytes | 8388608 | 80% | 33554432 | installation | P6 | SEC-002 | Size of the Android attestation status list the server fetches or reads. |
+| `audit.exportBatchEntries` | count | 500 | 80% | 10000 | installation, organization | P9 | SEC-143 | Audit entries delivered to an export destination in one batch. |
+| `audit.exportDestinationsPerOrg` | count | 5 | 80% | 50 | installation, organization | P9 | SEC-143 | Audit export destinations one organisation may configure. |
+| `auth.explainPerMinute` | count | 30 | 80% | 1000 | installation | P9 | GOV-007 | Explain calls one principal may make per minute to learn why a person can or cannot perform an action. |
 | `auth.failedSignIns` | count | 10 | 80% | 1000 | installation | P2 | SEC-100 | Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused. |
+| `auth.permissionCacheSeconds` | count | 60 | 80% | 600 | installation | P9 | GOV-006 | Seconds a replica keeps a resolved permission set before it resolves again; a change drops it sooner, and the lifetime covers a missed change message. |
+| `auth.restrictionPatterns` | count | 20 | 80% | 200 | installation, organization | P9 | GOV-006 | Permission names and wildcards one restriction policy may list. |
+| `auth.restrictionsPerOrg` | count | 200 | 80% | 5000 | installation, organization | P9 | GOV-006 | Restriction policies one organisation may hold. |
+| `auth.restrictionsPerSubject` | count | 20 | 80% | 200 | installation, organization | P9 | GOV-006 | Restriction policies one organisation, team or person may be the subject of. |
+| `auth.samlClockSkewSeconds` | count | 120 | 80% | 180 | installation | P9 | GOV-004 | Seconds of clock difference between an identity provider and the server that a SAML assertion's validity window tolerates. |
+| `auth.scimTokenOverlapSeconds` | count | 86400 | 80% | 604800 | installation | P9 | GOV-004 | Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over. |
+| `auth.sessionAbsoluteTimeout` | milliseconds | 43200000 | 80% | 2592000000 | installation, organization | P9 | GOV-005 | Time after sign-in at which a browser session ends however active it is; an organisation may shorten it. |
+| `auth.sessionIdleTimeout` | milliseconds | 1800000 | 80% | 86400000 | installation, organization | P9 | GOV-005 | Time without a request after which a browser session ends; an organisation may shorten it. |
+| `auth.simulatePerMinute` | count | 10 | 80% | 1000 | installation | P9 | GOV-007 | Explain calls with a proposed grant or restriction one principal may make per minute; each evaluates the resolver on a state that does not exist. |
+| `auth.stepUpAttempts` | count | 5 | 80% | 20 | installation | P9 | SEC-103 | Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one. |
 | `bundle.deviceFunctionModuleSize` | bytes | 4194304 | 80% | 67108864 | installation, organization, app, plugin | P7 | FN-050 | Size of the WebAssembly module of the device-placed functions of one plugin. |
 | `bundle.pageSectionSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app, plugin | P1 | BND-010 | Size of one page section in a bundle. |
 | `bundle.pluginSize` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P1 | BND-010 | Size of one plugin bundle. |
@@ -42,6 +55,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `confidential.bundleBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P6 | SEC-053, LIM-004 | Bytes of confidential content one confidential bundle may hold. |
 | `config.valueBytes` | bytes | 4096 | 80% | 65536 | installation, organization, app | P6 | DAT-090, LIM-004 | Bytes of one server-held configuration value. |
 | `config.valuesPerEnvironment` | count | 256 | 80% | 4096 | installation, organization, app | P6 | DAT-090, LIM-004 | Server-held configuration values one environment holds. |
+| `control.expiry` | milliseconds | 86400000 | 80% | 604800000 | installation, organization, app | P9 | SYN-060 | How long a signed control document is valid after the server signs it; a device keeps the kill switches of an expired document in force. |
+| `control.killSwitches` | count | 200 | 80% | 5000 | installation, organization, app | P9 | REL-060 | Kill switches one channel's control document may carry. |
 | `data.cacheBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P5 | DAT-010, LIM-004 | Bytes the response cache of data sources keeps on the device; the least recently used entries are evicted beyond it. |
 | `data.cacheEntries` | count | 1000 | 80% | 100000 | installation, organization, app | P5 | DAT-010, LIM-004 | Responses the cache of data sources keeps on the device; the least recently used are evicted beyond it. |
 | `data.downloadSize` | bytes | 52428800 | 80% | 2147483648 | installation, organization, app | P5 | DAT-031, LIM-004 | Bytes one download may have; checked against the declared length before the transfer and counted during it, a larger one is stopped. |
@@ -73,6 +88,9 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `dpop.jtiBytes` | bytes | 64 | 80% | 256 | installation | P6 | SEC-021 | Length of a DPoP proof identifier. |
 | `dpop.proofBytes` | bytes | 8192 | 80% | 32768 | installation | P6 | SEC-021 | Size of a DPoP proof. |
 | `dpop.replayCacheEntries` | count | 1000000 | 80% | 100000000 | installation | P6 | SEC-023, LIM-004 | Proof identifiers the DPoP replay cache holds. |
+| `dsr.exportBytes` | bytes | 268435456 | 80% | 4294967296 | installation, organization, app | P9 | SEC-162 | Size of one data subject export archive. |
+| `experiments.activePerApp` | count | 20 | 80% | 500 | installation, organization, app | P9 | ABT-001 | Experiments that may be running at once in one app. |
+| `flags.perApp` | count | 500 | 80% | 10000 | installation, organization, app | P9 | ABT-001 | Feature flags one app may define. |
 | `function.buildMemory` | bytes | 4294967296 | 80% | 17179869184 | installation, organization, app | P7 | FN-016 | Memory one function build may use. |
 | `function.buildTimeout` | milliseconds | 600000 | 80% | 3600000 | installation, organization, app | P7 | FN-016 | Wall-clock time one function build may run. |
 | `function.callDepth` | count | 3 | 80% | 3 | installation, organization, app | P7 | FN-011 | Depth of nested function-to-function calls within one invocation. |
@@ -101,8 +119,14 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `golden.baselineBytesPerPlugin` | bytes | 268435456 | 80% | 4294967296 | installation, organization, app | P8 | TST-003 | Golden baseline images one plugin may store. |
 | `golden.casesPerRun` | count | 500 | 80% | 10000 | installation, organization, app | P8 | TST-003 | Golden cases one run may contain. |
 | `golden.imageBytes` | bytes | 2097152 | 80% | 16777216 | installation, organization, app | P8 | TST-003 | Size of one golden image. |
+| `governance.breakGlassReviewHours` | count | 24 | 80% | 720 | installation, organization | P9 | GOV-024 | Hours after a break-glass action within which its post-hoc review is due; an overdue review is escalated (PLX-8006). |
+| `governance.freezeWindowHours` | count | 720 | 80% | 8760 | installation, organization | P9 | GOV-025 | Longest a change-freeze window may last, in hours. |
+| `governance.freezeWindowsPerOrg` | count | 50 | 80% | 1000 | installation, organization | P9 | GOV-025 | Change-freeze windows one organisation may define. |
+| `governance.justificationLength` | codepoints | 2000 | 80% | 20000 | installation, organization | P9 | GOV-024 | Length of the written justification of a break-glass action. |
+| `governance.reportChanges` | count | 20000 | 80% | 1000000 | installation, organization | P9 | GOV-026 | Production changes one compliance report may list; a longer period is refused and is split into shorter ones. |
 | `http.responseSize` | bytes | 1048576 | 80% | 67108864 | installation | P2 | SEC-104, SEC-105 | Size of a response the server reads when it fetches a URL, such as an identity provider's keys. |
 | `media.pinnedDownloadSize` | bytes | 209715200 | 80% | 1073741824 | installation, organization, app | P8 | SEC-041 | Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client). |
+| `notifications.perHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | SRV-062 | Notifications one organisation may send in an hour across all channels; the excess is dropped and audited. |
 | `page.animations` | count | 30 | 10 | 200 | installation, organization, app, plugin | P1 | CMP-040 | Animations that can run at the same time on one page. |
 | `page.buildCost` | microseconds | 16000 | 8000 | 100000 | installation, organization, app, plugin | P1 | CMP-040 | Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints. |
 | `page.depth` | count | 64 | 32 | 128 | installation, organization, app, plugin | P1 | SCH-005, CMP-040 | Depth of a page's node tree. |
@@ -111,6 +135,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `plugin.assetBytes` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P2 | AST-003 | Bytes of the asset files one plugin's pages and icon use, checked at publish. |
 | `plugin.pages` | count | 500 | 80% | 2000 | installation, organization, app, plugin | P1 | SCH-005 | Pages per plugin. |
 | `publish.assetWait` | milliseconds | 600000 | 80% | 3600000 | installation | P3 | CMP-030, REL-003 | Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails. |
+| `push.batchSize` | count | 200 | 80% | 5000 | installation | P9 | SYN-060 | Devices one silent-push job sends to before it hands the rest to a follow-up job. |
+| `push.tokenBytes` | bytes | 1024 | 80% | 4096 | installation | P9 | SYN-060 | Length of the push token a device may register for silent push. |
 | `pxl.collectionSize` | count | 10000 | 80% | 1000000 | installation, organization, app, plugin | P1 | PXL-001 | Elements of a list or map produced during one PXL evaluation. |
 | `pxl.decimalDigits` | count | 1000 | 80% | 10000 | installation, organization, app, plugin | P1 | PXL-001, PXL-005 | Digits of a decimal produced during one PXL evaluation, in plain notation. |
 | `pxl.expressionLength` | codepoints | 4096 | 80% | 65536 | installation, organization, app, plugin | P1 | PXL-001 | Length of one PXL expression. |
@@ -120,18 +146,26 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `pxl.regexProgramSize` | count | 2000 | 80% | 20000 | installation, organization, app, plugin | P5 | PXL-001, PXL-006, LIM-001 | Instructions of one compiled regular-expression pattern of pxl.regex.v1 (schema/pxl/regex.md). |
 | `pxl.regexRepeat` | count | 100 | 80% | 1000 | installation, organization, app, plugin | P5 | PXL-001, PXL-006, LIM-001 | The largest count of a {n,m} repetition in a regular-expression pattern of pxl.regex.v1. |
 | `pxl.stringLength` | codepoints | 65536 | 80% | 1048576 | installation, organization, app, plugin | P1 | PXL-001 | Length of a string produced during one PXL evaluation. |
+| `reconstruction.retentionDays` | count | 365 | 80% | 3650 | installation, organization, app | P9 | SEC-142 | Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable. |
 | `release.appSize` | bytes | 104857600 | 80% | 1073741824 | installation, organization, app | P1 | BND-010 | Total size of one app release: the app bundle and every plugin bundle. |
+| `rollouts.activePerApp` | count | 10 | 80% | 100 | installation, organization, app | P9 | REL-050 | Staged rollouts that may be in progress at once in one app. |
 | `runtime.imageDiskCacheBytes` | bytes | 67108864 | 80% | 1073741824 | installation, organization, app | P3 | RT-014, AST-002 | Disk space the runtime's cache of remote images may use on one device. |
 | `runtime.imageSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P3 | AST-002, SEC-104 | Size of one remote image the runtime downloads; a larger one is refused. |
 | `runtime.sectionCacheBytes` | bytes | 8388608 | 80% | 268435456 | installation, organization, app | P3 | RT-013 | Memory the runtime's cache of decoded page and component sections may hold. |
 | `runtime.sectionCacheEntries` | count | 64 | 80% | 4096 | installation, organization, app | P3 | RT-013 | Page and component sections the runtime keeps decoded. |
 | `sca.challengeLifetime` | milliseconds | 300000 | 80% | 900000 | installation, organization, app | P6 | SEC-027, LIM-004 | Milliseconds a strong customer authentication challenge stays valid. |
+| `search.resultsPerPage` | count | 50 | 80% | 200 | installation, organization, app | P9 | SRV-061 | Results one search page may return. |
 | `securityConfig.bytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P6 | SEC-182, LIM-004 | Bytes of a security configuration, encoded. |
 | `securityConfig.patchBytes` | bytes | 16384 | 80% | 262144 | installation, organization, app | P6 | SEC-182, LIM-004 | Bytes of a security configuration patch, encoded. |
 | `state.persistedBytes` | bytes | 1048576 | 80% | 16777216 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the persisted state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
 | `state.secureBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
+| `telemetry.batchBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P9 | ANL-010 | Bytes one telemetry batch may carry on the wire after decompression. |
 | `telemetry.bufferBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P3 | ANL-002 | The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first. |
+| `telemetry.eventsPerDevicePerHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | ANL-010 | Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts. |
 | `telemetry.eventsPerRequest` | count | 500 | 80% | 5000 | installation, organization, app | P2 | SEC-104 | Runtime events one telemetry request may carry. |
+| `telemetry.exportBatchEvents` | count | 500 | 80% | 5000 | installation, organization | P9 | ANL-011 | Events one signed-webhook message of the enterprise analytics export carries. |
+| `telemetry.exportFileRows` | count | 100000 | 80% | 1000000 | installation, organization | P9 | ANL-011 | Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files. |
 | `translation.importSize` | bytes | 16777216 | 80% | 134217728 | installation, organization, app | P8 | I18N-009 | Size of one translation import file. |
 | `translation.messageSize` | bytes | 4096 | 80% | 65536 | installation, organization, app | P8 | I18N-001 | Size of one translation message. |
 | `updateMetadata.bytes` | bytes | 1048576 | 80% | 4194304 | installation | P6 | SEC-050 | Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves. |
+| `webhooks.perOrg` | count | 50 | 80% | 1000 | installation, organization, app | P9 | SRV-062 | Outbound webhook endpoints one organisation may configure. |

@@ -24,6 +24,7 @@ enum TelemetryCategory {
 /// The category of each catalogued event (ADR-0034 § Consent).
 const Map<String, TelemetryCategory> telemetryCategories = {
   'session_start': TelemetryCategory.necessary,
+  'control_applied': TelemetryCategory.necessary,
   'sync_result': TelemetryCategory.necessary,
   'error': TelemetryCategory.necessary,
   'rasp_detection': TelemetryCategory.necessary,
@@ -38,6 +39,7 @@ const Map<String, TelemetryCategory> telemetryCategories = {
   'custom': TelemetryCategory.analytics,
   'l10n_missing': TelemetryCategory.analytics,
   'experiment_exposure': TelemetryCategory.experiments,
+  'flag_evaluated': TelemetryCategory.experiments,
 };
 
 /// Words that mark a field name as sensitive; the server refuses such a

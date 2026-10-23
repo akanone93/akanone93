@@ -38,6 +38,7 @@ Commands:
   alias <name> <alias> <version>  Point an alias at a version
   versions <name>                 List the versions and their aliases
   logs <name>                     Show the retained logs of a function
+  triggers <command>              Schedule a function (cron) or open it to signed inbound webhooks
 
 Run 'plux fn <command> -h' for the flags of a command.
 `
@@ -47,7 +48,7 @@ func (e env) fn(args []string) int {
 	if len(args) > 0 {
 		sub := map[string]func([]string) int{
 			"new": e.fnNew, "build": e.fnBuild, "test": e.fnTest, "invoke": e.fnInvoke,
-			"deploy": e.fnDeploy, "promote": e.fnPromote, "alias": e.fnAlias, "versions": e.fnVersions, "logs": e.fnLogs,
+			"deploy": e.fnDeploy, "promote": e.fnPromote, "alias": e.fnAlias, "versions": e.fnVersions, "logs": e.fnLogs, "triggers": e.fnTriggers,
 		}
 		if f, ok := sub[args[0]]; ok {
 			return f(args[1:])
