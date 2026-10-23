@@ -278,7 +278,7 @@ func operationalStores() []Store {
 		},
 		{
 			Name: "break_glass_invocations", Description: "Emergency actions taken without prior approval, with the justification and the post-hoc review (GOV-024).",
-			Personal: []string{"invoked_by_id", "invoked_by", "reviewed_by_id", "reviewed_by"}, Retention: retentionAudit, Erase: EraseRetained,
+			Personal: []string{"invoked_by_id", "invoked_by", "invoked_by_user", "reviewed_by_id", "reviewed_by"}, Retention: retentionAudit, Erase: EraseRetained,
 			Note: "Kept as compliance evidence (GOV-026), like the audit log. People appear by identifier and display name, never an email address; the justification is free text written by the person who acted.",
 		},
 		{

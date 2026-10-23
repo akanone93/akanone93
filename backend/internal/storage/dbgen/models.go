@@ -313,6 +313,7 @@ type BreakGlassInvocation struct {
 	InvokedByKind  string
 	InvokedByID    string
 	InvokedBy      string
+	InvokedByUser  string
 	InvokedAt      pgtype.Timestamptz
 	ReviewDueAt    pgtype.Timestamptz
 	ReviewStatus   string

@@ -191,7 +191,7 @@ func (s *Service) insert(ctx context.Context, tx pgx.Tx, p auth.Principal, in In
 		ID: storage.MustUUID(id), OrganizationID: storage.MustUUID(p.OrganizationID), AppID: storage.MustUUID(in.AppID),
 		EnvironmentID: storage.MustUUID(in.EnvironmentID), EnvironmentKey: in.EnvironmentKey, Production: in.Production,
 		Action: string(in.Action), Subject: in.Subject, Justification: in.Justification,
-		InvokedByKind: actor.Kind, InvokedByID: actor.ID, InvokedBy: actor.Display, InvokedAt: storage.Timestamp(now), ReviewDueAt: storage.Timestamp(due),
+		InvokedByKind: actor.Kind, InvokedByID: actor.ID, InvokedBy: actor.Display, InvokedByUser: p.UserID, InvokedAt: storage.Timestamp(now), ReviewDueAt: storage.Timestamp(due),
 	})
 	if err != nil {
 		return dbgen.BreakGlassInvocation{}, fmt.Errorf("breakglass: store the invocation: %w", err)

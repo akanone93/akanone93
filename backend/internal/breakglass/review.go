@@ -53,7 +53,7 @@ func (s *Service) review(ctx context.Context, tx pgx.Tx, p auth.Principal, id pg
 	switch {
 	case row.ReviewStatus != StatusOpen:
 		return Record{}, plxerr.New(plxerr.PreconditionFailed, "the review of this break-glass action is already complete")
-	case p.UserID == "" || p.UserID == row.InvokedByID:
+	case p.UserID == "" || p.UserID == row.InvokedByUser || p.UserID == row.InvokedByID:
 		return Record{}, plxerr.New(plxerr.ApproverNotEligible, "the person who took a break-glass action cannot review it")
 	}
 	now := s.now()

@@ -26,6 +26,9 @@ CREATE TABLE break_glass_invocations (
     invoked_by_kind  text        NOT NULL,
     invoked_by_id    text        NOT NULL,
     invoked_by       text        NOT NULL,
+    -- The person who acted, also when through an access token, whose ID is
+    -- invoked_by_id: the four-eyes review compares people (GOV-024).
+    invoked_by_user  text        NOT NULL DEFAULT '',
     invoked_at       timestamptz NOT NULL,
     review_due_at    timestamptz NOT NULL,
     review_status    text        NOT NULL DEFAULT 'open',

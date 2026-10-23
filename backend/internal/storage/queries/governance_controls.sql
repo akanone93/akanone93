@@ -3,8 +3,8 @@
 
 -- name: InsertBreakGlass :one
 INSERT INTO break_glass_invocations (id, organization_id, app_id, environment_id, environment_key, production, action, subject,
-                                     justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_at, review_due_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                                     justification, invoked_by_kind, invoked_by_id, invoked_by, invoked_by_user, invoked_at, review_due_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 RETURNING *;
 
 -- name: GetBreakGlassForUpdate :one
