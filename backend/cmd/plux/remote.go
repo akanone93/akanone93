@@ -150,6 +150,7 @@ type clients struct {
 	fn       pluxv1connect.FunctionAdminServiceClient
 	search   pluxv1connect.SearchServiceClient
 	gitExp   pluxv1connect.GitExportServiceClient
+	dev      pluxv1connect.DevSessionServiceClient
 	http     *http.Client
 	server   string
 	token    string
@@ -177,6 +178,7 @@ func (e env) connect(c common, needToken bool) (*clients, error) {
 		fn:       pluxv1connect.NewFunctionAdminServiceClient(e.httpClient, c.server, opts),
 		search:   pluxv1connect.NewSearchServiceClient(e.httpClient, c.server, opts),
 		gitExp:   pluxv1connect.NewGitExportServiceClient(e.httpClient, c.server, opts),
+		dev:      pluxv1connect.NewDevSessionServiceClient(e.httpClient, c.server, opts),
 		http:     e.httpClient, server: c.server, token: token,
 	}, nil
 }
