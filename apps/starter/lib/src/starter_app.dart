@@ -21,6 +21,7 @@ final class StarterApp extends StatefulWidget {
     required this.config,
     required this.startup,
     required this.host,
+    this.devSession,
   });
 
   /// Where the app's content comes from.
@@ -31,6 +32,10 @@ final class StarterApp extends StatefulWidget {
 
   /// The host's side of Plux, which the runtime's configuration also has.
   final StarterHost host;
+
+  /// Pairs this debug build with a dev session (DEV-040); null in release
+  /// builds, where the overlay has no pairing tab.
+  final PluxDevSession? devSession;
 
   @override
   State<StarterApp> createState() => _StarterAppState();
@@ -53,7 +58,8 @@ final class _StarterAppState extends State<StarterApp> {
         brightness: Brightness.dark,
       ),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
-      builder: (context, child) => PluxDevtools(child: child!),
+      builder: (context, child) =>
+          PluxDevtools(session: widget.devSession, child: child!),
       home: HomeScreen(
         config: widget.config,
         startup: widget.startup,

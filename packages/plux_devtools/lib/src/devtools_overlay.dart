@@ -9,6 +9,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:plux_devtools/src/dev_session.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
 /// Wraps the host app with the Plux debug overlay. In release builds it is
@@ -25,6 +26,8 @@ final class PluxDevtools extends StatefulWidget {
     this.enabled = true,
     this.diagnostics,
     this.onSync,
+    this.session,
+    this.scan,
   });
 
   /// The host app.
@@ -39,11 +42,20 @@ final class PluxDevtools extends StatefulWidget {
   /// Runs a sync; `Plux.sync` when null.
   final Future<Object?> Function()? onSync;
 
+  /// The controller of this build's pairing with a dev session (DEV-040);
+  /// without it the overlay has no pairing tab.
+  final PluxDevSession? session;
+
+  /// Scans a pairing QR code and returns its text, or null when the user
+  /// cancelled. The host provides it (the Dev app passes `plux_scanner`);
+  /// without it the overlay offers the paste field alone.
+  final Future<String?> Function(BuildContext context)? scan;
+
   @override
   State<PluxDevtools> createState() => _PluxDevtoolsState();
 }
 
-enum _Tab { sync, release, log }
+enum _Tab { sync, release, log, session }
 
 final class _PluxDevtoolsState extends State<PluxDevtools> {
   bool _open = false;
@@ -77,6 +89,8 @@ final class _PluxDevtoolsState extends State<PluxDevtools> {
                 alignment: Alignment.bottomCenter,
                 child: _Panel(
                   diagnostics: d,
+                  session: widget.session,
+                  scan: widget.scan,
                   tab: _tab,
                   syncing: _syncing,
                   onTab: (t) => setState(() => _tab = t),
@@ -161,6 +175,8 @@ final class _Never implements Listenable {
 final class _Panel extends StatelessWidget {
   const _Panel({
     required this.diagnostics,
+    required this.session,
+    required this.scan,
     required this.tab,
     required this.syncing,
     required this.onTab,
@@ -169,6 +185,8 @@ final class _Panel extends StatelessWidget {
   });
 
   final PluxDiagnostics? diagnostics;
+  final PluxDevSession? session;
+  final Future<String?> Function(BuildContext context)? scan;
   final _Tab tab;
   final bool syncing;
   final ValueChanged<_Tab> onTab;
@@ -187,22 +205,25 @@ final class _Panel extends StatelessWidget {
             Row(
               children: [
                 for (final t in _Tab.values)
-                  TextButton(
-                    onPressed: () => onTab(t),
-                    child: Text(
-                      t.name,
-                      style: TextStyle(
-                        fontWeight: t == tab ? FontWeight.bold : null,
+                  if (t != _Tab.session || session != null)
+                    TextButton(
+                      onPressed: () => onTab(t),
+                      child: Text(
+                        t.name,
+                        style: TextStyle(
+                          fontWeight: t == tab ? FontWeight.bold : null,
+                        ),
                       ),
                     ),
-                  ),
                 const Spacer(),
                 TextButton(onPressed: onClose, child: const Text('close')),
               ],
             ),
             const Divider(height: 1),
             Expanded(
-              child: d == null
+              child: tab == _Tab.session && session != null
+                  ? _SessionTab(session!, scan: scan)
+                  : d == null
                   ? const Center(child: Text('Plux is not initialized'))
                   : switch (tab) {
                       _Tab.sync => _SyncTab(
@@ -212,11 +233,124 @@ final class _Panel extends StatelessWidget {
                       ),
                       _Tab.release => _ReleaseTab(d),
                       _Tab.log => _LogTab(d),
+                      _Tab.session => const SizedBox.shrink(),
                     },
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The pairing tab: the state of the dev session, a paste field and, when
+/// the host provides a scanner, a scan action.
+final class _SessionTab extends StatefulWidget {
+  const _SessionTab(this.session, {required this.scan});
+
+  final PluxDevSession session;
+  final Future<String?> Function(BuildContext context)? scan;
+
+  @override
+  State<_SessionTab> createState() => _SessionTabState();
+}
+
+final class _SessionTabState extends State<_SessionTab> {
+  final TextEditingController _link = TextEditingController();
+  final ValueNotifier<bool> _entering = ValueNotifier(false);
+  late final Listenable _changes = Listenable.merge([
+    widget.session.state,
+    _entering,
+  ]);
+
+  @override
+  void dispose() {
+    _entering.dispose();
+    _link.dispose();
+    super.dispose();
+  }
+
+  Future<void> _scan() async {
+    final text = await widget.scan!(context);
+    if (text == null || !mounted) return;
+    await widget.session.pair(text);
+  }
+
+  // The overlay sits above the app's navigator, so the text field needs an
+  // Overlay of its own.
+  @override
+  Widget build(BuildContext context) => Overlay(
+    initialEntries: [
+      OverlayEntry(
+        builder: (context) => ListenableBuilder(
+          listenable: _changes,
+          builder: (context, _) => _content(context),
+        ),
+      ),
+    ],
+  );
+
+  Widget _content(BuildContext context) {
+    final state = widget.session.state.value;
+    return ListView(
+      padding: const EdgeInsets.all(12),
+      children: [
+        Text(switch (state) {
+          PluxDevIdle() =>
+            widget.session.isAvailable
+                ? 'Not paired'
+                : 'Dev sessions are not part of this build',
+          PluxDevPairingNow() => 'Pairing…',
+          PluxDevPaired(:final sessionId, :final deviceId) =>
+            'Paired with session $sessionId as device $deviceId',
+          PluxDevError(:final code) => 'Pairing failed: $code',
+        }),
+        const SizedBox(height: 8),
+        if (state is PluxDevPaired)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilledButton(
+              onPressed: () => unawaited(widget.session.end()),
+              child: const Text('End dev session'),
+            ),
+          )
+        else if (widget.session.isAvailable && state is! PluxDevPairingNow) ...[
+          if (_entering.value) ...[
+            TextField(
+              controller: _link,
+              autocorrect: false,
+              enableSuggestions: false,
+              decoration: const InputDecoration(
+                labelText: 'Pairing link',
+                hintText: 'plux-dev://pair?…',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton(
+                onPressed: () => unawaited(widget.session.pair(_link.text)),
+                child: const Text('Pair'),
+              ),
+            ),
+          ] else
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton(
+                onPressed: () => _entering.value = true,
+                child: const Text('Pair with dev session'),
+              ),
+            ),
+          if (widget.scan != null)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                onPressed: () => unawaited(_scan()),
+                child: const Text('Scan QR code'),
+              ),
+            ),
+        ],
+      ],
     );
   }
 }

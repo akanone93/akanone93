@@ -17,6 +17,7 @@ import 'package:plux_starter/src/map_card.dart';
 /// | `PLUX_ROUTE` | the page the home screen shows | `welcome` |
 /// | `PLUX_HOST_BUILD` | the host build telemetry reports | `dev` |
 /// | `PLUX_ROOT_KEYS` | `keyId:hex` public keys, comma-separated; without them the baseline's `keys.json` | none |
+/// | `PLUX_DEV_ROOT_KEYS` | the environment's development keys, same form; pairing a debug build with a dev session needs them (DEV-040) | none |
 @immutable
 final class StarterConfig {
   /// Creates a configuration.
@@ -27,6 +28,7 @@ final class StarterConfig {
     this.route = 'welcome',
     this.hostBuild = 'dev',
     this.rootKeys = const [],
+    this.devRootKeys = const [],
   });
 
   /// Reads the configuration the app was built with.
@@ -37,6 +39,7 @@ final class StarterConfig {
     'PLUX_ROUTE': String.fromEnvironment('PLUX_ROUTE'),
     'PLUX_HOST_BUILD': String.fromEnvironment('PLUX_HOST_BUILD'),
     'PLUX_ROOT_KEYS': String.fromEnvironment('PLUX_ROOT_KEYS'),
+    'PLUX_DEV_ROOT_KEYS': String.fromEnvironment('PLUX_DEV_ROOT_KEYS'),
   });
 
   /// Reads a configuration from [defines]; an empty value takes the
@@ -70,6 +73,10 @@ final class StarterConfig {
       hostBuild: get('PLUX_HOST_BUILD', 'dev'),
       rootKeys: [
         for (final k in get('PLUX_ROOT_KEYS', '').split(','))
+          if (k.trim().isNotEmpty) _key(k.trim()),
+      ],
+      devRootKeys: [
+        for (final k in get('PLUX_DEV_ROOT_KEYS', '').split(','))
           if (k.trim().isNotEmpty) _key(k.trim()),
       ],
     );
@@ -114,6 +121,10 @@ final class StarterConfig {
 
   /// Embedded root keys; empty to read the baseline's `keys.json`.
   final List<PluxPublicKey> rootKeys;
+
+  /// The development keys of the environment, which verify dev bundles when
+  /// a debug build is paired with a dev session; never the production roots.
+  final List<PluxPublicKey> devRootKeys;
 
   /// The runtime's configuration: this app, its environment and channel,
   /// the host's theme under Plux pages (HST-012), the host's map card as

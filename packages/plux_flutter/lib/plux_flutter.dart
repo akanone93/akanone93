@@ -70,6 +70,7 @@ export 'src/devtools_api/dev_channel.dart'
         DevEngineStarter,
         DevPairingLink,
         DevSocketAuth;
+export 'src/devtools_api/dev_pairing.dart' show PluxDevPairing;
 export 'src/devtools_api/dev_session.dart'
     show
         DevApplyResult,
