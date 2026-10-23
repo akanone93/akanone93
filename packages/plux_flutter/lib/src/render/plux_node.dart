@@ -32,6 +32,10 @@ import 'package:plux_flutter/src/data/services.dart' show DataRoot, DataScope;
 import 'package:plux_flutter/src/db/row_identity.dart';
 import 'package:plux_flutter/src/device/types.dart'
     show PluxMediaPicker, PluxPickedFile;
+import 'package:plux_flutter/src/devtools_api/dev_inspect.dart';
+import 'package:plux_flutter/src/devtools_api/dev_nodes.dart';
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show kPluxDevtools;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/form_state.dart' show FormController;
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
@@ -98,6 +102,34 @@ final class PluxNode extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final built = _buildPlain(context, ref);
+    if (!kPluxDevtools) return built;
+    final host = DevNodeScope.maybeOf(context);
+    if (host == null) return built;
+    final scope = RenderScope.of(context);
+    final node = scope.section.node(index);
+    final path = nodePath(scope, index);
+    host.built(path);
+    if (node.widget != 0 && _unwrapped.contains(node.widget)) return built;
+    return DevNodeMarker(
+      host: host,
+      info: DevNodeInfo(
+        section: devSectionId(scope.section.section.id),
+        index: index,
+        path: path,
+        widget:
+            [
+              for (final d in widgetDescriptors)
+                if (d.id == node.widget) d.type,
+            ].firstOrNull ??
+            '',
+        interactive: minTargetWidgets.contains(node.widget),
+      ),
+      child: built,
+    );
+  }
+
+  Widget _buildPlain(BuildContext context, WidgetRef ref) {
     final scope = RenderScope.of(context);
     final motion = NodeMotion.of(scope.section.node(index), scope.animations);
     if (motion != null) {
