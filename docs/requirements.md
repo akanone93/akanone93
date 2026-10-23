@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.8.0
+**Version:** 1.9.0
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-21
+**Date:** 2026-10-22
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -487,7 +487,7 @@ internal/
   audit/        hash-chained audit log, SIEM export
   l10n/         translation keys, workflow, import/export
   telemetry/    ingestion, aggregation, dashboards queries
-  devsession/   pairing, live relay between Studio and devices
+  devsession/   pairing, live relay between Studio, the CLI and devices
   ai/           provider adapters, structured output, repair loop
   payment/      provider interface and adapters (P13)
   signing/      KMS/HSM/Vault abstraction, TUF metadata
@@ -846,7 +846,7 @@ sequenceDiagram
 | `SYN-011` | P3 | MUST | After patching, every section and bundle hash **MUST** match the manifest; on mismatch the runtime **MUST** discard the result and download the full bundle once before failing the sync. | DONE |
 | `SYN-012` | P3 | MUST | The runtime **MUST** garbage-collect releases other than active, staged and last known good, enforce the device disk quota of the limits framework (§30.4), and handle low-storage conditions without corrupting the active release. | DONE |
 | `SYN-013` | P3 | MUST | The runtime **MUST** publish typed sync events (`checking`, `upToDate`, `downloading(progress)`, `staged`, `activated`, `failed(error)`, `rolledBack`) on `Plux.syncEvents`. | DONE |
-| `SYN-014` | P3 | SHOULD | The runtime **SHOULD** offer opt-in background sync (Android WorkManager, iOS BGTaskScheduler) so updates are staged before the next app start. | SPEC |
+| `SYN-014` | P10 | SHOULD | The runtime **SHOULD** offer opt-in background sync (Android WorkManager, iOS BGTaskScheduler) so updates are staged before the next app start. Deferred from P3 to P10 with the other host tooling (P3 closing decisions; P10 plan D-9); the background task verifies and stages a release and never activates it (ADR-0092). | SPEC |
 | `SYN-015` | P3 | MUST | Sync **MUST** emit telemetry: duration, bytes transferred, delta ratio, number of plugins updated, failures by reason (`ANL-001`). | DONE |
 | `SYN-060` | P9 | MUST | The runtime **MUST** check a lightweight signed **control document** (kill switches, forced rollback, mandatory update) on app resume and at most every 5 minutes while in foreground, and **SHOULD** accept silent push notifications (FCM/APNs) that trigger an immediate check. Target propagation for online devices: ≤ 60 s p95. | DONE |
 
@@ -1573,39 +1573,49 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 
 ## 20. Plux Dev App and Live Debugging
 
-There is **no play mode in Studio**. Everything interactive runs on a real phone: the **Plux Dev app** (or the developer's own host app with `plux_devtools`) pairs with Studio and streams everything back into Studio's bottom drawer.
+There is **no play mode in Studio**. Everything interactive runs on a real phone: the **Plux Dev app** (or the developer's own host app with `plux_devtools`) pairs with a dev session and streams everything back — into Studio's bottom drawer from P11, and until then into the terminal through the CLI (`plux dev`), which creates the session, pushes each saved change and reads the stream as Studio's stand-in.
 
 ```mermaid
 sequenceDiagram
-    participant S as Studio
+    participant C as Studio (P11) or plux dev (CLI)
     participant A as api (devsession relay)
     participant W as worker (incremental compile)
     participant D as Plux Dev app
-    S->>A: create dev session (app, env=development)
-    A-->>S: pairing QR (signed token, TTL 2 min)
-    D->>A: scan QR → pair (DPoP, dev attestation)
-    S->>A: document patch
+    C->>A: create dev session (app, env=development)
+    A-->>C: pairing QR (signed token, TTL 2 min)
+    D->>A: scan QR → pair (unary RPC, DPoP, dev attestation)
+    A-->>D: socket ticket (short-lived, bound to the device key)
+    D->>A: open WebSocket (ticket)
+    C->>A: document patch
     A->>W: compile changed pages
     W-->>A: dev bundle sections
-    A-->>D: push sections (WebSocket)
+    A-->>D: sign (development key) and push sections (WebSocket)
     D->>D: hot-apply, keep state where compatible
     D-->>A: logs, action traces, state diffs, network, perf, errors
-    A-->>S: stream to bottom drawer tabs
+    A-->>C: stream (Studio drawer tabs, or CLI)
 ```
+
+**Transport (ADR-0087).** The device channel is a WebSocket: the server serves it with `github.com/coder/websocket`, the runtime uses its existing `dart:io` WebSocket transport. Events travel as binary frames, one protobuf message per frame, each with a session sequence number, so a reconnecting device or client resumes where it stopped (`DEV-021`). Every command and query — create a session, pair, push a patch, send a command, list devices, end a session, export a trace — is a unary ConnectRPC call, and the CLI reads the stream through a server-streaming call. ConnectRPC bidirectional streaming is not used: the runtime's HTTP clients and the browser's `fetch` cannot stream both ways on one request.
+
+**Device authentication.** A socket authenticates once, at the upgrade. The device therefore first pairs over unary ConnectRPC under DPoP (`SEC-021`); the reply carries a short-lived socket ticket, bound to the session and to the thumbprint of the device's DPoP key, which the device presents once at the upgrade. The socket closes when the session ends, the ticket expires or the device is revoked.
+
+**Trust (ADR-0087).** Dev bundles are mini releases — a manifest and its sections — signed with the development targets key (`DEV-003`). The Dev app and debug host builds pin development root keys, verify every dev bundle before loading it (`SEC-052`) and apply it to a session overlay over the active release, which never writes the production store, uses its own sequence space and is discarded when the session ends. The dev manifest carries an additive `development_session` field that release manifests never carry and release runtimes refuse (`SEC-056`).
+
+**Permissions.** Starting a session, pushing patches and sending commands need `devsession.create` (Developer and above); reading the stream needs `devsession.observe`. Step-up (`SEC-103`) is required for creating a session only when the organisation's policy requires it for the environment (ADR-0075, Revision); this is core, not edition-gated (`GOV-032`). A session exists only for an environment that is not production and that the installation enables for dev sessions (Appendix H).
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `DEV-001` | P10 | MUST | The Plux Dev app **MUST** be a Flutter host app built on `plux_flutter` and `plux_devtools`, installable on Android and iOS, including every first-party optional package so that any plugin can be previewed. | SPEC |
-| `DEV-002` | P10 | MUST | Pairing **MUST** use a QR code containing a short-lived (≤ 2 min), single-use, signed pairing token bound to the Studio user, app and development environment; several devices **MAY** be paired to one session. | SPEC |
+| `DEV-001` | P10 | MUST | The Plux Dev app **MUST** be a Flutter host app built on `plux_flutter` and `plux_devtools`, installable on Android and iOS, including every first-party optional package so that any plugin can be previewed. `plux_security` **MUST** run in the Dev app in a report-only development mode: its detections appear in the dev stream and a dev command can simulate one, so plugin authors can test how secure pages and strong-customer-authentication steps react, but a detection does not lower the assurance level, and this mode exists only for development environments (ADR-0091). | SPEC |
+| `DEV-002` | P10 | MUST | Pairing **MUST** use a QR code containing a short-lived (≤ 2 min), single-use, signed pairing token bound to the user who creates the session (in Studio or with the CLI), the app and the development environment; several devices **MAY** be paired to one session. | SPEC |
 | `DEV-003` | P10 | MUST | Dev sessions **MUST** be possible only for non-production environments, and dev bundles **MUST** be signed with development keys that production runtimes reject (`SEC-056`). | SPEC |
-| `DEV-010` | P10 | MUST | Draft edits **MUST** reach paired devices within 500 ms p95 from Studio autosave on a normal broadband/Wi-Fi connection, via incremental compilation (`CMP-051`), and **MUST** be hot-applied while preserving page state where the state schema is compatible. | SPEC |
-| `DEV-011` | P10 | MUST | Studio **MUST** be able to open any screen on a chosen paired device with chosen parameters, locale, theme, text scale and data-source mock state. | SPEC |
+| `DEV-010` | P10 | MUST | Draft edits **MUST** reach paired devices within 500 ms p95 from the edit being saved (Studio's autosave, or a file save in `plux dev`) on a normal broadband/Wi-Fi connection, via incremental compilation (`CMP-051`), and **MUST** be hot-applied while preserving page state where the state schema is compatible. P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile (`NFR-030`); Studio's autosave joins the measurement in P11. | SPEC |
+| `DEV-011` | P10 | MUST | A paired client — the CLI in P10 — **MUST** be able to open any screen on a chosen paired device with chosen parameters, locale (including the pseudo-locale), theme, text scale and data-source mock state. The device carries out the command and reports the result in the stream. | SPEC |
 | `DEV-020` | P10 | MUST | Devices **MUST** stream to Studio: runtime logs; **action traces as a process flow** (every run, step, branch, timing, redacted inputs and outputs, errors); state changes; network calls (method, URL, status, timing, redacted headers and bodies); function calls with the server-side function logs merged by trace ID; sync events; frame timings; errors with node paths. | SPEC |
 | `DEV-021` | P10 | MUST | The stream **MUST** be filterable, searchable, pausable and exportable (a shareable trace file for bug reports), and **MUST** keep working over flaky networks with bounded buffering. | SPEC |
-| `DEV-030` | P10 | MUST | **Inspect mode** **MUST** let a developer tap any widget on the device to select the corresponding node in Studio, and selecting a node in Studio **MUST** highlight it on the device. | SPEC |
-| `DEV-031` | P10 | MUST | Developers **MUST** be able to edit state values, switch data-source mocks and states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock, and trigger lifecycle events from Studio. | SPEC |
-| `DEV-032` | P10 | SHOULD | Studio **SHOULD** offer a PXL console that evaluates expressions against the live state of a paired device. | SPEC |
-| `DEV-033` | P10 | SHOULD | Device screenshots **SHOULD** be capturable into Studio (for app and plugin card thumbnails, native slot previews on the canvas (`WGT-031`), translation context and documentation). | SPEC |
+| `DEV-030` | P10 | MUST | **Inspect mode** **MUST** let a developer tap any widget on the device and receive the corresponding node, identified by node index and document path, in the stream; a command from a paired client **MUST** highlight a chosen node on the device. | SPEC |
+| `DEV-031` | P10 | MUST | A paired client **MUST** be able to edit state values, switch data-source mocks and their states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock, and trigger lifecycle events on a paired device. | SPEC |
+| `DEV-032` | P10 | SHOULD | A paired client **SHOULD** be able to evaluate a PXL expression against the live state of a paired device, read-only by default. | SPEC |
+| `DEV-033` | P10 | SHOULD | A paired client **SHOULD** be able to capture a screenshot of the current page of a paired device; platform views are marked as not captured. | SPEC |
 | `DEV-034` | P10 | MUST | Performance and accessibility overlays (frame chart, rebuild counters, touch-target and contrast highlights) **MUST** be toggleable on the device. | SPEC |
 | `DEV-040` | P10 | MUST | Developers **MUST** be able to pair their own host app in debug builds with `plux_devtools`, with the same capabilities as the Dev app. | SPEC |
 | `DEV-041` | P10 | MUST | A terminal viewer (`plux dev logs`) **MUST** stream the same data for developers who are not using Studio. | SPEC |
@@ -1791,6 +1801,18 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 | `STU-121` | P11 | MUST | A property change **MUST** be reflected on the canvas within 50 ms p95. | SPEC |
 | `STU-122` | P11 | MUST | Studio's initial load **MUST** reach Largest Contentful Paint in ≤ 2.5 s on a typical broadband connection; the initial JavaScript **MUST** stay under 1.5 MiB compressed, with editors, the canvas and overlays code-split and loaded on demand. | SPEC |
 | `STU-123` | P11 | MUST | Opening a full-screen overlay **MUST** take ≤ 150 ms after its code is loaded. | SPEC |
+
+### 21.13 Live debugging in Studio
+
+Studio's side of the live debugging of §20. The device, server and CLI capability of each row is a P10 row (`DEV-`); the Studio interaction is a P11 row, split by ADR-0088.
+
+| ID | Phase | Priority | Requirement | Status |
+|---|---|---|---|---|
+| `STU-130` | P11 | MUST | Studio **MUST** open any screen on a chosen paired device from the screen editor, with the parameters, locale, theme, text scale and data-source mock state chosen in the action bar (`STU-060`, `DEV-011`). | SPEC |
+| `STU-131` | P11 | MUST | Inspect mode **MUST** work in both directions in Studio: tapping a widget on the device selects the corresponding node in Studio, and selecting a node in Studio highlights it on the device (`DEV-030`). | SPEC |
+| `STU-132` | P11 | MUST | Studio **MUST** let a developer edit state values, switch data-source mocks and their states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock and trigger lifecycle events on a paired device from the bottom drawer (`STU-066`, `DEV-031`). | SPEC |
+| `STU-133` | P11 | SHOULD | Studio **SHOULD** offer a PXL console in the bottom drawer that evaluates expressions against the live state of a paired device (`DEV-032`). | SPEC |
+| `STU-134` | P11 | SHOULD | Studio **SHOULD** capture device screenshots into app and plugin card thumbnails, native slot previews on the canvas (`WGT-031`), translation context and documentation (`DEV-033`). | SPEC |
 
 ---
 
@@ -2015,7 +2037,7 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `NFR-023` | P9 | MUST | Scale of one HA installation (with CDN) | ≥ 1,000,000 active devices, ≥ 100 apps | DONE |
 | `NFR-024` | P9 | MUST | Kill-switch / control propagation | ≤ 60 s p95 for online devices | DONE |
 | `NFR-025` | P6 | MUST | Gateway overhead and device-request verification at the server | gateway ≤ 5 ms p95 added per request, excluding the upstream's time, at 1,000 req/s per `api` replica (`SEC-031`); DPoP and access-token verification ≤ 1 ms p95 (`SEC-022`) | WIP |
-| `NFR-030` | P10 | MUST | Edit → paired device | ≤ 500 ms p95 (`DEV-010`) | SPEC |
+| `NFR-030` | P10 | MUST | Edit → paired device | ≤ 500 ms p95 (`DEV-010`). P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile, and reports the server part separately; Studio's autosave joins the measurement in P11 | SPEC |
 | `NFR-031` | P11 | MUST | Studio canvas frame rate | 60 fps with 100 screens / 200 plugins (`STU-120`) | SPEC |
 | `NFR-032` | P11 | MUST | Studio property change → canvas | ≤ 50 ms p95 (`STU-121`) | SPEC |
 | `NFR-033` | P1 | MUST | Incremental validation of one page | ≤ 50 ms p95 (`SCH-042`) | DONE |
@@ -2716,13 +2738,13 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 |---|---|---|
 | `PLX-1000`–`1999` | Schema and validation | `PLX-1001` unknown property · `PLX-1102` unresolved reference · `PLX-1203` route parameter missing at navigate · `PLX-1310` page exceeds node budget · `PLX-1401` interactive node without accessible name · `PLX-1500` secret-like value detected · `PLX-1700`–`1749` policies, experiments, flags, segments and `Variant` |
 | `PLX-2000`–`2999` | Compiler and PXL | `PLX-2001` PXL syntax error · `PLX-2002` PXL type mismatch · `PLX-2010` operation budget exceeded at compile-time evaluation · `PLX-2100` asset transcoding failed · `PLX-2300`–`2349` variants and winner promotion |
-| `PLX-3000`–`3999` | Release and sync | `PLX-3001` manifest signature invalid · `PLX-3002` manifest expired · `PLX-3003` rollback attempt rejected · `PLX-3010` unsupported required feature · `PLX-3011` hash mismatch after patch · `PLX-3020` automatic revert to last known good · `PLX-3030` disk quota exceeded · `PLX-3100`–`3149` control document (`PLX-3100` control signature invalid, `PLX-3103` mandatory update pending) · `PLX-3150`–`3199` rollouts and targeting (`PLX-3150` rollout paused by health gate) |
+| `PLX-3000`–`3999` | Release and sync | `PLX-3001` manifest signature invalid · `PLX-3002` manifest expired · `PLX-3003` rollback attempt rejected · `PLX-3010` unsupported required feature · `PLX-3011` hash mismatch after patch · `PLX-3020` automatic revert to last known good · `PLX-3030` disk quota exceeded · `PLX-3100`–`3149` control document (`PLX-3100` control signature invalid, `PLX-3103` mandatory update pending) · `PLX-3150`–`3199` rollouts and targeting (`PLX-3150` rollout paused by health gate) · `PLX-3500`–`3509` background sync (`PLX-3500` background sync failed · `PLX-3501` background sync not configured · `PLX-3502` constraints unmet · `PLX-3503` staged release verification failed) |
 | `PLX-4000`–`4999` | Runtime rendering and navigation | `PLX-4001` build error in node · `PLX-4003` unknown widget type · `PLX-4100` unknown route · `PLX-4101` invalid route parameters · `PLX-4102` navigation refused by a guard · `PLX-4103` deep link not mapped · `PLX-4200` native route not registered · `PLX-4201` native slot not registered · `PLX-4202` custom action not registered · `PLX-4203` exposed state written with the wrong type |
 | `PLX-5000`–`5999` | Actions, data and local DB | `PLX-5001` action timeout · `PLX-5002` step limit exceeded · `PLX-5100` request to undeclared domain blocked · `PLX-5200` DB migration failed · `PLX-5300` outbox replay conflict |
 | `PLX-6000`–`6999` | Security | `PLX-6001` attestation failed · `PLX-6002` assurance level insufficient · `PLX-6003` key not hardware-backed · `PLX-6004` development provider in production · `PLX-6006` device revoked · `PLX-6010` DPoP proof invalid · `PLX-6011` DPoP replay detected · `PLX-6012` DPoP nonce required · `PLX-6013` token binding mismatch · `PLX-6015` replay cache unavailable · `PLX-6020` certificate pin mismatch · `PLX-6040` security configuration hash mismatch · `PLX-6041` setting loosens the profile · `PLX-6050` confidential bundle key unavailable · `PLX-6060`–`6064` gateway refusals · `PLX-6070`–`6073` SCA failures · `PLX-6080` fraud receipt unavailable · `PLX-6081` imported key invalid · `PLX-6100` RASP detection · `PLX-6200`–`6249` step-up, federation and sessions (`PLX-6200` step-up required, `PLX-6230` session revoked) |
 | `PLX-7000`–`7999` | Functions | `PLX-7001` timeout · `PLX-7002` memory limit exceeded · `PLX-7003` capability denied · `PLX-7004` output too large · `PLX-7005` call depth exceeded · `PLX-7010` egress refused · `PLX-7011` idempotency key conflict · `PLX-7014` device functions disabled · `PLX-7100` business error (carries function-defined code) · `PLX-7200` build failed · `PLX-7202` build script refused `PLX-7150`–`7199` function triggers (`PLX-7150` cron expression invalid) · further codes in the registry, ADR-0018 |
 | `PLX-8000`–`8999` | Governance | `PLX-8001` approval required · `PLX-8002` approval invalidated by content change · `PLX-8003` approver not eligible · `PLX-8004` approval expired · `PLX-8005` break-glass justification required · `PLX-8006` post-hoc review overdue · `PLX-8010` change freeze active · `PLX-8020` editing lock held by another user · `PLX-8030` permission denied · `PLX-8100`–`8149` roles, scoping and restriction policies · `PLX-8200`–`8249` experiments and flags (admin) · `PLX-8300`–`8349` analytics, telemetry and retention · `PLX-8400`–`8449` notifications and webhooks · `PLX-8500`–`8549` audit export, data-subject requests, reconstruction and Git export · `PLX-8600`–`8649` licence and edition |
-| `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9300` golden harness failed · `PLX-9200` dev session expired |
+| `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9200`–`9229` dev sessions and pairing, server and CLI (`PLX-9200` session expired · `PLX-9201` pairing token expired · `PLX-9202` pairing token already used · `PLX-9203` environment not allowed for dev sessions · `PLX-9204` device not paired · `PLX-9205` socket ticket invalid · `PLX-9206` command not allowed · `PLX-9207` patch rejected by the compiler · `PLX-9208` session device limit reached · `PLX-9209` event too large) · `PLX-9230`–`9249` device-side devtools (`PLX-9230` dev bundle signature invalid · `PLX-9231` hot apply refused, incompatible state reset · `PLX-9232` command unsupported by this runtime · `PLX-9233` trace file unreadable) · `PLX-9300` golden harness failed |
 
 ---
 
@@ -2882,6 +2904,14 @@ builder:                             # compiles Rust sources to WebAssembly (FN-
   concurrency: 1
   workDir: ""
   identity: ""                       # empty: the host name, recorded in provenance (FN-005)
+# The dev-session relay of the api role (§20, ADR-0087). The lifetime of a pairing token, devices
+# per session, session lifetime and idle time, commands per minute, patch size and the relay's
+# per-device buffers are the limits devSession.* and devtools.* (§30.4).
+devSession:
+  enabledEnvironments: ["development"]  # environment keys that may host a dev session; a production environment is refused whatever is listed (DEV-003)
+  idleTimeout: "120s"                # a socket that carries no frame, pings included, for this long is closed
+  pingInterval: "30s"
+  # The Helm chart's ingress for the api role allows the WebSocket upgrade and keeps an idle upgraded connection open at least as long as idleTimeout (DEP-003)
 ai:
   enabled: true
   provider: "ollama"
@@ -2928,6 +2958,7 @@ retention:
 | `themeMode` | `ThemeMode` | host | `THM-002` |
 | `locale` | `Locale?` | host | `I18N-005` |
 | `consent` | `PluxConsent` | necessary only | `SEC-161` |
+| `backgroundSync` | `bool` | `false` | Opt-in background sync that stages a verified release and never activates it (`SYN-014`, ADR-0092); the interval is the limit `sync.backgroundIntervalMinutes` |
 | `pins` | `List<String>` | – (at least two required from P6) | SPKI SHA-256 pins of the Plux server, one a backup key; later updated only through signed metadata (`SEC-041`) |
 | `onError` | callback | – | Host error hook |
 
@@ -3038,21 +3069,21 @@ Studio, the documentation site and the reference apps use these tokens (`STU-016
 
 | Area | Count | Area | Count | Area | Count |
 |---|---|---|---|---|---|
-| `SCH` | 23 | `WGT` | 16 | `CMP` | 19 |
-| `BND` | 19 | `REL` | 25 | `SYN` | 15 |
-| `SRV` | 29 | `RT` | 16 | `NAV` | 12 |
+| `SCH` | 22 | `WGT` | 16 | `CMP` | 19 |
+| `BND` | 18 | `REL` | 25 | `SYN` | 15 |
+| `SRV` | 28 | `RT` | 16 | `NAV` | 12 |
 | `HST` | 12 | `ACT` | 13 | `PXL` | 8 |
-| `STA` | 8 | `DAT` | 11 | `DB` | 9 |
+| `STA` | 8 | `DAT` | 19 | `DB` | 9 |
 | `ANI` | 8 | `THM` | 5 | `AST` | 3 |
 | `SEC` | 73 | `FN` | 40 | `I18N` | 13 |
-| `A11Y` | 8 | `GOV` | 19 | `ABT` | 7 |
+| `A11Y` | 8 | `GOV` | 21 | `ABT` | 7 |
 | `OBS` | 5 | `ANL` | 9 | `DEV` | 15 |
-| `STU` | 83 | `CLI` | 8 | `TST` | 5 |
-| `DX` | 6 | `GEN` | 6 | `AI` | 16 |
+| `STU` | 88 | `CLI` | 8 | `TST` | 5 |
+| `DX` | 5 | `GEN` | 6 | `AI` | 16 |
 | `PAY` | 8 | `COL` | 6 | `SAAS` | 7 |
-| `DEP` | 12 | `QA` | 15 | `CI` | 9 |
+| `DEP` | 11 | `QA` | 15 | `CI` | 9 |
 | `NFR` | 25 | `LIM` | 6 |  |  |
-| | | | | **Total** | **645** |
+| | | | | **Total** | **662** |
 
 Six requirements are `WITHDRAWN` (`RT-050`, `RT-051`, `SAAS-004`, `SAAS-009`, `DX-005`, `DEP-060`) and are kept for traceability.
 
@@ -3061,22 +3092,23 @@ Six requirements are `WITHDRAWN` (`RT-050`, `RT-051`, `SAAS-004`, `SAAS-009`, `D
 | Phase | Theme | MUST | SHOULD | MAY | Total |
 |---|---|---|---|---|---|
 | P0 | Foundations | 14 | 1 | 0 | 15 |
-| P1 | Schema and compiler | 72 | 1 | 0 | 73 |
-| P2 | Backend core | 85 | 2 | 0 | 87 |
-| P3 | Runtime rendering | 67 | 2 | 0 | 69 |
+| P1 | Schema and compiler | 71 | 1 | 0 | 72 |
+| P2 | Backend core | 84 | 2 | 0 | 86 |
+| P3 | Runtime rendering | 66 | 1 | 0 | 67 |
 | P4 | Routing, host integration and no-code generation | 29 | 0 | 0 | 29 |
-| P5 | Actions, state, data, DB, animation | 55 | 4 | 0 | 59 |
-| P6 | Security hardening | 51 | 2 | 0 | 53 |
+| P5 | Actions, state, data, DB, animation | 55 | 3 | 0 | 58 |
+| P6 | Security hardening | 59 | 2 | 0 | 61 |
 | P7 | Plux Functions | 35 | 0 | 1 | 36 |
 | P8 | Localisation and accessibility | 21 | 1 | 0 | 22 |
-| P9 | Enterprise and operations | 53 | 4 | 1 | 58 |
-| P10 | Dev app and debugging | 18 | 2 | 0 | 20 |
-| P11 | Studio | 90 | 2 | 0 | 92 |
-| P12 | AI generation | 13 | 4 | 0 | 17 |
+| P9 | Enterprise and operations | 53 | 4 | 0 | 57 |
+| P10 | Dev app and debugging | 18 | 3 | 0 | 21 |
+| P11 | Studio | 93 | 4 | 0 | 97 |
+| P12 | AI generation | 14 | 4 | 0 | 18 |
 | P13 | Payments | 8 | 0 | 0 | 8 |
 | P14 | Collaboration | 4 | 2 | 0 | 6 |
 | P15 | Multi-tenant operation | 6 | 1 | 1 | 8 |
-| | **Total** | **621** | **28** | **3** | **652** |
+| P16 | Super-app and partner mini-apps | 1 | 0 | 0 | 1 |
+| | **Total** | **631** | **29** | **2** | **662** |
 
 > **Note.** These tables are indicative; the authoritative counts are those produced by the traceability report (`QA-070`), which supersedes any hand-maintained figure here.
 
@@ -3089,10 +3121,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.8.0 |
+| Version | 1.9.0 |
 | Status | Draft (living document) |
-| Date | 2026-10-21 |
-| Supersedes | 1.7.0 |
+| Date | 2026-10-22 |
+| Supersedes | 1.8.0 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3126,3 +3158,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.6.1 | 2026-10-18 | Size split (maintainer, 2026-10-18; ADR-0071 Revision): the P8 catch-up grew `plux_flutter` past the `RT-061` budgets, so `RT-060` adds the optional package `plux_components`, which builds the Layer 2 components most apps do not use and sixteen Layer 1 widgets that pull large parts of the Flutter framework into a build; Appendix C names the package for each of them, and its Layer 1 note lists the sixteen. No requirement text other than `RT-060`'s package list changes. |
 | 1.7.0 | 2026-10-18 | P9 plan decisions (maintainer, 2026-10-18; P9 plan §2.1; ADR-0072): §5 adds Phase P16 "Super-app and partner mini-apps" (M4, after P15), and `HST-020` moves to it; `SEC-191` moves to P12 (before Plux 1.0); `DX-005` and `DEP-060` are `WITHDRAWN`. §15.12 names the settings `publishApprovals`, `requiredTests` and `experimentApproval`; §18.2 states the default approval policy per security profile and the 24 h break-glass review default; Appendix F lists the new P9 ranges; Appendix G.2 adds `fatal_error`, `flag_evaluated` and `control_applied` and states the consent category of the session, health, exposure and control events. |
 | 1.8.0 | 2026-10-21 | Restriction policies (maintainer, 2026-10-21; ADR-0086): new `GOV-006` (restrictions as ceilings over grants, deny wins, last-owner guard, row-level security for app-wide restrictions) and `GOV-007` (effective permissions, change notices, explain and simulate); `GOV-002` adds the area → feature → action grouping of the permission catalogue. |
+| 1.9.0 | 2026-10-22 | P10 plan decisions (maintainer, 2026-10-22; P10 plan §2.1 D-1 to D-11; ADR-0087 to ADR-0093): the Studio-written rows are split (D-3, ADR-0088) — `DEV-002` binds the pairing token to "the user who creates the session", and `DEV-011`, `DEV-030`, `DEV-031`, `DEV-032` and `DEV-033` state the device, server and CLI capability (P10), each with a new P11 row for the Studio interaction (`STU-130`–`STU-134`, new §21.13); `DEV-010` and `DEV-021` stay whole as properties of the channel. `DEV-010` and `NFR-030` give the P10 measurement method — from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile — and Studio's autosave joins in P11 (D-4). `DEV-001` runs `plux_security` report-only in development environments, with simulated detections (D-8, ADR-0091, ADR-0057 Revision). §20 states the transport: a WebSocket device channel served with `github.com/coder/websocket`, unary ConnectRPC for every command, a DPoP-bound short-lived socket ticket, development-signed dev bundles verified against pinned development roots, the CLI as a second client in the sequence diagram, the permissions `devsession.create` and `devsession.observe`, and step-up only when the organisation's policy requires it (D-1, D-2, D-5; ADR-0087, ADR-0075 Revision). `SYN-014` is re-tagged from P3 to P10 with its deferral recorded (D-9, ADR-0092). Appendix F lists `PLX-9200`–`9209`, `PLX-9230`–`9233` and `PLX-3500`–`3503`; Appendix H adds the `devSession` configuration and `PluxConfig.backgroundSync`; Appendix K is recounted from the requirement tables after the split and the re-tag, which also corrects figures that had fallen behind the tables and adds Phase P16. §6.3 names the CLI as a client of `devsession/`. No `Status` cell changes. |
