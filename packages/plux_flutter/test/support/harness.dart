@@ -16,6 +16,7 @@ import 'package:plux_flutter/src/secure/secure_ui.dart';
 import 'package:plux_flutter/src/state/providers.dart';
 import 'package:plux_flutter/src/sync/background_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
+import 'package:plux_flutter/src/sync/sync_lock.dart';
 
 import '../sync/fake_device.dart';
 import '../sync/fake_server.dart';
@@ -117,6 +118,7 @@ final class Harness {
         backgroundSync: backgroundSync,
       ),
       RuntimeOverrides(
+        syncLock: InMemorySyncLock(),
         credentials: MemoryCredentialStore.new,
         deviceKeys: FakeDeviceKeys.new,
         attestation: FakeAttestation.new,

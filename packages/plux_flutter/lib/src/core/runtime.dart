@@ -1736,8 +1736,11 @@ final class PluxRuntime with WidgetsBindingObserver {
     final forward = _events.stream.listen(progress.add);
     Future<SyncResult> run() async {
       try {
+        // The context is read when the sync is asked for, not after the
+        // lock is held: by then the host may have moved on.
+        final context = _syncContext();
         final r = await _syncLock.guard(
-          () => _worker.sync(_emit, context: _syncContext()),
+          () => _worker.sync(_emit, context: context),
         );
         if (r.settings != null) settings.value = r.settings!;
         if (r.assurance != null) {

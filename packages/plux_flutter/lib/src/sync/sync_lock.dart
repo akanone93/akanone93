@@ -11,6 +11,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:plux_flutter/src/platform/runtime_channel.dart';
 
@@ -37,7 +38,9 @@ final class ChannelSyncLock implements SyncLock {
   @override
   Future<bool> tryAcquire() async {
     try {
-      return await _channel.invokeMethod<bool>('syncLock.tryAcquire') ?? false;
+      // A platform side that answers nothing has no lock to take, like one
+      // without the plugin: the native lock always answers true or false.
+      return await _channel.invokeMethod<bool>('syncLock.tryAcquire') ?? true;
     } on MissingPluginException {
       return true;
     }
@@ -64,14 +67,19 @@ final class InMemorySyncLock implements SyncLock {
   /// Whether the lock is held.
   bool get held => _held;
 
+  // Synchronous futures: a caller in a fake-async zone, such as a widget
+  // test, continues without waiting for a microtask turn.
   @override
-  Future<bool> tryAcquire() async {
-    if (_held) return false;
-    return _held = true;
+  Future<bool> tryAcquire() {
+    if (_held) return SynchronousFuture(false);
+    return SynchronousFuture(_held = true);
   }
 
   @override
-  Future<void> release() async => _held = false;
+  Future<void> release() {
+    _held = false;
+    return SynchronousFuture(null);
+  }
 }
 
 /// How the foreground waits for the lock (SYN-014): a background run is

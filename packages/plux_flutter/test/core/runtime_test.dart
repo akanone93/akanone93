@@ -19,6 +19,7 @@ import 'package:plux_flutter/src/state/providers.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart' show DeviceCredential;
 import 'package:plux_flutter/src/sync/sync_engine.dart';
+import 'package:plux_flutter/src/sync/sync_lock.dart';
 
 import '../support/entering.dart';
 import '../sync/fake_device.dart';
@@ -137,6 +138,7 @@ void main() {
     final s = await Plux.initializeWith(
       c,
       RuntimeOverrides(
+        syncLock: InMemorySyncLock(),
         credentials: credentials,
         configSecrets: MemorySecretStore.new,
         deviceKeys: FakeDeviceKeys.new,
