@@ -352,6 +352,12 @@ enum PluxLimit {
   /// pinned client when the security setting pinnedMediaOnly is on (SEC-041:
   /// platform players cannot use the pinned client).
   mediaPinnedDownloadSize('media.pinnedDownloadSize', PluxLimitUnit.bytes, 209715200, 0, 1073741824),
+  /// Largest value of one display parameter of a notification; an event with a
+  /// larger one is refused.
+  notificationsParamBytes('notifications.paramBytes', PluxLimitUnit.bytes, 1024, 0, 8192),
+  /// Display parameters one notification event may carry; an event with more is
+  /// refused.
+  notificationsParamsPerEvent('notifications.paramsPerEvent', PluxLimitUnit.count, 16, 0, 64),
   /// Notifications one organisation may send in an hour across all channels;
   /// the excess is dropped and audited.
   notificationsPerHour('notifications.perHour', PluxLimitUnit.count, 600, 0, 100000),

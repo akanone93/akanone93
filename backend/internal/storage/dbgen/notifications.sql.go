@@ -546,8 +546,8 @@ func (q *Queries) InsertHookSeen(ctx context.Context, arg InsertHookSeenParams) 
 }
 
 const insertNotification = `-- name: InsertNotification :exec
-INSERT INTO notifications (id, organization_id, user_id, event_id, event_type, app_id, title, body, link, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+INSERT INTO notifications (id, organization_id, user_id, event_id, event_type, app_id, title, body, link, created_at, params, group_key)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 `
 
 type InsertNotificationParams struct {
@@ -561,6 +561,8 @@ type InsertNotificationParams struct {
 	Body           string
 	Link           string
 	CreatedAt      pgtype.Timestamptz
+	Params         []byte
+	GroupKey       string
 }
 
 func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotificationParams) error {
@@ -575,6 +577,8 @@ func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotification
 		arg.Body,
 		arg.Link,
 		arg.CreatedAt,
+		arg.Params,
+		arg.GroupKey,
 	)
 	return err
 }
@@ -1033,6 +1037,67 @@ func (q *Queries) ListNotificationChannels(ctx context.Context) ([]NotificationC
 	return items, nil
 }
 
+const listNotificationGroups = `-- name: ListNotificationGroups :many
+SELECT n.id, n.organization_id, n.user_id, n.event_id, n.event_type, n.app_id, n.title, n.body, n.link, n.created_at, n.read_at, n.params, n.group_key, g.group_count::integer AS group_count
+  FROM (SELECT DISTINCT ON (COALESCE(NULLIF(s.group_key, ''), s.id::text))
+               s.id, count(*) OVER (PARTITION BY COALESCE(NULLIF(s.group_key, ''), s.id::text)) AS group_count
+          FROM notifications s
+         WHERE s.user_id = $1 AND (NOT $2::boolean OR s.read_at IS NULL)
+         ORDER BY COALESCE(NULLIF(s.group_key, ''), s.id::text), s.created_at DESC, s.id DESC) g
+  JOIN notifications n ON n.id = g.id
+ ORDER BY n.created_at DESC, n.id DESC
+ LIMIT $3
+`
+
+type ListNotificationGroupsParams struct {
+	UserID     pgtype.UUID
+	UnreadOnly bool
+	PageSize   int32
+}
+
+type ListNotificationGroupsRow struct {
+	Notification Notification
+	GroupCount   int32
+}
+
+// One row per group, the newest, with the number of rows the group holds
+// among those listed. A row without a group key (written before grouping)
+// is a group of its own.
+func (q *Queries) ListNotificationGroups(ctx context.Context, arg ListNotificationGroupsParams) ([]ListNotificationGroupsRow, error) {
+	rows, err := q.db.Query(ctx, listNotificationGroups, arg.UserID, arg.UnreadOnly, arg.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListNotificationGroupsRow{}
+	for rows.Next() {
+		var i ListNotificationGroupsRow
+		if err := rows.Scan(
+			&i.Notification.ID,
+			&i.Notification.OrganizationID,
+			&i.Notification.UserID,
+			&i.Notification.EventID,
+			&i.Notification.EventType,
+			&i.Notification.AppID,
+			&i.Notification.Title,
+			&i.Notification.Body,
+			&i.Notification.Link,
+			&i.Notification.CreatedAt,
+			&i.Notification.ReadAt,
+			&i.Notification.Params,
+			&i.Notification.GroupKey,
+			&i.GroupCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listNotificationSubscriptions = `-- name: ListNotificationSubscriptions :many
 SELECT id, organization_id, subject_kind, subject_id, event_type, channel_id, created_by, created_at FROM notification_subscriptions
  WHERE ($1::text IS NULL OR subject_kind = $1)
@@ -1063,51 +1128,6 @@ func (q *Queries) ListNotificationSubscriptions(ctx context.Context, arg ListNot
 			&i.ChannelID,
 			&i.CreatedBy,
 			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listNotifications = `-- name: ListNotifications :many
-SELECT id, organization_id, user_id, event_id, event_type, app_id, title, body, link, created_at, read_at FROM notifications
- WHERE user_id = $1 AND (NOT $2::boolean OR read_at IS NULL)
- ORDER BY created_at DESC, id DESC
- LIMIT $3
-`
-
-type ListNotificationsParams struct {
-	UserID     pgtype.UUID
-	UnreadOnly bool
-	PageSize   int32
-}
-
-func (q *Queries) ListNotifications(ctx context.Context, arg ListNotificationsParams) ([]Notification, error) {
-	rows, err := q.db.Query(ctx, listNotifications, arg.UserID, arg.UnreadOnly, arg.PageSize)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Notification{}
-	for rows.Next() {
-		var i Notification
-		if err := rows.Scan(
-			&i.ID,
-			&i.OrganizationID,
-			&i.UserID,
-			&i.EventID,
-			&i.EventType,
-			&i.AppID,
-			&i.Title,
-			&i.Body,
-			&i.Link,
-			&i.CreatedAt,
-			&i.ReadAt,
 		); err != nil {
 			return nil, err
 		}
@@ -1381,6 +1401,29 @@ DELETE FROM function_hook_seen WHERE seen_at < $1
 
 func (q *Queries) PurgeHookSeen(ctx context.Context, seenAt pgtype.Timestamptz) (int64, error) {
 	result, err := q.db.Exec(ctx, purgeHookSeen, seenAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const purgeNotifications = `-- name: PurgeNotifications :execrows
+DELETE FROM notifications WHERE id IN (
+    SELECT s.id FROM notifications s
+     WHERE s.created_at < $1
+     ORDER BY s.created_at, s.id
+     LIMIT $2)
+`
+
+type PurgeNotificationsParams struct {
+	Cutoff    pgtype.Timestamptz
+	BatchSize int32
+}
+
+// Deletes up to batch_size notifications created before the cutoff, oldest
+// first, for the retention sweep.
+func (q *Queries) PurgeNotifications(ctx context.Context, arg PurgeNotificationsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, purgeNotifications, arg.Cutoff, arg.BatchSize)
 	if err != nil {
 		return 0, err
 	}

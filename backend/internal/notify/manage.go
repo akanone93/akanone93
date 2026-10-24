@@ -438,12 +438,19 @@ type InboxItem struct {
 	Link      string
 	CreatedAt time.Time
 	Read      bool
+	// Params are the display parameters of the event (SRV-062, STU-012).
+	Params map[string]string
+	// GroupKey is equal for repeats of one event; GroupCount is how many
+	// of the listed notifications the group holds, this one included.
+	GroupKey   string
+	GroupCount int32
 }
 
 // maxInboxPage bounds a page of the inbox.
 const maxInboxPage = 200
 
-// Inbox lists the caller's notifications, newest first.
+// Inbox lists the caller's notifications, newest first, one per group:
+// repeats of one event show as their newest, with the group's count.
 func (s *Service) Inbox(ctx context.Context, p auth.Principal, unreadOnly bool, limit int32) ([]InboxItem, int64, error) {
 	if p.UserID == "" {
 		return nil, 0, plxerr.New(plxerr.AuthenticationRequired, "an inbox belongs to a signed-in user")
@@ -458,14 +465,24 @@ func (s *Service) Inbox(ctx context.Context, p auth.Principal, unreadOnly bool, 
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		me := storage.MustUUID(p.UserID)
-		rows, err := q.ListNotifications(ctx, dbgen.ListNotificationsParams{UserID: me, UnreadOnly: unreadOnly, PageSize: limit})
+		rows, err := q.ListNotificationGroups(ctx, dbgen.ListNotificationGroupsParams{UserID: me, UnreadOnly: unreadOnly, PageSize: limit})
 		if err != nil {
 			return failure(err, "inbox")
 		}
-		for _, r := range rows {
+		for _, g := range rows {
+			r := g.Notification
+			params := map[string]string{}
+			if err := json.Unmarshal(r.Params, &params); err != nil {
+				return fmt.Errorf("notify: the parameters of notification %s: %w", storage.ID(r.ID), err)
+			}
+			key := r.GroupKey
+			if key == "" {
+				key = storage.ID(r.ID)
+			}
 			out = append(out, InboxItem{
 				ID: storage.ID(r.ID), EventID: storage.ID(r.EventID), Type: EventType(r.EventType), AppID: storage.ID(r.AppID),
 				Title: r.Title, Body: r.Body, Link: r.Link, CreatedAt: storage.Time(r.CreatedAt), Read: r.ReadAt.Valid,
+				Params: params, GroupKey: key, GroupCount: g.GroupCount,
 			})
 		}
 		unread, err = q.CountUnreadNotifications(ctx, me)
