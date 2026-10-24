@@ -7,6 +7,8 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
 // Keep Bun's own network and binary globals: the BFF tests serve files through them.
 const native = {
+  AbortController: globalThis.AbortController,
+  AbortSignal: globalThis.AbortSignal,
   Blob: globalThis.Blob,
   File: globalThis.File,
   FormData: globalThis.FormData,

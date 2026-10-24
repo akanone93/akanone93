@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Plux Studio backend for frontend (ADR-0014).",
   "dependencies": {
+    "@plux/schema": "workspace:*",
     "hono": "4.13.13"
   }
 }
