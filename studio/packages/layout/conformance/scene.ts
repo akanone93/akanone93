@@ -14,20 +14,28 @@ import {
   Alignment,
   AlignmentDirectional,
   type AlignmentGeometry,
+  Axis,
   BoxConstraints,
+  CrossAxisAlignment,
   EdgeInsets,
   EdgeInsetsDirectional,
   type EdgeInsetsGeometry,
+  FlexFit,
+  FlexParentData,
   type LayoutGolden,
+  MainAxisAlignment,
+  MainAxisSize,
   PipelineOwner,
   type RenderBox,
   RenderConstrainedBox,
   RenderDecoratedBox,
+  RenderFlex,
   RenderPadding,
   RenderPositionedBox,
   RenderView,
   Size,
   TextDirection,
+  VerticalDirection,
 } from "../src/index.ts";
 
 /** One node of a scene; `props` use Flutter's parameter names. */
@@ -127,7 +135,7 @@ function alignment(value: unknown): AlignmentGeometry {
 }
 
 function singleChild(node: SceneNode, children: RenderBox[]): RenderBox | null {
-  if (!flexTypes.has(node.type) && children.length > 1) {
+  if (!["Row", "Column", "Flex"].includes(node.type) && children.length > 1) {
     throw new Error(`node "${node.id}" of type ${node.type} takes at most one child`);
   }
   return children[0] ?? null;
@@ -143,6 +151,47 @@ function unsupported(node: SceneNode): Error {
   return new Error(`node "${node.id}": unknown scene node type "${node.type}"`);
 }
 
+/** Row, Column and Flex: a [RenderFlex] with Flutter's widget defaults. */
+function buildFlex(node: SceneNode, children: RenderBox[], textDirection: TextDirection): RenderBox {
+  const props = node.props;
+  return new RenderFlex({
+    children,
+    direction:
+      node.type === "Row"
+        ? Axis.horizontal
+        : node.type === "Column"
+          ? Axis.vertical
+          : ((field(props, "direction") ?? Axis.horizontal) as Axis),
+    mainAxisAlignment: (field(props, "mainAxisAlignment") ?? MainAxisAlignment.start) as MainAxisAlignment,
+    mainAxisSize: (field(props, "mainAxisSize") ?? MainAxisSize.max) as MainAxisSize,
+    crossAxisAlignment: (field(props, "crossAxisAlignment") ?? CrossAxisAlignment.center) as CrossAxisAlignment,
+    textDirection,
+    verticalDirection: (field(props, "verticalDirection") ?? VerticalDirection.down) as VerticalDirection,
+    spacing: optionalNum(props, "spacing") ?? 0,
+  });
+}
+
+/** Expanded, Flexible and Spacer: flex parent data on the child's render object (Spacer: a shrunk box). */
+function applyFlexible(node: SceneNode, child: RenderBox | null): RenderBox {
+  const props = node.props;
+  // Flexible has no render object: it sets flex parent data on its child.
+  const flexible =
+    node.type === "Spacer"
+      ? new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 0, height: 0 }) })
+      : child;
+  if (flexible === null) {
+    throw new Error(`node "${node.id}" of type ${node.type} needs a child`);
+  }
+  const parentData = new FlexParentData();
+  parentData.flex = optionalNum(props, "flex") ?? 1;
+  parentData.fit = node.type === "Flexible" ? ((field(props, "fit") ?? FlexFit.loose) as FlexFit) : FlexFit.tight;
+  flexible.parentData = parentData;
+  if (node.type === "Spacer") {
+    flexible.debugId = node.id;
+  }
+  return flexible;
+}
+
 /**
  * Builds the render tree of `node` under `textDirection` (Flutter's ambient
  * `Directionality`). Throws on an unknown type and on a flex type, which
@@ -154,6 +203,15 @@ export function buildNode(node: SceneNode, textDirection: TextDirection): Render
   const props = node.props;
   let box: RenderBox;
   switch (node.type) {
+    case "Row":
+    case "Column":
+    case "Flex":
+      box = buildFlex(node, children, textDirection);
+      break;
+    case "Expanded":
+    case "Flexible":
+    case "Spacer":
+      return applyFlexible(node, child);
     case "TestBox":
       // Flutter's side is a childless SizedBox, i.e. a RenderConstrainedBox.
       box = new RenderConstrainedBox({
@@ -218,4 +276,27 @@ export function layOutScene(scene: Scene, golden: LayoutGolden): RenderView {
   view.prepareInitialFrame();
   owner.flushLayout();
   return view;
+}
+
+/**
+ * The rects of a laid-out `scene` as Flutter's golden writer records them.
+ * `Expanded` and `Flexible` are parent-data widgets without a render object of
+ * their own, so Flutter reports their id with the rect of their child.
+ */
+export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typeof layout.goldenRects> {
+  const rects = layout.goldenRects(view);
+  const alias = (node: SceneNode): void => {
+    const child = node.children?.[0];
+    if ((node.type === "Expanded" || node.type === "Flexible") && child !== undefined) {
+      const rect = rects[child.id];
+      if (rect !== undefined) {
+        rects[node.id] = rect;
+      }
+    }
+    for (const c of node.children ?? []) {
+      alias(c);
+    }
+  };
+  alias(scene.root);
+  return rects;
 }
