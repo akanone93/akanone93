@@ -6,6 +6,7 @@ package studioevents_test
 import (
 	"context"
 	"errors"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -44,7 +45,7 @@ func newRig(t *testing.T, mem *cache.Memory, p auth.Principal, cursor string, _ 
 	ctx, cancel := context.WithCancel(context.Background())
 	r := &rig{pub: studioevents.NewPublisher(mem, set), svc: svc, events: make(chan *pluxv1.StudioEventsServiceWatchResponse, 64), cancel: cancel, done: make(chan error, 1)}
 	go func() {
-		r.done <- svc.Watch(ctx, p, cursor, func(m *pluxv1.StudioEventsServiceWatchResponse) error {
+		r.done <- svc.Watch(ctx, p, cursor, func(context.Context) (auth.Principal, error) { return p, nil }, func(m *pluxv1.StudioEventsServiceWatchResponse) error {
 			r.events <- m
 			return nil
 		})
@@ -171,7 +172,7 @@ func TestWatchRefusesForeignCursor_STU_075(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = svc.Watch(context.Background(), reader(), "garbage", func(*pluxv1.StudioEventsServiceWatchResponse) error { return nil })
+	err = svc.Watch(context.Background(), reader(), "garbage", func(context.Context) (auth.Principal, error) { return reader(), nil }, func(*pluxv1.StudioEventsServiceWatchResponse) error { return nil })
 	if err == nil || errors.Is(err, context.Canceled) {
 		t.Fatalf("err = %v, want a refusal", err)
 	}
@@ -188,5 +189,62 @@ func TestWatchInboxCount_SRV_062(t *testing.T) {
 	r.pub.InboxChanged(context.Background(), org, "u1", 0)
 	if m := r.next(t); m.GetInbox() == nil || m.GetInbox().GetUnread() != 0 {
 		t.Fatalf("got %v, want only this person's own count", m)
+	}
+}
+
+// Verifies: GOV-005, STU-075.
+func TestWatchEndsWhenRefreshFails_GOV_005(t *testing.T) {
+	mem := cache.NewMemory(nil)
+	svc, err := studioevents.NewService(studioevents.Options{Logs: mem, Notifier: mem, Poll: 10 * time.Millisecond, Heartbeat: 10 * time.Millisecond})
+	if err != nil {
+		t.Fatal(err)
+	}
+	gone := errors.New("session revoked")
+	err = svc.Watch(context.Background(), reader(), "", func(context.Context) (auth.Principal, error) { return auth.Principal{}, gone }, func(*pluxv1.StudioEventsServiceWatchResponse) error { return nil })
+	if !errors.Is(err, gone) {
+		t.Fatalf("Watch = %v, want the refresh error", err)
+	}
+}
+
+// Verifies: GOV-005, STU-075.
+func TestWatchFollowsRefreshedPermissions_GOV_005(t *testing.T) {
+	mem := cache.NewMemory(nil)
+	svc, err := studioevents.NewService(studioevents.Options{Logs: mem, Notifier: mem, Poll: 10 * time.Millisecond, Heartbeat: 10 * time.Millisecond})
+	if err != nil {
+		t.Fatal(err)
+	}
+	lost := reader()
+	lost.Permissions = nil
+	var refreshed atomic.Bool
+	events := make(chan *pluxv1.StudioEventsServiceWatchResponse, 64)
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	go func() {
+		done <- svc.Watch(ctx, reader(), "", func(context.Context) (auth.Principal, error) {
+			refreshed.Store(true)
+			return lost, nil
+		}, func(m *pluxv1.StudioEventsServiceWatchResponse) error { events <- m; return nil })
+	}()
+	defer func() { cancel(); <-done }()
+	deadline := time.After(5 * time.Second)
+	for !refreshed.Load() {
+		select {
+		case <-events:
+		case <-deadline:
+			t.Fatal("no refresh")
+		}
+	}
+	pub := studioevents.NewPublisher(mem, limits.Defaults())
+	pub.DocumentChanged(context.Background(), org, "app", "", "x.json", 1, audit.Actor{Kind: "user", ID: "u2"})
+	quiet := time.After(300 * time.Millisecond)
+	for {
+		select {
+		case m := <-events:
+			if m.GetDocument() != nil {
+				t.Fatalf("event for an app the person lost: %v", m)
+			}
+		case <-quiet:
+			return
+		}
 	}
 }

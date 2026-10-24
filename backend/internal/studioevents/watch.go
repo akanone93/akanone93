@@ -68,8 +68,10 @@ type item struct {
 // Watch sends the principal's events after cursor ("<org entry>|<user entry>",
 // empty starts now) until ctx ends or send fails. Events about apps the
 // principal cannot read are dropped; a reader that fell behind gets a reset
-// and carries on from the newest entry (STU-075).
-func (s *Service) Watch(ctx context.Context, p auth.Principal, cursor string, send func(*pluxv1.StudioEventsServiceWatchResponse) error) error {
+// and carries on from the newest entry (STU-075). At every heartbeat refresh
+// re-resolves the principal: its error ends the stream and its result filters
+// later events (SEC-101, GOV-005).
+func (s *Service) Watch(ctx context.Context, p auth.Principal, cursor string, refresh func(context.Context) (auth.Principal, error), send func(*pluxv1.StudioEventsServiceWatchResponse) error) error {
 	names := [2]string{orgLog(p.OrganizationID), userLog(p.OrganizationID, p.UserID)}
 	cur, err := s.start(ctx, names, cursor)
 	if err != nil {
@@ -97,6 +99,11 @@ func (s *Service) Watch(ctx context.Context, p auth.Principal, cursor string, se
 			}
 			return err
 		case <-ticker.C:
+			np, err := refresh(ctx)
+			if err != nil {
+				return err
+			}
+			p = np
 			msg = &pluxv1.StudioEventsServiceWatchResponse{Event: &pluxv1.StudioEventsServiceWatchResponse_Heartbeat{Heartbeat: &pluxv1.StudioHeartbeat{}}}
 		case it := <-out:
 			cur[it.log] = it.id
