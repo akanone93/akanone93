@@ -36,3 +36,6 @@ export const caseText = {
   title: "Delete this page?",
   body: "The page and its history are removed.",
 } as const;
+
+/** Row height of the compact `density.tableRow` token, for the table cases. */
+export const caseRowHeight = 30;

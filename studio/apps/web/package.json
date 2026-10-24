@@ -20,6 +20,7 @@
     "@lingui/react": "6.10.1",
     "@plux/i18n": "workspace:*",
     "@plux/schema": "workspace:*",
+    "@plux/ui": "workspace:*",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

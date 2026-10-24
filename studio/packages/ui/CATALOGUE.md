@@ -15,7 +15,7 @@ labels) comes in through props from the message catalogue.
 - **Purpose:** the one icon set of Studio's chrome, Phosphor duotone with the paths inlined (UI language U8).
 - **Props:** `name: IconName`, `size?: "pill" | "tab" | "capsule"` (default `tab`), `label?: string`, `className?`.
 - **States:** decorative (`aria-hidden`, no `label`), labelled (`role="img"`), mirrored under `dir="rtl"`.
-- **Tokens:** `currentColor`; sizes `size-3`, `size-4`, `size-5` (spacing tokens).
+- **Tokens:** `currentColor`; sizes `size-icon-sm|md|lg` (`size.icon.*`: 12, 14, 17 px).
 - **Mirrors:** `mirrors: true` for `arrow-bend-up-left`, `arrow-clockwise`, `arrow-counter-clockwise`, `arrow-left`,
   `arrow-right`, `caret-left`, `caret-right`, `paper-plane-tilt`, `sign-out` (kept in `src/icon-mirrors.ts`); every
   other icon is `mirrors: false`.
@@ -98,3 +98,91 @@ labels) comes in through props from the message catalogue.
 - **Purpose:** transient result messages on sonner, token styles; 5 s, errors stay (`notify`).
 - **Props:** `Toaster { direction, regionLabel }`, `notify(kind, message)`.
 - **States:** success, info, error. **Tokens:** `bg-glass`, `rounded-full`, `shadow-e2`, `text-danger`.
+
+## StatusPill
+
+- **Purpose:** health under a screen, release health, test results (U10); every status has an icon and a word.
+- **Props:** `status: "success" | "warning" | "danger" | "neutral"`, `label`, `value?`.
+- **States:** the four statuses, with and without a value.
+- **Tokens:** `bg-success-surface`, `text-success`, `bg-warning-surface`, `text-warning`, `rounded-full`, `text-tag`.
+- **Do not use for:** a bare colour dot; an icon without a word.
+
+## Count
+
+- **Purpose:** round mono badge for tabs, layer rows and notifications (U10).
+- **Props:** `value`, `tone?: "neutral" | "warning"`, `label?` (accessible name).
+- **States:** neutral, warning, large number.
+- **Tokens:** `bg-hover`, `bg-warning-surface`, `text-tag`.
+
+## TypeTag
+
+- **Purpose:** node type in the layer tree and search results (U10); mono, tertiary, fixed column.
+- **Props:** `children`.
+- **States:** short, long (truncated).
+- **Tokens:** `text-tertiary`, `text-tag`, `font-mono`.
+
+## MetricStrip
+
+- **Purpose:** one row at the foot of a panel: label in sans, value in mono (U10).
+- **Props:** `metrics: { label, value }[]`; every value carries its unit.
+- **States:** three metrics, wrapping.
+- **Tokens:** `border-hairline`, `text-secondary`, `text-data`.
+
+## Meter
+
+- **Purpose:** budget meter, success fill grows in on load (U10).
+- **Props:** `value`, `max`, `label`, `valueText`.
+- **States:** half, empty, over budget (clamped). Role `meter` with `aria-valuenow` and `aria-valuetext`.
+- **Tokens:** `bg-hover`, `bg-success`, `duration-enter`, `ease-standard`.
+
+## Sparkline
+
+- **Purpose:** recent values as a violet line (U10); SVG elements only.
+- **Props:** `values: number[]`, `label` (label and latest value in text).
+- **States:** series, flat, empty. Mirrored under `dir="rtl"`.
+- **Tokens:** `text-accent`, `currentColor`.
+
+## LiveChip
+
+- **Purpose:** paired device or live stream (U10); the one looping animation, stopped by reduced motion.
+- **Props:** `label` (device, state and latency, composed by the caller).
+- **States:** live. Role `status`.
+- **Tokens:** `bg-success-surface`, `text-success`, `animate-pulse` with `motion-reduce:animate-none`.
+
+## SummaryCard
+
+- **Purpose:** three equal cells, mono value over a sans caption, for panel footers (U10).
+- **Props:** `cells: [SummaryCell, SummaryCell, SummaryCell]`.
+- **States:** screens, links, ghost.
+- **Tokens:** `bg-card`, `rounded-lg`, `--density-card-padding-x`, `--density-card-padding-y`.
+
+## GlassCapsule, FloatingPanel
+
+- **Purpose:** floating chrome on the `glass` utility (U3): the top capsules and the side panels or drawer.
+- **Props:** `label`, `children`, `className?`.
+- **States:** capsule (role `group`), panel (region). Solid fallback under reduced transparency and the contrast theme.
+- **Do not use for:** canvas items, inputs, dialogs, anything inside another glass surface.
+- **Tokens:** `glass`, `rounded-full`, `rounded-xl`, `--density-capsule`.
+
+## VirtualTable
+
+- **Purpose:** tables of any size; only the visible rows are in the DOM (STU-120, U11 "Table"). TanStack Table 9 and Virtual.
+- **Props:** `data`, `columns` (TanStack column definitions), `label`, `rowHeight` (the `density.tableRow` value), `visibleRows`, `overscan?`.
+- **States:** 10,000 rows. Roles `table`, `row`, `columnheader`, `cell`; `aria-rowcount` and `aria-rowindex` give the full size.
+- **Keyboard:** the scrolling body is focusable and scrolls with the arrow keys.
+- **Tokens:** `border-hairline`, `hover:bg-hover`, `font-mono`, `text-data`.
+
+## Tree
+
+- **Purpose:** the layer tree (U11 "Tree row") on Headless Tree.
+- **Props:** `nodes`, `rootId`, `label`, `dir?: "ltr" | "rtl"`.
+- **States:** collapsed, expanded, selected, focused; LTR and RTL.
+- **Keyboard:** WAI-ARIA tree. Down and Up move, Right expands (Left in RTL), Left collapses or moves to the parent (Right in RTL), Home and End.
+- **Mirrors:** `caret-right` mirrors: true, `caret-down` mirrors: false.
+- **Tokens:** `--density-tree-row`, `bg-raised`, `shadow-e1`, `text-accent`.
+
+## Catalogue page
+
+- **Purpose:** development-only route `/__catalogue` in `apps/web` that renders every `*.cases.tsx` (found with `import.meta.glob`). Absent from production builds.
+- **Query:** `theme=light|dark|contrast`, `dir=rtl`, `lang=`, `only=<component>`. The dialog, menu and popover cases open an overlay on mount, so they render alone with `only`.
+- **Checks:** `studio/e2e/catalogue.spec.ts` runs axe in every theme and in `ar-XB` and tests the Tooltip.

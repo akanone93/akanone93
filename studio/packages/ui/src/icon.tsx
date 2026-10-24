@@ -10,9 +10,9 @@ import { type IconName, iconPaths } from "./icons.gen.ts";
 export type IconSize = "pill" | "tab" | "capsule";
 
 const sizeClass: Readonly<Record<IconSize, string>> = {
-  pill: "size-3",
-  tab: "size-4",
-  capsule: "size-5",
+  pill: "size-icon-sm",
+  tab: "size-icon-md",
+  capsule: "size-icon-lg",
 };
 
 export interface IconProps {
