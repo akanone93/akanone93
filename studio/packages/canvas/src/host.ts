@@ -174,6 +174,11 @@ export class CanvasHost {
     };
   }
 
+  /** Where the base surface shown now was rendered. */
+  get baseOrigin(): BaseOrigin {
+    return this.origin;
+  }
+
   /** The interaction layer's box on the base, or null while it is hidden. */
   get layerBox(): LayerBox | null {
     return this.box;
