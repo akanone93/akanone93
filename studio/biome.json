@@ -15,7 +15,8 @@
       "!**/*.gen.ts",
       "!**/*.gen.css",
       "!lint/fixtures",
-      "!prototype"
+      "!prototype",
+      "!packages/api/src/gen"
     ]
   },
   "formatter": {
