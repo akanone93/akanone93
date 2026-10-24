@@ -38,7 +38,7 @@ func TestRules(t *testing.T) {
 		{"package relative into apps", "packages/ui/src/a/b.ts", "import x from \"../../../../apps/web/src/y\";", "packages/ui/src/a/b.ts:1: packages-no-apps: ../../../../apps/web/src/y"},
 		{"canvas imports react", "packages/canvas/src/a.tsx", "import { useState } from \"react\";", "packages/canvas/src/a.tsx:1: pure-no-ui: react"},
 		{"layout imports ui", "packages/layout/src/a.ts", "const m = await import(\"@plux/ui\");", "packages/layout/src/a.ts:1: pure-no-ui: @plux/ui"},
-		{"layout imports base-ui", "packages/layout/src/a.ts", "import \"@base-ui-components/react\";", "packages/layout/src/a.ts:1: pure-no-ui: @base-ui-components/react"},
+		{"layout imports base-ui", "packages/layout/src/a.ts", "import \"@base-ui/react\";", "packages/layout/src/a.ts:1: pure-no-ui: @base-ui/react"},
 		{"bff imports react", "apps/bff/src/a.ts", "import r from \"react\";", "apps/bff/src/a.ts:1: bff-no-ui: react"},
 		{"bff imports canvas", "apps/bff/src/a.ts", "import c from \"@plux/canvas\";", "apps/bff/src/a.ts:1: bff-no-ui: @plux/canvas"},
 		{"web imports pg", "apps/web/src/a.ts", "import pg from \"pg\";", "apps/web/src/a.ts:1: no-direct-storage: pg"},
