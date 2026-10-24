@@ -42,6 +42,14 @@ export interface RendererOptions {
 
 /** Above this many dirty regions in a frame they are merged into one. */
 export const MAX_REGIONS = 4;
+
+/** Where the interaction layer draws: its surface, the world point at its top-left, and its scale. */
+export interface LiveLayer {
+  readonly surface: Surface;
+  readonly x: number;
+  readonly y: number;
+  readonly scale: number;
+}
 const SHADOW_SIZE = 64;
 const SHADOW_INSET = 16;
 
@@ -57,6 +65,7 @@ interface FrameCounters {
   regionMs: number;
   liveMs: number;
   liveItems: number;
+  layerMs: number;
 }
 
 /** Renders a `Scene` through a `Viewport` onto a CanvasKit surface. */
@@ -102,6 +111,7 @@ export class SceneRenderer {
     tileMs: 0,
     regionMs: 0,
     liveMs: 0,
+    layerMs: 0,
     liveItems: 0,
   };
   private lod: Lod = lodForZoom(1);
@@ -201,8 +211,12 @@ export class SceneRenderer {
     return this.resources.own(image);
   }
 
-  /** Draws one frame and returns its statistics. */
-  frame(): FrameStats {
+  /**
+   * Draws one frame and returns its statistics: the base surface when
+   * `drawBase`, and the live (dragged) items into `layer` when given — then
+   * the base leaves them out (M-12).
+   */
+  frame(drawBase = true, layer: LiveLayer | null = null): FrameStats {
     const start = this.now();
     this.calls = 0;
     this.resetCounters();
@@ -210,6 +224,20 @@ export class SceneRenderer {
     this.scene.drainRemoved(this.forget);
     this.lod = lodForZoom(this.viewport.zoom);
     this.viewport.worldRect(this.view);
+    let flushMs = 0;
+    if (drawBase) {
+      flushMs = this.drawBase(layer === null);
+    }
+    if (layer) {
+      this.drawLayer(layer);
+    }
+    const end = this.now();
+    return this.stats(end - start, flushMs, drawBase);
+  }
+
+  /** Draws the base surface; returns the flush time. */
+  private drawBase(includeLive: boolean): number {
+    const start = this.now();
     const canvas = this.surface.getCanvas();
     const scale = this.viewport.zoom * this.dpr;
     if (!this.options.tiles) {
@@ -220,9 +248,9 @@ export class SceneRenderer {
     canvas.scale(scale, scale);
     canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
     if (this.options.tiles) {
-      this.drawTiled(canvas, scale);
+      this.drawTiled(canvas, scale, includeLive);
     } else {
-      this.drawScene(canvas, this.view, true);
+      this.drawScene(canvas, this.view, includeLive);
       this.counters.tileMs = this.now() - start;
     }
     canvas.restore();
@@ -231,8 +259,25 @@ export class SceneRenderer {
     if (this.options.measureFrames) {
       this.syncGpu(canvas);
     }
-    const end = this.now();
-    return this.stats(end - start, end - flushStart);
+    return this.now() - flushStart;
+  }
+
+  /** Draws the live items into the interaction layer, on a transparent background. */
+  private drawLayer(layer: LiveLayer): void {
+    const start = this.now();
+    const canvas = layer.surface.getCanvas();
+    canvas.clear(this.ck.TRANSPARENT);
+    canvas.save();
+    canvas.scale(layer.scale, layer.scale);
+    canvas.translate(-layer.x, -layer.y);
+    this.drawScene(canvas, this.view, false, this.scene.liveItems(this.items));
+    this.counters.liveItems = this.items.length;
+    canvas.restore();
+    layer.surface.flush();
+    if (this.options.measureFrames) {
+      this.syncGpu(canvas);
+    }
+    this.counters.layerMs = this.now() - start;
   }
 
   private resetCounters(): void {
@@ -243,6 +288,7 @@ export class SceneRenderer {
     c.regionMs = 0;
     c.liveMs = 0;
     c.liveItems = 0;
+    c.layerMs = 0;
   }
 
   private syncGpu(canvas: Canvas): void {
@@ -256,7 +302,7 @@ export class SceneRenderer {
     });
   }
 
-  private stats(ms: number, flushMs: number): FrameStats {
+  private stats(ms: number, flushMs: number, base: boolean): FrameStats {
     const c = this.counters;
     return {
       frame: this.frameNo++,
@@ -274,10 +320,12 @@ export class SceneRenderer {
       flushMs,
       tileRenders: this.tileRenders,
       tileRenderMs: this.tileRenderMs,
+      base,
+      layerMs: c.layerMs,
     };
   }
 
-  private drawTiled(canvas: Canvas, scale: number): void {
+  private drawTiled(canvas: Canvas, scale: number, includeLive: boolean): void {
     const t0 = this.now();
     this.tiles.setScale(scale);
     if (!this.covered()) {
@@ -304,8 +352,10 @@ export class SceneRenderer {
     const t1 = this.now();
     this.drawRegions(canvas);
     const t2 = this.now();
-    this.drawScene(canvas, this.view, false, this.scene.liveItems(this.items));
-    this.counters.liveItems = this.items.length;
+    if (includeLive) {
+      this.drawScene(canvas, this.view, false, this.scene.liveItems(this.items));
+      this.counters.liveItems = this.items.length;
+    }
     const t3 = this.now();
     this.counters.tileMs = t1 - t0;
     this.counters.regionMs = t2 - t1;

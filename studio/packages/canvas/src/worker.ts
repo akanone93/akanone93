@@ -9,20 +9,37 @@
  * environment (CanvasKit loading, frame and idle scheduling, surfaces, the
  * WebGL probe) is injected, so `serveCanvasWorker` is called by the worker
  * entry point rather than run at import.
+ *
+ * The base surface is overscanned and re-rendered only when the content
+ * changes or the view nears its edge; the host moves it with a CSS transform
+ * in between. Dragged items are drawn into the interaction layer (M-12, see
+ * `compositor.ts`).
  */
 
 import type { CanvasKit, Surface } from "canvaskit-wasm";
 import {
+  type BaseOrigin,
+  baseSize,
+  centredOrigin,
+  isCentred,
+  type LayerBox,
+  layerBox,
+  needsRender,
+  overscanMargin,
+} from "./compositor.ts";
+import { intersectInto, makeRect, unionInto } from "./geometry.ts";
+import {
   type CanvasOptions,
   type HostMessage,
+  type InteractionKind,
   type OffscreenCanvasLike,
   PROTOCOL_VERSION,
   type RendererInfo,
   readHostMessage,
   type WorkerMessage,
 } from "./protocol.ts";
-import { SceneRenderer } from "./renderer.ts";
-import { Scene } from "./scene.ts";
+import { type LiveLayer, SceneRenderer } from "./renderer.ts";
+import { Scene, type SceneItem } from "./scene.ts";
 import { buildSceneModel } from "./scene-model.ts";
 import { chooseRenderer, type GlProbe, measureSurface } from "./select.ts";
 import { Viewport } from "./viewport.ts";
@@ -46,8 +63,24 @@ interface Running {
   readonly canvas: OffscreenCanvasLike;
   readonly info: RendererInfo;
   readonly scene: Scene;
+  /** The view the host shows; authoritative for the scene model. */
   readonly viewport: Viewport;
+  /** The overscanned view the base surface is rendered through. */
+  readonly render: Viewport;
   readonly renderer: SceneRenderer;
+  readonly layerCanvas: OffscreenCanvasLike | null;
+  margin: number;
+  dpr: number;
+  origin: BaseOrigin;
+  baseDirty: boolean;
+  gesture: InteractionKind | null;
+  dragging: boolean;
+  recentreWhenIdle: boolean;
+  /** The base moved to a new origin and is drawn once its tiles are ready. */
+  awaitingTiles: boolean;
+  layerSurface: Surface | null;
+  layerBox: LayerBox | null;
+  layerChanged: boolean;
 }
 
 type InitMessage = Extract<HostMessage, { type: "init" }>;
@@ -65,6 +98,9 @@ export class CanvasWorkerCore {
   private frameRequested = false;
   private idleRequested = false;
   private disposed = false;
+  private readonly live: SceneItem[] = [];
+  private readonly liveBounds = makeRect(0, 0, 0, 0);
+  private readonly shown = makeRect(0, 0, 0, 0);
 
   constructor(
     private readonly post: (message: WorkerMessage) => void,
@@ -95,15 +131,18 @@ export class CanvasWorkerCore {
     try {
       const ck = await this.deps.loadCanvasKit();
       const { canvas, options } = message;
-      sizeCanvas(canvas, message.width, message.height, message.dpr);
+      const margin = overscanMargin(options.tileSize, message.dpr);
+      const size = baseSize(message.width, message.height, margin);
+      sizeCanvas(canvas, size.width, size.height, message.dpr);
       const { surface, info } = this.start(ck, canvas, options);
       const fontMgr = options.fonts.length > 0 ? ck.FontMgr.FromData(...options.fonts) : null;
       const scene = new Scene();
       const viewport = new Viewport(message.width, message.height);
+      const render = new Viewport(size.width, size.height);
       const renderer = new SceneRenderer(
         ck,
         scene,
-        viewport,
+        render,
         surface,
         message.dpr,
         {
@@ -116,8 +155,29 @@ export class CanvasWorkerCore {
         () => this.deps.now(),
         fontMgr,
       );
-      const running: Running = { ck, canvas, info, scene, viewport, renderer };
+      const running: Running = {
+        ck,
+        canvas,
+        info,
+        scene,
+        viewport,
+        render,
+        renderer,
+        layerCanvas: message.layer ?? null,
+        margin,
+        dpr: message.dpr,
+        origin: centredOrigin(viewport, margin, message.dpr),
+        baseDirty: true,
+        gesture: null,
+        dragging: false,
+        recentreWhenIdle: false,
+        awaitingTiles: false,
+        layerSurface: null,
+        layerBox: null,
+        layerChanged: false,
+      };
       this.running = running;
+      this.recentre(running);
       this.post({ v: PROTOCOL_VERSION, type: "ready", renderer: info });
       for (const queued of this.queued.splice(0)) {
         this.dispatch(running, queued);
@@ -174,9 +234,11 @@ export class CanvasWorkerCore {
     switch (message.type) {
       case "patch":
         running.scene.apply(message.ops);
+        this.markBase(running);
         break;
       case "viewport":
         running.viewport.apply(message.change);
+        this.place(running);
         break;
       case "interaction":
         this.interaction(running, message);
@@ -205,21 +267,148 @@ export class CanvasWorkerCore {
 
   private interaction(running: Running, message: InteractionMessage): void {
     const start = message.phase === "start";
-    running.renderer.interacting = start;
     if (message.kind === "drag") {
+      // Pans and zooms move the base in the compositor; only drags render tiles at reduced resolution.
+      running.renderer.interacting = start;
       running.scene.setLive(message.ids, start);
+      running.dragging = start && message.ids.length > 0;
+      this.markBase(running);
+    } else {
+      running.gesture = start ? message.kind : null;
+      this.place(running);
     }
+  }
+
+  /** Marks the base for re-rendering when the static content changed, or when drags draw on it. */
+  private markBase(running: Running): void {
+    if (running.scene.hasDirty || (running.dragging && !running.layerCanvas)) {
+      running.baseDirty = true;
+    }
+  }
+
+  /**
+   * Keeps the base in step with the view: re-rendered now when the zoom
+   * changed or the view left it outside a gesture, in idle time when a
+   * gesture nears its edge or the view settles off-centre.
+   */
+  private place(running: Running): void {
+    const zooming = running.gesture === "zoom";
+    const gesturing = running.gesture !== null;
+    if (needsRender(running.viewport, running.origin, running.margin, zooming)) {
+      if (gesturing) {
+        this.recentreLater(running);
+      } else {
+        this.recentre(running);
+      }
+    } else if (!gesturing && !isCentred(running.viewport, running.origin, running.margin, running.dpr)) {
+      this.recentreLater(running);
+    }
+  }
+
+  private recentreLater(running: Running): void {
+    running.recentreWhenIdle = true;
+    this.requestIdle();
+  }
+
+  /**
+   * Centres the base on the view. The next frame re-renders it, or — when
+   * `whenTilesReady`, as the old base still covers the view — the first frame
+   * after idle time has rendered every tile of the new base, so the base is
+   * blitted once rather than once per idle slice.
+   */
+  private recentre(running: Running, whenTilesReady = false): void {
+    const origin = centredOrigin(running.viewport, running.margin, running.dpr);
+    running.origin = origin;
+    running.render.x = origin.x;
+    running.render.y = origin.y;
+    running.render.zoom = origin.zoom;
+    running.recentreWhenIdle = false;
+    running.awaitingTiles = whenTilesReady && running.renderer.hasIdleWork();
+    running.baseDirty = !running.awaitingTiles;
   }
 
   private resize(running: Running, width: number, height: number, dpr: number): void {
     running.viewport.width = width;
     running.viewport.height = height;
-    sizeCanvas(running.canvas, width, height, dpr);
+    running.margin = overscanMargin(running.renderer.tileCache.tileSize, dpr);
+    running.dpr = dpr;
+    const size = baseSize(width, height, running.margin);
+    running.render.width = size.width;
+    running.render.height = size.height;
+    sizeCanvas(running.canvas, size.width, size.height, dpr);
     const surface = this.deps.makeSurface(running.ck, running.canvas, running.info.kind);
     if (surface) {
       running.renderer.replaceSurface(surface, dpr);
     } else {
       this.error("no CanvasKit surface after resize");
+    }
+    this.recentre(running);
+  }
+
+  /**
+   * The interaction layer for this frame while items are dragged: its box on
+   * the base follows the bounds of the live items, re-allocated in steps.
+   */
+  private prepareLayer(running: Running): LiveLayer | null {
+    const items = running.dragging && running.layerCanvas ? running.scene.liveItems(this.live) : [];
+    const [first, ...rest] = items;
+    if (!first || !running.layerCanvas) {
+      return this.hideLayer(running);
+    }
+    const bounds = Object.assign(this.liveBounds, first.bounds);
+    for (const item of rest) {
+      unionInto(bounds, item.bounds);
+    }
+    // Long links reach far beyond the view; the layer covers only what is visible of them.
+    if (!intersectInto(bounds, bounds, running.viewport.worldRect(this.shown))) {
+      return this.hideLayer(running);
+    }
+    const { origin, dpr } = running;
+    const box = layerBox(
+      {
+        x: (bounds.l - origin.x) * origin.zoom,
+        y: (bounds.t - origin.y) * origin.zoom,
+        w: (bounds.r - bounds.l) * origin.zoom,
+        h: (bounds.b - bounds.t) * origin.zoom,
+      },
+      running.layerBox,
+    );
+    const previous = running.layerBox;
+    if (box !== previous) {
+      running.layerChanged = true;
+      running.layerBox = box;
+      if (!previous || previous.w !== box.w || previous.h !== box.h || !running.layerSurface) {
+        this.allocateLayer(running, running.layerCanvas, box);
+      }
+    }
+    const surface = running.layerSurface;
+    if (!surface) {
+      return null;
+    }
+    return { surface, x: origin.x + box.x / origin.zoom, y: origin.y + box.y / origin.zoom, scale: origin.zoom * dpr };
+  }
+
+  private hideLayer(running: Running): null {
+    if (running.layerBox) {
+      running.layerBox = null;
+      running.layerChanged = true;
+    }
+    return null;
+  }
+
+  private allocateLayer(running: Running, canvas: OffscreenCanvasLike, box: LayerBox): void {
+    const resources = running.renderer.resources;
+    if (running.layerSurface) {
+      resources.free(running.layerSurface);
+      running.layerSurface = null;
+    }
+    sizeCanvas(canvas, box.w, box.h, running.dpr);
+    // The layer is small and redrawn every frame: a raster surface avoids a second GL context.
+    const surface = this.deps.makeSurface(running.ck, canvas, "raster");
+    if (surface) {
+      running.layerSurface = resources.own(surface);
+    } else {
+      this.error("no CanvasKit surface for the interaction layer");
     }
   }
 
@@ -237,7 +426,19 @@ export class CanvasWorkerCore {
     if (!running) {
       return;
     }
-    this.post({ v: PROTOCOL_VERSION, type: "frame", stats: running.renderer.frame() });
+    const layer = this.prepareLayer(running);
+    const drawBase = running.baseDirty;
+    running.baseDirty = false;
+    const stats = running.renderer.frame(drawBase, layer);
+    const layerChanged = running.layerChanged;
+    running.layerChanged = false;
+    this.post({
+      v: PROTOCOL_VERSION,
+      type: "frame",
+      stats,
+      ...(drawBase ? { origin: running.origin } : {}),
+      ...(layerChanged ? { layer: running.layerBox } : {}),
+    });
     if (running.renderer.hasIdleWork()) {
       this.requestIdle();
     }
@@ -257,7 +458,20 @@ export class CanvasWorkerCore {
     if (!running) {
       return;
     }
-    if (running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS) > 0) {
+    if (running.recentreWhenIdle) {
+      this.recentre(running, true);
+    }
+    const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS);
+    if (running.awaitingTiles) {
+      if (running.renderer.hasIdleWork()) {
+        this.requestIdle();
+        return;
+      }
+      running.awaitingTiles = false;
+      running.baseDirty = true;
+      this.requestFrame();
+    } else if (rendered > 0) {
+      running.baseDirty = true;
       this.requestFrame();
     }
   }
