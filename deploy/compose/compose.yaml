@@ -12,7 +12,7 @@
 # carries the Rust toolchain. None holds a database, storage or signing
 # credential (L-4); they talk over mutual TLS (SEC-043). Optional profiles
 # add Keycloak (an OpenID Connect provider) and Ollama. Studio
-# joins the stack in P11. Images are pinned by digest. The API serves
+# (the BFF and the web app, DEP-002) runs beside the server. Images are pinned by digest. The API serves
 # TLS 1.3 with HSTS on https://localhost:8080 under a development
 # certificate that init-secrets.sh issues (README.md, "Development TLS").
 #
@@ -67,6 +67,30 @@ services:
     tmpfs: [/tmp]
     networks: [default, functions]
     ports: ["127.0.0.1:8080:8080"]
+    restart: unless-stopped
+
+  # Studio: the BFF serves the web app and proxies the API (DEP-002). It
+  # reaches plux-server over TLS and trusts the development CA for that.
+  studio:
+    <<: *hardened
+    build:
+      context: ../..
+      dockerfile: studio/Dockerfile
+    image: plux-studio:local
+    user: "65532:65532"
+    depends_on:
+      # The server has no container healthcheck (its image has no shell); the
+      # BFF's /readyz asks the API itself, so Studio is ready when it answers.
+      plux-server: { condition: service_started }
+    environment:
+      PLUX_BFF_API_UPSTREAM: https://plux-server:8080
+      PLUX_BFF_PUBLIC_BASE_URL: http://localhost:8081
+      NODE_EXTRA_CA_CERTS: /etc/plux/ca.crt
+    volumes:
+      - ./.secrets/ca/ca.crt:/etc/plux/ca.crt:ro
+    tmpfs: [/tmp]
+    networks: [default]
+    ports: ["127.0.0.1:8081:8081"]
     restart: unless-stopped
 
   # Runs server functions on wazero (FN-009 to FN-013). It gets modules and

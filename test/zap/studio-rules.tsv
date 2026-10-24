@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# Rules for `make zap-studio`, the OWASP ZAP baseline scan of Studio (QA-008).
+# Format: rule id, IGNORE, a comment. A rule not listed is a warning, and a
+# warning fails the scan; list a rule only with the reason it is a false
+# positive for Studio.

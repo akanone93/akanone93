@@ -55,3 +55,6 @@ observability:
   dashboards:
     enabled: true
     analytics: {url: plux-postgresql-rw:5432}
+
+studio:
+  publicBaseUrl: https://studio.example.com
