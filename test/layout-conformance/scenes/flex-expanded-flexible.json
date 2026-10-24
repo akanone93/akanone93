@@ -1,0 +1,80 @@
+{
+  "name": "flex-expanded-flexible",
+  "root": {
+    "id": "row",
+    "type": "Row",
+    "props": {
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "fixed",
+        "type": "TestBox",
+        "props": {
+          "width": 50,
+          "height": 20
+        }
+      },
+      {
+        "id": "exp",
+        "type": "Expanded",
+        "props": {
+          "flex": 2
+        },
+        "children": [
+          {
+            "id": "exp-child",
+            "type": "TestBox",
+            "props": {
+              "width": 10,
+              "height": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "flex-loose",
+        "type": "Flexible",
+        "props": {
+          "flex": 1,
+          "fit": "loose"
+        },
+        "children": [
+          {
+            "id": "loose-child",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 30
+            }
+          }
+        ]
+      },
+      {
+        "id": "flex-tight",
+        "type": "Flexible",
+        "props": {
+          "flex": 1,
+          "fit": "tight"
+        },
+        "children": [
+          {
+            "id": "tight-child",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 30
+            }
+          }
+        ]
+      },
+      {
+        "id": "spacer",
+        "type": "Spacer",
+        "props": {
+          "flex": 1
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "name": "align-factors",
+  "root": {
+    "id": "outer",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "wf",
+        "type": "Align",
+        "props": {
+          "alignment": [
+            0.5,
+            -0.5
+          ],
+          "widthFactor": 2,
+          "heightFactor": 1.5
+        },
+        "children": [
+          {
+            "id": "hf",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": 1,
+                "y": 1
+              },
+              "heightFactor": 3
+            },
+            "children": [
+              {
+                "id": "half",
+                "type": "Center",
+                "props": {
+                  "widthFactor": 0.5
+                },
+                "children": [
+                  {
+                    "id": "box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 60,
+                      "height": 40
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
