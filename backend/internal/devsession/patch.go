@@ -116,19 +116,26 @@ type PushResult struct {
 	Timings Timings
 }
 
-// draftState is what a live session keeps: its draft, the incremental
-// compiler's cache and the numbering of what it pushed. It lives as long as
-// the session and is dropped when the session ends or expires.
+// draftState is a replica's cache of a live session: its draft, the
+// incremental compiler's cache and the bundles it pushed. No other replica
+// needs it: a CLI session's draft is the stored draft with the session's
+// patch log replayed over it, and a Studio session's is the stored draft
+// itself, so a replica that lacks the cache, or whose cache is behind the
+// log, rebuilds it (ADR-0087 Revision 2026-10-24). It is dropped when the
+// session ends or expires.
 type draftState struct {
 	mu      sync.Mutex
 	expires time.Time
 	loaded  bool
 	files   fstest.MapFS
 	// revs counts the patches applied to each document, from one.
-	revs     map[string]int64
-	cache    *incremental.Cache
-	sequence uint64
-	// sent holds the bundle references the devices hold.
+	revs  map[string]int64
+	cache *incremental.Cache
+	// applied is the sequence number of the last entry of the patch log
+	// that files hold.
+	applied int64
+	// sent holds the bundle references this replica pushed; a replica that
+	// did not push them sends them again.
 	sent map[string]bool
 }
 
@@ -175,25 +182,62 @@ type pushPlan struct {
 // incrementally, signs a development bundle with the key of the session's
 // environment and delivers it to the paired devices (DEV-010, CMP-051). The
 // patches apply all or none; a draft that does not compile is left as it
-// was and nothing is delivered. Pushes to one session run one at a time.
+// was and nothing is delivered. Accepted patches are appended to the
+// session's patch log, bounded by devSession.patchLogBytes, so that any
+// replica continues the session (DEV-021). Pushes to one session run one at
+// a time. A Studio session takes no patches: it follows the stored draft
+// (contract #17).
 func (s *Service) PushPatch(ctx context.Context, p auth.Principal, sessionID string, patches []DocumentPatch) (PushResult, error) {
 	plan, err := s.admitPush(ctx, p, sessionID, patches)
 	if err != nil {
 		return PushResult{}, err
 	}
-	lim := relayLimitsOf(plan.set)
-	lim.expires = plan.session.ExpiresAt
-	s.hub.room(plan.session.ID, &lim)
-	st := s.stateFor(plan.session.ID, plan.session.ExpiresAt)
-	st.mu.Lock()
+	if plan.session.Kind == KindStudio {
+		return PushResult{}, plxerr.New(plxerr.DevPatchRejected, "a Studio session follows the stored draft and takes no patches")
+	}
+	records, err := logRecords(patches)
+	if err != nil {
+		return PushResult{}, err
+	}
+	st := s.enter(plan)
 	defer st.mu.Unlock()
-	if err := s.load(ctx, p, st, plan); err != nil {
+	if err := s.catchUp(ctx, p, st, plan); err != nil {
 		return PushResult{}, err
 	}
 	files, revs, ids, err := applyPatches(st, patches, int(plan.set.Get(limits.DocumentJSONDepth)))
 	if err != nil {
 		return PushResult{}, err
 	}
+	last := st.applied
+	appendLog := func(ctx context.Context, q *dbgen.Queries) error {
+		var err error
+		last, err = s.appendLog(ctx, q, plan, st.applied, records)
+		return err
+	}
+	out, err := s.compileAndPush(ctx, p, plan, st, files, revs, ids, appendLog)
+	if err == nil {
+		st.applied = last
+	}
+	return out, err
+}
+
+// enter returns the session's state, locked, with its room open.
+func (s *Service) enter(plan pushPlan) *draftState {
+	lim := relayLimitsOf(plan.set)
+	lim.expires = plan.session.ExpiresAt
+	s.hub.room(plan.session.ID, &lim)
+	st := s.stateFor(plan.session.ID, plan.session.ExpiresAt)
+	st.mu.Lock()
+	return st
+}
+
+// compileAndPush compiles files over the session's cache and, when they
+// compile, signs the development bundle, runs then in the signing
+// transaction and delivers the bundle. The state takes the files only once
+// the bundle is signed.
+func (s *Service) compileAndPush(ctx context.Context, p auth.Principal, plan pushPlan, st *draftState, files fstest.MapFS, revs map[string]int64, ids []string,
+	then func(context.Context, *dbgen.Queries) error,
+) (PushResult, error) {
 	started := time.Now()
 	res, err := incremental.Compile(ctx, st.cache, incremental.Input{FS: files})
 	if err != nil {
@@ -206,20 +250,21 @@ func (s *Service) PushPatch(ctx context.Context, p auth.Principal, sessionID str
 			"the patched draft does not compile; nothing was pushed")}, out.Diagnostics...)
 		return out, plxerr.New(plxerr.DevPatchRejected, "the patched draft does not compile; nothing was pushed")
 	}
-	seq := st.sequence + 1
 	bundles := bundlesOf(res.Result)
-	doc := manifestOf(plan, files, res.Result, seq, s.now(), s.channel())
-	signed, err := release.CanonicalManifest(doc)
-	if err != nil {
-		return out, fmt.Errorf("devsession: %w", err)
+	build := func(seq uint64) ([]byte, error) {
+		signed, err := release.CanonicalManifest(manifestOf(plan, files, res.Result, seq, s.now(), s.channel()))
+		if err != nil {
+			return nil, fmt.Errorf("devsession: %w", err)
+		}
+		return signed, nil
 	}
 	started = time.Now()
-	manifest, devices, err := s.sign(ctx, p, plan, signed, seq, ids)
+	signed, manifest, seq, devices, err := s.sign(ctx, p, plan, build, ids, then)
 	out.Timings.Sign = time.Since(started)
 	if err != nil {
 		return out, err
 	}
-	st.files, st.revs, st.sequence = files, revs, seq
+	st.files, st.revs = files, revs
 	frame, pages := bundleFrame(seq, manifest, bundles, st.sent, res.Pages)
 	for ref := range bundles {
 		st.sent[ref] = true
@@ -277,47 +322,37 @@ func (s *Service) plan(ctx context.Context, p auth.Principal, id pgtype.UUID) (p
 		if err != nil {
 			return err
 		}
-		out.set, err = s.o.Limits(ctx, tx, p.OrganizationID, session.AppID)
-		if err != nil {
-			return fmt.Errorf("devsession: read the limits: %w", err)
-		}
-		if !session.Live(s.now(), minutes(out.set, limits.DevSessionIdleMinutes)) {
-			return expired()
-		}
-		out.env, err = dbgen.New(tx).GetEnvironment(ctx, storage.MustUUID(session.EnvironmentID))
-		if err != nil {
-			return fmt.Errorf("devsession: find the environment: %w", err)
-		}
-		if out.env.Production || !slices.Contains(s.o.Environments, out.env.Key) {
-			return plxerr.New(plxerr.DevSessionEnvironment, "a dev bundle is not signed for the environment %q", out.env.Key)
-		}
-		out.opts, err = s.o.CompileOptions(ctx, tx, p.OrganizationID, session.AppID, session.EnvironmentID)
-		if err != nil {
-			return fmt.Errorf("devsession: compiler options: %w", err)
-		}
-		out.opts.Mode = compiler.Development
-		out.session = session
-		return nil
+		out, err = s.planOf(ctx, tx, p, session)
+		return err
 	})
 	return out, err
 }
 
-// load reads the environment's draft the first time a session pushes.
-func (s *Service) load(ctx context.Context, p auth.Principal, st *draftState, plan pushPlan) error {
-	if st.loaded {
-		return nil
-	}
-	var files fstest.MapFS
-	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		var err error
-		files, err = s.o.Drafts.DraftFiles(ctx, tx, plan.session.AppID)
-		return err //nolint:wrapcheck // a domain error
-	})
+// planOf reads what a push to a session needs: the session must be live,
+// and its environment one a dev session may be in (DEV-003, PLX-9203).
+func (s *Service) planOf(ctx context.Context, tx pgx.Tx, p auth.Principal, session Session) (pushPlan, error) {
+	out := pushPlan{session: session}
+	var err error
+	out.set, err = s.o.Limits(ctx, tx, p.OrganizationID, session.AppID)
 	if err != nil {
-		return err
+		return out, fmt.Errorf("devsession: read the limits: %w", err)
 	}
-	st.files, st.revs, st.cache, st.sent, st.loaded = files, map[string]int64{}, incremental.NewCache(plan.opts), map[string]bool{}, true
-	return nil
+	if !session.Live(s.now(), minutes(out.set, limits.DevSessionIdleMinutes)) {
+		return out, expired()
+	}
+	out.env, err = dbgen.New(tx).GetEnvironment(ctx, storage.MustUUID(session.EnvironmentID))
+	if err != nil {
+		return out, fmt.Errorf("devsession: find the environment: %w", err)
+	}
+	if out.env.Production || !slices.Contains(s.o.Environments, out.env.Key) {
+		return out, plxerr.New(plxerr.DevSessionEnvironment, "a dev bundle is not signed for the environment %q", out.env.Key)
+	}
+	out.opts, err = s.o.CompileOptions(ctx, tx, p.OrganizationID, session.AppID, session.EnvironmentID)
+	if err != nil {
+		return out, fmt.Errorf("devsession: compiler options: %w", err)
+	}
+	out.opts.Mode = compiler.Development
+	return out, nil
 }
 
 // checkSize refuses patches above devSession.patchBytes.
@@ -450,16 +485,27 @@ func minRuntimeOf(files fstest.MapFS) string {
 	return app.MinRuntimeVersion
 }
 
-// sign signs the manifest with the environment's key and audits the push, in
-// one transaction; it returns the manifest in the envelope the devices read
-// and the devices to deliver to.
-func (s *Service) sign(ctx context.Context, p auth.Principal, plan pushPlan, signed []byte, seq uint64, ids []string) ([]byte, []Device, error) {
-	var (
-		manifest []byte
-		devices  []Device
-	)
-	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+// sign numbers the next bundle of the session, builds its manifest, signs
+// it, runs then and audits the push in one transaction, and lists the
+// devices to deliver to.
+func (s *Service) sign(ctx context.Context, p auth.Principal, plan pushPlan, build func(uint64) ([]byte, error), ids []string,
+	then func(context.Context, *dbgen.Queries) error,
+) (signed, manifest []byte, seq uint64, devices []Device, err error) {
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
+		if then != nil {
+			if err := then(ctx, q); err != nil {
+				return err
+			}
+		}
+		n, err := q.NextDevSessionBundle(ctx, storage.MustUUID(plan.session.ID))
+		if err != nil {
+			return fmt.Errorf("devsession: number the bundle: %w", err)
+		}
+		seq = uint64(n) //nolint:gosec // a counter from one
+		if signed, err = build(seq); err != nil {
+			return err
+		}
 		sigs, err := s.o.Signer.SignDocument(ctx, q, plan.env, signed)
 		if err != nil {
 			return fmt.Errorf("devsession: sign the bundle: %w", err)
@@ -487,7 +533,7 @@ func (s *Service) sign(ctx context.Context, p auth.Principal, plan pushPlan, sig
 		}
 		return nil
 	})
-	return manifest, devices, err
+	return signed, manifest, seq, devices, err
 }
 
 // bundleFrame builds the frame of a push: the manifest, the bundles the

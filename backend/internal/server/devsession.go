@@ -66,5 +66,10 @@ func buildDevSessions(cfg *config.Config, db *storage.DB, log *audit.Log, ids de
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
+	// Studio sessions follow the stored draft: each accepted write is
+	// compiled and pushed to them (contract #17).
+	if docs != nil && s.CanPush() {
+		docs.FollowDrafts(s)
+	}
 	return s, nil
 }

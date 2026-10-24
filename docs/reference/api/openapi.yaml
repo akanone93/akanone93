@@ -17415,6 +17415,18 @@ components:
       title: DevSessionEnded
       additionalProperties: false
       description: DevSessionEnded tells a device its session ended.
+    plux.v1.DevSessionKind:
+      type: string
+      title: DevSessionKind
+      enum:
+        - DEV_SESSION_KIND_UNSPECIFIED
+        - DEV_SESSION_KIND_STUDIO
+        - DEV_SESSION_KIND_CLI
+      description: |-
+        DevSessionKind says who drives a dev session. A Studio session follows the
+         stored draft: the server compiles and pushes each accepted write, and
+         Studio never pushes a patch (contract #17). A CLI session pushes patches
+         over the stored draft.
     plux.v1.DevSessionServiceCreateSessionRequest:
       type: object
       properties:
@@ -17424,6 +17436,11 @@ components:
         environmentId:
           type: string
           title: environment_id
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSessionKind'
+          title: kind
+          description: kind says who drives the session; unspecified is a CLI session.
       title: DevSessionServiceCreateSessionRequest
       additionalProperties: false
     plux.v1.DevSessionServiceCreateSessionResponse:

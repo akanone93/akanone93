@@ -476,6 +476,8 @@ type DevSession struct {
 	ExpiresAt      pgtype.Timestamptz
 	LastActivityAt pgtype.Timestamptz
 	EndedAt        pgtype.Timestamptz
+	Kind           string
+	BundleSequence int64
 }
 
 type DevSessionDevice struct {
@@ -491,6 +493,16 @@ type DevSessionDevice struct {
 	RevokedAt       pgtype.Timestamptz
 	TicketHash      []byte
 	TicketExpiresAt pgtype.Timestamptz
+}
+
+type DevSessionPatch struct {
+	SessionID      pgtype.UUID
+	Seq            int64
+	OrganizationID pgtype.UUID
+	Path           string
+	Patch          []byte
+	Bytes          int32
+	CreatedAt      pgtype.Timestamptz
 }
 
 type Device struct {
