@@ -1,0 +1,15 @@
+{
+  "name": "@plux/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Connect-ES clients for the Plux API, generated from proto/ by make gen (STU-001).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "2.16.0",
+    "@connectrpc/connect": "2.2.0",
+    "@connectrpc/connect-web": "2.2.0"
+  }
+}
