@@ -91,7 +91,7 @@ export {
   WrapCrossAlignment,
   WrapParentData,
 } from "./flutter/wrap.ts";
-export { globalRects, goldenRects, type LayoutGolden, type NodeRect } from "./node-rects.ts";
+export { globalRects, goldenBaselines, goldenRects, type LayoutGolden, type NodeRect } from "./node-rects.ts";
 export { RenderTestBox, type RenderTestBoxOptions } from "./test-box.ts";
 export { CanvasKitParagraphEngine } from "./text/canvaskit-engine.ts";
 export {
