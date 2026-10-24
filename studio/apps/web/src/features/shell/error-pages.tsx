@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { createClient } from "@connectrpc/connect";
-import { GovernanceService } from "@plux/api";
 import { useLingui } from "@lingui/react";
+import { GovernanceService } from "@plux/api";
 import { Button } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";

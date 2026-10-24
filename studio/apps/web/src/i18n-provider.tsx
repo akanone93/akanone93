@@ -3,7 +3,7 @@
 
 import type { I18n, Messages } from "@lingui/core";
 import { I18nProvider as LinguiProvider } from "@lingui/react";
-import { createStudioI18n, negotiateLocale, type StudioI18n } from "@plux/i18n";
+import { createStudioI18n, directionOf, negotiateLocale, type StudioI18n } from "@plux/i18n";
 import { createContext, type ReactNode, use, useEffect, useState } from "react";
 import { shellMessages } from "./shell.messages.ts";
 
@@ -39,12 +39,16 @@ export function I18nProvider({ studio, children }: { studio: StudioI18n; childre
   const [ready, setReady] = useState<I18n | null>(null);
   useEffect(() => {
     const requested = typeof navigator === "undefined" ? [] : navigator.languages;
-    void studio.activate(negotiateLocale({ requested, pseudo })).then(() => {
+    void studio.activate(negotiateLocale({ requested, pseudo })).then((locale) => {
+      document.documentElement.setAttribute("lang", locale);
+      document.documentElement.setAttribute("dir", directionOf(locale));
       document.title = shellMessages(studio.i18n).appTitle;
       setReady(studio.i18n);
     });
   }, [studio]);
-  return ready === null ? null : <StudioContext value={studio}>
+  return ready === null ? null : (
+    <StudioContext value={studio}>
       <LinguiProvider i18n={ready}>{children}</LinguiProvider>
-    </StudioContext>;
+    </StudioContext>
+  );
 }

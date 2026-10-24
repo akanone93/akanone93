@@ -7,11 +7,19 @@ import type { CompleteWebAuthnLoginRequest } from "@plux/api";
 export async function getAssertion(
   optionsJson: Uint8Array,
   challengeId: string,
-): Promise<Pick<CompleteWebAuthnLoginRequest, "challengeId" | "credentialId" | "clientDataJson" | "authenticatorData" | "signature">> {
+): Promise<
+  Pick<
+    CompleteWebAuthnLoginRequest,
+    "challengeId" | "credentialId" | "clientDataJson" | "authenticatorData" | "signature"
+  >
+> {
   const json: unknown = JSON.parse(new TextDecoder().decode(optionsJson));
   const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(json as PublicKeyCredentialRequestOptionsJSON);
   const credential = await navigator.credentials.get({ publicKey });
-  if (!(credential instanceof PublicKeyCredential) || !(credential.response instanceof AuthenticatorAssertionResponse)) {
+  if (
+    !(credential instanceof PublicKeyCredential) ||
+    !(credential.response instanceof AuthenticatorAssertionResponse)
+  ) {
     throw new Error("no assertion");
   }
   return {

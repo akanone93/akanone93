@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { createClient } from "@connectrpc/connect";
-import { IdentityService } from "@plux/api";
 import { useLingui } from "@lingui/react";
+import { IdentityService } from "@plux/api";
 import { Button, Field, Input } from "@plux/ui";
 import { useForm } from "@tanstack/react-form";
 import { useParams, useRouter } from "@tanstack/react-router";
@@ -54,7 +54,11 @@ export function InvitePage() {
         <form.Field name="displayName">
           {(field) => (
             <Field label={m.displayName} error={firstMessage(field.state.meta.errors)}>
-              <Input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} onBlur={field.handleBlur} />
+              <Input
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+              />
             </Field>
           )}
         </form.Field>

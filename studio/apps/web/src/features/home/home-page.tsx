@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { createClient } from "@connectrpc/connect";
-import { OrgService } from "@plux/api";
 import { useLingui } from "@lingui/react";
+import { OrgService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { organizationIdOf } from "../../lib/session.ts";

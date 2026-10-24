@@ -20,7 +20,11 @@ export function useAppliedPreferences(preferences: Preferences | undefined): voi
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     void (async () => {
       const locale = language === "" ? studio.locale() : await studio.activate(language);
-      applyPreferences(document.documentElement, { theme: asTheme(theme), density: asDensity(density), locale }, prefersDark);
+      applyPreferences(
+        document.documentElement,
+        { theme: asTheme(theme), density: asDensity(density), locale },
+        prefersDark,
+      );
     })();
   }, [loaded, theme, density, language, studio]);
 }

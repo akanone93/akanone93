@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createContext, type ReactNode, use } from "react";
 import type { StudioI18n } from "@plux/i18n";
+import { createContext, type ReactNode, use } from "react";
 import type { Session } from "./session.ts";
 
 export interface AppContext {

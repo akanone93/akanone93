@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { readFileSync } from "node:fs";
-import type { Messages } from "@lingui/core";
-import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
+import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
+import type { Messages } from "@lingui/core";
 import {
   FederationService,
   GetCurrentUserResponseSchema,
@@ -18,8 +18,8 @@ import {
   UserSchema,
 } from "@plux/api";
 import { createStudioI18n } from "@plux/i18n";
-import { render } from "@testing-library/react";
 import { createMemoryHistory } from "@tanstack/react-router";
+import { render } from "@testing-library/react";
 import { App } from "./app.tsx";
 import { I18nProvider } from "./i18n-provider.tsx";
 import { createSession } from "./lib/session.ts";
@@ -49,7 +49,9 @@ export function createUpstream(state: Upstream) {
         }
         return create(GetCurrentUserResponseSchema, {
           user: create(UserSchema, { id: "u1", displayName: "Ada", email: "ada@example.org" }),
-          memberships: (state.memberships ?? [orgA, orgB]).map((id) => create(MemberSchema, { organizationId: id, userId: "u1" })),
+          memberships: (state.memberships ?? [orgA, orgB]).map((id) =>
+            create(MemberSchema, { organizationId: id, userId: "u1" }),
+          ),
           permissions: state.permissions ?? [],
         });
       },
@@ -104,7 +106,10 @@ export function loadSourceCatalogue(): Messages {
     const message = m[2];
     if (id !== undefined && message !== undefined) {
       const parts = message.split(/\{(\w+)\}/);
-      out[id] = parts.length === 1 ? message : parts.map((part, i) => (i % 2 === 1 ? [part] : part)).filter((p) => p !== "");
+      out[id] =
+        parts.length === 1
+          ? message
+          : (parts.map((part, i) => (i % 2 === 1 ? [part] : part)).filter((p) => p !== "") as Messages[string]);
     }
   }
   return out;

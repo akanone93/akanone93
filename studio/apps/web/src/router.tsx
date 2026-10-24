@@ -8,8 +8,8 @@ import {
   type ErrorComponentProps,
   lazyRouteComponent,
   Outlet,
-  redirect,
   type RouterHistory,
+  redirect,
 } from "@tanstack/react-router";
 import { z } from "zod";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
