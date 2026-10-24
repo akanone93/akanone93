@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check
 
 ##@ Studio (Bun, TypeScript)
 
@@ -26,10 +26,10 @@ studio-i18n-check: studio-install ## Catalogues are complete and current: strict
 	cd studio && apps/web/node_modules/.bin/lingui extract --clean && apps/web/node_modules/.bin/lingui compile --strict && rm -f apps/web/src/locales/*/messages.js
 	git diff --exit-code -- studio/apps/web/src/locales
 
-studio-typecheck: studio-gen-theme ## Type-check Studio code
+studio-typecheck: studio-gen-theme studio-gen-icons ## Type-check Studio code
 	cd studio && bun run typecheck
 
-studio-test: studio-gen-theme ## Run Studio tests
+studio-test: studio-gen-theme studio-gen-icons ## Run Studio tests
 	cd studio && bun run test
 
 studio-conformance: ## Compare Studio's layout with Flutter's goldens (STU-005)
@@ -47,7 +47,10 @@ studio-dev: studio-gen-theme ## Run the Studio web app with the Vite dev server
 studio-gen-theme: studio-install ## Regenerate Studio's Tailwind theme from the design tokens
 	cd studio && bun run gen:theme
 
-studio-build: studio-install studio-gen-theme ## Build the Studio web app into studio/apps/web/dist
+studio-gen-icons: studio-install ## Regenerate the Icon set from @phosphor-icons/core (UI language U8)
+	cd studio/packages/ui && bun scripts/gen-icons.ts
+
+studio-build: studio-install studio-gen-theme studio-gen-icons ## Build the Studio web app into studio/apps/web/dist
 	cd studio && bun run build
 
 studio-size: studio-build ## Check the initial JavaScript against the budget (STU-122)
