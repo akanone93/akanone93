@@ -110,6 +110,7 @@ export async function startServer(source: CanvasKitSource): Promise<{ url: strin
   const scripts: Record<string, string> = {
     "/main.js": await bundle("main.ts", "iife"),
     "/worker.js": await bundle("worker.ts", "esm"),
+    "/nogpu-worker.js": await bundle("nogpu-worker.ts", "esm"),
     "/validator-worker.js": await bundle("validator-worker.ts", "iife"),
   };
   const ckDir = canvasKitDir(source);
