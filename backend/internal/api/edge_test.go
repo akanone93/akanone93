@@ -158,6 +158,10 @@ func (fakeAuthenticator) AuthenticateSession(_ context.Context, secret string) (
 	return auth.Identity{Kind: auth.KindUser, ID: "u", UserID: "u", CSRFToken: "plux_csrf_good"}, nil //nolint:gosec // a test value
 }
 
+func (f fakeAuthenticator) AuthenticateSessionQuietly(ctx context.Context, secret string) (auth.Identity, error) {
+	return f.AuthenticateSession(ctx, secret)
+}
+
 func (fakeAuthenticator) AuthenticateToken(_ context.Context, secret string) (auth.Identity, error) {
 	if secret != "plux_pat_good" { //nolint:gosec // a test value
 		return auth.Identity{}, plxerr.New(plxerr.AuthenticationRequired, "no")
