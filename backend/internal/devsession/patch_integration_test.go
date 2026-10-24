@@ -94,36 +94,52 @@ func (h *hub) Deliver(_, deviceID string, frame *pluxv1.DevServerFrame) error {
 type pushFixture struct {
 	*fixture
 	hub *hub
+	// opts are the service's options, for a second replica.
+	opts devsession.Options
 }
 
 func newPushFixture(t *testing.T, patchBytes int64) *pushFixture {
+	t.Helper()
+	tight := map[limits.Key]int64{}
+	if patchBytes != 0 {
+		tight[limits.DevSessionPatchBytes] = patchBytes
+	}
+	return newPushFixtureWith(t, tight)
+}
+
+// newPushFixtureWith is newPushFixture with the given limits tightened.
+func newPushFixtureWith(t *testing.T, tight map[limits.Key]int64) *pushFixture {
 	t.Helper()
 	f := newFixture(t, 0)
 	h := &hub{fail: map[string]error{}}
 	lim := func(ctx context.Context, tx pgx.Tx, org, _ string) (limits.Set, error) {
 		set, err := f.Limits(ctx, tx, org)
-		if err != nil || patchBytes == 0 {
-			return set, err
+		for k, v := range tight {
+			if err != nil {
+				break
+			}
+			set, err = set.Tighten(k, limits.ScopeOrganization, v)
 		}
-		return set.Tighten(limits.DevSessionPatchBytes, limits.ScopeOrganization, patchBytes) //nolint:wrapcheck // a test
+		return set, err //nolint:wrapcheck // a test
 	}
-	svc, err := devsession.New(devsession.Options{
+	o := devsession.Options{
 		DB: f.DB, Audit: f.Log, IDs: f.Gen, Limits: lim, Tokens: f.signer, Environments: []string{"development"},
 		PublicBaseURL: "https://plux.example.com", Now: f.Clock,
 		Drafts: drafts{t}, Signer: fileSigner{f}, Deliverer: h,
 		CompileOptions: func(context.Context, pgx.Tx, string, string, string) (compiler.Options, error) {
-			o := compiler.DefaultOptions()
-			o.IconFont = func(set icons.Set, names []string) ([]byte, error) {
+			co := compiler.DefaultOptions()
+			co.IconFont = func(set icons.Set, names []string) ([]byte, error) {
 				return fmt.Appendf(nil, "font %s %v", set, names), nil
 			}
-			return o, nil
+			return co, nil
 		},
-	})
+	}
+	svc, err := devsession.New(o)
 	if err != nil {
 		t.Fatal(err)
 	}
 	f.svc = svc
-	return &pushFixture{fixture: f, hub: h}
+	return &pushFixture{fixture: f, hub: h, opts: o}
 }
 
 // pairDevices pairs n devices with the session and returns their IDs.
@@ -380,7 +396,7 @@ func TestPushPatch_RefusesProduction_DEV_003(t *testing.T) {
 			ID: storage.MustUUID(id), OrganizationID: storage.MustUUID(f.Org), AppID: storage.MustUUID(f.App),
 			EnvironmentID: storage.MustUUID(f.Envs["production"]), EnvironmentKey: "production",
 			CreatedByUser: f.Developer.UserID, CreatedByKind: "user", CreatedByID: f.Developer.UserID, CreatedBy: "dev",
-			CreatedAt: now, ExpiresAt: storage.Timestamp(f.Now.Add(time.Hour)),
+			CreatedAt: now, ExpiresAt: storage.Timestamp(f.Now.Add(time.Hour)), Kind: "cli",
 		})
 		return err //nolint:wrapcheck // a test
 	})

@@ -122,6 +122,18 @@ message DevDevice {
 message DevSessionServiceCreateSessionRequest {
   string app_id = 1;
   string environment_id = 2;
+  // kind says who drives the session; unspecified is a CLI session.
+  DevSessionKind kind = 3;
+}
+
+// DevSessionKind says who drives a dev session. A Studio session follows the
+// stored draft: the server compiles and pushes each accepted write, and
+// Studio never pushes a patch (contract #17). A CLI session pushes patches
+// over the stored draft.
+enum DevSessionKind {
+  DEV_SESSION_KIND_UNSPECIFIED = 0;
+  DEV_SESSION_KIND_STUDIO = 1;
+  DEV_SESSION_KIND_CLI = 2;
 }
 
 message DevSessionServiceCreateSessionResponse {

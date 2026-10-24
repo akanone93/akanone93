@@ -2,8 +2,8 @@
 
 -- name: InsertDevSession :one
 INSERT INTO dev_sessions (id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by,
-                          created_at, expires_at, last_activity_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $10)
+                          created_at, expires_at, last_activity_at, kind)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $10, $12)
 RETURNING *;
 
 -- name: GetDevSession :one
@@ -112,3 +112,29 @@ UPDATE dev_session_devices SET ticket_hash = sqlc.arg(ticket_hash), ticket_expir
  WHERE id = sqlc.arg(id) AND session_id = sqlc.arg(session_id) AND device_id = sqlc.arg(device_id)
    AND dpop_thumbprint = sqlc.arg(dpop_thumbprint) AND revoked_at IS NULL
  RETURNING id;
+
+-- name: NextDevSessionBundle :one
+-- Numbers the next development bundle of a session, for every replica.
+UPDATE dev_sessions SET bundle_sequence = bundle_sequence + 1 WHERE id = $1 RETURNING bundle_sequence;
+
+-- name: ListFollowingDevSessions :many
+-- The Studio sessions of an app that may still be live; the caller checks
+-- the idle timeout.
+SELECT * FROM dev_sessions
+WHERE app_id = $1 AND kind = 'studio' AND ended_at IS NULL AND expires_at > sqlc.arg(now)::timestamptz
+ORDER BY created_at, id;
+
+-- name: DevSessionPatchLogState :one
+-- The last sequence number and the total bytes of a session's patch log.
+SELECT COALESCE(MAX(seq), 0)::bigint AS last_seq, COALESCE(SUM(bytes), 0)::bigint AS total_bytes
+FROM dev_session_patches WHERE session_id = $1;
+
+-- name: ListDevSessionPatches :many
+SELECT seq, path, patch FROM dev_session_patches WHERE session_id = $1 AND seq > sqlc.arg(after)::bigint ORDER BY seq;
+
+-- name: InsertDevSessionPatch :exec
+INSERT INTO dev_session_patches (session_id, seq, organization_id, path, patch, bytes, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7);
+
+-- name: DeleteDevSessionPatches :exec
+DELETE FROM dev_session_patches WHERE session_id = $1;

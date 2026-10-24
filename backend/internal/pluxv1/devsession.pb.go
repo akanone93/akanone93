@@ -25,6 +25,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// DevSessionKind says who drives a dev session. A Studio session follows the
+// stored draft: the server compiles and pushes each accepted write, and
+// Studio never pushes a patch (contract #17). A CLI session pushes patches
+// over the stored draft.
+type DevSessionKind int32
+
+const (
+	DevSessionKind_DEV_SESSION_KIND_UNSPECIFIED DevSessionKind = 0
+	DevSessionKind_DEV_SESSION_KIND_STUDIO      DevSessionKind = 1
+	DevSessionKind_DEV_SESSION_KIND_CLI         DevSessionKind = 2
+)
+
+// Enum value maps for DevSessionKind.
+var (
+	DevSessionKind_name = map[int32]string{
+		0: "DEV_SESSION_KIND_UNSPECIFIED",
+		1: "DEV_SESSION_KIND_STUDIO",
+		2: "DEV_SESSION_KIND_CLI",
+	}
+	DevSessionKind_value = map[string]int32{
+		"DEV_SESSION_KIND_UNSPECIFIED": 0,
+		"DEV_SESSION_KIND_STUDIO":      1,
+		"DEV_SESSION_KIND_CLI":         2,
+	}
+)
+
+func (x DevSessionKind) Enum() *DevSessionKind {
+	p := new(DevSessionKind)
+	*p = x
+	return p
+}
+
+func (x DevSessionKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DevSessionKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_plux_v1_devsession_proto_enumTypes[0].Descriptor()
+}
+
+func (DevSessionKind) Type() protoreflect.EnumType {
+	return &file_plux_v1_devsession_proto_enumTypes[0]
+}
+
+func (x DevSessionKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DevSessionKind.Descriptor instead.
+func (DevSessionKind) EnumDescriptor() ([]byte, []int) {
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{0}
+}
+
 // DevPatchStatus is the outcome of a push for one device.
 type DevPatchStatus int32
 
@@ -69,11 +122,11 @@ func (x DevPatchStatus) String() string {
 }
 
 func (DevPatchStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_plux_v1_devsession_proto_enumTypes[0].Descriptor()
+	return file_plux_v1_devsession_proto_enumTypes[1].Descriptor()
 }
 
 func (DevPatchStatus) Type() protoreflect.EnumType {
-	return &file_plux_v1_devsession_proto_enumTypes[0]
+	return &file_plux_v1_devsession_proto_enumTypes[1]
 }
 
 func (x DevPatchStatus) Number() protoreflect.EnumNumber {
@@ -82,7 +135,7 @@ func (x DevPatchStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DevPatchStatus.Descriptor instead.
 func (DevPatchStatus) EnumDescriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{0}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{1}
 }
 
 // DevThemeMode is the theme a screen is opened with.
@@ -122,11 +175,11 @@ func (x DevThemeMode) String() string {
 }
 
 func (DevThemeMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_plux_v1_devsession_proto_enumTypes[1].Descriptor()
+	return file_plux_v1_devsession_proto_enumTypes[2].Descriptor()
 }
 
 func (DevThemeMode) Type() protoreflect.EnumType {
-	return &file_plux_v1_devsession_proto_enumTypes[1]
+	return &file_plux_v1_devsession_proto_enumTypes[2]
 }
 
 func (x DevThemeMode) Number() protoreflect.EnumNumber {
@@ -135,7 +188,7 @@ func (x DevThemeMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DevThemeMode.Descriptor instead.
 func (DevThemeMode) EnumDescriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{1}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{2}
 }
 
 // DevLifecycleEvent is a lifecycle event the device simulates.
@@ -181,11 +234,11 @@ func (x DevLifecycleEvent) String() string {
 }
 
 func (DevLifecycleEvent) Descriptor() protoreflect.EnumDescriptor {
-	return file_plux_v1_devsession_proto_enumTypes[2].Descriptor()
+	return file_plux_v1_devsession_proto_enumTypes[3].Descriptor()
 }
 
 func (DevLifecycleEvent) Type() protoreflect.EnumType {
-	return &file_plux_v1_devsession_proto_enumTypes[2]
+	return &file_plux_v1_devsession_proto_enumTypes[3]
 }
 
 func (x DevLifecycleEvent) Number() protoreflect.EnumNumber {
@@ -194,7 +247,7 @@ func (x DevLifecycleEvent) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DevLifecycleEvent.Descriptor instead.
 func (DevLifecycleEvent) EnumDescriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{2}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{3}
 }
 
 // DevOverlay is a debugging overlay.
@@ -237,11 +290,11 @@ func (x DevOverlay) String() string {
 }
 
 func (DevOverlay) Descriptor() protoreflect.EnumDescriptor {
-	return file_plux_v1_devsession_proto_enumTypes[3].Descriptor()
+	return file_plux_v1_devsession_proto_enumTypes[4].Descriptor()
 }
 
 func (DevOverlay) Type() protoreflect.EnumType {
-	return &file_plux_v1_devsession_proto_enumTypes[3]
+	return &file_plux_v1_devsession_proto_enumTypes[4]
 }
 
 func (x DevOverlay) Number() protoreflect.EnumNumber {
@@ -250,7 +303,7 @@ func (x DevOverlay) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DevOverlay.Descriptor instead.
 func (DevOverlay) EnumDescriptor() ([]byte, []int) {
-	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{3}
+	return file_plux_v1_devsession_proto_rawDescGZIP(), []int{4}
 }
 
 // DevSession is a dev session.
@@ -550,6 +603,8 @@ type DevSessionServiceCreateSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	// kind says who drives the session; unspecified is a CLI session.
+	Kind          DevSessionKind `protobuf:"varint,3,opt,name=kind,proto3,enum=plux.v1.DevSessionKind" json:"kind,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -596,6 +651,13 @@ func (x *DevSessionServiceCreateSessionRequest) GetEnvironmentId() string {
 		return x.EnvironmentId
 	}
 	return ""
+}
+
+func (x *DevSessionServiceCreateSessionRequest) GetKind() DevSessionKind {
+	if x != nil {
+		return x.Kind
+	}
+	return DevSessionKind_DEV_SESSION_KIND_UNSPECIFIED
 }
 
 type DevSessionServiceCreateSessionResponse struct {
@@ -3258,10 +3320,11 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"\flast_seen_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"lastSeenAt\x12\x1c\n" +
 	"\tconnected\x18\b \x01(\bR\tconnected\x12#\n" +
-	"\rlast_sequence\x18\t \x01(\x04R\flastSequence\"e\n" +
+	"\rlast_sequence\x18\t \x01(\x04R\flastSequence\"\x92\x01\n" +
 	"%DevSessionServiceCreateSessionRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
-	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\"\x86\x01\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12+\n" +
+	"\x04kind\x18\x03 \x01(\x0e2\x17.plux.v1.DevSessionKindR\x04kind\"\x86\x01\n" +
 	"&DevSessionServiceCreateSessionResponse\x12-\n" +
 	"\asession\x18\x01 \x01(\v2\x13.plux.v1.DevSessionR\asession\x12-\n" +
 	"\apairing\x18\x02 \x01(\v2\x13.plux.v1.DevPairingR\apairing\"C\n" +
@@ -3442,7 +3505,11 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"\vDevEventAck\x12\x13\n" +
 	"\x05up_to\x18\x01 \x01(\x04R\x04upTo\"%\n" +
 	"\x0fDevSessionEnded\x12\x12\n" +
-	"\x04code\x18\x01 \x01(\tR\x04code*\xb5\x01\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code*i\n" +
+	"\x0eDevSessionKind\x12 \n" +
+	"\x1cDEV_SESSION_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17DEV_SESSION_KIND_STUDIO\x10\x01\x12\x18\n" +
+	"\x14DEV_SESSION_KIND_CLI\x10\x02*\xb5\x01\n" +
 	"\x0eDevPatchStatus\x12 \n" +
 	"\x1cDEV_PATCH_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18DEV_PATCH_STATUS_APPLIED\x10\x01\x12'\n" +
@@ -3494,143 +3561,145 @@ func file_plux_v1_devsession_proto_rawDescGZIP() []byte {
 	return file_plux_v1_devsession_proto_rawDescData
 }
 
-var file_plux_v1_devsession_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_plux_v1_devsession_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_plux_v1_devsession_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
 var file_plux_v1_devsession_proto_goTypes = []any{
-	(DevPatchStatus)(0),    // 0: plux.v1.DevPatchStatus
-	(DevThemeMode)(0),      // 1: plux.v1.DevThemeMode
-	(DevLifecycleEvent)(0), // 2: plux.v1.DevLifecycleEvent
-	(DevOverlay)(0),        // 3: plux.v1.DevOverlay
-	(*DevSession)(nil),     // 4: plux.v1.DevSession
-	(*DevPairing)(nil),     // 5: plux.v1.DevPairing
-	(*DevDevice)(nil),      // 6: plux.v1.DevDevice
-	(*DevSessionServiceCreateSessionRequest)(nil),      // 7: plux.v1.DevSessionServiceCreateSessionRequest
-	(*DevSessionServiceCreateSessionResponse)(nil),     // 8: plux.v1.DevSessionServiceCreateSessionResponse
-	(*DevSessionServiceGetPairingRequest)(nil),         // 9: plux.v1.DevSessionServiceGetPairingRequest
-	(*DevSessionServiceGetPairingResponse)(nil),        // 10: plux.v1.DevSessionServiceGetPairingResponse
-	(*DevSessionServicePairRequest)(nil),               // 11: plux.v1.DevSessionServicePairRequest
-	(*DevSessionServicePairResponse)(nil),              // 12: plux.v1.DevSessionServicePairResponse
-	(*DevSessionServiceRenewSocketTicketRequest)(nil),  // 13: plux.v1.DevSessionServiceRenewSocketTicketRequest
-	(*DevSessionServiceRenewSocketTicketResponse)(nil), // 14: plux.v1.DevSessionServiceRenewSocketTicketResponse
-	(*DevSessionServiceListDevicesRequest)(nil),        // 15: plux.v1.DevSessionServiceListDevicesRequest
-	(*DevSessionServiceListDevicesResponse)(nil),       // 16: plux.v1.DevSessionServiceListDevicesResponse
-	(*DevSessionServiceEndSessionRequest)(nil),         // 17: plux.v1.DevSessionServiceEndSessionRequest
-	(*DevSessionServiceEndSessionResponse)(nil),        // 18: plux.v1.DevSessionServiceEndSessionResponse
-	(*DevDocumentPatch)(nil),                           // 19: plux.v1.DevDocumentPatch
-	(*DevSessionServicePushPatchRequest)(nil),          // 20: plux.v1.DevSessionServicePushPatchRequest
-	(*DevPatchResult)(nil),                             // 21: plux.v1.DevPatchResult
-	(*DevSessionServicePushPatchResponse)(nil),         // 22: plux.v1.DevSessionServicePushPatchResponse
-	(*MockSelection)(nil),                              // 23: plux.v1.MockSelection
-	(*OpenScreenCommand)(nil),                          // 24: plux.v1.OpenScreenCommand
-	(*SetStateCommand)(nil),                            // 25: plux.v1.SetStateCommand
-	(*SwitchMockCommand)(nil),                          // 26: plux.v1.SwitchMockCommand
-	(*FakeClockCommand)(nil),                           // 27: plux.v1.FakeClockCommand
-	(*LifecycleCommand)(nil),                           // 28: plux.v1.LifecycleCommand
-	(*NetworkProfileCommand)(nil),                      // 29: plux.v1.NetworkProfileCommand
-	(*SimulateSecurityDetectionCommand)(nil),           // 30: plux.v1.SimulateSecurityDetectionCommand
-	(*EvaluatePxlCommand)(nil),                         // 31: plux.v1.EvaluatePxlCommand
-	(*CaptureScreenshotCommand)(nil),                   // 32: plux.v1.CaptureScreenshotCommand
-	(*InspectSelectCommand)(nil),                       // 33: plux.v1.InspectSelectCommand
-	(*ToggleOverlayCommand)(nil),                       // 34: plux.v1.ToggleOverlayCommand
-	(*DevSessionServiceSendCommandRequest)(nil),        // 35: plux.v1.DevSessionServiceSendCommandRequest
-	(*DevSessionServiceSendCommandResponse)(nil),       // 36: plux.v1.DevSessionServiceSendCommandResponse
-	(*DevSessionServiceWatchEventsRequest)(nil),        // 37: plux.v1.DevSessionServiceWatchEventsRequest
-	(*DevSessionServiceWatchEventsResponse)(nil),       // 38: plux.v1.DevSessionServiceWatchEventsResponse
-	(*DevSessionServiceExportTraceRequest)(nil),        // 39: plux.v1.DevSessionServiceExportTraceRequest
-	(*DevSessionServiceExportTraceResponse)(nil),       // 40: plux.v1.DevSessionServiceExportTraceResponse
-	(*DevDeviceFrame)(nil),                             // 41: plux.v1.DevDeviceFrame
-	(*DevDeviceHello)(nil),                             // 42: plux.v1.DevDeviceHello
-	(*DevServerFrame)(nil),                             // 43: plux.v1.DevServerFrame
-	(*DevBundleFrame)(nil),                             // 44: plux.v1.DevBundleFrame
-	(*DevScopeList)(nil),                               // 45: plux.v1.DevScopeList
-	(*DevCommandFrame)(nil),                            // 46: plux.v1.DevCommandFrame
-	(*DevEventAck)(nil),                                // 47: plux.v1.DevEventAck
-	(*DevSessionEnded)(nil),                            // 48: plux.v1.DevSessionEnded
-	nil,                                                // 49: plux.v1.OpenScreenCommand.ParamsEntry
-	nil,                                                // 50: plux.v1.DevBundleFrame.SectionsEntry
-	nil,                                                // 51: plux.v1.DevBundleFrame.IncompatibleScopesEntry
-	(*Actor)(nil),                                      // 52: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),                      // 53: google.protobuf.Timestamp
-	(*PatchOp)(nil),                                    // 54: plux.v1.PatchOp
-	(*DevError)(nil),                                   // 55: plux.v1.DevError
-	(*Diagnostic)(nil),                                 // 56: plux.v1.Diagnostic
-	(DevSecurityDetectionKind)(0),                      // 57: plux.v1.DevSecurityDetectionKind
-	(*DevEvent)(nil),                                   // 58: plux.v1.DevEvent
+	(DevSessionKind)(0),    // 0: plux.v1.DevSessionKind
+	(DevPatchStatus)(0),    // 1: plux.v1.DevPatchStatus
+	(DevThemeMode)(0),      // 2: plux.v1.DevThemeMode
+	(DevLifecycleEvent)(0), // 3: plux.v1.DevLifecycleEvent
+	(DevOverlay)(0),        // 4: plux.v1.DevOverlay
+	(*DevSession)(nil),     // 5: plux.v1.DevSession
+	(*DevPairing)(nil),     // 6: plux.v1.DevPairing
+	(*DevDevice)(nil),      // 7: plux.v1.DevDevice
+	(*DevSessionServiceCreateSessionRequest)(nil),      // 8: plux.v1.DevSessionServiceCreateSessionRequest
+	(*DevSessionServiceCreateSessionResponse)(nil),     // 9: plux.v1.DevSessionServiceCreateSessionResponse
+	(*DevSessionServiceGetPairingRequest)(nil),         // 10: plux.v1.DevSessionServiceGetPairingRequest
+	(*DevSessionServiceGetPairingResponse)(nil),        // 11: plux.v1.DevSessionServiceGetPairingResponse
+	(*DevSessionServicePairRequest)(nil),               // 12: plux.v1.DevSessionServicePairRequest
+	(*DevSessionServicePairResponse)(nil),              // 13: plux.v1.DevSessionServicePairResponse
+	(*DevSessionServiceRenewSocketTicketRequest)(nil),  // 14: plux.v1.DevSessionServiceRenewSocketTicketRequest
+	(*DevSessionServiceRenewSocketTicketResponse)(nil), // 15: plux.v1.DevSessionServiceRenewSocketTicketResponse
+	(*DevSessionServiceListDevicesRequest)(nil),        // 16: plux.v1.DevSessionServiceListDevicesRequest
+	(*DevSessionServiceListDevicesResponse)(nil),       // 17: plux.v1.DevSessionServiceListDevicesResponse
+	(*DevSessionServiceEndSessionRequest)(nil),         // 18: plux.v1.DevSessionServiceEndSessionRequest
+	(*DevSessionServiceEndSessionResponse)(nil),        // 19: plux.v1.DevSessionServiceEndSessionResponse
+	(*DevDocumentPatch)(nil),                           // 20: plux.v1.DevDocumentPatch
+	(*DevSessionServicePushPatchRequest)(nil),          // 21: plux.v1.DevSessionServicePushPatchRequest
+	(*DevPatchResult)(nil),                             // 22: plux.v1.DevPatchResult
+	(*DevSessionServicePushPatchResponse)(nil),         // 23: plux.v1.DevSessionServicePushPatchResponse
+	(*MockSelection)(nil),                              // 24: plux.v1.MockSelection
+	(*OpenScreenCommand)(nil),                          // 25: plux.v1.OpenScreenCommand
+	(*SetStateCommand)(nil),                            // 26: plux.v1.SetStateCommand
+	(*SwitchMockCommand)(nil),                          // 27: plux.v1.SwitchMockCommand
+	(*FakeClockCommand)(nil),                           // 28: plux.v1.FakeClockCommand
+	(*LifecycleCommand)(nil),                           // 29: plux.v1.LifecycleCommand
+	(*NetworkProfileCommand)(nil),                      // 30: plux.v1.NetworkProfileCommand
+	(*SimulateSecurityDetectionCommand)(nil),           // 31: plux.v1.SimulateSecurityDetectionCommand
+	(*EvaluatePxlCommand)(nil),                         // 32: plux.v1.EvaluatePxlCommand
+	(*CaptureScreenshotCommand)(nil),                   // 33: plux.v1.CaptureScreenshotCommand
+	(*InspectSelectCommand)(nil),                       // 34: plux.v1.InspectSelectCommand
+	(*ToggleOverlayCommand)(nil),                       // 35: plux.v1.ToggleOverlayCommand
+	(*DevSessionServiceSendCommandRequest)(nil),        // 36: plux.v1.DevSessionServiceSendCommandRequest
+	(*DevSessionServiceSendCommandResponse)(nil),       // 37: plux.v1.DevSessionServiceSendCommandResponse
+	(*DevSessionServiceWatchEventsRequest)(nil),        // 38: plux.v1.DevSessionServiceWatchEventsRequest
+	(*DevSessionServiceWatchEventsResponse)(nil),       // 39: plux.v1.DevSessionServiceWatchEventsResponse
+	(*DevSessionServiceExportTraceRequest)(nil),        // 40: plux.v1.DevSessionServiceExportTraceRequest
+	(*DevSessionServiceExportTraceResponse)(nil),       // 41: plux.v1.DevSessionServiceExportTraceResponse
+	(*DevDeviceFrame)(nil),                             // 42: plux.v1.DevDeviceFrame
+	(*DevDeviceHello)(nil),                             // 43: plux.v1.DevDeviceHello
+	(*DevServerFrame)(nil),                             // 44: plux.v1.DevServerFrame
+	(*DevBundleFrame)(nil),                             // 45: plux.v1.DevBundleFrame
+	(*DevScopeList)(nil),                               // 46: plux.v1.DevScopeList
+	(*DevCommandFrame)(nil),                            // 47: plux.v1.DevCommandFrame
+	(*DevEventAck)(nil),                                // 48: plux.v1.DevEventAck
+	(*DevSessionEnded)(nil),                            // 49: plux.v1.DevSessionEnded
+	nil,                                                // 50: plux.v1.OpenScreenCommand.ParamsEntry
+	nil,                                                // 51: plux.v1.DevBundleFrame.SectionsEntry
+	nil,                                                // 52: plux.v1.DevBundleFrame.IncompatibleScopesEntry
+	(*Actor)(nil),                                      // 53: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),                      // 54: google.protobuf.Timestamp
+	(*PatchOp)(nil),                                    // 55: plux.v1.PatchOp
+	(*DevError)(nil),                                   // 56: plux.v1.DevError
+	(*Diagnostic)(nil),                                 // 57: plux.v1.Diagnostic
+	(DevSecurityDetectionKind)(0),                      // 58: plux.v1.DevSecurityDetectionKind
+	(*DevEvent)(nil),                                   // 59: plux.v1.DevEvent
 }
 var file_plux_v1_devsession_proto_depIdxs = []int32{
-	52, // 0: plux.v1.DevSession.created_by:type_name -> plux.v1.Actor
-	53, // 1: plux.v1.DevSession.created_at:type_name -> google.protobuf.Timestamp
-	53, // 2: plux.v1.DevSession.expires_at:type_name -> google.protobuf.Timestamp
-	53, // 3: plux.v1.DevSession.ended_at:type_name -> google.protobuf.Timestamp
-	53, // 4: plux.v1.DevPairing.expires_at:type_name -> google.protobuf.Timestamp
-	53, // 5: plux.v1.DevDevice.paired_at:type_name -> google.protobuf.Timestamp
-	53, // 6: plux.v1.DevDevice.last_seen_at:type_name -> google.protobuf.Timestamp
-	4,  // 7: plux.v1.DevSessionServiceCreateSessionResponse.session:type_name -> plux.v1.DevSession
-	5,  // 8: plux.v1.DevSessionServiceCreateSessionResponse.pairing:type_name -> plux.v1.DevPairing
-	5,  // 9: plux.v1.DevSessionServiceGetPairingResponse.pairing:type_name -> plux.v1.DevPairing
-	53, // 10: plux.v1.DevSessionServicePairResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
-	53, // 11: plux.v1.DevSessionServiceRenewSocketTicketResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
-	6,  // 12: plux.v1.DevSessionServiceListDevicesResponse.devices:type_name -> plux.v1.DevDevice
-	4,  // 13: plux.v1.DevSessionServiceEndSessionResponse.session:type_name -> plux.v1.DevSession
-	54, // 14: plux.v1.DevDocumentPatch.patch:type_name -> plux.v1.PatchOp
-	19, // 15: plux.v1.DevSessionServicePushPatchRequest.patches:type_name -> plux.v1.DevDocumentPatch
-	0,  // 16: plux.v1.DevPatchResult.status:type_name -> plux.v1.DevPatchStatus
-	55, // 17: plux.v1.DevPatchResult.error:type_name -> plux.v1.DevError
-	21, // 18: plux.v1.DevSessionServicePushPatchResponse.results:type_name -> plux.v1.DevPatchResult
-	56, // 19: plux.v1.DevSessionServicePushPatchResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	49, // 20: plux.v1.OpenScreenCommand.params:type_name -> plux.v1.OpenScreenCommand.ParamsEntry
-	1,  // 21: plux.v1.OpenScreenCommand.theme:type_name -> plux.v1.DevThemeMode
-	23, // 22: plux.v1.OpenScreenCommand.mocks:type_name -> plux.v1.MockSelection
-	2,  // 23: plux.v1.LifecycleCommand.event:type_name -> plux.v1.DevLifecycleEvent
-	57, // 24: plux.v1.SimulateSecurityDetectionCommand.kind:type_name -> plux.v1.DevSecurityDetectionKind
-	3,  // 25: plux.v1.ToggleOverlayCommand.overlay:type_name -> plux.v1.DevOverlay
-	24, // 26: plux.v1.DevSessionServiceSendCommandRequest.open_screen:type_name -> plux.v1.OpenScreenCommand
-	25, // 27: plux.v1.DevSessionServiceSendCommandRequest.set_state:type_name -> plux.v1.SetStateCommand
-	26, // 28: plux.v1.DevSessionServiceSendCommandRequest.switch_mock:type_name -> plux.v1.SwitchMockCommand
-	27, // 29: plux.v1.DevSessionServiceSendCommandRequest.fake_clock:type_name -> plux.v1.FakeClockCommand
-	28, // 30: plux.v1.DevSessionServiceSendCommandRequest.lifecycle:type_name -> plux.v1.LifecycleCommand
-	29, // 31: plux.v1.DevSessionServiceSendCommandRequest.network_profile:type_name -> plux.v1.NetworkProfileCommand
-	30, // 32: plux.v1.DevSessionServiceSendCommandRequest.simulate_security_detection:type_name -> plux.v1.SimulateSecurityDetectionCommand
-	31, // 33: plux.v1.DevSessionServiceSendCommandRequest.evaluate_pxl:type_name -> plux.v1.EvaluatePxlCommand
-	32, // 34: plux.v1.DevSessionServiceSendCommandRequest.capture_screenshot:type_name -> plux.v1.CaptureScreenshotCommand
-	33, // 35: plux.v1.DevSessionServiceSendCommandRequest.inspect_select:type_name -> plux.v1.InspectSelectCommand
-	34, // 36: plux.v1.DevSessionServiceSendCommandRequest.toggle_overlay:type_name -> plux.v1.ToggleOverlayCommand
-	58, // 37: plux.v1.DevSessionServiceWatchEventsResponse.event:type_name -> plux.v1.DevEvent
-	42, // 38: plux.v1.DevDeviceFrame.hello:type_name -> plux.v1.DevDeviceHello
-	58, // 39: plux.v1.DevDeviceFrame.event:type_name -> plux.v1.DevEvent
-	44, // 40: plux.v1.DevServerFrame.bundle:type_name -> plux.v1.DevBundleFrame
-	46, // 41: plux.v1.DevServerFrame.command:type_name -> plux.v1.DevCommandFrame
-	47, // 42: plux.v1.DevServerFrame.ack:type_name -> plux.v1.DevEventAck
-	48, // 43: plux.v1.DevServerFrame.ended:type_name -> plux.v1.DevSessionEnded
-	50, // 44: plux.v1.DevBundleFrame.sections:type_name -> plux.v1.DevBundleFrame.SectionsEntry
-	51, // 45: plux.v1.DevBundleFrame.incompatible_scopes:type_name -> plux.v1.DevBundleFrame.IncompatibleScopesEntry
-	35, // 46: plux.v1.DevCommandFrame.command:type_name -> plux.v1.DevSessionServiceSendCommandRequest
-	45, // 47: plux.v1.DevBundleFrame.IncompatibleScopesEntry.value:type_name -> plux.v1.DevScopeList
-	7,  // 48: plux.v1.DevSessionService.CreateSession:input_type -> plux.v1.DevSessionServiceCreateSessionRequest
-	9,  // 49: plux.v1.DevSessionService.GetPairing:input_type -> plux.v1.DevSessionServiceGetPairingRequest
-	11, // 50: plux.v1.DevSessionService.Pair:input_type -> plux.v1.DevSessionServicePairRequest
-	13, // 51: plux.v1.DevSessionService.RenewSocketTicket:input_type -> plux.v1.DevSessionServiceRenewSocketTicketRequest
-	15, // 52: plux.v1.DevSessionService.ListDevices:input_type -> plux.v1.DevSessionServiceListDevicesRequest
-	17, // 53: plux.v1.DevSessionService.EndSession:input_type -> plux.v1.DevSessionServiceEndSessionRequest
-	20, // 54: plux.v1.DevSessionService.PushPatch:input_type -> plux.v1.DevSessionServicePushPatchRequest
-	35, // 55: plux.v1.DevSessionService.SendCommand:input_type -> plux.v1.DevSessionServiceSendCommandRequest
-	37, // 56: plux.v1.DevSessionService.WatchEvents:input_type -> plux.v1.DevSessionServiceWatchEventsRequest
-	39, // 57: plux.v1.DevSessionService.ExportTrace:input_type -> plux.v1.DevSessionServiceExportTraceRequest
-	8,  // 58: plux.v1.DevSessionService.CreateSession:output_type -> plux.v1.DevSessionServiceCreateSessionResponse
-	10, // 59: plux.v1.DevSessionService.GetPairing:output_type -> plux.v1.DevSessionServiceGetPairingResponse
-	12, // 60: plux.v1.DevSessionService.Pair:output_type -> plux.v1.DevSessionServicePairResponse
-	14, // 61: plux.v1.DevSessionService.RenewSocketTicket:output_type -> plux.v1.DevSessionServiceRenewSocketTicketResponse
-	16, // 62: plux.v1.DevSessionService.ListDevices:output_type -> plux.v1.DevSessionServiceListDevicesResponse
-	18, // 63: plux.v1.DevSessionService.EndSession:output_type -> plux.v1.DevSessionServiceEndSessionResponse
-	22, // 64: plux.v1.DevSessionService.PushPatch:output_type -> plux.v1.DevSessionServicePushPatchResponse
-	36, // 65: plux.v1.DevSessionService.SendCommand:output_type -> plux.v1.DevSessionServiceSendCommandResponse
-	38, // 66: plux.v1.DevSessionService.WatchEvents:output_type -> plux.v1.DevSessionServiceWatchEventsResponse
-	40, // 67: plux.v1.DevSessionService.ExportTrace:output_type -> plux.v1.DevSessionServiceExportTraceResponse
-	58, // [58:68] is the sub-list for method output_type
-	48, // [48:58] is the sub-list for method input_type
-	48, // [48:48] is the sub-list for extension type_name
-	48, // [48:48] is the sub-list for extension extendee
-	0,  // [0:48] is the sub-list for field type_name
+	53, // 0: plux.v1.DevSession.created_by:type_name -> plux.v1.Actor
+	54, // 1: plux.v1.DevSession.created_at:type_name -> google.protobuf.Timestamp
+	54, // 2: plux.v1.DevSession.expires_at:type_name -> google.protobuf.Timestamp
+	54, // 3: plux.v1.DevSession.ended_at:type_name -> google.protobuf.Timestamp
+	54, // 4: plux.v1.DevPairing.expires_at:type_name -> google.protobuf.Timestamp
+	54, // 5: plux.v1.DevDevice.paired_at:type_name -> google.protobuf.Timestamp
+	54, // 6: plux.v1.DevDevice.last_seen_at:type_name -> google.protobuf.Timestamp
+	0,  // 7: plux.v1.DevSessionServiceCreateSessionRequest.kind:type_name -> plux.v1.DevSessionKind
+	5,  // 8: plux.v1.DevSessionServiceCreateSessionResponse.session:type_name -> plux.v1.DevSession
+	6,  // 9: plux.v1.DevSessionServiceCreateSessionResponse.pairing:type_name -> plux.v1.DevPairing
+	6,  // 10: plux.v1.DevSessionServiceGetPairingResponse.pairing:type_name -> plux.v1.DevPairing
+	54, // 11: plux.v1.DevSessionServicePairResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
+	54, // 12: plux.v1.DevSessionServiceRenewSocketTicketResponse.socket_ticket_expires_at:type_name -> google.protobuf.Timestamp
+	7,  // 13: plux.v1.DevSessionServiceListDevicesResponse.devices:type_name -> plux.v1.DevDevice
+	5,  // 14: plux.v1.DevSessionServiceEndSessionResponse.session:type_name -> plux.v1.DevSession
+	55, // 15: plux.v1.DevDocumentPatch.patch:type_name -> plux.v1.PatchOp
+	20, // 16: plux.v1.DevSessionServicePushPatchRequest.patches:type_name -> plux.v1.DevDocumentPatch
+	1,  // 17: plux.v1.DevPatchResult.status:type_name -> plux.v1.DevPatchStatus
+	56, // 18: plux.v1.DevPatchResult.error:type_name -> plux.v1.DevError
+	22, // 19: plux.v1.DevSessionServicePushPatchResponse.results:type_name -> plux.v1.DevPatchResult
+	57, // 20: plux.v1.DevSessionServicePushPatchResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	50, // 21: plux.v1.OpenScreenCommand.params:type_name -> plux.v1.OpenScreenCommand.ParamsEntry
+	2,  // 22: plux.v1.OpenScreenCommand.theme:type_name -> plux.v1.DevThemeMode
+	24, // 23: plux.v1.OpenScreenCommand.mocks:type_name -> plux.v1.MockSelection
+	3,  // 24: plux.v1.LifecycleCommand.event:type_name -> plux.v1.DevLifecycleEvent
+	58, // 25: plux.v1.SimulateSecurityDetectionCommand.kind:type_name -> plux.v1.DevSecurityDetectionKind
+	4,  // 26: plux.v1.ToggleOverlayCommand.overlay:type_name -> plux.v1.DevOverlay
+	25, // 27: plux.v1.DevSessionServiceSendCommandRequest.open_screen:type_name -> plux.v1.OpenScreenCommand
+	26, // 28: plux.v1.DevSessionServiceSendCommandRequest.set_state:type_name -> plux.v1.SetStateCommand
+	27, // 29: plux.v1.DevSessionServiceSendCommandRequest.switch_mock:type_name -> plux.v1.SwitchMockCommand
+	28, // 30: plux.v1.DevSessionServiceSendCommandRequest.fake_clock:type_name -> plux.v1.FakeClockCommand
+	29, // 31: plux.v1.DevSessionServiceSendCommandRequest.lifecycle:type_name -> plux.v1.LifecycleCommand
+	30, // 32: plux.v1.DevSessionServiceSendCommandRequest.network_profile:type_name -> plux.v1.NetworkProfileCommand
+	31, // 33: plux.v1.DevSessionServiceSendCommandRequest.simulate_security_detection:type_name -> plux.v1.SimulateSecurityDetectionCommand
+	32, // 34: plux.v1.DevSessionServiceSendCommandRequest.evaluate_pxl:type_name -> plux.v1.EvaluatePxlCommand
+	33, // 35: plux.v1.DevSessionServiceSendCommandRequest.capture_screenshot:type_name -> plux.v1.CaptureScreenshotCommand
+	34, // 36: plux.v1.DevSessionServiceSendCommandRequest.inspect_select:type_name -> plux.v1.InspectSelectCommand
+	35, // 37: plux.v1.DevSessionServiceSendCommandRequest.toggle_overlay:type_name -> plux.v1.ToggleOverlayCommand
+	59, // 38: plux.v1.DevSessionServiceWatchEventsResponse.event:type_name -> plux.v1.DevEvent
+	43, // 39: plux.v1.DevDeviceFrame.hello:type_name -> plux.v1.DevDeviceHello
+	59, // 40: plux.v1.DevDeviceFrame.event:type_name -> plux.v1.DevEvent
+	45, // 41: plux.v1.DevServerFrame.bundle:type_name -> plux.v1.DevBundleFrame
+	47, // 42: plux.v1.DevServerFrame.command:type_name -> plux.v1.DevCommandFrame
+	48, // 43: plux.v1.DevServerFrame.ack:type_name -> plux.v1.DevEventAck
+	49, // 44: plux.v1.DevServerFrame.ended:type_name -> plux.v1.DevSessionEnded
+	51, // 45: plux.v1.DevBundleFrame.sections:type_name -> plux.v1.DevBundleFrame.SectionsEntry
+	52, // 46: plux.v1.DevBundleFrame.incompatible_scopes:type_name -> plux.v1.DevBundleFrame.IncompatibleScopesEntry
+	36, // 47: plux.v1.DevCommandFrame.command:type_name -> plux.v1.DevSessionServiceSendCommandRequest
+	46, // 48: plux.v1.DevBundleFrame.IncompatibleScopesEntry.value:type_name -> plux.v1.DevScopeList
+	8,  // 49: plux.v1.DevSessionService.CreateSession:input_type -> plux.v1.DevSessionServiceCreateSessionRequest
+	10, // 50: plux.v1.DevSessionService.GetPairing:input_type -> plux.v1.DevSessionServiceGetPairingRequest
+	12, // 51: plux.v1.DevSessionService.Pair:input_type -> plux.v1.DevSessionServicePairRequest
+	14, // 52: plux.v1.DevSessionService.RenewSocketTicket:input_type -> plux.v1.DevSessionServiceRenewSocketTicketRequest
+	16, // 53: plux.v1.DevSessionService.ListDevices:input_type -> plux.v1.DevSessionServiceListDevicesRequest
+	18, // 54: plux.v1.DevSessionService.EndSession:input_type -> plux.v1.DevSessionServiceEndSessionRequest
+	21, // 55: plux.v1.DevSessionService.PushPatch:input_type -> plux.v1.DevSessionServicePushPatchRequest
+	36, // 56: plux.v1.DevSessionService.SendCommand:input_type -> plux.v1.DevSessionServiceSendCommandRequest
+	38, // 57: plux.v1.DevSessionService.WatchEvents:input_type -> plux.v1.DevSessionServiceWatchEventsRequest
+	40, // 58: plux.v1.DevSessionService.ExportTrace:input_type -> plux.v1.DevSessionServiceExportTraceRequest
+	9,  // 59: plux.v1.DevSessionService.CreateSession:output_type -> plux.v1.DevSessionServiceCreateSessionResponse
+	11, // 60: plux.v1.DevSessionService.GetPairing:output_type -> plux.v1.DevSessionServiceGetPairingResponse
+	13, // 61: plux.v1.DevSessionService.Pair:output_type -> plux.v1.DevSessionServicePairResponse
+	15, // 62: plux.v1.DevSessionService.RenewSocketTicket:output_type -> plux.v1.DevSessionServiceRenewSocketTicketResponse
+	17, // 63: plux.v1.DevSessionService.ListDevices:output_type -> plux.v1.DevSessionServiceListDevicesResponse
+	19, // 64: plux.v1.DevSessionService.EndSession:output_type -> plux.v1.DevSessionServiceEndSessionResponse
+	23, // 65: plux.v1.DevSessionService.PushPatch:output_type -> plux.v1.DevSessionServicePushPatchResponse
+	37, // 66: plux.v1.DevSessionService.SendCommand:output_type -> plux.v1.DevSessionServiceSendCommandResponse
+	39, // 67: plux.v1.DevSessionService.WatchEvents:output_type -> plux.v1.DevSessionServiceWatchEventsResponse
+	41, // 68: plux.v1.DevSessionService.ExportTrace:output_type -> plux.v1.DevSessionServiceExportTraceResponse
+	59, // [59:69] is the sub-list for method output_type
+	49, // [49:59] is the sub-list for method input_type
+	49, // [49:49] is the sub-list for extension type_name
+	49, // [49:49] is the sub-list for extension extendee
+	0,  // [0:49] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_devsession_proto_init() }
@@ -3673,7 +3742,7 @@ func file_plux_v1_devsession_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_devsession_proto_rawDesc), len(file_plux_v1_devsession_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      5,
 			NumMessages:   48,
 			NumExtensions: 0,
 			NumServices:   1,
