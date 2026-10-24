@@ -51,7 +51,7 @@ export function createStudioI18n(options: StudioI18nOptions): StudioI18n {
     let messages: Messages;
     if (locale === "en-XA" || locale === "ar-XB") {
       const source = await sourceMessages();
-      messages = pseudoCatalogue(locale, stringsOf(source));
+      messages = pseudoCatalogue(locale, source);
     } else {
       messages = await options.load(locale);
     }
@@ -83,8 +83,4 @@ export function createStudioI18n(options: StudioI18nOptions): StudioI18n {
       return locale;
     },
   };
-}
-
-function stringsOf(messages: Messages): Record<string, string> {
-  return Object.fromEntries(Object.entries(messages).filter((e): e is [string, string] => typeof e[1] === "string"));
 }
