@@ -44,6 +44,7 @@
     "packages": {
       "studio/apps/bff": 85,
       "studio/apps/web": 70,
+      "studio/packages/canvas": 80,
       "studio/packages/layout": 90
     }
   }

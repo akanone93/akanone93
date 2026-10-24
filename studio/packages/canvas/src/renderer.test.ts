@@ -116,7 +116,7 @@ describe("STU-120 tile cache, dirty regions and idle rendering (M-12)", () => {
     expect(renderer.idle(Number.POSITIVE_INFINITY)).toBe(16);
     expect(renderer.hasIdleWork()).toBe(false);
     const cached = renderer.frame();
-    expect([cached.tilesDrawn, cached.regions, cached.drawCalls, cached.idleQueue]).toEqual([4, 0, 5, 0]);
+    expect([cached.tilesDrawn, cached.regions, cached.drawCalls, cached.idleQueue]).toEqual([4, 0, 4, 0]);
     viewport.pan(-30, -10);
     expect(renderer.frame().regions).toBe(0);
     scene.apply([{ op: "move", id: "a", dx: 5, dy: 5 }]);

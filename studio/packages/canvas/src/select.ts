@@ -49,18 +49,20 @@ export function chooseRenderer(
   return measured.raster < measured.webgl * RASTER_ADVANTAGE ? "raster" : "webgl";
 }
 
-const MEASURE_ITEMS = 150;
-const MEASURE_BLITS = 8;
+const MEASURE_TILE = 512;
+const MEASURE_GRID = 3;
+const MEASURE_ITEMS = 40;
 
 /**
- * The median time in ms of a short workload on `surface`: a batched path of
- * rounded rectangles, a batched path of curves, and tile-sized image blits,
- * then a flush and a 1x1 read so GPU work is included.
+ * The median time in ms of a representative pan frame on `surface`: a clear,
+ * a 3 x 3 grid of 512-pixel tile blits and a small batched live layer, then a
+ * flush and a 1x1 read so GPU work is included. Tile blits dominate a frame,
+ * and they are where the renderers differ most (M-12).
  */
 export function measureSurface(ck: CanvasKit, surface: Surface, now: () => number, rounds = 5): number {
   const info = {
-    width: 128,
-    height: 128,
+    width: MEASURE_TILE,
+    height: MEASURE_TILE,
     colorType: ck.ColorType.RGBA_8888,
     alphaType: ck.AlphaType.Premul,
     colorSpace: ck.ColorSpace.SRGB,
@@ -71,33 +73,25 @@ export function measureSurface(ck: CanvasKit, surface: Surface, now: () => numbe
   const paint = new ck.Paint();
   paint.setAntiAlias(true);
   const builder = new ck.PathBuilder();
+  const src = ck.XYWHRect(0, 0, MEASURE_TILE, MEASURE_TILE);
   const times: number[] = [];
   const canvas = surface.getCanvas();
   for (let round = 0; round < rounds; round++) {
     const start = now();
     canvas.clear(ck.WHITE);
-    for (let i = 0; i < MEASURE_ITEMS; i++) {
-      builder.addRRect(ck.RRectXY(ck.XYWHRect((i % 15) * 16, Math.floor(i / 15) * 12, 12, 8), 2, 2));
+    for (let i = 0; i < MEASURE_GRID * MEASURE_GRID; i++) {
+      const x = (i % MEASURE_GRID) * MEASURE_TILE - 100 - round;
+      const y = Math.floor(i / MEASURE_GRID) * MEASURE_TILE - 100;
+      const dst = ck.XYWHRect(x, y, MEASURE_TILE, MEASURE_TILE);
+      canvas.drawImageRectOptions(image, src, dst, ck.FilterMode.Nearest, ck.MipmapMode.None);
     }
-    const boxes = builder.detach();
-    canvas.drawPath(boxes, paint);
-    boxes.delete();
     for (let i = 0; i < MEASURE_ITEMS; i++) {
-      builder.moveTo(i, 0);
-      builder.cubicTo(i + 40, 30, i + 80, 60, i + 120, 100);
+      builder.moveTo(i * 4, 0);
+      builder.cubicTo(i * 4 + 40, 30, i * 4 + 80, 60, i * 4 + 120, 100);
     }
     const links = builder.detach();
     canvas.drawPath(links, paint);
     links.delete();
-    for (let i = 0; i < MEASURE_BLITS; i++) {
-      canvas.drawImageRectOptions(
-        image,
-        ck.XYWHRect(0, 0, 128, 128),
-        ck.XYWHRect(i * 20, i * 10, 128, 128),
-        ck.FilterMode.Linear,
-        ck.MipmapMode.None,
-      );
-    }
     surface.flush();
     canvas.readPixels(0, 0, { ...info, width: 1, height: 1 });
     times.push(now() - start);

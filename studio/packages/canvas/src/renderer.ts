@@ -212,8 +212,10 @@ export class SceneRenderer {
     this.viewport.worldRect(this.view);
     const canvas = this.surface.getCanvas();
     const scale = this.viewport.zoom * this.dpr;
-    canvas.clear(this.background);
-    this.calls++;
+    if (!this.options.tiles) {
+      canvas.clear(this.background);
+      this.calls++;
+    }
     canvas.save();
     canvas.scale(scale, scale);
     canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
@@ -278,6 +280,10 @@ export class SceneRenderer {
   private drawTiled(canvas: Canvas, scale: number): void {
     const t0 = this.now();
     this.tiles.setScale(scale);
+    if (!this.covered()) {
+      canvas.clear(this.background);
+      this.calls++;
+    }
     for (const tile of this.tiles.stale(this.view, this.scratchTiles)) {
       this.blit(canvas, tile, true);
       this.counters.staleTilesDrawn++;
@@ -304,6 +310,19 @@ export class SceneRenderer {
     this.counters.tileMs = t1 - t0;
     this.counters.regionMs = t2 - t1;
     this.counters.liveMs = t3 - t2;
+  }
+
+  /** Whether clean or dirty tiles cover the view, so no clear is needed under them. */
+  private covered(): boolean {
+    if (this.tiles.hasStale) {
+      return false;
+    }
+    for (const tile of this.tiles.collect(this.view, this.visible)) {
+      if (tile.image === null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private addRegion(a: Rect, b: Rect): void {
@@ -345,7 +364,10 @@ export class SceneRenderer {
     }
     this.src.set([0, 0, image.width(), image.height()]);
     const dst = this.toArray(this.tiles.tileRect(tile, this.tileWorld, stale), this.dst);
-    canvas.drawImageRectOptions(image, this.src, dst, this.ck.FilterMode.Linear, this.ck.MipmapMode.None);
+    // A full-resolution tile at the current scale maps pixel to pixel: nearest sampling is exact and cheapest.
+    const exact = !stale && !tile.lowRes && this.tiles.scale === this.viewport.zoom * this.dpr;
+    const filter = exact ? this.ck.FilterMode.Nearest : this.ck.FilterMode.Linear;
+    canvas.drawImageRectOptions(image, this.src, dst, filter, this.ck.MipmapMode.None);
     this.calls++;
   }
 
@@ -523,6 +545,9 @@ export class SceneRenderer {
     this.drawScene(canvas, world, false);
     canvas.restore();
     this.tiles.store(tile, this.resources.own(surface.makeImageSnapshot(this.irect)), lowRes);
+    // Finish the tile's GPU work here, in idle time, rather than in the next frame's flush.
+    surface.flush();
+    this.syncGpu(canvas);
     this.tileRenders++;
     this.tileRenderMs += this.now() - start;
   }

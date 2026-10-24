@@ -149,7 +149,7 @@ export class CanvasWorkerCore {
       glRenderer: probe.renderer,
       software: probe.software,
       majorPerformanceCaveat: probe.majorPerformanceCaveat,
-      tiles: options.tiles ?? kind === "webgl",
+      tiles: options.tiles ?? true,
       measuredMs: measured,
     };
     return { surface, info };
