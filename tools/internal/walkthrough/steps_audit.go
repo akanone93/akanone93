@@ -4,7 +4,6 @@
 package walkthrough
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -197,38 +196,51 @@ func (e *Env) stepDSR(ctx context.Context, run *Run) error {
 	if _, err := w.plux(ctx, "admin", "dsr", "map", "--json"); err != nil {
 		return err
 	}
-	before, err := e.exportSubject(ctx, w, id, "before")
-	if err != nil {
+	if err := e.exportSubject(ctx, w, id); err != nil {
 		return err
 	}
 	if _, err := w.plux(ctx, "admin", "dsr", "erase", "--kind", "device", "--json", id); err != nil {
 		return err
 	}
-	after, err := e.exportSubject(ctx, w, id, "after")
+	// Nothing is held any more: the export is refused, and a second erasure
+	// finds only the first one's tombstones.
+	file := filepath.Join(e.TempDir, "dsr-after.json")
+	if err := w.refused(ctx, "admin", nothingHeld, "dsr", "export", "--kind", "device", "--out", file, id); err != nil {
+		return fmt.Errorf("the device's data must be gone after the erasure: %w", err)
+	}
+	out, err := w.plux(ctx, "admin", "dsr", "erase", "--kind", "device", "--json", id)
 	if err != nil {
 		return err
 	}
-	if bytes.Equal(before, after) {
-		return errors.New("the export after the erasure equals the export before it")
+	v, err := decode(out)
+	if err != nil {
+		return err
+	}
+	if m, ok := v.(map[string]any); !ok || m["alreadyErased"] != true {
+		return fmt.Errorf("a second erasure must report the device already erased, got %q", strings.TrimSpace(out))
 	}
 	_, err = w.plux(ctx, "admin", "dsr", "status", "--json")
 	return err
 }
 
-// exportSubject exports everything held about a device, requires a non-empty
-// JSON archive and keeps it as evidence.
-func (e *Env) exportSubject(ctx context.Context, w *walk, id, label string) ([]byte, error) {
-	file := filepath.Join(e.TempDir, "dsr-"+label+".json")
+// nothingHeld is the refusal of an export about a subject the installation
+// holds no data on.
+var nothingHeld = regexp.MustCompile(`PLX-8501`)
+
+// exportSubject exports everything held about a device before its erasure,
+// requires a non-empty JSON archive and keeps it as evidence.
+func (e *Env) exportSubject(ctx context.Context, w *walk, id string) error {
+	file := filepath.Join(e.TempDir, "dsr-before.json")
 	if _, err := w.plux(ctx, "admin", "dsr", "export", "--kind", "device", "--out", file, id); err != nil {
-		return nil, err
+		return err
 	}
 	data, err := os.ReadFile(file) //nolint:gosec // the file is the one this step asked the CLI to write
 	if err != nil {
-		return nil, fmt.Errorf("read the %s export: %w", label, err)
+		return fmt.Errorf("read the export: %w", err)
 	}
 	var archive map[string]any
 	if err := json.Unmarshal(data, &archive); err != nil || len(archive) == 0 {
-		return nil, fmt.Errorf("the %s export is not a non-empty JSON archive", label)
+		return errors.New("the export is not a non-empty JSON archive")
 	}
-	return data, w.run.Evidence("dsr-export-"+label+".json", data)
+	return w.run.Evidence("dsr-export-before.json", data)
 }

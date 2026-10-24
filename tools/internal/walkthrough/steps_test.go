@@ -201,33 +201,44 @@ func TestUpgradeStep(t *testing.T) {
 	}
 }
 
-// Step 9 exports, erases and exports again; the archives must be real and
-// must differ.
+// Step 9 exports a real archive and erases it; afterwards the export is
+// refused because nothing is held, and a second erasure finds it erased.
 func TestDataSubjectStep(t *testing.T) {
 	t.Parallel()
+	held := `{"telemetry":[1,2],"device":{"id":"d"}}`
 	for name, tc := range map[string]struct {
 		before, after string
+		again         string
 		want          string
 	}{
-		"erased":       {before: `{"telemetry":[1,2],"device":{"id":"d"}}`, after: `{"telemetry":[]}`},
-		"unchanged":    {before: `{"telemetry":[1]}`, after: `{"telemetry":[1]}`, want: "equals the export before"},
-		"empty":        {before: `{}`, after: `{}`, want: "non-empty JSON archive"},
-		"not an array": {before: `[1]`, after: `{}`, want: "non-empty JSON archive"},
+		"erased":           {before: held, again: `{"alreadyErased":true}`},
+		"still held":       {before: held, after: `{"telemetry":[1]}`, again: `{"alreadyErased":true}`, want: "must be gone"},
+		"not erased again": {before: held, again: `{"alreadyErased":false}`, want: "already erased"},
+		"empty":            {before: `{}`, again: `{"alreadyErased":true}`, want: "non-empty JSON archive"},
+		"not an array":     {before: `[1]`, again: `{"alreadyErased":true}`, want: "non-empty JSON archive"},
 	} {
 		env, plux, _ := testEnv(t)
 		env.state.dsrDevice = "dev-9"
-		exports := 0
+		exports, erasures := 0, 0
 		plux.rules = []rule{
 			{[]string{"dsr map"}, out("{}")},
 			{[]string{"dsr export", "dev-9"}, func(c Command) Result {
 				exports++
-				body := tc.before
-				if exports > 1 {
-					body = tc.after
+				if exports == 1 {
+					return writeOut(tc.before)(c)
 				}
-				return writeOut(body)(c)
+				if tc.after == "" {
+					return Result{ExitCode: 1, Stderr: "plux dsr export: not_found: PLX-8501: no data is held about this device"}
+				}
+				return writeOut(tc.after)(c)
 			}},
-			{[]string{"dsr erase", "--kind device", "dev-9"}, out(`{"erased":"dev-9"}`)},
+			{[]string{"dsr erase", "--kind device", "dev-9"}, func(Command) Result {
+				erasures++
+				if erasures == 1 {
+					return Result{Stdout: `{"alreadyErased":false}`}
+				}
+				return Result{Stdout: tc.again}
+			}},
 			{[]string{"dsr status"}, out("{}")},
 		}
 		_, dir, err := runOneStep(t, env, "09-data-subject-request")
