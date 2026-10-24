@@ -472,6 +472,9 @@ enum PluxLimit {
   studioThumbnailBytes('studio.thumbnailBytes', PluxLimitUnit.bytes, 262144, 0, 2097152),
   /// Undo steps kept per editor session and plugin.
   studioUndoDepth('studio.undoDepth', PluxLimitUnit.count, 200, 0, 1000),
+  /// Minutes a person's Studio events log (inbox unread count) is kept after
+  /// its last event, so a tab that was away that long reloads its state.
+  studioUserEventsTTLMinutes('studio.userEventsTTLMinutes', PluxLimitUnit.count, 1440, 0, 10080),
   /// Minutes between background syncs the runtime asks the operating system
   /// for; the runtime refuses less than 15 minutes, the least the platforms
   /// grant.

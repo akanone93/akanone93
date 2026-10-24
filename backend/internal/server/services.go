@@ -73,6 +73,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
+	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
@@ -169,6 +170,9 @@ type Services struct {
 	DevSessions *devsession.Service
 	// Search is the full-text search (SRV-061).
 	Search *search.Service
+	// StudioEvents is the resumable Studio events stream (STU-075); nil
+	// where the shared cache keeps no logs or carries no notices.
+	StudioEvents *studioevents.Service
 	// Preferences keeps each user's Studio preferences per organisation
 	// (STU-014, STU-058).
 	Preferences *preferences.Service
@@ -555,7 +559,7 @@ func (k *serviceKit) buildSupport(ctx context.Context, svc *Services) error {
 	if k.runnerLink, err = buildRunnerLink(ctx, k.cfg, k.db, k.backend, k.work); err != nil {
 		return err
 	}
-	if svc.Notify, err = buildNotify(k.cfg, k.db, k.backend, k.gen, k.log, svc.Tenancy, k.work); err != nil {
+	if svc.Notify, err = buildNotify(k.cfg, k.db, k.shared, k.set, k.backend, k.gen, k.log, svc.Tenancy, k.work); err != nil {
 		return err
 	}
 	k.approvals.Use(approvalProfiles(svc.SecurityConfig), svc.Notify)
@@ -620,6 +624,13 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 	svc.Search, err = search.NewService(search.Options{DB: k.db, Tenancy: svc.Tenancy})
 	if err != nil {
 		return fmt.Errorf("server: %w", err)
+	}
+	logs, okLogs := k.shared.(cache.Logs)
+	notices, okNotices := k.shared.(cache.Notifier)
+	if okLogs && okNotices {
+		if svc.StudioEvents, err = studioevents.NewService(studioevents.Options{Logs: logs, Notifier: notices}); err != nil {
+			return fmt.Errorf("server: %w", err)
+		}
 	}
 	svc.Preferences, err = preferences.NewService(preferences.Options{DB: k.db, Tenancy: svc.Tenancy})
 	if err != nil {
@@ -787,7 +798,7 @@ func buildCore(ctx context.Context, cfg *config.Config, db *storage.DB, shared c
 	}
 	docs, err := document.NewService(document.Options{
 		DB: db, Audit: log, Tenancy: tenancyService, IDs: gen, Limits: set,
-		SnapshotDays: cfg.Retention.SnapshotDays, CompilerVersion: buildinfo.Get().Version,
+		SnapshotDays: cfg.Retention.SnapshotDays, CompilerVersion: buildinfo.Get().Version, Events: studioevents.NewPublisher(shared, set),
 		Objects: work.Objects, Jobs: assetQueue{work.Queue}, Scanner: scanner(cfg), Codecs: work.Codecs, SVG: work.SVG, Approvals: gate,
 	})
 	if err != nil {
@@ -1166,6 +1177,12 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 		h.Searches = svc.Search
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewSearchServiceHandler(h.Search(), opts)
+		})
+	}
+	if svc.StudioEvents != nil {
+		h.StudioStream = svc.StudioEvents
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewStudioEventsServiceHandler(h.StudioEvents(), opts)
 		})
 	}
 	if svc.Preferences != nil {
