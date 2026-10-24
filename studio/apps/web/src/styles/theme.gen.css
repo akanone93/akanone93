@@ -68,6 +68,12 @@
   --spacing-12: 48px;
   --spacing-16: 64px;
   --spacing-0\.5: 2px;
+  --spacing-icon-sm: 12px;
+  --spacing-icon-md: 14px;
+  --spacing-icon-lg: 17px;
+  --container-dialog-sm: 400px;
+  --container-dialog-md: 560px;
+  --container-dialog-lg: 800px;
   --font-sans: "Instrument Sans", "Noto Sans Arabic", system-ui, sans-serif;
   --font-serif: "Instrument Serif", "Noto Naskh Arabic", serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
