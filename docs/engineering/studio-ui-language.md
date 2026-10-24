@@ -10,16 +10,16 @@ SPDX-License-Identifier: Apache-2.0
   Atelier's typefaces, screen titles and intentional detail and Signal's compact, information-rich
   presentation to be brought into it without changing Porcelain's identity. This file replaces the
   version of 2026-10-20 (Electric Violet on frosted panels with Noto Sans and Lucide).
-- **Reference page:** [p11-studio-reference.html](p11-studio-reference.html) — the approved plugin
+- **Reference page:** [studio-ui-reference.html](studio-ui-reference.html) — the approved plugin
   canvas as one self-contained HTML file. Open it in a browser. It is the visual source of truth for
   this file; where they disagree, this file wins and the page is corrected.
-- **Intended home:** `docs/engineering/studio-ui-language.md` (the file rule book §4.3 links to), with
-  the reference page beside it as `docs/engineering/studio-ui-reference.html`, both moved in the pull
-  request that starts P11.
-- **Read with:** [p11-studio-decisions.md](p11-studio-decisions.md) (stack, rule book Part B),
-  [p11-studio-functional-decisions.md](p11-studio-functional-decisions.md),
-  [p11-studio-routing.md](p11-studio-routing.md), and the agent skill drafted in
-  [p11-studio-design-skill.md](p11-studio-design-skill.md).
+- **Home:** this file and the reference page beside it moved here from `docs/plans/` on 2026-10-24
+  (P11 S0.0).
+- **Read with:** [p11-studio-decisions.md](../plans/p11-studio-decisions.md) (stack),
+  [studio-development.md](studio-development.md) (the rule book),
+  [p11-studio-functional-decisions.md](../plans/p11-studio-functional-decisions.md),
+  [p11-studio-routing.md](../plans/p11-studio-routing.md), and the agent skill drafted in
+  [p11-studio-design-skill.md](../plans/p11-studio-design-skill.md).
 - **Binding rules kept:** tokens only, no raw values (rule book §4.1–§4.2); computed contrast
   (§4.5); logical properties and RTL (§8); motion tokens with reduced motion (§4.7); brand tokens of
   Appendix J (`STU-016`); WCAG 2.2 AA (`STU-011`); 60 fps canvas (`STU-120`).
@@ -180,6 +180,9 @@ Status is never shown by colour alone: always an icon and a word or a number.
 | `radius.xl` | 24 px | Panels, drawer, dialogs, popovers (20 px) |
 | `radius.full` | 9999 px | Capsules, buttons, tabs and tab tracks, search fields, pills, badges, avatars, toggles |
 
+The spec's `STU-010` carries this wording since 1.10.0 (generously rounded corners: 18–24 px on
+panels, cards and dialogs, full pills on controls, smaller radii only for small elements; O-12).
+
 Device frames on the canvas use their device's real corner radius. Nested radii follow
 `inner = outer − padding` so curves stay concentric.
 
@@ -239,7 +242,7 @@ Three open typefaces, one role each.
 - **Wordmark:** Sora SemiBold per Appendix J (`plu` in ink, `x` in violet).
 - **Licences:** Instrument Sans, Instrument Serif and DM Mono are OFL-1.1 (to verify on each file at
   import, legal review per decisions A1.2); self-hosted (rule book §11.5).
-- **Arabic (open, maintainer decision):** none of the three covers Arabic. Proposed: Noto Sans
+- **Arabic (decided, M-1 of the P11 plan):** none of the three covers Arabic. Noto Sans
   Arabic for the sans roles, Noto Naskh Arabic for the serif roles, the Latin mono kept for code
   (rule book §8.7). Arabic uses the same sizes, line heights +2 px at `type.body` and below.
 
@@ -434,10 +437,10 @@ The design reaches the code through parts an agent cannot route around, not thro
 2. **Components.** Every element of U9–U12 is a shared component in `studio/packages/ui` with a
    `CATALOGUE.md` entry and `*.cases.tsx` (rule book §5.2). Screens are assembled from them; a
    second component doing the same job is rejected in review (rule book §5.1).
-3. **Reference page.** [p11-studio-reference.html](p11-studio-reference.html) shows the approved
+3. **Reference page.** [studio-ui-reference.html](studio-ui-reference.html) shows the approved
    result; a new pattern is added to it, as markup, before it is built.
 4. **Agent skill.** Every Studio session loads the design skill
-   ([p11-studio-design-skill.md](p11-studio-design-skill.md)), which routes the agent to the tokens,
+   ([p11-studio-design-skill.md](../plans/p11-studio-design-skill.md)), which routes the agent to the tokens,
    the catalogue and this file, and ends with its checklist.
 5. **Lint.** Raw colours, sizes and shadows, icons from any set but Phosphor, and font families not
    from the tokens fail `make studio-check` (with the first component).
@@ -452,10 +455,10 @@ The design reaches the code through parts an agent cannot route around, not thro
 
 - Replaces the 2026-10-20 version of this file and rule book §4.3's description (decisions file,
   Part B); the decisions file is updated to point here.
-- Studio follows `STU-010` and the "floating" wording of `STU-060`–`STU-062` and Figure 21-2 **as
-  written**: no specification change is needed for them.
-- Appendix J lists arrows among `brand.violet`'s uses; here arrows are navy at rest and violet when
-  hovered or selected. Appendix J's use column needs that wording change.
+- Studio follows the "floating" wording of `STU-060`–`STU-062` and Figure 21-2 **as written**: no
+  specification change is needed for them. The radius wording of `STU-010` and the use column of
+  Appendix J (arrows navy at rest and violet when hovered or selected; text, canvas and status
+  colours from the derived scales) are in spec 1.10.0 (O-12, O-13).
 - Fonts change from Noto Sans to Instrument Sans, Instrument Serif and DM Mono (decisions A3, A5.4,
   rule book §4.6); icons from Lucide to Phosphor (A3, A4.14, A4.20). Both need allowlist entries,
   the Studio stack ADR (ADR-0014) and the legal review of decisions A1.2.

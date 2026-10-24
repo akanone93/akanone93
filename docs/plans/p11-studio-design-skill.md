@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # P11 Studio — Design Skill (draft)
 
+> **Status:** Decision record; the accepted plan is [p11.md](p11.md). Its paths now point to `docs/engineering/studio-ui-language.md` and `docs/engineering/studio-ui-reference.html`.
+
 - **Status:** Drafted at the maintainer's request on 2026-10-22, with the accepted UI language.
   Nothing here is active yet.
 - **Intended home:** `.claude/skills/plux-studio-design/SKILL.md`, added in the pull request that
