@@ -50,7 +50,7 @@ func (s DevSession) CreateSession(ctx context.Context, req *connect.Request[plux
 		if err != nil {
 			return nil, err
 		}
-		session, pairing, err := svc.CreateSession(ctx, p, req.Msg.GetAppId(), req.Msg.GetEnvironmentId())
+		session, pairing, err := svc.CreateSessionOfKind(ctx, p, req.Msg.GetAppId(), req.Msg.GetEnvironmentId(), devSessionKind(req.Msg.GetKind()))
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -244,4 +244,13 @@ func devSessionProto(s devsession.Session) *pluxv1.DevSession {
 // devPairingProto converts an issued pairing token.
 func devPairingProto(p devsession.Pairing) *pluxv1.DevPairing {
 	return &pluxv1.DevPairing{Token: p.Token, Uri: p.URI, ExpiresAt: ts(p.ExpiresAt), Code: p.Code}
+}
+
+// devSessionKind reads the kind of a session to create; unspecified is a CLI
+// session.
+func devSessionKind(k pluxv1.DevSessionKind) devsession.Kind {
+	if k == pluxv1.DevSessionKind_DEV_SESSION_KIND_STUDIO {
+		return devsession.KindStudio
+	}
+	return devsession.KindCLI
 }

@@ -134,6 +134,33 @@ func (q *Queries) DeleteDevPairingAttempt(ctx context.Context, id pgtype.UUID) e
 	return err
 }
 
+const deleteDevSessionPatches = `-- name: DeleteDevSessionPatches :exec
+DELETE FROM dev_session_patches WHERE session_id = $1
+`
+
+func (q *Queries) DeleteDevSessionPatches(ctx context.Context, sessionID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteDevSessionPatches, sessionID)
+	return err
+}
+
+const devSessionPatchLogState = `-- name: DevSessionPatchLogState :one
+SELECT COALESCE(MAX(seq), 0)::bigint AS last_seq, COALESCE(SUM(bytes), 0)::bigint AS total_bytes
+FROM dev_session_patches WHERE session_id = $1
+`
+
+type DevSessionPatchLogStateRow struct {
+	LastSeq    int64
+	TotalBytes int64
+}
+
+// The last sequence number and the total bytes of a session's patch log.
+func (q *Queries) DevSessionPatchLogState(ctx context.Context, sessionID pgtype.UUID) (DevSessionPatchLogStateRow, error) {
+	row := q.db.QueryRow(ctx, devSessionPatchLogState, sessionID)
+	var i DevSessionPatchLogStateRow
+	err := row.Scan(&i.LastSeq, &i.TotalBytes)
+	return i, err
+}
+
 const dropStaleDevPairingAttempts = `-- name: DropStaleDevPairingAttempts :exec
 DELETE FROM dev_pairing_attempts WHERE organization_id = $1 AND device_id = $2 AND at <= $3::timestamptz
 `
@@ -151,7 +178,7 @@ func (q *Queries) DropStaleDevPairingAttempts(ctx context.Context, arg DropStale
 }
 
 const endDevSession = `-- name: EndDevSession :one
-UPDATE dev_sessions SET ended_at = $2 WHERE id = $1 AND ended_at IS NULL RETURNING id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at
+UPDATE dev_sessions SET ended_at = $2 WHERE id = $1 AND ended_at IS NULL RETURNING id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at, kind, bundle_sequence
 `
 
 type EndDevSessionParams struct {
@@ -177,6 +204,8 @@ func (q *Queries) EndDevSession(ctx context.Context, arg EndDevSessionParams) (D
 		&i.ExpiresAt,
 		&i.LastActivityAt,
 		&i.EndedAt,
+		&i.Kind,
+		&i.BundleSequence,
 	)
 	return i, err
 }
@@ -235,7 +264,7 @@ func (q *Queries) GetDevPairingToken(ctx context.Context, tokenHash []byte) (Dev
 }
 
 const getDevSession = `-- name: GetDevSession :one
-SELECT id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at FROM dev_sessions WHERE id = $1
+SELECT id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at, kind, bundle_sequence FROM dev_sessions WHERE id = $1
 `
 
 func (q *Queries) GetDevSession(ctx context.Context, id pgtype.UUID) (DevSession, error) {
@@ -255,12 +284,14 @@ func (q *Queries) GetDevSession(ctx context.Context, id pgtype.UUID) (DevSession
 		&i.ExpiresAt,
 		&i.LastActivityAt,
 		&i.EndedAt,
+		&i.Kind,
+		&i.BundleSequence,
 	)
 	return i, err
 }
 
 const getDevSessionForUpdate = `-- name: GetDevSessionForUpdate :one
-SELECT id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at FROM dev_sessions WHERE id = $1 FOR UPDATE
+SELECT id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at, kind, bundle_sequence FROM dev_sessions WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetDevSessionForUpdate(ctx context.Context, id pgtype.UUID) (DevSession, error) {
@@ -280,6 +311,8 @@ func (q *Queries) GetDevSessionForUpdate(ctx context.Context, id pgtype.UUID) (D
 		&i.ExpiresAt,
 		&i.LastActivityAt,
 		&i.EndedAt,
+		&i.Kind,
+		&i.BundleSequence,
 	)
 	return i, err
 }
@@ -331,9 +364,9 @@ func (q *Queries) InsertDevPairingToken(ctx context.Context, arg InsertDevPairin
 const insertDevSession = `-- name: InsertDevSession :one
 
 INSERT INTO dev_sessions (id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by,
-                          created_at, expires_at, last_activity_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $10)
-RETURNING id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at
+                          created_at, expires_at, last_activity_at, kind)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $10, $12)
+RETURNING id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at, kind, bundle_sequence
 `
 
 type InsertDevSessionParams struct {
@@ -348,6 +381,7 @@ type InsertDevSessionParams struct {
 	CreatedBy      string
 	CreatedAt      pgtype.Timestamptz
 	ExpiresAt      pgtype.Timestamptz
+	Kind           string
 }
 
 // Dev sessions and pairing (DEV-002, DEV-003, ADR-0087).
@@ -364,6 +398,7 @@ func (q *Queries) InsertDevSession(ctx context.Context, arg InsertDevSessionPara
 		arg.CreatedBy,
 		arg.CreatedAt,
 		arg.ExpiresAt,
+		arg.Kind,
 	)
 	var i DevSession
 	err := row.Scan(
@@ -380,6 +415,8 @@ func (q *Queries) InsertDevSession(ctx context.Context, arg InsertDevSessionPara
 		&i.ExpiresAt,
 		&i.LastActivityAt,
 		&i.EndedAt,
+		&i.Kind,
+		&i.BundleSequence,
 	)
 	return i, err
 }
@@ -437,6 +474,34 @@ func (q *Queries) InsertDevSessionDevice(ctx context.Context, arg InsertDevSessi
 	return i, err
 }
 
+const insertDevSessionPatch = `-- name: InsertDevSessionPatch :exec
+INSERT INTO dev_session_patches (session_id, seq, organization_id, path, patch, bytes, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+`
+
+type InsertDevSessionPatchParams struct {
+	SessionID      pgtype.UUID
+	Seq            int64
+	OrganizationID pgtype.UUID
+	Path           string
+	Patch          []byte
+	Bytes          int32
+	CreatedAt      pgtype.Timestamptz
+}
+
+func (q *Queries) InsertDevSessionPatch(ctx context.Context, arg InsertDevSessionPatchParams) error {
+	_, err := q.db.Exec(ctx, insertDevSessionPatch,
+		arg.SessionID,
+		arg.Seq,
+		arg.OrganizationID,
+		arg.Path,
+		arg.Patch,
+		arg.Bytes,
+		arg.CreatedAt,
+	)
+	return err
+}
+
 const listDevSessionDevices = `-- name: ListDevSessionDevices :many
 SELECT id, organization_id, session_id, device_id, dpop_thumbprint, name, platform, runtime_version, paired_at, revoked_at, ticket_hash, ticket_expires_at FROM dev_session_devices WHERE session_id = $1 AND revoked_at IS NULL ORDER BY paired_at, id
 `
@@ -474,6 +539,90 @@ func (q *Queries) ListDevSessionDevices(ctx context.Context, sessionID pgtype.UU
 	return items, nil
 }
 
+const listDevSessionPatches = `-- name: ListDevSessionPatches :many
+SELECT seq, path, patch FROM dev_session_patches WHERE session_id = $1 AND seq > $2::bigint ORDER BY seq
+`
+
+type ListDevSessionPatchesParams struct {
+	SessionID pgtype.UUID
+	After     int64
+}
+
+type ListDevSessionPatchesRow struct {
+	Seq   int64
+	Path  string
+	Patch []byte
+}
+
+func (q *Queries) ListDevSessionPatches(ctx context.Context, arg ListDevSessionPatchesParams) ([]ListDevSessionPatchesRow, error) {
+	rows, err := q.db.Query(ctx, listDevSessionPatches, arg.SessionID, arg.After)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListDevSessionPatchesRow{}
+	for rows.Next() {
+		var i ListDevSessionPatchesRow
+		if err := rows.Scan(&i.Seq, &i.Path, &i.Patch); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFollowingDevSessions = `-- name: ListFollowingDevSessions :many
+SELECT id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at, kind, bundle_sequence FROM dev_sessions
+WHERE app_id = $1 AND kind = 'studio' AND ended_at IS NULL AND expires_at > $2::timestamptz
+ORDER BY created_at, id
+`
+
+type ListFollowingDevSessionsParams struct {
+	AppID pgtype.UUID
+	Now   pgtype.Timestamptz
+}
+
+// The Studio sessions of an app that may still be live; the caller checks
+// the idle timeout.
+func (q *Queries) ListFollowingDevSessions(ctx context.Context, arg ListFollowingDevSessionsParams) ([]DevSession, error) {
+	rows, err := q.db.Query(ctx, listFollowingDevSessions, arg.AppID, arg.Now)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DevSession{}
+	for rows.Next() {
+		var i DevSession
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.AppID,
+			&i.EnvironmentID,
+			&i.EnvironmentKey,
+			&i.CreatedByUser,
+			&i.CreatedByKind,
+			&i.CreatedByID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ExpiresAt,
+			&i.LastActivityAt,
+			&i.EndedAt,
+			&i.Kind,
+			&i.BundleSequence,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const lockDevPairingAttempts = `-- name: LockDevPairingAttempts :exec
 SELECT pg_advisory_xact_lock(hashtextextended('dev-pairing-attempts:' || $1::uuid::text || ':' || $2::text, 0))
 `
@@ -488,6 +637,18 @@ type LockDevPairingAttemptsParams struct {
 func (q *Queries) LockDevPairingAttempts(ctx context.Context, arg LockDevPairingAttemptsParams) error {
 	_, err := q.db.Exec(ctx, lockDevPairingAttempts, arg.OrganizationID, arg.DeviceID)
 	return err
+}
+
+const nextDevSessionBundle = `-- name: NextDevSessionBundle :one
+UPDATE dev_sessions SET bundle_sequence = bundle_sequence + 1 WHERE id = $1 RETURNING bundle_sequence
+`
+
+// Numbers the next development bundle of a session, for every replica.
+func (q *Queries) NextDevSessionBundle(ctx context.Context, id pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, nextDevSessionBundle, id)
+	var bundle_sequence int64
+	err := row.Scan(&bundle_sequence)
+	return bundle_sequence, err
 }
 
 const renewDevSocketTicket = `-- name: RenewDevSocketTicket :one

@@ -353,6 +353,7 @@ func (s *Service) writeScoped(ctx context.Context, p auth.Principal, appID, plug
 		return out, withDetail(lockError, "preservedSnapshot", out.SnapshotID)
 	}
 	s.documentsChanged(ctx, p, out.Documents)
+	s.draftWritten(ctx, p, appID, pluginID, out.Documents)
 	return out, nil
 }
 
