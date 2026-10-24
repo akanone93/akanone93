@@ -4,11 +4,11 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover
 
 ##@ Studio (Bun, TypeScript)
 
-studio-check: studio-install studio-lint studio-typecheck studio-cover studio-build studio-size ## All Studio gates
+studio-check: studio-install studio-lint studio-bounds studio-typecheck studio-cover studio-build studio-size ## All Studio gates
 
 studio-install: ## Install Studio dependencies exactly as locked
 	cd studio && bun install --frozen-lockfile
@@ -18,6 +18,9 @@ studio-fmt: ## Format and fix Studio code with Biome
 
 studio-lint: ## Lint and format-check Studio code with Biome
 	cd studio && bunx biome ci --colors=off .
+
+studio-bounds: ## Check Studio's import boundaries (studio-development §2.1)
+	cd tools && go run ./cmd/studiobounds ../studio
 
 studio-typecheck: ## Type-check Studio code
 	cd studio && bun run typecheck

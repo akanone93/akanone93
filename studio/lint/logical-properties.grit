@@ -1,0 +1,25 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: AGPL-3.0-only
+
+language js(typescript, jsx)
+
+// Logical properties only (studio-development 8.1): ms/me/ps/pe/start/end,
+// border-s/border-e, rounded-s/rounded-e, text-start/text-end.
+or {
+  jsx_attribute(name=$n) as $a where {
+    $n <: or {
+      `className`,
+      `class`
+    },
+    $a <: r"(?s).*((^|[^\w-])-?(ml|mr|pl|pr|left|right|border-l|border-r|rounded-l|rounded-r)-|(^|[^\w-])(text-left|text-right|float-left|float-right)([^\w-]|$)).*",
+    register_diagnostic(span=$a, message="Use logical utilities (ms/me/ps/pe/start/end, text-start/text-end), not physical left/right (studio-development 8.1).", severity="error")
+  },
+  or {
+    `cn($...)`,
+    `clsx($...)`
+  } as $c where {
+    $c <: not within jsx_attribute(),
+    $c <: r"(?s).*((^|[^\w-])-?(ml|mr|pl|pr|left|right|border-l|border-r|rounded-l|rounded-r)-|(^|[^\w-])(text-left|text-right|float-left|float-right)([^\w-]|$)).*",
+    register_diagnostic(span=$c, message="Use logical utilities (ms/me/ps/pe/start/end, text-start/text-end), not physical left/right (studio-development 8.1).", severity="error")
+  }
+}
