@@ -160,6 +160,10 @@ export interface FrameStats {
   readonly base: boolean;
   /** Time spent drawing the interaction layer, in ms. */
   readonly layerMs: number;
+  /** The duration of the progressive base job this message reports, in ms; 0 for a frame (M-12). */
+  readonly jobMs: number;
+  /** Progressive base jobs still queued (M-12). */
+  readonly baseJobs: number;
 }
 
 /** A node of the read-only scene model (studio-development §9.2). */
