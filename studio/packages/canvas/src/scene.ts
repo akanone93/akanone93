@@ -244,6 +244,11 @@ export class Scene {
     }
   }
 
+  /** Whether rectangles wait to be drained: the static content changed. */
+  get hasDirty(): boolean {
+    return this.dirty.length > 0;
+  }
+
   /** Passes every dirty world rectangle since the last drain to `visit`. */
   drainDirty(visit: (rect: Rect) => void): void {
     for (const rect of this.dirty) {
