@@ -449,12 +449,19 @@ enum PluxLimit {
   /// Events the server keeps per Studio events stream for resumption before it
   /// drops the oldest and the tab reloads its state.
   studioEventsStreamBufferEvents('studio.eventsStreamBufferEvents', PluxLimitUnit.count, 1000, 0, 10000),
+  /// Apps one user may mark as favourites in an organisation's Studio
+  /// preferences.
+  studioFavouriteApps('studio.favouriteApps', PluxLimitUnit.count, 100, 0, 1000),
   /// Minutes without an edit after which Studio releases an editing lock it
   /// holds.
   studioLockIdleReleaseMinutes('studio.lockIdleReleaseMinutes', PluxLimitUnit.count, 10, 0, 120),
   /// Minutes the lock holder must have made no edit before another user may
   /// take the lock over; a lapsed lease allows it at once.
   studioLockTakeoverIdleMinutes('studio.lockTakeoverIdleMinutes', PluxLimitUnit.count, 5, 0, 60),
+  /// Studio paths one user may pin in an organisation's Studio preferences.
+  studioPinnedItems('studio.pinnedItems', PluxLimitUnit.count, 50, 0, 500),
+  /// Bytes of one user's stored Studio preferences in an organisation, as JSON.
+  studioPreferencesBytes('studio.preferencesBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
   /// Size of one canvas or screen thumbnail Studio uploads.
   studioThumbnailBytes('studio.thumbnailBytes', PluxLimitUnit.bytes, 262144, 0, 2097152),
   /// Undo steps kept per editor session and plugin.
