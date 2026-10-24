@@ -126,6 +126,14 @@ enum PluxLimit {
   /// Ceremonies one step-up request accepts before it is closed; each wrong
   /// assertion uses one.
   authStepUpAttempts('auth.stepUpAttempts', PluxLimitUnit.count, 5, 0, 20),
+  /// Requests the Studio BFF accepts per session per minute before it answers
+  /// 429.
+  bffRequestsPerMinute('bff.requestsPerMinute', PluxLimitUnit.count, 1200, 0, 100000),
+  /// Server streams the Studio BFF keeps open per session at once.
+  bffStreamsPerSession('bff.streamsPerSession', PluxLimitUnit.count, 8, 0, 64),
+  /// Telemetry events the Studio BFF accepts per session per minute; the rest
+  /// are dropped and counted.
+  bffTelemetryEventsPerMinute('bff.telemetryEventsPerMinute', PluxLimitUnit.count, 120, 0, 10000),
   /// Size of the WebAssembly module of the device-placed functions of one
   /// plugin.
   bundleDeviceFunctionModuleSize('bundle.deviceFunctionModuleSize', PluxLimitUnit.bytes, 4194304, 0, 67108864),
@@ -225,6 +233,9 @@ enum PluxLimit {
   devSessionPairingTokenSeconds('devSession.pairingTokenSeconds', PluxLimitUnit.count, 120, 0, 120),
   /// Size of the document patches of one PushPatch call.
   devSessionPatchBytes('devSession.patchBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
+  /// Bytes of patches one CLI dev session keeps in its log; a push beyond it is
+  /// refused until the session restarts.
+  devSessionPatchLogBytes('devSession.patchLogBytes', PluxLimitUnit.bytes, 8388608, 0, 67108864),
   /// Characters copyToClipboard may put on the clipboard in one step.
   deviceClipboardChars('device.clipboardChars', PluxLimitUnit.count, 10000, 0, 100000),
   /// Disk space the runtime may use for releases on one device.
@@ -332,6 +343,11 @@ enum PluxLimit {
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
+  /// Minutes one language-server sandbox may run before it is stopped.
+  lspSessionMinutes('lsp.sessionMinutes', PluxLimitUnit.count, 60, 0, 480),
+  /// Language-server sandboxes of the Rust editor running at once in one
+  /// organisation.
+  lspSessionsPerOrganization('lsp.sessionsPerOrganization', PluxLimitUnit.count, 10, 0, 1000),
   /// Largest network video or audio file the player downloads through the
   /// pinned client when the security setting pinnedMediaOnly is on (SEC-041:
   /// platform players cannot use the pinned client).
@@ -339,6 +355,8 @@ enum PluxLimit {
   /// Notifications one organisation may send in an hour across all channels;
   /// the excess is dropped and audited.
   notificationsPerHour('notifications.perHour', PluxLimitUnit.count, 600, 0, 100000),
+  /// Days an inbox notification is kept before it is deleted.
+  notificationsRetentionDays('notifications.retentionDays', PluxLimitUnit.count, 90, 0, 3650),
   /// Animations that can run at the same time on one page.
   pageAnimations('page.animations', PluxLimitUnit.count, 30, 10, 200),
   /// Estimated build time of a page on the mid-tier reference device, the sum
@@ -390,6 +408,9 @@ enum PluxLimit {
   reconstructionRetentionDays('reconstruction.retentionDays', PluxLimitUnit.count, 365, 0, 3650),
   /// Total size of one app release: the app bundle and every plugin bundle.
   releaseAppSize('release.appSize', PluxLimitUnit.bytes, 104857600, 0, 1073741824),
+  /// Visual-diff render jobs of one organisation running at once; further jobs
+  /// wait in the queue.
+  renderVisualDiffJobsPerOrganization('render.visualDiffJobsPerOrganization', PluxLimitUnit.count, 2, 0, 50),
   /// Staged rollouts that may be in progress at once in one app.
   rolloutsActivePerApp('rollouts.activePerApp', PluxLimitUnit.count, 10, 0, 100),
   /// Disk space the runtime's cache of remote images may use on one device.
@@ -417,6 +438,27 @@ enum PluxLimit {
   /// (plain; secure state is the encrypted one, plan p5 B6); writes beyond it
   /// stay in memory and are reported.
   stateSecureBytes('state.secureBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Quiet time after the last edit before Studio autosaves the change as a
+  /// JSON Patch.
+  studioAutosaveDebounceMs('studio.autosaveDebounceMs', PluxLimitUnit.milliseconds, 500, 0, 5000),
+  /// Times Studio replays an autosave on a newer revision after a conflict
+  /// before it asks the user.
+  studioAutosaveReplays('studio.autosaveReplays', PluxLimitUnit.count, 3, 0, 10),
+  /// Size of one Studio clipboard envelope; a larger copy is refused.
+  studioClipboardBytes('studio.clipboardBytes', PluxLimitUnit.bytes, 4194304, 0, 33554432),
+  /// Events the server keeps per Studio events stream for resumption before it
+  /// drops the oldest and the tab reloads its state.
+  studioEventsStreamBufferEvents('studio.eventsStreamBufferEvents', PluxLimitUnit.count, 1000, 0, 10000),
+  /// Minutes without an edit after which Studio releases an editing lock it
+  /// holds.
+  studioLockIdleReleaseMinutes('studio.lockIdleReleaseMinutes', PluxLimitUnit.count, 10, 0, 120),
+  /// Minutes the lock holder must have made no edit before another user may
+  /// take the lock over; a lapsed lease allows it at once.
+  studioLockTakeoverIdleMinutes('studio.lockTakeoverIdleMinutes', PluxLimitUnit.count, 5, 0, 60),
+  /// Size of one canvas or screen thumbnail Studio uploads.
+  studioThumbnailBytes('studio.thumbnailBytes', PluxLimitUnit.bytes, 262144, 0, 2097152),
+  /// Undo steps kept per editor session and plugin.
+  studioUndoDepth('studio.undoDepth', PluxLimitUnit.count, 200, 0, 1000),
   /// Minutes between background syncs the runtime asks the operating system
   /// for; the runtime refuses less than 15 minutes, the least the platforms
   /// grant.

@@ -762,6 +762,57 @@
       "description": "Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one."
     },
     {
+      "key": "bff.requestsPerMinute",
+      "unit": "count",
+      "default": 1200,
+      "max": 100000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-002"
+      ],
+      "description": "Requests the Studio BFF accepts per session per minute before it answers 429."
+    },
+    {
+      "key": "bff.streamsPerSession",
+      "unit": "count",
+      "default": 8,
+      "max": 64,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-002"
+      ],
+      "description": "Server streams the Studio BFF keeps open per session at once."
+    },
+    {
+      "key": "bff.telemetryEventsPerMinute",
+      "unit": "count",
+      "default": 120,
+      "max": 10000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "OBS-001"
+      ],
+      "description": "Telemetry events the Studio BFF accepts per session per minute; the rest are dropped and counted."
+    },
+    {
       "key": "bundle.deviceFunctionModuleSize",
       "unit": "bytes",
       "default": 4194304,
@@ -1540,6 +1591,25 @@
         "DEV-010"
       ],
       "description": "Size of the document patches of one PushPatch call."
+    },
+    {
+      "key": "devSession.patchLogBytes",
+      "unit": "bytes",
+      "default": 8388608,
+      "max": 67108864,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "DEV-010"
+      ],
+      "description": "Bytes of patches one CLI dev session keeps in its log; a push beyond it is refused until the session restarts."
     },
     {
       "key": "device.clipboardChars",
@@ -2496,6 +2566,42 @@
       "description": "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."
     },
     {
+      "key": "lsp.sessionMinutes",
+      "unit": "count",
+      "default": 60,
+      "max": 480,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-110"
+      ],
+      "description": "Minutes one language-server sandbox may run before it is stopped."
+    },
+    {
+      "key": "lsp.sessionsPerOrganization",
+      "unit": "count",
+      "default": 10,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-110"
+      ],
+      "description": "Language-server sandboxes of the Rust editor running at once in one organisation."
+    },
+    {
       "key": "media.pinnedDownloadSize",
       "unit": "bytes",
       "default": 209715200,
@@ -2532,6 +2638,24 @@
         "SRV-062"
       ],
       "description": "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."
+    },
+    {
+      "key": "notifications.retentionDays",
+      "unit": "count",
+      "default": 90,
+      "max": 3650,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Days an inbox notification is kept before it is deleted."
     },
     {
       "key": "page.animations",
@@ -2979,6 +3103,24 @@
       "description": "Total size of one app release: the app bundle and every plugin bundle."
     },
     {
+      "key": "render.visualDiffJobsPerOrganization",
+      "unit": "count",
+      "default": 2,
+      "max": 50,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-100"
+      ],
+      "description": "Visual-diff render jobs of one organisation running at once; further jobs wait in the queue."
+    },
+    {
       "key": "rollouts.activePerApp",
       "unit": "count",
       "default": 10,
@@ -3193,6 +3335,156 @@
         "LIM-004"
       ],
       "description": "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."
+    },
+    {
+      "key": "studio.autosaveDebounceMs",
+      "unit": "milliseconds",
+      "default": 500,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-004"
+      ],
+      "description": "Quiet time after the last edit before Studio autosaves the change as a JSON Patch."
+    },
+    {
+      "key": "studio.autosaveReplays",
+      "unit": "count",
+      "default": 3,
+      "max": 10,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-004"
+      ],
+      "description": "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."
+    },
+    {
+      "key": "studio.clipboardBytes",
+      "unit": "bytes",
+      "default": 4194304,
+      "max": 33554432,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-067"
+      ],
+      "description": "Size of one Studio clipboard envelope; a larger copy is refused."
+    },
+    {
+      "key": "studio.eventsStreamBufferEvents",
+      "unit": "count",
+      "default": 1000,
+      "max": 10000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-075"
+      ],
+      "description": "Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state."
+    },
+    {
+      "key": "studio.lockIdleReleaseMinutes",
+      "unit": "count",
+      "default": 10,
+      "max": 120,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-040"
+      ],
+      "description": "Minutes without an edit after which Studio releases an editing lock it holds."
+    },
+    {
+      "key": "studio.lockTakeoverIdleMinutes",
+      "unit": "count",
+      "default": 5,
+      "max": 60,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-041"
+      ],
+      "description": "Minutes the lock holder must have made no edit before another user may take the lock over; a lapsed lease allows it at once."
+    },
+    {
+      "key": "studio.thumbnailBytes",
+      "unit": "bytes",
+      "default": 262144,
+      "max": 2097152,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-021"
+      ],
+      "description": "Size of one canvas or screen thumbnail Studio uploads."
+    },
+    {
+      "key": "studio.undoDepth",
+      "unit": "count",
+      "default": 200,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-069"
+      ],
+      "description": "Undo steps kept per editor session and plugin."
     },
     {
       "key": "sync.backgroundIntervalMinutes",
