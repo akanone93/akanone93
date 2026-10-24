@@ -1,6 +1,6 @@
 # studio — Agent Notes
 
-The Bun workspace for Plux Studio (spec §21): `apps/` for the web app and backend-for-frontend (from P11), `packages/` for shared libraries. Studio code is AGPL-3.0-only (ADR-0022). Read [typescript-standards.md](../docs/engineering/typescript-standards.md) and the root [AGENTS.md](../AGENTS.md) before editing.
+The Bun workspace for Plux Studio (spec §21): `apps/` for the web app and backend-for-frontend (from P11), `packages/` for shared libraries. Studio code is AGPL-3.0-only (ADR-0022). Read [typescript-standards.md](../docs/engineering/typescript-standards.md), [studio-development.md](../docs/engineering/studio-development.md), [studio-ui-language.md](../docs/engineering/studio-ui-language.md) and the root [AGENTS.md](../AGENTS.md) before editing.
 
 ## Layout
 
@@ -10,7 +10,12 @@ The Bun workspace for Plux Studio (spec §21): `apps/` for the web app and backe
 | `packages/schema/` | Contracts generated from `schema/`: limits now; document types and widget and action registries as they arrive (`SCH-001`, `WGT-002`) | P1 |
 | `apps/web/` | React single-page application | P11 |
 | `apps/bff/` | Bun backend-for-frontend (`STU-002`, `SEC-101`) | P11 |
-| `packages/canvas/` | Plux Canvas and its Flutter-compatible layout engine (`STU-003`, `STU-005`) | P11 |
+| `packages/layout/` | TypeScript port of Flutter's layout code (`STU-005`); imports no React | P11 |
+| `packages/canvas/` | Plux Canvas: CanvasKit scene, drawing and hit-testing (`STU-003`) | P11 |
+| `packages/api/` | Generated Connect-ES clients and query hooks | P11 |
+| `packages/ui/` | Shared components of the UI language and their catalogue | P11 |
+| `packages/i18n/` | Lingui catalogues and locale handling (`en`, `de`, `ar`) | P11 |
+| `packages/validator/` | The Go validator compiled to WebAssembly and its worker | P11 |
 
 ## Invariants
 

@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # P11 Studio — Routing
 
+> **Status:** Decision record; the accepted plan is [p11.md](p11.md).
+
 - **Status:** Accepted by the maintainer on 2026-10-20.
 - **Read with:** [p11-studio-decisions.md](p11-studio-decisions.md) (engineering, rule book) and
   [p11-studio-functional-decisions.md](p11-studio-functional-decisions.md) (F1–F24).
@@ -39,7 +41,7 @@ SPDX-License-Identifier: Apache-2.0
 | P2 | `/signin/factor` | Second factor | TOTP or WebAuthn challenge (ADR-0026) |
 | P3 | `/signin/sso` | SSO redirect | P9 OIDC/SAML (`GOV-004`); returns to `?next=` |
 | P4 | `/invite/:token` | Accept invitation | set password, enrol second factor |
-| P5 | `/setup` | First administrator | one-time; refused once an administrator exists (ADR-0026) |
+| P5 | — | Removed (O-15) | the first administrator accepts the invitation `plux-server bootstrap` prints, through P4 (ADR-0026); no setup page. Identifiers are not renumbered |
 | P6 | `/device` | Approve CLI sign-in | `plux login` device grant (ADR-0026) |
 | P7 | `/signed-out` | Signed out | after sign-out or revocation |
 | P8 | `/unsupported` | Unsupported browser | no WebGL2 (A5.8) |
@@ -174,6 +176,9 @@ Canvas search params (C1 and C2):
 | A42 | `/settings/limits` | Limits usage vs configured limits | `STU-025` |
 | A43 | `/settings/native` | Native catalogue and host builds | `CLI-006` |
 | A44 | `/trash` | Deleted plugins and pages; restore | `GOV-031`, F13 |
+| A45 | `/tests` | Plux Test scenarios `?env&q` | `TST-001` |
+| A46 | `/tests/:runId` | Test run: results per scenario and step | `TST-002` |
+| A47 | `/analytics/replays/:replayId` | Session replay on the canvas (redacted structural recording) | `ANL-050` |
 
 App navigation (area tabs in the `page` layout and a switcher in the `canvas` action bar): Canvas ·
 Releases · Experiments · Functions · Localisation · Design · Data · Analytics · Devices · Security ·
@@ -188,7 +193,7 @@ Settings. The Publish button (action bar) opens A1.
 | `/o/:org/apps/:app/plugins` | `/o/:org/apps/:app` |
 | `/o/:org/apps/:app/publish` | open request A2, else new request A2 |
 | any guarded path while signed out | `/signin?next=<path>` |
-| P1–P5 while signed in | `?next` or `/` |
+| P1–P4 while signed in | `?next` or `/` |
 
 ## R3. Full-screen overlays (search param `overlay`, over C1/C2; canvas paused and kept, `STU-063`)
 
@@ -338,13 +343,13 @@ Settings. The Publish button (action bar) opens A1.
 
 | Kind | Count |
 |---|---|
-| Public pages (P1–P9) | 9 |
+| Public pages (P1–P9, P5 removed) | 8 |
 | Personal pages (U1–U7) | 7 |
 | Organisation pages (O1–O31; O3 is a route modal) | 31 |
 | Installation pages (I1–I7) | 7 |
 | Canvases (C1–C2) | 2 |
-| App pages (A1–A44) | 44 |
-| **Routes in total** | **100** |
+| App pages (A1–A47) | 47 |
+| **Routes in total** | **102** (100 − P5 + A45–A47) |
 | Full-screen overlays (V1–V9) | 9 |
 | Panels, drawer, popovers, banners (E1–E14) | 14 |
 | Dialogs (D1–D79): small 29 · medium 37 · large 13 | 79 |
