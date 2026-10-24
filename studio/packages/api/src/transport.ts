@@ -31,12 +31,15 @@ export function headerInterceptor(options: Pick<StudioTransportOptions, "csrfTok
   };
 }
 
-/** Binary Connect transport that sends the session cookie. No token is stored here. */
+/**
+ * Binary Connect transport to the BFF on Studio's own origin. The session cookie is
+ * sent same-origin only; no token is stored here (SEC-101).
+ */
 export function createStudioTransport(options: StudioTransportOptions) {
   return createConnectTransport({
     baseUrl: options.baseUrl,
     useBinaryFormat: true,
-    fetch: ((input, init) => globalThis.fetch(input, { ...init, credentials: "include" })) as typeof fetch,
+    fetch: ((input, init) => globalThis.fetch(input, { ...init, credentials: "same-origin" })) as typeof fetch,
     interceptors: [headerInterceptor(options)],
   });
 }
