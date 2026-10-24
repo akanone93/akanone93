@@ -1,0 +1,4 @@
+{
+  "$comment": "Performance budgets (STU-122). initialJsGzipBytes is the gzip size of the entry chunk and its static imports, 1.5 MiB.",
+  "initialJsGzipBytes": 1572864
+}

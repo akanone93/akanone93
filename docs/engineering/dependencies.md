@@ -162,6 +162,10 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@biomejs/biome` | Formatting and linting | In use (dev) |
 | `typescript` | Type-checking | In use (dev) |
 | `@types/bun` | Bun type definitions | In use (dev) |
+| `react` 19.3.1, `react-dom` 19.3.1 | The Studio UI (ADR-0014); about 68.7 kB gzip together in the initial bundle | In use (P11 S0.1; MIT) |
+| `vite` 8.3.5, `@vitejs/plugin-react` 6.1.2 | Dev server and production build of `studio/apps/web`; not shipped | In use (P11 S0.1; MIT) |
+| `@types/react` 19.3.0, `@types/react-dom` 19.3.0 | React type definitions | In use (P11 S0.1; MIT) |
+| `hono` 4.13.13 | The BFF in `studio/apps/bff`; server only, not in the web bundle | In use (P11 S0.1; MIT) |
 
 Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Base UI, Tailwind CSS, Monaco, Connect-ES.
 
