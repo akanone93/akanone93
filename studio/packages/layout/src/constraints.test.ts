@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
-import { BoxConstraints } from "./constraints.ts";
-import { EdgeInsets, EdgeInsetsDirectional, Size, TextDirection } from "./geometry.ts";
+import { BoxConstraints } from "./flutter/constraints.ts";
+import { EdgeInsets, EdgeInsetsDirectional, Size, TextDirection } from "./flutter/geometry.ts";
 
 const inf = Number.POSITIVE_INFINITY;
 

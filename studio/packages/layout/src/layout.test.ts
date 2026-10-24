@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
-import { BoxConstraints } from "./constraints.ts";
+import { BoxConstraints } from "./flutter/constraints.ts";
 import {
   Alignment,
   AlignmentDirectional,
@@ -11,14 +11,14 @@ import {
   Offset,
   Size,
   TextDirection,
-} from "./geometry.ts";
+} from "./flutter/geometry.ts";
+import { PipelineOwner } from "./flutter/object.ts";
+import { DecorationPosition, RenderConstrainedBox, RenderDecoratedBox, RenderProxyBox } from "./flutter/proxy-box.ts";
+import { type RenderBox, TextBaseline } from "./flutter/render-box.ts";
+import { RenderPadding, RenderPositionedBox } from "./flutter/shifted-box.ts";
+import { RenderView } from "./flutter/view.ts";
 import { globalRects, goldenRects, type LayoutGolden } from "./node-rects.ts";
-import { PipelineOwner } from "./object.ts";
-import { DecorationPosition, RenderConstrainedBox, RenderDecoratedBox, RenderProxyBox } from "./proxy-box.ts";
-import { type RenderBox, TextBaseline } from "./render-box.ts";
-import { RenderPadding, RenderPositionedBox } from "./shifted-box.ts";
 import { RenderTestBox } from "./test-box.ts";
-import { RenderView } from "./view.ts";
 
 const inf = Number.POSITIVE_INFINITY;
 const alphabetic = TextBaseline.alphabetic;
