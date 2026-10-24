@@ -53,7 +53,7 @@ func (s Notification) ListInbox(ctx context.Context, req *connect.Request[pluxv1
 		for _, i := range items {
 			out.Items = append(out.Items, &pluxv1.InboxItem{
 				Id: i.ID, EventType: string(i.Type), AppId: i.AppID, Title: i.Title, Body: i.Body, Link: i.Link,
-				CreatedAt: ts(i.CreatedAt), Read: i.Read,
+				CreatedAt: ts(i.CreatedAt), Read: i.Read, Params: i.Params, GroupKey: i.GroupKey, GroupCount: i.GroupCount,
 			})
 		}
 		return out, nil

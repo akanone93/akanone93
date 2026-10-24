@@ -1196,6 +1196,8 @@ type Notification struct {
 	Link           string
 	CreatedAt      pgtype.Timestamptz
 	ReadAt         pgtype.Timestamptz
+	Params         []byte
+	GroupKey       string
 }
 
 type NotificationChannel struct {

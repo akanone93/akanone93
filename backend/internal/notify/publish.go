@@ -72,6 +72,7 @@ type preparedEvent struct {
 	org, app, id pgtype.UUID
 	now          time.Time
 	payload      []byte
+	params       []byte
 	perHour      int64
 }
 
@@ -108,6 +109,15 @@ func (s *Service) prepareEvent(ctx context.Context, e *Event) (preparedEvent, er
 	if err != nil {
 		return preparedEvent{}, err
 	}
+	if err := e.validateParams(lim.Get(limits.NotificationsParamsPerEvent), lim.Get(limits.NotificationsParamBytes)); err != nil {
+		return preparedEvent{}, err
+	}
+	params := []byte("{}")
+	if len(e.Params) > 0 {
+		if params, err = json.Marshal(e.Params); err != nil {
+			return preparedEvent{}, fmt.Errorf("notify: %w", err)
+		}
+	}
 	payload, err := json.Marshal(envelope{
 		Type: string(e.Type), Timestamp: e.At.UTC().Format(time.RFC3339Nano),
 		Data: envelopeData{
@@ -117,7 +127,7 @@ func (s *Service) prepareEvent(ctx context.Context, e *Event) (preparedEvent, er
 	if err != nil {
 		return preparedEvent{}, fmt.Errorf("notify: %w", err)
 	}
-	return preparedEvent{org: org, app: app, id: eventID, now: now, payload: payload, perHour: lim.Get(limits.NotificationsPerHour)}, nil
+	return preparedEvent{org: org, app: app, id: eventID, now: now, payload: payload, params: params, perHour: lim.Get(limits.NotificationsPerHour)}, nil
 }
 
 // queueEvent writes the inbox entries and deliveries of an event, within
@@ -139,28 +149,29 @@ func (s *Service) queueEvent(ctx context.Context, tx pgx.Tx, e Event, pe prepare
 		}
 	}
 	for _, t := range targets[:kept] {
-		if err := s.enqueue(ctx, q, pe.org, pe.app, pe.id, e, pe.payload, t, pe.now); err != nil {
+		if err := s.enqueue(ctx, q, pe, e, t); err != nil {
 			return err
 		}
 	}
 	return s.enqueueWebhooks(ctx, q, pe.org, pe.id, e.Type, pe.payload, pe.now)
 }
 
-// enqueue writes an inbox entry or a channel delivery.
-func (s *Service) enqueue(ctx context.Context, q *dbgen.Queries, org, app, event pgtype.UUID, e Event, payload []byte, t target, now time.Time) error {
+// enqueue writes an inbox entry, with its display parameters and group
+// key, or a channel delivery.
+func (s *Service) enqueue(ctx context.Context, q *dbgen.Queries, pe preparedEvent, e Event, t target) error {
 	id, err := s.newID()
 	if err != nil {
 		return err
 	}
 	if t.user.Valid {
 		return failure(q.InsertNotification(ctx, dbgen.InsertNotificationParams{
-			ID: storage.MustUUID(id), OrganizationID: org, UserID: t.user, EventID: event, EventType: string(e.Type), AppID: app,
-			Title: e.Title, Body: e.Body, Link: e.Link, CreatedAt: storage.Timestamp(now),
+			ID: storage.MustUUID(id), OrganizationID: pe.org, UserID: t.user, EventID: pe.id, EventType: string(e.Type), AppID: pe.app,
+			Title: e.Title, Body: e.Body, Link: e.Link, CreatedAt: storage.Timestamp(pe.now), Params: pe.params, GroupKey: groupKey(e, id),
 		}), "notification")
 	}
 	return failure(q.InsertDelivery(ctx, dbgen.InsertDeliveryParams{
-		ID: storage.MustUUID(id), OrganizationID: org, Kind: "channel", ChannelID: t.channel, EventID: event, EventType: string(e.Type),
-		Recipient: t.recipient, Payload: payload, NextAttemptAt: storage.Timestamp(now), ExpiresAt: storage.Timestamp(now.Add(DeliveryWindow)), CreatedAt: storage.Timestamp(now),
+		ID: storage.MustUUID(id), OrganizationID: pe.org, Kind: "channel", ChannelID: t.channel, EventID: pe.id, EventType: string(e.Type),
+		Recipient: t.recipient, Payload: pe.payload, NextAttemptAt: storage.Timestamp(pe.now), ExpiresAt: storage.Timestamp(pe.now.Add(DeliveryWindow)), CreatedAt: storage.Timestamp(pe.now),
 	}), "delivery")
 }
 
