@@ -14,3 +14,6 @@ signing:
 license:
   existingSecret: plux-license
   key: licence.json
+
+studio:
+  publicBaseUrl: https://studio.example.com
