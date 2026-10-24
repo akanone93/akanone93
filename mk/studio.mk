@@ -26,7 +26,7 @@ studio-typecheck: studio-gen-theme ## Type-check Studio code
 	cd studio && bun run typecheck
 
 studio-test: studio-gen-theme ## Run Studio tests
-	cd studio && bun test
+	cd studio && bun run test
 
 studio-cover: studio-test ## Enforce Studio coverage floors (QA-001)
 	$(COVGATE) -kind studio studio/coverage/lcov.info
