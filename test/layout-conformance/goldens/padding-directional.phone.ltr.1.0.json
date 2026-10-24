@@ -1,0 +1,37 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "padding-directional",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "box": [
+      118.0,
+      377.5,
+      100.0,
+      50.0
+    ],
+    "center": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "pad-dir": [
+      101.0,
+      354.5,
+      158.0,
+      91.0
+    ],
+    "pad-ltrb": [
+      111.0,
+      374.5,
+      118.0,
+      66.0
+    ]
+  }
+}

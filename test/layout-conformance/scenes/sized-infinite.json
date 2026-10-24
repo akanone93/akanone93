@@ -1,0 +1,45 @@
+{
+  "name": "sized-infinite",
+  "root": {
+    "id": "top",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "wide",
+        "type": "SizedBox",
+        "props": {
+          "width": "infinity",
+          "height": 80
+        },
+        "children": [
+          {
+            "id": "inner",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": 0
+              }
+            },
+            "children": [
+              {
+                "id": "huge",
+                "type": "TestBox",
+                "props": {
+                  "width": 1000,
+                  "height": 10
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

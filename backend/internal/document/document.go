@@ -81,6 +81,35 @@ type Options struct {
 	// Approvals decides whether accessibility waivers may stand (A11Y-008,
 	// GOV-020); nil requires nothing.
 	Approvals approval.Gate
+	// Events announces lock and document changes to the Studio stream
+	// (STU-075); nil announces nothing.
+	Events Events
+}
+
+// Events receives the changes the Studio events stream carries (STU-075,
+// ADR-0096). It never fails its caller.
+type Events interface {
+	// LockChanged announces a lock taken or taken over, or released.
+	LockChanged(ctx context.Context, org string, l Lock, released bool)
+	// DocumentChanged announces a new revision of a document.
+	DocumentChanged(ctx context.Context, org, appID, pluginID, path string, revision int64, actor audit.Actor)
+}
+
+// lockChanged announces a lock change; the stream's reset covers a loss.
+func (s *Service) lockChanged(ctx context.Context, p auth.Principal, l Lock, released bool) {
+	if s.o.Events != nil {
+		s.o.Events.LockChanged(ctx, p.OrganizationID, l, released)
+	}
+}
+
+// documentsChanged announces the documents an accepted write changed.
+func (s *Service) documentsChanged(ctx context.Context, p auth.Principal, docs []Document) {
+	if s.o.Events == nil {
+		return
+	}
+	for _, d := range docs {
+		s.o.Events.DocumentChanged(ctx, p.OrganizationID, d.AppID, d.PluginID, d.Path, d.Revision, d.UpdatedBy)
+	}
 }
 
 // Service is the domain logic of drafts.
