@@ -677,7 +677,7 @@ func (k *serviceKit) buildOperations(_ context.Context, svc *Services) error {
 	if err != nil {
 		return err
 	}
-	svc.DevSessions, err = buildDevSessions(k.cfg, k.db, k.log, k.gen, svc.Tenancy, svc.SecurityConfig, k.tokenSigner, svc.Documents, svc.Releases)
+	svc.DevSessions, err = buildDevSessions(k.cfg, k.db, k.log, k.gen, svc.Tenancy, svc.SecurityConfig, k.tokenSigner, svc.Documents, svc.Releases, k.shared) //nolint:contextcheck // the relay's followers live until DevSessions.Close
 	return err
 }
 

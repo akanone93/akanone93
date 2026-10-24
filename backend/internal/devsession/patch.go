@@ -181,6 +181,9 @@ func (s *Service) PushPatch(ctx context.Context, p auth.Principal, sessionID str
 	if err != nil {
 		return PushResult{}, err
 	}
+	lim := relayLimitsOf(plan.set)
+	lim.expires = plan.session.ExpiresAt
+	s.hub.room(plan.session.ID, &lim)
 	st := s.stateFor(plan.session.ID, plan.session.ExpiresAt)
 	st.mu.Lock()
 	defer st.mu.Unlock()
