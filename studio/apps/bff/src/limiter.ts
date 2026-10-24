@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-/** Counts hits per key in a sliding minute. S0.4b can supply a Valkey-backed implementation. */
+/** Counts hits per key in a sliding minute. A Valkey-backed one is in valkey.ts. */
 export interface RateLimiter {
-  allow(key: string): boolean;
+  allow(key: string): boolean | Promise<boolean>;
 }
 
 export class MemoryRateLimiter implements RateLimiter {

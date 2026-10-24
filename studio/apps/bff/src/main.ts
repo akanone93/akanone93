@@ -3,8 +3,10 @@
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import pkg from "../package.json" with { type: "json" };
 import { createBff } from "./app.ts";
 import { ConfigError, loadConfig } from "./config.ts";
+import { connectValkey } from "./valkey.ts";
 
 const env = process.env;
 let loaded: ReturnType<typeof loadConfig>;
@@ -26,6 +28,9 @@ const staticDir = fileURLToPath(new URL("../../web/dist", import.meta.url));
 const bff = createBff({
   staticDir,
   config,
+  studioVersion: pkg.version,
+  ...(config.stateSecret === "" ? {} : { stateKey: new TextEncoder().encode(config.stateSecret) }),
+  ...(config.valkeyUrl === "" ? {} : { limiter: connectValkey(config.valkeyUrl, config.requestsPerMinute) }),
   clientIp: (req) => server.requestIP(req)?.address ?? "unknown",
 });
 const server = Bun.serve({
