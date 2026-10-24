@@ -55,3 +55,30 @@ export function compareRects(
   }
   return differences;
 }
+
+/** One Text node whose baseline differs from the golden's by more than `textTolerance`. */
+export interface BaselineDifference {
+  id: string;
+  expected: number | null;
+  actual: number | null;
+  delta: number;
+}
+
+/** Every id whose alphabetic baseline deviates by more than `tolerance` (ADR-0013 text tolerance). */
+export function compareBaselines(
+  actual: Record<string, number>,
+  expected: Record<string, number>,
+  tolerance: number = textTolerance,
+): BaselineDifference[] {
+  const ids = [...new Set([...Object.keys(actual), ...Object.keys(expected)])].sort();
+  const differences: BaselineDifference[] = [];
+  for (const id of ids) {
+    const a = actual[id] ?? null;
+    const e = expected[id] ?? null;
+    const delta = a === null || e === null || Number.isNaN(a - e) ? Number.POSITIVE_INFINITY : Math.abs(a - e);
+    if (delta > tolerance) {
+      differences.push({ id, expected: e, actual: a, delta });
+    }
+  }
+  return differences;
+}

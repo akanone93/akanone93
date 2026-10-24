@@ -1,0 +1,47 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "text-leading-proportional",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "ar",
+  "textScale": 2.0,
+  "rects": {
+    "align": [
+      0.0,
+      0.0,
+      800.0,
+      1280.0
+    ],
+    "box": [
+      600.0,
+      0.0,
+      200.0,
+      1280.0
+    ],
+    "column": [
+      600.0,
+      0.0,
+      200.0,
+      1280.0
+    ],
+    "strut": [
+      600.0,
+      320.0,
+      200.0,
+      128.0
+    ],
+    "text": [
+      600.0,
+      0.0,
+      200.0,
+      320.0
+    ]
+  },
+  "baselines": {
+    "strut": 50.23201370239258,
+    "text": 44.41600036621094
+  }
+}

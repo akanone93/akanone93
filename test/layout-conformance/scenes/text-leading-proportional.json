@@ -1,0 +1,41 @@
+{
+  "name": "text-leading-proportional",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": { "alignment": { "start": -1, "y": -1 } },
+    "children": [
+      {
+        "id": "box",
+        "type": "SizedBox",
+        "props": { "width": 200 },
+        "children": [
+          {
+            "id": "column",
+            "type": "Column",
+            "props": { "crossAxisAlignment": "start" },
+            "children": [
+              {
+                "id": "text",
+                "type": "Text",
+                "props": {
+                  "text": "Leading splits around the glyphs of this paragraph.",
+                  "style": { "fontFamily": "NotoSans", "fontSize": 16, "height": 2.0, "leadingDistribution": "proportional" }
+                }
+              },
+              {
+                "id": "strut",
+                "type": "Text",
+                "props": {
+                  "text": "Strut leading splits too.",
+                  "style": { "fontFamily": "NotoSans", "fontSize": 16 },
+                  "strutStyle": { "fontFamily": "NotoSans", "fontSize": 16, "height": 2.0, "forceStrutHeight": true, "leadingDistribution": "proportional" }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
