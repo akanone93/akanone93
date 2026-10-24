@@ -16,7 +16,10 @@ import (
 type fakeStream struct {
 	entries []fakeEntry
 	groups  map[string]*fakeGroup
-	next    int
+	// maxDeleted is the newest trimmed ID, first the first ID ever added.
+	maxDeleted, first string
+	// expires is when PEXPIRE makes the stream disappear; zero is never.
+	expires time.Time
 }
 
 type fakeEntry struct {
@@ -51,15 +54,77 @@ func (s *respServer) streamCommand(name string, args []string) ([]byte, bool) {
 		return []byte(fmt.Sprintf(":%d\r\n", n)), true
 	case "XADD":
 		st := s.stream(args[1])
-		// XADD key [MAXLEN ~ n] * field value
-		i := 2
+		// XADD key [MAXLEN ~|= n] * field value
+		i, maxLen := 2, 0
 		if strings.EqualFold(args[i], "MAXLEN") {
+			maxLen, _ = strconv.Atoi(args[4])
 			i += 3
 		}
-		st.next++
-		id := fmt.Sprintf("%d-0", st.next)
+		s.clock++
+		id := fmt.Sprintf("%d-0", s.clock)
+		if st.first == "" {
+			st.first = id
+		}
 		st.entries = append(st.entries, fakeEntry{id: id, payload: args[i+2]})
+		if drop := len(st.entries) - maxLen; maxLen > 0 && drop > 0 {
+			st.maxDeleted = st.entries[drop-1].id
+			st.entries = st.entries[drop:]
+		}
 		return bulk([]byte(id)), true
+	case "XRANGE":
+		// XRANGE key -|(id + COUNT n
+		count, _ := strconv.Atoi(args[5])
+		var out []fakeEntry
+		if st := s.existingStream(args[1]); st != nil {
+			after, exclusive := strings.CutPrefix(args[2], "(")
+			for _, e := range st.entries {
+				if exclusive && !mustLogID(after).less(mustLogID(e.id)) {
+					continue
+				}
+				if len(out) < count {
+					out = append(out, e)
+				}
+			}
+		}
+		return []byte(encodeEntries(out)), true
+	case "XREVRANGE":
+		// XREVRANGE key + - COUNT n
+		count, _ := strconv.Atoi(args[5])
+		var out []fakeEntry
+		if st := s.existingStream(args[1]); st != nil {
+			for i := len(st.entries) - 1; i >= 0 && len(out) < count; i-- {
+				out = append(out, st.entries[i])
+			}
+		}
+		return []byte(encodeEntries(out)), true
+	case "XLEN":
+		n := 0
+		if st := s.existingStream(args[1]); st != nil {
+			n = len(st.entries)
+		}
+		return []byte(fmt.Sprintf(":%d\r\n", n)), true
+	case "XINFO":
+		// XINFO STREAM key
+		st := s.existingStream(args[2])
+		if st == nil {
+			return []byte("-ERR no such key\r\n"), true
+		}
+		maxDeleted := st.maxDeleted
+		if maxDeleted == "" {
+			maxDeleted = "0-0"
+		}
+		reply := fmt.Sprintf("*6\r\n$6\r\nlength\r\n:%d\r\n", len(st.entries))
+		reply += string(bulk([]byte("max-deleted-entry-id"))) + string(bulk([]byte(maxDeleted)))
+		reply += string(bulk([]byte("recorded-first-entry-id"))) + string(bulk([]byte(st.first)))
+		return []byte(reply), true
+	case "PEXPIRE":
+		st := s.existingStream(args[1])
+		if st == nil {
+			return []byte(":0\r\n"), true
+		}
+		ms, _ := strconv.Atoi(args[2])
+		st.expires = time.Now().Add(time.Duration(ms) * time.Millisecond)
+		return []byte(":1\r\n"), true
 	case "XGROUP":
 		st := s.stream(args[2])
 		if _, ok := st.groups[args[3]]; ok {
@@ -110,9 +175,28 @@ func (s *respServer) streamCommand(name string, args []string) ([]byte, bool) {
 	return nil, false
 }
 
-func (s *respServer) stream(key string) *fakeStream {
+// existingStream returns the stream if it exists and has not expired.
+func (s *respServer) existingStream(key string) *fakeStream {
 	st, ok := s.streams[key]
 	if !ok {
+		return nil
+	}
+	if !st.expires.IsZero() && !st.expires.After(time.Now()) {
+		delete(s.streams, key)
+		return nil
+	}
+	return st
+}
+
+// mustLogID parses an ID the fake itself produced.
+func mustLogID(id string) logID {
+	parsed, _ := parseLogID(id)
+	return parsed
+}
+
+func (s *respServer) stream(key string) *fakeStream {
+	st := s.existingStream(key)
+	if st == nil {
 		st = &fakeStream{groups: map[string]*fakeGroup{}}
 		s.streams[key] = st
 	}

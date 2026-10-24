@@ -40,6 +40,9 @@ type respServer struct {
 	readonly bool
 	// streams are the streams XADD created, by key.
 	streams map[string]*fakeStream
+	// clock stands for the server time: stream IDs rise with it, also across a
+	// deleted and re-created key.
+	clock int
 }
 
 // respValue is one stored value with its expiry.
@@ -204,6 +207,7 @@ func (s *respServer) reply(args []string) []byte {
 		return []byte(":1\r\n")
 	case "DEL":
 		delete(s.values, args[1])
+		delete(s.streams, args[1])
 		return []byte(":1\r\n")
 	default:
 		if r, ok := s.streamCommand(name, args); ok {
