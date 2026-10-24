@@ -198,6 +198,10 @@ func (s *Service) notifyStopped(ctx context.Context, row dbgen.Rollout, outcome 
 		Attributes: map[string]string{
 			"rollout": id, "release": strconv.FormatInt(row.CandidateSequence, 10), "channel": row.ChannelKey, "outcome": outcome,
 		},
+		Params: map[string]string{
+			"release": strconv.FormatInt(row.CandidateSequence, 10), "channel": row.ChannelKey, "outcome": outcome, "reason": row.StateReason,
+		},
+		Subject: id,
 	})
 	if err != nil {
 		s.log.WarnContext(ctx, "rollout: could not notify", "rollout", id, "error", err)

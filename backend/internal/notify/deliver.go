@@ -21,6 +21,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/notify/webhook"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
@@ -185,8 +186,9 @@ func (s *Service) settle(ctx context.Context, org string, d dbgen.NotificationDe
 	})
 }
 
-// Purge forgets finished deliveries past their retention and secrets whose
-// overlap has ended.
+// Purge forgets finished deliveries past their retention, secrets whose
+// overlap has ended, and inbox notifications older than the organisation's
+// notifications.retentionDays (SRV-062).
 func (s *Service) Purge(ctx context.Context, org string) (int64, error) {
 	var n int64
 	err := s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
@@ -199,7 +201,42 @@ func (s *Service) Purge(ctx context.Context, org string) (int64, error) {
 		n = a + b
 		return failure(err, "webhook secrets")
 	})
-	return n, err
+	if err != nil {
+		return n, err
+	}
+	m, err := s.purgeInbox(ctx, org)
+	return n + m, err
+}
+
+// Bounds on one run of the inbox sweep: a batch is one short transaction,
+// and what one run leaves the next run deletes.
+const (
+	purgeBatch   = 1000
+	purgeBatches = 100
+)
+
+// purgeInbox deletes the organisation's notifications older than its
+// notifications.retentionDays, oldest first, in bounded batches.
+func (s *Service) purgeInbox(ctx context.Context, org string) (int64, error) {
+	lim, err := s.o.Limits(ctx, org)
+	if err != nil {
+		return 0, err
+	}
+	cutoff := storage.Timestamp(s.now().AddDate(0, 0, -int(lim.Get(limits.NotificationsRetentionDays))))
+	var total int64
+	for range purgeBatches {
+		var n int64
+		err := s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+			var err error
+			n, err = dbgen.New(tx).PurgeNotifications(ctx, dbgen.PurgeNotificationsParams{Cutoff: cutoff, BatchSize: purgeBatch})
+			return failure(err, "notifications")
+		})
+		total += n
+		if err != nil || n < purgeBatch {
+			return total, err
+		}
+	}
+	return total, nil
 }
 
 // Delivery is a row of the delivery log.

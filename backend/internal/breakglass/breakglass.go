@@ -231,6 +231,11 @@ func (s *Service) Alert(ctx context.Context, rec Record) {
 		Attributes: map[string]string{
 			"invocation": rec.ID, "action": string(rec.Action), "environment": rec.Environment, "reviewDueAt": rec.ReviewDueAt.UTC().Format(time.RFC3339),
 		},
+		Params: map[string]string{
+			"action": string(rec.Action), "environment": rec.Environment, "subject": rec.Subject, "invokedBy": rec.InvokedBy.Display,
+			"reviewDueAt": rec.ReviewDueAt.UTC().Format(time.RFC3339),
+		},
+		Subject: rec.ID,
 	})
 	if err != nil {
 		s.o.Log.WarnContext(ctx, "breakglass: the alert could not be queued", slog.String("invocation", rec.ID), slog.Any("error", err))

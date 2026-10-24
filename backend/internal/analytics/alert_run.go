@@ -193,6 +193,11 @@ func (s *Service) announce(ctx context.Context, org string, r Rule, st AlertStat
 	err := s.o.Notify.Publish(ctx, notify.Event{
 		Type: notify.AlertFired, OrganizationID: org, AppID: r.AppID, At: st.EvaluatedAt,
 		Title: fmt.Sprintf("Alert %s: %s", verb, r.Name), Body: body, Attributes: attrs,
+		Params: map[string]string{
+			"state": state, "rule": r.Name, "aggregation": string(r.Aggregation), "metric": r.Metric, "window": r.Window.String(),
+			"value": describeValue(st.Value), "comparison": string(r.Comparison), "threshold": strconv.FormatFloat(r.Threshold, 'g', -1, 64),
+		},
+		Subject: r.ID,
 	})
 	if err != nil {
 		return fmt.Errorf("analytics: announce the alert: %w", err)

@@ -413,6 +413,12 @@ const (
 	// pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned
 	// client). (SEC-041)
 	MediaPinnedDownloadSize Key = "media.pinnedDownloadSize"
+	// NotificationsParamBytes: Largest value of one display parameter of a
+	// notification; an event with a larger one is refused. (SRV-062)
+	NotificationsParamBytes Key = "notifications.paramBytes"
+	// NotificationsParamsPerEvent: Display parameters one notification event may
+	// carry; an event with more is refused. (SRV-062)
+	NotificationsParamsPerEvent Key = "notifications.paramsPerEvent"
 	// NotificationsPerHour: Notifications one organisation may send in an hour
 	// across all channels; the excess is dropped and audited. (SRV-062)
 	NotificationsPerHour Key = "notifications.perHour"
@@ -725,6 +731,8 @@ var registry = [...]Definition{
 	{Key: LspSessionMinutes, Unit: UnitCount, Default: 60, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Minutes one language-server sandbox may run before it is stopped."},
 	{Key: LspSessionsPerOrganization, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Language-server sandboxes of the Rust editor running at once in one organisation."},
 	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},
+	{Key: NotificationsParamBytes, Unit: UnitBytes, Default: 1024, Warning: 0, Max: 8192, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Largest value of one display parameter of a notification; an event with a larger one is refused."},
+	{Key: NotificationsParamsPerEvent, Unit: UnitCount, Default: 16, Warning: 0, Max: 64, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Display parameters one notification event may carry; an event with more is refused."},
 	{Key: NotificationsPerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."},
 	{Key: NotificationsRetentionDays, Unit: UnitCount, Default: 90, Warning: 0, Max: 3650, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Days an inbox notification is kept before it is deleted."},
 	{Key: PageAnimations, Unit: UnitCount, Default: 30, Warning: 10, Max: 200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Animations that can run at the same time on one page."},
