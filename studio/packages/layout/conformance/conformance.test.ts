@@ -5,20 +5,46 @@
 // every Flutter golden in test/layout-conformance/goldens is laid out again
 // by @plux/layout and compared edge by edge.
 
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { type LayoutGolden, TextDirection } from "../src/index.ts";
-import { compareRects, edgeTolerance, type GoldenRect } from "./compare.ts";
+import { type CanvasKitParagraphEngine, type LayoutGolden, TextDirection } from "../src/index.ts";
+import { loadCanvasKit, testParagraphEngine } from "../test-support/canvaskit.ts";
+import { compareRects, edgeTolerance, type GoldenRect, textTolerance } from "./compare.ts";
 import {
   buildNode,
+  disposeParagraphs,
   flexTypes,
   layOutScene,
   type Scene,
+  type SceneNode,
   sceneGoldenRects,
   sceneTypes,
   supportedTypes,
+  textTypes,
 } from "./scene.ts";
+
+let engine: CanvasKitParagraphEngine;
+beforeAll(async () => {
+  engine = testParagraphEngine(await loadCanvasKit());
+});
+afterAll(() => {
+  engine.dispose();
+});
+
+const hasText = (scene: Scene): boolean => [...sceneTypes(scene.root)].some((type) => textTypes.has(type));
+
+/** Ids whose rect is a paragraph's (Text, and an Expanded or Flexible around one): ADR-0013's text tolerance. */
+function textIds(node: SceneNode, into: Set<string> = new Set()): Set<string> {
+  const child = node.children?.[0];
+  if (node.type === "Text" || ((node.type === "Expanded" || node.type === "Flexible") && child?.type === "Text")) {
+    into.add(node.id);
+  }
+  for (const c of node.children ?? []) {
+    textIds(c, into);
+  }
+  return into;
+}
 
 const suite = join(import.meta.dir, "../../../../test/layout-conformance");
 
@@ -49,9 +75,11 @@ if (awaiting.length > 0) {
 }
 
 describe("STU-005 layout conformance with Flutter goldens", () => {
-  test("the suite has scenes and four goldens per scene", () => {
+  test("the suite has scenes and four goldens per scene and text scale", () => {
     expect(scenes.size).toBeGreaterThanOrEqual(12);
-    expect(goldens.length).toBe(scenes.size * 4);
+    const textScenes = [...scenes.values()].filter(hasText).length;
+    expect(textScenes).toBeGreaterThanOrEqual(6);
+    expect(goldens.length).toBe(scenes.size * 4 + textScenes * 4);
     for (const { golden } of goldens) {
       expect(scenes.has(golden.scene)).toBe(true);
     }
@@ -72,9 +100,13 @@ describe("STU-005 layout conformance with Flutter goldens", () => {
     if (scene === undefined || !isSupported(scene)) {
       continue;
     }
-    test(`${file} matches Flutter within ${edgeTolerance} px`, () => {
-      const actual = sceneGoldenRects(scene, layOutScene(scene, golden));
-      expect(compareRects(actual, golden.rects)).toEqual([]);
+    const text = textIds(scene.root);
+    const tolerance = text.size === 0 ? `${edgeTolerance} px` : `${edgeTolerance} px (text ${textTolerance} px)`;
+    test(`${file} matches Flutter within ${tolerance}`, () => {
+      const view = layOutScene(scene, golden, engine);
+      const actual = sceneGoldenRects(scene, view);
+      disposeParagraphs(view);
+      expect(compareRects(actual, golden.rects, (id) => (text.has(id) ? textTolerance : edgeTolerance))).toEqual([]);
     });
   }
 });
@@ -102,6 +134,9 @@ describe("conformance tooling", () => {
     expect(() =>
       buildNode({ id: "t", type: "TestBox", props: { width: "wide", height: 1 } }, TextDirection.ltr),
     ).toThrow(/expected a number/);
+    expect(() => buildNode({ id: "t", type: "Text", props: { text: "x" } }, TextDirection.ltr)).toThrow(
+      /needs a ParagraphEngine/,
+    );
     if (!supported.has("Row")) {
       expect(() => buildNode({ id: "r", type: "Row", props: {} }, TextDirection.ltr)).toThrow(/needs RenderFlex/);
     }
