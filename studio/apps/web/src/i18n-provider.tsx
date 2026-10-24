@@ -4,7 +4,7 @@
 import type { I18n, Messages } from "@lingui/core";
 import { I18nProvider as LinguiProvider } from "@lingui/react";
 import { createStudioI18n, negotiateLocale, type StudioI18n } from "@plux/i18n";
-import { type ReactNode, useEffect, useState } from "react";
+import { createContext, type ReactNode, use, useEffect, useState } from "react";
 import { shellMessages } from "./shell.messages.ts";
 
 const pseudo = import.meta.env.DEV;
@@ -14,6 +14,17 @@ const loadCatalogue = async (locale: string): Promise<Messages> => {
   const module = (await import(`./locales/${locale}/messages.po`)) as { messages: Messages };
   return module.messages;
 };
+
+const StudioContext = createContext<StudioI18n | null>(null);
+
+/** The one i18n instance the app owns. */
+export function useStudioI18n(): StudioI18n {
+  const studio = use(StudioContext);
+  if (studio === null) {
+    throw new Error("useStudioI18n outside I18nProvider");
+  }
+  return studio;
+}
 
 /** Creates the one instance the app owns; missing translations are reported by tests, never shown. */
 export function createAppI18n(): StudioI18n {
@@ -33,5 +44,7 @@ export function I18nProvider({ studio, children }: { studio: StudioI18n; childre
       setReady(studio.i18n);
     });
   }, [studio]);
-  return ready === null ? null : <LinguiProvider i18n={ready}>{children}</LinguiProvider>;
+  return ready === null ? null : <StudioContext value={studio}>
+      <LinguiProvider i18n={ready}>{children}</LinguiProvider>
+    </StudioContext>;
 }
