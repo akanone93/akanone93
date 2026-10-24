@@ -44,6 +44,10 @@
       "name": "@plux/brand",
       "version": "0.0.1",
     },
+    "packages/layout": {
+      "name": "@plux/layout",
+      "version": "0.0.1",
+    },
     "packages/schema": {
       "name": "@plux/schema",
       "version": "0.0.1",
@@ -105,6 +109,8 @@
     "@plux/bff": ["@plux/bff@workspace:apps/bff"],
 
     "@plux/brand": ["@plux/brand@workspace:packages/brand"],
+
+    "@plux/layout": ["@plux/layout@workspace:packages/layout"],
 
     "@plux/schema": ["@plux/schema@workspace:packages/schema"],
 
