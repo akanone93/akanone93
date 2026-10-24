@@ -1,0 +1,64 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "plux/v1/common.proto";
+import "plux/v1/plugin.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// StudioEventsService carries one resumable server stream per Studio tab:
+// lock changes, document revision changes and the inbox unread count
+// (STU-075, SRV-062, ADR-0096). Anyone signed in may watch; events about
+// apps the caller cannot read are left out.
+service StudioEventsService {
+  // Watch streams the organisation's Studio events after cursor ("" starts now).
+  rpc Watch(StudioEventsServiceWatchRequest) returns (stream StudioEventsServiceWatchResponse) {}
+}
+
+message StudioEventsServiceWatchRequest {
+  // cursor is the cursor of the last event the tab saw; empty starts now.
+  string cursor = 1;
+}
+
+message StudioEventsServiceWatchResponse {
+  // cursor resumes the stream after this event.
+  string cursor = 1;
+  oneof event {
+    LockChanged lock = 2;
+    DocumentChanged document = 3;
+    InboxChanged inbox = 4;
+    StudioHeartbeat heartbeat = 5;
+    StudioReset reset = 6;
+  }
+}
+
+message LockChanged {
+  string app_id = 1;
+  string plugin_id = 2;
+  string scope = 3;
+  // lock is unset when the lock was released.
+  Lock lock = 4;
+}
+
+message DocumentChanged {
+  string app_id = 1;
+  string plugin_id = 2;
+  string path = 3;
+  int64 revision = 4;
+  Actor actor = 5;
+}
+
+message InboxChanged {
+  int64 unread = 1;
+}
+
+// StudioHeartbeat keeps an idle stream alive.
+message StudioHeartbeat {}
+
+// StudioReset: events after the cursor were trimmed; reload state, then
+// resume from cursor.
+message StudioReset {}

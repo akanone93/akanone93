@@ -1874,6 +1874,16 @@ export const limits = [
     description: "Undo steps kept per editor session and plugin.",
   },
   {
+    key: "studio.userEventsTTLMinutes",
+    unit: "count",
+    default: 1440,
+    warning: 0,
+    max: 10080,
+    scopes: ["installation"],
+    phase: "P11",
+    description: "Minutes a person's Studio events log (inbox unread count) is kept after its last event, so a tab that was away that long reloads its state.",
+  },
+  {
     key: "sync.backgroundIntervalMinutes",
     unit: "count",
     default: 360,

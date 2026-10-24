@@ -63,6 +63,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
+	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
@@ -129,6 +130,7 @@ type world struct {
 	identity     pluxv1connect.IdentityServiceClient
 	org          pluxv1connect.OrgServiceClient
 	govern       pluxv1connect.GovernanceServiceClient
+	studioEvents pluxv1connect.StudioEventsServiceClient
 	app          pluxv1connect.AppServiceClient
 	plugin       pluxv1connect.PluginServiceClient
 	document     pluxv1connect.DocumentServiceClient
@@ -420,6 +422,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	studioEventsService, err := studioevents.NewService(studioevents.Options{Logs: shared, Notifier: shared})
+	if err != nil {
+		t.Fatal(err)
+	}
 	preferencesService, err := preferences.NewService(preferences.Options{DB: db, Tenancy: tenancyService})
 	if err != nil {
 		t.Fatal(err)
@@ -460,7 +466,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
-		Searches:     searchService, GitExports: gitService, UserPreferences: preferencesService,
+		StudioStream: studioEventsService, Searches: searchService, GitExports: gitService, UserPreferences: preferencesService,
 		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
 	}
 	// The world's one signed-in person calls every RPC of the authorisation
@@ -493,6 +499,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewStudioEventsServiceHandler(h.StudioEvents(), opts)
+		},
 		func() (string, http.Handler) {
 			return pluxv1connect.NewPreferencesServiceHandler(h.Preferences(), opts)
 		},
@@ -569,6 +578,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		identity:     pluxv1connect.NewIdentityServiceClient(srv.Client(), srv.URL),
 		org:          pluxv1connect.NewOrgServiceClient(srv.Client(), srv.URL),
 		govern:       pluxv1connect.NewGovernanceServiceClient(srv.Client(), srv.URL),
+		studioEvents: pluxv1connect.NewStudioEventsServiceClient(srv.Client(), srv.URL),
 		app:          pluxv1connect.NewAppServiceClient(srv.Client(), srv.URL),
 		analytics:    pluxv1connect.NewAnalyticsServiceClient(srv.Client(), srv.URL),
 		plugin:       pluxv1connect.NewPluginServiceClient(srv.Client(), srv.URL),

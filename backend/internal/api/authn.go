@@ -104,15 +104,16 @@ func Authentication(a Authenticator, public map[string]bool, trusted []netip.Pre
 // its absolute lifetime, but does not refresh its last use: the idle
 // timeout counts user activity only (decision O-1, GOV-005).
 //
-// The set is fixed here. A new streaming or heartbeat RPC — the Studio
-// events stream of S0.5 among them — is added to this switch.
+// The set is fixed here. A new streaming or heartbeat RPC is added to this
+// switch; the Studio events stream (STU-075) is in it.
 // NotificationService/ListInbox is not in it: a person opens the inbox.
 func backgroundProcedure(procedure string) bool {
 	switch procedure {
 	case pluxv1connect.PluginServiceRenewLockProcedure,
 		pluxv1connect.PluginServiceGetLockProcedure,
 		pluxv1connect.GovernanceServiceWatchPermissionsProcedure,
-		pluxv1connect.DevSessionServiceWatchEventsProcedure:
+		pluxv1connect.DevSessionServiceWatchEventsProcedure,
+		pluxv1connect.StudioEventsServiceWatchProcedure:
 		return true
 	default:
 		return false
