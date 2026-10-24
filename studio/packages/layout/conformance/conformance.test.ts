@@ -90,7 +90,7 @@ describe("conformance tooling", () => {
 
   test("scene building rejects unknown types, flex types without RenderFlex and extra children", () => {
     const box = { id: "x", type: "TestBox", props: { width: 1, height: 1 } };
-    expect(() => buildNode({ id: "u", type: "Stack", props: {} }, TextDirection.ltr)).toThrow(
+    expect(() => buildNode({ id: "u", type: "Table", props: {} }, TextDirection.ltr)).toThrow(
       /unknown scene node type/,
     );
     expect(() =>

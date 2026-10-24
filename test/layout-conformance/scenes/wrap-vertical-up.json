@@ -1,0 +1,86 @@
+{
+  "name": "wrap-vertical-up",
+  "root": {
+    "id": "frame",
+    "type": "SizedBox",
+    "props": {
+      "width": 300,
+      "height": 300
+    },
+    "children": [
+      {
+        "id": "align",
+        "type": "Align",
+        "props": {
+          "alignment": [
+            -1,
+            -1
+          ]
+        },
+        "children": [
+          {
+            "id": "wu",
+            "type": "Wrap",
+            "props": {
+              "verticalDirection": "up",
+              "spacing": 10,
+              "runSpacing": 12,
+              "alignment": "end",
+              "runAlignment": "center"
+            },
+            "children": [
+              {
+                "id": "wu-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 30
+                }
+              },
+              {
+                "id": "wu-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 20
+                }
+              },
+              {
+                "id": "wu-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 50
+                }
+              },
+              {
+                "id": "wu-3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 25
+                }
+              },
+              {
+                "id": "wu-4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              },
+              {
+                "id": "wu-5",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

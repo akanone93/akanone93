@@ -95,7 +95,7 @@ Widget _build(Map<String, Object?> node) {
     for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[])
       _build(child! as Map<String, Object?>),
   ];
-  const Set<String> multiChild = <String>{'Row', 'Column', 'Flex'};
+  const Set<String> multiChild = <String>{'Row', 'Column', 'Flex', 'Stack', 'IndexedStack', 'Wrap'};
   if (!multiChild.contains(type) && children.length > 1) {
     throw ArgumentError('node "$id" of type $type takes at most one child');
   }
@@ -162,6 +162,56 @@ Widget _build(Map<String, Object?> node) {
             _enum(CrossAxisAlignment.values, props['crossAxisAlignment'], CrossAxisAlignment.center),
         verticalDirection: _enum(VerticalDirection.values, props['verticalDirection'], VerticalDirection.down),
         spacing: _optionalNumber(props, 'spacing') ?? 0,
+        children: children,
+      );
+    case 'Stack':
+      return Stack(
+        key: key,
+        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : AlignmentDirectional.topStart,
+        fit: _enum(StackFit.values, props['fit'], StackFit.loose),
+        children: children,
+      );
+    case 'IndexedStack':
+      return IndexedStack(
+        key: key,
+        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : AlignmentDirectional.topStart,
+        sizing: _enum(StackFit.values, props['sizing'], StackFit.loose),
+        index: (props['index'] as int?) ?? 0,
+        children: children,
+      );
+    case 'Positioned':
+      return Positioned(
+        key: key,
+        left: _optionalNumber(props, 'left'),
+        top: _optionalNumber(props, 'top'),
+        right: _optionalNumber(props, 'right'),
+        bottom: _optionalNumber(props, 'bottom'),
+        width: _optionalNumber(props, 'width'),
+        height: _optionalNumber(props, 'height'),
+        child: child!,
+      );
+    case 'PositionedDirectional':
+      return PositionedDirectional(
+        key: key,
+        start: _optionalNumber(props, 'start'),
+        top: _optionalNumber(props, 'top'),
+        end: _optionalNumber(props, 'end'),
+        bottom: _optionalNumber(props, 'bottom'),
+        width: _optionalNumber(props, 'width'),
+        height: _optionalNumber(props, 'height'),
+        child: child!,
+      );
+    case 'Wrap':
+      return Wrap(
+        key: key,
+        direction: _enum(Axis.values, props['direction'], Axis.horizontal),
+        alignment: _enum(WrapAlignment.values, props['alignment'], WrapAlignment.start),
+        spacing: _optionalNumber(props, 'spacing') ?? 0,
+        runAlignment: _enum(WrapAlignment.values, props['runAlignment'], WrapAlignment.start),
+        runSpacing: _optionalNumber(props, 'runSpacing') ?? 0,
+        crossAxisAlignment:
+            _enum(WrapCrossAlignment.values, props['crossAxisAlignment'], WrapCrossAlignment.start),
+        verticalDirection: _enum(VerticalDirection.values, props['verticalDirection'], VerticalDirection.down),
         children: children,
       );
     case 'Expanded':
@@ -244,7 +294,7 @@ void main() {
             final Map<String, List<double>> rects = <String, List<double>>{
               for (final String id in ids)
                 id: () {
-                  final Rect rect = tester.getRect(find.byKey(ValueKey<String>(id)));
+                  final Rect rect = tester.getRect(find.byKey(ValueKey<String>(id), skipOffstage: false));
                   return <double>[rect.left, rect.top, rect.width, rect.height];
                 }(),
             };
