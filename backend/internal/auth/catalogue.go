@@ -3,7 +3,7 @@
 
 package auth
 
-//go:generate go run ./internal/gen permissions.json roles.json catalogue_gen.go ../../../docs/reference/permissions.md
+//go:generate go run ./internal/gen permissions.json roles.json catalogue_gen.go ../../../docs/reference/permissions.md ../../../studio/packages/schema/src/permissions.gen.ts
 
 import (
 	"slices"
