@@ -165,7 +165,12 @@ func (k *socket) run(parent context.Context) {
 		return
 	}
 	defer k.room.detach(k.b.DeviceID, k.link)
-	k.room.hello(k.b.DeviceID, k.link, hello)
+	k.room.use() //nolint:contextcheck // the follower lives as long as the replica, not the socket's request
+	defer k.room.release()
+	if err := k.room.hello(k.b.DeviceID, k.link, hello); err != nil {
+		_ = k.c.Close(websocket.StatusInternalError, "the dev session could not resume")
+		return
+	}
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() { defer wg.Done(); defer cancel(); k.write(ctx) }()
