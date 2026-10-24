@@ -44,6 +44,10 @@ The lead reads once and the agent reads nothing extra. Every brief has:
 - **DONE-CHECK:** one command line, run once.
 - **Commit message** (header of 72 characters at most, with the attribution trailers), "Do not
   push", and a report of eight lines at most.
+- **Token rules and a tool-call cap:** read only the named files and only the lines needed; never
+  print whole lockfiles, generated files, dependency sources or logs (filter with `tail`/`grep`); no
+  exploration; when blocked, commit what works and report. The lowest model and effort that can do
+  the brief (P11 plan M-10).
 
 ## Sizing and models
 
