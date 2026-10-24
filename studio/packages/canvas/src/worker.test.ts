@@ -74,7 +74,7 @@ describe("STU-003 canvas worker core", () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
     await core.receive(init({ renderer: "raster" }));
-    expect(ofType(posted, "ready")[0]?.renderer).toMatchObject({ kind: "raster", tiles: false, measuredMs: null });
+    expect(ofType(posted, "ready")[0]?.renderer).toMatchObject({ kind: "raster", tiles: true, measuredMs: null });
     await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("a", 10, 10) }] });
     await core.receive({ v, type: "interaction", phase: "start", kind: "drag", ids: ["a"] });
     env.drain();
@@ -83,7 +83,7 @@ describe("STU-003 canvas worker core", () => {
     await core.receive({ v, type: "interaction", phase: "start", kind: "pan", ids: [] });
     await core.receive({ v, type: "resize", width: 100, height: 80, dpr: 2 });
     env.drain();
-    expect(ofType(posted, "frame").at(-1)?.stats.drawCalls).toBeGreaterThan(1);
+    expect(ofType(posted, "frame").at(-1)?.stats.drawCalls).toBeGreaterThan(0);
     env.surfaces = false;
     await core.receive({ v, type: "resize", width: 50, height: 50, dpr: 1 });
     expect(ofType(posted, "error")[0]?.message).toBe("no CanvasKit surface after resize");

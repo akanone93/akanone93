@@ -33,7 +33,7 @@ export interface BrowserScope {
 
 type SurfaceTarget = Parameters<CanvasKit["MakeSWCanvasSurface"]>[0];
 
-const MEASURE_SIZE = 256;
+const MEASURE_SIZE = 1024;
 
 function probe(scope: BrowserScope): GlProbe {
   const Offscreen = scope.OffscreenCanvas;
@@ -60,7 +60,8 @@ function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "
   }
   return ck.MakeWebGLCanvasSurface(target, ck.ColorSpace.SRGB, {
     majorVersion: 2,
-    antialias: 1,
+    // Skia antialiases itself; MSAA on the default framebuffer would only add a resolve pass.
+    antialias: 0,
     failIfMajorPerformanceCaveat: 0,
     preserveDrawingBuffer: 0,
   });

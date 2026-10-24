@@ -117,7 +117,7 @@ export interface OffscreenCanvasLike {
 /** Start-up options of the canvas. */
 export interface CanvasOptions {
   readonly renderer: RendererPreference;
-  /** Tile cache on or off; default on for WebGL, off for CPU raster (M-12). */
+  /** Tile cache on or off; default on (M-12). */
   readonly tiles?: boolean;
   readonly tileSize: number;
   readonly background: ColorRgba;
