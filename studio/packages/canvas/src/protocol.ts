@@ -5,9 +5,11 @@
  * The messages between the main thread and the canvas worker (STU-003,
  * studio-development §2.5, §9.1). Every message carries the protocol version
  * and is structured-clone data only: no functions, no class instances, colours
- * as `0xRRGGBBAA` numbers. The only transferables are the OffscreenCanvas and
- * the font buffers in `init`.
+ * as `0xRRGGBBAA` numbers. The only transferables are the OffscreenCanvases
+ * (base and interaction layer) and the font buffers in `init`.
  */
+
+import type { BaseOrigin, LayerBox } from "./compositor.ts";
 
 /** The protocol version; a message with another version is rejected. */
 export const PROTOCOL_VERSION = 1;
@@ -154,6 +156,10 @@ export interface FrameStats {
   readonly flushMs: number;
   readonly tileRenders: number;
   readonly tileRenderMs: number;
+  /** Whether this frame re-rendered the base surface. */
+  readonly base: boolean;
+  /** Time spent drawing the interaction layer, in ms. */
+  readonly layerMs: number;
 }
 
 /** A node of the read-only scene model (studio-development §9.2). */
@@ -186,6 +192,8 @@ export type HostMessage =
       readonly v: number;
       readonly type: "init";
       readonly canvas: OffscreenCanvasLike;
+      /** The interaction layer above the base, for dragged items (M-12). */
+      readonly layer?: OffscreenCanvasLike;
       readonly width: number;
       readonly height: number;
       readonly dpr: number;
@@ -213,7 +221,15 @@ export type HostMessage =
 /** Worker → main thread. */
 export type WorkerMessage =
   | { readonly v: number; readonly type: "ready"; readonly renderer: RendererInfo }
-  | { readonly v: number; readonly type: "frame"; readonly stats: FrameStats }
+  | {
+      readonly v: number;
+      readonly type: "frame";
+      readonly stats: FrameStats;
+      /** Where the base surface shown from this frame on was rendered. */
+      readonly origin?: BaseOrigin;
+      /** The interaction layer's box on the base, or null when it is hidden. */
+      readonly layer?: LayerBox | null;
+    }
   | { readonly v: number; readonly type: "snapshot"; readonly requestId: number; readonly model: SceneModel }
   | { readonly v: number; readonly type: "error"; readonly message: string };
 
