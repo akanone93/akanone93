@@ -18,7 +18,7 @@ in P11.
 | `make compose-test` | Runs the Go integration and end-to-end tests against the stack's PostgreSQL, SeaweedFS and Valkey (`QA-005`) |
 | `make compose-down` | Stops the stack; volumes are kept (`docker compose … down -v` deletes them) |
 
-Addresses, all bound to `127.0.0.1`: server <https://localhost:8080> (TLS 1.3, see [Development TLS](#development-tls)), Grafana
+Addresses, all bound to `127.0.0.1`: server <https://localhost:8080> (TLS 1.3, see [Development TLS](#development-tls)), Studio <http://localhost:8081> (the BFF, which proxies the server; `DEP-002`), Grafana
 <http://localhost:3000>, Prometheus <http://localhost:9090>. The optional profiles
 `keycloak` (an OpenID Connect provider on port 8180), `ollama` and `functions` (the function
 builder) start with `docker compose --profile <name> …`.

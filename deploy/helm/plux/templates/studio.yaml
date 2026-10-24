@@ -1,0 +1,166 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Studio: the BFF serves the web app and proxies the api role (DEP-002). It
+# holds no data credential and no signing capability (L-4). Its only
+# dependency is the api Service.
+{{- if .Values.studio.enabled }}
+{{- $name := printf "%s-studio" (include "plux.fullname" .) }}
+{{- $ctx := dict "root" . "role" "studio" "v" .Values.studio }}
+{{- $apiScheme := ternary "https" "http" (eq (include "plux.apiTLS" .) "true") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "studio") | nindent 4 }}
+spec:
+  replicas: {{ .Values.studio.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  selector:
+    matchLabels:
+      {{- include "plux.selectorLabels" (dict "root" . "component" "studio") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- include "plux.podAnnotations" $ctx | nindent 8 }}
+      labels:
+        {{- include "plux.labels" (dict "root" . "component" "studio") | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "plux.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ include "plux.terminationGrace" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "plux.podSecurityContext" (dict "root" . "role" "studio") | nindent 8 }}
+      {{- include "plux.scheduling" $ctx | nindent 6 }}
+      containers:
+        - name: studio
+          image: {{ include "plux.image" (dict "image" .Values.studio.image "defaultTag" .Chart.AppVersion) | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - {name: http, containerPort: 8081}
+          env:
+            - {name: PLUX_BFF_API_UPSTREAM, value: {{ printf "%s://%s-api:%v" $apiScheme (include "plux.fullname" .) .Values.api.service.port | quote }}}
+            - {name: PLUX_BFF_PUBLIC_BASE_URL, value: {{ required "studio.publicBaseUrl is required when studio.enabled" .Values.studio.publicBaseUrl | quote }}}
+            {{- with .Values.studio.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          # /livez checks the process only; /readyz also asks the api role and
+          # turns false as soon as the pod is told to stop.
+          startupProbe:
+            httpGet: {path: /livez, port: http}
+            periodSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet: {path: /livez, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          lifecycle:
+            preStop:
+              sleep: {seconds: 5}
+          resources:
+            {{- toYaml .Values.studio.resources | nindent 12 }}
+          securityContext:
+            {{- include "plux.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "studio") | nindent 4 }}
+  {{- with .Values.studio.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.studio.service.type }}
+  selector:
+    {{- include "plux.selectorLabels" (dict "root" . "component" "studio") | nindent 4 }}
+  ports:
+    - {name: http, port: {{ .Values.studio.service.port }}, targetPort: http}
+---
+{{ include "plux.pdb" $ctx }}
+{{- if .Values.studio.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "studio") | nindent 4 }}
+  {{- with .Values.studio.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.studio.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.studio.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.studio.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: {{ default "/" .path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $name }}
+                port: {name: http}
+    {{- end }}
+{{- end }}
+{{- if .Values.networkPolicy.enabled }}
+---
+# Users reach Studio's port; narrow it with networkPolicy.apiIngressFrom.
+{{ include "plux.np.head" (dict "root" . "name" "studio-ingress") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "studio") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - {protocol: TCP, port: 8081}
+      {{- with .Values.networkPolicy.apiIngressFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+# Studio talks to the api role and resolves names; nothing else.
+{{ include "plux.np.head" (dict "root" . "name" "studio-egress") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "studio") | nindent 6 }}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
+      ports: [{protocol: TCP, port: {{ .Values.api.service.port }}}, {protocol: TCP, port: 8080}]
+    - to:
+        - namespaceSelector: {}
+      ports: [{protocol: UDP, port: 53}, {protocol: TCP, port: 53}]
+{{- end }}
+{{- end }}

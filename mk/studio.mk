@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas zap-studio studio-image-repro
 
 ##@ Studio (Bun, TypeScript)
 
@@ -71,3 +71,29 @@ studio-design-gate: studio-build ## Run the design-gate detector over the built 
 # machines without a GPU (ADR-0013 M-12). Not part of studio-check.
 studio-bench-canvas: studio-install ## Canvas benchmark in software rendering (STU-045, STU-120, M-12)
 	cd studio && bun packages/canvas/bench/run.ts
+
+# Verifies: QA-008. The Compose stack runs Studio on port 8081 (make compose-up).
+STUDIO_ZAP_TARGET ?= http://localhost:8081
+
+zap-studio: ## Scan the running Compose stack's Studio with the ZAP baseline, ignoring only test/zap/studio-rules.tsv; report in build/zap (QA-008)
+	@for i in $$(seq 60); do \
+		curl -fsS $(STUDIO_ZAP_TARGET)/livez >/dev/null 2>&1 && break; \
+		[ "$$i" = 60 ] && { echo "✗ no Studio answering at $(STUDIO_ZAP_TARGET): run 'make compose-up' first"; exit 1; }; \
+		sleep 2; \
+	done
+	@mkdir -p $(ZAP_OUT) && chmod a+w $(ZAP_OUT) && cp test/zap/studio-rules.tsv $(ZAP_OUT)/studio-rules.tsv
+	docker run --rm --network host -v $(ZAP_OUT):/zap/wrk:rw $(ZAP_IMAGE) \
+		zap-baseline.py -t $(STUDIO_ZAP_TARGET) -c studio-rules.tsv -r zap-studio.html -J zap-studio.json -w zap-studio.md
+
+# Verifies: CI-006. Two builds of the same commit must give the same image
+# digest: no timestamp, path or ordering may reach the image.
+STUDIO_COMMIT_DATE = $(shell git log -1 --format=%ct)
+
+studio-image-repro: ## Build the Studio image twice and fail when the digests differ (CI-006)
+	@for n in 1 2; do \
+		docker buildx build -f studio/Dockerfile --build-arg SOURCE_DATE_EPOCH=$(STUDIO_COMMIT_DATE) \
+			--no-cache --provenance=false --sbom=false \
+			--output type=oci,dest=build/studio-image-$$n.tar,rewrite-timestamp=true . || exit 1; \
+	done
+	@a=$$(tar -xOf build/studio-image-1.tar index.json | sha256sum); b=$$(tar -xOf build/studio-image-2.tar index.json | sha256sum); \
+	if [ "$$a" = "$$b" ]; then echo "✓ Studio image reproducible"; else echo "✗ Studio image digests differ"; exit 1; fi

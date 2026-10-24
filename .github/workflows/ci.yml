@@ -771,7 +771,7 @@ jobs:
         run: make image-check
 
   # The OWASP ZAP baseline scan of the API against the Compose stack
-  # (QA-008); the scan of Studio joins in P11. The same selection as the
+  # (QA-008); Studio's scan is zap-studio. The same selection as the
   # stack's own job: a server, image or deployment change can open a hole.
   zap-api:
     name: OWASP ZAP baseline (API)
@@ -2192,6 +2192,135 @@ jobs:
       - name: Install (frozen lockfile), lint, type-check, test with coverage floors
         run: make studio-check | tee -a "$GITHUB_STEP_SUMMARY"
 
+  # Studio's layout conformance against Flutter's goldens (STU-005).
+  studio-conformance:
+    name: Studio conformance
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['studio-conformance']
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter precache --web
+      - run: make studio-install
+      - name: Compare Studio's layout with Flutter's goldens
+        run: make studio-conformance
+
+
+  # Studio's end-to-end tests (Playwright, axe) against the built web app and
+  # the Compose stack (O-11).
+  studio-e2e:
+    name: Studio end to end
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['studio-e2e']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - name: Build and start the single-node stack, Studio included
+        run: make compose-up
+      - name: Run the end-to-end tests
+        run: make studio-e2e
+      - name: Stop the stack
+        if: always()
+        run: docker compose -f deploy/compose/compose.yaml down -v
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: studio-e2e-report
+          path: studio/e2e/playwright-report studio/test-results
+          if-no-files-found: ignore
+
+
+  # The canvas benchmark in software rendering; a regression over 10 % fails
+  # (QA-007, STU-045, STU-120).
+  studio-bench:
+    name: Studio canvas benchmark
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['studio-bench']
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - run: make studio-install
+      - name: Run the canvas benchmark
+        run: make studio-bench-canvas
+
+
+  # The OWASP ZAP baseline scan of Studio against the Compose stack (QA-008).
+  zap-studio:
+    name: OWASP ZAP baseline (Studio)
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['zap-studio']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build and start the single-node stack
+        run: make compose-up
+      # Verifies: QA-008.
+      - name: Scan Studio; only test/zap/studio-rules.tsv is ignored
+        run: make zap-studio
+      - name: Stop the stack
+        if: always()
+        run: docker compose -f deploy/compose/compose.yaml down -v
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: zap-studio-report
+          path: build/zap/zap-studio.*
+          if-no-files-found: ignore
+
+
+  # Two builds of the Studio image from one commit give one digest (CI-006).
+  studio-image-repro:
+    name: Studio image reproducibility
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['studio-image-repro']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Create a BuildKit builder (the OCI exporter and rewrite-timestamp need it)
+        run: docker buildx create --use --driver docker-container
+      # Verifies: CI-006.
+      - name: Build twice and compare
+        run: make studio-image-repro
+
+
   # ── Gate ─────────────────────────────────────────────────────────────────
 
   # The Helm chart (DEP-003, DEP-004): lint, render for every ci/*-values.yaml
@@ -2421,6 +2550,7 @@ jobs:
       - walkthrough
       - iac
       - zap-api
+      - zap-studio
       - image-arm64
       - wasm-codecs
       - functions
@@ -2442,6 +2572,10 @@ jobs:
       - size-android
       - size-ios
       - studio
+      - studio-conformance
+      - studio-e2e
+      - studio-bench
+      - studio-image-repro
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions: {}
