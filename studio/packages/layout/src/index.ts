@@ -56,6 +56,21 @@ export {
   RenderPositionedBox,
   RenderShiftedBox,
 } from "./flutter/shifted-box.ts";
+export {
+  RenderIndexedStack,
+  type RenderIndexedStackOptions,
+  RenderStack,
+  type RenderStackOptions,
+  StackFit,
+  StackParentData,
+} from "./flutter/stack.ts";
 export { RenderView } from "./flutter/view.ts";
+export {
+  RenderWrap,
+  type RenderWrapOptions,
+  WrapAlignment,
+  WrapCrossAlignment,
+  WrapParentData,
+} from "./flutter/wrap.ts";
 export { globalRects, goldenRects, type LayoutGolden, type NodeRect } from "./node-rects.ts";
 export { RenderTestBox, type RenderTestBoxOptions } from "./test-box.ts";
