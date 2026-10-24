@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { Code, ConnectError } from "@connectrpc/connect";
+import { Code, ConnectError, createClient } from "@connectrpc/connect";
 import { type GetCurrentUserResponse, IdentityService, LicenseService } from "@plux/api";
-import { createClient } from "@connectrpc/connect";
 import { notFound, redirect } from "@tanstack/react-router";
 import { organizationIdOf, type Session } from "./session.ts";
 
@@ -25,7 +24,7 @@ const userKey = ["current-user"] as const;
 
 /** Only same-origin paths may be a return target. */
 export function safeNext(next: string | undefined): string {
-  return next !== undefined && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  return next?.startsWith("/") && !next.startsWith("//") ? next : "/";
 }
 
 /** The signed-in user, or undefined when the BFF answers 401. */
@@ -74,7 +73,11 @@ export function requireInstallationAdmin(user: GetCurrentUserResponse): void {
 }
 
 /** Enterprise pages need a valid licence: administrators see the licence page, others a 404 (R1). */
-export async function requireLicence(session: Session, user: GetCurrentUserResponse, adminPermission: string): Promise<void> {
+export async function requireLicence(
+  session: Session,
+  user: GetCurrentUserResponse,
+  adminPermission: string,
+): Promise<void> {
   const state = await createClient(LicenseService, session.transport).getLicenseState({});
   if (state.state !== "absent" && state.state !== "invalid") {
     return;

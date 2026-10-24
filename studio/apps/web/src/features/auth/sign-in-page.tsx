@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { Code, ConnectError, createClient } from "@connectrpc/connect";
+import { useLingui } from "@lingui/react";
 import { FederationService, IdentityService, type MfaChallenge, type SignInProvider } from "@plux/api";
 import { Button, Field, Input } from "@plux/ui";
-import { useLingui } from "@lingui/react";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
@@ -208,7 +208,9 @@ function FactorStep(props: {
 /** Starts OIDC: the state goes to the BFF first, as JSON, then the browser leaves for the provider (SEC-101). SAML goes straight to the identity provider. */
 async function startProvider(session: Session, provider: SignInProvider): Promise<void> {
   if (provider.kind === "saml") {
-    window.location.assign((await createClient(FederationService, session.transport).startSamlLogin({ providerId: provider.id })).url);
+    window.location.assign(
+      (await createClient(FederationService, session.transport).startSamlLogin({ providerId: provider.id })).url,
+    );
     return;
   }
   const started = await createClient(IdentityService, session.transport).startOidcLogin({ providerId: provider.id });
@@ -232,12 +234,13 @@ function Providers({ m }: { m: Messages }) {
     return null;
   }
   return (
-    <div role="group" aria-label={m.providers} className="flex flex-col gap-2">
+    <fieldset className="flex flex-col gap-2">
+      <legend className="sr-only">{m.providers}</legend>
       {list.map((p) => (
         <Button key={p.id} type="button" variant="secondary" onClick={() => void startProvider(session, p)}>
           {m.continueWith(p.name)}
         </Button>
       ))}
-    </div>
+    </fieldset>
   );
 }

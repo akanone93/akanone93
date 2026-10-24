@@ -3,9 +3,9 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useQuery } from "@connectrpc/connect-query";
-import { IdentityService, OrgService, PreferencesService } from "@plux/api";
-import { Icon, GlassCapsule, Menu, Select } from "@plux/ui";
 import { useLingui } from "@lingui/react";
+import { IdentityService, OrgService, PreferencesService } from "@plux/api";
+import { GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { Outlet, useParams, useRouter } from "@tanstack/react-router";
 import { forgetUser } from "../../lib/guards.ts";

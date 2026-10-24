@@ -3,8 +3,8 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { createStudioI18n } from "@plux/i18n";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from "@tanstack/react-router";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { ForbiddenPage } from "./features/shell/error-pages.tsx";
 import { I18nProvider } from "./i18n-provider.tsx";
 import { AccessError, requireInstallationAdmin, requireUser } from "./lib/guards.ts";

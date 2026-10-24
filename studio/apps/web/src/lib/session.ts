@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createStudioTransport } from "@plux/api";
 import type { Transport } from "@connectrpc/connect";
+import { createStudioTransport } from "@plux/api";
 import { QueryClient } from "@tanstack/react-query";
 
 /**
@@ -21,9 +21,7 @@ export function createSession(baseUrl: string, transport?: Transport): Session {
   let csrf: string | undefined;
   let organization: string | undefined;
   return {
-    transport:
-      transport ??
-      createStudioTransport({ baseUrl, csrfToken: () => csrf, organization: () => organization }),
+    transport: transport ?? createStudioTransport({ baseUrl, csrfToken: () => csrf, organization: () => organization }),
     queryClient: new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } }),
     setCsrfToken: (token) => {
       csrf = token;

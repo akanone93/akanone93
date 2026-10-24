@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { create } from "@bufbuild/protobuf";
 import { FieldMaskSchema } from "@bufbuild/protobuf/wkt";
+import { useMutation, useQuery } from "@connectrpc/connect-query";
+import { useLingui } from "@lingui/react";
 import { PreferencesSchema, PreferencesService } from "@plux/api";
 import { availableLocales } from "@plux/i18n";
 import { Field, Select } from "@plux/ui";
-import { useLingui } from "@lingui/react";
 import { useState } from "react";
-import { type DensityPreference, asDensity, asTheme, type ThemePreference } from "../../lib/preferences.ts";
+import { asDensity, asTheme, type DensityPreference, type ThemePreference } from "../../lib/preferences.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { profileMessages } from "./profile.messages.ts";
 import { useAppliedPreferences } from "./use-applied-preferences.ts";
