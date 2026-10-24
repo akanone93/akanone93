@@ -114,14 +114,43 @@ describe("STU-002 SEC-101 sign-in callbacks", () => {
 
   test("the state endpoint sets a signed HttpOnly __Host- cookie", async () => {
     const { bff } = build();
-    const res = await bff.app.request("/auth/oidc/state", { method: "POST", body: JSON.stringify({ state: "s9" }) });
+    const json = { "content-type": "application/json", "sec-fetch-site": "same-origin" };
+    const res = await bff.app.request("/auth/oidc/state", {
+      method: "POST",
+      headers: json,
+      body: JSON.stringify({ state: "s9" }),
+    });
     expect(res.status).toBe(204);
     const c = res.headers.get("set-cookie") ?? "";
     expect(c).toContain("__Host-plux_oidc=");
     expect(c).toContain("HttpOnly");
     expect(c).toContain("Secure");
-    const bad = await bff.app.request("/auth/oidc/state", { method: "POST", body: "{}" });
+    const bad = await bff.app.request("/auth/oidc/state", { method: "POST", headers: json, body: "{}" });
     expect(bad.status).toBe(400);
+  });
+
+  test("the state endpoint refuses cross-site and non-JSON requests (login CSRF, SEC-101)", async () => {
+    const { bff } = build();
+    const body = JSON.stringify({ state: "evil" });
+    const crossSite = await bff.app.request("/auth/oidc/state", {
+      method: "POST",
+      headers: { "content-type": "application/json", "sec-fetch-site": "cross-site" },
+      body,
+    });
+    expect(crossSite.status).toBe(400);
+    expect(crossSite.headers.get("set-cookie")).toBeNull();
+    const form = await bff.app.request("/auth/oidc/state", {
+      method: "POST",
+      headers: { "content-type": "text/plain", "sec-fetch-site": "same-origin" },
+      body,
+    });
+    expect(form.status).toBe(400);
+    const otherOrigin = await bff.app.request("http://localhost/auth/oidc/state", {
+      method: "POST",
+      headers: { "content-type": "application/json", origin: "https://evil.example" },
+      body,
+    });
+    expect(otherOrigin.status).toBe(400);
   });
 
   test("OIDC callback reports a server rejection as a plain error page", async () => {

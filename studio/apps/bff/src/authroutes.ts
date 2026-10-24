@@ -44,6 +44,12 @@ export function registerAuthRoutes(app: Hono<{ Variables: { nonce: string } }>, 
     if (await limited(c.req.raw, "auth")) {
       return c.body(null, 429, { "Retry-After": "60" });
     }
+    // Only Studio's own page may set the state it later checks: refusing cross-site requests
+    // (and non-JSON bodies, which a cross-site form could send without a preflight) stops a
+    // login CSRF that would plant an attacker's state (SEC-101).
+    if (!sameOrigin(c.req.raw) || !(c.req.header("content-type") ?? "").startsWith("application/json")) {
+      return fail(400, authMessages.badRequest);
+    }
     const body = (await c.req.json().catch(() => ({}))) as { state?: unknown };
     if (typeof body.state !== "string" || body.state === "" || body.state.length > 512) {
       return fail(400, authMessages.badRequest);
@@ -86,4 +92,14 @@ export function registerAuthRoutes(app: Hono<{ Variables: { nonce: string } }>, 
     const r = await login.saml(provider, response, form.get("RelayState") ?? "");
     return r.ok ? done(r.cookies) : fail(400, authMessages.failed);
   });
+}
+
+/** A request from Studio's own origin: Fetch Metadata when the browser sends it, else Origin. */
+export function sameOrigin(req: Request): boolean {
+  const site = req.headers.get("sec-fetch-site");
+  if (site !== null) {
+    return site === "same-origin";
+  }
+  const origin = req.headers.get("origin");
+  return origin !== null && origin === new URL(req.url).origin;
 }
