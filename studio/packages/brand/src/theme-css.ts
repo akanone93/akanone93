@@ -72,6 +72,29 @@ function variableName(namespace: string, token: string): string {
   return `--${namespace}-${key}`;
 }
 
+const forcedColors: Readonly<Record<string, string>> = {
+  canvas: "Canvas",
+  app: "Canvas",
+  raised: "Canvas",
+  selected: "Canvas",
+  primary: "CanvasText",
+  secondary: "CanvasText",
+  tertiary: "CanvasText",
+  accent: "Highlight",
+  "accent-hover": "Highlight",
+  selection: "Highlight",
+  "selection-text": "HighlightText",
+  "selection-surface": "Canvas",
+  "on-accent": "HighlightText",
+  focus: "Highlight",
+  link: "LinkText",
+  "button-text": "ButtonText",
+};
+
+function forcedColorDeclarations(): string[] {
+  return Object.entries(forcedColors).map(([key, v]) => `    --color-${key}: ${v};`);
+}
+
 /** The declarations of one theme; dark and contrast list only what differs from light. */
 function declarations(theme: ThemeName): string[] {
   return tokenFamilies.flatMap((family) =>
@@ -125,6 +148,20 @@ export function themeCss(): string {
     "",
     "[data-density=comfortable] {",
     ...densityDeclarations("comfortable"),
+    "}",
+    "",
+    "/* U15: the contrast theme applies on request of the system; an explicit theme below wins. */",
+    "@media (prefers-contrast: more) {",
+    "  :root {",
+    ...declarations("contrast").map((d) => `  ${d}`),
+    "  }",
+    "}",
+    "",
+    "/* U15: forced colours use system colours; forced-color-adjust stays auto. */",
+    "@media (forced-colors: active) {",
+    "  :root {",
+    ...forcedColorDeclarations(),
+    "  }",
     "}",
     "",
     "[data-theme=dark] {",

@@ -26,7 +26,7 @@ interface Pair {
 
 const solidSurfaces = ["surface.canvas", "surface.app", "surface.raised", "surface.selected"];
 const text = minimumTextContrast;
-const component = minimumComponentContrast;
+const component = (theme: ThemeName) => (theme === "contrast" ? 4.5 : minimumComponentContrast);
 
 /** Pairs every theme must satisfy: text on solid surfaces, labels, status, UI parts. */
 const pairs = (theme: ThemeName): Pair[] => {
@@ -36,15 +36,15 @@ const pairs = (theme: ThemeName): Pair[] => {
   );
   return [
     ...onSolid,
-    { fg: "text.onAccent", bg: "accent.primary", min: theme === "contrast" ? 7 : theme === "dark" ? component : text },
+    { fg: "text.onAccent", bg: "accent.primary", min: theme === "contrast" ? 7 : text },
     { fg: "accent.selectionText", bg: "accent.selectionSurface", min: textMin },
     { fg: "status.success", bg: "surface.raised", min: textMin },
     { fg: "status.warning", bg: "surface.raised", min: textMin },
     { fg: "status.danger", bg: "surface.raised", min: textMin },
-    { fg: "focus.ring", bg: "surface.canvas", min: component },
-    { fg: "canvas.arrow", bg: "surface.canvas", min: component },
-    { fg: "canvas.arrowActive", bg: "surface.canvas", min: component },
-    { fg: "accent.primary", bg: "surface.canvas", min: component },
+    { fg: "focus.ring", bg: "surface.canvas", min: component(theme) },
+    { fg: "canvas.arrow", bg: "surface.canvas", min: component(theme) },
+    { fg: "canvas.arrowActive", bg: "surface.canvas", min: component(theme) },
+    { fg: "accent.primary", bg: "surface.canvas", min: component(theme) },
   ];
 };
 
@@ -77,7 +77,7 @@ describe("Porcelain U2.5 measured pairs [STU-010]", () => {
 
   test("text pairs meet 4.5:1 and arrows meet 3:1", () => {
     for (const { fg, bg, ratio } of measured) {
-      const need = fg === "navy.400" ? component : text;
+      const need = fg === "navy.400" ? component("light") : text;
       expect(ratio, `${fg} on ${bg}`).toBeGreaterThanOrEqual(need);
     }
   });
@@ -118,6 +118,9 @@ describe("Porcelain tokens [STU-010, STU-016]", () => {
     for (const marker of [
       "[data-theme=dark] {",
       "[data-theme=contrast] {",
+      "@media (prefers-contrast: more)",
+      "@media (forced-colors: active)",
+      "Highlight",
       "[data-density=comfortable] {",
       "@media (prefers-reduced-motion: reduce)",
       "--duration-fast: 0ms;",

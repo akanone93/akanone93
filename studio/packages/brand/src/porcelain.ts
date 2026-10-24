@@ -131,7 +131,7 @@ export const semanticColors: readonly SemanticColor[] = [
     name: "text.onAccent",
     key: "on-accent",
     light: primitives.white,
-    dark: primitives.white,
+    dark: primitives["navy.900"],
     contrast: primitives.white,
   },
   {

@@ -137,6 +137,73 @@
   --density-card-padding-x: 18px;
 }
 
+/* U15: the contrast theme applies on request of the system; an explicit theme below wins. */
+@media (prefers-contrast: more) {
+  :root {
+    --color-canvas: #FFFFFF;
+    --color-app: #FFFFFF;
+    --color-glass: #FFFFFF;
+    --color-card: #FFFFFF;
+    --color-hover: #E6E8F0;
+    --color-selected: #E2DDFB;
+    --color-secondary: #11142A;
+    --color-secondary-glass: #11142A;
+    --color-tertiary: #30364F;
+    --color-hairline: #555C7C;
+    --color-strong: #11142A;
+    --color-accent: #4A2DE6;
+    --color-accent-hover: #3A22B8;
+    --color-accent-halo: rgba(74,45,230,.28);
+    --color-selection: #4A2DE6;
+    --color-selection-text: #3A22B8;
+    --color-selection-surface: #E2DDFB;
+    --color-focus: #4A2DE6;
+    --color-success: #065F46;
+    --color-warning: #6B3F00;
+    --color-danger: #8E1B10;
+    --color-danger-fill: #8E1B10;
+    --color-arrow: #11142A;
+    --color-arrow-active: #4A2DE6;
+    --shadow-e1: 0 0 0 2px rgb(17,20,42);
+    --shadow-e2: 0 0 0 2px rgb(17,20,42);
+    --shadow-frame: 0 0 0 2px rgb(17,20,42);
+    --shadow-frame-active: 0 0 0 3px #4A2DE6;
+    --shadow-primary: 0 0 0 2px #11142A;
+    --shadow-e4: 0 0 0 2px rgb(17,20,42);
+    --surface-glass-fill: #FFFFFF;
+    --surface-glass-solid: #FFFFFF;
+    --surface-glass-backdrop: none;
+    --surface-glass-inner: transparent;
+    --surface-glass-outer: #11142A;
+    --surface-scrim-fill: rgba(17,20,42,.60);
+    --surface-stroke-field: 2px;
+    --surface-stroke-focus: 3px;
+    --surface-stroke-arrow: 2px;
+  }
+}
+
+/* U15: forced colours use system colours; forced-color-adjust stays auto. */
+@media (forced-colors: active) {
+  :root {
+    --color-canvas: Canvas;
+    --color-app: Canvas;
+    --color-raised: Canvas;
+    --color-selected: Canvas;
+    --color-primary: CanvasText;
+    --color-secondary: CanvasText;
+    --color-tertiary: CanvasText;
+    --color-accent: Highlight;
+    --color-accent-hover: Highlight;
+    --color-selection: Highlight;
+    --color-selection-text: HighlightText;
+    --color-selection-surface: Canvas;
+    --color-on-accent: HighlightText;
+    --color-focus: Highlight;
+    --color-link: LinkText;
+    --color-button-text: ButtonText;
+  }
+}
+
 [data-theme=dark] {
   --color-brand-ink: #F5F6FA;
   --color-brand-violet: #8B74FF;
@@ -155,6 +222,7 @@
   --color-secondary: #B4BAD0;
   --color-secondary-glass: #B4BAD0;
   --color-tertiary: #A3AAC2;
+  --color-on-accent: #11142A;
   --color-hairline: rgba(255,255,255,.08);
   --color-strong: rgba(255,255,255,.16);
   --color-accent: #8B74FF;
