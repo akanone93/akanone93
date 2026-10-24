@@ -95,6 +95,35 @@ type Events interface {
 	DocumentChanged(ctx context.Context, org, appID, pluginID, path string, revision int64, actor audit.Actor)
 }
 
+// DraftFollower is told of each accepted write to a draft once it commits,
+// so that the dev sessions that follow the stored draft compile and push it
+// (L-14, contract #17, DEV-010). It never fails its caller, and document
+// does not depend on the dev sessions that implement it.
+type DraftFollower interface {
+	// DraftWritten names the app and plugin written and the paths of the
+	// documents that changed.
+	DraftWritten(ctx context.Context, p auth.Principal, appID, pluginID string, paths []string)
+}
+
+// FollowDrafts sets the follower of accepted writes. It is called once
+// while the server is wired, before the service serves.
+func (s *Service) FollowDrafts(f DraftFollower) { s.follower = f }
+
+// draftWritten tells the follower of an accepted write, if there is one.
+func (s *Service) draftWritten(ctx context.Context, p auth.Principal, appID, pluginID string, docs []Document) {
+	if s.follower == nil || len(docs) == 0 {
+		return
+	}
+	paths := make([]string, 0, len(docs))
+	for _, d := range docs {
+		paths = append(paths, d.Path)
+	}
+	if docs[0].AppID != "" {
+		appID = docs[0].AppID
+	}
+	s.follower.DraftWritten(ctx, p, appID, pluginID, paths)
+}
+
 // lockChanged announces a lock change; the stream's reset covers a loss.
 func (s *Service) lockChanged(ctx context.Context, p auth.Principal, l Lock, released bool) {
 	if s.o.Events != nil {
@@ -119,6 +148,8 @@ type Service struct {
 	schemaValidator *schema.Validator
 	encoder         *zstd.Encoder
 	decoder         *zstd.Decoder
+	// follower is told of accepted writes; nil tells no one.
+	follower DraftFollower
 }
 
 // NewService returns the service.
