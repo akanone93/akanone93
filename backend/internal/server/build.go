@@ -211,6 +211,10 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	}
 	// Closed before the shared cache its subscription runs on.
 	closers.push(services.Auth.Close)
+	if services.DevSessions != nil {
+		// Its followers read the dev sessions' logs off the shared cache.
+		closers.push(services.DevSessions.Close)
+	}
 
 	srv, err := New(Deps{
 		Config: cfg, Log: log, Metrics: metrics, Tracer: tracer,

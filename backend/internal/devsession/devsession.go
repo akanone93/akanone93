@@ -81,6 +81,11 @@ type Options struct {
 	Signer         ManifestSigner
 	Deliverer      Deliverer
 	Channel        string
+	// Shared is the shared layer the sessions' events, frames and counters
+	// live on, so that every api replica serves every session (DEV-021,
+	// ADR-0087 revision 2026-10-24); nil keeps them in this process, which
+	// then must be the only replica.
+	Shared SharedLayer
 	// Random is the source of nonces and tickets; nil uses crypto/rand.
 	Random io.Reader
 	// Now is the clock; nil uses time.Now.
@@ -95,6 +100,8 @@ type Service struct {
 	random  io.Reader
 	compact devtoken.Compact
 	hub     *Hub
+	// closeHub ends the followers of a shared hub.
+	closeHub context.CancelFunc
 	// drafts holds the draft state of each live session that pushed.
 	draftsMu sync.Mutex
 	drafts   map[string]*draftState
@@ -105,7 +112,11 @@ func New(o Options) (*Service, error) {
 	if o.DB == nil || o.Audit == nil || o.IDs == nil || o.Limits == nil || o.Tokens == nil {
 		return nil, errors.New("devsession: a database, an audit log, identifiers, limits and a token signer are required")
 	}
-	s := &Service{o: o, now: o.Now, random: o.Random, hub: NewHub(), drafts: map[string]*draftState{}}
+	s := &Service{o: o, now: o.Now, random: o.Random, hub: NewHub(), closeHub: func() {}, drafts: map[string]*draftState{}}
+	if o.Shared != nil {
+		ctx, cancel := context.WithCancel(context.Background())
+		s.hub, s.closeHub = NewSharedHub(ctx, o.Shared, o.PingInterval), cancel
+	}
 	if s.o.Deliverer == nil {
 		s.o.Deliverer = s.hub
 	}
@@ -117,6 +128,11 @@ func New(o Options) (*Service, error) {
 	}
 	return s, nil
 }
+
+// Close stops following the shared layer: this replica's sockets and
+// watchers stop receiving what other replicas relay. The sessions go on
+// on the other replicas.
+func (s *Service) Close() { s.closeHub() }
 
 // Session is a dev session.
 type Session struct {
