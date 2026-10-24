@@ -15,11 +15,19 @@
     "test": "bun test",
     "dev": "bun run --filter @plux/web dev",
     "build": "bun run --filter @plux/web build",
-    "size": "bun scripts/bundle-size.ts"
+    "size": "bun scripts/bundle-size.ts",
+    "gen:theme": "bun scripts/gen-theme.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@biomejs/biome": "2.5.15",
+    "@happy-dom/global-registrator": "21.0.4",
+    "@playwright/test": "1.63.0",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/react": "16.3.3",
     "@types/bun": "1.4.2",
+    "happy-dom": "21.0.4",
+    "impeccable": "4.7.0",
     "typescript": "7.0.2"
   }
 }
