@@ -7,8 +7,362 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: de\n"
 
+#. Button that accepts the invitation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.invite.accept"
+msgstr "Einladung annehmen"
+
+#. Heading of the invitation page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.invite.title"
+msgstr "Einladung annehmen"
+
+#. Shown when the explain-access request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.forbidden.explain-failed"
+msgstr "Der Zugriff kann gerade nicht erklärt werden."
+
+#. Heading of the section with the person's name and email.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.account"
+msgstr "Konto"
+
+#. Caption on the organisation home.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.caption"
+msgstr "Apps, Plugins und Freigaben erscheinen hier, sobald sie verfügbar sind."
+
+#. Body shown to a signed-in person with no organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.noorg.body"
+msgstr "Bitten Sie eine Administratorin oder einen Administrator, Sie in eine Organisation einzuladen."
+
+#. Label of the field for the one-time code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.factor.code"
+msgstr "Authentifizierungscode"
+
+#. Label of the new-password field on the invitation page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.invite.password"
+msgstr "Passwort wählen"
+
+#. Density option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.density.comfortable"
+msgstr "Komfortabel"
+
+#. Density option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.density.compact"
+msgstr "Kompakt"
+
+#. Button that starts single sign-on; name is the identity provider.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.provider.continue"
+msgstr "Weiter mit {name}"
+
+#. Theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.theme.dark"
+msgstr "Dunkel"
+
+#. Result of explaining access; decision is the server's verdict.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.forbidden.decision"
+msgstr "Entscheidung: {decision}"
+
+#. Label of the density choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.density"
+msgstr "Dichte"
+
+#. Label of the email field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.email"
+msgstr "E-Mail"
+
+#. Validation error of the email field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.email"
+msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
+
+#. Validation error of the one-time code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.code"
+msgstr "Geben Sie den 6-stelligen Code ein."
+
+#. Validation error of the display-name field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.name"
+msgstr "Geben Sie Ihren Namen ein."
+
+#. Validation error of the password field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.password"
+msgstr "Geben Sie Ihr Passwort ein."
+
+#. Heading of the page shown for enterprise-only pages without a licence.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.licence.title"
+msgstr "Enterprise: Lizenz erforderlich"
+
+#. Button that asks the server why access is denied.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.forbidden.explain"
+msgstr "Zugriff erklären"
+
+#. Name of the personal home page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.home"
+msgstr "Start"
+
+#. Label of the language choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.language"
+msgstr "Sprache"
+
+#. Theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.theme.light"
+msgstr "Hell"
+
+#. Shown while a page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.loading"
+msgstr "Wird geladen"
+
+#. Theme option that follows the operating system.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.theme.system"
+msgstr "Wie System"
+
+#. Label of the organisation switcher.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.org.switcher"
+msgstr "Organisation"
+
+#. Heading of the 404 page, also shown for an organisation the person is not in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.notfound.title"
+msgstr "Seite nicht gefunden"
+
+#. Label of the password field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.password"
+msgstr "Passwort"
+
 #. Name of the application, shown as the browser tab title.
 #. js-lingui-explicit-id
 #: apps/web/src/shell.messages.ts
 msgid "shell.app.title"
 msgstr "Plux Studio"
+
+#. Label of the profile menu button and its first entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.profile.menu"
+msgstr "Profil"
+
+#. Heading of the profile page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.title"
+msgstr "Profil"
+
+#. Confirmation after a preference was stored.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.saved"
+msgstr "Gespeichert"
+
+#. Heading of the second-factor step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.factor.title"
+msgstr "Zweiter Faktor"
+
+#. Heading of the sign-in page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.signin.title"
+msgstr "Anmelden"
+
+#. Button that submits the password.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.signin.submit"
+msgstr "Anmelden"
+
+#. Link from the signed-out page to the sign-in page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.signedout.again"
+msgstr "Erneut anmelden"
+
+#. Menu entry that ends the session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.profile.signout"
+msgstr "Abmelden"
+
+#. Shown when the sign-in request fails for another reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.failed"
+msgstr "Anmeldung fehlgeschlagen. Versuchen Sie es gleich noch einmal."
+
+#. Button label while the sign-in request runs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.signin.submitting"
+msgstr "Anmeldung läuft"
+
+#. Accessible name of the group of single sign-on buttons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.providers"
+msgstr "Einmalanmeldung"
+
+#. Accessible name of the top bar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.topbar"
+msgstr "Studio-Navigation"
+
+#. Shown when the server refuses the one-time code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.code-rejected"
+msgstr "Der Code ist falsch oder abgelaufen."
+
+#. Shown when the server refuses the credentials.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.rejected"
+msgstr "E-Mail oder Passwort sind nicht korrekt."
+
+#. Shown when the invitation is refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.invite"
+msgstr "Die Einladung ist ungültig oder abgelaufen."
+
+#. Shown when the passkey prompt fails or is cancelled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.passkey"
+msgstr "Der Passkey konnte nicht verwendet werden."
+
+#. Label of the theme choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.theme"
+msgstr "Design"
+
+#. Body of the 404 page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.notfound.body"
+msgstr "Diese Seite existiert nicht oder Sie dürfen sie nicht sehen."
+
+#. Body of the licence page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.licence.body"
+msgstr "Diese Seite gehört zur Enterprise-Edition. Bitten Sie eine Installationsadministratorin oder einen Installationsadministrator, eine Lizenz einzuspielen."
+
+#. Button that answers the second factor with a passkey.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.factor.passkey"
+msgstr "Passkey verwenden"
+
+#. Validation error of the new password.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.error.password-short"
+msgstr "Verwenden Sie mindestens 12 Zeichen."
+
+#. Button that submits the one-time code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.factor.verify"
+msgstr "Bestätigen"
+
+#. Heading of the organisation home; name is the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.title"
+msgstr "Willkommen bei {name}"
+
+#. Heading shown to a signed-in person with no organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.noorg.title"
+msgstr "Sie gehören noch keiner Organisation an"
+
+#. Heading of the page shown after signing out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.signedout.title"
+msgstr "Sie sind abgemeldet"
+
+#. Heading of the 403 page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.forbidden.title"
+msgstr "Kein Zugriff"
+
+#. Caption under the profile heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.caption"
+msgstr "Ihr Erscheinungsbild und Ihre Sprache, für alle Geräte gespeichert."
+
+#. Label of the display-name field on the invitation page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.invite.name"
+msgstr "Ihr Name"
+
+#. Shown when storing a preference fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.save-failed"
+msgstr "Ihre Einstellung konnte nicht gespeichert werden."
+
+#. Body of the 403 page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.forbidden.body"
+msgstr "Ihre Rolle enthält nicht die Berechtigung, die diese Seite benötigt."
