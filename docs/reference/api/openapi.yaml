@@ -12490,6 +12490,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UpdateUpstreamResponse'
+  /plux.v1.StudioEventsService/Watch: {}
   /plux.v1.TelemetryService/IngestEvents:
     post:
       tags:
@@ -18130,6 +18131,28 @@ components:
           title: patch
       title: DocumentChange
       additionalProperties: false
+    plux.v1.DocumentChanged:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginId:
+          type: string
+          title: plugin_id
+        path:
+          type: string
+          title: path
+        revision:
+          type: string
+          title: revision
+          format: int64
+        actor:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: actor
+      title: DocumentChanged
+      additionalProperties: false
     plux.v1.DropEvent:
       type: object
       properties:
@@ -21686,6 +21709,15 @@ components:
           description: saved is whether the document was written.
       title: ImportTranslationsResponse
       additionalProperties: false
+    plux.v1.InboxChanged:
+      type: object
+      properties:
+        unread:
+          type: string
+          title: unread
+          format: int64
+      title: InboxChanged
+      additionalProperties: false
     plux.v1.InboxItem:
       type: object
       properties:
@@ -23968,6 +24000,25 @@ components:
       title: Lock
       additionalProperties: false
       description: Lock is an exclusive editing lock (SRV-040, ADR-0015).
+    plux.v1.LockChanged:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginId:
+          type: string
+          title: plugin_id
+        scope:
+          type: string
+          title: scope
+        lock:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Lock'
+          title: lock
+          description: lock is unset when the lock was released.
+      title: LockChanged
+      additionalProperties: false
     plux.v1.LogEvent:
       type: object
       properties:
@@ -28064,6 +28115,97 @@ components:
       title: StoreCount
       additionalProperties: false
       description: StoreCount is the number of rows a store held for a subject.
+    plux.v1.StudioEventsServiceWatchRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          title: cursor
+          description: cursor is the cursor of the last event the tab saw; empty starts now.
+      title: StudioEventsServiceWatchRequest
+      additionalProperties: false
+    plux.v1.StudioEventsServiceWatchResponse:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            document:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DocumentChanged'
+              title: document
+          title: document
+        - type: object
+          properties:
+            heartbeat:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.StudioHeartbeat'
+              title: heartbeat
+          title: heartbeat
+        - type: object
+          properties:
+            inbox:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.InboxChanged'
+              title: inbox
+          title: inbox
+        - type: object
+          properties:
+            lock:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.LockChanged'
+              title: lock
+          title: lock
+        - type: object
+          properties:
+            reset:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.StudioReset'
+              title: reset
+          title: reset
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - document
+              - required:
+                  - heartbeat
+              - required:
+                  - inbox
+              - required:
+                  - lock
+              - required:
+                  - reset
+          - not:
+              oneOf:
+                - required:
+                    - document
+                - required:
+                    - heartbeat
+                - required:
+                    - inbox
+                - required:
+                    - lock
+                - required:
+                    - reset
+      properties:
+        cursor:
+          type: string
+          title: cursor
+          description: cursor resumes the stream after this event.
+      title: StudioEventsServiceWatchResponse
+    plux.v1.StudioHeartbeat:
+      type: object
+      title: StudioHeartbeat
+      additionalProperties: false
+      description: StudioHeartbeat keeps an idle stream alive.
+    plux.v1.StudioReset:
+      type: object
+      title: StudioReset
+      additionalProperties: false
+      description: |-
+        StudioReset: events after the cursor were trimmed; reload state, then
+         resume from cursor.
     plux.v1.SubjectKind:
       type: string
       title: SubjectKind
@@ -29594,6 +29736,12 @@ tags:
        name one.
   - name: plux.v1.SearchService
     description: SearchService searches the apps the caller may read (SRV-061, ADR-0082).
+  - name: plux.v1.StudioEventsService
+    description: |-
+      StudioEventsService carries one resumable server stream per Studio tab:
+       lock changes, document revision changes and the inbox unread count
+       (STU-075, SRV-062, ADR-0096). Anyone signed in may watch; events about
+       apps the caller cannot read are left out.
   - name: plux.v1.TelemetryService
     description: |-
       TelemetryService ingests the runtime's batched events (Appendix G.2).

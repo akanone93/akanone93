@@ -43,6 +43,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
+	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
@@ -76,6 +77,9 @@ type Handlers struct {
 	Goldens *golden.Service
 	// Searches serves SearchService (SRV-061); nil leaves it unmounted.
 	Searches *search.Service
+	// StudioStream serves StudioEventsService (STU-075); nil leaves it
+	// unmounted.
+	StudioStream *studioevents.Service
 	// UserPreferences serves PreferencesService (STU-014, STU-015,
 	// STU-058); nil leaves it unmounted.
 	UserPreferences *preferences.Service

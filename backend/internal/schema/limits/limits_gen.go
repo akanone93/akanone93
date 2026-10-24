@@ -557,6 +557,10 @@ const (
 	StudioThumbnailBytes Key = "studio.thumbnailBytes"
 	// StudioUndoDepth: Undo steps kept per editor session and plugin. (STU-069)
 	StudioUndoDepth Key = "studio.undoDepth"
+	// StudioUserEventsTTLMinutes: Minutes a person's Studio events log (inbox
+	// unread count) is kept after its last event, so a tab that was away that
+	// long reloads its state. (STU-075)
+	StudioUserEventsTTLMinutes Key = "studio.userEventsTTLMinutes"
 	// SyncBackgroundIntervalMinutes: Minutes between background syncs the
 	// runtime asks the operating system for; the runtime refuses less than 15
 	// minutes, the least the platforms grant. (SYN-014)
@@ -779,6 +783,7 @@ var registry = [...]Definition{
 	{Key: StudioPreferencesBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes of one user's stored Studio preferences in an organisation, as JSON."},
 	{Key: StudioThumbnailBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 2097152, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Size of one canvas or screen thumbnail Studio uploads."},
 	{Key: StudioUndoDepth, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Undo steps kept per editor session and plugin."},
+	{Key: StudioUserEventsTTLMinutes, Unit: UnitCount, Default: 1440, Warning: 0, Max: 10080, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Minutes a person's Studio events log (inbox unread count) is kept after its last event, so a tab that was away that long reloads its state."},
 	{Key: SyncBackgroundIntervalMinutes, Unit: UnitCount, Default: 360, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P10", Description: "Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant."},
 	{Key: TelemetryBatchBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Bytes one telemetry batch may carry on the wire after decompression."},
 	{Key: TelemetryBufferBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."},

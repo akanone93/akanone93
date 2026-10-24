@@ -1,0 +1,41 @@
+{
+  "name": "decorated-box",
+  "root": {
+    "id": "center",
+    "type": "Center",
+    "props": {},
+    "children": [
+      {
+        "id": "deco",
+        "type": "DecoratedBox",
+        "props": {
+          "color": "#ff3366"
+        },
+        "children": [
+          {
+            "id": "pad",
+            "type": "Padding",
+            "props": {
+              "padding": [
+                12,
+                12,
+                12,
+                12
+              ]
+            },
+            "children": [
+              {
+                "id": "box",
+                "type": "TestBox",
+                "props": {
+                  "width": 64,
+                  "height": 48
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

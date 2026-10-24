@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: plux_layout_conformance
+description: >-
+  Captures Flutter's layout of the conformance scenes as goldens that Studio's
+  TypeScript layout engine is compared against (STU-005, ADR-0013).
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

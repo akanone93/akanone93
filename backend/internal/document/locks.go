@@ -207,6 +207,9 @@ func (s *Service) AcquireScopedLock(ctx context.Context, p auth.Principal, appID
 		out, preserved, err = s.takeLock(ctx, tx, q, d, p, session, scope, force)
 		return err
 	})
+	if err == nil {
+		s.lockChanged(ctx, p, out, false)
+	}
 	return out, preserved, err
 }
 
@@ -295,6 +298,15 @@ func (s *Service) ReleaseLock(ctx context.Context, p auth.Principal, appID, plug
 
 // ReleaseScopedLock is ReleaseLock for a lock scope (see AcquireScopedLock).
 func (s *Service) ReleaseScopedLock(ctx context.Context, p auth.Principal, appID, pluginID, session, scope string) error {
+	err := s.releaseScopedLock(ctx, p, appID, pluginID, session, scope)
+	if err == nil {
+		s.lockChanged(ctx, p, Lock{AppID: appID, PluginID: pluginID, Scope: scope}, true)
+	}
+	return err
+}
+
+// releaseScopedLock deletes the lock and records it.
+func (s *Service) releaseScopedLock(ctx context.Context, p auth.Principal, appID, pluginID, session, scope string) error {
 	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		d, err := s.resolve(ctx, q, p, appID, pluginID)

@@ -1,0 +1,209 @@
+{
+  "name": "align-nine-positions",
+  "root": {
+    "id": "align-0",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size-0",
+        "type": "SizedBox",
+        "props": {
+          "width": 320,
+          "height": 320
+        },
+        "children": [
+          {
+            "id": "align-1",
+            "type": "Align",
+            "props": {
+              "alignment": [
+                0,
+                -1
+              ]
+            },
+            "children": [
+              {
+                "id": "size-1",
+                "type": "SizedBox",
+                "props": {
+                  "width": 290,
+                  "height": 290
+                },
+                "children": [
+                  {
+                    "id": "align-2",
+                    "type": "Align",
+                    "props": {
+                      "alignment": [
+                        1,
+                        -1
+                      ]
+                    },
+                    "children": [
+                      {
+                        "id": "size-2",
+                        "type": "SizedBox",
+                        "props": {
+                          "width": 260,
+                          "height": 260
+                        },
+                        "children": [
+                          {
+                            "id": "align-3",
+                            "type": "Align",
+                            "props": {
+                              "alignment": [
+                                -1,
+                                0
+                              ]
+                            },
+                            "children": [
+                              {
+                                "id": "size-3",
+                                "type": "SizedBox",
+                                "props": {
+                                  "width": 230,
+                                  "height": 230
+                                },
+                                "children": [
+                                  {
+                                    "id": "align-4",
+                                    "type": "Align",
+                                    "props": {
+                                      "alignment": [
+                                        0,
+                                        0
+                                      ]
+                                    },
+                                    "children": [
+                                      {
+                                        "id": "size-4",
+                                        "type": "SizedBox",
+                                        "props": {
+                                          "width": 200,
+                                          "height": 200
+                                        },
+                                        "children": [
+                                          {
+                                            "id": "align-5",
+                                            "type": "Align",
+                                            "props": {
+                                              "alignment": [
+                                                1,
+                                                0
+                                              ]
+                                            },
+                                            "children": [
+                                              {
+                                                "id": "size-5",
+                                                "type": "SizedBox",
+                                                "props": {
+                                                  "width": 170,
+                                                  "height": 170
+                                                },
+                                                "children": [
+                                                  {
+                                                    "id": "align-6",
+                                                    "type": "Align",
+                                                    "props": {
+                                                      "alignment": [
+                                                        -1,
+                                                        1
+                                                      ]
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "id": "size-6",
+                                                        "type": "SizedBox",
+                                                        "props": {
+                                                          "width": 140,
+                                                          "height": 140
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "id": "align-7",
+                                                            "type": "Align",
+                                                            "props": {
+                                                              "alignment": [
+                                                                0,
+                                                                1
+                                                              ]
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "id": "size-7",
+                                                                "type": "SizedBox",
+                                                                "props": {
+                                                                  "width": 110,
+                                                                  "height": 110
+                                                                },
+                                                                "children": [
+                                                                  {
+                                                                    "id": "align-8",
+                                                                    "type": "Align",
+                                                                    "props": {
+                                                                      "alignment": [
+                                                                        1,
+                                                                        1
+                                                                      ]
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "id": "size-8",
+                                                                        "type": "SizedBox",
+                                                                        "props": {
+                                                                          "width": 80,
+                                                                          "height": 80
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "id": "leaf",
+                                                                            "type": "TestBox",
+                                                                            "props": {
+                                                                              "width": 20,
+                                                                              "height": 20
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
