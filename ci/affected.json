@@ -398,6 +398,31 @@
       "go": ["tools/cmd/covgate"],
       "paths": ["studio/**", "coverage.json", "mk/studio.mk", "!**/*.md"],
       "make": ["studio-check"]
+    },
+    "studio-conformance": {
+      "description": "Studio's layout against Flutter's goldens (STU-005)",
+      "paths": ["studio/packages/layout/**", "test/layout-conformance/**", "mk/studio.mk", "!**/*.md"],
+      "make": ["studio-conformance"]
+    },
+    "studio-e2e": {
+      "description": "Studio's end-to-end tests against the Compose stack (O-11)",
+      "paths": ["studio/**", "deploy/compose/**", "mk/studio.mk", "mk/stack.mk", "!**/*.md"],
+      "make": ["studio-e2e"]
+    },
+    "studio-bench": {
+      "description": "Studio's canvas benchmark in software rendering; a regression over 10 % fails (QA-007)",
+      "paths": ["studio/packages/canvas/**", "studio/package.json", "studio/bun.lock", "mk/studio.mk", "!**/*.md"],
+      "make": ["studio-bench-canvas"]
+    },
+    "zap-studio": {
+      "description": "The OWASP ZAP baseline scan of Studio against the Compose stack, ignoring only test/zap/studio-rules.tsv (QA-008)",
+      "paths": ["studio/**", "deploy/compose/**", "scripts/release/js-notices.sh", "test/zap/**", "mk/studio.mk", "mk/stack.mk", "!**/*.md"],
+      "make": ["zap-studio"]
+    },
+    "studio-image-repro": {
+      "description": "Two builds of the Studio image give one digest (CI-006)",
+      "paths": ["studio/**", "scripts/release/js-notices.sh", "mk/studio.mk", "!**/*.md"],
+      "make": ["studio-image-repro"]
     }
   }
 }

@@ -10,3 +10,6 @@ signing:
     address: https://vault.example.com:8200
     tokenSecret:
       name: plux-vault
+
+studio:
+  publicBaseUrl: https://studio.example.com

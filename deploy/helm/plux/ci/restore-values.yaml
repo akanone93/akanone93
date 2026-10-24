@@ -33,3 +33,6 @@ objectStorage:
     existingSecret: plux-source-s3
 networkPolicy:
   enabled: false
+
+studio:
+  publicBaseUrl: https://studio.example.com
