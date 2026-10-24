@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from "./button.tsx";
+export type { CaseDefinition } from "./case.ts";
+export { allCases } from "./cases.ts";
 export { cx, focusRing } from "./cx.ts";
 export {
   AlertDialog,

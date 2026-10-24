@@ -14,7 +14,7 @@
 //	packages-no-apps    packages never import @plux/web, @plux/bff or a
 //	                    relative path into apps
 //	pure-no-ui          @plux/canvas and @plux/layout never import react,
-//	                    react-dom, @plux/ui or @base-ui-components/*
+//	                    react-dom, @plux/ui or @base-ui/* (also its former name @base-ui-components/*)
 //	bff-no-ui           apps/bff never imports react, @plux/ui,
 //	                    @plux/canvas or @plux/layout
 //	no-direct-storage   nothing imports pg, postgres, ioredis or @aws-sdk/*
@@ -75,7 +75,7 @@ func check(dir, rel, spec string) []string {
 		}
 	}
 	if kind == "packages" && (name == "canvas" || name == "layout") &&
-		anyMatch(spec, "react", "react-dom", "@plux/ui", "@base-ui-components/*") {
+		anyMatch(spec, "react", "react-dom", "@plux/ui", "@base-ui/*", "@base-ui-components/*") {
 		rules = append(rules, "pure-no-ui")
 	}
 	if dir == "apps/bff" && anyMatch(spec, "react", "@plux/ui", "@plux/canvas", "@plux/layout") {
