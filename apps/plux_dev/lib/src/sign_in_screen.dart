@@ -18,11 +18,12 @@ const String devClientName = 'plux-dev';
 const List<String> devScopes = ['app.read'];
 
 /// Creates the client a sign-in uses; tests replace it.
-typedef DevApiFactory = ViewerApi Function(Uri server);
+typedef DevApiFactory = ViewerApi Function(Uri server, {String? token});
 
 /// The client sign-in uses: plain HTTPS to the server, as the Dev app.
-ViewerApi defaultDevApi(Uri server) => ViewerApi(
+ViewerApi defaultDevApi(Uri server, {String? token}) => ViewerApi(
   server,
+  token: token,
   client: http.Client(),
   clientName: devClientName,
   scopes: devScopes,
