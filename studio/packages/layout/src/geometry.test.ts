@@ -15,7 +15,7 @@ import {
   Rect,
   Size,
   TextDirection,
-} from "./geometry.ts";
+} from "./flutter/geometry.ts";
 
 const inf = Number.POSITIVE_INFINITY;
 

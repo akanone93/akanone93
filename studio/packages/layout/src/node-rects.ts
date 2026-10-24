@@ -7,9 +7,9 @@
  * captured from Flutter on a device.
  */
 
-import { Offset } from "./geometry.ts";
-import type { RenderObject } from "./object.ts";
-import { RenderBox } from "./render-box.ts";
+import { Offset } from "./flutter/geometry.ts";
+import type { RenderObject } from "./flutter/object.ts";
+import { RenderBox } from "./flutter/render-box.ts";
 
 /** A rectangle in logical pixels relative to the root's origin. */
 export interface NodeRect {

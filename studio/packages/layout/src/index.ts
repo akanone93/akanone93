@@ -7,8 +7,8 @@
  * the device does.
  */
 
-export { BoxConstraints, type Constraints } from "./constraints.ts";
-export { ContainerBoxParentData, ContainerRenderBox } from "./container.ts";
+export { BoxConstraints, type Constraints } from "./flutter/constraints.ts";
+export { ContainerBoxParentData, ContainerRenderBox } from "./flutter/container.ts";
 export {
   Alignment,
   AlignmentDirectional,
@@ -24,27 +24,27 @@ export {
   Rect,
   Size,
   TextDirection,
-} from "./geometry.ts";
-export { globalRects, goldenRects, type LayoutGolden, type NodeRect } from "./node-rects.ts";
-export { ParentData, PipelineOwner, RenderObject } from "./object.ts";
+} from "./flutter/geometry.ts";
+export { ParentData, PipelineOwner, RenderObject } from "./flutter/object.ts";
 export {
   DecorationPosition,
   RenderConstrainedBox,
   RenderDecoratedBox,
   RenderProxyBox,
-} from "./proxy-box.ts";
+} from "./flutter/proxy-box.ts";
 export {
   BaselineOffset,
   BoxParentData,
   RenderBox,
   RenderBoxWithChild,
   TextBaseline,
-} from "./render-box.ts";
+} from "./flutter/render-box.ts";
 export {
   RenderAligningShiftedBox,
   RenderPadding,
   RenderPositionedBox,
   RenderShiftedBox,
-} from "./shifted-box.ts";
+} from "./flutter/shifted-box.ts";
+export { RenderView } from "./flutter/view.ts";
+export { globalRects, goldenRects, type LayoutGolden, type NodeRect } from "./node-rects.ts";
 export { RenderTestBox, type RenderTestBoxOptions } from "./test-box.ts";
-export { RenderView } from "./view.ts";

@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
-import { BoxConstraints } from "./constraints.ts";
-import { ContainerRenderBox } from "./container.ts";
-import { EdgeInsets, Offset, Size } from "./geometry.ts";
+import { BoxConstraints } from "./flutter/constraints.ts";
+import { ContainerRenderBox } from "./flutter/container.ts";
+import { EdgeInsets, Offset, Size } from "./flutter/geometry.ts";
+import { PipelineOwner } from "./flutter/object.ts";
+import { RenderConstrainedBox, RenderProxyBox } from "./flutter/proxy-box.ts";
+import { BaselineOffset, BoxParentData, RenderBox, TextBaseline } from "./flutter/render-box.ts";
+import { RenderPadding, RenderPositionedBox } from "./flutter/shifted-box.ts";
+import { RenderView } from "./flutter/view.ts";
 import { globalRects } from "./node-rects.ts";
-import { PipelineOwner } from "./object.ts";
-import { RenderConstrainedBox, RenderProxyBox } from "./proxy-box.ts";
-import { BaselineOffset, BoxParentData, RenderBox, TextBaseline } from "./render-box.ts";
-import { RenderPadding, RenderPositionedBox } from "./shifted-box.ts";
 import { RenderTestBox } from "./test-box.ts";
-import { RenderView } from "./view.ts";
 
 /** Builds an attached tree under an 800x600 view and lays it out once. */
 function mount(child: RenderBox): { owner: PipelineOwner; view: RenderView; updates: () => number } {

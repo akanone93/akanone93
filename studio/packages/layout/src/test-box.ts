@@ -6,9 +6,9 @@
  * conformance scenes that need a child of known size without text.
  */
 
-import type { BoxConstraints } from "./constraints.ts";
-import type { Size } from "./geometry.ts";
-import { RenderBox, type TextBaseline } from "./render-box.ts";
+import type { BoxConstraints } from "./flutter/constraints.ts";
+import type { Size } from "./flutter/geometry.ts";
+import { RenderBox, type TextBaseline } from "./flutter/render-box.ts";
 
 /** Options for [RenderTestBox]; every intrinsic defaults to the preferred size. */
 export interface RenderTestBoxOptions {
