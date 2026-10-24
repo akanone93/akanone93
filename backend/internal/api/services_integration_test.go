@@ -48,6 +48,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
@@ -419,6 +420,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	preferencesService, err := preferences.NewService(preferences.Options{DB: db, Tenancy: tenancyService})
+	if err != nil {
+		t.Fatal(err)
+	}
 	gitService, err := gitsync.New(gitsync.Options{DB: db, Audit: log, Documents: docs, Secrets: tenancyService, IDs: gen})
 	if err != nil {
 		t.Fatal(err)
@@ -455,7 +460,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
-		Searches:     searchService, GitExports: gitService,
+		Searches:     searchService, GitExports: gitService, UserPreferences: preferencesService,
 		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
 	}
 	// The world's one signed-in person calls every RPC of the authorisation
@@ -488,6 +493,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewPreferencesServiceHandler(h.Preferences(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
