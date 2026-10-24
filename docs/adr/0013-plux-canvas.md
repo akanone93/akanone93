@@ -159,3 +159,11 @@ mode. The S0.8 prototype showed why this needs design, not tuning: 1,600 draw ca
   text as bars when small) and renders at reduced resolution while the user interacts, refining when
   idle.
 
+
+Measured on 2026-10-24 (`docs/benchmarks/studio-prototype.md`, "No-GPU techniques"): under
+software GL, WebGL with batching, tile caches and level of detail came closest (Scene A pan p95
+about 23 ms, drag p95 about 21 ms, 8–10 draw calls instead of 1,600); CanvasKit's CPU raster
+surface is no faster on plain drawing and much slower once tiles are blitted (about 5 ms per image
+draw), so the start-up choice keeps WebGL unless a measurement on the machine says otherwise.
+16.7 ms p95 is not yet reached: S1.3 adds dirty-region redraw for drags, builds tiles outside the
+frame, and is held to the budget by the software-mode benchmark.
