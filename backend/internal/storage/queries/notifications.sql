@@ -51,14 +51,31 @@ SELECT u.id, u.email FROM memberships m JOIN users u ON u.id = m.user_id
 SELECT id, email FROM users WHERE id = $1 AND disabled_at IS NULL;
 
 -- name: InsertNotification :exec
-INSERT INTO notifications (id, organization_id, user_id, event_id, event_type, app_id, title, body, link, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+INSERT INTO notifications (id, organization_id, user_id, event_id, event_type, app_id, title, body, link, created_at, params, group_key)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 
--- name: ListNotifications :many
-SELECT * FROM notifications
- WHERE user_id = $1 AND (NOT sqlc.arg('unread_only')::boolean OR read_at IS NULL)
- ORDER BY created_at DESC, id DESC
+-- One row per group, the newest, with the number of rows the group holds
+-- among those listed. A row without a group key (written before grouping)
+-- is a group of its own.
+-- name: ListNotificationGroups :many
+SELECT sqlc.embed(n), g.group_count::integer AS group_count
+  FROM (SELECT DISTINCT ON (COALESCE(NULLIF(s.group_key, ''), s.id::text))
+               s.id, count(*) OVER (PARTITION BY COALESCE(NULLIF(s.group_key, ''), s.id::text)) AS group_count
+          FROM notifications s
+         WHERE s.user_id = sqlc.arg('user_id') AND (NOT sqlc.arg('unread_only')::boolean OR s.read_at IS NULL)
+         ORDER BY COALESCE(NULLIF(s.group_key, ''), s.id::text), s.created_at DESC, s.id DESC) g
+  JOIN notifications n ON n.id = g.id
+ ORDER BY n.created_at DESC, n.id DESC
  LIMIT sqlc.arg('page_size');
+
+-- Deletes up to batch_size notifications created before the cutoff, oldest
+-- first, for the retention sweep.
+-- name: PurgeNotifications :execrows
+DELETE FROM notifications WHERE id IN (
+    SELECT s.id FROM notifications s
+     WHERE s.created_at < sqlc.arg('cutoff')
+     ORDER BY s.created_at, s.id
+     LIMIT sqlc.arg('batch_size'));
 
 -- name: CountUnreadNotifications :one
 SELECT count(*) FROM notifications WHERE user_id = $1 AND read_at IS NULL;

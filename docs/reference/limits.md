@@ -143,6 +143,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `lsp.sessionMinutes` | count | 60 | 80% | 480 | installation, organization | P11 | STU-110 | Minutes one language-server sandbox may run before it is stopped. |
 | `lsp.sessionsPerOrganization` | count | 10 | 80% | 1000 | installation, organization | P11 | STU-110 | Language-server sandboxes of the Rust editor running at once in one organisation. |
 | `media.pinnedDownloadSize` | bytes | 209715200 | 80% | 1073741824 | installation, organization, app | P8 | SEC-041 | Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client). |
+| `notifications.paramBytes` | bytes | 1024 | 80% | 8192 | installation | P11 | SRV-062 | Largest value of one display parameter of a notification; an event with a larger one is refused. |
+| `notifications.paramsPerEvent` | count | 16 | 80% | 64 | installation | P11 | SRV-062 | Display parameters one notification event may carry; an event with more is refused. |
 | `notifications.perHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | SRV-062 | Notifications one organisation may send in an hour across all channels; the excess is dropped and audited. |
 | `notifications.retentionDays` | count | 90 | 80% | 3650 | installation, organization | P11 | SRV-062 | Days an inbox notification is kept before it is deleted. |
 | `page.animations` | count | 30 | 10 | 200 | installation, organization, app, plugin | P1 | CMP-040 | Animations that can run at the same time on one page. |

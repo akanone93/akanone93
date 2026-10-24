@@ -401,6 +401,10 @@ func (s *Service) announce(ctx context.Context, a Artifact, id string) {
 		Attributes: map[string]string{
 			"request": id, "resource": string(a.Resource), "subject": a.Subject, "environment": a.Environment.Key,
 		},
+		Params: map[string]string{
+			"summary": a.Summary, "subject": a.Subject, "resource": string(a.Resource), "environment": a.Environment.Key,
+		},
+		Subject: id,
 	})
 	if err != nil {
 		s.o.Log.WarnContext(ctx, "approval: the notification of a request could not be queued", slog.String("request", id), slog.Any("error", err))
