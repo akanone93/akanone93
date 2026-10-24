@@ -194,3 +194,9 @@ The backends as built in P6: a PKCS#11 helper process (cgo confined to the helpe
 ## Revision (2026-10-18, P9: SAML, SCIM and step-up)
 
 P9 extends identity as decided in ADR-0074 and ADR-0075. OIDC stays in-house and gains several providers, group-to-role and team mapping, optional just-in-time provisioning, `acr`/`amr` recording and back-channel logout. SAML 2.0 (with `crewjam/saml`) and SCIM 2.0 (in-house) arrive in the enterprise edition, with deprovisioning revoking sessions and tokens at once. Sessions are listed, time-limited and revocable by administrators (`GOV-005`). Sensitive actions require a WebAuthn step-up within the last 5 minutes (`SEC-103`); the CLI runs the ceremony in the browser and receives a 5-minute grant bound to its DPoP key. Roles, teams and scoped grants are in ADR-0073.
+
+## Revision (2026-10-24, P11 plan: the Studio BFF passes the session through)
+
+The server performs sign-in and holds the sessions; the Studio BFF does not (L-13). The BFF has no `/auth/*` routes of its own. It serves the sign-in pages, hosts the OIDC callback and the SAML assertion consumer service, and forwards the result to the server, which creates the session. It passes the session cookie through unchanged. The CSRF token comes from `GetCurrentUser` and is held in the browser's memory, never in storage. The organisation is chosen per request with the `X-Plux-Organization` header, which the server checks against the caller's membership.
+
+Only user activity extends a session's idle timeout (O-1). Open streams, heartbeats and lock renewals do not ([ADR-0096](0096-studio-live-channels.md)). When a session expires, the streams close with an authentication error. The sign-in providers, SAML, SCIM and step-up are unchanged.
