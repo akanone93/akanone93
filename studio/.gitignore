@@ -2,3 +2,7 @@ node_modules/
 coverage/
 dist/
 *.tsbuildinfo
+design-gate-report.txt
+test-results/
+playwright-report/
+apps/web/src/styles/theme.gen.css

@@ -64,6 +64,7 @@ node_modules/
 # Coverage and report output of every toolchain. Listed by location: a bare
 # `coverage/` pattern would also ignore source packages named "coverage".
 /studio/coverage/
+/studio/apps/web/src/styles/theme.gen.css
 /packages/*/coverage/
 /apps/*/coverage/
 /apps/add_to_app/*/coverage/

@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover
+.PHONY: studio-check studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate
 
 ##@ Studio (Bun, TypeScript)
 
@@ -19,20 +19,34 @@ studio-fmt: ## Format and fix Studio code with Biome
 studio-lint: ## Lint and format-check Studio code with Biome
 	cd studio && bunx biome ci --colors=off .
 
-studio-typecheck: ## Type-check Studio code
+studio-typecheck: studio-gen-theme ## Type-check Studio code
 	cd studio && bun run typecheck
 
-studio-test: ## Run Studio tests
+studio-test: studio-gen-theme ## Run Studio tests
 	cd studio && bun test
 
 studio-cover: studio-test ## Enforce Studio coverage floors (QA-001)
 	$(COVGATE) -kind studio studio/coverage/lcov.info
 
-studio-dev: ## Run the Studio web app with the Vite dev server
+studio-dev: studio-gen-theme ## Run the Studio web app with the Vite dev server
 	cd studio && bun run dev
 
-studio-build: studio-install ## Build the Studio web app into studio/apps/web/dist
+studio-gen-theme: studio-install ## Regenerate Studio's Tailwind theme from the design tokens
+	cd studio && bun run gen:theme
+
+studio-build: studio-install studio-gen-theme ## Build the Studio web app into studio/apps/web/dist
 	cd studio && bun run build
 
 studio-size: studio-build ## Check the initial JavaScript against the budget (STU-122)
 	cd studio && bun run size
+
+# Browsers are preinstalled to match the pinned @playwright/test; never run
+# `playwright install` here. Not part of studio-check: it runs at slice gates
+# and in CI (O-11).
+studio-e2e: studio-build ## Run Studio's end-to-end tests (Playwright, axe)
+	cd studio && bunx playwright test --config e2e/playwright.config.ts
+
+# O-4: the detector only reports in S0; the exit status stays 0 until S3.
+studio-design-gate: studio-build ## Run the design-gate detector over the built web app (report-only until S3, O-4)
+	cd studio && { bunx impeccable detect apps/web/dist --no-config 2>&1 || true; } > design-gate-report.txt
+	@tail -n 3 studio/design-gate-report.txt
