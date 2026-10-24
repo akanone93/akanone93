@@ -63,6 +63,13 @@ message Lock {
   // scope is empty for the draft's own lock and "translations/<locale>" for
   // the lock of one locale's translations document (I18N-008).
   string scope = 8;
+  // last_edit_at is the time of the holder's last accepted write under
+  // this lock (ADR-0095).
+  google.protobuf.Timestamp last_edit_at = 9;
+  // takeover_allowed_at is the earliest time another user may take the
+  // lock over: studio.lockTakeoverIdleMinutes after last_edit_at, or at
+  // once when the lease has lapsed. The server enforces it (L-1, SRV-041).
+  google.protobuf.Timestamp takeover_allowed_at = 10;
 }
 
 message CreatePluginRequest {

@@ -71,6 +71,14 @@ message InboxItem {
   string link = 6;
   google.protobuf.Timestamp created_at = 7;
   bool read = 8;
+  // params are the typed values of the event, keyed by name, which Studio
+  // formats in the reader's language from the event type's message (O-18);
+  // title and body keep the server-rendered text for the other channels.
+  map<string, string> params = 9;
+  // group_key is equal for repeats of one event (same type, app and
+  // subject); group_count is how many items the group holds (F16).
+  string group_key = 10;
+  int32 group_count = 11;
 }
 
 message ListInboxRequest {

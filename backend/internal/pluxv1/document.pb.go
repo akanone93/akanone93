@@ -149,11 +149,14 @@ type Snapshot struct {
 	// reason is "write", "lock_takeover", "publish" or "restore".
 	Reason string `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
 	// paths lists the documents this snapshot recorded.
-	Paths         []string               `protobuf:"bytes,6,rep,name=paths,proto3" json:"paths,omitempty"`
-	Actor         *Actor                 `protobuf:"bytes,7,opt,name=actor,proto3" json:"actor,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Paths     []string               `protobuf:"bytes,6,rep,name=paths,proto3" json:"paths,omitempty"`
+	Actor     *Actor                 `protobuf:"bytes,7,opt,name=actor,proto3" json:"actor,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// editor_session_id is the editor session of the write that made this
+	// snapshot; empty for writes outside Studio (ADR-0095).
+	EditorSessionId string `protobuf:"bytes,9,opt,name=editor_session_id,json=editorSessionId,proto3" json:"editor_session_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Snapshot) Reset() {
@@ -240,6 +243,13 @@ func (x *Snapshot) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *Snapshot) GetEditorSessionId() string {
+	if x != nil {
+		return x.EditorSessionId
+	}
+	return ""
 }
 
 type GetDocumentRequest struct {
@@ -474,10 +484,13 @@ type PutDocumentRequest struct {
 	Path     string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
 	Content  []byte                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
 	// if_revision is the revision the writer last read; zero creates.
-	IfRevision    int64  `protobuf:"varint,5,opt,name=if_revision,json=ifRevision,proto3" json:"if_revision,omitempty"`
-	Session       string `protobuf:"bytes,6,opt,name=session,proto3" json:"session,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	IfRevision int64  `protobuf:"varint,5,opt,name=if_revision,json=ifRevision,proto3" json:"if_revision,omitempty"`
+	Session    string `protobuf:"bytes,6,opt,name=session,proto3" json:"session,omitempty"`
+	// editor_session_id names the Studio tab's editor session; the write's
+	// snapshot is tagged with it for the undo rebuild (ADR-0095, STU-069).
+	EditorSessionId string `protobuf:"bytes,7,opt,name=editor_session_id,json=editorSessionId,proto3" json:"editor_session_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *PutDocumentRequest) Reset() {
@@ -552,6 +565,13 @@ func (x *PutDocumentRequest) GetSession() string {
 	return ""
 }
 
+func (x *PutDocumentRequest) GetEditorSessionId() string {
+	if x != nil {
+		return x.EditorSessionId
+	}
+	return ""
+}
+
 type PutDocumentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Document      *Document              `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
@@ -613,15 +633,17 @@ func (x *PutDocumentResponse) GetDiagnostics() []*Diagnostic {
 }
 
 type PatchDocumentRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	PluginId      string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
-	Path          string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
-	Patch         []*PatchOp             `protobuf:"bytes,4,rep,name=patch,proto3" json:"patch,omitempty"`
-	IfRevision    int64                  `protobuf:"varint,5,opt,name=if_revision,json=ifRevision,proto3" json:"if_revision,omitempty"`
-	Session       string                 `protobuf:"bytes,6,opt,name=session,proto3" json:"session,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	AppId      string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	PluginId   string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	Path       string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
+	Patch      []*PatchOp             `protobuf:"bytes,4,rep,name=patch,proto3" json:"patch,omitempty"`
+	IfRevision int64                  `protobuf:"varint,5,opt,name=if_revision,json=ifRevision,proto3" json:"if_revision,omitempty"`
+	Session    string                 `protobuf:"bytes,6,opt,name=session,proto3" json:"session,omitempty"`
+	// editor_session_id is as in PutDocumentRequest.
+	EditorSessionId string `protobuf:"bytes,7,opt,name=editor_session_id,json=editorSessionId,proto3" json:"editor_session_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *PatchDocumentRequest) Reset() {
@@ -692,6 +714,13 @@ func (x *PatchDocumentRequest) GetIfRevision() int64 {
 func (x *PatchDocumentRequest) GetSession() string {
 	if x != nil {
 		return x.Session
+	}
+	return ""
+}
+
+func (x *PatchDocumentRequest) GetEditorSessionId() string {
+	if x != nil {
+		return x.EditorSessionId
 	}
 	return ""
 }
@@ -1830,7 +1859,7 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\n" +
 	"updated_by\x18\b \x01(\v2\x0e.plux.v1.ActorR\tupdatedBy\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xf9\x01\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xa5\x02\n" +
 	"\bSnapshot\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x1b\n" +
@@ -1840,7 +1869,8 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\x05paths\x18\x06 \x03(\tR\x05paths\x12$\n" +
 	"\x05actor\x18\a \x01(\v2\x0e.plux.v1.ActorR\x05actor\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\\\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12*\n" +
+	"\x11editor_session_id\x18\t \x01(\tR\x0feditorSessionId\"\\\n" +
 	"\x12GetDocumentRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x12\n" +
@@ -1854,7 +1884,7 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\x10content_included\x18\x04 \x01(\bR\x0fcontentIncluded\"q\n" +
 	"\x15ListDocumentsResponse\x12/\n" +
 	"\tdocuments\x18\x01 \x03(\v2\x11.plux.v1.DocumentR\tdocuments\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xb1\x01\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xdd\x01\n" +
 	"\x12PutDocumentRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x12\n" +
@@ -1862,12 +1892,13 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\acontent\x18\x04 \x01(\fR\acontent\x12\x1f\n" +
 	"\vif_revision\x18\x05 \x01(\x03R\n" +
 	"ifRevision\x12\x18\n" +
-	"\asession\x18\x06 \x01(\tR\asession\"\x9c\x01\n" +
+	"\asession\x18\x06 \x01(\tR\asession\x12*\n" +
+	"\x11editor_session_id\x18\a \x01(\tR\x0feditorSessionId\"\x9c\x01\n" +
 	"\x13PutDocumentResponse\x12-\n" +
 	"\bdocument\x18\x01 \x01(\v2\x11.plux.v1.DocumentR\bdocument\x12\x1f\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tR\n" +
 	"snapshotId\x125\n" +
-	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics\"\xc1\x01\n" +
+	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics\"\xed\x01\n" +
 	"\x14PatchDocumentRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x12\n" +
@@ -1875,7 +1906,8 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\x05patch\x18\x04 \x03(\v2\x10.plux.v1.PatchOpR\x05patch\x12\x1f\n" +
 	"\vif_revision\x18\x05 \x01(\x03R\n" +
 	"ifRevision\x12\x18\n" +
-	"\asession\x18\x06 \x01(\tR\asession\"\x9e\x01\n" +
+	"\asession\x18\x06 \x01(\tR\asession\x12*\n" +
+	"\x11editor_session_id\x18\a \x01(\tR\x0feditorSessionId\"\x9e\x01\n" +
 	"\x15PatchDocumentResponse\x12-\n" +
 	"\bdocument\x18\x01 \x01(\v2\x11.plux.v1.DocumentR\bdocument\x12\x1f\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tR\n" +

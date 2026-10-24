@@ -177,9 +177,17 @@ type InboxItem struct {
 	Title     string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
 	Body      string                 `protobuf:"bytes,5,opt,name=body,proto3" json:"body,omitempty"`
 	// link is an https URL or a path in Studio.
-	Link          string                 `protobuf:"bytes,6,opt,name=link,proto3" json:"link,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Read          bool                   `protobuf:"varint,8,opt,name=read,proto3" json:"read,omitempty"`
+	Link      string                 `protobuf:"bytes,6,opt,name=link,proto3" json:"link,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Read      bool                   `protobuf:"varint,8,opt,name=read,proto3" json:"read,omitempty"`
+	// params are the typed values of the event, keyed by name, which Studio
+	// formats in the reader's language from the event type's message (O-18);
+	// title and body keep the server-rendered text for the other channels.
+	Params map[string]string `protobuf:"bytes,9,rep,name=params,proto3" json:"params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// group_key is equal for repeats of one event (same type, app and
+	// subject); group_count is how many items the group holds (F16).
+	GroupKey      string `protobuf:"bytes,10,opt,name=group_key,json=groupKey,proto3" json:"group_key,omitempty"`
+	GroupCount    int32  `protobuf:"varint,11,opt,name=group_count,json=groupCount,proto3" json:"group_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -268,6 +276,27 @@ func (x *InboxItem) GetRead() bool {
 		return x.Read
 	}
 	return false
+}
+
+func (x *InboxItem) GetParams() map[string]string {
+	if x != nil {
+		return x.Params
+	}
+	return nil
+}
+
+func (x *InboxItem) GetGroupKey() string {
+	if x != nil {
+		return x.GroupKey
+	}
+	return ""
+}
+
+func (x *InboxItem) GetGroupCount() int32 {
+	if x != nil {
+		return x.GroupCount
+	}
+	return 0
 }
 
 type ListInboxRequest struct {
@@ -3019,7 +3048,7 @@ const file_plux_v1_notification_proto_rawDesc = "" +
 	"\x15ListEventTypesRequest\"Q\n" +
 	"\x16ListEventTypesResponse\x127\n" +
 	"\vevent_types\x18\x01 \x03(\v2\x16.plux.v1.EventTypeInfoR\n" +
-	"eventTypes\"\xde\x01\n" +
+	"eventTypes\"\x8f\x03\n" +
 	"\tInboxItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -3030,7 +3059,15 @@ const file_plux_v1_notification_proto_rawDesc = "" +
 	"\x04link\x18\x06 \x01(\tR\x04link\x129\n" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x12\n" +
-	"\x04read\x18\b \x01(\bR\x04read\"I\n" +
+	"\x04read\x18\b \x01(\bR\x04read\x126\n" +
+	"\x06params\x18\t \x03(\v2\x1e.plux.v1.InboxItem.ParamsEntryR\x06params\x12\x1b\n" +
+	"\tgroup_key\x18\n" +
+	" \x01(\tR\bgroupKey\x12\x1f\n" +
+	"\vgroup_count\x18\v \x01(\x05R\n" +
+	"groupCount\x1a9\n" +
+	"\vParamsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +
 	"\x10ListInboxRequest\x12\x1f\n" +
 	"\vunread_only\x18\x01 \x01(\bR\n" +
 	"unreadOnly\x12\x14\n" +
@@ -3269,7 +3306,7 @@ func file_plux_v1_notification_proto_rawDescGZIP() []byte {
 	return file_plux_v1_notification_proto_rawDescData
 }
 
-var file_plux_v1_notification_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
+var file_plux_v1_notification_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
 var file_plux_v1_notification_proto_goTypes = []any{
 	(*EventTypeInfo)(nil),                     // 0: plux.v1.EventTypeInfo
 	(*ListEventTypesRequest)(nil),             // 1: plux.v1.ListEventTypesRequest
@@ -3325,89 +3362,91 @@ var file_plux_v1_notification_proto_goTypes = []any{
 	(*DeleteHookResponse)(nil),                // 51: plux.v1.DeleteHookResponse
 	(*RotateHookSecretRequest)(nil),           // 52: plux.v1.RotateHookSecretRequest
 	(*RotateHookSecretResponse)(nil),          // 53: plux.v1.RotateHookSecretResponse
-	nil,                                       // 54: plux.v1.NotificationChannel.SettingsEntry
-	nil,                                       // 55: plux.v1.CreateNotificationChannelRequest.SettingsEntry
-	(*timestamppb.Timestamp)(nil),             // 56: google.protobuf.Timestamp
+	nil,                                       // 54: plux.v1.InboxItem.ParamsEntry
+	nil,                                       // 55: plux.v1.NotificationChannel.SettingsEntry
+	nil,                                       // 56: plux.v1.CreateNotificationChannelRequest.SettingsEntry
+	(*timestamppb.Timestamp)(nil),             // 57: google.protobuf.Timestamp
 }
 var file_plux_v1_notification_proto_depIdxs = []int32{
 	0,  // 0: plux.v1.ListEventTypesResponse.event_types:type_name -> plux.v1.EventTypeInfo
-	56, // 1: plux.v1.InboxItem.created_at:type_name -> google.protobuf.Timestamp
-	3,  // 2: plux.v1.ListInboxResponse.items:type_name -> plux.v1.InboxItem
-	56, // 3: plux.v1.NotificationSubscription.created_at:type_name -> google.protobuf.Timestamp
-	8,  // 4: plux.v1.SubscribeRequest.subscription:type_name -> plux.v1.NotificationSubscription
-	8,  // 5: plux.v1.SubscribeResponse.subscription:type_name -> plux.v1.NotificationSubscription
-	8,  // 6: plux.v1.ListSubscriptionsResponse.subscriptions:type_name -> plux.v1.NotificationSubscription
-	54, // 7: plux.v1.NotificationChannel.settings:type_name -> plux.v1.NotificationChannel.SettingsEntry
-	56, // 8: plux.v1.NotificationChannel.created_at:type_name -> google.protobuf.Timestamp
-	55, // 9: plux.v1.CreateNotificationChannelRequest.settings:type_name -> plux.v1.CreateNotificationChannelRequest.SettingsEntry
-	15, // 10: plux.v1.CreateNotificationChannelResponse.channel:type_name -> plux.v1.NotificationChannel
-	15, // 11: plux.v1.ListNotificationChannelsResponse.channels:type_name -> plux.v1.NotificationChannel
-	56, // 12: plux.v1.Delivery.next_attempt:type_name -> google.protobuf.Timestamp
-	56, // 13: plux.v1.Delivery.created_at:type_name -> google.protobuf.Timestamp
-	56, // 14: plux.v1.Delivery.delivered_at:type_name -> google.protobuf.Timestamp
-	24, // 15: plux.v1.ListDeliveriesResponse.deliveries:type_name -> plux.v1.Delivery
-	24, // 16: plux.v1.ListWebhookDeliveriesResponse.deliveries:type_name -> plux.v1.Delivery
-	56, // 17: plux.v1.OutboundWebhook.created_at:type_name -> google.protobuf.Timestamp
-	29, // 18: plux.v1.CreateWebhookResponse.webhook:type_name -> plux.v1.OutboundWebhook
-	29, // 19: plux.v1.ListWebhooksResponse.webhooks:type_name -> plux.v1.OutboundWebhook
-	56, // 20: plux.v1.FunctionTrigger.next_fire_at:type_name -> google.protobuf.Timestamp
-	56, // 21: plux.v1.FunctionTrigger.last_fire_at:type_name -> google.protobuf.Timestamp
-	38, // 22: plux.v1.CreateTriggerResponse.trigger:type_name -> plux.v1.FunctionTrigger
-	38, // 23: plux.v1.ListTriggersResponse.triggers:type_name -> plux.v1.FunctionTrigger
-	56, // 24: plux.v1.FunctionHook.created_at:type_name -> google.protobuf.Timestamp
-	45, // 25: plux.v1.CreateHookResponse.hook:type_name -> plux.v1.FunctionHook
-	45, // 26: plux.v1.ListHooksResponse.hooks:type_name -> plux.v1.FunctionHook
-	1,  // 27: plux.v1.NotificationService.ListEventTypes:input_type -> plux.v1.ListEventTypesRequest
-	4,  // 28: plux.v1.NotificationService.ListInbox:input_type -> plux.v1.ListInboxRequest
-	6,  // 29: plux.v1.NotificationService.MarkRead:input_type -> plux.v1.MarkReadRequest
-	9,  // 30: plux.v1.NotificationService.Subscribe:input_type -> plux.v1.SubscribeRequest
-	11, // 31: plux.v1.NotificationService.Unsubscribe:input_type -> plux.v1.UnsubscribeRequest
-	13, // 32: plux.v1.NotificationService.ListSubscriptions:input_type -> plux.v1.ListSubscriptionsRequest
-	16, // 33: plux.v1.NotificationService.CreateNotificationChannel:input_type -> plux.v1.CreateNotificationChannelRequest
-	18, // 34: plux.v1.NotificationService.ListNotificationChannels:input_type -> plux.v1.ListNotificationChannelsRequest
-	20, // 35: plux.v1.NotificationService.DeleteNotificationChannel:input_type -> plux.v1.DeleteNotificationChannelRequest
-	22, // 36: plux.v1.NotificationService.TestNotificationChannel:input_type -> plux.v1.TestNotificationChannelRequest
-	25, // 37: plux.v1.NotificationService.ListDeliveries:input_type -> plux.v1.ListDeliveriesRequest
-	30, // 38: plux.v1.WebhookService.CreateWebhook:input_type -> plux.v1.CreateWebhookRequest
-	32, // 39: plux.v1.WebhookService.ListWebhooks:input_type -> plux.v1.ListWebhooksRequest
-	34, // 40: plux.v1.WebhookService.DeleteWebhook:input_type -> plux.v1.DeleteWebhookRequest
-	36, // 41: plux.v1.WebhookService.RotateWebhookSecret:input_type -> plux.v1.RotateWebhookSecretRequest
-	27, // 42: plux.v1.WebhookService.ListWebhookDeliveries:input_type -> plux.v1.ListWebhookDeliveriesRequest
-	39, // 43: plux.v1.FunctionTriggerService.CreateTrigger:input_type -> plux.v1.CreateTriggerRequest
-	41, // 44: plux.v1.FunctionTriggerService.ListTriggers:input_type -> plux.v1.ListTriggersRequest
-	43, // 45: plux.v1.FunctionTriggerService.DeleteTrigger:input_type -> plux.v1.DeleteTriggerRequest
-	46, // 46: plux.v1.FunctionTriggerService.CreateHook:input_type -> plux.v1.CreateHookRequest
-	48, // 47: plux.v1.FunctionTriggerService.ListHooks:input_type -> plux.v1.ListHooksRequest
-	50, // 48: plux.v1.FunctionTriggerService.DeleteHook:input_type -> plux.v1.DeleteHookRequest
-	52, // 49: plux.v1.FunctionTriggerService.RotateHookSecret:input_type -> plux.v1.RotateHookSecretRequest
-	2,  // 50: plux.v1.NotificationService.ListEventTypes:output_type -> plux.v1.ListEventTypesResponse
-	5,  // 51: plux.v1.NotificationService.ListInbox:output_type -> plux.v1.ListInboxResponse
-	7,  // 52: plux.v1.NotificationService.MarkRead:output_type -> plux.v1.MarkReadResponse
-	10, // 53: plux.v1.NotificationService.Subscribe:output_type -> plux.v1.SubscribeResponse
-	12, // 54: plux.v1.NotificationService.Unsubscribe:output_type -> plux.v1.UnsubscribeResponse
-	14, // 55: plux.v1.NotificationService.ListSubscriptions:output_type -> plux.v1.ListSubscriptionsResponse
-	17, // 56: plux.v1.NotificationService.CreateNotificationChannel:output_type -> plux.v1.CreateNotificationChannelResponse
-	19, // 57: plux.v1.NotificationService.ListNotificationChannels:output_type -> plux.v1.ListNotificationChannelsResponse
-	21, // 58: plux.v1.NotificationService.DeleteNotificationChannel:output_type -> plux.v1.DeleteNotificationChannelResponse
-	23, // 59: plux.v1.NotificationService.TestNotificationChannel:output_type -> plux.v1.TestNotificationChannelResponse
-	26, // 60: plux.v1.NotificationService.ListDeliveries:output_type -> plux.v1.ListDeliveriesResponse
-	31, // 61: plux.v1.WebhookService.CreateWebhook:output_type -> plux.v1.CreateWebhookResponse
-	33, // 62: plux.v1.WebhookService.ListWebhooks:output_type -> plux.v1.ListWebhooksResponse
-	35, // 63: plux.v1.WebhookService.DeleteWebhook:output_type -> plux.v1.DeleteWebhookResponse
-	37, // 64: plux.v1.WebhookService.RotateWebhookSecret:output_type -> plux.v1.RotateWebhookSecretResponse
-	28, // 65: plux.v1.WebhookService.ListWebhookDeliveries:output_type -> plux.v1.ListWebhookDeliveriesResponse
-	40, // 66: plux.v1.FunctionTriggerService.CreateTrigger:output_type -> plux.v1.CreateTriggerResponse
-	42, // 67: plux.v1.FunctionTriggerService.ListTriggers:output_type -> plux.v1.ListTriggersResponse
-	44, // 68: plux.v1.FunctionTriggerService.DeleteTrigger:output_type -> plux.v1.DeleteTriggerResponse
-	47, // 69: plux.v1.FunctionTriggerService.CreateHook:output_type -> plux.v1.CreateHookResponse
-	49, // 70: plux.v1.FunctionTriggerService.ListHooks:output_type -> plux.v1.ListHooksResponse
-	51, // 71: plux.v1.FunctionTriggerService.DeleteHook:output_type -> plux.v1.DeleteHookResponse
-	53, // 72: plux.v1.FunctionTriggerService.RotateHookSecret:output_type -> plux.v1.RotateHookSecretResponse
-	50, // [50:73] is the sub-list for method output_type
-	27, // [27:50] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	57, // 1: plux.v1.InboxItem.created_at:type_name -> google.protobuf.Timestamp
+	54, // 2: plux.v1.InboxItem.params:type_name -> plux.v1.InboxItem.ParamsEntry
+	3,  // 3: plux.v1.ListInboxResponse.items:type_name -> plux.v1.InboxItem
+	57, // 4: plux.v1.NotificationSubscription.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 5: plux.v1.SubscribeRequest.subscription:type_name -> plux.v1.NotificationSubscription
+	8,  // 6: plux.v1.SubscribeResponse.subscription:type_name -> plux.v1.NotificationSubscription
+	8,  // 7: plux.v1.ListSubscriptionsResponse.subscriptions:type_name -> plux.v1.NotificationSubscription
+	55, // 8: plux.v1.NotificationChannel.settings:type_name -> plux.v1.NotificationChannel.SettingsEntry
+	57, // 9: plux.v1.NotificationChannel.created_at:type_name -> google.protobuf.Timestamp
+	56, // 10: plux.v1.CreateNotificationChannelRequest.settings:type_name -> plux.v1.CreateNotificationChannelRequest.SettingsEntry
+	15, // 11: plux.v1.CreateNotificationChannelResponse.channel:type_name -> plux.v1.NotificationChannel
+	15, // 12: plux.v1.ListNotificationChannelsResponse.channels:type_name -> plux.v1.NotificationChannel
+	57, // 13: plux.v1.Delivery.next_attempt:type_name -> google.protobuf.Timestamp
+	57, // 14: plux.v1.Delivery.created_at:type_name -> google.protobuf.Timestamp
+	57, // 15: plux.v1.Delivery.delivered_at:type_name -> google.protobuf.Timestamp
+	24, // 16: plux.v1.ListDeliveriesResponse.deliveries:type_name -> plux.v1.Delivery
+	24, // 17: plux.v1.ListWebhookDeliveriesResponse.deliveries:type_name -> plux.v1.Delivery
+	57, // 18: plux.v1.OutboundWebhook.created_at:type_name -> google.protobuf.Timestamp
+	29, // 19: plux.v1.CreateWebhookResponse.webhook:type_name -> plux.v1.OutboundWebhook
+	29, // 20: plux.v1.ListWebhooksResponse.webhooks:type_name -> plux.v1.OutboundWebhook
+	57, // 21: plux.v1.FunctionTrigger.next_fire_at:type_name -> google.protobuf.Timestamp
+	57, // 22: plux.v1.FunctionTrigger.last_fire_at:type_name -> google.protobuf.Timestamp
+	38, // 23: plux.v1.CreateTriggerResponse.trigger:type_name -> plux.v1.FunctionTrigger
+	38, // 24: plux.v1.ListTriggersResponse.triggers:type_name -> plux.v1.FunctionTrigger
+	57, // 25: plux.v1.FunctionHook.created_at:type_name -> google.protobuf.Timestamp
+	45, // 26: plux.v1.CreateHookResponse.hook:type_name -> plux.v1.FunctionHook
+	45, // 27: plux.v1.ListHooksResponse.hooks:type_name -> plux.v1.FunctionHook
+	1,  // 28: plux.v1.NotificationService.ListEventTypes:input_type -> plux.v1.ListEventTypesRequest
+	4,  // 29: plux.v1.NotificationService.ListInbox:input_type -> plux.v1.ListInboxRequest
+	6,  // 30: plux.v1.NotificationService.MarkRead:input_type -> plux.v1.MarkReadRequest
+	9,  // 31: plux.v1.NotificationService.Subscribe:input_type -> plux.v1.SubscribeRequest
+	11, // 32: plux.v1.NotificationService.Unsubscribe:input_type -> plux.v1.UnsubscribeRequest
+	13, // 33: plux.v1.NotificationService.ListSubscriptions:input_type -> plux.v1.ListSubscriptionsRequest
+	16, // 34: plux.v1.NotificationService.CreateNotificationChannel:input_type -> plux.v1.CreateNotificationChannelRequest
+	18, // 35: plux.v1.NotificationService.ListNotificationChannels:input_type -> plux.v1.ListNotificationChannelsRequest
+	20, // 36: plux.v1.NotificationService.DeleteNotificationChannel:input_type -> plux.v1.DeleteNotificationChannelRequest
+	22, // 37: plux.v1.NotificationService.TestNotificationChannel:input_type -> plux.v1.TestNotificationChannelRequest
+	25, // 38: plux.v1.NotificationService.ListDeliveries:input_type -> plux.v1.ListDeliveriesRequest
+	30, // 39: plux.v1.WebhookService.CreateWebhook:input_type -> plux.v1.CreateWebhookRequest
+	32, // 40: plux.v1.WebhookService.ListWebhooks:input_type -> plux.v1.ListWebhooksRequest
+	34, // 41: plux.v1.WebhookService.DeleteWebhook:input_type -> plux.v1.DeleteWebhookRequest
+	36, // 42: plux.v1.WebhookService.RotateWebhookSecret:input_type -> plux.v1.RotateWebhookSecretRequest
+	27, // 43: plux.v1.WebhookService.ListWebhookDeliveries:input_type -> plux.v1.ListWebhookDeliveriesRequest
+	39, // 44: plux.v1.FunctionTriggerService.CreateTrigger:input_type -> plux.v1.CreateTriggerRequest
+	41, // 45: plux.v1.FunctionTriggerService.ListTriggers:input_type -> plux.v1.ListTriggersRequest
+	43, // 46: plux.v1.FunctionTriggerService.DeleteTrigger:input_type -> plux.v1.DeleteTriggerRequest
+	46, // 47: plux.v1.FunctionTriggerService.CreateHook:input_type -> plux.v1.CreateHookRequest
+	48, // 48: plux.v1.FunctionTriggerService.ListHooks:input_type -> plux.v1.ListHooksRequest
+	50, // 49: plux.v1.FunctionTriggerService.DeleteHook:input_type -> plux.v1.DeleteHookRequest
+	52, // 50: plux.v1.FunctionTriggerService.RotateHookSecret:input_type -> plux.v1.RotateHookSecretRequest
+	2,  // 51: plux.v1.NotificationService.ListEventTypes:output_type -> plux.v1.ListEventTypesResponse
+	5,  // 52: plux.v1.NotificationService.ListInbox:output_type -> plux.v1.ListInboxResponse
+	7,  // 53: plux.v1.NotificationService.MarkRead:output_type -> plux.v1.MarkReadResponse
+	10, // 54: plux.v1.NotificationService.Subscribe:output_type -> plux.v1.SubscribeResponse
+	12, // 55: plux.v1.NotificationService.Unsubscribe:output_type -> plux.v1.UnsubscribeResponse
+	14, // 56: plux.v1.NotificationService.ListSubscriptions:output_type -> plux.v1.ListSubscriptionsResponse
+	17, // 57: plux.v1.NotificationService.CreateNotificationChannel:output_type -> plux.v1.CreateNotificationChannelResponse
+	19, // 58: plux.v1.NotificationService.ListNotificationChannels:output_type -> plux.v1.ListNotificationChannelsResponse
+	21, // 59: plux.v1.NotificationService.DeleteNotificationChannel:output_type -> plux.v1.DeleteNotificationChannelResponse
+	23, // 60: plux.v1.NotificationService.TestNotificationChannel:output_type -> plux.v1.TestNotificationChannelResponse
+	26, // 61: plux.v1.NotificationService.ListDeliveries:output_type -> plux.v1.ListDeliveriesResponse
+	31, // 62: plux.v1.WebhookService.CreateWebhook:output_type -> plux.v1.CreateWebhookResponse
+	33, // 63: plux.v1.WebhookService.ListWebhooks:output_type -> plux.v1.ListWebhooksResponse
+	35, // 64: plux.v1.WebhookService.DeleteWebhook:output_type -> plux.v1.DeleteWebhookResponse
+	37, // 65: plux.v1.WebhookService.RotateWebhookSecret:output_type -> plux.v1.RotateWebhookSecretResponse
+	28, // 66: plux.v1.WebhookService.ListWebhookDeliveries:output_type -> plux.v1.ListWebhookDeliveriesResponse
+	40, // 67: plux.v1.FunctionTriggerService.CreateTrigger:output_type -> plux.v1.CreateTriggerResponse
+	42, // 68: plux.v1.FunctionTriggerService.ListTriggers:output_type -> plux.v1.ListTriggersResponse
+	44, // 69: plux.v1.FunctionTriggerService.DeleteTrigger:output_type -> plux.v1.DeleteTriggerResponse
+	47, // 70: plux.v1.FunctionTriggerService.CreateHook:output_type -> plux.v1.CreateHookResponse
+	49, // 71: plux.v1.FunctionTriggerService.ListHooks:output_type -> plux.v1.ListHooksResponse
+	51, // 72: plux.v1.FunctionTriggerService.DeleteHook:output_type -> plux.v1.DeleteHookResponse
+	53, // 73: plux.v1.FunctionTriggerService.RotateHookSecret:output_type -> plux.v1.RotateHookSecretResponse
+	51, // [51:74] is the sub-list for method output_type
+	28, // [28:51] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_notification_proto_init() }
@@ -3421,7 +3460,7 @@ func file_plux_v1_notification_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_notification_proto_rawDesc), len(file_plux_v1_notification_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   56,
+			NumMessages:   57,
 			NumExtensions: 0,
 			NumServices:   3,
 		},

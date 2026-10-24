@@ -78,6 +78,9 @@ message Snapshot {
   repeated string paths = 6;
   Actor actor = 7;
   google.protobuf.Timestamp created_at = 8;
+  // editor_session_id is the editor session of the write that made this
+  // snapshot; empty for writes outside Studio (ADR-0095).
+  string editor_session_id = 9;
 }
 
 message GetDocumentRequest {
@@ -109,6 +112,9 @@ message PutDocumentRequest {
   // if_revision is the revision the writer last read; zero creates.
   int64 if_revision = 5;
   string session = 6;
+  // editor_session_id names the Studio tab's editor session; the write's
+  // snapshot is tagged with it for the undo rebuild (ADR-0095, STU-069).
+  string editor_session_id = 7;
 }
 message PutDocumentResponse {
   Document document = 1;
@@ -123,6 +129,8 @@ message PatchDocumentRequest {
   repeated PatchOp patch = 4;
   int64 if_revision = 5;
   string session = 6;
+  // editor_session_id is as in PutDocumentRequest.
+  string editor_session_id = 7;
 }
 message PatchDocumentResponse {
   Document document = 1;

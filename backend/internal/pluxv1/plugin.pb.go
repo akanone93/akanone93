@@ -142,9 +142,16 @@ type Lock struct {
 	RequestedBy []*Actor `protobuf:"bytes,7,rep,name=requested_by,json=requestedBy,proto3" json:"requested_by,omitempty"`
 	// scope is empty for the draft's own lock and "translations/<locale>" for
 	// the lock of one locale's translations document (I18N-008).
-	Scope         string `protobuf:"bytes,8,opt,name=scope,proto3" json:"scope,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Scope string `protobuf:"bytes,8,opt,name=scope,proto3" json:"scope,omitempty"`
+	// last_edit_at is the time of the holder's last accepted write under
+	// this lock (ADR-0095).
+	LastEditAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=last_edit_at,json=lastEditAt,proto3" json:"last_edit_at,omitempty"`
+	// takeover_allowed_at is the earliest time another user may take the
+	// lock over: studio.lockTakeoverIdleMinutes after last_edit_at, or at
+	// once when the lease has lapsed. The server enforces it (L-1, SRV-041).
+	TakeoverAllowedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=takeover_allowed_at,json=takeoverAllowedAt,proto3" json:"takeover_allowed_at,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *Lock) Reset() {
@@ -231,6 +238,20 @@ func (x *Lock) GetScope() string {
 		return x.Scope
 	}
 	return ""
+}
+
+func (x *Lock) GetLastEditAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastEditAt
+	}
+	return nil
+}
+
+func (x *Lock) GetTakeoverAllowedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TakeoverAllowedAt
+	}
+	return nil
 }
 
 type CreatePluginRequest struct {
@@ -1481,7 +1502,7 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xbd\x02\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xc7\x03\n" +
 	"\x04Lock\x12\x1b\n" +
 	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12&\n" +
@@ -1492,7 +1513,11 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x121\n" +
 	"\frequested_by\x18\a \x03(\v2\x0e.plux.v1.ActorR\vrequestedBy\x12\x14\n" +
-	"\x05scope\x18\b \x01(\tR\x05scope\"R\n" +
+	"\x05scope\x18\b \x01(\tR\x05scope\x12<\n" +
+	"\flast_edit_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"lastEditAt\x12J\n" +
+	"\x13takeover_allowed_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x11takeoverAllowedAt\"R\n" +
 	"\x13CreatePluginRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x12\n" +
@@ -1630,48 +1655,50 @@ var file_plux_v1_plugin_proto_depIdxs = []int32{
 	26, // 3: plux.v1.Lock.acquired_at:type_name -> google.protobuf.Timestamp
 	26, // 4: plux.v1.Lock.expires_at:type_name -> google.protobuf.Timestamp
 	27, // 5: plux.v1.Lock.requested_by:type_name -> plux.v1.Actor
-	0,  // 6: plux.v1.CreatePluginResponse.plugin:type_name -> plux.v1.Plugin
-	0,  // 7: plux.v1.GetPluginResponse.plugin:type_name -> plux.v1.Plugin
-	28, // 8: plux.v1.ListPluginsRequest.page:type_name -> plux.v1.Page
-	0,  // 9: plux.v1.ListPluginsResponse.plugins:type_name -> plux.v1.Plugin
-	29, // 10: plux.v1.ListPluginsResponse.page:type_name -> plux.v1.PageResult
-	0,  // 11: plux.v1.UpdatePluginResponse.plugin:type_name -> plux.v1.Plugin
-	30, // 12: plux.v1.DeletePluginResponse.trash:type_name -> plux.v1.TrashItem
-	1,  // 13: plux.v1.AcquireLockResponse.lock:type_name -> plux.v1.Lock
-	1,  // 14: plux.v1.RenewLockResponse.lock:type_name -> plux.v1.Lock
-	1,  // 15: plux.v1.RequestLockResponse.lock:type_name -> plux.v1.Lock
-	1,  // 16: plux.v1.GetLockResponse.lock:type_name -> plux.v1.Lock
-	31, // 17: plux.v1.ListPluginLimitsResponse.limits:type_name -> plux.v1.LimitUsage
-	31, // 18: plux.v1.SetPluginLimitResponse.limit:type_name -> plux.v1.LimitUsage
-	2,  // 19: plux.v1.PluginService.CreatePlugin:input_type -> plux.v1.CreatePluginRequest
-	4,  // 20: plux.v1.PluginService.GetPlugin:input_type -> plux.v1.GetPluginRequest
-	6,  // 21: plux.v1.PluginService.ListPlugins:input_type -> plux.v1.ListPluginsRequest
-	8,  // 22: plux.v1.PluginService.UpdatePlugin:input_type -> plux.v1.UpdatePluginRequest
-	10, // 23: plux.v1.PluginService.DeletePlugin:input_type -> plux.v1.DeletePluginRequest
-	12, // 24: plux.v1.PluginService.AcquireLock:input_type -> plux.v1.AcquireLockRequest
-	14, // 25: plux.v1.PluginService.RenewLock:input_type -> plux.v1.RenewLockRequest
-	16, // 26: plux.v1.PluginService.ReleaseLock:input_type -> plux.v1.ReleaseLockRequest
-	18, // 27: plux.v1.PluginService.RequestLock:input_type -> plux.v1.RequestLockRequest
-	20, // 28: plux.v1.PluginService.GetLock:input_type -> plux.v1.GetLockRequest
-	22, // 29: plux.v1.PluginService.ListPluginLimits:input_type -> plux.v1.ListPluginLimitsRequest
-	24, // 30: plux.v1.PluginService.SetPluginLimit:input_type -> plux.v1.SetPluginLimitRequest
-	3,  // 31: plux.v1.PluginService.CreatePlugin:output_type -> plux.v1.CreatePluginResponse
-	5,  // 32: plux.v1.PluginService.GetPlugin:output_type -> plux.v1.GetPluginResponse
-	7,  // 33: plux.v1.PluginService.ListPlugins:output_type -> plux.v1.ListPluginsResponse
-	9,  // 34: plux.v1.PluginService.UpdatePlugin:output_type -> plux.v1.UpdatePluginResponse
-	11, // 35: plux.v1.PluginService.DeletePlugin:output_type -> plux.v1.DeletePluginResponse
-	13, // 36: plux.v1.PluginService.AcquireLock:output_type -> plux.v1.AcquireLockResponse
-	15, // 37: plux.v1.PluginService.RenewLock:output_type -> plux.v1.RenewLockResponse
-	17, // 38: plux.v1.PluginService.ReleaseLock:output_type -> plux.v1.ReleaseLockResponse
-	19, // 39: plux.v1.PluginService.RequestLock:output_type -> plux.v1.RequestLockResponse
-	21, // 40: plux.v1.PluginService.GetLock:output_type -> plux.v1.GetLockResponse
-	23, // 41: plux.v1.PluginService.ListPluginLimits:output_type -> plux.v1.ListPluginLimitsResponse
-	25, // 42: plux.v1.PluginService.SetPluginLimit:output_type -> plux.v1.SetPluginLimitResponse
-	31, // [31:43] is the sub-list for method output_type
-	19, // [19:31] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	26, // 6: plux.v1.Lock.last_edit_at:type_name -> google.protobuf.Timestamp
+	26, // 7: plux.v1.Lock.takeover_allowed_at:type_name -> google.protobuf.Timestamp
+	0,  // 8: plux.v1.CreatePluginResponse.plugin:type_name -> plux.v1.Plugin
+	0,  // 9: plux.v1.GetPluginResponse.plugin:type_name -> plux.v1.Plugin
+	28, // 10: plux.v1.ListPluginsRequest.page:type_name -> plux.v1.Page
+	0,  // 11: plux.v1.ListPluginsResponse.plugins:type_name -> plux.v1.Plugin
+	29, // 12: plux.v1.ListPluginsResponse.page:type_name -> plux.v1.PageResult
+	0,  // 13: plux.v1.UpdatePluginResponse.plugin:type_name -> plux.v1.Plugin
+	30, // 14: plux.v1.DeletePluginResponse.trash:type_name -> plux.v1.TrashItem
+	1,  // 15: plux.v1.AcquireLockResponse.lock:type_name -> plux.v1.Lock
+	1,  // 16: plux.v1.RenewLockResponse.lock:type_name -> plux.v1.Lock
+	1,  // 17: plux.v1.RequestLockResponse.lock:type_name -> plux.v1.Lock
+	1,  // 18: plux.v1.GetLockResponse.lock:type_name -> plux.v1.Lock
+	31, // 19: plux.v1.ListPluginLimitsResponse.limits:type_name -> plux.v1.LimitUsage
+	31, // 20: plux.v1.SetPluginLimitResponse.limit:type_name -> plux.v1.LimitUsage
+	2,  // 21: plux.v1.PluginService.CreatePlugin:input_type -> plux.v1.CreatePluginRequest
+	4,  // 22: plux.v1.PluginService.GetPlugin:input_type -> plux.v1.GetPluginRequest
+	6,  // 23: plux.v1.PluginService.ListPlugins:input_type -> plux.v1.ListPluginsRequest
+	8,  // 24: plux.v1.PluginService.UpdatePlugin:input_type -> plux.v1.UpdatePluginRequest
+	10, // 25: plux.v1.PluginService.DeletePlugin:input_type -> plux.v1.DeletePluginRequest
+	12, // 26: plux.v1.PluginService.AcquireLock:input_type -> plux.v1.AcquireLockRequest
+	14, // 27: plux.v1.PluginService.RenewLock:input_type -> plux.v1.RenewLockRequest
+	16, // 28: plux.v1.PluginService.ReleaseLock:input_type -> plux.v1.ReleaseLockRequest
+	18, // 29: plux.v1.PluginService.RequestLock:input_type -> plux.v1.RequestLockRequest
+	20, // 30: plux.v1.PluginService.GetLock:input_type -> plux.v1.GetLockRequest
+	22, // 31: plux.v1.PluginService.ListPluginLimits:input_type -> plux.v1.ListPluginLimitsRequest
+	24, // 32: plux.v1.PluginService.SetPluginLimit:input_type -> plux.v1.SetPluginLimitRequest
+	3,  // 33: plux.v1.PluginService.CreatePlugin:output_type -> plux.v1.CreatePluginResponse
+	5,  // 34: plux.v1.PluginService.GetPlugin:output_type -> plux.v1.GetPluginResponse
+	7,  // 35: plux.v1.PluginService.ListPlugins:output_type -> plux.v1.ListPluginsResponse
+	9,  // 36: plux.v1.PluginService.UpdatePlugin:output_type -> plux.v1.UpdatePluginResponse
+	11, // 37: plux.v1.PluginService.DeletePlugin:output_type -> plux.v1.DeletePluginResponse
+	13, // 38: plux.v1.PluginService.AcquireLock:output_type -> plux.v1.AcquireLockResponse
+	15, // 39: plux.v1.PluginService.RenewLock:output_type -> plux.v1.RenewLockResponse
+	17, // 40: plux.v1.PluginService.ReleaseLock:output_type -> plux.v1.ReleaseLockResponse
+	19, // 41: plux.v1.PluginService.RequestLock:output_type -> plux.v1.RequestLockResponse
+	21, // 42: plux.v1.PluginService.GetLock:output_type -> plux.v1.GetLockResponse
+	23, // 43: plux.v1.PluginService.ListPluginLimits:output_type -> plux.v1.ListPluginLimitsResponse
+	25, // 44: plux.v1.PluginService.SetPluginLimit:output_type -> plux.v1.SetPluginLimitResponse
+	33, // [33:45] is the sub-list for method output_type
+	21, // [21:33] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_plugin_proto_init() }
