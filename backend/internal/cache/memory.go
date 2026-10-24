@@ -24,6 +24,9 @@ type Memory struct {
 	entries map[string]entry
 	// subs are the subscriptions to in-process channels, by channel.
 	subs map[string]map[*memorySubscription]struct{}
+	// logs are the resumable logs, by name; expired ones are dropped on
+	// access and swept like entries.
+	logs map[string]*memoryLog
 }
 
 // entry is one cached value.
@@ -166,6 +169,7 @@ func (m *Memory) Close() error {
 	defer m.mu.Unlock()
 	m.closed = true
 	m.entries = nil
+	m.logs = nil
 	m.closeSubscriptions()
 	return nil
 }
