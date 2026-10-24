@@ -14,7 +14,8 @@
       "!**/dist",
       "!**/*.gen.ts",
       "!**/*.gen.css",
-      "!lint/fixtures"
+      "!lint/fixtures",
+      "!prototype"
     ]
   },
   "formatter": {
