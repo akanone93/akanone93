@@ -1,0 +1,120 @@
+{
+  "name": "stack-fit",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "f-loose",
+        "type": "SizedBox",
+        "props": {
+          "width": 200,
+          "height": 100
+        },
+        "children": [
+          {
+            "id": "s-loose",
+            "type": "Stack",
+            "props": {
+              "alignment": [
+                0,
+                0
+              ]
+            },
+            "children": [
+              {
+                "id": "loose-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 50,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f-expand",
+        "type": "SizedBox",
+        "props": {
+          "width": 200,
+          "height": 100
+        },
+        "children": [
+          {
+            "id": "s-expand",
+            "type": "Stack",
+            "props": {
+              "fit": "expand"
+            },
+            "children": [
+              {
+                "id": "expand-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 50,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f-pass",
+        "type": "ConstrainedBox",
+        "props": {
+          "minWidth": 120,
+          "maxWidth": 200,
+          "minHeight": 60,
+          "maxHeight": 100
+        },
+        "children": [
+          {
+            "id": "s-pass",
+            "type": "Stack",
+            "props": {
+              "fit": "passthrough",
+              "alignment": {
+                "start": 1,
+                "y": 0
+              }
+            },
+            "children": [
+              {
+                "id": "pass-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 50,
+                  "height": 40
+                }
+              },
+              {
+                "id": "pass-pos",
+                "type": "PositionedDirectional",
+                "props": {
+                  "end": 0,
+                  "top": 0
+                },
+                "children": [
+                  {
+                    "id": "pass-pos-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

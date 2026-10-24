@@ -1,0 +1,67 @@
+{
+  "name": "indexed-stack",
+  "root": {
+    "id": "frame",
+    "type": "SizedBox",
+    "props": {
+      "width": 300,
+      "height": 200
+    },
+    "children": [
+      {
+        "id": "center",
+        "type": "Center",
+        "props": {},
+        "children": [
+          {
+            "id": "istack",
+            "type": "IndexedStack",
+            "props": {
+              "index": 1,
+              "alignment": {
+                "start": 1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "i0",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 40
+                }
+              },
+              {
+                "id": "i1",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 90
+                }
+              },
+              {
+                "id": "i2",
+                "type": "PositionedDirectional",
+                "props": {
+                  "start": 5,
+                  "bottom": 5
+                },
+                "children": [
+                  {
+                    "id": "i2-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
