@@ -41,6 +41,9 @@
   },
   "studio": {
     "floor": 70,
-    "packages": {}
+    "packages": {
+      "studio/apps/bff": 85,
+      "studio/apps/web": 70
+    }
   }
 }
