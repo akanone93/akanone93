@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 // Benchmark page: drives the canvas worker through the host API and writes a
-// JSON summary into <pre id="result"> for the runner.
+// JSON summary into <pre id="result"> for the runner. Pans are timed on the
+// main thread from one animation frame to the next, since the compositor and
+// not GL moves the base while panning (M-12); drags are timed in the worker.
 
+import type { LayerBox } from "../src/compositor.ts";
 import { CanvasHost } from "../src/host.ts";
 import type { FrameStats, ItemSpec, RendererPreference, SceneOp } from "../src/protocol.ts";
 import { boxPosition, type LinkRef, linkSpec, sceneA, sceneB } from "./scenes.ts";
@@ -13,6 +16,7 @@ const HEIGHT = 800;
 const WARMUP = 30;
 const FRAMES = 300;
 const DRAGGED = 105;
+const FRAME_MS = 1000 / 60;
 
 function percentile(sorted: number[], p: number): number {
   return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * p))] ?? 0;
@@ -57,7 +61,7 @@ function sleep(ms: number): Promise<void> {
 async function settle(host: CanvasHost): Promise<number> {
   const start = performance.now();
   for (let i = 0; i < 400; i++) {
-    host.pan(0, 0);
+    host.patch([]);
     if ((await host.nextFrame()).idleQueue === 0) {
       break;
     }
@@ -82,7 +86,10 @@ function add(items: ItemSpec[]): SceneOp[] {
   return items.map((item) => ({ op: "add", item }));
 }
 
-async function dragScenario(host: CanvasHost, links: LinkRef[]): Promise<FrameStats[]> {
+async function dragScenario(
+  host: CanvasHost,
+  links: LinkRef[],
+): Promise<{ frames: FrameStats[]; layerBox: LayerBox | null }> {
   const touching = links.filter((l) => l.a === DRAGGED || l.b === DRAGGED);
   const ids = [`box-${DRAGGED}`, `label-${DRAGGED}`, ...touching.map((l) => l.id)];
   const origin = boxPosition(DRAGGED);
@@ -100,15 +107,55 @@ async function dragScenario(host: CanvasHost, links: LinkRef[]): Promise<FrameSt
     }
     host.patch(ops);
   });
+  const layerBox = host.layerBox;
   host.endInteraction("drag", ids);
-  return frames;
+  return { frames, layerBox };
 }
 
-async function panScenario(host: CanvasHost): Promise<FrameStats[]> {
+function animationFrame(): Promise<number> {
+  return new Promise((resolve) => requestAnimationFrame(resolve));
+}
+
+function baseRenders(frames: FrameStats[]): Record<string, number> {
+  const ms = frames
+    .filter((f) => f.base)
+    .map((f) => f.ms)
+    .sort((a, b) => a - b);
+  return { baseRenders: ms.length, baseRenderMsP50: round(percentile(ms, 0.5)), baseRenderMsMax: round(ms.at(-1) ?? 0) };
+}
+
+/** A pan of 4 × 1 CSS pixels per animation frame, timed rAF to rAF on the main thread. */
+async function panScenario(host: CanvasHost): Promise<Record<string, number>> {
+  const worker: FrameStats[] = [];
+  const stop = host.onFrame((stats) => worker.push(stats));
   host.startInteraction("pan");
-  const frames = await measure(host, () => host.pan(-4, -1));
+  const intervals: number[] = [];
+  const work: number[] = [];
+  let previous = await animationFrame();
+  for (let i = 0; i < WARMUP + FRAMES; i++) {
+    const now = await animationFrame();
+    const begin = performance.now();
+    host.pan(-4, -1);
+    if (i >= WARMUP) {
+      intervals.push(now - previous);
+      work.push(performance.now() - begin);
+    }
+    previous = now;
+  }
   host.endInteraction("pan");
-  return frames;
+  stop();
+  intervals.sort((a, b) => a - b);
+  work.sort((a, b) => a - b);
+  return {
+    frames: intervals.length,
+    p50: round(percentile(intervals, 0.5)),
+    p95: round(percentile(intervals, 0.95)),
+    max: round(intervals.at(-1) ?? 0),
+    droppedFrames: intervals.filter((ms) => ms > 1.5 * FRAME_MS).length,
+    mainThreadMsP95: round(percentile(work, 0.95)),
+    workerFrames: worker.length,
+    ...baseRenders(worker),
+  };
 }
 
 function rendererPreference(): RendererPreference {
@@ -117,10 +164,12 @@ function rendererPreference(): RendererPreference {
 }
 
 async function run(): Promise<unknown> {
+  const container = document.createElement("div");
+  container.style.cssText = `position:relative;overflow:hidden;width:${WIDTH}px;height:${HEIGHT}px`;
   const canvas = document.createElement("canvas");
-  canvas.style.width = `${WIDTH}px`;
-  canvas.style.height = `${HEIGHT}px`;
-  document.body.append(canvas);
+  const layer = document.createElement("canvas");
+  container.append(canvas, layer);
+  document.body.append(container);
   const font = await fetch("/font.ttf").then((r) => r.arrayBuffer());
   const host = new CanvasHost(
     canvas,
@@ -139,20 +188,22 @@ async function run(): Promise<unknown> {
         throw new Error("the benchmark needs a worker");
       },
     },
+    layer,
   );
   const renderer = await host.ready;
   const a = sceneA();
   host.patch(add(a.items));
   host.setViewport(0, 0, 0.6);
   const settleA = await settle(host);
-  const aPan = summarise(await panScenario(host));
+  const aPan = await panScenario(host);
   host.setViewport(0, 0, 0.6);
   await settle(host);
-  const aDrag = summarise(await dragScenario(host, a.links));
+  const { frames: dragFrames, layerBox } = await dragScenario(host, a.links);
+  const aDrag = { ...summarise(dragFrames), layerMsMean: round(mean(dragFrames.map((f) => f.layerMs))), ...baseRenders(dragFrames), layerBox };
   host.patch([{ op: "clear" }, ...add(sceneB())]);
   host.setViewport(0, 0, 0.3);
   const settleB = await settle(host);
-  const bPan = summarise(await panScenario(host));
+  const bPan = await panScenario(host);
   host.dispose();
   return {
     renderer,

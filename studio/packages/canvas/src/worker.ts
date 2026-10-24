@@ -27,7 +27,7 @@ import {
   needsRender,
   overscanMargin,
 } from "./compositor.ts";
-import { makeRect, unionInto } from "./geometry.ts";
+import { intersectInto, makeRect, unionInto } from "./geometry.ts";
 import {
   type CanvasOptions,
   type HostMessage,
@@ -76,6 +76,8 @@ interface Running {
   gesture: InteractionKind | null;
   dragging: boolean;
   recentreWhenIdle: boolean;
+  /** The base moved to a new origin and is drawn once its tiles are ready. */
+  awaitingTiles: boolean;
   layerSurface: Surface | null;
   layerBox: LayerBox | null;
   layerChanged: boolean;
@@ -98,6 +100,7 @@ export class CanvasWorkerCore {
   private disposed = false;
   private readonly live: SceneItem[] = [];
   private readonly liveBounds = makeRect(0, 0, 0, 0);
+  private readonly shown = makeRect(0, 0, 0, 0);
 
   constructor(
     private readonly post: (message: WorkerMessage) => void,
@@ -168,6 +171,7 @@ export class CanvasWorkerCore {
         gesture: null,
         dragging: false,
         recentreWhenIdle: false,
+        awaitingTiles: false,
         layerSurface: null,
         layerBox: null,
         layerChanged: false,
@@ -263,8 +267,9 @@ export class CanvasWorkerCore {
 
   private interaction(running: Running, message: InteractionMessage): void {
     const start = message.phase === "start";
-    running.renderer.interacting = start;
     if (message.kind === "drag") {
+      // Pans and zooms move the base in the compositor; only drags render tiles at reduced resolution.
+      running.renderer.interacting = start;
       running.scene.setLive(message.ids, start);
       running.dragging = start && message.ids.length > 0;
       this.markBase(running);
@@ -305,15 +310,21 @@ export class CanvasWorkerCore {
     this.requestIdle();
   }
 
-  /** Centres the base on the view; the next frame re-renders it. */
-  private recentre(running: Running): void {
+  /**
+   * Centres the base on the view. The next frame re-renders it, or — when
+   * `whenTilesReady`, as the old base still covers the view — the first frame
+   * after idle time has rendered every tile of the new base, so the base is
+   * blitted once rather than once per idle slice.
+   */
+  private recentre(running: Running, whenTilesReady = false): void {
     const origin = centredOrigin(running.viewport, running.margin, running.dpr);
     running.origin = origin;
     running.render.x = origin.x;
     running.render.y = origin.y;
     running.render.zoom = origin.zoom;
     running.recentreWhenIdle = false;
-    running.baseDirty = true;
+    running.awaitingTiles = whenTilesReady && running.renderer.hasIdleWork();
+    running.baseDirty = !running.awaitingTiles;
   }
 
   private resize(running: Running, width: number, height: number, dpr: number): void {
@@ -342,15 +353,15 @@ export class CanvasWorkerCore {
     const items = running.dragging && running.layerCanvas ? running.scene.liveItems(this.live) : [];
     const [first, ...rest] = items;
     if (!first || !running.layerCanvas) {
-      if (running.layerBox) {
-        running.layerBox = null;
-        running.layerChanged = true;
-      }
-      return null;
+      return this.hideLayer(running);
     }
     const bounds = Object.assign(this.liveBounds, first.bounds);
     for (const item of rest) {
       unionInto(bounds, item.bounds);
+    }
+    // Long links reach far beyond the view; the layer covers only what is visible of them.
+    if (!intersectInto(bounds, bounds, running.viewport.worldRect(this.shown))) {
+      return this.hideLayer(running);
     }
     const { origin, dpr } = running;
     const box = layerBox(
@@ -377,6 +388,14 @@ export class CanvasWorkerCore {
     return { surface, x: origin.x + box.x / origin.zoom, y: origin.y + box.y / origin.zoom, scale: origin.zoom * dpr };
   }
 
+  private hideLayer(running: Running): null {
+    if (running.layerBox) {
+      running.layerBox = null;
+      running.layerChanged = true;
+    }
+    return null;
+  }
+
   private allocateLayer(running: Running, canvas: OffscreenCanvasLike, box: LayerBox): void {
     const resources = running.renderer.resources;
     if (running.layerSurface) {
@@ -384,7 +403,8 @@ export class CanvasWorkerCore {
       running.layerSurface = null;
     }
     sizeCanvas(canvas, box.w, box.h, running.dpr);
-    const surface = this.deps.makeSurface(running.ck, canvas, running.info.kind);
+    // The layer is small and redrawn every frame: a raster surface avoids a second GL context.
+    const surface = this.deps.makeSurface(running.ck, canvas, "raster");
     if (surface) {
       running.layerSurface = resources.own(surface);
     } else {
@@ -439,11 +459,18 @@ export class CanvasWorkerCore {
       return;
     }
     if (running.recentreWhenIdle) {
-      this.recentre(running);
-      this.requestFrame();
-      return;
+      this.recentre(running, true);
     }
-    if (running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS) > 0) {
+    const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS);
+    if (running.awaitingTiles) {
+      if (running.renderer.hasIdleWork()) {
+        this.requestIdle();
+        return;
+      }
+      running.awaitingTiles = false;
+      running.baseDirty = true;
+      this.requestFrame();
+    } else if (rendered > 0) {
       running.baseDirty = true;
       this.requestFrame();
     }
