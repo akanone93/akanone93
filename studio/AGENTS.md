@@ -28,3 +28,5 @@ The Bun workspace for Plux Studio (spec §21): `apps/` for the web app and backe
 ## Required checks
 
 `make studio-check` — frozen install, Biome, type-check, tests with coverage floors.
+
+`@plux/layout`'s text tests load Flutter's CanvasKit from `PLUX_CANVASKIT_DIR` (default: the pinned SDK's `bin/cache/flutter_web_sdk/canvaskit`); in CI `flutter precache --web` provides it.

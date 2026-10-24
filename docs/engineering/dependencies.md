@@ -171,6 +171,7 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@types/react` 19.3.0, `@types/react-dom` 19.3.0 | React type definitions | In use (P11 S0.1; MIT) |
 | `tailwindcss` 4.3.3, `@tailwindcss/vite` 4.3.3 | Utility CSS generated from the design tokens; defaults reset, token-backed utilities only | In use (P11 S0.1; MIT) |
 | `happy-dom` 21.0.4, `@happy-dom/global-registrator` 21.0.4 | DOM for component tests under `bun test` (dev only) | In use (P11 S0.1; MIT) |
+| `canvaskit-wasm` 0.42.0 | TypeScript types for CanvasKit in `@plux/layout` (types only; the runtime is Flutter's own CanvasKit build at the pinned engine revision, STU-006) | In use (P11 S1.1, dev; BSD-3-Clause) |
 | `@playwright/test` 1.63.0 | End-to-end tests of the built web app (dev only) | In use (P11 S0.1; Apache-2.0) |
 | `@axe-core/playwright` 4.14.0, `axe-core` 4.14.0 | Accessibility checks, WCAG 2.1 AA, in the end-to-end tests (dev only; never shipped) | In use (P11 S0.1; MPL-2.0) |
 | `impeccable` 4.7.0 | Design-gate detector, report-only until S3 (O-4) (dev only) | In use (P11 S0.1; Apache-2.0) |

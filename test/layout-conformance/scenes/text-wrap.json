@@ -1,0 +1,35 @@
+{
+  "name": "text-wrap",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "box",
+        "type": "SizedBox",
+        "props": {
+          "width": 200
+        },
+        "children": [
+          {
+            "id": "text",
+            "type": "Text",
+            "props": {
+              "text": "Flutter lays out this paragraph in Studio exactly as on the device, line by line.",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 14
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
