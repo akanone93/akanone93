@@ -10,6 +10,17 @@
 export { BoxConstraints, type Constraints } from "./flutter/constraints.ts";
 export { ContainerBoxParentData, ContainerRenderBox } from "./flutter/container.ts";
 export {
+  Axis,
+  CrossAxisAlignment,
+  FlexFit,
+  FlexParentData,
+  MainAxisAlignment,
+  MainAxisSize,
+  RenderFlex,
+  type RenderFlexOptions,
+  VerticalDirection,
+} from "./flutter/flex.ts";
+export {
   Alignment,
   AlignmentDirectional,
   type AlignmentGeometry,
