@@ -1181,6 +1181,7 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 	}
 	if svc.StudioEvents != nil {
 		h.StudioStream = svc.StudioEvents
+		h.Authenticator = svc.Auth
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewStudioEventsServiceHandler(h.StudioEvents(), opts)
 		})
