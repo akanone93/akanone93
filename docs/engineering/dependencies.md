@@ -170,6 +170,12 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@bufbuild/protoc-gen-es` 2.16.0 | Local buf plugin generating the TypeScript API clients; not shipped | In use (P11 S0.3; Apache-2.0) |
 | `@types/react` 19.3.0, `@types/react-dom` 19.3.0 | React type definitions | In use (P11 S0.1; MIT) |
 | `tailwindcss` 4.3.3, `@tailwindcss/vite` 4.3.3 | Utility CSS generated from the design tokens; defaults reset, token-backed utilities only | In use (P11 S0.1; MIT) |
+| `@fontsource/instrument-sans` 5.3.0 | Instrument Sans: sans roles, weights 400 and 500, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
+| `@fontsource/instrument-serif` 5.3.0 | Instrument Serif: serif roles, weight 400, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
+| `@fontsource/dm-mono` 5.3.0 | DM Mono: data and tag roles, weights 400 and 500, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
+| `@fontsource/noto-sans-arabic` 5.3.0 | Noto Sans Arabic: Arabic sans roles, weights 400 and 500; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
+| `@fontsource/noto-naskh-arabic` 5.3.0 | Noto Naskh Arabic: Arabic serif roles, weight 400; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
+| `@fontsource/sora` 5.3.0 | Sora: wordmark, weight 600, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
 | `happy-dom` 21.0.4, `@happy-dom/global-registrator` 21.0.4 | DOM for component tests under `bun test` (dev only) | In use (P11 S0.1; MIT) |
 | `canvaskit-wasm` 0.42.0 | TypeScript types for CanvasKit in `@plux/layout` (types only; the runtime is Flutter's own CanvasKit build at the pinned engine revision, STU-006) | In use (P11 S1.1, dev; BSD-3-Clause) |
 | `@playwright/test` 1.63.0 | End-to-end tests of the built web app (dev only) | In use (P11 S0.1; Apache-2.0) |

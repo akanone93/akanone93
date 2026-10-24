@@ -405,10 +405,19 @@ Same structure and proportions: navy-black surfaces (`#0B0D17` canvas and app, `
 dark glass (U3), lighter violet `#8B74FF`, status colours from U2.3. Shadows stay subtle; edges come
 from the 1 px outer border.
 
+On-primary rule (Material 3 tonal practice): the dark primary `#8B74FF` stays, so its label token
+`text.onAccent` is dark `navy.900` `#0F1222` (5.35:1, WCAG 2.2 1.4.3 AA 4.5:1); light stays white.
+
 ## U15. High-contrast theme
 
 No glass and no transparency; solid surfaces; text ≥ 7:1; 2 px borders on inputs and cards; focus
-ring 3 px; arrows 2 px `navy.900`. Used for the shell when chosen and for the canvas preview
+ring 3 px; arrows 2 px `navy.900`. Text pairs are ≥ 7:1 (WCAG 2.2 1.4.6); UI components, borders and
+focus indicators ≥ 4.5:1 (1.4.11 asks 3:1); focus ring 3 px (2.4.13). Tokens: `accent.primary`
+`violet.700` (label white, ≥ 7:1), `focus.ring` `violet.700`, text `navy.900` on white, borders
+`navy.650`/`navy.500`. The theme applies automatically under `@media (prefers-contrast: more)` with
+the same values as `[data-theme=contrast]`. Under `@media (forced-colors: active)` text, surfaces,
+selection and focus use system colours (`CanvasText`, `Canvas`, `Highlight`, `ButtonText`,
+`LinkText`) with `forced-color-adjust: auto`. Used for the shell when chosen and for the canvas preview
 (`STU-112`).
 
 ## U16. Brand in Studio
