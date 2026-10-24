@@ -1,0 +1,55 @@
+{
+  "name": "text-row-expanded",
+  "root": {
+    "id": "row",
+    "type": "Row",
+    "props": {
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "label",
+        "type": "Text",
+        "props": {
+          "text": "Name:",
+          "style": {
+            "fontFamily": "NotoSans",
+            "fontSize": 16,
+            "fontWeight": 700
+          }
+        }
+      },
+      {
+        "id": "exp",
+        "type": "Expanded",
+        "props": {},
+        "children": [
+          {
+            "id": "value",
+            "type": "Text",
+            "props": {
+              "text": "Flutter lays out this paragraph in Studio exactly as on the device, line by line.",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 14
+              },
+              "textAlign": "end"
+            }
+          }
+        ]
+      },
+      {
+        "id": "tail",
+        "type": "Text",
+        "props": {
+          "text": "OK",
+          "style": {
+            "fontFamily": "NotoSans",
+            "fontSize": 14
+          },
+          "softWrap": false
+        }
+      }
+    ]
+  }
+}

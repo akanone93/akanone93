@@ -1,0 +1,52 @@
+{
+  "name": "text-column-height",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "crossAxisAlignment": "stretch",
+      "mainAxisSize": "min"
+    },
+    "children": [
+      {
+        "id": "title",
+        "type": "Text",
+        "props": {
+          "text": "Heading",
+          "style": {
+            "fontFamily": "NotoSans",
+            "fontSize": 20,
+            "fontWeight": 700,
+            "height": 1.5
+          }
+        }
+      },
+      {
+        "id": "body",
+        "type": "Text",
+        "props": {
+          "text": "Flutter lays out this paragraph in Studio exactly as on the device, line by line.",
+          "style": {
+            "fontFamily": "NotoSans",
+            "fontSize": 14,
+            "height": 1.5,
+            "letterSpacing": 0.5
+          },
+          "textAlign": "justify"
+        }
+      },
+      {
+        "id": "center",
+        "type": "Text",
+        "props": {
+          "text": "Centered",
+          "style": {
+            "fontFamily": "NotoSans",
+            "fontSize": 14
+          },
+          "textAlign": "center"
+        }
+      }
+    ]
+  }
+}

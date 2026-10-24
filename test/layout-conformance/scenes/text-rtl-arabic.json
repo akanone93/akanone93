@@ -1,0 +1,40 @@
+{
+  "name": "text-rtl-arabic",
+  "root": {
+    "id": "pad",
+    "type": "Padding",
+    "props": {
+      "padding": [
+        16,
+        16,
+        16,
+        16
+      ]
+    },
+    "children": [
+      {
+        "id": "align",
+        "type": "Align",
+        "props": {
+          "alignment": {
+            "start": -1,
+            "y": -1
+          }
+        },
+        "children": [
+          {
+            "id": "text",
+            "type": "Text",
+            "props": {
+              "text": "مرحبا بالعالم، هذا نص عربي طويل يلتف على عدة أسطر في الاستوديو كما على الجهاز.",
+              "style": {
+                "fontFamily": "NotoNaskhArabic",
+                "fontSize": 18
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
