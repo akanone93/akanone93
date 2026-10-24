@@ -6,8 +6,10 @@ package notify_test
 import (
 	"context"
 	"maps"
+	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -18,9 +20,12 @@ import (
 
 // subscribed is a world whose developer follows release.published in the
 // inbox.
-func subscribed(t *testing.T) *world {
+func subscribed(t *testing.T) *world { return subscribedWith(t, nil) }
+
+// subscribedWith is subscribed with the service's options changed first.
+func subscribedWith(t *testing.T, mutate func(*notify.Options)) *world {
 	t.Helper()
-	w := newWorld(t, nil)
+	w := newWorld(t, mutate)
 	if _, err := w.svc.Subscribe(context.Background(), w.developer, notify.Subscription{EventType: notify.ReleasePublished}); err != nil {
 		t.Fatal(err)
 	}
@@ -205,5 +210,45 @@ func TestInboxRetentionSweep_SRV_062(t *testing.T) {
 	}
 	if got := titles(); len(got) != 0 {
 		t.Fatalf("after a 30-day sweep: %v", got)
+	}
+}
+
+// unreadLog records the unread counts announced to the Studio stream.
+type unreadLog struct {
+	mu     sync.Mutex
+	counts map[string][]int64
+}
+
+func (l *unreadLog) InboxChanged(_ context.Context, _, user string, unread int64) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.counts[user] = append(l.counts[user], unread)
+}
+
+func (l *unreadLog) of(user string) []int64 {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return slices.Clone(l.counts[user])
+}
+
+// STU-075, SRV-062: an inbox entry and a read each announce the person's
+// new unread count to the Studio stream, after the change is committed.
+func TestInboxAnnouncesUnreadCount_STU_075_SRV_062(t *testing.T) {
+	log := &unreadLog{counts: map[string][]int64{}}
+	w := subscribedWith(t, func(o *notify.Options) { o.Events = log })
+	ctx := context.Background()
+	for _, title := range []string{"one", "two"} {
+		if err := w.svc.Publish(ctx, w.event(notify.ReleasePublished, title)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got := log.of(w.developer.UserID); !slices.Equal(got, []int64{1, 2}) {
+		t.Fatalf("after two events announced %v, want [1 2]", got)
+	}
+	if _, err := w.svc.MarkRead(ctx, w.developer, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := log.of(w.developer.UserID); !slices.Equal(got, []int64{1, 2, 0}) {
+		t.Fatalf("after reading announced %v, want [1 2 0]", got)
 	}
 }

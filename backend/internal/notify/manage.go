@@ -504,11 +504,18 @@ func (s *Service) MarkRead(ctx context.Context, p auth.Principal, ids []string) 
 		}
 		parsed = append(parsed, u)
 	}
-	var n int64
+	var n, unread int64
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		n, err = dbgen.New(tx).MarkNotificationsRead(ctx, dbgen.MarkNotificationsReadParams{UserID: storage.MustUUID(p.UserID), Ids: parsed})
+		if err != nil {
+			return failure(err, "inbox")
+		}
+		unread, err = dbgen.New(tx).CountUnreadNotifications(ctx, storage.MustUUID(p.UserID))
 		return failure(err, "inbox")
 	})
+	if err == nil && s.o.Events != nil {
+		s.o.Events.InboxChanged(ctx, p.OrganizationID, p.UserID, unread)
+	}
 	return n, err
 }

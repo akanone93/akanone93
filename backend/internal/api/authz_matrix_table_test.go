@@ -405,6 +405,18 @@ var matrix = map[string]entry{
 
 	// SearchService
 	"SearchService/Search": atPerm(auth.SearchRead, anyone(&pluxv1.SearchRequest{Query: "demo"})),
+	// StudioEventsService
+	"StudioEventsService/Watch": {kind: self, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		stream, err := f.w.studioEvents.Watch(ctx, req(c, &pluxv1.StudioEventsServiceWatchRequest{}))
+		if err != nil {
+			return err //nolint:wrapcheck // the code is what the test reads
+		}
+		defer func() { _ = stream.Close() }()
+		stream.Receive()
+		return stream.Err() //nolint:wrapcheck // the code is what the test reads
+	}},
 	// PreferencesService
 	"PreferencesService/GetPreferences": {kind: self, build: anyone(&pluxv1.GetPreferencesRequest{})},
 	"PreferencesService/UpdatePreferences": {kind: self, build: anyone(&pluxv1.UpdatePreferencesRequest{
