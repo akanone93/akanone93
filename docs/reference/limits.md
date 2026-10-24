@@ -191,6 +191,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `studio.preferencesBytes` | bytes | 65536 | 80% | 1048576 | installation, organization | P11 | STU-014 | Bytes of one user's stored Studio preferences in an organisation, as JSON. |
 | `studio.thumbnailBytes` | bytes | 262144 | 80% | 2097152 | installation, organization, app | P11 | STU-021 | Size of one canvas or screen thumbnail Studio uploads. |
 | `studio.undoDepth` | count | 200 | 80% | 1000 | installation, organization | P11 | STU-069 | Undo steps kept per editor session and plugin. |
+| `studio.userEventsTTLMinutes` | count | 1440 | 80% | 10080 | installation | P11 | STU-075 | Minutes a person's Studio events log (inbox unread count) is kept after its last event, so a tab that was away that long reloads its state. |
 | `sync.backgroundIntervalMinutes` | count | 360 | 80% | 1440 | installation, organization, app | P10 | SYN-014 | Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant. |
 | `telemetry.batchBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P9 | ANL-010 | Bytes one telemetry batch may carry on the wire after decompression. |
 | `telemetry.bufferBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P3 | ANL-002 | The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first. |
