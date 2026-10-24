@@ -1,0 +1,24 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: AGPL-3.0-only
+
+language js(typescript, jsx)
+
+// No literal UI text (studio-development 7.2): JSX text and the title,
+// aria-label, placeholder and alt attributes come from the message catalogue.
+or {
+  `$t` where {
+    $t <: jsx_text(),
+    $t <: r"(?s).*\p{L}.*",
+    register_diagnostic(span=$t, message="No literal UI text in JSX; use the message catalogue (studio-development 7.2).", severity="error")
+  },
+  jsx_attribute(name=$n) as $a where {
+    $n <: or {
+      `title`,
+      `aria-label`,
+      `placeholder`,
+      `alt`
+    },
+    $a <: r"(?s)^[\w-]+=(\x22|').*|(?s)^[\w-]+=\{\s*(\x22|'|`)[^$]*$",
+    register_diagnostic(span=$a, message="No literal UI text in attributes; use the message catalogue (studio-development 7.2).", severity="error")
+  }
+}

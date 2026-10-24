@@ -1,23 +1,62 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true, "root": ".." },
-  "files": { "includes": ["**", "!**/node_modules", "!**/coverage", "!**/dist", "!**/*.gen.ts"] },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "root": ".."
+  },
+  "files": {
+    "includes": ["**", "!**/node_modules", "!**/coverage", "!**/dist", "!**/*.gen.ts", "!lint/fixtures"]
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 120
   },
-  "javascript": { "formatter": { "quoteStyle": "double", "semicolons": "always" } },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always"
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "preset": "recommended",
-      "complexity": { "noExcessiveCognitiveComplexity": "error" },
-      "correctness": { "noUnusedImports": "error", "noUnusedVariables": "error" },
-      "style": { "useBlockStatements": "error", "noNonNullAssertion": "error" },
-      "suspicious": { "noConsole": "error" }
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "error"
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "style": {
+        "useBlockStatements": "error",
+        "noNonNullAssertion": "error"
+      },
+      "suspicious": {
+        "noConsole": "error"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "error",
+        "noGlobalEval": "error"
+      }
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "plugins": ["./lint/no-inner-html.grit"],
+  "overrides": [
+    {
+      "includes": ["apps/web/src/**", "packages/ui/src/**"],
+      "plugins": ["./lint/no-raw-values.grit", "./lint/logical-properties.grit", "./lint/no-literal-ui-strings.grit"]
+    }
+  ]
 }
