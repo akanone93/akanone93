@@ -23,6 +23,7 @@
       "name": "@plux/bff",
       "version": "0.0.1",
       "dependencies": {
+        "@plux/schema": "workspace:*",
         "hono": "4.13.13",
       },
     },
