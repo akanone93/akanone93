@@ -121,7 +121,11 @@ function baseRenders(frames: FrameStats[]): Record<string, number> {
     .filter((f) => f.base)
     .map((f) => f.ms)
     .sort((a, b) => a - b);
-  return { baseRenders: ms.length, baseRenderMsP50: round(percentile(ms, 0.5)), baseRenderMsMax: round(ms.at(-1) ?? 0) };
+  return {
+    baseRenders: ms.length,
+    baseRenderMsP50: round(percentile(ms, 0.5)),
+    baseRenderMsMax: round(ms.at(-1) ?? 0),
+  };
 }
 
 /** A pan of 4 × 1 CSS pixels per animation frame, timed rAF to rAF on the main thread. */
@@ -199,7 +203,12 @@ async function run(): Promise<unknown> {
   host.setViewport(0, 0, 0.6);
   await settle(host);
   const { frames: dragFrames, layerBox } = await dragScenario(host, a.links);
-  const aDrag = { ...summarise(dragFrames), layerMsMean: round(mean(dragFrames.map((f) => f.layerMs))), ...baseRenders(dragFrames), layerBox };
+  const aDrag = {
+    ...summarise(dragFrames),
+    layerMsMean: round(mean(dragFrames.map((f) => f.layerMs))),
+    ...baseRenders(dragFrames),
+    layerBox,
+  };
   host.patch([{ op: "clear" }, ...add(sceneB())]);
   host.setViewport(0, 0, 0.3);
   const settleB = await settle(host);
