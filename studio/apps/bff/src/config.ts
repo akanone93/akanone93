@@ -15,6 +15,14 @@ export type BffConfig = {
   requestsPerMinute: number;
   streamsPerSession: number;
   telemetryEventsPerMinute: number;
+  /** Oldest server version this Studio supports (O-16), major.minor. */
+  minServer: string;
+  /** Valkey/Redis URL for shared limits; empty keeps them in memory. */
+  valkeyUrl: string;
+  /** CIDRs whose X-Forwarded-For is honoured; none by default. */
+  trustedProxies: string[];
+  /** Key for the sign-in state cookie; empty means generated at start. */
+  stateSecret: string;
 };
 
 export type LoadedConfig = { config: BffConfig; warnings: string[] };
@@ -98,6 +106,14 @@ function readUrls(file: Record<string, unknown>, env: Env, warnings: string[]): 
   return { pub, up };
 }
 
+function readMinServer(file: Record<string, unknown>, env: Env): string {
+  const v = String(pick(file, env, "minServer", "PLUX_BFF_MIN_SERVER") ?? "0.0");
+  if (!/^\d+\.\d+$/.test(v)) {
+    throw new ConfigError("minServer must look like 1.4");
+  }
+  return v;
+}
+
 /** Reads the configuration from PLUX_BFF_* variables over an optional JSON file; fails fast. */
 export function loadConfig(env: Env, fileText?: string): LoadedConfig {
   const file = readFile(fileText);
@@ -135,6 +151,13 @@ export function loadConfig(env: Env, fileText?: string): LoadedConfig {
       pick(file, env, "streamsPerSession", "PLUX_BFF_STREAMS_PER_SESSION") ?? limitDefault("bff.streamsPerSession"),
     ),
     telemetryEventsPerMinute: limitDefault("bff.telemetryEventsPerMinute"),
+    minServer: readMinServer(file, env),
+    valkeyUrl: String(pick(file, env, "valkeyUrl", "PLUX_BFF_VALKEY_URL") ?? ""),
+    trustedProxies: String(pick(file, env, "trustedProxies", "PLUX_BFF_TRUSTED_PROXIES") ?? "")
+      .split(",")
+      .map((x) => x.trim())
+      .filter((x) => x !== ""),
+    stateSecret: String(pick(file, env, "stateSecret", "PLUX_BFF_STATE_SECRET") ?? ""),
   };
   return { config, warnings };
 }

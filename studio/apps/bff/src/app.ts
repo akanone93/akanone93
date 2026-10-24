@@ -5,10 +5,17 @@ import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
+import { registerAuthRoutes } from "./authroutes.ts";
+import { brotliStatic } from "./brotli.ts";
+import { makeClientIp } from "./clientip.ts";
 import type { BffConfig } from "./config.ts";
+import { cookieValue, text } from "./http.ts";
 import { MemoryRateLimiter, type RateLimiter, StreamCounter, sha256Hex } from "./limiter.ts";
 import { proxyRequest } from "./proxy.ts";
 import { injectNonce, newNonce, securityHeaders } from "./security.ts";
+import { stdoutLine } from "./telemetry.ts";
+import { registerTelemetry } from "./telroutes.ts";
+import { isOlder, upstreamVersion } from "./version.ts";
 
 export type AppOptions = {
   /** Directory holding the built web application. */
@@ -18,30 +25,28 @@ export type AppOptions = {
   clientIp?: (req: Request) => string;
   limiter?: RateLimiter;
   readyTimeoutMs?: number;
+  /** Version of Studio reported by /version. */
+  studioVersion?: string;
+  /** Sink for telemetry lines; defaults to stdout. */
+  logLine?: (line: Record<string, unknown>) => void;
+  /** Random source for sampling. */
+  random?: () => number;
+  /** Key for the sign-in state cookie; generated when absent. */
+  stateKey?: Uint8Array;
 };
 
 export type BffApp = {
   app: Hono<{ Variables: { nonce: string } }>;
   /** Number of CSP violation reports received. */
   cspReports: () => number;
+  /** Telemetry events dropped by the per-session limit. */
+  telemetryDropped: () => number;
   openStreams: () => number;
   /** Stops accepting new requests; /readyz answers 503 afterwards. */
   startDrain: () => void;
 };
 
 const maxReportBytes = 16384;
-const text = { "Content-Type": "text/plain; charset=UTF-8" };
-
-function cookieValue(req: Request, name: string): string {
-  for (const part of (req.headers.get("cookie") ?? "").split(";")) {
-    const [k, ...v] = part.trim().split("=");
-    if (k === name) {
-      return v.join("=");
-    }
-  }
-  return "";
-}
-
 function isStream(req: Request): boolean {
   const ct = req.headers.get("content-type") ?? "";
   const accept = req.headers.get("accept") ?? "";
@@ -61,7 +66,9 @@ export function createBff(options: AppOptions): BffApp {
   const limiter = options.limiter ?? new MemoryRateLimiter(config.requestsPerMinute);
   const reportLimiter = new MemoryRateLimiter(60);
   const streams = new StreamCounter(config.streamsPerSession, config.maxStreamConnections);
-  const ip = options.clientIp ?? (() => "unknown");
+  const ip = makeClientIp(config.trustedProxies, options.clientIp ?? (() => "unknown"));
+  const stateKey = options.stateKey ?? crypto.getRandomValues(new Uint8Array(32));
+  const telemetryLimiter = options.limiter ?? new MemoryRateLimiter(config.telemetryEventsPerMinute);
   let reports = 0;
   let draining = false;
 
@@ -84,10 +91,32 @@ export function createBff(options: AppOptions): BffApp {
         signal: AbortSignal.timeout(options.readyTimeoutMs ?? 2000),
       });
       await r.body?.cancel();
-      return r.ok ? c.text("ready", 200, text) : c.text("upstream not ready", 503, text);
+      if (!r.ok) {
+        return c.text("upstream not ready", 503, text);
+      }
+      const v = await upstreamVersion(config.apiUpstream, options.readyTimeoutMs ?? 2000);
+      if (v !== undefined && isOlder(v, config.minServer)) {
+        return c.text("upstream too old", 503, text);
+      }
+      return c.text("ready", 200, text);
     } catch {
       return c.text("upstream unreachable", 503, text);
     }
+  });
+
+  app.get("/version", (c) =>
+    c.json({ studio: options.studioVersion ?? "0.0.0", minServer: config.minServer }, 200, {
+      "Cache-Control": "no-store",
+    }),
+  );
+
+  registerAuthRoutes(app, { upstream: config.apiUpstream, https, stateKey, limiter, ip });
+  const telemetryDropped = registerTelemetry(app, {
+    config,
+    limiter: telemetryLimiter,
+    ip,
+    log: options.logLine ?? stdoutLine,
+    random: options.random ?? Math.random,
   });
 
   app.post("/csp-report", async (c) => {
@@ -113,7 +142,7 @@ export function createBff(options: AppOptions): BffApp {
     const req = c.req.raw;
     const session = cookieValue(req, "__Host-plux_session");
     const key = session === "" ? `ip:${ip(req)}` : `s:${await sha256Hex(session)}`;
-    if (!limiter.allow(key) || !limiter.allow(`ip:${ip(req)}`)) {
+    if (!(await limiter.allow(key)) || !(await limiter.allow(`ip:${ip(req)}`))) {
       return c.text("rate limit exceeded", 429, { ...text, "Retry-After": "60" });
     }
     let release = () => {};
@@ -146,10 +175,12 @@ export function createBff(options: AppOptions): BffApp {
       c.res.headers.set("Cache-Control", "public, max-age=31536000, immutable");
     }
   });
+  app.use("/*", brotliStatic(options.staticDir));
   app.use("/*", serveStatic({ root }));
   return {
     app,
     cspReports: () => reports,
+    telemetryDropped,
     openStreams: () => streams.open,
     startDrain: () => {
       draining = true;
