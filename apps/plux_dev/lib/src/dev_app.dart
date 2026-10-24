@@ -23,6 +23,12 @@ import 'package:plux_host_kit/plux_host_kit.dart';
 /// replaces it.
 typedef RuntimeStarter = Future<Object?> Function(PluxConfig config);
 
+/// Gives the running app the runtime's providers; `PluxScope` unless a test
+/// replaces it (the scope needs a started runtime).
+typedef RuntimeScope = Widget Function(Widget child);
+
+Widget _pluxScope(Widget child) => PluxScope(child: child);
+
 /// The Dev app.
 final class DevApp extends StatefulWidget {
   /// Creates the app. [rootKeys] are the development roots it was built
@@ -32,6 +38,7 @@ final class DevApp extends StatefulWidget {
     required this.rootKeys,
     this.apiFactory = defaultDevApi,
     this.startRuntime = Plux.initialize,
+    this.scope = _pluxScope,
   });
 
   /// The development roots.
@@ -42,6 +49,9 @@ final class DevApp extends StatefulWidget {
 
   /// Starts the runtime.
   final RuntimeStarter startRuntime;
+
+  /// Provides the runtime to the app once it runs.
+  final RuntimeScope scope;
 
   @override
   State<DevApp> createState() => _DevAppState();
@@ -68,7 +78,8 @@ final class _DevAppState extends State<DevApp> {
       _error = null;
     });
     try {
-      final apps = await widget.apiFactory(session.server)._withToken(session);
+      final api = widget.apiFactory(session.server, token: session.token);
+      final apps = await api.listApps();
       if (mounted) setState(() => _apps = apps);
     } on ViewerApiException catch (e) {
       if (mounted) {
@@ -132,8 +143,8 @@ final class _DevAppState extends State<DevApp> {
     final router = _router;
     final tooling = _tooling;
     if (router != null && tooling != null) {
-      return PluxScope(
-        child: MaterialApp.router(
+      return widget.scope(
+        MaterialApp.router(
           title: 'Plux Dev',
           debugShowCheckedModeBanner: false,
           routerConfig: router,
@@ -161,15 +172,6 @@ final class _DevAppState extends State<DevApp> {
           : _AppPicker(apps: apps, error: _error, onChoose: _start),
     );
   }
-}
-
-extension on ViewerApi {
-  Future<List<AppSummary>> _withToken(ViewerSession session) => ViewerApi(
-    server,
-    token: session.token,
-    clientName: clientName,
-    scopes: scopes,
-  ).listApps();
 }
 
 final class _NoRoots extends StatelessWidget {
