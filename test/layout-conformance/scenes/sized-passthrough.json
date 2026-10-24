@@ -1,0 +1,36 @@
+{
+  "name": "sized-passthrough",
+  "root": {
+    "id": "center",
+    "type": "Center",
+    "props": {},
+    "children": [
+      {
+        "id": "only-w",
+        "type": "SizedBox",
+        "props": {
+          "width": 150
+        },
+        "children": [
+          {
+            "id": "only-h",
+            "type": "SizedBox",
+            "props": {
+              "height": 70
+            },
+            "children": [
+              {
+                "id": "expand",
+                "type": "SizedBox",
+                "props": {
+                  "width": "infinity",
+                  "height": "infinity"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

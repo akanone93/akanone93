@@ -1,0 +1,67 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "flex-expanded-flexible",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "exp": [
+      50.0,
+      0.0,
+      300.0,
+      10.0
+    ],
+    "exp-child": [
+      50.0,
+      0.0,
+      300.0,
+      10.0
+    ],
+    "fixed": [
+      0.0,
+      0.0,
+      50.0,
+      20.0
+    ],
+    "flex-loose": [
+      350.0,
+      0.0,
+      40.0,
+      30.0
+    ],
+    "flex-tight": [
+      390.0,
+      0.0,
+      150.0,
+      30.0
+    ],
+    "loose-child": [
+      350.0,
+      0.0,
+      40.0,
+      30.0
+    ],
+    "row": [
+      0.0,
+      0.0,
+      800.0,
+      1280.0
+    ],
+    "spacer": [
+      540.0,
+      0.0,
+      150.0,
+      0.0
+    ],
+    "tight-child": [
+      390.0,
+      0.0,
+      150.0,
+      30.0
+    ]
+  }
+}

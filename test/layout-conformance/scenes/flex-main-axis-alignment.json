@@ -1,0 +1,216 @@
+{
+  "name": "flex-main-axis-alignment",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "crossAxisAlignment": "stretch"
+    },
+    "children": [
+      {
+        "id": "row-start",
+        "type": "Row",
+        "props": {
+          "mainAxisAlignment": "start",
+          "spacing": 4
+        },
+        "children": [
+          {
+            "id": "start-a",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 20
+            }
+          },
+          {
+            "id": "start-b",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 30
+            }
+          },
+          {
+            "id": "start-c",
+            "type": "TestBox",
+            "props": {
+              "width": 30,
+              "height": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "row-end",
+        "type": "Row",
+        "props": {
+          "mainAxisAlignment": "end",
+          "spacing": 0
+        },
+        "children": [
+          {
+            "id": "end-a",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 20
+            }
+          },
+          {
+            "id": "end-b",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 30
+            }
+          },
+          {
+            "id": "end-c",
+            "type": "TestBox",
+            "props": {
+              "width": 30,
+              "height": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "row-center",
+        "type": "Row",
+        "props": {
+          "mainAxisAlignment": "center",
+          "spacing": 4
+        },
+        "children": [
+          {
+            "id": "center-a",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 20
+            }
+          },
+          {
+            "id": "center-b",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 30
+            }
+          },
+          {
+            "id": "center-c",
+            "type": "TestBox",
+            "props": {
+              "width": 30,
+              "height": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "row-spaceBetween",
+        "type": "Row",
+        "props": {
+          "mainAxisAlignment": "spaceBetween",
+          "spacing": 0
+        },
+        "children": [
+          {
+            "id": "spaceBetween-a",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 20
+            }
+          },
+          {
+            "id": "spaceBetween-b",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 30
+            }
+          },
+          {
+            "id": "spaceBetween-c",
+            "type": "TestBox",
+            "props": {
+              "width": 30,
+              "height": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "row-spaceAround",
+        "type": "Row",
+        "props": {
+          "mainAxisAlignment": "spaceAround",
+          "spacing": 4
+        },
+        "children": [
+          {
+            "id": "spaceAround-a",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 20
+            }
+          },
+          {
+            "id": "spaceAround-b",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 30
+            }
+          },
+          {
+            "id": "spaceAround-c",
+            "type": "TestBox",
+            "props": {
+              "width": 30,
+              "height": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "row-spaceEvenly",
+        "type": "Row",
+        "props": {
+          "mainAxisAlignment": "spaceEvenly",
+          "spacing": 0
+        },
+        "children": [
+          {
+            "id": "spaceEvenly-a",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 20
+            }
+          },
+          {
+            "id": "spaceEvenly-b",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 30
+            }
+          },
+          {
+            "id": "spaceEvenly-c",
+            "type": "TestBox",
+            "props": {
+              "width": 30,
+              "height": 10
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
