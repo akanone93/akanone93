@@ -8,12 +8,27 @@
  * tokens back. Add a token family by adding a row to `tokenFamilies`.
  */
 
+import {
+  arabicAdjustedRoles,
+  arabicLineHeightExtra,
+  densityTokens,
+  elevations,
+  fontFamilies,
+  motion,
+  radii,
+  semanticColors,
+  space,
+  surfaceScalars,
+  type ThemeName,
+  typeRoles,
+} from "./porcelain.ts";
 import { brandColors } from "./tokens.ts";
 
-/** A token value in the light and the dark theme. */
+/** A token value in each theme; `contrast` falls back to `light` when absent. */
 interface ThemedValue {
   readonly light: string;
   readonly dark: string;
+  readonly contrast?: string;
 }
 
 /** One family of tokens that becomes one Tailwind theme namespace. */
@@ -23,20 +38,65 @@ interface TokenFamily {
   readonly tokens: Readonly<Record<string, ThemedValue>>;
 }
 
+function themed(entries: readonly { key: string; light: string; dark: string; contrast: string }[]) {
+  return Object.fromEntries(entries.map((e) => [e.key, e]));
+}
+
+function fixed(values: Readonly<Record<string, string>>): Record<string, ThemedValue> {
+  return Object.fromEntries(Object.entries(values).map(([k, v]) => [k, { light: v, dark: v }]));
+}
+
+const sizeTokens: Record<string, ThemedValue> = {};
+for (const role of typeRoles) {
+  sizeTokens[role.key] = { light: `${role.size}px`, dark: `${role.size}px` };
+  sizeTokens[`${role.key}--line-height`] = { light: `${role.line}px`, dark: `${role.line}px` };
+  sizeTokens[`${role.key}--font-weight`] = { light: `${role.weight}`, dark: `${role.weight}` };
+}
+
 /** The token families the stylesheet is built from, in output order. */
-const tokenFamilies: readonly TokenFamily[] = [{ namespace: "color", tokens: brandColors }];
+const tokenFamilies: readonly TokenFamily[] = [
+  { namespace: "color", tokens: { ...brandColors, ...themed(semanticColors) } },
+  { namespace: "radius", tokens: fixed(Object.fromEntries(Object.entries(radii).map(([k, v]) => [k, v.value]))) },
+  { namespace: "shadow", tokens: themed(elevations) },
+  { namespace: "spacing", tokens: fixed(space) },
+  { namespace: "font", tokens: fixed(fontFamilies) },
+  { namespace: "text", tokens: sizeTokens },
+  { namespace: "duration", tokens: fixed(motion.durations) },
+  { namespace: "ease", tokens: fixed(motion.easings) },
+  { namespace: "surface", tokens: themed(surfaceScalars) },
+];
 
 /** Maps a dotted token name to its CSS variable, e.g. `brand.violet` to `--color-brand-violet`. */
 function variableName(namespace: string, token: string): string {
-  return `--${namespace}-${token.replaceAll(".", "-")}`;
+  const key = namespace === "spacing" ? token.replaceAll(".", "\\.") : token.replaceAll(".", "-");
+  return `--${namespace}-${key}`;
 }
 
-function declarations(theme: keyof ThemedValue): string[] {
+/** The declarations of one theme; dark and contrast list only what differs from light. */
+function declarations(theme: ThemeName): string[] {
   return tokenFamilies.flatMap((family) =>
-    Object.entries(family.tokens).map(
-      ([token, value]) => `  ${variableName(family.namespace, token)}: ${value[theme]};`,
-    ),
+    Object.entries(family.tokens).flatMap(([token, value]) => {
+      const v = theme === "contrast" ? (value.contrast ?? value.light) : value[theme];
+      if (theme !== "light" && v === value.light) {
+        return [];
+      }
+      return [`  ${variableName(family.namespace, token)}: ${v};`];
+    }),
   );
+}
+
+function densityDeclarations(density: "compact" | "comfortable"): string[] {
+  return densityTokens.map((t) => `  --density-${t.key}: ${t[density]};`);
+}
+
+function arabicDeclarations(): string[] {
+  return typeRoles
+    .filter((role) => arabicAdjustedRoles.has(role.key))
+    .map((role) => `  --text-${role.key}--line-height: ${role.line + arabicLineHeightExtra}px;`);
+}
+
+function reducedMotionDeclarations(): string[] {
+  return Object.keys(motion.durations).map((name) => `    --duration-${name}: 0ms;`);
 }
 
 /**
@@ -59,8 +119,53 @@ export function themeCss(): string {
     ...declarations("light"),
     "}",
     "",
+    ":root {",
+    ...densityDeclarations("compact"),
+    "}",
+    "",
+    "[data-density=comfortable] {",
+    ...densityDeclarations("comfortable"),
+    "}",
+    "",
     "[data-theme=dark] {",
     ...declarations("dark"),
+    "}",
+    "",
+    "[data-theme=contrast] {",
+    ...declarations("contrast"),
+    "}",
+    "",
+    ":lang(ar) {",
+    ...arabicDeclarations(),
+    "}",
+    "",
+    "/* Solid fallback for glass (U3 rule 3). */",
+    "@media (prefers-reduced-transparency: reduce) {",
+    "  :root {",
+    "    --surface-glass-fill: var(--surface-glass-solid);",
+    "    --surface-glass-backdrop: none;",
+    "  }",
+    "}",
+    "",
+    "[data-transparency=reduced] {",
+    "  --surface-glass-fill: var(--surface-glass-solid);",
+    "  --surface-glass-backdrop: none;",
+    "}",
+    "",
+    "@utility glass {",
+    "  background-color: var(--surface-glass-fill);",
+    "  backdrop-filter: var(--surface-glass-backdrop);",
+    "  box-shadow:",
+    "    inset 0 0 0 1px var(--surface-glass-inner),",
+    "    0 0 0 1px var(--surface-glass-outer),",
+    "    var(--shadow-e2);",
+    "}",
+    "",
+    "/* U13: every animation becomes an instant change. */",
+    "@media (prefers-reduced-motion: reduce) {",
+    "  :root {",
+    ...reducedMotionDeclarations(),
+    "  }",
     "}",
     "",
   ].join("\n");

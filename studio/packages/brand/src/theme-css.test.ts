@@ -34,7 +34,7 @@ describe("themeCss [STU-016]", () => {
 
   test("contains no default palette names", () => {
     expect(css).not.toMatch(/--color-(red|blue|green|gray|slate|zinc|neutral|stone|indigo|violet)-\d{2,3}/);
-    expect(css).not.toContain("--spacing");
-    expect(css).not.toContain("--font-sans");
+    expect(css).not.toContain("--spacing:");
+    expect(css).not.toContain("--font-sans: ui-sans-serif");
   });
 });
