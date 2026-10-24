@@ -53,9 +53,12 @@ import (
 // the wire and the domain, and delegate; nothing here decides what is
 // allowed or stores anything (L-1).
 type Handlers struct {
-	Auth      *auth.Service
-	Tenancy   *tenancy.Service
-	Documents *document.Service
+	Auth *auth.Service
+	// Authenticator re-checks a long-lived stream's credential quietly
+	// (SEC-101, GOV-005); nil leaves such streams unrefreshed-and-refused.
+	Authenticator Authenticator
+	Tenancy       *tenancy.Service
+	Documents     *document.Service
 	// Translations serves LocalisationService (I18N-009); nil leaves it
 	// unmounted.
 	Translations *localisation.Service
@@ -189,6 +192,19 @@ func (h *Handlers) principal(ctx context.Context, header http.Header, requestOrg
 	if err != nil {
 		return auth.Principal{}, err
 	}
+	p, err := h.resolve(ctx, id, header, requestOrg)
+	if err != nil {
+		return auth.Principal{}, err
+	}
+	if err := h.organisationRate(ctx, p); err != nil {
+		return auth.Principal{}, err
+	}
+	return p, nil
+}
+
+// resolve resolves an identity to its principal in the organisation the
+// request or the X-Plux-Organization header names.
+func (h *Handlers) resolve(ctx context.Context, id auth.Identity, header http.Header, requestOrg string) (auth.Principal, error) {
 	org := requestOrg
 	if named := header.Get(OrganizationHeader); named != "" {
 		if org != "" && org != named {
@@ -200,9 +216,6 @@ func (h *Handlers) principal(ctx context.Context, header http.Header, requestOrg
 	p, err := h.Auth.Resolve(ctx, id, org)
 	if err != nil {
 		return auth.Principal{}, err //nolint:wrapcheck // a domain error
-	}
-	if err := h.organisationRate(ctx, p); err != nil {
-		return auth.Principal{}, err
 	}
 	return p, nil
 }
