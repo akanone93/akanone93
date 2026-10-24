@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
@@ -404,6 +405,12 @@ var matrix = map[string]entry{
 
 	// SearchService
 	"SearchService/Search": atPerm(auth.SearchRead, anyone(&pluxv1.SearchRequest{Query: "demo"})),
+	// PreferencesService
+	"PreferencesService/GetPreferences": {kind: self, build: anyone(&pluxv1.GetPreferencesRequest{})},
+	"PreferencesService/UpdatePreferences": {kind: self, build: anyone(&pluxv1.UpdatePreferencesRequest{
+		Preferences: &pluxv1.Preferences{Theme: "dark"}, UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"theme"}},
+	})},
+	"PreferencesService/GetOnboarding": {kind: self, build: anyone(&pluxv1.GetOnboardingRequest{})},
 
 	// GitExportService
 	"GitExportService/GetSettings": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {

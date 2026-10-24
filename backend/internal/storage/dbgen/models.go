@@ -1724,6 +1724,13 @@ type UserIdentityProvider struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type UserPreference struct {
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+	Preferences    []byte
+	UpdatedAt      pgtype.Timestamptz
+}
+
 type WebhookEndpoint struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID
