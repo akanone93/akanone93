@@ -4,6 +4,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app.tsx";
+import { createAppI18n, I18nProvider } from "./i18n-provider.tsx";
 import "./styles/app.css";
 
 const container = document.getElementById("root");
@@ -13,6 +14,8 @@ if (container === null) {
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    <I18nProvider studio={createAppI18n()}>
+      <App />
+    </I18nProvider>
   </StrictMode>,
 );

@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { lingui } from "@lingui/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [lingui(), react(), tailwindcss()],
   build: {
     target: "es2023",
     sourcemap: true,

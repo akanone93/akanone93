@@ -8,6 +8,7 @@
  */
 
 export type * from "./document.gen.ts";
+export { limitDefault } from "./limit.ts";
 export { type LimitDefinition, type LimitKey, type LimitScope, type LimitUnit, limits } from "./limits.gen.ts";
 export {
   type PermissionDefinition,
