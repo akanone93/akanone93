@@ -530,6 +530,9 @@ const (
 	// stream for resumption before it drops the oldest and the tab reloads its
 	// state. (STU-075)
 	StudioEventsStreamBufferEvents Key = "studio.eventsStreamBufferEvents"
+	// StudioFavouriteApps: Apps one user may mark as favourites in an
+	// organisation's Studio preferences. (STU-014)
+	StudioFavouriteApps Key = "studio.favouriteApps"
 	// StudioLockIdleReleaseMinutes: Minutes without an edit after which Studio
 	// releases an editing lock it holds. (SRV-040)
 	StudioLockIdleReleaseMinutes Key = "studio.lockIdleReleaseMinutes"
@@ -537,6 +540,12 @@ const (
 	// edit before another user may take the lock over; a lapsed lease allows it
 	// at once. (SRV-041)
 	StudioLockTakeoverIdleMinutes Key = "studio.lockTakeoverIdleMinutes"
+	// StudioPinnedItems: Studio paths one user may pin in an organisation's
+	// Studio preferences. (STU-014)
+	StudioPinnedItems Key = "studio.pinnedItems"
+	// StudioPreferencesBytes: Bytes of one user's stored Studio preferences in
+	// an organisation, as JSON. (STU-014)
+	StudioPreferencesBytes Key = "studio.preferencesBytes"
 	// StudioThumbnailBytes: Size of one canvas or screen thumbnail Studio
 	// uploads. (STU-021)
 	StudioThumbnailBytes Key = "studio.thumbnailBytes"
@@ -755,8 +764,11 @@ var registry = [...]Definition{
 	{Key: StudioAutosaveReplays, Unit: UnitCount, Default: 3, Warning: 0, Max: 10, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."},
 	{Key: StudioClipboardBytes, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 33554432, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Size of one Studio clipboard envelope; a larger copy is refused."},
 	{Key: StudioEventsStreamBufferEvents, Unit: UnitCount, Default: 1000, Warning: 0, Max: 10000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state."},
+	{Key: StudioFavouriteApps, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one user may mark as favourites in an organisation's Studio preferences."},
 	{Key: StudioLockIdleReleaseMinutes, Unit: UnitCount, Default: 10, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Minutes without an edit after which Studio releases an editing lock it holds."},
 	{Key: StudioLockTakeoverIdleMinutes, Unit: UnitCount, Default: 5, Warning: 0, Max: 60, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Minutes the lock holder must have made no edit before another user may take the lock over; a lapsed lease allows it at once."},
+	{Key: StudioPinnedItems, Unit: UnitCount, Default: 50, Warning: 0, Max: 500, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Studio paths one user may pin in an organisation's Studio preferences."},
+	{Key: StudioPreferencesBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes of one user's stored Studio preferences in an organisation, as JSON."},
 	{Key: StudioThumbnailBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 2097152, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Size of one canvas or screen thumbnail Studio uploads."},
 	{Key: StudioUndoDepth, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Undo steps kept per editor session and plugin."},
 	{Key: SyncBackgroundIntervalMinutes, Unit: UnitCount, Default: 360, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P10", Description: "Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant."},

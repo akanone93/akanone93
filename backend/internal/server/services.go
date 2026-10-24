@@ -59,6 +59,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
@@ -168,6 +169,9 @@ type Services struct {
 	DevSessions *devsession.Service
 	// Search is the full-text search (SRV-061).
 	Search *search.Service
+	// Preferences keeps each user's Studio preferences per organisation
+	// (STU-014, STU-058).
+	Preferences *preferences.Service
 	// GitExport exports apps to Git on publish (GOV-011).
 	GitExport *gitsync.Service
 	// KMS checks the key management service, when the signing backend
@@ -614,6 +618,10 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 		return fmt.Errorf("server: %w", err)
 	}
 	svc.Search, err = search.NewService(search.Options{DB: k.db, Tenancy: svc.Tenancy})
+	if err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
+	svc.Preferences, err = preferences.NewService(preferences.Options{DB: k.db, Tenancy: svc.Tenancy})
 	if err != nil {
 		return fmt.Errorf("server: %w", err)
 	}
@@ -1158,6 +1166,12 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 		h.Searches = svc.Search
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewSearchServiceHandler(h.Search(), opts)
+		})
+	}
+	if svc.Preferences != nil {
+		h.UserPreferences = svc.Preferences
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewPreferencesServiceHandler(h.Preferences(), opts)
 		})
 	}
 	if svc.GitExport != nil {

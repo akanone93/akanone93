@@ -34,6 +34,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
@@ -75,6 +76,9 @@ type Handlers struct {
 	Goldens *golden.Service
 	// Searches serves SearchService (SRV-061); nil leaves it unmounted.
 	Searches *search.Service
+	// UserPreferences serves PreferencesService (STU-014, STU-015,
+	// STU-058); nil leaves it unmounted.
+	UserPreferences *preferences.Service
 	// GitExports serves GitExportService (GOV-011); nil leaves it
 	// unmounted.
 	GitExports *gitsync.Service

@@ -182,8 +182,11 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `studio.autosaveReplays` | count | 3 | 80% | 10 | installation, organization | P11 | STU-004 | Times Studio replays an autosave on a newer revision after a conflict before it asks the user. |
 | `studio.clipboardBytes` | bytes | 4194304 | 80% | 33554432 | installation, organization | P11 | STU-067 | Size of one Studio clipboard envelope; a larger copy is refused. |
 | `studio.eventsStreamBufferEvents` | count | 1000 | 80% | 10000 | installation | P11 | STU-075 | Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state. |
+| `studio.favouriteApps` | count | 100 | 80% | 1000 | installation, organization | P11 | STU-014 | Apps one user may mark as favourites in an organisation's Studio preferences. |
 | `studio.lockIdleReleaseMinutes` | count | 10 | 80% | 120 | installation, organization, app | P11 | SRV-040 | Minutes without an edit after which Studio releases an editing lock it holds. |
 | `studio.lockTakeoverIdleMinutes` | count | 5 | 80% | 60 | installation, organization, app | P11 | SRV-041 | Minutes the lock holder must have made no edit before another user may take the lock over; a lapsed lease allows it at once. |
+| `studio.pinnedItems` | count | 50 | 80% | 500 | installation, organization | P11 | STU-014 | Studio paths one user may pin in an organisation's Studio preferences. |
+| `studio.preferencesBytes` | bytes | 65536 | 80% | 1048576 | installation, organization | P11 | STU-014 | Bytes of one user's stored Studio preferences in an organisation, as JSON. |
 | `studio.thumbnailBytes` | bytes | 262144 | 80% | 2097152 | installation, organization, app | P11 | STU-021 | Size of one canvas or screen thumbnail Studio uploads. |
 | `studio.undoDepth` | count | 200 | 80% | 1000 | installation, organization | P11 | STU-069 | Undo steps kept per editor session and plugin. |
 | `sync.backgroundIntervalMinutes` | count | 360 | 80% | 1440 | installation, organization, app | P10 | SYN-014 | Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant. |

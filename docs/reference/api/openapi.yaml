@@ -10888,6 +10888,133 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UpdatePluginResponse'
+  /plux.v1.PreferencesService/GetOnboarding:
+    post:
+      tags:
+        - plux.v1.PreferencesService
+      summary: GetOnboarding
+      description: |-
+        GetOnboarding returns the onboarding steps, derived from what the
+         organisation has done (STU-015).
+      operationId: plux.v1.PreferencesService.GetOnboarding
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetOnboardingRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetOnboardingResponse'
+  /plux.v1.PreferencesService/GetPreferences:
+    post:
+      tags:
+        - plux.v1.PreferencesService
+      summary: GetPreferences
+      description: |-
+        GetPreferences returns the caller's preferences in the organisation of
+         the call; a user who never saved any gets the defaults.
+      operationId: plux.v1.PreferencesService.GetPreferences
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetPreferencesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetPreferencesResponse'
+  /plux.v1.PreferencesService/UpdatePreferences:
+    post:
+      tags:
+        - plux.v1.PreferencesService
+      summary: UpdatePreferences
+      description: |-
+        UpdatePreferences replaces the fields named in update_mask (field names
+         of Preferences) and returns the result. An empty mask or an unknown
+         field name is PLX-1001; a value outside its enum is PLX-1004; a language
+         that is not a BCP 47 tag is PLX-1005; more favourites than
+         studio.favouriteApps, more pins than studio.pinnedItems or a stored
+         form larger than studio.preferencesBytes is PLX-1006.
+      operationId: plux.v1.PreferencesService.UpdatePreferences
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UpdatePreferencesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UpdatePreferencesResponse'
   /plux.v1.PublishService/CancelPublishJob:
     post:
       tags:
@@ -20470,6 +20597,21 @@ components:
           description: catalogue is the stored canonical JSON.
       title: GetNativeCatalogueResponse
       additionalProperties: false
+    plux.v1.GetOnboardingRequest:
+      type: object
+      title: GetOnboardingRequest
+      additionalProperties: false
+    plux.v1.GetOnboardingResponse:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.OnboardingStep'
+          title: steps
+          description: steps holds every step, in the order Studio shows them.
+      title: GetOnboardingResponse
+      additionalProperties: false
     plux.v1.GetOrganizationRequest:
       type: object
       properties:
@@ -20558,6 +20700,19 @@ components:
             - $ref: '#/components/schemas/plux.v1.PolicyRecord'
           title: policy
       title: GetPolicyResponse
+      additionalProperties: false
+    plux.v1.GetPreferencesRequest:
+      type: object
+      title: GetPreferencesRequest
+      additionalProperties: false
+    plux.v1.GetPreferencesResponse:
+      type: object
+      properties:
+        preferences:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Preferences'
+          title: preferences
+      title: GetPreferencesResponse
       additionalProperties: false
     plux.v1.GetPublishJobRequest:
       type: object
@@ -24266,6 +24421,20 @@ components:
       title: OidcProviderConfig
       additionalProperties: false
       description: OidcProviderConfig configures an OpenID Connect provider.
+    plux.v1.OnboardingStep:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+        done:
+          type: boolean
+          title: done
+      title: OnboardingStep
+      additionalProperties: false
+      description: |-
+        OnboardingStep is one step: "create_app", "edit_screen", "pair_device",
+         "publish_release" or "invite_member".
     plux.v1.OpenScreenCommand:
       type: object
       properties:
@@ -24759,6 +24928,85 @@ components:
              poll after approval.
       title: PollDeviceAuthorizationResponse
       additionalProperties: false
+    plux.v1.Preferences:
+      type: object
+      properties:
+        theme:
+          type: string
+          title: theme
+          description: theme is "system", "light" or "dark"; empty reads as "system".
+        language:
+          type: string
+          title: language
+          description: language is a BCP 47 tag; empty follows the browser.
+        density:
+          type: string
+          title: density
+          description: density is "comfortable" or "compact"; empty reads as "comfortable".
+        shortcuts:
+          type: object
+          title: shortcuts
+          additionalProperties:
+            type: string
+            title: value
+          description: shortcuts maps a command ID to its key binding.
+        favouriteAppIds:
+          type: array
+          items:
+            type: string
+          title: favourite_app_ids
+        pinned:
+          type: array
+          items:
+            type: string
+          title: pinned
+          description: pinned holds the Studio paths pinned in the shell.
+        preview:
+          type: object
+          title: preview
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/plux.v1.PreviewSwitches'
+            title: value
+          description: preview maps an app ID to its preview switches (STU-058).
+        onboardingDismissed:
+          type: boolean
+          title: onboarding_dismissed
+      title: Preferences
+      additionalProperties: false
+    plux.v1.PreviewSwitches:
+      type: object
+      properties:
+        deviceFrame:
+          type: string
+          title: device_frame
+        theme:
+          type: string
+          title: theme
+        brandOverlay:
+          type: string
+          title: brand_overlay
+        locale:
+          type: string
+          title: locale
+        textScale:
+          type: number
+          title: text_scale
+          format: double
+        platform:
+          type: string
+          title: platform
+          description: platform is "material" or "cupertino"; empty follows the device frame.
+        mockStates:
+          type: object
+          title: mock_states
+          additionalProperties:
+            type: string
+            title: value
+          description: mock_states maps a data source to its mock state.
+      title: PreviewSwitches
+      additionalProperties: false
+      description: PreviewSwitches are the switches of an app's live preview (STU-058).
     plux.v1.PromoteExperimentRequest:
       type: object
       properties:
@@ -28330,6 +28578,28 @@ components:
           title: plugin
       title: UpdatePluginResponse
       additionalProperties: false
+    plux.v1.UpdatePreferencesRequest:
+      type: object
+      properties:
+        preferences:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Preferences'
+          title: preferences
+        updateMask:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.FieldMask'
+          title: update_mask
+      title: UpdatePreferencesRequest
+      additionalProperties: false
+    plux.v1.UpdatePreferencesResponse:
+      type: object
+      properties:
+        preferences:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Preferences'
+          title: preferences
+      title: UpdatePreferencesResponse
+      additionalProperties: false
     plux.v1.UpdateRoleRequest:
       type: object
       properties:
@@ -29300,6 +29570,12 @@ tags:
       PluginService manages plugins and their editing locks (SRV-040–SRV-042).
        App-level documents share one lock of their own, addressed by app_id with
        an empty plugin_id.
+  - name: plux.v1.PreferencesService
+    description: |-
+      PreferencesService keeps each signed-in user's Studio preferences, one
+       set per organisation (STU-014, STU-058), and reports the onboarding steps
+       of the organisation (STU-015). Every RPC is about the caller and needs no
+       permission beyond being signed in.
   - name: plux.v1.PublishService
     description: |-
       PublishService turns a plugin draft into an immutable plugin version.
