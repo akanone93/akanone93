@@ -1,0 +1,79 @@
+{
+  "name": "nested-padding-align",
+  "root": {
+    "id": "p1",
+    "type": "Padding",
+    "props": {
+      "padding": {
+        "start": 24,
+        "top": 8,
+        "end": 4,
+        "bottom": 16
+      }
+    },
+    "children": [
+      {
+        "id": "a1",
+        "type": "Align",
+        "props": {
+          "alignment": {
+            "start": 1,
+            "y": -1
+          }
+        },
+        "children": [
+          {
+            "id": "p2",
+            "type": "Padding",
+            "props": {
+              "padding": [
+                5,
+                6,
+                7,
+                8
+              ]
+            },
+            "children": [
+              {
+                "id": "a2",
+                "type": "Align",
+                "props": {
+                  "alignment": [
+                    -0.25,
+                    0.75
+                  ],
+                  "widthFactor": 1.2,
+                  "heightFactor": 1.1
+                },
+                "children": [
+                  {
+                    "id": "p3",
+                    "type": "Padding",
+                    "props": {
+                      "padding": {
+                        "start": 0,
+                        "top": 0,
+                        "end": 20,
+                        "bottom": 0
+                      }
+                    },
+                    "children": [
+                      {
+                        "id": "box",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 80,
+                          "height": 30
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
