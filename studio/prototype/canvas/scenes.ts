@@ -292,7 +292,7 @@ function describe(node: PageNode): string {
   return `${node.type ?? "node"}${node.testId ? ` #${node.testId}` : ""}\n${props.slice(0, 70)}`;
 }
 
-function flatten(node: PageNode, depth: number, out: { depth: number; label: string }[]): void {
+export function flatten(node: PageNode, depth: number, out: { depth: number; label: string }[]): void {
   out.push({ depth, label: describe(node) });
   for (const key of Object.keys(node.slots ?? {}).sort()) {
     flatten(must(node.slots?.[key]), depth + 1, out);
