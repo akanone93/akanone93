@@ -25,7 +25,16 @@ const sessionCookie = "__Host-plux_session=";
 export function filterRequestHeaders(src: Headers): Headers {
   const out = new Headers();
   for (const [k, v] of src) {
-    if (requestAllow.includes(k) || requestPrefixes.some((p) => k.startsWith(p))) {
+    if (k === "cookie") {
+      // Only the server's session cookie leaves the BFF; other cookies on Studio's origin stay here.
+      const session = v
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith(sessionCookie));
+      if (session !== undefined) {
+        out.set("cookie", session);
+      }
+    } else if (requestAllow.includes(k) || requestPrefixes.some((p) => k.startsWith(p))) {
       out.set(k, v);
     }
   }

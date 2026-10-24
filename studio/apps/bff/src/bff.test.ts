@@ -334,3 +334,15 @@ describe("SRV-007 health and drain", () => {
     expect((await b.app.request("/livez")).status).toBe(200);
   });
 });
+
+describe("session cookie forwarding (SEC-101)", () => {
+  test("only __Host-plux_session reaches the upstream", () => {
+    const out = filterRequestHeaders(new Headers({ cookie: "theme=dark; __Host-plux_session=s1; other=x" }));
+    expect(out.get("cookie")).toBe("__Host-plux_session=s1");
+  });
+
+  test("a request without the session cookie sends no cookie", () => {
+    const out = filterRequestHeaders(new Headers({ cookie: "theme=dark" }));
+    expect(out.has("cookie")).toBe(false);
+  });
+});
