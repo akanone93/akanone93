@@ -43,7 +43,8 @@
     "floor": 70,
     "packages": {
       "studio/apps/bff": 85,
-      "studio/apps/web": 70
+      "studio/apps/web": 70,
+      "studio/packages/layout": 90
     }
   }
 }
