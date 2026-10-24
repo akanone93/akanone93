@@ -72,7 +72,25 @@ function runInWorker(scenes: string[]): Promise<{ type: string; reason?: string 
   });
 }
 
+function runNoGpu(renderer: string): Promise<unknown> {
+  const canvas = makeCanvas();
+  const offscreen = canvas.transferControlToOffscreen();
+  const worker = new Worker("/nogpu-worker.js", { type: "module" });
+  return new Promise((resolve) => {
+    worker.onmessage = (event) => {
+      worker.terminate();
+      resolve(event.data);
+    };
+    worker.onerror = (event) => {
+      worker.terminate();
+      resolve({ type: "error", reason: `worker error: ${event.message}` });
+    };
+    worker.postMessage({ canvas: offscreen, renderer }, [offscreen]);
+  });
+}
+
 const api = {
+  runNoGpu,
   async runCanvas(options: RunOptions): Promise<unknown> {
     if (options.forceMainThread) {
       return runOnMainThread(options.scenes, "requested, for comparison");
