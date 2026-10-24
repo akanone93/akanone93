@@ -4,11 +4,11 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate studio-conformance studio-conformance-update
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check
 
 ##@ Studio (Bun, TypeScript)
 
-studio-check: studio-install studio-lint studio-bounds studio-typecheck studio-cover studio-build studio-size ## All Studio gates
+studio-check: studio-install studio-lint studio-bounds studio-i18n-check studio-typecheck studio-cover studio-build studio-size ## All Studio gates
 
 studio-install: ## Install Studio dependencies exactly as locked
 	cd studio && bun install --frozen-lockfile
@@ -21,6 +21,10 @@ studio-lint: ## Lint and format-check Studio code with Biome
 
 studio-bounds: ## Check Studio's import boundaries (studio-development §2.1)
 	cd tools && go run ./cmd/studiobounds ../studio
+
+studio-i18n-check: studio-install ## Catalogues are complete and current: strict extract and compile (STU-012)
+	cd studio && apps/web/node_modules/.bin/lingui extract --clean && apps/web/node_modules/.bin/lingui compile --strict && rm -f apps/web/src/locales/*/messages.js
+	git diff --exit-code -- studio/apps/web/src/locales
 
 studio-typecheck: studio-gen-theme ## Type-check Studio code
 	cd studio && bun run typecheck

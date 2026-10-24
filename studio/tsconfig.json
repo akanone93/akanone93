@@ -1,4 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
+  "compilerOptions": { "lib": ["ES2023", "DOM"] },
   "include": ["packages/*/src", "packages/*/conformance", "packages/*/test-support", "scripts", "e2e"]
 }
