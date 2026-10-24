@@ -141,3 +141,21 @@ Too slow at scale, and browser text breaks `STU-003` and `STU-005`. Rejected.
 
 Flutter Web ships a second runtime and no longer has the browser-text path. Vello needs WebGPU and
 is young. ThorVG has no Flutter text layout. Rejected.
+
+## Revision (2026-10-24, P11 plan M-12)
+
+The maintainer requires the canvas to perform on computers **without a GPU**. Every canvas budget
+(`STU-045`, `STU-120`, `STU-121`) holds under software rendering, and the benchmarks run in software
+mode. The S0.8 prototype showed why this needs design, not tuning: 1,600 draw calls per frame took
+434 ms at p95 under software GL. The canvas therefore:
+
+- chooses its renderer at start-up by measurement: WebGL when the GL is hardware, CanvasKit's CPU
+  raster surface when it is software (SwiftShader, or a context refused with
+  `failIfMajorPerformanceCaveat`);
+- keeps retained tile caches, so panning and zooming blit cached images instead of redrawing, and
+  redraws only dirty regions;
+- batches draws (one path per arrow style, cached text blobs) and allocates nothing per frame;
+- reduces detail by zoom (no blur shadows — pre-rendered shadow images instead —, simplified arrows,
+  text as bars when small) and renders at reduced resolution while the user interacts, refining when
+  idle.
+
