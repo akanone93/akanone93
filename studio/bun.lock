@@ -73,6 +73,13 @@
       "name": "@plux/brand",
       "version": "0.0.1",
     },
+    "packages/canvas": {
+      "name": "@plux/canvas",
+      "version": "0.0.1",
+      "devDependencies": {
+        "canvaskit-wasm": "0.42.0",
+      },
+    },
     "packages/i18n": {
       "name": "@plux/i18n",
       "version": "0.0.1",
@@ -281,6 +288,8 @@
     "@plux/bff": ["@plux/bff@workspace:apps/bff"],
 
     "@plux/brand": ["@plux/brand@workspace:packages/brand"],
+
+    "@plux/canvas": ["@plux/canvas@workspace:packages/canvas"],
 
     "@plux/i18n": ["@plux/i18n@workspace:packages/i18n"],
 

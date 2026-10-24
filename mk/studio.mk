@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas
 
 ##@ Studio (Bun, TypeScript)
 
@@ -66,3 +66,8 @@ studio-e2e: studio-build ## Run Studio's end-to-end tests (Playwright, axe)
 studio-design-gate: studio-build ## Run the design-gate detector over the built web app (report-only until S3, O-4)
 	cd studio && { bunx impeccable detect apps/web/dist --no-config 2>&1 || true; } > design-gate-report.txt
 	@tail -n 3 studio/design-gate-report.txt
+
+# Software rendering only (SwiftShader, no GPU): the canvas budgets hold on
+# machines without a GPU (ADR-0013 M-12). Not part of studio-check.
+studio-bench-canvas: studio-install ## Canvas benchmark in software rendering (STU-045, STU-120, M-12)
+	cd studio && bun packages/canvas/bench/run.ts
