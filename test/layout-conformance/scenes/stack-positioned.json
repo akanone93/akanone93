@@ -1,0 +1,144 @@
+{
+  "name": "stack-positioned",
+  "root": {
+    "id": "frame",
+    "type": "SizedBox",
+    "props": {
+      "width": 300,
+      "height": 200
+    },
+    "children": [
+      {
+        "id": "stack",
+        "type": "Stack",
+        "props": {
+          "alignment": {
+            "start": 1,
+            "y": 1
+          }
+        },
+        "children": [
+          {
+            "id": "base",
+            "type": "TestBox",
+            "props": {
+              "width": 120,
+              "height": 80
+            }
+          },
+          {
+            "id": "p-lt",
+            "type": "Positioned",
+            "props": {
+              "left": 10,
+              "top": 5
+            },
+            "children": [
+              {
+                "id": "p-lt-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 20
+                }
+              }
+            ]
+          },
+          {
+            "id": "p-rb",
+            "type": "Positioned",
+            "props": {
+              "right": 10,
+              "bottom": 5,
+              "width": 40
+            },
+            "children": [
+              {
+                "id": "p-rb-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 25
+                }
+              }
+            ]
+          },
+          {
+            "id": "p-fill",
+            "type": "Positioned",
+            "props": {
+              "left": 20,
+              "right": 20,
+              "top": 30,
+              "bottom": 30
+            },
+            "children": [
+              {
+                "id": "p-fill-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 1,
+                  "height": 1
+                }
+              }
+            ]
+          },
+          {
+            "id": "p-dir",
+            "type": "PositionedDirectional",
+            "props": {
+              "start": 15,
+              "top": 40
+            },
+            "children": [
+              {
+                "id": "p-dir-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 25,
+                  "height": 25
+                }
+              }
+            ]
+          },
+          {
+            "id": "p-dir-end",
+            "type": "PositionedDirectional",
+            "props": {
+              "end": 5,
+              "height": 12
+            },
+            "children": [
+              {
+                "id": "p-dir-end-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 18,
+                  "height": 4
+                }
+              }
+            ]
+          },
+          {
+            "id": "p-over",
+            "type": "Positioned",
+            "props": {
+              "left": 250,
+              "top": 180
+            },
+            "children": [
+              {
+                "id": "p-over-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 60
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

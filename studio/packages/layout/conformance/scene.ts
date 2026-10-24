@@ -30,12 +30,19 @@ import {
   RenderConstrainedBox,
   RenderDecoratedBox,
   RenderFlex,
+  RenderIndexedStack,
   RenderPadding,
   RenderPositionedBox,
+  RenderStack,
   RenderView,
+  RenderWrap,
   Size,
+  StackFit,
+  StackParentData,
   TextDirection,
   VerticalDirection,
+  WrapAlignment,
+  WrapCrossAlignment,
 } from "../src/index.ts";
 
 /** One node of a scene; `props` use Flutter's parameter names. */
@@ -67,13 +74,23 @@ export const boxTypes: ReadonlySet<string> = new Set([
 export const flexTypes: ReadonlySet<string> = new Set(["Row", "Column", "Flex", "Expanded", "Flexible", "Spacer"]);
 
 /** Whether `@plux/layout` exports `RenderFlex` yet. */
+export const stackTypes: ReadonlySet<string> = new Set([
+  "Stack",
+  "IndexedStack",
+  "Positioned",
+  "PositionedDirectional",
+  "Wrap",
+]);
+
+const multiChildTypes: ReadonlySet<string> = new Set(["Row", "Column", "Flex", "Stack", "IndexedStack", "Wrap"]);
+
 export function renderFlexAvailable(): boolean {
   return "RenderFlex" in layout;
 }
 
 /** The node types a scene may use to be compared; everything else awaits an engine feature. */
 export function supportedTypes(): ReadonlySet<string> {
-  return renderFlexAvailable() ? new Set([...boxTypes, ...flexTypes]) : boxTypes;
+  return renderFlexAvailable() ? new Set([...boxTypes, ...flexTypes, ...stackTypes]) : boxTypes;
 }
 
 /** Every node type the scene uses. */
@@ -135,7 +152,7 @@ function alignment(value: unknown): AlignmentGeometry {
 }
 
 function singleChild(node: SceneNode, children: RenderBox[]): RenderBox | null {
-  if (!["Row", "Column", "Flex"].includes(node.type) && children.length > 1) {
+  if (!multiChildTypes.has(node.type) && children.length > 1) {
     throw new Error(`node "${node.id}" of type ${node.type} takes at most one child`);
   }
   return children[0] ?? null;
@@ -192,6 +209,58 @@ function applyFlexible(node: SceneNode, child: RenderBox | null): RenderBox {
   return flexible;
 }
 
+/** Stack and IndexedStack: a [RenderStack] with Flutter's widget defaults (topStart, loose). */
+function buildStack(node: SceneNode, children: RenderBox[], textDirection: TextDirection): RenderBox {
+  const props = node.props;
+  const options = {
+    children,
+    alignment:
+      field(props, "alignment") === undefined ? AlignmentDirectional.topStart : alignment(field(props, "alignment")),
+    textDirection,
+    fit: (field(props, node.type === "IndexedStack" ? "sizing" : "fit") ?? StackFit.loose) as StackFit,
+  };
+  return node.type === "IndexedStack"
+    ? new RenderIndexedStack({ ...options, index: optionalNum(props, "index") ?? 0 })
+    : new RenderStack(options);
+}
+
+/** Positioned and PositionedDirectional: stack parent data on the child's render object. */
+function applyPositioned(node: SceneNode, child: RenderBox | null, textDirection: TextDirection): RenderBox {
+  if (child === null) {
+    throw new Error(`node "${node.id}" of type ${node.type} needs a child`);
+  }
+  const props = node.props;
+  const parentData = new StackParentData();
+  parentData.top = optionalNum(props, "top");
+  parentData.bottom = optionalNum(props, "bottom");
+  parentData.width = optionalNum(props, "width");
+  parentData.height = optionalNum(props, "height");
+  if (node.type === "PositionedDirectional") {
+    parentData.setDirectional(textDirection, optionalNum(props, "start"), optionalNum(props, "end"));
+  } else {
+    parentData.left = optionalNum(props, "left");
+    parentData.right = optionalNum(props, "right");
+  }
+  child.parentData = parentData;
+  return child;
+}
+
+/** Wrap: a [RenderWrap] with Flutter's widget defaults. */
+function buildWrap(node: SceneNode, children: RenderBox[], textDirection: TextDirection): RenderBox {
+  const props = node.props;
+  return new RenderWrap({
+    children,
+    direction: (field(props, "direction") ?? Axis.horizontal) as Axis,
+    alignment: (field(props, "alignment") ?? WrapAlignment.start) as WrapAlignment,
+    spacing: optionalNum(props, "spacing") ?? 0,
+    runAlignment: (field(props, "runAlignment") ?? WrapAlignment.start) as WrapAlignment,
+    runSpacing: optionalNum(props, "runSpacing") ?? 0,
+    crossAxisAlignment: (field(props, "crossAxisAlignment") ?? WrapCrossAlignment.start) as WrapCrossAlignment,
+    textDirection,
+    verticalDirection: (field(props, "verticalDirection") ?? VerticalDirection.down) as VerticalDirection,
+  });
+}
+
 /**
  * Builds the render tree of `node` under `textDirection` (Flutter's ambient
  * `Directionality`). Throws on an unknown type and on a flex type, which
@@ -208,6 +277,16 @@ export function buildNode(node: SceneNode, textDirection: TextDirection): Render
     case "Flex":
       box = buildFlex(node, children, textDirection);
       break;
+    case "Stack":
+    case "IndexedStack":
+      box = buildStack(node, children, textDirection);
+      break;
+    case "Wrap":
+      box = buildWrap(node, children, textDirection);
+      break;
+    case "Positioned":
+    case "PositionedDirectional":
+      return applyPositioned(node, child, textDirection);
     case "Expanded":
     case "Flexible":
     case "Spacer":
@@ -280,14 +359,14 @@ export function layOutScene(scene: Scene, golden: LayoutGolden): RenderView {
 
 /**
  * The rects of a laid-out `scene` as Flutter's golden writer records them.
- * `Expanded` and `Flexible` are parent-data widgets without a render object of
+ * `Expanded`, `Flexible`, `Positioned` and `PositionedDirectional` are parent-data widgets without a render object of
  * their own, so Flutter reports their id with the rect of their child.
  */
 export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typeof layout.goldenRects> {
   const rects = layout.goldenRects(view);
   const alias = (node: SceneNode): void => {
     const child = node.children?.[0];
-    if ((node.type === "Expanded" || node.type === "Flexible") && child !== undefined) {
+    if (["Expanded", "Flexible", "Positioned", "PositionedDirectional"].includes(node.type) && child !== undefined) {
       const rect = rects[child.id];
       if (rect !== undefined) {
         rects[node.id] = rect;
