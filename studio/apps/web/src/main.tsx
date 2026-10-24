@@ -5,7 +5,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app.tsx";
 import { createAppI18n, I18nProvider } from "./i18n-provider.tsx";
+import { configureZod } from "./lib/zod.ts";
 import "./styles/app.css";
+
+configureZod();
 
 const container = document.getElementById("root");
 if (container === null) {
