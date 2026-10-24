@@ -126,3 +126,16 @@ the 500 ms of `DEV-010` over the good Wi-Fi profile (619 ms p95 for server and t
 231 ms compressed; `docs/benchmarks/devloop.md`). The runtime's `dart:io` WebSocket offers the
 extension by default. The frames carry no secret: the pairing token and the socket ticket travel
 in the upgrade's headers, so compression cannot leak one through frame sizes.
+
+## Revision (2026-10-24, P11 plan: dev sessions across `api` replicas)
+
+No dev-session state may stay only in one process's memory (M-8, O-20). P10 keeps the per-session event buffer, the device sockets' resume state and the CLI overlay in the memory of one `api` replica, so a second replica would break `DEV-021`. The P11 step S0.9 moves all of it onto the shared stream layer of [ADR-0096](0096-studio-live-channels.md):
+
+- device events go to a per-session event stream, numbered with the session sequence, so `WatchEvents` on any replica serves and resumes them;
+- frames to devices (patches, commands) go to a per-session frame stream with each device's frame numbering and retention stored there; each replica delivers only to the sockets it holds, so a device that reconnects to another replica resumes;
+- command results travel back as events through the event stream;
+- Studio sessions keep no draft copy: they follow the stored draft (L-14, contract #17), so an accepted autosave is compiled and pushed to that app and environment's sessions;
+- the CLI overlay becomes an ordered patch log in PostgreSQL (`dev_session_patches`, bounded by `devSession.patchLogBytes`, deleted with the session); the in-memory draft and incremental-compile cache become a per-replica cache rebuilt by replaying the log when it is behind;
+- session end and expiry reach every replica through the frame stream.
+
+Until S0.9 merges, dev sessions need exactly one `api` replica, and the deployment documents say so. Pairing, trust and the frame format are unchanged. The 500 ms budget of `NFR-030` is re-measured with two replicas.
