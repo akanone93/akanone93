@@ -163,7 +163,7 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `typescript` | Type-checking | In use (dev) |
 | `@types/bun` | Bun type definitions | In use (dev) |
 
-Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Radix, Tailwind CSS, Monaco, Connect-ES.
+Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Base UI, Tailwind CSS, Monaco, Connect-ES.
 
 ### Build and CI tools
 

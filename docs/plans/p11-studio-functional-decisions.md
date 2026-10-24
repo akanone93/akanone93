@@ -5,11 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 
 # P11 Studio — Functional, Flow and Operational Decisions
 
+> **Status:** Decision record; the accepted plan is [p11.md](p11.md).
+
 - **Status:** Decided by the maintainer in the preparation session (2026-10-18 to 2026-10-19),
   after the engineering decisions. Binding input for the P11 plan, its ADRs and every Studio
   session. Nothing here is implemented yet.
 - **Read with:** [p11-studio-decisions.md](p11-studio-decisions.md) — engineering decisions and the
-  amended Studio Development rule book (Part B there). References like "A5.1" or "rule book §6.3"
+  Studio Development rule book (Part B there moved to
+  [studio-development.md](../engineering/studio-development.md)). References like "A5.1" or "rule book §6.3"
   point to that file. The two files agree; where this file changed an earlier decision (F19), the
   earlier file was updated.
 - **Standing rules from the maintainer apply to every item:** protect the server (bound all new
@@ -57,8 +60,10 @@ SPDX-License-Identifier: Apache-2.0
 5. **Takeover:** "Request edit" notifies the holder (release or keep). Users with
    `plugin.lock.override` see "Take over" with a confirmation showing the holder and their last
    activity. The previous holder is told who took it and gets a link to the preserved snapshot.
-   *Open:* whether takeover requires the holder to be idle or unresponsive for a set time — policy
-   to be set by the maintainer.
+   *Decided (L-1 of the [P11 plan](p11.md)):* "Take over" is enabled only when the holder has made
+   no edit for 5 minutes (`studio.lockTakeoverIdleMinutes`), or at once when the holder's lease has
+   lapsed (no renewal for two missed heartbeats, 60 s); "Request edit" is always available. The
+   server enforces the rule and audits every takeover.
 6. **Read-only mode:** navigate, select, inspect, copy; editing controls disabled with a reason
    (not hidden); banner with holder, since when, "Request edit" (only for users with edit
    permission). Viewers see the holder's changes through revision events on the events stream;
@@ -298,7 +303,11 @@ others see "Anna is publishing" and can view it.
   licence" (offline licence, `GOV-030`); hidden from others. Security features are never
   edition-gated (`GOV-032`).
 - **Implementation dependency:** restriction policies and the per-feature catalogue are server
-  work (RBAC and row-level security); if P9 does not deliver them, they land in P11 milestone S8.
+  work (RBAC and row-level security). *Decided (L-8):* P9 delivered them; the fallback is not needed.
+  *Permissions (M-7, [p11.md](p11.md) §6.2):* each command maps to the server permission that
+  guards its RPC, a new permission is added only with its server check, and there is no
+  browser-only permission; the per-feature keys named above (e.g. `studio.json.edit`) are
+  illustrative.
 
 ## F15. Search and the command palette (`STU-013`)
 
@@ -317,8 +326,9 @@ others see "Anna is publishing" and can view it.
   new component version); approvals (requested/approved/rejected/expired; break-glass alerts);
   operations (rollout paused by a health gate; kill switch used; limits nearly reached); account and
   security (role or access changed; new device paired; sessions revoked).
-- **Storage:** server-side, one record per recipient with type and parameters; rendered in the user's
-  language at display time, never stored as text.
+- **Storage:** server-side, one record per recipient with type and parameters; rendered in the
+  reader's language at display time, never stored as text (O-18; typed parameters on `InboxItem`,
+  contract #20 of the P11 plan).
 - **Delivery:** live via the events stream; inbox list via Query.
 - **Read state per user:** read/unread, "mark all read"; per-type mute in the profile, except approval
   and security notifications; repeats grouped ("3 publishes finished").
@@ -353,14 +363,17 @@ others see "Anna is publishing" and can view it.
 ## F19. BFF sessions
 
 - **The BFF keeps no session state; it uses the server's sessions.** The server already issues
-  `__Host-plux_session` (stored hashed in PostgreSQL) and CSRF tokens (ADR-0026). The BFF serves the
-  sign-in pages, proxies `/auth/*` and passes the cookie through. No second store, no token in the
+  `__Host-plux_session` (stored hashed in PostgreSQL) and CSRF tokens (ADR-0026). The server has no
+  `/auth/*` routes (L-13 of the [P11 plan](p11.md)): the BFF proxies the IdentityService and
+  FederationService RPCs, hosts the OIDC callback and the SAML assertion consumer, and passes the
+  cookie through. No second store, no token in the
   browser (`SEC-101`). Valkey is not used for sessions (ADR-0007: Valkey holds only expendable state).
 - **Sign-in** is the server's: password with TOTP or WebAuthn today; OIDC/SAML from P9 (`GOV-004`).
   `STU-002` currently says the BFF runs the OIDC flow and stores tokens — its wording changes (Z1).
 - **Timeouts:** sliding idle expiry and an absolute limit, enforced by the server, adjustable by
-  administrators (`GOV-005`); only user activity counts (not lock heartbeats or streams). Proposed
-  defaults **idle 2 hours, absolute 12 hours** — a security default, approval recorded in the ADR.
+  administrators (`GOV-005`); only user activity counts (not lock heartbeats or streams). *Decided
+  (O-1):* the **30-minute idle** and 12-hour absolute defaults P9 set are kept, not the 2 hours
+  first proposed; Studio's re-sign-in popup keeps the canvas and queued edits (F4).
 - **Refresh:** the server extends the session on activity; no refresh tokens in the browser.
 - **Revocation:** server-side and immediate (`GOV-005`); revoked sessions' streams are closed at once.
 - **Several BFF instances:** stateless, so no sticky sessions; streams resume from their cursor on any
@@ -412,7 +425,7 @@ others see "Anna is publishing" and can view it.
 Each ends at the milestone exit gate used since P4: every gate passes with exit codes checked;
 repeated end-to-end runs pass; a green dispatched CI run; open items resolved or put to the
 maintainer. From S0, the gate also includes the **design gate** of the UI language
-([p11-studio-ui-language.md](p11-studio-ui-language.md) U18.6): the automated AI-pattern detector over
+([studio-ui-language.md](../engineering/studio-ui-language.md) U18.6): the automated AI-pattern detector over
 the catalogue page and the slice's routes, and the maintainer's local review of the slice's screens
 against the reference page.
 
@@ -460,18 +473,18 @@ the real device) plus one manual run with a real device, numbers recorded.
 
 ### Z2. Defaults and policies needing the maintainer's approval
 
-- Session timeouts: idle 2 h, absolute 12 h (F19) — security default.
+- Session timeouts: idle 30 min, absolute 12 h (F19, O-1; the 2 h first proposed was not kept) — security default.
 - Lock auto-release after 10 min idle (F1.2); undo depth 200 (F3); notification retention 90 days
   (F16) — as limits-registry defaults.
-- Takeover policy: whether the holder must be idle or unresponsive for a set time first (F1.5).
+- Takeover policy (F1.5): decided, L-1 (5 minutes without an edit, or a lapsed lease).
 
 ### Z3. `proto/` and contract additions (maintainer decision, `AGENTS.md` §7; additive)
 
 In addition to the decisions file's C4 list:
 
 1. Release request resource with its states (F11), unless P9's approval request object covers it.
-2. Restriction policies and the effective-permissions / "explain access" API (F14).
-3. Organisation search API: names and keys, permission-filtered (F15).
+2. Restriction policies and the effective-permissions / "explain access" API (F14). *Delivered by P9 (L-8).*
+3. Organisation search API: names and keys, permission-filtered (F15). *Delivered by P9 (L-8).*
 4. Notifications: list, read state, mute preferences, events-stream messages (F16).
 5. Onboarding progress per user (F17).
 6. Shell-spec comparison and project/patch generation job for Studio (F18).

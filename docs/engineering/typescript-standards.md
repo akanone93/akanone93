@@ -7,6 +7,7 @@ How TypeScript in Plux Studio (`studio/`) is written. Biome ([studio/biome.json]
 ## 1. Toolchain
 
 - **Bun** is the runtime, package manager and test runner; its version is pinned in `studio/package.json` (`packageManager`), the Makefile and CI.
+- **Vite** (on the Bun runtime) builds the web app; Bun runs the backend-for-frontend, tests and tools ([studio-development.md](studio-development.md)).
 - **TypeScript** type-checks (`bunx tsc`); Bun executes TypeScript directly, so there is no separate emit step for packages.
 - **Biome** formats and lints (`make studio-fmt`, `make studio-lint`).
 - Installs are reproducible: `bun install --frozen-lockfile`, exact versions, `bun.lock` committed.
@@ -31,8 +32,8 @@ How TypeScript in Plux Studio (`studio/`) is written. Biome ([studio/biome.json]
 
 ## 5. Security
 
-- No secrets or tokens in browser code; the backend-for-frontend holds them (`SEC-101`).
-- No `innerHTML` with untrusted content; Trusted Types and the Content Security Policy are respected.
+- No secrets or tokens in browser code (`SEC-101`). The server holds the sessions and issues the `__Host-plux_session` cookie and the CSRF token; the backend-for-frontend holds no session state and passes them through (F19, L-13 of the P11 plan).
+- No `innerHTML` and no `dangerouslySetInnerHTML` at all (studio-development §5.8); Trusted Types and the Content Security Policy are respected.
 - No `console` in shipped code; diagnostics go through the logging facility.
 
 ## 6. Documentation and formatting

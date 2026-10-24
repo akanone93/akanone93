@@ -11,6 +11,9 @@ How Plux is built. The [specification](../requirements.md) says *what* the syste
 | [dart-standards.md](dart-standards.md) | Dart and Flutter: API design, state, isolates, widgets, documentation |
 | [typescript-standards.md](typescript-standards.md) | TypeScript and Studio: strictness, modules, React, Biome |
 | [error-handling.md](error-handling.md) | The unified error model and error codes across components |
+| [studio-development.md](studio-development.md) | How Studio is built: structure, design system, localisation, state, canvas, testing, performance, security, agent rules |
+| [studio-ui-language.md](studio-ui-language.md) | Studio's UI language (Porcelain): tokens, type, shape, components, motion, design gate |
+| [studio-ui-reference.html](studio-ui-reference.html) | The approved plugin canvas as one HTML page; the visual source of truth for the UI language |
 | [testing.md](testing.md) | Test strategy, conventions per language, traceability, coverage |
 | [dependencies.md](dependencies.md) | Dependency policy and allowlists per ecosystem |
 | [workflow.md](workflow.md) | Branches, commits, pull requests, definition of done, releases |

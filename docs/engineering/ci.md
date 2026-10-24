@@ -84,6 +84,8 @@ Three rules keep the selection on the safe side:
 
 The job summary of **Detect changes** lists every selected job with the files that selected it. The tool's tests check the rules against `ci.yml` (every job has a rule, every selectable job reads the selection, CI OK waits for every job), check that every tracked file is named by a rule, and replay real past changes with the exact jobs each one must run.
 
+**Studio jobs (approved in P11, O-11).** `studio-conformance`, `studio-e2e`, `studio-bench`, Studio's ZAP scan and the reproducible double build of the Studio image are selected by path through `ci/affected.json` like the others. They are written in P11 step S0.7 and arrive with it; until then this page lists only the jobs that exist.
+
 Locally, `make check-changed` runs the same selection against the merge base with `origin/main`, including uncommitted and untracked files, and runs the `make` targets of the selected jobs that run locally; it lists the ones only CI's runners run.
 
 ## 4. Generated code
