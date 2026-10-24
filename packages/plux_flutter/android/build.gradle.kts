@@ -72,7 +72,12 @@ dependencies {
     // androidx.fragment.
     implementation("androidx.biometric:biometric:1.1.0")
     // Periodic background sync that stages a release (SYN-014, ADR-0092).
-    implementation("androidx.work:work-runtime:2.10.1")
+    // Room 2.6 under it asks for kotlin-stdlib-jdk8, which Kotlin 2 merged
+    // into kotlin-stdlib; the host's stdlib 2.x pins it to a version that
+    // was never published, so it is left out (its classes are in the stdlib).
+    implementation("androidx.work:work-runtime:2.10.1") {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    }
     // Play Integrity standard requests (SEC-003, ADR-0012).
     implementation("com.google.android.play:integrity:1.6.0")
     // SMS User Consent for OtpInput (SEC-090): the user shares one message;
