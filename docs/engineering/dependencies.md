@@ -164,6 +164,10 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@types/bun` | Bun type definitions | In use (dev) |
 | `react` 19.3.1, `react-dom` 19.3.1 | The Studio UI (ADR-0014); about 68.7 kB gzip together in the initial bundle | In use (P11 S0.1; MIT) |
 | `vite` 8.3.5, `@vitejs/plugin-react` 6.1.2 | Dev server and production build of `studio/apps/web`; not shipped | In use (P11 S0.1; MIT) |
+| `@bufbuild/protobuf` 2.16.0 | Protobuf runtime for the generated API messages | In use (P11 S0.3; Apache-2.0 AND BSD-3-Clause) |
+| `@connectrpc/connect` 2.2.0 | Connect client core | In use (P11 S0.3; Apache-2.0) |
+| `@connectrpc/connect-web` 2.2.0 | Browser fetch transport for the Connect clients | In use (P11 S0.3; Apache-2.0) |
+| `@bufbuild/protoc-gen-es` 2.16.0 | Local buf plugin generating the TypeScript API clients; not shipped | In use (P11 S0.3; Apache-2.0) |
 | `@types/react` 19.3.0, `@types/react-dom` 19.3.0 | React type definitions | In use (P11 S0.1; MIT) |
 | `tailwindcss` 4.3.3, `@tailwindcss/vite` 4.3.3 | Utility CSS generated from the design tokens; defaults reset, token-backed utilities only | In use (P11 S0.1; MIT) |
 | `happy-dom` 21.0.4, `@happy-dom/global-registrator` 21.0.4 | DOM for component tests under `bun test` (dev only) | In use (P11 S0.1; MIT) |
