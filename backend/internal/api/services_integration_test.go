@@ -422,7 +422,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
-	studioEventsService, err := studioevents.NewService(studioevents.Options{Logs: shared, Notifier: shared})
+	studioEventsService, err := studioevents.NewService(studioevents.Options{Logs: shared, Notifier: shared, Heartbeat: 50 * time.Millisecond})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -463,7 +463,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Emergencies: emergencies, Freezes: freezes, Reports: reports,
 		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
-		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
+		Auth: authService, Authenticator: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
 		StudioStream: studioEventsService, Searches: searchService, GitExports: gitService, UserPreferences: preferencesService,
