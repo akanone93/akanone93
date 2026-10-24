@@ -21,6 +21,7 @@ import 'package:plux_flutter/src/navigation/delegate.dart';
 import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
 import 'package:plux_flutter/src/render/widget_package.dart';
 import 'package:plux_flutter/src/security/rasp.dart';
+import 'package:plux_flutter/src/sync/background_sync_config.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 
 /// How `Plux.initialize` treats the network (SYN-003).
@@ -249,6 +250,7 @@ final class PluxConfig {
     this.securityModules = const [],
     this.strongCustomerAuthentication = false,
     this.reconstruction,
+    this.backgroundSync = const BackgroundSyncConfig(),
   }) : assert(downloadParallelism > 0, 'at least one download at a time'),
        assert(
          hostBuild.length <= 64,
@@ -486,4 +488,13 @@ final class PluxConfig {
   /// (data sources, functions, the host, the device, links out of the app)
   /// fail with `PLX-4010`. Show the result with `PluxReconstructionView`.
   final PluxReconstruction? reconstruction;
+
+  /// Opt-in background sync (SYN-014, ADR-0092): off by default. When
+  /// enabled, Android's WorkManager and iOS's `BGTaskScheduler` wake the app
+  /// without a screen to fetch, verify and stage a newer release for the next
+  /// start; a background run never activates a release. The task uses the
+  /// platform's pinned HTTP client, so it cannot run when [httpClient] is set
+  /// (`PLX-3500`); on iOS the host must declare the task in its `Info.plist`
+  /// (`PLX-3501` otherwise). Read the plux_flutter README for the host setup.
+  final BackgroundSyncConfig backgroundSync;
 }

@@ -1,0 +1,511 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+import "plux/v1/devevents.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// DevSessionService lets a developer pair devices with a non-production
+// environment, push draft changes to them, drive them with commands and
+// watch what they report (DEV-001 to DEV-041). A person calls every RPC
+// except Pair, which the paired device calls with its access token and a
+// DPoP proof (SEC-021). The events themselves travel over a WebSocket the
+// device opens with the ticket Pair returns; this service carries the
+// control plane and the CLI's view of the stream.
+//
+// A session exists only for an environment whose kind is not production
+// (DEV-003, PLX-9203). Creating a session, getting a pairing token,
+// pushing patches and sending commands need `devsession.create`; watching,
+// listing devices and exporting a trace need `devsession.observe`.
+service DevSessionService {
+  // CreateSession opens a dev session for an app and a non-production
+  // environment, and returns it with its first pairing token (DEV-002,
+  // DEV-003).
+  rpc CreateSession(DevSessionServiceCreateSessionRequest) returns (DevSessionServiceCreateSessionResponse) {}
+  // GetPairing mints a fresh pairing token for a session. A token is
+  // single-use and lives at most `devSession.pairingTokenSeconds`, so a
+  // second device needs a second token (DEV-002).
+  rpc GetPairing(DevSessionServiceGetPairingRequest) returns (DevSessionServiceGetPairingResponse) {}
+  // Pair is called by the device with the pairing token it scanned. It
+  // consumes the token, adds the device to the session and returns the
+  // short-lived ticket the device presents once at the WebSocket upgrade
+  // (DEV-002, PLX-9201, PLX-9202, PLX-9208).
+  rpc Pair(DevSessionServicePairRequest) returns (DevSessionServicePairResponse) {}
+  // RenewSocketTicket gives a paired device a new socket ticket to reconnect
+  // with; the device calls it with its access token and a DPoP proof of the
+  // key it paired with, while its session is live (DEV-021, PLX-9204).
+  rpc RenewSocketTicket(DevSessionServiceRenewSocketTicketRequest) returns (DevSessionServiceRenewSocketTicketResponse) {}
+  // ListDevices lists the devices paired with a session and whether each
+  // is connected.
+  rpc ListDevices(DevSessionServiceListDevicesRequest) returns (DevSessionServiceListDevicesResponse) {}
+  // EndSession ends a session: its pairing tokens stop working, its sockets
+  // close and its devices are unpaired.
+  rpc EndSession(DevSessionServiceEndSessionRequest) returns (DevSessionServiceEndSessionResponse) {}
+  // PushPatch applies document patches to the session's draft, compiles
+  // the changed pages incrementally, signs the result with the development
+  // class and pushes it to every paired device (DEV-010, CMP-051). A patch
+  // that does not validate or compile is refused as a whole (PLX-9207).
+  rpc PushPatch(DevSessionServicePushPatchRequest) returns (DevSessionServicePushPatchResponse) {}
+  // SendCommand sends one command to a device, or to every device of the
+  // session. The reply says where the command went; each device's answer
+  // arrives in the stream as a CommandResultEvent (DEV-011, DEV-031,
+  // DEV-032, DEV-033, DEV-034).
+  rpc SendCommand(DevSessionServiceSendCommandRequest) returns (DevSessionServiceSendCommandResponse) {}
+  // WatchEvents streams a session's events to the CLI, resuming after a
+  // sequence number (DEV-021, DEV-041).
+  rpc WatchEvents(DevSessionServiceWatchEventsRequest) returns (stream DevSessionServiceWatchEventsResponse) {}
+  // ExportTrace returns the session's retained events as a redacted trace
+  // file for a bug report (DEV-021).
+  rpc ExportTrace(DevSessionServiceExportTraceRequest) returns (DevSessionServiceExportTraceResponse) {}
+}
+
+// DevSession is a dev session.
+message DevSession {
+  string id = 1;
+  string app_id = 2;
+  string environment_id = 3;
+  Actor created_by = 4;
+  google.protobuf.Timestamp created_at = 5;
+  // expires_at is the end of the session's lifetime,
+  // `devSession.lifetimeMinutes` after it was created; the session also
+  // ends after `devSession.idleMinutes` without traffic (PLX-9200).
+  google.protobuf.Timestamp expires_at = 6;
+  // ended_at is set once the session has ended.
+  google.protobuf.Timestamp ended_at = 7;
+}
+
+// DevPairing is a pairing token with the ways to show it.
+message DevPairing {
+  // token is the compact signed pairing token. It is a credential: it is
+  // shown to the person who asked and to nobody else, and never logged.
+  string token = 1;
+  // uri is the pairing link the QR code holds:
+  // `plux-dev://pair?server=<url>&token=<token>`.
+  string uri = 2;
+  // expires_at is when the token stops working.
+  google.protobuf.Timestamp expires_at = 3;
+  // code is the short code a person may type on the device instead of
+  // opening the link: eight Crockford base32 characters shown as
+  // XXXX-XXXX. It is a credential like the token, single-use and with the
+  // token's expiry, and only pairs a device of the session's organisation,
+  // app and environment (DEV-002).
+  string code = 4;
+}
+
+// DevDevice is a device paired with a session.
+message DevDevice {
+  // id is the device's identifier inside the session; it is what events
+  // and commands name.
+  string id = 1;
+  // device_id is the device's registered identifier (DeviceService).
+  string device_id = 2;
+  // name is the name the device gave when it paired, such as its model.
+  string name = 3;
+  // platform is "android" or "ios".
+  string platform = 4;
+  string runtime_version = 5;
+  google.protobuf.Timestamp paired_at = 6;
+  google.protobuf.Timestamp last_seen_at = 7;
+  // connected is true while the device's socket is open.
+  bool connected = 8;
+  // last_sequence is the sequence number of the last event the server
+  // relayed from the device.
+  uint64 last_sequence = 9;
+}
+
+message DevSessionServiceCreateSessionRequest {
+  string app_id = 1;
+  string environment_id = 2;
+}
+
+message DevSessionServiceCreateSessionResponse {
+  DevSession session = 1;
+  DevPairing pairing = 2;
+}
+
+message DevSessionServiceGetPairingRequest {
+  string session_id = 1;
+}
+
+message DevSessionServiceGetPairingResponse {
+  DevPairing pairing = 1;
+}
+
+message DevSessionServicePairRequest {
+  // pairing_token is the token the device scanned.
+  string pairing_token = 1;
+  // name, platform and runtime_version describe the device for the
+  // session's device list.
+  string name = 2;
+  string platform = 3;
+  string runtime_version = 4;
+  // attestation is the device's development attestation, where the
+  // platform gives one (DEV-002); empty otherwise.
+  bytes attestation = 5;
+  // pairing_code is the short code the person typed, used when
+  // pairing_token is empty; case and dashes do not matter. Setting both is
+  // INVALID_ARGUMENT. A device that fails devSession.pairingCodeAttempts
+  // times in ten minutes is refused with RATE_LIMITED.
+  string pairing_code = 6;
+}
+
+message DevSessionServicePairResponse {
+  string session_id = 1;
+  // device_id is the device's identifier inside the session.
+  string device_id = 2;
+  // socket_ticket is opaque. The device presents it once at the WebSocket
+  // upgrade; it is bound to the device's DPoP key and to the session
+  // (PLX-9205).
+  string socket_ticket = 3;
+  // socket_ticket_expires_at is when the ticket stops being accepted.
+  google.protobuf.Timestamp socket_ticket_expires_at = 4;
+}
+
+message DevSessionServiceRenewSocketTicketRequest {
+  string session_id = 1;
+  string device_id = 2;
+}
+
+message DevSessionServiceRenewSocketTicketResponse {
+  // socket_ticket is opaque and single-use, like Pair's (PLX-9205).
+  string socket_ticket = 1;
+  google.protobuf.Timestamp socket_ticket_expires_at = 2;
+}
+
+message DevSessionServiceListDevicesRequest {
+  string session_id = 1;
+}
+
+message DevSessionServiceListDevicesResponse {
+  repeated DevDevice devices = 1;
+}
+
+message DevSessionServiceEndSessionRequest {
+  string session_id = 1;
+}
+
+message DevSessionServiceEndSessionResponse {
+  DevSession session = 1;
+}
+
+// DevDocumentPatch is a JSON Patch to one document of the session's draft.
+message DevDocumentPatch {
+  string plugin_id = 1;
+  // path is the document's path in the project layout.
+  string path = 2;
+  repeated PatchOp patch = 3;
+  // if_revision is the revision the writer last read; zero skips the
+  // check.
+  int64 if_revision = 4;
+}
+
+message DevSessionServicePushPatchRequest {
+  string session_id = 1;
+  // patches are applied in order, all or none. Their total size is at most
+  // `devSession.patchBytes`.
+  repeated DevDocumentPatch patches = 2;
+}
+
+// DevPatchStatus is the outcome of a push for one device.
+enum DevPatchStatus {
+  DEV_PATCH_STATUS_UNSPECIFIED = 0;
+  DEV_PATCH_STATUS_APPLIED = 1;
+  // DEV_PATCH_STATUS_APPLIED_WITH_RESET: applied, and the state of some
+  // scopes was reset because it was incompatible (PLX-9231).
+  DEV_PATCH_STATUS_APPLIED_WITH_RESET = 2;
+  DEV_PATCH_STATUS_REFUSED = 3;
+  // DEV_PATCH_STATUS_OFFLINE: the device's socket was closed; it receives
+  // the current draft when it reconnects.
+  DEV_PATCH_STATUS_OFFLINE = 4;
+}
+
+// DevPatchResult is what one device did with a pushed patch.
+message DevPatchResult {
+  string device_id = 1;
+  DevPatchStatus status = 2;
+  repeated string pages_applied = 3;
+  repeated string scopes_reset = 4;
+  // error is why the device refused the bundle, such as PLX-9230.
+  DevError error = 5;
+}
+
+message DevSessionServicePushPatchResponse {
+  // bundle_sha256 is the hash of the development bundle that was pushed,
+  // lower-case hex.
+  string bundle_sha256 = 1;
+  // results holds one entry per paired device.
+  repeated DevPatchResult results = 2;
+  // diagnostics are the findings of validation and compilation, including
+  // warnings of an applied patch.
+  repeated Diagnostic diagnostics = 3;
+}
+
+// MockSelection selects the state of one data-source mock (DAT-080).
+message MockSelection {
+  string source = 1;
+  string state = 2;
+}
+
+// DevThemeMode is the theme a screen is opened with.
+enum DevThemeMode {
+  DEV_THEME_MODE_UNSPECIFIED = 0;
+  DEV_THEME_MODE_LIGHT = 1;
+  DEV_THEME_MODE_DARK = 2;
+  DEV_THEME_MODE_SYSTEM = 3;
+}
+
+// OpenScreenCommand opens a screen on the device (DEV-011).
+message OpenScreenCommand {
+  string route = 1;
+  map<string, string> params = 2;
+  // locale is a BCP 47 tag; empty keeps the device's.
+  string locale = 3;
+  DevThemeMode theme = 4;
+  // text_scale is the text scale factor; zero keeps the device's.
+  double text_scale = 5;
+  repeated MockSelection mocks = 6;
+}
+
+// SetStateCommand sets a state value (DEV-031). The device refuses a path
+// tagged sensitive (PLX-9206).
+message SetStateCommand {
+  // scope is "app", "page:<route>" or "component:<node path>".
+  string scope = 1;
+  string path = 2;
+  // value is the UTF-8 JSON value.
+  bytes value = 3;
+}
+
+// SwitchMockCommand switches a data-source mock and its state (DAT-080).
+message SwitchMockCommand {
+  string source = 1;
+  string state = 2;
+}
+
+// FakeClockCommand sets, advances or resets the clock the runtime's
+// time-dependent actions and PXL functions read (DEV-031).
+message FakeClockCommand {
+  oneof operation {
+    // set_unix_micros fixes the clock at an instant.
+    int64 set_unix_micros = 1;
+    // advance_micros moves a faked clock forward.
+    int64 advance_micros = 2;
+    // reset returns to the real clock when true.
+    bool reset = 3;
+  }
+}
+
+// DevLifecycleEvent is a lifecycle event the device simulates.
+enum DevLifecycleEvent {
+  DEV_LIFECYCLE_EVENT_UNSPECIFIED = 0;
+  DEV_LIFECYCLE_EVENT_PAUSE = 1;
+  DEV_LIFECYCLE_EVENT_RESUME = 2;
+  DEV_LIFECYCLE_EVENT_INACTIVE = 3;
+  DEV_LIFECYCLE_EVENT_DETACHED = 4;
+  DEV_LIFECYCLE_EVENT_MEMORY_PRESSURE = 5;
+}
+
+// LifecycleCommand triggers a lifecycle event (DEV-031).
+message LifecycleCommand {
+  DevLifecycleEvent event = 1;
+}
+
+// NetworkProfileCommand applies a network profile of
+// schema/devtools/network-profiles.json (DEV-031).
+message NetworkProfileCommand {
+  // profile_id is the profile's identifier, such as "offline" or "3g";
+  // "good_wifi" removes the simulation.
+  string profile_id = 1;
+}
+
+// SimulateSecurityDetectionCommand makes `plux_security` report a
+// detection, to try the app's response to it (SEC-071).
+message SimulateSecurityDetectionCommand {
+  DevSecurityDetectionKind kind = 1;
+}
+
+// EvaluatePxlCommand evaluates a PXL expression against the device's live
+// state; the result arrives redacted in the CommandResultEvent (DEV-032).
+message EvaluatePxlCommand {
+  string expression = 1;
+  // program is the expression compiled to PXL bytecode. The server sets it
+  // when it relays the command and clears whatever a client sent: the device
+  // evaluates only what the server compiled.
+  bytes program = 2;
+  // roots are the state roots the expression may read; empty means every
+  // root the console offers.
+  repeated string roots = 3;
+}
+
+// CaptureScreenshotCommand captures the screen; the image arrives as a
+// ScreenshotEvent (DEV-033).
+message CaptureScreenshotCommand {}
+
+// InspectSelectCommand highlights a node on the device (DEV-030).
+message InspectSelectCommand {
+  string node_path = 1;
+}
+
+// DevOverlay is a debugging overlay.
+enum DevOverlay {
+  DEV_OVERLAY_UNSPECIFIED = 0;
+  DEV_OVERLAY_FRAME_CHART = 1;
+  DEV_OVERLAY_REBUILD_COUNTERS = 2;
+  DEV_OVERLAY_TOUCH_TARGETS = 3;
+  DEV_OVERLAY_CONTRAST = 4;
+}
+
+// ToggleOverlayCommand switches an overlay on or off (DEV-034).
+message ToggleOverlayCommand {
+  DevOverlay overlay = 1;
+  bool enabled = 2;
+}
+
+message DevSessionServiceSendCommandRequest {
+  string session_id = 1;
+  // device_id is the session device to send to; empty sends to every
+  // device of the session.
+  string device_id = 2;
+  oneof command {
+    OpenScreenCommand open_screen = 10;
+    SetStateCommand set_state = 11;
+    SwitchMockCommand switch_mock = 12;
+    FakeClockCommand fake_clock = 13;
+    LifecycleCommand lifecycle = 14;
+    NetworkProfileCommand network_profile = 15;
+    SimulateSecurityDetectionCommand simulate_security_detection = 16;
+    EvaluatePxlCommand evaluate_pxl = 17;
+    CaptureScreenshotCommand capture_screenshot = 18;
+    InspectSelectCommand inspect_select = 19;
+    ToggleOverlayCommand toggle_overlay = 20;
+  }
+}
+
+message DevSessionServiceSendCommandResponse {
+  // command_id identifies the command in the CommandResultEvent of each
+  // device.
+  string command_id = 1;
+  // device_ids are the session devices the command was sent to.
+  repeated string device_ids = 2;
+}
+
+message DevSessionServiceWatchEventsRequest {
+  string session_id = 1;
+  // device_ids limits the stream to these session devices; empty watches
+  // all of them.
+  repeated string device_ids = 2;
+  // after_sequence resumes the stream after that event; zero starts with
+  // the events the server still retains (DEV-021).
+  uint64 after_sequence = 3;
+}
+
+message DevSessionServiceWatchEventsResponse {
+  DevEvent event = 1;
+}
+
+message DevSessionServiceExportTraceRequest {
+  string session_id = 1;
+  // device_ids limits the export to these session devices; empty exports
+  // all of them.
+  repeated string device_ids = 2;
+}
+
+message DevSessionServiceExportTraceResponse {
+  // trace is the trace file: a gzip-compressed stream of length-prefixed
+  // messages, a TraceFileHeader first and then DevEvent messages. The
+  // events are redacted like the live stream.
+  bytes trace = 1;
+  // event_count is the number of events in the file.
+  uint64 event_count = 2;
+}
+
+// The frames of the device's WebSocket (ADR-0087). The device opens the
+// socket at /dev/socket with the ticket of Pair in the Plux-Dev-Ticket
+// header and a DPoP proof of the key the ticket is bound to in the DPoP
+// header (htm GET, htu the socket URL). Both directions carry one frame per
+// WebSocket message: the device sends the proto3 JSON mapping in text
+// messages, the server answers in kind.
+
+// DevDeviceFrame is one frame a paired device sends.
+message DevDeviceFrame {
+  oneof payload {
+    // hello is the first frame after every upgrade.
+    DevDeviceHello hello = 1;
+    // event is something that happened on the device. Its sequence is the
+    // device's own, counted from 1 for the device's first event; the
+    // server replaces it with the session's sequence when it relays it.
+    DevEvent event = 2;
+  }
+}
+
+// DevDeviceHello resumes a device's stream after a reconnect (DEV-021).
+message DevDeviceHello {
+  // last_server_sequence is the last server frame the device carried out;
+  // the server sends the frames after it that it still holds.
+  uint64 last_server_sequence = 1;
+  // last_acknowledged_event is the last device event sequence the device
+  // saw acknowledged; it resends from the next one.
+  uint64 last_acknowledged_event = 2;
+}
+
+// DevServerFrame is one frame the server sends a paired device.
+message DevServerFrame {
+  // sequence numbers the server's frames to the device, from 1.
+  uint64 sequence = 1;
+  oneof payload {
+    // bundle is a dev bundle to verify and apply (DEV-010).
+    DevBundleFrame bundle = 10;
+    // command is a command to carry out (DEV-011, DEV-031).
+    DevCommandFrame command = 11;
+    // ack acknowledges the device's events up to and including a sequence.
+    DevEventAck ack = 12;
+    // ended says the session ended; the server closes the socket after it.
+    DevSessionEnded ended = 13;
+  }
+}
+
+// DevBundleFrame carries a dev bundle: a manifest signed with the
+// development key of the session's environment and the sections it names.
+message DevBundleFrame {
+  // bundle_sequence is the bundle's number in the session's own sequence
+  // space, which never meets the production store's.
+  uint64 bundle_sequence = 1;
+  bytes manifest = 2;
+  // sections are the section bytes by section ID.
+  map<string, bytes> sections = 3;
+  // incompatible_scopes lists, per page ID, the state scopes whose schema
+  // changed (the compiler's verdict); a page absent from the map keeps its
+  // state.
+  map<string, DevScopeList> incompatible_scopes = 4;
+}
+
+// DevScopeList is a list of state scope names.
+message DevScopeList {
+  repeated string scopes = 1;
+}
+
+// DevCommandFrame carries one command to the device.
+message DevCommandFrame {
+  // command_id is echoed in the device's CommandResultEvent.
+  string command_id = 1;
+  // command holds the command in its oneof; session_id and device_id are
+  // not set.
+  DevSessionServiceSendCommandRequest command = 2;
+}
+
+// DevEventAck acknowledges a device's events.
+message DevEventAck {
+  uint64 up_to = 1;
+}
+
+// DevSessionEnded tells a device its session ended.
+message DevSessionEnded {
+  // code is the error code of the reason, such as PLX-9200.
+  string code = 1;
+}

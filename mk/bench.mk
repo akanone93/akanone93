@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the benchmark and
 # size jobs on a pull request (ci/affected.json, ADR-0043).
 
-.PHONY: load-test bench-control bench-runtime bench-runtime-ab bench-sync bench-fn bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios release-inspect
+.PHONY: load-test bench-control bench-runtime bench-runtime-ab bench-sync bench-fn bench-devloop bench-devapply bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios release-inspect
 
 ##@ Benchmarks and size (QA-007)
 
@@ -52,6 +52,14 @@ bench-control: ## Measure how long a control-document change takes to reach a fl
 # Verifies: NFR-022, FN-023.
 bench-fn: ## Measure the overhead of a server function invocation, warm and first after deploy (NFR-022; prints JSON; fails over budget)
 	cd backend && PLUX_BENCH_FN=1 $(GO) test -count=1 -timeout 10m -run TestFunctionInvocationOverhead -v ./internal/fnrunner
+
+# Verifies: NFR-030, DEV-010.
+bench-devloop: ## Measure the edit-to-device latency of the dev loop, server and transport: 200 edits of one page of 50 over good_wifi (NFR-030; prints JSON; fails over 350 ms p95; needs PLUX_TEST_DATABASE_URL)
+	cd backend && PLUX_BENCH_DEVLOOP=1 $(GO) test -count=1 -timeout 15m -run TestDevloop -v ./internal/devsession
+
+# Verifies: NFR-030, DEV-010.
+bench-devapply: ## Measure the device's share of the dev loop: applying a signed one-page dev bundle (NFR-030; prints JSON; fails over 150 ms p95)
+	cd packages/plux_flutter && PLUX_BENCH_DEVAPPLY=1 flutter test --reporter expanded test/devtools_api/dev_apply_bench_test.dart
 
 # The engine's cost per step, an early measurement of NFR-011 (recorded in
 # docs/benchmarks/p4-routing.md, not gated: the gate arrives in P5).

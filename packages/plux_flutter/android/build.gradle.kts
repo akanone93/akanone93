@@ -3,8 +3,9 @@
 
 // The Android side of plux_flutter's platform channel (ADR-0029): storage
 // directory, Keystore-protected secrets, the share sheet and permission
-// prompts, the biometric prompt and the protection of secure pages. Its
-// AndroidX dependencies are Core, for FileProvider, and Biometric.
+// prompts, the biometric prompt and the protection of secure pages, and the
+// opt-in background sync (SYN-014). Its AndroidX dependencies are Core, for
+// FileProvider, Biometric and WorkManager.
 
 group = "dev.plux.plux_flutter"
 version = "1.0"
@@ -45,11 +46,22 @@ android {
         getByName("main") {
             java.srcDirs("src/main/kotlin")
         }
+        getByName("test") {
+            java.srcDirs("src/test/kotlin")
+        }
     }
 
     defaultConfig {
         // RT-002: Android 7.0 and later.
         minSdk = 24
+    }
+
+    testOptions {
+        unitTests {
+            // The scheduler's request is built from WorkManager classes that
+            // read android.os.Build; the framework stubs answer defaults.
+            isReturnDefaultValues = true
+        }
     }
 }
 
@@ -59,6 +71,13 @@ dependencies {
     // inactivity lock (SEC-027, SEC-094, ADR-0056, ADR-0059); brings
     // androidx.fragment.
     implementation("androidx.biometric:biometric:1.1.0")
+    // Periodic background sync that stages a release (SYN-014, ADR-0092).
+    // Room 2.6 under it asks for kotlin-stdlib-jdk8, which Kotlin 2 merged
+    // into kotlin-stdlib; the host's stdlib 2.x pins it to a version that
+    // was never published, so it is left out (its classes are in the stdlib).
+    implementation("androidx.work:work-runtime:2.10.1") {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    }
     // Play Integrity standard requests (SEC-003, ADR-0012).
     implementation("com.google.android.play:integrity:1.6.0")
     // SMS User Consent for OtpInput (SEC-090): the user shares one message;
@@ -69,6 +88,9 @@ dependencies {
     // compileOnly adds nothing to the runtime and must follow its pins.
     compileOnly("com.google.android.gms:play-services-cronet:18.1.1")
     compileOnly("org.chromium.net:cronet-embedded:143.7445.0")
+
+    // The scheduler's unit tests (src/test); never part of the library.
+    testImplementation("junit:junit:4.13.2")
 }
 
 kotlin {

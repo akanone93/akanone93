@@ -16,6 +16,10 @@ import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/data/client.dart' show AuthSession;
 import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/devtools_api/dev_events.dart'
+    show DevFunctionCall;
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show kPluxDevtools;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/pxl/types.dart' show toJson;
@@ -162,7 +166,14 @@ final class FunctionRuntime {
     this.engine,
     this.server,
     this.auth,
+    this.devTap,
   });
+
+  /// Receives one [DevFunctionCall] per invocation while a dev session
+  /// listens (FN-036); null otherwise. Release builds never call it. The
+  /// runtime sets and clears it as a dev session starts and ends, so it is
+  /// read at call time.
+  void Function(DevFunctionCall call)? devTap;
 
   /// The function [function] that [plugin] calls, or null when the plugin
   /// holds no grant for it (deny by default, FN-012). Throws
@@ -256,10 +267,44 @@ Future<StepResult> _invokeFunction(
     );
   }
   final input = Uint8List.fromList(utf8.encode(jsonEncode(toJson(i['input']))));
-  return switch (target) {
-    DeviceFunctionTarget() => _onDevice(c, rt, target, input),
-    ServerFunctionTarget() => _onServer(c, rt, target, input),
+  final resolved = target;
+  Future<StepResult> run() => switch (resolved) {
+    DeviceFunctionTarget() => _onDevice(c, rt, resolved, input),
+    ServerFunctionTarget() => _onServer(c, rt, resolved, input),
   };
+  final tap = rt.devTap;
+  if (!kPluxDevtools || tap == null) return run();
+  final startedAt = DateTime.now();
+  final watch = Stopwatch()..start();
+  void report({ActionError? error}) {
+    final business =
+        error != null &&
+        error.kind == ActionErrorKind.function &&
+        error.errorCode != null;
+    tap(
+      DevFunctionCall(
+        function: name,
+        version: resolved.version,
+        placement: resolved is DeviceFunctionTarget ? 'device' : 'server',
+        startedAt: startedAt,
+        duration: watch.elapsed,
+        runId: c.run?.runId ?? 0,
+        error: business || error == null
+            ? null
+            : PluxException(error.code, error.message),
+        businessErrorCode: business ? error.errorCode : null,
+      ),
+    );
+  }
+
+  try {
+    final r = await run();
+    report();
+    return r;
+  } on ActionError catch (e) {
+    report(error: e);
+    rethrow;
+  }
 }
 
 Future<StepResult> _onDevice(

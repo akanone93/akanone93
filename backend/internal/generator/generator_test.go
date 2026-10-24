@@ -190,6 +190,14 @@ func TestShellAndPlatformSettings(t *testing.T) {
 	if !bytes.Contains(byPath(files)["pubspec.yaml"].Data, []byte("plux_flutter:\n    path: /repo/packages/plux_flutter")) {
 		t.Error("a path dependency on the runtime")
 	}
+	if bytes.Contains(byPath(files)["pubspec.yaml"].Data, []byte("dependency_overrides")) {
+		t.Error("an override without a router adapter")
+	}
+	plain.Spec.Router = "go_router"
+	files, _ = Generate(plain)
+	if !bytes.Contains(byPath(files)["pubspec.yaml"].Data, []byte("dependency_overrides:\n  plux_flutter:\n    path: /repo/packages/plux_flutter")) {
+		t.Error("a router adapter at a path needs the runtime at the same path, or pub cannot solve the versions")
+	}
 }
 
 // TestEveryDeviceAPIIsMapped checks the permissions table against the

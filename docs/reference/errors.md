@@ -1684,6 +1684,38 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Choose a time that does not overlap another rollout.
 
+### PLX-3500
+
+`BACKGROUND_SYNC_FAILED` · error · Background sync failed
+
+**Cause.** A sync that the operating system started in the background could not complete: the server was unreachable, a download failed, or the time the system grants a background task ran out (SYN-014). The cause is in the error's details.
+
+**Fix.** The device keeps its current release and the next foreground start or background run tries again; check the device's connectivity and the server's health.
+
+### PLX-3501
+
+`BACKGROUND_SYNC_NOT_CONFIGURED` · error · Background sync not configured
+
+**Cause.** The app asked for a background sync but the host app did not declare the platform task, such as the iOS background task identifier or the Android work request, that the system needs to start it (SYN-014).
+
+**Fix.** Declare the background task in the host app as the runtime's integration guide describes, or turn background sync off in the app's sync settings.
+
+### PLX-3502
+
+`BACKGROUND_SYNC_CONSTRAINTS_UNMET` · warning · Background sync constraints not met
+
+**Cause.** A background sync was skipped because a constraint of the app's sync settings did not hold, such as an unmetered network, charging, or battery not low (SYN-014).
+
+**Fix.** Nothing to change: the sync runs when the constraints hold; relax the constraints in the app's sync settings if it runs too rarely.
+
+### PLX-3503
+
+`STAGED_RELEASE_VERIFICATION_FAILED` · error · Staged release verification failed
+
+**Cause.** A release downloaded in the background failed verification, so it was discarded and not staged for the next start: a signature, hash or size did not match (SYN-014, SEC-052).
+
+**Fix.** Nothing to change in the app: the active release stays; sync again, and check the CDN or proxy if it persists.
+
 ## Runtime rendering and navigation (PLX-4000–4999)
 
 ### PLX-4001
@@ -3447,6 +3479,118 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** A file or directory could not be read or written.
 
 **Fix.** Check that the path exists and is accessible.
+
+### PLX-9200
+
+`DEV_SESSION_EXPIRED` · error · Dev session expired
+
+**Cause.** The dev session reached its lifetime or sat idle for longer than its limits allow, or it was ended, so the server closed its device channel (DEV-002).
+
+**Fix.** Start a new dev session and pair the device again.
+
+### PLX-9201
+
+`PAIRING_TOKEN_EXPIRED` · error · Pairing token expired
+
+**Cause.** The pairing token was presented after its short lifetime ended (DEV-002).
+
+**Fix.** Show a fresh pairing code or QR and pair again.
+
+### PLX-9202
+
+`PAIRING_TOKEN_ALREADY_USED` · error · Pairing token already used
+
+**Cause.** The pairing token has been consumed by an earlier pairing; a token works once (DEV-002).
+
+**Fix.** Show a fresh pairing code or QR and pair again.
+
+### PLX-9203
+
+`DEV_SESSION_ENVIRONMENT_NOT_ALLOWED` · error · Environment not allowed for dev sessions
+
+**Cause.** Dev sessions are only available for environments whose kind is not production (DEV-003).
+
+**Fix.** Create the dev session in a development or staging environment.
+
+### PLX-9204
+
+`DEVICE_NOT_PAIRED` · error · Device not paired
+
+**Cause.** The device is not paired with this dev session, or its pairing was revoked or ended with the session (DEV-002).
+
+**Fix.** Pair the device with the session again.
+
+### PLX-9205
+
+`SOCKET_TICKET_INVALID` · error · Socket ticket invalid
+
+**Cause.** The ticket presented at the WebSocket upgrade is unknown, expired, already used, or bound to another device key (DEV-002).
+
+**Fix.** Pair again to obtain a fresh socket ticket.
+
+### PLX-9206
+
+`DEV_COMMAND_NOT_ALLOWED` · error · Command not allowed
+
+**Cause.** The caller may not send this command to the device, or the command is not allowed for the session's environment or the device's build (DEV-011, DEV-031).
+
+**Fix.** Ask for the permission the command needs, or use a build that allows it.
+
+### PLX-9207
+
+`DEV_PATCH_REJECTED` · error · Patch rejected
+
+**Cause.** The document patch did not validate or compile, so nothing was pushed to the devices; the diagnostics are in the error's details (DEV-010).
+
+**Fix.** Fix the diagnostics and push the patch again.
+
+### PLX-9208
+
+`DEV_SESSION_DEVICE_LIMIT_REACHED` · error · Session device limit reached
+
+**Cause.** The dev session already has as many paired devices as the limit `devSession.devicesPerSession` allows (DEV-002).
+
+**Fix.** End the pairing of a device that is no longer needed, or start another session.
+
+### PLX-9209
+
+`DEV_EVENT_TOO_LARGE` · error · Event too large
+
+**Cause.** A device event exceeds the limit `devtools.eventBytes` and was dropped; the stream records the drop (DEV-021).
+
+**Fix.** Nothing to change: reduce what the event carries, such as the size of a state value.
+
+### PLX-9230
+
+`DEV_BUNDLE_SIGNATURE_INVALID` · error · Dev bundle signature invalid
+
+**Cause.** A bundle pushed to the device in a dev session does not verify against the development root the device pinned when it paired (DEV-003, SEC-052).
+
+**Fix.** Nothing to change on the device: the bundle was refused; pair again if the session's development key changed.
+
+### PLX-9231
+
+`HOT_APPLY_REFUSED` · warning · Hot apply reset state
+
+**Cause.** A pushed patch changed the state schema of a page, so the runtime reset the incompatible scopes instead of keeping them; compatible scopes were kept (DEV-010).
+
+**Fix.** Nothing to change: the stream names the scopes that were reset; reopen the screen to reach the state you want.
+
+### PLX-9232
+
+`DEV_COMMAND_UNSUPPORTED` · error · Command unsupported by this runtime
+
+**Cause.** The device's runtime or build does not implement the command, such as an overlay or a security detection the platform cannot simulate (DEV-011, DEV-031).
+
+**Fix.** Update the host app to a runtime that supports the command.
+
+### PLX-9233
+
+`TRACE_FILE_UNREADABLE` · error · Trace file unreadable
+
+**Cause.** The file is not a trace export: it is not compressed, its header is missing or has a newer format version, or an event is truncated (DEV-021).
+
+**Fix.** Export the trace again, or open it with a newer version of the tool.
 
 ### PLX-9300
 

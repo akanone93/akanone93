@@ -68,6 +68,15 @@ func deviceEventExecutors() []executor {
 				return q.DsrErasePushTokens(ctx, dbgen.DsrErasePushTokensParams{OrganizationID: s.org, DeviceID: s.id})
 			},
 		},
+		{
+			store: "dev_pairing_attempts",
+			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
+				return q.DsrExportDevPairingAttempts(ctx, dbgen.DsrExportDevPairingAttemptsParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
+			},
+			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
+				return q.DsrEraseDevPairingAttempts(ctx, dbgen.DsrEraseDevPairingAttemptsParams{OrganizationID: s.org, DeviceID: s.id})
+			},
+		},
 	}
 }
 
@@ -100,6 +109,15 @@ func deviceStateExecutors() []executor {
 			},
 			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
 				return q.DsrEraseErrorGroupDevices(ctx, dbgen.DsrEraseErrorGroupDevicesParams{OrganizationID: s.org, DeviceID: s.id})
+			},
+		},
+		{
+			store: "dev_session_devices",
+			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
+				return q.DsrExportDevSessionDevices(ctx, dbgen.DsrExportDevSessionDevicesParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
+			},
+			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
+				return q.DsrEraseDevSessionDevices(ctx, dbgen.DsrEraseDevSessionDevicesParams{OrganizationID: s.org, DeviceID: s.id})
 			},
 		},
 		{

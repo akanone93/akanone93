@@ -156,9 +156,19 @@ metadata:
   name: {{ $name }}
   labels:
     {{- include "plux.labels" (dict "root" . "component" "api") | nindent 4 }}
-  {{- with .Values.api.ingress.annotations }}
+  {{- $devSocket := not (empty .Values.devSession.enabledEnvironments) }}
+  {{- $nginx := eq (default "" .Values.api.ingress.className) "nginx" }}
+  {{- if or .Values.api.ingress.annotations (and $devSocket $nginx) }}
   annotations:
+    {{- if and $devSocket $nginx }}
+    {{- /* An idle upgraded /dev/socket connection stays open at least as long as devSession.idleTimeout, so the server closes it first. */}}
+    {{- $hold := add (int (include "plux.durationSeconds" .Values.devSession.idleTimeout)) 30 }}
+    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ $hold | quote }}
+    nginx.ingress.kubernetes.io/proxy-send-timeout: {{ $hold | quote }}
+    {{- end }}
+    {{- with .Values.api.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
 spec:
   {{- with .Values.api.ingress.className }}
@@ -179,5 +189,14 @@ spec:
               service:
                 name: {{ $name }}
                 port: {name: http}
+          {{- if and $devSocket (ne (default "/" .path) "/dev/socket") }}
+          {{- /* The WebSocket upgrade of the dev session (DEV-002) is routed to the api role whatever other paths the host lists. */}}
+          - path: /dev/socket
+            pathType: Exact
+            backend:
+              service:
+                name: {{ $name }}
+                port: {name: http}
+          {{- end }}
     {{- end }}
 {{- end }}

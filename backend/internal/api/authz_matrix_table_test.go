@@ -789,6 +789,36 @@ var matrix = map[string]entry{
 	"IdentityService/RevokeSession":          atPerm(auth.SessionsManage, anyone(&pluxv1.RevokeSessionRequest{Id: unknownID})),
 	"IdentityService/ListAuditEntries":       atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditEntriesRequest{})),
 
+	// DevSessionService: the device's own call is Pair; the permission is
+	// checked where the person creates the session and its pairing token.
+	"DevSessionService/CreateSession": atPerm(auth.DevSessionCreate, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DevSessionServiceCreateSessionRequest{AppId: f.app, EnvironmentId: f.dev}
+	})),
+	"DevSessionService/GetPairing":  atPerm(auth.DevSessionCreate, anyone(&pluxv1.DevSessionServiceGetPairingRequest{SessionId: unknownID})),
+	"DevSessionService/ListDevices": atPerm(auth.DevSessionObserve, anyone(&pluxv1.DevSessionServiceListDevicesRequest{SessionId: unknownID})),
+	"DevSessionService/EndSession":  atPerm(auth.DevSessionCreate, anyone(&pluxv1.DevSessionServiceEndSessionRequest{SessionId: unknownID})),
+	"DevSessionService/PushPatch":   atPerm(auth.DevSessionCreate, anyone(&pluxv1.DevSessionServicePushPatchRequest{SessionId: unknownID})),
+	"DevSessionService/SendCommand": atPerm(auth.DevSessionCreate, anyone(&pluxv1.DevSessionServiceSendCommandRequest{
+		SessionId: unknownID,
+		Command:   &pluxv1.DevSessionServiceSendCommandRequest_CaptureScreenshot{CaptureScreenshot: &pluxv1.CaptureScreenshotCommand{}},
+	})),
+	"DevSessionService/ExportTrace": atPerm(auth.DevSessionObserve, anyone(&pluxv1.DevSessionServiceExportTraceRequest{SessionId: unknownID})),
+	// WatchEvents streams; the call reads the stream as WatchPermissions
+	// does.
+	"DevSessionService/WatchEvents": {kind: needs, perm: auth.DevSessionObserve, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		stream, err := f.w.devSession.WatchEvents(ctx, req(c, &pluxv1.DevSessionServiceWatchEventsRequest{SessionId: unknownID}))
+		if err != nil {
+			return err //nolint:wrapcheck // the code is what the test reads
+		}
+		defer func() { _ = stream.Close() }()
+		if !stream.Receive() {
+			return stream.Err() //nolint:wrapcheck // the code is what the test reads
+		}
+		return nil
+	}},
+
 	// The device's side: a person's session never satisfies these.
 	"DeviceService/RegisterDevice":              {kind: deviceRPC, build: anyone(&pluxv1.RegisterDeviceRequest{})},
 	"DeviceService/ReportInstalled":             {kind: deviceRPC, build: anyone(&pluxv1.ReportInstalledRequest{})},
@@ -804,6 +834,8 @@ var matrix = map[string]entry{
 	"GatewayService/Call":                       {kind: deviceRPC, build: anyone(&pluxv1.CallRequest{})},
 	"ScaService/CreateTransactionChallenge":     {kind: deviceRPC, build: anyone(&pluxv1.CreateTransactionChallengeRequest{})},
 	"FunctionService/Invoke":                    {kind: deviceRPC, build: anyone(&pluxv1.FunctionServiceInvokeRequest{})},
+	"DevSessionService/Pair":                    {kind: deviceRPC, build: anyone(&pluxv1.DevSessionServicePairRequest{})},
+	"DevSessionService/RenewSocketTicket":       {kind: deviceRPC, build: anyone(&pluxv1.DevSessionServiceRenewSocketTicketRequest{})},
 }
 
 // variants are calls of an RPC that need more than the RPC's own entry

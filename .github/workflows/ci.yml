@@ -1752,6 +1752,229 @@ jobs:
         if: always()
         run: cat "$PLUX_BENCH_SYNC_OUT" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
 
+  # The dev loop's latency (NFR-030, DEV-010): the server and transport part,
+  # measured apart from the device's so a regression is attributable. Path-
+  # selected, and on the daily and manual runs (P10 plan, section 2.3).
+  bench-devloop:
+    name: Dev loop benchmark
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['bench-devloop']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: plux_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PLUX_TEST_DATABASE_URL: postgres://plux:plux@127.0.0.1:5432/plux_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      - name: Create the application role
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d plux_test -v ON_ERROR_STOP=1 -c \
+            "CREATE ROLE plux LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'plux'; GRANT CONNECT, CREATE, TEMPORARY ON DATABASE plux_test TO plux; ALTER SCHEMA public OWNER TO plux;"
+      # Verifies: NFR-030, DEV-010.
+      - name: Edit-to-device latency over good_wifi
+        run: make bench-devloop
+
+  # The device's share of the dev loop (NFR-030, DEV-010): applying a signed
+  # one-page dev bundle. Path-selected, and on the daily and manual runs.
+  bench-devapply:
+    name: Dev apply benchmark
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['bench-devapply']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Resolve the pub workspace
+        run: flutter pub get
+      # Verifies: NFR-030, DEV-010.
+      - name: Dev bundle apply time
+        run: make bench-devapply
+
+  # The scripted debugging session (exit criterion X2): plux dev against an
+  # in-process server, a simulated device on the real dev socket.
+  devloop-session:
+    name: Dev loop session
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['devloop-session']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: plux_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PLUX_TEST_DATABASE_URL: postgres://plux:plux@127.0.0.1:5432/plux_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      - name: Create the application role
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d plux_test -v ON_ERROR_STOP=1 -c \
+            "CREATE ROLE plux LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'plux'; GRANT CONNECT, CREATE, TEMPORARY ON DATABASE plux_test TO plux; ALTER SCHEMA public OWNER TO plux;"
+      # Verifies: DEV-041, DEV-021, DEV-020, FN-036.
+      - name: Scripted debugging session
+        run: make devloop-session
+
+  # The quick start's scripted steps that need no device, timed (HST-034,
+  # DX-001): plux create, pub get and analyze, validate and build.
+  quickstart-dry-run:
+    name: Quick start dry run
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['quickstart-dry-run']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      # Verifies: HST-034, DX-001.
+      - name: Quick start without a device
+        run: make quickstart-dry-run
+
   # What plux_flutter adds to release builds: the blank app of test/size
   # with and without it (RT-061, ADR-0036); and, in a parallel job, the
   # release builds of the starter app and Plux Bank checked for dev tooling
@@ -2212,6 +2435,10 @@ jobs:
       - e2e-ios
       - bench-runtime
       - bench-sync
+      - bench-devloop
+      - bench-devapply
+      - devloop-session
+      - quickstart-dry-run
       - size-android
       - size-ios
       - studio

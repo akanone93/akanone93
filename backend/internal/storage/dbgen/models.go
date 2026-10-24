@@ -446,6 +446,53 @@ type Delta struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type DevPairingAttempt struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	DeviceID       string
+	At             pgtype.Timestamptz
+}
+
+type DevPairingToken struct {
+	TokenHash      []byte
+	OrganizationID pgtype.UUID
+	SessionID      pgtype.UUID
+	ExpiresAt      pgtype.Timestamptz
+	ConsumedAt     pgtype.Timestamptz
+	Code           *string
+}
+
+type DevSession struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	EnvironmentKey string
+	CreatedByUser  string
+	CreatedByKind  string
+	CreatedByID    string
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
+	LastActivityAt pgtype.Timestamptz
+	EndedAt        pgtype.Timestamptz
+}
+
+type DevSessionDevice struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	SessionID       pgtype.UUID
+	DeviceID        string
+	DpopThumbprint  string
+	Name            string
+	Platform        string
+	RuntimeVersion  string
+	PairedAt        pgtype.Timestamptz
+	RevokedAt       pgtype.Timestamptz
+	TicketHash      []byte
+	TicketExpiresAt pgtype.Timestamptz
+}
+
 type Device struct {
 	ID                    pgtype.UUID
 	OrganizationID        pgtype.UUID

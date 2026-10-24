@@ -50,7 +50,7 @@ release-notes: ## Print release notes for COMPONENT (backend, plux_flutter, plux
 
 ##@ Repository
 
-repo-check: spec-lint trace catalogue-check workflows-lint reuse-lint hygiene ## Specification, traceability, workflows, licensing, hygiene
+repo-check: spec-lint trace catalogue-check workflows-lint reuse-lint hygiene release-inspect-selftest ## Specification, traceability, workflows, licensing, hygiene
 
 spec-lint: ## Check the specification's internal consistency (QA-073)
 	$(REQTRACE) lint
@@ -72,6 +72,10 @@ workflows-lint: ## Lint GitHub Actions workflows (actionlint, zizmor)
 
 reuse-lint: ## Check licensing and copyright information (REUSE)
 	reuse lint
+
+# Verifies: SEC-074, DEV-050.
+release-inspect-selftest: ## Run the release inspection on a leaky and a clean fixture; needs no SDK (SEC-074)
+	bash test/release/inspect_selftest.sh
 
 hygiene: ## Run the file hygiene hooks on every file
 	@for hook in $(HYGIENE_HOOKS); do pre-commit run "$$hook" --all-files; done

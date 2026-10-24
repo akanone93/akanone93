@@ -5,7 +5,19 @@
 ///
 /// Wrap the app with [PluxDevtools] to see the sync status, the active
 /// release and the problems the runtime reported. It renders nothing in
-/// release builds. The page node tree arrives with the renderer.
+/// release builds. A [PluxDevSession] pairs the host's own debug build with a
+/// dev session (DEV-040), so it gets the Dev app's capabilities.
 library;
 
+export 'src/dev_session.dart'
+    show
+        PluxDevError,
+        PluxDevEvents,
+        PluxDevIdle,
+        PluxDevJoined,
+        PluxDevPaired,
+        PluxDevPairer,
+        PluxDevPairingNow,
+        PluxDevSession,
+        PluxDevSessionState;
 export 'src/devtools_overlay.dart' show PluxDevtools, describeSyncEvent;

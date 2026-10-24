@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/action_error.dart';
+import 'package:plux_flutter/src/actions/clock.dart';
 import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/actions/trace.dart';
 import 'package:plux_flutter/src/actions/triggers.dart';
@@ -44,6 +45,7 @@ import 'package:plux_flutter/src/core/plux_view.dart';
 import 'package:plux_flutter/src/core/trigger_sources.dart';
 import 'package:plux_flutter/src/data/client.dart' show AuthSession;
 import 'package:plux_flutter/src/data/live_config.dart' show ConfigSource;
+import 'package:plux_flutter/src/data/mocks.dart';
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/worker.dart';
 import 'package:plux_flutter/src/db/adapter.dart';
@@ -52,6 +54,14 @@ import 'package:plux_flutter/src/db/release_declarations.dart';
 import 'package:plux_flutter/src/db/service.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
+import 'package:plux_flutter/src/devtools_api/dev_channel.dart';
+import 'package:plux_flutter/src/devtools_api/dev_commands.dart';
+import 'package:plux_flutter/src/devtools_api/dev_events.dart';
+import 'package:plux_flutter/src/devtools_api/dev_overlay.dart';
+import 'package:plux_flutter/src/devtools_api/dev_pairing.dart';
+import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show DevCommandHandler, DevEventSink, kPluxDevtools;
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/experiments/experiment_service.dart';
@@ -91,6 +101,7 @@ import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
+import 'package:plux_flutter/src/state/scope_state.dart' show ScopeModel;
 import 'package:plux_flutter/src/store/baseline.dart';
 import 'package:plux_flutter/src/store/control_store.dart';
 import 'package:plux_flutter/src/store/kv_store.dart';
@@ -99,11 +110,15 @@ import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/store/sealed_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/background_sync.dart';
+import 'package:plux_flutter/src/sync/background_sync_entry.dart';
 import 'package:plux_flutter/src/sync/control_sync.dart' show ControlOutcome;
+import 'package:plux_flutter/src/sync/device_auth.dart';
 import 'package:plux_flutter/src/sync/device_targeting.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
+import 'package:plux_flutter/src/sync/sync_lock.dart';
 import 'package:plux_flutter/src/sync/sync_worker.dart';
 import 'package:plux_flutter/src/telemetry/recorder.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
@@ -147,7 +162,17 @@ final class RuntimeOverrides {
     this.secure = const SecurePlatforms(),
     this.userAuthSigner,
     this.controlTimer,
+    this.backgroundSync,
+    this.syncLock,
   });
+
+  /// The platform scheduler of background sync (SYN-014); the platform's
+  /// when null.
+  final BackgroundSyncPlatform? backgroundSync;
+
+  /// The process-wide sync lock shared with background sync (SYN-014); the
+  /// platform's when null.
+  final SyncLock? syncLock;
 
   /// Makes the timer of the foreground control checks (SYN-060); a timer of
   /// the root zone, every five minutes, when null.
@@ -396,6 +421,36 @@ final class PluxRuntime with WidgetsBindingObserver {
         flushInterval,
         (_) => unawaited(rt._inForeground ? rt.flushTelemetry() : null),
       );
+      if (!reconstructing) {
+        final rootDocument = await bundledRoot;
+        unawaited(
+          rt._applyBackgroundSync(
+            () => BackgroundSyncDescriptor(
+              storeRoot: root,
+              endpoint: config.endpoint,
+              appId: config.appId,
+              environment: config.environment,
+              channel: config.channel,
+              keys: [for (final k in keys) k.toTrustedKey()],
+              rootDocument: rootDocument,
+              pins: config.pins,
+              hostBuild: config.hostBuild,
+              parallelism: config.downloadParallelism,
+              diskQuota: config.diskQuota ?? PluxLimit.deviceDiskQuota.max,
+              credentialName:
+                  'device.${_safe(config.appId)}.${_safe(config.environment)}'
+                      .toLowerCase(),
+              locale: (config.locale ?? ui.PlatformDispatcher.instance.locale)
+                  .toLanguageTag(),
+              pixelRatio: assets.pixelRatio,
+              avif: assets.avif,
+              cloudProjectNumber: config.playIntegrityCloudProjectNumber,
+              enrolSca: config.strongCustomerAuthentication,
+              deviceFunctions: config.functionEngine != null,
+            ),
+          ),
+        );
+      }
       return (rt, startup);
     } finally {
       task.finish();
@@ -628,6 +683,20 @@ final class PluxRuntime with WidgetsBindingObserver {
     ),
   );
 
+  /// The mock selection of a dev session (`DAT-080`, `DEV-031`); only builds
+  /// with `kPluxDevtools` give it to the data layer.
+  final MutableDataMocks dataMocks = MutableDataMocks();
+
+  /// The clock a dev session fixes and advances (`DEV-031`).
+  final FakeableActionClock devClock = FakeableActionClock();
+
+  /// The clock the action engine runs on: the dev session's in builds with
+  /// `kPluxDevtools`, the real one in every other.
+  ActionClock get actionClock => kPluxDevtools ? devClock : const ActionClock();
+
+  /// The locale, theme and text scale a dev session previews (`DEV-011`).
+  final DevPreviewOverrides devPreview = DevPreviewOverrides();
+
   /// The data layer's services (ADR-0048): loads and failures of data
   /// sources become trigger events (ACT-002).
   late final DataServices _dataServices = DataServices(
@@ -638,6 +707,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     environment: config.environment,
     record: telemetry.record,
     report: _report,
+    mocks: kPluxDevtools ? dataMocks : const DataMocks(),
     events: DataTriggers(triggers),
     ioEvents: DataTriggers(triggers),
     streamTransport: _dataWorker,
@@ -953,6 +1023,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     // (SEC-142).
     data: reconstructing ? null : _dataServices,
     secureUi: secureUi,
+    devStateTap: kPluxDevtools ? _devState : null,
     pinnedMedia: () => settings.value.flag(SecuritySetting.pinnedMediaOnly),
     actions: ActionServices(
       router: router,
@@ -964,6 +1035,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       ),
       triggers: triggers,
       traces: traces,
+      clock: actionClock,
       sync: () => unawaited(sync().then((_) {}, onError: (Object _) {})),
       logout: logout,
       services: {
@@ -1213,6 +1285,23 @@ final class PluxRuntime with WidgetsBindingObserver {
       return false;
     }
     return _openTarget(r, target);
+  }
+
+  /// Opens [route] with [params] on the host's navigator, through its
+  /// guards, as a deep link would (`DEV-011`); false, reported, when it
+  /// cannot be opened.
+  Future<bool> openRoute(String route, Map<String, Object?> params) async {
+    final r = active.value;
+    if (r == null) {
+      _report(
+        const PluxException(
+          PluxErrorCode.navigationRefused,
+          'no release yet to open a route of',
+        ),
+      );
+      return false;
+    }
+    return _openTarget(r, (route: route, params: params));
   }
 
   /// Opens the route a notification's [payload] names under the app's
@@ -1650,7 +1739,12 @@ final class PluxRuntime with WidgetsBindingObserver {
     final forward = _events.stream.listen(progress.add);
     Future<SyncResult> run() async {
       try {
-        final r = await _worker.sync(_emit, context: _syncContext());
+        // The context is read when the sync is asked for, not after the
+        // lock is held: by then the host may have moved on.
+        final context = _syncContext();
+        final r = await _syncLock.guard(
+          () => _worker.sync(_emit, context: context),
+        );
         if (r.settings != null) settings.value = r.settings!;
         if (r.assurance != null) {
           assurance.value = math.min(r.assurance!, _assuranceCeiling);
@@ -1672,6 +1766,11 @@ final class PluxRuntime with WidgetsBindingObserver {
 
     return SyncRun(run(), progress.stream);
   }
+
+  late final ForegroundSyncLock _syncLock = ForegroundSyncLock(
+    overrides.syncLock ?? const ChannelSyncLock(),
+    onWarning: (m) => developer.log(m, name: 'plux', level: 900),
+  );
 
   void _emit(SyncEvent e) {
     lastEvent.value = e;
@@ -1736,6 +1835,133 @@ final class PluxRuntime with WidgetsBindingObserver {
     await _load();
     final seq = active.value?.sequence;
     if (seq != null) _emit(SyncActivated(seq));
+  }
+
+  /// Pairs this app with the dev session of [pairing], a scanned link or a
+  /// typed code (`DEV-040`, `DEV-002`).
+  ///
+  /// Builds the overlay applier over this runtime's store and active
+  /// release, verified against [devRootKeys] (the development keys the host
+  /// pinned, never the production ones), the command handler over this
+  /// runtime, and a device token of its own on the UI isolate, then pairs.
+  /// [extensions] carry out the commands of later slices. Throws a
+  /// [StateError] in a build without devtools (`DEV-050`) or before the
+  /// runtime is connected to its container.
+  Future<PluxDevPairing> pairDevSession(
+    DevPairingCredential pairing, {
+    required List<PluxPublicKey> devRootKeys,
+    Map<String, DevCommandHandler> extensions = const {},
+    String deviceName = '',
+  }) async {
+    if (!kPluxDevtools) {
+      throw StateError('the dev channel is not part of this build');
+    }
+    final container = _container;
+    if (container == null) {
+      throw StateError('the runtime is not connected to its container');
+    }
+    final applier = DevOverlayApplier(
+      storeRoot: _root,
+      active: active,
+      app: config.appId,
+      environment: config.environment,
+      channel: config.channel,
+      devRootKeys: [for (final k in devRootKeys) k.toTrustedKey()],
+      limits: _limits,
+      supportsFeature: features.supports,
+      runtimeVersion: PluxRuntimeInfo.version,
+      reloadProduction: _load,
+      resetScopes: (page, scopes) {
+        // App and plugin scopes restart; page and component scopes are
+        // rebuilt from the overlay release when its pages render again.
+        if (scopes.contains('app')) {
+          container.read(appStateProvider.notifier).restart();
+        }
+      },
+      report: _report,
+      live: () => control.value,
+      facts: _targetingFacts,
+    );
+    final commands = RuntimeDevCommands(
+      runtime: this,
+      container: container,
+      extensions: extensions,
+    );
+    final api = PluxApiClient(_httpClient(), config.endpoint);
+    final auth = DeviceAuth(
+      api: api,
+      keys: (overrides.deviceKeys ?? PlatformDeviceKeys.new)(),
+      attestation: (overrides.attestation ?? _platformAttestation(config))(),
+      credentials: (overrides.credentials ?? _platformCredentials(config))(),
+      appId: config.appId,
+      environment: config.environment,
+      device: DeviceInfo(
+        platform: Platform.operatingSystem,
+        osVersion: deviceOsVersion(Platform.operatingSystemVersion),
+        runtimeVersion: PluxRuntimeInfo.version,
+        hostBuild: config.hostBuild,
+      ),
+    );
+    try {
+      final channel = await DevChannel.pair(
+        pairing,
+        api: api,
+        token: await auth.token(),
+        applier: applier,
+        commands: commands,
+        deviceName: deviceName,
+        platform: Platform.operatingSystem,
+      );
+      streamDevEvents(channel);
+      return PluxDevPairing(
+        channel: channel,
+        applier: applier,
+        onClose: stopDevEvents,
+      );
+    } on Object {
+      await applier.discard();
+      rethrow;
+    }
+  }
+
+  DevEventBridge? _devBridge;
+
+  /// The bridge that streams this runtime's events to a dev session, or null
+  /// while none is paired (DEV-020).
+  DevEventBridge? get devBridge => _devBridge;
+
+  void _devState(
+    ScopeModel model,
+    Map<String, Object?> previous,
+    Map<String, Object?> next,
+  ) => _devBridge?.stateTap(model, previous, next);
+
+  /// Streams every runtime event source to [sink] until [stopDevEvents]
+  /// (DEV-020, ACT-030, FN-036): network calls, function calls, state
+  /// changes, action traces, problems, log lines, sync stages and frame
+  /// timings. Replaces an earlier sink. Does nothing without
+  /// [kPluxDevtools].
+  void streamDevEvents(DevEventSink sink) {
+    if (!kPluxDevtools) return;
+    stopDevEvents();
+    final bridge = DevEventBridge(
+      diagnostics: diagnostics,
+      stateDiffBytes: limit(PluxLimit.devtoolsStateDiffBytes),
+    );
+    _devBridge = bridge;
+    if (!reconstructing) _dataServices.client.devTap = bridge.networkTap;
+    _functions.devTap = bridge.functionTap;
+    bridge.attach(sink);
+  }
+
+  /// Stops streaming and clears every tap.
+  void stopDevEvents() {
+    final bridge = _devBridge;
+    if (bridge == null) return;
+    _devBridge = null;
+    if (!reconstructing) _dataServices.client.devTap = null;
+    _functions.devTap = null;
+    bridge.detach();
   }
 
   StorePointer _reopen() => ReleaseStore.open(_store.root).pointer;
@@ -1887,8 +2113,55 @@ final class PluxRuntime with WidgetsBindingObserver {
     }
   }
 
+  /// Schedules or cancels the background sync task as the configuration
+  /// says (SYN-014). A refusal is reported and never fails the start.
+  Future<void> _applyBackgroundSync(
+    BackgroundSyncDescriptor Function() descriptor,
+  ) async {
+    final sync = config.backgroundSync;
+    try {
+      if (sync.enabled && config.httpClient != null) {
+        throw const PluxException(
+          PluxErrorCode.backgroundSyncFailed,
+          'background sync uses the platform HTTP client and cannot run '
+          'with PluxConfig.httpClient',
+        );
+      }
+      await BackgroundSyncScheduler(
+        platform:
+            overrides.backgroundSync ?? const ChannelBackgroundSyncPlatform(),
+        storeRoot: _root,
+      ).apply(
+        sync,
+        descriptor: descriptor,
+        callbackHandle: () {
+          final handle = ui.PluginUtilities.getCallbackHandle(
+            pluxBackgroundSyncMain,
+          );
+          if (handle == null) {
+            throw const PluxException(
+              PluxErrorCode.backgroundSyncFailed,
+              'the background entry point has no callback handle',
+            );
+          }
+          return handle.toRawHandle();
+        },
+      );
+    } on PluxException catch (e) {
+      _report(e);
+    } on Object catch (e) {
+      _report(
+        PluxException(
+          PluxErrorCode.backgroundSyncFailed,
+          'background sync cannot be scheduled: ${e.runtimeType}',
+        ),
+      );
+    }
+  }
+
   void _report(PluxException e) {
     developer.log(e.toString(), name: 'plux');
+    _devBridge?.logger.log(DevLogLevel.error, 'runtime', e.toString());
     diagnostics.record(e);
     telemetry.error(e);
     // A pin mismatch is a security event of its own (SEC-041): the host
@@ -1901,6 +2174,7 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// Stops the sync isolate and releases every mapping.
   Future<void> dispose() async {
+    stopDevEvents();
     detachSecurity();
     disconnect();
     secureUi.dispose();

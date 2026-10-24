@@ -119,6 +119,11 @@ func (w *world) seedDevice(x tenant) string {
 	w.exec(x.org, `INSERT INTO error_groups (id, organization_id, app_id, release_sequence, fingerprint, code, plugin_key, route, node_path, frames, fatal, first_seen, last_seen)
 		VALUES ($1, $2, $3, 1, $4, 'PLX-4020', 'home', '/', '/', '', false, now(), now())`, group, o, a, d)
 	w.exec(x.org, `INSERT INTO error_group_devices (group_id, organization_id, device_id) VALUES ($1, $2, $3)`, group, o, dev)
+	session := storage.MustUUID(w.id())
+	w.exec(x.org, `INSERT INTO dev_sessions (id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at)
+		VALUES ($1, $2, $3, $4, 'development', 'u', 'user', 'u', 'U', now(), now() + interval '1 hour', now())`, session, o, a, e)
+	w.exec(x.org, `INSERT INTO dev_session_devices (id, organization_id, session_id, device_id, dpop_thumbprint, paired_at) VALUES ($1, $2, $3, $4, 'jkt', now())`,
+		storage.MustUUID(w.id()), o, session, d)
 	w.exec(x.org, `INSERT INTO device_sca_keys (device_id, organization_id, public_key, jkt, key_storage, attestation_provider) VALUES ($1, $2, '\x02', 'jkt', 'hardware', 'none')`, dev, o)
 	w.exec(x.org, `INSERT INTO device_push_tokens (device_id, organization_id, app_id, environment_id, provider, ciphertext, wrapped_key, key_id) VALUES ($1, $2, $3, $4, 'fcm', '\x03', '\x04', 'k1')`, dev, o, a, e)
 	w.exec(x.org, `INSERT INTO telemetry_events (id, organization_id, app_id, environment_id, device_id, name, time) VALUES ($1, $2, $3, $4, $5, 'open', now())`,
@@ -159,7 +164,7 @@ func (w *world) count(x tenant, table, column, id string) int {
 // deviceTables are the stores a device is erased from, with their key column.
 var deviceTables = map[string]string{
 	"telemetry_events": "device_id", "analytics_events": "device_id", "device_push_tokens": "device_id",
-	"device_sca_keys": "device_id", "device_tokens": "device_id", "device_bundles": "device_id", "error_group_devices": "device_id", "devices": "id",
+	"device_sca_keys": "device_id", "device_tokens": "device_id", "device_bundles": "device_id", "error_group_devices": "device_id", "dev_session_devices": "device_id", "devices": "id",
 }
 
 // userTables are the stores a user is erased from, with their key column.

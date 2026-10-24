@@ -430,3 +430,13 @@ Prints {"crt": ..., "key": ...}.
 {{- randAlphaNum 32 -}}
 {{- end -}}
 {{- end -}}
+
+{{- /*
+A duration of whole seconds, minutes or hours ("120s", "2m", "1h") in seconds.
+The values schema admits no other form.
+*/ -}}
+{{- define "plux.durationSeconds" -}}
+{{- $unit := regexFind "[smh]$" . -}}
+{{- $n := int (trimSuffix $unit .) -}}
+{{- if eq $unit "h" -}}{{ mul $n 3600 }}{{- else if eq $unit "m" -}}{{ mul $n 60 }}{{- else -}}{{ $n }}{{- end -}}
+{{- end -}}

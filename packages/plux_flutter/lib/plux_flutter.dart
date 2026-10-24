@@ -61,6 +61,32 @@ export 'src/device/types.dart'
         PluxPickedFile,
         PluxPosition,
         PluxScanResult;
+export 'src/devtools_api/dev_channel.dart'
+    show
+        DevChannel,
+        DevEngineConfig,
+        DevEngineHandle,
+        DevEngineHost,
+        DevEngineStarter,
+        DevPairingCode,
+        DevPairingCredential,
+        DevPairingLink,
+        DevSocketAuth;
+export 'src/devtools_api/dev_console.dart' show DevPxlCompiler;
+export 'src/devtools_api/dev_extensions.dart' show devExtensions;
+export 'src/devtools_api/dev_network.dart' show DevNetworkSimulation;
+export 'src/devtools_api/dev_nodes.dart' show DevNodeHost, DevNodeScope;
+export 'src/devtools_api/dev_overlays.dart' show DevToolsLayer;
+export 'src/devtools_api/dev_pairing.dart' show PluxDevPairing;
+export 'src/devtools_api/dev_screenshot.dart' show DevCaptureBoundary;
+export 'src/devtools_api/dev_session.dart'
+    show
+        DevApplyResult,
+        DevBundle,
+        DevBundleApplier,
+        DevCommandHandler,
+        DevEventSink,
+        kPluxDevtools;
 export 'src/devtools_api/diagnostics.dart'
     show PluxDiagnostic, PluxDiagnostics, PluxPluginInfo, PluxReleaseInfo;
 export 'src/errors/plux_exception.dart' show PluxErrorCode, PluxException;
@@ -113,6 +139,7 @@ export 'src/pxl/builtins.dart' show isIbanNumber;
 export 'src/pxl/decimal.dart' show Decimal;
 export 'src/pxl/phone.dart'
     show isPhoneRegion, isValidPhone, phoneCallingCode, phoneRegions;
+export 'src/pxl/program.dart' show Program;
 export 'src/pxl/values.dart' show Money, PxlDate, PxlDateTime, civilFromDays;
 export 'src/reconstruction/reconstruction.dart'
     show
@@ -192,6 +219,7 @@ export 'src/security/security_config.dart'
         SecuritySettings;
 export 'src/store/kv_store.dart'
     show SecretStore, StoreException, StoreFailure, installationKey;
+export 'src/sync/background_sync_config.dart' show BackgroundSyncConfig;
 export 'src/sync/sync_event.dart'
     show
         SyncActivated,

@@ -84,6 +84,15 @@ The catalogue is grouped as area, feature, action (`GOV-002`). A restriction pol
 |---|---|---|---|---|---|---|
 | `compliance.report` | `report` | Generate and read compliance reports. | medium |  | organization | yes |
 
+### Area `devsession`
+
+#### Feature `devsession`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `devsession.create` | `create` | Create a dev session, pair devices with it and send patches and commands to them. | medium |  | environment |  |
+| `devsession.observe` | `observe` | Watch and export the event stream of a dev session and list its devices. | medium |  | environment | yes |
+
 ### Area `dsr`
 
 #### Feature `dsr`
@@ -376,6 +385,8 @@ A role holds exactly the permissions marked below; there is no inheritance.
 | `backup.manage` | ✓ |  |  |  |  |  |  |  |  |  |
 | `breakglass.invoke` | ✓ |  | ✓ |  |  |  |  |  |  |  |
 | `compliance.report` | ✓ |  |  |  |  |  |  | ✓ | ✓ |  |
+| `devsession.create` | ✓ | ✓ |  | ✓ |  |  |  |  |  |  |
+| `devsession.observe` | ✓ | ✓ |  | ✓ |  |  |  |  | ✓ | ✓ |
 | `dsr.manage` | ✓ |  |  |  |  |  |  | ✓ |  |  |
 | `environment.manage` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `experiments.manage` | ✓ |  | ✓ |  |  |  |  |  |  |  |

@@ -62,11 +62,14 @@ func (g *Graph) add(e Edge) { g.Edges = append(g.Edges, e) }
 // finish sorts the edges and removes duplicates, so the graph is a
 // function of the project only.
 func (g *Graph) finish() {
-	slices.SortFunc(g.Edges, func(a, b Edge) int {
-		return cmp.Or(cmp.Compare(a.From, b.From), cmp.Compare(a.Kind, b.Kind), cmp.Compare(a.To, b.To),
-			cmp.Compare(a.File, b.File), cmp.Compare(a.Path, b.Path))
-	})
+	slices.SortFunc(g.Edges, compareEdges)
 	g.Edges = slices.Compact(g.Edges)
+}
+
+// compareEdges orders edges as a finished graph lists them.
+func compareEdges(a, b Edge) int {
+	return cmp.Or(cmp.Compare(a.From, b.From), cmp.Compare(a.Kind, b.Kind), cmp.Compare(a.To, b.To),
+		cmp.Compare(a.File, b.File), cmp.Compare(a.Path, b.Path))
 }
 
 // UsesOf returns the edges pointing at target.

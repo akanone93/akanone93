@@ -82,3 +82,14 @@ Found while building S9; the decision above stands, these change how it is carri
   capture, overlays and accessibility services follow the moment and lower nothing on the
   server. Tokens already issued keep their level until they expire (at most 15 minutes);
   the runtime caps its own level at once.
+
+## Revision (2026-10-22, P10: development mode)
+
+Decided by the maintainer (P10 plan D-8; ADR-0091). In the Plux Dev app, in development
+environments only, `plux_security` runs in a **report-only development mode**: each detection
+(root, hooking, debugger, emulator, repackaging, installer, screen capture, overlay,
+accessibility) is reported in the dev stream but does not lower the assurance level and does
+not trigger `degrade` or `block`. A dev command simulates a detection of a chosen kind so plugin
+authors can test how secure pages and SCA steps react. The mode exists only in debug and Dev-app
+builds and only for development environments; behaviour in production, and every response setting
+above, is unchanged.

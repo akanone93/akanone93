@@ -410,6 +410,28 @@ List<int> installedDigest(Map<String, String> installed) {
   return sha256.convert(utf8.encode(lines.toString())).bytes;
 }
 
+/// What `DevSessionService.Pair` answers.
+final class DevPairing {
+  /// Creates the answer.
+  const DevPairing({
+    required this.sessionId,
+    required this.deviceId,
+    required this.socketTicket,
+  });
+
+  /// The dev session.
+  final String sessionId;
+
+  /// The device's identifier inside the session.
+  final String deviceId;
+
+  /// The single-use ticket for the dev socket; never logged (SEC-092).
+  final String socketTicket;
+
+  @override
+  String toString() => 'DevPairing($sessionId, $deviceId, [redacted])';
+}
+
 /// The device API client.
 final class PluxApiClient {
   /// Creates a client for the server at [endpoint], which may carry a
@@ -808,6 +830,49 @@ final class PluxApiClient {
     installedReport(deviceId, sequence, context),
     token: token,
   );
+
+  /// Pairs this device with a dev session using the single-use
+  /// [pairingToken] it scanned, or the short [pairingCode] a person typed
+  /// instead (DEV-002); exactly one is given. The answer carries the ticket
+  /// the device presents once at the dev socket's upgrade.
+  Future<DevPairing> devPair(
+    DeviceToken token, {
+    String pairingToken = '',
+    String pairingCode = '',
+    String name = '',
+    String platform = '',
+    String runtimeVersion = '',
+    Uint8List? attestation,
+  }) async {
+    final r = await _call('plux.v1.DevSessionService/Pair', {
+      if (pairingToken.isNotEmpty) 'pairingToken': pairingToken,
+      if (pairingCode.isNotEmpty) 'pairingCode': pairingCode,
+      if (name.isNotEmpty) 'name': name,
+      if (platform.isNotEmpty) 'platform': platform,
+      if (runtimeVersion.isNotEmpty) 'runtimeVersion': runtimeVersion,
+      if (attestation != null && attestation.isNotEmpty)
+        'attestation': base64.encode(attestation),
+    }, token: token);
+    return DevPairing(
+      sessionId: r['sessionId'] as String? ?? '',
+      deviceId: r['deviceId'] as String? ?? '',
+      socketTicket: r['socketTicket'] as String? ?? '',
+    );
+  }
+
+  /// A new single-use socket ticket for a device paired with the dev
+  /// session [sessionId], to reconnect with (DEV-021, ADR-0087).
+  Future<String> devRenewSocketTicket(
+    DeviceToken token, {
+    required String sessionId,
+    required String deviceId,
+  }) async {
+    final r = await _call('plux.v1.DevSessionService/RenewSocketTicket', {
+      'sessionId': sessionId,
+      'deviceId': deviceId,
+    }, token: token);
+    return r['socketTicket'] as String? ?? '';
+  }
 
   /// The report that release [sequence] is active on [deviceId] (SEC-142),
   /// sent on its own or with a telemetry upload.

@@ -2,7 +2,7 @@ name: plux_security
 description: >-
   Runtime application self-protection for Plux apps: detects rooted, hooked,
   debugged, repackaged and otherwise hostile devices and responds by policy.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_security
 # Not published until its release is wired (release.yml, pub.dev).
 publish_to: none

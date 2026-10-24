@@ -14,7 +14,9 @@ import 'package:plux_flutter/src/core/runtime.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/secure/secure_ui.dart';
 import 'package:plux_flutter/src/state/providers.dart';
+import 'package:plux_flutter/src/sync/background_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
+import 'package:plux_flutter/src/sync/sync_lock.dart';
 
 import '../sync/fake_device.dart';
 import '../sync/fake_server.dart';
@@ -76,6 +78,9 @@ final class Harness {
     ProviderContainer? container,
     http.Client Function()? client,
     PluxFunctionEngine? functionEngine,
+    BackgroundSyncConfig backgroundSync = const BackgroundSyncConfig(),
+    BackgroundSyncPlatform? backgroundPlatform,
+    bool platformHttp = false,
   }) async {
     server.release = null;
     final baseline = await server.baseline(5, app, plugins);
@@ -92,7 +97,7 @@ final class Harness {
           ),
         ],
         storageDirectory: dir,
-        httpClient: client ?? _client,
+        httpClient: platformHttp ? null : client ?? _client,
         themeSource: themeSource,
         onError: (e, _) => errors.add(e),
         fallbackBuilder: (_, e) =>
@@ -110,8 +115,10 @@ final class Harness {
         widgetPackages: widgetPackages,
         container: container,
         functionEngine: functionEngine,
+        backgroundSync: backgroundSync,
       ),
       RuntimeOverrides(
+        syncLock: InMemorySyncLock(),
         credentials: MemoryCredentialStore.new,
         deviceKeys: FakeDeviceKeys.new,
         attestation: FakeAttestation.new,
@@ -122,6 +129,7 @@ final class Harness {
         encryptLocalStores: encryptLocalStores,
         keyWrapper: keyWrapper,
         secure: secure,
+        backgroundSync: backgroundPlatform,
       ),
     );
   }

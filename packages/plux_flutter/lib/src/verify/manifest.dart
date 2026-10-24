@@ -153,6 +153,18 @@ final class SecurityConfigRef {
   final Uint8List sha256;
 }
 
+/// The dev session a development manifest belongs to (DEV-003, SEC-056).
+/// A release manifest never carries it.
+final class DevelopmentSessionRef {
+  const DevelopmentSessionRef._(this.sessionId, this.sequenceSpace);
+
+  /// The dev session's identifier.
+  final String sessionId;
+
+  /// The number of the development sequence the bundle belongs to.
+  final int sequenceSpace;
+}
+
 /// A verified manifest: the fields of its signed part, and the bytes.
 final class VerifiedManifest {
   const VerifiedManifest._({
@@ -167,6 +179,7 @@ final class VerifiedManifest {
     required this.plugins,
     required this.control,
     this.config,
+    this.developmentSession,
   });
 
   /// The canonical bytes the signatures cover.
@@ -203,6 +216,10 @@ final class VerifiedManifest {
   /// (SEC-182).
   final SecurityConfigRef? config;
 
+  /// The dev session of a development manifest; null in every release
+  /// manifest (SEC-056).
+  final DevelopmentSessionRef? developmentSession;
+
   /// The app bundle followed by every plugin bundle.
   Iterable<BundleRef> get bundles sync* {
     yield appBundle;
@@ -225,6 +242,7 @@ final class VerificationContext {
     required this.runtimeVersion,
     required this.supportsFeature,
     this.maxSize = 1 << 20,
+    this.development = false,
   });
 
   /// The embedded keys.
@@ -253,6 +271,12 @@ final class VerificationContext {
 
   /// The largest signed document accepted, in bytes.
   final int maxSize;
+
+  /// Whether the manifest is a development manifest: one that must carry
+  /// `developmentSession` and is verified under development keys. A
+  /// release context, the default, refuses a manifest that carries it
+  /// (SEC-056).
+  final bool development;
 }
 
 /// Verifies a manifest's [signed] bytes and [signatures] in [context], in
@@ -273,6 +297,13 @@ Future<VerifiedManifest> verifyManifest(
     throw _invalid('no signature verifies under an embedded targets key');
   }
   final m = parseManifest(signed);
+  if (context.development != (m.developmentSession != null)) {
+    throw _invalid(
+      context.development
+          ? 'a development manifest carries no developmentSession'
+          : 'a release manifest must not carry developmentSession',
+    );
+  }
   if (m.app != context.app ||
       m.environment != context.environment ||
       m.channel != context.channel) {
@@ -400,12 +431,22 @@ VerifiedManifest parseManifest(Uint8List signed) {
         control['message'] as String? ?? '',
       ),
       config: _configRef(m['config']),
+      developmentSession: _developmentSession(m['developmentSession']),
     );
   } on TypeError {
     throw _invalid('a field of the manifest is missing or of the wrong type');
   } on FormatException {
     throw _invalid('a time of the manifest is not RFC 3339');
   }
+}
+
+DevelopmentSessionRef? _developmentSession(Object? json) {
+  if (json == null) return null;
+  final d = json as Map<String, Object?>;
+  return DevelopmentSessionRef._(
+    d['sessionId']! as String,
+    d['sequenceSpace']! as int,
+  );
 }
 
 SecurityConfigRef? _configRef(Object? json) {

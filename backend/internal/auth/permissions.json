@@ -122,6 +122,28 @@
       "readOnly": true
     },
     {
+      "name": "devsession.create",
+      "description": "Create a dev session, pair devices with it and send patches and commands to them.",
+      "area": "devsession",
+      "feature": "devsession",
+      "action": "create",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "devsession.observe",
+      "description": "Watch and export the event stream of a dev session and list its devices.",
+      "area": "devsession",
+      "feature": "devsession",
+      "action": "observe",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "environment",
+      "readOnly": true
+    },
+    {
       "name": "dsr.manage",
       "description": "Handle data-subject requests: search, export and erase personal data.",
       "area": "dsr",

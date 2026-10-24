@@ -293,6 +293,23 @@ const (
 	ComplianceReportCreated Action = "compliance.report_created"
 )
 
+// The actions of dev sessions (DEV-002, DEV-003, ADR-0087).
+const (
+	// DevSessionCreated: a dev session was opened for a non-production
+	// environment.
+	DevSessionCreated Action = "devsession.created"
+	// DevSessionPaired: a device paired with a dev session.
+	DevSessionPaired Action = "devsession.paired"
+	// DevSessionEnded: a dev session was ended and its devices unpaired.
+	DevSessionEnded Action = "devsession.ended"
+	// DevSessionCommandSent: a command was sent to the devices of a dev
+	// session; the entry names the command's kind, never its values.
+	DevSessionCommandSent Action = "devsession.command_sent"
+	// DevSessionPatched: a patch to the draft was pushed to a dev session's
+	// devices as a development bundle; the entry names documents by ID.
+	DevSessionPatched Action = "devsession.patched"
+)
+
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
 const (
 	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
@@ -448,6 +465,7 @@ var actions = sorted(
 	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,
 	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
 	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
+	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionCommandSent, DevSessionPatched,
 )
 
 // sorted returns its arguments in order.

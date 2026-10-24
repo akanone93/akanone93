@@ -79,9 +79,20 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `db.kvBytes` | bytes | 262144 | 80% | 16777216 | installation, organization, app, plugin | P5 | DB-009, LIM-004 | Bytes the key-value store of one plugin may hold, encoded; a write beyond it fails with a typed error. |
 | `db.queryRows` | count | 1000 | 80% | 100000 | installation, organization, app, plugin | P5 | DB-006 | Records one query or watched query returns at most, whatever its limit asks for. |
 | `db.recordBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app, plugin | P5 | DB-006, LIM-004 | Bytes one record of a local collection may take, encoded as JSON. |
+| `devSession.commandsPerMinute` | count | 120 | 80% | 1200 | installation, organization, app | P10 | DEV-011, DEV-031 | Commands one dev session may send to its devices per minute. |
+| `devSession.devicesPerSession` | count | 5 | 80% | 20 | installation, organization, app | P10 | DEV-002 | Devices that may be paired to one dev session at the same time. |
+| `devSession.idleMinutes` | count | 30 | 80% | 480 | installation, organization, app | P10 | DEV-001 | Minutes without any device event or command after which the server ends a dev session. |
+| `devSession.lifetimeMinutes` | count | 480 | 80% | 1440 | installation, organization, app | P10 | DEV-001 | Lifetime of a dev session, in minutes, from its creation. |
+| `devSession.pairingCodeAttempts` | count | 5 | 80% | 5 | installation, organization, app | P10 | DEV-002 | Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes. |
+| `devSession.pairingTokenSeconds` | count | 120 | 80% | 120 | installation, organization, app | P10 | DEV-002 | Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows. |
+| `devSession.patchBytes` | bytes | 1048576 | 80% | 8388608 | installation, organization, app | P10 | DEV-010 | Size of the document patches of one PushPatch call. |
 | `device.clipboardChars` | count | 10000 | 80% | 100000 | installation, organization, app | P5 | SEC-080, LIM-004 | Characters copyToClipboard may put on the clipboard in one step. |
 | `device.diskQuota` | bytes | 209715200 | 80% | 4294967296 | installation, organization, app | P3 | SYN-012 | Disk space the runtime may use for releases on one device. |
 | `device.pickCount` | count | 10 | 80% | 100 | installation, organization, app | P5 | SEC-080, LIM-004 | Files a single pickImage or pickFile step may return. |
+| `devtools.eventBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P10 | DEV-021 | Size of one stream event; a larger event is dropped and counted. |
+| `devtools.stateDiffBytes` | bytes | 16384 | 80% | 262144 | installation, organization, app | P10 | DEV-020 | Size of the state diff in one stream event; a larger diff is replaced by the names of the changed paths. |
+| `devtools.streamBufferBytes` | bytes | 8388608 | 80% | 67108864 | installation, organization, app | P10 | DEV-021 | Bytes a device and the server relay each buffer per paired device before they drop the oldest and count the drop. |
+| `devtools.streamBufferEvents` | count | 5000 | 80% | 100000 | installation, organization, app | P10 | DEV-021 | Events a device and the server relay each buffer per paired device before they drop the oldest and count the drop. |
 | `document.fileSize` | bytes | 8388608 | 80% | 67108864 | installation, organization | P1 | SCH-006 | Size of one document file in the project layout, checked before parsing. |
 | `document.jsonDepth` | count | 512 | 80% | 4096 | installation | P1 | SCH-003 | Nesting of arrays and objects in one document, checked while parsing. |
 | `document.stringPropSize` | bytes | 65536 | 80% | 1048576 | installation, organization, app, plugin | P1 | SCH-005 | Size of one string prop value, in UTF-8 bytes. |
@@ -159,6 +170,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `securityConfig.patchBytes` | bytes | 16384 | 80% | 262144 | installation, organization, app | P6 | SEC-182, LIM-004 | Bytes of a security configuration patch, encoded. |
 | `state.persistedBytes` | bytes | 1048576 | 80% | 16777216 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the persisted state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
 | `state.secureBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
+| `sync.backgroundIntervalMinutes` | count | 360 | 80% | 1440 | installation, organization, app | P10 | SYN-014 | Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant. |
 | `telemetry.batchBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P9 | ANL-010 | Bytes one telemetry batch may carry on the wire after decompression. |
 | `telemetry.bufferBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P3 | ANL-002 | The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first. |
 | `telemetry.eventsPerDevicePerHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | ANL-010 | Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts. |

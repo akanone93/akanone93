@@ -15,17 +15,20 @@ device held, exactly as shipped, with a signed manifest of the moment. The serve
 nothing. The viewer downloads the release and hands it to `Plux.initialize` through
 `PluxConfig.reconstruction`; the runtime verifies it before it loads anything (`SEC-052`).
 
+The sign-in, API client, link, controller, root-key reader and release opener are in
+[`packages/plux_host_kit`](../../packages/plux_host_kit/README.md), shared with the Dev app
+(P10 D-6). The viewer keeps the screens and its production root keys.
+
 | Path | Contents |
 |---|---|
 | `lib/main.dart` | the controller, the link receiver, then the app |
-| `lib/src/link.dart` | `ViewerLink`: parses `plux-viewer://reconstruction/<id>?server=<url>` |
-| `lib/src/api.dart` | `ViewerApi`: the ConnectRPC JSON calls (sign-in, lists, `GetReconstruction`, `GetRootKeys` for the signed root chain, bundle download) |
-| `lib/src/root_keys.dart` | the root keys the viewer is built with (`PLUX_VIEWER_ROOT_KEYS`) |
-| `lib/src/device_sign_in.dart` | the device authorization grant (RFC 8628) |
-| `lib/src/controller.dart` | the session (in memory) and the link waiting to be opened |
+| `lib/src/production_roots.dart` | the production root keys the viewer is built with (`PLUX_VIEWER_ROOT_KEYS`), passed to the kit |
 | `lib/src/sign_in_screen.dart`, `list_screen.dart`, `reconstruction_screen.dart` | the three screens |
-| `lib/src/opener.dart` | `ReconstructionOpener`: release, root chain, bundles, `Plux.initialize`, `Plux.dispose` |
-| `lib/src/viewer_app.dart` | the app, and `ViewerLinks`, which hands platform links to the controller |
+| `lib/src/viewer_app.dart` | the app |
+| kit: `api.dart` | `ViewerApi`: the ConnectRPC JSON calls (sign-in, lists, `GetReconstruction`, `GetRootKeys` for the signed root chain, bundle download) |
+| kit: `link.dart`, `links.dart` | `ViewerLink`: parses `plux-viewer://reconstruction/<id>?server=<url>`; `ViewerLinks` hands platform links to the controller |
+| kit: `device_sign_in.dart`, `controller.dart` | the device authorization grant (RFC 8628); the session (in memory) and the link waiting to be opened |
+| kit: `opener.dart`, `root_keys.dart` | `ReconstructionOpener`: release, root chain, bundles, `Plux.initialize`, `Plux.dispose`, with the root keys the host passes; `parseRootKeys` |
 
 ## The trust anchor: root keys pinned at build time
 

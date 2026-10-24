@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_security/src/detection.dart';
 import 'package:plux_security/src/detector.dart';
+import 'package:plux_security/src/dev_mode.dart';
 import 'package:plux_security/src/response.dart';
 
 /// What is in force now: the detections and the response to each.
@@ -109,7 +110,20 @@ final class PluxSecurity implements PluxSecurityModule {
     PluxRaspExpectations? expectations,
     this.policy = const PluxRaspPolicy(),
     this.scanInterval,
-  }) : expectations = expectations ?? PluxRaspExpectations();
+    this.mode = PluxSecurityMode.production,
+    this.environment = productionEnvironment,
+    @visibleForTesting bool devtools = kPluxDevtools,
+  }) : expectations = expectations ?? PluxRaspExpectations(),
+       developmentRefusal = refuseDevelopmentMode(
+         mode,
+         devtools: kPluxDevtools && devtools,
+         environment: environment,
+       ) {
+    final warning = developmentRefusal;
+    if (warning != null) {
+      developer.log(warning, name: 'plux_security', level: 900);
+    }
+  }
 
   final PluxRaspDetector _detector;
 
@@ -123,6 +137,31 @@ final class PluxSecurity implements PluxSecurityModule {
   /// often than the `raspScanInterval` setting asks; the setting applies
   /// otherwise (SEC-182).
   final Duration? scanInterval;
+
+  /// How detections are treated; [PluxSecurityMode.developmentReportOnly]
+  /// only takes effect when [developmentMode] is true.
+  final PluxSecurityMode mode;
+
+  /// The environment key of the runtime's `PluxConfig.environment`, which
+  /// the development mode checks; `production` unless the host says
+  /// otherwise.
+  final String environment;
+
+  /// Why the requested [mode] was refused, or null when it runs. A refused
+  /// development mode is logged as a warning and the module runs as
+  /// [PluxSecurityMode.production].
+  final String? developmentRefusal;
+
+  /// Whether the report-only development mode runs (DEV-001): requested,
+  /// in a build with `kPluxDevtools` and in a non-production environment.
+  bool get developmentMode =>
+      kPluxDevtools &&
+      mode == PluxSecurityMode.developmentReportOnly &&
+      developmentRefusal == null;
+
+  /// Where the development mode reports detections as `securityDetection`
+  /// dev events; the Dev app sets it once its dev session is up.
+  DevEventSink? devEventSink;
 
   final ValueNotifier<PluxSecurityStatus> _status = ValueNotifier(
     PluxSecurityStatus.clear,
@@ -219,9 +258,13 @@ final class PluxSecurity implements PluxSecurityModule {
 
   /// Recomputes the status, reports the [fresh] detections and applies the
   /// assurance ceiling.
-  void _publish(List<PluxDetectionKind> fresh) {
+  void _publish(List<PluxDetectionKind> fresh, {bool simulated = false}) {
     final host = _host;
     if (host == null) return;
+    if (developmentMode) {
+      _publishReportOnly(fresh, simulated);
+      return;
+    }
     final settings = host.settings.value;
     final responses = {
       for (final k in _active.keys) k: policy.responseFor(k, settings),
@@ -245,5 +288,39 @@ final class PluxSecurity implements PluxSecurityModule {
     // say nothing the platform's attestation could confirm.
     if (fresh.any((k) => k.sticky)) unawaited(host.requestReattestation());
     if (status != _status.value) _status.value = status;
+  }
+
+  /// The development mode's side of [_publish] (DEV-001, ADR-0057 Revision
+  /// 2026-10-22): the detections are in the status and in the dev stream,
+  /// and every response is [PluxRaspResponse.report]. Nothing is reported
+  /// to the server, no ceiling is set and the device does not attest again,
+  /// so the assurance level the server sees is unchanged.
+  void _publishReportOnly(List<PluxDetectionKind> fresh, bool simulated) {
+    final sink = devEventSink;
+    for (final kind in fresh) {
+      sink?.emit({
+        'securityDetection': {
+          'kind': devKindName(kind),
+          if (simulated) 'simulated': true,
+          'response': PluxRaspResponse.report.name,
+        },
+      });
+    }
+    final status = PluxSecurityStatus(_active, {
+      for (final k in _active.keys) k: PluxRaspResponse.report,
+    });
+    if (status != _status.value) _status.value = status;
+  }
+
+  /// Injects a detection of [kind] through the pipeline the real detectors
+  /// use, as the `simulateSecurityDetection` dev command does (DEV-001). It
+  /// is reported to [devEventSink] as simulated and follows the kind's
+  /// stickiness like a real finding. Returns false, and does nothing, when
+  /// the development mode does not run or the module is not attached.
+  bool simulateDetection(PluxDetectionKind kind) {
+    if (!developmentMode || _host == null) return false;
+    _active[kind] = PluxDetection(kind, const ['simulated']);
+    _publish([kind], simulated: true);
+    return true;
   }
 }

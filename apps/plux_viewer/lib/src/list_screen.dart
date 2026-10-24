@@ -8,7 +8,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:plux_viewer/src/api.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 
 /// A reconstruction with the name of its app.
 typedef ListedReconstruction = ({AppSummary app, ReconstructionSummary item});

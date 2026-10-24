@@ -1,0 +1,60 @@
+{
+  "$schema": "./network-profiles.schema.json",
+  "$comment": "The network profiles a dev session can apply to a paired device (DEV-031). Generated code: make gen writes backend/internal/netsim/profiles_gen.go and packages/plux_flutter/lib/src/devtools_api/network_profiles.g.dart.",
+  "profiles": [
+    {
+      "id": "good_wifi",
+      "description": "A good Wi-Fi connection; the simulation adds nothing noticeable.",
+      "latencyMs": 20,
+      "jitterMs": 5,
+      "downKbitPerSecond": 30000,
+      "upKbitPerSecond": 15000,
+      "lossPercent": 0
+    },
+    {
+      "id": "offline",
+      "description": "No network: every request fails as if the device had no connection.",
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "downKbitPerSecond": 0,
+      "upKbitPerSecond": 0,
+      "lossPercent": 100
+    },
+    {
+      "id": "2g",
+      "description": "A 2G connection (EDGE class).",
+      "latencyMs": 650,
+      "jitterMs": 150,
+      "downKbitPerSecond": 50,
+      "upKbitPerSecond": 20,
+      "lossPercent": 3
+    },
+    {
+      "id": "3g",
+      "description": "A congested 3G connection, the slow network of section 30.1.",
+      "latencyMs": 300,
+      "jitterMs": 50,
+      "downKbitPerSecond": 750,
+      "upKbitPerSecond": 250,
+      "lossPercent": 1
+    },
+    {
+      "id": "high_latency",
+      "description": "A fast link with a long round trip, such as a satellite connection.",
+      "latencyMs": 800,
+      "jitterMs": 200,
+      "downKbitPerSecond": 5000,
+      "upKbitPerSecond": 2000,
+      "lossPercent": 0
+    },
+    {
+      "id": "packet_loss",
+      "description": "A decent link that loses one packet in ten.",
+      "latencyMs": 80,
+      "jitterMs": 20,
+      "downKbitPerSecond": 2000,
+      "upKbitPerSecond": 1000,
+      "lossPercent": 10
+    }
+  ]
+}

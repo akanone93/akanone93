@@ -209,6 +209,12 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.LicenseInvalid:                  connect.CodePermissionDenied,
 	plxerr.LicenseExpired:                  connect.CodePermissionDenied,
 	plxerr.LicenseLimitExceeded:            connect.CodePermissionDenied,
+	plxerr.DevSessionExpired:               connect.CodeFailedPrecondition,
+	plxerr.PairingTokenExpired:             connect.CodeFailedPrecondition,
+	plxerr.PairingTokenUsed:                connect.CodeFailedPrecondition,
+	plxerr.DevSessionEnvironment:           connect.CodeFailedPrecondition,
+	plxerr.SocketTicketInvalid:             connect.CodeUnauthenticated,
+	plxerr.DevSessionDeviceLimit:           connect.CodeResourceExhausted,
 
 	// The server failed.
 	plxerr.InternalServerError: connect.CodeInternal,

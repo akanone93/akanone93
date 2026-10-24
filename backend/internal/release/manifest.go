@@ -74,6 +74,30 @@ type SignedManifest struct {
 	// manifest was signed; it is absent while the environment has only
 	// the built-in defaults (SEC-182).
 	Config *SignedConfig `json:"config,omitempty"`
+	// DevelopmentSession is present only in the manifest of a dev
+	// session's bundle, never in a release's (DEV-003, SEC-056).
+	DevelopmentSession *SignedDevelopmentSession `json:"developmentSession,omitempty"`
+}
+
+// SignedDevelopmentSession names the dev session a development manifest
+// belongs to and the sequence space its release sequence counts in.
+type SignedDevelopmentSession struct {
+	SessionID     string `json:"sessionId"`
+	SequenceSpace uint64 `json:"sequenceSpace"`
+}
+
+// CanonicalManifest renders the signed part of a manifest as RFC 8785
+// canonical JSON, the bytes its signatures cover.
+func CanonicalManifest(doc SignedManifest) ([]byte, error) {
+	plain, err := json.Marshal(doc)
+	if err != nil {
+		return nil, fmt.Errorf("release: %w", err)
+	}
+	signed, err := jcs.Canonicalize(plain, manifestDepth)
+	if err != nil {
+		return nil, fmt.Errorf("release: %w", err)
+	}
+	return signed, nil
 }
 
 // SignedConfig names a version of the device document of the security
@@ -249,13 +273,9 @@ func (s *Service) signRelease(ctx context.Context, q *dbgen.Queries, channel dbg
 	if err != nil {
 		return pgtype.UUID{}, err
 	}
-	plain, err := json.Marshal(doc)
+	signed, err := CanonicalManifest(doc)
 	if err != nil {
-		return pgtype.UUID{}, fmt.Errorf("release: %w", err)
-	}
-	signed, err := jcs.Canonicalize(plain, manifestDepth)
-	if err != nil {
-		return pgtype.UUID{}, fmt.Errorf("release: %w", err)
+		return pgtype.UUID{}, err
 	}
 	sigs, err := s.SignDocument(ctx, q, env, signed)
 	if err != nil {

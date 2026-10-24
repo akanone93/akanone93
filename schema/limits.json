@@ -1408,6 +1408,140 @@
       "description": "Bytes one record of a local collection may take, encoded as JSON."
     },
     {
+      "key": "devSession.commandsPerMinute",
+      "unit": "count",
+      "default": 120,
+      "max": 1200,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-011",
+        "DEV-031"
+      ],
+      "description": "Commands one dev session may send to its devices per minute."
+    },
+    {
+      "key": "devSession.devicesPerSession",
+      "unit": "count",
+      "default": 5,
+      "max": 20,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-002"
+      ],
+      "description": "Devices that may be paired to one dev session at the same time."
+    },
+    {
+      "key": "devSession.idleMinutes",
+      "unit": "count",
+      "default": 30,
+      "max": 480,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-001"
+      ],
+      "description": "Minutes without any device event or command after which the server ends a dev session."
+    },
+    {
+      "key": "devSession.lifetimeMinutes",
+      "unit": "count",
+      "default": 480,
+      "max": 1440,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-001"
+      ],
+      "description": "Lifetime of a dev session, in minutes, from its creation."
+    },
+    {
+      "key": "devSession.pairingCodeAttempts",
+      "unit": "count",
+      "default": 5,
+      "max": 5,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-002"
+      ],
+      "description": "Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes."
+    },
+    {
+      "key": "devSession.pairingTokenSeconds",
+      "unit": "count",
+      "default": 120,
+      "max": 120,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-002"
+      ],
+      "description": "Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows."
+    },
+    {
+      "key": "devSession.patchBytes",
+      "unit": "bytes",
+      "default": 1048576,
+      "max": 8388608,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-010"
+      ],
+      "description": "Size of the document patches of one PushPatch call."
+    },
+    {
       "key": "device.clipboardChars",
       "unit": "count",
       "default": 10000,
@@ -1465,6 +1599,85 @@
         "LIM-004"
       ],
       "description": "Files a single pickImage or pickFile step may return."
+    },
+    {
+      "key": "devtools.eventBytes",
+      "unit": "bytes",
+      "default": 65536,
+      "max": 1048576,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "runtime"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-021"
+      ],
+      "description": "Size of one stream event; a larger event is dropped and counted."
+    },
+    {
+      "key": "devtools.stateDiffBytes",
+      "unit": "bytes",
+      "default": 16384,
+      "max": 262144,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "runtime"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-020"
+      ],
+      "description": "Size of the state diff in one stream event; a larger diff is replaced by the names of the changed paths."
+    },
+    {
+      "key": "devtools.streamBufferBytes",
+      "unit": "bytes",
+      "default": 8388608,
+      "max": 67108864,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "runtime"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-021"
+      ],
+      "description": "Bytes a device and the server relay each buffer per paired device before they drop the oldest and count the drop."
+    },
+    {
+      "key": "devtools.streamBufferEvents",
+      "unit": "count",
+      "default": 5000,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "runtime"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "DEV-021"
+      ],
+      "description": "Events a device and the server relay each buffer per paired device before they drop the oldest and count the drop."
     },
     {
       "key": "document.fileSize",
@@ -2980,6 +3193,25 @@
         "LIM-004"
       ],
       "description": "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."
+    },
+    {
+      "key": "sync.backgroundIntervalMinutes",
+      "unit": "count",
+      "default": 360,
+      "max": 1440,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "runtime"
+      ],
+      "phase": "P10",
+      "requirements": [
+        "SYN-014"
+      ],
+      "description": "Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant."
     },
     {
       "key": "telemetry.batchBytes",

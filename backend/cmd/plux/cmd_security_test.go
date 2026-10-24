@@ -107,6 +107,7 @@ attestationOutageGrace           3600                    profile
 confidentialBundles              optional                profile
 confidentialMinAssurance         AL2                     profile
 defaultFunctionAssurance         AL2                     profile
+devSessionRequireStepUp          false                   profile
 deviceFunctions                  true                    profile
 dpopIatWindow                    60                      profile
 dpopIatWindowFallback            15                      profile

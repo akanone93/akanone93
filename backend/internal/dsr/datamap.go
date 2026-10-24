@@ -97,6 +97,11 @@ func deviceStores() []Store {
 			Note: "Export reports that a token is held and its provider; the token itself is never returned.",
 		},
 		{
+			Name: "dev_pairing_attempts", Description: "When a device tried a pairing code, which bounds its failed attempts (DEV-002); dev sessions exist only for non-production environments.",
+			DeviceKey: "device_id", Personal: []string{"device_id"},
+			Retention: "Ten minutes: older attempts are deleted as the device makes new ones, and the rows go with the organisation.", Erase: EraseDelete,
+		},
+		{
 			Name: "device_sca_keys", Description: "The public key a device enrolled for strong customer authentication (SEC-027).",
 			DeviceKey: "device_id", Personal: []string{"device_id", "public_key", "jkt"},
 			Retention: retentionDevice, Erase: EraseDelete,
@@ -121,6 +126,11 @@ func deviceStores() []Store {
 			Name: "device_installs", Description: "What a device reported running over time: release, bundles, channel, locale, device class, theme, text scale and the host's pseudonymous user reference (SEC-142).",
 			DeviceKey: "device_id", Personal: []string{"device_id", "locale", "user_ref"},
 			Retention: "reconstruction.retentionDays, 365 by default; the maintenance sweep deletes older history.", Erase: EraseDelete,
+		},
+		{
+			Name: "dev_session_devices", Description: "The devices paired with a dev session, with the name, platform and runtime version the device reported and the thumbprint of its key (DEV-002); dev sessions exist only for non-production environments.",
+			DeviceKey: "device_id", Personal: []string{"device_id", "dpop_thumbprint", "name"},
+			Retention: "The life of the dev session, at most devSession.lifetimeMinutes; the rows go with the session.", Erase: EraseDelete,
 		},
 		{
 			Name: "reconstructions", Description: "Reconstruction releases of what a device ran and showed at a past moment, with the device and pseudonymous user they name (SEC-142).",

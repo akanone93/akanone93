@@ -10,53 +10,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:plux_flutter/plux_flutter.dart' show PluxPublicKey;
-import 'package:plux_viewer/src/api.dart';
-import 'package:plux_viewer/src/controller.dart';
-import 'package:plux_viewer/src/link.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 import 'package:plux_viewer/src/list_screen.dart';
-import 'package:plux_viewer/src/opener.dart';
+import 'package:plux_viewer/src/production_roots.dart';
 import 'package:plux_viewer/src/reconstruction_screen.dart';
 import 'package:plux_viewer/src/sign_in_screen.dart';
-
-/// Hands the links the platform delivers to a [ViewerController].
-///
-/// A custom-scheme link reaches Flutter as route information, once at launch
-/// (the engine's default route) and again whenever the app is open. The
-/// viewer claims every link of its scheme, valid or not, so that the
-/// framework's own navigator never tries to push it as a route.
-final class ViewerLinks with WidgetsBindingObserver {
-  /// Creates the receiver for [controller].
-  ViewerLinks(this.controller);
-
-  /// Receives the links.
-  final ViewerController controller;
-
-  /// Starts listening, and offers the link the app was launched with, if
-  /// any. [initialRoute] is the engine's default route.
-  void attach(String initialRoute) {
-    WidgetsBinding.instance.addObserver(this);
-    final uri = Uri.tryParse(initialRoute);
-    if (uri != null) offer(uri);
-  }
-
-  /// Stops listening.
-  void detach() => WidgetsBinding.instance.removeObserver(this);
-
-  /// Offers [uri]; whether it was a viewer link, and so is handled.
-  bool offer(Uri uri) {
-    if (!ViewerLink.isViewerUri(uri)) return false;
-    try {
-      controller.offerLink(ViewerLink.parse(uri));
-    } on FormatException catch (e) {
-      controller.rejectLink('That link cannot be opened: ${e.message}.');
-    }
-    return true;
-  }
-
-  @override
-  Future<bool> didPushRouteInformation(RouteInformation routeInformation) =>
-      Future.value(offer(routeInformation.uri));
-}
 
 /// The viewer host.
 final class ViewerApp extends StatefulWidget {
@@ -109,7 +67,12 @@ final class _ViewerAppState extends State<ViewerApp> {
 
   ReconstructionOpener _newOpener(ViewerApi api) =>
       widget.openerFor?.call(api) ??
-      ReconstructionOpener(api, rootKeys: widget.rootKeys);
+      ReconstructionOpener(
+        api,
+        rootKeys: widget.rootKeys,
+        hostBuild: viewerHostBuild,
+        missingKeysMessage: viewerNoRootKeysMessage,
+      );
 
   void _changed() {
     final controller = widget.controller;

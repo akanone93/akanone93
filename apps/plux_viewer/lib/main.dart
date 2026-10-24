@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter/widgets.dart';
+import 'package:plux_host_kit/plux_host_kit.dart';
 import 'package:plux_viewer/viewer.dart';
 
 /// Starts the viewer with the root keys it was built with

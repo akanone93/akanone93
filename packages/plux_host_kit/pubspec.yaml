@@ -1,0 +1,26 @@
+name: plux_host_kit
+description: >-
+  The code Plux host apps share: signing in to a Plux server, link handling,
+  reading pinned root keys and opening a reconstruction release. The host
+  chooses the trusted root keys.
+version: 0.1.0
+repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_host_kit
+# Shared by the repository's own host apps only; never published (P10 D-6).
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.6.0
+  plux_components: ^0.1.0
+  plux_flutter: ^0.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

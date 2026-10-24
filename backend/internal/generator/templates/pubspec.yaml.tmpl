@@ -16,12 +16,28 @@ dependencies:
 {%- else%}
   plux_flutter: {%.RuntimeConstraint%}
 {%- end%}
+{%- range .RouterDeps%}
+{%- if .Path%}
+  {%.Name%}:
+    path: {%.Path%}
+{%- else%}
+  {%.Name%}: {%.Constraint%}
+{%- end%}
+{%- end%}
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
+{%- if and .PluxPath .RouterDeps%}
+
+# The adapters depend on a release of plux_flutter; the checkout is the one
+# the app builds against.
+dependency_overrides:
+  plux_flutter:
+    path: {%.PluxPath%}
+{%- end%}
 
 flutter:
   uses-material-design: true

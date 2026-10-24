@@ -3390,6 +3390,385 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListRequestsResponse'
+  /plux.v1.DevSessionService/CreateSession:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: CreateSession
+      description: |-
+        CreateSession opens a dev session for an app and a non-production
+         environment, and returns it with its first pairing token (DEV-002,
+         DEV-003).
+      operationId: plux.v1.DevSessionService.CreateSession
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceCreateSessionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceCreateSessionResponse'
+  /plux.v1.DevSessionService/EndSession:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: EndSession
+      description: |-
+        EndSession ends a session: its pairing tokens stop working, its sockets
+         close and its devices are unpaired.
+      operationId: plux.v1.DevSessionService.EndSession
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceEndSessionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceEndSessionResponse'
+  /plux.v1.DevSessionService/ExportTrace:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: ExportTrace
+      description: |-
+        ExportTrace returns the session's retained events as a redacted trace
+         file for a bug report (DEV-021).
+      operationId: plux.v1.DevSessionService.ExportTrace
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceExportTraceRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceExportTraceResponse'
+  /plux.v1.DevSessionService/GetPairing:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: GetPairing
+      description: |-
+        GetPairing mints a fresh pairing token for a session. A token is
+         single-use and lives at most `devSession.pairingTokenSeconds`, so a
+         second device needs a second token (DEV-002).
+      operationId: plux.v1.DevSessionService.GetPairing
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceGetPairingRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceGetPairingResponse'
+  /plux.v1.DevSessionService/ListDevices:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: ListDevices
+      description: |-
+        ListDevices lists the devices paired with a session and whether each
+         is connected.
+      operationId: plux.v1.DevSessionService.ListDevices
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceListDevicesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceListDevicesResponse'
+  /plux.v1.DevSessionService/Pair:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: Pair
+      description: |-
+        Pair is called by the device with the pairing token it scanned. It
+         consumes the token, adds the device to the session and returns the
+         short-lived ticket the device presents once at the WebSocket upgrade
+         (DEV-002, PLX-9201, PLX-9202, PLX-9208).
+      operationId: plux.v1.DevSessionService.Pair
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServicePairRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServicePairResponse'
+  /plux.v1.DevSessionService/PushPatch:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: PushPatch
+      description: |-
+        PushPatch applies document patches to the session's draft, compiles
+         the changed pages incrementally, signs the result with the development
+         class and pushes it to every paired device (DEV-010, CMP-051). A patch
+         that does not validate or compile is refused as a whole (PLX-9207).
+      operationId: plux.v1.DevSessionService.PushPatch
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServicePushPatchRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServicePushPatchResponse'
+  /plux.v1.DevSessionService/RenewSocketTicket:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: RenewSocketTicket
+      description: |-
+        RenewSocketTicket gives a paired device a new socket ticket to reconnect
+         with; the device calls it with its access token and a DPoP proof of the
+         key it paired with, while its session is live (DEV-021, PLX-9204).
+      operationId: plux.v1.DevSessionService.RenewSocketTicket
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceRenewSocketTicketRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceRenewSocketTicketResponse'
+  /plux.v1.DevSessionService/SendCommand:
+    post:
+      tags:
+        - plux.v1.DevSessionService
+      summary: SendCommand
+      description: |-
+        SendCommand sends one command to a device, or to every device of the
+         session. The reply says where the command went; each device's answer
+         arrives in the stream as a CommandResultEvent (DEV-011, DEV-031,
+         DEV-032, DEV-033, DEV-034).
+      operationId: plux.v1.DevSessionService.SendCommand
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DevSessionServiceSendCommandRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DevSessionServiceSendCommandResponse'
+  /plux.v1.DevSessionService/WatchEvents: {}
   /plux.v1.DeviceService/ClearPushToken:
     post:
       tags:
@@ -12731,6 +13110,111 @@ components:
           description: preserved_snapshot_id is set when force took the lock.
       title: AcquireLockResponse
       additionalProperties: false
+    plux.v1.ActionStepTrace:
+      type: object
+      properties:
+        stepId:
+          type: string
+          title: step_id
+          description: step_id is the step's identifier in its graph.
+        action:
+          type: string
+          title: action
+          description: |-
+            action is the action the step ran, such as "navigate" or a custom
+             action's name.
+        branch:
+          type: string
+          title: branch
+          description: |-
+            branch is the branch of the graph the step is on: "main", "then",
+             "else", "case:<label>", "onError", "finally", or "parallel:<n>".
+        status:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevRunStatus'
+          title: status
+        startUnixMicros:
+          type: string
+          title: start_unix_micros
+          format: int64
+        durationMicros:
+          type: string
+          title: duration_micros
+          format: int64
+        inputs:
+          type: string
+          title: inputs
+          format: byte
+          description: |-
+            inputs and outputs are the UTF-8 JSON values of the step with every
+             sensitive field replaced by a placeholder (ACT-031). Empty when the
+             step has none or the size limit withheld them.
+        outputs:
+          type: string
+          title: outputs
+          format: byte
+        truncated:
+          type: boolean
+          title: truncated
+          description: |-
+            truncated is true when inputs or outputs were cut to fit
+             `devtools.eventBytes`.
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+      title: ActionStepTrace
+      additionalProperties: false
+      description: ActionStepTrace is one step of an action run.
+    plux.v1.ActionTraceEvent:
+      type: object
+      properties:
+        runId:
+          type: string
+          title: run_id
+        graph:
+          type: string
+          title: graph
+          description: graph names the action graph or the flow that ran.
+        trigger:
+          type: string
+          title: trigger
+          description: |-
+            trigger is what started the run: an event name, "lifecycle", "timer",
+             "deep_link" or "command".
+        nodePath:
+          type: string
+          title: node_path
+          description: node_path is the node whose event started the run, when one did.
+        status:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevRunStatus'
+          title: status
+        startUnixMicros:
+          type: string
+          title: start_unix_micros
+          format: int64
+        endUnixMicros:
+          type: string
+          title: end_unix_micros
+          format: int64
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ActionStepTrace'
+          title: steps
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+          description: error is the failure that ended the run, when one did.
+      title: ActionTraceEvent
+      additionalProperties: false
+      description: |-
+        ActionTraceEvent is the trace of one action run: the process flow of
+         ACT-030. A device sends it when the run ends, and may send earlier
+         versions with status RUNNING while it is under way; a later event of the
+         same run_id replaces an earlier one.
     plux.v1.Actor:
       type: object
       properties:
@@ -13734,6 +14218,13 @@ components:
           title: change
       title: CancelRetentionChangeResponse
       additionalProperties: false
+    plux.v1.CaptureScreenshotCommand:
+      type: object
+      title: CaptureScreenshotCommand
+      additionalProperties: false
+      description: |-
+        CaptureScreenshotCommand captures the screen; the image arrives as a
+         ScreenshotEvent (DEV-033).
     plux.v1.ChangeFreeze:
       type: object
       properties:
@@ -13954,6 +14445,31 @@ components:
       type: object
       title: ClearPushTokenResponse
       additionalProperties: false
+    plux.v1.CommandResultEvent:
+      type: object
+      properties:
+        commandId:
+          type: string
+          title: command_id
+          description: command_id is the identifier SendCommand returned.
+        status:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevCommandStatus'
+          title: status
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+        result:
+          type: string
+          title: result
+          format: byte
+          description: |-
+            result is the UTF-8 JSON result of a command that has one, such as the
+             value of an evaluate_pxl expression, redacted like any state value.
+      title: CommandResultEvent
+      additionalProperties: false
+      description: CommandResultEvent answers a SendCommand call.
     plux.v1.CompareSnapshotsRequest:
       type: object
       properties:
@@ -16076,6 +16592,1148 @@ components:
           title: version
       title: DeployResponse
       additionalProperties: false
+    plux.v1.DevBundleFrame:
+      type: object
+      properties:
+        bundleSequence:
+          type: string
+          title: bundle_sequence
+          format: int64
+          description: |-
+            bundle_sequence is the bundle's number in the session's own sequence
+             space, which never meets the production store's.
+        manifest:
+          type: string
+          title: manifest
+          format: byte
+        sections:
+          type: object
+          title: sections
+          additionalProperties:
+            type: string
+            title: value
+            format: byte
+          description: sections are the section bytes by section ID.
+        incompatibleScopes:
+          type: object
+          title: incompatible_scopes
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/plux.v1.DevScopeList'
+            title: value
+          description: |-
+            incompatible_scopes lists, per page ID, the state scopes whose schema
+             changed (the compiler's verdict); a page absent from the map keeps its
+             state.
+      title: DevBundleFrame
+      additionalProperties: false
+      description: |-
+        DevBundleFrame carries a dev bundle: a manifest signed with the
+         development key of the session's environment and the sections it names.
+    plux.v1.DevCommandFrame:
+      type: object
+      properties:
+        commandId:
+          type: string
+          title: command_id
+          description: command_id is echoed in the device's CommandResultEvent.
+        command:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSessionServiceSendCommandRequest'
+          title: command
+          description: |-
+            command holds the command in its oneof; session_id and device_id are
+             not set.
+      title: DevCommandFrame
+      additionalProperties: false
+      description: DevCommandFrame carries one command to the device.
+    plux.v1.DevCommandStatus:
+      type: string
+      title: DevCommandStatus
+      enum:
+        - DEV_COMMAND_STATUS_UNSPECIFIED
+        - DEV_COMMAND_STATUS_OK
+        - DEV_COMMAND_STATUS_FAILED
+        - DEV_COMMAND_STATUS_UNSUPPORTED
+        - DEV_COMMAND_STATUS_REFUSED
+      description: DevCommandStatus is how a device answered a command.
+    plux.v1.DevDevice:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          description: |-
+            id is the device's identifier inside the session; it is what events
+             and commands name.
+        deviceId:
+          type: string
+          title: device_id
+          description: device_id is the device's registered identifier (DeviceService).
+        name:
+          type: string
+          title: name
+          description: name is the name the device gave when it paired, such as its model.
+        platform:
+          type: string
+          title: platform
+          description: platform is "android" or "ios".
+        runtimeVersion:
+          type: string
+          title: runtime_version
+        pairedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: paired_at
+        lastSeenAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_seen_at
+        connected:
+          type: boolean
+          title: connected
+          description: connected is true while the device's socket is open.
+        lastSequence:
+          type: string
+          title: last_sequence
+          format: int64
+          description: |-
+            last_sequence is the sequence number of the last event the server
+             relayed from the device.
+      title: DevDevice
+      additionalProperties: false
+      description: DevDevice is a device paired with a session.
+    plux.v1.DevDeviceFrame:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            event:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevEvent'
+              title: event
+              description: |-
+                event is something that happened on the device. Its sequence is the
+                 device's own, counted from 1 for the device's first event; the
+                 server replaces it with the session's sequence when it relays it.
+          title: event
+        - type: object
+          properties:
+            hello:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevDeviceHello'
+              title: hello
+              description: hello is the first frame after every upgrade.
+          title: hello
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - event
+              - required:
+                  - hello
+          - not:
+              oneOf:
+                - required:
+                    - event
+                - required:
+                    - hello
+      title: DevDeviceFrame
+      description: DevDeviceFrame is one frame a paired device sends.
+    plux.v1.DevDeviceHello:
+      type: object
+      properties:
+        lastServerSequence:
+          type: string
+          title: last_server_sequence
+          format: int64
+          description: |-
+            last_server_sequence is the last server frame the device carried out;
+             the server sends the frames after it that it still holds.
+        lastAcknowledgedEvent:
+          type: string
+          title: last_acknowledged_event
+          format: int64
+          description: |-
+            last_acknowledged_event is the last device event sequence the device
+             saw acknowledged; it resends from the next one.
+      title: DevDeviceHello
+      additionalProperties: false
+      description: DevDeviceHello resumes a device's stream after a reconnect (DEV-021).
+    plux.v1.DevDocumentPatch:
+      type: object
+      properties:
+        pluginId:
+          type: string
+          title: plugin_id
+        path:
+          type: string
+          title: path
+          description: path is the document's path in the project layout.
+        patch:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PatchOp'
+          title: patch
+        ifRevision:
+          type: string
+          title: if_revision
+          format: int64
+          description: |-
+            if_revision is the revision the writer last read; zero skips the
+             check.
+      title: DevDocumentPatch
+      additionalProperties: false
+      description: DevDocumentPatch is a JSON Patch to one document of the session's draft.
+    plux.v1.DevDropReason:
+      type: string
+      title: DevDropReason
+      enum:
+        - DEV_DROP_REASON_UNSPECIFIED
+        - DEV_DROP_REASON_BUFFER_FULL
+        - DEV_DROP_REASON_EVENT_TOO_LARGE
+      description: DevDropReason says why events were dropped.
+    plux.v1.DevError:
+      type: object
+      properties:
+        code:
+          type: string
+          title: code
+          description: code is the stable "PLX-NNNN" code.
+        reason:
+          type: string
+          title: reason
+          description: reason is the code's stable name.
+        message:
+          type: string
+          title: message
+          description: |-
+            message is the redacted message; it never contains a sensitive value
+             (SEC-092).
+      title: DevError
+      additionalProperties: false
+      description: DevError is a failure as the stream carries it.
+    plux.v1.DevEvent:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            actionTrace:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ActionTraceEvent'
+              title: action_trace
+          title: action_trace
+        - type: object
+          properties:
+            commandResult:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.CommandResultEvent'
+              title: command_result
+          title: command_result
+        - type: object
+          properties:
+            drop:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DropEvent'
+              title: drop
+          title: drop
+        - type: object
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ErrorEvent'
+              title: error
+          title: error
+        - type: object
+          properties:
+            frameTiming:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.FrameTimingEvent'
+              title: frame_timing
+          title: frame_timing
+        - type: object
+          properties:
+            functionCall:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.FunctionCallEvent'
+              title: function_call
+          title: function_call
+        - type: object
+          properties:
+            hotApply:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.HotApplyEvent'
+              title: hot_apply
+          title: hot_apply
+        - type: object
+          properties:
+            inspect:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.InspectEvent'
+              title: inspect
+          title: inspect
+        - type: object
+          properties:
+            log:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.LogEvent'
+              title: log
+          title: log
+        - type: object
+          properties:
+            networkCall:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.NetworkCallEvent'
+              title: network_call
+          title: network_call
+        - type: object
+          properties:
+            screenshot:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ScreenshotEvent'
+              title: screenshot
+          title: screenshot
+        - type: object
+          properties:
+            securityDetection:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.SecurityDetectionEvent'
+              title: security_detection
+          title: security_detection
+        - type: object
+          properties:
+            stateDiff:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.StateDiffEvent'
+              title: state_diff
+          title: state_diff
+        - type: object
+          properties:
+            sync:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.SyncEvent'
+              title: sync
+          title: sync
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - actionTrace
+              - required:
+                  - commandResult
+              - required:
+                  - drop
+              - required:
+                  - error
+              - required:
+                  - frameTiming
+              - required:
+                  - functionCall
+              - required:
+                  - hotApply
+              - required:
+                  - inspect
+              - required:
+                  - log
+              - required:
+                  - networkCall
+              - required:
+                  - screenshot
+              - required:
+                  - securityDetection
+              - required:
+                  - stateDiff
+              - required:
+                  - sync
+          - not:
+              oneOf:
+                - required:
+                    - actionTrace
+                - required:
+                    - commandResult
+                - required:
+                    - drop
+                - required:
+                    - error
+                - required:
+                    - frameTiming
+                - required:
+                    - functionCall
+                - required:
+                    - hotApply
+                - required:
+                    - inspect
+                - required:
+                    - log
+                - required:
+                    - networkCall
+                - required:
+                    - screenshot
+                - required:
+                    - securityDetection
+                - required:
+                    - stateDiff
+                - required:
+                    - sync
+      properties:
+        sequence:
+          type: string
+          title: sequence
+          format: int64
+          description: |-
+            sequence is the position of the event in the session's stream. It
+             grows by one per event the session relays, across all its devices, so
+             a watcher resumes with the last sequence it saw (DEV-021).
+        deviceId:
+          type: string
+          title: device_id
+          description: |-
+            device_id is the session device that produced the event; empty for an
+             event the server produced itself, such as a drop it counted.
+        timeUnixMicros:
+          type: string
+          title: time_unix_micros
+          format: int64
+          description: |-
+            time_unix_micros is the device's clock when the event happened, in
+             microseconds since the Unix epoch. With a faked clock (FakeClockCommand)
+             it is the real time, not the faked one.
+        traceId:
+          type: string
+          title: trace_id
+          description: |-
+            trace_id joins the events of one causal chain: the action run, the
+             network call and the function call it made, and the server-side log
+             lines of that call (DEV-020, FN-036). Empty when the event belongs to
+             no chain.
+      title: DevEvent
+      description: DevEvent is one event of a device's stream.
+    plux.v1.DevEventAck:
+      type: object
+      properties:
+        upTo:
+          type: string
+          title: up_to
+          format: int64
+      title: DevEventAck
+      additionalProperties: false
+      description: DevEventAck acknowledges a device's events.
+    plux.v1.DevLifecycleEvent:
+      type: string
+      title: DevLifecycleEvent
+      enum:
+        - DEV_LIFECYCLE_EVENT_UNSPECIFIED
+        - DEV_LIFECYCLE_EVENT_PAUSE
+        - DEV_LIFECYCLE_EVENT_RESUME
+        - DEV_LIFECYCLE_EVENT_INACTIVE
+        - DEV_LIFECYCLE_EVENT_DETACHED
+        - DEV_LIFECYCLE_EVENT_MEMORY_PRESSURE
+      description: DevLifecycleEvent is a lifecycle event the device simulates.
+    plux.v1.DevLogLevel:
+      type: string
+      title: DevLogLevel
+      enum:
+        - DEV_LOG_LEVEL_UNSPECIFIED
+        - DEV_LOG_LEVEL_TRACE
+        - DEV_LOG_LEVEL_DEBUG
+        - DEV_LOG_LEVEL_INFO
+        - DEV_LOG_LEVEL_WARNING
+        - DEV_LOG_LEVEL_ERROR
+      description: DevLogLevel is the level of a log line.
+    plux.v1.DevLogLine:
+      type: object
+      properties:
+        timeUnixMicros:
+          type: string
+          title: time_unix_micros
+          format: int64
+        level:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevLogLevel'
+          title: level
+        message:
+          type: string
+          title: message
+      title: DevLogLine
+      additionalProperties: false
+      description: DevLogLine is a log line of a function, device-side or server-side.
+    plux.v1.DevOverlay:
+      type: string
+      title: DevOverlay
+      enum:
+        - DEV_OVERLAY_UNSPECIFIED
+        - DEV_OVERLAY_FRAME_CHART
+        - DEV_OVERLAY_REBUILD_COUNTERS
+        - DEV_OVERLAY_TOUCH_TARGETS
+        - DEV_OVERLAY_CONTRAST
+      description: DevOverlay is a debugging overlay.
+    plux.v1.DevPairing:
+      type: object
+      properties:
+        token:
+          type: string
+          title: token
+          description: |-
+            token is the compact signed pairing token. It is a credential: it is
+             shown to the person who asked and to nobody else, and never logged.
+        uri:
+          type: string
+          title: uri
+          description: |-
+            uri is the pairing link the QR code holds:
+             `plux-dev://pair?server=<url>&token=<token>`.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+          description: expires_at is when the token stops working.
+        code:
+          type: string
+          title: code
+          description: |-
+            code is the short code a person may type on the device instead of
+             opening the link: eight Crockford base32 characters shown as
+             XXXX-XXXX. It is a credential like the token, single-use and with the
+             token's expiry, and only pairs a device of the session's organisation,
+             app and environment (DEV-002).
+      title: DevPairing
+      additionalProperties: false
+      description: DevPairing is a pairing token with the ways to show it.
+    plux.v1.DevPatchResult:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          title: device_id
+        status:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevPatchStatus'
+          title: status
+        pagesApplied:
+          type: array
+          items:
+            type: string
+          title: pages_applied
+        scopesReset:
+          type: array
+          items:
+            type: string
+          title: scopes_reset
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+          description: error is why the device refused the bundle, such as PLX-9230.
+      title: DevPatchResult
+      additionalProperties: false
+      description: DevPatchResult is what one device did with a pushed patch.
+    plux.v1.DevPatchStatus:
+      type: string
+      title: DevPatchStatus
+      enum:
+        - DEV_PATCH_STATUS_UNSPECIFIED
+        - DEV_PATCH_STATUS_APPLIED
+        - DEV_PATCH_STATUS_APPLIED_WITH_RESET
+        - DEV_PATCH_STATUS_REFUSED
+        - DEV_PATCH_STATUS_OFFLINE
+      description: DevPatchStatus is the outcome of a push for one device.
+    plux.v1.DevRunStatus:
+      type: string
+      title: DevRunStatus
+      enum:
+        - DEV_RUN_STATUS_UNSPECIFIED
+        - DEV_RUN_STATUS_RUNNING
+        - DEV_RUN_STATUS_SUCCEEDED
+        - DEV_RUN_STATUS_FAILED
+        - DEV_RUN_STATUS_CANCELLED
+        - DEV_RUN_STATUS_SKIPPED
+      description: DevRunStatus is the state of an action run or one of its steps.
+    plux.v1.DevScopeList:
+      type: object
+      properties:
+        scopes:
+          type: array
+          items:
+            type: string
+          title: scopes
+      title: DevScopeList
+      additionalProperties: false
+      description: DevScopeList is a list of state scope names.
+    plux.v1.DevSecurityDetectionKind:
+      type: string
+      title: DevSecurityDetectionKind
+      enum:
+        - DEV_SECURITY_DETECTION_KIND_UNSPECIFIED
+        - DEV_SECURITY_DETECTION_KIND_ROOT
+        - DEV_SECURITY_DETECTION_KIND_HOOKING
+        - DEV_SECURITY_DETECTION_KIND_DEBUGGER
+        - DEV_SECURITY_DETECTION_KIND_EMULATOR
+        - DEV_SECURITY_DETECTION_KIND_REPACKAGING
+        - DEV_SECURITY_DETECTION_KIND_UNTRUSTED_INSTALLER
+        - DEV_SECURITY_DETECTION_KIND_SCREEN_CAPTURE
+        - DEV_SECURITY_DETECTION_KIND_OVERLAY
+        - DEV_SECURITY_DETECTION_KIND_ACCESSIBILITY
+      description: DevSecurityDetectionKind is a detection of `plux_security` (SEC-070).
+    plux.v1.DevServerFrame:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            ack:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevEventAck'
+              title: ack
+              description: ack acknowledges the device's events up to and including a sequence.
+          title: ack
+        - type: object
+          properties:
+            bundle:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevBundleFrame'
+              title: bundle
+              description: bundle is a dev bundle to verify and apply (DEV-010).
+          title: bundle
+        - type: object
+          properties:
+            command:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevCommandFrame'
+              title: command
+              description: command is a command to carry out (DEV-011, DEV-031).
+          title: command
+        - type: object
+          properties:
+            ended:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.DevSessionEnded'
+              title: ended
+              description: ended says the session ended; the server closes the socket after it.
+          title: ended
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - ack
+              - required:
+                  - bundle
+              - required:
+                  - command
+              - required:
+                  - ended
+          - not:
+              oneOf:
+                - required:
+                    - ack
+                - required:
+                    - bundle
+                - required:
+                    - command
+                - required:
+                    - ended
+      properties:
+        sequence:
+          type: string
+          title: sequence
+          format: int64
+          description: sequence numbers the server's frames to the device, from 1.
+      title: DevServerFrame
+      description: DevServerFrame is one frame the server sends a paired device.
+    plux.v1.DevSession:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        createdBy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: created_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+          description: |-
+            expires_at is the end of the session's lifetime,
+             `devSession.lifetimeMinutes` after it was created; the session also
+             ends after `devSession.idleMinutes` without traffic (PLX-9200).
+        endedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: ended_at
+          description: ended_at is set once the session has ended.
+      title: DevSession
+      additionalProperties: false
+      description: DevSession is a dev session.
+    plux.v1.DevSessionEnded:
+      type: object
+      properties:
+        code:
+          type: string
+          title: code
+          description: code is the error code of the reason, such as PLX-9200.
+      title: DevSessionEnded
+      additionalProperties: false
+      description: DevSessionEnded tells a device its session ended.
+    plux.v1.DevSessionServiceCreateSessionRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: DevSessionServiceCreateSessionRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceCreateSessionResponse:
+      type: object
+      properties:
+        session:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSession'
+          title: session
+        pairing:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevPairing'
+          title: pairing
+      title: DevSessionServiceCreateSessionResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceEndSessionRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+      title: DevSessionServiceEndSessionRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceEndSessionResponse:
+      type: object
+      properties:
+        session:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSession'
+          title: session
+      title: DevSessionServiceEndSessionResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceExportTraceRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        deviceIds:
+          type: array
+          items:
+            type: string
+          title: device_ids
+          description: |-
+            device_ids limits the export to these session devices; empty exports
+             all of them.
+      title: DevSessionServiceExportTraceRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceExportTraceResponse:
+      type: object
+      properties:
+        trace:
+          type: string
+          title: trace
+          format: byte
+          description: |-
+            trace is the trace file: a gzip-compressed stream of length-prefixed
+             messages, a TraceFileHeader first and then DevEvent messages. The
+             events are redacted like the live stream.
+        eventCount:
+          type: string
+          title: event_count
+          format: int64
+          description: event_count is the number of events in the file.
+      title: DevSessionServiceExportTraceResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceGetPairingRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+      title: DevSessionServiceGetPairingRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceGetPairingResponse:
+      type: object
+      properties:
+        pairing:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevPairing'
+          title: pairing
+      title: DevSessionServiceGetPairingResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceListDevicesRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+      title: DevSessionServiceListDevicesRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceListDevicesResponse:
+      type: object
+      properties:
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DevDevice'
+          title: devices
+      title: DevSessionServiceListDevicesResponse
+      additionalProperties: false
+    plux.v1.DevSessionServicePairRequest:
+      type: object
+      properties:
+        pairingToken:
+          type: string
+          title: pairing_token
+          description: pairing_token is the token the device scanned.
+        name:
+          type: string
+          title: name
+          description: |-
+            name, platform and runtime_version describe the device for the
+             session's device list.
+        platform:
+          type: string
+          title: platform
+        runtimeVersion:
+          type: string
+          title: runtime_version
+        attestation:
+          type: string
+          title: attestation
+          format: byte
+          description: |-
+            attestation is the device's development attestation, where the
+             platform gives one (DEV-002); empty otherwise.
+        pairingCode:
+          type: string
+          title: pairing_code
+          description: |-
+            pairing_code is the short code the person typed, used when
+             pairing_token is empty; case and dashes do not matter. Setting both is
+             INVALID_ARGUMENT. A device that fails devSession.pairingCodeAttempts
+             times in ten minutes is refused with RATE_LIMITED.
+      title: DevSessionServicePairRequest
+      additionalProperties: false
+    plux.v1.DevSessionServicePairResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        deviceId:
+          type: string
+          title: device_id
+          description: device_id is the device's identifier inside the session.
+        socketTicket:
+          type: string
+          title: socket_ticket
+          description: |-
+            socket_ticket is opaque. The device presents it once at the WebSocket
+             upgrade; it is bound to the device's DPoP key and to the session
+             (PLX-9205).
+        socketTicketExpiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: socket_ticket_expires_at
+          description: socket_ticket_expires_at is when the ticket stops being accepted.
+      title: DevSessionServicePairResponse
+      additionalProperties: false
+    plux.v1.DevSessionServicePushPatchRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        patches:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DevDocumentPatch'
+          title: patches
+          description: |-
+            patches are applied in order, all or none. Their total size is at most
+             `devSession.patchBytes`.
+      title: DevSessionServicePushPatchRequest
+      additionalProperties: false
+    plux.v1.DevSessionServicePushPatchResponse:
+      type: object
+      properties:
+        bundleSha256:
+          type: string
+          title: bundle_sha256
+          description: |-
+            bundle_sha256 is the hash of the development bundle that was pushed,
+             lower-case hex.
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DevPatchResult'
+          title: results
+          description: results holds one entry per paired device.
+        diagnostics:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Diagnostic'
+          title: diagnostics
+          description: |-
+            diagnostics are the findings of validation and compilation, including
+             warnings of an applied patch.
+      title: DevSessionServicePushPatchResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceRenewSocketTicketRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        deviceId:
+          type: string
+          title: device_id
+      title: DevSessionServiceRenewSocketTicketRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceRenewSocketTicketResponse:
+      type: object
+      properties:
+        socketTicket:
+          type: string
+          title: socket_ticket
+          description: socket_ticket is opaque and single-use, like Pair's (PLX-9205).
+        socketTicketExpiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: socket_ticket_expires_at
+      title: DevSessionServiceRenewSocketTicketResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceSendCommandRequest:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            captureScreenshot:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.CaptureScreenshotCommand'
+              title: capture_screenshot
+          title: capture_screenshot
+        - type: object
+          properties:
+            evaluatePxl:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.EvaluatePxlCommand'
+              title: evaluate_pxl
+          title: evaluate_pxl
+        - type: object
+          properties:
+            fakeClock:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.FakeClockCommand'
+              title: fake_clock
+          title: fake_clock
+        - type: object
+          properties:
+            inspectSelect:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.InspectSelectCommand'
+              title: inspect_select
+          title: inspect_select
+        - type: object
+          properties:
+            lifecycle:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.LifecycleCommand'
+              title: lifecycle
+          title: lifecycle
+        - type: object
+          properties:
+            networkProfile:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.NetworkProfileCommand'
+              title: network_profile
+          title: network_profile
+        - type: object
+          properties:
+            openScreen:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.OpenScreenCommand'
+              title: open_screen
+          title: open_screen
+        - type: object
+          properties:
+            setState:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.SetStateCommand'
+              title: set_state
+          title: set_state
+        - type: object
+          properties:
+            simulateSecurityDetection:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.SimulateSecurityDetectionCommand'
+              title: simulate_security_detection
+          title: simulate_security_detection
+        - type: object
+          properties:
+            switchMock:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.SwitchMockCommand'
+              title: switch_mock
+          title: switch_mock
+        - type: object
+          properties:
+            toggleOverlay:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ToggleOverlayCommand'
+              title: toggle_overlay
+          title: toggle_overlay
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - captureScreenshot
+              - required:
+                  - evaluatePxl
+              - required:
+                  - fakeClock
+              - required:
+                  - inspectSelect
+              - required:
+                  - lifecycle
+              - required:
+                  - networkProfile
+              - required:
+                  - openScreen
+              - required:
+                  - setState
+              - required:
+                  - simulateSecurityDetection
+              - required:
+                  - switchMock
+              - required:
+                  - toggleOverlay
+          - not:
+              oneOf:
+                - required:
+                    - captureScreenshot
+                - required:
+                    - evaluatePxl
+                - required:
+                    - fakeClock
+                - required:
+                    - inspectSelect
+                - required:
+                    - lifecycle
+                - required:
+                    - networkProfile
+                - required:
+                    - openScreen
+                - required:
+                    - setState
+                - required:
+                    - simulateSecurityDetection
+                - required:
+                    - switchMock
+                - required:
+                    - toggleOverlay
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        deviceId:
+          type: string
+          title: device_id
+          description: |-
+            device_id is the session device to send to; empty sends to every
+             device of the session.
+      title: DevSessionServiceSendCommandRequest
+    plux.v1.DevSessionServiceSendCommandResponse:
+      type: object
+      properties:
+        commandId:
+          type: string
+          title: command_id
+          description: |-
+            command_id identifies the command in the CommandResultEvent of each
+             device.
+        deviceIds:
+          type: array
+          items:
+            type: string
+          title: device_ids
+          description: device_ids are the session devices the command was sent to.
+      title: DevSessionServiceSendCommandResponse
+      additionalProperties: false
+    plux.v1.DevSessionServiceWatchEventsRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        deviceIds:
+          type: array
+          items:
+            type: string
+          title: device_ids
+          description: |-
+            device_ids limits the stream to these session devices; empty watches
+             all of them.
+        afterSequence:
+          type: string
+          title: after_sequence
+          format: int64
+          description: |-
+            after_sequence resumes the stream after that event; zero starts with
+             the events the server still retains (DEV-021).
+      title: DevSessionServiceWatchEventsRequest
+      additionalProperties: false
+    plux.v1.DevSessionServiceWatchEventsResponse:
+      type: object
+      properties:
+        event:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevEvent'
+          title: event
+      title: DevSessionServiceWatchEventsResponse
+      additionalProperties: false
+    plux.v1.DevSyncPhase:
+      type: string
+      title: DevSyncPhase
+      enum:
+        - DEV_SYNC_PHASE_UNSPECIFIED
+        - DEV_SYNC_PHASE_CHECK
+        - DEV_SYNC_PHASE_DOWNLOAD
+        - DEV_SYNC_PHASE_VERIFY
+        - DEV_SYNC_PHASE_APPLY
+        - DEV_SYNC_PHASE_STAGED
+        - DEV_SYNC_PHASE_COMPLETE
+        - DEV_SYNC_PHASE_FAILED
+      description: DevSyncPhase is a stage of a sync.
+    plux.v1.DevThemeMode:
+      type: string
+      title: DevThemeMode
+      enum:
+        - DEV_THEME_MODE_UNSPECIFIED
+        - DEV_THEME_MODE_LIGHT
+        - DEV_THEME_MODE_DARK
+        - DEV_THEME_MODE_SYSTEM
+      description: DevThemeMode is the theme a screen is opened with.
     plux.v1.DevelopmentEvidence:
       type: object
       properties:
@@ -16089,6 +17747,27 @@ components:
         DevelopmentEvidence marks a development build. The server accepts it
          only where the environment's security configuration allows it, and
          the device's assurance stays the lowest (SEC-004).
+    plux.v1.DevelopmentSession:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+          description: session_id is the dev session's identifier.
+        sequenceSpace:
+          type: string
+          title: sequence_space
+          format: int64
+          description: |-
+            sequence_space is the number of the development sequence the bundle
+             belongs to. Development bundles are numbered inside the session, apart
+             from the app's release sequence, so a dev bundle can never be mistaken
+             for a release.
+      title: DevelopmentSession
+      additionalProperties: false
+      description: |-
+        DevelopmentSession names the dev session a development bundle belongs
+         to. It is never present in a release manifest.
     plux.v1.Device:
       type: object
       properties:
@@ -16324,6 +18003,22 @@ components:
           title: patch
       title: DocumentChange
       additionalProperties: false
+    plux.v1.DropEvent:
+      type: object
+      properties:
+        dropped:
+          type: string
+          title: dropped
+          format: int64
+        reason:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevDropReason'
+          title: reason
+      title: DropEvent
+      additionalProperties: false
+      description: |-
+        DropEvent says how many events were dropped before this point of the
+         stream, so a watcher knows the gap is not a fault (DEV-021).
     plux.v1.EnrolScaKeyRequest:
       type: object
       properties:
@@ -16465,6 +18160,30 @@ components:
       title: ErrorDay
       additionalProperties: false
       description: ErrorDay is the events of a group on one UTC day.
+    plux.v1.ErrorEvent:
+      type: object
+      properties:
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+        nodePath:
+          type: string
+          title: node_path
+          description: |-
+            node_path is the document location of the node or action, resolved
+             through the source map (CMP-041).
+        severity:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Severity'
+          title: severity
+        fatal:
+          type: boolean
+          title: fatal
+          description: fatal is true when the error ended the screen's rendering or the app.
+      title: ErrorEvent
+      additionalProperties: false
+      description: ErrorEvent is an error of the runtime with the node it belongs to.
     plux.v1.ErrorGroup:
       type: object
       properties:
@@ -16559,6 +18278,33 @@ components:
       title: ErrorSample
       additionalProperties: false
       description: ErrorSample is one event of a group.
+    plux.v1.EvaluatePxlCommand:
+      type: object
+      properties:
+        expression:
+          type: string
+          title: expression
+        program:
+          type: string
+          title: program
+          format: byte
+          description: |-
+            program is the expression compiled to PXL bytecode. The server sets it
+             when it relays the command and clears whatever a client sent: the device
+             evaluates only what the server compiled.
+        roots:
+          type: array
+          items:
+            type: string
+          title: roots
+          description: |-
+            roots are the state roots the expression may read; empty means every
+             root the console offers.
+      title: EvaluatePxlCommand
+      additionalProperties: false
+      description: |-
+        EvaluatePxlCommand evaluates a PXL expression against the device's live
+         state; the result arrives redacted in the CommandResultEvent (DEV-032).
     plux.v1.Event:
       type: object
       properties:
@@ -17099,6 +18845,54 @@ components:
       title: Factor
       additionalProperties: false
       description: Factor is an enrolled second factor (SEC-100).
+    plux.v1.FakeClockCommand:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            advanceMicros:
+              type: string
+              title: advance_micros
+              format: int64
+              description: advance_micros moves a faked clock forward.
+          title: advance_micros
+        - type: object
+          properties:
+            reset:
+              type: boolean
+              title: reset
+              description: reset returns to the real clock when true.
+          title: reset
+        - type: object
+          properties:
+            setUnixMicros:
+              type: string
+              title: set_unix_micros
+              format: int64
+              description: set_unix_micros fixes the clock at an instant.
+          title: set_unix_micros
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - advanceMicros
+              - required:
+                  - reset
+              - required:
+                  - setUnixMicros
+          - not:
+              oneOf:
+                - required:
+                    - advanceMicros
+                - required:
+                    - reset
+                - required:
+                    - setUnixMicros
+      title: FakeClockCommand
+      description: |-
+        FakeClockCommand sets, advances or resets the clock the runtime's
+         time-dependent actions and PXL functions read (DEV-031).
     plux.v1.FileExport:
       type: object
       properties:
@@ -17289,6 +19083,56 @@ components:
         - FLAG_TYPE_STRING
         - FLAG_TYPE_JSON
       description: FlagType is the type of a flag.
+    plux.v1.FrameSample:
+      type: object
+      properties:
+        buildMicros:
+          type: string
+          title: build_micros
+          format: int64
+          description: |-
+            build_micros and raster_micros are the UI thread's and the raster
+             thread's time for the frame.
+        rasterMicros:
+          type: string
+          title: raster_micros
+          format: int64
+        janky:
+          type: boolean
+          title: janky
+          description: janky is true when the frame missed its deadline.
+      title: FrameSample
+      additionalProperties: false
+      description: FrameSample is the timing of one frame.
+    plux.v1.FrameTimingEvent:
+      type: object
+      properties:
+        windowMicros:
+          type: string
+          title: window_micros
+          format: int64
+          description: window_micros is the length of the window the samples cover.
+        route:
+          type: string
+          title: route
+          description: route is the route that was on screen.
+        frames:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FrameSample'
+          title: frames
+        rebuildCounts:
+          type: object
+          title: rebuild_counts
+          additionalProperties:
+            type: integer
+            title: value
+          description: |-
+            rebuild_counts maps a node path to the number of times it rebuilt in
+             the window; empty unless the rebuild-counter overlay is on (DEV-034).
+      title: FrameTimingEvent
+      additionalProperties: false
+      description: FrameTimingEvent reports the frames of a short window (DEV-020).
     plux.v1.FunctionBusinessError:
       type: object
       properties:
@@ -17310,6 +19154,72 @@ components:
       description: |-
         FunctionBusinessError is an outcome the function's own code declares,
          surfaced to the calling action graph (FN-022).
+    plux.v1.FunctionCallEvent:
+      type: object
+      properties:
+        callId:
+          type: string
+          title: call_id
+        function:
+          type: string
+          title: function
+          description: |-
+            function is the dotted function name; version is the version that
+             ran.
+        version:
+          type: integer
+          title: version
+        placement:
+          type: string
+          title: placement
+          description: placement is "server" or "device" (FN-008).
+        startUnixMicros:
+          type: string
+          title: start_unix_micros
+          format: int64
+        durationMicros:
+          type: string
+          title: duration_micros
+          format: int64
+        input:
+          type: string
+          title: input
+          format: byte
+          description: |-
+            input and output are the redacted UTF-8 JSON values; empty when
+             withheld.
+        output:
+          type: string
+          title: output
+          format: byte
+        businessErrorCode:
+          type: string
+          title: business_error_code
+          description: |-
+            business_error_code is the function's own error code when it declared
+             a business error (FN-022).
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+          description: error is a system error of the call (FN-022).
+        replayed:
+          type: boolean
+          title: replayed
+          description: replayed is true when the idempotency record answered (FN-021).
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DevLogLine'
+          title: logs
+          description: |-
+            logs are the function's log lines. For a server function the server
+             merges the lines of the run into the event by trace ID, for the
+             session's own app and environment only; for a device function the
+             device sends its own.
+      title: FunctionCallEvent
+      additionalProperties: false
+      description: FunctionCallEvent is one invocation of a Plux Function (FN-036).
     plux.v1.FunctionHook:
       type: object
       properties:
@@ -19435,6 +21345,39 @@ components:
       title: HostBuild
       additionalProperties: false
       description: HostBuild is one build of the host app with its native catalogue.
+    plux.v1.HotApplyEvent:
+      type: object
+      properties:
+        bundleSha256:
+          type: string
+          title: bundle_sha256
+          description: |-
+            bundle_sha256 is the hash of the development bundle that was applied,
+             lower-case hex.
+        pagesApplied:
+          type: array
+          items:
+            type: string
+          title: pages_applied
+          description: pages_applied are the pages (routes) that were replaced.
+        scopesReset:
+          type: array
+          items:
+            type: string
+          title: scopes_reset
+          description: |-
+            scopes_reset are the state scopes that were reset because the new
+             state schema was incompatible (PLX-9231); the others were kept.
+        applyMicros:
+          type: string
+          title: apply_micros
+          format: int64
+          description: |-
+            apply_micros is the time from the device's receipt of the bundle until
+             the new tree was on screen.
+      title: HotApplyEvent
+      additionalProperties: false
+      description: HotApplyEvent reports a hot apply of a pushed patch (DEV-010).
     plux.v1.IdentityProvider:
       type: object
       anyOf:
@@ -19701,6 +21644,31 @@ components:
           title: diagnostics
       title: IngestEventsResponse
       additionalProperties: false
+    plux.v1.InspectEvent:
+      type: object
+      properties:
+        nodePath:
+          type: string
+          title: node_path
+          description: node_path is the document location of the selected node.
+        widget:
+          type: string
+          title: widget
+          description: widget is the widget type of the node.
+      title: InspectEvent
+      additionalProperties: false
+      description: |-
+        InspectEvent reports a node the developer selected on the device by
+         tapping it (DEV-030).
+    plux.v1.InspectSelectCommand:
+      type: object
+      properties:
+        nodePath:
+          type: string
+          title: node_path
+      title: InspectSelectCommand
+      additionalProperties: false
+      description: InspectSelectCommand highlights a node on the device (DEV-030).
     plux.v1.InstallBaseEntry:
       type: object
       properties:
@@ -19874,6 +21842,16 @@ components:
         - KILL_SWITCH_SCOPE_DATA_SOURCE
         - KILL_SWITCH_SCOPE_FUNCTION
       description: KillSwitchScope is what a kill switch disables.
+    plux.v1.LifecycleCommand:
+      type: object
+      properties:
+        event:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevLifecycleEvent'
+          title: event
+      title: LifecycleCommand
+      additionalProperties: false
+      description: LifecycleCommand triggers a lifecycle event (DEV-031).
     plux.v1.LimitUsage:
       type: object
       properties:
@@ -21800,6 +23778,32 @@ components:
       title: Lock
       additionalProperties: false
       description: Lock is an exclusive editing lock (SRV-040, ADR-0015).
+    plux.v1.LogEvent:
+      type: object
+      properties:
+        level:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevLogLevel'
+          title: level
+        source:
+          type: string
+          title: source
+          description: |-
+            source names what logged: "runtime", "action", "pxl", "host" or a
+             plugin key.
+        message:
+          type: string
+          title: message
+          description: message is the redacted text of the line.
+        nodePath:
+          type: string
+          title: node_path
+          description: |-
+            node_path is the document location the line belongs to, when it has
+             one; resolved through the development bundle's source map (CMP-041).
+      title: LogEvent
+      additionalProperties: false
+      description: LogEvent is one runtime log line.
     plux.v1.LogoutRequest:
       type: object
       title: LogoutRequest
@@ -21881,6 +23885,14 @@ components:
             metadata names the update-metadata versions the manifest belongs to,
              for rollback and freeze checks; part of the signed document
              (SEC-050).
+        developmentSession:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevelopmentSession'
+          title: development_session
+          description: |-
+            development_session is present only in the manifest of a dev session's
+             development bundle (DEV-003, ADR-0087). A release manifest never
+             carries it, and a release runtime refuses a manifest that does.
       title: Manifest
       additionalProperties: false
       description: |-
@@ -22013,6 +24025,123 @@ components:
       title: MfaChallenge
       additionalProperties: false
       description: MfaChallenge is a sign-in waiting for its second factor.
+    plux.v1.MockSelection:
+      type: object
+      properties:
+        source:
+          type: string
+          title: source
+        state:
+          type: string
+          title: state
+      title: MockSelection
+      additionalProperties: false
+      description: MockSelection selects the state of one data-source mock (DAT-080).
+    plux.v1.NetworkCallEvent:
+      type: object
+      properties:
+        callId:
+          type: string
+          title: call_id
+        method:
+          type: string
+          title: method
+        urlTemplate:
+          type: string
+          title: url_template
+          description: |-
+            url_template is the URL with path and query values replaced by their
+             placeholders, so identifiers and tokens in a URL never leave the
+             device.
+        status:
+          type: integer
+          title: status
+          format: int32
+          description: status is the HTTP status; zero when no response arrived.
+        startUnixMicros:
+          type: string
+          title: start_unix_micros
+          format: int64
+        connectMicros:
+          type: string
+          title: connect_micros
+          format: int64
+          description: |-
+            timings, in microseconds from the start of the call; zero when the
+             phase did not happen or was not measured.
+        firstByteMicros:
+          type: string
+          title: first_byte_micros
+          format: int64
+        totalMicros:
+          type: string
+          title: total_micros
+          format: int64
+        requestBytes:
+          type: string
+          title: request_bytes
+          format: int64
+        responseBytes:
+          type: string
+          title: response_bytes
+          format: int64
+        headersRedacted:
+          type: boolean
+          title: headers_redacted
+          description: |-
+            headers_redacted, request_body_redacted and response_body_redacted
+             are true when the device withheld the headers or the body, which is
+             the default. Only when a developer turned redaction down for the
+             session are they false and the fields below filled; sensitive values
+             stay withheld even then (SCH-012).
+        requestBodyRedacted:
+          type: boolean
+          title: request_body_redacted
+        responseBodyRedacted:
+          type: boolean
+          title: response_body_redacted
+        requestHeaders:
+          type: object
+          title: request_headers
+          additionalProperties:
+            type: string
+            title: value
+        responseHeaders:
+          type: object
+          title: response_headers
+          additionalProperties:
+            type: string
+            title: value
+        requestBody:
+          type: string
+          title: request_body
+          format: byte
+        responseBody:
+          type: string
+          title: response_body
+          format: byte
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+          description: error is the failure of a call that got no usable response.
+      title: NetworkCallEvent
+      additionalProperties: false
+      description: NetworkCallEvent is one HTTP call the runtime made (DEV-020).
+    plux.v1.NetworkProfileCommand:
+      type: object
+      properties:
+        profileId:
+          type: string
+          title: profile_id
+          description: |-
+            profile_id is the profile's identifier, such as "offline" or "3g";
+             "good_wifi" removes the simulation.
+      title: NetworkProfileCommand
+      additionalProperties: false
+      description: |-
+        NetworkProfileCommand applies a network profile of
+         schema/devtools/network-profiles.json (DEV-031).
     plux.v1.NotificationChannel:
       type: object
       properties:
@@ -22102,6 +24231,39 @@ components:
       title: OidcProviderConfig
       additionalProperties: false
       description: OidcProviderConfig configures an OpenID Connect provider.
+    plux.v1.OpenScreenCommand:
+      type: object
+      properties:
+        route:
+          type: string
+          title: route
+        params:
+          type: object
+          title: params
+          additionalProperties:
+            type: string
+            title: value
+        locale:
+          type: string
+          title: locale
+          description: locale is a BCP 47 tag; empty keeps the device's.
+        theme:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevThemeMode'
+          title: theme
+        textScale:
+          type: number
+          title: text_scale
+          format: double
+          description: text_scale is the text scale factor; zero keeps the device's.
+        mocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.MockSelection'
+          title: mocks
+      title: OpenScreenCommand
+      additionalProperties: false
+      description: OpenScreenCommand opens a screen on the device (DEV-011).
     plux.v1.Organization:
       type: object
       properties:
@@ -24444,6 +26606,39 @@ components:
       title: ScimToken
       additionalProperties: false
       description: ScimToken is a SCIM bearer token without its secret.
+    plux.v1.ScreenshotEvent:
+      type: object
+      properties:
+        commandId:
+          type: string
+          title: command_id
+          description: command_id is the capture command this answers.
+        png:
+          type: string
+          title: png
+          format: byte
+          description: png is the PNG-encoded image.
+        width:
+          type: integer
+          title: width
+          format: int32
+        height:
+          type: integer
+          title: height
+          format: int32
+        pixelRatio:
+          type: number
+          title: pixel_ratio
+          format: double
+        platformViewsNotCaptured:
+          type: boolean
+          title: platform_views_not_captured
+          description: |-
+            platform_views_not_captured is true when the screen shows platform
+             views (native slots, maps) the capture could not include.
+      title: ScreenshotEvent
+      additionalProperties: false
+      description: ScreenshotEvent carries a captured screenshot (DEV-033).
     plux.v1.SearchHit:
       type: object
       properties:
@@ -24556,6 +26751,30 @@ components:
       description: |-
         SecurityConfigRef pins one version of the effective security
          configuration (SEC-182).
+    plux.v1.SecurityDetectionEvent:
+      type: object
+      properties:
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSecurityDetectionKind'
+          title: kind
+        simulated:
+          type: boolean
+          title: simulated
+          description: |-
+            simulated is true when a developer's SimulateSecurityDetectionCommand
+             caused the detection rather than the device's own checks.
+        response:
+          type: string
+          title: response
+          description: |-
+            response is the response the app's policy took, such as "warn" or
+             "block" (SEC-071).
+      title: SecurityDetectionEvent
+      additionalProperties: false
+      description: |-
+        SecurityDetectionEvent reports a detection and what the runtime did
+         about it.
     plux.v1.Session:
       type: object
       properties:
@@ -25110,6 +27329,26 @@ components:
           description: version is the new configuration version.
       title: SetSecurityConfigResponse
       additionalProperties: false
+    plux.v1.SetStateCommand:
+      type: object
+      properties:
+        scope:
+          type: string
+          title: scope
+          description: scope is "app", "page:<route>" or "component:<node path>".
+        path:
+          type: string
+          title: path
+        value:
+          type: string
+          title: value
+          format: byte
+          description: value is the UTF-8 JSON value.
+      title: SetStateCommand
+      additionalProperties: false
+      description: |-
+        SetStateCommand sets a state value (DEV-031). The device refuses a path
+         tagged sensitive (PLX-9206).
     plux.v1.SetStatesRequest:
       type: object
       properties:
@@ -25227,6 +27466,18 @@ components:
       title: Signature
       additionalProperties: false
       description: Signature is one signature over a signed document (ADR-0004).
+    plux.v1.SimulateSecurityDetectionCommand:
+      type: object
+      properties:
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSecurityDetectionKind'
+          title: kind
+      title: SimulateSecurityDetectionCommand
+      additionalProperties: false
+      description: |-
+        SimulateSecurityDetectionCommand makes `plux_security` report a
+         detection, to try the app's response to it (SEC-071).
     plux.v1.Snapshot:
       type: object
       properties:
@@ -25432,6 +27683,58 @@ components:
           title: expires_at
       title: StartSamlLoginResponse
       additionalProperties: false
+    plux.v1.StateChange:
+      type: object
+      properties:
+        path:
+          type: string
+          title: path
+          description: path is the path inside the scope, in the notation of the state model.
+        oldValue:
+          type: string
+          title: old_value
+          format: byte
+          description: |-
+            old_value and new_value are UTF-8 JSON values. Both are empty when the
+             path is sensitive or the diff was cut; `redacted` says which.
+        newValue:
+          type: string
+          title: new_value
+          format: byte
+        redacted:
+          type: boolean
+          title: redacted
+          description: |-
+            redacted is true when the path is tagged sensitive and its values were
+             withheld (SCH-012).
+      title: StateChange
+      additionalProperties: false
+      description: StateChange is one changed path of a state scope.
+    plux.v1.StateDiffEvent:
+      type: object
+      properties:
+        scope:
+          type: string
+          title: scope
+          description: scope is "app", "page:<route>", "component:<node path>" or "form:<id>".
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.StateChange'
+          title: changes
+        truncated:
+          type: boolean
+          title: truncated
+          description: |-
+            truncated is true when the diff exceeded `devtools.stateDiffBytes`:
+             `changes` then names the changed paths and carries no values.
+        runId:
+          type: string
+          title: run_id
+          description: run_id is the action run that caused the change, when one did.
+      title: StateDiffEvent
+      additionalProperties: false
+      description: StateDiffEvent reports a change of state in one scope.
     plux.v1.StopExperimentRequest:
       type: object
       properties:
@@ -25488,6 +27791,53 @@ components:
           title: subscription
       title: SubscribeResponse
       additionalProperties: false
+    plux.v1.SwitchMockCommand:
+      type: object
+      properties:
+        source:
+          type: string
+          title: source
+        state:
+          type: string
+          title: state
+      title: SwitchMockCommand
+      additionalProperties: false
+      description: SwitchMockCommand switches a data-source mock and its state (DAT-080).
+    plux.v1.SyncEvent:
+      type: object
+      properties:
+        phase:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevSyncPhase'
+          title: phase
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+          description: release_sequence is the release the sync is about; zero when unknown.
+        plugin:
+          type: string
+          title: plugin
+          description: plugin is the plugin key the stage is about; empty for the whole sync.
+        delta:
+          type: boolean
+          title: delta
+          description: delta is true when a binary delta is used instead of a full bundle.
+        bytesTransferred:
+          type: string
+          title: bytes_transferred
+          format: int64
+        durationMicros:
+          type: string
+          title: duration_micros
+          format: int64
+        error:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevError'
+          title: error
+      title: SyncEvent
+      additionalProperties: false
+      description: SyncEvent reports a stage of a sync (SYN-010).
     plux.v1.SyncStep:
       type: object
       properties:
@@ -25597,6 +27947,60 @@ components:
       type: object
       title: TestNotificationChannelResponse
       additionalProperties: false
+    plux.v1.ToggleOverlayCommand:
+      type: object
+      properties:
+        overlay:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevOverlay'
+          title: overlay
+        enabled:
+          type: boolean
+          title: enabled
+      title: ToggleOverlayCommand
+      additionalProperties: false
+      description: ToggleOverlayCommand switches an overlay on or off (DEV-034).
+    plux.v1.TraceFileHeader:
+      type: object
+      properties:
+        formatVersion:
+          type: integer
+          title: format_version
+          description: format_version is 1. A reader refuses a larger version (PLX-9233).
+        sessionId:
+          type: string
+          title: session_id
+        appId:
+          type: string
+          title: app_id
+          description: |-
+            app_id and app_key identify the app; environment_id and
+             environment_key the environment.
+        appKey:
+          type: string
+          title: app_key
+        environmentId:
+          type: string
+          title: environment_id
+        environmentKey:
+          type: string
+          title: environment_key
+        exportedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: exported_at
+        serverVersion:
+          type: string
+          title: server_version
+          description: server_version is the version of the server that wrote the file.
+      title: TraceFileHeader
+      additionalProperties: false
+      description: |-
+        TraceFileHeader is the first message of an exported trace file (D-2.2).
+         A trace file is a gzip-compressed stream of length-prefixed protobuf
+         messages: this header, then DevEvent messages in sequence order. Each
+         message is preceded by its length as an unsigned base-128 varint. The
+         events are redacted like the live stream.
     plux.v1.TrashItem:
       type: object
       properties:
@@ -26662,6 +29066,20 @@ tags:
        numbers. Hardware-backed keys, platform attestation and assurance levels
        arrive in P6; in P2 a registration is an identity and a declared runtime,
        and its assurance level is always the lowest.
+  - name: plux.v1.DevSessionService
+    description: |-
+      DevSessionService lets a developer pair devices with a non-production
+       environment, push draft changes to them, drive them with commands and
+       watch what they report (DEV-001 to DEV-041). A person calls every RPC
+       except Pair, which the paired device calls with its access token and a
+       DPoP proof (SEC-021). The events themselves travel over a WebSocket the
+       device opens with the ticket Pair returns; this service carries the
+       control plane and the CLI's view of the stream.
+
+       A session exists only for an environment whose kind is not production
+       (DEV-003, PLX-9203). Creating a session, getting a pairing token,
+       pushing patches and sending commands need `devsession.create`; watching,
+       listing devices and exporting a trace need `devsession.observe`.
   - name: plux.v1.DocumentService
     description: |-
       DocumentService reads and writes the documents of a draft: pages, action

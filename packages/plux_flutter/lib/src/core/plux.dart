@@ -13,6 +13,12 @@ import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
+import 'package:plux_flutter/src/devtools_api/dev_channel.dart'
+    show DevPairingCode, DevPairingLink;
+import 'package:plux_flutter/src/devtools_api/dev_pairing.dart';
+import 'package:plux_flutter/src/devtools_api/dev_preview.dart';
+import 'package:plux_flutter/src/devtools_api/dev_session.dart'
+    show DevCommandHandler, kPluxDevtools;
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
@@ -361,6 +367,31 @@ abstract final class Plux {
     ),
   );
 
+  /// Pairs this app with the dev session of [linkOrCode]: the scanned or
+  /// pasted `plux-dev://pair?...` link, or the short code `plux dev` prints
+  /// beside it (`DEV-040`, `DEV-002`). A code pairs against the server this
+  /// runtime talks to. [devRootKeys] are the development keys the host
+  /// pinned; production keys are never accepted for dev bundles. Throws a
+  /// [StateError] in a build without devtools (`DEV-050`) and a
+  /// [FormatException] for text that is neither a pairing link nor a code,
+  /// or a link that names another server. `plux_devtools` wraps this.
+  static Future<PluxDevPairing> pairDevSession(
+    String linkOrCode, {
+    required List<PluxPublicKey> devRootKeys,
+    Map<String, DevCommandHandler> extensions = const {},
+    String deviceName = '',
+  }) async {
+    if (!kPluxDevtools) {
+      throw StateError('the dev channel is not part of this build');
+    }
+    return _rt.pairDevSession(
+      DevPairingCode.tryParse(linkOrCode) ?? DevPairingLink.parse(linkOrCode),
+      devRootKeys: devRootKeys,
+      extensions: extensions,
+      deviceName: deviceName,
+    );
+  }
+
   /// Stops the runtime: the sync isolate ends, mappings are released, and
   /// the container is disposed if Plux created it. A host that shares its
   /// container with Plux calls this before disposing it.
@@ -403,8 +434,12 @@ final class PluxScope extends StatelessWidget {
     } on StateError {
       enclosing = null;
     }
-    if (identical(enclosing, container)) return child;
-    return UncontrolledProviderScope(container: container, child: child);
+    final scoped = identical(enclosing, container)
+        ? child
+        : UncontrolledProviderScope(container: container, child: child);
+    final rt = container.read(pluxRuntimeProvider);
+    if (!kPluxDevtools || rt == null) return scoped;
+    return DevPreviewScope(overrides: rt.devPreview, child: scoped);
   }
 }
 

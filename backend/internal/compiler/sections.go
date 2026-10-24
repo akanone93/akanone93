@@ -33,10 +33,15 @@ import (
 // content only.
 func lower(u *unit) {
 	byID := func(a, b *graph) int { return bytes.Compare(a.id[:], b.id[:]) }
+	if u.memo != nil {
+		u.lowerReusing(byID)
+		return
+	}
 	slices.SortFunc(u.appGraphs, byID)
 	for _, pl := range u.plugins {
 		pl.lowered = slices.SortedFunc(slices.Values(slices.Concat(pl.graphs, pl.inline)), byID)
 	}
+	u.noteLowered()
 }
 
 // encode writes the sections of every bundle (BND-002, BND-004).
@@ -53,7 +58,7 @@ func encode(u *unit) {
 		appOut.features[f] = true
 	}
 	for _, c := range u.shared {
-		appOut.add(bundle.SectionComponent, uuidBytes(c.doc.ID), u.componentSection(appOut, c))
+		appOut.add(bundle.SectionComponent, uuidBytes(c.doc.ID), u.componentBytes(appOut, c))
 	}
 	u.actionsSection(appOut, u.appGraphs)
 	u.localeSections(appOut)
@@ -68,10 +73,10 @@ func encode(u *unit) {
 			o.assets[icon] = true
 		}
 		for _, pg := range pl.pages {
-			o.add(bundle.SectionPage, uuidBytes(pg.doc.ID), u.pageSection(o, pg))
+			o.add(bundle.SectionPage, uuidBytes(pg.doc.ID), u.pageBytes(o, pg))
 		}
 		for _, c := range pl.components {
-			o.add(bundle.SectionComponent, uuidBytes(c.doc.ID), u.componentSection(o, c))
+			o.add(bundle.SectionComponent, uuidBytes(c.doc.ID), u.componentBytes(o, c))
 		}
 		u.timelinesSection(o, pl.pages)
 		u.wasmSection(o, pl)

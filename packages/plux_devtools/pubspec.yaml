@@ -2,8 +2,8 @@ name: plux_devtools
 description: >-
   A debug overlay for host apps that use the Plux runtime: the sync status,
   the active release and the problems the runtime reported. It renders
-  nothing in release builds.
-version: 0.1.0
+  nothing in release builds, and pairs a debug build with a dev session.
+version: 0.2.0
 repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_devtools
 
 environment:

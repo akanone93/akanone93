@@ -643,6 +643,14 @@ func (s *Service) compileOptions(ctx context.Context, tx pgx.Tx, orgID, appID, e
 	return opts, nil
 }
 
+// CompileOptions are the options a compilation for an environment of an app
+// runs with: the limits in force, the asset variants, the functions deployed
+// in the environment and the environment's production flag. The caller sets
+// the mode. A dev session compiles with them (DEV-010).
+func (s *Service) CompileOptions(ctx context.Context, tx pgx.Tx, orgID, appID, environmentID string) (compiler.Options, error) {
+	return s.compileOptions(ctx, tx, orgID, appID, environmentID, "")
+}
+
 // pickBundle returns the bundle of a plugin key, or the app bundle.
 func pickBundle(res *compiler.Result, key string) *compiler.Bundle {
 	if key == "" {

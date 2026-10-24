@@ -11,7 +11,8 @@ import Security
 /// clear. The device keys (SEC-001) are served by PluxKeys, the key that wraps
 /// the encrypted stores' data keys (SEC-073) by PluxDataKeys, App Attest
 /// (SEC-004) by PluxAttestation, the pinned HTTP/2 client of the Plux
-/// server (SEC-041) by PluxPinnedHttp. The device actions that need the platform,
+/// server (SEC-041) by PluxPinnedHttp, the opt-in background sync (SYN-014) by
+/// PluxBackgroundSync. The device actions that need the platform,
 /// the share sheet, permission prompts, the biometric prompt and the cover of
 /// secure pages, run here too (SEC-080, SEC-091, SEC-094). Bundle data never
 /// crosses this channel.
@@ -22,9 +23,15 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
   private let dataKeys = PluxDataKeys()
   private let attestation = PluxAttestation()
   private let http = PluxPinnedHttp()
+  private let background = PluxBackgroundSync()
+  /// Whether this engine's runtime holds `PluxSyncLock`; an engine that
+  /// goes away lets go of it.
+  private var holdsSyncLock = false
+  private let holdLock = NSLock()
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     PluxAead.retain()
+    PluxBackgroundSync.registerTask()
     let channel = FlutterMethodChannel(name: "dev.plux/runtime", binaryMessenger: registrar.messenger())
     registrar.addMethodCallDelegate(PluxFlutterPlugin(), channel: channel)
   }
@@ -53,6 +60,15 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
       attestation.handle(call.method, args, result: result)
     case "httpOpen", "httpRead", "httpClose":
       http.handle(call.method, args, result: result)
+    case "backgroundSyncSchedule", "backgroundSyncCancel":
+      background.handle(call.method, args, result: result)
+    case "syncLock.tryAcquire":
+      let acquired = PluxSyncLock.tryAcquire()
+      if acquired { setHolds(true) }
+      result(acquired)
+    case "syncLock.release":
+      releaseSyncLock()
+      result(nil)
     case "share":
       device.share(args, result: result)
     case "permissionRequest":
@@ -64,6 +80,30 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func setHolds(_ value: Bool) {
+    holdLock.lock()
+    holdsSyncLock = value
+    holdLock.unlock()
+  }
+
+  /// Frees the sync lock if this engine took it; a lock another engine
+  /// holds stays.
+  private func releaseSyncLock() {
+    holdLock.lock()
+    let holds = holdsSyncLock
+    holdsSyncLock = false
+    holdLock.unlock()
+    if holds { PluxSyncLock.release() }
+  }
+
+  public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
+    releaseSyncLock()
+  }
+
+  deinit {
+    releaseSyncLock()
   }
 
   private static let badName = FlutterError(code: "PLUX_PLATFORM", message: "name", details: nil)

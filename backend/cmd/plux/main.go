@@ -37,6 +37,7 @@ Commands:
   keys        List an environment's public keys
   native      scan | sync the host app's native catalogue
   fn          new | build | test | invoke | deploy | alias | versions | logs of Plux Functions
+  dev         pair a device, push saved changes to it, drive it and watch its logs and traces
   security    config show | set | diff an environment's security configuration
   l10n        pull | push | export | import | status | extract | pseudo of an app's translations
   golden      run | approve | status of golden (visual regression) tests
@@ -129,7 +130,7 @@ func (e env) commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"login": e.login, "logout": e.logout, "whoami": e.whoami, "init": e.initProject, "doctor": e.doctor,
 		"diff": e.diff, "publish": e.publish, "pull": e.pull, "release": e.release, "export": e.export,
-		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "policies": e.policies, "approvals": e.approvals, "breakglass": e.breakglass, "freeze": e.freeze, "compliance": e.compliance, "grants": e.grants, "restrictions": e.restrictions, "access": e.access, "teams": e.teams, "sessions": e.sessions, "tokens": e.tokens, "notifications": e.notifications, "webhooks": e.webhooks, "dsr": e.dsr, "rollout": e.rollout, "audit": e.audit, "flags": e.flags, "experiment": e.experiment,
+		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "policies": e.policies, "approvals": e.approvals, "breakglass": e.breakglass, "freeze": e.freeze, "compliance": e.compliance, "grants": e.grants, "restrictions": e.restrictions, "access": e.access, "teams": e.teams, "sessions": e.sessions, "tokens": e.tokens, "notifications": e.notifications, "webhooks": e.webhooks, "dsr": e.dsr, "rollout": e.rollout, "audit": e.audit, "flags": e.flags, "experiment": e.experiment, "dev": e.dev,
 		"search": e.search, "git": e.git, "analytics": e.analytics, "control": e.control,
 	}
 }

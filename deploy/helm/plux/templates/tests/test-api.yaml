@@ -4,7 +4,9 @@
 # `helm test <release>`: the api role answers on its Service, is ready (every
 # dependency answers), and the manifest endpoint is routed and refuses a caller
 # without a device token and DPoP proof (SEC-021): a 401 that carries the
-# server's DPoP nonce, not a 404 or a gateway error.
+# server's DPoP nonce, not a 404 or a gateway error. The dev session socket
+# (DEV-002): a WebSocket upgrade request to /dev/socket without a ticket reaches
+# the server and is refused with 401 (not a 404, nor a 101 upgrade).
 {{- $scheme := ternary "https" "http" (eq (include "plux.apiTLS" .) "true") }}
 apiVersion: v1
 kind: Pod
@@ -45,6 +47,14 @@ spec:
           cat /tmp/headers
           test "$status" = 401
           grep -qi '^dpop-nonce:' /tmp/headers
+          echo; echo "GET /dev/socket (WebSocket upgrade) without a ticket"
+          wskey=$(head -c 16 /dev/urandom | base64)
+          status=$($curl -o /dev/null -D /tmp/headers -w '%{http_code}' \
+            -H 'Connection: Upgrade' -H 'Upgrade: websocket' -H 'Sec-WebSocket-Version: 13' \
+            -H "Sec-WebSocket-Key: $wskey" \
+            "$base/dev/socket")
+          cat /tmp/headers
+          test "$status" = 401
           echo "ok"
       resources:
         {{- toYaml .Values.test.resources | nindent 8 }}

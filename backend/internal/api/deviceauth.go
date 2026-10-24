@@ -37,6 +37,11 @@ var DeviceProcedures = map[string]bool{
 	pluxv1connect.DeviceServiceEnrolScaKeyProcedure:             true,
 	// A device invokes a server function with its token and proof (FN-020).
 	pluxv1connect.FunctionServiceInvokeProcedure: true,
+	// A device pairs with a dev session using the pairing token and its
+	// proof (DEV-002, ADR-0087).
+	pluxv1connect.DevSessionServicePairProcedure: true,
+	// A paired device renews its socket ticket to reconnect (DEV-021).
+	pluxv1connect.DevSessionServiceRenewSocketTicketProcedure: true,
 	// The live configuration of the device's environment (DAT-094).
 	pluxv1connect.ConfigServiceGetLiveConfigProcedure: true,
 }
@@ -83,6 +88,18 @@ type proofKey struct{}
 // proofIDKey carries the identifier of the DPoP proof of a call with an
 // access token.
 type proofIDKey struct{}
+
+// proofKeyKey carries the thumbprint of the DPoP key of a call with an
+// access token.
+type proofKeyKey struct{}
+
+// DeviceKeyFrom returns the JWK thumbprint of the DPoP key that signed the
+// verified proof of a device call made with an access token; the token is
+// bound to the same key (SEC-021).
+func DeviceKeyFrom(ctx context.Context) (string, bool) {
+	jkt, ok := ctx.Value(proofKeyKey{}).(string)
+	return jkt, ok && jkt != ""
+}
 
 // ProofIDFrom returns the jti of the verified DPoP proof of a device call.
 // The replay check has made it single-use, which is what binds the
@@ -210,6 +227,7 @@ func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Co
 		}
 	}
 	ctx = context.WithValue(ctx, proofIDKey{}, proof.JTI)
+	ctx = context.WithValue(ctx, proofKeyKey{}, proof.JKT)
 	return next(context.WithValue(ctx, deviceKey{}, d))
 }
 
@@ -237,6 +255,35 @@ func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWrit
 		return device.Identity{}, a.refuse(Call{ResponseHeader: w.Header()}, err)
 	}
 	return d, nil
+}
+
+// AuthenticateProofRequest checks the DPoP proof of an HTTP request that
+// carries no token, the dev socket's upgrade (ADR-0087): the request's own
+// method and URL are htm and htu, the proof needs the current server nonce
+// and is single-use like a device call's, and the device's rate applies
+// (SEC-021). The response carries the current nonce, and a refusal the
+// challenge that names what failed. It returns the thumbprint of the
+// proof's key.
+func (a DeviceAuth) AuthenticateProofRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (string, error) {
+	w.Header().Set(nonceHeader, a.Nonces.Current())
+	c := Call{Header: r.Header, ResponseHeader: w.Header(), Procedure: r.URL.EscapedPath()}
+	rawProof, err := proofOf(r.Header)
+	if err != nil {
+		return "", a.refuse(c, err)
+	}
+	proof, err := a.Proofs.Verify(rawProof, dpop.Expect{Method: r.Method, URL: a.url(r.URL.EscapedPath()), Window: a.Window})
+	if err != nil {
+		return "", a.refuse(c, err)
+	}
+	if err := a.checkReplay(ctx, a.Replay.Policy(), proof, a.Window, a.FallbackWindow); err != nil {
+		return "", a.refuse(c, err)
+	}
+	if a.Limiter.Count != nil {
+		if _, err := a.Limiter.Allow(ctx, "rate:device:"+proof.JKT, a.PerDevice); err != nil {
+			return "", err
+		}
+	}
+	return proof.JKT, nil
 }
 
 // authenticateWith checks the token and the proof of a request made with

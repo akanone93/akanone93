@@ -9,6 +9,7 @@ environment:
 workspace:
   - apps/add_to_app/plux_module
   - apps/plux_bank
+  - apps/plux_dev
   - apps/plux_express
   - apps/plux_viewer
   - apps/starter
@@ -20,6 +21,7 @@ workspace:
   - packages/plux_flutter
   - packages/plux_functions
   - packages/plux_go_router
+  - packages/plux_host_kit
   - packages/plux_location
   - packages/plux_lottie
   - packages/plux_maps
