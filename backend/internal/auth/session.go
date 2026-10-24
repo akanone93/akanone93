@@ -165,6 +165,27 @@ func (s *Service) storedTimeouts(row dbgen.GetSessionByHashRow) timeouts {
 // organisation that shortens a timeout reaches sessions that are already open
 // within that minute.
 func (s *Service) AuthenticateSession(ctx context.Context, secret string) (Identity, error) {
+	return s.authenticateSession(ctx, secret, true)
+}
+
+// AuthenticateSessionQuietly resolves a session cookie's value and holds the
+// session to exactly the checks of AuthenticateSession — revocation, the idle
+// timeout, the absolute lifetime, the person's status and the timeouts stored
+// with the session — but never records the call as a use of the session.
+//
+// It serves background calls: lock heartbeats and long-lived streams. The
+// idle timeout counts user activity only (decision O-1, GOV-005), so a call
+// a client makes on its own must not keep an idle session alive (F19); it is
+// still refused the moment the session is idle-expired, revoked or past its
+// absolute lifetime.
+func (s *Service) AuthenticateSessionQuietly(ctx context.Context, secret string) (Identity, error) {
+	return s.authenticateSession(ctx, secret, false)
+}
+
+// authenticateSession is the body of AuthenticateSession and
+// AuthenticateSessionQuietly; touch says whether a valid call counts as a
+// use of the session.
+func (s *Service) authenticateSession(ctx context.Context, secret string, touch bool) (Identity, error) {
 	if !strings.HasPrefix(secret, PrefixSession+"_") {
 		return Identity{}, expired()
 	}
@@ -177,7 +198,7 @@ func (s *Service) AuthenticateSession(ctx context.Context, secret string) (Ident
 	if err := verdict(row, now, t); err != nil {
 		return Identity{}, err
 	}
-	if now.Sub(storage.Time(row.LastSeenAt)) >= touchInterval {
+	if touch && now.Sub(storage.Time(row.LastSeenAt)) >= touchInterval {
 		if err := s.touchSession(ctx, row, now); err != nil {
 			return Identity{}, err
 		}

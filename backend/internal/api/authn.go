@@ -14,6 +14,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/observability"
+	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
@@ -32,8 +33,11 @@ const (
 )
 
 // Authenticator resolves the two kinds of credential a caller presents.
+// A session is resolved quietly, without counting as a use of it, when the
+// call is a background procedure (see backgroundProcedure).
 type Authenticator interface {
 	AuthenticateSession(ctx context.Context, secret string) (auth.Identity, error)
+	AuthenticateSessionQuietly(ctx context.Context, secret string) (auth.Identity, error)
 	AuthenticateToken(ctx context.Context, secret string) (auth.Identity, error)
 }
 
@@ -70,7 +74,7 @@ func Authentication(a Authenticator, public map[string]bool, trusted []netip.Pre
 			UserAgent: truncate(c.Header.Get("User-Agent"), 512),
 			RequestID: observability.RequestID(ctx),
 		})
-		id, found, err := credential(ctx, a, c.Header)
+		id, found, err := credential(ctx, a, c.Procedure, c.Header)
 		if err != nil {
 			return err
 		}
@@ -93,9 +97,33 @@ func Authentication(a Authenticator, public map[string]bool, trusted []netip.Pre
 	}
 }
 
+// backgroundProcedure reports whether a procedure is one a client calls on
+// its own rather than on a person's action: a lock heartbeat or a
+// long-lived stream. A session authenticates such a call quietly, so the
+// call is still refused once the session is idle-expired, revoked or past
+// its absolute lifetime, but does not refresh its last use: the idle
+// timeout counts user activity only (decision O-1, GOV-005).
+//
+// The set is fixed here. A new streaming or heartbeat RPC — the Studio
+// events stream of S0.5 among them — is added to this switch.
+// NotificationService/ListInbox is not in it: a person opens the inbox.
+func backgroundProcedure(procedure string) bool {
+	switch procedure {
+	case pluxv1connect.PluginServiceRenewLockProcedure,
+		pluxv1connect.PluginServiceGetLockProcedure,
+		pluxv1connect.GovernanceServiceWatchPermissionsProcedure,
+		pluxv1connect.DevSessionServiceWatchEventsProcedure:
+		return true
+	default:
+		return false
+	}
+}
+
 // credential reads and checks whichever credential the request carries.
-// A request carrying both is refused: which one acts would be a guess.
-func credential(ctx context.Context, a Authenticator, h http.Header) (auth.Identity, bool, error) {
+// A request carrying both is refused: which one acts would be a guess. A
+// session presented to a background procedure is checked without being
+// counted as a use of it (backgroundProcedure).
+func credential(ctx context.Context, a Authenticator, procedure string, h http.Header) (auth.Identity, bool, error) {
 	bearer, hasBearer := bearerToken(h)
 	session, hasSession := cookie(h, SessionCookie)
 	switch {
@@ -105,7 +133,11 @@ func credential(ctx context.Context, a Authenticator, h http.Header) (auth.Ident
 		id, err := a.AuthenticateToken(ctx, bearer)
 		return id, err == nil, err //nolint:wrapcheck // a domain error
 	case hasSession:
-		id, err := a.AuthenticateSession(ctx, session)
+		authenticate := a.AuthenticateSession
+		if backgroundProcedure(procedure) {
+			authenticate = a.AuthenticateSessionQuietly
+		}
+		id, err := authenticate(ctx, session)
 		if err != nil {
 			return auth.Identity{}, false, err //nolint:wrapcheck // a domain error
 		}
