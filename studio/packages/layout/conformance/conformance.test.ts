@@ -8,9 +8,17 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { goldenRects, type LayoutGolden, TextDirection } from "../src/index.ts";
+import { type LayoutGolden, TextDirection } from "../src/index.ts";
 import { compareRects, edgeTolerance, type GoldenRect } from "./compare.ts";
-import { buildNode, flexTypes, layOutScene, type Scene, sceneTypes, supportedTypes } from "./scene.ts";
+import {
+  buildNode,
+  flexTypes,
+  layOutScene,
+  type Scene,
+  sceneGoldenRects,
+  sceneTypes,
+  supportedTypes,
+} from "./scene.ts";
 
 const suite = join(import.meta.dir, "../../../../test/layout-conformance");
 
@@ -65,7 +73,7 @@ describe("STU-005 layout conformance with Flutter goldens", () => {
       continue;
     }
     test(`${file} matches Flutter within ${edgeTolerance} px`, () => {
-      const actual = goldenRects(layOutScene(scene, golden));
+      const actual = sceneGoldenRects(scene, layOutScene(scene, golden));
       expect(compareRects(actual, golden.rects)).toEqual([]);
     });
   }
