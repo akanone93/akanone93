@@ -167,6 +167,9 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@base-ui/react` 1.9.0 | Unstyled accessible primitives under `@plux/ui` (ADR-0014; button, field, select, dialog, popover, menu, tabs, tooltip) | In use (P11 S0.2; MIT) |
 | `@phosphor-icons/core` 2.1.1 | Duotone icon paths, read at build time by `studio-gen-icons` and inlined as data; not shipped as a package. The MIT notice is kept in `icons.gen.ts`; legal review open (O-7) | In use (dev, P11 S0.2; MIT) |
 | `sonner` 2.0.8 | Toast engine behind `@plux/ui` Toast, styled with tokens only | In use (P11 S0.2; MIT) |
+| `@tanstack/react-table` 9.3.1 | Headless table model behind `@plux/ui` VirtualTable (STU-120; decisions A3) | In use (P11 S0.2; MIT) |
+| `@tanstack/react-virtual` 3.14.21 | Row virtualisation for `@plux/ui` VirtualTable, so only visible rows are in the DOM (STU-120; decisions A3) | In use (P11 S0.2; MIT) |
+| `@headless-tree/core`, `@headless-tree/react` 1.8.0 | Tree state and WAI-ARIA keyboard behind `@plux/ui` Tree, used for the Layers panel (decisions A3) | In use (P11 S0.2; MIT) |
 | `@lingui/core`, `@lingui/react` 6.10.1 | ICU MessageFormat runtime and React bindings for Studio localisation (ADR-0094) | In use (P11 S0.3; MIT) |
 | `@lingui/cli`, `@lingui/format-po`, `@lingui/vite-plugin`, `@lingui/babel-plugin-lingui-macro` 6.10.1 | Strict extraction, PO catalogues and build-time catalogue compilation; not shipped | In use (P11 S0.3; MIT) |
 | `@bufbuild/protobuf` 2.16.0 | Protobuf runtime for the generated API messages | In use (P11 S0.3; Apache-2.0 AND BSD-3-Clause) |

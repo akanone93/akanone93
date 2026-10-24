@@ -4,6 +4,9 @@
 @import "./fonts.css";
 @import "./theme.gen.css";
 
+/* The shared components carry their utilities in their own sources. */
+@source "../../../../packages/ui/src";
+
 @layer base {
   body {
     background-color: var(--color-brand-surface);

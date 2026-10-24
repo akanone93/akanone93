@@ -7,11 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 
 > **Status:** Decision record; the accepted plan is [p11.md](p11.md). Its paths now point to `docs/engineering/studio-ui-language.md` and `docs/engineering/studio-ui-reference.html`.
 
-- **Status:** Drafted at the maintainer's request on 2026-10-22, with the accepted UI language.
-  Nothing here is active yet.
+- **Status:** Installed 2026-10-24 at .claude/skills/plux-studio-design/
 - **Intended home:** `.claude/skills/plux-studio-design/SKILL.md`, added in the pull request that
-  creates `studio/packages/ui` (P11 S0), once the paths it names exist. Until then it is a plan, not
-  a rule for any session.
+  creates `studio/packages/ui` (P11 S0), once the paths it names exist.
 - **Why a skill:** the UI language describes the design; the skill makes every agent session that
   touches Studio's interface load the same short routine — where the design lives, what to build
   from, and the checks to run — without reading images (rule book §13).

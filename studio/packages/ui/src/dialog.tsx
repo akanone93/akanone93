@@ -12,9 +12,9 @@ import { Icon } from "./icon.tsx";
 export type DialogSize = "sm" | "md" | "lg";
 
 const sizeClass: Readonly<Record<DialogSize, string>> = {
-  sm: "max-w-sm",
-  md: "max-w-xl",
-  lg: "max-w-3xl",
+  sm: "max-w-dialog-sm",
+  md: "max-w-dialog-md",
+  lg: "max-w-dialog-lg",
 };
 
 const backdropClass = "fixed inset-0 bg-brand-ink opacity-40";
