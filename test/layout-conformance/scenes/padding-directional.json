@@ -1,0 +1,46 @@
+{
+  "name": "padding-directional",
+  "root": {
+    "id": "center",
+    "type": "Center",
+    "props": {},
+    "children": [
+      {
+        "id": "pad-dir",
+        "type": "Padding",
+        "props": {
+          "padding": {
+            "start": 10,
+            "top": 20,
+            "end": 30,
+            "bottom": 5
+          }
+        },
+        "children": [
+          {
+            "id": "pad-ltrb",
+            "type": "Padding",
+            "props": {
+              "padding": [
+                7,
+                3,
+                11,
+                13
+              ]
+            },
+            "children": [
+              {
+                "id": "box",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 50
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

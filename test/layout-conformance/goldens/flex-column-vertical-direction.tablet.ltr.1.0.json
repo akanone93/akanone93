@@ -1,0 +1,49 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "flex-column-vertical-direction",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "col": [
+      0.0,
+      0.0,
+      800.0,
+      1280.0
+    ],
+    "first": [
+      0.0,
+      1240.0,
+      100.0,
+      40.0
+    ],
+    "last": [
+      0.0,
+      0.0,
+      50.0,
+      60.0
+    ],
+    "mid": [
+      0.0,
+      60.0,
+      800.0,
+      1180.0
+    ],
+    "mid-box": [
+      385.0,
+      635.0,
+      30.0,
+      30.0
+    ],
+    "mid-center": [
+      0.0,
+      60.0,
+      800.0,
+      1180.0
+    ]
+  }
+}

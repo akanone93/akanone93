@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate studio-conformance studio-conformance-update
 
 ##@ Studio (Bun, TypeScript)
 
@@ -27,6 +27,12 @@ studio-typecheck: studio-gen-theme ## Type-check Studio code
 
 studio-test: studio-gen-theme ## Run Studio tests
 	cd studio && bun run test
+
+studio-conformance: ## Compare Studio's layout with Flutter's goldens (STU-005)
+	cd studio && bun test packages/layout/conformance
+
+studio-conformance-update: ## Regenerate the layout goldens with Flutter
+	cd test/layout-conformance && UPDATE_GOLDENS=1 flutter test
 
 studio-cover: studio-test ## Enforce Studio coverage floors (QA-001)
 	$(COVGATE) -kind studio studio/coverage/lcov.info

@@ -1,0 +1,63 @@
+{
+  "name": "flex-min-main-size",
+  "root": {
+    "id": "center",
+    "type": "Center",
+    "props": {},
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "end",
+          "spacing": 6
+        },
+        "children": [
+          {
+            "id": "a",
+            "type": "TestBox",
+            "props": {
+              "width": 100,
+              "height": 40
+            }
+          },
+          {
+            "id": "row",
+            "type": "Row",
+            "props": {
+              "mainAxisSize": "min",
+              "mainAxisAlignment": "center"
+            },
+            "children": [
+              {
+                "id": "r1",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 20
+                }
+              },
+              {
+                "id": "r2",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 25
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

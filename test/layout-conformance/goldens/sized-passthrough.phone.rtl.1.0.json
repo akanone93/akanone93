@@ -1,0 +1,37 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "sized-passthrough",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "ar",
+  "textScale": 1.0,
+  "rects": {
+    "center": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "expand": [
+      105.0,
+      365.0,
+      150.0,
+      70.0
+    ],
+    "only-h": [
+      105.0,
+      365.0,
+      150.0,
+      70.0
+    ],
+    "only-w": [
+      105.0,
+      365.0,
+      150.0,
+      70.0
+    ]
+  }
+}
