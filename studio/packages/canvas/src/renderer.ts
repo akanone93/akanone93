@@ -25,6 +25,7 @@ import type { Canvas, CanvasKit, FontMgr, Image, Paint, Paragraph, Surface } fro
 import { Batches, BatchLayer, color4f } from "./batch.ts";
 import { intersectInto, makeRect, type Rect, setRect, unionInto } from "./geometry.ts";
 import { type Lod, lodForZoom, resolutionFor } from "./lod.ts";
+import { type Direction, orderJobs } from "./progressive.ts";
 import type { FrameSpec, FrameStats, ItemSpec, TextSpec } from "./protocol.ts";
 import { Resources } from "./resources.ts";
 import type { Scene, SceneItem } from "./scene.ts";
@@ -38,6 +39,21 @@ export interface RendererOptions {
   readonly background: number;
   readonly fontFamily: string;
   readonly measureFrames: boolean;
+}
+
+/** Where the base surface's pixels were drawn: the render viewport's origin and zoom. */
+interface Placement {
+  readonly x: number;
+  readonly y: number;
+  readonly zoom: number;
+}
+
+/** The outcome of one progressive base job. */
+export interface BaseJobResult {
+  /** The job's duration, in ms; 0 when nothing was left to do. */
+  readonly ms: number;
+  /** The old base was realigned to the current placement, which the host now shows. */
+  readonly shifted: boolean;
 }
 
 /** Above this many dirty regions in a frame they are merged into one. */
@@ -119,6 +135,12 @@ export class SceneRenderer {
   private frameNo = 0;
   private tileRenders = 0;
   private tileRenderMs = 0;
+  /** The placement the base pixels were drawn at; null before the first base job. */
+  private shown: Placement | null = null;
+  /** The tiles whose current image is on the base surface. */
+  private readonly shownTiles = new Set<Tile<Image>>();
+  private readonly baseQueue: Tile<Image>[] = [];
+  private readonly oldBase = makeRect(0, 0, 0, 0);
   private readonly invalidate = (rect: Rect): void => {
     this.tiles.invalidate(rect);
   };
@@ -170,6 +192,9 @@ export class SceneRenderer {
     }
     this.resources.free(this.surface);
     this.surface = this.resources.own(surface);
+    this.shown = null;
+    this.shownTiles.clear();
+    this.baseQueue.length = 0;
     this.dpr = dpr;
     this.tileSurface = this.makeTileSurface();
   }
@@ -254,6 +279,11 @@ export class SceneRenderer {
       this.counters.tileMs = this.now() - start;
     }
     canvas.restore();
+    return this.flushBase(canvas);
+  }
+
+  /** Flushes the base surface (and waits for the GPU when measuring); returns the time taken. */
+  private flushBase(canvas: Canvas): number {
     const flushStart = this.now();
     this.surface.flush();
     if (this.options.measureFrames) {
@@ -302,7 +332,7 @@ export class SceneRenderer {
     });
   }
 
-  private stats(ms: number, flushMs: number, base: boolean): FrameStats {
+  private stats(ms: number, flushMs: number, base: boolean, jobMs = 0): FrameStats {
     const c = this.counters;
     return {
       frame: this.frameNo++,
@@ -322,6 +352,8 @@ export class SceneRenderer {
       tileRenderMs: this.tileRenderMs,
       base,
       layerMs: c.layerMs,
+      jobMs,
+      baseJobs: this.baseJobs,
     };
   }
 
@@ -574,7 +606,154 @@ export class SceneRenderer {
     return rendered;
   }
 
+  /** Jobs left in the progressive base re-render, the realignment of the old base included. */
+  get baseJobs(): number {
+    return this.baseQueue.length + (this.options.tiles && this.needsShift() ? 1 : 0);
+  }
+
+  /** The base tiles queued for the progressive re-render, in order; for tests. */
+  queuedTiles(): readonly Tile<Image>[] {
+    return this.baseQueue;
+  }
+
+  private needsShift(): boolean {
+    const shown = this.shown;
+    const view = this.viewport;
+    return shown === null || shown.x !== view.x || shown.y !== view.y || shown.zoom !== view.zoom;
+  }
+
+  /**
+   * Plans a progressive re-render of the base (M-12): every base tile whose
+   * current image is not yet on the surface, ordered around `focus` (the
+   * world rectangle the view shows) and `direction` by `orderJobs`.
+   */
+  planBase(focus: Rect, direction: Direction): void {
+    this.baseQueue.length = 0;
+    if (!this.options.tiles) {
+      return;
+    }
+    this.scene.drainDirty(this.invalidate);
+    this.scene.drainRemoved(this.forget);
+    this.lod = lodForZoom(this.viewport.zoom);
+    this.viewport.worldRect(this.view);
+    if (this.tiles.setScale(this.viewport.zoom * this.dpr)) {
+      this.shownTiles.clear();
+    }
+    const tiles = this.tiles.collect(this.view, this.visible);
+    for (const tile of this.shownTiles) {
+      if (!tiles.includes(tile)) {
+        this.shownTiles.delete(tile);
+      }
+    }
+    const todo = tiles.filter((tile) => !this.shownTiles.has(tile) || this.tiles.needsWork(tile, this.interacting));
+    const rect = (tile: Tile<Image>): Rect => this.tiles.tileRect(tile, makeRect(0, 0, 0, 0));
+    this.baseQueue.push(...orderJobs(todo, rect, focus, direction));
+  }
+
+  /** Drops the queued base jobs; a realignment still owed runs with the next job. */
+  cancelBase(): void {
+    this.baseQueue.length = 0;
+  }
+
+  /**
+   * Runs one base job and flushes it on its own: the realignment of the old
+   * base to the current placement first, then one tile per job — rendered
+   * when needed and blitted over what the base shows, never cleared first. A
+   * render that reaches `deadline` leaves the blit to the next job.
+   */
+  baseJob(deadline: number): BaseJobResult {
+    const start = this.now();
+    this.calls = 0;
+    this.resetCounters();
+    if (this.needsShift()) {
+      this.shiftBase();
+      return { ms: this.now() - start, shifted: true };
+    }
+    const tile = this.baseQueue[0];
+    if (!tile) {
+      return { ms: 0, shifted: false };
+    }
+    if (this.tiles.needsWork(tile, this.interacting)) {
+      this.renderTile(tile);
+      if (this.now() >= deadline) {
+        return { ms: this.now() - start, shifted: false };
+      }
+    }
+    this.baseQueue.shift();
+    const canvas = this.surface.getCanvas();
+    const scale = this.viewport.zoom * this.dpr;
+    canvas.save();
+    canvas.scale(scale, scale);
+    canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
+    this.blit(canvas, tile, false);
+    canvas.restore();
+    this.counters.tilesDrawn = 1;
+    this.flushBase(canvas);
+    this.shownTiles.add(tile);
+    return { ms: this.now() - start, shifted: false };
+  }
+
+  /** The statistics of a base job of `ms` milliseconds. */
+  jobStats(ms: number): FrameStats {
+    return this.stats(ms, 0, true, ms);
+  }
+
+  /**
+   * Moves the old base pixels to the current placement in one draw, so the
+   * base stays covered while its tiles are replaced; tiles that land exactly
+   * where they were (a whole-pixel pan) stay shown.
+   */
+  private shiftBase(): void {
+    const canvas = this.surface.getCanvas();
+    const view = this.viewport;
+    const scale = view.zoom * this.dpr;
+    const shown = this.shown;
+    const image = shown === null ? null : this.surface.makeImageSnapshot();
+    canvas.clear(this.background);
+    if (shown !== null && image !== null) {
+      const old = shown.zoom * this.dpr;
+      const k = scale / old;
+      const tx = Math.round(shown.x * old) * k - Math.round(view.x * scale);
+      const ty = Math.round(shown.y * old) * k - Math.round(view.y * scale);
+      canvas.save();
+      canvas.translate(tx, ty);
+      canvas.scale(k, k);
+      const filter = k === 1 ? this.ck.FilterMode.Nearest : this.ck.FilterMode.Linear;
+      canvas.drawImageOptions(image, 0, 0, filter, this.ck.MipmapMode.None, null);
+      canvas.restore();
+      image.delete();
+      this.keepShiftedTiles(shown, k === 1 && Number.isInteger(tx) && Number.isInteger(ty));
+    } else {
+      this.shownTiles.clear();
+    }
+    this.calls++;
+    this.shown = { x: view.x, y: view.y, zoom: view.zoom };
+    this.flushBase(canvas);
+  }
+
+  private keepShiftedTiles(shown: Placement, exact: boolean): void {
+    if (!exact) {
+      this.shownTiles.clear();
+      return;
+    }
+    const view = this.viewport;
+    const old = setRect(
+      this.oldBase,
+      shown.x,
+      shown.y,
+      shown.x + view.width / shown.zoom,
+      shown.y + view.height / shown.zoom,
+    );
+    for (const tile of this.shownTiles) {
+      const rect = this.tiles.tileRect(tile, this.tileTarget);
+      if (rect.l < old.l || rect.t < old.t || rect.r > old.r || rect.b > old.b) {
+        this.shownTiles.delete(tile);
+      }
+    }
+  }
+
   private renderTile(tile: Tile<Image>): void {
+    this.shownTiles.delete(tile);
     const surface = this.tileSurface;
     if (!surface) {
       return;
