@@ -15,6 +15,193 @@
   --color-brand-mint: #12B886;
   --color-brand-amber: #F59F00;
   --color-brand-surface: #F7F8FB;
+  --color-canvas: #F2F4F9;
+  --color-app: #F7F8FB;
+  --color-raised: #FFFFFF;
+  --color-glass: rgba(255,255,255,.66);
+  --color-card: rgba(255,255,255,.70);
+  --color-hover: rgba(17,20,42,.05);
+  --color-selected: #FFFFFF;
+  --color-primary: #11142A;
+  --color-secondary: #3C4262;
+  --color-secondary-glass: #30364F;
+  --color-tertiary: #555C7C;
+  --color-on-accent: #FFFFFF;
+  --color-hairline: rgba(17,20,42,.08);
+  --color-strong: rgba(17,20,42,.16);
+  --color-accent: #5B3DF5;
+  --color-accent-hover: #4A2DE6;
+  --color-accent-halo: rgba(91,61,245,.12);
+  --color-selection: #5B3DF5;
+  --color-selection-text: #4A2DE6;
+  --color-selection-surface: #EEEAFE;
+  --color-focus: #5B3DF5;
+  --color-success: #0B7A5A;
+  --color-success-surface: #E2F4EC;
+  --color-warning: #8F5300;
+  --color-warning-surface: #FFF1D6;
+  --color-danger: #B42318;
+  --color-danger-surface: #FEECEB;
+  --color-danger-fill: #D92D20;
+  --color-arrow: #7A81A3;
+  --color-arrow-active: #5B3DF5;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --shadow-e1: 0 1px 2px rgba(17,20,42,.08), 0 2px 8px -2px rgba(17,20,42,.10);
+  --shadow-e2: 0 1px 1px rgba(30,24,90,.04), 0 16px 40px -8px rgba(48,34,150,.14);
+  --shadow-frame: 0 0 0 1px rgba(17,20,42,.05), 0 24px 48px -16px rgba(48,34,150,.20);
+  --shadow-frame-active: 0 0 0 1px rgba(17,20,42,.05), 0 24px 48px -16px rgba(48,34,150,.20), 0 0 0 7px rgba(91,61,245,.12), 0 0 0 1px #5B3DF5;
+  --shadow-primary: 0 6px 16px -6px rgba(91,61,245,.60);
+  --shadow-e4: 0 24px 64px rgba(17,20,42,.18), 0 4px 12px rgba(17,20,42,.08);
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-0\.5: 2px;
+  --font-sans: "Instrument Sans", "Noto Sans Arabic", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Noto Naskh Arabic", serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-wordmark: "Sora", system-ui, sans-serif;
+  --text-screen: 26px;
+  --text-screen--line-height: 28px;
+  --text-screen--font-weight: 400;
+  --text-title: 24px;
+  --text-title--line-height: 26px;
+  --text-title--font-weight: 400;
+  --text-plugin: 19px;
+  --text-plugin--line-height: 22px;
+  --text-plugin--font-weight: 400;
+  --text-section: 17px;
+  --text-section--line-height: 20px;
+  --text-section--font-weight: 400;
+  --text-body: 13px;
+  --text-body--line-height: 18px;
+  --text-body--font-weight: 400;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
+  --text-label--font-weight: 500;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-caption--font-weight: 400;
+  --text-data: 11px;
+  --text-data--line-height: 16px;
+  --text-data--font-weight: 400;
+  --text-tag: 10px;
+  --text-tag--line-height: 12px;
+  --text-tag--font-weight: 500;
+  --duration-fast: 140ms;
+  --duration-base: 180ms;
+  --duration-enter: 420ms;
+  --duration-bundle: 220ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --surface-glass-fill: rgba(255,255,255,.66);
+  --surface-glass-solid: rgba(255,255,255,.96);
+  --surface-glass-backdrop: blur(28px) saturate(180%);
+  --surface-glass-inner: rgba(255,255,255,.72);
+  --surface-glass-outer: rgba(17,20,42,.05);
+  --surface-scrim-fill: rgba(17,20,42,.24);
+  --surface-stroke-field: 1px;
+  --surface-stroke-focus: 2px;
+  --surface-stroke-arrow: 1.5px;
+}
+
+:root {
+  --density-capsule: 48px;
+  --density-capsule-button: 36px;
+  --density-field: 30px;
+  --density-tab-track: 28px;
+  --density-tree-row: 30px;
+  --density-table-row: 30px;
+  --density-card-padding-y: 12px;
+  --density-card-padding-x: 14px;
+}
+
+[data-density=comfortable] {
+  --density-capsule: 52px;
+  --density-capsule-button: 40px;
+  --density-field: 36px;
+  --density-tab-track: 32px;
+  --density-tree-row: 36px;
+  --density-table-row: 36px;
+  --density-card-padding-y: 16px;
+  --density-card-padding-x: 18px;
+}
+
+/* U15: the contrast theme applies on request of the system; an explicit theme below wins. */
+@media (prefers-contrast: more) {
+  :root {
+    --color-canvas: #FFFFFF;
+    --color-app: #FFFFFF;
+    --color-glass: #FFFFFF;
+    --color-card: #FFFFFF;
+    --color-hover: #E6E8F0;
+    --color-selected: #E2DDFB;
+    --color-secondary: #11142A;
+    --color-secondary-glass: #11142A;
+    --color-tertiary: #30364F;
+    --color-hairline: #555C7C;
+    --color-strong: #11142A;
+    --color-accent: #4A2DE6;
+    --color-accent-hover: #3A22B8;
+    --color-accent-halo: rgba(74,45,230,.28);
+    --color-selection: #4A2DE6;
+    --color-selection-text: #3A22B8;
+    --color-selection-surface: #E2DDFB;
+    --color-focus: #4A2DE6;
+    --color-success: #065F46;
+    --color-warning: #6B3F00;
+    --color-danger: #8E1B10;
+    --color-danger-fill: #8E1B10;
+    --color-arrow: #11142A;
+    --color-arrow-active: #4A2DE6;
+    --shadow-e1: 0 0 0 2px rgb(17,20,42);
+    --shadow-e2: 0 0 0 2px rgb(17,20,42);
+    --shadow-frame: 0 0 0 2px rgb(17,20,42);
+    --shadow-frame-active: 0 0 0 3px #4A2DE6;
+    --shadow-primary: 0 0 0 2px #11142A;
+    --shadow-e4: 0 0 0 2px rgb(17,20,42);
+    --surface-glass-fill: #FFFFFF;
+    --surface-glass-solid: #FFFFFF;
+    --surface-glass-backdrop: none;
+    --surface-glass-inner: transparent;
+    --surface-glass-outer: #11142A;
+    --surface-scrim-fill: rgba(17,20,42,.60);
+    --surface-stroke-field: 2px;
+    --surface-stroke-focus: 3px;
+    --surface-stroke-arrow: 2px;
+  }
+}
+
+/* U15: forced colours use system colours; forced-color-adjust stays auto. */
+@media (forced-colors: active) {
+  :root {
+    --color-canvas: Canvas;
+    --color-app: Canvas;
+    --color-raised: Canvas;
+    --color-selected: Canvas;
+    --color-primary: CanvasText;
+    --color-secondary: CanvasText;
+    --color-tertiary: CanvasText;
+    --color-accent: Highlight;
+    --color-accent-hover: Highlight;
+    --color-selection: Highlight;
+    --color-selection-text: HighlightText;
+    --color-selection-surface: Canvas;
+    --color-on-accent: HighlightText;
+    --color-focus: Highlight;
+    --color-link: LinkText;
+    --color-button-text: ButtonText;
+  }
 }
 
 [data-theme=dark] {
@@ -24,4 +211,128 @@
   --color-brand-mint: #38D9A9;
   --color-brand-amber: #FFC53D;
   --color-brand-surface: #0B0D17;
+  --color-canvas: #0B0D17;
+  --color-app: #0B0D17;
+  --color-raised: #141726;
+  --color-glass: rgba(20,23,38,.80);
+  --color-card: rgba(26,30,48,.80);
+  --color-hover: rgba(255,255,255,.06);
+  --color-selected: #22263A;
+  --color-primary: #F5F6FA;
+  --color-secondary: #B4BAD0;
+  --color-secondary-glass: #B4BAD0;
+  --color-tertiary: #A3AAC2;
+  --color-on-accent: #11142A;
+  --color-hairline: rgba(255,255,255,.08);
+  --color-strong: rgba(255,255,255,.16);
+  --color-accent: #8B74FF;
+  --color-accent-hover: #7257FF;
+  --color-accent-halo: rgba(139,116,255,.20);
+  --color-selection: #8B74FF;
+  --color-selection-text: #C9BFFF;
+  --color-selection-surface: #2A2250;
+  --color-focus: #8B74FF;
+  --color-success: #38D9A9;
+  --color-success-surface: rgba(56,217,169,.12);
+  --color-warning: #FFC53D;
+  --color-warning-surface: rgba(255,197,61,.12);
+  --color-danger: #F97066;
+  --color-danger-surface: rgba(249,112,102,.12);
+  --color-danger-fill: #F97066;
+  --color-arrow: #6B7390;
+  --color-arrow-active: #8B74FF;
+  --shadow-e1: 0 1px 2px rgba(0,0,0,.16), 0 2px 8px -2px rgba(0,0,0,.20), 0 0 0 1px rgba(0,0,0,.40);
+  --shadow-e2: 0 1px 1px rgba(0,0,0,.08), 0 16px 40px -8px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.40);
+  --shadow-frame: 0 0 0 1px rgba(0,0,0,.10), 0 24px 48px -16px rgba(0,0,0,.40), 0 0 0 1px rgba(0,0,0,.40);
+  --shadow-frame-active: 0 0 0 1px rgba(0,0,0,.10), 0 24px 48px -16px rgba(0,0,0,.40), 0 0 0 7px rgba(139,116,255,.20), 0 0 0 1px #8B74FF;
+  --shadow-primary: 0 6px 16px -6px rgba(139,116,255,.60);
+  --shadow-e4: 0 24px 64px rgba(0,0,0,.36), 0 4px 12px rgba(0,0,0,.16), 0 0 0 1px rgba(0,0,0,.40);
+  --surface-glass-fill: rgba(20,23,38,.80);
+  --surface-glass-solid: rgba(20,23,38,.96);
+  --surface-glass-backdrop: blur(28px) saturate(140%);
+  --surface-glass-inner: rgba(255,255,255,.06);
+  --surface-glass-outer: rgba(0,0,0,.40);
+  --surface-scrim-fill: rgba(0,0,0,.48);
+}
+
+[data-theme=contrast] {
+  --color-canvas: #FFFFFF;
+  --color-app: #FFFFFF;
+  --color-glass: #FFFFFF;
+  --color-card: #FFFFFF;
+  --color-hover: #E6E8F0;
+  --color-selected: #E2DDFB;
+  --color-secondary: #11142A;
+  --color-secondary-glass: #11142A;
+  --color-tertiary: #30364F;
+  --color-hairline: #555C7C;
+  --color-strong: #11142A;
+  --color-accent: #4A2DE6;
+  --color-accent-hover: #3A22B8;
+  --color-accent-halo: rgba(74,45,230,.28);
+  --color-selection: #4A2DE6;
+  --color-selection-text: #3A22B8;
+  --color-selection-surface: #E2DDFB;
+  --color-focus: #4A2DE6;
+  --color-success: #065F46;
+  --color-warning: #6B3F00;
+  --color-danger: #8E1B10;
+  --color-danger-fill: #8E1B10;
+  --color-arrow: #11142A;
+  --color-arrow-active: #4A2DE6;
+  --shadow-e1: 0 0 0 2px rgb(17,20,42);
+  --shadow-e2: 0 0 0 2px rgb(17,20,42);
+  --shadow-frame: 0 0 0 2px rgb(17,20,42);
+  --shadow-frame-active: 0 0 0 3px #4A2DE6;
+  --shadow-primary: 0 0 0 2px #11142A;
+  --shadow-e4: 0 0 0 2px rgb(17,20,42);
+  --surface-glass-fill: #FFFFFF;
+  --surface-glass-solid: #FFFFFF;
+  --surface-glass-backdrop: none;
+  --surface-glass-inner: transparent;
+  --surface-glass-outer: #11142A;
+  --surface-scrim-fill: rgba(17,20,42,.60);
+  --surface-stroke-field: 2px;
+  --surface-stroke-focus: 3px;
+  --surface-stroke-arrow: 2px;
+}
+
+:lang(ar) {
+  --text-body--line-height: 20px;
+  --text-label--line-height: 18px;
+  --text-caption--line-height: 18px;
+  --text-data--line-height: 18px;
+  --text-tag--line-height: 14px;
+}
+
+/* Solid fallback for glass (U3 rule 3). */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --surface-glass-fill: var(--surface-glass-solid);
+    --surface-glass-backdrop: none;
+  }
+}
+
+[data-transparency=reduced] {
+  --surface-glass-fill: var(--surface-glass-solid);
+  --surface-glass-backdrop: none;
+}
+
+@utility glass {
+  background-color: var(--surface-glass-fill);
+  backdrop-filter: var(--surface-glass-backdrop);
+  box-shadow:
+    inset 0 0 0 1px var(--surface-glass-inner),
+    0 0 0 1px var(--surface-glass-outer),
+    var(--shadow-e2);
+}
+
+/* U13: every animation becomes an instant change. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-enter: 0ms;
+    --duration-bundle: 0ms;
+  }
 }
