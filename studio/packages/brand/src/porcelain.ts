@@ -361,6 +361,20 @@ export const space: Readonly<Record<string, string>> = {
   "16": "64px",
 };
 
+/** U8 icon sizes (12 px in pills, 14 px in tabs, fields and tables, 17 px in capsules), keyed `icon-<size>`. */
+export const iconSizes: Readonly<Record<string, string>> = {
+  "icon-sm": "12px",
+  "icon-md": "14px",
+  "icon-lg": "17px",
+};
+
+/** U11 dialog and panel widths, keyed `dialog-<size>`. */
+export const dialogWidths: Readonly<Record<string, string>> = {
+  "dialog-sm": "400px",
+  "dialog-md": "560px",
+  "dialog-lg": "800px",
+};
+
 /** U6 density sets. */
 export type DensityName = "compact" | "comfortable";
 
@@ -438,6 +452,8 @@ export function tokenCount(): number {
     elevations.length +
     surfaceScalars.length +
     Object.keys(space).length +
+    Object.keys(iconSizes).length +
+    Object.keys(dialogWidths).length +
     densityTokens.length +
     Object.keys(motion.durations).length +
     Object.keys(motion.easings).length +
