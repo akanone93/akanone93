@@ -37,6 +37,7 @@ export {
   TextDirection,
 } from "./flutter/geometry.ts";
 export { ParentData, PipelineOwner, RenderObject } from "./flutter/object.ts";
+export { RenderParagraph, type RenderParagraphOptions, TextOverflow } from "./flutter/paragraph.ts";
 export {
   DecorationPosition,
   RenderConstrainedBox,
@@ -56,6 +57,39 @@ export {
   RenderPositionedBox,
   RenderShiftedBox,
 } from "./flutter/shifted-box.ts";
+export {
+  computePaintOffsetFraction,
+  TextPainter,
+  type TextPainterOptions,
+  TextWidthBasis,
+} from "./flutter/text-painter.ts";
+export {
+  buildTextRuns,
+  getParagraphStyle,
+  getTextStyle,
+  kDefaultFontSize,
+  type ParagraphStyleArgs,
+  plainText,
+  type StrutStyle,
+  TextScaler,
+  type TextSpan,
+  type TextStyle,
+} from "./flutter/text-style.ts";
 export { RenderView } from "./flutter/view.ts";
 export { globalRects, goldenRects, type LayoutGolden, type NodeRect } from "./node-rects.ts";
 export { RenderTestBox, type RenderTestBoxOptions } from "./test-box.ts";
+export { CanvasKitParagraphEngine } from "./text/canvaskit-engine.ts";
+export {
+  type EngineLineMetrics,
+  type EngineParagraph,
+  type EngineParagraphStyle,
+  type EngineStrutStyle,
+  type EngineTextRun,
+  type EngineTextStyle,
+  type FontFeature,
+  FontStyle,
+  type ParagraphEngine,
+  TextAlign,
+  type TextHeightBehavior,
+  TextLeadingDistribution,
+} from "./text/paragraph-engine.ts";

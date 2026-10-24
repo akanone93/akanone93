@@ -1,0 +1,31 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "text-ellipsis",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "align": [
+      0.0,
+      0.0,
+      800.0,
+      1280.0
+    ],
+    "box": [
+      0.0,
+      0.0,
+      150.0,
+      38.0
+    ],
+    "text": [
+      0.0,
+      0.0,
+      150.0,
+      38.0
+    ]
+  }
+}

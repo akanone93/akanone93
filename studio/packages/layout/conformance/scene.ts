@@ -25,18 +25,31 @@ import {
   type LayoutGolden,
   MainAxisAlignment,
   MainAxisSize,
+  type ParagraphEngine,
   PipelineOwner,
   type RenderBox,
   RenderConstrainedBox,
   RenderDecoratedBox,
   RenderFlex,
+  type RenderObject,
   RenderPadding,
+  RenderParagraph,
   RenderPositionedBox,
   RenderView,
   Size,
+  TextAlign,
   TextDirection,
+  TextOverflow,
+  TextScaler,
+  type TextStyle,
   VerticalDirection,
 } from "../src/index.ts";
+
+/** What text nodes are laid out with: the paragraph engine and the golden's text scale. */
+export interface SceneText {
+  engine: ParagraphEngine;
+  textScaler: TextScaler;
+}
 
 /** One node of a scene; `props` use Flutter's parameter names. */
 export interface SceneNode {
@@ -72,8 +85,11 @@ export function renderFlexAvailable(): boolean {
 }
 
 /** The node types a scene may use to be compared; everything else awaits an engine feature. */
+/** Node types laid out by `RenderParagraph`, which needs a [ParagraphEngine]. */
+export const textTypes: ReadonlySet<string> = new Set(["Text"]);
+
 export function supportedTypes(): ReadonlySet<string> {
-  return renderFlexAvailable() ? new Set([...boxTypes, ...flexTypes]) : boxTypes;
+  return new Set([...boxTypes, ...textTypes, ...(renderFlexAvailable() ? flexTypes : [])]);
 }
 
 /** Every node type the scene uses. */
@@ -151,6 +167,45 @@ function unsupported(node: SceneNode): Error {
   return new Error(`node "${node.id}": unknown scene node type "${node.type}"`);
 }
 
+/** Text: a [RenderParagraph] with the `Text` widget's defaults and the ambient text scale. */
+function buildText(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox {
+  if (text === null) {
+    throw new Error(`node "${node.id}": Text needs a ParagraphEngine`);
+  }
+  const props = node.props;
+  const style = (field(props, "style") ?? {}) as Record<string, unknown>;
+  const textStyle: TextStyle = {};
+  const fontFamily = field(style, "fontFamily");
+  if (typeof fontFamily === "string") {
+    textStyle.fontFamily = fontFamily;
+  }
+  for (const name of ["fontSize", "fontWeight", "height", "letterSpacing"] as const) {
+    const value = optionalNum(style, name);
+    if (value !== null) {
+      textStyle[name] = value;
+    }
+  }
+  const maxLines = optionalNum(props, "maxLines");
+  return new RenderParagraph({
+    text: { text: String(field(props, "text")), style: textStyle },
+    textDirection,
+    engine: text.engine,
+    textScaler: text.textScaler,
+    textAlign: (field(props, "textAlign") ?? TextAlign.start) as TextAlign,
+    maxLines,
+    overflow: (field(props, "overflow") ?? TextOverflow.clip) as TextOverflow,
+    softWrap: (field(props, "softWrap") ?? true) as boolean,
+  });
+}
+
+/** Releases the paragraphs of a scene's render tree. */
+export function disposeParagraphs(node: RenderObject): void {
+  if (node instanceof RenderParagraph) {
+    node.dispose();
+  }
+  node.visitChildren(disposeParagraphs);
+}
+
 /** Row, Column and Flex: a [RenderFlex] with Flutter's widget defaults. */
 function buildFlex(node: SceneNode, children: RenderBox[], textDirection: TextDirection): RenderBox {
   const props = node.props;
@@ -197,8 +252,8 @@ function applyFlexible(node: SceneNode, child: RenderBox | null): RenderBox {
  * `Directionality`). Throws on an unknown type and on a flex type, which
  * needs `RenderFlex`.
  */
-export function buildNode(node: SceneNode, textDirection: TextDirection): RenderBox {
-  const children = (node.children ?? []).map((child) => buildNode(child, textDirection));
+export function buildNode(node: SceneNode, textDirection: TextDirection, text: SceneText | null = null): RenderBox {
+  const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text));
   const child = singleChild(node, children);
   const props = node.props;
   let box: RenderBox;
@@ -212,6 +267,9 @@ export function buildNode(node: SceneNode, textDirection: TextDirection): Render
     case "Flexible":
     case "Spacer":
       return applyFlexible(node, child);
+    case "Text":
+      box = buildText(node, textDirection, text);
+      break;
     case "TestBox":
       // Flutter's side is a childless SizedBox, i.e. a RenderConstrainedBox.
       box = new RenderConstrainedBox({
@@ -265,12 +323,16 @@ export function buildNode(node: SceneNode, textDirection: TextDirection): Render
 }
 
 /** Lays `scene` out in the golden's frame and direction, as the Flutter writer did. */
-export function layOutScene(scene: Scene, golden: LayoutGolden): RenderView {
+export function layOutScene(scene: Scene, golden: LayoutGolden, engine: ParagraphEngine | null = null): RenderView {
   const direction = golden.locale === "ar" ? TextDirection.rtl : TextDirection.ltr;
   const owner = new PipelineOwner();
   const view = new RenderView({
     size: new Size(golden.frame.width, golden.frame.height),
-    child: buildNode(scene.root, direction),
+    child: buildNode(
+      scene.root,
+      direction,
+      engine === null ? null : { engine, textScaler: TextScaler.linear(golden.textScale) },
+    ),
   });
   owner.rootNode = view;
   view.prepareInitialFrame();

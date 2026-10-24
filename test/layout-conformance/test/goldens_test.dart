@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The Flutter framework revision the goldens are captured with.
@@ -31,10 +32,7 @@ class _Direction {
   final String locale;
 }
 
-const List<_Frame> _frames = <_Frame>[
-  _Frame('phone', 360, 800, 3),
-  _Frame('tablet', 800, 1280, 2),
-];
+const List<_Frame> _frames = <_Frame>[_Frame('phone', 360, 800, 3), _Frame('tablet', 800, 1280, 2)];
 
 const List<_Direction> _directions = <_Direction>[
   _Direction('ltr', TextDirection.ltr, 'en'),
@@ -42,7 +40,33 @@ const List<_Direction> _directions = <_Direction>[
 ];
 
 /// Scenes have no text yet, so only 1.0 is captured; 2.0 joins with text.
-const List<double> _textScales = <double>[1.0];
+// Scenes with text are captured at text scale 1.0 and 2.0; others at 1.0.
+const List<double> _textScales = <double>[1.0, 2.0];
+
+// The repository's Noto fonts, under the families the scenes name; Studio's
+// tests register the same files with CanvasKit.
+const List<(String, String)> _fonts = <(String, String)>[
+  ('NotoSans', 'NotoSans_400Regular.ttf'),
+  ('NotoSans', 'NotoSans_700Bold.ttf'),
+  ('NotoNaskhArabic', 'NotoNaskhArabic_400Regular.ttf'),
+];
+
+Future<void> _loadFonts() async {
+  final Map<String, FontLoader> loaders = <String, FontLoader>{};
+  for (final (String family, String file) in _fonts) {
+    final Uint8List bytes = File('../../schema/goldens/fonts/$file').readAsBytesSync();
+    (loaders[family] ??= FontLoader(family)).addFont(Future<ByteData>.value(ByteData.sublistView(bytes)));
+  }
+  for (final FontLoader loader in loaders.values) {
+    await loader.load();
+  }
+}
+
+bool _hasText(Map<String, Object?> node) =>
+    node['type'] == 'Text' ||
+    ((node['children'] as List<Object?>?) ?? <Object?>[]).any(
+      (Object? child) => _hasText(child! as Map<String, Object?>),
+    );
 
 double _number(Object? value) {
   if (value == 'infinity') {
@@ -56,12 +80,7 @@ double? _optionalNumber(Map<String, Object?> props, String name) =>
 
 EdgeInsetsGeometry _padding(Object? value) {
   if (value is List<Object?>) {
-    return EdgeInsets.fromLTRB(
-      _number(value[0]),
-      _number(value[1]),
-      _number(value[2]),
-      _number(value[3]),
-    );
+    return EdgeInsets.fromLTRB(_number(value[0]), _number(value[1]), _number(value[2]), _number(value[3]));
   }
   final Map<String, Object?> sides = value! as Map<String, Object?>;
   return EdgeInsetsDirectional.fromSTEB(
@@ -89,8 +108,7 @@ T _enum<T extends Enum>(List<T> values, Object? name, T fallback) =>
 Widget _build(Map<String, Object?> node) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
-  final Map<String, Object?> props =
-      (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
   final List<Widget> children = <Widget>[
     for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[])
       _build(child! as Map<String, Object?>),
@@ -158,8 +176,7 @@ Widget _build(Map<String, Object?> node) {
         },
         mainAxisAlignment: _enum(MainAxisAlignment.values, props['mainAxisAlignment'], MainAxisAlignment.start),
         mainAxisSize: _enum(MainAxisSize.values, props['mainAxisSize'], MainAxisSize.max),
-        crossAxisAlignment:
-            _enum(CrossAxisAlignment.values, props['crossAxisAlignment'], CrossAxisAlignment.center),
+        crossAxisAlignment: _enum(CrossAxisAlignment.values, props['crossAxisAlignment'], CrossAxisAlignment.center),
         verticalDirection: _enum(VerticalDirection.values, props['verticalDirection'], VerticalDirection.down),
         spacing: _optionalNumber(props, 'spacing') ?? 0,
         children: children,
@@ -172,6 +189,25 @@ Widget _build(Map<String, Object?> node) {
         flex: (props['flex'] as int?) ?? 1,
         fit: _enum(FlexFit.values, props['fit'], FlexFit.loose),
         child: child!,
+      );
+    case 'Text':
+      final Map<String, Object?> style = (props['style'] as Map<String, Object?>?) ?? <String, Object?>{};
+      return Text(
+        props['text']! as String,
+        key: key,
+        style: TextStyle(
+          fontFamily: style['fontFamily'] as String?,
+          fontSize: _optionalNumber(style, 'fontSize'),
+          fontWeight: style.containsKey('fontWeight')
+              ? FontWeight.values.firstWhere((FontWeight w) => w.value == style['fontWeight'])
+              : null,
+          height: _optionalNumber(style, 'height'),
+          letterSpacing: _optionalNumber(style, 'letterSpacing'),
+        ),
+        textAlign: props.containsKey('textAlign') ? TextAlign.values.byName(props['textAlign']! as String) : null,
+        maxLines: props['maxLines'] as int?,
+        overflow: props.containsKey('overflow') ? TextOverflow.values.byName(props['overflow']! as String) : null,
+        softWrap: props['softWrap'] as bool?,
       );
     case 'Spacer':
       return Spacer(key: key, flex: (props['flex'] as int?) ?? 1);
@@ -191,8 +227,9 @@ bool _expectsOverflow(Map<String, Object?> node) {
   if (props?['expectOverflow'] == true) {
     return true;
   }
-  return ((node['children'] as List<Object?>?) ?? <Object?>[])
-      .any((Object? child) => _expectsOverflow(child! as Map<String, Object?>));
+  return ((node['children'] as List<Object?>?) ?? <Object?>[]).any(
+    (Object? child) => _expectsOverflow(child! as Map<String, Object?>),
+  );
 }
 
 String _goldenName(String scene, _Frame frame, _Direction direction, double scale) =>
@@ -200,13 +237,11 @@ String _goldenName(String scene, _Frame frame, _Direction direction, double scal
 
 void main() {
   final bool update = Platform.environment['UPDATE_GOLDENS'] == '1';
-  final List<File> sceneFiles = Directory('scenes')
-      .listSync()
-      .whereType<File>()
-      .where((File file) => file.path.endsWith('.json'))
-      .toList()
-    ..sort((File a, File b) => a.path.compareTo(b.path));
+  final List<File> sceneFiles =
+      Directory('scenes').listSync().whereType<File>().where((File file) => file.path.endsWith('.json')).toList()
+        ..sort((File a, File b) => a.path.compareTo(b.path));
   final Set<String> expectedGoldens = <String>{};
+  setUpAll(_loadFonts);
 
   for (final File sceneFile in sceneFiles) {
     final Map<String, Object?> scene = jsonDecode(sceneFile.readAsStringSync()) as Map<String, Object?>;
@@ -218,11 +253,14 @@ void main() {
 
     for (final _Frame frame in _frames) {
       for (final _Direction direction in _directions) {
-        for (final double scale in _textScales) {
+        for (final double scale in _hasText(root) ? _textScales : _textScales.take(1)) {
           final String goldenName = _goldenName(name, frame, direction, scale);
           expectedGoldens.add(goldenName);
           testWidgets(goldenName, (WidgetTester tester) async {
-            tester.view.physicalSize = Size(frame.width * frame.devicePixelRatio, frame.height * frame.devicePixelRatio);
+            tester.view.physicalSize = Size(
+              frame.width * frame.devicePixelRatio,
+              frame.height * frame.devicePixelRatio,
+            );
             tester.view.devicePixelRatio = frame.devicePixelRatio;
             addTearDown(tester.view.reset);
 
@@ -248,25 +286,26 @@ void main() {
                   return <double>[rect.left, rect.top, rect.width, rect.height];
                 }(),
             };
-            final String content = '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
-              'flutterRevision': flutterRevision,
-              'scene': name,
-              'frame': <String, Object?>{
-                'width': frame.width,
-                'height': frame.height,
-                'devicePixelRatio': frame.devicePixelRatio,
-              },
-              'locale': direction.locale,
-              'textScale': scale,
-              'rects': rects,
-            })}\n';
+            final String content =
+                '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
+                  'flutterRevision': flutterRevision,
+                  'scene': name,
+                  'frame': <String, Object?>{'width': frame.width, 'height': frame.height, 'devicePixelRatio': frame.devicePixelRatio},
+                  'locale': direction.locale,
+                  'textScale': scale,
+                  'rects': rects,
+                })}\n';
 
             final File golden = File('goldens/$goldenName');
             if (update) {
               golden.writeAsStringSync(content);
             } else {
               expect(golden.existsSync(), isTrue, reason: '$goldenName is missing: run make studio-conformance-update');
-              expect(golden.readAsStringSync(), content, reason: '$goldenName is stale: run make studio-conformance-update');
+              expect(
+                golden.readAsStringSync(),
+                content,
+                reason: '$goldenName is stale: run make studio-conformance-update',
+              );
             }
           });
         }
@@ -286,7 +325,11 @@ void main() {
         File('goldens/$orphan').deleteSync();
       }
     } else {
-      expect(present.difference(expectedGoldens), isEmpty, reason: 'goldens without a scene: run make studio-conformance-update');
+      expect(
+        present.difference(expectedGoldens),
+        isEmpty,
+        reason: 'goldens without a scene: run make studio-conformance-update',
+      );
     }
   });
 }
