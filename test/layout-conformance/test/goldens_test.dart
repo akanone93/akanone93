@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -59,6 +60,26 @@ Future<void> _loadFonts() async {
   }
   for (final FontLoader loader in loaders.values) {
     await loader.load();
+  }
+}
+
+StrutStyle _strut(Map<String, Object?> strut) => StrutStyle(
+  fontFamily: strut['fontFamily'] as String?,
+  fontSize: _optionalNumber(strut, 'fontSize'),
+  height: _optionalNumber(strut, 'height'),
+  leading: _optionalNumber(strut, 'leading'),
+  forceStrutHeight: strut['forceStrutHeight'] as bool?,
+  leadingDistribution: strut.containsKey('leadingDistribution')
+      ? TextLeadingDistribution.values.byName(strut['leadingDistribution']! as String)
+      : null,
+);
+
+void _collectTextIds(Map<String, Object?> node, List<String> into) {
+  if (node['type'] == 'Text') {
+    into.add(node['id']! as String);
+  }
+  for (final Object? child in (node['children'] as List<Object?>?) ?? const <Object?>[]) {
+    _collectTextIds(child! as Map<String, Object?>, into);
   }
 }
 
@@ -253,7 +274,11 @@ Widget _build(Map<String, Object?> node) {
               : null,
           height: _optionalNumber(style, 'height'),
           letterSpacing: _optionalNumber(style, 'letterSpacing'),
+          leadingDistribution: style.containsKey('leadingDistribution')
+              ? TextLeadingDistribution.values.byName(style['leadingDistribution']! as String)
+              : null,
         ),
+        strutStyle: props.containsKey('strutStyle') ? _strut(props['strutStyle']! as Map<String, Object?>) : null,
         textAlign: props.containsKey('textAlign') ? TextAlign.values.byName(props['textAlign']! as String) : null,
         maxLines: props['maxLines'] as int?,
         overflow: props.containsKey('overflow') ? TextOverflow.values.byName(props['overflow']! as String) : null,
@@ -336,6 +361,22 @@ void main() {
                   return <double>[rect.left, rect.top, rect.width, rect.height];
                 }(),
             };
+            final List<String> textIds = <String>[];
+            _collectTextIds(root, textIds);
+            textIds.sort();
+            final Map<String, double> baselines = <String, double>{
+              for (final String id in textIds)
+                id: () {
+                  final RenderParagraph paragraph = tester.renderObject<RenderParagraph>(
+                    find.descendant(
+                      of: find.byKey(ValueKey<String>(id), skipOffstage: false),
+                      matching: find.byType(RichText),
+                      skipOffstage: false,
+                    ),
+                  );
+                  return paragraph.getDryBaseline(paragraph.constraints, TextBaseline.alphabetic)!;
+                }(),
+            };
             final String content =
                 '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
                   'flutterRevision': flutterRevision,
@@ -344,6 +385,7 @@ void main() {
                   'locale': direction.locale,
                   'textScale': scale,
                   'rects': rects,
+                  if (baselines.isNotEmpty) 'baselines': baselines,
                 })}\n';
 
             final File golden = File('goldens/$goldenName');
