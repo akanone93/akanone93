@@ -10,7 +10,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { type CanvasKitParagraphEngine, type LayoutGolden, TextDirection } from "../src/index.ts";
 import { loadCanvasKit, testParagraphEngine } from "../test-support/canvaskit.ts";
-import { compareRects, edgeTolerance, type GoldenRect, textTolerance } from "./compare.ts";
+import { compareBaselines, compareRects, edgeTolerance, type GoldenRect, textTolerance } from "./compare.ts";
 import {
   buildNode,
   disposeParagraphs,
@@ -18,6 +18,7 @@ import {
   layOutScene,
   type Scene,
   type SceneNode,
+  sceneGoldenBaselines,
   sceneGoldenRects,
   sceneTypes,
   supportedTypes,
@@ -105,8 +106,10 @@ describe("STU-005 layout conformance with Flutter goldens", () => {
     test(`${file} matches Flutter within ${tolerance}`, () => {
       const view = layOutScene(scene, golden, engine);
       const actual = sceneGoldenRects(scene, view);
+      const baselines = sceneGoldenBaselines(view);
       disposeParagraphs(view);
       expect(compareRects(actual, golden.rects, (id) => (text.has(id) ? textTolerance : edgeTolerance))).toEqual([]);
+      expect(compareBaselines(baselines, golden.baselines ?? {}, textTolerance)).toEqual([]);
     });
   }
 });

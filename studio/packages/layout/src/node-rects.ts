@@ -9,7 +9,8 @@
 
 import { Offset } from "./flutter/geometry.ts";
 import type { RenderObject } from "./flutter/object.ts";
-import { RenderBox } from "./flutter/render-box.ts";
+import { RenderParagraph } from "./flutter/paragraph.ts";
+import { RenderBox, TextBaseline } from "./flutter/render-box.ts";
 
 /** A rectangle in logical pixels relative to the root's origin. */
 export interface NodeRect {
@@ -33,6 +34,8 @@ export interface LayoutGolden {
   textScale: number;
   /** `[x, y, width, height]` per Plux node ID, in logical pixels. */
   rects: Record<string, [number, number, number, number]>;
+  /** Alphabetic baseline distance from the top of each Text node, in logical pixels (absent without Text). */
+  baselines?: Record<string, number>;
 }
 
 /**
@@ -74,4 +77,17 @@ export function goldenRects(root: RenderObject): Record<string, [number, number,
     }
   }
   return result;
+}
+
+/** The alphabetic baseline distance from the top of every identified paragraph, keys sorted. */
+export function goldenBaselines(root: RenderObject): Record<string, number> {
+  const found = new Map<string, number>();
+  const visit = (node: RenderObject): void => {
+    if (node.debugId !== null && node instanceof RenderParagraph && node.hasSize) {
+      found.set(node.debugId, node.getDistanceToBaseline(TextBaseline.alphabetic) ?? Number.NaN);
+    }
+    node.visitChildren(visit);
+  };
+  visit(root);
+  return Object.fromEntries([...found.keys()].sort().map((id) => [id, found.get(id) ?? Number.NaN]));
 }

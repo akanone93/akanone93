@@ -42,8 +42,10 @@ import {
   Size,
   StackFit,
   StackParentData,
+  type StrutStyle,
   TextAlign,
   TextDirection,
+  type TextLeadingDistribution,
   TextOverflow,
   TextScaler,
   type TextStyle,
@@ -184,6 +186,33 @@ function unsupported(node: SceneNode): Error {
   return new Error(`node "${node.id}": unknown scene node type "${node.type}"`);
 }
 
+/** A Text node's optional `strutStyle` prop as a [StrutStyle]. */
+function buildStrut(props: Record<string, unknown> | undefined): StrutStyle | null {
+  if (props === undefined) {
+    return null;
+  }
+  const strut: StrutStyle = {};
+  const family = field(props, "fontFamily");
+  if (typeof family === "string") {
+    strut.fontFamily = family;
+  }
+  for (const name of ["fontSize", "height", "leading"] as const) {
+    const value = optionalNum(props, name);
+    if (value !== null) {
+      strut[name] = value;
+    }
+  }
+  const force = field(props, "forceStrutHeight");
+  if (force !== undefined) {
+    strut.forceStrutHeight = force as boolean;
+  }
+  const distribution = field(props, "leadingDistribution");
+  if (distribution !== undefined) {
+    strut.leadingDistribution = distribution as TextLeadingDistribution;
+  }
+  return strut;
+}
+
 /** Text: a [RenderParagraph] with the `Text` widget's defaults and the ambient text scale. */
 function buildText(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox {
   if (text === null) {
@@ -202,8 +231,13 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
       textStyle[name] = value;
     }
   }
+  const distribution = field(style, "leadingDistribution");
+  if (distribution !== undefined) {
+    textStyle.leadingDistribution = distribution as TextLeadingDistribution;
+  }
   const maxLines = optionalNum(props, "maxLines");
   return new RenderParagraph({
+    strutStyle: buildStrut(field(props, "strutStyle") as Record<string, unknown> | undefined),
     text: { text: String(field(props, "text")), style: textStyle },
     textDirection,
     engine: text.engine,
@@ -440,4 +474,9 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
   };
   alias(scene.root);
   return rects;
+}
+
+/** The alphabetic baseline of every Text node in the golden's `baselines` shape. */
+export function sceneGoldenBaselines(view: RenderView): Record<string, number> {
+  return layout.goldenBaselines(view);
 }
