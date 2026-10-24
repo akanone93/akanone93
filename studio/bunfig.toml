@@ -5,6 +5,8 @@
 exact = true
 
 [test]
+preload = ["./test-setup.ts"]
+pathIgnorePatterns = ["e2e/**", "**/node_modules/**"]
 coverage = true
 coverageReporter = ["text", "lcov"]
 coverageDir = "coverage"
