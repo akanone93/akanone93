@@ -1,0 +1,10 @@
+{
+  "name": "@plux/bff",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Plux Studio backend for frontend (ADR-0014).",
+  "dependencies": {
+    "hono": "4.13.13"
+  }
+}
