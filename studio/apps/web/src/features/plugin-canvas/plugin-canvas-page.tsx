@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
-import { ProblemCounts, ProblemsDrawer } from "../problems/problems-panel.tsx";
+import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
@@ -24,6 +24,7 @@ import {
   screenDocuments,
   screenStyle,
 } from "./scene.ts";
+import { ScreensController } from "./screens-controller.tsx";
 import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
 import type { EditFn } from "./select/edits.ts";
 import { structureEdit } from "./select/gesture.ts";
@@ -245,6 +246,25 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
     void navigate({ to: ".", search: (prev: object) => ({ ...prev, x, y, z }), replace: true });
   };
 
+  const zoomBy = (factor: number) => {
+    const canvas = canvasRef.current;
+    if (canvas === null) {
+      return;
+    }
+    const r = canvas.getBoundingClientRect();
+    surfaceRef.current?.zoomAbout(factor, r.left + r.width / 2, r.top + r.height / 2);
+    sync();
+  };
+  const fit = () => {
+    const surface = surfaceRef.current;
+    const canvas = canvasRef.current;
+    if (surface !== null && canvas !== null) {
+      fitView(surface, canvas, screens, heights, {});
+      sync();
+    }
+  };
+  const entryPage = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
+
   const drag = useRef<{ x: number; y: number } | null>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
@@ -323,11 +343,21 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
           </li>
         ))}
       </ol>
-      <div className="absolute end-4 top-4">
-        <ProblemCounts validation={validation} />
-      </div>
       <ProblemsDrawer validation={validation} />
-      <p className="absolute end-4 bottom-4 text-caption text-secondary">{m.zoom(percent)}</p>
+      {docs.data !== undefined && (
+        <ScreensController
+          appId={params.app ?? ""}
+          pluginId={params.plugin ?? ""}
+          documents={docs.data}
+          appDocuments={appDocs.data}
+          screens={screens.map((x) => ({ id: x.id, title: x.title }))}
+          entryPage={entryPage}
+          validation={validation}
+          percent={percent}
+          onZoom={zoomBy}
+          onFit={fit}
+        />
+      )}
     </section>
   );
 }
