@@ -37,6 +37,11 @@ type Plugin struct {
 	DraftRevision int64                  `protobuf:"varint,6,opt,name=draft_revision,json=draftRevision,proto3" json:"draft_revision,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Description   string                 `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
+	IconAssetId   string                 `protobuf:"bytes,10,opt,name=icon_asset_id,json=iconAssetId,proto3" json:"icon_asset_id,omitempty"`
+	OwningTeamId  string                 `protobuf:"bytes,11,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"`
+	Tags          []string               `protobuf:"bytes,12,rep,name=tags,proto3" json:"tags,omitempty"`
+	Archived      bool                   `protobuf:"varint,13,opt,name=archived,proto3" json:"archived,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -127,6 +132,190 @@ func (x *Plugin) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Plugin) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *Plugin) GetIconAssetId() string {
+	if x != nil {
+		return x.IconAssetId
+	}
+	return ""
+}
+
+func (x *Plugin) GetOwningTeamId() string {
+	if x != nil {
+		return x.OwningTeamId
+	}
+	return ""
+}
+
+func (x *Plugin) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *Plugin) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
+// PluginSummary is what the app canvas shows of one plugin.
+type PluginSummary struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Plugin  *Plugin                `protobuf:"bytes,1,opt,name=plugin,proto3" json:"plugin,omitempty"`
+	Screens int64                  `protobuf:"varint,2,opt,name=screens,proto3" json:"screens,omitempty"`
+	// versions is the number of published versions (the highest is the latest).
+	Versions int64 `protobuf:"varint,3,opt,name=versions,proto3" json:"versions,omitempty"`
+	// unpublished_changes is true when the draft changed after the newest
+	// published version, or nothing was published yet and the draft has content.
+	UnpublishedChanges bool `protobuf:"varint,4,opt,name=unpublished_changes,json=unpublishedChanges,proto3" json:"unpublished_changes,omitempty"`
+	// lock_holder is the display name of the draft's lock holder, or empty.
+	LockHolder       string `protobuf:"bytes,5,opt,name=lock_holder,json=lockHolder,proto3" json:"lock_holder,omitempty"`
+	ValidationErrors int64  `protobuf:"varint,6,opt,name=validation_errors,json=validationErrors,proto3" json:"validation_errors,omitempty"`
+	// killed is true when a channel of the app switches the plugin off.
+	Killed bool `protobuf:"varint,7,opt,name=killed,proto3" json:"killed,omitempty"`
+	// owner_team_id mirrors plugin.owning_team_id.
+	OwnerTeamId string `protobuf:"bytes,8,opt,name=owner_team_id,json=ownerTeamId,proto3" json:"owner_team_id,omitempty"`
+	BundleSize  int64  `protobuf:"varint,9,opt,name=bundle_size,json=bundleSize,proto3" json:"bundle_size,omitempty"`
+	// links_out and links_in are the distinct other plugins this plugin
+	// navigates to, and that navigate to it, by plugin key.
+	LinksOut      []string               `protobuf:"bytes,10,rep,name=links_out,json=linksOut,proto3" json:"links_out,omitempty"`
+	LinksIn       []string               `protobuf:"bytes,11,rep,name=links_in,json=linksIn,proto3" json:"links_in,omitempty"`
+	FunctionsUsed []string               `protobuf:"bytes,12,rep,name=functions_used,json=functionsUsed,proto3" json:"functions_used,omitempty"`
+	PublishedAt   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PluginSummary) Reset() {
+	*x = PluginSummary{}
+	mi := &file_plux_v1_plugin_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PluginSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PluginSummary) ProtoMessage() {}
+
+func (x *PluginSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_plugin_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PluginSummary.ProtoReflect.Descriptor instead.
+func (*PluginSummary) Descriptor() ([]byte, []int) {
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PluginSummary) GetPlugin() *Plugin {
+	if x != nil {
+		return x.Plugin
+	}
+	return nil
+}
+
+func (x *PluginSummary) GetScreens() int64 {
+	if x != nil {
+		return x.Screens
+	}
+	return 0
+}
+
+func (x *PluginSummary) GetVersions() int64 {
+	if x != nil {
+		return x.Versions
+	}
+	return 0
+}
+
+func (x *PluginSummary) GetUnpublishedChanges() bool {
+	if x != nil {
+		return x.UnpublishedChanges
+	}
+	return false
+}
+
+func (x *PluginSummary) GetLockHolder() string {
+	if x != nil {
+		return x.LockHolder
+	}
+	return ""
+}
+
+func (x *PluginSummary) GetValidationErrors() int64 {
+	if x != nil {
+		return x.ValidationErrors
+	}
+	return 0
+}
+
+func (x *PluginSummary) GetKilled() bool {
+	if x != nil {
+		return x.Killed
+	}
+	return false
+}
+
+func (x *PluginSummary) GetOwnerTeamId() string {
+	if x != nil {
+		return x.OwnerTeamId
+	}
+	return ""
+}
+
+func (x *PluginSummary) GetBundleSize() int64 {
+	if x != nil {
+		return x.BundleSize
+	}
+	return 0
+}
+
+func (x *PluginSummary) GetLinksOut() []string {
+	if x != nil {
+		return x.LinksOut
+	}
+	return nil
+}
+
+func (x *PluginSummary) GetLinksIn() []string {
+	if x != nil {
+		return x.LinksIn
+	}
+	return nil
+}
+
+func (x *PluginSummary) GetFunctionsUsed() []string {
+	if x != nil {
+		return x.FunctionsUsed
+	}
+	return nil
+}
+
+func (x *PluginSummary) GetPublishedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PublishedAt
+	}
+	return nil
+}
+
 // Lock is an exclusive editing lock (SRV-040, ADR-0015).
 type Lock struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -156,7 +345,7 @@ type Lock struct {
 
 func (x *Lock) Reset() {
 	*x = Lock{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[1]
+	mi := &file_plux_v1_plugin_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -168,7 +357,7 @@ func (x *Lock) String() string {
 func (*Lock) ProtoMessage() {}
 
 func (x *Lock) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[1]
+	mi := &file_plux_v1_plugin_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -181,7 +370,7 @@ func (x *Lock) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Lock.ProtoReflect.Descriptor instead.
 func (*Lock) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{1}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Lock) GetPluginId() string {
@@ -265,7 +454,7 @@ type CreatePluginRequest struct {
 
 func (x *CreatePluginRequest) Reset() {
 	*x = CreatePluginRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[2]
+	mi := &file_plux_v1_plugin_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -277,7 +466,7 @@ func (x *CreatePluginRequest) String() string {
 func (*CreatePluginRequest) ProtoMessage() {}
 
 func (x *CreatePluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[2]
+	mi := &file_plux_v1_plugin_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -290,7 +479,7 @@ func (x *CreatePluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePluginRequest.ProtoReflect.Descriptor instead.
 func (*CreatePluginRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{2}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreatePluginRequest) GetAppId() string {
@@ -323,7 +512,7 @@ type CreatePluginResponse struct {
 
 func (x *CreatePluginResponse) Reset() {
 	*x = CreatePluginResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[3]
+	mi := &file_plux_v1_plugin_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -335,7 +524,7 @@ func (x *CreatePluginResponse) String() string {
 func (*CreatePluginResponse) ProtoMessage() {}
 
 func (x *CreatePluginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[3]
+	mi := &file_plux_v1_plugin_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -348,7 +537,7 @@ func (x *CreatePluginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePluginResponse.ProtoReflect.Descriptor instead.
 func (*CreatePluginResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{3}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreatePluginResponse) GetPlugin() *Plugin {
@@ -367,7 +556,7 @@ type GetPluginRequest struct {
 
 func (x *GetPluginRequest) Reset() {
 	*x = GetPluginRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[4]
+	mi := &file_plux_v1_plugin_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -379,7 +568,7 @@ func (x *GetPluginRequest) String() string {
 func (*GetPluginRequest) ProtoMessage() {}
 
 func (x *GetPluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[4]
+	mi := &file_plux_v1_plugin_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -392,7 +581,7 @@ func (x *GetPluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPluginRequest.ProtoReflect.Descriptor instead.
 func (*GetPluginRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{4}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetPluginRequest) GetId() string {
@@ -411,7 +600,7 @@ type GetPluginResponse struct {
 
 func (x *GetPluginResponse) Reset() {
 	*x = GetPluginResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[5]
+	mi := &file_plux_v1_plugin_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +612,7 @@ func (x *GetPluginResponse) String() string {
 func (*GetPluginResponse) ProtoMessage() {}
 
 func (x *GetPluginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[5]
+	mi := &file_plux_v1_plugin_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +625,7 @@ func (x *GetPluginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPluginResponse.ProtoReflect.Descriptor instead.
 func (*GetPluginResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{5}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetPluginResponse) GetPlugin() *Plugin {
@@ -456,7 +645,7 @@ type ListPluginsRequest struct {
 
 func (x *ListPluginsRequest) Reset() {
 	*x = ListPluginsRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[6]
+	mi := &file_plux_v1_plugin_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -468,7 +657,7 @@ func (x *ListPluginsRequest) String() string {
 func (*ListPluginsRequest) ProtoMessage() {}
 
 func (x *ListPluginsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[6]
+	mi := &file_plux_v1_plugin_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -481,7 +670,7 @@ func (x *ListPluginsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPluginsRequest.ProtoReflect.Descriptor instead.
 func (*ListPluginsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{6}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListPluginsRequest) GetAppId() string {
@@ -508,7 +697,7 @@ type ListPluginsResponse struct {
 
 func (x *ListPluginsResponse) Reset() {
 	*x = ListPluginsResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[7]
+	mi := &file_plux_v1_plugin_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -520,7 +709,7 @@ func (x *ListPluginsResponse) String() string {
 func (*ListPluginsResponse) ProtoMessage() {}
 
 func (x *ListPluginsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[7]
+	mi := &file_plux_v1_plugin_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -533,7 +722,7 @@ func (x *ListPluginsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPluginsResponse.ProtoReflect.Descriptor instead.
 func (*ListPluginsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{7}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListPluginsResponse) GetPlugins() []*Plugin {
@@ -551,16 +740,18 @@ func (x *ListPluginsResponse) GetPage() *PageResult {
 }
 
 type UpdatePluginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name is required unless metadata is set, when an empty name keeps it.
+	Name          string          `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Metadata      *MetadataUpdate `protobuf:"bytes,3,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdatePluginRequest) Reset() {
 	*x = UpdatePluginRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[8]
+	mi := &file_plux_v1_plugin_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -572,7 +763,7 @@ func (x *UpdatePluginRequest) String() string {
 func (*UpdatePluginRequest) ProtoMessage() {}
 
 func (x *UpdatePluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[8]
+	mi := &file_plux_v1_plugin_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -585,7 +776,7 @@ func (x *UpdatePluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePluginRequest.ProtoReflect.Descriptor instead.
 func (*UpdatePluginRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{8}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdatePluginRequest) GetId() string {
@@ -602,6 +793,13 @@ func (x *UpdatePluginRequest) GetName() string {
 	return ""
 }
 
+func (x *UpdatePluginRequest) GetMetadata() *MetadataUpdate {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
 type UpdatePluginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Plugin        *Plugin                `protobuf:"bytes,1,opt,name=plugin,proto3" json:"plugin,omitempty"`
@@ -611,7 +809,7 @@ type UpdatePluginResponse struct {
 
 func (x *UpdatePluginResponse) Reset() {
 	*x = UpdatePluginResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[9]
+	mi := &file_plux_v1_plugin_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -623,7 +821,7 @@ func (x *UpdatePluginResponse) String() string {
 func (*UpdatePluginResponse) ProtoMessage() {}
 
 func (x *UpdatePluginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[9]
+	mi := &file_plux_v1_plugin_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -636,7 +834,7 @@ func (x *UpdatePluginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePluginResponse.ProtoReflect.Descriptor instead.
 func (*UpdatePluginResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{9}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdatePluginResponse) GetPlugin() *Plugin {
@@ -655,7 +853,7 @@ type DeletePluginRequest struct {
 
 func (x *DeletePluginRequest) Reset() {
 	*x = DeletePluginRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[10]
+	mi := &file_plux_v1_plugin_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -667,7 +865,7 @@ func (x *DeletePluginRequest) String() string {
 func (*DeletePluginRequest) ProtoMessage() {}
 
 func (x *DeletePluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[10]
+	mi := &file_plux_v1_plugin_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -680,7 +878,7 @@ func (x *DeletePluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePluginRequest.ProtoReflect.Descriptor instead.
 func (*DeletePluginRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{10}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeletePluginRequest) GetId() string {
@@ -699,7 +897,7 @@ type DeletePluginResponse struct {
 
 func (x *DeletePluginResponse) Reset() {
 	*x = DeletePluginResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[11]
+	mi := &file_plux_v1_plugin_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -711,7 +909,7 @@ func (x *DeletePluginResponse) String() string {
 func (*DeletePluginResponse) ProtoMessage() {}
 
 func (x *DeletePluginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[11]
+	mi := &file_plux_v1_plugin_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -724,7 +922,7 @@ func (x *DeletePluginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePluginResponse.ProtoReflect.Descriptor instead.
 func (*DeletePluginResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DeletePluginResponse) GetTrash() *TrashItem {
@@ -751,7 +949,7 @@ type AcquireLockRequest struct {
 
 func (x *AcquireLockRequest) Reset() {
 	*x = AcquireLockRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[12]
+	mi := &file_plux_v1_plugin_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -763,7 +961,7 @@ func (x *AcquireLockRequest) String() string {
 func (*AcquireLockRequest) ProtoMessage() {}
 
 func (x *AcquireLockRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[12]
+	mi := &file_plux_v1_plugin_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -776,7 +974,7 @@ func (x *AcquireLockRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcquireLockRequest.ProtoReflect.Descriptor instead.
 func (*AcquireLockRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AcquireLockRequest) GetAppId() string {
@@ -825,7 +1023,7 @@ type AcquireLockResponse struct {
 
 func (x *AcquireLockResponse) Reset() {
 	*x = AcquireLockResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[13]
+	mi := &file_plux_v1_plugin_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -837,7 +1035,7 @@ func (x *AcquireLockResponse) String() string {
 func (*AcquireLockResponse) ProtoMessage() {}
 
 func (x *AcquireLockResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[13]
+	mi := &file_plux_v1_plugin_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -850,7 +1048,7 @@ func (x *AcquireLockResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcquireLockResponse.ProtoReflect.Descriptor instead.
 func (*AcquireLockResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AcquireLockResponse) GetLock() *Lock {
@@ -880,7 +1078,7 @@ type RenewLockRequest struct {
 
 func (x *RenewLockRequest) Reset() {
 	*x = RenewLockRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[14]
+	mi := &file_plux_v1_plugin_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -892,7 +1090,7 @@ func (x *RenewLockRequest) String() string {
 func (*RenewLockRequest) ProtoMessage() {}
 
 func (x *RenewLockRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[14]
+	mi := &file_plux_v1_plugin_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -905,7 +1103,7 @@ func (x *RenewLockRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenewLockRequest.ProtoReflect.Descriptor instead.
 func (*RenewLockRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RenewLockRequest) GetAppId() string {
@@ -945,7 +1143,7 @@ type RenewLockResponse struct {
 
 func (x *RenewLockResponse) Reset() {
 	*x = RenewLockResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[15]
+	mi := &file_plux_v1_plugin_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -957,7 +1155,7 @@ func (x *RenewLockResponse) String() string {
 func (*RenewLockResponse) ProtoMessage() {}
 
 func (x *RenewLockResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[15]
+	mi := &file_plux_v1_plugin_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -970,7 +1168,7 @@ func (x *RenewLockResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenewLockResponse.ProtoReflect.Descriptor instead.
 func (*RenewLockResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *RenewLockResponse) GetLock() *Lock {
@@ -993,7 +1191,7 @@ type ReleaseLockRequest struct {
 
 func (x *ReleaseLockRequest) Reset() {
 	*x = ReleaseLockRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[16]
+	mi := &file_plux_v1_plugin_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1005,7 +1203,7 @@ func (x *ReleaseLockRequest) String() string {
 func (*ReleaseLockRequest) ProtoMessage() {}
 
 func (x *ReleaseLockRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[16]
+	mi := &file_plux_v1_plugin_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1018,7 +1216,7 @@ func (x *ReleaseLockRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReleaseLockRequest.ProtoReflect.Descriptor instead.
 func (*ReleaseLockRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ReleaseLockRequest) GetAppId() string {
@@ -1057,7 +1255,7 @@ type ReleaseLockResponse struct {
 
 func (x *ReleaseLockResponse) Reset() {
 	*x = ReleaseLockResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[17]
+	mi := &file_plux_v1_plugin_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1069,7 +1267,7 @@ func (x *ReleaseLockResponse) String() string {
 func (*ReleaseLockResponse) ProtoMessage() {}
 
 func (x *ReleaseLockResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[17]
+	mi := &file_plux_v1_plugin_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1082,7 +1280,7 @@ func (x *ReleaseLockResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReleaseLockResponse.ProtoReflect.Descriptor instead.
 func (*ReleaseLockResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{18}
 }
 
 type RequestLockRequest struct {
@@ -1097,7 +1295,7 @@ type RequestLockRequest struct {
 
 func (x *RequestLockRequest) Reset() {
 	*x = RequestLockRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[18]
+	mi := &file_plux_v1_plugin_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1109,7 +1307,7 @@ func (x *RequestLockRequest) String() string {
 func (*RequestLockRequest) ProtoMessage() {}
 
 func (x *RequestLockRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[18]
+	mi := &file_plux_v1_plugin_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1122,7 +1320,7 @@ func (x *RequestLockRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestLockRequest.ProtoReflect.Descriptor instead.
 func (*RequestLockRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *RequestLockRequest) GetAppId() string {
@@ -1155,7 +1353,7 @@ type RequestLockResponse struct {
 
 func (x *RequestLockResponse) Reset() {
 	*x = RequestLockResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[19]
+	mi := &file_plux_v1_plugin_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1167,7 +1365,7 @@ func (x *RequestLockResponse) String() string {
 func (*RequestLockResponse) ProtoMessage() {}
 
 func (x *RequestLockResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[19]
+	mi := &file_plux_v1_plugin_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1180,7 +1378,7 @@ func (x *RequestLockResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestLockResponse.ProtoReflect.Descriptor instead.
 func (*RequestLockResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *RequestLockResponse) GetLock() *Lock {
@@ -1202,7 +1400,7 @@ type GetLockRequest struct {
 
 func (x *GetLockRequest) Reset() {
 	*x = GetLockRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[20]
+	mi := &file_plux_v1_plugin_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1214,7 +1412,7 @@ func (x *GetLockRequest) String() string {
 func (*GetLockRequest) ProtoMessage() {}
 
 func (x *GetLockRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[20]
+	mi := &file_plux_v1_plugin_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1227,7 +1425,7 @@ func (x *GetLockRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLockRequest.ProtoReflect.Descriptor instead.
 func (*GetLockRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetLockRequest) GetAppId() string {
@@ -1260,7 +1458,7 @@ type GetLockResponse struct {
 
 func (x *GetLockResponse) Reset() {
 	*x = GetLockResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[21]
+	mi := &file_plux_v1_plugin_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1272,7 +1470,7 @@ func (x *GetLockResponse) String() string {
 func (*GetLockResponse) ProtoMessage() {}
 
 func (x *GetLockResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[21]
+	mi := &file_plux_v1_plugin_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1285,7 +1483,7 @@ func (x *GetLockResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLockResponse.ProtoReflect.Descriptor instead.
 func (*GetLockResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetLockResponse) GetLock() *Lock {
@@ -1304,7 +1502,7 @@ type ListPluginLimitsRequest struct {
 
 func (x *ListPluginLimitsRequest) Reset() {
 	*x = ListPluginLimitsRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[22]
+	mi := &file_plux_v1_plugin_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1316,7 +1514,7 @@ func (x *ListPluginLimitsRequest) String() string {
 func (*ListPluginLimitsRequest) ProtoMessage() {}
 
 func (x *ListPluginLimitsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[22]
+	mi := &file_plux_v1_plugin_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1329,7 +1527,7 @@ func (x *ListPluginLimitsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPluginLimitsRequest.ProtoReflect.Descriptor instead.
 func (*ListPluginLimitsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListPluginLimitsRequest) GetPluginId() string {
@@ -1348,7 +1546,7 @@ type ListPluginLimitsResponse struct {
 
 func (x *ListPluginLimitsResponse) Reset() {
 	*x = ListPluginLimitsResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[23]
+	mi := &file_plux_v1_plugin_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1360,7 +1558,7 @@ func (x *ListPluginLimitsResponse) String() string {
 func (*ListPluginLimitsResponse) ProtoMessage() {}
 
 func (x *ListPluginLimitsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[23]
+	mi := &file_plux_v1_plugin_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1373,7 +1571,7 @@ func (x *ListPluginLimitsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPluginLimitsResponse.ProtoReflect.Descriptor instead.
 func (*ListPluginLimitsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{23}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListPluginLimitsResponse) GetLimits() []*LimitUsage {
@@ -1394,7 +1592,7 @@ type SetPluginLimitRequest struct {
 
 func (x *SetPluginLimitRequest) Reset() {
 	*x = SetPluginLimitRequest{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[24]
+	mi := &file_plux_v1_plugin_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1604,7 @@ func (x *SetPluginLimitRequest) String() string {
 func (*SetPluginLimitRequest) ProtoMessage() {}
 
 func (x *SetPluginLimitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[24]
+	mi := &file_plux_v1_plugin_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1617,7 @@ func (x *SetPluginLimitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPluginLimitRequest.ProtoReflect.Descriptor instead.
 func (*SetPluginLimitRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SetPluginLimitRequest) GetPluginId() string {
@@ -1452,7 +1650,7 @@ type SetPluginLimitResponse struct {
 
 func (x *SetPluginLimitResponse) Reset() {
 	*x = SetPluginLimitResponse{}
-	mi := &file_plux_v1_plugin_proto_msgTypes[25]
+	mi := &file_plux_v1_plugin_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1464,7 +1662,7 @@ func (x *SetPluginLimitResponse) String() string {
 func (*SetPluginLimitResponse) ProtoMessage() {}
 
 func (x *SetPluginLimitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_plugin_proto_msgTypes[25]
+	mi := &file_plux_v1_plugin_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1477,7 +1675,7 @@ func (x *SetPluginLimitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPluginLimitResponse.ProtoReflect.Descriptor instead.
 func (*SetPluginLimitResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *SetPluginLimitResponse) GetLimit() *LimitUsage {
@@ -1487,11 +1685,309 @@ func (x *SetPluginLimitResponse) GetLimit() *LimitUsage {
 	return nil
 }
 
+type DuplicatePluginRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Key   string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Name  string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// session is the caller's editing session, which takes the new plugin's
+	// lock while the copy is written and releases it.
+	Session       string `protobuf:"bytes,4,opt,name=session,proto3" json:"session,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DuplicatePluginRequest) Reset() {
+	*x = DuplicatePluginRequest{}
+	mi := &file_plux_v1_plugin_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DuplicatePluginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DuplicatePluginRequest) ProtoMessage() {}
+
+func (x *DuplicatePluginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_plugin_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DuplicatePluginRequest.ProtoReflect.Descriptor instead.
+func (*DuplicatePluginRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *DuplicatePluginRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *DuplicatePluginRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *DuplicatePluginRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *DuplicatePluginRequest) GetSession() string {
+	if x != nil {
+		return x.Session
+	}
+	return ""
+}
+
+type DuplicatePluginResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Plugin        *Plugin                `protobuf:"bytes,1,opt,name=plugin,proto3" json:"plugin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DuplicatePluginResponse) Reset() {
+	*x = DuplicatePluginResponse{}
+	mi := &file_plux_v1_plugin_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DuplicatePluginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DuplicatePluginResponse) ProtoMessage() {}
+
+func (x *DuplicatePluginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_plugin_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DuplicatePluginResponse.ProtoReflect.Descriptor instead.
+func (*DuplicatePluginResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *DuplicatePluginResponse) GetPlugin() *Plugin {
+	if x != nil {
+		return x.Plugin
+	}
+	return nil
+}
+
+type ArchivePluginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Archived      bool                   `protobuf:"varint,2,opt,name=archived,proto3" json:"archived,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ArchivePluginRequest) Reset() {
+	*x = ArchivePluginRequest{}
+	mi := &file_plux_v1_plugin_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArchivePluginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArchivePluginRequest) ProtoMessage() {}
+
+func (x *ArchivePluginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_plugin_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArchivePluginRequest.ProtoReflect.Descriptor instead.
+func (*ArchivePluginRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *ArchivePluginRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ArchivePluginRequest) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
+type ArchivePluginResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Plugin        *Plugin                `protobuf:"bytes,1,opt,name=plugin,proto3" json:"plugin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ArchivePluginResponse) Reset() {
+	*x = ArchivePluginResponse{}
+	mi := &file_plux_v1_plugin_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArchivePluginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArchivePluginResponse) ProtoMessage() {}
+
+func (x *ArchivePluginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_plugin_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArchivePluginResponse.ProtoReflect.Descriptor instead.
+func (*ArchivePluginResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *ArchivePluginResponse) GetPlugin() *Plugin {
+	if x != nil {
+		return x.Plugin
+	}
+	return nil
+}
+
+type ListPluginSummariesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPluginSummariesRequest) Reset() {
+	*x = ListPluginSummariesRequest{}
+	mi := &file_plux_v1_plugin_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPluginSummariesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPluginSummariesRequest) ProtoMessage() {}
+
+func (x *ListPluginSummariesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_plugin_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPluginSummariesRequest.ProtoReflect.Descriptor instead.
+func (*ListPluginSummariesRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *ListPluginSummariesRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+type ListPluginSummariesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Summaries     []*PluginSummary       `protobuf:"bytes,1,rep,name=summaries,proto3" json:"summaries,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPluginSummariesResponse) Reset() {
+	*x = ListPluginSummariesResponse{}
+	mi := &file_plux_v1_plugin_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPluginSummariesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPluginSummariesResponse) ProtoMessage() {}
+
+func (x *ListPluginSummariesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_plugin_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPluginSummariesResponse.ProtoReflect.Descriptor instead.
+func (*ListPluginSummariesResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_plugin_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *ListPluginSummariesResponse) GetSummaries() []*PluginSummary {
+	if x != nil {
+		return x.Summaries
+	}
+	return nil
+}
+
 var File_plux_v1_plugin_proto protoreflect.FileDescriptor
 
 const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\n" +
-	"\x14plux/v1/plugin.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x99\x02\n" +
+	"\x14plux/v1/plugin.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xb5\x03\n" +
 	"\x06Plugin\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x10\n" +
@@ -1502,7 +1998,30 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xc7\x03\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12 \n" +
+	"\vdescription\x18\t \x01(\tR\vdescription\x12\"\n" +
+	"\ricon_asset_id\x18\n" +
+	" \x01(\tR\viconAssetId\x12$\n" +
+	"\x0eowning_team_id\x18\v \x01(\tR\fowningTeamId\x12\x12\n" +
+	"\x04tags\x18\f \x03(\tR\x04tags\x12\x1a\n" +
+	"\barchived\x18\r \x01(\bR\barchived\"\xe8\x03\n" +
+	"\rPluginSummary\x12'\n" +
+	"\x06plugin\x18\x01 \x01(\v2\x0f.plux.v1.PluginR\x06plugin\x12\x18\n" +
+	"\ascreens\x18\x02 \x01(\x03R\ascreens\x12\x1a\n" +
+	"\bversions\x18\x03 \x01(\x03R\bversions\x12/\n" +
+	"\x13unpublished_changes\x18\x04 \x01(\bR\x12unpublishedChanges\x12\x1f\n" +
+	"\vlock_holder\x18\x05 \x01(\tR\n" +
+	"lockHolder\x12+\n" +
+	"\x11validation_errors\x18\x06 \x01(\x03R\x10validationErrors\x12\x16\n" +
+	"\x06killed\x18\a \x01(\bR\x06killed\x12\"\n" +
+	"\rowner_team_id\x18\b \x01(\tR\vownerTeamId\x12\x1f\n" +
+	"\vbundle_size\x18\t \x01(\x03R\n" +
+	"bundleSize\x12\x1b\n" +
+	"\tlinks_out\x18\n" +
+	" \x03(\tR\blinksOut\x12\x19\n" +
+	"\blinks_in\x18\v \x03(\tR\alinksIn\x12%\n" +
+	"\x0efunctions_used\x18\f \x03(\tR\rfunctionsUsed\x12=\n" +
+	"\fpublished_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\vpublishedAt\"\xc7\x03\n" +
 	"\x04Lock\x12\x1b\n" +
 	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12&\n" +
@@ -1533,10 +2052,11 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"i\n" +
 	"\x13ListPluginsResponse\x12)\n" +
 	"\aplugins\x18\x01 \x03(\v2\x0f.plux.v1.PluginR\aplugins\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"9\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"n\n" +
 	"\x13UpdatePluginRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"?\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x123\n" +
+	"\bmetadata\x18\x03 \x01(\v2\x17.plux.v1.MetadataUpdateR\bmetadata\"?\n" +
 	"\x14UpdatePluginResponse\x12'\n" +
 	"\x06plugin\x18\x01 \x01(\v2\x0f.plux.v1.PluginR\x06plugin\"%\n" +
 	"\x13DeletePluginRequest\x12\x0e\n" +
@@ -1586,13 +2106,32 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x03 \x01(\x03R\x05value\"C\n" +
 	"\x16SetPluginLimitResponse\x12)\n" +
-	"\x05limit\x18\x01 \x01(\v2\x13.plux.v1.LimitUsageR\x05limit2\xa8\a\n" +
+	"\x05limit\x18\x01 \x01(\v2\x13.plux.v1.LimitUsageR\x05limit\"h\n" +
+	"\x16DuplicatePluginRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
+	"\asession\x18\x04 \x01(\tR\asession\"B\n" +
+	"\x17DuplicatePluginResponse\x12'\n" +
+	"\x06plugin\x18\x01 \x01(\v2\x0f.plux.v1.PluginR\x06plugin\"B\n" +
+	"\x14ArchivePluginRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\barchived\x18\x02 \x01(\bR\barchived\"@\n" +
+	"\x15ArchivePluginResponse\x12'\n" +
+	"\x06plugin\x18\x01 \x01(\v2\x0f.plux.v1.PluginR\x06plugin\"3\n" +
+	"\x1aListPluginSummariesRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"S\n" +
+	"\x1bListPluginSummariesResponse\x124\n" +
+	"\tsummaries\x18\x01 \x03(\v2\x16.plux.v1.PluginSummaryR\tsummaries2\xb6\t\n" +
 	"\rPluginService\x12M\n" +
 	"\fCreatePlugin\x12\x1c.plux.v1.CreatePluginRequest\x1a\x1d.plux.v1.CreatePluginResponse\"\x00\x12D\n" +
 	"\tGetPlugin\x12\x19.plux.v1.GetPluginRequest\x1a\x1a.plux.v1.GetPluginResponse\"\x00\x12J\n" +
 	"\vListPlugins\x12\x1b.plux.v1.ListPluginsRequest\x1a\x1c.plux.v1.ListPluginsResponse\"\x00\x12M\n" +
 	"\fUpdatePlugin\x12\x1c.plux.v1.UpdatePluginRequest\x1a\x1d.plux.v1.UpdatePluginResponse\"\x00\x12M\n" +
-	"\fDeletePlugin\x12\x1c.plux.v1.DeletePluginRequest\x1a\x1d.plux.v1.DeletePluginResponse\"\x00\x12J\n" +
+	"\fDeletePlugin\x12\x1c.plux.v1.DeletePluginRequest\x1a\x1d.plux.v1.DeletePluginResponse\"\x00\x12V\n" +
+	"\x0fDuplicatePlugin\x12\x1f.plux.v1.DuplicatePluginRequest\x1a .plux.v1.DuplicatePluginResponse\"\x00\x12P\n" +
+	"\rArchivePlugin\x12\x1d.plux.v1.ArchivePluginRequest\x1a\x1e.plux.v1.ArchivePluginResponse\"\x00\x12b\n" +
+	"\x13ListPluginSummaries\x12#.plux.v1.ListPluginSummariesRequest\x1a$.plux.v1.ListPluginSummariesResponse\"\x00\x12J\n" +
 	"\vAcquireLock\x12\x1b.plux.v1.AcquireLockRequest\x1a\x1c.plux.v1.AcquireLockResponse\"\x00\x12D\n" +
 	"\tRenewLock\x12\x19.plux.v1.RenewLockRequest\x1a\x1a.plux.v1.RenewLockResponse\"\x00\x12J\n" +
 	"\vReleaseLock\x12\x1b.plux.v1.ReleaseLockRequest\x1a\x1c.plux.v1.ReleaseLockResponse\"\x00\x12J\n" +
@@ -1613,92 +2152,112 @@ func file_plux_v1_plugin_proto_rawDescGZIP() []byte {
 	return file_plux_v1_plugin_proto_rawDescData
 }
 
-var file_plux_v1_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_plux_v1_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_plux_v1_plugin_proto_goTypes = []any{
-	(*Plugin)(nil),                   // 0: plux.v1.Plugin
-	(*Lock)(nil),                     // 1: plux.v1.Lock
-	(*CreatePluginRequest)(nil),      // 2: plux.v1.CreatePluginRequest
-	(*CreatePluginResponse)(nil),     // 3: plux.v1.CreatePluginResponse
-	(*GetPluginRequest)(nil),         // 4: plux.v1.GetPluginRequest
-	(*GetPluginResponse)(nil),        // 5: plux.v1.GetPluginResponse
-	(*ListPluginsRequest)(nil),       // 6: plux.v1.ListPluginsRequest
-	(*ListPluginsResponse)(nil),      // 7: plux.v1.ListPluginsResponse
-	(*UpdatePluginRequest)(nil),      // 8: plux.v1.UpdatePluginRequest
-	(*UpdatePluginResponse)(nil),     // 9: plux.v1.UpdatePluginResponse
-	(*DeletePluginRequest)(nil),      // 10: plux.v1.DeletePluginRequest
-	(*DeletePluginResponse)(nil),     // 11: plux.v1.DeletePluginResponse
-	(*AcquireLockRequest)(nil),       // 12: plux.v1.AcquireLockRequest
-	(*AcquireLockResponse)(nil),      // 13: plux.v1.AcquireLockResponse
-	(*RenewLockRequest)(nil),         // 14: plux.v1.RenewLockRequest
-	(*RenewLockResponse)(nil),        // 15: plux.v1.RenewLockResponse
-	(*ReleaseLockRequest)(nil),       // 16: plux.v1.ReleaseLockRequest
-	(*ReleaseLockResponse)(nil),      // 17: plux.v1.ReleaseLockResponse
-	(*RequestLockRequest)(nil),       // 18: plux.v1.RequestLockRequest
-	(*RequestLockResponse)(nil),      // 19: plux.v1.RequestLockResponse
-	(*GetLockRequest)(nil),           // 20: plux.v1.GetLockRequest
-	(*GetLockResponse)(nil),          // 21: plux.v1.GetLockResponse
-	(*ListPluginLimitsRequest)(nil),  // 22: plux.v1.ListPluginLimitsRequest
-	(*ListPluginLimitsResponse)(nil), // 23: plux.v1.ListPluginLimitsResponse
-	(*SetPluginLimitRequest)(nil),    // 24: plux.v1.SetPluginLimitRequest
-	(*SetPluginLimitResponse)(nil),   // 25: plux.v1.SetPluginLimitResponse
-	(*timestamppb.Timestamp)(nil),    // 26: google.protobuf.Timestamp
-	(*Actor)(nil),                    // 27: plux.v1.Actor
-	(*Page)(nil),                     // 28: plux.v1.Page
-	(*PageResult)(nil),               // 29: plux.v1.PageResult
-	(*TrashItem)(nil),                // 30: plux.v1.TrashItem
-	(*LimitUsage)(nil),               // 31: plux.v1.LimitUsage
+	(*Plugin)(nil),                      // 0: plux.v1.Plugin
+	(*PluginSummary)(nil),               // 1: plux.v1.PluginSummary
+	(*Lock)(nil),                        // 2: plux.v1.Lock
+	(*CreatePluginRequest)(nil),         // 3: plux.v1.CreatePluginRequest
+	(*CreatePluginResponse)(nil),        // 4: plux.v1.CreatePluginResponse
+	(*GetPluginRequest)(nil),            // 5: plux.v1.GetPluginRequest
+	(*GetPluginResponse)(nil),           // 6: plux.v1.GetPluginResponse
+	(*ListPluginsRequest)(nil),          // 7: plux.v1.ListPluginsRequest
+	(*ListPluginsResponse)(nil),         // 8: plux.v1.ListPluginsResponse
+	(*UpdatePluginRequest)(nil),         // 9: plux.v1.UpdatePluginRequest
+	(*UpdatePluginResponse)(nil),        // 10: plux.v1.UpdatePluginResponse
+	(*DeletePluginRequest)(nil),         // 11: plux.v1.DeletePluginRequest
+	(*DeletePluginResponse)(nil),        // 12: plux.v1.DeletePluginResponse
+	(*AcquireLockRequest)(nil),          // 13: plux.v1.AcquireLockRequest
+	(*AcquireLockResponse)(nil),         // 14: plux.v1.AcquireLockResponse
+	(*RenewLockRequest)(nil),            // 15: plux.v1.RenewLockRequest
+	(*RenewLockResponse)(nil),           // 16: plux.v1.RenewLockResponse
+	(*ReleaseLockRequest)(nil),          // 17: plux.v1.ReleaseLockRequest
+	(*ReleaseLockResponse)(nil),         // 18: plux.v1.ReleaseLockResponse
+	(*RequestLockRequest)(nil),          // 19: plux.v1.RequestLockRequest
+	(*RequestLockResponse)(nil),         // 20: plux.v1.RequestLockResponse
+	(*GetLockRequest)(nil),              // 21: plux.v1.GetLockRequest
+	(*GetLockResponse)(nil),             // 22: plux.v1.GetLockResponse
+	(*ListPluginLimitsRequest)(nil),     // 23: plux.v1.ListPluginLimitsRequest
+	(*ListPluginLimitsResponse)(nil),    // 24: plux.v1.ListPluginLimitsResponse
+	(*SetPluginLimitRequest)(nil),       // 25: plux.v1.SetPluginLimitRequest
+	(*SetPluginLimitResponse)(nil),      // 26: plux.v1.SetPluginLimitResponse
+	(*DuplicatePluginRequest)(nil),      // 27: plux.v1.DuplicatePluginRequest
+	(*DuplicatePluginResponse)(nil),     // 28: plux.v1.DuplicatePluginResponse
+	(*ArchivePluginRequest)(nil),        // 29: plux.v1.ArchivePluginRequest
+	(*ArchivePluginResponse)(nil),       // 30: plux.v1.ArchivePluginResponse
+	(*ListPluginSummariesRequest)(nil),  // 31: plux.v1.ListPluginSummariesRequest
+	(*ListPluginSummariesResponse)(nil), // 32: plux.v1.ListPluginSummariesResponse
+	(*timestamppb.Timestamp)(nil),       // 33: google.protobuf.Timestamp
+	(*Actor)(nil),                       // 34: plux.v1.Actor
+	(*Page)(nil),                        // 35: plux.v1.Page
+	(*PageResult)(nil),                  // 36: plux.v1.PageResult
+	(*MetadataUpdate)(nil),              // 37: plux.v1.MetadataUpdate
+	(*TrashItem)(nil),                   // 38: plux.v1.TrashItem
+	(*LimitUsage)(nil),                  // 39: plux.v1.LimitUsage
 }
 var file_plux_v1_plugin_proto_depIdxs = []int32{
-	26, // 0: plux.v1.Plugin.created_at:type_name -> google.protobuf.Timestamp
-	26, // 1: plux.v1.Plugin.updated_at:type_name -> google.protobuf.Timestamp
-	27, // 2: plux.v1.Lock.holder:type_name -> plux.v1.Actor
-	26, // 3: plux.v1.Lock.acquired_at:type_name -> google.protobuf.Timestamp
-	26, // 4: plux.v1.Lock.expires_at:type_name -> google.protobuf.Timestamp
-	27, // 5: plux.v1.Lock.requested_by:type_name -> plux.v1.Actor
-	26, // 6: plux.v1.Lock.last_edit_at:type_name -> google.protobuf.Timestamp
-	26, // 7: plux.v1.Lock.takeover_allowed_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: plux.v1.CreatePluginResponse.plugin:type_name -> plux.v1.Plugin
-	0,  // 9: plux.v1.GetPluginResponse.plugin:type_name -> plux.v1.Plugin
-	28, // 10: plux.v1.ListPluginsRequest.page:type_name -> plux.v1.Page
-	0,  // 11: plux.v1.ListPluginsResponse.plugins:type_name -> plux.v1.Plugin
-	29, // 12: plux.v1.ListPluginsResponse.page:type_name -> plux.v1.PageResult
-	0,  // 13: plux.v1.UpdatePluginResponse.plugin:type_name -> plux.v1.Plugin
-	30, // 14: plux.v1.DeletePluginResponse.trash:type_name -> plux.v1.TrashItem
-	1,  // 15: plux.v1.AcquireLockResponse.lock:type_name -> plux.v1.Lock
-	1,  // 16: plux.v1.RenewLockResponse.lock:type_name -> plux.v1.Lock
-	1,  // 17: plux.v1.RequestLockResponse.lock:type_name -> plux.v1.Lock
-	1,  // 18: plux.v1.GetLockResponse.lock:type_name -> plux.v1.Lock
-	31, // 19: plux.v1.ListPluginLimitsResponse.limits:type_name -> plux.v1.LimitUsage
-	31, // 20: plux.v1.SetPluginLimitResponse.limit:type_name -> plux.v1.LimitUsage
-	2,  // 21: plux.v1.PluginService.CreatePlugin:input_type -> plux.v1.CreatePluginRequest
-	4,  // 22: plux.v1.PluginService.GetPlugin:input_type -> plux.v1.GetPluginRequest
-	6,  // 23: plux.v1.PluginService.ListPlugins:input_type -> plux.v1.ListPluginsRequest
-	8,  // 24: plux.v1.PluginService.UpdatePlugin:input_type -> plux.v1.UpdatePluginRequest
-	10, // 25: plux.v1.PluginService.DeletePlugin:input_type -> plux.v1.DeletePluginRequest
-	12, // 26: plux.v1.PluginService.AcquireLock:input_type -> plux.v1.AcquireLockRequest
-	14, // 27: plux.v1.PluginService.RenewLock:input_type -> plux.v1.RenewLockRequest
-	16, // 28: plux.v1.PluginService.ReleaseLock:input_type -> plux.v1.ReleaseLockRequest
-	18, // 29: plux.v1.PluginService.RequestLock:input_type -> plux.v1.RequestLockRequest
-	20, // 30: plux.v1.PluginService.GetLock:input_type -> plux.v1.GetLockRequest
-	22, // 31: plux.v1.PluginService.ListPluginLimits:input_type -> plux.v1.ListPluginLimitsRequest
-	24, // 32: plux.v1.PluginService.SetPluginLimit:input_type -> plux.v1.SetPluginLimitRequest
-	3,  // 33: plux.v1.PluginService.CreatePlugin:output_type -> plux.v1.CreatePluginResponse
-	5,  // 34: plux.v1.PluginService.GetPlugin:output_type -> plux.v1.GetPluginResponse
-	7,  // 35: plux.v1.PluginService.ListPlugins:output_type -> plux.v1.ListPluginsResponse
-	9,  // 36: plux.v1.PluginService.UpdatePlugin:output_type -> plux.v1.UpdatePluginResponse
-	11, // 37: plux.v1.PluginService.DeletePlugin:output_type -> plux.v1.DeletePluginResponse
-	13, // 38: plux.v1.PluginService.AcquireLock:output_type -> plux.v1.AcquireLockResponse
-	15, // 39: plux.v1.PluginService.RenewLock:output_type -> plux.v1.RenewLockResponse
-	17, // 40: plux.v1.PluginService.ReleaseLock:output_type -> plux.v1.ReleaseLockResponse
-	19, // 41: plux.v1.PluginService.RequestLock:output_type -> plux.v1.RequestLockResponse
-	21, // 42: plux.v1.PluginService.GetLock:output_type -> plux.v1.GetLockResponse
-	23, // 43: plux.v1.PluginService.ListPluginLimits:output_type -> plux.v1.ListPluginLimitsResponse
-	25, // 44: plux.v1.PluginService.SetPluginLimit:output_type -> plux.v1.SetPluginLimitResponse
-	33, // [33:45] is the sub-list for method output_type
-	21, // [21:33] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	33, // 0: plux.v1.Plugin.created_at:type_name -> google.protobuf.Timestamp
+	33, // 1: plux.v1.Plugin.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 2: plux.v1.PluginSummary.plugin:type_name -> plux.v1.Plugin
+	33, // 3: plux.v1.PluginSummary.published_at:type_name -> google.protobuf.Timestamp
+	34, // 4: plux.v1.Lock.holder:type_name -> plux.v1.Actor
+	33, // 5: plux.v1.Lock.acquired_at:type_name -> google.protobuf.Timestamp
+	33, // 6: plux.v1.Lock.expires_at:type_name -> google.protobuf.Timestamp
+	34, // 7: plux.v1.Lock.requested_by:type_name -> plux.v1.Actor
+	33, // 8: plux.v1.Lock.last_edit_at:type_name -> google.protobuf.Timestamp
+	33, // 9: plux.v1.Lock.takeover_allowed_at:type_name -> google.protobuf.Timestamp
+	0,  // 10: plux.v1.CreatePluginResponse.plugin:type_name -> plux.v1.Plugin
+	0,  // 11: plux.v1.GetPluginResponse.plugin:type_name -> plux.v1.Plugin
+	35, // 12: plux.v1.ListPluginsRequest.page:type_name -> plux.v1.Page
+	0,  // 13: plux.v1.ListPluginsResponse.plugins:type_name -> plux.v1.Plugin
+	36, // 14: plux.v1.ListPluginsResponse.page:type_name -> plux.v1.PageResult
+	37, // 15: plux.v1.UpdatePluginRequest.metadata:type_name -> plux.v1.MetadataUpdate
+	0,  // 16: plux.v1.UpdatePluginResponse.plugin:type_name -> plux.v1.Plugin
+	38, // 17: plux.v1.DeletePluginResponse.trash:type_name -> plux.v1.TrashItem
+	2,  // 18: plux.v1.AcquireLockResponse.lock:type_name -> plux.v1.Lock
+	2,  // 19: plux.v1.RenewLockResponse.lock:type_name -> plux.v1.Lock
+	2,  // 20: plux.v1.RequestLockResponse.lock:type_name -> plux.v1.Lock
+	2,  // 21: plux.v1.GetLockResponse.lock:type_name -> plux.v1.Lock
+	39, // 22: plux.v1.ListPluginLimitsResponse.limits:type_name -> plux.v1.LimitUsage
+	39, // 23: plux.v1.SetPluginLimitResponse.limit:type_name -> plux.v1.LimitUsage
+	0,  // 24: plux.v1.DuplicatePluginResponse.plugin:type_name -> plux.v1.Plugin
+	0,  // 25: plux.v1.ArchivePluginResponse.plugin:type_name -> plux.v1.Plugin
+	1,  // 26: plux.v1.ListPluginSummariesResponse.summaries:type_name -> plux.v1.PluginSummary
+	3,  // 27: plux.v1.PluginService.CreatePlugin:input_type -> plux.v1.CreatePluginRequest
+	5,  // 28: plux.v1.PluginService.GetPlugin:input_type -> plux.v1.GetPluginRequest
+	7,  // 29: plux.v1.PluginService.ListPlugins:input_type -> plux.v1.ListPluginsRequest
+	9,  // 30: plux.v1.PluginService.UpdatePlugin:input_type -> plux.v1.UpdatePluginRequest
+	11, // 31: plux.v1.PluginService.DeletePlugin:input_type -> plux.v1.DeletePluginRequest
+	27, // 32: plux.v1.PluginService.DuplicatePlugin:input_type -> plux.v1.DuplicatePluginRequest
+	29, // 33: plux.v1.PluginService.ArchivePlugin:input_type -> plux.v1.ArchivePluginRequest
+	31, // 34: plux.v1.PluginService.ListPluginSummaries:input_type -> plux.v1.ListPluginSummariesRequest
+	13, // 35: plux.v1.PluginService.AcquireLock:input_type -> plux.v1.AcquireLockRequest
+	15, // 36: plux.v1.PluginService.RenewLock:input_type -> plux.v1.RenewLockRequest
+	17, // 37: plux.v1.PluginService.ReleaseLock:input_type -> plux.v1.ReleaseLockRequest
+	19, // 38: plux.v1.PluginService.RequestLock:input_type -> plux.v1.RequestLockRequest
+	21, // 39: plux.v1.PluginService.GetLock:input_type -> plux.v1.GetLockRequest
+	23, // 40: plux.v1.PluginService.ListPluginLimits:input_type -> plux.v1.ListPluginLimitsRequest
+	25, // 41: plux.v1.PluginService.SetPluginLimit:input_type -> plux.v1.SetPluginLimitRequest
+	4,  // 42: plux.v1.PluginService.CreatePlugin:output_type -> plux.v1.CreatePluginResponse
+	6,  // 43: plux.v1.PluginService.GetPlugin:output_type -> plux.v1.GetPluginResponse
+	8,  // 44: plux.v1.PluginService.ListPlugins:output_type -> plux.v1.ListPluginsResponse
+	10, // 45: plux.v1.PluginService.UpdatePlugin:output_type -> plux.v1.UpdatePluginResponse
+	12, // 46: plux.v1.PluginService.DeletePlugin:output_type -> plux.v1.DeletePluginResponse
+	28, // 47: plux.v1.PluginService.DuplicatePlugin:output_type -> plux.v1.DuplicatePluginResponse
+	30, // 48: plux.v1.PluginService.ArchivePlugin:output_type -> plux.v1.ArchivePluginResponse
+	32, // 49: plux.v1.PluginService.ListPluginSummaries:output_type -> plux.v1.ListPluginSummariesResponse
+	14, // 50: plux.v1.PluginService.AcquireLock:output_type -> plux.v1.AcquireLockResponse
+	16, // 51: plux.v1.PluginService.RenewLock:output_type -> plux.v1.RenewLockResponse
+	18, // 52: plux.v1.PluginService.ReleaseLock:output_type -> plux.v1.ReleaseLockResponse
+	20, // 53: plux.v1.PluginService.RequestLock:output_type -> plux.v1.RequestLockResponse
+	22, // 54: plux.v1.PluginService.GetLock:output_type -> plux.v1.GetLockResponse
+	24, // 55: plux.v1.PluginService.ListPluginLimits:output_type -> plux.v1.ListPluginLimitsResponse
+	26, // 56: plux.v1.PluginService.SetPluginLimit:output_type -> plux.v1.SetPluginLimitResponse
+	42, // [42:57] is the sub-list for method output_type
+	27, // [27:42] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_plugin_proto_init() }
@@ -1713,7 +2272,7 @@ func file_plux_v1_plugin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_plugin_proto_rawDesc), len(file_plux_v1_plugin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   26,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

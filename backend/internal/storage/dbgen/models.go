@@ -141,6 +141,11 @@ type App struct {
 	CreatedAt        pgtype.Timestamptz
 	UpdatedAt        pgtype.Timestamptz
 	DeletedAt        pgtype.Timestamptz
+	Description      string
+	IconAssetID      string
+	OwningTeamID     pgtype.UUID
+	Tags             []string
+	ArchivedAt       pgtype.Timestamptz
 }
 
 type AppAccess struct {
@@ -1295,6 +1300,11 @@ type Plugin struct {
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
 	DeletedAt      pgtype.Timestamptz
+	Description    string
+	IconAssetID    string
+	OwningTeamID   pgtype.UUID
+	Tags           []string
+	ArchivedAt     pgtype.Timestamptz
 }
 
 type PluginVersion struct {

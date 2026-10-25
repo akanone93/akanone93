@@ -31,6 +31,11 @@ type App struct {
 	DefaultPluginKey string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+	Description      string
+	IconAssetID      string
+	OwningTeamID     string
+	Tags             []string
+	Archived         bool
 }
 
 // Environment isolates variables, secrets, signing keys and device
@@ -229,10 +234,29 @@ func (s *Service) ListApps(ctx context.Context, p auth.Principal, page Page) ([]
 			only = append(only, storage.MustUUID(id))
 		}
 	}
+	f := page.Filter
+	switch f.Sort {
+	case "", "key", "name", "updated":
+	default:
+		return nil, plxerr.New(plxerr.InvalidEnumValue, "an app listing sorts by key, name or updated")
+	}
+	team := pgtype.UUID{Valid: true}
+	if f.OwningTeamID != "" {
+		id, err := storage.UUID(f.OwningTeamID)
+		if err != nil {
+			return nil, plxerr.New(plxerr.InvalidFormat, "the owning team is not a valid identifier")
+		}
+		team = id
+	}
+	tags := f.Tags
+	if tags == nil {
+		tags = []string{}
+	}
 	var out []App
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		rows, err := dbgen.New(tx).ListApps(ctx, dbgen.ListAppsParams{
 			OrganizationID: storage.MustUUID(p.OrganizationID), OnlyIds: only, ExceptIds: excludedApps(p),
+			IncludeArchived: f.IncludeArchived, Query: f.Query, Tags: tags, OwningTeamID: team, Sort: f.Sort,
 			AfterKey: page.After.Key, AfterID: page.After.AfterID(), PageSize: page.Size,
 		})
 		if err != nil {
@@ -288,6 +312,100 @@ func (s *Service) UpdateApp(ctx context.Context, p auth.Principal, appID, name, 
 	})
 	return out, err
 }
+
+// UpdateAppMetadata changes an app's description, icon, owning team, tags
+// and archived state (plan P11 §4.3 #13). It needs app.manage like a rename.
+func (s *Service) UpdateAppMetadata(ctx context.Context, p auth.Principal, appID string, m Metadata) (App, error) {
+	args, err := CheckMetadata(m)
+	if err != nil {
+		return App{}, err
+	}
+	var out App
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		row, err := s.app(ctx, q, p, auth.AppManage, appID)
+		if err != nil {
+			return err
+		}
+		updated, err := q.UpdateAppMetadata(ctx, dbgen.UpdateAppMetadataParams{
+			ID: row.ID, SetDescription: args.SetDescription, Description: args.Description,
+			SetIcon: args.SetIcon, IconAssetID: args.Icon, SetTeam: args.SetTeam, OwningTeamID: args.Team,
+			SetTags: m.SetTags, Tags: args.Tags, SetArchived: args.SetArchived, Archived: args.Archived,
+		})
+		if err != nil {
+			return failure(err, "app")
+		}
+		out = appOf(updated)
+		return s.record(ctx, tx, p, audit.AppUpdated, "app", appID)
+	})
+	return out, err
+}
+
+// MetadataArgs are a Metadata update in the shape the queries take; the
+// document service builds plugin updates from the same one.
+type MetadataArgs struct {
+	SetDescription bool
+	Description    string
+	SetIcon        bool
+	Icon           string
+	SetTeam        bool
+	Team           pgtype.UUID
+	Tags           []string
+	SetArchived    bool
+	Archived       bool
+}
+
+// CheckMetadata validates a Metadata update against the limits of a
+// description, an icon reference, tags and the owning team.
+func CheckMetadata(m Metadata) (MetadataArgs, error) {
+	a := MetadataArgs{Tags: []string{}}
+	if m.Description != nil {
+		if len(*m.Description) > maxDescription {
+			return a, plxerr.New(plxerr.InvalidFormat, "a description is at most %d characters", maxDescription)
+		}
+		a.SetDescription, a.Description = true, *m.Description
+	}
+	if m.IconAssetID != nil {
+		if len(*m.IconAssetID) > 200 {
+			return a, plxerr.New(plxerr.InvalidFormat, "an icon asset identifier is at most 200 characters")
+		}
+		a.SetIcon, a.Icon = true, *m.IconAssetID
+	}
+	if m.OwningTeamID != nil {
+		a.SetTeam = true
+		if *m.OwningTeamID != "" {
+			id, err := storage.UUID(*m.OwningTeamID)
+			if err != nil {
+				return a, plxerr.New(plxerr.InvalidFormat, "the owning team is not a valid identifier")
+			}
+			a.Team = id
+		}
+	}
+	if m.SetTags {
+		if len(m.Tags) > maxTags {
+			return a, plxerr.New(plxerr.LimitExceeded, "an item has at most %d tags", maxTags)
+		}
+		seen := map[string]bool{}
+		for _, t := range m.Tags {
+			if t == "" || len(t) > 40 || strings.ContainsAny(t, " \t\n") {
+				return a, plxerr.New(plxerr.InvalidFormat, "a tag is 1 to 40 characters without spaces")
+			}
+			if !seen[t] {
+				seen[t] = true
+				a.Tags = append(a.Tags, t)
+			}
+		}
+	}
+	if m.Archived != nil {
+		a.SetArchived, a.Archived = true, *m.Archived
+	}
+	return a, nil
+}
+
+const (
+	maxDescription = 2000
+	maxTags        = 20
+)
 
 // CreateEnvironment adds a custom environment to an app (GOV-010).
 func (s *Service) CreateEnvironment(ctx context.Context, p auth.Principal, appID, key, name string, production bool) (Environment, error) {
@@ -800,6 +918,8 @@ func appOf(row dbgen.App) App {
 	return App{
 		ID: storage.ID(row.ID), OrganizationID: storage.ID(row.OrganizationID), Key: row.Key, Name: row.Name,
 		DefaultPluginKey: row.DefaultPluginKey, CreatedAt: storage.Time(row.CreatedAt), UpdatedAt: storage.Time(row.UpdatedAt),
+		Description: row.Description, IconAssetID: row.IconAssetID, OwningTeamID: storage.ID(row.OwningTeamID),
+		Tags: row.Tags, Archived: row.ArchivedAt.Valid,
 	}
 }
 

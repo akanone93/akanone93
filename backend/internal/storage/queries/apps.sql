@@ -9,14 +9,37 @@ SELECT * FROM apps WHERE id = $1 AND deleted_at IS NULL;
 -- name: ListApps :many
 -- only_ids, when not NULL, restricts the list to the apps a caller was
 -- granted one by one (GOV-001); except_ids leaves out the apps a restriction
--- takes app.read away from (GOV-006).
+-- takes app.read away from (GOV-006). sort_key is the cursor column of the
+-- chosen order (key, name, or newest-first updated); the Go mirror is
+-- tenancy.sortKey. Archived apps are left out unless include_archived.
 SELECT * FROM apps
  WHERE organization_id = $1 AND deleted_at IS NULL
    AND (sqlc.narg(only_ids)::uuid[] IS NULL OR id = ANY (sqlc.narg(only_ids)::uuid[]))
    AND NOT (id = ANY (sqlc.arg(except_ids)::uuid[]))
-   AND (key, id) > (sqlc.arg(after_key)::text, sqlc.arg(after_id)::uuid)
- ORDER BY key, id
+   AND (sqlc.arg(include_archived)::boolean OR archived_at IS NULL)
+   AND (sqlc.arg(query)::text = '' OR position(lower(sqlc.arg(query)::text) IN lower(key || ' ' || name || ' ' || description || ' ' || array_to_string(tags, ' '))) > 0)
+   AND (cardinality(sqlc.arg(tags)::text[]) = 0 OR tags @> sqlc.arg(tags)::text[])
+   AND (sqlc.arg(owning_team_id)::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR owning_team_id = sqlc.arg(owning_team_id)::uuid)
+   AND (CASE sqlc.arg(sort)::text
+          WHEN 'name' THEN lower(name)
+          WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
+          ELSE key END, id) > (sqlc.arg(after_key)::text, sqlc.arg(after_id)::uuid)
+ ORDER BY (CASE sqlc.arg(sort)::text
+          WHEN 'name' THEN lower(name)
+          WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
+          ELSE key END), id
  LIMIT sqlc.arg(page_size);
+
+-- name: UpdateAppMetadata :one
+UPDATE apps
+   SET description    = CASE WHEN sqlc.arg(set_description)::boolean THEN sqlc.arg(description)::text ELSE description END,
+       icon_asset_id  = CASE WHEN sqlc.arg(set_icon)::boolean THEN sqlc.arg(icon_asset_id)::text ELSE icon_asset_id END,
+       owning_team_id = CASE WHEN sqlc.arg(set_team)::boolean THEN sqlc.narg(owning_team_id)::uuid ELSE owning_team_id END,
+       tags           = CASE WHEN sqlc.arg(set_tags)::boolean THEN sqlc.arg(tags)::text[] ELSE tags END,
+       archived_at    = CASE WHEN sqlc.arg(set_archived)::boolean THEN (CASE WHEN sqlc.arg(archived)::boolean THEN coalesce(archived_at, now()) END) ELSE archived_at END,
+       updated_at     = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;
 
 -- name: GetAppIncludingDeleted :one
 SELECT * FROM apps WHERE id = $1;

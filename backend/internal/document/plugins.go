@@ -32,6 +32,11 @@ type Plugin struct {
 	DraftRevision int64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	Description   string
+	IconAssetID   string
+	OwningTeamID  string
+	Tags          []string
+	Archived      bool
 }
 
 // CreatePlugin adds a plugin to an app, with an empty draft whose
@@ -307,5 +312,7 @@ func pluginOf(row dbgen.Plugin, d dbgen.Draft) Plugin {
 		ID: storage.ID(row.ID), AppID: storage.ID(row.AppID), Key: row.Key, Name: row.Name,
 		LatestVersion: row.LatestVersion, DraftRevision: d.Revision,
 		CreatedAt: storage.Time(row.CreatedAt), UpdatedAt: storage.Time(row.UpdatedAt),
+		Description: row.Description, IconAssetID: row.IconAssetID, OwningTeamID: storage.ID(row.OwningTeamID),
+		Tags: row.Tags, Archived: row.ArchivedAt.Valid,
 	}
 }
