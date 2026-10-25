@@ -107,6 +107,28 @@ function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine):
 /** Two item specs draw the same: they are plain data from `screenItems`, so their JSON compares them. */
 const sameItem = (a: ItemSpec, b: ItemSpec): boolean => JSON.stringify(a) === JSON.stringify(b);
 
+/** Pushes removals of the items gone from `before` to `removals`, and adds and replacements to `changes`. */
+function diffItems(
+  before: ReadonlyMap<string, ItemSpec>,
+  after: ReadonlyMap<string, ItemSpec>,
+  removals: SceneOp[],
+  changes: SceneOp[],
+): void {
+  for (const id of before.keys()) {
+    if (!after.has(id)) {
+      removals.push({ op: "remove", id });
+    }
+  }
+  for (const item of after.values()) {
+    const old = before.get(item.id);
+    if (old === undefined) {
+      changes.push({ op: "add", item });
+    } else if (!sameItem(old, item)) {
+      changes.push({ op: "replace", item });
+    }
+  }
+}
+
 /**
  * The laid-out screens the worker holds, by screen (STU-121): a full
  * replacement lays every screen out, an update lays out only the screens it
@@ -159,21 +181,8 @@ export class ScreenLayouts {
       const { items, height } = layOut(s, style, engine);
       this.laidOut++;
       heights.push({ id: s.id, contentHeight: height });
-      const before = this.byScreen.get(s.id) ?? new Map<string, ItemSpec>();
       const after = new Map(items.map((item) => [item.id, item]));
-      for (const id of before.keys()) {
-        if (!after.has(id)) {
-          ops.push({ op: "remove", id });
-        }
-      }
-      for (const item of items) {
-        const old = before.get(item.id);
-        if (old === undefined) {
-          changes.push({ op: "add", item });
-        } else if (!sameItem(old, item)) {
-          changes.push({ op: "replace", item });
-        }
-      }
+      diffItems(this.byScreen.get(s.id) ?? new Map<string, ItemSpec>(), after, ops, changes);
       this.byScreen.set(s.id, after);
     }
     ops.push(...changes);
