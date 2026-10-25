@@ -1,0 +1,229 @@
+{
+  "name": "material-chip-input",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "c0",
+            "type": "InputChip",
+            "props": {
+              "selected": false
+            },
+            "children": [
+              {
+                "id": "c0t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "c1",
+            "type": "InputChip",
+            "props": {
+              "selected": false,
+              "deletable": true
+            },
+            "children": [
+              {
+                "id": "c1t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c1d",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "deleteIcon"
+              }
+            ]
+          },
+          {
+            "id": "c2",
+            "type": "InputChip",
+            "props": {
+              "selected": false
+            },
+            "children": [
+              {
+                "id": "c2t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c2a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              }
+            ]
+          },
+          {
+            "id": "c3",
+            "type": "InputChip",
+            "props": {
+              "selected": false,
+              "deletable": true
+            },
+            "children": [
+              {
+                "id": "c3t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c3a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              },
+              {
+                "id": "c3d",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "deleteIcon"
+              }
+            ]
+          },
+          {
+            "id": "c4",
+            "type": "InputChip",
+            "props": {
+              "selected": true
+            },
+            "children": [
+              {
+                "id": "c4t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "c5",
+            "type": "InputChip",
+            "props": {
+              "selected": true,
+              "deletable": true
+            },
+            "children": [
+              {
+                "id": "c5t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c5d",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "deleteIcon"
+              }
+            ]
+          },
+          {
+            "id": "c6",
+            "type": "InputChip",
+            "props": {
+              "selected": true
+            },
+            "children": [
+              {
+                "id": "c6t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c6a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              }
+            ]
+          },
+          {
+            "id": "c7",
+            "type": "InputChip",
+            "props": {
+              "selected": true,
+              "deletable": true
+            },
+            "children": [
+              {
+                "id": "c7t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c7a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              },
+              {
+                "id": "c7d",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "deleteIcon"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

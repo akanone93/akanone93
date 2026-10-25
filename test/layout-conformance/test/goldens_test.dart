@@ -414,6 +414,7 @@ List<double> _rectOf(WidgetTester tester, String id) {
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
+  'Chip', 'FilterChip', 'InputChip',
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -554,6 +555,51 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         bottomNavigationBar: one('bottomNavigationBar'),
         bottomSheet: one('bottomSheet'),
       );
+    case 'Chip':
+    case 'FilterChip':
+    case 'InputChip':
+      final Widget label = one('label')!;
+      final Widget? avatar = one('avatar');
+      final Widget? deleteIcon = props['deletable'] == true ? one('deleteIcon') : null;
+      final VoidCallback? onDeleted = deleteIcon == null ? null : () {};
+      final bool selected = props['selected'] == true;
+      final VisualDensity density = _density(props);
+      final MaterialTapTargetSize target = _tapTarget(props);
+      return switch (type) {
+        'FilterChip' => FilterChip(
+          key: key,
+          label: label,
+          avatar: avatar,
+          selected: selected,
+          onSelected: (bool _) {},
+          deleteIcon: deleteIcon,
+          deleteButtonTooltipMessage: '',
+          visualDensity: density,
+          materialTapTargetSize: target,
+        ),
+        'InputChip' => InputChip(
+          key: key,
+          label: label,
+          avatar: avatar,
+          selected: selected,
+          onPressed: () {},
+          onDeleted: onDeleted,
+          deleteIcon: deleteIcon,
+          deleteButtonTooltipMessage: '',
+          visualDensity: density,
+          materialTapTargetSize: target,
+        ),
+        _ => Chip(
+          key: key,
+          label: label,
+          avatar: avatar,
+          onDeleted: onDeleted,
+          deleteIcon: deleteIcon,
+          deleteButtonTooltipMessage: '',
+          visualDensity: density,
+          materialTapTargetSize: target,
+        ),
+      };
     case 'ListTile':
       return ListTile(
         key: key,
