@@ -1,0 +1,315 @@
+{
+  "name": "table-vertical-alignment",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "tbl",
+        "type": "Table",
+        "props": {
+          "columns": 6,
+          "defaultVerticalAlignment": "middle",
+          "textBaseline": "alphabetic",
+          "defaultColumnWidth": {
+            "type": "fixed",
+            "value": 50
+          }
+        },
+        "children": [
+          {
+            "id": "tc0",
+            "type": "TableCell",
+            "props": {
+              "verticalAlignment": "top"
+            },
+            "children": [
+              {
+                "id": "c0",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "b0",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tc1",
+            "type": "TableCell",
+            "props": {
+              "verticalAlignment": "middle"
+            },
+            "children": [
+              {
+                "id": "c1",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "b1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tc2",
+            "type": "TableCell",
+            "props": {
+              "verticalAlignment": "bottom"
+            },
+            "children": [
+              {
+                "id": "c2",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "b2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tc3",
+            "type": "TableCell",
+            "props": {
+              "verticalAlignment": "fill"
+            },
+            "children": [
+              {
+                "id": "c3",
+                "type": "Align",
+                "props": {
+                  "alignment": [
+                    0,
+                    0
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "b3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tc4",
+            "type": "TableCell",
+            "props": {
+              "verticalAlignment": "intrinsicHeight"
+            },
+            "children": [
+              {
+                "id": "c4",
+                "type": "Align",
+                "props": {
+                  "alignment": [
+                    0,
+                    1
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "b4",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tc5",
+            "type": "TableCell",
+            "props": {
+              "verticalAlignment": "baseline"
+            },
+            "children": [
+              {
+                "id": "t5",
+                "type": "Text",
+                "props": {
+                  "text": "Hg",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "d0",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "e0",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 70
+                }
+              }
+            ]
+          },
+          {
+            "id": "d1",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "e1",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "d2",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "e2",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "d3",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "e3",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "d4",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "e4",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "d5",
+            "type": "TableCell",
+            "props": {
+              "verticalAlignment": "baseline"
+            },
+            "children": [
+              {
+                "id": "t6",
+                "type": "Text",
+                "props": {
+                  "text": "Hg",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 30
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

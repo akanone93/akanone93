@@ -1,0 +1,31 @@
+{
+  "name": "fade-transition-t100",
+  "t": 1,
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "fa",
+        "type": "FadeTransition",
+        "props": {},
+        "children": [
+          {
+            "id": "c",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 40
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

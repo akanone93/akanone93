@@ -1,0 +1,72 @@
+{
+  "name": "animated-container-t0",
+  "t": 0,
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "ac",
+        "type": "AnimatedContainer",
+        "props": {
+          "from": {
+            "width": 100,
+            "height": 50,
+            "alignment": [
+              -1,
+              -1
+            ],
+            "padding": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "margin": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "to": {
+            "width": 200,
+            "height": 150,
+            "alignment": [
+              1,
+              1
+            ],
+            "padding": [
+              10,
+              20,
+              10,
+              20
+            ],
+            "margin": [
+              8,
+              8,
+              16,
+              16
+            ]
+          }
+        },
+        "children": [
+          {
+            "id": "c",
+            "type": "TestBox",
+            "props": {
+              "width": 40,
+              "height": 40
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

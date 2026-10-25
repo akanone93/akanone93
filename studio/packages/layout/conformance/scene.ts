@@ -581,7 +581,10 @@ function buildAnimated(node: SceneNode, child: RenderBox | null, textDirection: 
 /** The transition nodes: an animation running from `begin` to `end`, here at `t`. */
 function buildTransition(node: SceneNode, child: RenderBox | null, textDirection: TextDirection, t: number): RenderBox {
   const props = node.props;
-  const value = lerpDouble(optionalNum(props, "begin") ?? 0, optionalNum(props, "end") ?? 1, t);
+  const value =
+    node.type === "SlideTransition"
+      ? 0
+      : lerpDouble(optionalNum(props, "begin") ?? 0, optionalNum(props, "end") ?? 1, t);
   switch (node.type) {
     case "SizeTransition":
       return buildSizeTransition({

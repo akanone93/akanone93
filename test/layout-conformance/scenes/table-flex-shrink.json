@@ -1,0 +1,198 @@
+{
+  "name": "table-flex-shrink",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "cb",
+        "type": "ConstrainedBox",
+        "props": {
+          "maxWidth": 150
+        },
+        "children": [
+          {
+            "id": "tbl",
+            "type": "Table",
+            "props": {
+              "columns": 3,
+              "columnWidths": {
+                "0": {
+                  "type": "intrinsic",
+                  "flex": 2
+                },
+                "1": {
+                  "type": "max",
+                  "a": {
+                    "type": "fixed",
+                    "value": 20
+                  },
+                  "b": {
+                    "type": "fraction",
+                    "value": 0.1
+                  }
+                },
+                "2": {
+                  "type": "min",
+                  "a": {
+                    "type": "fixed",
+                    "value": 60
+                  },
+                  "b": {
+                    "type": "intrinsic"
+                  }
+                }
+              }
+            },
+            "children": [
+              {
+                "id": "c00",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "x00",
+                    "type": "Text",
+                    "props": {
+                      "text": "longer words here",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c01",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "x01",
+                    "type": "Text",
+                    "props": {
+                      "text": "m",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c02",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "x02",
+                    "type": "Text",
+                    "props": {
+                      "text": "another cell text",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c10",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "x10",
+                    "type": "Text",
+                    "props": {
+                      "text": "a b c",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c11",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "x11",
+                    "type": "Text",
+                    "props": {
+                      "text": "n",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c12",
+                "type": "Align",
+                "props": {
+                  "alignment": {
+                    "start": -1,
+                    "y": -1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "x12",
+                    "type": "Text",
+                    "props": {
+                      "text": "z",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
