@@ -413,7 +413,7 @@ List<double> _rectOf(WidgetTester tester, String id) {
 /// fills with `slot` (default `child`); the golden writer builds the real widget.
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
-  'FloatingActionButton', 'ListTile',
+  'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -519,6 +519,41 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         ),
         _ => FloatingActionButton(key: key, onPressed: onPressed, materialTapTargetSize: target, child: one('child')),
       };
+    case 'PreferredSize':
+      return PreferredSize(key: key, preferredSize: Size.fromHeight(_number(props['height'])), child: one('child')!);
+    case 'AppBar':
+      return AppBar(
+        key: key,
+        automaticallyImplyLeading: false,
+        leading: one('leading'),
+        title: one('title'),
+        actions: slots['actions'],
+        bottom: one('bottom') as PreferredSizeWidget?,
+        toolbarHeight: _optionalNumber(props, 'toolbarHeight'),
+        centerTitle: props['centerTitle'] == true,
+        titleSpacing: _optionalNumber(props, 'titleSpacing'),
+        leadingWidth: _optionalNumber(props, 'leadingWidth'),
+      );
+    case 'Scaffold':
+      return Scaffold(
+        key: key,
+        appBar: one('appBar') as PreferredSizeWidget?,
+        body: one('child'),
+        floatingActionButton: one('floatingActionButton'),
+        floatingActionButtonLocation: switch (props['floatingActionButtonLocation']) {
+          'startTop' => FloatingActionButtonLocation.startTop,
+          'centerTop' => FloatingActionButtonLocation.centerTop,
+          'endTop' => FloatingActionButtonLocation.endTop,
+          'startFloat' => FloatingActionButtonLocation.startFloat,
+          'centerFloat' => FloatingActionButtonLocation.centerFloat,
+          'startDocked' => FloatingActionButtonLocation.startDocked,
+          'centerDocked' => FloatingActionButtonLocation.centerDocked,
+          'endDocked' => FloatingActionButtonLocation.endDocked,
+          _ => FloatingActionButtonLocation.endFloat,
+        },
+        bottomNavigationBar: one('bottomNavigationBar'),
+        bottomSheet: one('bottomSheet'),
+      );
     case 'ListTile':
       return ListTile(
         key: key,

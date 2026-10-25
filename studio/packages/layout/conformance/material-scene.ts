@@ -16,15 +16,23 @@ import { RenderConstrainedBox } from "../src/flutter/proxy-box.ts";
 import type { RenderBox } from "../src/flutter/render-box.ts";
 import type { TextStyle } from "../src/flutter/text-style.ts";
 import { buildButton, buildFab, type ButtonKind, type FabKind } from "../src/flutter/material/buttons.ts";
+import { appBarPreferredHeight, buildAppBar, kLeadingWidth, kMiddleSpacing, kMaxTitleTextScaleFactor } from "../src/flutter/material/app-bar.ts";
+import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
-import { m3TextStyle, MaterialTapTargetSize, type TextRole, VisualDensity } from "../src/flutter/material/theme.ts";
-import type { SceneNode, SceneText } from "./scene.ts";
+import { kToolbarHeight, m3TextStyle, MaterialTapTargetSize, type TextRole, VisualDensity } from "../src/flutter/material/theme.ts";
+import type { SceneNode, SceneText, TextDefaults } from "./scene.ts";
 
 /** The theme's font family, as `ThemeData(fontFamily:)` in the golden writer. */
 export const materialFontFamily = "NotoSans";
 
 /** Builds one child of a composite; `base` is the text style `Text` descendants inherit. */
-export type BuildChild = (node: SceneNode, base?: TextStyle) => RenderBox;
+export type BuildChild = (node: SceneNode, base?: TextStyle, options?: TextOptions) => RenderBox;
+
+/** What a composite changes for the `Text` below it: `DefaultTextStyle` flags and a clamped text scale. */
+export interface TextOptions {
+  defaults?: TextDefaults;
+  maxScale?: number;
+}
 
 /** Everything a composite builder needs. */
 export interface MaterialContext {
@@ -74,6 +82,15 @@ const buttonKinds: Readonly<Record<string, ButtonKind>> = {
 
 type Builder = (node: SceneNode, ctx: MaterialContext) => RenderBox;
 
+/** `PreferredSizeWidget.preferredSize.height` of an app bar's bottom. */
+function preferredHeight(node: SceneNode | null): number {
+  if (node === null) {
+    return 0;
+  }
+  const height = node.props["height"];
+  return typeof height === "number" ? height : 0;
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const size = typeof node.props["size"] === "number" ? node.props["size"] : 24;
@@ -95,6 +112,59 @@ const builders: Record<string, Builder> = {
       isDense: dense,
       isThreeLine: p["isThreeLine"] === true,
       visualDensity: density(p),
+      textDirection: ctx.direction,
+    });
+  },
+  PreferredSize: (node, ctx) => ctx.build(required(node, "child")),
+  AppBar: (node, ctx) => {
+    const p = node.props;
+    const toolbarHeight = typeof p["toolbarHeight"] === "number" ? p["toolbarHeight"] : kToolbarHeight;
+    const lead = only(node, "leading");
+    const title = only(node, "title");
+    const bottom = only(node, "bottom");
+    return buildAppBar({
+      leading: lead === null ? null : ctx.build(lead),
+      leadingIsIconButton: lead?.type === "IconButton",
+      title:
+        title === null
+          ? null
+          : ctx.build(title, style("titleLarge"), {
+              defaults: { softWrap: false, overflow: "ellipsis" },
+              maxScale: kMaxTitleTextScaleFactor,
+            }),
+      actions: slot(node, "actions").map((a) => ctx.build(a)),
+      bottom: bottom === null ? null : ctx.build(bottom),
+      toolbarHeight,
+      centerTitle: p["centerTitle"] === true,
+      titleSpacing: typeof p["titleSpacing"] === "number" ? p["titleSpacing"] : kMiddleSpacing,
+      leadingWidth: typeof p["leadingWidth"] === "number" ? p["leadingWidth"] : kLeadingWidth,
+      textDirection: ctx.direction,
+    });
+  },
+  Scaffold: (node, ctx) => {
+    const part = (name: string): RenderBox | null => {
+      const found = only(node, name);
+      return found === null ? null : ctx.build(found);
+    };
+    const barNode = only(node, "appBar");
+    const bottomNode = barNode === null ? null : only(barNode, "bottom");
+    const toolbar = typeof barNode?.props["toolbarHeight"] === "number" ? barNode.props["toolbarHeight"] : undefined;
+    const bar = part("appBar");
+    return new RenderScaffold({
+      appBar:
+        bar === null
+          ? null
+          : new RenderConstrainedBox({
+              additionalConstraints: new BoxConstraints({
+                maxHeight: appBarPreferredHeight(toolbar, preferredHeight(bottomNode)),
+              }),
+              child: bar,
+            }),
+      body: part("child"),
+      bottomNavigationBar: part("bottomNavigationBar"),
+      bottomSheet: part("bottomSheet"),
+      floatingActionButton: part("floatingActionButton"),
+      fabLocation: (node.props["floatingActionButtonLocation"] ?? "endFloat") as FabLocation,
       textDirection: ctx.direction,
     });
   },
