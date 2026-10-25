@@ -3,15 +3,15 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { AppService, type PluginSummary, PluginService } from "@plux/api";
+import { AppService, PluginService, type PluginSummary } from "@plux/api";
 import { Button, Dialog, Field, Input, StatusPill, Textarea } from "@plux/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { EditorProvider, useEditSession } from "../editor/editor-provider.tsx";
-import { usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
+import { usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
 import { appCanvasMessages } from "./app-canvas.messages.ts";
 import {
   APP_CANVAS_PATH,
@@ -20,8 +20,8 @@ import {
   type BoxLink,
   canvasDocument,
   canvasRecipe,
-  fitViewport,
   type Frame,
+  fitViewport,
   type Guide,
   marquee,
   type PlacedBox,
@@ -325,15 +325,14 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
           style={{ transform: `scale(${view.z}) translate(${-view.x}px, ${-view.y}px)` }}
         >
           {frames.map((f) => (
-            <div
+            <fieldset
               key={f.id}
-              role="group"
               aria-label={m.frame(f.label)}
               className="absolute rounded-md border border-dashed"
               style={{ left: f.x, top: f.y, width: f.width, height: f.height }}
             >
               <span className="text-tag text-secondary">{f.label}</span>
-            </div>
+            </fieldset>
           ))}
           {Arrows === undefined ? null : <Arrows boxes={boxes} links={links} boxSize={BOX} />}
           {guides.map((g) => (
@@ -496,6 +495,14 @@ interface DialogsProps {
   readonly onFrame: (label: string) => void;
 }
 
+/** The name a dialog opens with: the plugin's own for settings, a numbered copy for a duplicate. */
+function initialName(kind: NonNullable<Dialogue>["kind"], current: string): string {
+  if (kind === "settings") {
+    return current;
+  }
+  return kind === "duplicate" ? `${current} 2` : "";
+}
+
 /** D16 new plugin, D17 settings, D18 duplicate, D25 entry plugin, and the frame label (D20). */
 export function PluginDialogs(props: DialogsProps): ReactNode {
   const { dialogue, messages: m, summary: s } = props;
@@ -507,7 +514,7 @@ export function PluginDialogs(props: DialogsProps): ReactNode {
       return;
     }
     const p = s?.plugin;
-    setName(dialogue.kind === "settings" ? (p?.name ?? "") : dialogue.kind === "duplicate" ? `${p?.name ?? ""} 2` : "");
+    setName(initialName(dialogue.kind, p?.name ?? ""));
     setDescription(p?.description ?? "");
     setTags((p?.tags ?? []).join(", "));
   }, [dialogue, s]);
