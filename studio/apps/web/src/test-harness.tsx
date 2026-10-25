@@ -26,6 +26,7 @@ import { createMemoryHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import { App } from "./app.tsx";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
+import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { I18nProvider } from "./i18n-provider.tsx";
 import { createSession } from "./lib/session.ts";
 import { configureZod } from "./lib/zod.ts";
@@ -45,6 +46,7 @@ export interface Upstream {
   inbox?: { id: string; eventType: string; title: string; read: boolean }[];
   documents?: { kind: string; path: string; json: unknown }[];
   surface?: SurfaceFactory;
+  validator?: ValidatorFactory;
   updates?: { paths: string[]; theme: string; language: string; density: string }[];
 }
 
@@ -121,7 +123,12 @@ export function renderApp(path: string, state: Upstream = {}) {
   const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });
   const history = createMemoryHistory({ initialEntries: [path] });
   const router = createAppRouter(
-    { session, ...(state.surface !== undefined && { createSurface: state.surface }) },
+    {
+      session,
+      ...(state.surface !== undefined && { createSurface: state.surface }),
+      createValidator:
+        state.validator ?? (() => ({ load: async () => [], validatePage: async () => [], dispose: () => undefined })),
+    },
     history,
   );
   const utils = render(

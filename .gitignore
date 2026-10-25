@@ -69,3 +69,5 @@ node_modules/
 /apps/add_to_app/*/coverage/
 reqtrace.md
 reqtrace.json
+# The validator WebAssembly module and wasm_exec.js built by make studio-validator
+studio/packages/validator/build/

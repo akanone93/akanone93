@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas zap-studio studio-image-repro
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-validator zap-studio studio-image-repro
 
 ##@ Studio (Bun, TypeScript)
 
@@ -26,7 +26,7 @@ studio-i18n-check: studio-install ## Catalogues are complete and current: strict
 	cd studio && apps/web/node_modules/.bin/lingui extract --clean && apps/web/node_modules/.bin/lingui compile --strict && rm -f apps/web/src/locales/*/messages.js
 	git diff --exit-code -- studio/apps/web/src/locales
 
-studio-typecheck: studio-gen-theme studio-gen-icons ## Type-check Studio code
+studio-typecheck: studio-gen-theme studio-gen-icons studio-validator ## Type-check Studio code
 	cd studio && bun run typecheck
 
 studio-test: studio-gen-theme studio-gen-icons ## Run Studio tests
@@ -55,7 +55,16 @@ studio-gen-theme: studio-install ## Regenerate Studio's Tailwind theme from the 
 studio-gen-icons: studio-install ## Regenerate the Icon set from @phosphor-icons/core (UI language U8)
 	cd studio/packages/ui && bun scripts/gen-icons.ts
 
-studio-build: studio-install studio-gen-theme studio-gen-icons ## Build the Studio web app into studio/apps/web/dist
+# The Go validator in WebAssembly (S2.1, F9) and Go's loader, staged beside the validator worker.
+# Vite emits both as hashed assets; neither is committed.
+STUDIO_VALIDATOR_DIR := studio/packages/validator/build
+
+studio-validator: ## Build the validator WebAssembly module and stage Go's wasm_exec.js (S2.1)
+	mkdir -p $(STUDIO_VALIDATOR_DIR)
+	cd backend && GOOS=js GOARCH=wasm go build -trimpath -ldflags='-s -w' -o $(CURDIR)/$(STUDIO_VALIDATOR_DIR)/validator.wasm ./cmd/plux-validator-wasm
+	cd backend && install -m 644 "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(CURDIR)/$(STUDIO_VALIDATOR_DIR)/wasm_exec.js
+
+studio-build: studio-install studio-gen-theme studio-gen-icons studio-validator ## Build the Studio web app into studio/apps/web/dist
 	cd studio && bun scripts/stage-canvaskit.ts && bun run build && bun scripts/precompress.ts apps/web/dist
 
 studio-size: studio-build ## Check the initial JavaScript against the budget (STU-122)
