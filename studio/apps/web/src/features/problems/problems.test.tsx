@@ -60,6 +60,33 @@ describe("S2.1 validation against the whole project", () => {
     ];
     renderApp(path, { documents, appDocuments, validator });
     expect(await screen.findByText("No problems found.")).toBeTruthy();
+  });
+
+  test("loads every plugin of the app, so a cross-plugin reference is not a problem", async () => {
+    const other = [{ kind: "plugin", path: "plugins/other/plugin.json", json: { id: "other", kind: "plugin" } }];
+    const validator = (): ValidatorClient => ({
+      load: async (files) =>
+        files.some((f) => f.path === "plugins/other/plugin.json")
+          ? []
+          : [
+              {
+                code: "PLX-0002",
+                severity: "error",
+                file: "plugins/pl/plugin.json",
+                path: "",
+                message: "Unknown plugin other",
+              },
+            ],
+      validatePage: async () => [],
+      dispose: () => undefined,
+    });
+    renderApp(path, {
+      documents,
+      appDocuments: [{ kind: "app", path: "app.json", json: { id: "app1", kind: "app" } }],
+      pluginDocuments: { pl: documents, other },
+      validator,
+    });
+    expect(await screen.findByText("No problems found.")).toBeTruthy();
     expect(screen.queryByText("Not listed in app.json")).toBeNull();
     expect(screen.queryByText("Elsewhere")).toBeNull();
   });
