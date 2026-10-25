@@ -242,8 +242,20 @@ export function snap(
   size: Size = BOX,
   distance: number = SNAP_DISTANCE,
 ): Snapped {
-  const sx = snapAxis(moving.x, size.width, others.map((o) => o.x), "x", distance);
-  const sy = snapAxis(moving.y, size.height, others.map((o) => o.y), "y", distance);
+  const sx = snapAxis(
+    moving.x,
+    size.width,
+    others.map((o) => o.x),
+    "x",
+    distance,
+  );
+  const sy = snapAxis(
+    moving.y,
+    size.height,
+    others.map((o) => o.y),
+    "y",
+    distance,
+  );
   return {
     point: { x: sx?.value ?? moving.x, y: sy?.value ?? moving.y },
     guides: [sx?.guide, sy?.guide].filter((g): g is Guide => g !== undefined),

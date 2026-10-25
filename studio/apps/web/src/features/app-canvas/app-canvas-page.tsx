@@ -516,7 +516,13 @@ const splitTags = (text: string): string[] =>
     .filter((t) => t !== "");
 
 function dialogTitle(kind: NonNullable<Dialogue>["kind"], m: ReturnType<typeof appCanvasMessages>): string {
-  const titles = { new: m.newPlugin, settings: m.settings, duplicate: m.duplicate, entry: m.setEntry, frame: m.newFrame };
+  const titles = {
+    new: m.newPlugin,
+    settings: m.settings,
+    duplicate: m.duplicate,
+    entry: m.setEntry,
+    frame: m.newFrame,
+  };
   return titles[kind];
 }
 
