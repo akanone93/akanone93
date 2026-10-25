@@ -22,8 +22,19 @@ export {
   type EditorProviderProps,
   useEditor,
   useEditSession,
+  useLock,
 } from "./editor-provider.tsx";
 export { applyPatch, type JsonPatchOp, type JsonValue, PatchError, toJsonPatch } from "./json-patch.ts";
+export {
+  LockController,
+  type LockInfo,
+  type LockState,
+  type LockStatus,
+  type LockTransport,
+  LockUnavailable,
+  takeoverAllowedAt,
+} from "./lock-controller.ts";
+export { LockBanner, LockLostDialog } from "./lock-ui.tsx";
 export {
   createPendingCounter,
   PendingChangesProvider,
