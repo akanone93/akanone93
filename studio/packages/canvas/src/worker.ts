@@ -18,6 +18,7 @@
  * whenever the view moves, so no frame waits for the whole base.
  */
 
+import { CanvasKitParagraphEngine, type ParagraphEngine } from "@plux/layout";
 import type { CanvasKit, Surface } from "canvaskit-wasm";
 import {
   type BaseOrigin,
@@ -44,6 +45,7 @@ import {
 import { type LiveLayer, SceneRenderer } from "./renderer.ts";
 import { Scene, type SceneItem } from "./scene.ts";
 import { buildSceneModel } from "./scene-model.ts";
+import { layoutScreens } from "./screens.ts";
 import { chooseRenderer, type GlProbe } from "./select.ts";
 import { Viewport } from "./viewport.ts";
 
@@ -65,6 +67,29 @@ export interface WorkerDeps {
    * optional, as a raster surface on the main thread cannot lose it.
    */
   watchContext?(canvas: OffscreenCanvasLike, handlers: SurfaceHandlers): void;
+  /**
+   * The paragraph engine screens are laid out with, its fonts registered;
+   * optional, by default SkParagraph on `ck` (ADR-0013 Text).
+   */
+  paragraphEngine?(ck: CanvasKit, options: CanvasOptions): DisposableEngine;
+}
+
+/** A paragraph engine the worker releases on dispose. */
+export type DisposableEngine = ParagraphEngine & { dispose(): void };
+
+/** SkParagraph on `ck` with the canvas fonts registered under their families. */
+export function canvasParagraphEngine(ck: CanvasKit, options: CanvasOptions): CanvasKitParagraphEngine {
+  const engine = new CanvasKitParagraphEngine(ck);
+  options.fonts.forEach((bytes, i) => {
+    const family = options.fontFamilies?.[i] ?? options.fontFamily;
+    engine.registerFont(new Uint8Array(bytes), family);
+  });
+  return engine;
+}
+
+/** The text families in fallback order: the primary, then every other loaded family. */
+export function fallbackFamilies(options: CanvasOptions): string[] {
+  return [...new Set(options.fontFamilies ?? [])].filter((family) => family !== options.fontFamily);
 }
 
 /** What the worker does when its surface is lost and when it may be rebuilt. */
@@ -84,6 +109,8 @@ interface Running {
   readonly render: Viewport;
   renderer: SceneRenderer;
   readonly options: CanvasOptions;
+  /** The paragraph engine screens are laid out with; made on the first `screens` message. */
+  layoutEngine: DisposableEngine | null;
   /** The surface is lost: frames are skipped until it is rebuilt. */
   lost: boolean;
   readonly layerCanvas: OffscreenCanvasLike | null;
@@ -172,6 +199,7 @@ export class CanvasWorkerCore {
         render,
         renderer,
         options,
+        layoutEngine: null,
         lost: false,
         layerCanvas: message.layer ?? null,
         margin,
@@ -221,6 +249,7 @@ export class CanvasWorkerCore {
         tileSize: options.tileSize,
         background: options.background,
         fontFamily: options.fontFamily,
+        fallbackFamilies: fallbackFamilies(options),
         measureFrames: options.measureFrames,
       },
       () => this.deps.now(),
@@ -336,9 +365,19 @@ export class CanvasWorkerCore {
           model: buildSceneModel(running.scene, running.viewport),
         });
         return;
+      case "screens": {
+        running.layoutEngine ??= (this.deps.paragraphEngine ?? canvasParagraphEngine)(running.ck, running.options);
+        const { ops, heights } = layoutScreens(message.screens, message.style, running.layoutEngine);
+        running.scene.apply(ops);
+        this.markBase(running);
+        this.post({ v: PROTOCOL_VERSION, type: "screens", requestId: message.requestId, ops, heights });
+        break;
+      }
       case "dispose":
         this.jobs.cancel();
         running.renderer.dispose();
+        running.layoutEngine?.dispose();
+        running.layoutEngine = null;
         this.running = null;
         this.disposed = true;
         return;

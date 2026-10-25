@@ -108,3 +108,16 @@ export {
   type TextHeightBehavior,
   TextLeadingDistribution,
 } from "./text/paragraph-engine.ts";
+export {
+  defaultScreenTheme,
+  defaultWidgetBuilders,
+  type LayoutScreenOptions,
+  layoutScreen,
+  type Placed,
+  type PlacedKind,
+  type ScreenLayout,
+  type ScreenTheme,
+  type WidgetBuilder,
+  type WidgetContext,
+  type WidgetNode,
+} from "./widgets/screen.ts";
