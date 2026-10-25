@@ -2,19 +2,27 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
+import { overflowId } from "@plux/canvas";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { RouterContext } from "../../router.tsx";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { readPlugin } from "./plugin-model.ts";
 import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
-import { contentBounds, overflowId, type PlacedScreen, sceneOps } from "./scene.ts";
-import { DEVICE, layoutScreen } from "./screen-layout.ts";
+import {
+  contentBounds,
+  DEVICE,
+  type Heights,
+  heightsById,
+  type PlacedScreen,
+  screenDocuments,
+  screenStyle,
+} from "./scene.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
 import { usePluginDocuments } from "./use-plugin-documents.ts";
 
-/** Screens laid out and placed: saved positions, else flow order (STU-050). */
+/** Screens placed: saved positions, else flow order (STU-050); the canvas worker lays them out. */
 export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedScreen[] {
   const model = readPlugin(documents);
   const ids = model.screens.map((s) => s.id);
@@ -25,10 +33,28 @@ export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedS
   return order.flatMap((id) => {
     const s = byId.get(id);
     const p = at.get(id);
-    return s === undefined || p === undefined
-      ? []
-      : [{ id, title: s.title, at: p, layout: layoutScreen(s.root, s.title) }];
+    return s === undefined || p === undefined ? [] : [{ id, title: s.title, at: p, root: s.root }];
   });
+}
+
+/** Fits the first view to the laid-out screens, unless the URL sets it. */
+function fitView(
+  surface: CanvasSurface,
+  canvas: HTMLCanvasElement,
+  screens: readonly PlacedScreen[],
+  laidOut: Heights,
+  s: { x?: number; y?: number; z?: number },
+): void {
+  const width = canvas.clientWidth || window.innerWidth;
+  const height = canvas.clientHeight || window.innerHeight;
+  const b = contentBounds(screens, laidOut);
+  const zoom =
+    s.z !== undefined
+      ? s.z / 100
+      : Math.min(1, Math.max(MIN_ZOOM_PERCENT / 100, Math.min(width / (b.r - b.l + 160), height / (b.b - b.t + 160))));
+  const cx = s.x ?? (b.l + b.r) / 2;
+  const cy = s.y ?? (b.t + b.b) / 2;
+  surface.setViewport(cx - width / 2 / zoom, cy - height / 2 / zoom, zoom);
 }
 
 /** C2: the plugin canvas, read-only (S1.4). */
@@ -42,6 +68,7 @@ export function PluginCanvasPage() {
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
+  const [heights, setHeights] = useState<Heights>(new Map());
   const searchRef = useRef(search);
   searchRef.current = search;
 
@@ -66,21 +93,18 @@ export function PluginCanvasPage() {
     if (surface === null || canvas === null || screens.length === 0) {
       return;
     }
-    surface.patch(sceneOps(screens));
-    const width = canvas.clientWidth || window.innerWidth;
-    const height = canvas.clientHeight || window.innerHeight;
-    const s = searchRef.current;
-    const b = contentBounds(screens);
-    const zoom =
-      s.z !== undefined
-        ? s.z / 100
-        : Math.min(
-            1,
-            Math.max(MIN_ZOOM_PERCENT / 100, Math.min(width / (b.r - b.l + 160), height / (b.b - b.t + 160))),
-          );
-    const cx = s.x ?? (b.l + b.r) / 2;
-    const cy = s.y ?? (b.t + b.b) / 2;
-    surface.setViewport(cx - width / 2 / zoom, cy - height / 2 / zoom, zoom);
+    let current = true;
+    void surface.layoutScreens(screenDocuments(screens), screenStyle).then((laidOut) => {
+      if (!current) {
+        return;
+      }
+      const byId = heightsById(laidOut);
+      setHeights(byId);
+      fitView(surface, canvas, screens, byId, searchRef.current);
+    });
+    return () => {
+      current = false;
+    };
   }, [screens]);
 
   const sync = () => {
@@ -143,7 +167,7 @@ export function PluginCanvasPage() {
         {screens.map((s) => (
           <li key={s.id}>
             {s.title}
-            {s.layout.contentHeight > DEVICE.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
+            {(heights.get(s.id) ?? 0) > DEVICE.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
           </li>
         ))}
       </ol>

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
+import { defaultScreenTheme } from "@plux/layout";
 import {
   type HostMessage,
   PROTOCOL_VERSION,
@@ -34,6 +35,35 @@ const hostMessages: HostMessage[] = [
   { v, type: "interaction", phase: "start", kind: "drag", ids: ["a"] },
   { v, type: "resize", width: 100, height: 50, dpr: 1 },
   { v, type: "snapshot", requestId: 7 },
+  {
+    v,
+    type: "screens",
+    requestId: 4,
+    screens: [
+      {
+        id: "home",
+        title: "Home",
+        x: 10,
+        y: 20,
+        root: { id: "c", type: "Column", children: [{ id: "t", type: "Text", props: { data: "Hi" } }] },
+      },
+      { id: "empty", title: "Empty", x: 500, y: 20, root: null },
+    ],
+    style: {
+      deviceHeight: 844,
+      theme: { ...defaultScreenTheme },
+      frame: 0xffffffff,
+      frameStroke: 1,
+      box: 2,
+      boxStroke: 3,
+      placeholder: 4,
+      text: 5,
+      overflowFill: 6,
+      overflowBox: 7,
+      overflowText: 8,
+      overflowStroke: 9,
+    },
+  },
   { v, type: "dispose" },
 ];
 
@@ -55,6 +85,16 @@ const workerMessages: WorkerMessage[] = [
     requestId: 7,
     model: { version: 1, viewport: { x: 0, y: 0, zoom: 1, width: 10, height: 10 }, frames: [], nodes: [] },
   },
+  {
+    v,
+    type: "screens",
+    requestId: 4,
+    ops: [
+      { op: "clear" },
+      { op: "add", item: { kind: "text", id: "home/t", x: 1, y: 2, w: 3, text: "Hi", size: 16, color: 5, z: 2 } },
+    ],
+    heights: [{ id: "home", contentHeight: 900 }],
+  },
   { v, type: "error", message: "boom" },
 ];
 
@@ -64,7 +104,7 @@ describe("STU-003 canvas worker protocol", () => {
       const copy = structuredClone(message);
       expect(copy).toEqual(message);
       expect(readHostMessage(copy)).toEqual(message);
-      if (message.type !== "snapshot") {
+      if (message.type !== "snapshot" && message.type !== "screens") {
         expect(readWorkerMessage(copy)).toBeUndefined();
       }
     }

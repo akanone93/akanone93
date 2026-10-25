@@ -1,13 +1,21 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { CanvasHost, type FontSource, type SceneOp, type WorkerLike } from "@plux/canvas";
+import {
+  CanvasHost,
+  type FontSource,
+  type ScreenDocument,
+  type ScreenHeight,
+  type ScreenStyle,
+  type WorkerLike,
+} from "@plux/canvas";
 import { canvasWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import canvasWorkerURL from "./canvas-worker.ts?worker&url";
 
 /** The part of the canvas host the plugin canvas uses; a stub in tests. */
 export interface CanvasSurface {
-  patch(ops: readonly SceneOp[]): void;
+  /** Replaces the scene with `screens`, laid out in the canvas worker; resolves with their content heights. */
+  layoutScreens(screens: readonly ScreenDocument[], style: ScreenStyle): Promise<readonly ScreenHeight[]>;
   setViewport(x: number, y: number, zoom: number): void;
   pan(dx: number, dy: number): void;
   zoomAbout(factor: number, x: number, y: number): void;
@@ -91,7 +99,8 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     })
     .catch(() => undefined);
   return {
-    patch: (ops) => run((h) => h.patch(ops)),
+    layoutScreens: (screens, style) =>
+      new Promise((resolve) => run((h) => void h.layoutScreens(screens, style).then(resolve))),
     setViewport: (x, y, zoom) => {
       view = { x, y, zoom };
       run((h) => h.setViewport(x, y, zoom));

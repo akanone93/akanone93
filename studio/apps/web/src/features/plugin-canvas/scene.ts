@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { primitives } from "@plux/brand";
-import type { ColorRgba, ItemSpec, SceneOp } from "@plux/canvas";
+import type { ColorRgba, ScreenDocument, ScreenHeight, ScreenStyle } from "@plux/canvas";
+import { defaultScreenTheme } from "@plux/layout";
+import type { Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
-import { DEVICE, type Placed, type ScreenLayout } from "./screen-layout.ts";
+
+/** The device frame every screen is drawn in, in logical pixels. */
+export const DEVICE = { width: defaultScreenTheme.width, height: 844 } as const;
 
 /** Fraction of full opacity for content beyond the viewport (STU-056). */
 const OVERFLOW_ALPHA = 0x50;
@@ -24,11 +28,15 @@ function rgba(css: string, alphaOverride?: number): ColorRgba {
   return ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
 }
 
-const colors = {
+/** How the canvas worker draws laid-out screens: the brand colours and the device. */
+export const screenStyle: ScreenStyle = {
+  deviceHeight: DEVICE.height,
+  theme: defaultScreenTheme,
   frame: rgba(primitives.white),
   frameStroke: rgba(primitives["navy.alpha16"]),
   box: rgba(primitives["porcelain.100"]),
   boxStroke: rgba(primitives["navy.alpha16"]),
+  placeholder: rgba(primitives["violet.700"], 0x14),
   text: rgba(primitives["navy.900"]),
   overflowFill: rgba(primitives["violet.700"], 0x14),
   overflowBox: rgba(primitives["porcelain.100"], OVERFLOW_ALPHA),
@@ -40,92 +48,31 @@ export interface PlacedScreen {
   readonly id: string;
   readonly title: string;
   readonly at: Point;
-  readonly layout: ScreenLayout;
+  readonly root: Node | undefined;
 }
 
-export const frameId = (screen: string) => `screen:${screen}`;
-export const overflowId = (screen: string) => `overflow:${screen}`;
-
-function boxItem(s: PlacedScreen, b: Placed): ItemSpec {
-  const fid = frameId(s.id);
-  const beyond = b.y >= DEVICE.height;
-  const common = {
-    id: `${s.id}/${b.id}`,
-    x: s.at.x + b.x,
-    y: s.at.y + b.y,
-    w: b.w,
-    z: 2,
-    ...(beyond ? {} : { frame: fid }),
-  };
-  if (b.kind === "text" && b.text !== undefined) {
-    return { kind: "text", ...common, text: b.text, size: 16, color: beyond ? colors.overflowText : colors.text };
-  }
-  return {
-    kind: "rect",
-    ...common,
-    h: b.h,
-    radius: 8,
-    fill: beyond ? colors.overflowBox : colors.box,
-    stroke: { color: beyond ? colors.overflowStroke : colors.boxStroke, width: 1 },
-    ...(b.text === undefined ? {} : { label: b.text }),
-  };
+/** The documents the worker lays out (ADR-0013): each screen's tree and where it stands. */
+export function screenDocuments(screens: readonly PlacedScreen[]): ScreenDocument[] {
+  return screens.map((s) => ({ id: s.id, title: s.title, x: s.at.x, y: s.at.y, root: s.root ?? null }));
 }
 
-/**
- * Scene items of one screen: its device frame, the boxes inside it, and, when the content is taller
- * than the viewport, a translucent region below the frame holding the rest (STU-056).
- */
-export function screenItems(s: PlacedScreen): ItemSpec[] {
-  const fid = frameId(s.id);
-  const { x, y } = s.at;
-  const items: ItemSpec[] = [
-    {
-      kind: "frame",
-      id: fid,
-      name: s.title,
-      x,
-      y,
-      w: DEVICE.width,
-      h: DEVICE.height,
-      radius: 32,
-      fill: colors.frame,
-      stroke: { color: colors.frameStroke, width: 2 },
-      shadow: true,
-      z: 1,
-    },
-  ];
-  const overflow = Math.max(0, s.layout.contentHeight - DEVICE.height);
-  if (overflow > 0) {
-    items.push({
-      kind: "rect",
-      id: overflowId(s.id),
-      x,
-      y: y + DEVICE.height,
-      w: DEVICE.width,
-      h: overflow,
-      radius: 0,
-      fill: colors.overflowFill,
-      stroke: { color: colors.overflowStroke, width: 1 },
-      z: 1,
-    });
-  }
-  items.push(...s.layout.boxes.map((b) => boxItem(s, b)));
-  return items;
-}
+/** Each screen's laid-out content height, by screen id. */
+export type Heights = ReadonlyMap<string, number>;
 
-/** The ops that replace the whole scene with `screens`. */
-export function sceneOps(screens: readonly PlacedScreen[]): SceneOp[] {
-  return [{ op: "clear" }, ...screens.flatMap(screenItems).map((item) => ({ op: "add", item }) as const)];
-}
+export const heightsById = (heights: readonly ScreenHeight[]): Heights =>
+  new Map(heights.map((h) => [h.id, h.contentHeight]));
 
-/** The bounds of everything drawn, for fitting the first view. */
-export function contentBounds(screens: readonly PlacedScreen[]): { l: number; t: number; r: number; b: number } {
+/** The bounds of everything drawn, overflow regions included, for fitting the first view. */
+export function contentBounds(
+  screens: readonly PlacedScreen[],
+  heights: Heights,
+): { l: number; t: number; r: number; b: number } {
   let l = 0;
   let t = 0;
   let r: number = DEVICE.width;
   let b: number = DEVICE.height;
   screens.forEach((s, i) => {
-    const bottom = s.at.y + Math.max(DEVICE.height, s.layout.contentHeight);
+    const bottom = s.at.y + Math.max(DEVICE.height, heights.get(s.id) ?? 0);
     if (i === 0) {
       [l, t, r, b] = [s.at.x, s.at.y, s.at.x + DEVICE.width, bottom];
     } else {
