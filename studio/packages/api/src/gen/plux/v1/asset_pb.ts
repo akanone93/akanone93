@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/asset.proto.
  */
 export const file_plux_v1_asset: GenFile = /*@__PURE__*/
-  fileDesc("ChNwbHV4L3YxL2Fzc2V0LnByb3RvEgdwbHV4LnYxItECCgVBc3NldBIKCgJpZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSEQoJcGx1Z2luX2lkGAMgASgJEgwKBG5hbWUYBCABKAkSEgoKbWVkaWFfdHlwZRgFIAEoCRIMCgRzaXplGAYgASgDEg4KBnNoYTI1NhgHIAEoCRINCgV3aWR0aBgIIAEoBRIOCgZoZWlnaHQYCSABKAUSJwoIdmFyaWFudHMYCiADKAsyFS5wbHV4LnYxLkFzc2V0VmFyaWFudBISCgpwcm9jZXNzaW5nGAsgASgJEigKC2RpYWdub3N0aWNzGAwgAygLMhMucGx1eC52MS5EaWFnbm9zdGljEiMKC3VwbG9hZGVkX2J5GA0gASgLMg4ucGx1eC52MS5BY3RvchIuCgpjcmVhdGVkX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJxCgxBc3NldFZhcmlhbnQSDAoEa2luZBgBIAEoCRIPCgdkZW5zaXR5GAIgASgFEiMKCGFydGlmYWN0GAMgASgLMhEucGx1eC52MS5BcnRpZmFjdBINCgV3aWR0aBgEIAEoBRIOCgZoZWlnaHQYBSABKAUiZQoSVXBsb2FkQXNzZXRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEbmFtZRgDIAEoCRIPCgdzZXNzaW9uGAQgASgJEg0KBWNodW5rGAUgASgMIjQKE1VwbG9hZEFzc2V0UmVzcG9uc2USHQoFYXNzZXQYASABKAsyDi5wbHV4LnYxLkFzc2V0Ih0KD0dldEFzc2V0UmVxdWVzdBIKCgJpZBgBIAEoCSIxChBHZXRBc3NldFJlc3BvbnNlEh0KBWFzc2V0GAEgASgLMg4ucGx1eC52MS5Bc3NldCJTChFMaXN0QXNzZXRzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiVwoSTGlzdEFzc2V0c1Jlc3BvbnNlEh4KBmFzc2V0cxgBIAMoCzIOLnBsdXgudjEuQXNzZXQSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCIxChJEZWxldGVBc3NldFJlcXVlc3QSCgoCaWQYASABKAkSDwoHc2Vzc2lvbhgCIAEoCSIVChNEZWxldGVBc3NldFJlc3BvbnNlMqwCCgxBc3NldFNlcnZpY2USSgoLVXBsb2FkQXNzZXQSGy5wbHV4LnYxLlVwbG9hZEFzc2V0UmVxdWVzdBocLnBsdXgudjEuVXBsb2FkQXNzZXRSZXNwb25zZSgBEj8KCEdldEFzc2V0EhgucGx1eC52MS5HZXRBc3NldFJlcXVlc3QaGS5wbHV4LnYxLkdldEFzc2V0UmVzcG9uc2USRQoKTGlzdEFzc2V0cxIaLnBsdXgudjEuTGlzdEFzc2V0c1JlcXVlc3QaGy5wbHV4LnYxLkxpc3RBc3NldHNSZXNwb25zZRJICgtEZWxldGVBc3NldBIbLnBsdXgudjEuRGVsZXRlQXNzZXRSZXF1ZXN0GhwucGx1eC52MS5EZWxldGVBc3NldFJlc3BvbnNlQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM", [file_google_protobuf_timestamp, file_plux_v1_common]);
+  fileDesc("ChNwbHV4L3YxL2Fzc2V0LnByb3RvEgdwbHV4LnYxItECCgVBc3NldBIKCgJpZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSEQoJcGx1Z2luX2lkGAMgASgJEgwKBG5hbWUYBCABKAkSEgoKbWVkaWFfdHlwZRgFIAEoCRIMCgRzaXplGAYgASgDEg4KBnNoYTI1NhgHIAEoCRINCgV3aWR0aBgIIAEoBRIOCgZoZWlnaHQYCSABKAUSJwoIdmFyaWFudHMYCiADKAsyFS5wbHV4LnYxLkFzc2V0VmFyaWFudBISCgpwcm9jZXNzaW5nGAsgASgJEigKC2RpYWdub3N0aWNzGAwgAygLMhMucGx1eC52MS5EaWFnbm9zdGljEiMKC3VwbG9hZGVkX2J5GA0gASgLMg4ucGx1eC52MS5BY3RvchIuCgpjcmVhdGVkX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJxCgxBc3NldFZhcmlhbnQSDAoEa2luZBgBIAEoCRIPCgdkZW5zaXR5GAIgASgFEiMKCGFydGlmYWN0GAMgASgLMhEucGx1eC52MS5BcnRpZmFjdBINCgV3aWR0aBgEIAEoBRIOCgZoZWlnaHQYBSABKAUiZQoSVXBsb2FkQXNzZXRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEbmFtZRgDIAEoCRIPCgdzZXNzaW9uGAQgASgJEg0KBWNodW5rGAUgASgMIjQKE1VwbG9hZEFzc2V0UmVzcG9uc2USHQoFYXNzZXQYASABKAsyDi5wbHV4LnYxLkFzc2V0Ih0KD0dldEFzc2V0UmVxdWVzdBIKCgJpZBgBIAEoCSIxChBHZXRBc3NldFJlc3BvbnNlEh0KBWFzc2V0GAEgASgLMg4ucGx1eC52MS5Bc3NldCJTChFMaXN0QXNzZXRzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiVwoSTGlzdEFzc2V0c1Jlc3BvbnNlEh4KBmFzc2V0cxgBIAMoCzIOLnBsdXgudjEuQXNzZXQSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCIxChJEZWxldGVBc3NldFJlcXVlc3QSCgoCaWQYASABKAkSDwoHc2Vzc2lvbhgCIAEoCSIVChNEZWxldGVBc3NldFJlc3BvbnNlInkKF0JlZ2luQXNzZXRVcGxvYWRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEbmFtZRgDIAEoCRIPCgdzZXNzaW9uGAQgASgJEgwKBHNpemUYBSABKAMSDgoGc2hhMjU2GAYgASgMInEKGEJlZ2luQXNzZXRVcGxvYWRSZXNwb25zZRIRCgl1cGxvYWRfaWQYASABKAkSEgoKY2h1bmtfc2l6ZRgCIAEoAxIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJLChdVcGxvYWRBc3NldENodW5rUmVxdWVzdBIRCgl1cGxvYWRfaWQYASABKAkSDgoGb2Zmc2V0GAIgASgDEg0KBWNodW5rGAMgASgMIlwKGFVwbG9hZEFzc2V0Q2h1bmtSZXNwb25zZRIQCghyZWNlaXZlZBgBIAEoAxIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIqChVHZXRBc3NldFVwbG9hZFJlcXVlc3QSEQoJdXBsb2FkX2lkGAEgASgJImgKFkdldEFzc2V0VXBsb2FkUmVzcG9uc2USDAoEc2l6ZRgBIAEoAxIQCghyZWNlaXZlZBgCIAEoAxIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCItChhGaW5pc2hBc3NldFVwbG9hZFJlcXVlc3QSEQoJdXBsb2FkX2lkGAEgASgJIjoKGUZpbmlzaEFzc2V0VXBsb2FkUmVzcG9uc2USHQoFYXNzZXQYASABKAsyDi5wbHV4LnYxLkFzc2V0Mo0FCgxBc3NldFNlcnZpY2USSgoLVXBsb2FkQXNzZXQSGy5wbHV4LnYxLlVwbG9hZEFzc2V0UmVxdWVzdBocLnBsdXgudjEuVXBsb2FkQXNzZXRSZXNwb25zZSgBElcKEEJlZ2luQXNzZXRVcGxvYWQSIC5wbHV4LnYxLkJlZ2luQXNzZXRVcGxvYWRSZXF1ZXN0GiEucGx1eC52MS5CZWdpbkFzc2V0VXBsb2FkUmVzcG9uc2USVwoQVXBsb2FkQXNzZXRDaHVuaxIgLnBsdXgudjEuVXBsb2FkQXNzZXRDaHVua1JlcXVlc3QaIS5wbHV4LnYxLlVwbG9hZEFzc2V0Q2h1bmtSZXNwb25zZRJRCg5HZXRBc3NldFVwbG9hZBIeLnBsdXgudjEuR2V0QXNzZXRVcGxvYWRSZXF1ZXN0Gh8ucGx1eC52MS5HZXRBc3NldFVwbG9hZFJlc3BvbnNlEloKEUZpbmlzaEFzc2V0VXBsb2FkEiEucGx1eC52MS5GaW5pc2hBc3NldFVwbG9hZFJlcXVlc3QaIi5wbHV4LnYxLkZpbmlzaEFzc2V0VXBsb2FkUmVzcG9uc2USPwoIR2V0QXNzZXQSGC5wbHV4LnYxLkdldEFzc2V0UmVxdWVzdBoZLnBsdXgudjEuR2V0QXNzZXRSZXNwb25zZRJFCgpMaXN0QXNzZXRzEhoucGx1eC52MS5MaXN0QXNzZXRzUmVxdWVzdBobLnBsdXgudjEuTGlzdEFzc2V0c1Jlc3BvbnNlEkgKC0RlbGV0ZUFzc2V0EhsucGx1eC52MS5EZWxldGVBc3NldFJlcXVlc3QaHC5wbHV4LnYxLkRlbGV0ZUFzc2V0UmVzcG9uc2VCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_common]);
 
 /**
  * @generated from message plux.v1.Asset
@@ -327,6 +327,210 @@ export const DeleteAssetResponseSchema: GenMessage<DeleteAssetResponse> = /*@__P
   messageDesc(file_plux_v1_asset, 9);
 
 /**
+ * @generated from message plux.v1.BeginAssetUploadRequest
+ */
+export type BeginAssetUploadRequest = Message<"plux.v1.BeginAssetUploadRequest"> & {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+
+  /**
+   * @generated from field: string plugin_id = 2;
+   */
+  pluginId: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string session = 4;
+   */
+  session: string;
+
+  /**
+   * size is the byte length of the whole file.
+   *
+   * @generated from field: int64 size = 5;
+   */
+  size: bigint;
+
+  /**
+   * sha256 is the digest of the whole file, 32 bytes.
+   *
+   * @generated from field: bytes sha256 = 6;
+   */
+  sha256: Uint8Array;
+};
+
+/**
+ * Describes the message plux.v1.BeginAssetUploadRequest.
+ * Use `create(BeginAssetUploadRequestSchema)` to create a new message.
+ */
+export const BeginAssetUploadRequestSchema: GenMessage<BeginAssetUploadRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 10);
+
+/**
+ * @generated from message plux.v1.BeginAssetUploadResponse
+ */
+export type BeginAssetUploadResponse = Message<"plux.v1.BeginAssetUploadResponse"> & {
+  /**
+   * @generated from field: string upload_id = 1;
+   */
+  uploadId: string;
+
+  /**
+   * chunk_size is the largest chunk the server accepts.
+   *
+   * @generated from field: int64 chunk_size = 2;
+   */
+  chunkSize: bigint;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp expires_at = 3;
+   */
+  expiresAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.BeginAssetUploadResponse.
+ * Use `create(BeginAssetUploadResponseSchema)` to create a new message.
+ */
+export const BeginAssetUploadResponseSchema: GenMessage<BeginAssetUploadResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 11);
+
+/**
+ * @generated from message plux.v1.UploadAssetChunkRequest
+ */
+export type UploadAssetChunkRequest = Message<"plux.v1.UploadAssetChunkRequest"> & {
+  /**
+   * @generated from field: string upload_id = 1;
+   */
+  uploadId: string;
+
+  /**
+   * offset must equal the bytes received so far.
+   *
+   * @generated from field: int64 offset = 2;
+   */
+  offset: bigint;
+
+  /**
+   * @generated from field: bytes chunk = 3;
+   */
+  chunk: Uint8Array;
+};
+
+/**
+ * Describes the message plux.v1.UploadAssetChunkRequest.
+ * Use `create(UploadAssetChunkRequestSchema)` to create a new message.
+ */
+export const UploadAssetChunkRequestSchema: GenMessage<UploadAssetChunkRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 12);
+
+/**
+ * @generated from message plux.v1.UploadAssetChunkResponse
+ */
+export type UploadAssetChunkResponse = Message<"plux.v1.UploadAssetChunkResponse"> & {
+  /**
+   * @generated from field: int64 received = 1;
+   */
+  received: bigint;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp expires_at = 2;
+   */
+  expiresAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.UploadAssetChunkResponse.
+ * Use `create(UploadAssetChunkResponseSchema)` to create a new message.
+ */
+export const UploadAssetChunkResponseSchema: GenMessage<UploadAssetChunkResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 13);
+
+/**
+ * @generated from message plux.v1.GetAssetUploadRequest
+ */
+export type GetAssetUploadRequest = Message<"plux.v1.GetAssetUploadRequest"> & {
+  /**
+   * @generated from field: string upload_id = 1;
+   */
+  uploadId: string;
+};
+
+/**
+ * Describes the message plux.v1.GetAssetUploadRequest.
+ * Use `create(GetAssetUploadRequestSchema)` to create a new message.
+ */
+export const GetAssetUploadRequestSchema: GenMessage<GetAssetUploadRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 14);
+
+/**
+ * @generated from message plux.v1.GetAssetUploadResponse
+ */
+export type GetAssetUploadResponse = Message<"plux.v1.GetAssetUploadResponse"> & {
+  /**
+   * @generated from field: int64 size = 1;
+   */
+  size: bigint;
+
+  /**
+   * @generated from field: int64 received = 2;
+   */
+  received: bigint;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp expires_at = 3;
+   */
+  expiresAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.GetAssetUploadResponse.
+ * Use `create(GetAssetUploadResponseSchema)` to create a new message.
+ */
+export const GetAssetUploadResponseSchema: GenMessage<GetAssetUploadResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 15);
+
+/**
+ * @generated from message plux.v1.FinishAssetUploadRequest
+ */
+export type FinishAssetUploadRequest = Message<"plux.v1.FinishAssetUploadRequest"> & {
+  /**
+   * @generated from field: string upload_id = 1;
+   */
+  uploadId: string;
+};
+
+/**
+ * Describes the message plux.v1.FinishAssetUploadRequest.
+ * Use `create(FinishAssetUploadRequestSchema)` to create a new message.
+ */
+export const FinishAssetUploadRequestSchema: GenMessage<FinishAssetUploadRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 16);
+
+/**
+ * @generated from message plux.v1.FinishAssetUploadResponse
+ */
+export type FinishAssetUploadResponse = Message<"plux.v1.FinishAssetUploadResponse"> & {
+  /**
+   * @generated from field: plux.v1.Asset asset = 1;
+   */
+  asset?: Asset | undefined;
+};
+
+/**
+ * Describes the message plux.v1.FinishAssetUploadResponse.
+ * Use `create(FinishAssetUploadResponseSchema)` to create a new message.
+ */
+export const FinishAssetUploadResponseSchema: GenMessage<FinishAssetUploadResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_asset, 17);
+
+/**
  * AssetService stores the images, animations, fonts and other files a draft
  * uses. Uploads are size-limited, sniffed rather than trusted by extension,
  * stripped of metadata and deduplicated by hash (SRV-060, AST-003).
@@ -344,6 +548,44 @@ export const AssetService: GenService<{
     methodKind: "client_streaming";
     input: typeof UploadAssetRequestSchema;
     output: typeof UploadAssetResponseSchema;
+  },
+  /**
+   * BeginAssetUpload, UploadAssetChunk and FinishAssetUpload are the unary
+   * form of UploadAsset, for browsers, which cannot client-stream. Chunks
+   * are accepted in order at their offset; the SHA-256 of the whole file
+   * is verified at finish. GetAssetUpload reports how far an upload got,
+   * so a failed chunk can be resumed.
+   *
+   * @generated from rpc plux.v1.AssetService.BeginAssetUpload
+   */
+  beginAssetUpload: {
+    methodKind: "unary";
+    input: typeof BeginAssetUploadRequestSchema;
+    output: typeof BeginAssetUploadResponseSchema;
+  },
+  /**
+   * @generated from rpc plux.v1.AssetService.UploadAssetChunk
+   */
+  uploadAssetChunk: {
+    methodKind: "unary";
+    input: typeof UploadAssetChunkRequestSchema;
+    output: typeof UploadAssetChunkResponseSchema;
+  },
+  /**
+   * @generated from rpc plux.v1.AssetService.GetAssetUpload
+   */
+  getAssetUpload: {
+    methodKind: "unary";
+    input: typeof GetAssetUploadRequestSchema;
+    output: typeof GetAssetUploadResponseSchema;
+  },
+  /**
+   * @generated from rpc plux.v1.AssetService.FinishAssetUpload
+   */
+  finishAssetUpload: {
+    methodKind: "unary";
+    input: typeof FinishAssetUploadRequestSchema;
+    output: typeof FinishAssetUploadResponseSchema;
   },
   /**
    * @generated from rpc plux.v1.AssetService.GetAsset

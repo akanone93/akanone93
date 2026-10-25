@@ -2026,6 +2026,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.PutPolicyResponse'
+  /plux.v1.AssetService/BeginAssetUpload:
+    post:
+      tags:
+        - plux.v1.AssetService
+      summary: BeginAssetUpload
+      description: |-
+        BeginAssetUpload, UploadAssetChunk and FinishAssetUpload are the unary
+         form of UploadAsset, for browsers, which cannot client-stream. Chunks
+         are accepted in order at their offset; the SHA-256 of the whole file
+         is verified at finish. GetAssetUpload reports how far an upload got,
+         so a failed chunk can be resumed.
+      operationId: plux.v1.AssetService.BeginAssetUpload
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.BeginAssetUploadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.BeginAssetUploadResponse'
   /plux.v1.AssetService/DeleteAsset:
     post:
       tags:
@@ -2064,6 +2108,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteAssetResponse'
+  /plux.v1.AssetService/FinishAssetUpload:
+    post:
+      tags:
+        - plux.v1.AssetService
+      summary: FinishAssetUpload
+      operationId: plux.v1.AssetService.FinishAssetUpload
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.FinishAssetUploadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.FinishAssetUploadResponse'
   /plux.v1.AssetService/GetAsset:
     post:
       tags:
@@ -2102,6 +2184,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetAssetResponse'
+  /plux.v1.AssetService/GetAssetUpload:
+    post:
+      tags:
+        - plux.v1.AssetService
+      summary: GetAssetUpload
+      operationId: plux.v1.AssetService.GetAssetUpload
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetAssetUploadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetAssetUploadResponse'
   /plux.v1.AssetService/ListAssets:
     post:
       tags:
@@ -2141,6 +2261,44 @@ paths:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListAssetsResponse'
   /plux.v1.AssetService/UploadAsset: {}
+  /plux.v1.AssetService/UploadAssetChunk:
+    post:
+      tags:
+        - plux.v1.AssetService
+      summary: UploadAssetChunk
+      operationId: plux.v1.AssetService.UploadAssetChunk
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UploadAssetChunkRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UploadAssetChunkResponse'
   /plux.v1.AuditService/CreateExportDestination:
     post:
       tags:
@@ -14041,6 +14199,50 @@ components:
       title: AuditEntry
       additionalProperties: false
       description: AuditEntry is one record of the append-only audit log (SEC-140).
+    plux.v1.BeginAssetUploadRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginId:
+          type: string
+          title: plugin_id
+        name:
+          type: string
+          title: name
+        session:
+          type: string
+          title: session
+        size:
+          type: string
+          title: size
+          format: int64
+          description: size is the byte length of the whole file.
+        sha256:
+          type: string
+          title: sha256
+          format: byte
+          description: sha256 is the digest of the whole file, 32 bytes.
+      title: BeginAssetUploadRequest
+      additionalProperties: false
+    plux.v1.BeginAssetUploadResponse:
+      type: object
+      properties:
+        uploadId:
+          type: string
+          title: upload_id
+        chunkSize:
+          type: string
+          title: chunk_size
+          format: int64
+          description: chunk_size is the largest chunk the server accepts.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: BeginAssetUploadResponse
+      additionalProperties: false
     plux.v1.BeginStepUpRequest:
       type: object
       properties:
@@ -19195,6 +19397,23 @@ components:
       description: |-
         FileExportSettings is what an organisation exports as files and messages
          (ANL-011).
+    plux.v1.FinishAssetUploadRequest:
+      type: object
+      properties:
+        uploadId:
+          type: string
+          title: upload_id
+      title: FinishAssetUploadRequest
+      additionalProperties: false
+    plux.v1.FinishAssetUploadResponse:
+      type: object
+      properties:
+        asset:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Asset'
+          title: asset
+      title: FinishAssetUploadResponse
+      additionalProperties: false
     plux.v1.FinishWebAuthnRegistrationRequest:
       type: object
       properties:
@@ -19854,6 +20073,31 @@ components:
             - $ref: '#/components/schemas/plux.v1.Asset'
           title: asset
       title: GetAssetResponse
+      additionalProperties: false
+    plux.v1.GetAssetUploadRequest:
+      type: object
+      properties:
+        uploadId:
+          type: string
+          title: upload_id
+      title: GetAssetUploadRequest
+      additionalProperties: false
+    plux.v1.GetAssetUploadResponse:
+      type: object
+      properties:
+        size:
+          type: string
+          title: size
+          format: int64
+        received:
+          type: string
+          title: received
+          format: int64
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: GetAssetUploadResponse
       additionalProperties: false
     plux.v1.GetBaselinesRequest:
       type: object
@@ -28952,6 +29196,36 @@ components:
             - $ref: '#/components/schemas/plux.v1.Upstream'
           title: upstream
       title: UpdateUpstreamResponse
+      additionalProperties: false
+    plux.v1.UploadAssetChunkRequest:
+      type: object
+      properties:
+        uploadId:
+          type: string
+          title: upload_id
+        offset:
+          type: string
+          title: offset
+          format: int64
+          description: offset must equal the bytes received so far.
+        chunk:
+          type: string
+          title: chunk
+          format: byte
+      title: UploadAssetChunkRequest
+      additionalProperties: false
+    plux.v1.UploadAssetChunkResponse:
+      type: object
+      properties:
+        received:
+          type: string
+          title: received
+          format: int64
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: UploadAssetChunkResponse
       additionalProperties: false
     plux.v1.UploadAssetRequest:
       type: object

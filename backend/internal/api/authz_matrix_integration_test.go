@@ -6,6 +6,7 @@ package api_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -349,6 +350,17 @@ func (f *matrixFixture) freshAsset(t *testing.T) string {
 	}
 	res, err := stream.CloseAndReceive()
 	return must(res, err)(t).GetAsset().GetId()
+}
+
+// freshUpload opens a chunked upload of the fixture's PNG as the owner.
+func (f *matrixFixture) freshUpload(t *testing.T) string {
+	t.Helper()
+	png := f.png(t)
+	sum := sha256.Sum256(png)
+	req := connect.NewRequest(&pluxv1.BeginAssetUploadRequest{AppId: f.app, Name: "images/" + f.name() + ".png", Session: "tab-1", Size: int64(len(png)), Sha256: sum[:]})
+	withHeaders(req.Header(), f.owner())
+	res, err := f.w.asset.BeginAssetUpload(context.Background(), req)
+	return must(res, err)(t).GetUploadId()
 }
 
 // upstream returns a valid upstream of the development environment.

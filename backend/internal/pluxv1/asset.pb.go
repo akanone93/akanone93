@@ -665,6 +665,458 @@ func (*DeleteAssetResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_asset_proto_rawDescGZIP(), []int{9}
 }
 
+type BeginAssetUploadRequest struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	AppId    string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	PluginId string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	Name     string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Session  string                 `protobuf:"bytes,4,opt,name=session,proto3" json:"session,omitempty"`
+	// size is the byte length of the whole file.
+	Size int64 `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
+	// sha256 is the digest of the whole file, 32 bytes.
+	Sha256        []byte `protobuf:"bytes,6,opt,name=sha256,proto3" json:"sha256,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BeginAssetUploadRequest) Reset() {
+	*x = BeginAssetUploadRequest{}
+	mi := &file_plux_v1_asset_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BeginAssetUploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BeginAssetUploadRequest) ProtoMessage() {}
+
+func (x *BeginAssetUploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BeginAssetUploadRequest.ProtoReflect.Descriptor instead.
+func (*BeginAssetUploadRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *BeginAssetUploadRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *BeginAssetUploadRequest) GetPluginId() string {
+	if x != nil {
+		return x.PluginId
+	}
+	return ""
+}
+
+func (x *BeginAssetUploadRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BeginAssetUploadRequest) GetSession() string {
+	if x != nil {
+		return x.Session
+	}
+	return ""
+}
+
+func (x *BeginAssetUploadRequest) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *BeginAssetUploadRequest) GetSha256() []byte {
+	if x != nil {
+		return x.Sha256
+	}
+	return nil
+}
+
+type BeginAssetUploadResponse struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	UploadId string                 `protobuf:"bytes,1,opt,name=upload_id,json=uploadId,proto3" json:"upload_id,omitempty"`
+	// chunk_size is the largest chunk the server accepts.
+	ChunkSize     int64                  `protobuf:"varint,2,opt,name=chunk_size,json=chunkSize,proto3" json:"chunk_size,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BeginAssetUploadResponse) Reset() {
+	*x = BeginAssetUploadResponse{}
+	mi := &file_plux_v1_asset_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BeginAssetUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BeginAssetUploadResponse) ProtoMessage() {}
+
+func (x *BeginAssetUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BeginAssetUploadResponse.ProtoReflect.Descriptor instead.
+func (*BeginAssetUploadResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *BeginAssetUploadResponse) GetUploadId() string {
+	if x != nil {
+		return x.UploadId
+	}
+	return ""
+}
+
+func (x *BeginAssetUploadResponse) GetChunkSize() int64 {
+	if x != nil {
+		return x.ChunkSize
+	}
+	return 0
+}
+
+func (x *BeginAssetUploadResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+type UploadAssetChunkRequest struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	UploadId string                 `protobuf:"bytes,1,opt,name=upload_id,json=uploadId,proto3" json:"upload_id,omitempty"`
+	// offset must equal the bytes received so far.
+	Offset        int64  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Chunk         []byte `protobuf:"bytes,3,opt,name=chunk,proto3" json:"chunk,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadAssetChunkRequest) Reset() {
+	*x = UploadAssetChunkRequest{}
+	mi := &file_plux_v1_asset_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadAssetChunkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadAssetChunkRequest) ProtoMessage() {}
+
+func (x *UploadAssetChunkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadAssetChunkRequest.ProtoReflect.Descriptor instead.
+func (*UploadAssetChunkRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *UploadAssetChunkRequest) GetUploadId() string {
+	if x != nil {
+		return x.UploadId
+	}
+	return ""
+}
+
+func (x *UploadAssetChunkRequest) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *UploadAssetChunkRequest) GetChunk() []byte {
+	if x != nil {
+		return x.Chunk
+	}
+	return nil
+}
+
+type UploadAssetChunkResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Received      int64                  `protobuf:"varint,1,opt,name=received,proto3" json:"received,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadAssetChunkResponse) Reset() {
+	*x = UploadAssetChunkResponse{}
+	mi := &file_plux_v1_asset_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadAssetChunkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadAssetChunkResponse) ProtoMessage() {}
+
+func (x *UploadAssetChunkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadAssetChunkResponse.ProtoReflect.Descriptor instead.
+func (*UploadAssetChunkResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UploadAssetChunkResponse) GetReceived() int64 {
+	if x != nil {
+		return x.Received
+	}
+	return 0
+}
+
+func (x *UploadAssetChunkResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+type GetAssetUploadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UploadId      string                 `protobuf:"bytes,1,opt,name=upload_id,json=uploadId,proto3" json:"upload_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAssetUploadRequest) Reset() {
+	*x = GetAssetUploadRequest{}
+	mi := &file_plux_v1_asset_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAssetUploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAssetUploadRequest) ProtoMessage() {}
+
+func (x *GetAssetUploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAssetUploadRequest.ProtoReflect.Descriptor instead.
+func (*GetAssetUploadRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetAssetUploadRequest) GetUploadId() string {
+	if x != nil {
+		return x.UploadId
+	}
+	return ""
+}
+
+type GetAssetUploadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Size          int64                  `protobuf:"varint,1,opt,name=size,proto3" json:"size,omitempty"`
+	Received      int64                  `protobuf:"varint,2,opt,name=received,proto3" json:"received,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAssetUploadResponse) Reset() {
+	*x = GetAssetUploadResponse{}
+	mi := &file_plux_v1_asset_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAssetUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAssetUploadResponse) ProtoMessage() {}
+
+func (x *GetAssetUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAssetUploadResponse.ProtoReflect.Descriptor instead.
+func (*GetAssetUploadResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetAssetUploadResponse) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *GetAssetUploadResponse) GetReceived() int64 {
+	if x != nil {
+		return x.Received
+	}
+	return 0
+}
+
+func (x *GetAssetUploadResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+type FinishAssetUploadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UploadId      string                 `protobuf:"bytes,1,opt,name=upload_id,json=uploadId,proto3" json:"upload_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FinishAssetUploadRequest) Reset() {
+	*x = FinishAssetUploadRequest{}
+	mi := &file_plux_v1_asset_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FinishAssetUploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FinishAssetUploadRequest) ProtoMessage() {}
+
+func (x *FinishAssetUploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FinishAssetUploadRequest.ProtoReflect.Descriptor instead.
+func (*FinishAssetUploadRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *FinishAssetUploadRequest) GetUploadId() string {
+	if x != nil {
+		return x.UploadId
+	}
+	return ""
+}
+
+type FinishAssetUploadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Asset         *Asset                 `protobuf:"bytes,1,opt,name=asset,proto3" json:"asset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FinishAssetUploadResponse) Reset() {
+	*x = FinishAssetUploadResponse{}
+	mi := &file_plux_v1_asset_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FinishAssetUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FinishAssetUploadResponse) ProtoMessage() {}
+
+func (x *FinishAssetUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_asset_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FinishAssetUploadResponse.ProtoReflect.Descriptor instead.
+func (*FinishAssetUploadResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_asset_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *FinishAssetUploadResponse) GetAsset() *Asset {
+	if x != nil {
+		return x.Asset
+	}
+	return nil
+}
+
 var File_plux_v1_asset_proto protoreflect.FileDescriptor
 
 const file_plux_v1_asset_proto_rawDesc = "" +
@@ -719,9 +1171,45 @@ const file_plux_v1_asset_proto_rawDesc = "" +
 	"\x12DeleteAssetRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\asession\x18\x02 \x01(\tR\asession\"\x15\n" +
-	"\x13DeleteAssetResponse2\xb4\x02\n" +
+	"\x13DeleteAssetResponse\"\xa7\x01\n" +
+	"\x17BeginAssetUploadRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
+	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
+	"\asession\x18\x04 \x01(\tR\asession\x12\x12\n" +
+	"\x04size\x18\x05 \x01(\x03R\x04size\x12\x16\n" +
+	"\x06sha256\x18\x06 \x01(\fR\x06sha256\"\x91\x01\n" +
+	"\x18BeginAssetUploadResponse\x12\x1b\n" +
+	"\tupload_id\x18\x01 \x01(\tR\buploadId\x12\x1d\n" +
+	"\n" +
+	"chunk_size\x18\x02 \x01(\x03R\tchunkSize\x129\n" +
+	"\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"d\n" +
+	"\x17UploadAssetChunkRequest\x12\x1b\n" +
+	"\tupload_id\x18\x01 \x01(\tR\buploadId\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x03R\x06offset\x12\x14\n" +
+	"\x05chunk\x18\x03 \x01(\fR\x05chunk\"q\n" +
+	"\x18UploadAssetChunkResponse\x12\x1a\n" +
+	"\breceived\x18\x01 \x01(\x03R\breceived\x129\n" +
+	"\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"4\n" +
+	"\x15GetAssetUploadRequest\x12\x1b\n" +
+	"\tupload_id\x18\x01 \x01(\tR\buploadId\"\x83\x01\n" +
+	"\x16GetAssetUploadResponse\x12\x12\n" +
+	"\x04size\x18\x01 \x01(\x03R\x04size\x12\x1a\n" +
+	"\breceived\x18\x02 \x01(\x03R\breceived\x129\n" +
+	"\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"7\n" +
+	"\x18FinishAssetUploadRequest\x12\x1b\n" +
+	"\tupload_id\x18\x01 \x01(\tR\buploadId\"A\n" +
+	"\x19FinishAssetUploadResponse\x12$\n" +
+	"\x05asset\x18\x01 \x01(\v2\x0e.plux.v1.AssetR\x05asset2\x9d\x05\n" +
 	"\fAssetService\x12L\n" +
-	"\vUploadAsset\x12\x1b.plux.v1.UploadAssetRequest\x1a\x1c.plux.v1.UploadAssetResponse\"\x00(\x01\x12A\n" +
+	"\vUploadAsset\x12\x1b.plux.v1.UploadAssetRequest\x1a\x1c.plux.v1.UploadAssetResponse\"\x00(\x01\x12Y\n" +
+	"\x10BeginAssetUpload\x12 .plux.v1.BeginAssetUploadRequest\x1a!.plux.v1.BeginAssetUploadResponse\"\x00\x12Y\n" +
+	"\x10UploadAssetChunk\x12 .plux.v1.UploadAssetChunkRequest\x1a!.plux.v1.UploadAssetChunkResponse\"\x00\x12S\n" +
+	"\x0eGetAssetUpload\x12\x1e.plux.v1.GetAssetUploadRequest\x1a\x1f.plux.v1.GetAssetUploadResponse\"\x00\x12\\\n" +
+	"\x11FinishAssetUpload\x12!.plux.v1.FinishAssetUploadRequest\x1a\".plux.v1.FinishAssetUploadResponse\"\x00\x12A\n" +
 	"\bGetAsset\x12\x18.plux.v1.GetAssetRequest\x1a\x19.plux.v1.GetAssetResponse\"\x00\x12G\n" +
 	"\n" +
 	"ListAssets\x12\x1a.plux.v1.ListAssetsRequest\x1a\x1b.plux.v1.ListAssetsResponse\"\x00\x12J\n" +
@@ -739,49 +1227,69 @@ func file_plux_v1_asset_proto_rawDescGZIP() []byte {
 	return file_plux_v1_asset_proto_rawDescData
 }
 
-var file_plux_v1_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_plux_v1_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_plux_v1_asset_proto_goTypes = []any{
-	(*Asset)(nil),                 // 0: plux.v1.Asset
-	(*AssetVariant)(nil),          // 1: plux.v1.AssetVariant
-	(*UploadAssetRequest)(nil),    // 2: plux.v1.UploadAssetRequest
-	(*UploadAssetResponse)(nil),   // 3: plux.v1.UploadAssetResponse
-	(*GetAssetRequest)(nil),       // 4: plux.v1.GetAssetRequest
-	(*GetAssetResponse)(nil),      // 5: plux.v1.GetAssetResponse
-	(*ListAssetsRequest)(nil),     // 6: plux.v1.ListAssetsRequest
-	(*ListAssetsResponse)(nil),    // 7: plux.v1.ListAssetsResponse
-	(*DeleteAssetRequest)(nil),    // 8: plux.v1.DeleteAssetRequest
-	(*DeleteAssetResponse)(nil),   // 9: plux.v1.DeleteAssetResponse
-	(*Diagnostic)(nil),            // 10: plux.v1.Diagnostic
-	(*Actor)(nil),                 // 11: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
-	(*Artifact)(nil),              // 13: plux.v1.Artifact
-	(*Page)(nil),                  // 14: plux.v1.Page
-	(*PageResult)(nil),            // 15: plux.v1.PageResult
+	(*Asset)(nil),                     // 0: plux.v1.Asset
+	(*AssetVariant)(nil),              // 1: plux.v1.AssetVariant
+	(*UploadAssetRequest)(nil),        // 2: plux.v1.UploadAssetRequest
+	(*UploadAssetResponse)(nil),       // 3: plux.v1.UploadAssetResponse
+	(*GetAssetRequest)(nil),           // 4: plux.v1.GetAssetRequest
+	(*GetAssetResponse)(nil),          // 5: plux.v1.GetAssetResponse
+	(*ListAssetsRequest)(nil),         // 6: plux.v1.ListAssetsRequest
+	(*ListAssetsResponse)(nil),        // 7: plux.v1.ListAssetsResponse
+	(*DeleteAssetRequest)(nil),        // 8: plux.v1.DeleteAssetRequest
+	(*DeleteAssetResponse)(nil),       // 9: plux.v1.DeleteAssetResponse
+	(*BeginAssetUploadRequest)(nil),   // 10: plux.v1.BeginAssetUploadRequest
+	(*BeginAssetUploadResponse)(nil),  // 11: plux.v1.BeginAssetUploadResponse
+	(*UploadAssetChunkRequest)(nil),   // 12: plux.v1.UploadAssetChunkRequest
+	(*UploadAssetChunkResponse)(nil),  // 13: plux.v1.UploadAssetChunkResponse
+	(*GetAssetUploadRequest)(nil),     // 14: plux.v1.GetAssetUploadRequest
+	(*GetAssetUploadResponse)(nil),    // 15: plux.v1.GetAssetUploadResponse
+	(*FinishAssetUploadRequest)(nil),  // 16: plux.v1.FinishAssetUploadRequest
+	(*FinishAssetUploadResponse)(nil), // 17: plux.v1.FinishAssetUploadResponse
+	(*Diagnostic)(nil),                // 18: plux.v1.Diagnostic
+	(*Actor)(nil),                     // 19: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),     // 20: google.protobuf.Timestamp
+	(*Artifact)(nil),                  // 21: plux.v1.Artifact
+	(*Page)(nil),                      // 22: plux.v1.Page
+	(*PageResult)(nil),                // 23: plux.v1.PageResult
 }
 var file_plux_v1_asset_proto_depIdxs = []int32{
 	1,  // 0: plux.v1.Asset.variants:type_name -> plux.v1.AssetVariant
-	10, // 1: plux.v1.Asset.diagnostics:type_name -> plux.v1.Diagnostic
-	11, // 2: plux.v1.Asset.uploaded_by:type_name -> plux.v1.Actor
-	12, // 3: plux.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
-	13, // 4: plux.v1.AssetVariant.artifact:type_name -> plux.v1.Artifact
+	18, // 1: plux.v1.Asset.diagnostics:type_name -> plux.v1.Diagnostic
+	19, // 2: plux.v1.Asset.uploaded_by:type_name -> plux.v1.Actor
+	20, // 3: plux.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
+	21, // 4: plux.v1.AssetVariant.artifact:type_name -> plux.v1.Artifact
 	0,  // 5: plux.v1.UploadAssetResponse.asset:type_name -> plux.v1.Asset
 	0,  // 6: plux.v1.GetAssetResponse.asset:type_name -> plux.v1.Asset
-	14, // 7: plux.v1.ListAssetsRequest.page:type_name -> plux.v1.Page
+	22, // 7: plux.v1.ListAssetsRequest.page:type_name -> plux.v1.Page
 	0,  // 8: plux.v1.ListAssetsResponse.assets:type_name -> plux.v1.Asset
-	15, // 9: plux.v1.ListAssetsResponse.page:type_name -> plux.v1.PageResult
-	2,  // 10: plux.v1.AssetService.UploadAsset:input_type -> plux.v1.UploadAssetRequest
-	4,  // 11: plux.v1.AssetService.GetAsset:input_type -> plux.v1.GetAssetRequest
-	6,  // 12: plux.v1.AssetService.ListAssets:input_type -> plux.v1.ListAssetsRequest
-	8,  // 13: plux.v1.AssetService.DeleteAsset:input_type -> plux.v1.DeleteAssetRequest
-	3,  // 14: plux.v1.AssetService.UploadAsset:output_type -> plux.v1.UploadAssetResponse
-	5,  // 15: plux.v1.AssetService.GetAsset:output_type -> plux.v1.GetAssetResponse
-	7,  // 16: plux.v1.AssetService.ListAssets:output_type -> plux.v1.ListAssetsResponse
-	9,  // 17: plux.v1.AssetService.DeleteAsset:output_type -> plux.v1.DeleteAssetResponse
-	14, // [14:18] is the sub-list for method output_type
-	10, // [10:14] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	23, // 9: plux.v1.ListAssetsResponse.page:type_name -> plux.v1.PageResult
+	20, // 10: plux.v1.BeginAssetUploadResponse.expires_at:type_name -> google.protobuf.Timestamp
+	20, // 11: plux.v1.UploadAssetChunkResponse.expires_at:type_name -> google.protobuf.Timestamp
+	20, // 12: plux.v1.GetAssetUploadResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 13: plux.v1.FinishAssetUploadResponse.asset:type_name -> plux.v1.Asset
+	2,  // 14: plux.v1.AssetService.UploadAsset:input_type -> plux.v1.UploadAssetRequest
+	10, // 15: plux.v1.AssetService.BeginAssetUpload:input_type -> plux.v1.BeginAssetUploadRequest
+	12, // 16: plux.v1.AssetService.UploadAssetChunk:input_type -> plux.v1.UploadAssetChunkRequest
+	14, // 17: plux.v1.AssetService.GetAssetUpload:input_type -> plux.v1.GetAssetUploadRequest
+	16, // 18: plux.v1.AssetService.FinishAssetUpload:input_type -> plux.v1.FinishAssetUploadRequest
+	4,  // 19: plux.v1.AssetService.GetAsset:input_type -> plux.v1.GetAssetRequest
+	6,  // 20: plux.v1.AssetService.ListAssets:input_type -> plux.v1.ListAssetsRequest
+	8,  // 21: plux.v1.AssetService.DeleteAsset:input_type -> plux.v1.DeleteAssetRequest
+	3,  // 22: plux.v1.AssetService.UploadAsset:output_type -> plux.v1.UploadAssetResponse
+	11, // 23: plux.v1.AssetService.BeginAssetUpload:output_type -> plux.v1.BeginAssetUploadResponse
+	13, // 24: plux.v1.AssetService.UploadAssetChunk:output_type -> plux.v1.UploadAssetChunkResponse
+	15, // 25: plux.v1.AssetService.GetAssetUpload:output_type -> plux.v1.GetAssetUploadResponse
+	17, // 26: plux.v1.AssetService.FinishAssetUpload:output_type -> plux.v1.FinishAssetUploadResponse
+	5,  // 27: plux.v1.AssetService.GetAsset:output_type -> plux.v1.GetAssetResponse
+	7,  // 28: plux.v1.AssetService.ListAssets:output_type -> plux.v1.ListAssetsResponse
+	9,  // 29: plux.v1.AssetService.DeleteAsset:output_type -> plux.v1.DeleteAssetResponse
+	22, // [22:30] is the sub-list for method output_type
+	14, // [14:22] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_asset_proto_init() }
@@ -796,7 +1304,7 @@ func file_plux_v1_asset_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_asset_proto_rawDesc), len(file_plux_v1_asset_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
