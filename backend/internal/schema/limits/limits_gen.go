@@ -148,6 +148,15 @@ const (
 	// BundleVerifierTables: Maximum number of tables and vectors the FlatBuffers
 	// verifier visits in one section. (BND-006, QA-004)
 	BundleVerifierTables Key = "bundle.verifierTables"
+	// CanvasFrameMembers: Plugins one frame of a canvas document may group.
+	// (STU-032, STU-035, STU-050)
+	CanvasFrameMembers Key = "canvas.frameMembers"
+	// CanvasFrames: Frames one canvas document may hold. (STU-032, STU-035,
+	// STU-050)
+	CanvasFrames Key = "canvas.frames"
+	// CanvasPositions: Box positions one canvas document may hold. (STU-032,
+	// STU-035, STU-050)
+	CanvasPositions Key = "canvas.positions"
 	// ConfidentialBundleBytes: Bytes of confidential content one confidential
 	// bundle may hold. (SEC-053, LIM-004)
 	ConfidentialBundleBytes Key = "confidential.bundleBytes"
@@ -651,6 +660,9 @@ var registry = [...]Definition{
 	{Key: BundlePluginSize, Unit: UnitBytes, Default: 20971520, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one plugin bundle."},
 	{Key: BundleVerifierDepth, Unit: UnitCount, Default: 64, Warning: 0, Max: 256, Scopes: ScopeInstallation, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Maximum nesting of tables the FlatBuffers verifier accepts in one section."},
 	{Key: BundleVerifierTables, Unit: UnitCount, Default: 1000000, Warning: 0, Max: 10000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Maximum number of tables and vectors the FlatBuffers verifier visits in one section."},
+	{Key: CanvasFrameMembers, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P11", Description: "Plugins one frame of a canvas document may group."},
+	{Key: CanvasFrames, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P11", Description: "Frames one canvas document may hold."},
+	{Key: CanvasPositions, Unit: UnitCount, Default: 1000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P11", Description: "Box positions one canvas document may hold."},
 	{Key: ConfidentialBundleBytes, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of confidential content one confidential bundle may hold."},
 	{Key: ConfigValueBytes, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of one server-held configuration value."},
 	{Key: ConfigValuesPerEnvironment, Unit: UnitCount, Default: 256, Warning: 0, Max: 4096, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Server-held configuration values one environment holds."},

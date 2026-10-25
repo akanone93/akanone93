@@ -554,6 +554,120 @@ enum Calendar {
   String toJson() => json;
 }
 
+/// Editor-only layout of the Studio canvas: where plugin boxes and frames sit
+/// in an app, or where screens sit in a plugin (STU-032, STU-035, STU-050). It
+/// is versioned and snapshotted like any document and is never compiled into a
+/// bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin).
+final class CanvasDocument {
+  const CanvasDocument({required this.schemaVersion, required this.kind, required this.id, this.positions, this.frames});
+
+  /// Decodes a JSON object.
+  factory CanvasDocument.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return CanvasDocument(
+      schemaVersion: m['schemaVersion']! as String,
+      kind: m['kind']! as String,
+      id: m['id']! as String,
+      positions: m['positions'] == null ? null : [for (final e in m['positions']! as List<Object?>) CanvasPosition.fromJson(e!)],
+      frames: m['frames'] == null ? null : [for (final e in m['frames']! as List<Object?>) CanvasFrame.fromJson(e!)],
+    );
+  }
+
+  /// Version of the document schema (SCH-000). Older documents are migrated
+  /// before validation.
+  final String schemaVersion;
+  final String kind;
+  /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+  final String id;
+  /// The top-left corner of each box: a plugin in an app canvas, a screen
+  /// (page) in a plugin canvas. The number of entries is bounded by the limit
+  /// canvas.positions.
+  final List<CanvasPosition>? positions;
+  /// Labelled groups of plugins (STU-035), for example "Onboarding" or
+  /// "Payments". Only app canvases carry frames. The number of entries is
+  /// bounded by the limit canvas.frames.
+  final List<CanvasFrame>? frames;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'schemaVersion': schemaVersion,
+        'kind': kind,
+        'id': id,
+        if (positions != null) 'positions': [for (final e in positions!) e.toJson()],
+        if (frames != null) 'frames': [for (final e in frames!) e.toJson()],
+      };
+}
+
+final class CanvasFrame {
+  const CanvasFrame({required this.id, required this.label, required this.x, required this.y, required this.width, required this.height, this.members});
+
+  /// Decodes a JSON object.
+  factory CanvasFrame.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return CanvasFrame(
+      id: m['id']! as String,
+      label: m['label']! as String,
+      x: (m['x']! as num).toDouble(),
+      y: (m['y']! as num).toDouble(),
+      width: (m['width']! as num).toDouble(),
+      height: (m['height']! as num).toDouble(),
+      members: m['members'] == null ? null : [for (final e in m['members']! as List<Object?>) e! as String],
+    );
+  }
+
+  /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+  final String id;
+  final String label;
+  /// A coordinate in canvas world units.
+  final double x;
+  /// A coordinate in canvas world units.
+  final double y;
+  final double width;
+  final double height;
+  /// The ids of the plugins in the frame. The number of entries is bounded by
+  /// the limit canvas.frameMembers.
+  final List<String>? members;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'id': id,
+        'label': label,
+        'x': x,
+        'y': y,
+        'width': width,
+        'height': height,
+        if (members != null) 'members': [for (final e in members!) e],
+      };
+}
+
+final class CanvasPosition {
+  const CanvasPosition({required this.id, required this.x, required this.y});
+
+  /// Decodes a JSON object.
+  factory CanvasPosition.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return CanvasPosition(
+      id: m['id']! as String,
+      x: (m['x']! as num).toDouble(),
+      y: (m['y']! as num).toDouble(),
+    );
+  }
+
+  /// The id of the plugin or page the box shows.
+  final String id;
+  /// A coordinate in canvas world units.
+  final double x;
+  /// A coordinate in canvas world units.
+  final double y;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'id': id,
+        'x': x,
+        'y': y,
+      };
+}
+
 /// Capabilities the plugin requests; everything else is denied (SEC-080).
 final class Capabilities {
   const Capabilities({this.networkDomains, this.functions, this.deviceApis, this.nativeRoutes});

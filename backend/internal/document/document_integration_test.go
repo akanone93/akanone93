@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -938,5 +939,38 @@ func TestTemplatesComponentsAndUsages(t *testing.T) {
 	}
 	if _, err := g.docs.ListUsages(ctx, g.viewer, g.app, "nonsense", badge.ID, "", 50); code(err) == 0 {
 		t.Errorf("an unknown entity kind was accepted")
+	}
+}
+
+func canvasJSON(x int) []byte {
+	return []byte(fmt.Sprintf(`{"schemaVersion":"1.0.0","kind":"canvas","id":"01a0c450-6c00-7033-8000-0000000a0001","positions":[{"id":"01a0c450-6c00-7012-8000-000000022cce","x":%d,"y":8}]}`, x))
+}
+
+func TestCanvasDocumentRoundTrip_STU_032(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	const session = "tab-1"
+	if _, _, err := f.docs.AcquireLock(ctx, f.developer, f.app, plugin, session, false); err != nil {
+		t.Fatal(err)
+	}
+	path := "plugins/loans/canvas.json"
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, session, path, canvasJSON(1), 0); err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, session, path, canvasJSON(2), 1); err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	doc, err := f.docs.GetDocument(ctx, f.viewer, f.app, plugin, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if doc.Revision != 2 || !strings.Contains(string(doc.Content), `"x":2`) {
+		t.Errorf("document: rev %d %s", doc.Revision, doc.Content)
+	}
+	bad := []byte(`{"schemaVersion":"1.0.0","kind":"canvas","id":"01a0c450-6c00-7033-8000-0000000a0001","positions":[{"id":"01a0c450-6c00-7012-8000-000000022cce","x":"far","y":8}]}`)
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, session, path, bad, 2); err == nil {
+		t.Error("an invalid canvas document was stored")
 	}
 }
