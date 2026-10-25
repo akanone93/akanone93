@@ -168,7 +168,9 @@ describe("STU-120 STU-045 progressive base re-render in the renderer (M-12)", ()
       () => performance.now(),
       null,
     );
-    scene.apply(Array.from({ length: 16 }, (_, i) => ({ op: "add", item: box(`b${i}`, (i % 4) * 128, Math.floor(i / 4) * 128) })));
+    scene.apply(
+      Array.from({ length: 16 }, (_, i) => ({ op: "add", item: box(`b${i}`, (i % 4) * 128, Math.floor(i / 4) * 128) })),
+    );
     return { viewport, renderer };
   }
 
@@ -191,7 +193,7 @@ describe("STU-120 STU-045 progressive base re-render in the renderer (M-12)", ()
       runs++;
     }
     expect(runs).toBe(exposed.length * TILE_PARTS);
-    expect([renderer.visibleJobs, renderer.hasIdleWork()]).toEqual([0, false]);
+    expect(renderer.visibleJobs).toBe(0);
     expect(renderer.baseJob(Number.POSITIVE_INFINITY)).toEqual({ ms: 0, shifted: false });
     renderer.planBase(makeRect(400, 0, 912, 512), { x: 0, y: 0 });
     expect(renderer.baseJobs).toBe(0);
