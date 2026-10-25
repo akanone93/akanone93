@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { CanvasHost, type FontSource, type SceneOp, type WorkerLike } from "@plux/canvas";
+import { canvasWorkerScriptURL } from "../../lib/trusted-worker.ts";
+import canvasWorkerURL from "./canvas-worker.ts?worker&url";
 
 /** The part of the canvas host the plugin canvas uses; a stub in tests. */
 export interface CanvasSurface {
@@ -60,7 +62,9 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     },
     {
       createWorker: () =>
-        new Worker(new URL("./canvas-worker.ts", import.meta.url), { type: "module" }) as unknown as WorkerLike,
+        new Worker(canvasWorkerScriptURL(canvasWorkerURL, window, import.meta.env.DEV), {
+          type: "module",
+        }) as unknown as WorkerLike,
       mainThread: () => {
         throw new Error("the plugin canvas needs a worker");
       },
