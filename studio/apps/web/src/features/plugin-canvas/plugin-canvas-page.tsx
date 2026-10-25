@@ -44,6 +44,7 @@ import { type SelectionStore, useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import { useGestures } from "./select/use-gestures.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
+import { useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 
 const MARQUEE_PX = 4;
@@ -181,6 +182,7 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
     strict: false,
   }) as Pick<RouterContext, "createSurface" | "createValidator">;
   const appDocs = useAppDocuments(params.app ?? "");
+  const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -426,6 +428,7 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         ))}
       </ol>
       <LeftDock
+        nativeWidgets={nativeWidgets}
         screens={screens}
         entryPage={entryPage}
         index={index}

@@ -4,7 +4,7 @@
 import type { WidgetDescriptor } from "@plux/schema";
 import { widget } from "@plux/schema";
 import type { Node } from "../plugin-canvas/plugin-model.ts";
-import type { IdSource } from "../plugin-canvas/screens.ts";
+import { type IdSource, uuidv7 } from "../plugin-canvas/screens.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import { findNode, reparentRecipe } from "../plugin-canvas/select/edits.ts";
 import { containersOf, type GestureEnv } from "../plugin-canvas/select/gesture.ts";
@@ -18,6 +18,8 @@ export interface Place {
   readonly parent: string;
   readonly index: number;
   readonly slot: string | null;
+  /** Set for a Stack parent: the node goes into a `Positioned` at these Stack coordinates (F5). */
+  readonly at?: { readonly left: number; readonly top: number };
 }
 
 /** The page trees by node id, with the `children` arrays kept apart from slots (the tree index mixes both). */
@@ -117,8 +119,13 @@ export function insertWidget(
   if (!canEdit || doc === undefined) {
     return null;
   }
-  const node = buildNode(d, newId);
-  edit(doc, insertRecipe(node, place), { group: "insert" });
+  const ids = newId ?? uuidv7;
+  const node = buildNode(d, ids);
+  const placed =
+    place.at === undefined
+      ? node
+      : { id: ids(), type: "Positioned", props: { left: place.at.left, top: place.at.top }, slots: { child: node } };
+  edit(doc, insertRecipe(placed, place), { group: "insert" });
   return node.id;
 }
 

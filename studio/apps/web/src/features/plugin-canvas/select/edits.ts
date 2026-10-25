@@ -184,6 +184,53 @@ export function reparentRecipe(ids: readonly string[], parent: string, index: nu
   };
 }
 
+/** Removes a node from its parent's list or slot; false when it has neither. */
+function detach(p: Place): boolean {
+  if (p.list !== null) {
+    p.list.splice(p.index, 1);
+    return true;
+  }
+  if (p.slot !== null && p.parent !== null && isObj(p.parent.slots)) {
+    delete p.parent.slots[p.slot];
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Drops `id` into the Stack `stack` at `position`: the node is lifted out of its parent (with its own `Positioned`
+ * when it has one) and placed in a `Positioned` whose left/top are the drop point (F5). Only schema fields are written.
+ */
+export function stackDropRecipe(
+  id: string,
+  stack: string,
+  position: { readonly left: number; readonly top: number },
+  fresh: () => string,
+): (draft: unknown) => void {
+  return (draft) => {
+    const target = findNode(draft, stack);
+    const p = findNode(draft, id);
+    if (target === null || p === null || p.parent === null || findNode(p.node, stack) !== null) {
+      return;
+    }
+    const outer = positionedOf(draft, p);
+    const lifted = outer === null ? p : findNode(draft, String(outer.id));
+    if (lifted === null || lifted.parent === null) {
+      return;
+    }
+    if (!detach(lifted)) {
+      return;
+    }
+    const wrapper = outer ?? { id: fresh(), type: "Positioned", slots: { child: p.node } };
+    propsOf(wrapper).left = position.left;
+    propsOf(wrapper).top = position.top;
+    if (!Array.isArray(target.node.children)) {
+      target.node.children = [];
+    }
+    (target.node.children as unknown[]).push(wrapper);
+  };
+}
+
 /** Wrap: replaces `id` by a new `wrapper` node (given ID and type) that contains it. */
 export function wrapRecipe(id: string, wrapperId: string, wrapperType: string): (draft: unknown) => void {
   return (draft) => {
