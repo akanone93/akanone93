@@ -6,7 +6,8 @@ import { overflowId } from "@plux/canvas";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RouterContext } from "../../router.tsx";
-import { ProblemCounts, ProblemsDrawer } from "../problems/problems-panel.tsx";
+import { EditorProvider } from "../editor/editor-provider.tsx";
+import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
@@ -22,6 +23,7 @@ import {
   screenDocuments,
   screenStyle,
 } from "./scene.ts";
+import { ScreensController } from "./screens-controller.tsx";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 
@@ -127,62 +129,93 @@ export function PluginCanvasPage() {
     void navigate({ to: ".", search: (prev: object) => ({ ...prev, x, y, z }), replace: true });
   };
 
+  const zoomBy = (factor: number) => {
+    const canvas = canvasRef.current;
+    if (canvas === null) {
+      return;
+    }
+    const r = canvas.getBoundingClientRect();
+    surfaceRef.current?.zoomAbout(factor, r.left + r.width / 2, r.top + r.height / 2);
+    sync();
+  };
+  const fit = () => {
+    const surface = surfaceRef.current;
+    const canvas = canvasRef.current;
+    if (surface !== null && canvas !== null) {
+      fitView(surface, canvas, screens, heights, {});
+      sync();
+    }
+  };
+  const entryPage = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
+
   const drag = useRef<{ x: number; y: number } | null>(null);
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
-    <section className="relative h-full w-full overflow-hidden">
-      {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
-      <canvas
-        role="application"
-        aria-label={m.title}
-        ref={canvasRef}
-        className="absolute inset-0 h-full w-full touch-none"
-        onPointerDown={(e) => {
-          drag.current = { x: e.clientX, y: e.clientY };
-        }}
-        onPointerMove={(e) => {
-          const d = drag.current;
-          if (d !== null) {
-            surfaceRef.current?.pan(e.clientX - d.x, e.clientY - d.y);
+    <EditorProvider appId={params.app ?? ""} pluginId={params.plugin ?? ""} documents={docs.data}>
+      <section className="relative h-full w-full overflow-hidden">
+        {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
+        <canvas
+          role="application"
+          aria-label={m.title}
+          ref={canvasRef}
+          className="absolute inset-0 h-full w-full touch-none"
+          onPointerDown={(e) => {
             drag.current = { x: e.clientX, y: e.clientY };
-          }
-        }}
-        onPointerUp={() => {
-          drag.current = null;
-          sync();
-        }}
-        onWheel={(e) => {
-          if (e.ctrlKey || e.metaKey) {
-            surfaceRef.current?.zoomAbout(Math.exp(-e.deltaY / 200), e.clientX, e.clientY);
-          } else {
-            surfaceRef.current?.pan(-e.deltaX, -e.deltaY);
-          }
-          sync();
-        }}
-      />
-      {docs.isPending && <p className="absolute start-4 top-4 text-body text-secondary">{m.loading}</p>}
-      {docs.isError && (
-        <p role="alert" className="absolute start-4 top-4 text-body">
-          {m.failed}
-        </p>
-      )}
-      {docs.isSuccess && screens.length === 0 && (
-        <p className="absolute start-4 top-4 text-body text-secondary">{m.empty}</p>
-      )}
-      <ol aria-label={m.screens} className="sr-only">
-        {screens.map((s) => (
-          <li key={s.id}>
-            {s.title}
-            {(heights.get(s.id) ?? 0) > DEVICE.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
-          </li>
-        ))}
-      </ol>
-      <div className="absolute end-4 top-4">
-        <ProblemCounts validation={validation} />
-      </div>
-      <ProblemsDrawer validation={validation} />
-      <p className="absolute end-4 bottom-4 text-caption text-secondary">{m.zoom(percent)}</p>
-    </section>
+          }}
+          onPointerMove={(e) => {
+            const d = drag.current;
+            if (d !== null) {
+              surfaceRef.current?.pan(e.clientX - d.x, e.clientY - d.y);
+              drag.current = { x: e.clientX, y: e.clientY };
+            }
+          }}
+          onPointerUp={() => {
+            drag.current = null;
+            sync();
+          }}
+          onWheel={(e) => {
+            if (e.ctrlKey || e.metaKey) {
+              surfaceRef.current?.zoomAbout(Math.exp(-e.deltaY / 200), e.clientX, e.clientY);
+            } else {
+              surfaceRef.current?.pan(-e.deltaX, -e.deltaY);
+            }
+            sync();
+          }}
+        />
+        {docs.isPending && <p className="absolute start-4 top-4 text-body text-secondary">{m.loading}</p>}
+        {docs.isError && (
+          <p role="alert" className="absolute start-4 top-4 text-body">
+            {m.failed}
+          </p>
+        )}
+        {docs.isSuccess && screens.length === 0 && (
+          <p className="absolute start-4 top-4 text-body text-secondary">{m.empty}</p>
+        )}
+        <ol aria-label={m.screens} className="sr-only">
+          {screens.map((s) => (
+            <li key={s.id}>
+              {s.title}
+              {(heights.get(s.id) ?? 0) > DEVICE.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
+            </li>
+          ))}
+        </ol>
+        <ProblemsDrawer validation={validation} />
+        {docs.data !== undefined && (
+          <ScreensController
+            appId={params.app ?? ""}
+            pluginId={params.plugin ?? ""}
+            documents={docs.data}
+            appDocuments={appDocs.data}
+            screens={screens.map((x) => ({ id: x.id, title: x.title }))}
+            entryPage={entryPage}
+            validation={validation}
+            percent={percent}
+            onZoom={zoomBy}
+            onFit={fit}
+          />
+        )}
+      </section>
+    </EditorProvider>
   );
 }
