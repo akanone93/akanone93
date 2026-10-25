@@ -240,6 +240,28 @@ describe("STU-045 determinism and incremental re-routing", () => {
     expect(JSON.stringify([...router.routes])).toBe(incremental);
     expect(router.moveBox("missing", 0, 0)).toEqual([]);
   });
+
+  test("while dragging only the dragged box's bundles re-route; the drop catches up exactly", () => {
+    const { boxes, edges } = grid(30, 120);
+    const router = new ArrowRouter(boxes, deriveBundles(edges));
+    const reference = new ArrowRouter(boxes, deriveBundles(edges));
+    const own = new Set(router.bundlesAt("b007"));
+    router.beginDrag("b007");
+    for (let i = 1; i <= 40; i++) {
+      const at = { x: 320 + i * 9, y: 240 + i * 5 };
+      expect(router.moveBox("b007", at.x, at.y).every((id) => own.has(id))).toBe(true);
+      reference.moveBox("b007", at.x, at.y);
+    }
+    const caught = router.endDrag();
+    expect(caught.length).toBeGreaterThan(0);
+    expect(JSON.stringify([...router.routes])).toBe(JSON.stringify([...reference.routes]));
+    expect(router.endDrag()).toEqual([]);
+    const arrows = new ArrowCanvas(router);
+    arrows.render();
+    expect(arrows.beginDrag("b007").length).toBeGreaterThan(0);
+    arrows.moveBox("b007", 0, 0);
+    expect(arrows.endDrag().length).toBeGreaterThan(0);
+  });
 });
 
 describe("STU-044 STU-046 STU-048 lanes, picking and level of detail", () => {
@@ -347,6 +369,16 @@ describe("STU-044 STU-046 STU-048 lanes, picking and level of detail", () => {
     const ops = arrows.moveBox("b", 520, 10);
     expect(ops.every((op) => op.op !== "replace" || op.item.id.startsWith("arrow:a→b:"))).toBe(true);
     expect(arrows.moveBox("missing", 0, 0)).toEqual([]);
+    expect(arrows.itemsAt("b")).toEqual([
+      "arrow:a→b:s0",
+      "arrow:a→b:h0",
+      "arrow:a→b:h1",
+      "arrow:a→b:s1",
+      "arrow:a→b:s2",
+      "arrow:a→b:badge",
+      "arrow:a→b:count",
+    ]);
+    expect(arrows.itemsAt("missing")).toEqual([]);
   });
 
   test("a regraph drops the items of vanished bundles", () => {
