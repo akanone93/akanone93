@@ -12,7 +12,15 @@
 
 import { BoxConstraints } from "../constraints.ts";
 import { ContainerRenderBox } from "../container.ts";
-import { Axis, CrossAxisAlignment, FlexFit, FlexParentData, MainAxisAlignment, MainAxisSize, RenderFlex } from "../flex.ts";
+import {
+  Axis,
+  CrossAxisAlignment,
+  FlexFit,
+  FlexParentData,
+  MainAxisAlignment,
+  MainAxisSize,
+  RenderFlex,
+} from "../flex.ts";
 import { Alignment, EdgeInsets, Offset, Size, TextDirection } from "../geometry.ts";
 import { RenderConstrainedBox } from "../proxy-box.ts";
 import type { RenderBox } from "../render-box.ts";
@@ -51,10 +59,9 @@ class RenderAppBarTitleBox extends RenderAligningShiftedBox {
   protected override performLayout(): void {
     const child = this.child as RenderBox;
     const c = this.constraints;
-    child.layout(
-      new BoxConstraints({ minWidth: c.minWidth, maxWidth: c.maxWidth, minHeight: c.minHeight }),
-      { parentUsesSize: true },
-    );
+    child.layout(new BoxConstraints({ minWidth: c.minWidth, maxWidth: c.maxWidth, minHeight: c.minHeight }), {
+      parentUsesSize: true,
+    });
     this.size = c.constrain(child.size);
     this.alignChild();
   }
@@ -91,6 +98,7 @@ class RenderNavigationToolbar extends ContainerRenderBox<RenderBox> {
     return constraints.biggest;
   }
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: a line-for-line port of NavigationToolbar's _ToolbarLayout.performLayout
   protected override performLayout(): void {
     const size = this.constraints.biggest;
     this.size = size;
@@ -117,10 +125,7 @@ class RenderNavigationToolbar extends ContainerRenderBox<RenderBox> {
     const middle = this.slots.get("middle");
     if (middle !== undefined) {
       const maxWidth = Math.max(size.width - leadingWidth - trailingWidth - this.middleSpacing * 2, 0);
-      middle.layout(
-        new BoxConstraints({ maxWidth, maxHeight: size.height }),
-        { parentUsesSize: true },
-      );
+      middle.layout(new BoxConstraints({ maxWidth, maxHeight: size.height }), { parentUsesSize: true });
       const margin = leadingWidth + this.middleSpacing;
       let start = margin;
       if (this.centerMiddle) {
@@ -184,7 +189,9 @@ export function appBarPreferredHeight(toolbarHeight: number | undefined, bottomH
 export function buildAppBar(o: AppBarOptions): RenderBox {
   let leading: RenderBox | null = o.leading;
   if (leading !== null) {
-    const inner = o.leadingIsIconButton ? new RenderPositionedBox({ alignment: Alignment.center, child: leading }) : leading;
+    const inner = o.leadingIsIconButton
+      ? new RenderPositionedBox({ alignment: Alignment.center, child: leading })
+      : leading;
     leading = new RenderConstrainedBox({
       additionalConstraints: BoxConstraints.tightFor({ width: o.leadingWidth }),
       child: inner,
@@ -205,14 +212,7 @@ export function buildAppBar(o: AppBarOptions): RenderBox {
             children: o.actions,
           }),
         });
-  const toolbar = new RenderNavigationToolbar(
-    leading,
-    title,
-    actions,
-    o.centerTitle,
-    o.titleSpacing,
-    o.textDirection,
-  );
+  const toolbar = new RenderNavigationToolbar(leading, title, actions, o.centerTitle, o.titleSpacing, o.textDirection);
   let appBar: RenderBox = new RenderToolbarContainer(o.toolbarHeight, toolbar);
   if (o.bottom !== null) {
     const flexible = new FlexParentData();

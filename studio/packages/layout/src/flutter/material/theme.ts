@@ -11,9 +11,9 @@
  * Colours and shapes are not ported; only what changes a box's size or place.
  */
 
+import { TextLeadingDistribution } from "../../text/paragraph-engine.ts";
 import { BoxConstraints } from "../constraints.ts";
 import { clampDouble } from "../geometry.ts";
-import { TextLeadingDistribution } from "../../text/paragraph-engine.ts";
 import type { TextStyle } from "../text-style.ts";
 
 /** `kMinInteractiveDimension`. */

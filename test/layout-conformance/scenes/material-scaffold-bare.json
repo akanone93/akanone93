@@ -42,7 +42,9 @@
                   {
                     "id": "fabi",
                     "type": "Icon",
-                    "props": {}
+                    "props": {
+                      "size": 36
+                    }
                   }
                 ],
                 "slot": "floatingActionButton"

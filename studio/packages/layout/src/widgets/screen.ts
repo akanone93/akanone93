@@ -13,6 +13,9 @@
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { Axis, CrossAxisAlignment, MainAxisSize, RenderFlex } from "../flutter/flex.ts";
 import { Alignment, EdgeInsets, Size, TextDirection } from "../flutter/geometry.ts";
+import { type ButtonKind, buildButton, buildFab, type FabKind } from "../flutter/material/buttons.ts";
+import { buildListTile } from "../flutter/material/list-tile.ts";
+import { MaterialTapTargetSize, m3TextStyle, type TextRole, VisualDensity } from "../flutter/material/theme.ts";
 import { PipelineOwner } from "../flutter/object.ts";
 import { RenderParagraph } from "../flutter/paragraph.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
@@ -27,7 +30,7 @@ import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 export interface WidgetNode {
   readonly id: string;
   readonly type?: string | undefined;
-  readonly props?: { readonly data?: unknown } | undefined;
+  readonly props?: { readonly data?: unknown; readonly [name: string]: unknown } | undefined;
   readonly events?: unknown;
   readonly children?: readonly WidgetNode[] | undefined;
   readonly slots?: Readonly<Record<string, WidgetNode>> | undefined;
@@ -66,7 +69,7 @@ export interface WidgetContext {
   /** The width available to the widget being built. */
   available(): number;
   /** A paragraph of `text` in the theme's style, owned by the layout. */
-  paragraph(text: string): RenderParagraph;
+  paragraph(text: string, style?: TextStyle): RenderParagraph;
   /** Records how the box with `id` is drawn. */
   mark(id: string, kind: PlacedKind, text?: string): void;
 }
@@ -198,6 +201,79 @@ const wrapper: WidgetBuilder = (node, ctx) => {
     : flex(Axis.vertical, node, ctx);
 };
 
+function prop(node: WidgetNode, name: string): unknown {
+  return (node.props as Record<string, unknown> | undefined)?.[name];
+}
+
+/** The theme's Material 3 text style for `role`, in the screen theme's font families. */
+function material(ctx: WidgetContext, role: TextRole): TextStyle {
+  const [family, ...fallback] = ctx.theme.fontFamilies;
+  return { ...m3TextStyle(role, family), fontFamilyFallback: fallback };
+}
+
+const tapTarget = (node: WidgetNode): MaterialTapTargetSize =>
+  prop(node, "tapTargetSize") === "shrinkWrap" ? MaterialTapTargetSize.shrinkWrap : MaterialTapTargetSize.padded;
+
+/** A Material 3 button of `kind`, sized as `ButtonStyleButton` sizes it (48 px tap target, scaled padding). */
+function materialButton(kind: ButtonKind | "icon"): WidgetBuilder {
+  return (node, ctx) => {
+    const label = textOf(node);
+    ctx.mark(node.id, "box", label);
+    const content =
+      kind === "icon"
+        ? new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 24, height: 24 }) })
+        : ctx.paragraph(label ?? "", material(ctx, "labelLarge"));
+    return named(
+      node.id,
+      buildButton({
+        kind,
+        label: content,
+        tapTargetSize: tapTarget(node),
+        density: VisualDensity.named(prop(node, "density")),
+        textDirection: TextDirection.ltr,
+        textScale: 1,
+      }),
+    );
+  };
+}
+
+const floatingActionButton: WidgetBuilder = (node, ctx) => {
+  ctx.mark(node.id, "box", textOf(node));
+  return named(
+    node.id,
+    buildFab({
+      kind: (prop(node, "kind") ?? "regular") as FabKind,
+      child: new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 24, height: 24 }) }),
+      tapTargetSize: tapTarget(node),
+      textDirection: TextDirection.ltr,
+    }),
+  );
+};
+
+/** A `ListTile` whose title, subtitle, leading and trailing are the widgets in the slots of that name. */
+const listTile: WidgetBuilder = (node, ctx) => {
+  const part = (name: string, role: TextRole): RenderBox | null => {
+    const slot = node.slots?.[name];
+    const text = slot === undefined ? undefined : textOf(slot);
+    return text === undefined ? null : ctx.paragraph(text, material(ctx, role));
+  };
+  const dense = prop(node, "dense") === true;
+  ctx.mark(node.id, "box", textOf(node));
+  return named(
+    node.id,
+    buildListTile({
+      leading: part("leading", "labelSmall"),
+      title: part("title", "bodyLarge") ?? ctx.paragraph("", material(ctx, "bodyLarge")),
+      subtitle: part("subtitle", "bodyMedium"),
+      trailing: part("trailing", "labelSmall"),
+      isDense: dense,
+      isThreeLine: prop(node, "isThreeLine") === true,
+      visualDensity: VisualDensity.named(prop(node, "density")),
+      textDirection: TextDirection.ltr,
+    }),
+  );
+};
+
 /** The builders of the widget types the canvas draws; extend with new types. */
 export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map<string, WidgetBuilder>([
   [
@@ -222,11 +298,14 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ["Expanded", wrapper],
   ["Flexible", wrapper],
   ["SingleChildScrollView", wrapper],
-  ["FilledButton", control],
-  ["ElevatedButton", control],
-  ["OutlinedButton", control],
-  ["TextButton", control],
-  ["IconButton", control],
+  ["FilledButton", materialButton("filled")],
+  ["FilledTonalButton", materialButton("filledTonal")],
+  ["ElevatedButton", materialButton("elevated")],
+  ["OutlinedButton", materialButton("outlined")],
+  ["TextButton", materialButton("text")],
+  ["IconButton", materialButton("icon")],
+  ["FloatingActionButton", floatingActionButton],
+  ["ListTile", listTile],
   ["TextField", control],
   ["TextFormField", control],
 ]);
@@ -273,9 +352,9 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
       }
     },
     available: () => widths.at(-1) ?? theme.width,
-    paragraph(text) {
+    paragraph(text, override) {
       const p = new RenderParagraph({
-        text: { text, style },
+        text: { text, style: override ?? style },
         textDirection: TextDirection.ltr,
         engine: options.engine,
       });

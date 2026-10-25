@@ -23,13 +23,7 @@ import {
   RenderShiftedBox,
   setChildOffset,
 } from "../shifted-box.ts";
-import {
-  kMinInteractiveDimension,
-  MaterialTapTargetSize,
-  type Steb,
-  scaledPadding,
-  VisualDensity,
-} from "./theme.ts";
+import { kMinInteractiveDimension, MaterialTapTargetSize, type Steb, scaledPadding, VisualDensity } from "./theme.ts";
 
 export type ButtonKind = "elevated" | "filled" | "filledTonal" | "outlined" | "text";
 
@@ -64,7 +58,9 @@ export class RenderInputPadding extends RenderShiftedBox {
       return Size.zero;
     }
     const s = child.getDryLayout(constraints);
-    return constraints.constrain(new Size(Math.max(s.width, this.minSize.width), Math.max(s.height, this.minSize.height)));
+    return constraints.constrain(
+      new Size(Math.max(s.width, this.minSize.width), Math.max(s.height, this.minSize.height)),
+    );
   }
 
   protected override performLayout(): void {
@@ -160,9 +156,7 @@ export function buildButton(o: ButtonOptions): RenderBox {
   });
   const min = o.kind === "icon" ? 40 : 64;
   const constrained = new RenderConstrainedBox({
-    additionalConstraints: o.density.effectiveConstraints(
-      new BoxConstraints({ minWidth: min, minHeight: 40 }),
-    ),
+    additionalConstraints: o.density.effectiveConstraints(new BoxConstraints({ minWidth: min, minHeight: 40 })),
     child: padded,
   });
   return new RenderInputPadding(tapTargetMinSize(o.tapTargetSize, o.density), constrained);

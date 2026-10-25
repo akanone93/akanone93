@@ -10,7 +10,6 @@
  */
 
 import * as layout from "../src/index.ts";
-import { buildMaterial, materialTypes, style } from "./material-scene.ts";
 import {
   Affine,
   Alignment,
@@ -116,6 +115,7 @@ import {
   WrapAlignment,
   WrapCrossAlignment,
 } from "../src/index.ts";
+import { buildMaterial, materialTypes, style } from "./material-scene.ts";
 
 /** What text nodes are laid out with: the paragraph engine and the golden's text scale. */
 export interface SceneText {
@@ -1061,10 +1061,11 @@ export function buildNode(
     const composite = buildMaterial(node, {
       direction: textDirection,
       text,
-      build: (child, base, options) =>
-        buildNode(child, textDirection, inherited(text, base, options), t),
+      build: (child, base, options) => buildNode(child, textDirection, inherited(text, base, options), t),
     });
-    composite.debugId = node.id;
+    if (node.type !== "PreferredSize") {
+      composite.debugId = node.id;
+    }
     return composite;
   }
   const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text, t));
@@ -1210,7 +1211,9 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
             engine,
             textScaler: TextScaler.linear(golden.textScale),
             // The golden writer's Material scope gives every Text `bodyMedium`, as Flutter's root `Material` does.
-            ...([...sceneTypes(scene.root)].some((type) => materialTypes.has(type)) ? { base: style("bodyMedium") } : {}),
+            ...([...sceneTypes(scene.root)].some((type) => materialTypes.has(type))
+              ? { base: style("bodyMedium") }
+              : {}),
           },
       scene.t ?? 1,
     ),
@@ -1231,9 +1234,15 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
   const alias = (node: SceneNode): void => {
     const child = node.children?.[0];
     if (
-      ["Expanded", "Flexible", "Positioned", "PositionedDirectional", "TableCell", "AnimatedPositioned"].includes(
-        node.type,
-      ) &&
+      [
+        "Expanded",
+        "Flexible",
+        "Positioned",
+        "PositionedDirectional",
+        "TableCell",
+        "AnimatedPositioned",
+        "PreferredSize",
+      ].includes(node.type) &&
       child !== undefined
     ) {
       const rect = rects[child.id];
