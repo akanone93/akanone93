@@ -237,6 +237,8 @@ export type WorkerMessage =
       readonly layer?: LayerBox | null;
     }
   | { readonly v: number; readonly type: "snapshot"; readonly requestId: number; readonly model: SceneModel }
+  /** The surface was lost, or rebuilt from the scene after a loss. */
+  | { readonly v: number; readonly type: "surface"; readonly state: "lost" | "restored" }
   | { readonly v: number; readonly type: "error"; readonly message: string };
 
 const hostTypes: ReadonlySet<string> = new Set([
@@ -248,7 +250,7 @@ const hostTypes: ReadonlySet<string> = new Set([
   "snapshot",
   "dispose",
 ]);
-const workerTypes: ReadonlySet<string> = new Set(["ready", "frame", "snapshot", "error"]);
+const workerTypes: ReadonlySet<string> = new Set(["ready", "frame", "snapshot", "surface", "error"]);
 
 function versioned(data: unknown, types: ReadonlySet<string>): boolean {
   if (typeof data !== "object" || data === null) {

@@ -59,6 +59,18 @@ export interface WorkerDeps {
   probeGl(): GlProbe;
   makeSurface(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster"): Surface | null;
   makeMeasureSurface(ck: CanvasKit, kind: "webgl" | "raster"): Surface | null;
+  /**
+   * Watches `canvas` for the loss and restoration of its context
+   * (`webglcontextlost`/`webglcontextrestored`, `contextlost`/`contextrestored`);
+   * optional, as a raster surface on the main thread cannot lose it.
+   */
+  watchContext?(canvas: OffscreenCanvasLike, handlers: SurfaceHandlers): void;
+}
+
+/** What the worker does when its surface is lost and when it may be rebuilt. */
+export interface SurfaceHandlers {
+  lost(): void;
+  restored(): void;
 }
 
 interface Running {
@@ -70,7 +82,10 @@ interface Running {
   readonly viewport: Viewport;
   /** The overscanned view the base surface is rendered through. */
   readonly render: Viewport;
-  readonly renderer: SceneRenderer;
+  renderer: SceneRenderer;
+  readonly options: CanvasOptions;
+  /** The surface is lost: frames are skipped until it is rebuilt. */
+  lost: boolean;
   readonly layerCanvas: OffscreenCanvasLike | null;
   margin: number;
   dpr: number;
@@ -144,26 +159,10 @@ export class CanvasWorkerCore {
       const size = baseSize(message.width, message.height, margin);
       sizeCanvas(canvas, size.width, size.height, message.dpr);
       const { surface, info } = this.start(ck, canvas, options);
-      const fontMgr = options.fonts.length > 0 ? ck.FontMgr.FromData(...options.fonts) : null;
       const scene = new Scene();
       const viewport = new Viewport(message.width, message.height);
       const render = new Viewport(size.width, size.height);
-      const renderer = new SceneRenderer(
-        ck,
-        scene,
-        render,
-        surface,
-        message.dpr,
-        {
-          tiles: info.tiles,
-          tileSize: options.tileSize,
-          background: options.background,
-          fontFamily: options.fontFamily,
-          measureFrames: options.measureFrames,
-        },
-        () => this.deps.now(),
-        fontMgr,
-      );
+      const renderer = this.makeRenderer(ck, scene, render, surface, message.dpr, info, options);
       const running: Running = {
         ck,
         canvas,
@@ -172,6 +171,8 @@ export class CanvasWorkerCore {
         viewport,
         render,
         renderer,
+        options,
+        lost: false,
         layerCanvas: message.layer ?? null,
         margin,
         dpr: message.dpr,
@@ -187,6 +188,7 @@ export class CanvasWorkerCore {
         layerChanged: false,
       };
       this.running = running;
+      this.deps.watchContext?.(canvas, { lost: () => this.surfaceLost(), restored: () => this.surfaceRestored() });
       this.recentre(running);
       this.post({ v: PROTOCOL_VERSION, type: "ready", renderer: info });
       for (const queued of this.queued.splice(0)) {
@@ -196,6 +198,86 @@ export class CanvasWorkerCore {
     } catch (error) {
       this.error(error instanceof Error ? error.message : String(error));
     }
+  }
+
+  private makeRenderer(
+    ck: CanvasKit,
+    scene: Scene,
+    render: Viewport,
+    surface: Surface,
+    dpr: number,
+    info: RendererInfo,
+    options: CanvasOptions,
+  ): SceneRenderer {
+    const fontMgr = options.fonts.length > 0 ? ck.FontMgr.FromData(...options.fonts) : null;
+    return new SceneRenderer(
+      ck,
+      scene,
+      render,
+      surface,
+      dpr,
+      {
+        tiles: info.tiles,
+        tileSize: options.tileSize,
+        background: options.background,
+        fontFamily: options.fontFamily,
+        measureFrames: options.measureFrames,
+      },
+      () => this.deps.now(),
+      fontMgr,
+    );
+  }
+
+  /**
+   * The surface was lost (WebGL context loss, or the worker's surface gone):
+   * stop drawing; the scene keeps taking patches, so nothing is lost with it.
+   */
+  surfaceLost(): void {
+    const running = this.running;
+    if (!running || running.lost) {
+      return;
+    }
+    running.lost = true;
+    this.jobs.cancel();
+    this.post({ v: PROTOCOL_VERSION, type: "surface", state: "lost" });
+  }
+
+  /**
+   * The context may be used again: rebuild the surface, the renderer and every
+   * cache (tiles, paragraphs, the shadow, the interaction layer) from the
+   * retained scene, and draw the whole base on the next frame.
+   */
+  surfaceRestored(): void {
+    const running = this.running;
+    if (!running?.lost) {
+      return;
+    }
+    const surface = this.deps.makeSurface(running.ck, running.canvas, running.info.kind);
+    if (!surface) {
+      this.error("no CanvasKit surface after context loss");
+      return;
+    }
+    try {
+      running.renderer.dispose();
+    } catch {
+      // Objects of a lost context may fail to delete; they are gone with it.
+    }
+    running.renderer = this.makeRenderer(
+      running.ck,
+      running.scene,
+      running.render,
+      surface,
+      running.dpr,
+      running.info,
+      running.options,
+    );
+    running.layerSurface = null;
+    running.layerBox = null;
+    running.layerChanged = true;
+    running.lost = false;
+    this.recentre(running);
+    this.post({ v: PROTOCOL_VERSION, type: "surface", state: "restored" });
+    this.requestFrame();
   }
 
   private start(
@@ -490,7 +572,7 @@ export class CanvasWorkerCore {
   private onFrame(): void {
     this.frameRequested = false;
     const running = this.running;
-    if (!running) {
+    if (!running || running.lost) {
       return;
     }
     const layer = this.prepareLayer(running);
