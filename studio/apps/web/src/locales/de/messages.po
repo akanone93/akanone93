@@ -7,6 +7,18 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: de\n"
 
+#. Progress under the justification field; {count} typed so far, {min} required.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.justification.hint"
+msgstr "{count} von mindestens {min} Zeichen"
+
+#. Number of unread notifications.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.unread"
+msgstr "{count} ungelesen"
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -37,6 +49,12 @@ msgstr "Konto"
 msgid "profile.account"
 msgstr "Konto"
 
+#. Option that shows every event type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.all-types"
+msgstr "Alle Typen"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -61,6 +79,24 @@ msgstr "Bitten Sie eine Administratorin oder einen Administrator, Sie in eine Or
 msgid "auth.factor.code"
 msgstr "Authentifizierungscode"
 
+#. Title of the dialog asking why emergency access is used.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.justification.title"
+msgstr "Begründung für Notfallzugriff"
+
+#. Button that dismisses a dialog without acting.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.cancel"
+msgstr "Abbrechen"
+
+#. Shown while the explanation loads.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.loading"
+msgstr "Zugriff wird geprüft"
+
 #. Label of the new-password field on the invitation page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -71,6 +107,12 @@ msgstr "Passwort wählen"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
+msgstr "Schließen"
+
+#. Accessible name of a dialog's close button.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.close"
 msgstr "Schließen"
 
 #. Density option.
@@ -97,6 +139,24 @@ msgstr "Befehle"
 msgid "profile.density.compact"
 msgstr "Kompakt"
 
+#. Button that confirms the action of a dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.confirm"
+msgstr "Bestätigen"
+
+#. Title of the type-to-confirm dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.typeconfirm.title"
+msgstr "Zerstörerische Aktion bestätigen"
+
+#. Title of the dialog asking for a security key or passkey before a sensitive action.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.title"
+msgstr "Bestätigen Sie, dass Sie es sind"
+
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -115,11 +175,23 @@ msgstr "Dunkel"
 msgid "chrome.forbidden.decision"
 msgstr "Entscheidung: {decision}"
 
+#. Shows the access decision; {decision} is the server's word.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.decision"
+msgstr "Entscheidung: {decision}"
+
 #. Label of the density choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "Dichte"
+
+#. Help menu entry that opens the documentation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.docs"
+msgstr "Dokumentation"
 
 #. Label of the email field.
 #. js-lingui-explicit-id
@@ -157,6 +229,12 @@ msgstr "Geben Sie Ihr Passwort ein."
 msgid "chrome.licence.title"
 msgstr "Enterprise: Lizenz erforderlich"
 
+#. Label of the event type filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.type"
+msgstr "Ereignistyp"
+
 #. Button that asks the server why access is denied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -168,6 +246,12 @@ msgstr "Zugriff erklären"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.caption"
 msgstr "Aus den Befehlen dieses Fensters erzeugt."
+
+#. Help menu entry that opens the onboarding guide.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.onboarding"
+msgstr "Erste Schritte"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -181,6 +265,12 @@ msgstr "Zur Startseite"
 msgid "cmd.nav.profile"
 msgstr "Zum Profil"
 
+#. Label of the help menu.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.menu"
+msgstr "Hilfe"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -193,17 +283,41 @@ msgstr "Hoher Kontrast"
 msgid "chrome.home"
 msgstr "Start"
 
+#. Label of the free-text reason field.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.justification.label"
+msgstr "Begründung"
+
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.title"
 msgstr "Tastaturkürzel"
 
+#. Help menu entry that opens the shortcut sheet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.shortcuts"
+msgstr "Tastenkürzel"
+
 #. Label of the language choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.language"
 msgstr "Sprache"
+
+#. Button that leaves and discards changes.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.leave"
+msgstr "Verlassen"
+
+#. Title of the dialog shown when leaving a page with unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.title"
+msgstr "Ohne Speichern verlassen?"
 
 #. Theme option.
 #. js-lingui-explicit-id
@@ -216,6 +330,12 @@ msgstr "Hell"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.loading"
 msgstr "Wird geladen"
+
+#. Button that marks one notification read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mark-read"
+msgstr "Als gelesen markieren"
 
 #. Theme option that follows the operating system.
 #. js-lingui-explicit-id
@@ -241,11 +361,47 @@ msgstr "Benötigt die Berechtigung {permission}"
 msgid "cmd.palette.empty"
 msgstr "Kein Befehl passt."
 
+#. Shown when the inbox has no items.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.empty"
+msgstr "Keine Benachrichtigungen"
+
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
+
+#. Accessible name of the notifications button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.bell"
+msgstr "Benachrichtigungen"
+
+#. Heading of the notification inbox page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.title"
+msgstr "Benachrichtigungen"
+
+#. Shown when the inbox request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.failed"
+msgstr "Benachrichtigungen konnten nicht geladen werden."
+
+#. Status chip: the browser has no network.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "chip.offline"
+msgstr "Offline"
+
+#. Link from the popover to the full inbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.open-inbox"
+msgstr "Alle Benachrichtigungen öffnen"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -283,6 +439,12 @@ msgstr "Passwort"
 msgid "shell.app.title"
 msgstr "Plux Studio"
 
+#. Explains why the browser cannot run Studio.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "unsupported.body"
+msgstr "Plux Studio benötigt WebGL2, um die Leinwand zu zeichnen. Verwenden Sie eine aktuelle Version von Chrome, Edge, Firefox oder Safari mit eingeschalteter Hardwarebeschleunigung."
+
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -294,6 +456,18 @@ msgstr "Profil"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.title"
 msgstr "Profil"
+
+#. Status chip: the live connection to the server dropped and is being retried.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "chip.reconnecting"
+msgstr "Verbindung wird wiederhergestellt"
+
+#. Button that reloads the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "banner.reload"
+msgstr "Neu laden"
 
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
@@ -331,6 +505,12 @@ msgstr "Anmelden"
 msgid "chrome.signedout.again"
 msgstr "Erneut anmelden"
 
+#. Button that opens the sign-in window.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.signedout.signin"
+msgstr "Erneut anmelden"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -361,17 +541,35 @@ msgstr "Anmeldung läuft"
 msgid "auth.providers"
 msgstr "Einmalanmeldung"
 
+#. Button that keeps the person on the page.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.stay"
+msgstr "Bleiben"
+
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.topbar"
 msgstr "Studio-Navigation"
 
+#. Banner shown when the server runs a newer Studio.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "banner.updated"
+msgstr "Studio wurde aktualisiert. Laden Sie neu, um die neue Version zu nutzen."
+
 #. Command title; name is an organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.org.switch"
 msgstr "Zu {name} wechseln"
+
+#. Shown when the WebAuthn check was cancelled or failed.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.failed"
+msgstr "Die Prüfung war nicht erfolgreich. Versuchen Sie es erneut."
 
 #. Shown when the server refuses the one-time code.
 #. js-lingui-explicit-id
@@ -384,6 +582,12 @@ msgstr "Der Code ist falsch oder abgelaufen."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.rejected"
 msgstr "E-Mail oder Passwort sind nicht korrekt."
+
+#. Shown when explain-access fails.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.failed"
+msgstr "Die Erklärung konnte nicht geladen werden."
 
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
@@ -403,6 +607,18 @@ msgstr "Der Passkey konnte nicht verwendet werden."
 msgid "profile.theme"
 msgstr "Design"
 
+#. Explains why the step-up dialog appears.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.body"
+msgstr "Diese Aktion erfordert eine neue Prüfung mit Ihrem Sicherheitsschlüssel oder Passkey."
+
+#. Heading shown when WebGL2 is missing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "unsupported.title"
+msgstr "Dieser Browser wird nicht unterstützt"
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -421,11 +637,23 @@ msgstr "Diese Seite gehört zur Enterprise-Edition. Bitten Sie eine Installation
 msgid "cmd.theme.toggle"
 msgstr "Zwischen hellem und dunklem Design wechseln"
 
+#. Label of the field where the person retypes the phrase; {phrase} is the exact text to type.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.typeconfirm.prompt"
+msgstr "Geben Sie {phrase} zur Bestätigung ein"
+
 #. Label of the palette search box.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "Befehl eingeben"
+
+#. Toggle that hides read notifications.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.unread-only"
+msgstr "Nur ungelesene"
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
@@ -439,6 +667,12 @@ msgstr "Passkey verwenden"
 msgid "auth.error.password-short"
 msgstr "Verwenden Sie mindestens 12 Zeichen."
 
+#. Button that starts the WebAuthn check.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.use"
+msgstr "Sicherheitsschlüssel oder Passkey verwenden"
+
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -450,6 +684,12 @@ msgstr "Bestätigen"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "Willkommen bei {name}"
+
+#. Title of the dialog that explains an access decision.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.title"
+msgstr "Warum ist das nicht verfügbar?"
 
 #. Heading shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
@@ -468,6 +708,18 @@ msgstr "Sie sind abgemeldet"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.title"
 msgstr "Kein Zugriff"
+
+#. Title of the dialog shown when the session ended.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.signedout.title"
+msgstr "Sie wurden abgemeldet"
+
+#. Explains the unsaved-changes dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.body"
+msgstr "Sie haben ungespeicherte Änderungen. Wenn Sie jetzt gehen, gehen sie verloren."
 
 #. Caption under the profile heading.
 #. js-lingui-explicit-id
@@ -492,3 +744,9 @@ msgstr "Ihre Einstellung konnte nicht gespeichert werden."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.body"
 msgstr "Ihre Rolle enthält nicht die Berechtigung, die diese Seite benötigt."
+
+#. Explains the signed-out dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.signedout.body"
+msgstr "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an, um fortzufahren; Ihre Arbeit auf dieser Seite bleibt erhalten."
