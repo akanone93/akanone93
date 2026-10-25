@@ -136,7 +136,6 @@ export interface RendererInfo {
   readonly software: boolean;
   readonly majorPerformanceCaveat: boolean;
   readonly tiles: boolean;
-  readonly measuredMs: { readonly webgl: number; readonly raster: number } | null;
 }
 
 /** Per-frame statistics sent back to the main thread. */

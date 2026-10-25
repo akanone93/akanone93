@@ -44,7 +44,7 @@ import {
 import { type LiveLayer, SceneRenderer } from "./renderer.ts";
 import { Scene, type SceneItem } from "./scene.ts";
 import { buildSceneModel } from "./scene-model.ts";
-import { chooseRenderer, type GlProbe, measureSurface } from "./select.ts";
+import { chooseRenderer, type GlProbe } from "./select.ts";
 import { Viewport } from "./viewport.ts";
 
 /** Time per idle slice for tile rendering, in ms. */
@@ -58,7 +58,6 @@ export interface WorkerDeps {
   requestIdle(callback: () => void): void;
   probeGl(): GlProbe;
   makeSurface(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster"): Surface | null;
-  makeMeasureSurface(ck: CanvasKit, kind: "webgl" | "raster"): Surface | null;
   /**
    * Watches `canvas` for the loss and restoration of its context
    * (`webglcontextlost`/`webglcontextrestored`, `contextlost`/`contextrestored`);
@@ -286,8 +285,7 @@ export class CanvasWorkerCore {
     options: CanvasOptions,
   ): { surface: Surface; info: RendererInfo } {
     const probe = this.deps.probeGl();
-    const measured = options.renderer === "auto" && probe.available && probe.software ? this.measure(ck) : null;
-    let kind = chooseRenderer(options.renderer, probe, measured);
+    let kind = chooseRenderer(options.renderer, probe);
     let surface = this.deps.makeSurface(ck, canvas, kind);
     if (!surface && kind === "webgl") {
       kind = "raster";
@@ -302,24 +300,8 @@ export class CanvasWorkerCore {
       software: probe.software,
       majorPerformanceCaveat: probe.majorPerformanceCaveat,
       tiles: options.tiles ?? true,
-      measuredMs: measured,
     };
     return { surface, info };
-  }
-
-  private measure(ck: CanvasKit): { webgl: number; raster: number } | null {
-    const time = (kind: "webgl" | "raster"): number | null => {
-      const surface = this.deps.makeMeasureSurface(ck, kind);
-      if (!surface) {
-        return null;
-      }
-      const ms = measureSurface(ck, surface, () => this.deps.now());
-      surface.delete();
-      return ms;
-    };
-    const webgl = time("webgl");
-    const raster = time("raster");
-    return webgl === null || raster === null ? null : { webgl, raster };
   }
 
   private dispatch(running: Running, message: HostMessage): void {

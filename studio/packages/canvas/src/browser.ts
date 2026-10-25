@@ -33,8 +33,6 @@ export interface BrowserScope {
 
 type SurfaceTarget = Parameters<CanvasKit["MakeSWCanvasSurface"]>[0];
 
-const MEASURE_SIZE = 1024;
-
 function probe(scope: BrowserScope): GlProbe {
   const Offscreen = scope.OffscreenCanvas;
   const none: GlProbe = { available: false, software: true, renderer: "", majorPerformanceCaveat: false };
@@ -105,12 +103,5 @@ export function browserWorkerDeps(scope: BrowserScope, loadCanvasKit: () => Prom
     probeGl: () => probe(scope),
     makeSurface: surfaceOn,
     watchContext: watchCanvasContext,
-    makeMeasureSurface: (ck, kind) => {
-      if (kind === "raster") {
-        return ck.MakeSurface(MEASURE_SIZE, MEASURE_SIZE);
-      }
-      const Offscreen = scope.OffscreenCanvas;
-      return Offscreen ? surfaceOn(ck, new Offscreen(MEASURE_SIZE, MEASURE_SIZE), "webgl") : null;
-    },
   };
 }

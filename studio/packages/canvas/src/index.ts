@@ -66,7 +66,7 @@ export { MAX_REGIONS, type RendererOptions, SceneRenderer } from "./renderer.ts"
 export { type Deletable, Resources } from "./resources.ts";
 export { boundsOf, moveSpec, Scene, type SceneItem } from "./scene.ts";
 export { buildSceneModel } from "./scene-model.ts";
-export { chooseRenderer, type GlProbe, isSoftwareGl, measureSurface, RASTER_ADVANTAGE } from "./select.ts";
+export { chooseRenderer, type GlProbe, isSoftwareGl } from "./select.ts";
 export { DEFAULT_TILE_SIZE, RETILE_THRESHOLD, type Tile, TileCache } from "./tiles.ts";
 export { clampZoom, MAX_ZOOM, MIN_ZOOM, Viewport } from "./viewport.ts";
 export {
