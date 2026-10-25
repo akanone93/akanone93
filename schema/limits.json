@@ -916,6 +916,69 @@
       "description": "Maximum number of tables and vectors the FlatBuffers verifier visits in one section."
     },
     {
+      "key": "canvas.frameMembers",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-032",
+        "STU-035",
+        "STU-050"
+      ],
+      "description": "Plugins one frame of a canvas document may group."
+    },
+    {
+      "key": "canvas.frames",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-032",
+        "STU-035",
+        "STU-050"
+      ],
+      "description": "Frames one canvas document may hold."
+    },
+    {
+      "key": "canvas.positions",
+      "unit": "count",
+      "default": 1000,
+      "max": 20000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-032",
+        "STU-035",
+        "STU-050"
+      ],
+      "description": "Box positions one canvas document may hold."
+    },
+    {
       "key": "confidential.bundleBytes",
       "unit": "bytes",
       "default": 16777216,

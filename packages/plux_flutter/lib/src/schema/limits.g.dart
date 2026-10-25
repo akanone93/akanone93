@@ -146,6 +146,12 @@ enum PluxLimit {
   /// Maximum number of tables and vectors the FlatBuffers verifier visits in
   /// one section.
   bundleVerifierTables('bundle.verifierTables', PluxLimitUnit.count, 1000000, 0, 10000000),
+  /// Plugins one frame of a canvas document may group.
+  canvasFrameMembers('canvas.frameMembers', PluxLimitUnit.count, 500, 0, 10000),
+  /// Frames one canvas document may hold.
+  canvasFrames('canvas.frames', PluxLimitUnit.count, 200, 0, 5000),
+  /// Box positions one canvas document may hold.
+  canvasPositions('canvas.positions', PluxLimitUnit.count, 1000, 0, 20000),
   /// Bytes of confidential content one confidential bundle may hold.
   confidentialBundleBytes('confidential.bundleBytes', PluxLimitUnit.bytes, 16777216, 0, 268435456),
   /// Bytes of one server-held configuration value.
