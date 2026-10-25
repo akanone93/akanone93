@@ -7,8 +7,16 @@ import type { I18n } from "@lingui/core";
 export function dialogMessages(i18n: I18n) {
   return {
     close: i18n._({ id: "dialog.close", message: "Close", comment: "Accessible name of a dialog's close button." }),
-    cancel: i18n._({ id: "dialog.cancel", message: "Cancel", comment: "Button that dismisses a dialog without acting." }),
-    confirm: i18n._({ id: "dialog.confirm", message: "Confirm", comment: "Button that confirms the action of a dialog." }),
+    cancel: i18n._({
+      id: "dialog.cancel",
+      message: "Cancel",
+      comment: "Button that dismisses a dialog without acting.",
+    }),
+    confirm: i18n._({
+      id: "dialog.confirm",
+      message: "Confirm",
+      comment: "Button that confirms the action of a dialog.",
+    }),
     stepUpTitle: i18n._({
       id: "dialog.stepup.title",
       message: "Confirm it is you",
@@ -36,11 +44,11 @@ export function dialogMessages(i18n: I18n) {
     }),
     typeConfirmPrompt: (phrase: string) =>
       i18n._({
-      id: "dialog.typeconfirm.prompt",
-      message: "Type {phrase} to confirm",
-      comment: "Label of the field where the person retypes the phrase; {phrase} is the exact text to type.",
-      values: { phrase },
-    }),
+        id: "dialog.typeconfirm.prompt",
+        message: "Type {phrase} to confirm",
+        comment: "Label of the field where the person retypes the phrase; {phrase} is the exact text to type.",
+        values: { phrase },
+      }),
     justificationTitle: i18n._({
       id: "dialog.justification.title",
       message: "Break-glass justification",
@@ -53,11 +61,11 @@ export function dialogMessages(i18n: I18n) {
     }),
     justificationHint: (count: number, min: number) =>
       i18n._({
-      id: "dialog.justification.hint",
-      message: "{count} of at least {min} characters",
-      comment: "Progress under the justification field; {count} typed so far, {min} required.",
-      values: { count, min },
-    }),
+        id: "dialog.justification.hint",
+        message: "{count} of at least {min} characters",
+        comment: "Progress under the justification field; {count} typed so far, {min} required.",
+        values: { count, min },
+      }),
     signedOutTitle: i18n._({
       id: "dialog.signedout.title",
       message: "You have been signed out",
@@ -68,7 +76,11 @@ export function dialogMessages(i18n: I18n) {
       message: "Your session ended. Sign in again to continue where you were; your work on this page is kept.",
       comment: "Explains the signed-out dialog.",
     }),
-    signIn: i18n._({ id: "dialog.signedout.signin", message: "Sign in again", comment: "Button that opens the sign-in window." }),
+    signIn: i18n._({
+      id: "dialog.signedout.signin",
+      message: "Sign in again",
+      comment: "Button that opens the sign-in window.",
+    }),
     unsavedTitle: i18n._({
       id: "dialog.unsaved.title",
       message: "Leave without saving?",
@@ -79,8 +91,16 @@ export function dialogMessages(i18n: I18n) {
       message: "You have changes that are not saved. If you leave now they are lost.",
       comment: "Explains the unsaved-changes dialog.",
     }),
-    unsavedStay: i18n._({ id: "dialog.unsaved.stay", message: "Stay", comment: "Button that keeps the person on the page." }),
-    unsavedLeave: i18n._({ id: "dialog.unsaved.leave", message: "Leave", comment: "Button that leaves and discards changes." }),
+    unsavedStay: i18n._({
+      id: "dialog.unsaved.stay",
+      message: "Stay",
+      comment: "Button that keeps the person on the page.",
+    }),
+    unsavedLeave: i18n._({
+      id: "dialog.unsaved.leave",
+      message: "Leave",
+      comment: "Button that leaves and discards changes.",
+    }),
     explainTitle: i18n._({
       id: "dialog.explain.title",
       message: "Why is this unavailable?",
@@ -88,16 +108,20 @@ export function dialogMessages(i18n: I18n) {
     }),
     explainDecision: (decision: string) =>
       i18n._({
-      id: "dialog.explain.decision",
-      message: "Decision: {decision}",
-      comment: "Shows the access decision; {decision} is the server's word.",
-      values: { decision },
-    }),
+        id: "dialog.explain.decision",
+        message: "Decision: {decision}",
+        comment: "Shows the access decision; {decision} is the server's word.",
+        values: { decision },
+      }),
     explainFailed: i18n._({
       id: "dialog.explain.failed",
       message: "The explanation could not be loaded.",
       comment: "Shown when explain-access fails.",
     }),
-    explainLoading: i18n._({ id: "dialog.explain.loading", message: "Checking access", comment: "Shown while the explanation loads." }),
+    explainLoading: i18n._({
+      id: "dialog.explain.loading",
+      message: "Checking access",
+      comment: "Shown while the explanation loads.",
+    }),
   };
 }

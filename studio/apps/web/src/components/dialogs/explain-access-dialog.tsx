@@ -18,7 +18,12 @@ export interface ExplainAccessDialogProps {
 }
 
 /** D8 (F14): asks GovernanceService.ExplainAccess why `permission` is denied. */
-export function ExplainAccessDialog({ open, onOpenChange, organizationId, permission }: ExplainAccessDialogProps): ReactElement {
+export function ExplainAccessDialog({
+  open,
+  onOpenChange,
+  organizationId,
+  permission,
+}: ExplainAccessDialogProps): ReactElement {
   const m = dialogMessages(useLingui().i18n);
   const { session } = useApp();
   const query = useQuery({
@@ -29,7 +34,11 @@ export function ExplainAccessDialog({ open, onOpenChange, organizationId, permis
   return (
     <Dialog open={open} onOpenChange={onOpenChange} size="md" title={m.explainTitle} labels={{ close: m.close }}>
       {query.isPending && <p className="text-body text-secondary">{m.explainLoading}</p>}
-      {query.isError && <p role="alert" className="text-body text-danger">{m.explainFailed}</p>}
+      {query.isError && (
+        <p role="alert" className="text-body text-danger">
+          {m.explainFailed}
+        </p>
+      )}
       {query.data !== undefined && <p className="font-mono text-data">{m.explainDecision(query.data.decision)}</p>}
     </Dialog>
   );

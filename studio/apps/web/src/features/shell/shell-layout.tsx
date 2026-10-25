@@ -8,12 +8,20 @@ import { IdentityService, OrgService, PreferencesService } from "@plux/api";
 import { GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { Outlet, useParams, useRouter } from "@tanstack/react-router";
+import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
 import { forgetUser } from "../../lib/guards.ts";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { shellMessages } from "../../shell.messages.ts";
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
+import { HelpMenu } from "./help-menu.tsx";
+import { NotificationsPopover } from "./notifications-popover.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
+import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
+import { useStudioEvents } from "./use-studio-events.ts";
+
+/** The build's version; the server reports none yet, so the banner (E14) stays hidden (open item of S0.6). */
+const loadedStudioVersion = "";
 
 /** U9.2: the top bar (identity, organisation switcher, profile menu) over the page content. */
 export function ShellLayout() {
@@ -22,6 +30,8 @@ export function ShellLayout() {
   const { session } = useApp();
   const router = useRouter();
   const org = (useParams({ strict: false }) as { org?: string }).org;
+  const online = useOnline();
+  const events = useStudioEvents();
   const prefs = useQuery(PreferencesService.method.getPreferences, {});
   useAppliedPreferences(prefs.data?.preferences);
   const orgs = useTanstackQuery({
@@ -44,6 +54,8 @@ export function ShellLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={undefined} />
+      <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
       <header>
         <GlassCapsule label={m.topBar} className="m-4 flex items-center gap-4 px-4">
           <a href="/" className="text-title">
@@ -59,6 +71,9 @@ export function ShellLayout() {
             />
           )}
           <span className="flex-1" />
+          <StatusChips online={online} stream={events.state} />
+          <NotificationsPopover />
+          <HelpMenu />
           <Menu
             trigger={
               <button type="button" aria-label={m.profile} className="inline-flex items-center">

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
+import { AlertDialog } from "@plux/ui";
 import { useBlocker } from "@tanstack/react-router";
 import type { ReactElement } from "react";
-import { AlertDialog } from "@plux/ui";
 import { dialogMessages } from "./dialogs.messages.ts";
 
 /** D7: blocks in-app navigation while `dirty` and asks; a browser unload uses the native prompt. */
@@ -19,7 +19,9 @@ export function UnsavedChangesDialog({ dirty }: { readonly dirty: boolean }): Re
       labels={{ cancel: m.unsavedStay, confirm: m.unsavedLeave }}
       onConfirm={() => blocker.proceed?.()}
       onOpenChange={(open) => {
-        if (!open && blocker.status === "blocked") blocker.reset?.();
+        if (!open && blocker.status === "blocked") {
+          blocker.reset?.();
+        }
       }}
     />
   );
