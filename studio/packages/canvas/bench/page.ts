@@ -7,6 +7,8 @@
 // not GL moves the base while panning (M-12); drags are timed in the worker.
 
 import { defaultScreenTheme } from "@plux/layout";
+import { ArrowCanvas } from "../src/arrow-layer.ts";
+import { ArrowRouter, deriveAppBundles } from "../src/arrows.ts";
 import type { LayerBox } from "../src/compositor.ts";
 import { CanvasHost } from "../src/host.ts";
 import type {
@@ -18,7 +20,7 @@ import type {
   ScreenStyle,
 } from "../src/protocol.ts";
 import { measurePropertyChange, type PropertySummary } from "./property.ts";
-import { boxPosition, type LinkRef, linkSpec, sceneA, sceneB } from "./scenes.ts";
+import { boxPosition, type LinkRef, linkSpec, sceneA, sceneB, sceneC } from "./scenes.ts";
 
 const WIDTH = 1280;
 const HEIGHT = 800;
@@ -204,6 +206,89 @@ async function panScenario(host: CanvasHost): Promise<Record<string, unknown>> {
   };
 }
 
+/**
+ * STU-045 with real routing: scene C's arrows derived, bundled and routed; a pan,
+ * then a drag of one box paced by animation frames, re-routing on the main
+ * thread every frame (`routeMs`) and patching the worker.
+ */
+async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>> {
+  const c = sceneC();
+  const t0 = performance.now();
+  const bundles = deriveAppBundles(c.edges, c.pluginOf);
+  const router = new ArrowRouter(c.boxes, bundles);
+  const arrows = new ArrowCanvas(router, undefined, 0.6);
+  const ops = arrows.render();
+  const initialRouteMs = performance.now() - t0;
+  host.patch([{ op: "clear" }, ...add(c.items), ...ops]);
+  host.setViewport(0, 0, 0.6);
+  const settleMs = await settle(host);
+  const pan = await panScenario(host);
+  host.setViewport(0, 0, 0.6);
+  await settle(host);
+  const worker: FrameStats[] = [];
+  const stop = host.onFrame((stats) => worker.push(stats));
+  const box = `box-${DRAGGED}`;
+  const ids = [box, `label-${DRAGGED}`, ...arrows.beginDrag(box)];
+  const origin = boxPosition(DRAGGED);
+  host.startInteraction("drag", ids);
+  const intervals: number[] = [];
+  const route: number[] = [];
+  const rerouted: number[] = [];
+  let previous = await animationFrame();
+  for (let i = 0; i < WARMUP + FRAMES; i++) {
+    const now = await animationFrame();
+    const begin = performance.now();
+    // A sweep of 600 x 300 world units: the box crosses others and switches sides.
+    const patch = arrows.moveBox(box, origin.x + (i + 1) * 2, origin.y + (i + 1));
+    const ms = performance.now() - begin;
+    host.patch([{ op: "move", id: box, dx: 2, dy: 1 }, { op: "move", id: `label-${DRAGGED}`, dx: 2, dy: 1 }, ...patch]);
+    if (i >= WARMUP) {
+      intervals.push(now - previous);
+      route.push(ms);
+      rerouted.push(patch.length);
+    }
+    previous = now;
+  }
+  const drop = performance.now();
+  const caughtUp = arrows.endDrag();
+  const dropRouteMs = performance.now() - drop;
+  host.patch(caughtUp);
+  host.endInteraction("drag", ids);
+  stop();
+  intervals.sort((a, b) => a - b);
+  route.sort((a, b) => a - b);
+  const clear = [...router.routes.values()].filter((r) => r.clear).length;
+  return {
+    links: c.edges.length,
+    bundles: router.routes.size,
+    clearRoutes: clear,
+    items: c.items.length + ops.length,
+    initialRouteMs: round(initialRouteMs),
+    settleMs,
+    pan,
+    drag: {
+      frames: intervals.length,
+      p50: round(percentile(intervals, 0.5)),
+      p95: round(percentile(intervals, 0.95)),
+      max: round(intervals.at(-1) ?? 0),
+      droppedFrames: intervals.filter((ms) => ms > 1.5 * FRAME_MS).length,
+      routeMsP50: round(percentile(route, 0.5)),
+      routeMsP95: round(percentile(route, 0.95)),
+      routeMsMax: round(route.at(-1) ?? 0),
+      opsPerFrameMean: round(mean(rerouted)),
+      dropRouteMs: round(dropRouteMs),
+      dropOps: caughtUp.length,
+      workerFrameMsP95: round(
+        percentile(
+          worker.map((f) => f.ms).sort((a, b) => a - b),
+          0.95,
+        ),
+      ),
+      ...baseRenders(worker),
+    },
+  };
+}
+
 const propertyStyle: ScreenStyle = {
   deviceHeight: 844,
   theme: { ...defaultScreenTheme, fontFamilies: ["Noto Sans"] },
@@ -323,6 +408,7 @@ async function run(): Promise<unknown> {
   host.setViewport(0, 0, 0.3);
   const settleB = await settle(host);
   const bPan = await panScenario(host);
+  const arrowsC = await arrowScenario(host);
   host.patch([{ op: "clear" }]);
   const property = await propertyScenario(host);
   host.dispose();
@@ -332,6 +418,7 @@ async function run(): Promise<unknown> {
     budgetMs: 16.7,
     sceneA: { items: a.items.length, zoom: 0.6, settleMs: settleA, pan: aPan, drag: aDrag },
     sceneB: { zoom: 0.3, settleMs: settleB, pan: bPan },
+    sceneC: { zoom: 0.6, ...arrowsC },
     propertyToCanvas: property,
   };
 }

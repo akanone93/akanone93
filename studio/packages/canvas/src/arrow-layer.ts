@@ -62,6 +62,8 @@ const BADGE_W = 22;
 const BADGE_H = 16;
 const LABEL_W = 160;
 const LABEL_SIZE = 11;
+/** Item parts a collapsed bundle can have: up to three pieces (two waypoints), head, badge. */
+const LIVE_PARTS = ["s0", "s1", "s2", "h0", "h1", "badge", "count"] as const;
 
 /** An item and the lane link it belongs to, if any. */
 interface Out {
@@ -127,8 +129,12 @@ export class ArrowCanvas {
 
   /** Moves box `id` and returns the patches for the re-routed bundles (STU-045). */
   moveBox(id: string, x: number, y: number, now = 0): SceneOp[] {
+    return this.patch(this.router.moveBox(id, x, y), now);
+  }
+
+  private patch(bundles: readonly string[], now: number): SceneOp[] {
     const ops: SceneOp[] = [];
-    for (const bundle of this.router.moveBox(id, x, y)) {
+    for (const bundle of bundles) {
       const route = this.router.routes.get(bundle);
       if (route) {
         this.emit(route, now, ops);
@@ -187,6 +193,36 @@ export class ArrowCanvas {
       }
     }
     return undefined;
+  }
+
+  /**
+   * Starts dragging box `id` (STU-045). Returns the scene item ids of its
+   * arrows — current and any a re-route can add — to pass with the box to
+   * `CanvasHost.startInteraction("drag", …)`, so they are drawn live in the
+   * interaction layer while every other arrow stays on the base.
+   */
+  beginDrag(id: string): string[] {
+    this.router.beginDrag(id);
+    return this.itemsAt(id);
+  }
+
+  /** Ends the drag; patches for the bundles it held back. */
+  endDrag(now = 0): SceneOp[] {
+    return this.patch(this.router.endDrag(), now);
+  }
+
+  /** The scene item ids of the arrows attached to box `id`, current and possible. */
+  itemsAt(id: string): string[] {
+    const out = new Set<string>();
+    for (const bundle of this.router.bundlesAt(id)) {
+      for (const item of this.items.get(bundle) ?? []) {
+        out.add(item);
+      }
+      for (const part of LIVE_PARTS) {
+        out.add(`arrow:${bundle}:${part}`);
+      }
+    }
+    return [...out];
   }
 
   /** The lane menu for a picked lane (STU-046); empty for a whole bundle. */

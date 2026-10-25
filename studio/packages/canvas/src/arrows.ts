@@ -155,6 +155,8 @@ const MIN_BEND = 24;
 const MAX_BEND = 240;
 /** Flattening step for collision checks. */
 const STEP = 24;
+/** Paths meeting more boxes than this are not detoured. */
+const MAX_DETOURED = 2;
 
 interface MBox {
   id: string;
@@ -171,6 +173,8 @@ interface BundleState {
   fa: number;
   fb: number;
   route: Route | undefined;
+  /** Flattened polylines (x, y, x, y, …) of every candidate tried for `route`. */
+  paths: number[][];
 }
 
 interface Member {
@@ -360,6 +364,8 @@ interface Collision {
   readonly boxes: MBox[];
   /** Index of the first segment that meets a box, or -1. */
   readonly segment: number;
+  /** The flattened path, x and y interleaved. */
+  readonly points: number[];
 }
 
 function cellKey(ix: number, iy: number): number {
@@ -382,6 +388,7 @@ export class ArrowRouter {
   private readonly members = new Map<string, Member[]>();
   private readonly history = new Map<string, number>();
   private readonly current = new Map<string, Route>();
+  private drag: { id: string; start: Rect; pending: Set<BundleState> } | undefined;
 
   constructor(boxes: readonly ArrowBox[], bundles: readonly Bundle[], options: RouterOptions = {}) {
     this.clearance = options.clearance ?? 12;
@@ -394,6 +401,11 @@ export class ArrowRouter {
   /** The current routes by bundle id, in bundle id order. */
   get routes(): ReadonlyMap<string, Route> {
     return this.current;
+  }
+
+  /** The ids of the bundles attached to box `id`, sorted. */
+  bundlesAt(id: string): string[] {
+    return (this.byBox.get(id) ?? []).map((state) => state.bundle.id).sort();
   }
 
   /** The box `id`, if present. */
@@ -420,7 +432,7 @@ export class ArrowRouter {
       if (!this.boxes.has(bundle.source) || !this.boxes.has(bundle.target)) {
         continue;
       }
-      const state: BundleState = { bundle, sa: 1, sb: 3, fa: 0.5, fb: 0.5, route: undefined };
+      const state: BundleState = { bundle, sa: 1, sb: 3, fa: 0.5, fb: 0.5, route: undefined, paths: [] };
       this.states.set(bundle.id, state);
       keep.add(bundle.id);
       for (const end of [bundle.source, bundle.target]) {
@@ -457,42 +469,85 @@ export class ArrowRouter {
   }
 
   /**
+   * Starts dragging box `id` (STU-045): until `endDrag`, `moveBox` re-routes
+   * only the bundles attached to it, so everything else stays still on the
+   * base layer; `endDrag` then catches up the rest.
+   */
+  beginDrag(id: string): void {
+    const box = this.boxes.get(id);
+    this.drag = box ? { id, start: this.inflated(box), pending: new Set() } : undefined;
+  }
+
+  /**
+   * Ends the drag: re-routes the bundles it held back — those sharing a side
+   * with the dragged box's bundles, and those whose candidates meet its start
+   * or end place. Returns their ids, sorted; the result equals a full re-route.
+   */
+  endDrag(): string[] {
+    const drag = this.drag;
+    this.drag = undefined;
+    const box = drag ? this.boxes.get(drag.id) : undefined;
+    if (!(drag && box)) {
+      return [];
+    }
+    const dirty = new Set(drag.pending);
+    this.collectMet(dirty, drag.start, this.inflated(box), new Set(this.byBox.get(drag.id)));
+    return this.recurve(dirty);
+  }
+
+  /**
    * Moves box `id` to (`x`, `y`) and re-routes only the bundles that can
    * change: those attached to it, those sharing a side with them, and those
-   * whose candidates came near its old or new place. Returns their ids, sorted.
+   * whose candidates meet its old or new place. Returns their ids, sorted.
+   * While `id` is being dragged, only its own bundles are re-routed.
    */
   moveBox(id: string, x: number, y: number): string[] {
     const box = this.boxes.get(id);
     if (!box) {
       return [];
     }
-    const c = this.clearance;
-    const old: Rect = { l: box.x - c, t: box.y - c, r: box.x + box.w + c, b: box.y + box.h + c };
+    const old = this.inflated(box);
     this.gridRemove(box);
     box.x = x;
     box.y = y;
     this.gridInsert(box);
-    const moved: Rect = { l: x - c, t: y - c, r: x + box.w + c, b: y + box.h + c };
-    const dirty = new Set<BundleState>();
+    const own = new Set(this.byBox.get(id));
     const touched = new Set<string>();
-    for (const state of this.byBox.get(id) ?? []) {
+    for (const state of own) {
       this.leave(state, touched);
       this.selectSides(state);
       this.join(state, touched);
-      dirty.add(state);
     }
+    const dirty = new Set(own);
+    const dragging = this.drag?.id === id;
     for (const key of touched) {
       this.spread(key);
       for (const member of this.members.get(key) ?? []) {
-        dirty.add(member.state);
+        (dragging && !own.has(member.state) ? this.drag?.pending : dirty)?.add(member.state);
       }
     }
+    if (!dragging) {
+      this.collectMet(dirty, old, this.inflated(box), own);
+    }
+    return this.recurve(dirty);
+  }
+
+  private inflated(box: MBox): Rect {
+    const c = this.clearance;
+    return { l: box.x - c, t: box.y - c, r: box.x + box.w + c, b: box.y + box.h + c };
+  }
+
+  /** Adds the bundles (other than `skip`) whose tried candidates meet `a` or `b`. */
+  private collectMet(dirty: Set<BundleState>, a: Rect, b: Rect, skip: ReadonlySet<BundleState>): void {
     for (const state of this.states.values()) {
       const env = state.route?.envelope;
-      if (env && !dirty.has(state) && (overlaps(env, old) || overlaps(env, moved))) {
+      if (env && !skip.has(state) && !dirty.has(state) && (meets(state, env, a) || meets(state, env, b))) {
         dirty.add(state);
       }
     }
+  }
+
+  private recurve(dirty: ReadonlySet<BundleState>): string[] {
     const ids: string[] = [];
     for (const state of dirty) {
       this.curve(state);
@@ -605,9 +660,12 @@ export class ArrowRouter {
       return result;
     };
     const first = attempt([]);
-    const found = first.hit.boxes.length === 0 ? first : this.detour(first, p0, p3, attempt);
+    const blocked = first.hit.boxes.length;
+    // A path through a field of boxes cannot be fixed with two waypoints: drawn as is.
+    const found = blocked === 0 ? first : blocked <= MAX_DETOURED ? this.detour(first, p0, p3, attempt) : undefined;
     // No clear candidate: the one meeting the fewest boxes, earliest first.
     const pick = found ?? tried.reduce((x, y) => (y.hit.boxes.length < x.hit.boxes.length ? y : x));
+    state.paths = tried.map((t) => t.hit.points);
     state.route = {
       bundle,
       sourceSide: state.sa,
@@ -669,6 +727,7 @@ export class ArrowRouter {
   /** The boxes (other than `skip`) the flattened path meets, inflated by the clearance. */
   private collide(segments: readonly Cubic[], skip: readonly MBox[]): Collision {
     const found: MBox[] = [];
+    const points: number[] = [];
     let first = -1;
     for (let s = 0; s < segments.length; s++) {
       const seg = segments[s] as Cubic;
@@ -678,6 +737,9 @@ export class ArrowRouter {
         Math.hypot(seg.to.x - seg.c2.x, seg.to.y - seg.c2.y);
       const n = Math.min(256, Math.max(8, Math.ceil(poly / STEP)));
       let prev = seg.from;
+      if (s === 0) {
+        points.push(prev.x, prev.y);
+      }
       for (let i = 1; i <= n; i++) {
         const p = cubicAt(seg, i / n);
         const step = this.stepHits(prev, p, skip, found);
@@ -688,10 +750,11 @@ export class ArrowRouter {
             first = s;
           }
         }
+        points.push(p.x, p.y);
         prev = p;
       }
     }
-    return { boxes: found, segment: first };
+    return { boxes: found, segment: first, points };
   }
 
   /** The boxes not yet `found` (nor skipped) that segment prev–p meets, by id. */
@@ -747,6 +810,23 @@ export class ArrowRouter {
       }
     }
   }
+}
+
+/** Whether a candidate tried for `state` meets `rect`: only then can a box there change its route. */
+function meets(state: BundleState, envelope: Rect, rect: Rect): boolean {
+  if (!overlaps(envelope, rect)) {
+    return false;
+  }
+  for (const path of state.paths) {
+    for (let i = 2; i + 1 < path.length; i += 2) {
+      const px = path[i - 2] as number;
+      const py = path[i - 1] as number;
+      if (segmentHits(px, py, path[i] as number, path[i + 1] as number, rect.l, rect.t, rect.r, rect.b)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /** Closed-interval overlap: a curve touching a box's inflated edge still counts. */

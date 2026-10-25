@@ -7,6 +7,7 @@
  * cards and text. Deterministic (seeded) so runs compare.
  */
 
+import type { ArrowBox, NavigateEdge } from "../src/arrows.ts";
 import type { ItemSpec, LinkSpec, Point } from "../src/protocol.ts";
 
 const BOX_W = 160;
@@ -159,4 +160,35 @@ export function sceneB(): ItemSpec[] {
     });
   }
   return items;
+}
+
+/**
+ * Scene C (STU-045, S3.2): the 200 boxes of scene A as plugins of five screens
+ * each, and its 1,000 links as navigate actions between screens, so they are
+ * derived, bundled and routed by the arrow router instead of drawn directly.
+ */
+export function sceneC(): {
+  boxes: ArrowBox[];
+  edges: NavigateEdge[];
+  pluginOf: Map<string, string>;
+  items: ItemSpec[];
+} {
+  const a = sceneA();
+  const boxes: ArrowBox[] = [];
+  const pluginOf = new Map<string, string>();
+  for (let i = 0; i < 200; i++) {
+    const { x, y } = boxPosition(i);
+    boxes.push({ id: `box-${i}`, x, y, w: BOX_W, h: BOX_H });
+    for (let k = 0; k < 5; k++) {
+      pluginOf.set(`screen-${i}-${k}`, `box-${i}`);
+    }
+  }
+  const edges = a.links.map((l, i) => ({
+    id: `nav-${i}`,
+    source: `screen-${l.a}-${i % 5}`,
+    target: `screen-${l.b}-${(i * 3) % 5}`,
+    trigger: `Button ${i} · onTap`,
+    title: `Button ${i} → Screen ${l.b}`,
+  }));
+  return { boxes, edges, pluginOf, items: a.items.filter((item) => item.kind !== "link") };
 }
