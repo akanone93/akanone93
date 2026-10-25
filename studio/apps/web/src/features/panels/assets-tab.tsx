@@ -71,7 +71,10 @@ export function AssetsTab({
       await refresh();
     } catch (err) {
       const failure = uploadFailure(err);
-      if (failure === "notFound" || failure === "hashMismatch" || failure === "sizeMismatch") p.state.current = null;
+      // These failures end the server's upload session: a resume must begin afresh.
+      if (failure === "notFound" || failure === "hashMismatch" || failure === "sizeMismatch") {
+        p.state.current = null;
+      }
       patch(p.key, { failed: true, failure });
     }
   };
