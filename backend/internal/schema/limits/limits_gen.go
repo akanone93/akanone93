@@ -241,6 +241,10 @@ const (
 	// DevSessionDevicesPerSession: Devices that may be paired to one dev session
 	// at the same time. (DEV-002)
 	DevSessionDevicesPerSession Key = "devSession.devicesPerSession"
+	// DevSessionDraftCompileWorkers: Studio draft compiles one replica runs at
+	// the same time; writes to the same plugin that arrive meanwhile coalesce
+	// into one further compile. (STU-130)
+	DevSessionDraftCompileWorkers Key = "devSession.draftCompileWorkers"
 	// DevSessionIdleMinutes: Minutes without any device event or command after
 	// which the server ends a dev session. (DEV-001)
 	DevSessionIdleMinutes Key = "devSession.idleMinutes"
@@ -676,6 +680,7 @@ var registry = [...]Definition{
 	{Key: DBRecordBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes one record of a local collection may take, encoded as JSON."},
 	{Key: DevSessionCommandsPerMinute, Unit: UnitCount, Default: 120, Warning: 0, Max: 1200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Commands one dev session may send to its devices per minute."},
 	{Key: DevSessionDevicesPerSession, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Devices that may be paired to one dev session at the same time."},
+	{Key: DevSessionDraftCompileWorkers, Unit: UnitCount, Default: 4, Warning: 0, Max: 64, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile."},
 	{Key: DevSessionIdleMinutes, Unit: UnitCount, Default: 30, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Minutes without any device event or command after which the server ends a dev session."},
 	{Key: DevSessionLifetimeMinutes, Unit: UnitCount, Default: 480, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a dev session, in minutes, from its creation."},
 	{Key: DevSessionPairingCodeAttempts, Unit: UnitCount, Default: 5, Warning: 0, Max: 5, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes."},

@@ -804,6 +804,16 @@ export const limits = [
     description: "Devices that may be paired to one dev session at the same time.",
   },
   {
+    key: "devSession.draftCompileWorkers",
+    unit: "count",
+    default: 4,
+    warning: 0,
+    max: 64,
+    scopes: ["installation"],
+    phase: "P11",
+    description: "Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile.",
+  },
+  {
     key: "devSession.idleMinutes",
     unit: "count",
     default: 30,
