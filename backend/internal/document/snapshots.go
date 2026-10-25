@@ -353,7 +353,7 @@ func (*Service) snapshotOf(ctx context.Context, q *dbgen.Queries, row dbgen.Snap
 	}
 	return Snapshot{
 		ID: storage.ID(row.ID), AppID: d.app, PluginID: d.pluginID(), Sequence: row.Sequence,
-		Revision: row.Revision, Reason: row.Reason, Paths: paths, Kept: row.Keep,
+		Revision: row.Revision, Reason: row.Reason, Paths: paths, Kept: row.Keep, EditorSession: row.EditorSessionID,
 		Actor:     audit.Actor{Kind: row.ActorKind, ID: row.ActorID, Display: row.ActorDisplay},
 		CreatedAt: storage.Time(row.CreatedAt),
 	}, nil
