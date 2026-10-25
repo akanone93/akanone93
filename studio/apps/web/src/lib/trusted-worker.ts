@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * The one Trusted Types policy of Studio (`plux-canvas-worker`, allowed by the
- * BFF's CSP). Studio requires Trusted Types for scripts, so a worker can only
- * start from a `TrustedScriptURL`; this policy approves the canvas and validator workers'
- * own hashed build assets on this origin and refuses every other address.
+ * The one Trusted Types policy of Studio (`plux-worker`, allowed by the BFF's
+ * CSP). Studio requires Trusted Types for scripts, so a worker can only start
+ * from a `TrustedScriptURL`; each use of this policy approves exactly one of
+ * Studio's own workers — the canvas or the validator — at its hashed build
+ * asset on this origin, and refuses every other address.
  */
-export const CANVAS_WORKER_POLICY = "plux-canvas-worker";
+export const WORKER_POLICY = "plux-worker";
 
 /** The built canvas worker: `/assets/canvas-worker-<hash>.js`. */
 const BUILT_WORKER = /^\/assets\/canvas-worker-[A-Za-z0-9_-]+\.js$/;
@@ -65,7 +66,7 @@ function workerScriptURL(url: string, scope: Scope, accept: (url: string, origin
   if (scope.trustedTypes === undefined) {
     return check(url);
   }
-  const policy = scope.trustedTypes.createPolicy(CANVAS_WORKER_POLICY, { createScriptURL: check });
+  const policy = scope.trustedTypes.createPolicy(WORKER_POLICY, { createScriptURL: check });
   // A TrustedScriptURL is accepted wherever the Worker constructor takes a URL.
   return policy.createScriptURL(url) as string;
 }

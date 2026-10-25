@@ -158,7 +158,7 @@ describe("SEC-101 STU-002 security headers", () => {
       "base-uri 'none'",
       "frame-ancestors 'none'",
       "require-trusted-types-for 'script'",
-      "trusted-types plux-canvas-worker 'allow-duplicates'",
+      "trusted-types plux-worker 'allow-duplicates'",
       "connect-src 'self'",
     ]) {
       expect(csp1).toContain(d);
