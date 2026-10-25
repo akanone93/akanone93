@@ -112,7 +112,7 @@ function stebPadding(kind: ButtonOptions["kind"], hasIcon: boolean, scale: numbe
       return [8, 8, 8, 8];
     case "text":
       return hasIcon
-        ? scaledPadding([12, 8, 16, 8], [8, 0, 8, 0], [4, 0, 4, 0], scale)
+        ? scaledPadding([12, 8, 16, 8], [4, 0, 4, 0], [4, 0, 4, 0], scale)
         : scaledPadding([12, 8, 12, 8], [8, 0, 8, 0], [4, 0, 4, 0], scale);
     default:
       return hasIcon

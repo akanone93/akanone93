@@ -424,7 +424,7 @@ bool _usesMaterial(Map<String, Object?> node) =>
 
 /// Material 3 in the `NotoSans` the goldens load, with the English strings
 /// `Localizations` needs, a transparent `Material` for ink, and no animation.
-Widget _materialScope(Widget child) => Localizations(
+Widget _materialScope(Widget child, TextDirection direction) => Localizations(
   locale: const Locale('en'),
   delegates: const <LocalizationsDelegate<dynamic>>[
     DefaultMaterialLocalizations.delegate,
@@ -432,7 +432,10 @@ Widget _materialScope(Widget child) => Localizations(
   ],
   child: Theme(
     data: ThemeData(useMaterial3: true, fontFamily: 'NotoSans'),
-    child: Material(type: MaterialType.transparency, child: child),
+    child: Directionality(
+      textDirection: direction,
+      child: Material(type: MaterialType.transparency, child: child),
+    ),
   ),
 );
 
@@ -952,7 +955,7 @@ void main() {
               ),
               child: Directionality(
                 textDirection: direction.textDirection,
-                child: useMaterial ? _materialScope(_build(root, phase, sceneT ?? 1)) : _build(root, phase, sceneT ?? 1),
+                child: useMaterial ? _materialScope(_build(root, phase, sceneT ?? 1), direction.textDirection) : _build(root, phase, sceneT ?? 1),
               ),
             );
             if (sceneT == null) {
