@@ -372,34 +372,54 @@ func CheckMetadata(m Metadata) (MetadataArgs, error) {
 		a.SetIcon, a.Icon = true, *m.IconAssetID
 	}
 	if m.OwningTeamID != nil {
-		a.SetTeam = true
-		if *m.OwningTeamID != "" {
-			id, err := storage.UUID(*m.OwningTeamID)
-			if err != nil {
-				return a, plxerr.New(plxerr.InvalidFormat, "the owning team is not a valid identifier")
-			}
-			a.Team = id
+		team, err := parseTeam(*m.OwningTeamID)
+		if err != nil {
+			return a, err
 		}
+		a.SetTeam, a.Team = true, team
 	}
 	if m.SetTags {
-		if len(m.Tags) > maxTags {
-			return a, plxerr.New(plxerr.LimitExceeded, "an item has at most %d tags", maxTags)
+		tags, err := checkTags(m.Tags)
+		if err != nil {
+			return a, err
 		}
-		seen := map[string]bool{}
-		for _, t := range m.Tags {
-			if t == "" || len(t) > 40 || strings.ContainsAny(t, " \t\n") {
-				return a, plxerr.New(plxerr.InvalidFormat, "a tag is 1 to 40 characters without spaces")
-			}
-			if !seen[t] {
-				seen[t] = true
-				a.Tags = append(a.Tags, t)
-			}
-		}
+		a.Tags = tags
 	}
 	if m.Archived != nil {
 		a.SetArchived, a.Archived = true, *m.Archived
 	}
 	return a, nil
+}
+
+// parseTeam reads an owning team; empty clears the owner.
+func parseTeam(id string) (pgtype.UUID, error) {
+	if id == "" {
+		return pgtype.UUID{}, nil
+	}
+	team, err := storage.UUID(id)
+	if err != nil {
+		return pgtype.UUID{}, plxerr.New(plxerr.InvalidFormat, "the owning team is not a valid identifier")
+	}
+	return team, nil
+}
+
+// checkTags validates tags and drops duplicates, keeping the first order.
+func checkTags(in []string) ([]string, error) {
+	if len(in) > maxTags {
+		return nil, plxerr.New(plxerr.LimitExceeded, "an item has at most %d tags", maxTags)
+	}
+	out := []string{}
+	seen := map[string]bool{}
+	for _, t := range in {
+		if t == "" || len(t) > 40 || strings.ContainsAny(t, " \t\n") {
+			return nil, plxerr.New(plxerr.InvalidFormat, "a tag is 1 to 40 characters without spaces")
+		}
+		if !seen[t] {
+			seen[t] = true
+			out = append(out, t)
+		}
+	}
+	return out, nil
 }
 
 const (
