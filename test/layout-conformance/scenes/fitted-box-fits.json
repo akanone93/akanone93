@@ -1,0 +1,241 @@
+{
+  "name": "fitted-box-fits",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s_fill",
+            "type": "SizedBox",
+            "props": {
+              "width": 100,
+              "height": 50
+            },
+            "children": [
+              {
+                "id": "fb_fill",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "fill",
+                  "alignment": [
+                    -1,
+                    -0.5
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "c_fill",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 30
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s_contain",
+            "type": "SizedBox",
+            "props": {
+              "width": 100,
+              "height": 50
+            },
+            "children": [
+              {
+                "id": "fb_contain",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "contain",
+                  "alignment": [
+                    -1,
+                    -0.5
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "c_contain",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 80
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s_cover",
+            "type": "SizedBox",
+            "props": {
+              "width": 100,
+              "height": 50
+            },
+            "children": [
+              {
+                "id": "fb_cover",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "cover",
+                  "alignment": [
+                    -1,
+                    -0.5
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "c_cover",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 80
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s_fitWidth",
+            "type": "SizedBox",
+            "props": {
+              "width": 100,
+              "height": 50
+            },
+            "children": [
+              {
+                "id": "fb_fitWidth",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "fitWidth",
+                  "alignment": [
+                    -1,
+                    -0.5
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "c_fitWidth",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 80
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s_fitHeight",
+            "type": "SizedBox",
+            "props": {
+              "width": 100,
+              "height": 50
+            },
+            "children": [
+              {
+                "id": "fb_fitHeight",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "fitHeight",
+                  "alignment": [
+                    -1,
+                    -0.5
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "c_fitHeight",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 80
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s_none",
+            "type": "SizedBox",
+            "props": {
+              "width": 100,
+              "height": 50
+            },
+            "children": [
+              {
+                "id": "fb_none",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "none",
+                  "alignment": [
+                    -1,
+                    -0.5
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "c_none",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 80
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s_scaleDown",
+            "type": "SizedBox",
+            "props": {
+              "width": 100,
+              "height": 50
+            },
+            "children": [
+              {
+                "id": "fb_scaleDown",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "scaleDown",
+                  "alignment": [
+                    -1,
+                    -0.5
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "c_scaleDown",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 80
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

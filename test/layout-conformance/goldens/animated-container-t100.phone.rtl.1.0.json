@@ -1,0 +1,31 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "animated-container-t100",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "ar",
+  "textScale": 1.0,
+  "rects": {
+    "ac": [
+      136.0,
+      0.0,
+      224.0,
+      174.0
+    ],
+    "c": [
+      294.0,
+      98.0,
+      40.0,
+      40.0
+    ],
+    "root": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ]
+  }
+}

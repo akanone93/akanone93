@@ -1,0 +1,103 @@
+{
+  "name": "baseline",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "b1",
+            "type": "Baseline",
+            "props": {
+              "baseline": 50
+            },
+            "children": [
+              {
+                "id": "t1",
+                "type": "Text",
+                "props": {
+                  "text": "Plux",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 20
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "b2",
+            "type": "Baseline",
+            "props": {
+              "baseline": 10
+            },
+            "children": [
+              {
+                "id": "t2",
+                "type": "Text",
+                "props": {
+                  "text": "Hg",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 28
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "b3",
+            "type": "Baseline",
+            "props": {
+              "baseline": 30,
+              "baselineType": "ideographic"
+            },
+            "children": [
+              {
+                "id": "t3",
+                "type": "Text",
+                "props": {
+                  "text": "Plux",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "b4",
+            "type": "Baseline",
+            "props": {
+              "baseline": 25
+            },
+            "children": [
+              {
+                "id": "t4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 20
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

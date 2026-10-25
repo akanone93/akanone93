@@ -1,0 +1,89 @@
+{
+  "name": "table-baseline-default",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "tbl",
+        "type": "Table",
+        "props": {
+          "columns": 3,
+          "defaultVerticalAlignment": "baseline",
+          "textBaseline": "alphabetic"
+        },
+        "children": [
+          {
+            "id": "t0",
+            "type": "Text",
+            "props": {
+              "text": "small",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 12
+              }
+            }
+          },
+          {
+            "id": "t1",
+            "type": "Text",
+            "props": {
+              "text": "Big",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 32
+              }
+            }
+          },
+          {
+            "id": "t2",
+            "type": "Text",
+            "props": {
+              "text": "medium",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 20
+              }
+            }
+          },
+          {
+            "id": "t3",
+            "type": "Text",
+            "props": {
+              "text": "a",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 20
+              }
+            }
+          },
+          {
+            "id": "t4",
+            "type": "Text",
+            "props": {
+              "text": "b",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 10
+              }
+            }
+          },
+          {
+            "id": "t5",
+            "type": "TestBox",
+            "props": {
+              "width": 20,
+              "height": 30
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

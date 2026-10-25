@@ -1,0 +1,116 @@
+{
+  "name": "transform",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "tr1",
+            "type": "Transform",
+            "props": {
+              "translate": [
+                20,
+                10
+              ],
+              "scale": 2,
+              "alignment": [
+                0,
+                0
+              ]
+            },
+            "children": [
+              {
+                "id": "c1",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 30
+                }
+              }
+            ]
+          },
+          {
+            "id": "tr2",
+            "type": "Transform",
+            "props": {
+              "rotate": 1.5707963267948966,
+              "alignment": [
+                -1,
+                -1
+              ]
+            },
+            "children": [
+              {
+                "id": "c2",
+                "type": "TestBox",
+                "props": {
+                  "width": 50,
+                  "height": 20
+                }
+              }
+            ]
+          },
+          {
+            "id": "tr3",
+            "type": "Transform",
+            "props": {
+              "scale": [
+                0.5,
+                1.5
+              ],
+              "translate": [
+                5,
+                5
+              ]
+            },
+            "children": [
+              {
+                "id": "c3",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 40
+                }
+              }
+            ]
+          },
+          {
+            "id": "tr4",
+            "type": "Transform",
+            "props": {
+              "rotate": 0.5,
+              "alignment": {
+                "start": 1,
+                "y": 1
+              }
+            },
+            "children": [
+              {
+                "id": "c4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

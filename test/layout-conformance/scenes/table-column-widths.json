@@ -1,0 +1,286 @@
+{
+  "name": "table-column-widths",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "tbl",
+        "type": "Table",
+        "props": {
+          "columns": 4,
+          "columnWidths": {
+            "0": {
+              "type": "fixed",
+              "value": 50
+            },
+            "1": {
+              "type": "fraction",
+              "value": 0.25
+            },
+            "2": {
+              "type": "intrinsic"
+            }
+          }
+        },
+        "children": [
+          {
+            "id": "c00",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c00",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "c01",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c01",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "c02",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "x02",
+                "type": "Text",
+                "props": {
+                  "text": "word",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "c03",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c03",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 10
+                }
+              }
+            ]
+          },
+          {
+            "id": "c10",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c10",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 15
+                }
+              }
+            ]
+          },
+          {
+            "id": "c11",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c11",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 15
+                }
+              }
+            ]
+          },
+          {
+            "id": "c12",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "x12",
+                "type": "Text",
+                "props": {
+                  "text": "wordword",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "c13",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c13",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 15
+                }
+              }
+            ]
+          },
+          {
+            "id": "c20",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c20",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 20
+                }
+              }
+            ]
+          },
+          {
+            "id": "c21",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c21",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 20
+                }
+              }
+            ]
+          },
+          {
+            "id": "c22",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "x22",
+                "type": "Text",
+                "props": {
+                  "text": "wordwordword",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "c23",
+            "type": "Align",
+            "props": {
+              "alignment": {
+                "start": -1,
+                "y": -1
+              }
+            },
+            "children": [
+              {
+                "id": "b_c23",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 20
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

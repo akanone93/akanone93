@@ -8,6 +8,7 @@
  */
 
 import { Offset } from "./flutter/geometry.ts";
+import { Affine, isPaintTransformer } from "./flutter/matrix.ts";
 import type { RenderObject } from "./flutter/object.ts";
 import { RenderParagraph } from "./flutter/paragraph.ts";
 import { RenderBox, TextBaseline } from "./flutter/render-box.ts";
@@ -40,29 +41,36 @@ export interface LayoutGolden {
 
 /**
  * Walks the tree from `root` and returns the global rect of every laid-out
- * box with a [RenderObject.debugId]. A box's position is the sum of the
- * [BoxParentData] offsets from `root` down to it. Throws if two boxes share
+ * box with a [RenderObject.debugId]. A box's position is its corners carried
+ * through the [BoxParentData] offsets and paint transforms from `root` down to it. Throws if two boxes share
  * an ID, since a golden could not tell them apart.
  */
 export function globalRects(root: RenderObject): Map<string, NodeRect> {
   const rects = new Map<string, NodeRect>();
-  const visit = (node: RenderObject, origin: Offset): void => {
+  const visit = (node: RenderObject, toGlobal: Affine): void => {
     if (node.debugId !== null && node instanceof RenderBox && node.hasSize) {
       if (rects.has(node.debugId)) {
         throw new Error(`duplicate debugId "${node.debugId}" in the render tree`);
       }
+      // Like WidgetTester.getRect: the box's top-left and bottom-right corners, transformed.
+      const topLeft = toGlobal.apply(Offset.zero);
+      const bottomRight = toGlobal.apply(new Offset(node.size.width, node.size.height));
       rects.set(node.debugId, {
-        x: origin.dx,
-        y: origin.dy,
-        w: node.size.width,
-        h: node.size.height,
+        x: Math.min(topLeft.dx, bottomRight.dx),
+        y: Math.min(topLeft.dy, bottomRight.dy),
+        w: Math.abs(bottomRight.dx - topLeft.dx),
+        h: Math.abs(bottomRight.dy - topLeft.dy),
       });
     }
     node.visitChildren((child) => {
-      visit(child, origin.plus(RenderBox.offsetOf(child)));
+      // A paint transform replaces the child's offset (RenderObject.applyPaintTransform).
+      const local = isPaintTransformer(node)
+        ? node.paintTransformOf(child)
+        : Affine.translation(RenderBox.offsetOf(child).dx, RenderBox.offsetOf(child).dy);
+      visit(child, toGlobal.multiply(local));
     });
   };
-  visit(root, Offset.zero);
+  visit(root, Affine.identity);
   return rects;
 }
 
