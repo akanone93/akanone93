@@ -7,9 +7,9 @@
 
 import { type BrowserScope, browserWorkerDeps } from "@plux/canvas";
 import { serveCanvasWorker, type WorkerScopeLike } from "@plux/canvas/worker";
-import type { CanvasKit, CanvasKitInitOptions } from "canvaskit-wasm";
 
-type CanvasKitInit = (options: CanvasKitInitOptions) => Promise<CanvasKit>;
+type CanvasKitLoader = Parameters<typeof browserWorkerDeps>[1];
+type CanvasKitInit = (options: { locateFile(file: string): string }) => ReturnType<CanvasKitLoader>;
 
 const scriptUrl = new URL("./canvaskit/canvaskit.js", import.meta.url).href;
 const wasmUrl = new URL("./canvaskit/canvaskit.wasm", import.meta.url).href;

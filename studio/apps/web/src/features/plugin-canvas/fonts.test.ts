@@ -23,7 +23,11 @@ describe("STU-006 canvas fonts", () => {
 
   for (const [name, sha] of pinned) {
     test(`${name} matches its pinned SHA-256`, () => {
-      expect(createHash("sha256").update(readFileSync(new URL(name, dir))).digest("hex")).toBe(sha);
+      expect(
+        createHash("sha256")
+          .update(readFileSync(new URL(name, dir)))
+          .digest("hex"),
+      ).toBe(sha);
     });
   }
 });
