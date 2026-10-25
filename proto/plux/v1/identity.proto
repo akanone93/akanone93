@@ -157,6 +157,11 @@ message GetCurrentUserResponse {
   // permissions are those the caller holds in the organisation named by
   // the X-Plux-Organization header, when there is one (SEC-102).
   repeated string permissions = 3;
+  // csrf_token is the session's CSRF token, which Studio holds in memory
+  // and echoes in X-CSRF-Token (SEC-101). Empty for a bearer-token caller.
+  string csrf_token = 4;
+  // installation_admin is true when the caller administers the installation.
+  bool installation_admin = 5;
 }
 
 message AcceptInvitationRequest {

@@ -48,7 +48,7 @@ func (h *Handlers) Identity() Identity { return Identity{h: h} }
 // GetCurrentUser returns the caller, their memberships and, when the
 // call names an organisation, their permissions in it.
 func (s Identity) GetCurrentUser(ctx context.Context, req *connect.Request[pluxv1.GetCurrentUserRequest]) (*connect.Response[pluxv1.GetCurrentUserResponse], error) {
-	return read(ctx, func(ctx context.Context) (*pluxv1.GetCurrentUserResponse, error) {
+	res, err := read(ctx, func(ctx context.Context) (*pluxv1.GetCurrentUserResponse, error) {
 		id, err := identity(ctx)
 		if err != nil {
 			return nil, err
@@ -57,7 +57,7 @@ func (s Identity) GetCurrentUser(ctx context.Context, req *connect.Request[pluxv
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		out := &pluxv1.GetCurrentUserResponse{User: userProto(user)}
+		out := &pluxv1.GetCurrentUserResponse{User: userProto(user), CsrfToken: id.CSRFToken, InstallationAdmin: id.InstallationAdmin}
 		for _, m := range memberships {
 			out.Memberships = append(out.Memberships, &pluxv1.Member{
 				UserId: storage.ID(m.UserID), OrganizationId: storage.ID(m.OrganizationID),
@@ -73,6 +73,11 @@ func (s Identity) GetCurrentUser(ctx context.Context, req *connect.Request[pluxv
 		}
 		return out, nil
 	})
+	if err != nil {
+		return nil, err
+	}
+	res.Header().Set("Cache-Control", "no-store")
+	return res, nil
 }
 
 // AcceptInvitation sets the password of an invited account.

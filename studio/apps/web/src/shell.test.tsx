@@ -54,8 +54,16 @@ describe("STU-013 guards", () => {
     expect(explained).toEqual([{ permission: "installation.admin" }]);
   });
 
+  test("a reload fetches the CSRF token from GetCurrentUser (SEC-101, STU-002)", async () => {
+    const session = createSession("/api", createUpstream({ csrfToken: "plux_csrf_fresh" }));
+    const held: (string | undefined)[] = [];
+    const user = await requireUser({ ...session, setCsrfToken: (t) => held.push(t) }, "/");
+    expect(user.csrfToken).toBe("plux_csrf_fresh");
+    expect(held).toEqual(["plux_csrf_fresh"]);
+  });
+
   test("an installation administrator passes the installation guard", async () => {
-    const user = await requireUser(createSession("/api", createUpstream({ permissions: ["installation.admin"] })), "/");
+    const user = await requireUser(createSession("/api", createUpstream({ installationAdmin: true })), "/");
     expect(() => requireInstallationAdmin(user)).not.toThrow();
   });
 
