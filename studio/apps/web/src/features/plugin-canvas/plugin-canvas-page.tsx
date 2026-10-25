@@ -16,6 +16,7 @@ import { catalogue } from "../panels/catalogue.ts";
 import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
+import { RightDock } from "../panels/right-dock.tsx";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -437,6 +438,16 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         canvas={() => canvasRef.current}
       />
       <ProblemsDrawer validation={validation} />
+      <RightDock
+        screens={screens}
+        index={index}
+        screenOf={screenOf}
+        edit={edit}
+        pathOf={pathOf}
+        problems={validation.state === "done" ? validation.problems : []}
+        documents={docs.data}
+        validatePage={validation.state === "done" ? validation.validatePage : undefined}
+      />
       {docs.data !== undefined && (
         <ScreensController
           appId={params.app ?? ""}

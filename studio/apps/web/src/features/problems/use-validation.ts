@@ -9,7 +9,12 @@ import type { ValidatorFactory } from "./validator-client.ts";
 export type Validation =
   | { readonly state: "idle" }
   | { readonly state: "running" }
-  | { readonly state: "done"; readonly problems: readonly Problem[] }
+  | {
+      readonly state: "done";
+      readonly problems: readonly Problem[];
+      /** Validates one page of the loaded project with an edit applied (F9); the Properties panel uses it. */
+      readonly validatePage: (file: string, data: string) => Promise<readonly Problem[]>;
+    }
   | { readonly state: "failed" };
 
 type Documents = Parameters<typeof projectFiles>[0];
@@ -42,7 +47,15 @@ export function useValidation(
     let live = true;
     validator
       .load(projectFiles(wholeProject(app, plugin)))
-      .then((problems) => live && setResult({ state: "done", problems: inFiles(problems, plugin) }))
+      .then(
+        (problems) =>
+          live &&
+          setResult({
+            state: "done",
+            problems: inFiles(problems, plugin),
+            validatePage: (file, data) => validator.validatePage(file, data),
+          }),
+      )
       .catch(() => live && setResult({ state: "failed" }));
     return () => {
       live = false;
