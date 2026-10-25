@@ -220,7 +220,10 @@ type Snapshot struct {
 	Paths     []string
 	Actor     audit.Actor
 	Kept      bool
-	CreatedAt time.Time
+	// EditorSession is the Studio editor session of the write that made
+	// the snapshot; empty for writes outside Studio (STU-069).
+	EditorSession string
+	CreatedAt     time.Time
 }
 
 // Written is the outcome of an accepted write.
@@ -239,6 +242,9 @@ type draft struct {
 	// tx is the transaction of a write, set once the draft is locked, for the
 	// checks that ask the approval engine inside it (waivers).
 	tx pgx.Tx
+	// editorSession tags the snapshot of a write with the Studio editor
+	// session that made it (STU-069); empty otherwise.
+	editorSession string
 }
 
 // pluginID is the draft's plugin, or "".
