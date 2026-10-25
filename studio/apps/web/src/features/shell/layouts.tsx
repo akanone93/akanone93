@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { Outlet } from "@tanstack/react-router";
+import { CommandsProvider, createRegistry } from "../../lib/commands/index.ts";
 
 /** Public pages (sign-in family): no shell, no organisation (R1). */
 export function PublicLayout() {
@@ -12,12 +13,19 @@ export function PublicLayout() {
   );
 }
 
-/** Canvas layout: an empty shell until the first canvas page lands (L-7). */
+const NO_COMMANDS = { registry: createRegistry([]), states: [] };
+
+/**
+ * Canvas layout: an empty shell until the first canvas page lands (L-7). It carries a command
+ * scope with no shell commands of its own, so pages register theirs (undo and redo, F3).
+ */
 export function CanvasLayout() {
   return (
-    <main className="h-screen w-screen">
-      <Outlet />
-    </main>
+    <CommandsProvider value={NO_COMMANDS}>
+      <main className="h-screen w-screen">
+        <Outlet />
+      </main>
+    </CommandsProvider>
   );
 }
 
