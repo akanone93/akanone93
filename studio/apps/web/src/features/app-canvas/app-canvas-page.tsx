@@ -503,6 +503,47 @@ function initialName(kind: NonNullable<Dialogue>["kind"], current: string): stri
   return kind === "duplicate" ? `${current} 2` : "";
 }
 
+interface Fields {
+  readonly name: string;
+  readonly description: string;
+  readonly tags: string[];
+}
+
+const splitTags = (text: string): string[] =>
+  text
+    .split(",")
+    .map((t) => t.trim())
+    .filter((t) => t !== "");
+
+function dialogTitle(kind: NonNullable<Dialogue>["kind"], m: ReturnType<typeof appCanvasMessages>): string {
+  const titles = { new: m.newPlugin, settings: m.settings, duplicate: m.duplicate, entry: m.setEntry, frame: m.newFrame };
+  return titles[kind];
+}
+
+/** Runs the dialog's action; an empty name does nothing, as the entry dialog has no name. */
+function submitDialogue(
+  kind: NonNullable<Dialogue>["kind"],
+  f: Fields,
+  p: PluginSummary["plugin"],
+  on: DialogsProps,
+): void {
+  if (kind === "entry") {
+    if (p !== undefined) {
+      on.onEntry(p.key);
+    }
+  } else if (f.name === "") {
+    return;
+  } else if (kind === "new") {
+    on.onCreate(f.name, pluginKeyFrom(f.name, on.taken));
+  } else if (kind === "frame") {
+    on.onFrame(f.name);
+  } else if (p !== undefined && kind === "settings") {
+    on.onSettings(p.id, f.name, f.description, f.tags);
+  } else if (p !== undefined) {
+    on.onDuplicate(p.id, f.name, pluginKeyFrom(f.name, on.taken));
+  }
+}
+
 /** D16 new plugin, D17 settings, D18 duplicate, D25 entry plugin, and the frame label (D20). */
 export function PluginDialogs(props: DialogsProps): ReactNode {
   const { dialogue, messages: m, summary: s } = props;
@@ -521,43 +562,9 @@ export function PluginDialogs(props: DialogsProps): ReactNode {
   if (dialogue === null) {
     return null;
   }
-  const title =
-    dialogue.kind === "new"
-      ? m.newPlugin
-      : dialogue.kind === "settings"
-        ? m.settings
-        : dialogue.kind === "duplicate"
-          ? m.duplicate
-          : dialogue.kind === "entry"
-            ? m.setEntry
-            : m.newFrame;
-  const submit = () => {
-    const text = name.trim();
-    const p = s?.plugin;
-    if (dialogue.kind === "entry") {
-      if (p !== undefined) {
-        props.onEntry(p.key);
-      }
-    } else if (text === "") {
-      return;
-    } else if (dialogue.kind === "new") {
-      props.onCreate(text, pluginKeyFrom(text, props.taken));
-    } else if (dialogue.kind === "frame") {
-      props.onFrame(text);
-    } else if (p !== undefined && dialogue.kind === "settings") {
-      props.onSettings(
-        p.id,
-        text,
-        description,
-        tags
-          .split(",")
-          .map((t) => t.trim())
-          .filter((t) => t !== ""),
-      );
-    } else if (p !== undefined) {
-      props.onDuplicate(p.id, text, pluginKeyFrom(text, props.taken));
-    }
-  };
+  const submit = () =>
+    submitDialogue(dialogue.kind, { name: name.trim(), description, tags: splitTags(tags) }, s?.plugin, props);
+  const title = dialogTitle(dialogue.kind, m);
   return (
     <Dialog
       open
