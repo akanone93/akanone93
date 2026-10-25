@@ -119,6 +119,58 @@ CPU-backed 2D context (`willReadFrequently`; an accelerated one put the copies b
 and brought back single 670–1,130 ms gaps in Scene B in four of seven runs). The transparent drag
 layer keeps `MakeSWCanvasSurface`.
 
+## Bundled arrows while dragging (STU-045, S3.2)
+
+Requirement: STU-045 (all connected bundles re-route and re-select their sides live at 60 fps, for
+200 boxes and 1,000 links), with ADR-0013 M-12/M-13 (no GPU).
+
+### Method
+
+- Harness: `make studio-bench-canvas`, scene C (`sceneC` in `bench/scenes.ts`): the 200 boxes of
+  scene A as plugins of five screens each, and its 1,000 seeded links as navigate actions between
+  screens. They are derived and bundled (`deriveAppBundles`), routed (`ArrowRouter`) and drawn as
+  scene items (`ArrowCanvas`) — 988 bundles, 3,486 items — at 60 % zoom, same browser and flags as
+  above.
+- Pan: as for scenes A and B (rAF to rAF on the page). Drag: box 105 swept 2 × 1 world units per
+  animation frame, 30 warm-up and 300 measured frames, timed rAF to rAF; every frame calls
+  `ArrowCanvas.moveBox` on the main thread (re-select sides with hysteresis, re-spread anchors,
+  re-route with obstacle avoidance, build the patches) and sends the patch. `beginDrag` lifts the
+  dragged box's arrows into the interaction layer; the tile re-render this causes is waited out
+  before measuring and reported as drag start. `endDrag` re-routes what the drag held back.
+- Three runs; the table gives the median and the spread.
+
+### Results (median of 3 runs, spread in brackets, software rendering, SwiftShader)
+
+| Metric | Result | Target | Met |
+|---|---|---|---|
+| Pan p95 / longest gap | 16.67 (16.67–16.67) / 16.67 (16.67–50.01) ms | 16.7 / 50 ms | yes |
+| Re-route per drag frame, p95 / max | 1.27 (0.98–1.93) / 6.96 (6.63–11.89) ms | fits a 16.7 ms frame | yes |
+| Main-thread work per drag frame (route + patch), p95 | 5.31 (4.81–5.35) ms | — | — |
+| Worker frame while dragging, p95 | 5.73 (5.56–7.02) ms | 16.7 ms | yes |
+| Drag, rAF interval p95 | 50.00 (33.33–66.66) ms | 16.7 ms | **no** |
+| Drag, longest gap | 133.33 (99.99–149.99) ms | 50 ms | **no** |
+| Drag, dropped frames of 300 | 40 (37–74) | — | — |
+| Drag start (tiles under the lifted arrows) | 1,003 (986–1,102) ms | — | — |
+| Re-route at drop (`endDrag`) | 19.79 (17.50–25.67) ms | — | — |
+| First route of all 988 bundles | 143 (82–150) ms | — | — |
+
+Routing fits the frame with room to spare: a drag re-routes only the dragged box's bundles
+(23 patches per frame on average), and a move outside a drag only the bundles whose tried
+candidates meet the box's old or new place, so the result always equals a full re-route
+(`arrows.test.ts`). The worker draws each drag frame in under 6 ms (p95) and does no base render.
+
+The 60 fps cadence while dragging is **not met** in this environment: frames are delivered at a
+p95 interval of 50 ms although neither the main thread (5.3 ms) nor the worker (5.7 ms) is busy for
+long. The dragged box's 10 bundles in this seeded scene are random links across the whole canvas,
+so the interaction layer covers the full viewport; presenting it every frame through SwiftShader
+is the remaining suspect, not routing. Scene A's drag figure is a worker frame time, not a rAF
+interval, so it does not show this. Follow-up: measure scene A's drag rAF-paced, and limit the
+interaction layer to the visible part of the lifted arrows.
+
+Only 47 of the 988 bundles route clear of every box: random links cross a grid of 200 boxes, and
+the router detours around at most two boxes (STU-043 makes avoidance a SHOULD); links between
+nearby boxes, the common case in an app, route clear (`arrows.test.ts`).
+
 ## Property change to canvas frame (STU-121, NFR-032)
 
 Requirement: a property change reaches the canvas frame in 50 ms at p95.

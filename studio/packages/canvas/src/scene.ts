@@ -210,6 +210,8 @@ export class Scene {
   private seq = 0;
   private readonly dirty: Rect[] = [];
   private readonly removed: string[] = [];
+  /** Ids marked live, kept so an item added mid-drag (a re-routed arrow's new piece) is live too. */
+  private readonly liveIds = new Set<string>();
 
   /** Applies patches in order. */
   apply(ops: readonly SceneOp[]): void {
@@ -262,7 +264,7 @@ export class Scene {
       spec,
       bounds: { l: 0, t: 0, r: 0, b: 0 },
       seq: this.seq++,
-      live: false,
+      live: this.liveIds.has(spec.id),
       fillKey: null,
       strokeKey: null,
     };
@@ -341,6 +343,11 @@ export class Scene {
   /** Marks items live (dragged) or static; both transitions dirty the item's bounds. */
   setLive(ids: readonly string[], live: boolean): void {
     for (const id of ids) {
+      if (live) {
+        this.liveIds.add(id);
+      } else {
+        this.liveIds.delete(id);
+      }
       const item = this.byId.get(id);
       if (item && item.live !== live) {
         item.live = false;
