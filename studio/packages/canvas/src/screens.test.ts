@@ -113,14 +113,27 @@ describe("ADR-0013 screens laid out in the canvas worker (STU-005, STU-056)", ()
       width: 320,
       height: 200,
       dpr: 1,
-      options: { renderer: "raster", tileSize: 256, fonts: [fontBytes()], fontFamilies: ["Noto Sans"], fontFamily: "Noto Sans", measureFrames: false },
+      options: {
+        renderer: "raster",
+        tileSize: 256,
+        fonts: [fontBytes()],
+        fontFamilies: ["Noto Sans"],
+        fontFamily: "Noto Sans",
+        measureFrames: false,
+      },
     });
     const column = (rows: number, edited: string) => ({
       id: "col",
       type: "Column",
       children: Array.from({ length: rows }, (_, i) => text(`t${i}`, i === 3 ? edited : `Row ${i}`)),
     });
-    const screens = Array.from({ length: 4 }, (_, n) => ({ id: `s${n}`, title: `S${n}`, x: n * 500, y: 0, root: column(10, "Row 3") }));
+    const screens = Array.from({ length: 4 }, (_, n) => ({
+      id: `s${n}`,
+      title: `S${n}`,
+      x: n * 500,
+      y: 0,
+      root: column(10, "Row 3"),
+    }));
     await core.receive({ v, type: "screens", requestId: 1, style, screens });
     const full = paragraphs;
     expect(full).toBeGreaterThanOrEqual(40);

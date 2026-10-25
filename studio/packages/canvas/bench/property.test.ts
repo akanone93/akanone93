@@ -40,7 +40,12 @@ describe("STU-121 property change to canvas frame measurement", () => {
     );
     expect(seen).toEqual([0, 1, 2, 3, 4, 5, 6]);
     expect(calls.slice(0, 4)).toEqual(["layout", "layout", "patch", "frame"]);
-    expect(summary).toEqual({ runs: 5, p50: 15, p95: 15, max: 15, layoutP95: 10,
+    expect(summary).toEqual({
+      runs: 5,
+      p50: 15,
+      p95: 15,
+      max: 15,
+      layoutP95: 10,
       frameP95: 2,
       flushP95: 1,
       budgetMs: PROPERTY_BUDGET_MS,

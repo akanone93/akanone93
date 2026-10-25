@@ -158,5 +158,5 @@ The budget is **still not met** (p95 66.6 ms against 50 ms). Laying out the edit
 body box spans the whole screen, so every tile under the screen renders again — about 30 ms p95 per frame in
 SwiftShader raster, flush about 5 ms — and the next update waits behind the idle tile work of the previous
 frame (`layoutP95` about 33 ms against about 3 ms of layout). The next step is partial tile re-rendering
-(clip to the dirty rectangle) and yielding idle tile work to a pending message; tracked in the work log. The
+(clip to the dirty rectangle) and yielding idle tile work to a pending message. The
 requirement is therefore not marked `DONE`.
