@@ -118,3 +118,28 @@ its bytes are valid `putImageData` input — and a tile job copies only the tile
 CPU-backed 2D context (`willReadFrequently`; an accelerated one put the copies back on SwiftShader
 and brought back single 670–1,130 ms gaps in Scene B in four of seven runs). The transparent drag
 layer keeps `MakeSWCanvasSurface`.
+
+## Property change to canvas frame (STU-121, NFR-032)
+
+Requirement: a property change reaches the canvas frame in 50 ms at p95.
+
+### Method
+
+- Harness: the `propertyToCanvas` scenario of `make studio-bench-canvas`
+  (`studio/packages/canvas/bench/property.ts`, run by `page.ts`); same software-rendering setup as above.
+- Scene: eight screens of forty text rows each. Each iteration edits one text property (`data`) of one node,
+  hands all screens to the canvas worker (SkParagraph relayout, scene replaced), then forces and awaits the
+  next frame. Time = hand-over to that frame; 30 warm-up and 300 measured iterations.
+- Not included: the main-thread Immer recipe of `edit`, which is microseconds for one field.
+- `layoutP95` is the part up to the worker's layout answer; the rest is the frame.
+
+### Result (one run, software rendering, SwiftShader)
+
+| p50 | p95 | max | layoutP95 | budget |
+|---|---|---|---|---|
+| 72.4 ms | 101.0 ms | 165.3 ms | 54.0 ms | 50 ms p95 |
+
+The budget is **not met** in software rendering with this scene: the worker lays out all 320 paragraphs and
+redraws the whole scene for a one-field change. The fix is an incremental relayout of the edited screen
+(`screens` message for one document, `replace` ops for the changed boxes); it is outside S2.6 and tracked in the
+work log. The requirement is therefore not marked `DONE`.

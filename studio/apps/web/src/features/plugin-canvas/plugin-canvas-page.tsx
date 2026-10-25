@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
+import { RightDock } from "../panels/right-dock.tsx";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -344,6 +345,16 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         ))}
       </ol>
       <ProblemsDrawer validation={validation} />
+      <RightDock
+        screens={screens}
+        index={index}
+        screenOf={screenOf}
+        edit={edit}
+        pathOf={pathOf}
+        problems={validation.state === "done" ? validation.problems : []}
+        documents={docs.data}
+        validatePage={validation.state === "done" ? validation.validatePage : undefined}
+      />
       {docs.data !== undefined && (
         <ScreensController
           appId={params.app ?? ""}

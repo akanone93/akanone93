@@ -61,6 +61,12 @@ msgstr "{count} von höchstens {max} Zeichen"
 msgid "notify.unread"
 msgstr "{count} ungelesen"
 
+#. Shown when several widgets are selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.multi"
+msgstr "{count} Widgets ausgewählt; gemeinsame Eigenschaften werden angezeigt."
+
 #. Read-only banner: someone else holds the plugin's editing lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -121,6 +127,18 @@ msgstr "Einladung annehmen"
 msgid "chrome.forbidden.explain-failed"
 msgstr "Der Zugriff kann gerade nicht erklärt werden."
 
+#. Label of the right dock tab for the selected widget's screen reader semantics.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.tabAccessibility"
+msgstr "Barrierefreiheit"
+
+#. Heading of the list of accessibility findings for the selected widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.a11yProblems"
+msgstr "Barrierefreiheitsprobleme"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -132,6 +150,18 @@ msgstr "Konto"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.account"
 msgstr "Konto"
+
+#. Button that appends an item to a list property.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.addItem"
+msgstr "Eintrag hinzufügen"
+
+#. Label of the alignment picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.alignment"
+msgstr "Ausrichtung"
 
 #. Option that shows every event type.
 #. js-lingui-explicit-id
@@ -163,11 +193,23 @@ msgstr "Bitten Sie eine Administratorin oder einen Administrator, Sie in eine Or
 msgid "auth.factor.code"
 msgstr "Authentifizierungscode"
 
+#. Edge inset at the bottom.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.bottom"
+msgstr "Unten"
+
 #. Title of the dialog asking why emergency access is used.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.title"
 msgstr "Begründung für Notfallzugriff"
+
+#. Checkbox that marks the widget as a button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semButton"
+msgstr "Schaltfläche"
 
 #. Button that closes a dialog without changing anything.
 #. js-lingui-explicit-id
@@ -205,11 +247,23 @@ msgstr "Zugriff wird geprüft"
 msgid "problems.validating"
 msgstr "Das Plugin wird geprüft…"
 
+#. Shown while the validator checks an expression.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.pxlChecking"
+msgstr "Prüfe ..."
+
 #. Label of the new-password field on the invitation page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.invite.password"
 msgstr "Passwort wählen"
+
+#. Accessible name of the button that removes a property value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.clear"
+msgstr "{name} entfernen"
 
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
@@ -263,6 +317,12 @@ msgstr "Befehle"
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density.compact"
+msgstr "Kompakt"
+
+#. Window size class under 600 dp; the base values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.compact"
 msgstr "Kompakt"
 
 #. D37 button: list the documents with unsaved changes.
@@ -361,11 +421,23 @@ msgstr "Bildschirm löschen"
 msgid "profile.density"
 msgstr "Dichte"
 
+#. Marks a deprecated property in the docs tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.docsDeprecated"
+msgstr "veraltet"
+
 #. D37 button: drop the unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.discard"
 msgstr "Verwerfen"
+
+#. Label of the right dock tab that documents the selected widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.tabDocs"
+msgstr "Doku"
 
 #. Help menu entry that opens the documentation.
 #. js-lingui-explicit-id
@@ -439,11 +511,35 @@ msgstr "Fehler"
 msgid "notify.inbox.type"
 msgstr "Ereignistyp"
 
+#. Heading of the list of events in the docs tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.docsEvents"
+msgstr "Ereignisse"
+
+#. Checkbox that hides the widget from screen readers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semExclude"
+msgstr "Aus Semantik ausschließen"
+
+#. Window size class from 840 dp.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.expanded"
+msgstr "Erweitert"
+
 #. Button that asks the server why access is denied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.explain"
 msgstr "Zugriff erklären"
+
+#. Accessible name of a nested field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.field"
+msgstr "Feld {name}"
 
 #. Button that fits all screens into the view.
 #. js-lingui-explicit-id
@@ -481,6 +577,12 @@ msgstr "Zum Profil"
 msgid "lock.requests.release"
 msgstr "Übergeben"
 
+#. Checkbox that marks the widget as a heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semHeader"
+msgstr "Überschrift"
+
 #. Label of the help menu.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -493,6 +595,12 @@ msgstr "Hilfe"
 msgid "profile.theme.contrast"
 msgstr "Hoher Kontrast"
 
+#. Label of the field for the screen reader hint.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semHint"
+msgstr "Hinweis"
+
 #. Name of the personal home page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -504,6 +612,18 @@ msgstr "Start"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.severity.info"
 msgstr "Information"
+
+#. Accessible name of the right dock that holds Properties, Accessibility and Docs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.dock"
+msgstr "Inspektor"
+
+#. Shown when the widget can be operated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.interactive"
+msgstr "Interaktiv"
 
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
@@ -559,11 +679,29 @@ msgstr "Verlassen"
 msgid "dialog.unsaved.title"
 msgstr "Ohne Speichern verlassen?"
 
+#. Edge inset on the left.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.left"
+msgstr "Links"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.light"
 msgstr "Hell"
+
+#. Option that sets a fixed value instead of a binding.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.literal"
+msgstr "Festwert"
+
+#. Checkbox that makes screen readers announce changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semLive"
+msgstr "Live-Bereich"
 
 #. Shown while a page loads.
 #. js-lingui-explicit-id
@@ -589,11 +727,29 @@ msgstr "Als gelesen markieren"
 msgid "profile.theme.system"
 msgstr "Wie System"
 
+#. Window size class from 600 to 839 dp.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.medium"
+msgstr "Mittel"
+
+#. Shown in a property field when the selected widgets have different values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.mixed"
+msgstr "Gemischt"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.group.navigate"
 msgstr "Navigation"
+
+#. Shown when the widget must keep a minimum touch target.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.minTarget"
+msgstr "Benötigt eine Touch-Fläche von mindestens 44 mal 44 dp."
 
 #. Why a command is disabled.
 #. js-lingui-explicit-id
@@ -612,6 +768,12 @@ msgstr "Neuer Bildschirm"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.untitled"
 msgstr "Neuer Bildschirm"
+
+#. Shown when the validator found no accessibility problem.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.a11yNone"
+msgstr "Keine Barrierefreiheitsprobleme für dieses Widget."
 
 #. Shown when the filter matches nothing.
 #. js-lingui-explicit-id
@@ -636,6 +798,18 @@ msgstr "Keine Probleme gefunden."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
+
+#. Shown when the widget cannot be operated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.notInteractive"
+msgstr "Nicht interaktiv"
+
+#. Shown for an optional property that has no value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.unset"
+msgstr "Nicht gesetzt"
 
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
@@ -690,6 +864,12 @@ msgstr "Organisation"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.org.switcher"
 msgstr "Organisation"
+
+#. Marks a property whose value differs from the base for the chosen size class.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.overridden"
+msgstr "Für diese Größenklasse überschrieben"
 
 #. Heading of the 404 page, also shown for an organisation the person is not in.
 #. js-lingui-explicit-id
@@ -751,11 +931,35 @@ msgstr "Profil"
 msgid "problems.project"
 msgstr "Projekt"
 
+#. Label of the right dock tab that edits the selected widget's properties.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.tabProperties"
+msgstr "Eigenschaften"
+
+#. Heading of the list of properties in the docs tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.docsProps"
+msgstr "Eigenschaften"
+
+#. Label of the field for a PXL expression.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.pxl"
+msgstr "PXL-Ausdruck"
+
 #. D37 button: take the lock again and send the unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.retake"
 msgstr "Erneut übernehmen und anwenden"
+
+#. Hint above the properties when editing is blocked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.readOnly"
+msgstr "Schreibgeschützt: Du hältst die Bearbeitungssperre nicht."
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
@@ -775,6 +979,12 @@ msgstr "Wiederholen"
 msgid "banner.reload"
 msgstr "Neu laden"
 
+#. Accessible name of the button that removes a list item.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.removeItem"
+msgstr "Eintrag {n} entfernen"
+
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -792,6 +1002,36 @@ msgstr "Bildschirm umbenennen"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.request-edit"
 msgstr "Bearbeitung anfragen"
+
+#. Marks a required property in the docs tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.docsRequired"
+msgstr "erforderlich"
+
+#. Accessible name of the button that removes the override of one property.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.resetOf"
+msgstr "{name} auf Basis zurücksetzen"
+
+#. Button that removes a size class override.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.reset"
+msgstr "Auf Basis zurücksetzen"
+
+#. Edge inset on the right.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.right"
+msgstr "Rechts"
+
+#. Label of the role the descriptor assigns to the widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.role"
+msgstr "Rolle"
 
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
@@ -822,6 +1062,18 @@ msgstr "Bildschirme in Navigationsreihenfolge"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.title"
 msgstr "Zweiter Faktor"
+
+#. Hint in the right dock when nothing is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.nothing"
+msgstr "Wähle ein Widget auf der Zeichenfläche, um es zu bearbeiten."
+
+#. Label of the field for the text a screen reader announces.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semLabel"
+msgstr "Semantik-Bezeichnung"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -882,6 +1134,18 @@ msgstr "Anmeldung läuft"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.providers"
 msgstr "Einmalanmeldung"
+
+#. Label of the control that picks the window size class an edit applies to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.breakpoint"
+msgstr "Größenklasse"
+
+#. Heading of the list of slots in the docs tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.docsSlots"
+msgstr "Slots"
 
 #. D37: re-taking failed because the lock is not free.
 #. js-lingui-explicit-id
@@ -1009,6 +1273,12 @@ msgstr "Die Prüfung konnte nicht ausgeführt werden."
 msgid "profile.theme"
 msgstr "Design"
 
+#. Label of the picker that binds a property to a design token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.useToken"
+msgstr "Design-Token"
+
 #. Shown after keep mine: the changes that did not fit and were left out.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -1074,6 +1344,18 @@ msgstr "Dieser Bildschirm hat ungespeicherte Änderungen. Warte, bis sie gespeic
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.theme.toggle"
 msgstr "Zwischen hellem und dunklem Design wechseln"
+
+#. Edge inset at the top.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.top"
+msgstr "Oben"
+
+#. Label of the picker that binds a text to a translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.useKey"
+msgstr "Übersetzungsschlüssel"
 
 #. Label of the field where the person retypes the phrase; {phrase} is the exact text to type.
 #. js-lingui-explicit-id
