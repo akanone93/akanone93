@@ -6,10 +6,40 @@
  * STU-120, STU-121, ADR-0013 M-12), built first for machines without a GPU.
  */
 
+export {
+  type A11yDocumentLike,
+  type A11yElementLike,
+  type A11yStyleLike,
+  AccessibleTree,
+  ROLES,
+} from "./a11y.ts";
 export { Batches, BatchLayer, color4f } from "./batch.ts";
-export { type BrowserScope, browserWorkerDeps } from "./browser.ts";
+export { type BrowserScope, browserWorkerDeps, watchCanvasContext } from "./browser.ts";
+export {
+  AUTHORITATIVE_NOTICE,
+  type CanvasNotice,
+  complexScriptOf,
+  type FontLoadDeps,
+  type FontRequest,
+  type FontSource,
+  type LoadedFonts,
+  type LocalFontLike,
+  loadCanvasFonts,
+  type NoticeReason,
+  SF_PRO_FAMILY,
+} from "./fonts.ts";
 export { intersects, makeRect, type Rect } from "./geometry.ts";
-export { type CanvasElementLike, CanvasHost, type CanvasSize, type HostDeps, type WorkerLike } from "./host.ts";
+export { HIT_CELL, HitIndex, MAX_CELLS, type RectMode, shapeOf } from "./hit.ts";
+export {
+  type CanvasElementLike,
+  CanvasHost,
+  type CanvasSize,
+  HIT_TOLERANCE,
+  type HostDeps,
+  type HostEvent,
+  type HostLayers,
+  type WorkerLike,
+} from "./host.ts";
 export {
   INTERACTION_RESOLUTION,
   type Lod,
@@ -19,6 +49,18 @@ export {
   STRAIGHT_LINKS_BELOW,
   TEXT_BARS_BELOW,
 } from "./lod.ts";
+export {
+  type Context2DLike,
+  type DeviceRect,
+  HANDLE_SIZE,
+  OUTLINE_WIDTH,
+  type OverlayCanvasLike,
+  type OverlayColors,
+  type OverlayView,
+  type SelectionMarks,
+  SelectionOverlay,
+  selectionMarks,
+} from "./overlay.ts";
 export * from "./protocol.ts";
 export { MAX_REGIONS, type RendererOptions, SceneRenderer } from "./renderer.ts";
 export { type Deletable, Resources } from "./resources.ts";
@@ -30,6 +72,7 @@ export { clampZoom, MAX_ZOOM, MIN_ZOOM, Viewport } from "./viewport.ts";
 export {
   CanvasWorkerCore,
   IDLE_BUDGET_MS,
+  type SurfaceHandlers,
   serveCanvasWorker,
   type WorkerDeps,
   type WorkerScopeLike,

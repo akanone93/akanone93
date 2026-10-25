@@ -11,7 +11,7 @@
 import type { CanvasKit, Surface } from "canvaskit-wasm";
 import type { OffscreenCanvasLike } from "./protocol.ts";
 import { type GlProbe, isSoftwareGl } from "./select.ts";
-import type { WorkerDeps } from "./worker.ts";
+import type { SurfaceHandlers, WorkerDeps } from "./worker.ts";
 
 interface GlContextLike {
   readonly RENDERER: number;
@@ -67,6 +67,30 @@ function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "
   });
 }
 
+interface EventTargetLike {
+  addEventListener(type: string, listener: (event: { preventDefault(): void }) => void): void;
+}
+
+/**
+ * Calls `handlers` when `canvas` loses or regains its context. Preventing the
+ * default of the loss event is what lets the browser restore a WebGL context.
+ */
+export function watchCanvasContext(canvas: OffscreenCanvasLike, handlers: SurfaceHandlers): void {
+  const target = canvas as Partial<EventTargetLike>;
+  if (typeof target.addEventListener !== "function") {
+    return;
+  }
+  const lost = (event: { preventDefault(): void }): void => {
+    event.preventDefault();
+    handlers.lost();
+  };
+  const restored = (): void => handlers.restored();
+  target.addEventListener("webglcontextlost", lost);
+  target.addEventListener("contextlost", lost);
+  target.addEventListener("webglcontextrestored", restored);
+  target.addEventListener("contextrestored", restored);
+}
+
 /** Worker dependencies for a browser scope; `loadCanvasKit` loads the pinned Flutter CanvasKit. */
 export function browserWorkerDeps(scope: BrowserScope, loadCanvasKit: () => Promise<CanvasKit>): WorkerDeps {
   return {
@@ -80,6 +104,7 @@ export function browserWorkerDeps(scope: BrowserScope, loadCanvasKit: () => Prom
     },
     probeGl: () => probe(scope),
     makeSurface: surfaceOn,
+    watchContext: watchCanvasContext,
     makeMeasureSurface: (ck, kind) => {
       if (kind === "raster") {
         return ck.MakeSurface(MEASURE_SIZE, MEASURE_SIZE);
