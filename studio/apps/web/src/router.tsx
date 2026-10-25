@@ -151,6 +151,15 @@ const canvasLayout = createRoute({
   component: CanvasLayout,
 });
 
+/** C1: the app canvas (STU-030); the plugin boxes, native nodes and frames of one app. */
+const appCanvasRoute = createRoute({
+  getParentRoute: () => canvasLayout,
+  path: "/o/$org/apps/$app",
+  params: { parse: (raw) => ({ org: z.string().parse(raw.org), app: z.string().parse(raw.app) }) },
+  beforeLoad: ({ context, params }) => context.session.setOrganization(requireMembership(context.user, params.org)),
+  component: lazyRouteComponent(() => import("./features/app-canvas/index.ts"), "AppCanvasPage"),
+});
+
 /** C2: the plugin canvas (STU-050); search `x`, `y`, `z` replace history. */
 const pluginCanvasRoute = createRoute({
   getParentRoute: () => canvasLayout,
@@ -168,7 +177,7 @@ const pluginCanvasRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
-  canvasLayout.addChildren([pluginCanvasRoute]),
+  canvasLayout.addChildren([appCanvasRoute, pluginCanvasRoute]),
   publicLayout.addChildren([signInRoute, inviteRoute, signedOutRoute, unsupportedRoute]),
   shellLayout.addChildren([
     personalHomeRoute,

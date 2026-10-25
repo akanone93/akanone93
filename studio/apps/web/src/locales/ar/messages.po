@@ -97,6 +97,54 @@ msgstr "استلم {holder} التحرير. عملك حتى تلك اللحظة 
 msgid "lock.requested"
 msgstr "طُلب من {holder} تسليم الإضافة."
 
+#. Size of a plugin's newest bundle in kilobytes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bundleSize"
+msgstr "حزمة بحجم {kb} كيلوبايت"
+
+#. Badge: validation errors in a plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.validationErrors"
+msgstr "{n, plural, zero {0 خطأ} one {خطأ واحد} two {خطآن} few {# أخطاء} many {# خطأً} other {# خطأ}}"
+
+#. Count of functions a plugin uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions"
+msgstr "{n, plural, zero {0 دالة} one {دالة واحدة} two {دالتان} few {# دوال} many {# دالة} other {# دالة}}"
+
+#. Count of plugins that link to this plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.linksIn"
+msgstr "{n, plural, zero {0 رابط وارد} one {رابط وارد واحد} two {رابطان واردان} few {# روابط واردة} many {# رابطًا واردًا} other {# رابط وارد}}"
+
+#. Count of plugins this plugin links to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.linksOut"
+msgstr "{n, plural, zero {0 رابط صادر} one {رابط صادر واحد} two {رابطان صادران} few {# روابط صادرة} many {# رابطًا صادرًا} other {# رابط صادر}}"
+
+#. Announced when the selection changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.selected"
+msgstr "{n, plural, zero {0 إضافة محددة} one {إضافة واحدة محددة} two {إضافتان محددتان} few {# إضافات محددة} many {# إضافة محددة} other {# إضافة محددة}}"
+
+#. Count of a plugin's screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.screens"
+msgstr "{n, plural, zero {0 شاشة} one {شاشة واحدة} two {شاشتان} few {# شاشات} many {# شاشة} other {# شاشة}}"
+
+#. Count of a plugin's published versions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.versions"
+msgstr "{n, plural, zero {0 إصدار} one {إصدار واحد} two {إصداران} few {# إصدارات} many {# إصدارًا} other {# إصدار}}"
+
 #. Explains what deleting an asset does; name is the asset's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -108,6 +156,12 @@ msgstr "تتم إزالة {name} من التطبيق. تعرض الصفحات ا
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.selectionOne"
 msgstr "تم تحديد {name}"
+
+#. Accessible name of a plugin box.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.plugin"
+msgstr "{name}، الإضافة {key}"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -199,6 +253,12 @@ msgstr "المحاذاة"
 msgid "notify.inbox.all-types"
 msgstr "كل الأنواع"
 
+#. Accessible name of the canvas that shows the plugins of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.title"
+msgstr "لوحة التطبيق"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -210,6 +270,24 @@ msgstr "المظهر"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.caption"
 msgstr "ستظهر هنا التطبيقات والإضافات وطلبات الموافقة عند توفرها."
+
+#. Button: archive the selected plugin without deleting it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.archive"
+msgstr "أرشفة الإضافة"
+
+#. Badge on the box of an archived plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.archivedBadge"
+msgstr "مؤرشفة"
+
+#. Button: lay the plugin boxes out automatically.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.autoLayout"
+msgstr "ترتيب"
 
 #. Body shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
@@ -247,6 +325,12 @@ msgstr "مبرر الوصول الطارئ"
 msgid "panels.semButton"
 msgstr "زر"
 
+#. Dialog button that closes it without a change.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.cancel"
+msgstr "إلغاء"
+
 #. Button that closes a dialog without changing anything.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -270,6 +354,12 @@ msgstr "إلغاء"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.cancel"
 msgstr "إلغاء"
+
+#. Accessible name of the toolbar above the app canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.toolbar"
+msgstr "إجراءات اللوحة"
 
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
@@ -306,6 +396,12 @@ msgstr "اختر كلمة مرور"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.clear"
 msgstr "مسح {name}"
+
+#. Accessible name of the dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.close"
+msgstr "إغلاق"
 
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
@@ -493,6 +589,12 @@ msgstr "الكثافة"
 msgid "panels.docsDeprecated"
 msgstr "متقادم"
 
+#. Field label for a plugin's description.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.description"
+msgstr "الوصف"
+
 #. D37 button: drop the unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -522,6 +624,12 @@ msgstr "التوثيق"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.drawer"
 msgstr "الدرج"
+
+#. Button and dialog title: copy a plugin under a new key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.duplicate"
+msgstr "تكرار الإضافة"
 
 #. Command that copies the current screen.
 #. js-lingui-explicit-id
@@ -577,6 +685,12 @@ msgstr "أدخل كلمة المرور."
 msgid "chrome.licence.title"
 msgstr "النسخة المؤسسية: تتطلب ترخيصًا"
 
+#. Badge on the plugin box of the entry plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.entryBadge"
+msgstr "الدخول"
+
 #. Marks the screen the plugin opens first.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -630,6 +744,24 @@ msgstr "الحقل {name}"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomFit"
 msgstr "ملاءمة"
+
+#. Accessible name of a frame around plugin boxes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frame"
+msgstr "الإطار {label}"
+
+#. Field label for the name of a frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameLabel"
+msgstr "تسمية الإطار"
+
+#. Button: group the selected plugins in a labelled frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.newFrame"
+msgstr "تأطير التحديد"
 
 #. Caption of the shortcuts page.
 #. js-lingui-explicit-id
@@ -745,6 +877,12 @@ msgstr "الإبقاء على نسختي"
 msgid "editor.conflict.would-drop"
 msgstr "لا يمكن تطبيق هذه التغييرات عند الإبقاء على نسختك"
 
+#. Field label for a plugin's key, its stable identifier.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.key"
+msgstr "المفتاح"
+
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -835,6 +973,18 @@ msgstr "جارٍ تحميل الأصول…"
 msgid "pluginCanvas.loading"
 msgstr "جارٍ تحميل الشاشات"
 
+#. Badge: who holds the editing lock of the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.lockedBy"
+msgstr "مقفلة بواسطة {who}"
+
+#. Button and dialog title: the plugin whose entry page the app opens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.setEntry"
+msgstr "اجعلها إضافة الدخول"
+
 #. Button that marks one notification read.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -859,6 +1009,12 @@ msgstr "متوسط"
 msgid "panels.mixed"
 msgstr "مختلط"
 
+#. Field label for a plugin's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.name"
+msgstr "الاسم"
+
 #. Group of the Insert tab: widgets of the host app (native slots) and custom widgets.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -882,6 +1038,12 @@ msgstr "يتطلب هدف لمس لا يقل عن 44 في 44 dp."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.disabled.reason"
 msgstr "يتطلب الصلاحية {permission}"
+
+#. Button and dialog title: add a plugin to the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.newPlugin"
+msgstr "إضافة جديدة"
 
 #. Button and command that create a blank screen.
 #. js-lingui-explicit-id
@@ -1015,6 +1177,12 @@ msgstr "المؤسسة"
 msgid "panels.overridden"
 msgstr "مُتجاوَز لفئة الحجم هذه"
 
+#. Field label for the team that owns a plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.owner"
+msgstr "الفريق المالك"
+
 #. Heading of the 404 page, also shown for an organisation the person is not in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1039,6 +1207,12 @@ msgstr "الإضافة"
 msgid "pluginCanvas.title"
 msgstr "لوحة الإضافة"
 
+#. Button and dialog title: change a plugin's name, description, owner and tags.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.settings"
+msgstr "إعدادات الإضافة"
+
 #. Name of the application, shown as the browser tab title.
 #. js-lingui-explicit-id
 #: apps/web/src/shell.messages.ts
@@ -1050,6 +1224,12 @@ msgstr "استوديو Plux"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "unsupported.body"
 msgstr "يحتاج Plux Studio إلى WebGL2 لرسم اللوحة. استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari مع تفعيل تسريع الأجهزة."
+
+#. Shown when the app-level lock is held by another person.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.readOnly"
+msgstr "المواضع للقراءة فقط ما دام شخص آخر يحرّر التطبيق."
 
 #. Accessible name of the group in the action bar that shows how many errors and warnings there are.
 #. js-lingui-explicit-id
@@ -1195,6 +1375,12 @@ msgstr "إعادة {name} إلى الأساس"
 msgid "panels.reset"
 msgstr "إعادة إلى الأساس"
 
+#. Button: bring an archived plugin back.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.restore"
+msgstr "استعادة الإضافة"
+
 #. Button that continues a failed upload where it stopped.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -1212,6 +1398,12 @@ msgstr "يمين"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.role"
 msgstr "الدور"
+
+#. Dialog button that applies the change.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.save"
+msgstr "حفظ"
 
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
@@ -1387,6 +1579,18 @@ msgstr "تم تحديث Studio. أعد التحميل لاستخدام الإص�
 msgid "cmd.org.switch"
 msgstr "التبديل إلى {name}"
 
+#. Badge: a kill switch turns the plugin off for devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.killed"
+msgstr "مُطفأة"
+
+#. Field label for a plugin's tags.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.tags"
+msgstr "الوسوم (مفصولة بفواصل)"
+
 #. Button (D36): take the editing lock from its holder.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -1416,6 +1620,12 @@ msgstr "اعتماد نسخة الخادم"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.loadFailed"
 msgstr "تعذر تحميل الأصول."
+
+#. Shown when a plugin or canvas change was refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.failed"
+msgstr "تعذّر حفظ التغيير."
 
 #. Shown when the WebAuthn check was cancelled or failed.
 #. js-lingui-explicit-id
@@ -1537,6 +1747,12 @@ msgstr "لم تُطبَّق هذه التغييرات من نسختك"
 msgid "dialog.stepup.body"
 msgstr "يتطلب هذا الإجراء تحققًا جديدًا بمفتاح الأمان أو مفتاح المرور."
 
+#. Shown on the app canvas when the app has no plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.empty"
+msgstr "لا يحتوي هذا التطبيق على إضافات بعد."
+
 #. Heading shown when WebGL2 is missing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -1627,6 +1843,12 @@ msgstr "تراجع"
 msgid "pluginCanvas.undo"
 msgstr "تراجع"
 
+#. Badge: the plugin's draft differs from its newest version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.unpublished"
+msgstr "تغييرات غير منشورة"
+
 #. Toggle that hides read notifications.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -1674,6 +1896,12 @@ msgstr "استخدم 12 حرفًا على الأقل."
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.use"
 msgstr "استخدام مفتاح الأمان أو مفتاح المرور"
+
+#. Badge: a plugin has no validation errors.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.valid"
+msgstr "سليمة"
 
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
@@ -1824,3 +2052,9 @@ msgstr "تكبير"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomOut"
 msgstr "تصغير"
+
+#. Button: show every plugin box in the view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.zoomToFit"
+msgstr "ملاءمة العرض"
