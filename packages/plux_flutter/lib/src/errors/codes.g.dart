@@ -952,6 +952,24 @@ enum PluxErrorCode {
   /// Asset rejected by the malware scanner.
   assetRejected(6031, 'ASSET_REJECTED', 'Asset rejected by the malware scanner'),
 
+  /// Asset upload not found or expired.
+  assetUploadNotFound(6032, 'ASSET_UPLOAD_NOT_FOUND', 'Asset upload not found or expired'),
+
+  /// Asset chunk at the wrong offset.
+  assetUploadOutOfOrder(6033, 'ASSET_UPLOAD_OUT_OF_ORDER', 'Asset chunk at the wrong offset'),
+
+  /// Asset chunk too large.
+  assetUploadChunkTooLarge(6034, 'ASSET_UPLOAD_CHUNK_TOO_LARGE', 'Asset chunk too large'),
+
+  /// Asset larger than the size limit.
+  assetUploadTooLarge(6035, 'ASSET_UPLOAD_TOO_LARGE', 'Asset larger than the size limit'),
+
+  /// Uploaded asset hash mismatch.
+  assetUploadHashMismatch(6036, 'ASSET_UPLOAD_HASH_MISMATCH', 'Uploaded asset hash mismatch'),
+
+  /// Uploaded asset size mismatch.
+  assetUploadSizeMismatch(6037, 'ASSET_UPLOAD_SIZE_MISMATCH', 'Uploaded asset size mismatch'),
+
   /// Security configuration hash mismatch.
   securityConfigHashMismatch(6040, 'SECURITY_CONFIG_HASH_MISMATCH', 'Security configuration hash mismatch'),
 

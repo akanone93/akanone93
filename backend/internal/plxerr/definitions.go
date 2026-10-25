@@ -1612,6 +1612,36 @@ var registry = []Definition{
 		"Check the file on a trusted machine and upload a clean copy.", false,
 	},
 	{
+		AssetUploadNotFound, "ASSET_UPLOAD_NOT_FOUND", SeverityError, "Asset upload not found or expired",
+		"The upload session does not exist, belongs to another user, has expired after sitting idle (asset.uploadTtl), or was already finished (SRV-060).",
+		"Begin a new upload and send its chunks again.", false,
+	},
+	{
+		AssetUploadOutOfOrder, "ASSET_UPLOAD_OUT_OF_ORDER", SeverityError, "Asset chunk at the wrong offset",
+		"A chunk was sent at an offset other than the number of bytes the upload has already received, so it repeats, skips or overtakes another chunk (SRV-060).",
+		"Ask for the upload's progress and resume from the offset it reports.", false,
+	},
+	{
+		AssetUploadChunkTooLarge, "ASSET_UPLOAD_CHUNK_TOO_LARGE", SeverityError, "Asset chunk too large",
+		"A chunk is larger than the limit asset.uploadChunkBytes (SRV-060, LIM-001).",
+		"Split the file into chunks no larger than the chunk size returned when the upload began.", false,
+	},
+	{
+		AssetUploadTooLarge, "ASSET_UPLOAD_TOO_LARGE", SeverityError, "Asset larger than the size limit",
+		"The declared size of the file is above the limit asset.fileSize (SRV-060, LIM-001).",
+		"Upload a smaller file, or ask an administrator to raise the limit.", false,
+	},
+	{
+		AssetUploadHashMismatch, "ASSET_UPLOAD_HASH_MISMATCH", SeverityError, "Uploaded asset hash mismatch",
+		"The SHA-256 of the received bytes differs from the digest declared when the upload began; the upload is discarded (SRV-060).",
+		"Begin a new upload and send the file again; check that the digest is of the whole file.", false,
+	},
+	{
+		AssetUploadSizeMismatch, "ASSET_UPLOAD_SIZE_MISMATCH", SeverityError, "Uploaded asset size mismatch",
+		"The upload received fewer bytes than the size declared when it began, or a chunk would go past that size (SRV-060).",
+		"Send every byte of the file before finishing, and declare the file's exact size when beginning.", false,
+	},
+	{
 		SecurityConfigHashMismatch, "SECURITY_CONFIG_HASH_MISMATCH", SeverityError, "Security configuration hash mismatch",
 		"The security configuration does not hash to the value its signed manifest declares (SEC-182).",
 		"Download the release again; if it persists, republish it.", false,
