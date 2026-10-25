@@ -6,7 +6,7 @@ import type { CanvasKit } from "canvaskit-wasm";
 import { box, loadCanvasKit } from "../test-support/canvaskit.ts";
 import { makeRect, type Rect } from "./geometry.ts";
 import { BaseJobQueue, JOB_BUDGET_MS, jobBand, orderJobs } from "./progressive.ts";
-import { SceneRenderer } from "./renderer.ts";
+import { SceneRenderer, TILE_PARTS } from "./renderer.ts";
 import { Scene } from "./scene.ts";
 import { Viewport } from "./viewport.ts";
 
@@ -172,26 +172,40 @@ describe("STU-120 STU-045 progressive base re-render in the renderer (M-12)", ()
     return { viewport, renderer };
   }
 
-  test("the base is realigned first, then its tiles are queued around the focus and replaced one per job", () => {
+  test("the base is realigned from cached tiles first; only newly exposed tiles render, in strips, focus first", () => {
     const { viewport, renderer } = setup();
     renderer.frame();
-    viewport.x = 64;
-    renderer.planBase(makeRect(400, 400, 440, 440), { x: 1, y: 0 });
-    const queued = renderer.baseJobs;
-    expect(queued).toBeGreaterThan(1);
-    const first = renderer.queuedTiles()[0];
-    expect(first ? renderer.tileCache.tileRect(first, makeRect(0, 0, 0, 0)) : null).toEqual(makeRect(384, 384, 512, 512));
+    renderer.idle(Number.POSITIVE_INFINITY);
+    viewport.x = 400;
+    renderer.planBase(makeRect(700, 400, 900, 440), { x: 1, y: 0 });
+    expect(renderer.visibleJobs).toBeGreaterThan(1);
     expect(renderer.baseJob(Number.POSITIVE_INFINITY)).toMatchObject({ shifted: true });
-    expect(renderer.baseJobs).toBe(queued - 1);
+    const exposed = renderer.queuedTiles().map((tile) => renderer.tileCache.tileRect(tile, makeRect(0, 0, 0, 0)));
+    expect(exposed.length).toBeGreaterThan(0);
+    expect(exposed.every((r) => r.l >= 640)).toBe(true);
+    expect(exposed[0]).toEqual(makeRect(768, 384, 896, 512));
+    expect(renderer.visibleJobs).toBe(3);
     let runs = 0;
     while (renderer.baseJobs > 0) {
       expect(renderer.baseJob(Number.POSITIVE_INFINITY).shifted).toBe(false);
       runs++;
     }
-    expect(runs).toBe(queued - 1);
+    expect(runs).toBe(exposed.length * TILE_PARTS);
+    expect([renderer.visibleJobs, renderer.hasIdleWork()]).toEqual([0, false]);
     expect(renderer.baseJob(Number.POSITIVE_INFINITY)).toEqual({ ms: 0, shifted: false });
-    renderer.planBase(makeRect(0, 0, 512, 512), { x: 0, y: 0 });
+    renderer.planBase(makeRect(400, 0, 912, 512), { x: 0, y: 0 });
     expect(renderer.baseJobs).toBe(0);
+  });
+
+  test("a job past its deadline leaves the rest of the tile to the next job", () => {
+    const { viewport, renderer } = setup();
+    renderer.frame();
+    viewport.x = 64;
+    renderer.planBase(makeRect(64, 0, 576, 512), { x: 0, y: 0 });
+    renderer.baseJob(0);
+    const queued = renderer.baseJobs;
+    renderer.baseJob(0);
+    expect(renderer.baseJobs).toBe(queued);
   });
 
   test("cancel drops the queued tiles but keeps the realignment owed", () => {

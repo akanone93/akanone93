@@ -56,6 +56,9 @@ export interface BaseJobResult {
   readonly shifted: boolean;
 }
 
+/** Strips a tile is rendered in by progressive base jobs, one job each (M-12). */
+export const TILE_PARTS = 4;
+
 /** Above this many dirty regions in a frame they are merged into one. */
 export const MAX_REGIONS = 4;
 
@@ -140,7 +143,11 @@ export class SceneRenderer {
   /** The tiles whose current image is on the base surface. */
   private readonly shownTiles = new Set<Tile<Image>>();
   private readonly baseQueue: Tile<Image>[] = [];
-  private readonly oldBase = makeRect(0, 0, 0, 0);
+  private readonly stripWorld = makeRect(0, 0, 0, 0);
+  /** The tile whose strips the base jobs are rendering, and the next strip. */
+  private partial: { readonly tile: Tile<Image>; readonly next: number } | null = null;
+  /** The world rectangle the host shows, as of the last plan. */
+  private readonly focus = makeRect(0, 0, 0, 0);
   private readonly invalidate = (rect: Rect): void => {
     this.tiles.invalidate(rect);
   };
@@ -354,6 +361,7 @@ export class SceneRenderer {
       layerMs: c.layerMs,
       jobMs,
       baseJobs: this.baseJobs,
+      visibleJobs: this.visibleJobs,
     };
   }
 
@@ -615,6 +623,22 @@ export class SceneRenderer {
     return this.baseQueue.length + (this.options.tiles && this.needsShift() ? 1 : 0);
   }
 
+  /** Jobs left before every tile the host shows is current: the realignment and the queued tiles in the focus. */
+  get visibleJobs(): number {
+    if (!this.options.tiles) {
+      return 0;
+    }
+    const f = this.focus;
+    let count = this.needsShift() ? 1 : 0;
+    for (const tile of this.baseQueue) {
+      const r = this.tiles.tileRect(tile, this.tileWorld);
+      if (r.l < f.r && r.r > f.l && r.t < f.b && r.b > f.t) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   /** The base tiles queued for the progressive re-render, in order; for tests. */
   queuedTiles(): readonly Tile<Image>[] {
     return this.baseQueue;
@@ -636,6 +660,7 @@ export class SceneRenderer {
     if (!this.options.tiles) {
       return;
     }
+    setRect(this.focus, focus.l, focus.t, focus.r, focus.b);
     this.scene.drainDirty(this.invalidate);
     this.scene.drainRemoved(this.forget);
     this.lod = lodForZoom(this.viewport.zoom);
@@ -678,8 +703,7 @@ export class SceneRenderer {
       return { ms: 0, shifted: false };
     }
     if (this.tiles.needsWork(tile, this.interacting)) {
-      this.renderTile(tile);
-      if (this.now() >= deadline) {
+      if (!this.renderPart(tile) || this.now() >= deadline) {
         return { ms: this.now() - start, shifted: false };
       }
     }
@@ -703,61 +727,92 @@ export class SceneRenderer {
   }
 
   /**
-   * Moves the old base pixels to the current placement in one draw, so the
-   * base stays covered while its tiles are replaced; tiles that land exactly
-   * where they were (a whole-pixel pan) stay shown.
+   * Realigns the base to the current placement without reading it back (a
+   * snapshot of a GL surface stalls software GL for most of a second): the
+   * cached tiles are blitted where they now belong — older-scale tiles under
+   * them, scaled, as the interim — and those already current are taken off
+   * the queue. Only tiles nothing covers yet show the background.
    */
   private shiftBase(): void {
     const canvas = this.surface.getCanvas();
     const view = this.viewport;
     const scale = view.zoom * this.dpr;
-    const shown = this.shown;
-    const image = shown === null ? null : this.surface.makeImageSnapshot();
+    view.worldRect(this.view);
+    this.tiles.setScale(scale);
     canvas.clear(this.background);
-    if (shown !== null && image !== null) {
-      const old = shown.zoom * this.dpr;
-      const k = scale / old;
-      const tx = Math.round(shown.x * old) * k - Math.round(view.x * scale);
-      const ty = Math.round(shown.y * old) * k - Math.round(view.y * scale);
-      canvas.save();
-      canvas.translate(tx, ty);
-      canvas.scale(k, k);
-      const filter = k === 1 ? this.ck.FilterMode.Nearest : this.ck.FilterMode.Linear;
-      canvas.drawImageOptions(image, 0, 0, filter, this.ck.MipmapMode.None, null);
-      canvas.restore();
-      image.delete();
-      this.keepShiftedTiles(shown, k === 1 && Number.isInteger(tx) && Number.isInteger(ty));
-    } else {
-      this.shownTiles.clear();
-    }
     this.calls++;
-    this.shown = { x: view.x, y: view.y, zoom: view.zoom };
-    this.flushBase(canvas);
-  }
-
-  private keepShiftedTiles(shown: Placement, exact: boolean): void {
-    if (!exact) {
-      this.shownTiles.clear();
-      return;
+    canvas.save();
+    canvas.scale(scale, scale);
+    canvas.translate(-Math.round(view.x * scale) / scale, -Math.round(view.y * scale) / scale);
+    for (const tile of this.tiles.stale(this.view, this.scratchTiles)) {
+      this.blit(canvas, tile, true);
+      this.counters.staleTilesDrawn++;
     }
-    const view = this.viewport;
-    const old = setRect(
-      this.oldBase,
-      shown.x,
-      shown.y,
-      shown.x + view.width / shown.zoom,
-      shown.y + view.height / shown.zoom,
-    );
-    for (const tile of this.shownTiles) {
-      const rect = this.tiles.tileRect(tile, this.tileTarget);
-      if (rect.l < old.l || rect.t < old.t || rect.r > old.r || rect.b > old.b) {
-        this.shownTiles.delete(tile);
+    this.shownTiles.clear();
+    for (const tile of this.tiles.collect(this.view, this.visible)) {
+      if (tile.image !== null) {
+        this.blit(canvas, tile, false);
+        this.counters.tilesDrawn++;
+        if (!this.tiles.needsWork(tile, this.interacting)) {
+          this.shownTiles.add(tile);
+        }
       }
     }
+    canvas.restore();
+    this.shown = { x: view.x, y: view.y, zoom: view.zoom };
+    this.flushBase(canvas);
+    const queue = this.baseQueue.filter((tile) => !this.shownTiles.has(tile));
+    this.baseQueue.length = 0;
+    this.baseQueue.push(...queue);
+  }
+
+  /**
+   * Renders the next of the `TILE_PARTS` strips of `tile` into the tile
+   * surface and flushes it, so no job hands the GPU more than a strip; the
+   * last strip stores the tile. Returns whether the tile is complete.
+   */
+  private renderPart(tile: Tile<Image>): boolean {
+    const surface = this.tileSurface;
+    if (!surface) {
+      return true;
+    }
+    const part = this.partial?.tile === tile ? this.partial.next : 0;
+    const start = this.now();
+    const lowRes = this.interacting;
+    const px = Math.max(1, Math.round(this.options.tileSize * resolutionFor(lowRes)));
+    const scale = this.tiles.scale * resolutionFor(lowRes);
+    const world = this.tiles.tileRect(tile, this.tileTarget);
+    const y0 = Math.round((px * part) / TILE_PARTS);
+    const y1 = Math.round((px * (part + 1)) / TILE_PARTS);
+    const strip = setRect(this.stripWorld, world.l, world.t + y0 / scale, world.r, world.t + y1 / scale);
+    const canvas = surface.getCanvas();
+    canvas.save();
+    this.src.set([0, y0, px, y1]);
+    canvas.clipRect(this.src, this.ck.ClipOp.Intersect, false);
+    canvas.clear(this.background);
+    canvas.scale(scale, scale);
+    canvas.translate(-world.l, -world.t);
+    this.drawScene(canvas, strip, false);
+    canvas.restore();
+    const done = part + 1 >= TILE_PARTS;
+    this.partial = done ? null : { tile, next: part + 1 };
+    if (done) {
+      this.shownTiles.delete(tile);
+      this.irect.set([0, 0, px, px]);
+      this.tiles.store(tile, this.resources.own(surface.makeImageSnapshot(this.irect)), lowRes);
+    }
+    surface.flush();
+    this.syncGpu(canvas);
+    if (done) {
+      this.tileRenders++;
+    }
+    this.tileRenderMs += this.now() - start;
+    return done;
   }
 
   private renderTile(tile: Tile<Image>): void {
     this.shownTiles.delete(tile);
+    this.partial = null;
     const surface = this.tileSurface;
     if (!surface) {
       return;

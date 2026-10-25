@@ -58,17 +58,34 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function settle(host: CanvasHost): Promise<number> {
+/**
+ * Time until every tile the view shows is current at full resolution
+ * (`visibleMs`, the settle target) and until the overscan and idle work are
+ * done too (`fullMs`). The first frame is skipped: it may have been in flight
+ * before the call.
+ */
+async function settleTimes(host: CanvasHost): Promise<{ visibleMs: number; fullMs: number }> {
   const start = performance.now();
+  let visibleMs = -1;
   for (let i = 0; i < 400; i++) {
     host.patch([]);
     const stats = await host.nextFrame();
+    if (i === 0) {
+      continue;
+    }
+    if (visibleMs < 0 && stats.visibleJobs === 0 && stats.resolution === 1) {
+      visibleMs = round(performance.now() - start);
+    }
     if (stats.idleQueue === 0 && stats.baseJobs === 0) {
       break;
     }
     await sleep(2);
   }
-  return round(performance.now() - start);
+  return { visibleMs, fullMs: round(performance.now() - start) };
+}
+
+async function settle(host: CanvasHost): Promise<number> {
+  return (await settleTimes(host)).fullMs;
 }
 
 async function measure(host: CanvasHost, step: (i: number) => void): Promise<FrameStats[]> {
@@ -129,8 +146,18 @@ function baseRenders(frames: FrameStats[]): Record<string, number> {
   };
 }
 
+/** The worst base frame's breakdown, to name the bottleneck. */
+function worstBase(frames: FrameStats[]): Record<string, number> | null {
+  const worst = frames.filter((f) => f.base).sort((a, b) => b.ms - a.ms)[0];
+  if (!worst) {
+    return null;
+  }
+  const { ms, jobMs, flushMs, tileMs, regionMs, regions, tilesDrawn, drawCalls, baseJobs } = worst;
+  return { ms, jobMs, flushMs, tileMs, regionMs, regions, tilesDrawn, drawCalls, baseJobs };
+}
+
 /** A pan of 4 × 1 CSS pixels per animation frame, timed rAF to rAF on the main thread. */
-async function panScenario(host: CanvasHost): Promise<Record<string, number>> {
+async function panScenario(host: CanvasHost): Promise<Record<string, unknown>> {
   const worker: FrameStats[] = [];
   const stop = host.onFrame((stats) => worker.push(stats));
   host.startInteraction("pan");
@@ -149,7 +176,7 @@ async function panScenario(host: CanvasHost): Promise<Record<string, number>> {
   }
   host.endInteraction("pan");
   // Settle: from the gesture's end to the full-resolution base, its progressive jobs done (M-12).
-  const settleMs = await settle(host);
+  const settled = await settleTimes(host);
   stop();
   intervals.sort((a, b) => a - b);
   work.sort((a, b) => a - b);
@@ -160,9 +187,11 @@ async function panScenario(host: CanvasHost): Promise<Record<string, number>> {
     max: round(intervals.at(-1) ?? 0),
     droppedFrames: intervals.filter((ms) => ms > 1.5 * FRAME_MS).length,
     mainThreadMsP95: round(percentile(work, 0.95)),
-    settleMs,
+    settleVisibleMs: settled.visibleMs,
+    settleFullMs: settled.fullMs,
     workerFrames: worker.length,
     ...baseRenders(worker),
+    worstBase: worstBase(worker),
   };
 }
 
