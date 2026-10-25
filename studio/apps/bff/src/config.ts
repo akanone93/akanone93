@@ -127,8 +127,9 @@ function readDocsUrl(file: Record<string, unknown>, env: Env): string {
   } catch {
     throw new ConfigError("docsUrl must be an https URL");
   }
-  if (u.protocol !== "https:") {
-    throw new ConfigError("docsUrl must be an https URL");
+  // Credentials in the URL would reach every browser through /version.
+  if (u.protocol !== "https:" || u.username !== "" || u.password !== "") {
+    throw new ConfigError("docsUrl must be an https URL without credentials");
   }
   return u.href.replace(/\/$/, "");
 }
