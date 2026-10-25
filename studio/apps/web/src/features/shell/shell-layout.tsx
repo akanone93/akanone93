@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
 import { CommandsProvider, commandMessages, createRegistry, shellCommands } from "../../lib/commands/index.ts";
 import { loadUser } from "../../lib/guards.ts";
+import { loadedStudioVersion } from "../../lib/server-version.ts";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { shellMessages } from "../../shell.messages.ts";
@@ -21,10 +22,8 @@ import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
+import { useServerVersion } from "./use-server-version.ts";
 import { useStudioEvents } from "./use-studio-events.ts";
-
-/** The build's version; the server reports none yet, so the banner (E14) stays hidden (open item of S0.6). */
-const loadedStudioVersion = "";
 
 /** One empty list, so memoised commands do not rebuild while queries load. */
 const NONE: readonly never[] = [];
@@ -39,6 +38,7 @@ export function ShellLayout() {
   const org = (useParams({ strict: false }) as { org?: string }).org;
   const online = useOnline();
   const events = useStudioEvents();
+  const version = useServerVersion(events.state);
   const prefs = useQuery(PreferencesService.method.getPreferences, {});
   useAppliedPreferences(prefs.data?.preferences);
   const orgs = useTanstackQuery({
@@ -74,7 +74,7 @@ export function ShellLayout() {
   return (
     <CommandsProvider value={value}>
       <div className="flex min-h-screen flex-col">
-        <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={undefined} />
+        <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
         <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
         <header>
           <GlassCapsule label={m.topBar} className="m-4 flex items-center gap-4 px-4">
@@ -96,7 +96,7 @@ export function ShellLayout() {
               {c.paletteOpen}
             </button>
             <NotificationsPopover />
-            <HelpMenu />
+            <HelpMenu docsUrl={version?.docs} />
             <Menu
               trigger={
                 <button type="button" aria-label={m.profile} className="inline-flex items-center">

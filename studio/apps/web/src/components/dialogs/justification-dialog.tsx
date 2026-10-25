@@ -10,22 +10,20 @@ import { dialogMessages } from "./dialogs.messages.ts";
 export interface JustificationDialogProps {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
-  /** Minimum length in codepoints; supplied by the caller from the limit registry, never typed here (LIM-001). */
-  readonly minLength: number;
   readonly description: string;
   readonly onSubmit: (justification: string) => void;
 }
 
-/** D5 (GOV-024): submit is disabled below the minimum; the maximum is the registry's governance.justificationLength. */
+/** D5 (GOV-024): submit needs a non-empty trimmed justification; the maximum is the registry's governance.justificationLength and the server stays authoritative. */
 export function JustificationDialog({
   open,
   onOpenChange,
-  minLength,
   description,
   onSubmit,
 }: JustificationDialogProps): ReactElement {
   const m = dialogMessages(useLingui().i18n);
   const [text, setText] = useState("");
+  const max = limit("governance.justificationLength").max;
   const count = [...text.trim()].length;
   return (
     <Dialog
@@ -36,18 +34,14 @@ export function JustificationDialog({
       description={description}
       labels={{ close: m.close }}
     >
-      <Field label={m.justificationLabel} description={m.justificationHint(count, minLength)}>
-        <Textarea
-          value={text}
-          maxLength={limit("governance.justificationLength").max}
-          onChange={(e) => setText(e.target.value)}
-        />
+      <Field label={m.justificationLabel} description={m.justificationHint(count, max)}>
+        <Textarea value={text} maxLength={max} onChange={(e) => setText(e.target.value)} />
       </Field>
       <div className="flex justify-end gap-2">
         <Button variant="secondary" onClick={() => onOpenChange(false)}>
           {m.cancel}
         </Button>
-        <Button disabled={count < minLength} onClick={() => onSubmit(text.trim())}>
+        <Button disabled={count === 0} onClick={() => onSubmit(text.trim())}>
           {m.confirm}
         </Button>
       </div>

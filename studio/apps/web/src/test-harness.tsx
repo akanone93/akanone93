@@ -10,7 +10,9 @@ import {
   GetCurrentUserResponseSchema,
   GovernanceService,
   IdentityService,
+  InboxItemSchema,
   MemberSchema,
+  NotificationService,
   OrganizationSchema,
   OrgService,
   PreferencesSchema,
@@ -37,6 +39,7 @@ export interface Upstream {
   memberships?: string[];
   stored?: { theme: string; language: string; density: string };
   explained?: { permission: string }[];
+  inbox?: { id: string; eventType: string; title: string; read: boolean }[];
   updates?: { paths: string[]; theme: string; language: string; density: string }[];
 }
 
@@ -80,6 +83,15 @@ export function createUpstream(state: Upstream) {
       explainAccess: (req) => {
         state.explained?.push({ permission: req.permission });
         return { decision: "deny" };
+      },
+    });
+    service(NotificationService, {
+      listInbox: (req) => {
+        const items = (state.inbox ?? []).filter((i) => !req.unreadOnly || !i.read);
+        return {
+          items: items.map((i) => create(InboxItemSchema, i)),
+          unread: BigInt(items.filter((i) => !i.read).length),
+        };
       },
     });
     service(FederationService, { listSignInProviders: () => ({ providers: [] }) });

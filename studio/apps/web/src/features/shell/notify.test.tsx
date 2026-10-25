@@ -7,9 +7,11 @@ import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from "@tanstack/react-router";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { I18nProvider } from "../../i18n-provider.tsx";
+import { fetchServerVersion } from "../../lib/server-version.ts";
 import { createSession } from "../../lib/session.ts";
 import { AppContextProvider } from "../../lib/use-app.tsx";
 import { createUpstream, loadSourceCatalogue, orgA, renderApp } from "../../test-harness.tsx";
+import { HelpMenu } from "./help-menu.tsx";
 import { StatusChips, UpdateBanner } from "./status-chips.tsx";
 import { backoffMs } from "./studio-events.ts";
 
@@ -54,6 +56,33 @@ describe("STU-075 E13 chips and E14 banner", () => {
   });
 });
 
+describe("STU-075 E11 help menu and E14 version source", () => {
+  const json = (body: unknown, ok = true) => (async () => ({ ok, json: async () => body })) as unknown as typeof fetch;
+
+  test("/version is validated; failures and bad shapes read as unknown", async () => {
+    expect(await fetchServerVersion(json({ studio: "1.0.0", docs: "https://d.example" }))).toEqual({
+      studio: "1.0.0",
+      docs: "https://d.example",
+    });
+    expect(await fetchServerVersion(json({ studio: 1 }))).toBeUndefined();
+    expect(await fetchServerVersion(json({}, false))).toBeUndefined();
+    expect(
+      await fetchServerVersion((async () => Promise.reject(new Error("x"))) as unknown as typeof fetch),
+    ).toBeUndefined();
+  });
+
+  test("documentation entries need a configured docs URL", async () => {
+    const view = renderPlain(<HelpMenu docsUrl={undefined} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Help" }));
+    await screen.findByText("Keyboard shortcuts");
+    expect(screen.queryByText("Documentation")).toBeNull();
+    view.unmount();
+    renderPlain(<HelpMenu docsUrl="https://d.example" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Help" }));
+    await screen.findByText("Documentation");
+  });
+});
+
 describe("STU-075 O14 inbox filter", () => {
   test("the unread flag in the URL is validated and the page renders", async () => {
     const r = renderApp(`/o/${orgA}/notifications?unread=true&type=`, {});
@@ -61,5 +90,25 @@ describe("STU-075 O14 inbox filter", () => {
     expect((screen.getByLabelText("Unread only") as HTMLInputElement).checked).toBe(true);
     fireEvent.click(screen.getByLabelText("Unread only"));
     await waitFor(() => expect(r.router.state.location.search).not.toHaveProperty("unread", true));
+  });
+
+  const inbox = [
+    { id: "n1", eventType: "release.published", title: "Release one", read: false },
+    { id: "n2", eventType: "member.added", title: "Member two", read: true },
+    { id: "n3", eventType: "release.published", title: "Release three", read: true },
+  ];
+
+  test("?type filters the list to that event type", async () => {
+    renderApp(`/o/${orgA}/notifications?type=release.published`, { inbox });
+    await screen.findByText("Release one");
+    expect(screen.getByText("Release three")).toBeTruthy();
+    expect(screen.queryByText("Member two")).toBeNull();
+  });
+
+  test("?unread asks for unread items only", async () => {
+    renderApp(`/o/${orgA}/notifications?unread=true`, { inbox });
+    await screen.findByText("Release one");
+    expect(screen.queryByText("Member two")).toBeNull();
+    expect(screen.queryByText("Release three")).toBeNull();
   });
 });

@@ -59,12 +59,12 @@ export function dialogMessages(i18n: I18n) {
       message: "Justification",
       comment: "Label of the free-text reason field.",
     }),
-    justificationHint: (count: number, min: number) =>
+    justificationHint: (count: number, max: number) =>
       i18n._({
         id: "dialog.justification.hint",
-        message: "{count} of at least {min} characters",
-        comment: "Progress under the justification field; {count} typed so far, {min} required.",
-        values: { count, min },
+        message: "{count} of at most {max} characters",
+        comment: "Progress under the justification field; {count} typed so far, {max} allowed.",
+        values: { count, max },
       }),
     signedOutTitle: i18n._({
       id: "dialog.signedout.title",

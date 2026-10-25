@@ -7,11 +7,11 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#. Progress under the justification field; {count} typed so far, {min} required.
+#. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.hint"
-msgstr "{count} of at least {min} characters"
+msgstr "{count} of at most {max} characters"
 
 #. Number of unread notifications.
 #. js-lingui-explicit-id

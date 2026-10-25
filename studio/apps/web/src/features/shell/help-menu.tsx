@@ -7,11 +7,8 @@ import { useRouter } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { notifyMessages } from "./notify.messages.ts";
 
-export const docsUrl = "https://docs.plux.dev";
-export const onboardingUrl = "https://docs.plux.dev/getting-started";
-
-/** E11: documentation, the shortcut sheet (/me/shortcuts) and onboarding. */
-export function HelpMenu(): ReactElement {
+/** E11: documentation and getting started (only with a configured docs site), and the shortcut sheet (/me/shortcuts). */
+export function HelpMenu({ docsUrl }: { readonly docsUrl: string | undefined }): ReactElement {
   const m = notifyMessages(useLingui().i18n);
   const router = useRouter();
   const open = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
@@ -19,13 +16,24 @@ export function HelpMenu(): ReactElement {
     <Menu
       trigger={
         <button type="button" aria-label={m.help} className="inline-flex items-center">
-          <Icon name="info" size="capsule" />
+          <Icon name="question" size="capsule" />
         </button>
       }
       entries={[
-        { kind: "item", id: "docs", label: m.helpDocs, onSelect: () => open(docsUrl) },
+        ...(docsUrl === undefined
+          ? []
+          : [{ kind: "item" as const, id: "docs", label: m.helpDocs, onSelect: () => open(docsUrl) }]),
         { kind: "item", id: "shortcuts", label: m.helpShortcuts, onSelect: () => router.history.push("/me/shortcuts") },
-        { kind: "item", id: "onboarding", label: m.helpOnboarding, onSelect: () => open(onboardingUrl) },
+        ...(docsUrl === undefined
+          ? []
+          : [
+              {
+                kind: "item" as const,
+                id: "onboarding",
+                label: m.helpOnboarding,
+                onSelect: () => open(`${docsUrl}/guides/quick-start`),
+              },
+            ]),
       ]}
     />
   );
