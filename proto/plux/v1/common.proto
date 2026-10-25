@@ -160,3 +160,16 @@ message TrashItem {
   google.protobuf.Timestamp deleted_at = 5;
   google.protobuf.Timestamp purge_after = 6;
 }
+
+// MetadataUpdate changes the descriptive metadata of an app or a plugin
+// (plan P11 §4.3 #13). A field that is absent is left as it is; tags are
+// replaced whole when set_tags is true. An empty owning_team_id clears the
+// owner.
+message MetadataUpdate {
+  optional string description = 1;
+  optional string icon_asset_id = 2;
+  optional string owning_team_id = 3;
+  bool set_tags = 4;
+  repeated string tags = 5;
+  optional bool archived = 6;
+}

@@ -35,8 +35,16 @@ type App struct {
 	DefaultPluginKey string                 `protobuf:"bytes,5,opt,name=default_plugin_key,json=defaultPluginKey,proto3" json:"default_plugin_key,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	Description      string                 `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
+	// icon_asset_id names an image asset of the app, or is empty.
+	IconAssetId string `protobuf:"bytes,9,opt,name=icon_asset_id,json=iconAssetId,proto3" json:"icon_asset_id,omitempty"`
+	// owning_team_id is the team that owns the app, or empty.
+	OwningTeamId string   `protobuf:"bytes,10,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"`
+	Tags         []string `protobuf:"bytes,11,rep,name=tags,proto3" json:"tags,omitempty"`
+	// archived apps are left out of ListApps unless include_archived is set.
+	Archived      bool `protobuf:"varint,12,opt,name=archived,proto3" json:"archived,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *App) Reset() {
@@ -116,6 +124,41 @@ func (x *App) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *App) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *App) GetIconAssetId() string {
+	if x != nil {
+		return x.IconAssetId
+	}
+	return ""
+}
+
+func (x *App) GetOwningTeamId() string {
+	if x != nil {
+		return x.OwningTeamId
+	}
+	return ""
+}
+
+func (x *App) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *App) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
 }
 
 // Environment isolates variables, secrets, data-source URLs, signing keys
@@ -625,8 +668,16 @@ type ListAppsRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	OrganizationId string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	Page           *Page                  `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// query matches the key, name, description and tags, ignoring case.
+	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
+	// tags keeps the apps that carry every one of them.
+	Tags            []string `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
+	OwningTeamId    string   `protobuf:"bytes,5,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"`
+	IncludeArchived bool     `protobuf:"varint,6,opt,name=include_archived,json=includeArchived,proto3" json:"include_archived,omitempty"`
+	// sort is "key" (default), "name" or "updated" (newest first).
+	Sort          string `protobuf:"bytes,7,opt,name=sort,proto3" json:"sort,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAppsRequest) Reset() {
@@ -671,6 +722,41 @@ func (x *ListAppsRequest) GetPage() *Page {
 		return x.Page
 	}
 	return nil
+}
+
+func (x *ListAppsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *ListAppsRequest) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *ListAppsRequest) GetOwningTeamId() string {
+	if x != nil {
+		return x.OwningTeamId
+	}
+	return ""
+}
+
+func (x *ListAppsRequest) GetIncludeArchived() bool {
+	if x != nil {
+		return x.IncludeArchived
+	}
+	return false
+}
+
+func (x *ListAppsRequest) GetSort() string {
+	if x != nil {
+		return x.Sort
+	}
+	return ""
 }
 
 type ListAppsResponse struct {
@@ -730,6 +816,7 @@ type UpdateAppRequest struct {
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	DefaultPluginKey string                 `protobuf:"bytes,3,opt,name=default_plugin_key,json=defaultPluginKey,proto3" json:"default_plugin_key,omitempty"`
+	Metadata         *MetadataUpdate        `protobuf:"bytes,4,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -783,6 +870,13 @@ func (x *UpdateAppRequest) GetDefaultPluginKey() string {
 		return x.DefaultPluginKey
 	}
 	return ""
+}
+
+func (x *UpdateAppRequest) GetMetadata() *MetadataUpdate {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
 }
 
 type UpdateAppResponse struct {
@@ -2943,7 +3037,7 @@ var File_plux_v1_app_proto protoreflect.FileDescriptor
 
 const file_plux_v1_app_proto_rawDesc = "" +
 	"\n" +
-	"\x11plux/v1/app.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x88\x02\n" +
+	"\x11plux/v1/app.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xa4\x03\n" +
 	"\x03App\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0forganization_id\x18\x02 \x01(\tR\x0eorganizationId\x12\x10\n" +
@@ -2953,7 +3047,13 @@ const file_plux_v1_app_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xdd\x01\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12 \n" +
+	"\vdescription\x18\b \x01(\tR\vdescription\x12\"\n" +
+	"\ricon_asset_id\x18\t \x01(\tR\viconAssetId\x12$\n" +
+	"\x0eowning_team_id\x18\n" +
+	" \x01(\tR\fowningTeamId\x12\x12\n" +
+	"\x04tags\x18\v \x03(\tR\x04tags\x12\x1a\n" +
+	"\barchived\x18\f \x01(\bR\barchived\"\xdd\x01\n" +
 	"\vEnvironment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x10\n" +
@@ -2992,17 +3092,23 @@ const file_plux_v1_app_proto_rawDesc = "" +
 	"\rGetAppRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"0\n" +
 	"\x0eGetAppResponse\x12\x1e\n" +
-	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"]\n" +
+	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"\xec\x01\n" +
 	"\x0fListAppsRequest\x12'\n" +
 	"\x0forganization_id\x18\x01 \x01(\tR\x0eorganizationId\x12!\n" +
-	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"]\n" +
+	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\x12\x14\n" +
+	"\x05query\x18\x03 \x01(\tR\x05query\x12\x12\n" +
+	"\x04tags\x18\x04 \x03(\tR\x04tags\x12$\n" +
+	"\x0eowning_team_id\x18\x05 \x01(\tR\fowningTeamId\x12)\n" +
+	"\x10include_archived\x18\x06 \x01(\bR\x0fincludeArchived\x12\x12\n" +
+	"\x04sort\x18\a \x01(\tR\x04sort\"]\n" +
 	"\x10ListAppsResponse\x12 \n" +
 	"\x04apps\x18\x01 \x03(\v2\f.plux.v1.AppR\x04apps\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"d\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\x99\x01\n" +
 	"\x10UpdateAppRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12,\n" +
-	"\x12default_plugin_key\x18\x03 \x01(\tR\x10defaultPluginKey\"3\n" +
+	"\x12default_plugin_key\x18\x03 \x01(\tR\x10defaultPluginKey\x123\n" +
+	"\bmetadata\x18\x04 \x01(\v2\x17.plux.v1.MetadataUpdateR\bmetadata\"3\n" +
 	"\x11UpdateAppResponse\x12\x1e\n" +
 	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"\"\n" +
 	"\x10DeleteAppRequest\x12\x0e\n" +
@@ -3224,8 +3330,9 @@ var file_plux_v1_app_proto_goTypes = []any{
 	(*Actor)(nil),                     // 57: plux.v1.Actor
 	(*Page)(nil),                      // 58: plux.v1.Page
 	(*PageResult)(nil),                // 59: plux.v1.PageResult
-	(*TrashItem)(nil),                 // 60: plux.v1.TrashItem
-	(*LimitUsage)(nil),                // 61: plux.v1.LimitUsage
+	(*MetadataUpdate)(nil),            // 60: plux.v1.MetadataUpdate
+	(*TrashItem)(nil),                 // 61: plux.v1.TrashItem
+	(*LimitUsage)(nil),                // 62: plux.v1.LimitUsage
 }
 var file_plux_v1_app_proto_depIdxs = []int32{
 	56, // 0: plux.v1.App.created_at:type_name -> google.protobuf.Timestamp
@@ -3239,90 +3346,91 @@ var file_plux_v1_app_proto_depIdxs = []int32{
 	58, // 8: plux.v1.ListAppsRequest.page:type_name -> plux.v1.Page
 	0,  // 9: plux.v1.ListAppsResponse.apps:type_name -> plux.v1.App
 	59, // 10: plux.v1.ListAppsResponse.page:type_name -> plux.v1.PageResult
-	0,  // 11: plux.v1.UpdateAppResponse.app:type_name -> plux.v1.App
-	60, // 12: plux.v1.DeleteAppResponse.trash:type_name -> plux.v1.TrashItem
-	1,  // 13: plux.v1.CreateEnvironmentResponse.environment:type_name -> plux.v1.Environment
-	58, // 14: plux.v1.ListEnvironmentsRequest.page:type_name -> plux.v1.Page
-	1,  // 15: plux.v1.ListEnvironmentsResponse.environments:type_name -> plux.v1.Environment
-	59, // 16: plux.v1.ListEnvironmentsResponse.page:type_name -> plux.v1.PageResult
-	1,  // 17: plux.v1.UpdateEnvironmentResponse.environment:type_name -> plux.v1.Environment
-	3,  // 18: plux.v1.SetVariableResponse.variable:type_name -> plux.v1.Variable
-	58, // 19: plux.v1.ListVariablesRequest.page:type_name -> plux.v1.Page
-	3,  // 20: plux.v1.ListVariablesResponse.variables:type_name -> plux.v1.Variable
-	59, // 21: plux.v1.ListVariablesResponse.page:type_name -> plux.v1.PageResult
-	4,  // 22: plux.v1.SetSecretResponse.secret:type_name -> plux.v1.Secret
-	58, // 23: plux.v1.ListSecretsRequest.page:type_name -> plux.v1.Page
-	4,  // 24: plux.v1.ListSecretsResponse.secrets:type_name -> plux.v1.Secret
-	59, // 25: plux.v1.ListSecretsResponse.page:type_name -> plux.v1.PageResult
-	2,  // 26: plux.v1.CreateChannelResponse.channel:type_name -> plux.v1.Channel
-	58, // 27: plux.v1.ListChannelsRequest.page:type_name -> plux.v1.Page
-	2,  // 28: plux.v1.ListChannelsResponse.channels:type_name -> plux.v1.Channel
-	59, // 29: plux.v1.ListChannelsResponse.page:type_name -> plux.v1.PageResult
-	58, // 30: plux.v1.ListTrashRequest.page:type_name -> plux.v1.Page
-	60, // 31: plux.v1.ListTrashResponse.items:type_name -> plux.v1.TrashItem
-	59, // 32: plux.v1.ListTrashResponse.page:type_name -> plux.v1.PageResult
-	61, // 33: plux.v1.ListAppLimitsResponse.limits:type_name -> plux.v1.LimitUsage
-	61, // 34: plux.v1.SetAppLimitResponse.limit:type_name -> plux.v1.LimitUsage
-	56, // 35: plux.v1.AccessGrant.granted_at:type_name -> google.protobuf.Timestamp
-	49, // 36: plux.v1.GrantAccessResponse.grant:type_name -> plux.v1.AccessGrant
-	58, // 37: plux.v1.ListAccessRequest.page:type_name -> plux.v1.Page
-	49, // 38: plux.v1.ListAccessResponse.grants:type_name -> plux.v1.AccessGrant
-	59, // 39: plux.v1.ListAccessResponse.page:type_name -> plux.v1.PageResult
-	5,  // 40: plux.v1.AppService.CreateApp:input_type -> plux.v1.CreateAppRequest
-	7,  // 41: plux.v1.AppService.GetApp:input_type -> plux.v1.GetAppRequest
-	9,  // 42: plux.v1.AppService.ListApps:input_type -> plux.v1.ListAppsRequest
-	11, // 43: plux.v1.AppService.UpdateApp:input_type -> plux.v1.UpdateAppRequest
-	13, // 44: plux.v1.AppService.DeleteApp:input_type -> plux.v1.DeleteAppRequest
-	15, // 45: plux.v1.AppService.CreateEnvironment:input_type -> plux.v1.CreateEnvironmentRequest
-	17, // 46: plux.v1.AppService.ListEnvironments:input_type -> plux.v1.ListEnvironmentsRequest
-	19, // 47: plux.v1.AppService.UpdateEnvironment:input_type -> plux.v1.UpdateEnvironmentRequest
-	21, // 48: plux.v1.AppService.DeleteEnvironment:input_type -> plux.v1.DeleteEnvironmentRequest
-	23, // 49: plux.v1.AppService.SetVariable:input_type -> plux.v1.SetVariableRequest
-	25, // 50: plux.v1.AppService.ListVariables:input_type -> plux.v1.ListVariablesRequest
-	27, // 51: plux.v1.AppService.SetSecret:input_type -> plux.v1.SetSecretRequest
-	29, // 52: plux.v1.AppService.ListSecrets:input_type -> plux.v1.ListSecretsRequest
-	31, // 53: plux.v1.AppService.DeleteSecret:input_type -> plux.v1.DeleteSecretRequest
-	33, // 54: plux.v1.AppService.CreateChannel:input_type -> plux.v1.CreateChannelRequest
-	35, // 55: plux.v1.AppService.ListChannels:input_type -> plux.v1.ListChannelsRequest
-	37, // 56: plux.v1.AppService.DeleteChannel:input_type -> plux.v1.DeleteChannelRequest
-	50, // 57: plux.v1.AppService.GrantAccess:input_type -> plux.v1.GrantAccessRequest
-	52, // 58: plux.v1.AppService.RevokeAccess:input_type -> plux.v1.RevokeAccessRequest
-	54, // 59: plux.v1.AppService.ListAccess:input_type -> plux.v1.ListAccessRequest
-	39, // 60: plux.v1.AppService.ListTrash:input_type -> plux.v1.ListTrashRequest
-	41, // 61: plux.v1.AppService.RestoreFromTrash:input_type -> plux.v1.RestoreFromTrashRequest
-	43, // 62: plux.v1.AppService.PurgeFromTrash:input_type -> plux.v1.PurgeFromTrashRequest
-	45, // 63: plux.v1.AppService.ListAppLimits:input_type -> plux.v1.ListAppLimitsRequest
-	47, // 64: plux.v1.AppService.SetAppLimit:input_type -> plux.v1.SetAppLimitRequest
-	6,  // 65: plux.v1.AppService.CreateApp:output_type -> plux.v1.CreateAppResponse
-	8,  // 66: plux.v1.AppService.GetApp:output_type -> plux.v1.GetAppResponse
-	10, // 67: plux.v1.AppService.ListApps:output_type -> plux.v1.ListAppsResponse
-	12, // 68: plux.v1.AppService.UpdateApp:output_type -> plux.v1.UpdateAppResponse
-	14, // 69: plux.v1.AppService.DeleteApp:output_type -> plux.v1.DeleteAppResponse
-	16, // 70: plux.v1.AppService.CreateEnvironment:output_type -> plux.v1.CreateEnvironmentResponse
-	18, // 71: plux.v1.AppService.ListEnvironments:output_type -> plux.v1.ListEnvironmentsResponse
-	20, // 72: plux.v1.AppService.UpdateEnvironment:output_type -> plux.v1.UpdateEnvironmentResponse
-	22, // 73: plux.v1.AppService.DeleteEnvironment:output_type -> plux.v1.DeleteEnvironmentResponse
-	24, // 74: plux.v1.AppService.SetVariable:output_type -> plux.v1.SetVariableResponse
-	26, // 75: plux.v1.AppService.ListVariables:output_type -> plux.v1.ListVariablesResponse
-	28, // 76: plux.v1.AppService.SetSecret:output_type -> plux.v1.SetSecretResponse
-	30, // 77: plux.v1.AppService.ListSecrets:output_type -> plux.v1.ListSecretsResponse
-	32, // 78: plux.v1.AppService.DeleteSecret:output_type -> plux.v1.DeleteSecretResponse
-	34, // 79: plux.v1.AppService.CreateChannel:output_type -> plux.v1.CreateChannelResponse
-	36, // 80: plux.v1.AppService.ListChannels:output_type -> plux.v1.ListChannelsResponse
-	38, // 81: plux.v1.AppService.DeleteChannel:output_type -> plux.v1.DeleteChannelResponse
-	51, // 82: plux.v1.AppService.GrantAccess:output_type -> plux.v1.GrantAccessResponse
-	53, // 83: plux.v1.AppService.RevokeAccess:output_type -> plux.v1.RevokeAccessResponse
-	55, // 84: plux.v1.AppService.ListAccess:output_type -> plux.v1.ListAccessResponse
-	40, // 85: plux.v1.AppService.ListTrash:output_type -> plux.v1.ListTrashResponse
-	42, // 86: plux.v1.AppService.RestoreFromTrash:output_type -> plux.v1.RestoreFromTrashResponse
-	44, // 87: plux.v1.AppService.PurgeFromTrash:output_type -> plux.v1.PurgeFromTrashResponse
-	46, // 88: plux.v1.AppService.ListAppLimits:output_type -> plux.v1.ListAppLimitsResponse
-	48, // 89: plux.v1.AppService.SetAppLimit:output_type -> plux.v1.SetAppLimitResponse
-	65, // [65:90] is the sub-list for method output_type
-	40, // [40:65] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	60, // 11: plux.v1.UpdateAppRequest.metadata:type_name -> plux.v1.MetadataUpdate
+	0,  // 12: plux.v1.UpdateAppResponse.app:type_name -> plux.v1.App
+	61, // 13: plux.v1.DeleteAppResponse.trash:type_name -> plux.v1.TrashItem
+	1,  // 14: plux.v1.CreateEnvironmentResponse.environment:type_name -> plux.v1.Environment
+	58, // 15: plux.v1.ListEnvironmentsRequest.page:type_name -> plux.v1.Page
+	1,  // 16: plux.v1.ListEnvironmentsResponse.environments:type_name -> plux.v1.Environment
+	59, // 17: plux.v1.ListEnvironmentsResponse.page:type_name -> plux.v1.PageResult
+	1,  // 18: plux.v1.UpdateEnvironmentResponse.environment:type_name -> plux.v1.Environment
+	3,  // 19: plux.v1.SetVariableResponse.variable:type_name -> plux.v1.Variable
+	58, // 20: plux.v1.ListVariablesRequest.page:type_name -> plux.v1.Page
+	3,  // 21: plux.v1.ListVariablesResponse.variables:type_name -> plux.v1.Variable
+	59, // 22: plux.v1.ListVariablesResponse.page:type_name -> plux.v1.PageResult
+	4,  // 23: plux.v1.SetSecretResponse.secret:type_name -> plux.v1.Secret
+	58, // 24: plux.v1.ListSecretsRequest.page:type_name -> plux.v1.Page
+	4,  // 25: plux.v1.ListSecretsResponse.secrets:type_name -> plux.v1.Secret
+	59, // 26: plux.v1.ListSecretsResponse.page:type_name -> plux.v1.PageResult
+	2,  // 27: plux.v1.CreateChannelResponse.channel:type_name -> plux.v1.Channel
+	58, // 28: plux.v1.ListChannelsRequest.page:type_name -> plux.v1.Page
+	2,  // 29: plux.v1.ListChannelsResponse.channels:type_name -> plux.v1.Channel
+	59, // 30: plux.v1.ListChannelsResponse.page:type_name -> plux.v1.PageResult
+	58, // 31: plux.v1.ListTrashRequest.page:type_name -> plux.v1.Page
+	61, // 32: plux.v1.ListTrashResponse.items:type_name -> plux.v1.TrashItem
+	59, // 33: plux.v1.ListTrashResponse.page:type_name -> plux.v1.PageResult
+	62, // 34: plux.v1.ListAppLimitsResponse.limits:type_name -> plux.v1.LimitUsage
+	62, // 35: plux.v1.SetAppLimitResponse.limit:type_name -> plux.v1.LimitUsage
+	56, // 36: plux.v1.AccessGrant.granted_at:type_name -> google.protobuf.Timestamp
+	49, // 37: plux.v1.GrantAccessResponse.grant:type_name -> plux.v1.AccessGrant
+	58, // 38: plux.v1.ListAccessRequest.page:type_name -> plux.v1.Page
+	49, // 39: plux.v1.ListAccessResponse.grants:type_name -> plux.v1.AccessGrant
+	59, // 40: plux.v1.ListAccessResponse.page:type_name -> plux.v1.PageResult
+	5,  // 41: plux.v1.AppService.CreateApp:input_type -> plux.v1.CreateAppRequest
+	7,  // 42: plux.v1.AppService.GetApp:input_type -> plux.v1.GetAppRequest
+	9,  // 43: plux.v1.AppService.ListApps:input_type -> plux.v1.ListAppsRequest
+	11, // 44: plux.v1.AppService.UpdateApp:input_type -> plux.v1.UpdateAppRequest
+	13, // 45: plux.v1.AppService.DeleteApp:input_type -> plux.v1.DeleteAppRequest
+	15, // 46: plux.v1.AppService.CreateEnvironment:input_type -> plux.v1.CreateEnvironmentRequest
+	17, // 47: plux.v1.AppService.ListEnvironments:input_type -> plux.v1.ListEnvironmentsRequest
+	19, // 48: plux.v1.AppService.UpdateEnvironment:input_type -> plux.v1.UpdateEnvironmentRequest
+	21, // 49: plux.v1.AppService.DeleteEnvironment:input_type -> plux.v1.DeleteEnvironmentRequest
+	23, // 50: plux.v1.AppService.SetVariable:input_type -> plux.v1.SetVariableRequest
+	25, // 51: plux.v1.AppService.ListVariables:input_type -> plux.v1.ListVariablesRequest
+	27, // 52: plux.v1.AppService.SetSecret:input_type -> plux.v1.SetSecretRequest
+	29, // 53: plux.v1.AppService.ListSecrets:input_type -> plux.v1.ListSecretsRequest
+	31, // 54: plux.v1.AppService.DeleteSecret:input_type -> plux.v1.DeleteSecretRequest
+	33, // 55: plux.v1.AppService.CreateChannel:input_type -> plux.v1.CreateChannelRequest
+	35, // 56: plux.v1.AppService.ListChannels:input_type -> plux.v1.ListChannelsRequest
+	37, // 57: plux.v1.AppService.DeleteChannel:input_type -> plux.v1.DeleteChannelRequest
+	50, // 58: plux.v1.AppService.GrantAccess:input_type -> plux.v1.GrantAccessRequest
+	52, // 59: plux.v1.AppService.RevokeAccess:input_type -> plux.v1.RevokeAccessRequest
+	54, // 60: plux.v1.AppService.ListAccess:input_type -> plux.v1.ListAccessRequest
+	39, // 61: plux.v1.AppService.ListTrash:input_type -> plux.v1.ListTrashRequest
+	41, // 62: plux.v1.AppService.RestoreFromTrash:input_type -> plux.v1.RestoreFromTrashRequest
+	43, // 63: plux.v1.AppService.PurgeFromTrash:input_type -> plux.v1.PurgeFromTrashRequest
+	45, // 64: plux.v1.AppService.ListAppLimits:input_type -> plux.v1.ListAppLimitsRequest
+	47, // 65: plux.v1.AppService.SetAppLimit:input_type -> plux.v1.SetAppLimitRequest
+	6,  // 66: plux.v1.AppService.CreateApp:output_type -> plux.v1.CreateAppResponse
+	8,  // 67: plux.v1.AppService.GetApp:output_type -> plux.v1.GetAppResponse
+	10, // 68: plux.v1.AppService.ListApps:output_type -> plux.v1.ListAppsResponse
+	12, // 69: plux.v1.AppService.UpdateApp:output_type -> plux.v1.UpdateAppResponse
+	14, // 70: plux.v1.AppService.DeleteApp:output_type -> plux.v1.DeleteAppResponse
+	16, // 71: plux.v1.AppService.CreateEnvironment:output_type -> plux.v1.CreateEnvironmentResponse
+	18, // 72: plux.v1.AppService.ListEnvironments:output_type -> plux.v1.ListEnvironmentsResponse
+	20, // 73: plux.v1.AppService.UpdateEnvironment:output_type -> plux.v1.UpdateEnvironmentResponse
+	22, // 74: plux.v1.AppService.DeleteEnvironment:output_type -> plux.v1.DeleteEnvironmentResponse
+	24, // 75: plux.v1.AppService.SetVariable:output_type -> plux.v1.SetVariableResponse
+	26, // 76: plux.v1.AppService.ListVariables:output_type -> plux.v1.ListVariablesResponse
+	28, // 77: plux.v1.AppService.SetSecret:output_type -> plux.v1.SetSecretResponse
+	30, // 78: plux.v1.AppService.ListSecrets:output_type -> plux.v1.ListSecretsResponse
+	32, // 79: plux.v1.AppService.DeleteSecret:output_type -> plux.v1.DeleteSecretResponse
+	34, // 80: plux.v1.AppService.CreateChannel:output_type -> plux.v1.CreateChannelResponse
+	36, // 81: plux.v1.AppService.ListChannels:output_type -> plux.v1.ListChannelsResponse
+	38, // 82: plux.v1.AppService.DeleteChannel:output_type -> plux.v1.DeleteChannelResponse
+	51, // 83: plux.v1.AppService.GrantAccess:output_type -> plux.v1.GrantAccessResponse
+	53, // 84: plux.v1.AppService.RevokeAccess:output_type -> plux.v1.RevokeAccessResponse
+	55, // 85: plux.v1.AppService.ListAccess:output_type -> plux.v1.ListAccessResponse
+	40, // 86: plux.v1.AppService.ListTrash:output_type -> plux.v1.ListTrashResponse
+	42, // 87: plux.v1.AppService.RestoreFromTrash:output_type -> plux.v1.RestoreFromTrashResponse
+	44, // 88: plux.v1.AppService.PurgeFromTrash:output_type -> plux.v1.PurgeFromTrashResponse
+	46, // 89: plux.v1.AppService.ListAppLimits:output_type -> plux.v1.ListAppLimitsResponse
+	48, // 90: plux.v1.AppService.SetAppLimit:output_type -> plux.v1.SetAppLimitResponse
+	66, // [66:91] is the sub-list for method output_type
+	41, // [41:66] is the sub-list for method input_type
+	41, // [41:41] is the sub-list for extension type_name
+	41, // [41:41] is the sub-list for extension extendee
+	0,  // [0:41] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_app_proto_init() }

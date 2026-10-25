@@ -9,7 +9,7 @@ import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegen
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { Actor, LimitUsage, Page, PageResult, TrashItem } from "./common_pb.ts";
+import type { Actor, LimitUsage, MetadataUpdate, Page, PageResult, TrashItem } from "./common_pb.ts";
 import { file_plux_v1_common } from "./common_pb.ts";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/plugin.proto.
  */
 export const file_plux_v1_plugin: GenFile = /*@__PURE__*/
-  fileDesc("ChRwbHV4L3YxL3BsdWdpbi5wcm90bxIHcGx1eC52MSLPAQoGUGx1Z2luEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRILCgNrZXkYAyABKAkSDAoEbmFtZRgEIAEoCRIWCg5sYXRlc3RfdmVyc2lvbhgFIAEoAxIWCg5kcmFmdF9yZXZpc2lvbhgGIAEoAxIuCgpjcmVhdGVkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLbAgoETG9jaxIRCglwbHVnaW5faWQYASABKAkSDgoGYXBwX2lkGAIgASgJEh4KBmhvbGRlchgDIAEoCzIOLnBsdXgudjEuQWN0b3ISDwoHc2Vzc2lvbhgEIAEoCRIvCgthY3F1aXJlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJAoMcmVxdWVzdGVkX2J5GAcgAygLMg4ucGx1eC52MS5BY3RvchINCgVzY29wZRgIIAEoCRIwCgxsYXN0X2VkaXRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjcKE3Rha2VvdmVyX2FsbG93ZWRfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIkAKE0NyZWF0ZVBsdWdpblJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEgsKA2tleRgCIAEoCRIMCgRuYW1lGAMgASgJIjcKFENyZWF0ZVBsdWdpblJlc3BvbnNlEh8KBnBsdWdpbhgBIAEoCzIPLnBsdXgudjEuUGx1Z2luIh4KEEdldFBsdWdpblJlcXVlc3QSCgoCaWQYASABKAkiNAoRR2V0UGx1Z2luUmVzcG9uc2USHwoGcGx1Z2luGAEgASgLMg8ucGx1eC52MS5QbHVnaW4iQQoSTGlzdFBsdWdpbnNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIbCgRwYWdlGAIgASgLMg0ucGx1eC52MS5QYWdlIloKE0xpc3RQbHVnaW5zUmVzcG9uc2USIAoHcGx1Z2lucxgBIAMoCzIPLnBsdXgudjEuUGx1Z2luEiEKBHBhZ2UYAiABKAsyEy5wbHV4LnYxLlBhZ2VSZXN1bHQiLwoTVXBkYXRlUGx1Z2luUmVxdWVzdBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJIjcKFFVwZGF0ZVBsdWdpblJlc3BvbnNlEh8KBnBsdWdpbhgBIAEoCzIPLnBsdXgudjEuUGx1Z2luIiEKE0RlbGV0ZVBsdWdpblJlcXVlc3QSCgoCaWQYASABKAkiOQoURGVsZXRlUGx1Z2luUmVzcG9uc2USIQoFdHJhc2gYASABKAsyEi5wbHV4LnYxLlRyYXNoSXRlbSJmChJBY3F1aXJlTG9ja1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCRIPCgdzZXNzaW9uGAMgASgJEg0KBWZvcmNlGAQgASgIEg0KBXNjb3BlGAUgASgJIlEKE0FjcXVpcmVMb2NrUmVzcG9uc2USGwoEbG9jaxgBIAEoCzINLnBsdXgudjEuTG9jaxIdChVwcmVzZXJ2ZWRfc25hcHNob3RfaWQYAiABKAkiVQoQUmVuZXdMb2NrUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEg8KB3Nlc3Npb24YAyABKAkSDQoFc2NvcGUYBCABKAkiMAoRUmVuZXdMb2NrUmVzcG9uc2USGwoEbG9jaxgBIAEoCzINLnBsdXgudjEuTG9jayJXChJSZWxlYXNlTG9ja1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCRIPCgdzZXNzaW9uGAMgASgJEg0KBXNjb3BlGAQgASgJIhUKE1JlbGVhc2VMb2NrUmVzcG9uc2UiRgoSUmVxdWVzdExvY2tSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDQoFc2NvcGUYAyABKAkiMgoTUmVxdWVzdExvY2tSZXNwb25zZRIbCgRsb2NrGAEgASgLMg0ucGx1eC52MS5Mb2NrIkIKDkdldExvY2tSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDQoFc2NvcGUYAyABKAkiLgoPR2V0TG9ja1Jlc3BvbnNlEhsKBGxvY2sYASABKAsyDS5wbHV4LnYxLkxvY2siLAoXTGlzdFBsdWdpbkxpbWl0c1JlcXVlc3QSEQoJcGx1Z2luX2lkGAEgASgJIj8KGExpc3RQbHVnaW5MaW1pdHNSZXNwb25zZRIjCgZsaW1pdHMYASADKAsyEy5wbHV4LnYxLkxpbWl0VXNhZ2UiRgoVU2V0UGx1Z2luTGltaXRSZXF1ZXN0EhEKCXBsdWdpbl9pZBgBIAEoCRILCgNrZXkYAiABKAkSDQoFdmFsdWUYAyABKAMiPAoWU2V0UGx1Z2luTGltaXRSZXNwb25zZRIiCgVsaW1pdBgBIAEoCzITLnBsdXgudjEuTGltaXRVc2FnZTKQBwoNUGx1Z2luU2VydmljZRJLCgxDcmVhdGVQbHVnaW4SHC5wbHV4LnYxLkNyZWF0ZVBsdWdpblJlcXVlc3QaHS5wbHV4LnYxLkNyZWF0ZVBsdWdpblJlc3BvbnNlEkIKCUdldFBsdWdpbhIZLnBsdXgudjEuR2V0UGx1Z2luUmVxdWVzdBoaLnBsdXgudjEuR2V0UGx1Z2luUmVzcG9uc2USSAoLTGlzdFBsdWdpbnMSGy5wbHV4LnYxLkxpc3RQbHVnaW5zUmVxdWVzdBocLnBsdXgudjEuTGlzdFBsdWdpbnNSZXNwb25zZRJLCgxVcGRhdGVQbHVnaW4SHC5wbHV4LnYxLlVwZGF0ZVBsdWdpblJlcXVlc3QaHS5wbHV4LnYxLlVwZGF0ZVBsdWdpblJlc3BvbnNlEksKDERlbGV0ZVBsdWdpbhIcLnBsdXgudjEuRGVsZXRlUGx1Z2luUmVxdWVzdBodLnBsdXgudjEuRGVsZXRlUGx1Z2luUmVzcG9uc2USSAoLQWNxdWlyZUxvY2sSGy5wbHV4LnYxLkFjcXVpcmVMb2NrUmVxdWVzdBocLnBsdXgudjEuQWNxdWlyZUxvY2tSZXNwb25zZRJCCglSZW5ld0xvY2sSGS5wbHV4LnYxLlJlbmV3TG9ja1JlcXVlc3QaGi5wbHV4LnYxLlJlbmV3TG9ja1Jlc3BvbnNlEkgKC1JlbGVhc2VMb2NrEhsucGx1eC52MS5SZWxlYXNlTG9ja1JlcXVlc3QaHC5wbHV4LnYxLlJlbGVhc2VMb2NrUmVzcG9uc2USSAoLUmVxdWVzdExvY2sSGy5wbHV4LnYxLlJlcXVlc3RMb2NrUmVxdWVzdBocLnBsdXgudjEuUmVxdWVzdExvY2tSZXNwb25zZRI8CgdHZXRMb2NrEhcucGx1eC52MS5HZXRMb2NrUmVxdWVzdBoYLnBsdXgudjEuR2V0TG9ja1Jlc3BvbnNlElcKEExpc3RQbHVnaW5MaW1pdHMSIC5wbHV4LnYxLkxpc3RQbHVnaW5MaW1pdHNSZXF1ZXN0GiEucGx1eC52MS5MaXN0UGx1Z2luTGltaXRzUmVzcG9uc2USUQoOU2V0UGx1Z2luTGltaXQSHi5wbHV4LnYxLlNldFBsdWdpbkxpbWl0UmVxdWVzdBofLnBsdXgudjEuU2V0UGx1Z2luTGltaXRSZXNwb25zZUI9WjtnaXRodWIuY29tL25pZ2h0Q29kZTQyL3BsdXgzL2JhY2tlbmQvaW50ZXJuYWwvcGx1eHYxO3BsdXh2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_plux_v1_common]);
+  fileDesc("ChRwbHV4L3YxL3BsdWdpbi5wcm90bxIHcGx1eC52MSKzAgoGUGx1Z2luEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRILCgNrZXkYAyABKAkSDAoEbmFtZRgEIAEoCRIWCg5sYXRlc3RfdmVyc2lvbhgFIAEoAxIWCg5kcmFmdF9yZXZpc2lvbhgGIAEoAxIuCgpjcmVhdGVkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgtkZXNjcmlwdGlvbhgJIAEoCRIVCg1pY29uX2Fzc2V0X2lkGAogASgJEhYKDm93bmluZ190ZWFtX2lkGAsgASgJEgwKBHRhZ3MYDCADKAkSEAoIYXJjaGl2ZWQYDSABKAgiywIKDVBsdWdpblN1bW1hcnkSHwoGcGx1Z2luGAEgASgLMg8ucGx1eC52MS5QbHVnaW4SDwoHc2NyZWVucxgCIAEoAxIQCgh2ZXJzaW9ucxgDIAEoAxIbChN1bnB1Ymxpc2hlZF9jaGFuZ2VzGAQgASgIEhMKC2xvY2tfaG9sZGVyGAUgASgJEhkKEXZhbGlkYXRpb25fZXJyb3JzGAYgASgDEg4KBmtpbGxlZBgHIAEoCBIVCg1vd25lcl90ZWFtX2lkGAggASgJEhMKC2J1bmRsZV9zaXplGAkgASgDEhEKCWxpbmtzX291dBgKIAMoCRIQCghsaW5rc19pbhgLIAMoCRIWCg5mdW5jdGlvbnNfdXNlZBgMIAMoCRIwCgxwdWJsaXNoZWRfYXQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wItsCCgRMb2NrEhEKCXBsdWdpbl9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSHgoGaG9sZGVyGAMgASgLMg4ucGx1eC52MS5BY3RvchIPCgdzZXNzaW9uGAQgASgJEi8KC2FjcXVpcmVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIkCgxyZXF1ZXN0ZWRfYnkYByADKAsyDi5wbHV4LnYxLkFjdG9yEg0KBXNjb3BlGAggASgJEjAKDGxhc3RfZWRpdF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNwoTdGFrZW92ZXJfYWxsb3dlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiQAoTQ3JlYXRlUGx1Z2luUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSCwoDa2V5GAIgASgJEgwKBG5hbWUYAyABKAkiNwoUQ3JlYXRlUGx1Z2luUmVzcG9uc2USHwoGcGx1Z2luGAEgASgLMg8ucGx1eC52MS5QbHVnaW4iHgoQR2V0UGx1Z2luUmVxdWVzdBIKCgJpZBgBIAEoCSI0ChFHZXRQbHVnaW5SZXNwb25zZRIfCgZwbHVnaW4YASABKAsyDy5wbHV4LnYxLlBsdWdpbiJBChJMaXN0UGx1Z2luc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhsKBHBhZ2UYAiABKAsyDS5wbHV4LnYxLlBhZ2UiWgoTTGlzdFBsdWdpbnNSZXNwb25zZRIgCgdwbHVnaW5zGAEgAygLMg8ucGx1eC52MS5QbHVnaW4SIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCJaChNVcGRhdGVQbHVnaW5SZXF1ZXN0EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSKQoIbWV0YWRhdGEYAyABKAsyFy5wbHV4LnYxLk1ldGFkYXRhVXBkYXRlIjcKFFVwZGF0ZVBsdWdpblJlc3BvbnNlEh8KBnBsdWdpbhgBIAEoCzIPLnBsdXgudjEuUGx1Z2luIiEKE0RlbGV0ZVBsdWdpblJlcXVlc3QSCgoCaWQYASABKAkiOQoURGVsZXRlUGx1Z2luUmVzcG9uc2USIQoFdHJhc2gYASABKAsyEi5wbHV4LnYxLlRyYXNoSXRlbSJmChJBY3F1aXJlTG9ja1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCRIPCgdzZXNzaW9uGAMgASgJEg0KBWZvcmNlGAQgASgIEg0KBXNjb3BlGAUgASgJIlEKE0FjcXVpcmVMb2NrUmVzcG9uc2USGwoEbG9jaxgBIAEoCzINLnBsdXgudjEuTG9jaxIdChVwcmVzZXJ2ZWRfc25hcHNob3RfaWQYAiABKAkiVQoQUmVuZXdMb2NrUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEg8KB3Nlc3Npb24YAyABKAkSDQoFc2NvcGUYBCABKAkiMAoRUmVuZXdMb2NrUmVzcG9uc2USGwoEbG9jaxgBIAEoCzINLnBsdXgudjEuTG9jayJXChJSZWxlYXNlTG9ja1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCRIPCgdzZXNzaW9uGAMgASgJEg0KBXNjb3BlGAQgASgJIhUKE1JlbGVhc2VMb2NrUmVzcG9uc2UiRgoSUmVxdWVzdExvY2tSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDQoFc2NvcGUYAyABKAkiMgoTUmVxdWVzdExvY2tSZXNwb25zZRIbCgRsb2NrGAEgASgLMg0ucGx1eC52MS5Mb2NrIkIKDkdldExvY2tSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDQoFc2NvcGUYAyABKAkiLgoPR2V0TG9ja1Jlc3BvbnNlEhsKBGxvY2sYASABKAsyDS5wbHV4LnYxLkxvY2siLAoXTGlzdFBsdWdpbkxpbWl0c1JlcXVlc3QSEQoJcGx1Z2luX2lkGAEgASgJIj8KGExpc3RQbHVnaW5MaW1pdHNSZXNwb25zZRIjCgZsaW1pdHMYASADKAsyEy5wbHV4LnYxLkxpbWl0VXNhZ2UiRgoVU2V0UGx1Z2luTGltaXRSZXF1ZXN0EhEKCXBsdWdpbl9pZBgBIAEoCRILCgNrZXkYAiABKAkSDQoFdmFsdWUYAyABKAMiPAoWU2V0UGx1Z2luTGltaXRSZXNwb25zZRIiCgVsaW1pdBgBIAEoCzITLnBsdXgudjEuTGltaXRVc2FnZSJQChZEdXBsaWNhdGVQbHVnaW5SZXF1ZXN0EgoKAmlkGAEgASgJEgsKA2tleRgCIAEoCRIMCgRuYW1lGAMgASgJEg8KB3Nlc3Npb24YBCABKAkiOgoXRHVwbGljYXRlUGx1Z2luUmVzcG9uc2USHwoGcGx1Z2luGAEgASgLMg8ucGx1eC52MS5QbHVnaW4iNAoUQXJjaGl2ZVBsdWdpblJlcXVlc3QSCgoCaWQYASABKAkSEAoIYXJjaGl2ZWQYAiABKAgiOAoVQXJjaGl2ZVBsdWdpblJlc3BvbnNlEh8KBnBsdWdpbhgBIAEoCzIPLnBsdXgudjEuUGx1Z2luIiwKGkxpc3RQbHVnaW5TdW1tYXJpZXNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCSJIChtMaXN0UGx1Z2luU3VtbWFyaWVzUmVzcG9uc2USKQoJc3VtbWFyaWVzGAEgAygLMhYucGx1eC52MS5QbHVnaW5TdW1tYXJ5MpgJCg1QbHVnaW5TZXJ2aWNlEksKDENyZWF0ZVBsdWdpbhIcLnBsdXgudjEuQ3JlYXRlUGx1Z2luUmVxdWVzdBodLnBsdXgudjEuQ3JlYXRlUGx1Z2luUmVzcG9uc2USQgoJR2V0UGx1Z2luEhkucGx1eC52MS5HZXRQbHVnaW5SZXF1ZXN0GhoucGx1eC52MS5HZXRQbHVnaW5SZXNwb25zZRJICgtMaXN0UGx1Z2lucxIbLnBsdXgudjEuTGlzdFBsdWdpbnNSZXF1ZXN0GhwucGx1eC52MS5MaXN0UGx1Z2luc1Jlc3BvbnNlEksKDFVwZGF0ZVBsdWdpbhIcLnBsdXgudjEuVXBkYXRlUGx1Z2luUmVxdWVzdBodLnBsdXgudjEuVXBkYXRlUGx1Z2luUmVzcG9uc2USSwoMRGVsZXRlUGx1Z2luEhwucGx1eC52MS5EZWxldGVQbHVnaW5SZXF1ZXN0Gh0ucGx1eC52MS5EZWxldGVQbHVnaW5SZXNwb25zZRJUCg9EdXBsaWNhdGVQbHVnaW4SHy5wbHV4LnYxLkR1cGxpY2F0ZVBsdWdpblJlcXVlc3QaIC5wbHV4LnYxLkR1cGxpY2F0ZVBsdWdpblJlc3BvbnNlEk4KDUFyY2hpdmVQbHVnaW4SHS5wbHV4LnYxLkFyY2hpdmVQbHVnaW5SZXF1ZXN0Gh4ucGx1eC52MS5BcmNoaXZlUGx1Z2luUmVzcG9uc2USYAoTTGlzdFBsdWdpblN1bW1hcmllcxIjLnBsdXgudjEuTGlzdFBsdWdpblN1bW1hcmllc1JlcXVlc3QaJC5wbHV4LnYxLkxpc3RQbHVnaW5TdW1tYXJpZXNSZXNwb25zZRJICgtBY3F1aXJlTG9jaxIbLnBsdXgudjEuQWNxdWlyZUxvY2tSZXF1ZXN0GhwucGx1eC52MS5BY3F1aXJlTG9ja1Jlc3BvbnNlEkIKCVJlbmV3TG9jaxIZLnBsdXgudjEuUmVuZXdMb2NrUmVxdWVzdBoaLnBsdXgudjEuUmVuZXdMb2NrUmVzcG9uc2USSAoLUmVsZWFzZUxvY2sSGy5wbHV4LnYxLlJlbGVhc2VMb2NrUmVxdWVzdBocLnBsdXgudjEuUmVsZWFzZUxvY2tSZXNwb25zZRJICgtSZXF1ZXN0TG9jaxIbLnBsdXgudjEuUmVxdWVzdExvY2tSZXF1ZXN0GhwucGx1eC52MS5SZXF1ZXN0TG9ja1Jlc3BvbnNlEjwKB0dldExvY2sSFy5wbHV4LnYxLkdldExvY2tSZXF1ZXN0GhgucGx1eC52MS5HZXRMb2NrUmVzcG9uc2USVwoQTGlzdFBsdWdpbkxpbWl0cxIgLnBsdXgudjEuTGlzdFBsdWdpbkxpbWl0c1JlcXVlc3QaIS5wbHV4LnYxLkxpc3RQbHVnaW5MaW1pdHNSZXNwb25zZRJRCg5TZXRQbHVnaW5MaW1pdBIeLnBsdXgudjEuU2V0UGx1Z2luTGltaXRSZXF1ZXN0Gh8ucGx1eC52MS5TZXRQbHVnaW5MaW1pdFJlc3BvbnNlQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM", [file_google_protobuf_timestamp, file_plux_v1_common]);
 
 /**
  * @generated from message plux.v1.Plugin
@@ -66,6 +66,31 @@ export type Plugin = Message<"plux.v1.Plugin"> & {
    * @generated from field: google.protobuf.Timestamp updated_at = 8;
    */
   updatedAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: string description = 9;
+   */
+  description: string;
+
+  /**
+   * @generated from field: string icon_asset_id = 10;
+   */
+  iconAssetId: string;
+
+  /**
+   * @generated from field: string owning_team_id = 11;
+   */
+  owningTeamId: string;
+
+  /**
+   * @generated from field: repeated string tags = 12;
+   */
+  tags: string[];
+
+  /**
+   * @generated from field: bool archived = 13;
+   */
+  archived: boolean;
 };
 
 /**
@@ -74,6 +99,99 @@ export type Plugin = Message<"plux.v1.Plugin"> & {
  */
 export const PluginSchema: GenMessage<Plugin> = /*@__PURE__*/
   messageDesc(file_plux_v1_plugin, 0);
+
+/**
+ * PluginSummary is what the app canvas shows of one plugin.
+ *
+ * @generated from message plux.v1.PluginSummary
+ */
+export type PluginSummary = Message<"plux.v1.PluginSummary"> & {
+  /**
+   * @generated from field: plux.v1.Plugin plugin = 1;
+   */
+  plugin?: Plugin | undefined;
+
+  /**
+   * @generated from field: int64 screens = 2;
+   */
+  screens: bigint;
+
+  /**
+   * versions is the number of published versions (the highest is the latest).
+   *
+   * @generated from field: int64 versions = 3;
+   */
+  versions: bigint;
+
+  /**
+   * unpublished_changes is true when the draft changed after the newest
+   * published version, or nothing was published yet and the draft has content.
+   *
+   * @generated from field: bool unpublished_changes = 4;
+   */
+  unpublishedChanges: boolean;
+
+  /**
+   * lock_holder is the display name of the draft's lock holder, or empty.
+   *
+   * @generated from field: string lock_holder = 5;
+   */
+  lockHolder: string;
+
+  /**
+   * @generated from field: int64 validation_errors = 6;
+   */
+  validationErrors: bigint;
+
+  /**
+   * killed is true when a channel of the app switches the plugin off.
+   *
+   * @generated from field: bool killed = 7;
+   */
+  killed: boolean;
+
+  /**
+   * owner_team_id mirrors plugin.owning_team_id.
+   *
+   * @generated from field: string owner_team_id = 8;
+   */
+  ownerTeamId: string;
+
+  /**
+   * @generated from field: int64 bundle_size = 9;
+   */
+  bundleSize: bigint;
+
+  /**
+   * links_out and links_in are the distinct other plugins this plugin
+   * navigates to, and that navigate to it, by plugin key.
+   *
+   * @generated from field: repeated string links_out = 10;
+   */
+  linksOut: string[];
+
+  /**
+   * @generated from field: repeated string links_in = 11;
+   */
+  linksIn: string[];
+
+  /**
+   * @generated from field: repeated string functions_used = 12;
+   */
+  functionsUsed: string[];
+
+  /**
+   * @generated from field: google.protobuf.Timestamp published_at = 13;
+   */
+  publishedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.PluginSummary.
+ * Use `create(PluginSummarySchema)` to create a new message.
+ */
+export const PluginSummarySchema: GenMessage<PluginSummary> = /*@__PURE__*/
+  messageDesc(file_plux_v1_plugin, 1);
 
 /**
  * Lock is an exclusive editing lock (SRV-040, ADR-0015).
@@ -153,7 +271,7 @@ export type Lock = Message<"plux.v1.Lock"> & {
  * Use `create(LockSchema)` to create a new message.
  */
 export const LockSchema: GenMessage<Lock> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 1);
+  messageDesc(file_plux_v1_plugin, 2);
 
 /**
  * @generated from message plux.v1.CreatePluginRequest
@@ -180,7 +298,7 @@ export type CreatePluginRequest = Message<"plux.v1.CreatePluginRequest"> & {
  * Use `create(CreatePluginRequestSchema)` to create a new message.
  */
 export const CreatePluginRequestSchema: GenMessage<CreatePluginRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 2);
+  messageDesc(file_plux_v1_plugin, 3);
 
 /**
  * @generated from message plux.v1.CreatePluginResponse
@@ -197,7 +315,7 @@ export type CreatePluginResponse = Message<"plux.v1.CreatePluginResponse"> & {
  * Use `create(CreatePluginResponseSchema)` to create a new message.
  */
 export const CreatePluginResponseSchema: GenMessage<CreatePluginResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 3);
+  messageDesc(file_plux_v1_plugin, 4);
 
 /**
  * @generated from message plux.v1.GetPluginRequest
@@ -214,7 +332,7 @@ export type GetPluginRequest = Message<"plux.v1.GetPluginRequest"> & {
  * Use `create(GetPluginRequestSchema)` to create a new message.
  */
 export const GetPluginRequestSchema: GenMessage<GetPluginRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 4);
+  messageDesc(file_plux_v1_plugin, 5);
 
 /**
  * @generated from message plux.v1.GetPluginResponse
@@ -231,7 +349,7 @@ export type GetPluginResponse = Message<"plux.v1.GetPluginResponse"> & {
  * Use `create(GetPluginResponseSchema)` to create a new message.
  */
 export const GetPluginResponseSchema: GenMessage<GetPluginResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 5);
+  messageDesc(file_plux_v1_plugin, 6);
 
 /**
  * @generated from message plux.v1.ListPluginsRequest
@@ -253,7 +371,7 @@ export type ListPluginsRequest = Message<"plux.v1.ListPluginsRequest"> & {
  * Use `create(ListPluginsRequestSchema)` to create a new message.
  */
 export const ListPluginsRequestSchema: GenMessage<ListPluginsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 6);
+  messageDesc(file_plux_v1_plugin, 7);
 
 /**
  * @generated from message plux.v1.ListPluginsResponse
@@ -275,7 +393,7 @@ export type ListPluginsResponse = Message<"plux.v1.ListPluginsResponse"> & {
  * Use `create(ListPluginsResponseSchema)` to create a new message.
  */
 export const ListPluginsResponseSchema: GenMessage<ListPluginsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 7);
+  messageDesc(file_plux_v1_plugin, 8);
 
 /**
  * @generated from message plux.v1.UpdatePluginRequest
@@ -287,9 +405,16 @@ export type UpdatePluginRequest = Message<"plux.v1.UpdatePluginRequest"> & {
   id: string;
 
   /**
+   * name is required unless metadata is set, when an empty name keeps it.
+   *
    * @generated from field: string name = 2;
    */
   name: string;
+
+  /**
+   * @generated from field: plux.v1.MetadataUpdate metadata = 3;
+   */
+  metadata?: MetadataUpdate | undefined;
 };
 
 /**
@@ -297,7 +422,7 @@ export type UpdatePluginRequest = Message<"plux.v1.UpdatePluginRequest"> & {
  * Use `create(UpdatePluginRequestSchema)` to create a new message.
  */
 export const UpdatePluginRequestSchema: GenMessage<UpdatePluginRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 8);
+  messageDesc(file_plux_v1_plugin, 9);
 
 /**
  * @generated from message plux.v1.UpdatePluginResponse
@@ -314,7 +439,7 @@ export type UpdatePluginResponse = Message<"plux.v1.UpdatePluginResponse"> & {
  * Use `create(UpdatePluginResponseSchema)` to create a new message.
  */
 export const UpdatePluginResponseSchema: GenMessage<UpdatePluginResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 9);
+  messageDesc(file_plux_v1_plugin, 10);
 
 /**
  * @generated from message plux.v1.DeletePluginRequest
@@ -331,7 +456,7 @@ export type DeletePluginRequest = Message<"plux.v1.DeletePluginRequest"> & {
  * Use `create(DeletePluginRequestSchema)` to create a new message.
  */
 export const DeletePluginRequestSchema: GenMessage<DeletePluginRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 10);
+  messageDesc(file_plux_v1_plugin, 11);
 
 /**
  * @generated from message plux.v1.DeletePluginResponse
@@ -348,7 +473,7 @@ export type DeletePluginResponse = Message<"plux.v1.DeletePluginResponse"> & {
  * Use `create(DeletePluginResponseSchema)` to create a new message.
  */
 export const DeletePluginResponseSchema: GenMessage<DeletePluginResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 11);
+  messageDesc(file_plux_v1_plugin, 12);
 
 /**
  * @generated from message plux.v1.AcquireLockRequest
@@ -391,7 +516,7 @@ export type AcquireLockRequest = Message<"plux.v1.AcquireLockRequest"> & {
  * Use `create(AcquireLockRequestSchema)` to create a new message.
  */
 export const AcquireLockRequestSchema: GenMessage<AcquireLockRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 12);
+  messageDesc(file_plux_v1_plugin, 13);
 
 /**
  * @generated from message plux.v1.AcquireLockResponse
@@ -415,7 +540,7 @@ export type AcquireLockResponse = Message<"plux.v1.AcquireLockResponse"> & {
  * Use `create(AcquireLockResponseSchema)` to create a new message.
  */
 export const AcquireLockResponseSchema: GenMessage<AcquireLockResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 13);
+  messageDesc(file_plux_v1_plugin, 14);
 
 /**
  * @generated from message plux.v1.RenewLockRequest
@@ -449,7 +574,7 @@ export type RenewLockRequest = Message<"plux.v1.RenewLockRequest"> & {
  * Use `create(RenewLockRequestSchema)` to create a new message.
  */
 export const RenewLockRequestSchema: GenMessage<RenewLockRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 14);
+  messageDesc(file_plux_v1_plugin, 15);
 
 /**
  * @generated from message plux.v1.RenewLockResponse
@@ -466,7 +591,7 @@ export type RenewLockResponse = Message<"plux.v1.RenewLockResponse"> & {
  * Use `create(RenewLockResponseSchema)` to create a new message.
  */
 export const RenewLockResponseSchema: GenMessage<RenewLockResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 15);
+  messageDesc(file_plux_v1_plugin, 16);
 
 /**
  * @generated from message plux.v1.ReleaseLockRequest
@@ -500,7 +625,7 @@ export type ReleaseLockRequest = Message<"plux.v1.ReleaseLockRequest"> & {
  * Use `create(ReleaseLockRequestSchema)` to create a new message.
  */
 export const ReleaseLockRequestSchema: GenMessage<ReleaseLockRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 16);
+  messageDesc(file_plux_v1_plugin, 17);
 
 /**
  * @generated from message plux.v1.ReleaseLockResponse
@@ -513,7 +638,7 @@ export type ReleaseLockResponse = Message<"plux.v1.ReleaseLockResponse"> & {
  * Use `create(ReleaseLockResponseSchema)` to create a new message.
  */
 export const ReleaseLockResponseSchema: GenMessage<ReleaseLockResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 17);
+  messageDesc(file_plux_v1_plugin, 18);
 
 /**
  * @generated from message plux.v1.RequestLockRequest
@@ -542,7 +667,7 @@ export type RequestLockRequest = Message<"plux.v1.RequestLockRequest"> & {
  * Use `create(RequestLockRequestSchema)` to create a new message.
  */
 export const RequestLockRequestSchema: GenMessage<RequestLockRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 18);
+  messageDesc(file_plux_v1_plugin, 19);
 
 /**
  * @generated from message plux.v1.RequestLockResponse
@@ -559,7 +684,7 @@ export type RequestLockResponse = Message<"plux.v1.RequestLockResponse"> & {
  * Use `create(RequestLockResponseSchema)` to create a new message.
  */
 export const RequestLockResponseSchema: GenMessage<RequestLockResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 19);
+  messageDesc(file_plux_v1_plugin, 20);
 
 /**
  * @generated from message plux.v1.GetLockRequest
@@ -588,7 +713,7 @@ export type GetLockRequest = Message<"plux.v1.GetLockRequest"> & {
  * Use `create(GetLockRequestSchema)` to create a new message.
  */
 export const GetLockRequestSchema: GenMessage<GetLockRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 20);
+  messageDesc(file_plux_v1_plugin, 21);
 
 /**
  * @generated from message plux.v1.GetLockResponse
@@ -605,7 +730,7 @@ export type GetLockResponse = Message<"plux.v1.GetLockResponse"> & {
  * Use `create(GetLockResponseSchema)` to create a new message.
  */
 export const GetLockResponseSchema: GenMessage<GetLockResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 21);
+  messageDesc(file_plux_v1_plugin, 22);
 
 /**
  * @generated from message plux.v1.ListPluginLimitsRequest
@@ -622,7 +747,7 @@ export type ListPluginLimitsRequest = Message<"plux.v1.ListPluginLimitsRequest">
  * Use `create(ListPluginLimitsRequestSchema)` to create a new message.
  */
 export const ListPluginLimitsRequestSchema: GenMessage<ListPluginLimitsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 22);
+  messageDesc(file_plux_v1_plugin, 23);
 
 /**
  * @generated from message plux.v1.ListPluginLimitsResponse
@@ -639,7 +764,7 @@ export type ListPluginLimitsResponse = Message<"plux.v1.ListPluginLimitsResponse
  * Use `create(ListPluginLimitsResponseSchema)` to create a new message.
  */
 export const ListPluginLimitsResponseSchema: GenMessage<ListPluginLimitsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 23);
+  messageDesc(file_plux_v1_plugin, 24);
 
 /**
  * @generated from message plux.v1.SetPluginLimitRequest
@@ -666,7 +791,7 @@ export type SetPluginLimitRequest = Message<"plux.v1.SetPluginLimitRequest"> & {
  * Use `create(SetPluginLimitRequestSchema)` to create a new message.
  */
 export const SetPluginLimitRequestSchema: GenMessage<SetPluginLimitRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 24);
+  messageDesc(file_plux_v1_plugin, 25);
 
 /**
  * @generated from message plux.v1.SetPluginLimitResponse
@@ -683,7 +808,132 @@ export type SetPluginLimitResponse = Message<"plux.v1.SetPluginLimitResponse"> &
  * Use `create(SetPluginLimitResponseSchema)` to create a new message.
  */
 export const SetPluginLimitResponseSchema: GenMessage<SetPluginLimitResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_plugin, 25);
+  messageDesc(file_plux_v1_plugin, 26);
+
+/**
+ * @generated from message plux.v1.DuplicatePluginRequest
+ */
+export type DuplicatePluginRequest = Message<"plux.v1.DuplicatePluginRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string key = 2;
+   */
+  key: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * session is the caller's editing session, which takes the new plugin's
+   * lock while the copy is written and releases it.
+   *
+   * @generated from field: string session = 4;
+   */
+  session: string;
+};
+
+/**
+ * Describes the message plux.v1.DuplicatePluginRequest.
+ * Use `create(DuplicatePluginRequestSchema)` to create a new message.
+ */
+export const DuplicatePluginRequestSchema: GenMessage<DuplicatePluginRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_plugin, 27);
+
+/**
+ * @generated from message plux.v1.DuplicatePluginResponse
+ */
+export type DuplicatePluginResponse = Message<"plux.v1.DuplicatePluginResponse"> & {
+  /**
+   * @generated from field: plux.v1.Plugin plugin = 1;
+   */
+  plugin?: Plugin | undefined;
+};
+
+/**
+ * Describes the message plux.v1.DuplicatePluginResponse.
+ * Use `create(DuplicatePluginResponseSchema)` to create a new message.
+ */
+export const DuplicatePluginResponseSchema: GenMessage<DuplicatePluginResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_plugin, 28);
+
+/**
+ * @generated from message plux.v1.ArchivePluginRequest
+ */
+export type ArchivePluginRequest = Message<"plux.v1.ArchivePluginRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: bool archived = 2;
+   */
+  archived: boolean;
+};
+
+/**
+ * Describes the message plux.v1.ArchivePluginRequest.
+ * Use `create(ArchivePluginRequestSchema)` to create a new message.
+ */
+export const ArchivePluginRequestSchema: GenMessage<ArchivePluginRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_plugin, 29);
+
+/**
+ * @generated from message plux.v1.ArchivePluginResponse
+ */
+export type ArchivePluginResponse = Message<"plux.v1.ArchivePluginResponse"> & {
+  /**
+   * @generated from field: plux.v1.Plugin plugin = 1;
+   */
+  plugin?: Plugin | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ArchivePluginResponse.
+ * Use `create(ArchivePluginResponseSchema)` to create a new message.
+ */
+export const ArchivePluginResponseSchema: GenMessage<ArchivePluginResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_plugin, 30);
+
+/**
+ * @generated from message plux.v1.ListPluginSummariesRequest
+ */
+export type ListPluginSummariesRequest = Message<"plux.v1.ListPluginSummariesRequest"> & {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+};
+
+/**
+ * Describes the message plux.v1.ListPluginSummariesRequest.
+ * Use `create(ListPluginSummariesRequestSchema)` to create a new message.
+ */
+export const ListPluginSummariesRequestSchema: GenMessage<ListPluginSummariesRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_plugin, 31);
+
+/**
+ * @generated from message plux.v1.ListPluginSummariesResponse
+ */
+export type ListPluginSummariesResponse = Message<"plux.v1.ListPluginSummariesResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.PluginSummary summaries = 1;
+   */
+  summaries: PluginSummary[];
+};
+
+/**
+ * Describes the message plux.v1.ListPluginSummariesResponse.
+ * Use `create(ListPluginSummariesResponseSchema)` to create a new message.
+ */
+export const ListPluginSummariesResponseSchema: GenMessage<ListPluginSummariesResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_plugin, 32);
 
 /**
  * PluginService manages plugins and their editing locks (SRV-040–SRV-042).
@@ -732,6 +982,38 @@ export const PluginService: GenService<{
     methodKind: "unary";
     input: typeof DeletePluginRequestSchema;
     output: typeof DeletePluginResponseSchema;
+  },
+  /**
+   * DuplicatePlugin copies a plugin's draft under a new key, with new
+   * document IDs (STU-034).
+   *
+   * @generated from rpc plux.v1.PluginService.DuplicatePlugin
+   */
+  duplicatePlugin: {
+    methodKind: "unary";
+    input: typeof DuplicatePluginRequestSchema;
+    output: typeof DuplicatePluginResponseSchema;
+  },
+  /**
+   * ArchivePlugin archives or restores a plugin without deleting it.
+   *
+   * @generated from rpc plux.v1.PluginService.ArchivePlugin
+   */
+  archivePlugin: {
+    methodKind: "unary";
+    input: typeof ArchivePluginRequestSchema;
+    output: typeof ArchivePluginResponseSchema;
+  },
+  /**
+   * ListPluginSummaries returns one bounded summary per plugin of an app,
+   * for the app canvas, in a single call (plan P11 §4.3 #14).
+   *
+   * @generated from rpc plux.v1.PluginService.ListPluginSummaries
+   */
+  listPluginSummaries: {
+    methodKind: "unary";
+    input: typeof ListPluginSummariesRequestSchema;
+    output: typeof ListPluginSummariesResponseSchema;
   },
   /**
    * AcquireLock takes the editing lock. It fails with PLX-8020 when

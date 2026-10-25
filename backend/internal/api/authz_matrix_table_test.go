@@ -146,6 +146,16 @@ var matrix = map[string]entry{
 	"PluginService/UpdatePlugin": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UpdatePluginRequest{Id: f.plugin, Name: "Loans"}
 	})),
+	"PluginService/DuplicatePlugin": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		k := f.name()
+		return &pluxv1.DuplicatePluginRequest{Id: f.plugin, Key: k, Name: k, Session: "tab-3"}
+	}),
+	"PluginService/ArchivePlugin": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ArchivePluginRequest{Id: f.plugin, Archived: false}
+	})),
+	"PluginService/ListPluginSummaries": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListPluginSummariesRequest{AppId: f.app}
+	})),
 	"PluginService/DeletePlugin": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeletePluginRequest{Id: f.freshPlugin(t)}
 	}),

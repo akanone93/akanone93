@@ -655,3 +655,71 @@ func errOf[T any](_ T, err error) error { return err }
 
 // errOf3 keeps a three-result call's error.
 func errOf3[T, U any](_ T, _ U, err error) error { return err }
+
+// TestAppMetadataAndListing covers plan P11 §4.3 #13: metadata, archiving and
+// the filters, search and sort orders of ListApps, with a cursor that
+// continues under each order.
+func TestAppMetadataAndListing(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	for _, a := range [][2]string{{"alpha", "Zulu"}, {"bravo", "Yankee"}, {"charlie", "Xray"}} {
+		if _, err := f.svc.CreateApp(ctx, f.owner, a[0], a[1]); err != nil {
+			t.Fatal(err)
+		}
+	}
+	apps, err := f.svc.ListApps(ctx, f.owner, tenancy.Page{Size: 10})
+	if err != nil || len(apps) != 3 {
+		t.Fatalf("ListApps: %d %v", len(apps), err)
+	}
+	desc, yes := "Payments portal", true
+	b, err := f.svc.UpdateAppMetadata(ctx, f.owner, apps[1].ID, tenancy.Metadata{Description: &desc, SetTags: true, Tags: []string{"pay", "pay", "web"}})
+	if err != nil || len(b.Tags) != 2 || b.Description != desc {
+		t.Fatalf("UpdateAppMetadata: %+v %v", b, err)
+	}
+	if _, err := f.svc.UpdateAppMetadata(ctx, f.owner, apps[2].ID, tenancy.Metadata{Archived: &yes}); err != nil {
+		t.Fatal(err)
+	}
+	keys := func(page tenancy.Page) []string {
+		t.Helper()
+		got, err := f.svc.ListApps(ctx, f.owner, page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out []string
+		for _, a := range got {
+			out = append(out, a.Key)
+		}
+		return out
+	}
+	if got := keys(tenancy.Page{Size: 10}); len(got) != 2 {
+		t.Errorf("archived apps are left out: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{IncludeArchived: true}}); len(got) != 3 {
+		t.Errorf("archived apps on request: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{Query: "portal"}}); len(got) != 1 || got[0] != "bravo" {
+		t.Errorf("search by description: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{Tags: []string{"web", "pay"}}}); len(got) != 1 {
+		t.Errorf("filter by tags: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{IncludeArchived: true, Sort: "name"}}); len(got) != 3 || got[0] != "charlie" {
+		t.Errorf("sort by name: %v", got)
+	}
+	first := keys(tenancy.Page{Size: 1, Filter: tenancy.AppFilter{Sort: "name"}})
+	if len(first) != 1 || first[0] != "bravo" {
+		t.Fatalf("first by name: %v", first)
+	}
+	cursor := storage.Cursor{Key: tenancy.SortKey(apps[1], "name"), ID: apps[1].ID}
+	if next := keys(tenancy.Page{After: cursor, Size: 5, Filter: tenancy.AppFilter{Sort: "name"}}); len(next) != 1 || next[0] != "alpha" {
+		t.Errorf("a cursor continues by name: %v", next)
+	}
+	newest := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{Sort: "updated"}})
+	if len(newest) != 2 || newest[0] != "bravo" {
+		t.Errorf("newest first: %v", newest)
+	}
+	if _, err := f.svc.ListApps(ctx, f.owner, tenancy.Page{Size: 1, Filter: tenancy.AppFilter{Sort: "nope"}}); code(err) != plxerr.InvalidEnumValue {
+		t.Errorf("an unknown sort: %v", err)
+	}
+}
