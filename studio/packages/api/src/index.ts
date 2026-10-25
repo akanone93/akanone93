@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 export * from "./gen/plux/v1/app_pb.ts";
+export * from "./gen/plux/v1/asset_pb.ts";
 export * from "./gen/plux/v1/document_pb.ts";
 export * from "./gen/plux/v1/federation_pb.ts";
 export * from "./gen/plux/v1/governance_pb.ts";

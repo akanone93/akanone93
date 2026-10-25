@@ -29,6 +29,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `app.translationKeys` | count | 10000 | 80% | 100000 | installation, organization, app | P8 | I18N-007 | Translation keys one app may declare. |
 | `asset.fileSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P2 | SRV-060, AST-003 | Size of one asset file, checked at upload and again at publish. |
 | `asset.imagePixels` | count | 40000000 | 80% | 100000000 | installation | P2 | SRV-060, CMP-030 | Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image. |
+| `asset.uploadChunkBytes` | bytes | 1048576 | 80% | 8388608 | installation | P11 | SRV-060 | Bytes in one chunk of a chunked asset upload; a larger chunk is refused. |
+| `asset.uploadSessionTtl` | milliseconds | 3600000 | 80% | 86400000 | installation | P11 | SRV-060 | Time an unfinished chunked upload is kept after its last chunk before it expires. |
 | `attest.appAttestObjectBytes` | bytes | 65536 | 80% | 262144 | installation | P6 | SEC-004 | Size of an App Attest attestation object or assertion. |
 | `attest.keyAttestationChainCerts` | count | 10 | 80% | 16 | installation | P6 | SEC-002 | Certificates an Android Key Attestation chain may hold. |
 | `attest.playIntegrityTokenBytes` | bytes | 16384 | 80% | 65536 | installation | P6 | SEC-003 | Size of a Play Integrity token the server accepts. |

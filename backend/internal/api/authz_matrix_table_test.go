@@ -5,6 +5,7 @@ package api_test
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"io"
 	"testing"
@@ -228,6 +229,20 @@ var matrix = map[string]entry{
 		_, err = stream.CloseAndReceive()
 		return err //nolint:wrapcheck // the code is what the test reads
 	}},
+	"AssetService/BeginAssetUpload": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		png := f.png(t)
+		sum := sha256.Sum256(png)
+		return &pluxv1.BeginAssetUploadRequest{AppId: f.app, Name: "images/" + f.name() + ".png", Session: "tab-2", Size: int64(len(png)), Sha256: sum[:]}
+	}),
+	"AssetService/UploadAssetChunk": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.UploadAssetChunkRequest{UploadId: f.freshUpload(t), Chunk: f.png(t)}
+	}),
+	"AssetService/GetAssetUpload": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.GetAssetUploadRequest{UploadId: f.freshUpload(t)}
+	}),
+	"AssetService/FinishAssetUpload": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.FinishAssetUploadRequest{UploadId: f.freshUpload(t)}
+	}),
 	"AssetService/GetAsset": atPerm(auth.PluginRead, anyone(&pluxv1.GetAssetRequest{Id: unknownID})),
 	"AssetService/ListAssets": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListAssetsRequest{AppId: f.app}
