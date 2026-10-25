@@ -269,7 +269,10 @@ describe("STU-121 damage-rect redraw", () => {
   const rows = [text("r0", 50, 50, "Row 0"), text("r1", 50, 80, "Row 1")];
 
   test("a widened column and an edited row redraw only their damage, present only it, and match a whole redraw", () => {
-    const { scene, renderer, target } = render(true, [{ op: "add", item: column }, ...rows.map((item) => ({ op: "add" as const, item }))]);
+    const { scene, renderer, target } = render(true, [
+      { op: "add", item: column },
+      ...rows.map((item) => ({ op: "add" as const, item })),
+    ]);
     renderer.frame();
     renderer.idle(Number.POSITIVE_INFINITY);
     expect(renderer.frame().tilesDrawn).toBeGreaterThan(0);

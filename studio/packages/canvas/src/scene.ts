@@ -127,7 +127,13 @@ export function damageOf(old: ItemSpec, oldBounds: Rect, next: ItemSpec, nextBou
   if (sameItem(old, next)) {
     return;
   }
-  if (!sameBoxStyle(old, next) || old.kind === "link" || old.kind === "text" || next.kind === "link" || next.kind === "text") {
+  if (
+    !sameBoxStyle(old, next) ||
+    old.kind === "link" ||
+    old.kind === "text" ||
+    next.kind === "link" ||
+    next.kind === "text"
+  ) {
     out.push(copyRect(oldBounds), copyRect(nextBounds));
     return;
   }
