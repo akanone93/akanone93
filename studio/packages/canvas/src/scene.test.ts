@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { box, link, text } from "../test-support/canvaskit.ts";
 import { makeRect, type Rect } from "./geometry.ts";
 import type { FrameSpec } from "./protocol.ts";
-import { boundsOf, moveSpec, Scene, type SceneItem, SHADOW_MARGIN } from "./scene.ts";
+import { boundsOf, damageOf, moveSpec, Scene, type SceneItem, SHADOW_MARGIN } from "./scene.ts";
 import { buildSceneModel } from "./scene-model.ts";
 import { Viewport } from "./viewport.ts";
 
@@ -132,4 +132,27 @@ describe("STU-003 retained scene graph", () => {
     ]);
     expect(model.nodes[2]?.bounds).toEqual({ x: 19.5, y: 39.5, w: 101, h: 51 });
   });
+
+  test("STU-121 a resized box damages only strips around its moved edges; other changes their old and new bounds", () => {
+    const column = { ...box("c", 0, 0), w: 100, h: 400 };
+    const out: Rect[] = [];
+    const bounds = (spec: typeof column): Rect => boundsOf(spec, { l: 0, t: 0, r: 0, b: 0 });
+    damageOf(column, bounds(column), column, bounds(column), out);
+    expect(out).toEqual([]);
+    const wider = { ...column, w: 130 };
+    damageOf(column, bounds(column), wider, bounds(wider), out);
+    // pad = stroke / 2 + radius + 1 = 7.5 around the right edge, over the full height.
+    expect(out).toEqual([{ l: 92.5, t: -8, r: 137.5, b: 408 }]);
+    out.length = 0;
+    const recoloured = { ...column, fill: 0x000000ff };
+    damageOf(column, bounds(column), recoloured, bounds(recoloured), out);
+    expect(out).toEqual([bounds(column), bounds(column)]);
+    out.length = 0;
+    const scene = new Scene();
+    scene.apply([{ op: "add", item: column }]);
+    drain(scene);
+    scene.apply([{ op: "replace", item: wider }]);
+    expect(drain(scene)).toEqual([{ l: 92.5, t: -8, r: 137.5, b: 408 }]);
+  });
 });
+

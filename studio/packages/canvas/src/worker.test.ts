@@ -70,6 +70,34 @@ describe("STU-003 canvas worker core", () => {
     expect(snapshot?.model.viewport.x).toBe(-10);
   });
 
+  test("STU-121 idle tile work yields to a pending message's frame", async () => {
+    const env = new TestEnvironment(ck);
+    const { core, posted } = start(env);
+    await core.receive(init({ tiles: true }));
+    await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("a", 10, 10) }] });
+    for (const callback of env.frames.splice(0)) {
+      callback();
+    }
+    const queued = ofType(posted, "frame").at(-1)?.stats;
+    expect(queued?.idleQueue).toBeGreaterThan(0);
+    expect(env.idles.length).toBe(1);
+    // A message arrives before the idle slice runs: the slice renders nothing and the frame goes first.
+    await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("b", 60, 60) }] });
+    for (const callback of env.idles.splice(0)) {
+      callback();
+    }
+    expect(env.frames.length).toBe(1);
+    for (const callback of env.frames.splice(0)) {
+      callback();
+    }
+    const next = ofType(posted, "frame").at(-1)?.stats;
+    expect(next?.tileRenders).toBe(queued?.tileRenders);
+    // The frame asks for idle time again, and the tiles are then rendered.
+    expect(env.idles.length).toBe(1);
+    env.drain();
+    expect(ofType(posted, "frame").at(-1)?.stats.idleQueue).toBe(0);
+  });
+
   test("drag, resize and dispose", async () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
