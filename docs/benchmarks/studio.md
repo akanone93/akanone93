@@ -59,3 +59,30 @@ interval 33–50 ms (Scene A) and 16.67 ms (Scene B), 0–3 dropped frames, drag
 base re-renders take 0.3–0.6 s in the worker and settling takes 6.6–12.2 s instead of 2.8–7.8 s.
 Choosing the raster base on software GL is a change of the renderer selection and is left for a
 decision.
+
+### Progressive, preemptible base re-render (S1.3)
+
+Design: a recentred base is re-rendered as tile jobs (`progressive.ts`) under an 8 ms budget per
+animation frame: the realignment first — the cached tiles blitted at the new placement, older-scale
+tiles scaled underneath as the interim, no read-back of the base — then the tiles the view shows,
+centre-out, then the margin ahead of the pan, then the rest. A tile renders in four strips, one job
+each. A new viewport replans the queue; cached tiles whose content and scale did not change are
+reused, so a pan renders only newly exposed tiles.
+
+Targets (software GL, same harness): pan and drag p95 ≤ 16.7 ms, longest rAF gap ≤ 50 ms, **settle
+≤ 300 ms** — from gesture end until every tile intersecting the visible viewport is at full
+resolution (`settleVisibleMs`); the overscan's completion is reported separately (`settleFullMs`).
+
+Results, one run (2026-10-25), WebGL on SwiftShader:
+
+| Scenario | p95 | Longest gap | Dropped | Settle visible | Settle full | Met |
+|---|---|---|---|---|---|---|
+| Scene A pan | 16.67 | 583.31 | 8 | 133.06 | 247.12 | p95, settle; gap no |
+| Scene A drag | 8.07 | 17.77 | — | — | — | yes |
+| Scene B pan | 16.67 | 333.33 | 3 | 120.38 | 149.51 | p95, settle; gap no |
+
+The longest gap is the realignment job alone (`worstBase`: one job, 25 tile blits, 607 ms in
+Scene A and 379 ms in Scene B): repainting the whole overscanned base (2,304 × 1,824 px) in one GL
+submission occupies SwiftShader's GPU thread, which also composites the page. Splitting it is not
+possible on one canvas, as the host moves the whole base with one transform; meeting 50 ms needs a
+second base canvas, filled by budgeted blit jobs and swapped in when complete (open).

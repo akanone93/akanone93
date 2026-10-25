@@ -25,6 +25,7 @@ import type { Canvas, CanvasKit, FontMgr, Image, Paint, Paragraph, Surface } fro
 import { Batches, BatchLayer, color4f } from "./batch.ts";
 import { intersectInto, makeRect, type Rect, setRect, unionInto } from "./geometry.ts";
 import { type Lod, lodForZoom, resolutionFor } from "./lod.ts";
+import { type Direction, orderJobs } from "./progressive.ts";
 import type { FrameSpec, FrameStats, ItemSpec, TextSpec } from "./protocol.ts";
 import { Resources } from "./resources.ts";
 import type { Scene, SceneItem } from "./scene.ts";
@@ -39,6 +40,24 @@ export interface RendererOptions {
   readonly fontFamily: string;
   readonly measureFrames: boolean;
 }
+
+/** Where the base surface's pixels were drawn: the render viewport's origin and zoom. */
+interface Placement {
+  readonly x: number;
+  readonly y: number;
+  readonly zoom: number;
+}
+
+/** The outcome of one progressive base job. */
+export interface BaseJobResult {
+  /** The job's duration, in ms; 0 when nothing was left to do. */
+  readonly ms: number;
+  /** The old base was realigned to the current placement, which the host now shows. */
+  readonly shifted: boolean;
+}
+
+/** Strips a tile is rendered in by progressive base jobs, one job each (M-12). */
+export const TILE_PARTS = 4;
 
 /** Above this many dirty regions in a frame they are merged into one. */
 export const MAX_REGIONS = 4;
@@ -119,6 +138,16 @@ export class SceneRenderer {
   private frameNo = 0;
   private tileRenders = 0;
   private tileRenderMs = 0;
+  /** The placement the base pixels were drawn at; null before the first base job. */
+  private shown: Placement | null = null;
+  /** The tiles whose current image is on the base surface. */
+  private readonly shownTiles = new Set<Tile<Image>>();
+  private readonly baseQueue: Tile<Image>[] = [];
+  private readonly stripWorld = makeRect(0, 0, 0, 0);
+  /** The tile whose strips the base jobs are rendering, and the next strip. */
+  private partial: { readonly tile: Tile<Image>; readonly next: number } | null = null;
+  /** The world rectangle the host shows, as of the last plan. */
+  private readonly focus = makeRect(0, 0, 0, 0);
   private readonly invalidate = (rect: Rect): void => {
     this.tiles.invalidate(rect);
   };
@@ -170,6 +199,9 @@ export class SceneRenderer {
     }
     this.resources.free(this.surface);
     this.surface = this.resources.own(surface);
+    this.shown = null;
+    this.shownTiles.clear();
+    this.baseQueue.length = 0;
     this.dpr = dpr;
     this.tileSurface = this.makeTileSurface();
   }
@@ -254,6 +286,11 @@ export class SceneRenderer {
       this.counters.tileMs = this.now() - start;
     }
     canvas.restore();
+    return this.flushBase(canvas);
+  }
+
+  /** Flushes the base surface (and waits for the GPU when measuring); returns the time taken. */
+  private flushBase(canvas: Canvas): number {
     const flushStart = this.now();
     this.surface.flush();
     if (this.options.measureFrames) {
@@ -302,7 +339,7 @@ export class SceneRenderer {
     });
   }
 
-  private stats(ms: number, flushMs: number, base: boolean): FrameStats {
+  private stats(ms: number, flushMs: number, base: boolean, jobMs = 0): FrameStats {
     const c = this.counters;
     return {
       frame: this.frameNo++,
@@ -322,6 +359,9 @@ export class SceneRenderer {
       tileRenderMs: this.tileRenderMs,
       base,
       layerMs: c.layerMs,
+      jobMs,
+      baseJobs: this.baseJobs,
+      visibleJobs: this.visibleJobs,
     };
   }
 
@@ -337,10 +377,14 @@ export class SceneRenderer {
       this.counters.staleTilesDrawn++;
     }
     this.regionCount = 0;
+    // The whole base is drawn here, so it is now placed at this viewport and holds exactly these tiles.
+    this.shown = { x: this.viewport.x, y: this.viewport.y, zoom: this.viewport.zoom };
+    this.shownTiles.clear();
     for (const tile of this.tiles.collect(this.view, this.visible)) {
       this.tiles.tileRect(tile, this.tileWorld);
       if (tile.image !== null) {
         this.blit(canvas, tile, false);
+        this.shownTiles.add(tile);
         this.counters.tilesDrawn++;
         if (tile.dirty) {
           this.addRegion(tile.dirty, this.tileWorld);
@@ -574,7 +618,201 @@ export class SceneRenderer {
     return rendered;
   }
 
+  /** Jobs left in the progressive base re-render, the realignment of the old base included. */
+  get baseJobs(): number {
+    return this.baseQueue.length + (this.options.tiles && this.needsShift() ? 1 : 0);
+  }
+
+  /** Jobs left before every tile the host shows is current: the realignment and the queued tiles in the focus. */
+  get visibleJobs(): number {
+    if (!this.options.tiles) {
+      return 0;
+    }
+    const f = this.focus;
+    let count = this.needsShift() ? 1 : 0;
+    for (const tile of this.baseQueue) {
+      const r = this.tiles.tileRect(tile, this.tileWorld);
+      if (r.l < f.r && r.r > f.l && r.t < f.b && r.b > f.t) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /** The base tiles queued for the progressive re-render, in order; for tests. */
+  queuedTiles(): readonly Tile<Image>[] {
+    return this.baseQueue;
+  }
+
+  private needsShift(): boolean {
+    const shown = this.shown;
+    const view = this.viewport;
+    return shown === null || shown.x !== view.x || shown.y !== view.y || shown.zoom !== view.zoom;
+  }
+
+  /**
+   * Plans a progressive re-render of the base (M-12): every base tile whose
+   * current image is not yet on the surface, ordered around `focus` (the
+   * world rectangle the view shows) and `direction` by `orderJobs`.
+   */
+  planBase(focus: Rect, direction: Direction): void {
+    this.baseQueue.length = 0;
+    if (!this.options.tiles) {
+      return;
+    }
+    setRect(this.focus, focus.l, focus.t, focus.r, focus.b);
+    this.scene.drainDirty(this.invalidate);
+    this.scene.drainRemoved(this.forget);
+    this.lod = lodForZoom(this.viewport.zoom);
+    this.viewport.worldRect(this.view);
+    if (this.tiles.setScale(this.viewport.zoom * this.dpr)) {
+      this.shownTiles.clear();
+    }
+    const tiles = this.tiles.collect(this.view, this.visible);
+    for (const tile of this.shownTiles) {
+      if (!tiles.includes(tile)) {
+        this.shownTiles.delete(tile);
+      }
+    }
+    const todo = tiles.filter((tile) => !this.shownTiles.has(tile) || this.tiles.needsWork(tile, this.interacting));
+    const rect = (tile: Tile<Image>): Rect => this.tiles.tileRect(tile, makeRect(0, 0, 0, 0));
+    this.baseQueue.push(...orderJobs(todo, rect, focus, direction));
+  }
+
+  /** Drops the queued base jobs; a realignment still owed runs with the next job. */
+  cancelBase(): void {
+    this.baseQueue.length = 0;
+  }
+
+  /**
+   * Runs one base job and flushes it on its own: the realignment of the old
+   * base to the current placement first, then one tile per job — rendered
+   * when needed and blitted over what the base shows, never cleared first. A
+   * render that reaches `deadline` leaves the blit to the next job.
+   */
+  baseJob(deadline: number): BaseJobResult {
+    const start = this.now();
+    this.calls = 0;
+    this.resetCounters();
+    if (this.needsShift()) {
+      this.shiftBase();
+      return { ms: this.now() - start, shifted: true };
+    }
+    const tile = this.baseQueue[0];
+    if (!tile) {
+      return { ms: 0, shifted: false };
+    }
+    if (this.tiles.needsWork(tile, this.interacting)) {
+      if (!this.renderPart(tile) || this.now() >= deadline) {
+        return { ms: this.now() - start, shifted: false };
+      }
+    }
+    this.baseQueue.shift();
+    const canvas = this.surface.getCanvas();
+    const scale = this.viewport.zoom * this.dpr;
+    canvas.save();
+    canvas.scale(scale, scale);
+    canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
+    this.blit(canvas, tile, false);
+    canvas.restore();
+    this.counters.tilesDrawn = 1;
+    this.flushBase(canvas);
+    this.shownTiles.add(tile);
+    return { ms: this.now() - start, shifted: false };
+  }
+
+  /** The statistics of a base job of `ms` milliseconds. */
+  jobStats(ms: number): FrameStats {
+    return this.stats(ms, 0, true, ms);
+  }
+
+  /**
+   * Realigns the base to the current placement without reading it back (a
+   * snapshot of a GL surface stalls software GL for most of a second): the
+   * cached tiles are blitted where they now belong — older-scale tiles under
+   * them, scaled, as the interim — and those already current are taken off
+   * the queue. Only tiles nothing covers yet show the background.
+   */
+  private shiftBase(): void {
+    const canvas = this.surface.getCanvas();
+    const view = this.viewport;
+    const scale = view.zoom * this.dpr;
+    view.worldRect(this.view);
+    this.tiles.setScale(scale);
+    canvas.clear(this.background);
+    this.calls++;
+    canvas.save();
+    canvas.scale(scale, scale);
+    canvas.translate(-Math.round(view.x * scale) / scale, -Math.round(view.y * scale) / scale);
+    for (const tile of this.tiles.stale(this.view, this.scratchTiles)) {
+      this.blit(canvas, tile, true);
+      this.counters.staleTilesDrawn++;
+    }
+    this.shownTiles.clear();
+    for (const tile of this.tiles.collect(this.view, this.visible)) {
+      if (tile.image !== null) {
+        this.blit(canvas, tile, false);
+        this.counters.tilesDrawn++;
+        if (!this.tiles.needsWork(tile, this.interacting)) {
+          this.shownTiles.add(tile);
+        }
+      }
+    }
+    canvas.restore();
+    this.shown = { x: view.x, y: view.y, zoom: view.zoom };
+    this.flushBase(canvas);
+    const queue = this.baseQueue.filter((tile) => !this.shownTiles.has(tile));
+    this.baseQueue.length = 0;
+    this.baseQueue.push(...queue);
+  }
+
+  /**
+   * Renders the next of the `TILE_PARTS` strips of `tile` into the tile
+   * surface and flushes it, so no job hands the GPU more than a strip; the
+   * last strip stores the tile. Returns whether the tile is complete.
+   */
+  private renderPart(tile: Tile<Image>): boolean {
+    const surface = this.tileSurface;
+    if (!surface) {
+      return true;
+    }
+    const part = this.partial?.tile === tile ? this.partial.next : 0;
+    const start = this.now();
+    const lowRes = this.interacting;
+    const px = Math.max(1, Math.round(this.options.tileSize * resolutionFor(lowRes)));
+    const scale = this.tiles.scale * resolutionFor(lowRes);
+    const world = this.tiles.tileRect(tile, this.tileTarget);
+    const y0 = Math.round((px * part) / TILE_PARTS);
+    const y1 = Math.round((px * (part + 1)) / TILE_PARTS);
+    const strip = setRect(this.stripWorld, world.l, world.t + y0 / scale, world.r, world.t + y1 / scale);
+    const canvas = surface.getCanvas();
+    canvas.save();
+    this.src.set([0, y0, px, y1]);
+    canvas.clipRect(this.src, this.ck.ClipOp.Intersect, false);
+    canvas.clear(this.background);
+    canvas.scale(scale, scale);
+    canvas.translate(-world.l, -world.t);
+    this.drawScene(canvas, strip, false);
+    canvas.restore();
+    const done = part + 1 >= TILE_PARTS;
+    this.partial = done ? null : { tile, next: part + 1 };
+    if (done) {
+      this.shownTiles.delete(tile);
+      this.irect.set([0, 0, px, px]);
+      this.tiles.store(tile, this.resources.own(surface.makeImageSnapshot(this.irect)), lowRes);
+    }
+    surface.flush();
+    this.syncGpu(canvas);
+    if (done) {
+      this.tileRenders++;
+    }
+    this.tileRenderMs += this.now() - start;
+    return done;
+  }
+
   private renderTile(tile: Tile<Image>): void {
+    this.shownTiles.delete(tile);
+    this.partial = null;
     const surface = this.tileSurface;
     if (!surface) {
       return;
