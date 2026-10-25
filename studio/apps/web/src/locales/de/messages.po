@@ -403,6 +403,12 @@ msgstr "Bildschirm duplizieren"
 msgid "pluginCanvas.command.duplicate"
 msgstr "Auswahl duplizieren"
 
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.edit"
+msgstr "Bearbeiten"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -835,17 +841,35 @@ msgstr "Erneut übernehmen und anwenden"
 msgid "panels.readOnly"
 msgstr "Schreibgeschützt: Bearbeiten ist gesperrt."
 
+#. Why undo and redo are disabled: the editor is read-only or lost its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.readOnly"
+msgstr "Schreibgeschützt: Dieses Plugin kann jetzt nicht geändert werden"
+
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "chip.reconnecting"
 msgstr "Verbindung wird wiederhergestellt"
 
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo"
+msgstr "Wiederholen"
+
 #. Button that repeats the last undone edit.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.redo"
 msgstr "Wiederholen"
+
+#. Command title; the alternative redo chord.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo.alt"
+msgstr "Wiederholen (Strg+Y)"
 
 #. Button that reloads the page.
 #. js-lingui-explicit-id
@@ -1200,6 +1224,12 @@ msgstr "Geben Sie {phrase} zur Bestätigung ein"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "Befehl eingeben"
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.undo"
+msgstr "Rückgängig"
 
 #. Button that undoes the last edit.
 #. js-lingui-explicit-id

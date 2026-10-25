@@ -60,6 +60,9 @@ const (
 	// DocumentServiceListSnapshotsProcedure is the fully-qualified name of the DocumentService's
 	// ListSnapshots RPC.
 	DocumentServiceListSnapshotsProcedure = "/plux.v1.DocumentService/ListSnapshots"
+	// DocumentServiceListEditorSessionEntriesProcedure is the fully-qualified name of the
+	// DocumentService's ListEditorSessionEntries RPC.
+	DocumentServiceListEditorSessionEntriesProcedure = "/plux.v1.DocumentService/ListEditorSessionEntries"
 	// DocumentServiceGetSnapshotProcedure is the fully-qualified name of the DocumentService's
 	// GetSnapshot RPC.
 	DocumentServiceGetSnapshotProcedure = "/plux.v1.DocumentService/GetSnapshot"
@@ -94,6 +97,10 @@ type DocumentServiceClient interface {
 	// does not write anything.
 	ValidatePage(context.Context, *connect.Request[pluxv1.ValidatePageRequest]) (*connect.Response[pluxv1.ValidatePageResponse], error)
 	ListSnapshots(context.Context, *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error)
+	// ListEditorSessionEntries lists an editor session's writes to a draft,
+	// newest first, with the inverse patch of each, for Studio's undo
+	// rebuild after a reload (STU-069, ADR-0095).
+	ListEditorSessionEntries(context.Context, *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error)
 	GetSnapshot(context.Context, *connect.Request[pluxv1.GetSnapshotRequest]) (*connect.Response[pluxv1.GetSnapshotResponse], error)
 	// CompareSnapshots returns the JSON Patch that turns one into the other.
 	CompareSnapshots(context.Context, *connect.Request[pluxv1.CompareSnapshotsRequest]) (*connect.Response[pluxv1.CompareSnapshotsResponse], error)
@@ -166,6 +173,12 @@ func NewDocumentServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(documentServiceMethods.ByName("ListSnapshots")),
 			connect.WithClientOptions(opts...),
 		),
+		listEditorSessionEntries: connect.NewClient[pluxv1.ListEditorSessionEntriesRequest, pluxv1.ListEditorSessionEntriesResponse](
+			httpClient,
+			baseURL+DocumentServiceListEditorSessionEntriesProcedure,
+			connect.WithSchema(documentServiceMethods.ByName("ListEditorSessionEntries")),
+			connect.WithClientOptions(opts...),
+		),
 		getSnapshot: connect.NewClient[pluxv1.GetSnapshotRequest, pluxv1.GetSnapshotResponse](
 			httpClient,
 			baseURL+DocumentServiceGetSnapshotProcedure,
@@ -201,19 +214,20 @@ func NewDocumentServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 
 // documentServiceClient implements DocumentServiceClient.
 type documentServiceClient struct {
-	getDocument      *connect.Client[pluxv1.GetDocumentRequest, pluxv1.GetDocumentResponse]
-	listDocuments    *connect.Client[pluxv1.ListDocumentsRequest, pluxv1.ListDocumentsResponse]
-	putDocument      *connect.Client[pluxv1.PutDocumentRequest, pluxv1.PutDocumentResponse]
-	patchDocument    *connect.Client[pluxv1.PatchDocumentRequest, pluxv1.PatchDocumentResponse]
-	deleteDocument   *connect.Client[pluxv1.DeleteDocumentRequest, pluxv1.DeleteDocumentResponse]
-	validateDraft    *connect.Client[pluxv1.ValidateDraftRequest, pluxv1.ValidateDraftResponse]
-	validatePage     *connect.Client[pluxv1.ValidatePageRequest, pluxv1.ValidatePageResponse]
-	listSnapshots    *connect.Client[pluxv1.ListSnapshotsRequest, pluxv1.ListSnapshotsResponse]
-	getSnapshot      *connect.Client[pluxv1.GetSnapshotRequest, pluxv1.GetSnapshotResponse]
-	compareSnapshots *connect.Client[pluxv1.CompareSnapshotsRequest, pluxv1.CompareSnapshotsResponse]
-	restoreSnapshot  *connect.Client[pluxv1.RestoreSnapshotRequest, pluxv1.RestoreSnapshotResponse]
-	exportDraft      *connect.Client[pluxv1.ExportDraftRequest, pluxv1.ExportDraftResponse]
-	importDraft      *connect.Client[pluxv1.ImportDraftRequest, pluxv1.ImportDraftResponse]
+	getDocument              *connect.Client[pluxv1.GetDocumentRequest, pluxv1.GetDocumentResponse]
+	listDocuments            *connect.Client[pluxv1.ListDocumentsRequest, pluxv1.ListDocumentsResponse]
+	putDocument              *connect.Client[pluxv1.PutDocumentRequest, pluxv1.PutDocumentResponse]
+	patchDocument            *connect.Client[pluxv1.PatchDocumentRequest, pluxv1.PatchDocumentResponse]
+	deleteDocument           *connect.Client[pluxv1.DeleteDocumentRequest, pluxv1.DeleteDocumentResponse]
+	validateDraft            *connect.Client[pluxv1.ValidateDraftRequest, pluxv1.ValidateDraftResponse]
+	validatePage             *connect.Client[pluxv1.ValidatePageRequest, pluxv1.ValidatePageResponse]
+	listSnapshots            *connect.Client[pluxv1.ListSnapshotsRequest, pluxv1.ListSnapshotsResponse]
+	listEditorSessionEntries *connect.Client[pluxv1.ListEditorSessionEntriesRequest, pluxv1.ListEditorSessionEntriesResponse]
+	getSnapshot              *connect.Client[pluxv1.GetSnapshotRequest, pluxv1.GetSnapshotResponse]
+	compareSnapshots         *connect.Client[pluxv1.CompareSnapshotsRequest, pluxv1.CompareSnapshotsResponse]
+	restoreSnapshot          *connect.Client[pluxv1.RestoreSnapshotRequest, pluxv1.RestoreSnapshotResponse]
+	exportDraft              *connect.Client[pluxv1.ExportDraftRequest, pluxv1.ExportDraftResponse]
+	importDraft              *connect.Client[pluxv1.ImportDraftRequest, pluxv1.ImportDraftResponse]
 }
 
 // GetDocument calls plux.v1.DocumentService.GetDocument.
@@ -254,6 +268,11 @@ func (c *documentServiceClient) ValidatePage(ctx context.Context, req *connect.R
 // ListSnapshots calls plux.v1.DocumentService.ListSnapshots.
 func (c *documentServiceClient) ListSnapshots(ctx context.Context, req *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error) {
 	return c.listSnapshots.CallUnary(ctx, req)
+}
+
+// ListEditorSessionEntries calls plux.v1.DocumentService.ListEditorSessionEntries.
+func (c *documentServiceClient) ListEditorSessionEntries(ctx context.Context, req *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error) {
+	return c.listEditorSessionEntries.CallUnary(ctx, req)
 }
 
 // GetSnapshot calls plux.v1.DocumentService.GetSnapshot.
@@ -298,6 +317,10 @@ type DocumentServiceHandler interface {
 	// does not write anything.
 	ValidatePage(context.Context, *connect.Request[pluxv1.ValidatePageRequest]) (*connect.Response[pluxv1.ValidatePageResponse], error)
 	ListSnapshots(context.Context, *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error)
+	// ListEditorSessionEntries lists an editor session's writes to a draft,
+	// newest first, with the inverse patch of each, for Studio's undo
+	// rebuild after a reload (STU-069, ADR-0095).
+	ListEditorSessionEntries(context.Context, *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error)
 	GetSnapshot(context.Context, *connect.Request[pluxv1.GetSnapshotRequest]) (*connect.Response[pluxv1.GetSnapshotResponse], error)
 	// CompareSnapshots returns the JSON Patch that turns one into the other.
 	CompareSnapshots(context.Context, *connect.Request[pluxv1.CompareSnapshotsRequest]) (*connect.Response[pluxv1.CompareSnapshotsResponse], error)
@@ -366,6 +389,12 @@ func NewDocumentServiceHandler(svc DocumentServiceHandler, opts ...connect.Handl
 		connect.WithSchema(documentServiceMethods.ByName("ListSnapshots")),
 		connect.WithHandlerOptions(opts...),
 	)
+	documentServiceListEditorSessionEntriesHandler := connect.NewUnaryHandler(
+		DocumentServiceListEditorSessionEntriesProcedure,
+		svc.ListEditorSessionEntries,
+		connect.WithSchema(documentServiceMethods.ByName("ListEditorSessionEntries")),
+		connect.WithHandlerOptions(opts...),
+	)
 	documentServiceGetSnapshotHandler := connect.NewUnaryHandler(
 		DocumentServiceGetSnapshotProcedure,
 		svc.GetSnapshot,
@@ -414,6 +443,8 @@ func NewDocumentServiceHandler(svc DocumentServiceHandler, opts ...connect.Handl
 			documentServiceValidatePageHandler.ServeHTTP(w, r)
 		case DocumentServiceListSnapshotsProcedure:
 			documentServiceListSnapshotsHandler.ServeHTTP(w, r)
+		case DocumentServiceListEditorSessionEntriesProcedure:
+			documentServiceListEditorSessionEntriesHandler.ServeHTTP(w, r)
 		case DocumentServiceGetSnapshotProcedure:
 			documentServiceGetSnapshotHandler.ServeHTTP(w, r)
 		case DocumentServiceCompareSnapshotsProcedure:
@@ -463,6 +494,10 @@ func (UnimplementedDocumentServiceHandler) ValidatePage(context.Context, *connec
 
 func (UnimplementedDocumentServiceHandler) ListSnapshots(context.Context, *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.ListSnapshots is not implemented"))
+}
+
+func (UnimplementedDocumentServiceHandler) ListEditorSessionEntries(context.Context, *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.ListEditorSessionEntries is not implemented"))
 }
 
 func (UnimplementedDocumentServiceHandler) GetSnapshot(context.Context, *connect.Request[pluxv1.GetSnapshotRequest]) (*connect.Response[pluxv1.GetSnapshotResponse], error) {

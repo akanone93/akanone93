@@ -403,6 +403,12 @@ msgstr "Duplicate screen"
 msgid "pluginCanvas.command.duplicate"
 msgstr "Duplicate selection"
 
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.edit"
+msgstr "Edit"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -835,17 +841,35 @@ msgstr "Re-take and apply"
 msgid "panels.readOnly"
 msgstr "Read-only: editing is blocked."
 
+#. Why undo and redo are disabled: the editor is read-only or lost its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.readOnly"
+msgstr "Read-only: you cannot change this plugin now"
+
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "chip.reconnecting"
 msgstr "Reconnecting"
 
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo"
+msgstr "Redo"
+
 #. Button that repeats the last undone edit.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.redo"
 msgstr "Redo"
+
+#. Command title; the alternative redo chord.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo.alt"
+msgstr "Redo (Ctrl+Y)"
 
 #. Button that reloads the page.
 #. js-lingui-explicit-id
@@ -1200,6 +1224,12 @@ msgstr "Type {phrase} to confirm"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "Type a command"
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.undo"
+msgstr "Undo"
 
 #. Button that undoes the last edit.
 #. js-lingui-explicit-id

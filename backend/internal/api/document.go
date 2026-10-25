@@ -90,7 +90,7 @@ func (s Document) PutDocument(ctx context.Context, req *connect.Request[pluxv1.P
 			return nil, err
 		}
 		m := req.Msg
-		w, err := s.h.Documents.PutDocument(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetPath(), m.GetContent(), m.GetIfRevision())
+		w, err := s.h.Documents.PutDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, m.GetPath(), m.GetContent(), m.GetIfRevision())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -110,7 +110,7 @@ func (s Document) PatchDocument(ctx context.Context, req *connect.Request[pluxv1
 		if err != nil {
 			return nil, err
 		}
-		w, err := s.h.Documents.PatchDocument(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetPath(), ops, m.GetIfRevision())
+		w, err := s.h.Documents.PatchDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, m.GetPath(), ops, m.GetIfRevision())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -162,6 +162,41 @@ func (s Document) ValidatePage(ctx context.Context, req *connect.Request[pluxv1.
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.ValidatePageResponse{Diagnostics: diagnosticProtos(diags)}, nil
+	})
+}
+
+// ListEditorSessionEntries lists an editor session's writes to a draft,
+// newest first, for Studio's undo rebuild (STU-069).
+func (s Document) ListEditorSessionEntries(ctx context.Context, req *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListEditorSessionEntriesResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		page := m.GetPage()
+		after, size, err := s.h.Pages.Request(req.Spec().Procedure, p.OrganizationID, page)
+		if err != nil {
+			return nil, err
+		}
+		entries, err := s.h.Documents.ListEditorSessionEntries(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetEditorSessionId(), after.Sequence, size)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListEditorSessionEntriesResponse{Page: &pluxv1.PageResult{}}
+		var last storage.Cursor
+		for _, e := range entries {
+			last = storage.Cursor{Sequence: e.Sequence, ID: e.SnapshotID}
+			inverse, err := patchProtos(e.Inverse)
+			if err != nil {
+				return nil, err
+			}
+			out.Entries = append(out.Entries, &pluxv1.EditorSessionEntry{
+				SnapshotId: e.SnapshotID, Path: e.Path, Revision: e.Revision, Inverse: inverse, CreatedAt: ts(e.CreatedAt), StepId: e.Step,
+			})
+		}
+		out.Page.NextPageToken = s.h.Pages.Next(req.Spec().Procedure, p.OrganizationID, page, len(entries), size, last)
+		return out, nil
 	})
 }
 
@@ -726,7 +761,7 @@ func firstDocument(w document.Written) *pluxv1.Document {
 func snapshotProto(s document.Snapshot) *pluxv1.Snapshot {
 	return &pluxv1.Snapshot{
 		Id: s.ID, AppId: s.AppID, PluginId: s.PluginID, Revision: s.Revision, Reason: s.Reason,
-		Paths: s.Paths, Actor: actorProto(s.Actor), CreatedAt: ts(s.CreatedAt),
+		Paths: s.Paths, Actor: actorProto(s.Actor), CreatedAt: ts(s.CreatedAt), EditorSessionId: s.EditorSession,
 	}
 }
 
