@@ -2,4 +2,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 export { ProfilePage } from "./profile-page.tsx";
+export { ShortcutsPage } from "./shortcuts-page.tsx";
 export { useAppliedPreferences } from "./use-applied-preferences.ts";
