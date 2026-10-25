@@ -1,0 +1,225 @@
+{
+  "name": "material-navigation-bar-labels",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "b0",
+            "type": "NavigationBar",
+            "props": {
+              "labelBehavior": "alwaysHide"
+            },
+            "children": [
+              {
+                "id": "b0d0",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Home"
+                },
+                "children": [
+                  {
+                    "id": "b0d0i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b0d1",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Search"
+                },
+                "children": [
+                  {
+                    "id": "b0d1i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b0d2",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Inbox"
+                },
+                "children": [
+                  {
+                    "id": "b0d2i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b0d3",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Settings"
+                },
+                "children": [
+                  {
+                    "id": "b0d3i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "b1",
+            "type": "NavigationBar",
+            "props": {
+              "labelBehavior": "onlyShowSelected",
+              "selectedIndex": 1
+            },
+            "children": [
+              {
+                "id": "b1d0",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Home"
+                },
+                "children": [
+                  {
+                    "id": "b1d0i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b1d1",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Search"
+                },
+                "children": [
+                  {
+                    "id": "b1d1i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b1d2",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Inbox"
+                },
+                "children": [
+                  {
+                    "id": "b1d2i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b1d3",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Settings"
+                },
+                "children": [
+                  {
+                    "id": "b1d3i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "b2",
+            "type": "NavigationBar",
+            "props": {
+              "height": 64
+            },
+            "children": [
+              {
+                "id": "b2d0",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Home"
+                },
+                "children": [
+                  {
+                    "id": "b2d0i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b2d1",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Search"
+                },
+                "children": [
+                  {
+                    "id": "b2d1i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b2d2",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Inbox"
+                },
+                "children": [
+                  {
+                    "id": "b2d2i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "caption",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

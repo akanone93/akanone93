@@ -22,6 +22,17 @@ import {
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
 import { buildChip } from "../src/flutter/material/chip.ts";
 import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../src/flutter/material/input-decorator.ts";
+import {
+  buildDestination,
+  buildNavigationBar,
+  destinationLabel,
+  indicatorIcon,
+  kIndicatorHeight,
+  kIndicatorWidth,
+  kMaxLabelTextScaleFactor as kMaxNavLabelScale,
+  kNavigationBarHeight,
+  type NavigationLabelBehavior,
+} from "../src/flutter/material/navigation-bar.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import {
@@ -135,10 +146,15 @@ function buildChipNode(node: SceneNode, ctx: MaterialContext): RenderBox {
 }
 
 /** A text the composite makes up itself: a scene node nothing keys, so no rect is reported for it. */
-function syntheticText(node: SceneNode, name: string, text: string, ctx: MaterialContext, base: TextStyle): RenderBox {
-  const box = ctx.build({ id: `${node.id}:${name}`, type: "Text", props: { text } }, base, {
-    defaults: { overflow: "ellipsis" },
-  });
+function syntheticText(
+  node: SceneNode,
+  name: string,
+  text: string,
+  ctx: MaterialContext,
+  base: TextStyle,
+  options: TextOptions = {},
+): RenderBox {
+  const box = ctx.build({ id: `${node.id}:${name}`, type: "Text", props: { text } }, base, options);
   box.debugId = null;
   return box;
 }
@@ -160,7 +176,7 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
     input: new RenderEditableLine(line),
     prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
     suffixIcon: suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
-    subtext: subtext === null ? null : syntheticText(node, "subtext", subtext, ctx, style("bodySmall")),
+    subtext: subtext === null ? null : syntheticText(node, "subtext", subtext, ctx, style("bodySmall"), { defaults: { overflow: "ellipsis" } }),
     outline: prop(p, "border") === "outline",
     filled: prop(p, "filled") === true,
     isDense: prop(p, "isDense") === true,
@@ -168,6 +184,36 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
     floating: withText,
     floatingLabelHeight: 16 * (ctx.text?.textScaler.textScaleFactor ?? 1),
     density: dens,
+    textDirection: ctx.direction,
+  });
+}
+
+/** `NavigationBar` with `NavigationDestination` children: an `icon` slot and a `label` prop each. */
+function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const selectedIndex = num(p, "selectedIndex", 0);
+  const behavior = (prop(p, "labelBehavior") ?? "alwaysShow") as NavigationLabelBehavior;
+  const destinations = (node.children ?? []).map((destination, index) => {
+    if (destination.type !== "NavigationDestination") {
+      throw new Error(`node "${destination.id}": a NavigationBar holds NavigationDestination nodes`);
+    }
+    const label = prop(destination.props, "label");
+    const text = syntheticText(destination, "label", typeof label === "string" ? label : "", ctx, style("labelMedium"), {
+      maxScale: kMaxNavLabelScale,
+    });
+    const shown = behavior === "alwaysShow" || (behavior === "onlyShowSelected" && index === selectedIndex) ? 1 : 0;
+    const row = buildDestination(
+      indicatorIcon(ctx.build(required(destination, "icon")), kIndicatorWidth, kIndicatorHeight),
+      destinationLabel(text),
+      shown,
+      ctx.direction,
+    );
+    row.debugId = destination.id;
+    return row;
+  });
+  return buildNavigationBar({
+    destinations,
+    height: num(p, "height", kNavigationBarHeight),
     textDirection: ctx.direction,
   });
 }
@@ -254,6 +300,7 @@ const builders: Record<string, Builder> = {
     });
   },
   TextField: buildTextField,
+  NavigationBar: buildNavigationBarNode,
   Chip: buildChipNode,
   FilterChip: buildChipNode,
   InputChip: buildChipNode,
@@ -294,8 +341,11 @@ for (const type of Object.keys(buttonKinds)) {
   };
 }
 
-/** The node types this module builds. */
-export const materialTypes: ReadonlySet<string> = new Set(Object.keys(builders));
+/** Node types only a composite builds, from its children. */
+const partTypes: readonly string[] = ["NavigationDestination"];
+
+/** The node types this module builds, the parts of composites included. */
+export const materialTypes: ReadonlySet<string> = new Set([...Object.keys(builders), ...partTypes]);
 
 /** Builds `node`, a Material composite. */
 export function buildMaterial(node: SceneNode, ctx: MaterialContext): RenderBox {
