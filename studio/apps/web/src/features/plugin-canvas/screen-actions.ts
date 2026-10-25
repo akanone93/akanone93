@@ -169,11 +169,11 @@ export async function deleteScreen(session: EditSession, ctx: ScreenContext, pag
   if (page === undefined) {
     return { ok: false, reason: "unknown" };
   }
-  const removed = await session.remove(page.path);
-  if (removed.ok && c.pluginDoc !== undefined && pageList(c.pluginDoc).includes(pageId)) {
+  // The reference goes first: a failure between the two steps leaves an orphan file, never a dangling page id.
+  if (c.pluginDoc !== undefined && pageList(c.pluginDoc).includes(pageId)) {
     session.edit(c.pluginDoc.path, (d) => {
       d["pages"] = ((d["pages"] as string[] | undefined) ?? []).filter((id) => id !== pageId);
     });
   }
-  return removed;
+  return session.remove(page.path);
 }

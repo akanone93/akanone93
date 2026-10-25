@@ -6,7 +6,7 @@ import type { Document } from "@plux/api";
 import { AlertDialog, Button, Dialog, Field, Input } from "@plux/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
-import { type Command, useContributeCommands } from "../../lib/commands/index.ts";
+import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
 import { useEditSession } from "../editor/editor-provider.tsx";
 import type { Validation } from "../problems/use-validation.ts";
 import { ActionBar } from "./action-bar.tsx";
@@ -94,7 +94,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
     ],
     [m.newScreen, m.duplicateScreen, m.renameScreen, m.deleteScreen, open, duplicate],
   );
-  useContributeCommands("plugin-canvas", commands);
+  useScopedCommands("screens", commands);
 
   const submit = async () => {
     const text = title.trim();

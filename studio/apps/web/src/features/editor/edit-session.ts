@@ -3,6 +3,7 @@
 
 import { enablePatches, type Patch, produceWithPatches } from "immer";
 import { createStore, type StoreApi } from "zustand/vanilla";
+import { emptySelection, type Selection } from "../plugin-canvas/select/selection.ts";
 import { applyPatch, changedPaths, diffPaths, type JsonPatchOp, type JsonValue, toJsonPatch } from "./json-patch.ts";
 
 /** A document as the server confirmed it. */
@@ -98,6 +99,8 @@ export interface Conflict {
 export interface EditState {
   readonly docs: Readonly<Record<string, DocState>>;
   readonly conflict: Conflict | null;
+  /** The canvas selection (F5): UI state in the area store, never saved and not an undo step. */
+  readonly selection: Selection;
 }
 
 interface Unit {
@@ -159,7 +162,7 @@ export class EditSession {
     enablePatches();
     this.scheduler = options.scheduler ?? realScheduler;
     this.online = options.online ?? (() => globalThis.navigator?.onLine ?? true);
-    this.store = createStore<EditState>(() => ({ docs: {}, conflict: null }));
+    this.store = createStore<EditState>(() => ({ docs: {}, conflict: null, selection: emptySelection }));
   }
 
   /** Opens a document, or refreshes it from the server when nothing of it is pending. */

@@ -37,6 +37,12 @@ msgstr "{count, plural, zero {لا تحذيرات} one {تحذير واحد} two
 msgid "chip.offline-waiting"
 msgstr "{count, plural, zero {غير متصل} one {غير متصل — تغيير واحد بانتظار الحفظ} two {غير متصل — تغييران بانتظار الحفظ} few {غير متصل — # تغييرات بانتظار الحفظ} many {غير متصل — # تغييرًا بانتظار الحفظ} other {غير متصل — # تغيير بانتظار الحفظ}}"
 
+#. Announced to screen readers when several elements are selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionMany"
+msgstr "تم تحديد {count} عناصر"
+
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -48,6 +54,12 @@ msgstr "{count} من {max} حرفًا على الأكثر"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.unread"
 msgstr "{count} غير مقروءة"
+
+#. Announced to screen readers when one element is selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionOne"
+msgstr "تم تحديد {name}"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -313,6 +325,12 @@ msgstr "الدرج"
 msgid "pluginCanvas.duplicateScreen"
 msgstr "تكرار الشاشة"
 
+#. Command that copies the selected canvas elements right after themselves.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.duplicate"
+msgstr "تكرار التحديد"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -546,6 +564,12 @@ msgstr "لم يتم العثور على مشكلات."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "لا يوجد اختصار"
+
+#. Announced to screen readers when the canvas selection becomes empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionNone"
+msgstr "لا يوجد تحديد"
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
@@ -961,6 +985,12 @@ msgstr "تراجع"
 msgid "notify.inbox.unread-only"
 msgstr "غير المقروءة فقط"
 
+#. Command that replaces the selected container on the canvas by its children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.unwrap"
+msgstr "إلغاء لف التحديد"
+
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1008,6 +1038,12 @@ msgstr "المواضع التي تختلف فيها نسختك عن نسخة ا�
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.title"
 msgstr "لماذا هذا غير متاح؟"
+
+#. Command that wraps the selected canvas elements in a new column.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.wrap"
+msgstr "لف التحديد في عمود"
 
 #. Heading shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id

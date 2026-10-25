@@ -75,7 +75,7 @@ function setup(online = true) {
       content: JSON.parse(new TextDecoder().decode(d.content)) as JsonValue,
     } as ServerDocument);
   }
-  return { session, puts, removed, patches };
+  return { session, puts, removed, patches, transport };
 }
 
 describe("STU-050 screens through the pipeline", () => {
@@ -121,6 +121,19 @@ describe("STU-050 screens through the pipeline", () => {
     expect((await deleteScreen(t.session, ctx, detail.id)).ok).toBe(true);
     expect(t.removed).toEqual([{ path: "pages/detail.page.json", rev: 5n }]);
     expect(t.session.store.getState().docs["pages/detail.page.json"]).toBeUndefined();
+    t.session.dispose();
+  });
+
+  test("delete removes the reference before the document, so a failure leaves an orphan file, never a dangling id", async () => {
+    const t = setup();
+    const order: string[] = [];
+    const realRemove = t.transport.remove;
+    t.transport.remove = (path, rev) => {
+      order.push(`remove:${JSON.stringify(content(t.session, "plugin.json")["pages"])}`);
+      return realRemove(path, rev);
+    };
+    await deleteScreen(t.session, ctx, detail.id);
+    expect(order).toEqual([`remove:${JSON.stringify([home.id])}`]);
     t.session.dispose();
   });
 

@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { Button, GlassCapsule, Icon, Select } from "@plux/ui";
-import { useOptionalCommands } from "../../lib/commands/index.ts";
+import { useCommands } from "../../lib/commands/index.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
 import type { Validation } from "../problems/use-validation.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
@@ -22,7 +22,7 @@ export interface ActionBarProps {
 /** Undo and redo run the registered `edit.undo` and `edit.redo` commands and stay disabled while none is registered. */
 export function ActionBar(props: ActionBarProps) {
   const m = pluginCanvasMessages(useLingui().i18n);
-  const states = useOptionalCommands()?.states ?? [];
+  const states = useCommands().states;
   const command = (id: string) => states.find((s) => s.command.id === id);
   const undo = command("edit.undo");
   const redo = command("edit.redo");

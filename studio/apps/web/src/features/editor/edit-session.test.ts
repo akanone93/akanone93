@@ -95,7 +95,7 @@ function stubServer(content: JsonValue) {
       );
     },
     get: () => Promise.resolve(doc()),
-    put: (_path, c) => Promise.resolve({ path, revision: 1n, content: c }),
+    put: (_p, c) => Promise.resolve({ path, revision: 1n, content: c }),
     remove: () => Promise.resolve(),
     classify: classifySaveError,
   };
