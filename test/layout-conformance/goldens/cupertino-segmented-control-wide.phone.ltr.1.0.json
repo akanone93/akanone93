@@ -1,0 +1,48 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-segmented-control-wide",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "align": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "crowded": [
+      0.0,
+      0.0,
+      360.0,
+      36.0
+    ],
+    "crowded-0": [
+      16.0,
+      0.0,
+      109.33333333333333,
+      36.0
+    ],
+    "crowded-1": [
+      125.33333333333333,
+      0.0,
+      109.33333333333333,
+      36.0
+    ],
+    "crowded-2": [
+      234.66666666666666,
+      0.0,
+      109.33333333333334,
+      36.0
+    ]
+  },
+  "baselines": {
+    "crowded-0": 13.897000312805176,
+    "crowded-1": 13.897000312805176,
+    "crowded-2": 13.897000312805176
+  }
+}

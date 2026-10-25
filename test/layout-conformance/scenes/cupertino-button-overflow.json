@@ -1,0 +1,45 @@
+{
+  "name": "cupertino-button-overflow",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "box",
+        "type": "SizedBox",
+        "props": {
+          "width": 120
+        },
+        "children": [
+          {
+            "id": "wrapped",
+            "type": "CupertinoButton",
+            "props": {
+              "kind": "filled",
+              "size": "large"
+            },
+            "children": [
+              {
+                "id": "wrapped-label",
+                "type": "Text",
+                "props": {
+                  "text": "A long button label that wraps",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

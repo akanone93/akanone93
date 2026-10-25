@@ -1,0 +1,55 @@
+{
+  "name": "cupertino-segmented-control-wide",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "crowded",
+        "type": "CupertinoSegmentedControl",
+        "props": {},
+        "children": [
+          {
+            "id": "crowded-0",
+            "type": "Text",
+            "props": {
+              "text": "Segment number one",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 13
+              }
+            }
+          },
+          {
+            "id": "crowded-1",
+            "type": "Text",
+            "props": {
+              "text": "Segment number two",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 13
+              }
+            }
+          },
+          {
+            "id": "crowded-2",
+            "type": "Text",
+            "props": {
+              "text": "Segment number three",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 13
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

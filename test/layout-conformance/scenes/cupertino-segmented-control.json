@@ -1,0 +1,169 @@
+{
+  "name": "cupertino-segmented-control",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "children": [
+          {
+            "id": "two",
+            "type": "CupertinoSegmentedControl",
+            "props": {},
+            "children": [
+              {
+                "id": "two-0",
+                "type": "Text",
+                "props": {
+                  "text": "Day",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              },
+              {
+                "id": "two-1",
+                "type": "Text",
+                "props": {
+                  "text": "Week",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "three",
+            "type": "CupertinoSegmentedControl",
+            "props": {},
+            "children": [
+              {
+                "id": "three-0",
+                "type": "Text",
+                "props": {
+                  "text": "Map",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              },
+              {
+                "id": "three-1",
+                "type": "Text",
+                "props": {
+                  "text": "Transit",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              },
+              {
+                "id": "three-2",
+                "type": "Text",
+                "props": {
+                  "text": "Satellite",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "uneven",
+            "type": "CupertinoSegmentedControl",
+            "props": {},
+            "children": [
+              {
+                "id": "uneven-0",
+                "type": "Text",
+                "props": {
+                  "text": "A",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              },
+              {
+                "id": "uneven-1",
+                "type": "Text",
+                "props": {
+                  "text": "A much longer segment",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              },
+              {
+                "id": "uneven-2",
+                "type": "Text",
+                "props": {
+                  "text": "B",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "padded",
+            "type": "CupertinoSegmentedControl",
+            "props": {
+              "padding": [
+                40,
+                0,
+                40,
+                0
+              ]
+            },
+            "children": [
+              {
+                "id": "padded-0",
+                "type": "Text",
+                "props": {
+                  "text": "On",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              },
+              {
+                "id": "padded-1",
+                "type": "Text",
+                "props": {
+                  "text": "Off",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 13
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

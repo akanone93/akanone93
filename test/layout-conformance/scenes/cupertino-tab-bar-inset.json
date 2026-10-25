@@ -1,0 +1,78 @@
+{
+  "name": "cupertino-tab-bar-inset",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        0,
+        1
+      ]
+    },
+    "children": [
+      {
+        "id": "bar",
+        "type": "CupertinoTabBar",
+        "props": {
+          "safeBottom": 34,
+          "height": 56
+        },
+        "children": [
+          {
+            "id": "tab-0",
+            "type": "CupertinoTabItem",
+            "props": {
+              "active": true,
+              "label": "Home"
+            },
+            "children": [
+              {
+                "id": "icon-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "tab-1",
+            "type": "CupertinoTabItem",
+            "props": {
+              "active": false,
+              "label": "Search"
+            },
+            "children": [
+              {
+                "id": "icon-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "tab-2",
+            "type": "CupertinoTabItem",
+            "props": {
+              "active": false
+            },
+            "children": [
+              {
+                "id": "icon-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

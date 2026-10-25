@@ -1,0 +1,66 @@
+{
+  "name": "cupertino-page-scaffold-opaque",
+  "root": {
+    "id": "scaffold",
+    "type": "CupertinoPageScaffold",
+    "props": {
+      "safeTop": 47
+    },
+    "children": [
+      {
+        "id": "bar",
+        "type": "CupertinoNavigationBar",
+        "props": {
+          "opaque": true
+        },
+        "children": [
+          {
+            "id": "nav-middle",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "middle"
+            },
+            "children": [
+              {
+                "id": "middle-text",
+                "type": "Text",
+                "props": {
+                  "text": "Title",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "content",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "first",
+            "type": "TestBox",
+            "props": {
+              "width": 100,
+              "height": 60
+            }
+          },
+          {
+            "id": "second",
+            "type": "TestBox",
+            "props": {
+              "width": 100,
+              "height": 60
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

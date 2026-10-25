@@ -1,0 +1,138 @@
+{
+  "name": "cupertino-button-variants",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "plain-large",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "plain",
+          "size": "large"
+        },
+        "children": [
+          {
+            "id": "plain-large-label",
+            "type": "Text",
+            "props": {
+              "text": "Continue",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "filled-large",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "filled",
+          "size": "large"
+        },
+        "children": [
+          {
+            "id": "filled-large-label",
+            "type": "Text",
+            "props": {
+              "text": "Pay now",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "filled-medium",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "filled",
+          "size": "medium"
+        },
+        "children": [
+          {
+            "id": "filled-medium-label",
+            "type": "Text",
+            "props": {
+              "text": "Save",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "filled-small",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "filled",
+          "size": "small"
+        },
+        "children": [
+          {
+            "id": "filled-small-label",
+            "type": "Text",
+            "props": {
+              "text": "Add",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 15
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "tinted-medium",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "tinted",
+          "size": "medium"
+        },
+        "children": [
+          {
+            "id": "tinted-medium-label",
+            "type": "Text",
+            "props": {
+              "text": "Share",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "plain-small",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "plain",
+          "size": "small"
+        },
+        "children": [
+          {
+            "id": "plain-small-label",
+            "type": "Text",
+            "props": {
+              "text": "Skip",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 15
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
