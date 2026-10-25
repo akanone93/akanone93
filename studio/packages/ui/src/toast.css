@@ -1,0 +1,6 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* sonner's own stylesheet, resolved from this package's dependency; its runtime
+   <style> injection is disabled (apps/web/vite.config.ts, CSP rule book §11.2). */
+@import "sonner/dist/styles.css";

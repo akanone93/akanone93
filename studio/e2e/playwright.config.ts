@@ -5,6 +5,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const previewPort = 4173;
 const devPort = 4174;
+const bffPort = 4175;
 
 export default defineConfig({
   testDir: ".",
@@ -23,8 +24,26 @@ export default defineConfig({
       testMatch: ["catalogue.spec.ts", "shell.spec.ts"],
       use: { ...devices["Desktop Chrome"], baseURL: `http://127.0.0.1:${devPort}` },
     },
+    {
+      // The built app behind the BFF and its strict CSP.
+      name: "csp",
+      testMatch: "csp.spec.ts",
+      use: { ...devices["Desktop Chrome"], baseURL: `http://127.0.0.1:${bffPort}` },
+    },
   ],
   webServer: [
+    {
+      command: "bun apps/bff/src/main.ts",
+      cwd: "..",
+      env: {
+        PLUX_BFF_API_UPSTREAM: "http://127.0.0.1:9",
+        PLUX_BFF_PORT: String(bffPort),
+        PLUX_BFF_PUBLIC_BASE_URL: `http://127.0.0.1:${bffPort}`,
+      },
+      url: `http://127.0.0.1:${bffPort}/livez`,
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
     {
       // The app is built first (`make studio-e2e`); the preview serves that build.
       command: `bun run --filter @plux/web preview --host 127.0.0.1 --port ${previewPort} --strictPort`,

@@ -90,6 +90,7 @@ zap-studio: ## Scan the running Compose stack's Studio with the ZAP baseline, ig
 STUDIO_COMMIT_DATE = $(shell git log -1 --format=%ct)
 
 studio-image-repro: ## Build the Studio image twice and fail when the digests differ (CI-006)
+	cd studio && bun scripts/stage-canvaskit.ts --to .canvaskit
 	@for n in 1 2; do \
 		docker buildx build -f studio/Dockerfile --build-arg SOURCE_DATE_EPOCH=$(STUDIO_COMMIT_DATE) \
 			--no-cache --provenance=false --sbom=false \
