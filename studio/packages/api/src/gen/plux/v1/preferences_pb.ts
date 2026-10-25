@@ -22,7 +22,7 @@ export const file_plux_v1_preferences: GenFile = /*@__PURE__*/
  */
 export type Preferences = Message<"plux.v1.Preferences"> & {
   /**
-   * theme is "system", "light" or "dark"; empty reads as "system".
+   * theme is "system", "light", "dark" or "contrast"; empty reads as "system".
    *
    * @generated from field: string theme = 1;
    */

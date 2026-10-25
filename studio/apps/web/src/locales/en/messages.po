@@ -133,6 +133,12 @@ msgstr "Enterprise: requires a licence"
 msgid "chrome.forbidden.explain"
 msgstr "Explain access"
 
+#. Theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.theme.contrast"
+msgstr "High contrast"
+
 #. Name of the personal home page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts

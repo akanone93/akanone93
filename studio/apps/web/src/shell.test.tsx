@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
+import { create, toBinary } from "@bufbuild/protobuf";
+import { createClient } from "@connectrpc/connect";
+import { GetCurrentUserResponseSchema, PreferencesService } from "@plux/api";
 import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from "@tanstack/react-router";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -54,8 +57,42 @@ describe("STU-013 guards", () => {
     expect(explained).toEqual([{ permission: "installation.admin" }]);
   });
 
+  test("a reload fetches the CSRF token from GetCurrentUser (SEC-101, STU-002)", async () => {
+    const session = createSession("/api", createUpstream({ csrfToken: "plux_csrf_fresh" }));
+    const held: (string | undefined)[] = [];
+    const user = await requireUser({ ...session, setCsrfToken: (t) => held.push(t) }, "/");
+    expect(user.csrfToken).toBe("plux_csrf_fresh");
+    expect(held).toEqual(["plux_csrf_fresh"]);
+  });
+
+  test("after a reload a mutating call carries X-CSRF-Token from GetCurrentUser (SEC-101, STU-002)", async () => {
+    const seen: { url: string; csrf: string | null }[] = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      seen.push({ url, csrf: new Headers(init?.headers).get("X-CSRF-Token") });
+      const body = toBinary(
+        GetCurrentUserResponseSchema,
+        create(GetCurrentUserResponseSchema, { csrfToken: "plux_csrf_reload" }),
+      );
+      return new Response(url.endsWith("GetCurrentUser") ? body : new Uint8Array(), {
+        headers: { "content-type": "application/proto" },
+      });
+    }) as typeof fetch;
+    try {
+      const session = createSession("/api");
+      await requireUser(session, "/");
+      await createClient(PreferencesService, session.transport).updatePreferences({});
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+    expect(seen[0]?.csrf).toBeNull();
+    expect(seen.at(-1)?.url).toEndWith("UpdatePreferences");
+    expect(seen.at(-1)?.csrf).toBe("plux_csrf_reload");
+  });
+
   test("an installation administrator passes the installation guard", async () => {
-    const user = await requireUser(createSession("/api", createUpstream({ permissions: ["installation.admin"] })), "/");
+    const user = await requireUser(createSession("/api", createUpstream({ installationAdmin: true })), "/");
     expect(() => requireInstallationAdmin(user)).not.toThrow();
   });
 

@@ -74,3 +74,32 @@ func TestCredentialRoutesBackgroundCallsQuietly_GOV_005(t *testing.T) {
 		}
 	}
 }
+
+// Verifies: SEC-101, STU-002.
+// Only GetCurrentUser may be called with the cookie and no CSRF header; it
+// hands the token back. Every other procedure still needs the header, and a
+// bearer caller is never asked for one.
+func TestCredentialCsrfExemption_SEC_101_STU_002(t *testing.T) {
+	t.Parallel()
+	h := http.Header{}
+	h.Add("Cookie", SessionCookie+"=plux_ses_good")
+	for procedure, wantOK := range map[string]bool{
+		pluxv1connect.IdentityServiceGetCurrentUserProcedure: true,
+		pluxv1connect.IdentityServiceLogoutProcedure:         false,
+		pluxv1connect.AppServiceCreateAppProcedure:           false,
+		pluxv1connect.PluginServiceRenewLockProcedure:        false,
+	} {
+		id, found, err := credential(context.Background(), &recordingAuthenticator{}, procedure, h)
+		if (err == nil && found) != wantOK {
+			t.Errorf("credential(%s) without the header = %v, %v", procedure, found, err)
+		}
+		if wantOK && id.CSRFToken != "plux_csrf_good" {
+			t.Errorf("credential(%s) lost the session token", procedure)
+		}
+	}
+	b := http.Header{}
+	b.Set("Authorization", "Bearer plux_pat_good")
+	if id, _, err := credential(context.Background(), &recordingAuthenticator{}, pluxv1connect.IdentityServiceGetCurrentUserProcedure, b); err != nil || id.CSRFToken != "" {
+		t.Errorf("a bearer caller: %+v, %v", id, err)
+	}
+}

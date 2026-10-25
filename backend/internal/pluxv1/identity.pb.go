@@ -393,9 +393,14 @@ type GetCurrentUserResponse struct {
 	Memberships []*Member `protobuf:"bytes,2,rep,name=memberships,proto3" json:"memberships,omitempty"`
 	// permissions are those the caller holds in the organisation named by
 	// the X-Plux-Organization header, when there is one (SEC-102).
-	Permissions   []string `protobuf:"bytes,3,rep,name=permissions,proto3" json:"permissions,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Permissions []string `protobuf:"bytes,3,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	// csrf_token is the session's CSRF token, which Studio holds in memory
+	// and echoes in X-CSRF-Token (SEC-101). Empty for a bearer-token caller.
+	CsrfToken string `protobuf:"bytes,4,opt,name=csrf_token,json=csrfToken,proto3" json:"csrf_token,omitempty"`
+	// installation_admin is true when the caller administers the installation.
+	InstallationAdmin bool `protobuf:"varint,5,opt,name=installation_admin,json=installationAdmin,proto3" json:"installation_admin,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetCurrentUserResponse) Reset() {
@@ -447,6 +452,20 @@ func (x *GetCurrentUserResponse) GetPermissions() []string {
 		return x.Permissions
 	}
 	return nil
+}
+
+func (x *GetCurrentUserResponse) GetCsrfToken() string {
+	if x != nil {
+		return x.CsrfToken
+	}
+	return ""
+}
+
+func (x *GetCurrentUserResponse) GetInstallationAdmin() bool {
+	if x != nil {
+		return x.InstallationAdmin
+	}
+	return false
 }
 
 type AcceptInvitationRequest struct {
@@ -4039,11 +4058,14 @@ const file_plux_v1_identity_proto_rawDesc = "" +
 	"\x05kinds\x18\x02 \x03(\tR\x05kinds\x129\n" +
 	"\n" +
 	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\x17\n" +
-	"\x15GetCurrentUserRequest\"\x90\x01\n" +
+	"\x15GetCurrentUserRequest\"\xde\x01\n" +
 	"\x16GetCurrentUserResponse\x12!\n" +
 	"\x04user\x18\x01 \x01(\v2\r.plux.v1.UserR\x04user\x121\n" +
 	"\vmemberships\x18\x02 \x03(\v2\x0f.plux.v1.MemberR\vmemberships\x12 \n" +
-	"\vpermissions\x18\x03 \x03(\tR\vpermissions\"x\n" +
+	"\vpermissions\x18\x03 \x03(\tR\vpermissions\x12\x1d\n" +
+	"\n" +
+	"csrf_token\x18\x04 \x01(\tR\tcsrfToken\x12-\n" +
+	"\x12installation_admin\x18\x05 \x01(\bR\x11installationAdmin\"x\n" +
 	"\x17AcceptInvitationRequest\x12\x1e\n" +
 	"\n" +
 	"invitation\x18\x01 \x01(\tR\n" +
