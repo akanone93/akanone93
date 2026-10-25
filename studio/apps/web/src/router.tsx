@@ -14,8 +14,10 @@ import {
 import { z } from "zod";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
+import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
+import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
-import { PublicLayout } from "./features/shell/layouts.tsx";
+import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
 import { ShellLayout } from "./features/shell/shell-layout.tsx";
 import { AccessError, loadUser, requireMembership, requireUser, safeNext } from "./lib/guards.ts";
 import type { Session } from "./lib/session.ts";
@@ -24,6 +26,8 @@ export interface RouterContext {
   readonly session: Session;
   /** False when the browser lacks WebGL2 (P8); unset means supported. */
   readonly webgl2?: boolean;
+  /** Starts the canvas surface of C2; unset means the browser worker (tests inject a stub). */
+  readonly createSurface?: SurfaceFactory;
 }
 
 function RouteError({ error }: ErrorComponentProps) {
@@ -134,7 +138,31 @@ const notificationsRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/notifications/index.ts"), "NotificationsPage"),
 });
 
+const canvasLayout = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "canvas",
+  beforeLoad: async ({ context, location }) => ({ user: await requireUser(context.session, location.href) }),
+  component: CanvasLayout,
+});
+
+/** C2: the plugin canvas (STU-050); search `x`, `y`, `z` replace history. */
+const pluginCanvasRoute = createRoute({
+  getParentRoute: () => canvasLayout,
+  path: "/o/$org/apps/$app/plugins/$plugin",
+  params: {
+    parse: (raw) => ({
+      org: z.string().parse(raw.org),
+      app: z.string().parse(raw.app),
+      plugin: z.string().parse(raw.plugin),
+    }),
+  },
+  validateSearch: (search) => canvasSearchSchema.parse(search),
+  beforeLoad: ({ context, params }) => context.session.setOrganization(requireMembership(context.user, params.org)),
+  component: lazyRouteComponent(() => import("./features/plugin-canvas/index.ts"), "PluginCanvasPage"),
+});
+
 const routeTree = rootRoute.addChildren([
+  canvasLayout.addChildren([pluginCanvasRoute]),
   publicLayout.addChildren([signInRoute, inviteRoute, signedOutRoute, unsupportedRoute]),
   shellLayout.addChildren([
     personalHomeRoute,
