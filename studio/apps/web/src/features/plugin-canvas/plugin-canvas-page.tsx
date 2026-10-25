@@ -8,6 +8,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
+import { catalogue } from "../panels/catalogue.ts";
+import { LeftDock } from "../panels/left-dock.tsx";
+import { modelOf } from "../panels/model.ts";
+import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -195,6 +199,20 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
     edit,
     screenOf,
   });
+  const dropHandlers = useMemo(
+    () =>
+      insertDropHandlers({
+        surface: () => surfaceRef.current,
+        canvas: () => canvasRef.current,
+        index,
+        model: modelOf(screens.map((x) => x.root)),
+        edit,
+        screenOf,
+        canEdit,
+        descriptors: catalogue(),
+      }),
+    [index, screens, edit, screenOf, canEdit],
+  );
   const searchRef = useRef(search);
   searchRef.current = search;
 
@@ -278,6 +296,7 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         ref={canvasRef}
         className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
         tabIndex={0}
+        {...dropHandlers}
         onKeyDown={(e) => {
           const handled = handleKey({ store, index, edit, docOf: (id) => screenOf.get(id) }, e);
           if (handled) {
@@ -343,6 +362,18 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
           </li>
         ))}
       </ol>
+      <LeftDock
+        screens={screens}
+        entryPage={entryPage}
+        index={index}
+        screenOf={screenOf}
+        selection={selection}
+        store={store}
+        edit={edit}
+        canEdit={canEdit}
+        surface={() => surfaceRef.current}
+        canvas={() => canvasRef.current}
+      />
       <ProblemsDrawer validation={validation} />
       {docs.data !== undefined && (
         <ScreensController

@@ -31,6 +31,12 @@ msgstr "{count, plural, zero {لا تغييرات بانتظار الحفظ} one
 msgid "problems.errors"
 msgstr "{count, plural, zero {لا أخطاء} one {خطأ واحد} two {خطآن} few {# أخطاء} many {# خطأً} other {# خطأ}}"
 
+#. Summary of a multiple selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.selectedCount"
+msgstr "{count, plural, zero {لم تُحدَّد عقد} one {تم تحديد عقدة واحدة} two {تم تحديد عقدتين} few {تم تحديد # عقد} many {تم تحديد # عقدة} other {تم تحديد # عقدة}}"
+
 #. Accessible name of the warning count in the action bar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -271,6 +277,12 @@ msgstr "مضغوطة"
 msgid "lock.lost.compare"
 msgstr "مقارنة"
 
+#. Group of the Insert tab: ready-made components (Layer 2).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layer2"
+msgstr "المكونات"
+
 #. Button that confirms the action of a dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -427,6 +439,12 @@ msgstr "أدخل كلمة المرور."
 msgid "chrome.licence.title"
 msgstr "النسخة المؤسسية: تتطلب ترخيصًا"
 
+#. Marks the screen the plugin opens first.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.entryScreen"
+msgstr "البداية"
+
 #. Accessible name of the icon of an error in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -505,6 +523,18 @@ msgstr "الرئيسية"
 msgid "problems.severity.info"
 msgstr "معلومة"
 
+#. Tab: add widgets to the screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.insertTab"
+msgstr "إدراج"
+
+#. Accessible name of a button that inserts a widget into the selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.insert"
+msgstr "إدراج {type}"
+
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -547,6 +577,18 @@ msgstr "اختصارات لوحة المفاتيح"
 msgid "profile.language"
 msgstr "اللغة"
 
+#. Tab: the tree of the nodes of the screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layersTab"
+msgstr "الطبقات"
+
+#. Accessible name of the layer tree.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layersLabel"
+msgstr "طبقات الإضافة"
+
 #. Button that leaves and discards changes.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -558,6 +600,12 @@ msgstr "مغادرة"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.unsaved.title"
 msgstr "المغادرة دون حفظ؟"
+
+#. Accessible name of the dock at the left of the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.dock"
+msgstr "اللوحات اليسرى"
 
 #. Theme option.
 #. js-lingui-explicit-id
@@ -588,6 +636,12 @@ msgstr "وضع علامة مقروء"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.system"
 msgstr "مثل النظام"
+
+#. Group of the Insert tab: widgets of the host app (native slots) and custom widgets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.native"
+msgstr "أصلية ومخصصة"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -637,11 +691,23 @@ msgstr "لم يتم العثور على مشكلات."
 msgid "cmd.shortcuts.none"
 msgstr "لا يوجد اختصار"
 
+#. Shown when the Insert search finds nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.noMatches"
+msgstr "لا يوجد عنصر مطابق."
+
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.selectionNone"
 msgstr "لا يوجد تحديد"
+
+#. Selection tab without a selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.noSelection"
+msgstr "لا يوجد تحديد."
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
@@ -703,6 +769,12 @@ msgstr "الصفحة غير موجودة"
 msgid "auth.field.password"
 msgstr "كلمة المرور"
 
+#. Name of the top level of the layer tree.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.pluginRoot"
+msgstr "الإضافة"
+
 #. Accessible name of the canvas that shows all screens of a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -756,6 +828,12 @@ msgstr "المشروع"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.retake"
 msgstr "إعادة الاستلام والتطبيق"
+
+#. Shown in the panels while the document cannot be edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.readOnly"
+msgstr "للقراءة فقط: التحرير متوقف."
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
@@ -811,17 +889,47 @@ msgstr "عنوان الشاشة"
 msgid "cmd.group.screens"
 msgstr "الشاشات"
 
+#. Tab: the list of the plugin's screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.screensTab"
+msgstr "الشاشات"
+
+#. Accessible name of the list of screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.screensLabel"
+msgstr "الشاشات"
+
 #. Label of the list of the plugin's screens, in the order the navigation flow reaches them.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screens"
 msgstr "الشاشات بترتيب التنقل"
 
+#. Label of the search field of the Insert tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.search"
+msgstr "البحث عن عناصر واجهة"
+
 #. Heading of the second-factor step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.title"
 msgstr "العامل الثاني"
+
+#. Accessible name of the list of selected nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.selectionLabel"
+msgstr "العقد المحددة"
+
+#. Tab: the selected nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.selectionTab"
+msgstr "التحديد"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -991,6 +1099,12 @@ msgstr "تنتقل الشاشة {title} إليها. أزل تلك الخطوة �
 msgid "pluginCanvas.failed"
 msgstr "تعذر تحميل الشاشات."
 
+#. Shown when a widget cannot be inserted into the selected node.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.cannotHold"
+msgstr "لا يمكن للعنصر المحدد استقبال عقد إضافية."
+
 #. Shown when a screen action failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1152,6 +1266,12 @@ msgstr "المواضع التي تختلف فيها نسختك عن نسخة ا�
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.title"
 msgstr "لماذا هذا غير متاح؟"
+
+#. Group of the Insert tab: the basic widgets (Layer 1).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layer1"
+msgstr "عناصر الواجهة"
 
 #. Command that wraps the selected canvas elements in a new column.
 #. js-lingui-explicit-id
