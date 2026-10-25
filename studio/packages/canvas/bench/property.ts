@@ -28,6 +28,10 @@ export interface PropertySummary {
   readonly max: number;
   /** p95 of the part up to the worker's layout answer; the rest is the frame. */
   readonly layoutP95: number;
+  /** p95 of the worker's own time drawing the frame (`FrameStats.ms`). */
+  readonly frameP95: number;
+  /** p95 of the frame's flush (`FrameStats.flushMs`); the rest of `frameP95` is drawing tiles. */
+  readonly flushP95: number;
   readonly budgetMs: number;
 }
 
@@ -55,26 +59,35 @@ export async function measurePropertyChange(
   let screens = initial;
   const ms: number[] = [];
   const layout: number[] = [];
+  const frame: number[] = [];
+  const flush: number[] = [];
   for (let i = 0; i < options.warmup + options.runs; i++) {
     screens = edit(screens, i);
     const start = options.now();
     await host.layoutScreens(screens, style);
     const laidOut = options.now();
     host.patch([]);
-    await host.nextFrame();
+    const stats = await host.nextFrame();
     if (i >= options.warmup) {
       ms.push(options.now() - start);
       layout.push(laidOut - start);
+      frame.push(stats.ms);
+      flush.push(stats.flushMs);
     }
   }
   ms.sort((a, b) => a - b);
   layout.sort((a, b) => a - b);
+  for (const list of [frame, flush]) {
+    list.sort((a, b) => a - b);
+  }
   return {
     runs: ms.length,
     p50: round(percentile(ms, 0.5)),
     p95: round(percentile(ms, 0.95)),
     max: round(ms.at(-1) ?? 0),
     layoutP95: round(percentile(layout, 0.95)),
+    frameP95: round(percentile(frame, 0.95)),
+    flushP95: round(percentile(flush, 0.95)),
     budgetMs: PROPERTY_BUDGET_MS,
   };
 }
