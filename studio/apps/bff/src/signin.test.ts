@@ -60,6 +60,7 @@ afterAll(() => {
 
 function build(extra: Record<string, string> = {}, opts: Partial<Parameters<typeof createBff>[0]> = {}) {
   const { config } = loadConfig({
+    PLUX_BFF_STATE_SECRET: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY",
     PLUX_BFF_PUBLIC_BASE_URL: "https://studio.example.com",
     PLUX_BFF_API_UPSTREAM: `http://127.0.0.1:${upstream.port}`,
     ...extra,
@@ -78,6 +79,19 @@ function build(extra: Record<string, string> = {}, opts: Partial<Parameters<type
 }
 
 describe("STU-002 SEC-101 sign-in callbacks", () => {
+  test("replicas built with the same state secret accept each other's state cookie; other secrets do not", async () => {
+    const keyA = new TextEncoder().encode("A".repeat(32));
+    const a = build({}, { stateKey: keyA }).bff;
+    const b = build({}, { stateKey: new TextEncoder().encode("A".repeat(32)) }).bff;
+    const c = build({}, { stateKey: new TextEncoder().encode("C".repeat(32)) }).bff;
+    expect(a).not.toBe(b);
+    const cookie = await signState(keyA, "st9");
+    const call = (bff: typeof a) =>
+      bff.app.request("/auth/oidc/callback?code=c1&state=st9", { headers: { cookie: `__Host-plux_oidc=${cookie}` } });
+    expect((await call(b)).status).toBe(303);
+    expect((await call(c)).status).not.toBe(303);
+  });
+
   test("OIDC callback with a valid state passes only the session cookie and redirects", async () => {
     const { bff } = build();
     const cookie = await signState(key, "st1");
@@ -158,6 +172,7 @@ describe("STU-002 SEC-101 sign-in callbacks", () => {
     const cookie = await signState(key, "st2");
     // The mock rejects every other path; point the BFF at a server that does.
     const { config } = loadConfig({
+      PLUX_BFF_STATE_SECRET: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY",
       PLUX_BFF_PUBLIC_BASE_URL: "https://studio.example.com",
       PLUX_BFF_API_UPSTREAM: "http://127.0.0.1:1",
     });

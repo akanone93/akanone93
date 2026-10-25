@@ -6,11 +6,13 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createBff } from "./app.ts";
-import { type BffConfig, ConfigError, loadConfig } from "./config.ts";
+import { type BffConfig, ConfigError, decodeStateSecret, loadConfig } from "./config.ts";
 import { MemoryRateLimiter, StreamCounter } from "./limiter.ts";
 import { filterRequestHeaders, filterResponseHeaders } from "./proxy.ts";
 
 let dir = "";
+const SECRET = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY";
+const KEY = new TextEncoder().encode("0123456789abcdef0123456789abcdef");
 let upstream: ReturnType<typeof Bun.serve>;
 let lastHeaders: Headers = new Headers();
 let upstreamAborted = false;
@@ -90,15 +92,27 @@ function cfg(over: Partial<BffConfig> = {}): BffConfig {
     docsUrl: "",
     valkeyUrl: "",
     trustedProxies: [],
-    stateSecret: "",
+    stateSecret: SECRET,
     ...over,
   };
 }
 
-const mk = (over: Partial<BffConfig> = {}) => createBff({ staticDir: dir, config: cfg(over) });
+const mk = (over: Partial<BffConfig> = {}) => createBff({ staticDir: dir, config: cfg(over), stateKey: KEY });
 
 describe("SEC-101 configuration", () => {
-  const base = { PLUX_BFF_PUBLIC_BASE_URL: "https://s.example.com", PLUX_BFF_API_UPSTREAM: "http://api:8080" };
+  const base = {
+    PLUX_BFF_STATE_SECRET: SECRET,
+    PLUX_BFF_PUBLIC_BASE_URL: "https://s.example.com",
+    PLUX_BFF_API_UPSTREAM: "http://api:8080",
+  };
+  test("the state secret is required and must be 32 bytes of base64 (PLUX_BFF_STATE_SECRET)", () => {
+    const { PLUX_BFF_STATE_SECRET: _omit, ...without } = base;
+    expect(() => loadConfig(without)).toThrow(ConfigError);
+    expect(() => loadConfig(without)).toThrow("stateSecret is required");
+    expect(() => loadConfig({ ...base, PLUX_BFF_STATE_SECRET: "c2hvcnQ" })).toThrow("32 bytes");
+    expect(() => loadConfig({ ...base, PLUX_BFF_STATE_SECRET: "not base64!!" })).toThrow(ConfigError);
+    expect(decodeStateSecret(SECRET)?.length).toBe(32);
+  });
   test("defaults come from the registry and the drain is 30 s", () => {
     const { config, warnings } = loadConfig(base);
     expect(config.drainTimeoutMs).toBe(30000);
@@ -178,6 +192,7 @@ describe("SEC-101 STU-002 security headers", () => {
     const res = await createBff({
       staticDir: join(dir, "none"),
       config: cfg({ publicBaseUrl: "http://localhost:1" }),
+      stateKey: KEY,
     }).app.request("/");
     expect(res.status).toBe(404);
     expect(res.headers.get("strict-transport-security")).toBeNull();

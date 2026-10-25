@@ -34,6 +34,10 @@ Security `restricted`; NetworkPolicies deny by default, and `fnrunner` and `buil
 only `egress` and hold no database credential or signing capability (L-4). Credentials come
 from existing Secrets, never from inline values.
 
+## Studio state secret
+
+`PLUX_BFF_STATE_SECRET` is required: base64 or base64url of at least 32 random bytes (`openssl rand -base64 32`, 43 characters or more). Every Studio replica must share it, because a sign-in callback can reach a different replica than the one that began it; the BFF refuses to start without it and never logs it. The chart generates one Secret (`<release>-plux-studio-state`, key `stateSecret`) on first install and keeps it across upgrades; set `studio.existingSecret` to use your own Secret with the same key. Compose generates `.secrets/studio.env` in `init-secrets.sh`; `make studio-dev` uses a fresh random value per run.
+
 ## Upgrade
 
 `helm upgrade` runs the database migration as a pre-upgrade Job, then rolls each role.

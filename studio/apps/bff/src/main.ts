@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import pkg from "../package.json" with { type: "json" };
 import { createBff } from "./app.ts";
-import { ConfigError, loadConfig } from "./config.ts";
+import { ConfigError, decodeStateSecret, loadConfig } from "./config.ts";
 import { connectValkey } from "./valkey.ts";
 
 const env = process.env;
@@ -25,11 +25,16 @@ for (const w of loaded.warnings) {
 const { config } = loaded;
 const staticDir = fileURLToPath(new URL("../../web/dist", import.meta.url));
 
+const stateKey = decodeStateSecret(config.stateSecret);
+if (stateKey === null) {
+  throw new ConfigError("stateSecret is invalid");
+}
+
 const bff = createBff({
   staticDir,
   config,
   studioVersion: pkg.version,
-  ...(config.stateSecret === "" ? {} : { stateKey: new TextEncoder().encode(config.stateSecret) }),
+  stateKey,
   ...(config.valkeyUrl === "" ? {} : { limiter: connectValkey(config.valkeyUrl, config.requestsPerMinute) }),
   clientIp: (req) => server.requestIP(req)?.address ?? "unknown",
 });
