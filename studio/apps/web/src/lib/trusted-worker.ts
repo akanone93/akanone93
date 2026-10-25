@@ -23,6 +23,22 @@ interface TrustedTypesLike {
 }
 
 /** The built validator worker: `/assets/validator-worker-<hash>.js` (S2.1). */
+const BUILT_LOCK_WORKER = /^\/assets\/lock-worker-[A-Za-z0-9_-]+\.js$/;
+
+/** Whether a URL is the lock heartbeat worker's (F1.2): same origin, the built asset or, in development, the source. */
+export function isLockWorkerURL(url: string, origin: string, dev: boolean): boolean {
+  let u: URL;
+  try {
+    u = new URL(url, origin);
+  } catch {
+    return false;
+  }
+  if (u.origin !== origin || u.username !== "" || u.password !== "" || u.hash !== "") {
+    return false;
+  }
+  return dev ? u.pathname.endsWith("/lock-worker.ts") : BUILT_LOCK_WORKER.test(u.pathname) && u.search === "";
+}
+
 const BUILT_VALIDATOR_WORKER = /^\/assets\/validator-worker-[A-Za-z0-9_-]+\.js$/;
 
 /** Whether `url` is the canvas worker's address; `dev` also admits the dev server's module path. */
@@ -84,4 +100,9 @@ export function canvasWorkerScriptURL(url: string, scope: Scope, dev: boolean): 
 /** The validator worker's address, through the same policy as the canvas worker. */
 export function validatorWorkerScriptURL(url: string, scope: Scope, dev: boolean): string | URL {
   return workerScriptURL(url, scope, (u, origin) => isValidatorWorkerURL(u, origin, dev));
+}
+
+/** The lock heartbeat worker's address, through the same policy as the canvas worker. */
+export function lockWorkerScriptURL(url: string, scope: Scope, dev: boolean): string | URL {
+  return workerScriptURL(url, scope, (u, origin) => isLockWorkerURL(u, origin, dev));
 }

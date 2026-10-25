@@ -5,7 +5,9 @@ import { describe, expect, test } from "bun:test";
 import {
   canvasWorkerScriptURL,
   isCanvasWorkerURL,
+  isLockWorkerURL,
   isValidatorWorkerURL,
+  lockWorkerScriptURL,
   validatorWorkerScriptURL,
   WORKER_POLICY,
 } from "./trusted-worker.ts";
@@ -89,5 +91,38 @@ describe("the validator worker through the same policy (S2.1)", () => {
     expect(validatorWorkerScriptURL("/assets/validator-worker-x.js", { location: { origin } }, false)).toBe(
       "/assets/validator-worker-x.js",
     );
+  });
+});
+
+describe("the lock heartbeat worker through the same policy (S2.3)", () => {
+  test("admits only its own built asset, and its dev module path in dev", () => {
+    expect(isLockWorkerURL("/assets/lock-worker-Ab_1-9.js", origin, false)).toBe(true);
+    for (const bad of [
+      "/assets/canvas-worker-x.js",
+      "/assets/validator-worker-x.js",
+      "/assets/lock-worker-x.js?y=1",
+      "https://evil.example/assets/lock-worker-x.js",
+      "javascript:alert(1)",
+      "/src/features/editor/lock-worker.ts",
+    ]) {
+      expect(isLockWorkerURL(bad, origin, false)).toBe(false);
+    }
+    expect(isLockWorkerURL("/src/features/editor/lock-worker.ts", origin, true)).toBe(true);
+  });
+
+  test("goes through the one plux-worker policy and refuses another worker's address", () => {
+    const names: string[] = [];
+    const scope = {
+      location: { origin },
+      trustedTypes: {
+        createPolicy(name: string, rules: { createScriptURL(input: string): string }) {
+          names.push(name);
+          return { createScriptURL: (input: string) => rules.createScriptURL(input) };
+        },
+      },
+    };
+    expect(String(lockWorkerScriptURL("/assets/lock-worker-a1.js", scope, false))).toBe("/assets/lock-worker-a1.js");
+    expect(() => lockWorkerScriptURL("/assets/canvas-worker-a1.js", scope, false)).toThrow(TypeError);
+    expect(names.every((n) => n === WORKER_POLICY)).toBe(true);
   });
 });
