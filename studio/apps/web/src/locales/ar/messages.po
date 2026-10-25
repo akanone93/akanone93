@@ -19,6 +19,12 @@ msgstr "{count} من {max} حرفًا على الأكثر"
 msgid "notify.unread"
 msgstr "{count} غير مقروءة"
 
+#. Describes the translucent region below a screen that holds content taller than the device screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.overflow"
+msgstr "{name}: محتوى خارج الشاشة"
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -331,6 +337,12 @@ msgstr "فاتح"
 msgid "chrome.loading"
 msgstr "جارٍ التحميل"
 
+#. Shown while the plugin's screens load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.loading"
+msgstr "جارٍ تحميل الشاشات"
+
 #. Button that marks one notification read.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -433,6 +445,12 @@ msgstr "الصفحة غير موجودة"
 msgid "auth.field.password"
 msgstr "كلمة المرور"
 
+#. Accessible name of the canvas that shows all screens of a plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.title"
+msgstr "لوحة الإضافة"
+
 #. Name of the application, shown as the browser tab title.
 #. js-lingui-explicit-id
 #: apps/web/src/shell.messages.ts
@@ -474,6 +492,12 @@ msgstr "إعادة التحميل"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.saved"
 msgstr "تم الحفظ"
+
+#. Label of the list of the plugin's screens, in the order the navigation flow reaches them.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.screens"
+msgstr "الشاشات بترتيب التنقل"
 
 #. Heading of the second-factor step.
 #. js-lingui-explicit-id
@@ -601,6 +625,12 @@ msgstr "الدعوة غير صالحة أو منتهية الصلاحية."
 msgid "auth.error.passkey"
 msgstr "تعذّر استخدام مفتاح المرور."
 
+#. Shown when loading the plugin's screens failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.failed"
+msgstr "تعذر تحميل الشاشات."
+
 #. Label of the theme choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -630,6 +660,12 @@ msgstr "هذه الصفحة غير موجودة أو لا يمكنك رؤيته�
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.body"
 msgstr "هذه الصفحة جزء من النسخة المؤسسية. اطلب من مسؤول التثبيت تثبيت ترخيص."
+
+#. Shown on the plugin canvas when the plugin has no screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.empty"
+msgstr "لا تحتوي هذه الإضافة على شاشات بعد."
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -750,3 +786,9 @@ msgstr "دورك لا يتضمن الصلاحية التي تحتاجها هذه
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.signedout.body"
 msgstr "انتهت جلستك. سجّل الدخول مجددًا للمتابعة؛ عملك في هذه الصفحة محفوظ."
+
+#. Current zoom of the canvas in percent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoom"
+msgstr "التكبير {percent}٪"
