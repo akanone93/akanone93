@@ -1,0 +1,38 @@
+{
+  "name": "animated-opacity-t50",
+  "t": 0.5,
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "ao",
+        "type": "AnimatedOpacity",
+        "props": {
+          "from": {
+            "opacity": 0
+          },
+          "to": {
+            "opacity": 1
+          }
+        },
+        "children": [
+          {
+            "id": "c",
+            "type": "TestBox",
+            "props": {
+              "width": 60,
+              "height": 40
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

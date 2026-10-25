@@ -1,0 +1,38 @@
+{
+  "name": "scale-transition-t0",
+  "t": 0,
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "sc",
+        "type": "ScaleTransition",
+        "props": {
+          "begin": 0.5,
+          "end": 2,
+          "alignment": [
+            -1,
+            -1
+          ]
+        },
+        "children": [
+          {
+            "id": "c",
+            "type": "TestBox",
+            "props": {
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

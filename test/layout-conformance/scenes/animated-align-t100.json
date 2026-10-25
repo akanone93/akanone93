@@ -1,0 +1,46 @@
+{
+  "name": "animated-align-t100",
+  "t": 1,
+  "root": {
+    "id": "s",
+    "type": "SizedBox",
+    "props": {
+      "width": 300,
+      "height": 200
+    },
+    "children": [
+      {
+        "id": "aa",
+        "type": "AnimatedAlign",
+        "props": {
+          "from": {
+            "alignment": [
+              -1,
+              -1
+            ],
+            "widthFactor": 1,
+            "heightFactor": 1
+          },
+          "to": {
+            "alignment": [
+              1,
+              0.5
+            ],
+            "widthFactor": 2,
+            "heightFactor": 3
+          }
+        },
+        "children": [
+          {
+            "id": "c",
+            "type": "TestBox",
+            "props": {
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

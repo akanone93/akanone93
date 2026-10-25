@@ -1,0 +1,48 @@
+{
+  "name": "animated-padding-t0",
+  "t": 0,
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "ap",
+        "type": "AnimatedPadding",
+        "props": {
+          "from": {
+            "padding": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "to": {
+            "padding": [
+              30,
+              10,
+              20,
+              40
+            ]
+          }
+        },
+        "children": [
+          {
+            "id": "c",
+            "type": "TestBox",
+            "props": {
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "name": "clips-opacity",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "cr",
+            "type": "ClipRect",
+            "props": {},
+            "children": [
+              {
+                "id": "a",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 20
+                }
+              }
+            ]
+          },
+          {
+            "id": "crr",
+            "type": "ClipRRect",
+            "props": {},
+            "children": [
+              {
+                "id": "b",
+                "type": "TestBox",
+                "props": {
+                  "width": 50,
+                  "height": 25
+                }
+              }
+            ]
+          },
+          {
+            "id": "co",
+            "type": "ClipOval",
+            "props": {},
+            "children": [
+              {
+                "id": "c",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              }
+            ]
+          },
+          {
+            "id": "cp",
+            "type": "ClipPath",
+            "props": {},
+            "children": [
+              {
+                "id": "d",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 40
+                }
+              }
+            ]
+          },
+          {
+            "id": "op",
+            "type": "Opacity",
+            "props": {
+              "opacity": 0.5
+            },
+            "children": [
+              {
+                "id": "e",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 15
+                }
+              }
+            ]
+          },
+          {
+            "id": "clip_pad",
+            "type": "ClipRect",
+            "props": {},
+            "children": [
+              {
+                "id": "pd",
+                "type": "Padding",
+                "props": {
+                  "padding": [
+                    3,
+                    4,
+                    5,
+                    6
+                  ]
+                },
+                "children": [
+                  {
+                    "id": "f",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
