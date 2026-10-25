@@ -7,6 +7,7 @@ import { box, fontBytes, loadCanvasKit, TestEnvironment } from "../test-support/
 import { makeRect } from "./geometry.ts";
 import { CanvasHost, type WorkerLike } from "./host.ts";
 import {
+  guideBars,
   HANDLE_SIZE,
   type OverlayCanvasLike,
   type SelectionMarks,
@@ -138,6 +139,25 @@ describe("selection overlay (ADR-0013 M-12)", () => {
     expect(host.hitTest(5, 5)).toEqual([]);
     expect(host.hitTestRect(makeRect(0, 0, 400, 400), "contain")).toEqual(["a"]);
     host.setSelection(["a"]);
+    host.setGuides({ lines: [{ axis: "x", at: 10, from: 0, to: 50 }], labels: [], indicator: makeRect(0, 0, 5, 5) });
+    host.setGuides(null);
     expect(sent.length).toBe(count);
+  });
+
+  test("guides are one device pixel wide at any zoom and the indicator keeps a minimum thickness", () => {
+    for (const zoom of [0.25, 1, 4]) {
+      const bars = guideBars({ x: 0, y: 0, zoom }, 2, {
+        lines: [
+          { axis: "x", at: 10, from: 0, to: 100 },
+          { axis: "y", at: 5, from: 0, to: 40 },
+        ],
+        labels: [],
+        indicator: makeRect(0, 0, 0, 20),
+      });
+      expect(bars[0]?.w).toBe(1);
+      expect(bars[1]?.h).toBe(1);
+      expect(bars[2]?.w).toBeGreaterThanOrEqual(2);
+      expect(bars.every((b) => Number.isInteger(b.x) && Number.isInteger(b.y))).toBe(true);
+    }
   });
 });

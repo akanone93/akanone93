@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
 import { EditSession } from "./edit-session.ts";
+import { editableWhile } from "./editor-provider.tsx";
 import { LOCK_TTL_MS, LockController, type LockInfo, type LockTransport } from "./lock-controller.ts";
 import { LockBanner, LockLostDialog } from "./lock-ui.tsx";
 
@@ -65,12 +66,25 @@ function controller(transport: LockTransport, now: number) {
 }
 
 describe("STU-075 lock banner, D36 and D37 (F1, L-1)", () => {
+  test("without plugin.lock.override only Request edit is offered", async () => {
+    const now = Date.now();
+    const lock = controller(stub(lockOf(now, -1), []), now);
+    await lock.refresh();
+    renderI18n(<LockBanner lock={lock} now={() => now} />);
+    expect(await screen.findByRole("button", { name: "Request edit" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Take over" })).toBeNull();
+    expect(editableWhile(lock.store.getState().status)).toBe(false);
+    expect(
+      editableWhile("free") && editableWhile("held") && !editableWhile("other-tab") && !editableWhile("lost"),
+    ).toBe(true);
+  });
+
   test("the read-only banner names the holder; Take over waits for L-1; Request edit asks", async () => {
     const now = Date.now();
     const calls: string[] = [];
     const lock = controller(stub(lockOf(now, 300_000), calls), now);
     await lock.refresh();
-    renderI18n(<LockBanner lock={lock} now={() => now} />);
+    renderI18n(<LockBanner lock={lock} canOverride now={() => now} />);
     expect(await screen.findByText(/Ben has been editing this plugin/)).toBeDefined();
     expect(screen.getByText(/Take over is possible from/)).toBeDefined();
     // Disabled with a reason, not hidden (F1.6); the button stays focusable.
@@ -86,7 +100,7 @@ describe("STU-075 lock banner, D36 and D37 (F1, L-1)", () => {
     const calls: string[] = [];
     const lock = controller(stub(lockOf(now, -1), calls), now);
     await lock.refresh();
-    renderI18n(<LockBanner lock={lock} now={() => now} />);
+    renderI18n(<LockBanner lock={lock} canOverride now={() => now} />);
     const takeOver = await screen.findByRole("button", { name: "Take over" });
     expect(takeOver.getAttribute("aria-disabled")).not.toBe("true");
     fireEvent.click(takeOver);
@@ -106,6 +120,8 @@ describe("STU-075 lock banner, D36 and D37 (F1, L-1)", () => {
     const session = new EditSession({
       transport: {
         patch: () => new Promise(() => undefined),
+        put: () => new Promise(() => undefined),
+        remove: () => new Promise(() => undefined),
         get: () => new Promise(() => undefined),
         classify: () => "transient",
       },

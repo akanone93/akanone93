@@ -26,6 +26,7 @@ export function commandMessages(i18n: I18n) {
       comment: "Command group heading.",
     }),
     groupAccount: i18n._({ id: "cmd.group.account", message: "Account", comment: "Command group heading." }),
+    groupScreens: i18n._({ id: "cmd.group.screens", message: "Screens", comment: "Command group heading." }),
     groupAppearance: i18n._({ id: "cmd.group.appearance", message: "Appearance", comment: "Command group heading." }),
     paletteTitle: i18n._({
       id: "cmd.palette.title",

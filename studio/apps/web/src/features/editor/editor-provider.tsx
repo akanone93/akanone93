@@ -3,15 +3,17 @@
 
 import { Code, ConnectError } from "@connectrpc/connect";
 import type { Document } from "@plux/api";
-import { limitDefault } from "@plux/schema";
+import { limitDefault, type PermissionName } from "@plux/schema";
+import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { createContext, type ReactElement, type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { useStore } from "zustand";
+import { loadUser } from "../../lib/guards.ts";
 import { lockWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { ConflictDialog } from "./conflict-dialog.tsx";
 import { documentTransport, toServerDocument } from "./document-transport.ts";
 import { type EditRecord, EditSession, type EditState } from "./edit-session.ts";
-import { LockController, LockUnavailable } from "./lock-controller.ts";
+import { LockController, type LockStatus, LockUnavailable } from "./lock-controller.ts";
 import { lockTransport, type TickWorker, tabChannel, workerTicker } from "./lock-transport.ts";
 import { LockBanner, LockLostDialog } from "./lock-ui.tsx";
 import lockWorkerURL from "./lock-worker.ts?worker&url";
@@ -29,6 +31,11 @@ export interface EditorProviderProps {
   readonly pluginId: string;
   /** The plugin's documents as the Query cache holds them (server-confirmed). */
   readonly documents: readonly Document[] | undefined;
+  /**
+   * Whether this user may edit the plugin at all (default true). Beyond that the lock decides
+   * (F1, S2.3): editable while this tab holds it or nobody else does, read-only otherwise.
+   */
+  readonly canEdit?: boolean;
   readonly onFirstEdit?: AcquireLock;
   /** Every edit with its inverse patches, for the S2.4 undo stack. */
   readonly onEdit?: (record: EditRecord) => void;
@@ -73,6 +80,15 @@ function flushed(edit: EditSession): Promise<void> {
       }
     });
   });
+}
+
+const CanEditContext = createContext(false);
+
+const LOCK_OVERRIDE: PermissionName = "plugin.lock.override";
+
+/** Editable when this tab holds the lock or can take it on the first edit (nobody else holds it). */
+export function editableWhile(status: LockStatus): boolean {
+  return status === "held" || status === "free" || status === "acquiring";
 }
 
 function documentsKey(appId: string, pluginId: string) {
@@ -154,16 +170,24 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
     };
   }, [edit, lock]);
 
+  const status = useStore(lock.store, (st) => st.status);
+  const canEdit = (props.canEdit ?? true) && editableWhile(status);
+  // D36 "Take over" is offered only to holders of plugin.lock.override; the server checks it too.
+  const user = useTanstackQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const canOverride = user.data?.permissions.includes(LOCK_OVERRIDE) ?? false;
+
   const waiting = useStore(edit.store, (s) => Object.values(s.docs).reduce((n, d) => n + d.waiting, 0));
   useReportPending(`${appId}/${pluginId}`, waiting);
 
   return (
     <EditorContext.Provider value={edit}>
       <LockContext.Provider value={lock}>
-        <LockBanner lock={lock} />
-        {props.children}
-        <ConflictDialog session={edit} />
-        <LockLostDialog lock={lock} session={edit} />
+        <CanEditContext.Provider value={canEdit}>
+          <LockBanner lock={lock} canEdit={props.canEdit ?? true} canOverride={canOverride} />
+          {props.children}
+          <ConflictDialog session={edit} />
+          <LockLostDialog lock={lock} session={edit} />
+        </CanEditContext.Provider>
       </LockContext.Provider>
     </EditorContext.Provider>
   );
@@ -190,4 +214,9 @@ export function useLock(): LockController {
     throw new Error("useLock outside EditorProvider");
   }
   return lock;
+}
+
+/** Whether the editor may change documents (the plugin lock is held); false by default. */
+export function useCanEdit(): boolean {
+  return useContext(CanEditContext);
 }
