@@ -4,11 +4,11 @@
 export type SecurityOptions = { https: boolean };
 
 /**
- * Studio's Trusted Types policies: only `plux-canvas-worker`, which approves the
- * canvas worker's own hashed asset (apps/web `lib/trusted-worker.ts`); it is
- * created per worker start, hence `'allow-duplicates'`. `default` is never allowed.
+ * Studio's Trusted Types policies: only `plux-worker`, which approves Studio's own
+ * workers (canvas, validator) at their hashed assets (apps/web `lib/trusted-worker.ts`);
+ * it is created per worker start, hence `'allow-duplicates'`. `default` is never allowed.
  */
-export const trustedTypePolicies: readonly string[] = ["plux-canvas-worker", "'allow-duplicates'"];
+export const trustedTypePolicies: readonly string[] = ["plux-worker", "'allow-duplicates'"];
 
 export function newNonce(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(16));

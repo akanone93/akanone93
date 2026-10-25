@@ -3,11 +3,11 @@
 
 import { describe, expect, test } from "bun:test";
 import {
-  CANVAS_WORKER_POLICY,
   canvasWorkerScriptURL,
   isCanvasWorkerURL,
   isValidatorWorkerURL,
   validatorWorkerScriptURL,
+  WORKER_POLICY,
 } from "./trusted-worker.ts";
 
 const origin = "https://studio.example.org";
@@ -49,7 +49,7 @@ describe("the canvas worker's Trusted Types policy", () => {
     expect(canvasWorkerScriptURL("/assets/canvas-worker-x.js", scope, false)).toEqual({
       trusted: "/assets/canvas-worker-x.js",
     } as never);
-    expect(names).toEqual([CANVAS_WORKER_POLICY]);
+    expect(names).toEqual([WORKER_POLICY]);
     expect(() => canvasWorkerScriptURL("https://evil.example/x.js", scope, false)).toThrow(TypeError);
     expect(() => canvasWorkerScriptURL("/x.js", { location: { origin } }, false)).toThrow(TypeError);
   });
@@ -84,7 +84,7 @@ describe("the validator worker through the same policy (S2.1)", () => {
     expect(validatorWorkerScriptURL("/assets/validator-worker-x.js", scope, false)).toBe(
       "/assets/validator-worker-x.js",
     );
-    expect(names).toEqual([CANVAS_WORKER_POLICY]);
+    expect(names).toEqual([WORKER_POLICY]);
     expect(() => validatorWorkerScriptURL("/assets/canvas-worker-x.js", scope, false)).toThrow(TypeError);
     expect(validatorWorkerScriptURL("/assets/validator-worker-x.js", { location: { origin } }, false)).toBe(
       "/assets/validator-worker-x.js",
