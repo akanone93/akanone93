@@ -30,6 +30,38 @@ const problems: Problem[] = [
 const documents = [{ kind: "plugin", path: "plugins/pl/plugin.json", json: { id: "pl", kind: "plugin", pages: [] } }];
 const path = `/o/${orgA}/apps/app1/plugins/pl`;
 
+describe("S2.1 validation against the whole project", () => {
+  test("loads app.json with the plugin's files and shows no problems for a valid project", async () => {
+    const validator = (): ValidatorClient => ({
+      // Like the real validator: a plugin without its app.json is a layout problem.
+      load: async (files) => {
+        const paths = files.map((f) => f.path);
+        return paths.includes("app.json")
+          ? [{ code: "PLX-0900", severity: "error", file: "plugins/other/plugin.json", path: "", message: "Elsewhere" }]
+          : [
+              {
+                code: "PLX-0001",
+                severity: "error",
+                file: "plugins/pl/plugin.json",
+                path: "",
+                message: "Not listed in app.json",
+              },
+            ];
+      },
+      validatePage: async () => [],
+      dispose: () => undefined,
+    });
+    const appDocuments = [
+      { kind: "app", path: "app.json", json: { id: "app1", kind: "app", plugins: ["pl", "other"] } },
+      ...documents,
+    ];
+    renderApp(path, { documents, appDocuments, validator });
+    expect(await screen.findByText("No problems found.")).toBeTruthy();
+    expect(screen.queryByText("Not listed in app.json")).toBeNull();
+    expect(screen.queryByText("Elsewhere")).toBeNull();
+  });
+});
+
 describe("S2.1 the Problems tab and counts (F9)", () => {
   test("lists the validator's findings grouped by file and counts them in the action bar", async () => {
     const loaded: string[] = [];

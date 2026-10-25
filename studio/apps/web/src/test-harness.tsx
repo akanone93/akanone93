@@ -47,6 +47,8 @@ export interface Upstream {
   documents?: { kind: string; path: string; json: unknown }[];
   surface?: SurfaceFactory;
   validator?: ValidatorFactory;
+  /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
+  appDocuments?: { kind: string; path: string; json: unknown }[];
   updates?: { paths: string[]; theme: string; language: string; density: string }[];
 }
 
@@ -102,13 +104,14 @@ export function createUpstream(state: Upstream) {
       },
     });
     service(DocumentService, {
-      listDocuments: () => ({
-        documents: (state.documents ?? []).map((d) =>
-          create(DocumentSchema, {
-            kind: d.kind,
-            path: d.path,
-            content: new TextEncoder().encode(JSON.stringify(d.json)),
-          }),
+      listDocuments: (req) => ({
+        documents: (req.pluginId === "" ? (state.appDocuments ?? state.documents ?? []) : (state.documents ?? [])).map(
+          (d) =>
+            create(DocumentSchema, {
+              kind: d.kind,
+              path: d.path,
+              content: new TextEncoder().encode(JSON.stringify(d.json)),
+            }),
         ),
       }),
     });

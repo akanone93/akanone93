@@ -15,7 +15,7 @@ import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
 import { contentBounds, overflowId, type PlacedScreen, sceneOps } from "./scene.ts";
 import { DEVICE, layoutScreen } from "./screen-layout.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
-import { usePluginDocuments } from "./use-plugin-documents.ts";
+import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 
 /** Screens laid out and placed: saved positions, else flow order (STU-050). */
 export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedScreen[] {
@@ -44,7 +44,8 @@ export function PluginCanvasPage() {
     strict: false,
   }) as Pick<RouterContext, "createSurface" | "createValidator">;
   const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
-  const validation = useValidation(createValidator, docs.data);
+  const appDocs = useAppDocuments(params.app ?? "");
+  const validation = useValidation(createValidator, appDocs.data, docs.data);
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
