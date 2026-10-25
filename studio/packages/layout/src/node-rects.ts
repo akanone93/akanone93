@@ -12,6 +12,7 @@ import { Affine, isPaintTransformer } from "./flutter/matrix.ts";
 import type { RenderObject } from "./flutter/object.ts";
 import { RenderParagraph } from "./flutter/paragraph.ts";
 import { RenderBox, TextBaseline } from "./flutter/render-box.ts";
+import { providesChildPaintOffset, RenderSliver } from "./flutter/sliver.ts";
 
 /** A rectangle in logical pixels relative to the root's origin. */
 export interface NodeRect {
@@ -41,13 +42,23 @@ export interface LayoutGolden {
 
 /**
  * Walks the tree from `root` and returns the global rect of every laid-out
- * box with a [RenderObject.debugId]. A box's position is its corners carried
- * through the [BoxParentData] offsets and paint transforms from `root` down to it. Throws if two boxes share
+ * box or sliver with a [RenderObject.debugId]. A box's position is its corners carried
+ * through the [BoxParentData] offsets (a sliver parent's child paint offsets) and paint
+ * transforms from `root` down to it; a sliver's rect is its paint area. Throws if two boxes share
  * an ID, since a golden could not tell them apart.
  */
 export function globalRects(root: RenderObject): Map<string, NodeRect> {
   const rects = new Map<string, NodeRect>();
   const visit = (node: RenderObject, toGlobal: Affine): void => {
+    if (node.debugId !== null && node instanceof RenderSliver && node.geometry !== null) {
+      // A sliver has no size: its rect is its paint area, as Flutter's golden writer measures it.
+      if (rects.has(node.debugId)) {
+        throw new Error(`duplicate debugId "${node.debugId}" in the render tree`);
+      }
+      const bounds = node.paintBounds;
+      const origin = toGlobal.apply(Offset.zero);
+      rects.set(node.debugId, { x: origin.dx, y: origin.dy, w: bounds.width, h: bounds.height });
+    }
     if (node.debugId !== null && node instanceof RenderBox && node.hasSize) {
       if (rects.has(node.debugId)) {
         throw new Error(`duplicate debugId "${node.debugId}" in the render tree`);
@@ -63,10 +74,15 @@ export function globalRects(root: RenderObject): Map<string, NodeRect> {
       });
     }
     node.visitChildren((child) => {
-      // A paint transform replaces the child's offset (RenderObject.applyPaintTransform).
-      const local = isPaintTransformer(node)
-        ? node.paintTransformOf(child)
-        : Affine.translation(RenderBox.offsetOf(child).dx, RenderBox.offsetOf(child).dy);
+      // A paint transform replaces the child's offset (RenderObject.applyPaintTransform); a
+      // sliver parent places its children by their paint offset.
+      let local: Affine;
+      if (isPaintTransformer(node)) {
+        local = node.paintTransformOf(child);
+      } else {
+        const offset = providesChildPaintOffset(node) ? node.childPaintOffset(child) : RenderBox.offsetOf(child);
+        local = Affine.translation(offset.dx, offset.dy);
+      }
       visit(child, toGlobal.multiply(local));
     });
   };

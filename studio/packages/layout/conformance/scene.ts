@@ -16,6 +16,7 @@ import {
   AlignmentDirectional,
   type AlignmentGeometry,
   Axis,
+  AxisDirection,
   BoxConstraints,
   BoxFit,
   buildContainer,
@@ -26,10 +27,12 @@ import {
   EdgeInsetsDirectional,
   type EdgeInsetsGeometry,
   FixedColumnWidth,
+  FixedViewportOffset,
   FlexColumnWidth,
   FlexFit,
   FlexParentData,
   FractionColumnWidth,
+  flipAxisDirection,
   IntrinsicColumnWidth,
   type LayoutGolden,
   lerpAlignment,
@@ -42,8 +45,10 @@ import {
   MaxColumnWidth,
   MinColumnWidth,
   Offset,
+  PageViewportOffset,
   type ParagraphEngine,
   PipelineOwner,
+  PrebuiltChildManager,
   RenderAspectRatio,
   RenderBaseline,
   type RenderBox,
@@ -63,12 +68,34 @@ import {
   RenderPadding,
   RenderParagraph,
   RenderPositionedBox,
+  RenderShrinkWrappingViewport,
+  type RenderSliver,
+  RenderSliverFillRemaining,
+  RenderSliverFillRemainingAndOverscroll,
+  RenderSliverFillRemainingWithScrollable,
+  RenderSliverFillViewport,
+  RenderSliverFixedExtentList,
+  RenderSliverFloatingPersistentHeader,
+  RenderSliverFloatingPinnedPersistentHeader,
+  RenderSliverFractionalPadding,
+  RenderSliverGrid,
+  RenderSliverList,
+  RenderSliverPadding,
+  RenderSliverPinnedPersistentHeader,
+  RenderSliverScrollingPersistentHeader,
+  RenderSliverToBoxAdapter,
+  RenderSliverVariedExtentList,
   RenderStack,
   RenderTable,
   RenderTransform,
   RenderView,
+  RenderViewport,
   RenderWrap,
+  ScrollCacheExtent,
   Size,
+  type SliverGridDelegate,
+  SliverGridDelegateWithFixedCrossAxisCount,
+  SliverGridDelegateWithMaxCrossAxisExtent,
   StackFit,
   StackParentData,
   type StrutStyle,
@@ -82,7 +109,9 @@ import {
   TextOverflow,
   TextScaler,
   type TextStyle,
+  textDirectionToAxisDirection,
   VerticalDirection,
+  type ViewportOffset,
   WrapAlignment,
   WrapCrossAlignment,
 } from "../src/index.ts";
@@ -156,6 +185,40 @@ export const stackTypes: ReadonlySet<string> = new Set([
   "Wrap",
 ]);
 
+/**
+ * Viewports and the scroll views built on them. Their `children` are slivers
+ * (`Viewport`, `ShrinkWrappingViewport`, `CustomScrollView`) or boxes
+ * (`ListView`, `GridView`, `PageView`, `ReorderableListView`); the last child
+ * of a `NestedScrollView` is its body, the others its header slivers. A
+ * `scrollOffset` (`offset` on the viewports) is where the view is scrolled to;
+ * it must lie within the scrollable range, as Flutter would clamp it by
+ * animating, which a golden cannot capture.
+ */
+export const scrollTypes: ReadonlySet<string> = new Set([
+  "Viewport",
+  "ShrinkWrappingViewport",
+  "CustomScrollView",
+  "ListView",
+  "GridView",
+  "PageView",
+  "NestedScrollView",
+  "ReorderableListView",
+]);
+
+/** Slivers: the nodes a viewport lays out. */
+export const sliverTypes: ReadonlySet<string> = new Set([
+  "SliverToBoxAdapter",
+  "SliverList",
+  "SliverFixedExtentList",
+  "SliverVariedExtentList",
+  "SliverGrid",
+  "SliverFillViewport",
+  "SliverFillRemaining",
+  "SliverPadding",
+  "SliverPersistentHeader",
+  "SliverAppBar",
+]);
+
 const multiChildTypes: ReadonlySet<string> = new Set([
   "Row",
   "Column",
@@ -175,7 +238,14 @@ export function renderFlexAvailable(): boolean {
 export const textTypes: ReadonlySet<string> = new Set(["Text"]);
 
 export function supportedTypes(): ReadonlySet<string> {
-  return new Set([...boxTypes, ...textTypes, ...stackTypes, ...(renderFlexAvailable() ? flexTypes : [])]);
+  return new Set([
+    ...boxTypes,
+    ...textTypes,
+    ...stackTypes,
+    ...scrollTypes,
+    ...sliverTypes,
+    ...(renderFlexAvailable() ? flexTypes : []),
+  ]);
 }
 
 /** Every node type the scene uses. */
@@ -675,6 +745,286 @@ function buildOtherBox(node: SceneNode, child: RenderBox | null, textDirection: 
   }
 }
 
+/** The viewport's axis direction for a scroll view's `scrollDirection` and `reverse` (`getAxisDirectionFromAxisReverseAndDirectionality`). */
+function scrollAxisDirection(props: Record<string, unknown>, textDirection: TextDirection): AxisDirection {
+  const reverse = field(props, "reverse") === true;
+  if ((field(props, "scrollDirection") ?? Axis.vertical) === Axis.horizontal) {
+    const direction = textDirectionToAxisDirection(textDirection);
+    return reverse ? flipAxisDirection(direction) : direction;
+  }
+  return reverse ? AxisDirection.up : AxisDirection.down;
+}
+
+/** The cross axis direction a `Viewport` picks when none is given (`Viewport.getDefaultCrossAxisDirection`). */
+function defaultCrossAxisDirection(axisDirection: AxisDirection, textDirection: TextDirection): AxisDirection {
+  return axisDirection === AxisDirection.up || axisDirection === AxisDirection.down
+    ? textDirectionToAxisDirection(textDirection)
+    : AxisDirection.down;
+}
+
+function gridDelegate(node: SceneNode): SliverGridDelegate {
+  const props = node.props;
+  const spacing = {
+    mainAxisSpacing: optionalNum(props, "mainAxisSpacing") ?? 0,
+    crossAxisSpacing: optionalNum(props, "crossAxisSpacing") ?? 0,
+    childAspectRatio: optionalNum(props, "childAspectRatio") ?? 1,
+    mainAxisExtent: optionalNum(props, "mainAxisExtent"),
+  };
+  const maxCrossAxisExtent = optionalNum(props, "maxCrossAxisExtent");
+  return maxCrossAxisExtent === null
+    ? new SliverGridDelegateWithFixedCrossAxisCount(num(field(props, "crossAxisCount"), "crossAxisCount"), spacing)
+    : new SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent, spacing);
+}
+
+/** The box children of a sliver node, built in `textDirection`. */
+function boxChildren(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox[] {
+  return (node.children ?? []).map((child) => buildNode(child, textDirection, text));
+}
+
+/** The one child of a sliver node that wraps a single box, or null. */
+function onlyBoxChild(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox | null {
+  return singleChild(node, boxChildren(node, textDirection, text));
+}
+
+/** SliverPersistentHeader and SliverAppBar: the header kind follows `pinned` and `floating`. */
+function buildHeader(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderSliver {
+  const props = node.props;
+  let minExtent: number;
+  let maxExtent: number;
+  if (node.type === "SliverAppBar") {
+    // SliverAppBar's delegate: collapsedHeight or toolbarHeight when collapsed, expandedHeight or toolbarHeight expanded.
+    const toolbarHeight = optionalNum(props, "toolbarHeight") ?? 56;
+    minExtent = optionalNum(props, "collapsedHeight") ?? toolbarHeight;
+    maxExtent = Math.max(optionalNum(props, "expandedHeight") ?? toolbarHeight, minExtent);
+  } else {
+    minExtent = num(field(props, "minExtent"), "minExtent");
+    maxExtent = num(field(props, "maxExtent"), "maxExtent");
+  }
+  const child =
+    onlyBoxChild(node, textDirection, text) ??
+    // The delegate's child when the scene gives none: SizedBox.expand().
+    new RenderConstrainedBox({
+      additionalConstraints: BoxConstraints.tightFor({
+        width: Number.POSITIVE_INFINITY,
+        height: Number.POSITIVE_INFINITY,
+      }),
+    });
+  const options = { child, minExtent, maxExtent };
+  const pinned = field(props, "pinned") === true;
+  const floating = field(props, "floating") === true;
+  if (pinned) {
+    return floating
+      ? new RenderSliverFloatingPinnedPersistentHeader(options)
+      : new RenderSliverPinnedPersistentHeader(options);
+  }
+  return floating
+    ? new RenderSliverFloatingPersistentHeader(options)
+    : new RenderSliverScrollingPersistentHeader(options);
+}
+
+/** A sliver node: the render object its Flutter sliver widget creates. */
+function buildSliver(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderSliver {
+  const props = node.props;
+  let sliver: RenderSliver;
+  switch (node.type) {
+    case "SliverToBoxAdapter":
+      sliver = new RenderSliverToBoxAdapter({ child: onlyBoxChild(node, textDirection, text) });
+      break;
+    case "SliverList":
+      sliver = new RenderSliverList({ childManager: new PrebuiltChildManager(boxChildren(node, textDirection, text)) });
+      break;
+    case "SliverFixedExtentList":
+      sliver = new RenderSliverFixedExtentList({
+        childManager: new PrebuiltChildManager(boxChildren(node, textDirection, text)),
+        itemExtent: num(field(props, "itemExtent"), "itemExtent"),
+      });
+      break;
+    case "SliverVariedExtentList": {
+      const extents = (field(props, "itemExtents") as unknown[]).map((extent) => num(extent, "itemExtents"));
+      sliver = new RenderSliverVariedExtentList({
+        childManager: new PrebuiltChildManager(boxChildren(node, textDirection, text)),
+        itemExtentBuilder: (index) => extents[index] ?? null,
+      });
+      break;
+    }
+    case "SliverGrid":
+      sliver = new RenderSliverGrid({
+        childManager: new PrebuiltChildManager(boxChildren(node, textDirection, text)),
+        gridDelegate: gridDelegate(node),
+      });
+      break;
+    case "SliverFillViewport": {
+      // SliverFillViewport builds a fractional padding around the page list; the padding is the keyed render object.
+      const viewportFraction = optionalNum(props, "viewportFraction") ?? 1;
+      sliver = new RenderSliverFractionalPadding({
+        viewportFraction: field(props, "padEnds") === false ? 0 : Math.min(1, Math.max(0, 1 - viewportFraction)) / 2,
+        child: new RenderSliverFillViewport({
+          childManager: new PrebuiltChildManager(boxChildren(node, textDirection, text)),
+          viewportFraction,
+        }),
+      });
+      break;
+    }
+    case "SliverFillRemaining": {
+      const child = onlyBoxChild(node, textDirection, text);
+      if (field(props, "hasScrollBody") !== false) {
+        sliver = new RenderSliverFillRemainingWithScrollable({ child });
+      } else {
+        sliver =
+          field(props, "fillOverscroll") === true
+            ? new RenderSliverFillRemainingAndOverscroll({ child })
+            : new RenderSliverFillRemaining({ child });
+      }
+      break;
+    }
+    case "SliverPadding": {
+      const inner = node.children?.[0];
+      if ((node.children ?? []).length > 1) {
+        throw new Error(`node "${node.id}" of type ${node.type} takes at most one child`);
+      }
+      sliver = new RenderSliverPadding({
+        padding: padding(field(props, "padding")),
+        textDirection,
+        child: inner === undefined ? null : buildSliver(inner, textDirection, text),
+      });
+      break;
+    }
+    case "SliverPersistentHeader":
+    case "SliverAppBar":
+      sliver = buildHeader(node, textDirection, text);
+      break;
+    default:
+      throw unsupported(node);
+  }
+  sliver.debugId = node.id;
+  return sliver;
+}
+
+/** The slivers of a viewport or `CustomScrollView` node. */
+function sliverChildren(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderSliver[] {
+  return (node.children ?? []).map((child) => {
+    if (!sliverTypes.has(child.type)) {
+      throw new Error(`node "${child.id}": ${child.type} is not a sliver, so ${node.type} "${node.id}" cannot hold it`);
+    }
+    return buildSliver(child, textDirection, text);
+  });
+}
+
+/** Wraps `sliver` in a `SliverPadding` when the node has `padding`, as `ListView` and `GridView` do. */
+function paddedSliver(node: SceneNode, sliver: RenderSliver, textDirection: TextDirection): RenderSliver {
+  const value = field(node.props, "padding");
+  return value === undefined
+    ? sliver
+    : new RenderSliverPadding({ padding: padding(value), textDirection, child: sliver });
+}
+
+/** The cache area of a scroll view: its `cacheExtent` in pixels, else Flutter's default. */
+function cacheExtentOf(props: Record<string, unknown>): ScrollCacheExtent | null {
+  const cacheExtent = optionalNum(props, "cacheExtent");
+  return cacheExtent === null ? null : ScrollCacheExtent.pixels(cacheExtent);
+}
+
+/** Viewport, ShrinkWrappingViewport, CustomScrollView, ListView, GridView, PageView, NestedScrollView, ReorderableListView. */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: one case per scroll view node type; each is a few lines that mirror the widget's own build
+function buildScrollable(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox {
+  const props = node.props;
+  const explicitAxisDirection = field(props, "axisDirection") as AxisDirection | undefined;
+  const axisDirection =
+    node.type === "Viewport" || node.type === "ShrinkWrappingViewport"
+      ? (explicitAxisDirection ?? AxisDirection.down)
+      : scrollAxisDirection(props, textDirection);
+  const crossAxisDirection = defaultCrossAxisDirection(axisDirection, textDirection);
+  const scrollOffset = optionalNum(props, node.type.endsWith("Viewport") ? "offset" : "scrollOffset") ?? 0;
+  let slivers: RenderSliver[];
+  let offset: ViewportOffset = new FixedViewportOffset(scrollOffset);
+  let scrollCacheExtent = cacheExtentOf(props);
+  const boxes = (): PrebuiltChildManager => new PrebuiltChildManager(boxChildren(node, textDirection, text));
+  switch (node.type) {
+    case "Viewport":
+    case "ShrinkWrappingViewport":
+    case "CustomScrollView":
+      slivers = sliverChildren(node, textDirection, text);
+      break;
+    case "ListView": {
+      const itemExtent = optionalNum(props, "itemExtent");
+      slivers = [
+        paddedSliver(
+          node,
+          itemExtent === null
+            ? new RenderSliverList({ childManager: boxes() })
+            : new RenderSliverFixedExtentList({ childManager: boxes(), itemExtent }),
+          textDirection,
+        ),
+      ];
+      break;
+    }
+    case "GridView":
+      slivers = [
+        paddedSliver(
+          node,
+          new RenderSliverGrid({ childManager: boxes(), gridDelegate: gridDelegate(node) }),
+          textDirection,
+        ),
+      ];
+      break;
+    case "PageView": {
+      const viewportFraction = optionalNum(props, "viewportFraction") ?? 1;
+      offset = new PageViewportOffset(optionalNum(props, "initialPage") ?? 0, viewportFraction);
+      // PageView does not lay out beyond the viewport unless it allows implicit scrolling.
+      scrollCacheExtent ??= ScrollCacheExtent.viewport(0);
+      slivers = [
+        new RenderSliverFractionalPadding({
+          viewportFraction: field(props, "padEnds") === false ? 0 : Math.min(1, Math.max(0, 1 - viewportFraction)) / 2,
+          child: new RenderSliverFillViewport({ childManager: boxes(), viewportFraction }),
+        }),
+      ];
+      break;
+    }
+    case "NestedScrollView": {
+      const parts = node.children ?? [];
+      const body = parts[parts.length - 1];
+      if (body === undefined) {
+        throw new Error(`node "${node.id}": NestedScrollView needs a body as its last child`);
+      }
+      slivers = [
+        ...sliverChildren({ ...node, children: parts.slice(0, -1) }, textDirection, text),
+        new RenderSliverFillRemainingWithScrollable({ child: buildNode(body, textDirection, text) }),
+      ];
+      break;
+    }
+    case "ReorderableListView": {
+      // ReorderableListView lays its items out as a SliverReorderableList (a list) inside a SliverPadding.
+      const itemExtent = optionalNum(props, "itemExtent");
+      slivers = [
+        new RenderSliverPadding({
+          padding: padding(field(props, "padding") ?? [0, 0, 0, 0]),
+          textDirection,
+          child:
+            itemExtent === null
+              ? new RenderSliverList({ childManager: boxes() })
+              : new RenderSliverFixedExtentList({ childManager: boxes(), itemExtent }),
+        }),
+      ];
+      break;
+    }
+    default:
+      throw unsupported(node);
+  }
+  const options = {
+    axisDirection,
+    crossAxisDirection,
+    offset,
+    children: slivers,
+    ...(scrollCacheExtent === null ? {} : { scrollCacheExtent }),
+  };
+  const viewport =
+    node.type === "ShrinkWrappingViewport" || field(props, "shrinkWrap") === true
+      ? new RenderShrinkWrappingViewport(options)
+      : new RenderViewport({ ...options, anchor: optionalNum(props, "anchor") ?? 0 });
+  viewport.debugId = node.id;
+  return viewport;
+}
+
 /**
  * Builds the render tree of `node` under `textDirection` (Flutter's ambient
  * `Directionality`). Throws on an unknown type and on a flex type, which
@@ -686,6 +1036,12 @@ export function buildNode(
   text: SceneText | null = null,
   t = 1,
 ): RenderBox {
+  if (scrollTypes.has(node.type)) {
+    return buildScrollable(node, textDirection, text);
+  }
+  if (sliverTypes.has(node.type)) {
+    throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);
+  }
   const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text, t));
   const child = singleChild(node, children);
   const props = node.props;
