@@ -220,6 +220,9 @@ enum PluxLimit {
   devSessionCommandsPerMinute('devSession.commandsPerMinute', PluxLimitUnit.count, 120, 0, 1200),
   /// Devices that may be paired to one dev session at the same time.
   devSessionDevicesPerSession('devSession.devicesPerSession', PluxLimitUnit.count, 5, 0, 20),
+  /// Studio draft compiles one replica runs at the same time; writes to the
+  /// same plugin that arrive meanwhile coalesce into one further compile.
+  devSessionDraftCompileWorkers('devSession.draftCompileWorkers', PluxLimitUnit.count, 4, 0, 64),
   /// Minutes without any device event or command after which the server ends a
   /// dev session.
   devSessionIdleMinutes('devSession.idleMinutes', PluxLimitUnit.count, 30, 0, 480),

@@ -84,6 +84,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `db.recordBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app, plugin | P5 | DB-006, LIM-004 | Bytes one record of a local collection may take, encoded as JSON. |
 | `devSession.commandsPerMinute` | count | 120 | 80% | 1200 | installation, organization, app | P10 | DEV-011, DEV-031 | Commands one dev session may send to its devices per minute. |
 | `devSession.devicesPerSession` | count | 5 | 80% | 20 | installation, organization, app | P10 | DEV-002 | Devices that may be paired to one dev session at the same time. |
+| `devSession.draftCompileWorkers` | count | 4 | 80% | 64 | installation | P11 | STU-130 | Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile. |
 | `devSession.idleMinutes` | count | 30 | 80% | 480 | installation, organization, app | P10 | DEV-001 | Minutes without any device event or command after which the server ends a dev session. |
 | `devSession.lifetimeMinutes` | count | 480 | 80% | 1440 | installation, organization, app | P10 | DEV-001 | Lifetime of a dev session, in minutes, from its creation. |
 | `devSession.pairingCodeAttempts` | count | 5 | 80% | 5 | installation, organization, app | P10 | DEV-002 | Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes. |

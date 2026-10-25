@@ -105,7 +105,9 @@ type Service struct {
 	// drafts is this replica's cache of the drafts of live sessions; the
 	// database holds what rebuilds it (ADR-0087 Revision 2026-10-24).
 	draftsMu sync.Mutex
-	drafts   map[string]*draftState
+	// drafter runs the Studio draft compiles off the write path (STU-130).
+	drafter *dispatcher
+	drafts  map[string]*draftState
 }
 
 // New returns the service.
@@ -118,6 +120,7 @@ func New(o Options) (*Service, error) {
 		ctx, cancel := context.WithCancel(context.Background())
 		s.hub, s.closeHub = NewSharedHub(ctx, o.Shared, o.PingInterval), cancel
 	}
+	s.drafter = newDispatcher(s.followApp, s.draftWorkers)
 	if s.o.Deliverer == nil {
 		s.o.Deliverer = s.hub
 	}
@@ -133,7 +136,10 @@ func New(o Options) (*Service, error) {
 // Close stops following the shared layer: this replica's sockets and
 // watchers stop receiving what other replicas relay. The sessions go on
 // on the other replicas.
-func (s *Service) Close() { s.closeHub() }
+func (s *Service) Close() {
+	s.closeHub()
+	s.drafter.stop()
+}
 
 // Session is a dev session.
 type Session struct {
