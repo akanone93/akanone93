@@ -16,6 +16,7 @@
  * a container that clips them (`overflow: hidden`) and has the canvas size.
  */
 
+import type { AccessibleTree } from "./a11y.ts";
 import {
   type BaseOrigin,
   baseSize,
@@ -26,6 +27,17 @@ import {
   transformCss,
   type ViewLike,
 } from "./compositor.ts";
+import {
+  AUTHORITATIVE_NOTICE,
+  type CanvasNotice,
+  complexScriptOf,
+  type FontLoadDeps,
+  type FontRequest,
+  loadCanvasFonts,
+} from "./fonts.ts";
+import { makeRect, type Rect } from "./geometry.ts";
+import { HitIndex, type RectMode } from "./hit.ts";
+import type { SelectionOverlay } from "./overlay.ts";
 import {
   type CanvasOptions,
   type FrameStats,
@@ -83,6 +95,20 @@ export interface CanvasSize {
 
 type Post = (message: HostMessage, transfer: unknown[]) => void;
 
+/** The main-thread layers beside the canvas: the selection overlay and the accessible tree. */
+export interface HostLayers {
+  readonly overlay?: SelectionOverlay;
+  readonly tree?: AccessibleTree;
+}
+
+/** An event of the canvas for the UI. */
+export type HostEvent =
+  | { readonly type: "notice"; readonly notice: CanvasNotice }
+  | { readonly type: "surface"; readonly state: "lost" | "restored" };
+
+/** Hit areas are widened by this many CSS pixels, at every zoom. */
+export const HIT_TOLERANCE = 3;
+
 /** The main-thread handle of one canvas. */
 export class CanvasHost {
   /** Resolves with the chosen renderer once the worker is ready. */
@@ -103,6 +129,41 @@ export class CanvasHost {
   private dpr: number;
   private origin: BaseOrigin;
   private box: LayerBox | null = null;
+  private readonly hits = new HitIndex();
+  private readonly layers: HostLayers;
+  private readonly eventListeners = new Set<(event: HostEvent) => void>();
+  private readonly notices: CanvasNotice[] = [];
+  private readonly noticed = new Set<string>();
+  private selected: readonly string[] = [];
+
+  /**
+   * Loads the fonts of `request` (STU-006) and then starts the canvas, so no
+   * text is laid out before its fonts; the loader's notices are raised as
+   * host events. Fonts that fail to load fall back to the next family.
+   */
+  static async create(
+    canvas: CanvasElementLike,
+    size: CanvasSize,
+    options: CanvasOptions,
+    deps: HostDeps,
+    fonts: { readonly request: FontRequest; readonly deps: FontLoadDeps },
+    layer: CanvasElementLike | null = null,
+    layers: HostLayers = {},
+  ): Promise<CanvasHost> {
+    const loaded = await loadCanvasFonts(fonts.request, fonts.deps, options.fontFamily);
+    const host = new CanvasHost(
+      canvas,
+      size,
+      { ...options, fonts: [...options.fonts, ...loaded.buffers], fontFamily: loaded.primary },
+      deps,
+      layer,
+      layers,
+    );
+    for (const notice of loaded.notices) {
+      host.raise(notice);
+    }
+    return host;
+  }
 
   /**
    * Starts the canvas on `canvas`, with `layer` — a second canvas element
@@ -114,7 +175,9 @@ export class CanvasHost {
     options: CanvasOptions,
     deps: HostDeps,
     layer: CanvasElementLike | null = null,
+    layers: HostLayers = {},
   ) {
+    this.layers = layers;
     this.ready = new Promise((resolve, reject) => {
       this.settle = { resolve, reject };
     });
@@ -126,6 +189,8 @@ export class CanvasHost {
     this.margin = overscanMargin(options.tileSize, size.dpr);
     this.origin = centredOrigin(this.view, this.margin, this.dpr);
     this.styleElements();
+    this.layers.overlay?.resize(size.width, size.height, size.dpr);
+    this.layers.tree?.setView(this.view.x, this.view.y, this.view.zoom);
     const offscreen =
       deps.createWorker && canvas.transferControlToOffscreen ? canvas.transferControlToOffscreen() : null;
     const layerTarget = offscreen && layer?.transferControlToOffscreen ? layer.transferControlToOffscreen() : layer;
@@ -254,6 +319,9 @@ export class CanvasHost {
         this.snapshots.get(message.requestId)?.(message.model);
         this.snapshots.delete(message.requestId);
         break;
+      case "surface":
+        this.emit({ type: "surface", state: message.state });
+        break;
       case "error":
         this.settle?.reject(new Error(message.message));
         break;
@@ -262,15 +330,118 @@ export class CanvasHost {
     }
   }
 
-  /** Applies scene patches. */
+  /** Applies scene patches; the hit index and accessible tree follow at once. */
   patch(ops: readonly SceneOp[]): void {
     this.send({ v: PROTOCOL_VERSION, type: "patch", ops });
+    this.hits.apply(ops);
+    this.layers.tree?.apply(ops);
+    for (const op of ops) {
+      if ((op.op === "add" || op.op === "replace") && op.item.kind === "text") {
+        const script = complexScriptOf(op.item.text);
+        if (script) {
+          this.raise({ code: AUTHORITATIVE_NOTICE, reason: "complex-script", subject: script });
+        }
+      }
+    }
+    if (this.selected.length > 0) {
+      this.selected = this.selected.filter((id) => this.hits.spec(id) !== undefined);
+      this.drawOverlay();
+    }
+  }
+
+  /** The world point under CSS point (`x`, `y`) of the canvas. */
+  toWorld(x: number, y: number): { x: number; y: number } {
+    return { x: this.view.x + x / this.view.zoom, y: this.view.y + y / this.view.zoom };
+  }
+
+  /**
+   * The ids of the items under CSS point (`x`, `y`), topmost first, answered
+   * on the main thread without a render round-trip.
+   */
+  hitTest(x: number, y: number, tolerance = HIT_TOLERANCE): string[] {
+    const world = this.toWorld(x, y);
+    return this.hits.hitPoint(world.x, world.y, tolerance / this.view.zoom);
+  }
+
+  /** The ids of the items meeting the CSS rectangle `rect` (e.g. a marquee), topmost first. */
+  hitTestRect(rect: Rect, mode: RectMode = "intersect"): string[] {
+    const a = this.toWorld(Math.min(rect.l, rect.r), Math.min(rect.t, rect.b));
+    const b = this.toWorld(Math.max(rect.l, rect.r), Math.max(rect.t, rect.b));
+    return this.hits.hitRect(makeRect(a.x, a.y, b.x, b.y), mode);
+  }
+
+  /** The selected item ids. */
+  get selection(): readonly string[] {
+    return this.selected;
+  }
+
+  /**
+   * Selects `ids` (unknown ids are ignored). Only the overlay is redrawn: the
+   * worker is not told, and the base is never re-rendered for a selection.
+   */
+  setSelection(ids: readonly string[]): void {
+    this.selected = ids.filter((id) => this.hits.spec(id) !== undefined);
+    this.drawOverlay();
+  }
+
+  private drawOverlay(): void {
+    const overlay = this.layers.overlay;
+    if (!overlay) {
+      return;
+    }
+    const boxes: Rect[] = [];
+    for (const id of this.selected) {
+      const box = this.hits.shapeOf(id, makeRect(0, 0, 0, 0));
+      if (box) {
+        boxes.push(box);
+      }
+    }
+    overlay.draw(this.view, this.dpr, boxes);
+  }
+
+  /** The view changed: the overlay and the accessible tree follow it. */
+  private followView(): void {
+    this.layers.tree?.setView(this.view.x, this.view.y, this.view.zoom);
+    if (this.selected.length > 0) {
+      this.drawOverlay();
+    }
+  }
+
+  /** Calls `listener` with every host event, first replaying the notices raised so far. */
+  onEvent(listener: (event: HostEvent) => void): () => void {
+    for (const notice of this.notices) {
+      listener({ type: "notice", notice });
+    }
+    this.eventListeners.add(listener);
+    return () => this.eventListeners.delete(listener);
+  }
+
+  /** The notices raised so far: "device preview is authoritative", with the reasons. */
+  get raisedNotices(): readonly CanvasNotice[] {
+    return this.notices;
+  }
+
+  private raise(notice: CanvasNotice): void {
+    const key = `${notice.reason}:${notice.subject}`;
+    if (this.noticed.has(key)) {
+      return;
+    }
+    this.noticed.add(key);
+    this.notices.push(notice);
+    this.emit({ type: "notice", notice });
+  }
+
+  private emit(event: HostEvent): void {
+    for (const listener of [...this.eventListeners]) {
+      listener(event);
+    }
   }
 
   /** Pans by CSS pixels. */
   pan(dx: number, dy: number): void {
     this.view.pan(dx, dy);
     this.applyTransform();
+    this.followView();
     this.send({ v: PROTOCOL_VERSION, type: "viewport", change: { op: "pan", dx, dy } });
   }
 
@@ -278,6 +449,7 @@ export class CanvasHost {
   zoomAbout(factor: number, x: number, y: number): void {
     this.view.zoomAbout(factor, x, y);
     this.applyTransform();
+    this.followView();
     this.send({ v: PROTOCOL_VERSION, type: "viewport", change: { op: "zoom", factor, x, y } });
   }
 
@@ -285,6 +457,7 @@ export class CanvasHost {
   setViewport(x: number, y: number, zoom: number): void {
     this.view.apply({ op: "set", x, y, zoom });
     this.applyTransform();
+    this.followView();
     this.send({ v: PROTOCOL_VERSION, type: "viewport", change: { op: "set", x, y, zoom } });
   }
 
@@ -305,6 +478,8 @@ export class CanvasHost {
     this.margin = overscanMargin(this.tileSize, dpr);
     this.dpr = dpr;
     this.styleElements();
+    this.layers.overlay?.resize(width, height, dpr);
+    this.followView();
     this.send({ v: PROTOCOL_VERSION, type: "resize", width, height, dpr });
   }
 
@@ -338,5 +513,6 @@ export class CanvasHost {
     this.send({ v: PROTOCOL_VERSION, type: "dispose" });
     this.worker?.terminate();
     this.frameListeners.clear();
+    this.eventListeners.clear();
   }
 }
