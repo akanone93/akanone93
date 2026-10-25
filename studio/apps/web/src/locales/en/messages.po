@@ -7,6 +7,12 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
+#. Status chip: edits not yet saved, kept in memory until the server is reachable.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "chip.waiting"
+msgstr "{count, plural, one {# change waiting} other {# changes waiting}}"
+
 #. Accessible name of the error count in the action bar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -18,6 +24,12 @@ msgstr "{count, plural, one {# error} other {# errors}}"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.warnings"
 msgstr "{count, plural, one {# warning} other {# warnings}}"
+
+#. Status chip: no network, and edits wait in memory to be sent on reconnect.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "chip.offline-waiting"
+msgstr "{count, plural, one {Offline — # change waiting} other {Offline — # changes waiting}}"
 
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
@@ -133,6 +145,12 @@ msgstr "Choose a password"
 msgid "cmd.palette.close"
 msgstr "Close"
 
+#. Accessible name of the D35 close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.close"
+msgstr "Close"
+
 #. Accessible name of a dialog's close button.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -186,6 +204,18 @@ msgstr "Confirm it is you"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.provider.continue"
 msgstr "Continue with {name}"
+
+#. Confirmation after copying your version as JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.copied"
+msgstr "Copied to the clipboard"
+
+#. D35 button: copy your version of the document to the clipboard before choosing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.copy-mine"
+msgstr "Copy mine as JSON"
 
 #. Theme option.
 #. js-lingui-explicit-id
@@ -330,6 +360,18 @@ msgstr "Information"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.label"
 msgstr "Justification"
+
+#. D35 button: apply your changes on top of the server's version where they fit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.keep-mine"
+msgstr "Keep mine"
+
+#. D35 heading of the list of your changes that no longer fit the server's version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.would-drop"
+msgstr "Keeping yours cannot apply these changes"
 
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
@@ -649,6 +691,12 @@ msgstr "Studio was updated. Reload to use the new version."
 msgid "cmd.org.switch"
 msgstr "Switch to {name}"
 
+#. D35 button: discard your unsaved changes and use the server's version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.take-server"
+msgstr "Take the server's"
+
 #. Shown when the WebAuthn check was cancelled or failed.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -703,6 +751,12 @@ msgstr "The validator could not run."
 msgid "profile.theme"
 msgstr "Theme"
 
+#. Shown after keep mine: the changes that did not fit and were left out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.dropped"
+msgstr "These changes of yours were not applied"
+
 #. Explains why the step-up dialog appears.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -726,6 +780,12 @@ msgstr "This page does not exist or you cannot see it."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.body"
 msgstr "This page is part of the enterprise edition. Ask an installation administrator to install a licence."
+
+#. D35 title: someone or something saved this plugin while you were editing it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.title"
+msgstr "This plugin changed on the server"
 
 #. Shown on the plugin canvas when the plugin has no screens.
 #. js-lingui-explicit-id
@@ -793,6 +853,12 @@ msgstr "Warning"
 msgid "home.title"
 msgstr "Welcome to {name}"
 
+#. D35 heading of the list of document paths that differ.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.differences"
+msgstr "Where your version and the server's differ"
+
 #. Title of the dialog that explains an access decision.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -834,6 +900,12 @@ msgstr "You have changes that are not saved. If you leave now they are lost."
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.caption"
 msgstr "Your appearance and language, kept for every device."
+
+#. D35 explanation shown under the title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.conflict.body"
+msgstr "Your changes could not be combined with the newer version. Autosave is paused until you choose."
 
 #. Label of the display-name field on the invitation page.
 #. js-lingui-explicit-id
