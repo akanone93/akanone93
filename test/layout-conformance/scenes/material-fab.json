@@ -1,0 +1,121 @@
+{
+  "name": "material-fab",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "fr",
+            "type": "FloatingActionButton",
+            "props": {},
+            "children": [
+              {
+                "id": "fri",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "fs",
+            "type": "FloatingActionButton",
+            "props": {
+              "kind": "small"
+            },
+            "children": [
+              {
+                "id": "fsi",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "fss",
+            "type": "FloatingActionButton",
+            "props": {
+              "kind": "small",
+              "tapTargetSize": "shrinkWrap"
+            },
+            "children": [
+              {
+                "id": "fssi",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "fl",
+            "type": "FloatingActionButton",
+            "props": {
+              "kind": "large"
+            },
+            "children": [
+              {
+                "id": "fli",
+                "type": "Icon",
+                "props": {
+                  "size": 36
+                }
+              }
+            ]
+          },
+          {
+            "id": "fe",
+            "type": "FloatingActionButton",
+            "props": {
+              "kind": "extended"
+            },
+            "children": [
+              {
+                "id": "fei",
+                "type": "Icon",
+                "props": {}
+              },
+              {
+                "id": "fet",
+                "type": "Text",
+                "props": {
+                  "text": "Compose"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "fe2",
+            "type": "FloatingActionButton",
+            "props": {
+              "kind": "extended"
+            },
+            "children": [
+              {
+                "id": "fe2t",
+                "type": "Text",
+                "props": {
+                  "text": "Label only"
+                },
+                "slot": "label"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
