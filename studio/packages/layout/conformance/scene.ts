@@ -115,11 +115,14 @@ import {
   WrapAlignment,
   WrapCrossAlignment,
 } from "../src/index.ts";
+import { buildCupertino, cupertinoAliasTypes, cupertinoMultiChildTypes, cupertinoTypes } from "./cupertino.ts";
 
 /** What text nodes are laid out with: the paragraph engine and the golden's text scale. */
 export interface SceneText {
   engine: ParagraphEngine;
   textScaler: TextScaler;
+  /** The frame's device pixel ratio, for hairlines that are one physical pixel. */
+  devicePixelRatio?: number;
 }
 
 /** One node of a scene; `props` use Flutter's parameter names. */
@@ -244,6 +247,7 @@ export function supportedTypes(): ReadonlySet<string> {
     ...stackTypes,
     ...scrollTypes,
     ...sliverTypes,
+    ...cupertinoTypes,
     ...(renderFlexAvailable() ? flexTypes : []),
   ]);
 }
@@ -307,7 +311,7 @@ function alignment(value: unknown): AlignmentGeometry {
 }
 
 function singleChild(node: SceneNode, children: RenderBox[]): RenderBox | null {
-  if (!multiChildTypes.has(node.type) && children.length > 1) {
+  if (!multiChildTypes.has(node.type) && !cupertinoMultiChildTypes.has(node.type) && children.length > 1) {
     throw new Error(`node "${node.id}" of type ${node.type} takes at most one child`);
   }
   return children[0] ?? null;
@@ -1039,6 +1043,14 @@ export function buildNode(
   if (scrollTypes.has(node.type)) {
     return buildScrollable(node, textDirection, text);
   }
+  if (cupertinoTypes.has(node.type)) {
+    return buildCupertino(node, {
+      textDirection,
+      text,
+      build: (child, childText) => buildNode(child, textDirection, childText, t),
+      padding: (value) => padding(value),
+    });
+  }
   if (sliverTypes.has(node.type)) {
     throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);
   }
@@ -1157,7 +1169,13 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
     child: buildNode(
       scene.root,
       direction,
-      engine === null ? null : { engine, textScaler: TextScaler.linear(golden.textScale) },
+      engine === null
+        ? null
+        : {
+            engine,
+            textScaler: TextScaler.linear(golden.textScale),
+            devicePixelRatio: golden.frame.devicePixelRatio,
+          },
       scene.t ?? 1,
     ),
   });
@@ -1177,9 +1195,10 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
   const alias = (node: SceneNode): void => {
     const child = node.children?.[0];
     if (
-      ["Expanded", "Flexible", "Positioned", "PositionedDirectional", "TableCell", "AnimatedPositioned"].includes(
+      (["Expanded", "Flexible", "Positioned", "PositionedDirectional", "TableCell", "AnimatedPositioned"].includes(
         node.type,
-      ) &&
+      ) ||
+        cupertinoAliasTypes.has(node.type)) &&
       child !== undefined
     ) {
       const rect = rects[child.id];

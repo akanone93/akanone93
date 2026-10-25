@@ -1,0 +1,99 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-button-variants",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 2.0,
+  "rects": {
+    "col": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "filled-large": [
+      0.0,
+      78.0,
+      173.44969177246094,
+      78.0
+    ],
+    "filled-large-label": [
+      20.0,
+      94.0,
+      133.44969177246094,
+      46.0
+    ],
+    "filled-medium": [
+      0.0,
+      156.0,
+      104.18782043457031,
+      66.0
+    ],
+    "filled-medium-label": [
+      15.0,
+      166.0,
+      74.18782043457031,
+      46.0
+    ],
+    "filled-small": [
+      0.0,
+      222.0,
+      80.0699462890625,
+      53.0
+    ],
+    "filled-small-label": [
+      12.0,
+      228.0,
+      56.0699462890625,
+      41.0
+    ],
+    "plain-large": [
+      0.0,
+      0.0,
+      185.3156280517578,
+      78.0
+    ],
+    "plain-large-label": [
+      20.0,
+      16.0,
+      145.3156280517578,
+      46.0
+    ],
+    "plain-small": [
+      0.0,
+      341.0,
+      82.67994689941406,
+      53.0
+    ],
+    "plain-small-label": [
+      12.0,
+      347.0,
+      58.67994689941406,
+      41.0
+    ],
+    "tinted-medium": [
+      0.0,
+      275.0,
+      121.28977966308594,
+      66.0
+    ],
+    "tinted-medium-label": [
+      15.0,
+      285.0,
+      91.28977966308594,
+      46.0
+    ]
+  },
+  "baselines": {
+    "filled-large-label": 36.34600067138672,
+    "filled-medium-label": 36.34600067138672,
+    "filled-small-label": 32.06999969482422,
+    "plain-large-label": 36.34600067138672,
+    "plain-small-label": 32.06999969482422,
+    "tinted-medium-label": 36.34600067138672
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-page-scaffold-opaque",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "ar",
+  "textScale": 2.0,
+  "rects": {
+    "bar": [
+      0.0,
+      0.0,
+      360.0,
+      91.0
+    ],
+    "content": [
+      260.0,
+      91.0,
+      100.0,
+      709.0
+    ],
+    "first": [
+      260.0,
+      91.0,
+      100.0,
+      60.0
+    ],
+    "middle-text": [
+      161.2575454711914,
+      57.5,
+      37.48490905761719,
+      23.0
+    ],
+    "nav-middle": [
+      161.2575454711914,
+      57.5,
+      37.48490905761719,
+      23.0
+    ],
+    "scaffold": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "second": [
+      260.0,
+      151.0,
+      100.0,
+      60.0
+    ]
+  },
+  "baselines": {
+    "middle-text": 18.17300033569336
+  }
+}

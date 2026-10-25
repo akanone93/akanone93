@@ -1,0 +1,42 @@
+{
+  "name": "cupertino-navigation-bar-large-no-buttons",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "bar",
+        "type": "CupertinoNavigationBar",
+        "props": {},
+        "children": [
+          {
+            "id": "nav-large",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "largeTitle"
+            },
+            "children": [
+              {
+                "id": "large-text",
+                "type": "Text",
+                "props": {
+                  "text": "Messages and conversations from all of your devices",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 34
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

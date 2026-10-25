@@ -1,0 +1,262 @@
+{
+  "name": "cupertino-list-section-inset",
+  "root": {
+    "id": "section",
+    "type": "CupertinoListSection",
+    "props": {
+      "type": "insetGrouped"
+    },
+    "children": [
+      {
+        "id": "sec-header",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "header"
+        },
+        "children": [
+          {
+            "id": "header-text",
+            "type": "Text",
+            "props": {
+              "text": "Account",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 20,
+                "fontWeight": 700
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "t1",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "notched"
+        },
+        "children": [
+          {
+            "id": "t1-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t1-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Profile",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t1-lead",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "t1-lead-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "t1-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "t1-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "notched"
+        },
+        "children": [
+          {
+            "id": "t2-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t2-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-info",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "additionalInfo"
+            },
+            "children": [
+              {
+                "id": "t2-info-text",
+                "type": "Text",
+                "props": {
+                  "text": "On",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-lead",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "t2-lead-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "t2-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "t3",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "notched"
+        },
+        "children": [
+          {
+            "id": "t3-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t3-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Privacy",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t3-lead",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "t3-lead-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "t3-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "t3-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sec-footer",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "footer"
+        },
+        "children": [
+          {
+            "id": "footer-text",
+            "type": "Text",
+            "props": {
+              "text": "Manage how your data is used.",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "cupertino-page-scaffold-bare",
+  "root": {
+    "id": "scaffold",
+    "type": "CupertinoPageScaffold",
+    "props": {},
+    "children": [
+      {
+        "id": "content",
+        "type": "Center",
+        "props": {},
+        "children": [
+          {
+            "id": "only",
+            "type": "TestBox",
+            "props": {
+              "width": 80,
+              "height": 80
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

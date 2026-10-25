@@ -1,0 +1,109 @@
+{
+  "name": "cupertino-button-tap-target",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "icon-button",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "plain",
+          "size": "large",
+          "padding": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "children": [
+          {
+            "id": "icon-box",
+            "type": "TestBox",
+            "props": {
+              "width": 20,
+              "height": 20
+            }
+          }
+        ]
+      },
+      {
+        "id": "tiny-small",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "plain",
+          "size": "small",
+          "padding": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "children": [
+          {
+            "id": "tiny-box",
+            "type": "TestBox",
+            "props": {
+              "width": 8,
+              "height": 8
+            }
+          }
+        ]
+      },
+      {
+        "id": "wide-min",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "filled",
+          "size": "medium",
+          "minWidth": 200
+        },
+        "children": [
+          {
+            "id": "wide-min-label",
+            "type": "Text",
+            "props": {
+              "text": "Wide",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "padded",
+        "type": "CupertinoButton",
+        "props": {
+          "kind": "plain",
+          "size": "large",
+          "padding": {
+            "start": 4,
+            "end": 30,
+            "top": 2,
+            "bottom": 2
+          }
+        },
+        "children": [
+          {
+            "id": "padded-label",
+            "type": "Text",
+            "props": {
+              "text": "Padded",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
