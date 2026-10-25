@@ -86,3 +86,35 @@ Scene A and 379 ms in Scene B): repainting the whole overscanned base (2,304 × 
 submission occupies SwiftShader's GPU thread, which also composites the page. Splitting it is not
 possible on one canvas, as the host moves the whole base with one transform; meeting 50 ms needs a
 second base canvas, filled by budgeted blit jobs and swapped in when complete (open).
+
+Diagnosis (branches `p11/s13-gap`, `p11/s13-tiles`, not merged): splitting the work did not help.
+With every worker job at most 2.5 ms of CPU, the GPU process still stalled 400–870 ms after each
+recentre on work submitted by the worker's WebGL context — invisible to the worker's own timings —
+and the gap stayed at 300–750 ms. The forced raster renderer had no stall.
+
+Result: on software GL the canvas now uses CanvasKit's CPU raster backend (ADR-0013), chosen from
+the GL probe (renderer string SwiftShader, llvmpipe, … or a context refused for
+`failIfMajorPerformanceCaveat`); the start-up measurement is gone, as it could not see the GPU
+process. Measured the same day, median of three runs:
+
+| Renderer (Scene A / Scene B pan) | p95 | Longest gap | Settle visible | Base job max |
+|---|---|---|---|---|
+| WebGL, forced | 16.67 / 16.67 | 383 / 383 | 130 / 108 | 408 / 427 |
+| Raster via `MakeSWCanvasSurface` | 16.67 / 16.67 | 16.67 / 16.67 | 223 / 277 | 221 / 284 |
+| Raster, premultiplied, dirty-rect present (this change; four runs) | 16.67 / 16.67 | 16.67 / 16.67 | 38 / 41 | 28 / 28 |
+
+With this change every target is met in the median: pan p95 16.67 ms, longest gap 16.67 ms (one
+run of four had 50 ms in Scene A), drag p95 4.1–6.7 ms (one run had a single 132 ms drag frame),
+visible settle about 40 ms and full settle 60–110 ms. These four runs drew the drag layer through
+the premultiplied surface; the final build returns it to `MakeSWCanvasSurface` (its anti-aliased
+edges are transparent) and was measured again, median of three: pan p95 16.67 / 16.67 ms, longest
+gap 16.67 / 16.67 ms (single runs up to 66.67 ms in Scene A and 49.99 ms in Scene B), visible settle
+40 / 41 ms, drag p95 7.2 ms (max 46.5 ms).
+
+`MakeSWCanvasSurface` renders unpremultiplied RGBA, which takes Skia off its fast blitters (a
+realignment of 20 tile blits took 220–330 ms) and copies the whole 2,304 × 1,824 base to the
+canvas on every flush. The base now renders into a premultiplied raster surface — it is opaque, so
+its bytes are valid `putImageData` input — and a tile job copies only the tile's rectangle, into a
+CPU-backed 2D context (`willReadFrequently`; an accelerated one put the copies back on SwiftShader
+and brought back single 670–1,130 ms gaps in Scene B in four of seven runs). The transparent drag
+layer keeps `MakeSWCanvasSurface`.

@@ -33,8 +33,6 @@ export interface BrowserScope {
 
 type SurfaceTarget = Parameters<CanvasKit["MakeSWCanvasSurface"]>[0];
 
-const MEASURE_SIZE = 1024;
-
 function probe(scope: BrowserScope): GlProbe {
   const Offscreen = scope.OffscreenCanvas;
   const none: GlProbe = { available: false, software: true, renderer: "", majorPerformanceCaveat: false };
@@ -53,10 +51,77 @@ function probe(scope: BrowserScope): GlProbe {
   return { available: true, software: caveat || isSoftwareGl(renderer), renderer, majorPerformanceCaveat: caveat };
 }
 
-function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster"): Surface | null {
+interface Context2dLike {
+  putImageData(data: ImageData, dx: number, dy: number, x?: number, y?: number, w?: number, h?: number): void;
+}
+
+/**
+ * A CPU raster surface presented through the canvas's 2D context. Unlike
+ * `MakeSWCanvasSurface`, whose unpremultiplied pixels force Skia off its fast
+ * blitters, it renders premultiplied RGBA: the base is opaque, so the bytes
+ * are the same as unpremultiplied ones and go to `putImageData` unchanged. A
+ * flush copies only its dirty rectangle [l, t, r, b] when one is given.
+ */
+function rasterOn(ck: CanvasKit, canvas: OffscreenCanvasLike): Surface | null {
+  // A CPU-backed 2D context: an accelerated one would hand every copy to the software GL this path avoids.
+  const context =
+    (
+      canvas as { getContext?(type: "2d", attributes: { willReadFrequently: boolean }): Context2dLike | null }
+    ).getContext?.("2d", { willReadFrequently: true }) ?? null;
+  const { width, height } = canvas;
+  if (!context || width <= 0 || height <= 0) {
+    return null;
+  }
+  const pixels = ck.Malloc(Uint8Array, width * height * 4);
+  const info = {
+    width,
+    height,
+    colorType: ck.ColorType.RGBA_8888,
+    alphaType: ck.AlphaType.Premul,
+    colorSpace: ck.ColorSpace.SRGB,
+  };
+  const surface = ck.MakeRasterDirectSurface(info, pixels, width * 4);
+  if (!surface) {
+    ck.Free(pixels);
+    return null;
+  }
+  const flush = surface.flush.bind(surface);
+  const remove = surface.delete.bind(surface);
+  surface.flush = ((dirty?: Int32Array) => {
+    flush();
+    const bytes = pixels.toTypedArray();
+    // A view of CanvasKit's heap, not a copy; the heap is a plain (not shared) ArrayBuffer.
+    const heap = bytes.buffer as ArrayBuffer;
+    const image = new ImageData(new Uint8ClampedArray(heap, bytes.byteOffset, bytes.length), width, height);
+    if (dirty) {
+      context.putImageData(
+        image,
+        0,
+        0,
+        dirty[0],
+        dirty[1],
+        (dirty[2] ?? 0) - (dirty[0] ?? 0),
+        (dirty[3] ?? 0) - (dirty[1] ?? 0),
+      );
+    } else {
+      context.putImageData(image, 0, 0);
+    }
+  }) as Surface["flush"];
+  surface.delete = () => {
+    remove();
+    ck.Free(pixels);
+  };
+  return surface;
+}
+
+function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster" | "layer"): Surface | null {
   const target = canvas as unknown as SurfaceTarget;
-  if (kind === "raster") {
+  if (kind === "layer") {
+    // Transparent: a 2D canvas takes unpremultiplied pixels, which this surface renders.
     return ck.MakeSWCanvasSurface(target);
+  }
+  if (kind === "raster") {
+    return rasterOn(ck, canvas);
   }
   return ck.MakeWebGLCanvasSurface(target, ck.ColorSpace.SRGB, {
     majorVersion: 2,
@@ -105,12 +170,5 @@ export function browserWorkerDeps(scope: BrowserScope, loadCanvasKit: () => Prom
     probeGl: () => probe(scope),
     makeSurface: surfaceOn,
     watchContext: watchCanvasContext,
-    makeMeasureSurface: (ck, kind) => {
-      if (kind === "raster") {
-        return ck.MakeSurface(MEASURE_SIZE, MEASURE_SIZE);
-      }
-      const Offscreen = scope.OffscreenCanvas;
-      return Offscreen ? surfaceOn(ck, new Offscreen(MEASURE_SIZE, MEASURE_SIZE), "webgl") : null;
-    },
   };
 }
