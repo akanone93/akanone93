@@ -13,6 +13,12 @@ msgstr ""
 msgid "pluginCanvas.copySuffix"
 msgstr "(Kopie)"
 
+#. D37: edits kept in memory that were not sent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.unsaved"
+msgstr "{count, plural, =0 {Keine ungespeicherten Änderungen} one {# ungespeicherte Änderung} other {# ungespeicherte Änderungen}}"
+
 #. Status chip: edits not yet saved, kept in memory until the server is reachable.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -55,6 +61,30 @@ msgstr "{count} von höchstens {max} Zeichen"
 msgid "notify.unread"
 msgstr "{count} ungelesen"
 
+#. Read-only banner: someone else holds the plugin's editing lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.banner.held-by"
+msgstr "{holder} bearbeitet dieses Plugin seit {since}. Sie können sich umsehen, auswählen und kopieren."
+
+#. D36 explanation with the holder and their last activity.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.takeover.body"
+msgstr "{holder} hält die Sperre; die letzte Änderung war {last}. Die Arbeit bleibt als Snapshot erhalten, und {holder} erfährt, wer übernommen hat."
+
+#. D37: someone took the lock over.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.takeover"
+msgstr "{holder} hat die Bearbeitung übernommen. Ihre Arbeit bis dahin bleibt als Snapshot erhalten."
+
+#. Shown after Request edit was sent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requested"
+msgstr "{holder} wurde gebeten, das Plugin zu übergeben."
+
 #. Announced to screen readers when one element is selected on the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -66,6 +96,12 @@ msgstr "{name} ausgewählt"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.overflow"
 msgstr "{name}: Inhalt außerhalb des Bildschirms"
+
+#. Shown to the holder when others requested the lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requests.body"
+msgstr "{names} möchte dieses Plugin bearbeiten."
 
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
@@ -139,6 +175,12 @@ msgstr "Begründung für Notfallzugriff"
 msgid "pluginCanvas.cancel"
 msgstr "Abbrechen"
 
+#. Dialog button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.cancel"
+msgstr "Abbrechen"
+
 #. Button that dismisses a dialog without acting.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -187,6 +229,12 @@ msgstr "Schließen"
 msgid "editor.conflict.close"
 msgstr "Schließen"
 
+#. Dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.close"
+msgstr "Schließen"
+
 #. Accessible name of a dialog's close button.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -216,6 +264,12 @@ msgstr "Befehle"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density.compact"
 msgstr "Kompakt"
+
+#. D37 button: list the documents with unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.compare"
+msgstr "Vergleichen"
 
 #. Button that confirms the action of a dialog.
 #. js-lingui-explicit-id
@@ -306,6 +360,12 @@ msgstr "Bildschirm löschen"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "Dichte"
+
+#. D37 button: drop the unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.discard"
+msgstr "Verwerfen"
 
 #. Help menu entry that opens the documentation.
 #. js-lingui-explicit-id
@@ -415,6 +475,12 @@ msgstr "Zur Startseite"
 msgid "cmd.nav.profile"
 msgstr "Zum Profil"
 
+#. Button: release the lock to whoever asked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requests.release"
+msgstr "Übergeben"
+
 #. Label of the help menu.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -444,6 +510,12 @@ msgstr "Information"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.label"
 msgstr "Begründung"
+
+#. Button: keep the lock despite the request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requests.keep"
+msgstr "Weiter bearbeiten"
 
 #. D35 button: apply your changes on top of the server's version where they fit.
 #. js-lingui-explicit-id
@@ -679,6 +751,12 @@ msgstr "Profil"
 msgid "problems.project"
 msgstr "Projekt"
 
+#. D37 button: take the lock again and send the unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.retake"
+msgstr "Erneut übernehmen und anwenden"
+
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -708,6 +786,12 @@ msgstr "Umbenennen"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.renameScreen"
 msgstr "Bildschirm umbenennen"
+
+#. Button: ask the person holding the lock to hand it over.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.request-edit"
+msgstr "Bearbeitung anfragen"
 
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
@@ -799,6 +883,12 @@ msgstr "Anmeldung läuft"
 msgid "auth.providers"
 msgstr "Einmalanmeldung"
 
+#. D37: re-taking failed because the lock is not free.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.retake-failed"
+msgstr "Jemand anderes hält die Sperre jetzt."
+
 #. Button that keeps the person on the page.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -822,6 +912,24 @@ msgstr "Studio wurde aktualisiert. Laden Sie neu, um die neue Version zu nutzen.
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.org.switch"
 msgstr "Zu {name} wechseln"
+
+#. Button (D36): take the editing lock from its holder.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.take-over"
+msgstr "Übernehmen"
+
+#. D36 title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.takeover.title"
+msgstr "Bearbeitung übernehmen?"
+
+#. Why Take over is disabled: the holder edited recently (L-1).
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.take-over-from"
+msgstr "Übernehmen ist ab {at} möglich, sobald die Person nicht mehr bearbeitet."
 
 #. D35 button: discard your unsaved changes and use the server's version.
 #. js-lingui-explicit-id
@@ -858,6 +966,12 @@ msgstr "Die Erklärung konnte nicht geladen werden."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.invite"
 msgstr "Die Einladung ist ungültig oder abgelaufen."
+
+#. Shown when the server refused a takeover.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.takeover.refused"
+msgstr "Die Sperre konnte nicht übernommen werden: Die Person hat wieder bearbeitet, oder Sie dürfen Sperren nicht übernehmen."
 
 #. Shown when the passkey prompt fails or is cancelled.
 #. js-lingui-explicit-id
@@ -1045,6 +1159,12 @@ msgstr "Warum ist das nicht verfügbar?"
 msgid "pluginCanvas.command.wrap"
 msgstr "Auswahl in Spalte einbetten"
 
+#. Read-only banner: the same person holds the lock in another browser tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.banner.other-tab"
+msgstr "Sie bearbeiten dieses Plugin in einem anderen Tab."
+
 #. Heading shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1081,6 +1201,12 @@ msgstr "Sie wurden abgemeldet"
 msgid "dialog.unsaved.body"
 msgstr "Sie haben ungespeicherte Änderungen. Wenn Sie jetzt gehen, gehen sie verloren."
 
+#. D37 title: the lock was taken over or expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.title"
+msgstr "Sie halten die Bearbeitungssperre nicht mehr"
+
 #. Caption under the profile heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -1092,6 +1218,12 @@ msgstr "Ihr Erscheinungsbild und Ihre Sprache, für alle Geräte gespeichert."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.body"
 msgstr "Deine Änderungen ließen sich nicht mit der neueren Version zusammenführen. Automatisches Speichern pausiert, bis du entscheidest."
+
+#. D37: the heartbeat failed until the lock expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.expired"
+msgstr "Ihre Sperre ist abgelaufen, weil sie nicht erneuert werden konnte."
 
 #. Label of the display-name field on the invitation page.
 #. js-lingui-explicit-id

@@ -38,13 +38,17 @@ export function documentTransport(
   transport: Transport,
   ids: { readonly appId: string; readonly pluginId: string },
   confirmed: (doc: Document) => void,
+  /** The lock session a save is sent under; it waits for the lock (F1.1). */
+  lockSession?: () => Promise<string>,
 ): DocumentTransport {
   const client = createClient(DocumentService, transport);
   return {
     async patch(path, ops, ifRevision, { keepalive }) {
+      const session = lockSession === undefined ? "" : await lockSession();
       const res = await client.patchDocument(
         {
           ...ids,
+          session,
           path,
           ifRevision,
           patch: ops.map((o) => ({

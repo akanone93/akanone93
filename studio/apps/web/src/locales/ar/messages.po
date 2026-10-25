@@ -13,6 +13,12 @@ msgstr ""
 msgid "pluginCanvas.copySuffix"
 msgstr "(نسخة)"
 
+#. D37: edits kept in memory that were not sent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.unsaved"
+msgstr "{count, plural, =0 {لا توجد تغييرات غير محفوظة} zero {لا توجد تغييرات غير محفوظة} one {تغيير واحد غير محفوظ} two {تغييران غير محفوظين} few {# تغييرات غير محفوظة} many {# تغييرًا غير محفوظ} other {# تغيير غير محفوظ}}"
+
 #. Status chip: edits not yet saved, kept in memory until the server is reachable.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -55,6 +61,30 @@ msgstr "{count} من {max} حرفًا على الأكثر"
 msgid "notify.unread"
 msgstr "{count} غير مقروءة"
 
+#. Read-only banner: someone else holds the plugin's editing lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.banner.held-by"
+msgstr "يحرّر {holder} هذه الإضافة منذ {since}. يمكنك الاستعراض والتحديد والنسخ."
+
+#. D36 explanation with the holder and their last activity.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.takeover.body"
+msgstr "يملك {holder} القفل؛ وكان آخر تعديل له {last}. يُحفظ عمله في لقطة ويُبلَّغ بمن استلم."
+
+#. D37: someone took the lock over.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.takeover"
+msgstr "استلم {holder} التحرير. عملك حتى تلك اللحظة محفوظ في لقطة."
+
+#. Shown after Request edit was sent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requested"
+msgstr "طُلب من {holder} تسليم الإضافة."
+
 #. Announced to screen readers when one element is selected on the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -66,6 +96,12 @@ msgstr "تم تحديد {name}"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.overflow"
 msgstr "{name}: محتوى خارج الشاشة"
+
+#. Shown to the holder when others requested the lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requests.body"
+msgstr "طلب {names} تحرير هذه الإضافة."
 
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
@@ -139,6 +175,12 @@ msgstr "مبرر الوصول الطارئ"
 msgid "pluginCanvas.cancel"
 msgstr "إلغاء"
 
+#. Dialog button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.cancel"
+msgstr "إلغاء"
+
 #. Button that dismisses a dialog without acting.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -187,6 +229,12 @@ msgstr "إغلاق"
 msgid "editor.conflict.close"
 msgstr "إغلاق"
 
+#. Dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.close"
+msgstr "إغلاق"
+
 #. Accessible name of a dialog's close button.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -216,6 +264,12 @@ msgstr "الأوامر"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density.compact"
 msgstr "مضغوطة"
+
+#. D37 button: list the documents with unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.compare"
+msgstr "مقارنة"
 
 #. Button that confirms the action of a dialog.
 #. js-lingui-explicit-id
@@ -306,6 +360,12 @@ msgstr "حذف الشاشة"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "الكثافة"
+
+#. D37 button: drop the unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.discard"
+msgstr "تجاهل"
 
 #. Help menu entry that opens the documentation.
 #. js-lingui-explicit-id
@@ -415,6 +475,12 @@ msgstr "الانتقال إلى الصفحة الرئيسية"
 msgid "cmd.nav.profile"
 msgstr "الانتقال إلى الملف الشخصي"
 
+#. Button: release the lock to whoever asked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requests.release"
+msgstr "تسليم"
+
 #. Label of the help menu.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -444,6 +510,12 @@ msgstr "معلومة"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.label"
 msgstr "المبرر"
+
+#. Button: keep the lock despite the request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.requests.keep"
+msgstr "متابعة التحرير"
 
 #. D35 button: apply your changes on top of the server's version where they fit.
 #. js-lingui-explicit-id
@@ -679,6 +751,12 @@ msgstr "الملف الشخصي"
 msgid "problems.project"
 msgstr "المشروع"
 
+#. D37 button: take the lock again and send the unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.retake"
+msgstr "إعادة الاستلام والتطبيق"
+
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -708,6 +786,12 @@ msgstr "إعادة تسمية"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.renameScreen"
 msgstr "إعادة تسمية الشاشة"
+
+#. Button: ask the person holding the lock to hand it over.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.request-edit"
+msgstr "طلب التحرير"
 
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
@@ -799,6 +883,12 @@ msgstr "جارٍ تسجيل الدخول"
 msgid "auth.providers"
 msgstr "تسجيل الدخول الموحّد"
 
+#. D37: re-taking failed because the lock is not free.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.retake-failed"
+msgstr "شخص آخر يملك القفل الآن."
+
 #. Button that keeps the person on the page.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -822,6 +912,24 @@ msgstr "تم تحديث Studio. أعد التحميل لاستخدام الإص�
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.org.switch"
 msgstr "التبديل إلى {name}"
+
+#. Button (D36): take the editing lock from its holder.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.take-over"
+msgstr "استلام"
+
+#. D36 title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.takeover.title"
+msgstr "استلام التحرير؟"
+
+#. Why Take over is disabled: the holder edited recently (L-1).
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.take-over-from"
+msgstr "يمكن الاستلام ابتداءً من {at}، بعد توقف صاحب القفل عن التحرير."
 
 #. D35 button: discard your unsaved changes and use the server's version.
 #. js-lingui-explicit-id
@@ -858,6 +966,12 @@ msgstr "تعذّر تحميل التفسير."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.invite"
 msgstr "الدعوة غير صالحة أو منتهية الصلاحية."
+
+#. Shown when the server refused a takeover.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.takeover.refused"
+msgstr "تعذّر استلام القفل: عاد صاحبه إلى التحرير، أو ليس لديك إذن باستلام الأقفال."
 
 #. Shown when the passkey prompt fails or is cancelled.
 #. js-lingui-explicit-id
@@ -1045,6 +1159,12 @@ msgstr "لماذا هذا غير متاح؟"
 msgid "pluginCanvas.command.wrap"
 msgstr "لف التحديد في عمود"
 
+#. Read-only banner: the same person holds the lock in another browser tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.banner.other-tab"
+msgstr "أنت تحرّر هذه الإضافة في علامة تبويب أخرى."
+
 #. Heading shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1081,6 +1201,12 @@ msgstr "تم تسجيل خروجك"
 msgid "dialog.unsaved.body"
 msgstr "لديك تغييرات غير محفوظة. إذا غادرت الآن فستفقدها."
 
+#. D37 title: the lock was taken over or expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.title"
+msgstr "لم تعد تملك قفل التحرير"
+
 #. Caption under the profile heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -1092,6 +1218,12 @@ msgstr "مظهرك ولغتك، محفوظان لجميع الأجهزة."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.body"
 msgstr "تعذّر دمج تغييراتك مع النسخة الأحدث. الحفظ التلقائي متوقف حتى تختار."
+
+#. D37: the heartbeat failed until the lock expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.lost.expired"
+msgstr "انتهت صلاحية قفلك لأنه تعذّر تجديده."
 
 #. Label of the display-name field on the invitation page.
 #. js-lingui-explicit-id

@@ -447,7 +447,7 @@ func (q *Queries) GetDraftForUpdate(ctx context.Context, id pgtype.UUID) (Draft,
 }
 
 const getLock = `-- name: GetLock :one
-SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by FROM locks WHERE draft_id = $1
+SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at FROM locks WHERE draft_id = $1
 `
 
 func (q *Queries) GetLock(ctx context.Context, draftID pgtype.UUID) (Lock, error) {
@@ -466,12 +466,13 @@ func (q *Queries) GetLock(ctx context.Context, draftID pgtype.UUID) (Lock, error
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
 
 const getLockForUpdate = `-- name: GetLockForUpdate :one
-SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by FROM locks WHERE draft_id = $1 FOR UPDATE
+SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at FROM locks WHERE draft_id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetLockForUpdate(ctx context.Context, draftID pgtype.UUID) (Lock, error) {
@@ -490,6 +491,7 @@ func (q *Queries) GetLockForUpdate(ctx context.Context, draftID pgtype.UUID) (Lo
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
@@ -1245,15 +1247,15 @@ func (q *Queries) PutBlob(ctx context.Context, arg PutBlobParams) error {
 
 const putLock = `-- name: PutLock :one
 INSERT INTO locks (draft_id, organization_id, holder_kind, holder_id, holder_display, session,
-                   expires_at, previous_session, previous_holder)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                   expires_at, previous_session, previous_holder, last_edit_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (draft_id) DO UPDATE
    SET holder_kind = EXCLUDED.holder_kind, holder_id = EXCLUDED.holder_id,
        holder_display = EXCLUDED.holder_display, session = EXCLUDED.session,
        acquired_at = now(), heartbeat_at = now(), expires_at = EXCLUDED.expires_at,
        previous_session = EXCLUDED.previous_session, previous_holder = EXCLUDED.previous_holder,
-       requested_by = '[]'
-RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
+       requested_by = '[]', last_edit_at = EXCLUDED.last_edit_at
+RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at
 `
 
 type PutLockParams struct {
@@ -1266,6 +1268,7 @@ type PutLockParams struct {
 	ExpiresAt       pgtype.Timestamptz
 	PreviousSession string
 	PreviousHolder  string
+	LastEditAt      pgtype.Timestamptz
 }
 
 func (q *Queries) PutLock(ctx context.Context, arg PutLockParams) (Lock, error) {
@@ -1279,6 +1282,7 @@ func (q *Queries) PutLock(ctx context.Context, arg PutLockParams) (Lock, error) 
 		arg.ExpiresAt,
 		arg.PreviousSession,
 		arg.PreviousHolder,
+		arg.LastEditAt,
 	)
 	var i Lock
 	err := row.Scan(
@@ -1294,12 +1298,13 @@ func (q *Queries) PutLock(ctx context.Context, arg PutLockParams) (Lock, error) 
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
 
 const renewLock = `-- name: RenewLock :one
-UPDATE locks SET heartbeat_at = now(), expires_at = $2 WHERE draft_id = $1 RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
+UPDATE locks SET heartbeat_at = now(), expires_at = $2 WHERE draft_id = $1 RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at
 `
 
 type RenewLockParams struct {
@@ -1323,6 +1328,7 @@ func (q *Queries) RenewLock(ctx context.Context, arg RenewLockParams) (Lock, err
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
@@ -1332,7 +1338,7 @@ UPDATE locks
    SET requested_by = CASE WHEN requested_by @> $2::jsonb THEN requested_by
                            ELSE requested_by || $2::jsonb END
  WHERE draft_id = $1
-RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
+RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at
 `
 
 type RequestLockParams struct {
@@ -1356,6 +1362,7 @@ func (q *Queries) RequestLock(ctx context.Context, arg RequestLockParams) (Lock,
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
@@ -1545,6 +1552,21 @@ func (q *Queries) SoftDeletePlugin(ctx context.Context, id pgtype.UUID) (Plugin,
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const touchLock = `-- name: TouchLock :exec
+UPDATE locks SET last_edit_at = $3 WHERE draft_id = $1 AND session = $2
+`
+
+type TouchLockParams struct {
+	DraftID    pgtype.UUID
+	Session    string
+	LastEditAt pgtype.Timestamptz
+}
+
+func (q *Queries) TouchLock(ctx context.Context, arg TouchLockParams) error {
+	_, err := q.db.Exec(ctx, touchLock, arg.DraftID, arg.Session, arg.LastEditAt)
+	return err
 }
 
 const updateDocument = `-- name: UpdateDocument :one

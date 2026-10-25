@@ -741,6 +741,7 @@ func lockProto(l document.Lock) *pluxv1.Lock {
 	out := &pluxv1.Lock{
 		AppId: l.AppID, PluginId: l.PluginID, Scope: l.Scope, Holder: actorProto(l.Holder), Session: l.Session,
 		AcquiredAt: ts(l.AcquiredAt), ExpiresAt: ts(l.ExpiresAt),
+		LastEditAt: ts(l.LastEditAt), TakeoverAllowedAt: ts(l.TakeoverAllowedAt),
 	}
 	for _, a := range l.RequestedBy {
 		out.RequestedBy = append(out.RequestedBy, actorProto(a))
