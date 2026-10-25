@@ -10,6 +10,7 @@
  */
 
 import * as layout from "../src/index.ts";
+import { buildMaterial, materialTypes } from "./material-scene.ts";
 import {
   Affine,
   Alignment,
@@ -120,12 +121,16 @@ import {
 export interface SceneText {
   engine: ParagraphEngine;
   textScaler: TextScaler;
+  /** The style `Text` nodes inherit from the Material composite they sit in. */
+  base?: TextStyle;
 }
 
 /** One node of a scene; `props` use Flutter's parameter names. */
 export interface SceneNode {
   id: string;
   type: string;
+  /** The part of a Material composite this node fills (default `child`). */
+  slot?: string;
   props: Record<string, unknown>;
   children?: SceneNode[];
 }
@@ -241,6 +246,7 @@ export function supportedTypes(): ReadonlySet<string> {
   return new Set([
     ...boxTypes,
     ...textTypes,
+    ...materialTypes,
     ...stackTypes,
     ...scrollTypes,
     ...sliverTypes,
@@ -357,7 +363,7 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
   }
   const props = node.props;
   const style = (field(props, "style") ?? {}) as Record<string, unknown>;
-  const textStyle: TextStyle = {};
+  const textStyle: TextStyle = { ...text.base };
   const fontFamily = field(style, "fontFamily");
   if (typeof fontFamily === "string") {
     textStyle.fontFamily = fontFamily;
@@ -1041,6 +1047,16 @@ export function buildNode(
   }
   if (sliverTypes.has(node.type)) {
     throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);
+  }
+  if (materialTypes.has(node.type)) {
+    const composite = buildMaterial(node, {
+      direction: textDirection,
+      text,
+      build: (child, base) =>
+        buildNode(child, textDirection, text === null || base === undefined ? text : { ...text, base }, t),
+    });
+    composite.debugId = node.id;
+    return composite;
   }
   const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text, t));
   const child = singleChild(node, children);

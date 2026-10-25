@@ -188,7 +188,7 @@ export class RenderPadding extends RenderShiftedBox {
 }
 
 /** Sets a laid-out child's offset in its [BoxParentData]. */
-function setChildOffset(child: RenderBox, offset: Offset): void {
+export function setChildOffset(child: RenderBox, offset: Offset): void {
   if (child.parentData instanceof BoxParentData) {
     child.parentData.offset = offset;
   }
