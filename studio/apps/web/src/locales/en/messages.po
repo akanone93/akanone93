@@ -127,6 +127,18 @@ msgstr "{names} asked to edit this plugin."
 msgid "assets.progress"
 msgstr "{received} of {total}"
 
+#. Shown when an upload chunk was sent at the wrong offset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.out-of-order"
+msgstr "A part of the file arrived out of order. Try again to continue from where it stopped."
+
+#. Shown when an upload chunk is above the server's chunk size limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.chunk-too-large"
+msgstr "A part of the file was larger than the server accepts. Upload the file again."
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1429,6 +1441,18 @@ msgstr "The email or password is not correct."
 msgid "dialog.explain.failed"
 msgstr "The explanation could not be loaded."
 
+#. Shown when the file is above the maximum asset size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.too-large"
+msgstr "The file is larger than the size limit for assets. Choose a smaller file."
+
+#. Shown when the SHA-256 of the received bytes differs from the file's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.hash-mismatch"
+msgstr "The file was damaged on the way to the server. Upload it again."
+
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1470,6 +1494,18 @@ msgstr "The selection cannot take more nodes."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.writeFailed"
 msgstr "The server did not accept the change."
+
+#. Shown when the received size differs from the declared size of the file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.size-mismatch"
+msgstr "The server received a different number of bytes than the file has. Upload it again."
+
+#. Shown when the server no longer has the upload session, for example after it sat idle too long.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.not-found"
+msgstr "The upload expired or no longer exists. Upload the file again."
 
 #. Shown in the Problems tab when the validator failed to start or crashed.
 #. js-lingui-explicit-id

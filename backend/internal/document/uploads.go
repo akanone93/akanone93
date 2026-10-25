@@ -55,7 +55,7 @@ func (s *Service) BeginAssetUpload(ctx context.Context, p auth.Principal, appID,
 		return Upload{}, err
 	}
 	if max := lim.Get(limits.AssetFileSize); size <= 0 || size > max {
-		return Upload{}, plxerr.New(plxerr.LimitExceeded, "the file is above asset.fileSize = %d bytes", max)
+		return Upload{}, plxerr.New(plxerr.AssetUploadTooLarge, "the file is above asset.fileSize = %d bytes", max)
 	}
 	id, err := s.newID()
 	if err != nil {
@@ -86,7 +86,7 @@ type uploadRow struct {
 	expires                        time.Time
 }
 
-var errNoUpload = plxerr.New(plxerr.ResourceNotFound, "no such upload, or it has expired")
+var errNoUpload = plxerr.New(plxerr.AssetUploadNotFound, "no such upload, or it has expired")
 
 // loadUpload reads a live upload of the caller, after checking the caller may
 // manage its app; withData also reads its bytes.
@@ -128,7 +128,7 @@ func (s *Service) GetAssetUpload(ctx context.Context, p auth.Principal, id strin
 // any other offset is refused, so chunks cannot arrive out of order.
 func (s *Service) UploadAssetChunk(ctx context.Context, p auth.Principal, id string, offset int64, chunk []byte) (Upload, error) {
 	if max := s.o.Limits.Get(limits.AssetUploadChunkBytes); int64(len(chunk)) > max {
-		return Upload{}, plxerr.New(plxerr.LimitExceeded, "the chunk is above asset.uploadChunkBytes = %d bytes", max)
+		return Upload{}, plxerr.New(plxerr.AssetUploadChunkTooLarge, "the chunk is above asset.uploadChunkBytes = %d bytes", max)
 	}
 	var u Upload
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
@@ -137,10 +137,10 @@ func (s *Service) UploadAssetChunk(ctx context.Context, p auth.Principal, id str
 			return err
 		}
 		if offset != r.received {
-			return plxerr.New(plxerr.OutOfRange, "the chunk is at offset %d but the upload has %d bytes", offset, r.received)
+			return plxerr.New(plxerr.AssetUploadOutOfOrder, "the chunk is at offset %d but the upload has %d bytes", offset, r.received)
 		}
 		if r.received+int64(len(chunk)) > r.size {
-			return plxerr.New(plxerr.LimitExceeded, "the chunk goes past the declared size of %d bytes", r.size)
+			return plxerr.New(plxerr.AssetUploadSizeMismatch, "the chunk goes past the declared size of %d bytes", r.size)
 		}
 		u = Upload{ID: id, Size: r.size, Received: r.received + int64(len(chunk)), ExpiresAt: s.now().Add(s.uploadTTL())}
 		tag, err := tx.Exec(ctx, `UPDATE upload_sessions SET data = data || $2, received = received + $3, expires_at = $4
@@ -149,7 +149,7 @@ func (s *Service) UploadAssetChunk(ctx context.Context, p auth.Principal, id str
 			return fmt.Errorf("document: store chunk: %w", err)
 		}
 		if tag.RowsAffected() != 1 {
-			return plxerr.New(plxerr.OutOfRange, "the upload moved on; ask for its progress")
+			return plxerr.New(plxerr.AssetUploadOutOfOrder, "the upload moved on; ask for its progress")
 		}
 		return nil
 	})
@@ -174,13 +174,13 @@ func (s *Service) FinishAssetUpload(ctx context.Context, p auth.Principal, id st
 		})
 	}
 	if r.received != r.size {
-		return Asset{}, plxerr.New(plxerr.OutOfRange, "the upload has %d of %d bytes", r.received, r.size)
+		return Asset{}, plxerr.New(plxerr.AssetUploadSizeMismatch, "the upload has %d of %d bytes", r.received, r.size)
 	}
 	if sum := sha256.Sum256(r.data); !bytes.Equal(sum[:], r.sum) {
 		if err := drop(); err != nil {
 			return Asset{}, fmt.Errorf("document: drop upload: %w", err)
 		}
-		return Asset{}, plxerr.New(plxerr.InvalidFormat, "the SHA-256 of the received bytes is not the one declared")
+		return Asset{}, plxerr.New(plxerr.AssetUploadHashMismatch, "the SHA-256 of the received bytes is not the one declared")
 	}
 	a, err := s.UploadAsset(ctx, p, r.appID, r.pluginID, r.session, r.name, r.data)
 	if err != nil {

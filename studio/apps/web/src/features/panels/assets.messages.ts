@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { I18n } from "@lingui/core";
+import type { UploadFailure } from "./upload-asset.ts";
 
 /** Messages of the Assets tab (S2.6, SRV-060). */
 export function assetsMessages(i18n: I18n) {
@@ -52,6 +53,41 @@ export function assetsMessages(i18n: I18n) {
         values: { name },
         comment: "Shown when a chunk of an upload failed; the upload can be resumed. name is the file's name.",
       }),
+    failure: (kind: UploadFailure) => {
+      const reasons = {
+        notFound: i18n._({
+          id: "assets.failure.not-found",
+          message: "The upload expired or no longer exists. Upload the file again.",
+          comment: "Shown when the server no longer has the upload session, for example after it sat idle too long.",
+        }),
+        outOfOrder: i18n._({
+          id: "assets.failure.out-of-order",
+          message: "A part of the file arrived out of order. Try again to continue from where it stopped.",
+          comment: "Shown when an upload chunk was sent at the wrong offset.",
+        }),
+        chunkTooLarge: i18n._({
+          id: "assets.failure.chunk-too-large",
+          message: "A part of the file was larger than the server accepts. Upload the file again.",
+          comment: "Shown when an upload chunk is above the server's chunk size limit.",
+        }),
+        tooLarge: i18n._({
+          id: "assets.failure.too-large",
+          message: "The file is larger than the size limit for assets. Choose a smaller file.",
+          comment: "Shown when the file is above the maximum asset size.",
+        }),
+        hashMismatch: i18n._({
+          id: "assets.failure.hash-mismatch",
+          message: "The file was damaged on the way to the server. Upload it again.",
+          comment: "Shown when the SHA-256 of the received bytes differs from the file's.",
+        }),
+        sizeMismatch: i18n._({
+          id: "assets.failure.size-mismatch",
+          message: "The server received a different number of bytes than the file has. Upload it again.",
+          comment: "Shown when the received size differs from the declared size of the file.",
+        }),
+      };
+      return reasons[kind];
+    },
     resume: i18n._({
       id: "assets.resume",
       message: "Resume",

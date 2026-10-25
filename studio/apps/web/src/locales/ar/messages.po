@@ -127,6 +127,18 @@ msgstr "طلب {names} تحرير هذه الإضافة."
 msgid "assets.progress"
 msgstr "{received} من {total}"
 
+#. Shown when an upload chunk was sent at the wrong offset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.out-of-order"
+msgstr "وصل جزء من الملف بترتيب خاطئ. حاول مرة أخرى لمتابعة الرفع من حيث توقف."
+
+#. Shown when an upload chunk is above the server's chunk size limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.chunk-too-large"
+msgstr "كان جزء من الملف أكبر مما يقبله الخادم. ارفع الملف مرة أخرى."
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1429,6 +1441,18 @@ msgstr "البريد الإلكتروني أو كلمة المرور غير صح
 msgid "dialog.explain.failed"
 msgstr "تعذّر تحميل التفسير."
 
+#. Shown when the file is above the maximum asset size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.too-large"
+msgstr "الملف أكبر من الحد المسموح به لحجم الأصول. اختر ملفًا أصغر."
+
+#. Shown when the SHA-256 of the received bytes differs from the file's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.hash-mismatch"
+msgstr "تضرر الملف أثناء إرساله إلى الخادم. ارفعه مرة أخرى."
+
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1470,6 +1494,18 @@ msgstr "لا يمكن للعنصر المحدد استقبال عقد إضافي
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.writeFailed"
 msgstr "لم يقبل الخادم التغيير."
+
+#. Shown when the received size differs from the declared size of the file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.size-mismatch"
+msgstr "استلم الخادم عددًا من البايتات يختلف عن حجم الملف. ارفعه مرة أخرى."
+
+#. Shown when the server no longer has the upload session, for example after it sat idle too long.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.not-found"
+msgstr "انتهت صلاحية الرفع أو لم يعد موجودًا. ارفع الملف مرة أخرى."
 
 #. Shown in the Problems tab when the validator failed to start or crashed.
 #. js-lingui-explicit-id
