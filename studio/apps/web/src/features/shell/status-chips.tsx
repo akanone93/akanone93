@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { StatusPill } from "@plux/ui";
 import { type ReactElement, useEffect, useState } from "react";
+import { editorMessages } from "../editor/editor.messages.ts";
 import { notifyMessages } from "./notify.messages.ts";
 import type { StreamState } from "./studio-events.ts";
 
@@ -23,20 +24,30 @@ export function useOnline(): boolean {
   return online;
 }
 
-/** E13: offline wins over reconnecting; nothing shows while all is well. */
+/**
+ * E13: offline wins over reconnecting, then edits still waiting to be saved (decisions F4); nothing
+ * shows while all is well.
+ */
 export function StatusChips({
   online,
   stream,
+  waiting = 0,
 }: {
   readonly online: boolean;
   readonly stream: StreamState;
+  readonly waiting?: number;
 }): ReactElement | null {
-  const m = notifyMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = notifyMessages(i18n);
+  const e = editorMessages(i18n);
   if (!online) {
-    return <StatusPill status="danger" label={m.chipOffline} />;
+    return <StatusPill status="danger" label={waiting > 0 ? e.offlineWaiting(waiting) : m.chipOffline} />;
   }
   if (stream === "reconnecting") {
     return <StatusPill status="warning" label={m.chipReconnecting} />;
+  }
+  if (waiting > 0) {
+    return <StatusPill status="warning" label={e.waiting(waiting)} />;
   }
   return null;
 }

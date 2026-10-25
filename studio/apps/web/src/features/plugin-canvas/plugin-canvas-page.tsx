@@ -4,8 +4,10 @@
 import { useLingui } from "@lingui/react";
 import { overflowId } from "@plux/canvas";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
+import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { ProblemCounts, ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -22,19 +24,17 @@ import {
   screenDocuments,
   screenStyle,
 } from "./scene.ts";
+import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
 import type { EditFn } from "./select/edits.ts";
 import { structureEdit } from "./select/gesture.ts";
 import { handleKey } from "./select/keys.ts";
 import { announce } from "./select/live-region.ts";
 import * as sel from "./select/selection.ts";
-import { SelectionProvider, type SelectionStore, useSelection, useSelectionStore } from "./select/store.ts";
+import { type SelectionStore, useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import { useGestures } from "./select/use-gestures.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
-
-/** The document-edit pipeline arrives with S2.2; until then the route stays read-only and edits do nothing. */
-const readOnlyEdit: EditFn = () => undefined;
 
 const MARQUEE_PX = 4;
 
@@ -93,16 +93,18 @@ function fitView(
   surface.setViewport(cx - width / 2 / zoom, cy - height / 2 / zoom, zoom);
 }
 
-/** C2: the plugin canvas, read-only (S1.4), with selection (S2.5). */
+/** C2: the plugin canvas with selection (S2.5); edits stay blocked until the editor reports \`canEdit\` (S2.3). */
 export function PluginCanvasPage() {
+  const params = useParams({ strict: false }) as { app?: string; plugin?: string };
+  const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
   return (
-    <SelectionProvider>
-      <PluginCanvasView edit={readOnlyEdit} />
-    </SelectionProvider>
+    <EditorProvider appId={params.app ?? ""} pluginId={params.plugin ?? ""} documents={docs.data}>
+      <PluginCanvasView docs={docs} />
+    </EditorProvider>
   );
 }
 
-function PluginCanvasView({ edit }: { edit: EditFn }) {
+function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments> }) {
   const m = pluginCanvasMessages(useLingui().i18n);
   const params = useParams({ strict: false }) as { app?: string; plugin?: string };
   const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number };
@@ -110,15 +112,39 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
   const { createSurface = browserSurface, createValidator = browserValidator } = useRouteContext({
     strict: false,
   }) as Pick<RouterContext, "createSurface" | "createValidator">;
-  const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
   const appDocs = useAppDocuments(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const [heights, setHeights] = useState<Heights>(new Map());
+  const session = useEditSession();
+  const canEdit = useCanEdit();
   const store = useSelectionStore();
-  const selection = useSelection();
+  const selection = useEditor((st) => st.selection);
+  const pathOf = useMemo(() => {
+    const out = new Map<string, string>();
+    for (const d of docs.data ?? []) {
+      try {
+        const id = (JSON.parse(new TextDecoder().decode(d.content)) as { id?: unknown }).id;
+        if (typeof id === "string") {
+          out.set(id, d.path);
+        }
+      } catch {
+        // Not JSON: not a page document.
+      }
+    }
+    return out;
+  }, [docs.data]);
+  const edit = useCallback<EditFn>(
+    (docId, recipe, options) => {
+      const path = pathOf.get(docId);
+      if (canEdit && path !== undefined) {
+        session.edit(path, (draft) => recipe((draft as { root?: unknown }).root), options);
+      }
+    },
+    [canEdit, pathOf, session],
+  );
   const index = useMemo(() => indexNodes(screens.map((s) => s.root)), [screens]);
   const screenOf = useMemo(() => {
     const out = new Map<string, string>();
@@ -145,6 +171,21 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
       }),
     );
   }, [selection, screenOf]);
+  const structure = useCallback(
+    (kind: StructureKind) =>
+      structureEdit(
+        { index, edit, docOf: (id) => screenOf.get(id), boxOf: () => undefined, typeOf: (id) => index.type.get(id) },
+        kind,
+        store.get().ids,
+        () => crypto.randomUUID(),
+      ),
+    [index, edit, screenOf, store],
+  );
+  const canvasCommandList = useMemo(
+    () => canvasCommands({ wrap: m.wrapCommand, unwrap: m.unwrapCommand, duplicate: m.duplicateCommand }, structure),
+    [m.wrapCommand, m.unwrapCommand, m.duplicateCommand, structure],
+  );
+  useScopedCommands("plugin-canvas", canvasCommandList);
   const gestures = useGestures({
     surface: () => surfaceRef.current,
     canvas: () => canvasRef.current,
@@ -218,20 +259,7 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
         className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
         tabIndex={0}
         onKeyDown={(e) => {
-          const structure = (kind: "wrap" | "unwrap" | "duplicate", ids: readonly string[]) =>
-            structureEdit(
-              {
-                index,
-                edit,
-                docOf: (id) => screenOf.get(id),
-                boxOf: () => undefined,
-                typeOf: (id) => index.type.get(id),
-              },
-              kind,
-              ids,
-              () => crypto.randomUUID(),
-            );
-          const handled = handleKey({ store, index, edit, structure, docOf: (id) => screenOf.get(id) }, e);
+          const handled = handleKey({ store, index, edit, docOf: (id) => screenOf.get(id) }, e);
           if (handled) {
             e.preventDefault();
           }
