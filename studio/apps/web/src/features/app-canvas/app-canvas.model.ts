@@ -75,36 +75,40 @@ interface FrameRow {
 
 const isNumber = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
+function readPositions(list: unknown): Map<string, Point> {
+  const positions = new Map<string, Point>();
+  if (!Array.isArray(list)) {
+    return positions;
+  }
+  for (const p of list as { id?: unknown; x?: unknown; y?: unknown }[]) {
+    if (typeof p?.id === "string" && isNumber(p.x) && isNumber(p.y)) {
+      positions.set(p.id, { x: p.x, y: p.y });
+    }
+  }
+  return positions;
+}
+
+function readFrames(list: unknown): Frame[] {
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  const frames: Frame[] = [];
+  for (const f of list as FrameRow[]) {
+    const ok = typeof f?.id === "string" && typeof f.label === "string";
+    if (ok && isNumber(f.x) && isNumber(f.y) && isNumber(f.width) && isNumber(f.height)) {
+      frames.push({ id: String(f.id), label: String(f.label), x: f.x, y: f.y, width: f.width, height: f.height });
+    }
+  }
+  return frames;
+}
+
 /** The saved positions and frames, or an empty canvas when the document is missing or unusable. */
 export function readSavedCanvas(content: unknown): SavedCanvas {
-  const positions = new Map<string, Point>();
-  const frames: Frame[] = [];
   if (content === null || typeof content !== "object") {
-    return { positions, frames };
+    return { positions: new Map(), frames: [] };
   }
   const doc = content as { positions?: unknown; frames?: unknown };
-  if (Array.isArray(doc.positions)) {
-    for (const p of doc.positions as { id?: unknown; x?: unknown; y?: unknown }[]) {
-      if (typeof p?.id === "string" && isNumber(p.x) && isNumber(p.y)) {
-        positions.set(p.id, { x: p.x, y: p.y });
-      }
-    }
-  }
-  if (Array.isArray(doc.frames)) {
-    for (const f of doc.frames as FrameRow[]) {
-      if (
-        typeof f?.id === "string" &&
-        typeof f.label === "string" &&
-        isNumber(f.x) &&
-        isNumber(f.y) &&
-        isNumber(f.width) &&
-        isNumber(f.height)
-      ) {
-        frames.push({ id: f.id, label: f.label, x: f.x, y: f.y, width: f.width, height: f.height });
-      }
-    }
-  }
-  return { positions, frames };
+  return { positions: readPositions(doc.positions), frames: readFrames(doc.frames) };
 }
 
 /** Positions in a stable order (by ID), so the same canvas always writes the same document. */
@@ -139,8 +143,7 @@ export function canvasDocument(id: string, saved: SavedCanvas): JsonValue {
 /** The edit recipe that stores positions and frames in an existing canvas document. */
 export function canvasRecipe(saved: SavedCanvas): (draft: DocumentDraft) => void {
   return (draft) => {
-    draft["positions"] = positionList(saved.positions);
-    draft["frames"] = frameList(saved.frames);
+    Object.assign(draft, { positions: positionList(saved.positions), frames: frameList(saved.frames) });
   };
 }
 
@@ -202,9 +205,36 @@ export interface Snapped {
   readonly guides: readonly Guide[];
 }
 
+interface AxisSnap {
+  readonly value: number;
+  readonly guide: Guide;
+}
+
+/** Snaps one axis of a box to the nearest edge or centre of another box in range. */
+function snapAxis(
+  value: number,
+  extent: number,
+  starts: readonly number[],
+  kind: "x" | "y",
+  distance: number,
+): AxisSnap | undefined {
+  let best: { delta: number; at: number } | undefined;
+  for (const base of starts) {
+    for (const target of [base, base + extent / 2, base + extent]) {
+      for (const mine of [0, extent / 2, extent]) {
+        const delta = target - (value + mine);
+        if (Math.abs(delta) <= distance && (best === undefined || Math.abs(delta) < Math.abs(best.delta))) {
+          best = { delta, at: target };
+        }
+      }
+    }
+  }
+  return best === undefined ? undefined : { value: value + best.delta, guide: { axis: kind, at: best.at } };
+}
+
 /**
- * Snaps a box being dragged to the edges and centres of the other boxes; returns the guides to draw
- * through `CanvasHost.setGuides`-style overlays. Each axis snaps to the nearest candidate in range.
+ * Snaps a box being dragged to the edges and centres of the other boxes; returns the guides to draw.
+ * Each axis snaps to the nearest candidate in range.
  */
 export function snap(
   moving: Point,
@@ -212,23 +242,8 @@ export function snap(
   size: Size = BOX,
   distance: number = SNAP_DISTANCE,
 ): Snapped {
-  const axis = (value: number, extent: number, pick: (o: Point) => number, kind: "x" | "y") => {
-    let best: { delta: number; at: number } | undefined;
-    for (const o of others) {
-      const base = pick(o);
-      for (const target of [base, base + extent / 2, base + extent]) {
-        for (const mine of [0, extent / 2, extent]) {
-          const delta = target - (value + mine);
-          if (Math.abs(delta) <= distance && (best === undefined || Math.abs(delta) < Math.abs(best.delta))) {
-            best = { delta, at: target };
-          }
-        }
-      }
-    }
-    return best === undefined ? undefined : { value: value + best.delta, guide: { axis: kind, at: best.at } as Guide };
-  };
-  const sx = axis(moving.x, size.width, (o) => o.x, "x");
-  const sy = axis(moving.y, size.height, (o) => o.y, "y");
+  const sx = snapAxis(moving.x, size.width, others.map((o) => o.x), "x", distance);
+  const sy = snapAxis(moving.y, size.height, others.map((o) => o.y), "y", distance);
   return {
     point: { x: sx?.value ?? moving.x, y: sy?.value ?? moving.y },
     guides: [sx?.guide, sy?.guide].filter((g): g is Guide => g !== undefined),

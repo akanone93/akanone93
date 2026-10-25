@@ -5,8 +5,8 @@ import { afterEach, describe, expect, test } from "bun:test";
 import type { I18n } from "@lingui/core";
 import type { PluginSummary } from "@plux/api";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { PluginBoxCard } from "./app-canvas-page.tsx";
 import { appCanvasMessages } from "./app-canvas.messages.ts";
+import { PluginBoxCard } from "./app-canvas-page.tsx";
 
 afterEach(cleanup);
 
