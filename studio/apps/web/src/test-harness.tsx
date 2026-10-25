@@ -27,6 +27,8 @@ import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import { App } from "./app.tsx";
+import type { EditSession } from "./features/editor/edit-session.ts";
+import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
 import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { I18nProvider } from "./i18n-provider.tsx";
@@ -49,6 +51,8 @@ export interface Upstream {
   documents?: { kind: string; path: string; json: unknown }[];
   surface?: SurfaceFactory;
   validator?: ValidatorFactory;
+  /** Receives the plugin canvas's edit pipeline. */
+  editor?: (edit: EditSession) => void;
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
   /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
   pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
@@ -58,6 +62,8 @@ export interface Upstream {
 
 /** An in-memory upstream for the shell: the same RPCs the BFF forwards. */
 export function createUpstream(state: Upstream) {
+  // Documents autosave changed, by path; the fixtures themselves stay as given.
+  const patched = new Map<string, { kind: string; path: string; json: unknown }>();
   const stored = state.stored ?? { theme: "", language: "", density: "" };
   return createRouterTransport(({ service }) => {
     service(IdentityService, {
@@ -113,6 +119,30 @@ export function createUpstream(state: Upstream) {
       }),
     });
     service(DocumentService, {
+      // Autosave: applies the patch to the stored document and returns it one revision on.
+      patchDocument: (req) => {
+        const stored =
+          patched.get(req.path) ??
+          [...(state.documents ?? []), ...(state.appDocuments ?? [])].find((d) => d.path === req.path);
+        const doc = stored === undefined ? undefined : { ...stored };
+        const ops = req.patch.map((o) => ({
+          op: o.op as JsonPatchOp["op"],
+          path: o.path,
+          ...(o.value.length > 0 && { value: JSON.parse(new TextDecoder().decode(o.value)) as JsonValue }),
+        }));
+        if (doc !== undefined) {
+          doc.json = applyPatch(doc.json as JsonValue, ops);
+          patched.set(req.path, doc);
+        }
+        return {
+          document: create(DocumentSchema, {
+            kind: doc?.kind ?? "",
+            path: req.path,
+            revision: req.ifRevision + 1n,
+            content: new TextEncoder().encode(JSON.stringify(doc?.json ?? {})),
+          }),
+        };
+      },
       listDocuments: (req) => ({
         documents: (req.pluginId === ""
           ? (state.appDocuments ?? state.documents ?? [])
@@ -140,6 +170,7 @@ export function renderApp(path: string, state: Upstream = {}) {
     {
       session,
       ...(state.surface !== undefined && { createSurface: state.surface }),
+      ...(state.editor !== undefined && { observeEditor: state.editor }),
       createValidator:
         state.validator ?? (() => ({ load: async () => [], validatePage: async () => [], dispose: () => undefined })),
     },
