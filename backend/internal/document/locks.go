@@ -19,6 +19,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
@@ -35,6 +36,31 @@ type Lock struct {
 	AcquiredAt  time.Time
 	ExpiresAt   time.Time
 	RequestedBy []audit.Actor
+	// LastEditAt is the holder's last accepted write under the lock, or
+	// when it was taken (plan §4.3 #16).
+	LastEditAt time.Time
+	// TakeoverAllowedAt is the earliest time another user may take the
+	// lock over (L-1, SRV-041); set by TakeoverRule.
+	TakeoverAllowedAt time.Time
+}
+
+// LockLeaseLapse is how long a lock goes without a heartbeat before its
+// lease counts as lapsed and it may be taken over at once: two missed
+// heartbeats (L-1). The lock itself still expires LockTTL after the last
+// heartbeat (SRV-040).
+const LockLeaseLapse = 2 * LockHeartbeat
+
+// TakeoverRule sets when another user may take the lock over: once the
+// holder has made no edit for idle (studio.lockTakeoverIdleMinutes), or
+// at once when the lease has lapsed (L-1, SRV-041).
+func (l Lock) TakeoverRule(idle time.Duration) Lock {
+	lastHeartbeat := l.ExpiresAt.Add(-LockTTL)
+	allowed := l.LastEditAt.Add(idle)
+	if lapsed := lastHeartbeat.Add(LockLeaseLapse); lapsed.Before(allowed) {
+		allowed = lapsed
+	}
+	l.TakeoverAllowedAt = allowed
+	return l
 }
 
 // translationsScopePrefix starts the scope of a locale's lock.
@@ -83,7 +109,7 @@ func fromTranslationLock(r dbgen.TranslationLock) dbgen.Lock {
 		DraftID: r.DraftID, OrganizationID: r.OrganizationID, HolderKind: r.HolderKind, HolderID: r.HolderID,
 		HolderDisplay: r.HolderDisplay, Session: r.Session, AcquiredAt: r.AcquiredAt, HeartbeatAt: r.HeartbeatAt,
 		ExpiresAt: r.ExpiresAt, PreviousSession: r.PreviousSession, PreviousHolder: r.PreviousHolder,
-		RequestedBy: r.RequestedBy,
+		RequestedBy: r.RequestedBy, LastEditAt: r.LastEditAt,
 	}
 }
 
@@ -112,8 +138,21 @@ func putLock(ctx context.Context, q *dbgen.Queries, d draft, scope string, a dbg
 		DraftID: d.row.ID, Locale: localeOf(scope), OrganizationID: a.OrganizationID,
 		HolderKind: a.HolderKind, HolderID: a.HolderID, HolderDisplay: a.HolderDisplay, Session: a.Session,
 		ExpiresAt: a.ExpiresAt, PreviousSession: a.PreviousSession, PreviousHolder: a.PreviousHolder,
+		LastEditAt: a.LastEditAt,
 	})
 	return fromTranslationLock(r), err //nolint:wrapcheck // callers wrap
+}
+
+// touchLock records an accepted write by the session holding the lock of
+// a scope as the holder's last edit (plan §4.3 #16); it changes nothing
+// when another session holds it.
+func touchLock(ctx context.Context, q *dbgen.Queries, d draft, scope, session string, at pgtype.Timestamptz) error {
+	if scope == "" {
+		return q.TouchLock(ctx, dbgen.TouchLockParams{DraftID: d.row.ID, Session: session, LastEditAt: at}) //nolint:wrapcheck // callers wrap
+	}
+	return q.TouchTranslationLock(ctx, dbgen.TouchTranslationLockParams{ //nolint:wrapcheck // callers wrap
+		DraftID: d.row.ID, Locale: localeOf(scope), Session: session, LastEditAt: at,
+	})
 }
 
 // renewLock extends the lock of a scope.
@@ -173,7 +212,9 @@ func checkSession(session string) error {
 // plugin.lock.override; a takeover snapshots the draft first, so the
 // previous holder's work is recoverable, and is audited with both
 // parties (SRV-041). The holder's own other session may take its lock
-// back without the permission.
+// back without the permission. Force succeeds only once the holder has
+// made no edit for studio.lockTakeoverIdleMinutes or the lease has lapsed
+// (L-1); before that it is refused with PLX-8020 naming takeoverAllowedAt.
 func (s *Service) AcquireLock(ctx context.Context, p auth.Principal, appID, pluginID, session string, force bool) (Lock, string, error) {
 	return s.AcquireScopedLock(ctx, p, appID, pluginID, session, "", force)
 }
@@ -204,7 +245,11 @@ func (s *Service) AcquireScopedLock(ctx context.Context, p auth.Principal, appID
 		if _, err := q.GetDraftForUpdate(ctx, d.row.ID); err != nil {
 			return failure(err, "draft")
 		}
-		out, preserved, err = s.takeLock(ctx, tx, q, d, p, session, scope, force)
+		lim, err := s.limitsFor(ctx, tx, d)
+		if err != nil {
+			return err
+		}
+		out, preserved, err = s.takeLock(ctx, tx, q, d, p, session, scope, force, takeoverIdle(lim))
 		return err
 	})
 	if err == nil {
@@ -215,7 +260,7 @@ func (s *Service) AcquireScopedLock(ctx context.Context, p auth.Principal, appID
 
 // takeLock takes the lock of a resolved draft whose row the caller holds
 // locked, snapshotting it first when it is taken over.
-func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d draft, p auth.Principal, session, scope string, force bool) (Lock, string, error) {
+func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d draft, p auth.Principal, session, scope string, force bool, idle time.Duration) (Lock, string, error) {
 	current, held, err := s.currentLock(ctx, q, d, scope)
 	if err != nil {
 		return Lock{}, "", err
@@ -228,6 +273,11 @@ func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d d
 	if takeover {
 		if err := authorize(p, auth.PluginLockOverride, d.app); err != nil {
 			return Lock{}, "", err
+		}
+		if rule := current.TakeoverRule(idle); s.now().Before(rule.TakeoverAllowedAt) {
+			e := plxerr.New(plxerr.EditingLockHeld, "%s holds the editing lock and edited it %s; it may be taken over from %s",
+				display(current.Holder), current.LastEditAt.Format(time.RFC3339), rule.TakeoverAllowedAt.Format(time.RFC3339))
+			return Lock{}, "", withDetail(withDetail(e, "holder", current.Holder.ID), "takeoverAllowedAt", rule.TakeoverAllowedAt.Format(time.RFC3339))
 		}
 		if preserved, err = s.snapshotDraft(ctx, q, d, p, reasonTakeover); err != nil {
 			return Lock{}, "", err
@@ -242,6 +292,7 @@ func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d d
 		HolderKind: p.Kind, HolderID: p.ID, HolderDisplay: p.Display, Session: session,
 		ExpiresAt:       storage.Timestamp(s.now().Add(LockTTL)),
 		PreviousSession: previousSession, PreviousHolder: previousHolder,
+		LastEditAt:      storage.Timestamp(s.now()),
 	})
 	if err != nil {
 		return Lock{}, "", fmt.Errorf("document: take the lock: %w", err)
@@ -252,9 +303,9 @@ func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d d
 	}
 	if takeover {
 		e.Action = audit.LockTakenOver
-		e.Detail = "took the lock from " + current.Holder.Kind + " " + current.Holder.ID + "; their draft is snapshot " + preserved
+		e.Detail = "took the lock from " + current.Holder.Kind + " " + current.Holder.ID + ", last edit " + current.LastEditAt.UTC().Format(time.RFC3339) + "; their draft is snapshot " + preserved
 		if scope != "" {
-			e.Detail = "took the lock " + scope + " from " + current.Holder.Kind + " " + current.Holder.ID + "; their draft is snapshot " + preserved
+			e.Detail = "took the lock " + scope + " from " + current.Holder.Kind + " " + current.Holder.ID + ", last edit " + current.LastEditAt.UTC().Format(time.RFC3339) + "; their draft is snapshot " + preserved
 		}
 	}
 	return lockOf(row, d, scope), preserved, s.recordEntry(ctx, tx, p, e)
@@ -397,7 +448,11 @@ func (s *Service) GetScopedLock(ctx context.Context, p auth.Principal, appID, pl
 			return err
 		}
 		if held {
-			out = current
+			lim, err := s.limitsFor(ctx, tx, d)
+			if err != nil {
+				return err
+			}
+			out = current.TakeoverRule(takeoverIdle(lim))
 		} else {
 			out = Lock{AppID: d.app, PluginID: d.pluginID(), Scope: scope}
 		}
@@ -459,5 +514,11 @@ func lockOf(row dbgen.Lock, d draft, scope string) Lock {
 		Session:    row.Session,
 		AcquiredAt: storage.Time(row.AcquiredAt), ExpiresAt: storage.Time(row.ExpiresAt),
 		RequestedBy: requested,
+		LastEditAt:  storage.Time(row.LastEditAt),
 	}
+}
+
+// takeoverIdle is studio.lockTakeoverIdleMinutes of a draft's limits.
+func takeoverIdle(lim limits.Set) time.Duration {
+	return time.Duration(lim.Get(limits.StudioLockTakeoverIdleMinutes)) * time.Minute
 }

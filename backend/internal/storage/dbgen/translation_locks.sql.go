@@ -29,7 +29,7 @@ func (q *Queries) DeleteTranslationLock(ctx context.Context, arg DeleteTranslati
 }
 
 const getTranslationLock = `-- name: GetTranslationLock :one
-SELECT draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by FROM translation_locks WHERE draft_id = $1 AND locale = $2
+SELECT draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at FROM translation_locks WHERE draft_id = $1 AND locale = $2
 `
 
 type GetTranslationLockParams struct {
@@ -54,12 +54,13 @@ func (q *Queries) GetTranslationLock(ctx context.Context, arg GetTranslationLock
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
 
 const getTranslationLockForUpdate = `-- name: GetTranslationLockForUpdate :one
-SELECT draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by FROM translation_locks WHERE draft_id = $1 AND locale = $2 FOR UPDATE
+SELECT draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at FROM translation_locks WHERE draft_id = $1 AND locale = $2 FOR UPDATE
 `
 
 type GetTranslationLockForUpdateParams struct {
@@ -84,21 +85,22 @@ func (q *Queries) GetTranslationLockForUpdate(ctx context.Context, arg GetTransl
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
 
 const putTranslationLock = `-- name: PutTranslationLock :one
 INSERT INTO translation_locks (draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session,
-                               expires_at, previous_session, previous_holder)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                               expires_at, previous_session, previous_holder, last_edit_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 ON CONFLICT (draft_id, locale) DO UPDATE
    SET holder_kind = EXCLUDED.holder_kind, holder_id = EXCLUDED.holder_id,
        holder_display = EXCLUDED.holder_display, session = EXCLUDED.session,
        acquired_at = now(), heartbeat_at = now(), expires_at = EXCLUDED.expires_at,
        previous_session = EXCLUDED.previous_session, previous_holder = EXCLUDED.previous_holder,
-       requested_by = '[]'
-RETURNING draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
+       requested_by = '[]', last_edit_at = EXCLUDED.last_edit_at
+RETURNING draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at
 `
 
 type PutTranslationLockParams struct {
@@ -112,6 +114,7 @@ type PutTranslationLockParams struct {
 	ExpiresAt       pgtype.Timestamptz
 	PreviousSession string
 	PreviousHolder  string
+	LastEditAt      pgtype.Timestamptz
 }
 
 func (q *Queries) PutTranslationLock(ctx context.Context, arg PutTranslationLockParams) (TranslationLock, error) {
@@ -126,6 +129,7 @@ func (q *Queries) PutTranslationLock(ctx context.Context, arg PutTranslationLock
 		arg.ExpiresAt,
 		arg.PreviousSession,
 		arg.PreviousHolder,
+		arg.LastEditAt,
 	)
 	var i TranslationLock
 	err := row.Scan(
@@ -142,12 +146,13 @@ func (q *Queries) PutTranslationLock(ctx context.Context, arg PutTranslationLock
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
 
 const renewTranslationLock = `-- name: RenewTranslationLock :one
-UPDATE translation_locks SET heartbeat_at = now(), expires_at = $3 WHERE draft_id = $1 AND locale = $2 RETURNING draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
+UPDATE translation_locks SET heartbeat_at = now(), expires_at = $3 WHERE draft_id = $1 AND locale = $2 RETURNING draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at
 `
 
 type RenewTranslationLockParams struct {
@@ -173,6 +178,7 @@ func (q *Queries) RenewTranslationLock(ctx context.Context, arg RenewTranslation
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
 }
@@ -182,7 +188,7 @@ UPDATE translation_locks
    SET requested_by = CASE WHEN requested_by @> $3::jsonb THEN requested_by
                            ELSE requested_by || $3::jsonb END
  WHERE draft_id = $1 AND locale = $2
-RETURNING draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
+RETURNING draft_id, locale, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, last_edit_at
 `
 
 type RequestTranslationLockParams struct {
@@ -208,6 +214,28 @@ func (q *Queries) RequestTranslationLock(ctx context.Context, arg RequestTransla
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
+		&i.LastEditAt,
 	)
 	return i, err
+}
+
+const touchTranslationLock = `-- name: TouchTranslationLock :exec
+UPDATE translation_locks SET last_edit_at = $4 WHERE draft_id = $1 AND locale = $2 AND session = $3
+`
+
+type TouchTranslationLockParams struct {
+	DraftID    pgtype.UUID
+	Locale     string
+	Session    string
+	LastEditAt pgtype.Timestamptz
+}
+
+func (q *Queries) TouchTranslationLock(ctx context.Context, arg TouchTranslationLockParams) error {
+	_, err := q.db.Exec(ctx, touchTranslationLock,
+		arg.DraftID,
+		arg.Locale,
+		arg.Session,
+		arg.LastEditAt,
+	)
+	return err
 }
