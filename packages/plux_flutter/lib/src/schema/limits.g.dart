@@ -79,6 +79,11 @@ enum PluxLimit {
   /// Pixels of one image asset, width times height, checked before it is
   /// decoded so that a small file cannot expand into a huge image.
   assetImagePixels('asset.imagePixels', PluxLimitUnit.count, 40000000, 0, 100000000),
+  /// Bytes in one chunk of a chunked asset upload; a larger chunk is refused.
+  assetUploadChunkBytes('asset.uploadChunkBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
+  /// Time an unfinished chunked upload is kept after its last chunk before it
+  /// expires.
+  assetUploadSessionTtl('asset.uploadSessionTtl', PluxLimitUnit.milliseconds, 3600000, 0, 86400000),
   /// Size of an App Attest attestation object or assertion.
   attestAppAttestObjectBytes('attest.appAttestObjectBytes', PluxLimitUnit.bytes, 65536, 0, 262144),
   /// Certificates an Android Key Attestation chain may hold.

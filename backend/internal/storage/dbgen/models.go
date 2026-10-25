@@ -1708,6 +1708,23 @@ type UpdateMetadatum struct {
 	ExpiresAt      pgtype.Timestamptz
 }
 
+type UploadSession struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+	Kind           string
+	AppID          pgtype.UUID
+	PluginID       string
+	EditorSession  string
+	Name           string
+	Size           int64
+	Sha256         []byte
+	Received       int64
+	Data           []byte
+	CreatedAt      pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
+}
+
 type User struct {
 	ID                  pgtype.UUID
 	Email               string
