@@ -538,25 +538,9 @@ func (s *Service) PatchDocumentTagged(ctx context.Context, p auth.Principal, app
 	var waivers []waiverChange
 	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
 		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
-			row, err := q.GetDocument(ctx, dbgen.GetDocumentParams{DraftID: d.row.ID, Path: path})
-			if err != nil {
-				return nil, nil, failure(err, "document")
-			}
-			current, err := s.blob(ctx, q, d.row.OrganizationID, row.Sha256)
+			tree, patched, data, err := s.patchStored(ctx, q, d, lim, path, patch)
 			if err != nil {
 				return nil, nil, err
-			}
-			tree, err := jcs.Parse(current, int(lim.Get(limits.DocumentJSONDepth)))
-			if err != nil {
-				return nil, nil, fmt.Errorf("document: read %s: %w", path, err)
-			}
-			patched, err := Apply(tree, patch)
-			if err != nil {
-				return nil, nil, err
-			}
-			data, err := jcs.Marshal(patched)
-			if err != nil {
-				return nil, nil, plxerr.Wrap(plxerr.InvalidStructure, err, "the patched document is not JSON")
 			}
 			c, diags, err := s.prepare(d, lim, path, data, ifRevision)
 			if err == nil && editorSession != "" {
@@ -572,6 +556,29 @@ func (s *Service) PatchDocumentTagged(ctx context.Context, p auth.Principal, app
 		}, func(ctx context.Context, tx pgx.Tx, _ *dbgen.Queries, _ draft) error {
 			return s.auditWaivers(ctx, tx, p, path, waivers)
 		})
+}
+
+// patchStored applies a patch to a stored document: the document before,
+// after, and after in canonical JSON.
+func (s *Service) patchStored(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set, path string, patch []Op) (before, after any, data []byte, err error) {
+	row, err := q.GetDocument(ctx, dbgen.GetDocumentParams{DraftID: d.row.ID, Path: path})
+	if err != nil {
+		return nil, nil, nil, failure(err, "document")
+	}
+	current, err := s.blob(ctx, q, d.row.OrganizationID, row.Sha256)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if before, err = jcs.Parse(current, int(lim.Get(limits.DocumentJSONDepth))); err != nil {
+		return nil, nil, nil, fmt.Errorf("document: read %s: %w", path, err)
+	}
+	if after, err = Apply(before, patch); err != nil {
+		return nil, nil, nil, err
+	}
+	if data, err = jcs.Marshal(after); err != nil {
+		return nil, nil, nil, plxerr.Wrap(plxerr.InvalidStructure, err, "the patched document is not JSON")
+	}
+	return before, after, data, nil
 }
 
 // DeleteDocument deletes a document; a page goes to the trash (GOV-031).

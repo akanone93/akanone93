@@ -7,11 +7,22 @@
 import { describe, expect, test } from "bun:test";
 import { createRegistry } from "../../lib/commands/registry.ts";
 import { createUndoFocus, undoCommands } from "../../lib/commands/undo-commands.ts";
-import { type DocumentTransport, EditSession, type Scheduler, type ServerDocument } from "./edit-session.ts";
+import {
+  type DocumentDraft,
+  type DocumentTransport,
+  EditSession,
+  type Scheduler,
+  type ServerDocument,
+} from "./edit-session.ts";
 import { applyPatch, type JsonValue } from "./json-patch.ts";
 import { pointerSegments, toImmerPatches, UndoManager } from "./undo-stack.ts";
 
 const path = "screens/login.page.json";
+
+/** Sets a key of an edit draft (documents are index-signature objects). */
+function set(d: DocumentDraft, key: string, value: unknown): void {
+  d[key] = value;
+}
 
 /** A stub server that stores what it is sent; timers never fire on their own. */
 function stubTransport(): DocumentTransport & { sent: number } {
@@ -81,7 +92,7 @@ describe("STU-069 undo stacks", () => {
     const { undo } = setup();
     const s = pipeline(undo, "p1", { title: "A" });
     s.edit(path, (d) => {
-      d.title = "B";
+      set(d, "title", "B");
     });
     expect(undo.canUndo("p1")).toBe(true);
     expect(undo.undo("p1").kind).toBe("done");
@@ -100,7 +111,7 @@ describe("STU-069 undo stacks", () => {
       s.edit(
         path,
         (d) => {
-          d.title = t;
+          set(d, "title", t);
         },
         { group: "type:title" },
       );
@@ -110,7 +121,7 @@ describe("STU-069 undo stacks", () => {
     s.edit(
       path,
       (d) => {
-        d.title = "Hi!!";
+        set(d, "title", "Hi!!");
       },
       { group: "type:title" },
     );
@@ -120,14 +131,14 @@ describe("STU-069 undo stacks", () => {
     expect(contentOf(s)).toEqual({ title: "" });
     expect(undo.canRedo("p1")).toBe(true);
     s.edit(path, (d) => {
-      d.title = "new";
+      set(d, "title", "new");
     });
     expect(undo.canRedo("p1")).toBe(false);
 
     s.edit(
       path,
       (d) => {
-        d.x = 1;
+        set(d, "x", 1);
       },
       { group: "drag" },
     );
@@ -135,7 +146,7 @@ describe("STU-069 undo stacks", () => {
     s.edit(
       path,
       (d) => {
-        d.x = 2;
+        set(d, "x", 2);
       },
       { group: "drag" },
     );
@@ -148,10 +159,10 @@ describe("STU-069 undo stacks", () => {
     const a = pipeline(undo, "p1", { v: 1 });
     const app = pipeline(undo, "", { v: 1 });
     a.edit(path, (d) => {
-      d.v = 2;
+      set(d, "v", 2);
     });
     app.edit(path, (d) => {
-      d.v = 3;
+      set(d, "v", 3);
     });
     undo.undo("p1");
     expect(contentOf(a)).toEqual({ v: 1 });
@@ -167,10 +178,10 @@ describe("STU-069 undo stacks", () => {
     const b = pipeline(undo, "p2", { screens: [] });
     undo.step(() => {
       a.edit(path, (d) => {
-        d.screens = [];
+        set(d, "screens", []);
       });
       b.edit(path, (d) => {
-        d.screens = ["login"];
+        set(d, "screens", ["login"]);
       });
     });
     blocked.add("p2");
@@ -179,7 +190,7 @@ describe("STU-069 undo stacks", () => {
     blocked.clear();
     // A later step of the other plugin sits above it: blocked, nothing changes.
     b.edit(path, (d) => {
-      d.extra = true;
+      set(d, "extra", true);
     });
     expect(undo.undo("p1")).toEqual({ kind: "blocked", reason: "later-step", stack: "p2" });
     undo.undo("p2");
@@ -198,11 +209,11 @@ describe("STU-069 undo stacks", () => {
     const s = pipeline(undo, "p1", { v: 1 });
     select("node-a");
     s.edit(path, (d) => {
-      d.v = 2;
+      set(d, "v", 2);
     });
     select("node-b");
     s.edit(path, (d) => {
-      d.v = 3;
+      set(d, "v", 3);
     });
     select("node-c");
     undo.undo("p1");
