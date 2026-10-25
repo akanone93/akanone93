@@ -9,8 +9,7 @@ import { type ReactElement, useCallback, useEffect, useRef, useState } from "rea
 import { assetsMessages } from "./assets.messages.ts";
 import { type UploadState, uploadAsset } from "./upload-asset.ts";
 
-type AssetClient = Pick<Client<typeof AssetService>, "listAssets" | "deleteAsset"> &
-  Parameters<typeof uploadAsset>[0];
+type AssetClient = Pick<Client<typeof AssetService>, "listAssets" | "deleteAsset"> & Parameters<typeof uploadAsset>[0];
 
 interface Pending {
   readonly key: number;
@@ -64,11 +63,8 @@ export function AssetsTab({
   const run = async (p: Pending) => {
     patch(p.key, { failed: false });
     try {
-      await uploadAsset(
-        client,
-        { appId, name: p.name, session, file: p.file },
-        p.state,
-        (received) => patch(p.key, { received }),
+      await uploadAsset(client, { appId, name: p.name, session, file: p.file }, p.state, (received) =>
+        patch(p.key, { received }),
       );
       setPending((list) => list.filter((x) => x.key !== p.key));
       await refresh();

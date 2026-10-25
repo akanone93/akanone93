@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { AssetService } from "@plux/api";
 import type { Client } from "@connectrpc/connect";
+import type { AssetService } from "@plux/api";
 
 /** The slice of AssetService the upload needs, so a test can stub it. */
 export type UploadClient = Pick<
