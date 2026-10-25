@@ -124,6 +124,10 @@ export class CanvasHost {
   private readonly snapshots = new Map<number, (model: SceneModel) => void>();
   private readonly layouts = new Map<number, (heights: readonly ScreenHeight[]) => void>();
   private nextRequest = 0;
+  /** The screens last handed to the worker and their style; an update sends only what differs (STU-121). */
+  private sent: { readonly style: ScreenStyle; readonly screens: ReadonlyMap<string, ScreenDocument> } | null = null;
+  /** Each laid-out screen's content height, by screen id. */
+  private readonly contentHeights = new Map<string, number>();
   private settle: { resolve(info: RendererInfo): void; reject(error: Error): void } | null = null;
   private readonly view: Viewport;
   private readonly base: CanvasElementLike;
@@ -355,16 +359,39 @@ export class CanvasHost {
   }
 
   /**
-   * Replaces the scene with `screens`, laid out in the worker with SkParagraph
-   * (ADR-0013); resolves with each screen's content height once the hit index
-   * and accessible tree follow the laid-out items.
+   * Shows `screens`, laid out in the worker with SkParagraph (ADR-0013);
+   * resolves with each screen's content height once the hit index and
+   * accessible tree follow the laid-out items. The first call, and any call in
+   * another style, replaces the scene; later calls send only the screens that
+   * differ from the last call (another id, title, place or root object) and
+   * the ids that are gone, so the worker lays out and redraws only those
+   * (STU-121). Edits must therefore replace a changed root, never mutate it.
    */
   layoutScreens(screens: readonly ScreenDocument[], style: ScreenStyle): Promise<readonly ScreenHeight[]> {
     const requestId = this.nextRequest++;
-    return new Promise((resolve) => {
-      this.layouts.set(requestId, resolve);
-      this.send({ v: PROTOCOL_VERSION, type: "screens", requestId, screens, style });
+    const previous = this.sent;
+    const next = new Map(screens.map((s) => [s.id, s]));
+    this.sent = { style, screens: next };
+    const promise = new Promise<readonly ScreenHeight[]>((resolve) => {
+      this.layouts.set(requestId, (heights) => {
+        for (const h of heights) {
+          this.contentHeights.set(h.id, h.contentHeight);
+        }
+        resolve(screens.map((s) => ({ id: s.id, contentHeight: this.contentHeights.get(s.id) ?? 0 })));
+      });
     });
+    if (previous === null || previous.style !== style) {
+      this.contentHeights.clear();
+      this.send({ v: PROTOCOL_VERSION, type: "screens", requestId, screens, style });
+      return promise;
+    }
+    const changed = screens.filter((s) => !sameScreen(previous.screens.get(s.id), s));
+    const removed = [...previous.screens.keys()].filter((id) => !next.has(id));
+    for (const id of removed) {
+      this.contentHeights.delete(id);
+    }
+    this.send({ v: PROTOCOL_VERSION, type: "screensUpdate", requestId, screens: changed, removed, style });
+    return promise;
   }
 
   /** The hit index, accessible tree and notices follow `ops`, which the worker applied. */
@@ -565,4 +592,9 @@ export class CanvasHost {
     this.frameListeners.clear();
     this.eventListeners.clear();
   }
+}
+
+/** `b` lays out as `a` did: same title and place, and the same root object. */
+function sameScreen(a: ScreenDocument | undefined, b: ScreenDocument): boolean {
+  return a !== undefined && (a === b || (a.title === b.title && a.x === b.x && a.y === b.y && a.root === b.root));
 }

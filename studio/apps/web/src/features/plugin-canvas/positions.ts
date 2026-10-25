@@ -23,6 +23,8 @@ export const CANVAS_KIND = "canvas";
 export interface KindedDocument {
   readonly kind: string;
   readonly content: Uint8Array;
+  /** The content already parsed (the editor's local state); wins over `content`. */
+  readonly parsed?: unknown;
 }
 
 /** Saved positions by screen ID, or undefined when the plugin has no usable `canvas` document. */
@@ -32,7 +34,7 @@ export function readSavedPositions(documents: readonly KindedDocument[]): Readon
     return undefined;
   }
   try {
-    const parsed: unknown = JSON.parse(new TextDecoder().decode(doc.content));
+    const parsed: unknown = doc.parsed !== undefined ? doc.parsed : JSON.parse(new TextDecoder().decode(doc.content));
     const list = (parsed as { positions?: unknown }).positions;
     if (!Array.isArray(list)) {
       return undefined;
