@@ -51,7 +51,7 @@ studio-gen-icons: studio-install ## Regenerate the Icon set from @phosphor-icons
 	cd studio/packages/ui && bun scripts/gen-icons.ts
 
 studio-build: studio-install studio-gen-theme studio-gen-icons ## Build the Studio web app into studio/apps/web/dist
-	cd studio && bun run build && bun scripts/precompress.ts apps/web/dist
+	cd studio && bun scripts/stage-canvaskit.ts && bun run build && bun scripts/precompress.ts apps/web/dist
 
 studio-size: studio-build ## Check the initial JavaScript against the budget (STU-122)
 	cd studio && bun run size

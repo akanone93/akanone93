@@ -1,0 +1,13 @@
+# Fonts of the plugin canvas (STU-006, ADR-0013 Fonts). SIL Open Font
+# License 1.1, vendored unmodified from the npm tarballs below, which are
+# pinned by SHA-256. Legal review open (O-7). Test: fonts.test.ts.
+#
+# package version tarball-sha256
+package @expo-google-fonts/roboto 0.4.3 d5fabe7f5e706dc3c6b4e39687c5a45f1b25975dd689d8d850a97f41a00fa85f
+package @expo-google-fonts/noto-sans 0.4.2 98cf14a19b8e67a0e76bfd4d5df98937b9734e6dde570bd750f2259042042548
+#
+# file sha256
+file Roboto_400Regular.ttf 15256405ecb0d880678833a582760efad538ab2932318b52c8105b267d159459
+file Roboto_700Bold.ttf 4aaf8c5b661a386998c2e70cf2b87e2440f5404e0b8fd81164f0413fb3435ec6
+file NotoSans_400Regular.ttf fe8c022f48d8dd29f17b744d16f9346f4357e16f7d4f7be58b000ae7c291b614
+file NotoSans_700Bold.ttf 13a813c49624ae3ba3c5c6e72c5ebffc4b9e1e6ea32f421c04069b037c6ad431
