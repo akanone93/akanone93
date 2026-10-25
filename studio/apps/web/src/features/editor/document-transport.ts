@@ -4,7 +4,8 @@
 import { Code, ConnectError, createClient, type Transport } from "@connectrpc/connect";
 import { type Document, DocumentService, keepaliveHeader } from "@plux/api";
 import type { DocumentTransport, SaveFailure, ServerDocument } from "./edit-session.ts";
-import type { JsonValue } from "./json-patch.ts";
+import type { JsonPatchOp, JsonValue } from "./json-patch.ts";
+import type { SessionEntry } from "./undo-stack.ts";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -33,10 +34,11 @@ export function classifySaveError(error: unknown): SaveFailure {
   return "rejected";
 }
 
-/** Binds the pipeline to DocumentService for one plugin; `confirmed` receives each stored document. */
+/** Binds the pipeline to DocumentService for one plugin; `confirmed` receives each stored document.
+ * Writes carry the tab's editor session, which tags them for the undo rebuild (STU-069). */
 export function documentTransport(
   transport: Transport,
-  ids: { readonly appId: string; readonly pluginId: string },
+  ids: { readonly appId: string; readonly pluginId: string; readonly editorSessionId?: string },
   confirmed: (doc: Document) => void,
 ): DocumentTransport {
   const client = createClient(DocumentService, transport);
@@ -71,4 +73,56 @@ export function documentTransport(
     },
     classify: classifySaveError,
   };
+}
+
+/**
+ * Reads an editor session's entries for one plugin (or the app's documents, pluginId ""), newest
+ * first, at most `depth`, to rebuild its undo stack after a reload (STU-069).
+ */
+export async function loadSessionEntries(
+  transport: Transport,
+  ids: { readonly appId: string; readonly pluginId: string; readonly editorSessionId: string },
+  depth: number,
+): Promise<SessionEntry[]> {
+  const client = createClient(DocumentService, transport);
+  const out: SessionEntry[] = [];
+  let pageToken = "";
+  do {
+    const res = await client.listEditorSessionEntries({ ...ids, page: { pageSize: Math.min(depth, 100), pageToken } });
+    for (const e of res.entries) {
+      out.push({
+        path: e.path,
+        inverse: e.inverse.map(
+          (o): JsonPatchOp =>
+            ({
+              op: o.op,
+              path: o.path,
+              ...(o.value.length > 0 ? { value: JSON.parse(decoder.decode(o.value)) as JsonValue } : {}),
+            }) as JsonPatchOp,
+        ),
+      });
+    }
+    pageToken = res.page?.nextPageToken ?? "";
+  } while (pageToken !== "" && out.length < depth);
+  return out.slice(0, depth);
+}
+
+/** The editor session of this tab: kept in sessionStorage so it survives a reload, not other tabs. */
+export function tabEditorSession(storage: Pick<Storage, "getItem" | "setItem"> | undefined): string {
+  const key = "plux.editorSession";
+  try {
+    const known = storage?.getItem(key);
+    if (known) {
+      return known;
+    }
+  } catch {
+    // Storage is blocked: the session lasts until the reload.
+  }
+  const id = globalThis.crypto.randomUUID();
+  try {
+    storage?.setItem(key, id);
+  } catch {
+    // As above.
+  }
+  return id;
 }

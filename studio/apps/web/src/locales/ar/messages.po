@@ -253,6 +253,12 @@ msgstr "التوثيق"
 msgid "problems.drawer"
 msgstr "الدرج"
 
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.edit"
+msgstr "تحرير"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -583,6 +589,18 @@ msgstr "المشروع"
 msgid "chip.reconnecting"
 msgstr "إعادة الاتصال"
 
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo"
+msgstr "إعادة"
+
+#. Command title; the alternative redo chord.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo.alt"
+msgstr "إعادة (Ctrl+Y)"
+
 #. Button that reloads the page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -810,6 +828,12 @@ msgstr "اكتب {phrase} للتأكيد"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "اكتب أمرًا"
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.undo"
+msgstr "تراجع"
 
 #. Toggle that hides read notifications.
 #. js-lingui-explicit-id

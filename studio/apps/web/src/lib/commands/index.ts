@@ -12,3 +12,11 @@ export {
   type Registry,
 } from "./registry.ts";
 export { shellCommands } from "./shell-commands.ts";
+export {
+  createUndoFocus,
+  type UndoFocus,
+  UndoFocusProvider,
+  type UndoTarget,
+  undoCommands,
+  useUndoFocus,
+} from "./undo-commands.ts";

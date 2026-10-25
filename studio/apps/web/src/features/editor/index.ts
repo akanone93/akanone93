@@ -1,7 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-export { classifySaveError, documentTransport, toServerDocument } from "./document-transport.ts";
+export {
+  classifySaveError,
+  documentTransport,
+  loadSessionEntries,
+  tabEditorSession,
+  toServerDocument,
+} from "./document-transport.ts";
 export {
   type Conflict,
   type DocState,
@@ -31,3 +37,12 @@ export {
   usePendingTotal,
   useReportPending,
 } from "./pending-changes.tsx";
+export {
+  pointerSegments,
+  type SessionEntry,
+  toImmerPatches,
+  type UndoBlock,
+  UndoManager,
+  type UndoManagerOptions,
+  type UndoResult,
+} from "./undo-stack.ts";
