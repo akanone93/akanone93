@@ -1,0 +1,102 @@
+{
+  "name": "material-chip-narrow",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s0",
+            "type": "SizedBox",
+            "props": {
+              "width": 120
+            },
+            "children": [
+              {
+                "id": "n0",
+                "type": "InputChip",
+                "props": {
+                  "selected": true,
+                  "deletable": true
+                },
+                "children": [
+                  {
+                    "id": "n0t",
+                    "type": "Text",
+                    "props": {
+                      "text": "A much longer chip label"
+                    },
+                    "slot": "label"
+                  },
+                  {
+                    "id": "n0a",
+                    "type": "Icon",
+                    "props": {
+                      "size": 18
+                    },
+                    "slot": "avatar"
+                  },
+                  {
+                    "id": "n0d",
+                    "type": "Icon",
+                    "props": {
+                      "size": 18
+                    },
+                    "slot": "deleteIcon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s1",
+            "type": "SizedBox",
+            "props": {
+              "width": 90
+            },
+            "children": [
+              {
+                "id": "n1",
+                "type": "Chip",
+                "props": {
+                  "deletable": true
+                },
+                "children": [
+                  {
+                    "id": "n1t",
+                    "type": "Text",
+                    "props": {
+                      "text": "Truncated label"
+                    },
+                    "slot": "label"
+                  },
+                  {
+                    "id": "n1d",
+                    "type": "Icon",
+                    "props": {
+                      "size": 18
+                    },
+                    "slot": "deleteIcon"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

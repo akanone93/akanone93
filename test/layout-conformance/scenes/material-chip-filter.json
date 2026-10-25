@@ -1,0 +1,109 @@
+{
+  "name": "material-chip-filter",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "c0",
+            "type": "FilterChip",
+            "props": {
+              "selected": false
+            },
+            "children": [
+              {
+                "id": "c0t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "c1",
+            "type": "FilterChip",
+            "props": {
+              "selected": false
+            },
+            "children": [
+              {
+                "id": "c1t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c1a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              }
+            ]
+          },
+          {
+            "id": "c2",
+            "type": "FilterChip",
+            "props": {
+              "selected": true
+            },
+            "children": [
+              {
+                "id": "c2t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "c3",
+            "type": "FilterChip",
+            "props": {
+              "selected": true
+            },
+            "children": [
+              {
+                "id": "c3t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c3a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

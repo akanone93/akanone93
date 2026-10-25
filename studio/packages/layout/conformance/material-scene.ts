@@ -20,6 +20,7 @@ import {
   kMiddleSpacing,
 } from "../src/flutter/material/app-bar.ts";
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
+import { buildChip } from "../src/flutter/material/chip.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import {
@@ -113,6 +114,25 @@ function preferredHeight(node: SceneNode | null): number {
   return num(node.props, "height", 0);
 }
 
+/** `Chip`, `FilterChip` and `InputChip`: all build `RawChip`, with the label, an avatar and an optional delete icon. */
+function buildChipNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const avatar = only(node, "avatar");
+  const deleteIcon = prop(p, "deletable") === true ? required(node, "deleteIcon") : null;
+  return buildChip({
+    label: ctx.build(required(node, "label"), style("labelLarge"), {
+      defaults: { softWrap: false, overflow: "fade", maxLines: 1 },
+    }),
+    avatar: avatar === null ? null : ctx.build(avatar),
+    deleteIcon: deleteIcon === null ? null : ctx.build(deleteIcon),
+    selected: prop(p, "selected") === true,
+    tapTargetSize: tapTarget(p),
+    density: density(p),
+    textScale: ctx.text?.textScaler.textScaleFactor ?? 1,
+    textDirection: ctx.direction,
+  });
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -194,6 +214,9 @@ const builders: Record<string, Builder> = {
       textDirection: ctx.direction,
     });
   },
+  Chip: buildChipNode,
+  FilterChip: buildChipNode,
+  InputChip: buildChipNode,
   IconButton: (node, ctx) =>
     buildButton({
       kind: "icon",
