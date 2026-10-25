@@ -64,8 +64,14 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.LimitApproaching: connect.CodeResourceExhausted,
 
 	// The server refused to reach somewhere.
-	plxerr.OutboundRequestBlocked: connect.CodePermissionDenied,
-	plxerr.AssetRejected:          connect.CodeInvalidArgument,
+	plxerr.OutboundRequestBlocked:   connect.CodePermissionDenied,
+	plxerr.AssetRejected:            connect.CodeInvalidArgument,
+	plxerr.AssetUploadNotFound:      connect.CodeNotFound,
+	plxerr.AssetUploadOutOfOrder:    connect.CodeInvalidArgument,
+	plxerr.AssetUploadChunkTooLarge: connect.CodeResourceExhausted,
+	plxerr.AssetUploadTooLarge:      connect.CodeResourceExhausted,
+	plxerr.AssetUploadHashMismatch:  connect.CodeInvalidArgument,
+	plxerr.AssetUploadSizeMismatch:  connect.CodeInvalidArgument,
 
 	// Device identity, tokens, gateway and strong customer authentication.
 	plxerr.AttestationFailed:            connect.CodePermissionDenied,

@@ -2530,6 +2530,54 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Check the file on a trusted machine and upload a clean copy.
 
+### PLX-6032
+
+`ASSET_UPLOAD_NOT_FOUND` · error · Asset upload not found or expired
+
+**Cause.** The upload session does not exist, belongs to another user, has expired after sitting idle (asset.uploadTtl), or was already finished (SRV-060).
+
+**Fix.** Begin a new upload and send its chunks again.
+
+### PLX-6033
+
+`ASSET_UPLOAD_OUT_OF_ORDER` · error · Asset chunk at the wrong offset
+
+**Cause.** A chunk was sent at an offset other than the number of bytes the upload has already received, so it repeats, skips or overtakes another chunk (SRV-060).
+
+**Fix.** Ask for the upload's progress and resume from the offset it reports.
+
+### PLX-6034
+
+`ASSET_UPLOAD_CHUNK_TOO_LARGE` · error · Asset chunk too large
+
+**Cause.** A chunk is larger than the limit asset.uploadChunkBytes (SRV-060, LIM-001).
+
+**Fix.** Split the file into chunks no larger than the chunk size returned when the upload began.
+
+### PLX-6035
+
+`ASSET_UPLOAD_TOO_LARGE` · error · Asset larger than the size limit
+
+**Cause.** The declared size of the file is above the limit asset.fileSize (SRV-060, LIM-001).
+
+**Fix.** Upload a smaller file, or ask an administrator to raise the limit.
+
+### PLX-6036
+
+`ASSET_UPLOAD_HASH_MISMATCH` · error · Uploaded asset hash mismatch
+
+**Cause.** The SHA-256 of the received bytes differs from the digest declared when the upload began; the upload is discarded (SRV-060).
+
+**Fix.** Begin a new upload and send the file again; check that the digest is of the whole file.
+
+### PLX-6037
+
+`ASSET_UPLOAD_SIZE_MISMATCH` · error · Uploaded asset size mismatch
+
+**Cause.** The upload received fewer bytes than the size declared when it began, or a chunk would go past that size (SRV-060).
+
+**Fix.** Send every byte of the file before finishing, and declare the file's exact size when beginning.
+
 ### PLX-6040
 
 `SECURITY_CONFIG_HASH_MISMATCH` · error · Security configuration hash mismatch
