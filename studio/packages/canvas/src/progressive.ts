@@ -38,12 +38,7 @@ export function jobBand(rect: Rect, view: Rect, direction: Direction): number {
  * Orders `items` for rendering by band (see `jobBand`), and within a band by
  * distance from the centre of `view`; the order is stable for equal keys.
  */
-export function orderJobs<T>(
-  items: readonly T[],
-  rectOf: (item: T) => Rect,
-  view: Rect,
-  direction: Direction,
-): T[] {
+export function orderJobs<T>(items: readonly T[], rectOf: (item: T) => Rect, view: Rect, direction: Direction): T[] {
   const cx = (view.l + view.r) / 2;
   const cy = (view.t + view.b) / 2;
   const keyed = items.map((item, index) => {
