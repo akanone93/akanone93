@@ -211,15 +211,15 @@ type Document struct {
 
 // Snapshot is one entry of a draft's history (SRV-031).
 type Snapshot struct {
-	ID        string
-	AppID     string
-	PluginID  string
-	Sequence  int64
-	Revision  int64
-	Reason    string
-	Paths     []string
-	Actor     audit.Actor
-	Kept      bool
+	ID       string
+	AppID    string
+	PluginID string
+	Sequence int64
+	Revision int64
+	Reason   string
+	Paths    []string
+	Actor    audit.Actor
+	Kept     bool
 	// EditorSession is the Studio editor session of the write that made
 	// the snapshot; empty for writes outside Studio (STU-069).
 	EditorSession string
