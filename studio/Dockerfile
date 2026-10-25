@@ -20,7 +20,11 @@
 FROM oven/bun:1.3.11-slim@sha256:478281fdd196871c7e51ba6a820b7803a8ae97042ec86cdbc2e1c6b6626442d9 AS build
 WORKDIR /src/studio
 COPY studio/ ./
+# The pinned CanvasKit, staged into studio/.canvaskit by `make studio-image-repro` (no Flutter SDK in
+# this stage); stage-canvaskit.ts still checks each file against its pinned SHA-256.
+ENV PLUX_CANVASKIT_DIR=/src/studio/.canvaskit
 RUN bun install --frozen-lockfile \
+ && bun scripts/stage-canvaskit.ts \
  && bun run gen:theme \
  && (cd packages/ui && bun scripts/gen-icons.ts) \
  && bun run build \
