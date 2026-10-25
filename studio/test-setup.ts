@@ -20,3 +20,16 @@ const native = {
 
 GlobalRegistrator.register();
 Object.assign(globalThis, native);
+
+// Vite's `?worker&url` imports name a built worker's address; under `bun test` they resolve to a
+// fixed address of the same shape, so modules that start workers load (the tests stub the worker).
+Bun.plugin({
+  name: "vite-worker-url",
+  setup(build) {
+    build.onResolve({ filter: /\?worker&url$/ }, (args) => ({ path: args.path, namespace: "vite-worker-url" }));
+    build.onLoad({ filter: /.*/, namespace: "vite-worker-url" }, () => ({
+      contents: 'export default "/assets/canvas-worker-test.js";',
+      loader: "js",
+    }));
+  },
+});

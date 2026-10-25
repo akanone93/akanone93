@@ -249,3 +249,19 @@ path = ["schema/goldens/fonts/*.ttf"]
 precedence = "override"
 SPDX-FileCopyrightText = "2022 The Noto Project Authors"
 SPDX-License-Identifier = "OFL-1.1"
+
+# Fonts of the plugin canvas (STU-006, ADR-0013): Roboto and Noto Sans,
+# vendored unmodified and pinned by
+# studio/apps/web/src/features/plugin-canvas/fonts/VERSION. Shipped in the
+# Studio web build; legal review open (O-7).
+[[annotations]]
+path = ["studio/apps/web/src/features/plugin-canvas/fonts/Roboto_*.ttf", "studio/apps/web/src/features/plugin-canvas/fonts/Roboto-OFL.txt"]
+precedence = "override"
+SPDX-FileCopyrightText = "2011 The Roboto Project Authors"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = ["studio/apps/web/src/features/plugin-canvas/fonts/NotoSans_*.ttf", "studio/apps/web/src/features/plugin-canvas/fonts/NotoSans-OFL.txt"]
+precedence = "override"
+SPDX-FileCopyrightText = "2022 The Noto Project Authors"
+SPDX-License-Identifier = "OFL-1.1"

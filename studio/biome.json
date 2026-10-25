@@ -17,6 +17,7 @@
       "!**/*.gen.css",
       "!lint/fixtures",
       "!prototype",
+      "!apps/web/src/features/plugin-canvas/canvaskit",
       "!packages/api/src/gen"
     ]
   },

@@ -219,7 +219,7 @@ Studio's own interface is localised and runs left-to-right and right-to-left (`S
 
 11.1. **No credential reaches JavaScript** (`SEC-101`, `STU-002`): the server issues the `__Host-plux_session` cookie (`HttpOnly`, `Secure`, `SameSite=Strict`) and the CSRF token (ADR-0026); the stateless BFF passes them through and keeps no session store; CSRF token on state-changing requests.
 
-11.2. **Strict CSP with nonces and Trusted Types.** No inline scripts or styles without the nonce; `script-src` allows `'wasm-unsafe-eval'` (never `'unsafe-eval'`) for CanvasKit and the validator; `worker-src` allows Studio's own workers; Monaco and workers are loaded in a way the policy allows; Base UI receives the nonce through its `CSPProvider`; Zod runs with `jitless: true`; no `eval`, `new Function` or string timers, in our code or a dependency's.
+11.2. **Strict CSP with nonces and Trusted Types.** No inline scripts or styles without the nonce; `script-src` allows `'wasm-unsafe-eval'` (never `'unsafe-eval'`) for CanvasKit and the validator; `worker-src` allows Studio's own workers; Trusted Types are required for scripts and exactly one policy exists, `plux-canvas-worker`, which approves only the canvas worker's hashed same-origin asset (maintainer, 2026-10-25); no `default` policy; Monaco and workers are loaded in a way the policy allows; Base UI receives the nonce through its `CSPProvider`; Zod runs with `jitless: true`; no `eval`, `new Function` or string timers, in our code or a dependency's.
 
 11.3. **Everything pasted, imported or dropped is untrusted** (security-practices §3): clipboard content (`STU-067`), `.plux` archives, templates, OpenAPI files, images and translation files are validated by the API before use and never rendered as HTML.
 
