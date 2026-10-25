@@ -44,3 +44,8 @@ export function useCommands(): CommandsValue {
   }
   return value;
 }
+
+/** The commands when a provider surrounds the caller, else null (a view that works with or without the shell). */
+export function useOptionalCommands(): CommandsValue | null {
+  return use(Context);
+}

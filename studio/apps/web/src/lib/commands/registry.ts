@@ -3,7 +3,7 @@
 
 import type { PermissionName } from "@plux/schema";
 
-export type CommandGroup = "navigate" | "organisation" | "account" | "appearance";
+export type CommandGroup = "navigate" | "screens" | "organisation" | "account" | "appearance";
 
 /**
  * A palette command (STU-013, M-7). `permission` names the server permission that guards the RPC the command
