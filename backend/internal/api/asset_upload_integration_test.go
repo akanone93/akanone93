@@ -56,7 +56,7 @@ func TestChunkedAssetUpload(t *testing.T) {
 	if _, err := chunk(id, int64(half), data[half:]); codeOf(err) != connect.CodeInvalidArgument {
 		t.Errorf("a chunk out of order: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_OUT_OF_ORDER" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_OUT_OF_ORDER" {
 		t.Errorf("a chunk out of order reason = %s", reason)
 	}
 	if r := must(chunk(id, 0, data[:half]))(t); r.GetReceived() != int64(half) {
@@ -65,13 +65,13 @@ func TestChunkedAssetUpload(t *testing.T) {
 	if _, err := chunk(id, 0, data[:half]); codeOf(err) != connect.CodeInvalidArgument {
 		t.Errorf("a repeated chunk: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_OUT_OF_ORDER" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_OUT_OF_ORDER" {
 		t.Errorf("a repeated chunk reason = %s", reason)
 	}
 	if _, err := w.asset.FinishAssetUpload(ctx, req(admin, &pluxv1.FinishAssetUploadRequest{UploadId: id})); codeOf(err) != connect.CodeInvalidArgument {
 		t.Errorf("an unfinished upload: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_SIZE_MISMATCH" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_SIZE_MISMATCH" {
 		t.Errorf("an unfinished upload reason = %s", reason)
 	}
 	if st := must(w.asset.GetAssetUpload(ctx, req(admin, &pluxv1.GetAssetUploadRequest{UploadId: id})))(t); st.GetReceived() != int64(half) {
@@ -85,7 +85,7 @@ func TestChunkedAssetUpload(t *testing.T) {
 	if _, err := w.asset.GetAssetUpload(ctx, req(admin, &pluxv1.GetAssetUploadRequest{UploadId: id})); codeOf(err) != connect.CodeNotFound {
 		t.Errorf("a finished upload: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_NOT_FOUND" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_NOT_FOUND" {
 		t.Errorf("a finished upload reason = %s", reason)
 	}
 
@@ -95,14 +95,14 @@ func TestChunkedAssetUpload(t *testing.T) {
 	if _, err := w.asset.FinishAssetUpload(ctx, req(admin, &pluxv1.FinishAssetUploadRequest{UploadId: id})); codeOf(err) != connect.CodeInvalidArgument {
 		t.Errorf("a digest mismatch: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_HASH_MISMATCH" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_HASH_MISMATCH" {
 		t.Errorf("a digest mismatch reason = %s", reason)
 	}
 
 	if _, err := begin("images/c.png", 1<<40, sum[:]); codeOf(err) != connect.CodeResourceExhausted {
 		t.Errorf("an oversize declaration: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_TOO_LARGE" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_TOO_LARGE" {
 		t.Errorf("an oversize declaration reason = %s", reason)
 	}
 	if _, err := begin("images/c.png", 10, sum[:4]); codeOf(err) != connect.CodeInvalidArgument {
@@ -112,13 +112,13 @@ func TestChunkedAssetUpload(t *testing.T) {
 	if _, err := chunk(b.GetUploadId(), 0, make([]byte, b.GetChunkSize()+1)); codeOf(err) != connect.CodeResourceExhausted {
 		t.Errorf("an oversize chunk: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_CHUNK_TOO_LARGE" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_CHUNK_TOO_LARGE" {
 		t.Errorf("an oversize chunk reason = %s", reason)
 	}
 	if _, err := chunk(b.GetUploadId(), 0, append(data, 0)); codeOf(err) != connect.CodeResourceExhausted {
 		t.Errorf("a chunk past the declared size: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_SIZE_MISMATCH" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_SIZE_MISMATCH" {
 		t.Errorf("a chunk past the declared size reason = %s", reason)
 	}
 
@@ -132,7 +132,16 @@ func TestChunkedAssetUpload(t *testing.T) {
 	if _, err := chunk(b.GetUploadId(), 0, data); codeOf(err) != connect.CodeNotFound {
 		t.Errorf("an expired upload: %v", err)
 	}
-	if reason := errorInfo(t, err).GetReason(); reason != "ASSET_UPLOAD_NOT_FOUND" {
+	if reason := uploadReasonOf(t, err); reason != "ASSET_UPLOAD_NOT_FOUND" {
 		t.Errorf("an expired upload reason = %s", reason)
 	}
+}
+
+// reasonOf returns the registered reason an error carries, or "" for none.
+func uploadReasonOf(t *testing.T, err error) string {
+	t.Helper()
+	if err == nil {
+		return ""
+	}
+	return errorInfo(t, err).GetReason()
 }
