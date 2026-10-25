@@ -176,6 +176,8 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@headless-tree/core`, `@headless-tree/react` 1.8.0 | Tree state and WAI-ARIA keyboard behind `@plux/ui` Tree, used for the Layers panel (decisions A3) | In use (P11 S0.2; MIT) |
 | `@lingui/core`, `@lingui/react` 6.10.1 | ICU MessageFormat runtime and React bindings for Studio localisation (ADR-0094) | In use (P11 S0.3; MIT) |
 | `@leeoniya/ufuzzy` 1.0.19 | Fuzzy filtering of the Studio command palette (ADR-0014, STU-013) | In use (P11 S0.6; MIT) |
+| `zustand` 5.0.15 | Per-area editor stores created in a provider, never module-level (ADR-0014 State) | In use (P11 S2.2; MIT) |
+| `immer` 11.1.21 | Immutable document edits with forward and inverse patches for autosave and undo (ADR-0014 State) | In use (P11 S2.2; MIT) |
 | `@lingui/cli`, `@lingui/format-po`, `@lingui/vite-plugin`, `@lingui/babel-plugin-lingui-macro` 6.10.1 | Strict extraction, PO catalogues and build-time catalogue compilation; not shipped | In use (P11 S0.3; MIT) |
 | `@bufbuild/protobuf` 2.16.0 | Protobuf runtime for the generated API messages | In use (P11 S0.3; Apache-2.0 AND BSD-3-Clause) |
 | `@connectrpc/connect` 2.2.0 | Connect client core | In use (P11 S0.3; Apache-2.0) |
