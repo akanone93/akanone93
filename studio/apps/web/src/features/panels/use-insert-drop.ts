@@ -69,7 +69,7 @@ export function insertDropHandlers(a: Args) {
       if (t !== null) {
         insertWidget(
           d,
-          { parent: t.parent, index: t.index, slot: null },
+          { parent: t.parent, index: t.index, slot: null, ...(t.position === undefined ? {} : { at: t.position }) },
           a.edit,
           (id) => a.screenOf.get(id),
           a.canEdit,
