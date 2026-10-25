@@ -33,6 +33,13 @@ import {
   kNavigationBarHeight,
   type NavigationLabelBehavior,
 } from "../src/flutter/material/navigation-bar.ts";
+import {
+  buildNavigationRail,
+  buildRailDestination,
+  kRailGroupAlignment,
+  kRailMinWidth,
+  type RailLabelType,
+} from "../src/flutter/material/navigation-rail.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import {
@@ -218,6 +225,33 @@ function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBo
   });
 }
 
+/** `NavigationRail` with `NavigationRailDestination` children: an `icon` slot and a `label` prop each. */
+function buildNavigationRailNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const selectedIndex = num(p, "selectedIndex", 0);
+  const labelType = (prop(p, "labelType") ?? "none") as RailLabelType;
+  const minWidth = num(p, "minWidth", kRailMinWidth);
+  const destinations = (node.children ?? []).map((destination, index) => {
+    if (destination.type !== "NavigationRailDestination") {
+      throw new Error(`node "${destination.id}": a NavigationRail holds NavigationRailDestination nodes`);
+    }
+    const label = prop(destination.props, "label");
+    return buildRailDestination({
+      icon: ctx.build(required(destination, "icon")),
+      label: syntheticText(destination, "label", typeof label === "string" ? label : "", ctx, style("labelMedium")),
+      selected: index === selectedIndex,
+      labelType,
+      minWidth,
+      textDirection: ctx.direction,
+    });
+  });
+  return buildNavigationRail({
+    destinations,
+    groupAlignment: num(p, "groupAlignment", kRailGroupAlignment),
+    textDirection: ctx.direction,
+  });
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -301,6 +335,7 @@ const builders: Record<string, Builder> = {
   },
   TextField: buildTextField,
   NavigationBar: buildNavigationBarNode,
+  NavigationRail: buildNavigationRailNode,
   Chip: buildChipNode,
   FilterChip: buildChipNode,
   InputChip: buildChipNode,
@@ -342,7 +377,7 @@ for (const type of Object.keys(buttonKinds)) {
 }
 
 /** Node types only a composite builds, from its children. */
-const partTypes: readonly string[] = ["NavigationDestination"];
+const partTypes: readonly string[] = ["NavigationDestination", "NavigationRailDestination"];
 
 /** The node types this module builds, the parts of composites included. */
 export const materialTypes: ReadonlySet<string> = new Set([...Object.keys(builders), ...partTypes]);
