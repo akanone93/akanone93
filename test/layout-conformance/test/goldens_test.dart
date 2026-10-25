@@ -414,7 +414,7 @@ List<double> _rectOf(WidgetTester tester, String id) {
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
-  'Chip', 'FilterChip', 'InputChip', 'TextField',
+  'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination',
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -449,11 +449,53 @@ VisualDensity _density(Map<String, Object?> props) => switch (props['density']) 
   _ => VisualDensity.standard,
 };
 
+/// The slot children of [node] built, keyed by slot name.
+Map<String, List<Widget>> _buildSlots(Map<String, Object?> node, String phase, double t) {
+  final Map<String, List<Widget>> slots = <String, List<Widget>>{};
+  for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+    final Map<String, Object?> child = raw! as Map<String, Object?>;
+    (slots[(child['slot'] as String?) ?? 'child'] ??= <Widget>[]).add(_build(child, phase, t));
+  }
+  return slots;
+}
+
+/// A [NavigationDestination] node: the icon slot and the `label` prop. The tooltip is left empty,
+/// as it needs an `Overlay` that has no effect on layout.
+NavigationDestination _destination(Map<String, Object?> node, String phase, double t) {
+  final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  return NavigationDestination(
+    key: ValueKey<String>(node['id']! as String),
+    icon: _buildSlots(node, phase, t)['icon']!.single,
+    label: (props['label'] as String?) ?? '',
+    tooltip: '',
+  );
+}
+
+Widget _buildNavigationBar(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+  return NavigationBar(
+    key: key,
+    selectedIndex: (props['selectedIndex'] as num?)?.toInt() ?? 0,
+    height: _optionalNumber(props, 'height'),
+    labelBehavior: switch (props['labelBehavior']) {
+      'alwaysHide' => NavigationDestinationLabelBehavior.alwaysHide,
+      'onlyShowSelected' => NavigationDestinationLabelBehavior.onlyShowSelected,
+      _ => NavigationDestinationLabelBehavior.alwaysShow,
+    },
+    destinations: <Widget>[
+      for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+        _destination(raw! as Map<String, Object?>, phase, t),
+    ],
+  );
+}
+
 Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
   final Key key = ValueKey<String>(id);
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  if (type == 'NavigationBar') {
+    return _buildNavigationBar(node, props, key, phase, t);
+  }
   final Map<String, List<Widget>> slots = <String, List<Widget>>{};
   for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     final Map<String, Object?> child = raw! as Map<String, Object?>;
