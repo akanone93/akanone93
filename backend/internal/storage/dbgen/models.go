@@ -1135,6 +1135,7 @@ type Lock struct {
 	PreviousSession string
 	PreviousHolder  string
 	RequestedBy     []byte
+	LastEditAt      pgtype.Timestamptz
 }
 
 type Manifest struct {
@@ -1683,6 +1684,7 @@ type TranslationLock struct {
 	PreviousSession string
 	PreviousHolder  string
 	RequestedBy     []byte
+	LastEditAt      pgtype.Timestamptz
 }
 
 type Trash struct {

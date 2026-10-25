@@ -217,15 +217,18 @@ SELECT * FROM locks WHERE draft_id = $1;
 
 -- name: PutLock :one
 INSERT INTO locks (draft_id, organization_id, holder_kind, holder_id, holder_display, session,
-                   expires_at, previous_session, previous_holder)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                   expires_at, previous_session, previous_holder, last_edit_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (draft_id) DO UPDATE
    SET holder_kind = EXCLUDED.holder_kind, holder_id = EXCLUDED.holder_id,
        holder_display = EXCLUDED.holder_display, session = EXCLUDED.session,
        acquired_at = now(), heartbeat_at = now(), expires_at = EXCLUDED.expires_at,
        previous_session = EXCLUDED.previous_session, previous_holder = EXCLUDED.previous_holder,
-       requested_by = '[]'
+       requested_by = '[]', last_edit_at = EXCLUDED.last_edit_at
 RETURNING *;
+
+-- name: TouchLock :exec
+UPDATE locks SET last_edit_at = $3 WHERE draft_id = $1 AND session = $2;
 
 -- name: RenewLock :one
 UPDATE locks SET heartbeat_at = now(), expires_at = $2 WHERE draft_id = $1 RETURNING *;

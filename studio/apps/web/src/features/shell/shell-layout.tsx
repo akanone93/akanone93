@@ -8,17 +8,9 @@ import { OrgService, PreferencesService } from "@plux/api";
 import { GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { Outlet, useParams, useRouter } from "@tanstack/react-router";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useState } from "react";
 import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
-import {
-  CommandsProvider,
-  commandMessages,
-  createRegistry,
-  createUndoFocus,
-  shellCommands,
-  UndoFocusProvider,
-  undoCommands,
-} from "../../lib/commands/index.ts";
+import { CommandsProvider, commandMessages, createRegistry, shellCommands } from "../../lib/commands/index.ts";
 import { loadUser } from "../../lib/guards.ts";
 import { loadedStudioVersion } from "../../lib/server-version.ts";
 import { organizationIdOf } from "../../lib/session.ts";
@@ -62,23 +54,19 @@ export function ShellLayout() {
   const waiting = usePendingTotal(pending);
   const user = useTanstackQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
   const permissions = user.data?.permissions ?? NONE;
-  const [undoFocus] = useState(createUndoFocus);
-  // edit.undo and edit.redo exist only while an editor fills the slot, so the action bar enables them then.
-  const editing = useSyncExternalStore(undoFocus.subscribe, () => undoFocus.current !== undefined);
   const commands = useMemo(
     () =>
-      createRegistry([
-        ...shellCommands({
+      createRegistry(
+        shellCommands({
           i18n,
           session,
           navigate: (path) => router.history.push(path),
           organisations: organisations.map((o) => ({ id: o.id, name: o.name })),
           openPalette: () => setPaletteOpen(true),
         }),
-        ...(editing ? undoCommands(i18n, undoFocus) : []),
-      ]),
+      ),
     // The locale is a dependency because Lingui keeps one i18n object across locale changes.
-    [i18n, i18n.locale, session, router, organisations, undoFocus, editing],
+    [i18n, i18n.locale, session, router, organisations],
   );
   const value = useMemo(
     () => ({ registry: commands, states: commands.stateFor(permissions) }),
@@ -89,56 +77,54 @@ export function ShellLayout() {
   return (
     <PendingChangesProvider counter={pending}>
       <CommandsProvider value={value}>
-        <UndoFocusProvider value={undoFocus}>
-          <div className="flex min-h-screen flex-col">
-            <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
-            <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
-            <header>
-              <GlassCapsule label={m.topBar} className="m-4 flex items-center gap-4 px-4">
-                <a href="/" className="text-title">
-                  {shellMessages(i18n).appTitle}
-                </a>
-                {organisations.length > 0 && (
-                  <Select
-                    label={m.organisation}
-                    value={currentId ?? ""}
-                    placeholder={m.organisation}
-                    options={organisations.map((o) => ({ value: o.id, label: o.name }))}
-                    onValueChange={(id) => router.history.push(`/o/${id}`)}
-                  />
-                )}
-                <span className="flex-1" />
-                <StatusChips online={online} stream={events.state} waiting={waiting} />
-                <button type="button" className="text-body" onClick={() => setPaletteOpen(true)}>
-                  {c.paletteOpen}
-                </button>
-                <NotificationsPopover />
-                <HelpMenu docsUrl={version?.docs} />
-                <Menu
-                  trigger={
-                    <button type="button" aria-label={m.profile} className="inline-flex items-center">
-                      <Icon name="user" size="capsule" />
-                    </button>
-                  }
-                  entries={[
-                    { kind: "item", id: "profile", label: m.profile, onSelect: () => router.history.push("/me") },
-                    { kind: "separator", id: "sep" },
-                    {
-                      kind: "item",
-                      id: "signout",
-                      label: m.signOut,
-                      onSelect: () => void value.states.find((x) => x.command.id === "account.signout")?.command.run(),
-                    },
-                  ]}
+        <div className="flex min-h-screen flex-col">
+          <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
+          <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
+          <header>
+            <GlassCapsule label={m.topBar} className="m-4 flex items-center gap-4 px-4">
+              <a href="/" className="text-title">
+                {shellMessages(i18n).appTitle}
+              </a>
+              {organisations.length > 0 && (
+                <Select
+                  label={m.organisation}
+                  value={currentId ?? ""}
+                  placeholder={m.organisation}
+                  options={organisations.map((o) => ({ value: o.id, label: o.name }))}
+                  onValueChange={(id) => router.history.push(`/o/${id}`)}
                 />
-              </GlassCapsule>
-            </header>
-            <main className="flex-1 p-6">
-              <Outlet />
-            </main>
-            <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
-          </div>
-        </UndoFocusProvider>
+              )}
+              <span className="flex-1" />
+              <StatusChips online={online} stream={events.state} waiting={waiting} />
+              <button type="button" className="text-body" onClick={() => setPaletteOpen(true)}>
+                {c.paletteOpen}
+              </button>
+              <NotificationsPopover />
+              <HelpMenu docsUrl={version?.docs} />
+              <Menu
+                trigger={
+                  <button type="button" aria-label={m.profile} className="inline-flex items-center">
+                    <Icon name="user" size="capsule" />
+                  </button>
+                }
+                entries={[
+                  { kind: "item", id: "profile", label: m.profile, onSelect: () => router.history.push("/me") },
+                  { kind: "separator", id: "sep" },
+                  {
+                    kind: "item",
+                    id: "signout",
+                    label: m.signOut,
+                    onSelect: () => void value.states.find((x) => x.command.id === "account.signout")?.command.run(),
+                  },
+                ]}
+              />
+            </GlassCapsule>
+          </header>
+          <main className="flex-1 p-6">
+            <Outlet />
+          </main>
+          <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+        </div>
       </CommandsProvider>
     </PendingChangesProvider>
   );

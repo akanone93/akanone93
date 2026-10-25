@@ -39,6 +39,8 @@ function stubTransport(): DocumentTransport & { sent: number } {
     async get(p: string) {
       return docs.get(p) ?? { path: p, revision: 1n, content: {} };
     },
+    put: () => Promise.reject(new Error("unused")),
+    remove: () => Promise.reject(new Error("unused")),
     classify: () => "rejected" as const,
   };
   return t;
