@@ -82,8 +82,10 @@ describe("STU-003 canvas worker core", () => {
     await core.receive({ v, type: "interaction", phase: "end", kind: "drag", ids: ["a"] });
     await core.receive({ v, type: "interaction", phase: "start", kind: "pan", ids: [] });
     await core.receive({ v, type: "resize", width: 100, height: 80, dpr: 2 });
+    const before = ofType(posted, "frame").length;
     env.drain();
-    expect(ofType(posted, "frame").at(-1)?.stats.drawCalls).toBeGreaterThan(0);
+    // The new surface is drawn; a closing idle frame over an unchanged surface draws nothing.
+    expect(Math.max(...ofType(posted, "frame").slice(before).map((f) => f.stats.drawCalls))).toBeGreaterThan(0);
     env.surfaces = false;
     await core.receive({ v, type: "resize", width: 50, height: 50, dpr: 1 });
     expect(ofType(posted, "error")[0]?.message).toBe("no CanvasKit surface after resize");

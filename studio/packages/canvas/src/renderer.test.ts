@@ -121,8 +121,9 @@ describe("STU-120 tile cache, dirty regions and idle rendering (M-12)", () => {
     expect(renderer.frame().regions).toBe(0);
     scene.apply([{ op: "move", id: "a", dx: 5, dy: 5 }]);
     const moved = renderer.frame();
-    expect(moved.regions).toBe(1);
-    expect(moved.tilesDrawn).toBe(4);
+    // The surface already shows every tile: only the damage (a strip around each moved edge) is redrawn, no tile blitted.
+    expect(moved.regions).toBe(4);
+    expect(moved.tilesDrawn).toBe(0);
     renderer.idle(Number.POSITIVE_INFINITY);
     expect(renderer.frame().regions).toBe(0);
     renderer.dispose();

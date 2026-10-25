@@ -641,6 +641,10 @@ export class CanvasWorkerCore {
     if (!running) {
       return;
     }
+    if (this.frameRequested) {
+      // A message asked for a frame: idle work yields to it, and the frame asks for idle time again.
+      return;
+    }
     if (running.recentreWhenIdle) {
       this.recentre(running, true);
     }
@@ -648,10 +652,18 @@ export class CanvasWorkerCore {
       // The base jobs render the tiles the base needs; `jobDone` asks for idle time again when they finish.
       return;
     }
-    const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS);
-    if (rendered > 0) {
+    const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS, () => this.frameRequested);
+    if (rendered === 0) {
+      return;
+    }
+    // A frame follows when the view shows a new tile, or to report that the idle work is done (it draws nothing
+    // then); tiles refreshed in place that the surface already shows need no frame.
+    const more = running.renderer.hasIdleWork();
+    if (running.renderer.idleChangedView || !more) {
       running.baseDirty = true;
       this.requestFrame();
+    } else {
+      this.requestIdle();
     }
   }
 }
