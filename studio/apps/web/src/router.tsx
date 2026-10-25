@@ -13,6 +13,7 @@ import {
 } from "@tanstack/react-router";
 import { z } from "zod";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
+import type { EditSession } from "./features/editor/edit-session.ts";
 import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
@@ -31,6 +32,8 @@ export interface RouterContext {
   readonly createSurface?: SurfaceFactory;
   /** Starts the validator of C2's Problems tab; unset means the browser worker (tests inject a stub). */
   readonly createValidator?: ValidatorFactory;
+  /** Tests observe the plugin canvas's edit pipeline here. */
+  readonly observeEditor?: (edit: EditSession) => void;
 }
 
 function RouteError({ error }: ErrorComponentProps) {

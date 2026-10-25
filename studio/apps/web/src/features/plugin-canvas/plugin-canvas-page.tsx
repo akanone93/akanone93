@@ -3,10 +3,15 @@
 
 import { useLingui } from "@lingui/react";
 import { overflowId } from "@plux/canvas";
+import { limitDefault } from "@plux/schema";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useUndoFocus } from "../../lib/commands/undo-commands.ts";
 import type { RouterContext } from "../../router.tsx";
-import { EditorProvider } from "../editor/editor-provider.tsx";
+import { tabEditorSession } from "../editor/document-transport.ts";
+import type { EditSession } from "../editor/edit-session.ts";
+import { EditorProvider, useEditSession } from "../editor/editor-provider.tsx";
+import { UndoManager } from "../editor/undo-stack.ts";
 import { ProblemCounts, ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -62,14 +67,46 @@ function fitView(
 }
 
 /** C2: the plugin canvas, read-only (S1.4). */
+/** The tab's sessionStorage, or undefined where the browser blocks it. It holds only the editor-session ID. */
+function tabStorage(): Storage | undefined {
+  try {
+    return globalThis.sessionStorage;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Hands the plugin's edit pipeline to an observer (tests); renders nothing. */
+function ObserveEditor({ observe }: { readonly observe: (edit: EditSession) => void }): null {
+  const edit = useEditSession();
+  useEffect(() => observe(edit), [observe, edit]);
+  return null;
+}
+
 export function PluginCanvasPage() {
   const m = pluginCanvasMessages(useLingui().i18n);
   const params = useParams({ strict: false }) as { app?: string; plugin?: string };
   const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number };
   const navigate = useNavigate();
-  const { createSurface = browserSurface, createValidator = browserValidator } = useRouteContext({
+  const {
+    createSurface = browserSurface,
+    createValidator = browserValidator,
+    observeEditor,
+  } = useRouteContext({
     strict: false,
-  }) as Pick<RouterContext, "createSurface" | "createValidator">;
+  }) as Pick<RouterContext, "createSurface" | "createValidator" | "observeEditor">;
+  const stack = params.plugin ?? "";
+  // One undo stack per plugin (F3); the shell's undo commands act on it while this page is open.
+  const [undo] = useState(() => new UndoManager({ depth: limitDefault("studio.undoDepth") }));
+  const [editorSessionId] = useState(() => tabEditorSession(tabStorage()));
+  const undoFocus = useUndoFocus();
+  useEffect(() => {
+    if (undoFocus === null) {
+      return undefined;
+    }
+    undoFocus.set({ undo: () => undo.undo(stack), redo: () => undo.redo(stack) });
+    return () => undoFocus.set(undefined);
+  }, [undoFocus, undo, stack]);
   const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
   const appDocs = useAppDocuments(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
@@ -132,7 +169,14 @@ export function PluginCanvasPage() {
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
-    <EditorProvider appId={params.app ?? ""} pluginId={params.plugin ?? ""} documents={docs.data}>
+    <EditorProvider
+      appId={params.app ?? ""}
+      pluginId={stack}
+      documents={docs.data}
+      undo={undo}
+      editorSessionId={editorSessionId}
+    >
+      {observeEditor !== undefined && <ObserveEditor observe={observeEditor} />}
       <section className="relative h-full w-full overflow-hidden">
         {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
         <canvas

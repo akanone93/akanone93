@@ -345,7 +345,7 @@ describe("STU-069 undo commands", () => {
     const registry = createRegistry(undoCommands(i18n, focus));
     registry.byShortcut("mod+z")?.run();
     expect(calls).toEqual([]);
-    focus.current = { undo: () => calls.push("undo"), redo: () => calls.push("redo") };
+    focus.set({ undo: () => calls.push("undo"), redo: () => calls.push("redo") });
     registry.byShortcut("mod+z")?.run();
     registry.byShortcut("shift+mod+z")?.run();
     registry.byShortcut("mod+y")?.run();

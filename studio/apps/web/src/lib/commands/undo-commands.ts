@@ -12,13 +12,32 @@ export interface UndoTarget {
   redo(): void;
 }
 
-/** The shell's slot for the focused editor's undo target; an editor sets and clears `current`. */
+/** The shell's slot for the focused editor's undo target; an editor sets and clears it. */
 export interface UndoFocus {
-  current: UndoTarget | undefined;
+  readonly current: UndoTarget | undefined;
+  set(target: UndoTarget | undefined): void;
+  /** For the shell, which registers the undo commands only while an editor fills the slot. */
+  subscribe(listener: () => void): () => void;
 }
 
 export function createUndoFocus(): UndoFocus {
-  return { current: undefined };
+  let current: UndoTarget | undefined;
+  const listeners = new Set<() => void>();
+  return {
+    get current() {
+      return current;
+    },
+    set(target) {
+      current = target;
+      for (const l of listeners) {
+        l();
+      }
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+  };
 }
 
 const UndoFocusContext = createContext<UndoFocus | null>(null);

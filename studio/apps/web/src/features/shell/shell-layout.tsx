@@ -8,7 +8,7 @@ import { OrgService, PreferencesService } from "@plux/api";
 import { GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { Outlet, useParams, useRouter } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
 import {
   CommandsProvider,
@@ -63,6 +63,8 @@ export function ShellLayout() {
   const user = useTanstackQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
   const permissions = user.data?.permissions ?? NONE;
   const [undoFocus] = useState(createUndoFocus);
+  // edit.undo and edit.redo exist only while an editor fills the slot, so the action bar enables them then.
+  const editing = useSyncExternalStore(undoFocus.subscribe, () => undoFocus.current !== undefined);
   const commands = useMemo(
     () =>
       createRegistry([
@@ -73,10 +75,10 @@ export function ShellLayout() {
           organisations: organisations.map((o) => ({ id: o.id, name: o.name })),
           openPalette: () => setPaletteOpen(true),
         }),
-        ...undoCommands(i18n, undoFocus),
+        ...(editing ? undoCommands(i18n, undoFocus) : []),
       ]),
     // The locale is a dependency because Lingui keeps one i18n object across locale changes.
-    [i18n, i18n.locale, session, router, organisations, undoFocus],
+    [i18n, i18n.locale, session, router, organisations, undoFocus, editing],
   );
   const value = useMemo(
     () => ({ registry: commands, states: commands.stateFor(permissions) }),

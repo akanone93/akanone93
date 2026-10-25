@@ -93,6 +93,26 @@ export function toImmerPatches(ops: readonly JsonPatchOp[]): Patch[] {
   return out;
 }
 
+interface Run {
+  readonly step: string;
+  readonly parts: Part[];
+}
+
+/** Groups entries (newest first) into runs oldest first: consecutive writes of one step are one run. */
+function runsOf(stack: string, entries: readonly SessionEntry[]): Run[] {
+  const runs: Run[] = [];
+  for (const e of [...entries].reverse()) {
+    const part: Part = { stack, path: e.path, patches: toImmerPatches(e.inverse) };
+    const last = runs.at(-1);
+    if (last !== undefined && e.step !== "" && last.step === e.step) {
+      last.parts.push(part);
+    } else {
+      runs.push({ step: e.step, parts: [part] });
+    }
+  }
+  return runs;
+}
+
 export class UndoManager {
   private readonly stacks = new Map<string, Stack>();
   private readonly sessions = new Map<string, EditSession>();
@@ -255,47 +275,39 @@ export class UndoManager {
     if (s.undo.length > 0 || s.redo.length > 0) {
       return;
     }
-    const runs: { step: string; parts: Part[] }[] = [];
-    for (const e of [...entries].reverse()) {
-      const part: Part = { stack, path: e.path, patches: toImmerPatches(e.inverse) };
-      const last = runs.at(-1);
-      if (last !== undefined && e.step !== "" && last.step === e.step) {
-        last.parts.push(part);
-      } else {
-        runs.push({ step: e.step, parts: [part] });
-      }
-    }
-    for (const run of runs) {
-      const [kind, id] = run.step.startsWith("undo:")
-        ? ["undo", run.step.slice(5)]
-        : run.step.startsWith("redo:")
-          ? ["redo", run.step.slice(5)]
-          : ["edit", run.step === "" ? this.newId() : run.step];
-      const step: Step = {
-        id,
-        parts: run.parts,
-        stacks: new Set([stack]),
-        group: undefined,
-        at: Number.NEGATIVE_INFINITY,
-        selectionBefore: undefined,
-        selectionAfter: undefined,
-      };
-      if (kind === "undo") {
-        if (s.undo.at(-1)?.id === id) {
-          s.undo.pop();
-        }
-        s.redo.push(step);
-      } else {
-        if (kind === "redo" && s.redo.at(-1)?.id === id) {
-          s.redo.pop();
-        } else if (kind === "edit") {
-          s.redo = [];
-        }
-        this.push(s, step);
-      }
+    for (const run of runsOf(stack, entries)) {
+      this.replay(s, stack, run);
     }
     this.regroup(stack);
     this.changed();
+  }
+
+  /** Replays one rebuilt run: an edit pushes a step, `undo:` moves it to redo, `redo:` moves it back. */
+  private replay(s: Stack, stack: string, run: Run): void {
+    const kind = run.step.startsWith("undo:") ? "undo" : run.step.startsWith("redo:") ? "redo" : "edit";
+    const id = kind !== "edit" ? run.step.slice(5) : run.step === "" ? this.newId() : run.step;
+    const step: Step = {
+      id,
+      parts: run.parts,
+      stacks: new Set([stack]),
+      group: undefined,
+      at: Number.NEGATIVE_INFINITY,
+      selectionBefore: undefined,
+      selectionAfter: undefined,
+    };
+    if (kind === "undo") {
+      if (s.undo.at(-1)?.id === id) {
+        s.undo.pop();
+      }
+      s.redo.push(step);
+      return;
+    }
+    if (kind === "redo" && s.redo.at(-1)?.id === id) {
+      s.redo.pop();
+    } else if (kind === "edit") {
+      s.redo = [];
+    }
+    this.push(s, step);
   }
 
   /** Merges the steps of a rebuilt stack with the same steps of the other stacks. */
