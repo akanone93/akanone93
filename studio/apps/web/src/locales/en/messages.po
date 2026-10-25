@@ -19,6 +19,12 @@ msgstr "{count, plural, one {# error} other {# errors}}"
 msgid "problems.warnings"
 msgstr "{count, plural, one {# warning} other {# warnings}}"
 
+#. Announced to screen readers when several elements are selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionMany"
+msgstr "{count} elements selected"
+
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -30,6 +36,12 @@ msgstr "{count} of at most {max} characters"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.unread"
 msgstr "{count} unread"
+
+#. Announced to screen readers when one element is selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionOne"
+msgstr "{name} selected"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -426,6 +438,12 @@ msgstr "No problems found."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "No shortcut"
+
+#. Announced to screen readers when the canvas selection becomes empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionNone"
+msgstr "Nothing selected"
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
