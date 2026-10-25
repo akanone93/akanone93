@@ -21,6 +21,7 @@ import {
 } from "../src/flutter/material/app-bar.ts";
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
 import { buildChip } from "../src/flutter/material/chip.ts";
+import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../src/flutter/material/input-decorator.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import {
@@ -133,6 +134,44 @@ function buildChipNode(node: SceneNode, ctx: MaterialContext): RenderBox {
   });
 }
 
+/** A text the composite makes up itself: a scene node nothing keys, so no rect is reported for it. */
+function syntheticText(node: SceneNode, name: string, text: string, ctx: MaterialContext, base: TextStyle): RenderBox {
+  const box = ctx.build({ id: `${node.id}:${name}`, type: "Text", props: { text } }, base, {
+    defaults: { overflow: "ellipsis" },
+  });
+  box.debugId = null;
+  return box;
+}
+
+/** `TextField` with an `InputDecoration`: the input line is one line of `bodyLarge`; label and hint add no box. */
+function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const text = (name: string): string | null => {
+    const value = prop(p, name);
+    return typeof value === "string" ? value : null;
+  };
+  const dens = density(p);
+  const prefix = only(node, "prefixIcon");
+  const suffix = only(node, "suffixIcon");
+  const subtext = text("errorText") ?? text("helperText");
+  const withText = (text("text") ?? "") !== "";
+  const line = syntheticText(node, "input", "A", ctx, style("bodyLarge"));
+  return buildInputDecorator({
+    input: new RenderEditableLine(line),
+    prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
+    suffixIcon: suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
+    subtext: subtext === null ? null : syntheticText(node, "subtext", subtext, ctx, style("bodySmall")),
+    outline: prop(p, "border") === "outline",
+    filled: prop(p, "filled") === true,
+    isDense: prop(p, "isDense") === true,
+    hasLabel: text("labelText") !== null,
+    floating: withText,
+    floatingLabelHeight: 16 * (ctx.text?.textScaler.textScaleFactor ?? 1),
+    density: dens,
+    textDirection: ctx.direction,
+  });
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -214,6 +253,7 @@ const builders: Record<string, Builder> = {
       textDirection: ctx.direction,
     });
   },
+  TextField: buildTextField,
   Chip: buildChipNode,
   FilterChip: buildChipNode,
   InputChip: buildChipNode,

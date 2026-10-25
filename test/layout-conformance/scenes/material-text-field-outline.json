@@ -1,0 +1,113 @@
+{
+  "name": "material-text-field-outline",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f0",
+                "type": "TextField",
+                "props": {
+                  "border": "outline"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f1",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "labelText": "Label"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f2",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "labelText": "Label",
+                  "text": "Hello",
+                  "helperText": "Helper"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w3",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f3",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "isDense": true,
+                  "labelText": "Dense"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w4",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f4",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "labelText": "Long helper",
+                  "helperText": "A helper that is much too long to fit on one line of this field"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
