@@ -5,7 +5,17 @@
 
 export type EditFn = (docId: string, recipe: (draft: unknown) => void, options?: { group?: string }) => void;
 
-type Obj = Record<string, unknown>;
+interface Obj {
+  id?: unknown;
+  props?: unknown;
+  children?: unknown;
+  slots?: unknown;
+  offset?: unknown;
+  size?: unknown;
+  x?: unknown;
+  y?: unknown;
+  [key: string]: unknown;
+}
 
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 

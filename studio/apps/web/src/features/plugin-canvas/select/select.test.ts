@@ -99,7 +99,12 @@ describe("keyboard, nudge, edits (STU-067)", () => {
     expect(handleKey(ctx, { key: "x", ...key })).toBe(false);
   });
   test("STU-067 wrap, unwrap and reparent edit the draft", () => {
-    const d = { id: "r", children: [{ id: "a" }, { id: "g", children: [{ id: "c" }] }] };
+    interface D {
+      id: string;
+      type?: string;
+      children?: D[];
+    }
+    const d: { id: string; children: D[] } = { id: "r", children: [{ id: "a" }, { id: "g", children: [{ id: "c" }] }] };
     wrapRecipe("a", "w", "Row")(d);
     expect(d.children[0]).toEqual({ id: "w", type: "Row", children: [{ id: "a" }] });
     unwrapRecipe("w")(d);
