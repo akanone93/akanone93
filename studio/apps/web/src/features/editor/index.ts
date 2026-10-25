@@ -21,6 +21,7 @@ export {
   type AcquireLock,
   EditorProvider,
   type EditorProviderProps,
+  useCanEdit,
   useEditor,
   useEditSession,
 } from "./editor-provider.tsx";

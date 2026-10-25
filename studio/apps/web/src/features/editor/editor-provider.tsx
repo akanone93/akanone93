@@ -23,6 +23,8 @@ export interface EditorProviderProps {
   readonly pluginId: string;
   /** The plugin's documents as the Query cache holds them (server-confirmed). */
   readonly documents: readonly Document[] | undefined;
+  /** False until S2.3 grants the lock: the canvas draws feedback but its edits are dropped. */
+  readonly canEdit?: boolean;
   readonly onFirstEdit?: AcquireLock;
   /** Every edit with its inverse patches, for the S2.4 undo stack. */
   readonly onEdit?: (record: EditRecord) => void;
@@ -31,6 +33,7 @@ export interface EditorProviderProps {
 }
 
 const EditorContext = createContext<EditSession | null>(null);
+const CanEditContext = createContext(false);
 
 function documentsKey(appId: string, pluginId: string) {
   return ["plugin-documents", appId, pluginId] as const;
@@ -80,8 +83,10 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
 
   return (
     <EditorContext.Provider value={edit}>
-      {props.children}
-      <ConflictDialog session={edit} />
+      <CanEditContext.Provider value={props.canEdit ?? false}>
+        {props.children}
+        <ConflictDialog session={edit} />
+      </CanEditContext.Provider>
     </EditorContext.Provider>
   );
 }
@@ -98,4 +103,9 @@ export function useEditSession(): EditSession {
 /** Selects from the surrounding editor's store. */
 export function useEditor<T>(selector: (state: EditState) => T): T {
   return useStore(useEditSession().store, selector);
+}
+
+/** Whether the editor may change documents (the plugin lock is held); false by default. */
+export function useCanEdit(): boolean {
+  return useContext(CanEditContext);
 }

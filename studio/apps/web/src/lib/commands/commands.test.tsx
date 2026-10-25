@@ -9,7 +9,7 @@ import { ShortcutsPage } from "../../features/profile/shortcuts-page.tsx";
 import { CommandPalette } from "../../features/shell/command-palette.tsx";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
-import { type Command, CommandsProvider, createRegistry } from "./index.ts";
+import { type Command, CommandsProvider, createRegistry, mergeScoped } from "./index.ts";
 
 afterEach(cleanup);
 
@@ -29,6 +29,16 @@ describe("STU-013 registry", () => {
     expect(() => createRegistry([cmd("a", "A", { shortcut: "mod+k" }), cmd("b", "B", { shortcut: "Mod+K" })])).toThrow(
       "shortcut",
     );
+  });
+
+  test("STU-013 the collision check spans global and scoped commands", () => {
+    const global = createRegistry([cmd("a", "A", { shortcut: "mod+k" })]);
+    expect(mergeScoped(global, [cmd("canvas.wrap", "Wrap", { shortcut: "mod+alt+g" })]).commands).toHaveLength(2);
+    expect(() => mergeScoped(global, [cmd("a", "Again")])).toThrow("duplicate command id");
+    expect(() => mergeScoped(global, [cmd("b", "B", { shortcut: "Mod+K" })])).toThrow("shortcut");
+    expect(() =>
+      mergeScoped(global, [cmd("c", "C", { shortcut: "mod+j" }), cmd("d", "D", { shortcut: "mod+j" })]),
+    ).toThrow("shortcut");
   });
 
   test("a command without the permission is disabled and names it, not hidden", () => {
