@@ -408,7 +408,7 @@ export class CanvasHost {
 
   /** The world rectangle of item `id`, or undefined when there is no such item. */
   boundsOf(id: string): Rect | undefined {
-    return this.hits.spec(id) === undefined ? undefined : this.hits.shapeOf(id, makeRect(0, 0, 0, 0));
+    return this.hits.spec(id) === undefined ? undefined : (this.hits.shapeOf(id, makeRect(0, 0, 0, 0)) ?? undefined);
   }
 
   /** The selected item ids. */
