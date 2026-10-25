@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/document.proto.
  */
 export const file_plux_v1_document: GenFile = /*@__PURE__*/
-  fileDesc("ChZwbHV4L3YxL2RvY3VtZW50LnByb3RvEgdwbHV4LnYxItABCghEb2N1bWVudBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEgwKBHBhdGgYAyABKAkSDAoEa2luZBgEIAEoCRIPCgdjb250ZW50GAUgASgMEg4KBnNoYTI1NhgGIAEoCRIQCghyZXZpc2lvbhgHIAEoAxIiCgp1cGRhdGVkX2J5GAggASgLMg4ucGx1eC52MS5BY3RvchIuCgp1cGRhdGVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLUAQoIU25hcHNob3QSCgoCaWQYASABKAkSDgoGYXBwX2lkGAIgASgJEhEKCXBsdWdpbl9pZBgDIAEoCRIQCghyZXZpc2lvbhgEIAEoAxIOCgZyZWFzb24YBSABKAkSDQoFcGF0aHMYBiADKAkSHQoFYWN0b3IYByABKAsyDi5wbHV4LnYxLkFjdG9yEi4KCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWVkaXRvcl9zZXNzaW9uX2lkGAkgASgJIkUKEkdldERvY3VtZW50UmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEgwKBHBhdGgYAyABKAkiOgoTR2V0RG9jdW1lbnRSZXNwb25zZRIjCghkb2N1bWVudBgBIAEoCzIRLnBsdXgudjEuRG9jdW1lbnQicAoUTGlzdERvY3VtZW50c1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCRIbCgRwYWdlGAMgASgLMg0ucGx1eC52MS5QYWdlEhgKEGNvbnRlbnRfaW5jbHVkZWQYBCABKAgiYAoVTGlzdERvY3VtZW50c1Jlc3BvbnNlEiQKCWRvY3VtZW50cxgBIAMoCzIRLnBsdXgudjEuRG9jdW1lbnQSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCKXAQoSUHV0RG9jdW1lbnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEcGF0aBgDIAEoCRIPCgdjb250ZW50GAQgASgMEhMKC2lmX3JldmlzaW9uGAUgASgDEg8KB3Nlc3Npb24YBiABKAkSGQoRZWRpdG9yX3Nlc3Npb25faWQYByABKAkieQoTUHV0RG9jdW1lbnRSZXNwb25zZRIjCghkb2N1bWVudBgBIAEoCzIRLnBsdXgudjEuRG9jdW1lbnQSEwoLc25hcHNob3RfaWQYAiABKAkSKAoLZGlhZ25vc3RpY3MYAyADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMiqQEKFFBhdGNoRG9jdW1lbnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEcGF0aBgDIAEoCRIfCgVwYXRjaBgEIAMoCzIQLnBsdXgudjEuUGF0Y2hPcBITCgtpZl9yZXZpc2lvbhgFIAEoAxIPCgdzZXNzaW9uGAYgASgJEhkKEWVkaXRvcl9zZXNzaW9uX2lkGAcgASgJInsKFVBhdGNoRG9jdW1lbnRSZXNwb25zZRIjCghkb2N1bWVudBgBIAEoCzIRLnBsdXgudjEuRG9jdW1lbnQSEwoLc25hcHNob3RfaWQYAiABKAkSKAoLZGlhZ25vc3RpY3MYAyADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMibgoVRGVsZXRlRG9jdW1lbnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEcGF0aBgDIAEoCRITCgtpZl9yZXZpc2lvbhgEIAEoAxIPCgdzZXNzaW9uGAUgASgJIi0KFkRlbGV0ZURvY3VtZW50UmVzcG9uc2USEwoLc25hcHNob3RfaWQYASABKAkiOQoUVmFsaWRhdGVEcmFmdFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCSJBChVWYWxpZGF0ZURyYWZ0UmVzcG9uc2USKAoLZGlhZ25vc3RpY3MYASADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMiVwoTVmFsaWRhdGVQYWdlUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEgwKBHBhdGgYAyABKAkSDwoHY29udGVudBgEIAEoDCJAChRWYWxpZGF0ZVBhZ2VSZXNwb25zZRIoCgtkaWFnbm9zdGljcxgBIAMoCzITLnBsdXgudjEuRGlhZ25vc3RpYyJWChRMaXN0U25hcHNob3RzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiYAoVTGlzdFNuYXBzaG90c1Jlc3BvbnNlEiQKCXNuYXBzaG90cxgBIAMoCzIRLnBsdXgudjEuU25hcHNob3QSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCIvChJHZXRTbmFwc2hvdFJlcXVlc3QSCgoCaWQYASABKAkSDQoFcGF0aHMYAiADKAkiYAoTR2V0U25hcHNob3RSZXNwb25zZRIjCghzbmFwc2hvdBgBIAEoCzIRLnBsdXgudjEuU25hcHNob3QSJAoJZG9jdW1lbnRzGAIgAygLMhEucGx1eC52MS5Eb2N1bWVudCI5ChdDb21wYXJlU25hcHNob3RzUmVxdWVzdBIPCgdmcm9tX2lkGAEgASgJEg0KBXRvX2lkGAIgASgJIkQKGENvbXBhcmVTbmFwc2hvdHNSZXNwb25zZRIoCgdjaGFuZ2VzGAEgAygLMhcucGx1eC52MS5Eb2N1bWVudENoYW5nZSJPCg5Eb2N1bWVudENoYW5nZRIMCgRwYXRoGAEgASgJEg4KBmNoYW5nZRgCIAEoCRIfCgVwYXRjaBgDIAMoCzIQLnBsdXgudjEuUGF0Y2hPcCJEChZSZXN0b3JlU25hcHNob3RSZXF1ZXN0EgoKAmlkGAEgASgJEg0KBXBhdGhzGAIgAygJEg8KB3Nlc3Npb24YAyABKAkiWAoXUmVzdG9yZVNuYXBzaG90UmVzcG9uc2USEwoLc25hcHNob3RfaWQYASABKAkSKAoLZGlhZ25vc3RpY3MYAiADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMiNwoSRXhwb3J0RHJhZnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkiNAoTRXhwb3J0RHJhZnRSZXNwb25zZRIMCgRwYXRoGAEgASgJEg8KB2NvbnRlbnQYAiABKAwiZwoSSW1wb3J0RHJhZnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDwoHc2Vzc2lvbhgDIAEoCRIMCgRwYXRoGAQgASgJEg8KB2NvbnRlbnQYBSABKAwiZgoTSW1wb3J0RHJhZnRSZXNwb25zZRIQCghyZXZpc2lvbhgBIAEoAxITCgtzbmFwc2hvdF9pZBgCIAEoCRIoCgtkaWFnbm9zdGljcxgDIAMoCzITLnBsdXgudjEuRGlhZ25vc3RpYzKWCAoPRG9jdW1lbnRTZXJ2aWNlEkgKC0dldERvY3VtZW50EhsucGx1eC52MS5HZXREb2N1bWVudFJlcXVlc3QaHC5wbHV4LnYxLkdldERvY3VtZW50UmVzcG9uc2USTgoNTGlzdERvY3VtZW50cxIdLnBsdXgudjEuTGlzdERvY3VtZW50c1JlcXVlc3QaHi5wbHV4LnYxLkxpc3REb2N1bWVudHNSZXNwb25zZRJICgtQdXREb2N1bWVudBIbLnBsdXgudjEuUHV0RG9jdW1lbnRSZXF1ZXN0GhwucGx1eC52MS5QdXREb2N1bWVudFJlc3BvbnNlEk4KDVBhdGNoRG9jdW1lbnQSHS5wbHV4LnYxLlBhdGNoRG9jdW1lbnRSZXF1ZXN0Gh4ucGx1eC52MS5QYXRjaERvY3VtZW50UmVzcG9uc2USUQoORGVsZXRlRG9jdW1lbnQSHi5wbHV4LnYxLkRlbGV0ZURvY3VtZW50UmVxdWVzdBofLnBsdXgudjEuRGVsZXRlRG9jdW1lbnRSZXNwb25zZRJOCg1WYWxpZGF0ZURyYWZ0Eh0ucGx1eC52MS5WYWxpZGF0ZURyYWZ0UmVxdWVzdBoeLnBsdXgudjEuVmFsaWRhdGVEcmFmdFJlc3BvbnNlEksKDFZhbGlkYXRlUGFnZRIcLnBsdXgudjEuVmFsaWRhdGVQYWdlUmVxdWVzdBodLnBsdXgudjEuVmFsaWRhdGVQYWdlUmVzcG9uc2USTgoNTGlzdFNuYXBzaG90cxIdLnBsdXgudjEuTGlzdFNuYXBzaG90c1JlcXVlc3QaHi5wbHV4LnYxLkxpc3RTbmFwc2hvdHNSZXNwb25zZRJICgtHZXRTbmFwc2hvdBIbLnBsdXgudjEuR2V0U25hcHNob3RSZXF1ZXN0GhwucGx1eC52MS5HZXRTbmFwc2hvdFJlc3BvbnNlElcKEENvbXBhcmVTbmFwc2hvdHMSIC5wbHV4LnYxLkNvbXBhcmVTbmFwc2hvdHNSZXF1ZXN0GiEucGx1eC52MS5Db21wYXJlU25hcHNob3RzUmVzcG9uc2USVAoPUmVzdG9yZVNuYXBzaG90Eh8ucGx1eC52MS5SZXN0b3JlU25hcHNob3RSZXF1ZXN0GiAucGx1eC52MS5SZXN0b3JlU25hcHNob3RSZXNwb25zZRJKCgtFeHBvcnREcmFmdBIbLnBsdXgudjEuRXhwb3J0RHJhZnRSZXF1ZXN0GhwucGx1eC52MS5FeHBvcnREcmFmdFJlc3BvbnNlMAESSgoLSW1wb3J0RHJhZnQSGy5wbHV4LnYxLkltcG9ydERyYWZ0UmVxdWVzdBocLnBsdXgudjEuSW1wb3J0RHJhZnRSZXNwb25zZSgBQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM", [file_google_protobuf_timestamp, file_plux_v1_common]);
+  fileDesc("ChZwbHV4L3YxL2RvY3VtZW50LnByb3RvEgdwbHV4LnYxItABCghEb2N1bWVudBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEgwKBHBhdGgYAyABKAkSDAoEa2luZBgEIAEoCRIPCgdjb250ZW50GAUgASgMEg4KBnNoYTI1NhgGIAEoCRIQCghyZXZpc2lvbhgHIAEoAxIiCgp1cGRhdGVkX2J5GAggASgLMg4ucGx1eC52MS5BY3RvchIuCgp1cGRhdGVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLUAQoIU25hcHNob3QSCgoCaWQYASABKAkSDgoGYXBwX2lkGAIgASgJEhEKCXBsdWdpbl9pZBgDIAEoCRIQCghyZXZpc2lvbhgEIAEoAxIOCgZyZWFzb24YBSABKAkSDQoFcGF0aHMYBiADKAkSHQoFYWN0b3IYByABKAsyDi5wbHV4LnYxLkFjdG9yEi4KCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWVkaXRvcl9zZXNzaW9uX2lkGAkgASgJIkUKEkdldERvY3VtZW50UmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEgwKBHBhdGgYAyABKAkiOgoTR2V0RG9jdW1lbnRSZXNwb25zZRIjCghkb2N1bWVudBgBIAEoCzIRLnBsdXgudjEuRG9jdW1lbnQicAoUTGlzdERvY3VtZW50c1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCRIbCgRwYWdlGAMgASgLMg0ucGx1eC52MS5QYWdlEhgKEGNvbnRlbnRfaW5jbHVkZWQYBCABKAgiYAoVTGlzdERvY3VtZW50c1Jlc3BvbnNlEiQKCWRvY3VtZW50cxgBIAMoCzIRLnBsdXgudjEuRG9jdW1lbnQSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCKXAQoSUHV0RG9jdW1lbnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEcGF0aBgDIAEoCRIPCgdjb250ZW50GAQgASgMEhMKC2lmX3JldmlzaW9uGAUgASgDEg8KB3Nlc3Npb24YBiABKAkSGQoRZWRpdG9yX3Nlc3Npb25faWQYByABKAkieQoTUHV0RG9jdW1lbnRSZXNwb25zZRIjCghkb2N1bWVudBgBIAEoCzIRLnBsdXgudjEuRG9jdW1lbnQSEwoLc25hcHNob3RfaWQYAiABKAkSKAoLZGlhZ25vc3RpY3MYAyADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMiqQEKFFBhdGNoRG9jdW1lbnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEcGF0aBgDIAEoCRIfCgVwYXRjaBgEIAMoCzIQLnBsdXgudjEuUGF0Y2hPcBITCgtpZl9yZXZpc2lvbhgFIAEoAxIPCgdzZXNzaW9uGAYgASgJEhkKEWVkaXRvcl9zZXNzaW9uX2lkGAcgASgJInsKFVBhdGNoRG9jdW1lbnRSZXNwb25zZRIjCghkb2N1bWVudBgBIAEoCzIRLnBsdXgudjEuRG9jdW1lbnQSEwoLc25hcHNob3RfaWQYAiABKAkSKAoLZGlhZ25vc3RpY3MYAyADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMibgoVRGVsZXRlRG9jdW1lbnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDAoEcGF0aBgDIAEoCRITCgtpZl9yZXZpc2lvbhgEIAEoAxIPCgdzZXNzaW9uGAUgASgJIi0KFkRlbGV0ZURvY3VtZW50UmVzcG9uc2USEwoLc25hcHNob3RfaWQYASABKAkiOQoUVmFsaWRhdGVEcmFmdFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhEKCXBsdWdpbl9pZBgCIAEoCSJBChVWYWxpZGF0ZURyYWZ0UmVzcG9uc2USKAoLZGlhZ25vc3RpY3MYASADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMiVwoTVmFsaWRhdGVQYWdlUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEgwKBHBhdGgYAyABKAkSDwoHY29udGVudBgEIAEoDCJAChRWYWxpZGF0ZVBhZ2VSZXNwb25zZRIoCgtkaWFnbm9zdGljcxgBIAMoCzITLnBsdXgudjEuRGlhZ25vc3RpYyJWChRMaXN0U25hcHNob3RzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiYAoVTGlzdFNuYXBzaG90c1Jlc3BvbnNlEiQKCXNuYXBzaG90cxgBIAMoCzIRLnBsdXgudjEuU25hcHNob3QSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCJ8Ch9MaXN0RWRpdG9yU2Vzc2lvbkVudHJpZXNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSGQoRZWRpdG9yX3Nlc3Npb25faWQYAyABKAkSGwoEcGFnZRgEIAEoCzINLnBsdXgudjEuUGFnZSKcAQoSRWRpdG9yU2Vzc2lvbkVudHJ5EhMKC3NuYXBzaG90X2lkGAEgASgJEgwKBHBhdGgYAiABKAkSEAoIcmV2aXNpb24YAyABKAMSIQoHaW52ZXJzZRgEIAMoCzIQLnBsdXgudjEuUGF0Y2hPcBIuCgpjcmVhdGVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJzCiBMaXN0RWRpdG9yU2Vzc2lvbkVudHJpZXNSZXNwb25zZRIsCgdlbnRyaWVzGAEgAygLMhsucGx1eC52MS5FZGl0b3JTZXNzaW9uRW50cnkSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCIvChJHZXRTbmFwc2hvdFJlcXVlc3QSCgoCaWQYASABKAkSDQoFcGF0aHMYAiADKAkiYAoTR2V0U25hcHNob3RSZXNwb25zZRIjCghzbmFwc2hvdBgBIAEoCzIRLnBsdXgudjEuU25hcHNob3QSJAoJZG9jdW1lbnRzGAIgAygLMhEucGx1eC52MS5Eb2N1bWVudCI5ChdDb21wYXJlU25hcHNob3RzUmVxdWVzdBIPCgdmcm9tX2lkGAEgASgJEg0KBXRvX2lkGAIgASgJIkQKGENvbXBhcmVTbmFwc2hvdHNSZXNwb25zZRIoCgdjaGFuZ2VzGAEgAygLMhcucGx1eC52MS5Eb2N1bWVudENoYW5nZSJPCg5Eb2N1bWVudENoYW5nZRIMCgRwYXRoGAEgASgJEg4KBmNoYW5nZRgCIAEoCRIfCgVwYXRjaBgDIAMoCzIQLnBsdXgudjEuUGF0Y2hPcCJEChZSZXN0b3JlU25hcHNob3RSZXF1ZXN0EgoKAmlkGAEgASgJEg0KBXBhdGhzGAIgAygJEg8KB3Nlc3Npb24YAyABKAkiWAoXUmVzdG9yZVNuYXBzaG90UmVzcG9uc2USEwoLc25hcHNob3RfaWQYASABKAkSKAoLZGlhZ25vc3RpY3MYAiADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMiNwoSRXhwb3J0RHJhZnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkiNAoTRXhwb3J0RHJhZnRSZXNwb25zZRIMCgRwYXRoGAEgASgJEg8KB2NvbnRlbnQYAiABKAwiZwoSSW1wb3J0RHJhZnRSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIRCglwbHVnaW5faWQYAiABKAkSDwoHc2Vzc2lvbhgDIAEoCRIMCgRwYXRoGAQgASgJEg8KB2NvbnRlbnQYBSABKAwiZgoTSW1wb3J0RHJhZnRSZXNwb25zZRIQCghyZXZpc2lvbhgBIAEoAxITCgtzbmFwc2hvdF9pZBgCIAEoCRIoCgtkaWFnbm9zdGljcxgDIAMoCzITLnBsdXgudjEuRGlhZ25vc3RpYzKHCQoPRG9jdW1lbnRTZXJ2aWNlEkgKC0dldERvY3VtZW50EhsucGx1eC52MS5HZXREb2N1bWVudFJlcXVlc3QaHC5wbHV4LnYxLkdldERvY3VtZW50UmVzcG9uc2USTgoNTGlzdERvY3VtZW50cxIdLnBsdXgudjEuTGlzdERvY3VtZW50c1JlcXVlc3QaHi5wbHV4LnYxLkxpc3REb2N1bWVudHNSZXNwb25zZRJICgtQdXREb2N1bWVudBIbLnBsdXgudjEuUHV0RG9jdW1lbnRSZXF1ZXN0GhwucGx1eC52MS5QdXREb2N1bWVudFJlc3BvbnNlEk4KDVBhdGNoRG9jdW1lbnQSHS5wbHV4LnYxLlBhdGNoRG9jdW1lbnRSZXF1ZXN0Gh4ucGx1eC52MS5QYXRjaERvY3VtZW50UmVzcG9uc2USUQoORGVsZXRlRG9jdW1lbnQSHi5wbHV4LnYxLkRlbGV0ZURvY3VtZW50UmVxdWVzdBofLnBsdXgudjEuRGVsZXRlRG9jdW1lbnRSZXNwb25zZRJOCg1WYWxpZGF0ZURyYWZ0Eh0ucGx1eC52MS5WYWxpZGF0ZURyYWZ0UmVxdWVzdBoeLnBsdXgudjEuVmFsaWRhdGVEcmFmdFJlc3BvbnNlEksKDFZhbGlkYXRlUGFnZRIcLnBsdXgudjEuVmFsaWRhdGVQYWdlUmVxdWVzdBodLnBsdXgudjEuVmFsaWRhdGVQYWdlUmVzcG9uc2USTgoNTGlzdFNuYXBzaG90cxIdLnBsdXgudjEuTGlzdFNuYXBzaG90c1JlcXVlc3QaHi5wbHV4LnYxLkxpc3RTbmFwc2hvdHNSZXNwb25zZRJvChhMaXN0RWRpdG9yU2Vzc2lvbkVudHJpZXMSKC5wbHV4LnYxLkxpc3RFZGl0b3JTZXNzaW9uRW50cmllc1JlcXVlc3QaKS5wbHV4LnYxLkxpc3RFZGl0b3JTZXNzaW9uRW50cmllc1Jlc3BvbnNlEkgKC0dldFNuYXBzaG90EhsucGx1eC52MS5HZXRTbmFwc2hvdFJlcXVlc3QaHC5wbHV4LnYxLkdldFNuYXBzaG90UmVzcG9uc2USVwoQQ29tcGFyZVNuYXBzaG90cxIgLnBsdXgudjEuQ29tcGFyZVNuYXBzaG90c1JlcXVlc3QaIS5wbHV4LnYxLkNvbXBhcmVTbmFwc2hvdHNSZXNwb25zZRJUCg9SZXN0b3JlU25hcHNob3QSHy5wbHV4LnYxLlJlc3RvcmVTbmFwc2hvdFJlcXVlc3QaIC5wbHV4LnYxLlJlc3RvcmVTbmFwc2hvdFJlc3BvbnNlEkoKC0V4cG9ydERyYWZ0EhsucGx1eC52MS5FeHBvcnREcmFmdFJlcXVlc3QaHC5wbHV4LnYxLkV4cG9ydERyYWZ0UmVzcG9uc2UwARJKCgtJbXBvcnREcmFmdBIbLnBsdXgudjEuSW1wb3J0RHJhZnRSZXF1ZXN0GhwucGx1eC52MS5JbXBvcnREcmFmdFJlc3BvbnNlKAFCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_common]);
 
 /**
  * Document is one file of a draft.
@@ -605,6 +605,106 @@ export const ListSnapshotsResponseSchema: GenMessage<ListSnapshotsResponse> = /*
   messageDesc(file_plux_v1_document, 17);
 
 /**
+ * @generated from message plux.v1.ListEditorSessionEntriesRequest
+ */
+export type ListEditorSessionEntriesRequest = Message<"plux.v1.ListEditorSessionEntriesRequest"> & {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+
+  /**
+   * plugin_id is empty for the app's own documents.
+   *
+   * @generated from field: string plugin_id = 2;
+   */
+  pluginId: string;
+
+  /**
+   * @generated from field: string editor_session_id = 3;
+   */
+  editorSessionId: string;
+
+  /**
+   * @generated from field: plux.v1.Page page = 4;
+   */
+  page?: Page | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ListEditorSessionEntriesRequest.
+ * Use `create(ListEditorSessionEntriesRequestSchema)` to create a new message.
+ */
+export const ListEditorSessionEntriesRequestSchema: GenMessage<ListEditorSessionEntriesRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_document, 18);
+
+/**
+ * EditorSessionEntry is one document a tagged write changed.
+ *
+ * @generated from message plux.v1.EditorSessionEntry
+ */
+export type EditorSessionEntry = Message<"plux.v1.EditorSessionEntry"> & {
+  /**
+   * @generated from field: string snapshot_id = 1;
+   */
+  snapshotId: string;
+
+  /**
+   * @generated from field: string path = 2;
+   */
+  path: string;
+
+  /**
+   * revision is the draft revision the write produced.
+   *
+   * @generated from field: int64 revision = 3;
+   */
+  revision: bigint;
+
+  /**
+   * inverse turns the document the write produced back into the one it
+   * replaced.
+   *
+   * @generated from field: repeated plux.v1.PatchOp inverse = 4;
+   */
+  inverse: PatchOp[];
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 5;
+   */
+  createdAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.EditorSessionEntry.
+ * Use `create(EditorSessionEntrySchema)` to create a new message.
+ */
+export const EditorSessionEntrySchema: GenMessage<EditorSessionEntry> = /*@__PURE__*/
+  messageDesc(file_plux_v1_document, 19);
+
+/**
+ * @generated from message plux.v1.ListEditorSessionEntriesResponse
+ */
+export type ListEditorSessionEntriesResponse = Message<"plux.v1.ListEditorSessionEntriesResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.EditorSessionEntry entries = 1;
+   */
+  entries: EditorSessionEntry[];
+
+  /**
+   * @generated from field: plux.v1.PageResult page = 2;
+   */
+  page?: PageResult | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ListEditorSessionEntriesResponse.
+ * Use `create(ListEditorSessionEntriesResponseSchema)` to create a new message.
+ */
+export const ListEditorSessionEntriesResponseSchema: GenMessage<ListEditorSessionEntriesResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_document, 20);
+
+/**
  * @generated from message plux.v1.GetSnapshotRequest
  */
 export type GetSnapshotRequest = Message<"plux.v1.GetSnapshotRequest"> & {
@@ -626,7 +726,7 @@ export type GetSnapshotRequest = Message<"plux.v1.GetSnapshotRequest"> & {
  * Use `create(GetSnapshotRequestSchema)` to create a new message.
  */
 export const GetSnapshotRequestSchema: GenMessage<GetSnapshotRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 18);
+  messageDesc(file_plux_v1_document, 21);
 
 /**
  * @generated from message plux.v1.GetSnapshotResponse
@@ -648,7 +748,7 @@ export type GetSnapshotResponse = Message<"plux.v1.GetSnapshotResponse"> & {
  * Use `create(GetSnapshotResponseSchema)` to create a new message.
  */
 export const GetSnapshotResponseSchema: GenMessage<GetSnapshotResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 19);
+  messageDesc(file_plux_v1_document, 22);
 
 /**
  * @generated from message plux.v1.CompareSnapshotsRequest
@@ -670,7 +770,7 @@ export type CompareSnapshotsRequest = Message<"plux.v1.CompareSnapshotsRequest">
  * Use `create(CompareSnapshotsRequestSchema)` to create a new message.
  */
 export const CompareSnapshotsRequestSchema: GenMessage<CompareSnapshotsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 20);
+  messageDesc(file_plux_v1_document, 23);
 
 /**
  * @generated from message plux.v1.CompareSnapshotsResponse
@@ -689,7 +789,7 @@ export type CompareSnapshotsResponse = Message<"plux.v1.CompareSnapshotsResponse
  * Use `create(CompareSnapshotsResponseSchema)` to create a new message.
  */
 export const CompareSnapshotsResponseSchema: GenMessage<CompareSnapshotsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 21);
+  messageDesc(file_plux_v1_document, 24);
 
 /**
  * @generated from message plux.v1.DocumentChange
@@ -718,7 +818,7 @@ export type DocumentChange = Message<"plux.v1.DocumentChange"> & {
  * Use `create(DocumentChangeSchema)` to create a new message.
  */
 export const DocumentChangeSchema: GenMessage<DocumentChange> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 22);
+  messageDesc(file_plux_v1_document, 25);
 
 /**
  * @generated from message plux.v1.RestoreSnapshotRequest
@@ -745,7 +845,7 @@ export type RestoreSnapshotRequest = Message<"plux.v1.RestoreSnapshotRequest"> &
  * Use `create(RestoreSnapshotRequestSchema)` to create a new message.
  */
 export const RestoreSnapshotRequestSchema: GenMessage<RestoreSnapshotRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 23);
+  messageDesc(file_plux_v1_document, 26);
 
 /**
  * @generated from message plux.v1.RestoreSnapshotResponse
@@ -767,7 +867,7 @@ export type RestoreSnapshotResponse = Message<"plux.v1.RestoreSnapshotResponse">
  * Use `create(RestoreSnapshotResponseSchema)` to create a new message.
  */
 export const RestoreSnapshotResponseSchema: GenMessage<RestoreSnapshotResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 24);
+  messageDesc(file_plux_v1_document, 27);
 
 /**
  * @generated from message plux.v1.ExportDraftRequest
@@ -789,7 +889,7 @@ export type ExportDraftRequest = Message<"plux.v1.ExportDraftRequest"> & {
  * Use `create(ExportDraftRequestSchema)` to create a new message.
  */
 export const ExportDraftRequestSchema: GenMessage<ExportDraftRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 25);
+  messageDesc(file_plux_v1_document, 28);
 
 /**
  * @generated from message plux.v1.ExportDraftResponse
@@ -811,7 +911,7 @@ export type ExportDraftResponse = Message<"plux.v1.ExportDraftResponse"> & {
  * Use `create(ExportDraftResponseSchema)` to create a new message.
  */
 export const ExportDraftResponseSchema: GenMessage<ExportDraftResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 26);
+  messageDesc(file_plux_v1_document, 29);
 
 /**
  * @generated from message plux.v1.ImportDraftRequest
@@ -850,7 +950,7 @@ export type ImportDraftRequest = Message<"plux.v1.ImportDraftRequest"> & {
  * Use `create(ImportDraftRequestSchema)` to create a new message.
  */
 export const ImportDraftRequestSchema: GenMessage<ImportDraftRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 27);
+  messageDesc(file_plux_v1_document, 30);
 
 /**
  * @generated from message plux.v1.ImportDraftResponse
@@ -877,7 +977,7 @@ export type ImportDraftResponse = Message<"plux.v1.ImportDraftResponse"> & {
  * Use `create(ImportDraftResponseSchema)` to create a new message.
  */
 export const ImportDraftResponseSchema: GenMessage<ImportDraftResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_document, 28);
+  messageDesc(file_plux_v1_document, 31);
 
 /**
  * DocumentService reads and writes the documents of a draft: pages, action
@@ -964,6 +1064,18 @@ export const DocumentService: GenService<{
     methodKind: "unary";
     input: typeof ListSnapshotsRequestSchema;
     output: typeof ListSnapshotsResponseSchema;
+  },
+  /**
+   * ListEditorSessionEntries lists an editor session's writes to a draft,
+   * newest first, with the inverse patch of each, for Studio's undo
+   * rebuild after a reload (STU-069, ADR-0095).
+   *
+   * @generated from rpc plux.v1.DocumentService.ListEditorSessionEntries
+   */
+  listEditorSessionEntries: {
+    methodKind: "unary";
+    input: typeof ListEditorSessionEntriesRequestSchema;
+    output: typeof ListEditorSessionEntriesResponseSchema;
   },
   /**
    * @generated from rpc plux.v1.DocumentService.GetSnapshot

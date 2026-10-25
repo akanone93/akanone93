@@ -1601,18 +1601,19 @@ type Session struct {
 }
 
 type Snapshot struct {
-	ID             pgtype.UUID
-	OrganizationID pgtype.UUID
-	DraftID        pgtype.UUID
-	Sequence       int64
-	Revision       int64
-	Reason         string
-	Applied        bool
-	ActorKind      string
-	ActorID        string
-	ActorDisplay   string
-	Keep           bool
-	CreatedAt      pgtype.Timestamptz
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	DraftID         pgtype.UUID
+	Sequence        int64
+	Revision        int64
+	Reason          string
+	Applied         bool
+	ActorKind       string
+	ActorID         string
+	ActorDisplay    string
+	Keep            bool
+	CreatedAt       pgtype.Timestamptz
+	EditorSessionID string
 }
 
 type SnapshotDocument struct {
@@ -1622,6 +1623,7 @@ type SnapshotDocument struct {
 	Kind           string
 	Sha256         []byte
 	Carried        bool
+	InversePatch   []byte
 }
 
 type StepUpRequest struct {
