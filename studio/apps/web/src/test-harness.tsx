@@ -17,6 +17,8 @@ import {
   NotificationService,
   OrganizationSchema,
   OrgService,
+  PluginSchema,
+  PluginService,
   PreferencesSchema,
   PreferencesService,
   UserSchema,
@@ -48,6 +50,8 @@ export interface Upstream {
   surface?: SurfaceFactory;
   validator?: ValidatorFactory;
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
+  /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
+  pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
   appDocuments?: { kind: string; path: string; json: unknown }[];
   updates?: { paths: string[]; theme: string; language: string; density: string }[];
 }
@@ -103,15 +107,22 @@ export function createUpstream(state: Upstream) {
         };
       },
     });
+    service(PluginService, {
+      listPlugins: () => ({
+        plugins: Object.keys(state.pluginDocuments ?? {}).map((id) => create(PluginSchema, { id, key: id })),
+      }),
+    });
     service(DocumentService, {
       listDocuments: (req) => ({
-        documents: (req.pluginId === "" ? (state.appDocuments ?? state.documents ?? []) : (state.documents ?? [])).map(
-          (d) =>
-            create(DocumentSchema, {
-              kind: d.kind,
-              path: d.path,
-              content: new TextEncoder().encode(JSON.stringify(d.json)),
-            }),
+        documents: (req.pluginId === ""
+          ? (state.appDocuments ?? state.documents ?? [])
+          : (state.pluginDocuments?.[req.pluginId] ?? state.documents ?? [])
+        ).map((d) =>
+          create(DocumentSchema, {
+            kind: d.kind,
+            path: d.path,
+            content: new TextEncoder().encode(JSON.stringify(d.json)),
+          }),
         ),
       }),
     });
