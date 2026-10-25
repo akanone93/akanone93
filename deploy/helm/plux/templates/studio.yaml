@@ -27,6 +27,7 @@ data:
   stateSecret: {{ if and $found (hasKey $found.data "stateSecret") }}{{ index $found.data "stateSecret" }}{{ else }}{{ randAlphaNum 64 | b64enc }}{{ end }}
 {{- end }}
 {{- $apiScheme := ternary "https" "http" (eq (include "plux.apiTLS" .) "true") }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
