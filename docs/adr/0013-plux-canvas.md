@@ -83,9 +83,14 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
 
 ### Threading
 
-- **One dedicated canvas worker** owns layout, CanvasKit, the scene graph and hit-testing, and
+- **One dedicated canvas worker** owns layout, CanvasKit and the scene graph, and
   draws through `transferControlToOffscreen()`, so no frame is copied. React and the document
   stay on the main thread; edits reach the worker as one JSON Patch stream (A5.1).
+- **Hit-testing and the selection overlay run on the main thread** (Revision 2026-10-25): the
+  host keeps a grid index of item bounds, fed from the same patch stream, so a hover or click
+  answers without a worker round trip; the selection outline and handles are drawn on a small
+  main-thread canvas above the base, so selecting never re-renders the base. The cost is a
+  second copy of the item bounds in memory.
 - One worker, not two: layout needs SkParagraph, and splitting would load CanvasKit and fonts twice.
 - The module talks only through its message interface, so the same code runs on the main thread
   as the fallback where worker WebGL is missing. No WebGL2 shows an "unsupported browser" message.
