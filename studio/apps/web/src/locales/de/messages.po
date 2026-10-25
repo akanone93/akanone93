@@ -7,6 +7,12 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: de\n"
 
+#. Appended to the title of a duplicated screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.copySuffix"
+msgstr "(Kopie)"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -36,6 +42,12 @@ msgstr "{count, plural, one {# Warnung} other {# Warnungen}}"
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "chip.offline-waiting"
 msgstr "{count, plural, one {Offline — # Änderung wartet} other {Offline — # Änderungen warten}}"
+
+#. Announced to screen readers when several elements are selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionMany"
+msgstr "{count, plural, one {# Element ausgewählt} other {# Elemente ausgewählt}}"
 
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
@@ -72,6 +84,12 @@ msgstr "{holder} hat die Bearbeitung übernommen. Ihre Arbeit bis dahin bleibt a
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.requested"
 msgstr "{holder} wurde gebeten, das Plugin zu übergeben."
+
+#. Announced to screen readers when one element is selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionOne"
+msgstr "{name} ausgewählt"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -151,6 +169,12 @@ msgstr "Authentifizierungscode"
 msgid "dialog.justification.title"
 msgstr "Begründung für Notfallzugriff"
 
+#. Button that closes a dialog without changing anything.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.cancel"
+msgstr "Abbrechen"
+
 #. Dialog button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -162,6 +186,12 @@ msgstr "Abbrechen"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.cancel"
 msgstr "Abbrechen"
+
+#. Accessible name of the toolbar under the plugin canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.actionBar"
+msgstr "Canvas-Aktionen"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -185,6 +215,12 @@ msgstr "Passwort wählen"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
+msgstr "Schließen"
+
+#. Accessible name of the close button of a dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.close"
 msgstr "Schließen"
 
 #. Accessible name of the D35 close button.
@@ -271,6 +307,18 @@ msgstr "In die Zwischenablage kopiert"
 msgid "editor.conflict.copy-mine"
 msgstr "Meine als JSON kopieren"
 
+#. Button that confirms creating a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.create"
+msgstr "Erstellen"
+
+#. Accessible name of the select that chooses the screen the screen actions apply to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.currentScreen"
+msgstr "Aktueller Bildschirm"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -288,6 +336,24 @@ msgstr "Entscheidung: {decision}"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.decision"
 msgstr "Entscheidung: {decision}"
+
+#. Button that confirms deleting a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.delete"
+msgstr "Löschen"
+
+#. Question that asks to confirm deleting a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.confirmDelete"
+msgstr "{title} löschen? Das Dokument wird aus dem Entwurf entfernt."
+
+#. Command that deletes the current screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.deleteScreen"
+msgstr "Bildschirm löschen"
 
 #. Label of the density choice.
 #. js-lingui-explicit-id
@@ -312,6 +378,18 @@ msgstr "Dokumentation"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.drawer"
 msgstr "Schublade"
+
+#. Command that copies the current screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.duplicateScreen"
+msgstr "Bildschirm duplizieren"
+
+#. Command that copies the selected canvas elements right after themselves.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.duplicate"
+msgstr "Auswahl duplizieren"
 
 #. Label of the email field.
 #. js-lingui-explicit-id
@@ -366,6 +444,12 @@ msgstr "Ereignistyp"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.explain"
 msgstr "Zugriff erklären"
+
+#. Button that fits all screens into the view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomFit"
+msgstr "Einpassen"
 
 #. Caption of the shortcuts page.
 #. js-lingui-explicit-id
@@ -517,6 +601,18 @@ msgstr "Navigation"
 msgid "cmd.disabled.reason"
 msgstr "Benötigt die Berechtigung {permission}"
 
+#. Button and command that create a blank screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.newScreen"
+msgstr "Neuer Bildschirm"
+
+#. Default title of a newly created screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.untitled"
+msgstr "Neuer Bildschirm"
+
 #. Shown when the filter matches nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -540,6 +636,12 @@ msgstr "Keine Probleme gefunden."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
+
+#. Announced to screen readers when the canvas selection becomes empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionNone"
+msgstr "Nichts ausgewählt"
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
@@ -661,11 +763,29 @@ msgstr "Erneut übernehmen und anwenden"
 msgid "chip.reconnecting"
 msgstr "Verbindung wird wiederhergestellt"
 
+#. Button that repeats the last undone edit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.redo"
+msgstr "Wiederholen"
+
 #. Button that reloads the page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "banner.reload"
 msgstr "Neu laden"
+
+#. Button that confirms renaming a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.rename"
+msgstr "Umbenennen"
+
+#. Command that renames the current screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.renameScreen"
+msgstr "Bildschirm umbenennen"
 
 #. Button: ask the person holding the lock to hand it over.
 #. js-lingui-explicit-id
@@ -678,6 +798,18 @@ msgstr "Bearbeitung anfragen"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.saved"
 msgstr "Gespeichert"
+
+#. Label of the text field that names a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.screenTitle"
+msgstr "Titel des Bildschirms"
+
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.screens"
+msgstr "Bildschirme"
 
 #. Label of the list of the plugin's screens, in the order the navigation flow reaches them.
 #. js-lingui-explicit-id
@@ -847,11 +979,23 @@ msgstr "Die Sperre konnte nicht übernommen werden: Die Person hat wieder bearbe
 msgid "auth.error.passkey"
 msgstr "Der Passkey konnte nicht verwendet werden."
 
+#. Reason a screen cannot be deleted: another screen navigates to it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.blockedNavigate"
+msgstr "Der Bildschirm {title} navigiert dorthin. Entferne zuerst diesen Schritt."
+
 #. Shown when loading the plugin's screens failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.failed"
 msgstr "Die Bildschirme konnten nicht geladen werden."
+
+#. Shown when a screen action failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.writeFailed"
+msgstr "Der Server hat die Änderung nicht akzeptiert."
 
 #. Shown in the Problems tab when the validator failed to start or crashed.
 #. js-lingui-explicit-id
@@ -883,6 +1027,12 @@ msgstr "Diese Aktion erfordert eine neue Prüfung mit Ihrem Sicherheitsschlüsse
 msgid "unsupported.title"
 msgstr "Dieser Browser wird nicht unterstützt"
 
+#. Reason a screen cannot be deleted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.blockedEntry"
+msgstr "Dies ist die Einstiegsseite des Plugins. Wähle zuerst eine andere Einstiegsseite, bevor du sie löschst."
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -907,6 +1057,18 @@ msgstr "Dieses Plugin wurde auf dem Server geändert"
 msgid "pluginCanvas.empty"
 msgstr "Dieses Plugin hat noch keine Bildschirme."
 
+#. Heading of the dialog that lists what blocks deleting a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.blockedTitle"
+msgstr "Dieser Bildschirm kann nicht gelöscht werden"
+
+#. Shown when a screen cannot be deleted while edits are waiting to be saved.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.pendingSave"
+msgstr "Dieser Bildschirm hat ungespeicherte Änderungen. Warte, bis sie gespeichert sind, und versuche es dann erneut."
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -925,11 +1087,23 @@ msgstr "Geben Sie {phrase} zur Bestätigung ein"
 msgid "cmd.palette.search"
 msgstr "Befehl eingeben"
 
+#. Button that undoes the last edit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.undo"
+msgstr "Rückgängig"
+
 #. Toggle that hides read notifications.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.unread-only"
 msgstr "Nur ungelesene"
+
+#. Command that replaces the selected container on the canvas by its children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.unwrap"
+msgstr "Einbettung der Auswahl aufheben"
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
@@ -979,6 +1153,12 @@ msgstr "Wo sich deine Version und die des Servers unterscheiden"
 msgid "dialog.explain.title"
 msgstr "Warum ist das nicht verfügbar?"
 
+#. Command that wraps the selected canvas elements in a new column.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.wrap"
+msgstr "Auswahl in Spalte einbetten"
+
 #. Read-only banner: the same person holds the lock in another browser tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -990,6 +1170,12 @@ msgstr "Sie bearbeiten dieses Plugin in einem anderen Tab."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.noorg.title"
 msgstr "Sie gehören noch keiner Organisation an"
+
+#. Shown when a screen action needs the server and the browser is offline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.offline"
+msgstr "Du bist offline. Es wurde nichts geändert; versuche es erneut, sobald die Verbindung wieder da ist."
 
 #. Heading of the page shown after signing out.
 #. js-lingui-explicit-id
@@ -1068,3 +1254,15 @@ msgstr "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an, um fortzufahren;
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoom"
 msgstr "Zoom {percent} %"
+
+#. Button that zooms the canvas in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomIn"
+msgstr "Vergrößern"
+
+#. Button that zooms the canvas out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomOut"
+msgstr "Verkleinern"

@@ -32,11 +32,14 @@ function useTakeoverOpen(lock: LockController, now: () => number): boolean {
 export function LockBanner({
   lock,
   canEdit = true,
+  canOverride = false,
   now = Date.now,
 }: {
   readonly lock: LockController;
   /** Whether this user may edit at all; viewers get no "Request edit". */
   readonly canEdit?: boolean;
+  /** Holds plugin.lock.override: only then is "Take over" (D36) shown. */
+  readonly canOverride?: boolean;
   readonly now?: () => number;
 }): ReactElement | null {
   const m = lockMessages(useLingui().i18n);
@@ -77,14 +80,14 @@ export function LockBanner({
     >
       <span className="grow">{m.heldBy(held.holder, held.acquiredAt)}</span>
       {state.requested && <span className="text-secondary">{m.requested(held.holder)}</span>}
-      {!open && <span className="text-secondary">{m.takeOverFrom(held.takeoverAllowedAt)}</span>}
+      {canOverride && !open && <span className="text-secondary">{m.takeOverFrom(held.takeoverAllowedAt)}</span>}
       {state.takeoverRefused && <span className="text-secondary">{m.takeoverRefused}</span>}
       {canEdit && (
         <Button variant="secondary" onClick={() => void lock.request()}>
           {m.requestEdit}
         </Button>
       )}
-      {canEdit && (
+      {canEdit && canOverride && (
         <Button variant="primary" disabled={!open} onClick={() => setConfirm(true)}>
           {m.takeOver}
         </Button>

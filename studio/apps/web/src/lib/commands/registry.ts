@@ -3,7 +3,7 @@
 
 import type { PermissionName } from "@plux/schema";
 
-export type CommandGroup = "navigate" | "organisation" | "account" | "appearance";
+export type CommandGroup = "navigate" | "organisation" | "account" | "appearance" | "edit" | "screens";
 
 /**
  * A palette command (STU-013, M-7). `permission` names the server permission that guards the RPC the command
@@ -119,4 +119,12 @@ export function isEditable(target: EventTarget | null): boolean {
     target.contentEditable === "true" ||
     ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
   );
+}
+
+/**
+ * The registry of the global commands plus the commands a page registered for its lifetime. The duplicate-id
+ * and shortcut-collision checks span both, so a page cannot shadow a global command or another page's chord.
+ */
+export function mergeScoped(global: Registry, scoped: readonly Command[]): Registry {
+  return createRegistry([...global.commands, ...scoped]);
 }
