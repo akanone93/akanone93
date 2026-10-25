@@ -11,6 +11,7 @@ import { Offset } from "./flutter/geometry.ts";
 import type { RenderObject } from "./flutter/object.ts";
 import { RenderParagraph } from "./flutter/paragraph.ts";
 import { RenderBox, TextBaseline } from "./flutter/render-box.ts";
+import { providesChildPaintOffset, RenderSliver } from "./flutter/sliver.ts";
 
 /** A rectangle in logical pixels relative to the root's origin. */
 export interface NodeRect {
@@ -40,13 +41,21 @@ export interface LayoutGolden {
 
 /**
  * Walks the tree from `root` and returns the global rect of every laid-out
- * box with a [RenderObject.debugId]. A box's position is the sum of the
+ * box or sliver with a [RenderObject.debugId]. A box's position is the sum of the
  * [BoxParentData] offsets from `root` down to it. Throws if two boxes share
  * an ID, since a golden could not tell them apart.
  */
 export function globalRects(root: RenderObject): Map<string, NodeRect> {
   const rects = new Map<string, NodeRect>();
   const visit = (node: RenderObject, origin: Offset): void => {
+    if (node.debugId !== null && node instanceof RenderSliver && node.geometry !== null) {
+      // A sliver has no size: its rect is its paint area, as Flutter's golden writer measures it.
+      if (rects.has(node.debugId)) {
+        throw new Error(`duplicate debugId "${node.debugId}" in the render tree`);
+      }
+      const bounds = node.paintBounds;
+      rects.set(node.debugId, { x: origin.dx, y: origin.dy, w: bounds.width, h: bounds.height });
+    }
     if (node.debugId !== null && node instanceof RenderBox && node.hasSize) {
       if (rects.has(node.debugId)) {
         throw new Error(`duplicate debugId "${node.debugId}" in the render tree`);
@@ -59,7 +68,10 @@ export function globalRects(root: RenderObject): Map<string, NodeRect> {
       });
     }
     node.visitChildren((child) => {
-      visit(child, origin.plus(RenderBox.offsetOf(child)));
+      visit(
+        child,
+        origin.plus(providesChildPaintOffset(node) ? node.childPaintOffset(child) : RenderBox.offsetOf(child)),
+      );
     });
   };
   visit(root, Offset.zero);

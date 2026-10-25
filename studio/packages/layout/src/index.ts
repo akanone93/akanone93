@@ -7,6 +7,7 @@
  * the device does.
  */
 
+export { ChildList, type ChildListHost, type ContainerParentData } from "./flutter/child-list.ts";
 export { BoxConstraints, type Constraints } from "./flutter/constraints.ts";
 export { ContainerBoxParentData, ContainerRenderBox } from "./flutter/container.ts";
 export {
@@ -58,6 +59,74 @@ export {
   RenderShiftedBox,
 } from "./flutter/shifted-box.ts";
 export {
+  AxisDirection,
+  applyGrowthDirectionToAxisDirection,
+  applyGrowthDirectionToScrollDirection,
+  axisDirectionIsReversed,
+  axisDirectionToAxis,
+  type ChildPaintOffsetProvider,
+  FixedViewportOffset,
+  flipAxis,
+  flipAxisDirection,
+  GrowthDirection,
+  type ItemExtentBuilder,
+  PageViewportOffset,
+  providesChildPaintOffset,
+  RenderSliver,
+  RenderSliverSingleBoxAdapter,
+  RenderSliverToBoxAdapter,
+  ScrollDirection,
+  SliverConstraints,
+  type SliverConstraintsInit,
+  SliverGeometry,
+  type SliverGeometryInit,
+  type SliverLayoutDimensions,
+  SliverLogicalParentData,
+  SliverPhysicalParentData,
+  textDirectionToAxisDirection,
+  type ViewportOffset,
+} from "./flutter/sliver.ts";
+export {
+  RenderSliverFillRemaining,
+  RenderSliverFillRemainingAndOverscroll,
+  RenderSliverFillRemainingWithScrollable,
+} from "./flutter/sliver-fill.ts";
+export {
+  RenderSliverGrid,
+  type SliverGridDelegate,
+  SliverGridDelegateWithFixedCrossAxisCount,
+  SliverGridDelegateWithMaxCrossAxisExtent,
+  SliverGridGeometry,
+  type SliverGridLayout,
+  SliverGridParentData,
+  SliverGridRegularTileLayout,
+  type SliverGridSpacing,
+} from "./flutter/sliver-grid.ts";
+export {
+  PrebuiltChildManager,
+  type RenderSliverBoxChildManager,
+  RenderSliverFillViewport,
+  RenderSliverFixedExtentBoxAdaptor,
+  RenderSliverFixedExtentList,
+  RenderSliverList,
+  RenderSliverMultiBoxAdaptor,
+  RenderSliverVariedExtentList,
+  SliverMultiBoxAdaptorParentData,
+} from "./flutter/sliver-list.ts";
+export {
+  RenderSliverEdgeInsetsPadding,
+  RenderSliverFractionalPadding,
+  RenderSliverPadding,
+} from "./flutter/sliver-padding.ts";
+export {
+  RenderSliverFloatingPersistentHeader,
+  RenderSliverFloatingPinnedPersistentHeader,
+  RenderSliverPersistentHeader,
+  type RenderSliverPersistentHeaderOptions,
+  RenderSliverPinnedPersistentHeader,
+  RenderSliverScrollingPersistentHeader,
+} from "./flutter/sliver-persistent-header.ts";
+export {
   RenderIndexedStack,
   type RenderIndexedStackOptions,
   RenderStack,
@@ -84,6 +153,18 @@ export {
   type TextStyle,
 } from "./flutter/text-style.ts";
 export { RenderView } from "./flutter/view.ts";
+export {
+  CacheExtentStyle,
+  defaultCacheExtent,
+  RenderShrinkWrappingViewport,
+  RenderViewport,
+  RenderViewportBase,
+  type RenderViewportBaseOptions,
+  type RenderViewportOptions,
+  ScrollCacheExtent,
+  SliverLogicalContainerParentData,
+  SliverPhysicalContainerParentData,
+} from "./flutter/viewport.ts";
 export {
   RenderWrap,
   type RenderWrapOptions,
