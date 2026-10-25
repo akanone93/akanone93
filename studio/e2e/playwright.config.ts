@@ -37,6 +37,7 @@ export default defineConfig({
       cwd: "..",
       env: {
         PLUX_BFF_API_UPSTREAM: "http://127.0.0.1:9",
+        PLUX_BFF_STATE_SECRET: "ZTJlLXRlc3Qtc3RhdGUtc2VjcmV0LW5vdC1mb3ItcHJvZHVjdGlvbg",
         PLUX_BFF_PORT: String(bffPort),
         PLUX_BFF_PUBLIC_BASE_URL: `http://127.0.0.1:${bffPort}`,
       },

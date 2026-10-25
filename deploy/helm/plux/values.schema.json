@@ -1317,6 +1317,12 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "docsUrl": {
+          "type": "string"
+        },
+        "existingSecret": {
+          "type": "string"
+        },
         "enabled": {
           "type": "boolean"
         },

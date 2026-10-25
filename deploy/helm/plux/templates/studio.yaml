@@ -7,6 +7,25 @@
 {{- if .Values.studio.enabled }}
 {{- $name := printf "%s-studio" (include "plux.fullname" .) }}
 {{- $ctx := dict "root" . "role" "studio" "v" .Values.studio }}
+{{- if not .Values.studio.existingSecret }}
+{{- $stateName := printf "%s-state" $name }}
+{{- $found := lookup "v1" "Secret" .Release.Namespace $stateName }}
+---
+# The sign-in state key (PLUX_BFF_STATE_SECRET). Every replica must hold the
+# same value, or a callback that lands on another replica fails; generated once
+# (64 random alphanumerics, above the 32-byte minimum) and kept across upgrades.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $stateName }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "studio") | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+type: Opaque
+data:
+  stateSecret: {{ if and $found (hasKey $found.data "stateSecret") }}{{ index $found.data "stateSecret" }}{{ else }}{{ randAlphaNum 64 | b64enc }}{{ end }}
+{{- end }}
 {{- $apiScheme := ternary "https" "http" (eq (include "plux.apiTLS" .) "true") }}
 apiVersion: apps/v1
 kind: Deployment
@@ -48,6 +67,9 @@ spec:
           env:
             - {name: PLUX_BFF_API_UPSTREAM, value: {{ printf "%s://%s-api:%v" $apiScheme (include "plux.fullname" .) .Values.api.service.port | quote }}}
             - {name: PLUX_BFF_PUBLIC_BASE_URL, value: {{ required "studio.publicBaseUrl is required when studio.enabled" .Values.studio.publicBaseUrl | quote }}}
+            - name: PLUX_BFF_STATE_SECRET
+              valueFrom:
+                secretKeyRef: {name: {{ default (printf "%s-state" $name) .Values.studio.existingSecret | quote }}, key: stateSecret}
             {{- with .Values.studio.docsUrl }}
             - {name: PLUX_BFF_DOCS_URL, value: {{ . | quote }}}
             {{- end }}
