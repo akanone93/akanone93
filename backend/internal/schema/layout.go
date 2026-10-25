@@ -54,6 +54,7 @@ func (r *run) loadPlugins(p *Project) {
 // loadPlugin loads one plugin directory.
 func (r *run) loadPlugin(dir string) Plugin {
 	pl := Plugin{Dir: dir, Loaded: load[PluginDocument](r, path.Join(dir, "plugin.json"), KindPlugin)}
+	pl.Canvas = loadOptional[CanvasDocument](r, path.Join(dir, "canvas.json"), KindCanvas)
 	pl.Pages = loadAll[PageDocument](r, path.Join(dir, "pages"), ".page.json", KindPage)
 	pl.Components = loadAll[ComponentDocument](r, path.Join(dir, "components"), ".component.json", KindComponent)
 	pl.Graphs = loadAll[ActionGraphDocument](r, path.Join(dir, "actions"), ".graph.json", KindActionGraph)
@@ -187,6 +188,8 @@ func PlaceOf(p string) (Place, bool) {
 		return Place{Kind: KindTranslationKeys}, true
 	case "assets/index.json":
 		return Place{Kind: KindAssetIndex}, true
+	case "canvas.json":
+		return Place{Kind: KindCanvas}, true
 	}
 	parts := strings.Split(p, "/")
 	switch {
@@ -208,6 +211,8 @@ func PlaceOf(p string) (Place, bool) {
 		return Place{Kind: KindFunction, Key: parts[1]}, ValidFunctionName(parts[1])
 	case len(parts) == 3 && parts[0] == "plugins" && parts[2] == "plugin.json":
 		return Place{Kind: KindPlugin, Plugin: parts[1]}, validKey(parts[1])
+	case len(parts) == 3 && parts[0] == "plugins" && parts[2] == "canvas.json" && validKey(parts[1]):
+		return Place{Kind: KindCanvas, Plugin: parts[1]}, true
 	case len(parts) == 4 && parts[0] == "plugins" && validKey(parts[1]):
 		in := Place{Plugin: parts[1]}
 		switch parts[2] {

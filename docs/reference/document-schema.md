@@ -11,6 +11,7 @@ Every Plux document is JSON validated by the JSON Schema 2020-12 files in `schem
 | `actionGraph` | [ActionGraphDocument](#actiongraphdocument) | `schema/json/action-graph.schema.json` | A named action graph: page-scoped when `page` is set, otherwise a plugin flow callable with typed inputs (§14.1, ACT-061). File: `plugins/<plugin>/actions/<key>.graph.json`. |
 | `app` | [AppDocument](#appdocument) | `schema/json/app.schema.json` | An app: its plugins, theme, locales, environments, shared data and policies (SCH-020). File: `app.json`. |
 | `assetIndex` | [AssetIndexDocument](#assetindexdocument) | `schema/json/asset-index.schema.json` | The assets of an app, stored under `assets/` and referenced by identifier (§14.8). File: `assets/index.json`. |
+| `canvas` | [CanvasDocument](#canvasdocument) | `schema/json/canvas.schema.json` | Editor-only layout of the Studio canvas: where plugin boxes and frames sit in an app, or where screens sit in a plugin (STU-032, STU-035, STU-050). It is versioned and snapshotted like any document and is never compiled into a bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin). |
 | `component` | [ComponentDocument](#componentdocument) | `schema/json/component.schema.json` | A reusable component with typed props, slots, events and internal state (SCH-030). File: `components/<key>.component.json` (app-shared) or `plugins/<plugin>/components/<key>.component.json`. |
 | `experiment` | [ExperimentDocument](#experimentdocument) | `schema/json/experiment.schema.json` | An experiment: a control and variants with their allocation, audience, schedule and metrics (ABT-001). Its `key` is the PXL name in `experiment.<key>` and the `experiment` of a `Variant` node. File: `experiments/<key>.experiment.json`. |
 | `flag` | [FlagDocument](#flagdocument) | `schema/json/flag.schema.json` | A typed feature flag with its default and its value per segment, read in PXL as `flags.<key>` and through generated host accessors (ABT-006). File: `flags/<key>.flag.json`. |
@@ -183,6 +184,38 @@ One of `AL0`, `AL1`, `AL2`, `AL3`.
 A calendar system (I18N-010).
 
 One of `gregorian`, `ethiopic`, `islamicUmalqura`, `persian`.
+
+### CanvasDocument
+
+Editor-only layout of the Studio canvas: where plugin boxes and frames sit in an app, or where screens sit in a plugin (STU-032, STU-035, STU-050). It is versioned and snapshotted like any document and is never compiled into a bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin).
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `schemaVersion` | string | yes | Version of the document schema (SCH-000). Older documents are migrated before validation. |
+| `kind` | `"canvas"` | yes |  |
+| `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
+| `positions` | list of [CanvasPosition](#canvasposition) |  | The top-left corner of each box: a plugin in an app canvas, a screen (page) in a plugin canvas. The number of entries is bounded by the limit canvas.positions. |
+| `frames` | list of [CanvasFrame](#canvasframe) |  | Labelled groups of plugins (STU-035), for example "Onboarding" or "Payments". Only app canvases carry frames. The number of entries is bounded by the limit canvas.frames. |
+
+### CanvasFrame
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
+| `label` | string | yes |  |
+| `x` | number | yes | A coordinate in canvas world units. |
+| `y` | number | yes | A coordinate in canvas world units. |
+| `width` | number | yes |  |
+| `height` | number | yes |  |
+| `members` | list of string |  | The ids of the plugins in the frame. The number of entries is bounded by the limit canvas.frameMembers. |
+
+### CanvasPosition
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | yes | The id of the plugin or page the box shows. |
+| `x` | number | yes | A coordinate in canvas world units. |
+| `y` | number | yes | A coordinate in canvas world units. |
 
 ### Capabilities
 

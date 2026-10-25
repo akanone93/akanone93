@@ -7,7 +7,7 @@
 export type JsonValue = null | boolean | number | string | readonly JsonValue[] | { readonly [key: string]: JsonValue };
 
 /** The `kind` of every document type (SCH-006). */
-export type DocumentKind = "actionGraph" | "app" | "assetIndex" | "component" | "experiment" | "flag" | "function" | "nativeCatalogue" | "page" | "plugin" | "policy" | "scenarios" | "segment" | "template" | "theme" | "translationKeys" | "translations";
+export type DocumentKind = "actionGraph" | "app" | "assetIndex" | "canvas" | "component" | "experiment" | "flag" | "function" | "nativeCatalogue" | "page" | "plugin" | "policy" | "scenarios" | "segment" | "template" | "theme" | "translationKeys" | "translations";
 
 /** A named action graph: page-scoped when `page` is set, otherwise a plugin flow callable with typed inputs (§14.1, ACT-061). File: `plugins/<plugin>/actions/<key>.graph.json`. */
 export interface ActionGraphDocument {
@@ -192,6 +192,48 @@ export type AssuranceLevel = "AL0" | "AL1" | "AL2" | "AL3";
 
 /** A calendar system (I18N-010). */
 export type Calendar = "gregorian" | "ethiopic" | "islamicUmalqura" | "persian";
+
+/** Editor-only layout of the Studio canvas: where plugin boxes and frames sit in an app, or where screens sit in a plugin (STU-032, STU-035, STU-050). It is versioned and snapshotted like any document and is never compiled into a bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin). */
+export interface CanvasDocument {
+  /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
+  readonly schemaVersion: string;
+  readonly kind: "canvas";
+  /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
+  readonly id: string;
+  /** The top-left corner of each box: a plugin in an app canvas, a screen (page) in a plugin canvas. The number of entries is bounded by the limit canvas.positions. */
+  readonly positions?: readonly CanvasPosition[];
+  /** Labelled groups of plugins (STU-035), for example "Onboarding" or "Payments". Only app canvases carry frames. The number of entries is bounded by the limit canvas.frames. */
+  readonly frames?: readonly CanvasFrame[];
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+export interface CanvasFrame {
+  /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
+  readonly id: string;
+  readonly label: string;
+  /** A coordinate in canvas world units. */
+  readonly x: number;
+  /** A coordinate in canvas world units. */
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  /** The ids of the plugins in the frame. The number of entries is bounded by the limit canvas.frameMembers. */
+  readonly members?: readonly string[];
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+export interface CanvasPosition {
+  /** The id of the plugin or page the box shows. */
+  readonly id: string;
+  /** A coordinate in canvas world units. */
+  readonly x: number;
+  /** A coordinate in canvas world units. */
+  readonly y: number;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
 
 /** Capabilities the plugin requests; everything else is denied (SEC-080). */
 export interface Capabilities {
