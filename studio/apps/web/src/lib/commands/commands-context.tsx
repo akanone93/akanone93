@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createContext, type ReactNode, use, useEffect } from "react";
-import { type CommandState, chordOf, isEditable, type Registry } from "./registry.ts";
+import { createContext, type ReactNode, use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type Command, type CommandState, chordOf, isEditable, mergeScoped, type Registry } from "./registry.ts";
 
 export interface CommandsValue {
   readonly registry: Registry;
@@ -10,9 +10,36 @@ export interface CommandsValue {
 }
 
 const Context = createContext<CommandsValue | null>(null);
+type Register = (key: string, commands: readonly Command[]) => () => void;
+const RegisterContext = createContext<Register | null>(null);
 
 /** Provides the registry and installs the global shortcut handler (no events from inputs or contenteditable). */
-export function CommandsProvider({ value, children }: { value: CommandsValue; children: ReactNode }) {
+export function CommandsProvider({ value: base, children }: { value: CommandsValue; children: ReactNode }) {
+  const [scopes, setScopes] = useState<ReadonlyMap<string, readonly Command[]>>(new Map());
+  const latest = useRef({ scopes, registry: base.registry });
+  latest.current = { scopes, registry: base.registry };
+  const register = useCallback<Register>((key, commands) => {
+    // Throws on a duplicate id or a shortcut collision with the global or another scoped command.
+    const next = new Map(latest.current.scopes).set(key, commands);
+    mergeScoped(latest.current.registry, [...next.values()].flat());
+    setScopes((old) => new Map(old).set(key, commands));
+    return () =>
+      setScopes((old) => {
+        const rest = new Map(old);
+        rest.delete(key);
+        return rest;
+      });
+  }, []);
+  const value = useMemo<CommandsValue>(() => {
+    const scoped = [...scopes.values()].flat();
+    if (scoped.length === 0) {
+      return base;
+    }
+    return {
+      registry: mergeScoped(base.registry, scoped),
+      states: [...base.states, ...scoped.map((command) => ({ command, enabled: command.permission === null }))],
+    };
+  }, [base, scopes]);
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const chord = chordOf(event);
@@ -34,7 +61,11 @@ export function CommandsProvider({ value, children }: { value: CommandsValue; ch
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [value]);
-  return <Context value={value}>{children}</Context>;
+  return (
+    <RegisterContext value={register}>
+      <Context value={value}>{children}</Context>
+    </RegisterContext>
+  );
 }
 
 export function useCommands(): CommandsValue {
@@ -43,4 +74,10 @@ export function useCommands(): CommandsValue {
     throw new Error("useCommands outside CommandsProvider");
   }
   return value;
+}
+
+/** Registers \`commands\` while the calling component is mounted (page-scoped commands). */
+export function useScopedCommands(key: string, commands: readonly Command[]): void {
+  const register = use(RegisterContext);
+  useEffect(() => (register === null ? undefined : register(key, commands)), [register, key, commands]);
 }

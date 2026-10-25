@@ -31,6 +31,12 @@ msgstr "{count, plural, one {# Warnung} other {# Warnungen}}"
 msgid "chip.offline-waiting"
 msgstr "{count, plural, one {Offline — # Änderung wartet} other {Offline — # Änderungen warten}}"
 
+#. Announced to screen readers when several elements are selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionMany"
+msgstr "{count, plural, one {# Element ausgewählt} other {# Elemente ausgewählt}}"
+
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -42,6 +48,12 @@ msgstr "{count} von höchstens {max} Zeichen"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.unread"
 msgstr "{count} ungelesen"
+
+#. Announced to screen readers when one element is selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionOne"
+msgstr "{name} ausgewählt"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -252,6 +264,12 @@ msgstr "Dokumentation"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.drawer"
 msgstr "Schublade"
+
+#. Command that copies the selected canvas elements right after themselves.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.duplicate"
+msgstr "Auswahl duplizieren"
 
 #. Label of the email field.
 #. js-lingui-explicit-id
@@ -468,6 +486,12 @@ msgstr "Keine Probleme gefunden."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
+
+#. Announced to screen readers when the canvas selection becomes empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionNone"
+msgstr "Nichts ausgewählt"
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
@@ -817,6 +841,12 @@ msgstr "Befehl eingeben"
 msgid "notify.inbox.unread-only"
 msgstr "Nur ungelesene"
 
+#. Command that replaces the selected container on the canvas by its children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.unwrap"
+msgstr "Einbettung der Auswahl aufheben"
+
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -864,6 +894,12 @@ msgstr "Wo sich deine Version und die des Servers unterscheiden"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.title"
 msgstr "Warum ist das nicht verfügbar?"
+
+#. Command that wraps the selected canvas elements in a new column.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.wrap"
+msgstr "Auswahl in Spalte einbetten"
 
 #. Heading shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
