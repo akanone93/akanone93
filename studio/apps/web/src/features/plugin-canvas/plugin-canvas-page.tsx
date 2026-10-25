@@ -6,6 +6,9 @@ import { overflowId } from "@plux/canvas";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RouterContext } from "../../router.tsx";
+import { ProblemCounts, ProblemsDrawer } from "../problems/problems-panel.tsx";
+import { useValidation } from "../problems/use-validation.ts";
+import { browserValidator } from "../problems/validator-client.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { readPlugin } from "./plugin-model.ts";
@@ -20,7 +23,7 @@ import {
   screenStyle,
 } from "./scene.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
-import { usePluginDocuments } from "./use-plugin-documents.ts";
+import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 
 /** Screens placed: saved positions, else flow order (STU-050); the canvas worker lays them out. */
 export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedScreen[] {
@@ -63,8 +66,12 @@ export function PluginCanvasPage() {
   const params = useParams({ strict: false }) as { app?: string; plugin?: string };
   const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number };
   const navigate = useNavigate();
-  const { createSurface = browserSurface } = useRouteContext({ strict: false }) as Pick<RouterContext, "createSurface">;
+  const { createSurface = browserSurface, createValidator = browserValidator } = useRouteContext({
+    strict: false,
+  }) as Pick<RouterContext, "createSurface" | "createValidator">;
   const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
+  const appDocs = useAppDocuments(params.app ?? "");
+  const validation = useValidation(createValidator, appDocs.data, docs.data);
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -171,6 +178,10 @@ export function PluginCanvasPage() {
           </li>
         ))}
       </ol>
+      <div className="absolute end-4 top-4">
+        <ProblemCounts validation={validation} />
+      </div>
+      <ProblemsDrawer validation={validation} />
       <p className="absolute end-4 bottom-4 text-caption text-secondary">{m.zoom(percent)}</p>
     </section>
   );

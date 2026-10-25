@@ -17,6 +17,8 @@ import {
   NotificationService,
   OrganizationSchema,
   OrgService,
+  PluginSchema,
+  PluginService,
   PreferencesSchema,
   PreferencesService,
   UserSchema,
@@ -26,6 +28,7 @@ import { createMemoryHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import { App } from "./app.tsx";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
+import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { I18nProvider } from "./i18n-provider.tsx";
 import { createSession } from "./lib/session.ts";
 import { configureZod } from "./lib/zod.ts";
@@ -45,6 +48,11 @@ export interface Upstream {
   inbox?: { id: string; eventType: string; title: string; read: boolean }[];
   documents?: { kind: string; path: string; json: unknown }[];
   surface?: SurfaceFactory;
+  validator?: ValidatorFactory;
+  /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
+  /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
+  pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
+  appDocuments?: { kind: string; path: string; json: unknown }[];
   updates?: { paths: string[]; theme: string; language: string; density: string }[];
 }
 
@@ -99,9 +107,17 @@ export function createUpstream(state: Upstream) {
         };
       },
     });
+    service(PluginService, {
+      listPlugins: () => ({
+        plugins: Object.keys(state.pluginDocuments ?? {}).map((id) => create(PluginSchema, { id, key: id })),
+      }),
+    });
     service(DocumentService, {
-      listDocuments: () => ({
-        documents: (state.documents ?? []).map((d) =>
+      listDocuments: (req) => ({
+        documents: (req.pluginId === ""
+          ? (state.appDocuments ?? state.documents ?? [])
+          : (state.pluginDocuments?.[req.pluginId] ?? state.documents ?? [])
+        ).map((d) =>
           create(DocumentSchema, {
             kind: d.kind,
             path: d.path,
@@ -121,7 +137,12 @@ export function renderApp(path: string, state: Upstream = {}) {
   const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });
   const history = createMemoryHistory({ initialEntries: [path] });
   const router = createAppRouter(
-    { session, ...(state.surface !== undefined && { createSurface: state.surface }) },
+    {
+      session,
+      ...(state.surface !== undefined && { createSurface: state.surface }),
+      createValidator:
+        state.validator ?? (() => ({ load: async () => [], validatePage: async () => [], dispose: () => undefined })),
+    },
     history,
   );
   const utils = render(
