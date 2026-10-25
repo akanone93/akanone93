@@ -280,6 +280,7 @@ describe("STU-002 version reporting and readiness", () => {
     });
     expect(() => build({ PLUX_BFF_DOCS_URL: "http://docs.example.org" })).toThrow(ConfigError);
     expect(() => build({ PLUX_BFF_DOCS_URL: "not a url" })).toThrow(ConfigError);
+    expect(() => build({ PLUX_BFF_DOCS_URL: "https://user:secret@docs.example.org" })).toThrow(ConfigError);
   });
 
   test("readyz fails when the upstream is older than minServer", async () => {
