@@ -48,6 +48,9 @@ spec:
           env:
             - {name: PLUX_BFF_API_UPSTREAM, value: {{ printf "%s://%s-api:%v" $apiScheme (include "plux.fullname" .) .Values.api.service.port | quote }}}
             - {name: PLUX_BFF_PUBLIC_BASE_URL, value: {{ required "studio.publicBaseUrl is required when studio.enabled" .Values.studio.publicBaseUrl | quote }}}
+            {{- with .Values.studio.docsUrl }}
+            - {name: PLUX_BFF_DOCS_URL, value: {{ . | quote }}}
+            {{- end }}
             {{- with .Values.studio.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

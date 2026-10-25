@@ -17,6 +17,8 @@ export type BffConfig = {
   telemetryEventsPerMinute: number;
   /** Oldest server version this Studio supports (O-16), major.minor. */
   minServer: string;
+  /** Public documentation site (https), shown in Studio's help menu; empty hides the links. */
+  docsUrl: string;
   /** Valkey/Redis URL for shared limits; empty keeps them in memory. */
   valkeyUrl: string;
   /** CIDRs whose X-Forwarded-For is honoured; none by default. */
@@ -114,6 +116,23 @@ function readMinServer(file: Record<string, unknown>, env: Env): string {
   return v;
 }
 
+function readDocsUrl(file: Record<string, unknown>, env: Env): string {
+  const v = String(pick(file, env, "docsUrl", "PLUX_BFF_DOCS_URL") ?? "");
+  if (v === "") {
+    return "";
+  }
+  let u: URL;
+  try {
+    u = new URL(v);
+  } catch {
+    throw new ConfigError("docsUrl must be an https URL");
+  }
+  if (u.protocol !== "https:") {
+    throw new ConfigError("docsUrl must be an https URL");
+  }
+  return u.href.replace(/\/$/, "");
+}
+
 /** Reads the configuration from PLUX_BFF_* variables over an optional JSON file; fails fast. */
 export function loadConfig(env: Env, fileText?: string): LoadedConfig {
   const file = readFile(fileText);
@@ -152,6 +171,7 @@ export function loadConfig(env: Env, fileText?: string): LoadedConfig {
     ),
     telemetryEventsPerMinute: limitDefault("bff.telemetryEventsPerMinute"),
     minServer: readMinServer(file, env),
+    docsUrl: readDocsUrl(file, env),
     valkeyUrl: String(pick(file, env, "valkeyUrl", "PLUX_BFF_VALKEY_URL") ?? ""),
     trustedProxies: String(pick(file, env, "trustedProxies", "PLUX_BFF_TRUSTED_PROXIES") ?? "")
       .split(",")

@@ -87,6 +87,7 @@ function cfg(over: Partial<BffConfig> = {}): BffConfig {
     streamsPerSession: 5,
     telemetryEventsPerMinute: 60,
     minServer: "0.0",
+    docsUrl: "",
     valkeyUrl: "",
     trustedProxies: [],
     stateSecret: "",
