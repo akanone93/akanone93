@@ -9,7 +9,12 @@ import { type BrowserScope, browserWorkerDeps } from "@plux/canvas";
 import { serveCanvasWorker, type WorkerScopeLike } from "@plux/canvas/worker";
 
 type CanvasKitLoader = Parameters<typeof browserWorkerDeps>[1];
-type CanvasKitInit = (options: { locateFile(file: string): string }) => ReturnType<CanvasKitLoader>;
+/** Emscripten's hook: instantiate the module ourselves, from the hashed asset. */
+type InstantiateWasm = (
+  imports: WebAssembly.Imports,
+  done: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+) => object;
+type CanvasKitInit = (options: { instantiateWasm: InstantiateWasm }) => ReturnType<CanvasKitLoader>;
 
 const scriptUrl = new URL("./canvaskit/canvaskit.js", import.meta.url).href;
 const wasmUrl = new URL("./canvaskit/canvaskit.wasm", import.meta.url).href;
@@ -20,6 +25,13 @@ serveCanvasWorker(
   scope,
   browserWorkerDeps(scope, async () => {
     const { default: init } = await importModule(scriptUrl);
-    return init({ locateFile: () => wasmUrl });
+    // This CanvasKit build ignores `locateFile`'s answer and would fetch an unhashed
+    // `canvaskit.wasm`, so the hashed asset is instantiated through the hook.
+    return init({
+      instantiateWasm: (imports, done) => {
+        void WebAssembly.instantiateStreaming(fetch(wasmUrl), imports).then((r) => done(r.instance, r.module));
+        return {};
+      },
+    });
   }),
 );
