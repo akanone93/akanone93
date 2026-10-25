@@ -11,9 +11,9 @@
  */
 
 import { BoxConstraints } from "../constraints.ts";
-import { EdgeInsetsDirectional, Offset, Size, TextDirection } from "../geometry.ts";
-import { BoxParentData, type RenderBox, TextBaseline } from "../render-box.ts";
 import { ContainerRenderBox } from "../container.ts";
+import { EdgeInsetsDirectional, Offset, Size, TextDirection } from "../geometry.ts";
+import { type BoxParentData, type RenderBox, TextBaseline } from "../render-box.ts";
 import { RenderPadding, setChildOffset } from "../shifted-box.ts";
 import type { VisualDensity } from "./theme.ts";
 
@@ -108,6 +108,7 @@ export class RenderListTile extends ContainerRenderBox<RenderBox> {
     }
   }
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: a line-for-line port of _RenderListTile._computeSizes, shared by layout and dry layout
   private layoutSizes(constraints: BoxConstraints, place: boolean): Size {
     const loose = constraints.loosen();
     const tileWidth = loose.maxWidth;
@@ -178,7 +179,10 @@ export class RenderListTile extends ContainerRenderBox<RenderBox> {
       if (trailing !== null && trailingSize !== null) {
         setChildOffset(
           trailing,
-          new Offset(isLtr ? tileWidth - trailingSize.width : 0, this.yOffsetFor(trailingSize.height, tileHeight, false)),
+          new Offset(
+            isLtr ? tileWidth - trailingSize.width : 0,
+            this.yOffsetFor(trailingSize.height, tileHeight, false),
+          ),
         );
       }
     }

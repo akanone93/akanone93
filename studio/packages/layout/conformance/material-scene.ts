@@ -12,14 +12,26 @@
 
 import { BoxConstraints } from "../src/flutter/constraints.ts";
 import type { TextDirection } from "../src/flutter/geometry.ts";
+import {
+  appBarPreferredHeight,
+  buildAppBar,
+  kLeadingWidth,
+  kMaxTitleTextScaleFactor,
+  kMiddleSpacing,
+} from "../src/flutter/material/app-bar.ts";
+import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
+import { buildListTile } from "../src/flutter/material/list-tile.ts";
+import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
+import {
+  kToolbarHeight,
+  MaterialTapTargetSize,
+  m3TextStyle,
+  type TextRole,
+  VisualDensity,
+} from "../src/flutter/material/theme.ts";
 import { RenderConstrainedBox } from "../src/flutter/proxy-box.ts";
 import type { RenderBox } from "../src/flutter/render-box.ts";
 import type { TextStyle } from "../src/flutter/text-style.ts";
-import { buildButton, buildFab, type ButtonKind, type FabKind } from "../src/flutter/material/buttons.ts";
-import { appBarPreferredHeight, buildAppBar, kLeadingWidth, kMiddleSpacing, kMaxTitleTextScaleFactor } from "../src/flutter/material/app-bar.ts";
-import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
-import { buildListTile } from "../src/flutter/material/list-tile.ts";
-import { kToolbarHeight, m3TextStyle, MaterialTapTargetSize, type TextRole, VisualDensity } from "../src/flutter/material/theme.ts";
 import type { SceneNode, SceneText, TextDefaults } from "./scene.ts";
 
 /** The theme's font family, as `ThemeData(fontFamily:)` in the golden writer. */
@@ -64,12 +76,23 @@ function required(node: SceneNode, name: string): SceneNode {
   return found;
 }
 
+function prop(props: Record<string, unknown>, name: string): unknown {
+  return props[name];
+}
+
+function num(props: Record<string, unknown>, name: string, fallback: number): number {
+  const value = props[name];
+  return typeof value === "number" ? value : fallback;
+}
+
 export function tapTarget(props: Record<string, unknown>): MaterialTapTargetSize {
-  return props["tapTargetSize"] === "shrinkWrap" ? MaterialTapTargetSize.shrinkWrap : MaterialTapTargetSize.padded;
+  return prop(props, "tapTargetSize") === "shrinkWrap"
+    ? MaterialTapTargetSize.shrinkWrap
+    : MaterialTapTargetSize.padded;
 }
 
 export function density(props: Record<string, unknown>): VisualDensity {
-  return VisualDensity.named(props["density"]);
+  return VisualDensity.named(prop(props, "density"));
 }
 
 const buttonKinds: Readonly<Record<string, ButtonKind>> = {
@@ -87,18 +110,18 @@ function preferredHeight(node: SceneNode | null): number {
   if (node === null) {
     return 0;
   }
-  const height = node.props["height"];
-  return typeof height === "number" ? height : 0;
+  return num(node.props, "height", 0);
 }
 
 const builders: Record<string, Builder> = {
   Icon: (node) => {
-    const size = typeof node.props["size"] === "number" ? node.props["size"] : 24;
+    const given = prop(node.props, "size");
+    const size = typeof given === "number" ? given : 24;
     return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: size, height: size }) });
   },
   ListTile: (node, ctx) => {
     const p = node.props;
-    const dense = p["dense"] === true;
+    const dense = prop(p, "dense") === true;
     const withSize = (role: TextRole, size: number | null): TextStyle =>
       size === null ? style(role) : { ...style(role), fontSize: size };
     const sub = only(node, "subtitle");
@@ -110,7 +133,7 @@ const builders: Record<string, Builder> = {
       subtitle: sub === null ? null : ctx.build(sub, withSize("bodyMedium", dense ? 12 : null)),
       trailing: trail === null ? null : ctx.build(trail, style("labelSmall")),
       isDense: dense,
-      isThreeLine: p["isThreeLine"] === true,
+      isThreeLine: prop(p, "isThreeLine") === true,
       visualDensity: density(p),
       textDirection: ctx.direction,
     });
@@ -118,7 +141,7 @@ const builders: Record<string, Builder> = {
   PreferredSize: (node, ctx) => ctx.build(required(node, "child")),
   AppBar: (node, ctx) => {
     const p = node.props;
-    const toolbarHeight = typeof p["toolbarHeight"] === "number" ? p["toolbarHeight"] : kToolbarHeight;
+    const toolbarHeight = num(p, "toolbarHeight", kToolbarHeight);
     const lead = only(node, "leading");
     const title = only(node, "title");
     const bottom = only(node, "bottom");
@@ -135,9 +158,9 @@ const builders: Record<string, Builder> = {
       actions: slot(node, "actions").map((a) => ctx.build(a)),
       bottom: bottom === null ? null : ctx.build(bottom),
       toolbarHeight,
-      centerTitle: p["centerTitle"] === true,
-      titleSpacing: typeof p["titleSpacing"] === "number" ? p["titleSpacing"] : kMiddleSpacing,
-      leadingWidth: typeof p["leadingWidth"] === "number" ? p["leadingWidth"] : kLeadingWidth,
+      centerTitle: prop(p, "centerTitle") === true,
+      titleSpacing: num(p, "titleSpacing", kMiddleSpacing),
+      leadingWidth: num(p, "leadingWidth", kLeadingWidth),
       textDirection: ctx.direction,
     });
   },
@@ -148,7 +171,10 @@ const builders: Record<string, Builder> = {
     };
     const barNode = only(node, "appBar");
     const bottomNode = barNode === null ? null : only(barNode, "bottom");
-    const toolbar = typeof barNode?.props["toolbarHeight"] === "number" ? barNode.props["toolbarHeight"] : undefined;
+    const toolbar =
+      barNode === null || typeof prop(barNode.props, "toolbarHeight") !== "number"
+        ? undefined
+        : num(barNode.props, "toolbarHeight", kToolbarHeight);
     const bar = part("appBar");
     return new RenderScaffold({
       appBar:
@@ -164,7 +190,7 @@ const builders: Record<string, Builder> = {
       bottomNavigationBar: part("bottomNavigationBar"),
       bottomSheet: part("bottomSheet"),
       floatingActionButton: part("floatingActionButton"),
-      fabLocation: (node.props["floatingActionButtonLocation"] ?? "endFloat") as FabLocation,
+      fabLocation: (prop(node.props, "floatingActionButtonLocation") ?? "endFloat") as FabLocation,
       textDirection: ctx.direction,
     });
   },
@@ -181,7 +207,7 @@ const builders: Record<string, Builder> = {
     const label = only(node, "label");
     const child = only(node, "child");
     return buildFab({
-      kind: (node.props["kind"] ?? "regular") as FabKind,
+      kind: (prop(node.props, "kind") ?? "regular") as FabKind,
       child: child === null ? null : ctx.build(child),
       label: label === null ? null : ctx.build(label, style("labelLarge")),
       tapTargetSize: tapTarget(node.props),

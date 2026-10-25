@@ -15,7 +15,7 @@
 
 import { BoxConstraints } from "../constraints.ts";
 import { ContainerRenderBox } from "../container.ts";
-import { Offset, Size, TextDirection } from "../geometry.ts";
+import { Offset, type Size, TextDirection } from "../geometry.ts";
 import type { RenderBox } from "../render-box.ts";
 import { setChildOffset } from "../shifted-box.ts";
 
@@ -111,6 +111,7 @@ export class RenderScaffold extends ContainerRenderBox<RenderBox> {
   }
 
   /** `StandardFabLocation.getOffset` for a scaffold without insets. */
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: the StandardFabLocation offsets of the nine locations in one place
   private fabOffset(fab: Size, size: Size, contentBottom: number, contentTop: number, sheet: number): Offset {
     const location = this.o.fabLocation;
     const rtl = this.o.textDirection === TextDirection.rtl;
