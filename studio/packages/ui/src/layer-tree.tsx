@@ -90,7 +90,7 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
             {...rest}
             data-item-id={id}
             role="treeitem"
-            tabIndex={rest.tabIndex ?? -1}
+            tabIndex={rest["tabIndex"] ?? -1}
             aria-selected={isSel}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
