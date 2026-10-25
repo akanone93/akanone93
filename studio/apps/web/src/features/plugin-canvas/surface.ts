@@ -19,6 +19,10 @@ export interface CanvasSurface {
   setViewport(x: number, y: number, zoom: number): void;
   pan(dx: number, dy: number): void;
   zoomAbout(factor: number, x: number, y: number): void;
+  /** Item IDs under a CSS point / meeting a CSS rectangle, topmost first (main-thread hit-testing). */
+  hitTest?(x: number, y: number): string[];
+  hitTestRect?(rect: { l: number; t: number; r: number; b: number }, mode: "intersect" | "contain"): string[];
+  setSelection?(ids: readonly string[]): void;
   readonly viewport: { readonly x: number; readonly y: number; readonly zoom: number };
   dispose(): void;
 }
@@ -107,6 +111,9 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     },
     pan: (dx, dy) => run((h) => h.pan(dx, dy)),
     zoomAbout: (factor, x, y) => run((h) => h.zoomAbout(factor, x, y)),
+    hitTest: (x, y) => host?.hitTest(x, y) ?? [],
+    hitTestRect: (rect, mode) => host?.hitTestRect(rect, mode) ?? [],
+    setSelection: (ids) => run((h) => h.setSelection(ids)),
     get viewport() {
       return host ? host.viewport : view;
     },

@@ -23,6 +23,25 @@ export function pluginCanvasMessages(i18n: I18n) {
         values: { name },
         comment: "Describes the translucent region below a screen that holds content taller than the device screen.",
       }),
+    selectionNone: i18n._({
+      id: "pluginCanvas.selectionNone",
+      message: "Nothing selected",
+      comment: "Announced to screen readers when the canvas selection becomes empty.",
+    }),
+    selectionOne: (name: string) =>
+      i18n._({
+        id: "pluginCanvas.selectionOne",
+        message: "{name} selected",
+        values: { name },
+        comment: "Announced to screen readers when one element is selected on the canvas.",
+      }),
+    selectionMany: (count: number) =>
+      i18n._({
+        id: "pluginCanvas.selectionMany",
+        message: "{count} elements selected",
+        values: { count },
+        comment: "Announced to screen readers when several elements are selected on the canvas.",
+      }),
     zoom: (percent: number) =>
       i18n._({
         id: "pluginCanvas.zoom",
