@@ -45,6 +45,7 @@ async function mockUpstream(page: Page) {
           proto(GetCurrentUserResponseSchema, {
             user: create(UserSchema, { id: "u1", displayName: "Ada", email: "ada@example.org" }),
             memberships: [create(MemberSchema, { organizationId: org, userId: "u1" })],
+            csrfToken: "csrf",
           }),
         );
       case "StartPasswordLogin":
@@ -87,6 +88,10 @@ test("sign in lands on the organisation home, axe clean in light [STU-013]", asy
   await mockUpstream(page);
   await signIn(page);
   await expect(page.getByRole("banner")).toBeVisible();
+  // A reload keeps the cookie but loses the in-memory token; the shell fetches it again (SEC-101, STU-002).
+  await page.reload();
+  await expect(page.getByRole("banner")).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/o/${org}`));
   expect((await new AxeBuilder({ page }).withTags(axeTags).analyze()).violations).toEqual([]);
 });
 

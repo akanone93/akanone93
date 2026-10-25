@@ -59,6 +59,7 @@ export function ProfilePage() {
             { value: "system", label: m.themeSystem },
             { value: "light", label: m.themeLight },
             { value: "dark", label: m.themeDark },
+            { value: "contrast", label: m.themeContrast },
           ]}
           onValueChange={(v) => void store("theme", v)}
         />

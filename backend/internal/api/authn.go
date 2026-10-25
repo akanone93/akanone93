@@ -120,6 +120,17 @@ func backgroundProcedure(procedure string) bool {
 	}
 }
 
+// csrfExempt reports whether a cookie call to the procedure may omit the
+// X-CSRF-Token header. Only IdentityService/GetCurrentUser is exempt: after a
+// page reload Studio holds the session cookie but not the token, and this call
+// is how it gets it back. That is safe because the call is read-only, returns
+// only the caller's own data, the cookie is __Host- and SameSite=Strict, and a
+// cross-origin page cannot read the response. Nothing else may join this
+// switch without a security review.
+func csrfExempt(procedure string) bool {
+	return procedure == pluxv1connect.IdentityServiceGetCurrentUserProcedure
+}
+
 // credential reads and checks whichever credential the request carries.
 // A request carrying both is refused: which one acts would be a guess. A
 // session presented to a background procedure is checked without being
@@ -143,6 +154,9 @@ func credential(ctx context.Context, a Authenticator, procedure string, h http.H
 			return auth.Identity{}, false, err //nolint:wrapcheck // a domain error
 		}
 		got := h.Get(CSRFHeader)
+		if csrfExempt(procedure) {
+			return id, true, nil
+		}
 		if got == "" || subtle.ConstantTimeCompare([]byte(got), []byte(id.CSRFToken)) != 1 {
 			return auth.Identity{}, false, plxerr.New(plxerr.PermissionDenied, "the %s header does not match the session", CSRFHeader)
 		}

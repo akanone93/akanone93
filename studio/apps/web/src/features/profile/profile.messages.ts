@@ -20,6 +20,7 @@ export function profileMessages(i18n: I18n) {
     }),
     themeLight: i18n._({ id: "profile.theme.light", message: "Light", comment: "Theme option." }),
     themeDark: i18n._({ id: "profile.theme.dark", message: "Dark", comment: "Theme option." }),
+    themeContrast: i18n._({ id: "profile.theme.contrast", message: "High contrast", comment: "Theme option." }),
     language: i18n._({ id: "profile.language", message: "Language", comment: "Label of the language choice." }),
     density: i18n._({ id: "profile.density", message: "Density", comment: "Label of the density choice." }),
     densityComfortable: i18n._({

@@ -755,8 +755,19 @@ func TestServicesEndToEnd(t *testing.T) {
 	}
 	noCSRF := admin
 	noCSRF.csrf = "plux_csrf_forged"
-	if _, err := w.identity.GetCurrentUser(ctx, req(noCSRF, &pluxv1.GetCurrentUserRequest{})); codeOf(err) != connect.CodePermissionDenied {
+	if _, err := w.identity.ListFactors(ctx, req(noCSRF, &pluxv1.ListFactorsRequest{})); codeOf(err) != connect.CodePermissionDenied {
 		t.Errorf("a forged CSRF token: %v", err)
+	}
+	// GetCurrentUser is the one cookie call exempt from the header (SEC-101, STU-002):
+	// it returns the token a reloaded Studio has lost.
+	noHeader := admin
+	noHeader.csrf = ""
+	fetched, err := w.identity.GetCurrentUser(ctx, req(noHeader, &pluxv1.GetCurrentUserRequest{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fetched.Header().Get("Cache-Control") != "no-store" || fetched.Msg.GetCsrfToken() != admin.csrf || !fetched.Msg.GetInstallationAdmin() {
+		t.Errorf("GetCurrentUser without the header = %+v; Cache-Control %q", fetched.Msg, fetched.Header().Get("Cache-Control"))
 	}
 	me := must(w.identity.GetCurrentUser(ctx, req(admin, &pluxv1.GetCurrentUserRequest{})))(t)
 	if me.GetUser().GetMfaEnrolled() {

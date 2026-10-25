@@ -6,9 +6,6 @@ import { type GetCurrentUserResponse, IdentityService, LicenseService } from "@p
 import { notFound, redirect } from "@tanstack/react-router";
 import { organizationIdOf, type Session } from "./session.ts";
 
-/** Permission that marks an installation administrator (R2.4). */
-export const installationAdminPermission = "installation.admin";
-
 /** Thrown by a guard; the router's error component renders the in-shell 403 or licence page. */
 export class AccessError extends Error {
   constructor(
@@ -31,7 +28,12 @@ export function safeNext(next: string | undefined): string {
 export async function loadUser(session: Session): Promise<GetCurrentUserResponse | undefined> {
   const client = createClient(IdentityService, session.transport);
   try {
-    return await session.queryClient.fetchQuery({ queryKey: userKey, queryFn: () => client.getCurrentUser({}) });
+    const user = await session.queryClient.fetchQuery({ queryKey: userKey, queryFn: () => client.getCurrentUser({}) });
+    // After a reload only the cookie survives; GetCurrentUser hands the CSRF token back (SEC-101, STU-002).
+    if (user.csrfToken !== "") {
+      session.setCsrfToken(user.csrfToken);
+    }
+    return user;
   } catch (error) {
     if (error instanceof ConnectError && error.code === Code.Unauthenticated) {
       return undefined;
@@ -69,7 +71,9 @@ export function requirePermission(user: GetCurrentUserResponse, permission: stri
 }
 
 export function requireInstallationAdmin(user: GetCurrentUserResponse): void {
-  requirePermission(user, installationAdminPermission);
+  if (!user.installationAdmin) {
+    throw new AccessError("forbidden", "installation.admin");
+  }
 }
 
 /** Enterprise pages need a valid licence: administrators see the licence page, others a 404 (R1). */
