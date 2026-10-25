@@ -49,7 +49,7 @@ describe("STU-003 canvas worker core", () => {
     await core.receive(init({ tiles: true }));
     const [ready] = ofType(posted, "ready");
     expect(ready?.renderer.glRenderer).toContain("SwiftShader");
-    expect(ready?.renderer.measuredMs).not.toBeNull();
+    expect(ready?.renderer).toMatchObject({ kind: "raster", software: true });
     await core.receive({
       v,
       type: "patch",
@@ -74,7 +74,7 @@ describe("STU-003 canvas worker core", () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
     await core.receive(init({ renderer: "raster" }));
-    expect(ofType(posted, "ready")[0]?.renderer).toMatchObject({ kind: "raster", tiles: true, measuredMs: null });
+    expect(ofType(posted, "ready")[0]?.renderer).toMatchObject({ kind: "raster", tiles: true });
     await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("a", 10, 10) }] });
     await core.receive({ v, type: "interaction", phase: "start", kind: "drag", ids: ["a"] });
     env.drain();
@@ -96,10 +96,10 @@ describe("STU-003 canvas worker core", () => {
   test("falls back from WebGL to raster, reports failures and unsupported messages", async () => {
     const env = new TestEnvironment(ck);
     env.webglSurfaces = false;
-    env.measureSurfaces = false;
+    env.probe = { available: true, software: false, renderer: "NVIDIA GeForce", majorPerformanceCaveat: false };
     const fallback = start(env);
     await fallback.core.receive(init());
-    expect(ofType(fallback.posted, "ready")[0]?.renderer).toMatchObject({ kind: "raster", measuredMs: null });
+    expect(ofType(fallback.posted, "ready")[0]?.renderer).toMatchObject({ kind: "raster", software: false });
     env.surfaces = false;
     const failing = start(env);
     await failing.core.receive(init({ renderer: "webgl" }));

@@ -154,7 +154,7 @@ The maintainer requires the canvas to perform on computers **without a GPU**. Ev
 mode. The S0.8 prototype showed why this needs design, not tuning: 1,600 draw calls per frame took
 434 ms at p95 under software GL. The canvas therefore:
 
-- chooses its renderer at start-up by measurement: WebGL when the GL is hardware, CanvasKit's CPU
+- chooses its renderer at start-up by probing the GL: WebGL when the GL is hardware, CanvasKit's CPU
   raster surface when it is software (SwiftShader, or a context refused with
   `failIfMajorPerformanceCaveat`);
 - keeps retained tile caches, so panning and zooming blit cached images instead of redrawing, and
@@ -172,5 +172,7 @@ surface is no faster on plain drawing and much slower once tiles are blitted (ab
 draw), so the start-up choice keeps WebGL unless a measurement on the machine says otherwise.
 16.7 ms p95 is not yet reached: S1.3 adds dirty-region redraw for drags, builds tiles outside the
 frame, and is held to the budget by the software-mode benchmark.
+
+**Software GL renders on the CPU (2026-10-25, S1.3):** on software GL the canvas renders with CanvasKit's CPU raster backend, chosen from the GL probe alone; the start-up measurement is removed, because WebGL's cost on SwiftShader lands in the GPU process after the measured work and stalls the page compositor for 0.4–0.9 s per base re-render. The base is a premultiplied raster surface whose flush copies only the dirty rectangle to a CPU-backed 2D context; the slow image draws measured earlier came from `MakeSWCanvasSurface`'s unpremultiplied pixels (`docs/benchmarks/studio.md`, S1.3).
 
 **Settle time (2026-10-25, plan M-13):** after a pan or zoom gesture ends, every tile in the visible viewport is at full resolution within **300 ms** on a machine without a GPU; overscan tiles may finish later and stay preemptible. The base is re-rendered as budgeted, preemptible tile jobs, view first.
