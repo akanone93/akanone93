@@ -60,14 +60,12 @@ describe("STU-074 D4 type-to-confirm", () => {
 });
 
 describe("GOV-024 D5 justification", () => {
-  test("submit needs the minimum length supplied by the caller", async () => {
+  test("submit needs a non-empty trimmed justification", async () => {
     const onSubmit = mock((_text: string) => undefined);
-    renderWith(
-      <JustificationDialog open onOpenChange={() => undefined} minLength={10} description="Why" onSubmit={onSubmit} />,
-    );
+    renderWith(<JustificationDialog open onOpenChange={() => undefined} description="Why" onSubmit={onSubmit} />);
     const field = await screen.findByLabelText("Justification");
     const button = screen.getByRole("button", { name: "Confirm" }) as HTMLButtonElement;
-    fireEvent.change(field, { target: { value: "too short" } });
+    fireEvent.change(field, { target: { value: "   " } });
     expect(button.getAttribute("aria-disabled")).toBe("true");
     fireEvent.change(field, { target: { value: "long enough text" } });
     expect(button.getAttribute("aria-disabled")).not.toBe("true");

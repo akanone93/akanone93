@@ -345,6 +345,8 @@ studio:
   extraEnv: []
   # The URL users open; PLUX_BFF_PUBLIC_BASE_URL.
   publicBaseUrl: ""
+  # Optional https URL of your documentation site; PLUX_BFF_DOCS_URL. Unset hides the help menu's documentation links.
+  docsUrl: ""
   service: {type: ClusterIP, port: 8081, annotations: {}}
   ingress:
     enabled: false

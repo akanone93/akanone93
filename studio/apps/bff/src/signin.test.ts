@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { brotliCompressSync } from "node:zlib";
 import { createBff } from "./app.ts";
 import { signState } from "./auth.ts";
-import { loadConfig } from "./config.ts";
+import { ConfigError, loadConfig } from "./config.ts";
 import { MemoryRateLimiter } from "./limiter.ts";
 import { precompressForTest } from "./testutil.ts";
 import { ValkeyRateLimiter } from "./valkey.ts";
@@ -269,6 +269,18 @@ describe("STU-002 version reporting and readiness", () => {
     const { bff } = build({ PLUX_BFF_MIN_SERVER: "1.2" });
     const res = await bff.app.request("/version");
     expect(await res.json()).toEqual({ studio: "0.0.1", minServer: "1.2" });
+  });
+
+  test("GET /version carries docs only when docsUrl is configured, and docsUrl must be https", async () => {
+    const { bff } = build({ PLUX_BFF_DOCS_URL: "https://docs.example.org/" });
+    expect(await (await bff.app.request("/version")).json()).toEqual({
+      studio: "0.0.1",
+      minServer: "0.0",
+      docs: "https://docs.example.org",
+    });
+    expect(() => build({ PLUX_BFF_DOCS_URL: "http://docs.example.org" })).toThrow(ConfigError);
+    expect(() => build({ PLUX_BFF_DOCS_URL: "not a url" })).toThrow(ConfigError);
+    expect(() => build({ PLUX_BFF_DOCS_URL: "https://user:secret@docs.example.org" })).toThrow(ConfigError);
   });
 
   test("readyz fails when the upstream is older than minServer", async () => {

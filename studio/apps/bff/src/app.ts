@@ -105,9 +105,15 @@ export function createBff(options: AppOptions): BffApp {
   });
 
   app.get("/version", (c) =>
-    c.json({ studio: options.studioVersion ?? "0.0.0", minServer: config.minServer }, 200, {
-      "Cache-Control": "no-store",
-    }),
+    c.json(
+      {
+        studio: options.studioVersion ?? "0.0.0",
+        minServer: config.minServer,
+        ...(config.docsUrl === "" ? {} : { docs: config.docsUrl }),
+      },
+      200,
+      { "Cache-Control": "no-store" },
+    ),
   );
 
   registerAuthRoutes(app, { upstream: config.apiUpstream, https, stateKey, limiter, ip });
