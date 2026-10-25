@@ -1,0 +1,138 @@
+{
+  "name": "material-text-field-icons",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f0",
+                "type": "TextField",
+                "props": {
+                  "filled": true,
+                  "labelText": "Search"
+                },
+                "children": [
+                  {
+                    "id": "f0pre",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "prefixIcon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f1",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "labelText": "Amount",
+                  "text": "12"
+                },
+                "children": [
+                  {
+                    "id": "f1suf",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "suffixIcon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f2",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "helperText": "Both"
+                },
+                "children": [
+                  {
+                    "id": "f2pre",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "prefixIcon"
+                  },
+                  {
+                    "id": "f2suf",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "suffixIcon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w3",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f3",
+                "type": "TextField",
+                "props": {
+                  "filled": true,
+                  "isDense": true
+                },
+                "children": [
+                  {
+                    "id": "f3pre",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "prefixIcon"
+                  },
+                  {
+                    "id": "f3suf",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "suffixIcon"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

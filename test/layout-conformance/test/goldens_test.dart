@@ -414,7 +414,7 @@ List<double> _rectOf(WidgetTester tester, String id) {
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
-  'Chip', 'FilterChip', 'InputChip',
+  'Chip', 'FilterChip', 'InputChip', 'TextField',
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -554,6 +554,21 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         },
         bottomNavigationBar: one('bottomNavigationBar'),
         bottomSheet: one('bottomSheet'),
+      );
+    case 'TextField':
+      return TextField(
+        key: key,
+        controller: TextEditingController(text: props['text'] as String?),
+        decoration: InputDecoration(
+          labelText: props['labelText'] as String?,
+          helperText: props['helperText'] as String?,
+          errorText: props['errorText'] as String?,
+          filled: props['filled'] == true,
+          border: props['border'] == 'outline' ? const OutlineInputBorder() : const UnderlineInputBorder(),
+          isDense: props['isDense'] == true ? true : null,
+          prefixIcon: one('prefixIcon'),
+          suffixIcon: one('suffixIcon'),
+        ),
       );
     case 'Chip':
     case 'FilterChip':

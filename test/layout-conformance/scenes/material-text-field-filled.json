@@ -1,0 +1,95 @@
+{
+  "name": "material-text-field-filled",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f0",
+                "type": "TextField",
+                "props": {
+                  "filled": true
+                }
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f1",
+                "type": "TextField",
+                "props": {
+                  "filled": true,
+                  "labelText": "Label"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f2",
+                "type": "TextField",
+                "props": {
+                  "filled": true,
+                  "labelText": "Label",
+                  "text": "Hello",
+                  "helperText": "Helper"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w3",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f3",
+                "type": "TextField",
+                "props": {
+                  "filled": true,
+                  "isDense": true,
+                  "labelText": "Dense"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

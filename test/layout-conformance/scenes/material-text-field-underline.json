@@ -1,0 +1,106 @@
+{
+  "name": "material-text-field-underline",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f0",
+                "type": "TextField",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f1",
+                "type": "TextField",
+                "props": {
+                  "labelText": "Label"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f2",
+                "type": "TextField",
+                "props": {
+                  "labelText": "Label",
+                  "text": "Hello"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w3",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f3",
+                "type": "TextField",
+                "props": {
+                  "helperText": "Helper text"
+                }
+              }
+            ]
+          },
+          {
+            "id": "w4",
+            "type": "SizedBox",
+            "props": {
+              "width": 280
+            },
+            "children": [
+              {
+                "id": "f4",
+                "type": "TextField",
+                "props": {
+                  "labelText": "Label",
+                  "text": "Hi",
+                  "errorText": "Required"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
