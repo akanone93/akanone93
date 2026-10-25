@@ -1,0 +1,224 @@
+{
+  "name": "grid-view-max-extent",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "grid",
+            "type": "GridView",
+            "props": {
+              "maxCrossAxisExtent": 90,
+              "padding": [
+                8,
+                8,
+                8,
+                8
+              ]
+            },
+            "children": [
+              {
+                "id": "t0",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t1",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t2",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t3",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t4",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t5",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t6",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t7",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t8",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t9",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t10",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t11",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t12",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t13",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t14",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t15",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t16",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t17",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t18",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t19",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t20",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t21",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "t22",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
