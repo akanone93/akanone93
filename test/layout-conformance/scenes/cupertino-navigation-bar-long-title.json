@@ -1,0 +1,82 @@
+{
+  "name": "cupertino-navigation-bar-long-title",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "bar",
+        "type": "CupertinoNavigationBar",
+        "props": {},
+        "children": [
+          {
+            "id": "nav-leading",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "leading-text",
+                "type": "Text",
+                "props": {
+                  "text": "Previous page",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "nav-middle",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "middle"
+            },
+            "children": [
+              {
+                "id": "middle-text",
+                "type": "Text",
+                "props": {
+                  "text": "A navigation title that is far too long to fit between the buttons",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "nav-trailing",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "trailing-text",
+                "type": "Text",
+                "props": {
+                  "text": "Done",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

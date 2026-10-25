@@ -160,3 +160,60 @@ describe("layoutScreen (STU-005, STU-006)", () => {
     expect(byId.get("bare")?.h).toBe(56);
   });
 });
+
+describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
+  const node = (id: string, type: string, extra: Partial<WidgetNode> = {}): WidgetNode => ({ id, type, ...extra });
+  const col = (...children: WidgetNode[]): WidgetNode => ({ id: "col", type: "Column", children });
+
+  test("controls take Flutter's sizes and a button keeps its 44-pt tap target", () => {
+    const layout = layoutScreen(
+      col(
+        node("button", "CupertinoButton", { children: [text("b", "Go")] }),
+        node("small", "CupertinoButton", { props: { data: { sizeStyle: "small" } }, children: [text("s", "")] }),
+        node("switch", "CupertinoSwitch"),
+        node("slider", "CupertinoSlider"),
+        node("field", "CupertinoTextField", { props: { data: { placeholder: "Search" } } }),
+      ),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    expect(byId.get("button")?.h).toBeCloseTo(32 + measure("Go", theme.fontFamilies).h, 5);
+    expect(byId.get("small")?.h).toBeGreaterThanOrEqual(28);
+    expect(byId.get("switch")).toMatchObject({ w: 59, h: 39 });
+    expect(byId.get("slider")).toMatchObject({ w: 176, h: 44 });
+    expect(byId.get("field")?.h).toBeGreaterThan(14);
+    expect(byId.get("field")?.w).toBe(theme.width - 2 * theme.pagePadding);
+  });
+
+  test("bars, tiles and segmented controls span the available width", () => {
+    const layout = layoutScreen(
+      col(
+        node("nav", "CupertinoNavigationBar", {
+          props: { data: { title: "Title", leading: "Back", trailing: "Edit" } },
+        }),
+        node("tabs", "CupertinoTabBar", { children: [text("a", "Home"), text("b", "Search")] }),
+        node("tile", "CupertinoListTile", { children: [text("t", "Wi-Fi")] }),
+        node("seg", "CupertinoSegmentedControl", { children: [text("x", "Day"), text("y", "Week")] }),
+        node("bare", "CupertinoNavigationBar"),
+      ),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    const width = theme.width - 2 * theme.pagePadding;
+    expect(byId.get("nav")).toMatchObject({ w: width, h: 44, text: "Title" });
+    expect(byId.get("tabs")).toMatchObject({ w: width, h: 50 });
+    expect(byId.get("tile")).toMatchObject({ w: width, h: 44, text: "Wi-Fi" });
+    expect(byId.get("seg")?.h).toBe(28);
+    expect(byId.get("bare")?.h).toBe(44);
+  });
+
+  test("scaffolds and sections lay their content out", () => {
+    const layout = layoutScreen(
+      node("scaffold", "CupertinoPageScaffold", {
+        children: [node("section", "CupertinoListSection", { children: [text("row", "Row")] })],
+      }),
+      { engine, theme },
+    );
+    expect(layout.boxes.some((b) => b.id === "row")).toBe(true);
+  });
+});

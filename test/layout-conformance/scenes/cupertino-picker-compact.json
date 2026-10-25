@@ -1,0 +1,33 @@
+{
+  "name": "cupertino-picker-compact",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        0,
+        0
+      ]
+    },
+    "children": [
+      {
+        "id": "sized",
+        "type": "SizedBox",
+        "props": {
+          "width": 200,
+          "height": 120
+        },
+        "children": [
+          {
+            "id": "picker",
+            "type": "CupertinoPicker",
+            "props": {
+              "itemCount": 3,
+              "itemExtent": 28
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

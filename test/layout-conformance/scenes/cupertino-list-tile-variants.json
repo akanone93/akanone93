@@ -1,0 +1,380 @@
+{
+  "name": "cupertino-list-tile-variants",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "children": [
+          {
+            "id": "base-plain",
+            "type": "CupertinoListTile",
+            "props": {
+              "type": "base"
+            },
+            "children": [
+              {
+                "id": "base-plain-title",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "title"
+                },
+                "children": [
+                  {
+                    "id": "base-plain-title-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Plain",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 17
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "base-plain-lead",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "leading"
+                },
+                "children": [
+                  {
+                    "id": "base-plain-lead-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 28,
+                      "height": 28
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "base-plain-trail",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "trailing"
+                },
+                "children": [
+                  {
+                    "id": "base-plain-trail-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 16
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "base-sub",
+            "type": "CupertinoListTile",
+            "props": {
+              "type": "base"
+            },
+            "children": [
+              {
+                "id": "base-sub-title",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "title"
+                },
+                "children": [
+                  {
+                    "id": "base-sub-title-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "With subtitle",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 17
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "base-sub-sub",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "subtitle"
+                },
+                "children": [
+                  {
+                    "id": "base-sub-sub-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "A short description",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "base-sub-lead",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "leading"
+                },
+                "children": [
+                  {
+                    "id": "base-sub-lead-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 28,
+                      "height": 28
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "base-sub-trail",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "trailing"
+                },
+                "children": [
+                  {
+                    "id": "base-sub-trail-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 16
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "notched-lead",
+            "type": "CupertinoListTile",
+            "props": {
+              "type": "notched"
+            },
+            "children": [
+              {
+                "id": "notched-lead-title",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "title"
+                },
+                "children": [
+                  {
+                    "id": "notched-lead-title-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Notched with leading",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 17
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "notched-lead-lead",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "leading"
+                },
+                "children": [
+                  {
+                    "id": "notched-lead-lead-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 28,
+                      "height": 28
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "notched-lead-trail",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "trailing"
+                },
+                "children": [
+                  {
+                    "id": "notched-lead-trail-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 16
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "notched-bare",
+            "type": "CupertinoListTile",
+            "props": {
+              "type": "notched"
+            },
+            "children": [
+              {
+                "id": "notched-bare-title",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "title"
+                },
+                "children": [
+                  {
+                    "id": "notched-bare-title-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Notched bare",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 17
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "notched-sub",
+            "type": "CupertinoListTile",
+            "props": {
+              "type": "notched"
+            },
+            "children": [
+              {
+                "id": "notched-sub-title",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "title"
+                },
+                "children": [
+                  {
+                    "id": "notched-sub-title-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Notched subtitle",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 17
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "notched-sub-sub",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "subtitle"
+                },
+                "children": [
+                  {
+                    "id": "notched-sub-sub-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Second line",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 14
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "custom-pad",
+            "type": "CupertinoListTile",
+            "props": {
+              "type": "base",
+              "padding": {
+                "start": 4,
+                "end": 4,
+                "top": 12,
+                "bottom": 12
+              }
+            },
+            "children": [
+              {
+                "id": "custom-pad-title",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "title"
+                },
+                "children": [
+                  {
+                    "id": "custom-pad-title-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Custom padding",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 17
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom-pad-lead",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "leading"
+                },
+                "children": [
+                  {
+                    "id": "custom-pad-lead-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 28,
+                      "height": 28
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom-pad-trail",
+                "type": "CupertinoSlot",
+                "props": {
+                  "slot": "trailing"
+                },
+                "children": [
+                  {
+                    "id": "custom-pad-trail-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 16
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

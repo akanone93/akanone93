@@ -1,0 +1,263 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-list-tile-variants",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "align": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "base-plain": [
+      0.0,
+      0.0,
+      360.0,
+      44.0
+    ],
+    "base-plain-lead": [
+      20.0,
+      8.0,
+      28.0,
+      28.0
+    ],
+    "base-plain-lead-box": [
+      20.0,
+      8.0,
+      28.0,
+      28.0
+    ],
+    "base-plain-title": [
+      64.0,
+      10.5,
+      39.09989929199219,
+      23.0
+    ],
+    "base-plain-title-text": [
+      64.0,
+      10.5,
+      39.09989929199219,
+      23.0
+    ],
+    "base-plain-trail": [
+      336.0,
+      14.0,
+      10.0,
+      16.0
+    ],
+    "base-plain-trail-box": [
+      336.0,
+      14.0,
+      10.0,
+      16.0
+    ],
+    "base-sub": [
+      0.0,
+      44.0,
+      360.0,
+      48.0
+    ],
+    "base-sub-lead": [
+      20.0,
+      54.0,
+      28.0,
+      28.0
+    ],
+    "base-sub-lead-box": [
+      20.0,
+      54.0,
+      28.0,
+      28.0
+    ],
+    "base-sub-sub": [
+      64.0,
+      71.5,
+      124.61354064941406,
+      19.0
+    ],
+    "base-sub-sub-text": [
+      64.0,
+      71.5,
+      124.61354064941406,
+      19.0
+    ],
+    "base-sub-title": [
+      64.0,
+      45.5,
+      100.99673461914062,
+      23.0
+    ],
+    "base-sub-title-text": [
+      64.0,
+      45.5,
+      100.99673461914062,
+      23.0
+    ],
+    "base-sub-trail": [
+      336.0,
+      60.0,
+      10.0,
+      16.0
+    ],
+    "base-sub-trail-box": [
+      336.0,
+      60.0,
+      10.0,
+      16.0
+    ],
+    "col": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "custom-pad": [
+      0.0,
+      261.0,
+      360.0,
+      52.0
+    ],
+    "custom-pad-lead": [
+      4.0,
+      273.0,
+      28.0,
+      28.0
+    ],
+    "custom-pad-lead-box": [
+      4.0,
+      273.0,
+      28.0,
+      28.0
+    ],
+    "custom-pad-title": [
+      48.0,
+      275.5,
+      132.37864685058594,
+      23.0
+    ],
+    "custom-pad-title-text": [
+      48.0,
+      275.5,
+      132.37864685058594,
+      23.0
+    ],
+    "custom-pad-trail": [
+      346.0,
+      279.0,
+      10.0,
+      16.0
+    ],
+    "custom-pad-trail-box": [
+      346.0,
+      279.0,
+      10.0,
+      16.0
+    ],
+    "notched-bare": [
+      0.0,
+      146.0,
+      360.0,
+      50.0
+    ],
+    "notched-bare-title": [
+      28.0,
+      159.5,
+      108.73173522949219,
+      23.0
+    ],
+    "notched-bare-title-text": [
+      28.0,
+      159.5,
+      108.73173522949219,
+      23.0
+    ],
+    "notched-lead": [
+      0.0,
+      92.0,
+      360.0,
+      54.0
+    ],
+    "notched-lead-lead": [
+      15.0,
+      105.0,
+      28.0,
+      28.0
+    ],
+    "notched-lead-lead-box": [
+      15.0,
+      105.0,
+      28.0,
+      28.0
+    ],
+    "notched-lead-title": [
+      56.0,
+      107.5,
+      170.59457397460938,
+      23.0
+    ],
+    "notched-lead-title-text": [
+      56.0,
+      107.5,
+      170.59457397460938,
+      23.0
+    ],
+    "notched-lead-trail": [
+      336.0,
+      111.0,
+      10.0,
+      16.0
+    ],
+    "notched-lead-trail-box": [
+      336.0,
+      111.0,
+      10.0,
+      16.0
+    ],
+    "notched-sub": [
+      0.0,
+      196.0,
+      360.0,
+      65.0
+    ],
+    "notched-sub-sub": [
+      28.0,
+      232.0,
+      75.44569396972656,
+      19.0
+    ],
+    "notched-sub-sub-text": [
+      28.0,
+      232.0,
+      75.44569396972656,
+      19.0
+    ],
+    "notched-sub-title": [
+      28.0,
+      206.0,
+      142.3406219482422,
+      23.0
+    ],
+    "notched-sub-title-text": [
+      28.0,
+      206.0,
+      142.3406219482422,
+      23.0
+    ]
+  },
+  "baselines": {
+    "base-plain-title-text": 18.17300033569336,
+    "base-sub-sub-text": 14.965999603271484,
+    "base-sub-title-text": 18.17300033569336,
+    "custom-pad-title-text": 18.17300033569336,
+    "notched-bare-title-text": 18.17300033569336,
+    "notched-lead-title-text": 18.17300033569336,
+    "notched-sub-sub-text": 14.965999603271484,
+    "notched-sub-title-text": 18.17300033569336
+  }
+}

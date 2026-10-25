@@ -25,6 +25,7 @@ import type { TextStyle } from "../flutter/text-style.ts";
 import { RenderView } from "../flutter/view.ts";
 import { globalRects } from "../node-rects.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
+import { cupertinoWidgetBuilders } from "./cupertino.ts";
 
 /** One widget of a screen document: structured-clone data only. */
 export interface WidgetNode {
@@ -308,6 +309,10 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ["ListTile", listTile],
   ["TextField", control],
   ["TextFormField", control],
+  ["CupertinoPageScaffold", wrapper],
+  ["CupertinoTabScaffold", wrapper],
+  ["CupertinoListSection", (node, ctx) => flex(Axis.vertical, node, ctx)],
+  ...cupertinoWidgetBuilders,
 ]);
 
 /** Options of [layoutScreen]. */

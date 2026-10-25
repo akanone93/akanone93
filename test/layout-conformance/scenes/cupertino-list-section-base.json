@@ -1,0 +1,247 @@
+{
+  "name": "cupertino-list-section-base",
+  "root": {
+    "id": "section",
+    "type": "CupertinoListSection",
+    "props": {
+      "type": "base"
+    },
+    "children": [
+      {
+        "id": "sec-header",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "header"
+        },
+        "children": [
+          {
+            "id": "header-text",
+            "type": "Text",
+            "props": {
+              "text": "SETTINGS",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 13
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "t1",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "base"
+        },
+        "children": [
+          {
+            "id": "t1-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t1-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Wi-Fi",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t1-info",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "additionalInfo"
+            },
+            "children": [
+              {
+                "id": "t1-info-text",
+                "type": "Text",
+                "props": {
+                  "text": "Home",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t1-lead",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "t1-lead-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "t1-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "t1-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "base"
+        },
+        "children": [
+          {
+            "id": "t2-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t2-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Bluetooth",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-sub",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "subtitle"
+            },
+            "children": [
+              {
+                "id": "t2-sub-text",
+                "type": "Text",
+                "props": {
+                  "text": "Connected to 2 devices",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-lead",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "t2-lead-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "t2-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "t3",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "base"
+        },
+        "children": [
+          {
+            "id": "t3-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t3-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Cellular",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sec-footer",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "footer"
+        },
+        "children": [
+          {
+            "id": "footer-text",
+            "type": "Text",
+            "props": {
+              "text": "Changes apply to this device only.",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 13
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
