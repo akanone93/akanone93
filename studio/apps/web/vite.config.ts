@@ -50,5 +50,16 @@ export default defineConfig({
   },
   worker: { format: "es" },
   define: { __STUDIO_VERSION__: JSON.stringify(pkg.version) },
-  server: { host: "127.0.0.1" },
+  server: {
+    host: "127.0.0.1",
+    // In development the BFF runs beside Vite (`make studio-dev`): its routes are forwarded to it, so
+    // the dev app goes through the same session, CSRF and proxy rules as production (STU-002). The
+    // Host header is kept, so the BFF's same-origin checks see Vite's origin.
+    proxy: Object.fromEntries(
+      ["/api", "/auth", "/version", "/telemetry", "/csp-report"].map((path) => [
+        path,
+        { target: process.env["PLUX_STUDIO_DEV_BFF"] ?? "http://127.0.0.1:8081", changeOrigin: false },
+      ]),
+    ),
+  },
 });
