@@ -84,11 +84,12 @@ describe("STU-013 shortcut sheet", () => {
 });
 
 describe("STU-013 global shortcuts", () => {
-  test("fire outside inputs and are ignored inside them", () => {
+  test("fire outside inputs and are ignored inside them", async () => {
     const hits: string[] = [];
     render(wrap([cmd("t", "T", { shortcut: "alt+t", run: () => void hits.push("t") })], [], <input aria-label="x" />));
+    const input = await screen.findByLabelText("x");
     fireEvent.keyDown(document.body, { key: "t", code: "KeyT", altKey: true });
-    fireEvent.keyDown(screen.getByLabelText("x"), { key: "t", code: "KeyT", altKey: true });
+    fireEvent.keyDown(input, { key: "t", code: "KeyT", altKey: true });
     expect(hits).toEqual(["t"]);
   });
 });
