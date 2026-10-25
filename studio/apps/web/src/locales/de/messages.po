@@ -25,11 +25,23 @@ msgstr "Einladung annehmen"
 msgid "chrome.forbidden.explain-failed"
 msgstr "Der Zugriff kann gerade nicht erklärt werden."
 
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.account"
+msgstr "Konto"
+
 #. Heading of the section with the person's name and email.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.account"
 msgstr "Konto"
+
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.appearance"
+msgstr "Darstellung"
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -55,11 +67,29 @@ msgstr "Authentifizierungscode"
 msgid "auth.invite.password"
 msgstr "Passwort wählen"
 
+#. Accessible name of the dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.close"
+msgstr "Schließen"
+
 #. Density option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density.comfortable"
 msgstr "Komfortabel"
+
+#. Title of the palette dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.title"
+msgstr "Befehlspalette"
+
+#. Label of the top bar button that opens the palette.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.trigger"
+msgstr "Befehle"
 
 #. Density option.
 #. js-lingui-explicit-id
@@ -133,6 +163,24 @@ msgstr "Enterprise: Lizenz erforderlich"
 msgid "chrome.forbidden.explain"
 msgstr "Zugriff erklären"
 
+#. Caption of the shortcuts page.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.shortcuts.caption"
+msgstr "Aus den Befehlen dieses Fensters erzeugt."
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.nav.home"
+msgstr "Zur Startseite"
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.nav.profile"
+msgstr "Zum Profil"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -144,6 +192,12 @@ msgstr "Hoher Kontrast"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.home"
 msgstr "Start"
+
+#. Heading of the shortcuts page.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.shortcuts.title"
+msgstr "Tastaturkürzel"
 
 #. Label of the language choice.
 #. js-lingui-explicit-id
@@ -168,6 +222,42 @@ msgstr "Wird geladen"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.system"
 msgstr "Wie System"
+
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.navigate"
+msgstr "Navigation"
+
+#. Why a command is disabled.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.disabled.reason"
+msgstr "Benötigt die Berechtigung {permission}"
+
+#. Shown when the filter matches nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.empty"
+msgstr "Kein Befehl passt."
+
+#. Shown for a command without a shortcut.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.shortcuts.none"
+msgstr "Kein Kürzel"
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.open"
+msgstr "Befehlspalette öffnen"
+
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.organisation"
+msgstr "Organisation"
 
 #. Label of the organisation switcher.
 #. js-lingui-explicit-id
@@ -217,6 +307,12 @@ msgstr "Gespeichert"
 msgid "auth.factor.title"
 msgstr "Zweiter Faktor"
 
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.nav.shortcuts"
+msgstr "Tastaturkürzel anzeigen"
+
 #. Heading of the sign-in page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -234,6 +330,12 @@ msgstr "Anmelden"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.signedout.again"
 msgstr "Erneut anmelden"
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.account.signout"
+msgstr "Abmelden"
 
 #. Menu entry that ends the session.
 #. js-lingui-explicit-id
@@ -264,6 +366,12 @@ msgstr "Einmalanmeldung"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.topbar"
 msgstr "Studio-Navigation"
+
+#. Command title; name is an organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.org.switch"
+msgstr "Zu {name} wechseln"
 
 #. Shown when the server refuses the one-time code.
 #. js-lingui-explicit-id
@@ -306,6 +414,18 @@ msgstr "Diese Seite existiert nicht oder Sie dürfen sie nicht sehen."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.body"
 msgstr "Diese Seite gehört zur Enterprise-Edition. Bitten Sie eine Installationsadministratorin oder einen Installationsadministrator, eine Lizenz einzuspielen."
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.theme.toggle"
+msgstr "Zwischen hellem und dunklem Design wechseln"
+
+#. Label of the palette search box.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.search"
+msgstr "Befehl eingeben"
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id

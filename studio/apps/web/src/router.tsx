@@ -92,6 +92,13 @@ const profileRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/profile/index.ts"), "ProfilePage"),
 });
 
+const shortcutsRoute = createRoute({
+  getParentRoute: () => shellLayout,
+  path: "/me/shortcuts",
+  beforeLoad: ({ context }) => context.session.setOrganization(undefined),
+  component: lazyRouteComponent(() => import("./features/profile/index.ts"), "ShortcutsPage"),
+});
+
 const orgRoute = createRoute({
   getParentRoute: () => shellLayout,
   path: "/o/$org",
@@ -108,7 +115,7 @@ const orgHomeRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   publicLayout.addChildren([signInRoute, inviteRoute, signedOutRoute]),
-  shellLayout.addChildren([personalHomeRoute, profileRoute, orgRoute.addChildren([orgHomeRoute])]),
+  shellLayout.addChildren([personalHomeRoute, profileRoute, shortcutsRoute, orgRoute.addChildren([orgHomeRoute])]),
 ]);
 
 /** The route tree: only pages that exist (L-7). `canvas` and `page` layouts join with their first pages. */
