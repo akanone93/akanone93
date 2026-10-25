@@ -167,3 +167,5 @@ surface is no faster on plain drawing and much slower once tiles are blitted (ab
 draw), so the start-up choice keeps WebGL unless a measurement on the machine says otherwise.
 16.7 ms p95 is not yet reached: S1.3 adds dirty-region redraw for drags, builds tiles outside the
 frame, and is held to the budget by the software-mode benchmark.
+
+**Settle time (2026-10-25, plan M-13):** after a pan or zoom gesture ends, every tile in the visible viewport is at full resolution within **300 ms** on a machine without a GPU; overscan tiles may finish later and stay preemptible. The base is re-rendered as budgeted, preemptible tile jobs, view first.
