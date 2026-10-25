@@ -138,3 +138,6 @@ export function distances(a: Box, b: Box): DistanceLabel[] {
   }
   return out;
 }
+
+/** The pointer is on a resize handle within this many screen pixels of the south-east corner. */
+export const HANDLE_ZONE = 8;

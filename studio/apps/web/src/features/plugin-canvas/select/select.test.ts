@@ -3,14 +3,23 @@
 
 import { describe, expect, test } from "bun:test";
 import type { Node } from "../plugin-model.ts";
-import { cloneWithFreshIds, duplicateRecipe, nudgeRecipe, reparentRecipe, unwrapRecipe, wrapRecipe } from "./edits.ts";
+import {
+  cloneWithFreshIds,
+  duplicateRecipe,
+  moveRecipe,
+  nudgeRecipe,
+  reparentRecipe,
+  resizeRecipe,
+  unwrapRecipe,
+  wrapRecipe,
+} from "./edits.ts";
 import { distances, nudgeDelta, resizeBox, snapBox } from "./geometry.ts";
-import { handleKey } from "./keys.ts";
+import { handleKey, structureKind } from "./keys.ts";
 import { announce } from "./live-region.ts";
 import { resolveDrop } from "./reparent.ts";
 import * as sel from "./selection.ts";
 import { createSelectionStore } from "./store.ts";
-import { indexNodes } from "./tree.ts";
+import { indexNodes, itemIdOf, nodeIdOfHit } from "./tree.ts";
 
 const root: Node = {
   id: "root",
@@ -77,26 +86,65 @@ describe("live region and store (STU-067)", () => {
 });
 
 describe("keyboard, nudge, edits (STU-067)", () => {
-  test("STU-067 arrows nudge 1 px and Shift+arrows 10 px through the injected edit", () => {
+  test("STU-067 arrows nudge a Stack child's Positioned left/top 1 px, Shift 10 px", () => {
     expect(nudgeDelta("ArrowLeft", false)).toEqual({ x: -1, y: 0 });
-    expect(nudgeDelta("ArrowDown", true)).toEqual({ x: 0, y: 10 });
+    const d = {
+      id: "s",
+      type: "Stack",
+      children: [{ id: "p", type: "Positioned", props: { left: 5 }, slots: { child: { id: "t", type: "Text" } } }],
+    };
+    nudgeRecipe("t", "ArrowRight", true)(d);
+    nudgeRecipe("p", "ArrowDown", false)(d);
+    expect(d.children[0]?.props).toEqual({ left: 15, top: 1 });
+    moveRecipe("t", 2.4, -3)(d);
+    expect(d.children[0]?.props).toEqual({ left: 17, top: -2 });
+  });
+  test("STU-067 arrows in a Column reorder one sibling; across the axis and elsewhere nothing changes", () => {
+    const d = { id: "c", type: "Column", children: [{ id: "a" }, { id: "b" }, { id: "c2" }] };
+    nudgeRecipe("a", "ArrowDown", true)(d);
+    expect(d.children.map((c) => c.id)).toEqual(["b", "a", "c2"]);
+    nudgeRecipe("a", "ArrowRight", false)(d);
+    nudgeRecipe("b", "ArrowUp", false)(d);
+    expect(d.children.map((c) => c.id)).toEqual(["b", "a", "c2"]);
+    const pad = { id: "p", type: "Padding", slots: { child: { id: "x", type: "Text" } } };
+    nudgeRecipe("x", "ArrowRight", false)(pad);
+    expect(JSON.stringify(pad)).not.toContain("left");
+  });
+  test("STU-067 resize writes width/height only where the descriptor has size props", () => {
+    const d = {
+      id: "r",
+      children: [
+        { id: "z", type: "SizedBox" },
+        { id: "t", type: "Text" },
+      ],
+    };
+    resizeRecipe("z", 40, 20)(d);
+    resizeRecipe("t", 40, 20)(d);
+    expect(d.children[0]).toEqual({ id: "z", type: "SizedBox", props: { width: 40, height: 20 } });
+    expect(d.children[1]).toEqual({ id: "t", type: "Text" });
+  });
+  test("STU-067 arrow keys go through the injected edit, grouped", () => {
     const store = createSelectionStore(sel.click(index, empty, ["a"]));
     const calls: [string, string | undefined][] = [];
-    const draft = { id: "root", children: [{ id: "a" }] };
     const ctx = {
       store,
       index,
       docOf: () => "doc",
-      edit: (d: string, r: (x: unknown) => void, o?: { group?: string }) => {
-        calls.push([d, o?.group]);
-        r(draft);
+      edit: (dd: string, _r: (x: unknown) => void, o?: { group?: string }) => {
+        calls.push([dd, o?.group]);
       },
     };
-    const key = { shiftKey: true, ctrlKey: false, metaKey: false };
-    expect(handleKey(ctx, { key: "ArrowRight", ...key })).toBe(true);
+    const k = { shiftKey: true, ctrlKey: false, metaKey: false };
+    expect(handleKey(ctx, { key: "ArrowRight", ...k })).toBe(true);
     expect(calls).toEqual([["doc", "nudge"]]);
-    expect(JSON.stringify(draft)).toContain('"offset":{"x":10,"y":0}');
-    expect(handleKey(ctx, { key: "x", ...key })).toBe(false);
+    expect(handleKey(ctx, { key: "x", ...k })).toBe(false);
+    expect(structureKind({ key: "g", shiftKey: true, ctrlKey: true, metaKey: false })).toBe("unwrap");
+    expect(structureKind({ key: "d", shiftKey: false, ctrlKey: false, metaKey: true })).toBe("duplicate");
+  });
+  test("STU-067 hit IDs map to document node IDs", () => {
+    expect(nodeIdOfHit("home/n-1")).toBe("n-1");
+    expect(nodeIdOfHit(itemIdOf("home", "n-1"))).toBe("n-1");
+    expect(sel.click(index, empty, ["a1", "a"].map((n) => itemIdOf("s", n)).map(nodeIdOfHit)).ids).toEqual(["a"]);
   });
   test("STU-067 wrap, unwrap and reparent edit the draft", () => {
     interface D {
@@ -125,10 +173,6 @@ describe("keyboard, nudge, edits (STU-067)", () => {
       ["x", "nx"],
       ["y", "ny"],
     ]);
-    const e = { id: "r", children: [{ id: "a" }] };
-    nudgeRecipe(["a"], 1, 2)(e);
-    nudgeRecipe(["a"], 1, 2)(e);
-    expect(JSON.stringify(e)).toContain('"offset":{"x":2,"y":4}');
   });
 });
 

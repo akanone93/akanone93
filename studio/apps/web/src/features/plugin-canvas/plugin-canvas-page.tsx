@@ -6,6 +6,9 @@ import { overflowId } from "@plux/canvas";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RouterContext } from "../../router.tsx";
+import { ProblemCounts, ProblemsDrawer } from "../problems/problems-panel.tsx";
+import { useValidation } from "../problems/use-validation.ts";
+import { browserValidator } from "../problems/validator-client.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { readPlugin } from "./plugin-model.ts";
@@ -20,13 +23,15 @@ import {
   screenStyle,
 } from "./scene.ts";
 import type { EditFn } from "./select/edits.ts";
+import { structureEdit } from "./select/gesture.ts";
 import { handleKey } from "./select/keys.ts";
 import { announce } from "./select/live-region.ts";
 import * as sel from "./select/selection.ts";
 import { SelectionProvider, type SelectionStore, useSelection, useSelectionStore } from "./select/store.ts";
-import { indexNodes, type NodeIndex } from "./select/tree.ts";
+import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
+import { useGestures } from "./select/use-gestures.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
-import { usePluginDocuments } from "./use-plugin-documents.ts";
+import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 
 /** The document-edit pipeline arrives with S2.2; until then the route stays read-only and edits do nothing. */
 const readOnlyEdit: EditFn = () => undefined;
@@ -102,8 +107,12 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
   const params = useParams({ strict: false }) as { app?: string; plugin?: string };
   const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number };
   const navigate = useNavigate();
-  const { createSurface = browserSurface } = useRouteContext({ strict: false }) as Pick<RouterContext, "createSurface">;
+  const { createSurface = browserSurface, createValidator = browserValidator } = useRouteContext({
+    strict: false,
+  }) as Pick<RouterContext, "createSurface" | "createValidator">;
   const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
+  const appDocs = useAppDocuments(params.app ?? "");
+  const validation = useValidation(createValidator, appDocs.data, docs.data);
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -129,8 +138,21 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
     store.set(sel.prune(index, store.get()));
   }, [index, store]);
   useEffect(() => {
-    surfaceRef.current?.setSelection?.(selection.ids);
-  }, [selection]);
+    surfaceRef.current?.setSelection?.(
+      selection.ids.flatMap((id) => {
+        const screen = screenOf.get(id);
+        return screen === undefined ? [] : [itemIdOf(screen, id)];
+      }),
+    );
+  }, [selection, screenOf]);
+  const gestures = useGestures({
+    surface: () => surfaceRef.current,
+    canvas: () => canvasRef.current,
+    store,
+    index,
+    edit,
+    screenOf,
+  });
   const searchRef = useRef(search);
   searchRef.current = search;
 
@@ -196,17 +218,37 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
         className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
         tabIndex={0}
         onKeyDown={(e) => {
-          const handled = handleKey({ store, index, edit, docOf: (id) => screenOf.get(id) }, e);
+          const structure = (kind: "wrap" | "unwrap" | "duplicate", ids: readonly string[]) =>
+            structureEdit(
+              {
+                index,
+                edit,
+                docOf: (id) => screenOf.get(id),
+                boxOf: () => undefined,
+                typeOf: (id) => index.type.get(id),
+              },
+              kind,
+              ids,
+              () => crypto.randomUUID(),
+            );
+          const handled = handleKey({ store, index, edit, structure, docOf: (id) => screenOf.get(id) }, e);
           if (handled) {
             e.preventDefault();
           }
         }}
         onDoubleClick={() => store.set(sel.enter(index, store.get()))}
         onPointerDown={(e) => {
+          if (!e.shiftKey && !e.ctrlKey && !e.metaKey && gestures.down(e)) {
+            start.current = { x: e.clientX, y: e.clientY };
+            return;
+          }
           drag.current = { x: e.clientX, y: e.clientY };
           start.current = { x: e.clientX, y: e.clientY };
         }}
         onPointerMove={(e) => {
+          if (gestures.move(e)) {
+            return;
+          }
           const d = drag.current;
           if (d !== null && !e.shiftKey) {
             surfaceRef.current?.pan(e.clientX - d.x, e.clientY - d.y);
@@ -215,7 +257,8 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
         }}
         onPointerUp={(e) => {
           drag.current = null;
-          const from = start.current;
+          const moved = gestures.up(e);
+          const from = moved ? null : start.current;
           start.current = null;
           const box = canvasRef.current?.getBoundingClientRect();
           if (from !== null && surfaceRef.current && box) {
@@ -252,6 +295,10 @@ function PluginCanvasView({ edit }: { edit: EditFn }) {
           </li>
         ))}
       </ol>
+      <div className="absolute end-4 top-4">
+        <ProblemCounts validation={validation} />
+      </div>
+      <ProblemsDrawer validation={validation} />
       <p className="absolute end-4 bottom-4 text-caption text-secondary">{m.zoom(percent)}</p>
     </section>
   );

@@ -1,11 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { widget } from "@plux/schema";
+import { type ArrowKey, nudgeDelta } from "./geometry.ts";
+
 /** Document edits of canvas interactions (STU-067) as recipes for the injected `edit` function. */
 
 export type EditFn = (docId: string, recipe: (draft: unknown) => void, options?: { group?: string }) => void;
 
 interface Obj {
+  type?: unknown;
+  left?: unknown;
+  top?: unknown;
+  width?: unknown;
+  height?: unknown;
   id?: unknown;
   props?: unknown;
   children?: unknown;
@@ -67,29 +75,90 @@ function propsOf(node: Obj): Obj {
   return node.props as Obj;
 }
 
-/** Nudge / move: stores the offset of the nodes in `props.offset`, summed with any earlier offset. */
-export function nudgeRecipe(ids: readonly string[], dx: number, dy: number): (draft: unknown) => void {
-  return (draft) => {
-    for (const id of ids) {
-      const p = findNode(draft, id);
-      if (p === null) {
-        continue;
-      }
-      const props = propsOf(p.node);
-      const o = isObj(props.offset) ? props.offset : {};
-      props.offset = { x: Number(o.x ?? 0) + dx, y: Number(o.y ?? 0) + dy };
-    }
-  };
+const FLOW = new Set(["Row", "Column", "Wrap", "Flex"]);
+
+/** The `Positioned` that places \`node\` in a \`Stack\`: the node itself, or its parent when the node is its child. */
+function positionedOf(draft: unknown, place: Place): Obj | null {
+  const candidate =
+    place.node.type === "Positioned" ? place.node : place.parent?.type === "Positioned" ? place.parent : null;
+  if (candidate === null || typeof candidate.id !== "string") {
+    return null;
+  }
+  const outer = findNode(draft, candidate.id);
+  return outer?.parent?.type === "Stack" ? candidate : null;
 }
 
-/** Resize: stores the size in `props.size`. */
-export function resizeRecipe(id: string, width: number, height: number): (draft: unknown) => void {
+const num = (v: unknown): number => (typeof v === "number" ? v : 0);
+
+/** Which sibling step an arrow means in a flow parent (F5: arrows step one sibling), or 0. */
+function flowStep(parentType: unknown, key: ArrowKey): number {
+  const back = key === "ArrowUp" || key === "ArrowLeft";
+  const column = parentType === "Column";
+  const row = parentType === "Row";
+  const horizontal = key === "ArrowLeft" || key === "ArrowRight";
+  if ((column && horizontal) || (row && !horizontal)) {
+    return 0;
+  }
+  return back ? -1 : 1;
+}
+
+/**
+ * Nudge / move by an arrow key, following the parent (F5): in a \`Stack\` the child's \`Positioned\` left/top change
+ * by 1 px (Shift 10 px); in Row, Column or Wrap the node steps one sibling; anywhere else nothing changes.
+ */
+export function nudgeRecipe(id: string, key: ArrowKey, shift: boolean): (draft: unknown) => void {
   return (draft) => {
     const p = findNode(draft, id);
     if (p === null) {
       return;
     }
-    propsOf(p.node).size = { width, height };
+    const positioned = positionedOf(draft, p);
+    if (positioned !== null) {
+      const d = nudgeDelta(key, shift);
+      const props = propsOf(positioned);
+      props.left = num(props.left) + d.x;
+      props.top = num(props.top) + d.y;
+      return;
+    }
+    const step =
+      p.parent !== null && p.list !== null && FLOW.has(String(p.parent.type)) ? flowStep(p.parent.type, key) : 0;
+    const to = p.index + step;
+    if (step !== 0 && p.list !== null && to >= 0 && to < p.list.length) {
+      const [moved] = p.list.splice(p.index, 1);
+      p.list.splice(to, 0, moved);
+    }
+  };
+}
+
+/** Move by a drag: in a \`Stack\` the \`Positioned\` left/top change by (dx, dy) rounded to whole pixels; else nothing. */
+export function moveRecipe(id: string, dx: number, dy: number): (draft: unknown) => void {
+  return (draft) => {
+    const p = findNode(draft, id);
+    const positioned = p === null ? null : positionedOf(draft, p);
+    if (positioned !== null) {
+      const props = propsOf(positioned);
+      props.left = num(props.left) + Math.round(dx);
+      props.top = num(props.top) + Math.round(dy);
+    }
+  };
+}
+
+/** Resize: sets width/height only where the node's descriptor has those size props. */
+export function resizeRecipe(
+  id: string,
+  width: number,
+  height: number,
+  propsOfType: (type: string) => readonly string[] = (t) => widget(t)?.props.map((p) => p.name) ?? [],
+): (draft: unknown) => void {
+  return (draft) => {
+    const p = findNode(draft, id);
+    const names = typeof p?.node.type === "string" ? propsOfType(p.node.type) : [];
+    if (p === null || !names.includes("width") || !names.includes("height")) {
+      return;
+    }
+    const props = propsOf(p.node);
+    props.width = width;
+    props.height = height;
   };
 }
 

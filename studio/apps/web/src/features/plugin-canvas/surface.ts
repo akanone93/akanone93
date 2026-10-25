@@ -4,6 +4,7 @@
 import {
   CanvasHost,
   type FontSource,
+  type Guides,
   type ScreenDocument,
   type ScreenHeight,
   type ScreenStyle,
@@ -23,6 +24,9 @@ export interface CanvasSurface {
   hitTest?(x: number, y: number): string[];
   hitTestRect?(rect: { l: number; t: number; r: number; b: number }, mode: "intersect" | "contain"): string[];
   setSelection?(ids: readonly string[]): void;
+  /** World rectangle of an item, and the overlay feedback of a drag (guides, distance labels, insertion indicator). */
+  boundsOf?(id: string): { l: number; t: number; r: number; b: number } | undefined;
+  setGuides?(guides: Guides | null): void;
   readonly viewport: { readonly x: number; readonly y: number; readonly zoom: number };
   dispose(): void;
 }
@@ -113,6 +117,8 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     zoomAbout: (factor, x, y) => run((h) => h.zoomAbout(factor, x, y)),
     hitTest: (x, y) => host?.hitTest(x, y) ?? [],
     hitTestRect: (rect, mode) => host?.hitTestRect(rect, mode) ?? [],
+    boundsOf: (id) => host?.boundsOf(id),
+    setGuides: (g) => run((h) => h.setGuides(g)),
     setSelection: (ids) => run((h) => h.setSelection(ids)),
     get viewport() {
       return host ? host.viewport : view;

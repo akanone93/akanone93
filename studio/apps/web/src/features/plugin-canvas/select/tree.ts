@@ -8,6 +8,7 @@ export interface NodeIndex {
   readonly parent: ReadonlyMap<string, string | null>;
   readonly children: ReadonlyMap<string, readonly string[]>;
   readonly depth: ReadonlyMap<string, number>;
+  readonly type: ReadonlyMap<string, string>;
 }
 
 /** Children of a node in document order: slots (in key order) then `children`. */
@@ -20,9 +21,13 @@ export function indexNodes(roots: readonly (Node | undefined)[]): NodeIndex {
   const parent = new Map<string, string | null>();
   const children = new Map<string, readonly string[]>();
   const depth = new Map<string, number>();
+  const type = new Map<string, string>();
   const visit = (n: Node, p: string | null, d: number): void => {
     parent.set(n.id, p);
     depth.set(n.id, d);
+    if (n.type !== undefined) {
+      type.set(n.id, n.type);
+    }
     const kids = childNodes(n);
     children.set(
       n.id,
@@ -37,7 +42,7 @@ export function indexNodes(roots: readonly (Node | undefined)[]): NodeIndex {
       visit(r, null, 0);
     }
   }
-  return { parent, children, depth };
+  return { parent, children, depth, type };
 }
 
 /** `id` and its ancestors, innermost first. */
@@ -49,4 +54,12 @@ export function lineage(index: NodeIndex, id: string): string[] {
     cur = index.parent.get(cur);
   }
   return out;
+}
+
+/** Hit and item IDs are `<screen>/<node>` (canvas `screens.ts`); the document node ID is the part after the slash. */
+export const itemIdOf = (screen: string, node: string): string => `${screen}/${node}`;
+
+export function nodeIdOfHit(hit: string): string {
+  const i = hit.indexOf("/");
+  return i < 0 ? hit : hit.slice(i + 1);
 }
