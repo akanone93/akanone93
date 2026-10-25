@@ -63,7 +63,11 @@ interface Context2dLike {
  * flush copies only its dirty rectangle [l, t, r, b] when one is given.
  */
 function rasterOn(ck: CanvasKit, canvas: OffscreenCanvasLike): Surface | null {
-  const context = (canvas as { getContext?(type: "2d"): Context2dLike | null }).getContext?.("2d") ?? null;
+  // A CPU-backed 2D context: an accelerated one would hand every copy to the software GL this path avoids.
+  const context =
+    (
+      canvas as { getContext?(type: "2d", attributes: { willReadFrequently: boolean }): Context2dLike | null }
+    ).getContext?.("2d", { willReadFrequently: true }) ?? null;
   const { width, height } = canvas;
   if (!context || width <= 0 || height <= 0) {
     return null;
@@ -86,9 +90,19 @@ function rasterOn(ck: CanvasKit, canvas: OffscreenCanvasLike): Surface | null {
   surface.flush = ((dirty?: Int32Array) => {
     flush();
     const bytes = pixels.toTypedArray();
-    const image = new ImageData(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset, bytes.length), width, height);
+    // A view of CanvasKit's heap, not a copy; the heap is a plain (not shared) ArrayBuffer.
+    const heap = bytes.buffer as ArrayBuffer;
+    const image = new ImageData(new Uint8ClampedArray(heap, bytes.byteOffset, bytes.length), width, height);
     if (dirty) {
-      context.putImageData(image, 0, 0, dirty[0], dirty[1], (dirty[2] ?? 0) - (dirty[0] ?? 0), (dirty[3] ?? 0) - (dirty[1] ?? 0));
+      context.putImageData(
+        image,
+        0,
+        0,
+        dirty[0],
+        dirty[1],
+        (dirty[2] ?? 0) - (dirty[0] ?? 0),
+        (dirty[3] ?? 0) - (dirty[1] ?? 0),
+      );
     } else {
       context.putImageData(image, 0, 0);
     }
@@ -100,8 +114,12 @@ function rasterOn(ck: CanvasKit, canvas: OffscreenCanvasLike): Surface | null {
   return surface;
 }
 
-function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster"): Surface | null {
+function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster" | "layer"): Surface | null {
   const target = canvas as unknown as SurfaceTarget;
+  if (kind === "layer") {
+    // Transparent: a 2D canvas takes unpremultiplied pixels, which this surface renders.
+    return ck.MakeSWCanvasSurface(target);
+  }
   if (kind === "raster") {
     return rasterOn(ck, canvas);
   }

@@ -60,6 +60,7 @@ describe("STU-120 software GL detection (M-12)", () => {
   test("a hardware renderer is not software; no WebGL or no OffscreenCanvas is unavailable", () => {
     expect(probe(scope("ANGLE (NVIDIA, NVIDIA GeForce RTX 3060)")).software).toBe(false);
     expect(probe(scope(null)).available).toBe(false);
-    expect(probe({ ...scope(null), OffscreenCanvas: undefined }).available).toBe(false);
+    const { OffscreenCanvas: _omitted, ...noOffscreen } = scope(null);
+    expect(probe(noOffscreen).available).toBe(false);
   });
 });
