@@ -263,6 +263,21 @@ export type HostMessage =
       readonly screens: readonly ScreenDocument[];
       readonly style: ScreenStyle;
     }
+  /**
+   * Lays out again only the screens that changed and drops `removed`, against
+   * the screens of the last `screens` request (STU-121); answered by a
+   * `screens` message whose ops change only the items that differ and whose
+   * heights cover only `screens`. Without an earlier `screens` request in the
+   * same style, the host sends `screens` instead.
+   */
+  | {
+      readonly v: number;
+      readonly type: "screensUpdate";
+      readonly requestId: number;
+      readonly screens: readonly ScreenDocument[];
+      readonly removed: readonly string[];
+      readonly style: ScreenStyle;
+    }
   | { readonly v: number; readonly type: "dispose" };
 
 /** Worker → main thread. */
@@ -298,6 +313,7 @@ const hostTypes: ReadonlySet<string> = new Set([
   "resize",
   "snapshot",
   "screens",
+  "screensUpdate",
   "dispose",
 ]);
 const workerTypes: ReadonlySet<string> = new Set(["ready", "frame", "snapshot", "screens", "surface", "error"]);
