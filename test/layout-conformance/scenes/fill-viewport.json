@@ -1,0 +1,73 @@
+{
+  "name": "fill-viewport",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "scroll",
+            "type": "CustomScrollView",
+            "props": {
+              "scrollOffset": 400
+            },
+            "children": [
+              {
+                "id": "pages",
+                "type": "SliverFillViewport",
+                "props": {},
+                "children": [
+                  {
+                    "id": "p0",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  },
+                  {
+                    "id": "p1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  },
+                  {
+                    "id": "p2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  },
+                  {
+                    "id": "p3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

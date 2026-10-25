@@ -1,0 +1,121 @@
+{
+  "name": "viewport-axis-horizontal",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "vp",
+            "type": "Viewport",
+            "props": {
+              "axisDirection": "right",
+              "offset": 80
+            },
+            "children": [
+              {
+                "id": "hdr",
+                "type": "SliverToBoxAdapter",
+                "props": {},
+                "children": [
+                  {
+                    "id": "hdr-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 70,
+                      "height": 400
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "list",
+                "type": "SliverList",
+                "props": {},
+                "children": [
+                  {
+                    "id": "h0",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 90,
+                      "height": 400
+                    }
+                  },
+                  {
+                    "id": "h1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 120,
+                      "height": 400
+                    }
+                  },
+                  {
+                    "id": "h2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 60,
+                      "height": 400
+                    }
+                  },
+                  {
+                    "id": "h3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 100,
+                      "height": 400
+                    }
+                  },
+                  {
+                    "id": "h4",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 80,
+                      "height": 400
+                    }
+                  },
+                  {
+                    "id": "h5",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 140,
+                      "height": 400
+                    }
+                  },
+                  {
+                    "id": "h6",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 70,
+                      "height": 400
+                    }
+                  },
+                  {
+                    "id": "h7",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 110,
+                      "height": 400
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

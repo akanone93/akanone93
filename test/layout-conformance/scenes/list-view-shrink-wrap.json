@@ -1,0 +1,80 @@
+{
+  "name": "list-view-shrink-wrap",
+  "root": {
+    "id": "a",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "limit",
+        "type": "ConstrainedBox",
+        "props": {
+          "maxWidth": 300,
+          "maxHeight": 400
+        },
+        "children": [
+          {
+            "id": "list",
+            "type": "ListView",
+            "props": {
+              "shrinkWrap": true,
+              "padding": [
+                0,
+                10,
+                0,
+                10
+              ]
+            },
+            "children": [
+              {
+                "id": "i0",
+                "type": "TestBox",
+                "props": {
+                  "width": 300,
+                  "height": 60
+                }
+              },
+              {
+                "id": "i1",
+                "type": "TestBox",
+                "props": {
+                  "width": 300,
+                  "height": 100
+                }
+              },
+              {
+                "id": "i2",
+                "type": "TestBox",
+                "props": {
+                  "width": 300,
+                  "height": 40
+                }
+              },
+              {
+                "id": "i3",
+                "type": "TestBox",
+                "props": {
+                  "width": 300,
+                  "height": 80
+                }
+              },
+              {
+                "id": "i4",
+                "type": "TestBox",
+                "props": {
+                  "width": 300,
+                  "height": 120
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

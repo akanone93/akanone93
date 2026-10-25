@@ -1,0 +1,65 @@
+{
+  "name": "fill-remaining-overscroll",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "scroll",
+            "type": "CustomScrollView",
+            "props": {},
+            "children": [
+              {
+                "id": "top",
+                "type": "SliverToBoxAdapter",
+                "props": {},
+                "children": [
+                  {
+                    "id": "top-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 100
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "fill",
+                "type": "SliverFillRemaining",
+                "props": {
+                  "hasScrollBody": false,
+                  "fillOverscroll": true
+                },
+                "children": [
+                  {
+                    "id": "fill-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 50,
+                      "height": 50
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
