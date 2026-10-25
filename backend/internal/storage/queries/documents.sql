@@ -138,13 +138,13 @@ UPDATE documents SET deleted_at = NULL, revision = revision + 1, updated_at = no
 
 -- name: CreateSnapshot :one
 INSERT INTO snapshots (id, organization_id, draft_id, sequence, revision, reason, applied,
-                       actor_kind, actor_id, actor_display, keep)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                       actor_kind, actor_id, actor_display, keep, editor_session_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING *;
 
 -- name: AddSnapshotDocument :exec
-INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried, inverse_patch, step_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 ON CONFLICT (snapshot_id, path) DO NOTHING;
 
 -- name: GetSnapshot :one
@@ -155,6 +155,30 @@ SELECT * FROM snapshots
  WHERE draft_id = $1 AND sequence < sqlc.arg(before_sequence)::bigint
  ORDER BY sequence DESC
  LIMIT sqlc.arg(page_size);
+
+-- name: ListEditorSessionEntries :many
+-- The entries of an editor session on a draft, newest first, for Studio's
+-- undo rebuild (STU-069): every applied write it made that kept its
+-- inverse patch.
+SELECT s.id, s.sequence, s.revision, s.created_at, sd.path, sd.inverse_patch, sd.step_id
+  FROM snapshots s
+  JOIN snapshot_documents sd ON sd.snapshot_id = s.id
+ WHERE s.draft_id = $1
+   AND s.editor_session_id = sqlc.arg(editor_session_id)::text
+   AND s.applied AND NOT sd.carried AND sd.inverse_patch IS NOT NULL
+   AND s.sequence < sqlc.arg(before_sequence)::bigint
+ ORDER BY s.sequence DESC, sd.path
+ LIMIT sqlc.arg(page_size);
+
+-- name: PruneEditorSessionEntries :exec
+-- Clears the inverse patches of an editor session's writes on a draft
+-- beyond its newest keep (studio.undoDepth).
+UPDATE snapshot_documents SET inverse_patch = NULL
+ WHERE inverse_patch IS NOT NULL
+   AND snapshot_id IN (SELECT id FROM snapshots
+                        WHERE draft_id = $1 AND editor_session_id = sqlc.arg(editor_session_id)::text
+                        ORDER BY sequence DESC
+                        OFFSET sqlc.arg(keep)::bigint);
 
 -- name: ListSnapshotPaths :many
 SELECT path FROM snapshot_documents WHERE snapshot_id = $1 AND NOT carried ORDER BY path;

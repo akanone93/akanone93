@@ -190,6 +190,9 @@ var matrix = map[string]entry{
 	"DocumentService/ValidatePage": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ValidatePageRequest{AppId: f.app, PluginId: f.plugin, Path: "plugins/loans/pages/home.page.json", Content: []byte(pageDoc)}
 	})),
+	"DocumentService/ListEditorSessionEntries": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListEditorSessionEntriesRequest{AppId: f.app, PluginId: f.plugin, EditorSessionId: "tab-1"}
+	})),
 	"DocumentService/ListSnapshots": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListSnapshotsRequest{AppId: f.app, PluginId: f.plugin}
 	})),

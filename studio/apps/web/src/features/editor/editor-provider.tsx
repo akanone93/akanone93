@@ -11,13 +11,14 @@ import { loadUser } from "../../lib/guards.ts";
 import { lockWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { ConflictDialog } from "./conflict-dialog.tsx";
-import { documentTransport, toServerDocument } from "./document-transport.ts";
+import { documentTransport, loadSessionEntries, toServerDocument } from "./document-transport.ts";
 import { type EditRecord, EditSession, type EditState } from "./edit-session.ts";
 import { LockController, type LockStatus, LockUnavailable } from "./lock-controller.ts";
 import { lockTransport, type TickWorker, tabChannel, workerTicker } from "./lock-transport.ts";
 import { LockBanner, LockLostDialog } from "./lock-ui.tsx";
 import lockWorkerURL from "./lock-worker.ts?worker&url";
 import { useReportPending } from "./pending-changes.tsx";
+import type { UndoManager } from "./undo-stack.ts";
 
 /** Called on the first edit of a document; S2.3 acquires the plugin's lock here. */
 export type AcquireLock = (target: {
@@ -40,6 +41,10 @@ export interface EditorProviderProps {
   /** Every edit with its inverse patches, for the S2.4 undo stack. */
   readonly onEdit?: (record: EditRecord) => void;
   readonly onRejected?: (path: string, error: unknown, undone: readonly string[]) => void;
+  /** The tab's editor session, which tags every write for the undo rebuild (STU-069). */
+  readonly editorSessionId?: string;
+  /** The undo stacks this plugin's edits go to (stack key: the plugin ID, "" for app documents). */
+  readonly undo?: UndoManager;
   readonly children: ReactNode;
 }
 
@@ -123,7 +128,12 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
       session.queryClient.setQueryData<Document[]>(documentsKey(appId, pluginId), (old) =>
         old?.map((d) => (d.path === doc.path ? doc : d)),
       );
-    const base = documentTransport(session.transport, { appId, pluginId }, confirmed, () => lock.whenHeld());
+    const base = documentTransport(
+      session.transport,
+      { appId, pluginId, editorSessionId: latest.current.editorSessionId ?? "" },
+      confirmed,
+      () => lock.whenHeld(),
+    );
     return new EditSession({
       transport: {
         ...base,
@@ -146,7 +156,11 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
         void lock.ensure().catch(() => undefined);
         latest.current.onFirstEdit?.({ appId, pluginId, path });
       },
-      onEdit: (record) => latest.current.onEdit?.(record),
+      stepFor: (_path, group) => latest.current.undo?.stepFor(pluginId, group),
+      onEdit: (record) => {
+        latest.current.undo?.record(pluginId, record);
+        latest.current.onEdit?.(record);
+      },
       onRejected: (path, error, undone) => latest.current.onRejected?.(path, error, undone),
     });
   });
@@ -157,6 +171,22 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
     }
   }, [edit, documents]);
 
+  const { undo, editorSessionId } = props;
+  useEffect(() => {
+    if (undo === undefined) {
+      return;
+    }
+    const detach = undo.attach(pluginId, edit);
+    if (editorSessionId !== undefined && editorSessionId !== "") {
+      const depth = limitDefault("studio.undoDepth");
+      loadSessionEntries(session.transport, { appId, pluginId, editorSessionId }, depth).then(
+        (entries) => undo.rebuild(pluginId, entries),
+        // Without the entries the stack starts empty; editing is unaffected.
+        () => undefined,
+      );
+    }
+    return detach;
+  }, [undo, edit, appId, pluginId, editorSessionId, session.transport]);
   useEffect(() => {
     const detach = edit.attach({ window, document });
     const detachLock = lock.attach(window);

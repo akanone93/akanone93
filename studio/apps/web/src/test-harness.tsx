@@ -13,6 +13,7 @@ import {
   GovernanceService,
   IdentityService,
   InboxItemSchema,
+  LockSchema,
   MemberSchema,
   NotificationService,
   OrganizationSchema,
@@ -27,6 +28,8 @@ import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import { App } from "./app.tsx";
+import type { EditSession } from "./features/editor/edit-session.ts";
+import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
 import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { I18nProvider } from "./i18n-provider.tsx";
@@ -49,6 +52,12 @@ export interface Upstream {
   documents?: { kind: string; path: string; json: unknown }[];
   surface?: SurfaceFactory;
   validator?: ValidatorFactory;
+  /** Someone else holds the plugin's editing lock: the editor is read-only. */
+  lockHeldElsewhere?: boolean;
+  /** Collects every PatchDocument the upstream receives (autosave, undo, redo). */
+  sent?: { path: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
+  /** Receives the plugin canvas's edit pipeline. */
+  editor?: (edit: EditSession) => void;
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
   /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
   pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
@@ -58,6 +67,8 @@ export interface Upstream {
 
 /** An in-memory upstream for the shell: the same RPCs the BFF forwards. */
 export function createUpstream(state: Upstream) {
+  // Documents autosave changed, by path; the fixtures themselves stay as given.
+  const patched = new Map<string, { kind: string; path: string; json: unknown }>();
   const stored = state.stored ?? { theme: "", language: "", density: "" };
   return createRouterTransport(({ service }) => {
     service(IdentityService, {
@@ -111,8 +122,68 @@ export function createUpstream(state: Upstream) {
       listPlugins: () => ({
         plugins: Object.keys(state.pluginDocuments ?? {}).map((id) => create(PluginSchema, { id, key: id })),
       }),
+      // The editing lock: free until taken, then held by the session that took it.
+      getLock: (req) =>
+        state.lockHeldElsewhere === true
+          ? {
+              lock: create(LockSchema, {
+                appId: req.appId,
+                pluginId: req.pluginId,
+                session: "another-tab",
+                holder: { kind: "user", id: "someone-else", display: "Ana" },
+                expiresAt: { seconds: BigInt(Math.floor(Date.now() / 1000) + 3600), nanos: 0 },
+              }),
+            }
+          : {},
+      acquireLock: (req) => {
+        if (state.lockHeldElsewhere === true) {
+          throw new ConnectError("the lock is held by someone else", Code.FailedPrecondition);
+        }
+        return {
+          lock: create(LockSchema, {
+            appId: req.appId,
+            pluginId: req.pluginId,
+            session: req.session,
+            expiresAt: { seconds: BigInt(Math.floor(Date.now() / 1000) + 3600), nanos: 0 },
+          }),
+        };
+      },
+      renewLock: (req) => ({
+        lock: create(LockSchema, {
+          appId: req.appId,
+          pluginId: req.pluginId,
+          session: req.session,
+          expiresAt: { seconds: BigInt(Math.floor(Date.now() / 1000) + 3600), nanos: 0 },
+        }),
+      }),
+      releaseLock: () => ({}),
     });
     service(DocumentService, {
+      // Autosave: applies the patch to the stored document and returns it one revision on.
+      patchDocument: (req) => {
+        const stored =
+          patched.get(req.path) ??
+          [...(state.documents ?? []), ...(state.appDocuments ?? [])].find((d) => d.path === req.path);
+        const doc = stored === undefined ? undefined : { ...stored };
+        const ops = req.patch.map((o) => ({
+          op: o.op as JsonPatchOp["op"],
+          path: o.path,
+          ...(o.value.length > 0 && { value: JSON.parse(new TextDecoder().decode(o.value)) as JsonValue }),
+        }));
+        state.sent?.push({ path: req.path, stepId: req.stepId, ops });
+        if (doc !== undefined) {
+          doc.json = applyPatch(doc.json as JsonValue, ops);
+          patched.set(req.path, doc);
+        }
+        return {
+          document: create(DocumentSchema, {
+            kind: doc?.kind ?? "",
+            path: req.path,
+            revision: req.ifRevision + 1n,
+            content: new TextEncoder().encode(JSON.stringify(doc?.json ?? {})),
+          }),
+        };
+      },
       listDocuments: (req) => ({
         documents: (req.pluginId === ""
           ? (state.appDocuments ?? state.documents ?? [])
@@ -140,6 +211,7 @@ export function renderApp(path: string, state: Upstream = {}) {
     {
       session,
       ...(state.surface !== undefined && { createSurface: state.surface }),
+      ...(state.editor !== undefined && { observeEditor: state.editor }),
       createValidator:
         state.validator ?? (() => ({ load: async () => [], validatePage: async () => [], dispose: () => undefined })),
     },

@@ -3,11 +3,15 @@
 
 import { useLingui } from "@lingui/react";
 import { overflowId } from "@plux/canvas";
+import { limitDefault } from "@plux/schema";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useScopedCommands } from "../../lib/commands/index.ts";
+import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
+import { tabEditorSession } from "../editor/document-transport.ts";
+import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
+import { UndoManager } from "../editor/undo-stack.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
@@ -99,11 +103,69 @@ function fitView(
 }
 
 /** C2: the plugin canvas with selection (S2.5); edits stay blocked until the editor reports \`canEdit\` (S2.3). */
+/** The tab's sessionStorage, or undefined where the browser blocks it. It holds only the editor-session ID. */
+function tabStorage(): Storage | undefined {
+  try {
+    return globalThis.sessionStorage;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Hands the plugin's edit pipeline to an observer (tests); renders nothing. */
+function ObserveEditor({ observe }: { readonly observe: (edit: EditSession) => void }): null {
+  const edit = useEditSession();
+  useEffect(() => {
+    observe(edit);
+  }, [observe, edit]);
+  return null;
+}
+
+/** Registers edit.undo and edit.redo for the plugin's stack, disabled with the reason while read-only. */
+function UndoCommands(props: {
+  readonly undo: UndoManager;
+  readonly stack: string;
+  readonly canEdit: { current: boolean };
+}): null {
+  const { i18n } = useLingui();
+  const canEdit = useCanEdit();
+  props.canEdit.current = canEdit;
+  const { undo, stack } = props;
+  const list = useMemo(() => {
+    const focus = createUndoFocus();
+    focus.set({ undo: () => undo.undo(stack), redo: () => undo.redo(stack) });
+    return undoCommands(i18n, focus, !canEdit);
+  }, [i18n, undo, stack, canEdit]);
+  useScopedCommands("plugin-undo", list);
+  return null;
+}
+
 export function PluginCanvasPage() {
   const params = useParams({ strict: false }) as { app?: string; plugin?: string };
   const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
+  const { observeEditor } = useRouteContext({ strict: false }) as Pick<RouterContext, "observeEditor">;
+  const stack = params.plugin ?? "";
+  // One undo stack per plugin (F3); edit.undo and edit.redo act on it while this page is open.
+  // Undo is blocked while the editor is read-only or lost its lock (F3); UndoCommands keeps this current.
+  const canEdit = useRef(true);
+  const [undo] = useState(
+    () =>
+      new UndoManager({
+        depth: limitDefault("studio.undoDepth"),
+        blocked: () => (canEdit.current ? undefined : "read-only"),
+      }),
+  );
+  const [editorSessionId] = useState(() => tabEditorSession(tabStorage()));
   return (
-    <EditorProvider appId={params.app ?? ""} pluginId={params.plugin ?? ""} documents={docs.data}>
+    <EditorProvider
+      appId={params.app ?? ""}
+      pluginId={stack}
+      documents={docs.data}
+      undo={undo}
+      editorSessionId={editorSessionId}
+    >
+      {observeEditor !== undefined && <ObserveEditor observe={observeEditor} />}
+      <UndoCommands undo={undo} stack={stack} canEdit={canEdit} />
       <PluginCanvasView docs={docs} />
     </EditorProvider>
   );

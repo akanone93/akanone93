@@ -49,6 +49,12 @@ type change struct {
 	searchText string
 	ifRevision int64
 	delete     bool
+	// editorSession and inverse are set for a write tagged with a Studio
+	// editor session: inverse is the stored JSON of the patch that undoes
+	// it, nil for a document the write created (STU-069).
+	editorSession string
+	step          string
+	inverse       []byte
 }
 
 // limitsFor returns the limits in force for a draft (LIM-002).
@@ -117,6 +123,8 @@ func refusal(diags plxerr.Diagnostics) error {
 type recorded struct {
 	path, kind string
 	sum        []byte
+	inverse    []byte
+	step       string
 }
 
 // apply writes changes to a draft as one snapshot, in the caller's
@@ -144,7 +152,11 @@ func (s *Service) apply(ctx context.Context, q *dbgen.Queries, tx pgx.Tx, d draf
 		if err != nil {
 			return Written{}, err
 		}
+		e.inverse, e.step = c.inverse, c.step
 		entries = append(entries, e)
+		if c.editorSession != "" {
+			d.editorSession = c.editorSession
+		}
 	}
 	snap, err := s.newSnapshot(ctx, q, d, p, int64(len(changes)), reason, true)
 	if err != nil {
@@ -153,6 +165,7 @@ func (s *Service) apply(ctx context.Context, q *dbgen.Queries, tx pgx.Tx, d draf
 	for _, e := range entries {
 		if err := q.AddSnapshotDocument(ctx, dbgen.AddSnapshotDocumentParams{
 			SnapshotID: snap.ID, OrganizationID: d.row.OrganizationID, Path: e.path, Kind: e.kind, Sha256: e.sum,
+			InversePatch: e.inverse, StepID: e.step,
 		}); err != nil {
 			return Written{}, fmt.Errorf("document: record the snapshot: %w", err)
 		}
@@ -279,7 +292,7 @@ func (s *Service) newSnapshot(ctx context.Context, q *dbgen.Queries, d draft, p 
 	snap, err := q.CreateSnapshot(ctx, dbgen.CreateSnapshotParams{
 		ID: storage.MustUUID(id), OrganizationID: d.row.OrganizationID, DraftID: d.row.ID,
 		Sequence: advanced.Snapshots, Revision: advanced.Revision, Reason: reason, Applied: applied,
-		ActorKind: p.Kind, ActorID: p.ID, ActorDisplay: p.Display,
+		ActorKind: p.Kind, ActorID: p.ID, ActorDisplay: p.Display, EditorSessionID: d.editorSession,
 	})
 	if err != nil {
 		return dbgen.Snapshot{}, fmt.Errorf("document: create a snapshot: %w", err)
@@ -466,6 +479,16 @@ func (s *Service) preserve(ctx context.Context, q *dbgen.Queries, d draft, p aut
 
 // PutDocument writes a document whole (SRV-030).
 func (s *Service) PutDocument(ctx context.Context, p auth.Principal, appID, pluginID, session, path string, content []byte, ifRevision int64) (Written, error) {
+	return s.PutDocumentTagged(ctx, p, appID, pluginID, session, Tag{}, path, content, ifRevision)
+}
+
+// PutDocumentTagged is PutDocument for a write from a Studio editor
+// session, which tags its snapshot and stores the inverse patch that
+// undoes it (STU-069). An empty editorSession tags nothing.
+func (s *Service) PutDocumentTagged(ctx context.Context, p auth.Principal, appID, pluginID, session string, tag Tag, path string, content []byte, ifRevision int64) (Written, error) {
+	if err := tag.check(); err != nil {
+		return Written{}, err
+	}
 	if err := guardTranslator(p, appID, pluginID, path, true); err != nil {
 		return Written{}, err
 	}
@@ -474,6 +497,9 @@ func (s *Service) PutDocument(ctx context.Context, p auth.Principal, appID, plug
 	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
 		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
 			c, diags, err := s.prepare(d, lim, path, content, ifRevision)
+			if err == nil && tag.EditorSession != "" {
+				c, err = s.tagPut(ctx, q, d, lim, tag, c)
+			}
 			if err == nil && scope != "" {
 				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)
 			}
@@ -500,6 +526,15 @@ func translationsScope(pluginID, path string) string {
 // autosave sends (SRV-030). The patch applies to the revision it names;
 // the result is validated like a whole document.
 func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pluginID, session, path string, patch []Op, ifRevision int64) (Written, error) {
+	return s.PatchDocumentTagged(ctx, p, appID, pluginID, session, Tag{}, path, patch, ifRevision)
+}
+
+// PatchDocumentTagged is PatchDocument for a write from a Studio editor
+// session, as PutDocumentTagged.
+func (s *Service) PatchDocumentTagged(ctx context.Context, p auth.Principal, appID, pluginID, session string, tag Tag, path string, patch []Op, ifRevision int64) (Written, error) {
+	if err := tag.check(); err != nil {
+		return Written{}, err
+	}
 	if ifRevision <= 0 {
 		return Written{}, plxerr.New(plxerr.MissingProperty, "a patch names the revision it applies to")
 	}
@@ -510,27 +545,14 @@ func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pl
 	var waivers []waiverChange
 	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
 		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
-			row, err := q.GetDocument(ctx, dbgen.GetDocumentParams{DraftID: d.row.ID, Path: path})
-			if err != nil {
-				return nil, nil, failure(err, "document")
-			}
-			current, err := s.blob(ctx, q, d.row.OrganizationID, row.Sha256)
+			tree, patched, data, err := s.patchStored(ctx, q, d, lim, path, patch)
 			if err != nil {
 				return nil, nil, err
-			}
-			tree, err := jcs.Parse(current, int(lim.Get(limits.DocumentJSONDepth)))
-			if err != nil {
-				return nil, nil, fmt.Errorf("document: read %s: %w", path, err)
-			}
-			patched, err := Apply(tree, patch)
-			if err != nil {
-				return nil, nil, err
-			}
-			data, err := jcs.Marshal(patched)
-			if err != nil {
-				return nil, nil, plxerr.Wrap(plxerr.InvalidStructure, err, "the patched document is not JSON")
 			}
 			c, diags, err := s.prepare(d, lim, path, data, ifRevision)
+			if err == nil && tag.EditorSession != "" {
+				c, err = s.tag(ctx, q, d, lim, tag, c, Diff(patched, tree), false)
+			}
 			if err == nil && scope != "" {
 				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)
 			}
@@ -541,6 +563,29 @@ func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pl
 		}, func(ctx context.Context, tx pgx.Tx, _ *dbgen.Queries, _ draft) error {
 			return s.auditWaivers(ctx, tx, p, path, waivers)
 		})
+}
+
+// patchStored applies a patch to a stored document: the document before,
+// after, and after in canonical JSON.
+func (s *Service) patchStored(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set, path string, patch []Op) (before, after any, data []byte, err error) {
+	row, err := q.GetDocument(ctx, dbgen.GetDocumentParams{DraftID: d.row.ID, Path: path})
+	if err != nil {
+		return nil, nil, nil, failure(err, "document")
+	}
+	current, err := s.blob(ctx, q, d.row.OrganizationID, row.Sha256)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if before, err = jcs.Parse(current, int(lim.Get(limits.DocumentJSONDepth))); err != nil {
+		return nil, nil, nil, fmt.Errorf("document: read %s: %w", path, err)
+	}
+	if after, err = Apply(before, patch); err != nil {
+		return nil, nil, nil, err
+	}
+	if data, err = jcs.Marshal(after); err != nil {
+		return nil, nil, nil, plxerr.Wrap(plxerr.InvalidStructure, err, "the patched document is not JSON")
+	}
+	return before, after, data, nil
 }
 
 // DeleteDocument deletes a document; a page goes to the trash (GOV-031).

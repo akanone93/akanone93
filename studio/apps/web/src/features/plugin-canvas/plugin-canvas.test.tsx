@@ -3,8 +3,9 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import type { ScreenDocument, ScreenStyle } from "@plux/canvas";
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
+import type { EditSession } from "../editor/edit-session.ts";
 import { canvasSearchSchema } from "./plugin-canvas.schema.ts";
 import { flowOrder, readSavedPositions } from "./positions.ts";
 import type { CanvasSurface } from "./surface.ts";
@@ -69,6 +70,39 @@ function stub(tallHeight = 2000) {
 
 const frames = (sent: { docs: ScreenDocument[] } | undefined) => sent?.docs ?? [];
 const path = `/o/${orgA}/apps/app1/plugins/pl`;
+
+describe("STU-069 undo on the plugin canvas", () => {
+  test("an edit, then Ctrl+Z, sends the inverse patch through the pipeline", async () => {
+    let edit: EditSession | undefined;
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    renderApp(path, { documents, surface: stub().factory, sent, editor: (e) => (edit = e) });
+    const entry = () =>
+      (edit?.store.getState().docs["plugin.json"]?.content as { entryPage?: string } | undefined)?.entryPage;
+    await waitFor(() => expect(entry()).toBe("home"));
+    await screen.findByRole("button", { name: "Undo" });
+    edit?.edit("plugin.json", (d) => {
+      d["entryPage"] = "tall";
+    });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Undo" }).matches(":disabled, [aria-disabled=true]")).toBe(false),
+    );
+    fireEvent.keyDown(screen.getByRole("application"), { key: "z", code: "KeyZ", ctrlKey: true });
+    expect(entry()).toBe("home");
+    edit?.flushAll();
+    await waitFor(() => expect(sent.some((s) => s.stepId.startsWith("undo:"))).toBe(true));
+    const undoWrite = sent.find((s) => s.stepId.startsWith("undo:"));
+    expect(undoWrite?.ops).toContainEqual({ op: "replace", path: "/entryPage", value: "home" });
+  });
+
+  test("read-only: undo and redo are disabled with the reason and send nothing", async () => {
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    renderApp(path, { documents, surface: stub().factory, sent, lockHeldElsewhere: true });
+    const button = await screen.findByRole("button", { name: "Undo" });
+    await waitFor(() => expect(button.matches(":disabled, [aria-disabled=true]")).toBe(true));
+    fireEvent.keyDown(screen.getByRole("application"), { key: "z", code: "KeyZ", ctrlKey: true });
+    expect(sent).toEqual([]);
+  });
+});
 
 describe("STU-050 plugin canvas C2", () => {
   test("draws every screen as a device frame, auto-laid-out in flow order", async () => {

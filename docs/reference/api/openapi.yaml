@@ -4405,6 +4405,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListDocumentsResponse'
+  /plux.v1.DocumentService/ListEditorSessionEntries:
+    post:
+      tags:
+        - plux.v1.DocumentService
+      summary: ListEditorSessionEntries
+      description: |-
+        ListEditorSessionEntries lists an editor session's writes to a draft,
+         newest first, with the inverse patch of each, for Studio's undo
+         rebuild after a reload (STU-069, ADR-0095).
+      operationId: plux.v1.DocumentService.ListEditorSessionEntries
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListEditorSessionEntriesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListEditorSessionEntriesResponse'
   /plux.v1.DocumentService/ListSnapshots:
     post:
       tags:
@@ -18186,6 +18228,39 @@ components:
       description: |-
         DropEvent says how many events were dropped before this point of the
          stream, so a watcher knows the gap is not a fault (DEV-021).
+    plux.v1.EditorSessionEntry:
+      type: object
+      properties:
+        snapshotId:
+          type: string
+          title: snapshot_id
+        path:
+          type: string
+          title: path
+        revision:
+          type: string
+          title: revision
+          format: int64
+          description: revision is the draft revision the write produced.
+        inverse:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PatchOp'
+          title: inverse
+          description: |-
+            inverse turns the document the write produced back into the one it
+             replaced.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        stepId:
+          type: string
+          title: step_id
+          description: step_id is the undo step of the write; empty when none was given.
+      title: EditorSessionEntry
+      additionalProperties: false
+      description: EditorSessionEntry is one document a tagged write changed.
     plux.v1.EnrolScaKeyRequest:
       type: object
       properties:
@@ -22615,6 +22690,39 @@ components:
           title: page
       title: ListDocumentsResponse
       additionalProperties: false
+    plux.v1.ListEditorSessionEntriesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginId:
+          type: string
+          title: plugin_id
+          description: plugin_id is empty for the app's own documents.
+        editorSessionId:
+          type: string
+          title: editor_session_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListEditorSessionEntriesRequest
+      additionalProperties: false
+    plux.v1.ListEditorSessionEntriesResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.EditorSessionEntry'
+          title: entries
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListEditorSessionEntriesResponse
+      additionalProperties: false
     plux.v1.ListEnvironmentsRequest:
       type: object
       properties:
@@ -24681,7 +24789,10 @@ components:
         editorSessionId:
           type: string
           title: editor_session_id
-          description: editor_session_id is as in PutDocumentRequest.
+          description: editor_session_id and step_id are as in PutDocumentRequest.
+        stepId:
+          type: string
+          title: step_id
       title: PatchDocumentRequest
       additionalProperties: false
     plux.v1.PatchDocumentResponse:
@@ -25426,6 +25537,12 @@ components:
           description: |-
             editor_session_id names the Studio tab's editor session; the write's
              snapshot is tagged with it for the undo rebuild (ADR-0095, STU-069).
+        stepId:
+          type: string
+          title: step_id
+          description: |-
+            step_id names the undo step the write belongs to, so the rebuild
+             regroups a step that spans writes and documents (STU-069).
       title: PutDocumentRequest
       additionalProperties: false
     plux.v1.PutDocumentResponse:

@@ -34,6 +34,10 @@ service DocumentService {
   rpc ValidatePage(ValidatePageRequest) returns (ValidatePageResponse) {}
 
   rpc ListSnapshots(ListSnapshotsRequest) returns (ListSnapshotsResponse) {}
+  // ListEditorSessionEntries lists an editor session's writes to a draft,
+  // newest first, with the inverse patch of each, for Studio's undo
+  // rebuild after a reload (STU-069, ADR-0095).
+  rpc ListEditorSessionEntries(ListEditorSessionEntriesRequest) returns (ListEditorSessionEntriesResponse) {}
   rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse) {}
   // CompareSnapshots returns the JSON Patch that turns one into the other.
   rpc CompareSnapshots(CompareSnapshotsRequest) returns (CompareSnapshotsResponse) {}
@@ -115,6 +119,9 @@ message PutDocumentRequest {
   // editor_session_id names the Studio tab's editor session; the write's
   // snapshot is tagged with it for the undo rebuild (ADR-0095, STU-069).
   string editor_session_id = 7;
+  // step_id names the undo step the write belongs to, so the rebuild
+  // regroups a step that spans writes and documents (STU-069).
+  string step_id = 8;
 }
 message PutDocumentResponse {
   Document document = 1;
@@ -129,8 +136,9 @@ message PatchDocumentRequest {
   repeated PatchOp patch = 4;
   int64 if_revision = 5;
   string session = 6;
-  // editor_session_id is as in PutDocumentRequest.
+  // editor_session_id and step_id are as in PutDocumentRequest.
   string editor_session_id = 7;
+  string step_id = 8;
 }
 message PatchDocumentResponse {
   Document document = 1;
@@ -176,6 +184,31 @@ message ListSnapshotsRequest {
 }
 message ListSnapshotsResponse {
   repeated Snapshot snapshots = 1;
+  PageResult page = 2;
+}
+
+message ListEditorSessionEntriesRequest {
+  string app_id = 1;
+  // plugin_id is empty for the app's own documents.
+  string plugin_id = 2;
+  string editor_session_id = 3;
+  Page page = 4;
+}
+// EditorSessionEntry is one document a tagged write changed.
+message EditorSessionEntry {
+  string snapshot_id = 1;
+  string path = 2;
+  // revision is the draft revision the write produced.
+  int64 revision = 3;
+  // inverse turns the document the write produced back into the one it
+  // replaced.
+  repeated PatchOp inverse = 4;
+  google.protobuf.Timestamp created_at = 5;
+  // step_id is the undo step of the write; empty when none was given.
+  string step_id = 6;
+}
+message ListEditorSessionEntriesResponse {
+  repeated EditorSessionEntry entries = 1;
   PageResult page = 2;
 }
 

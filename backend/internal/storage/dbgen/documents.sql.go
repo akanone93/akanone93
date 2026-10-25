@@ -12,8 +12,8 @@ import (
 )
 
 const addSnapshotDocument = `-- name: AddSnapshotDocument :exec
-INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried, inverse_patch, step_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 ON CONFLICT (snapshot_id, path) DO NOTHING
 `
 
@@ -24,6 +24,8 @@ type AddSnapshotDocumentParams struct {
 	Kind           string
 	Sha256         []byte
 	Carried        bool
+	InversePatch   []byte
+	StepID         string
 }
 
 func (q *Queries) AddSnapshotDocument(ctx context.Context, arg AddSnapshotDocumentParams) error {
@@ -34,6 +36,8 @@ func (q *Queries) AddSnapshotDocument(ctx context.Context, arg AddSnapshotDocume
 		arg.Kind,
 		arg.Sha256,
 		arg.Carried,
+		arg.InversePatch,
+		arg.StepID,
 	)
 	return err
 }
@@ -149,23 +153,24 @@ func (q *Queries) CreatePlugin(ctx context.Context, arg CreatePluginParams) (Plu
 
 const createSnapshot = `-- name: CreateSnapshot :one
 INSERT INTO snapshots (id, organization_id, draft_id, sequence, revision, reason, applied,
-                       actor_kind, actor_id, actor_display, keep)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at
+                       actor_kind, actor_id, actor_display, keep, editor_session_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+RETURNING id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id
 `
 
 type CreateSnapshotParams struct {
-	ID             pgtype.UUID
-	OrganizationID pgtype.UUID
-	DraftID        pgtype.UUID
-	Sequence       int64
-	Revision       int64
-	Reason         string
-	Applied        bool
-	ActorKind      string
-	ActorID        string
-	ActorDisplay   string
-	Keep           bool
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	DraftID         pgtype.UUID
+	Sequence        int64
+	Revision        int64
+	Reason          string
+	Applied         bool
+	ActorKind       string
+	ActorID         string
+	ActorDisplay    string
+	Keep            bool
+	EditorSessionID string
 }
 
 func (q *Queries) CreateSnapshot(ctx context.Context, arg CreateSnapshotParams) (Snapshot, error) {
@@ -181,6 +186,7 @@ func (q *Queries) CreateSnapshot(ctx context.Context, arg CreateSnapshotParams) 
 		arg.ActorID,
 		arg.ActorDisplay,
 		arg.Keep,
+		arg.EditorSessionID,
 	)
 	var i Snapshot
 	err := row.Scan(
@@ -196,6 +202,7 @@ func (q *Queries) CreateSnapshot(ctx context.Context, arg CreateSnapshotParams) 
 		&i.ActorDisplay,
 		&i.Keep,
 		&i.CreatedAt,
+		&i.EditorSessionID,
 	)
 	return i, err
 }
@@ -565,7 +572,7 @@ func (q *Queries) GetPluginIncludingDeleted(ctx context.Context, id pgtype.UUID)
 }
 
 const getSnapshot = `-- name: GetSnapshot :one
-SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at FROM snapshots WHERE id = $1
+SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id FROM snapshots WHERE id = $1
 `
 
 func (q *Queries) GetSnapshot(ctx context.Context, id pgtype.UUID) (Snapshot, error) {
@@ -584,6 +591,7 @@ func (q *Queries) GetSnapshot(ctx context.Context, id pgtype.UUID) (Snapshot, er
 		&i.ActorDisplay,
 		&i.Keep,
 		&i.CreatedAt,
+		&i.EditorSessionID,
 	)
 	return i, err
 }
@@ -937,8 +945,73 @@ func (q *Queries) ListDraftsWithExpiredSnapshots(ctx context.Context, arg ListDr
 	return items, nil
 }
 
+const listEditorSessionEntries = `-- name: ListEditorSessionEntries :many
+SELECT s.id, s.sequence, s.revision, s.created_at, sd.path, sd.inverse_patch, sd.step_id
+  FROM snapshots s
+  JOIN snapshot_documents sd ON sd.snapshot_id = s.id
+ WHERE s.draft_id = $1
+   AND s.editor_session_id = $2::text
+   AND s.applied AND NOT sd.carried AND sd.inverse_patch IS NOT NULL
+   AND s.sequence < $3::bigint
+ ORDER BY s.sequence DESC, sd.path
+ LIMIT $4
+`
+
+type ListEditorSessionEntriesParams struct {
+	DraftID         pgtype.UUID
+	EditorSessionID string
+	BeforeSequence  int64
+	PageSize        int32
+}
+
+type ListEditorSessionEntriesRow struct {
+	ID           pgtype.UUID
+	Sequence     int64
+	Revision     int64
+	CreatedAt    pgtype.Timestamptz
+	Path         string
+	InversePatch []byte
+	StepID       string
+}
+
+// The entries of an editor session on a draft, newest first, for Studio's
+// undo rebuild (STU-069): every applied write it made that kept its
+// inverse patch.
+func (q *Queries) ListEditorSessionEntries(ctx context.Context, arg ListEditorSessionEntriesParams) ([]ListEditorSessionEntriesRow, error) {
+	rows, err := q.db.Query(ctx, listEditorSessionEntries,
+		arg.DraftID,
+		arg.EditorSessionID,
+		arg.BeforeSequence,
+		arg.PageSize,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEditorSessionEntriesRow{}
+	for rows.Next() {
+		var i ListEditorSessionEntriesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Sequence,
+			&i.Revision,
+			&i.CreatedAt,
+			&i.Path,
+			&i.InversePatch,
+			&i.StepID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listExpiredSnapshots = `-- name: ListExpiredSnapshots :many
-SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at FROM snapshots
+SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id FROM snapshots
  WHERE draft_id = $1 AND NOT keep AND created_at < $2::timestamptz
  ORDER BY sequence
 `
@@ -970,6 +1043,7 @@ func (q *Queries) ListExpiredSnapshots(ctx context.Context, arg ListExpiredSnaps
 			&i.ActorDisplay,
 			&i.Keep,
 			&i.CreatedAt,
+			&i.EditorSessionID,
 		); err != nil {
 			return nil, err
 		}
@@ -982,7 +1056,7 @@ func (q *Queries) ListExpiredSnapshots(ctx context.Context, arg ListExpiredSnaps
 }
 
 const listKeptSnapshotsBefore = `-- name: ListKeptSnapshotsBefore :many
-SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at FROM snapshots WHERE draft_id = $1 AND keep AND sequence < $2 ORDER BY sequence
+SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id FROM snapshots WHERE draft_id = $1 AND keep AND sequence < $2 ORDER BY sequence
 `
 
 type ListKeptSnapshotsBeforeParams struct {
@@ -1012,6 +1086,7 @@ func (q *Queries) ListKeptSnapshotsBefore(ctx context.Context, arg ListKeptSnaps
 			&i.ActorDisplay,
 			&i.Keep,
 			&i.CreatedAt,
+			&i.EditorSessionID,
 		); err != nil {
 			return nil, err
 		}
@@ -1098,7 +1173,7 @@ func (q *Queries) ListSnapshotPaths(ctx context.Context, snapshotID pgtype.UUID)
 }
 
 const listSnapshots = `-- name: ListSnapshots :many
-SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at FROM snapshots
+SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id FROM snapshots
  WHERE draft_id = $1 AND sequence < $2::bigint
  ORDER BY sequence DESC
  LIMIT $3
@@ -1132,6 +1207,7 @@ func (q *Queries) ListSnapshots(ctx context.Context, arg ListSnapshotsParams) ([
 			&i.ActorDisplay,
 			&i.Keep,
 			&i.CreatedAt,
+			&i.EditorSessionID,
 		); err != nil {
 			return nil, err
 		}
@@ -1144,7 +1220,7 @@ func (q *Queries) ListSnapshots(ctx context.Context, arg ListSnapshotsParams) ([
 }
 
 const listSnapshotsFrom = `-- name: ListSnapshotsFrom :many
-SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at FROM snapshots WHERE draft_id = $1 AND sequence > $2 ORDER BY sequence LIMIT $3
+SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id FROM snapshots WHERE draft_id = $1 AND sequence > $2 ORDER BY sequence LIMIT $3
 `
 
 type ListSnapshotsFromParams struct {
@@ -1175,6 +1251,7 @@ func (q *Queries) ListSnapshotsFrom(ctx context.Context, arg ListSnapshotsFromPa
 			&i.ActorDisplay,
 			&i.Keep,
 			&i.CreatedAt,
+			&i.EditorSessionID,
 		); err != nil {
 			return nil, err
 		}
@@ -1187,7 +1264,7 @@ func (q *Queries) ListSnapshotsFrom(ctx context.Context, arg ListSnapshotsFromPa
 }
 
 const newestAppliedSnapshot = `-- name: NewestAppliedSnapshot :one
-SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at FROM snapshots WHERE draft_id = $1 AND applied ORDER BY sequence DESC LIMIT 1
+SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id FROM snapshots WHERE draft_id = $1 AND applied ORDER BY sequence DESC LIMIT 1
 `
 
 func (q *Queries) NewestAppliedSnapshot(ctx context.Context, draftID pgtype.UUID) (Snapshot, error) {
@@ -1206,8 +1283,31 @@ func (q *Queries) NewestAppliedSnapshot(ctx context.Context, draftID pgtype.UUID
 		&i.ActorDisplay,
 		&i.Keep,
 		&i.CreatedAt,
+		&i.EditorSessionID,
 	)
 	return i, err
+}
+
+const pruneEditorSessionEntries = `-- name: PruneEditorSessionEntries :exec
+UPDATE snapshot_documents SET inverse_patch = NULL
+ WHERE inverse_patch IS NOT NULL
+   AND snapshot_id IN (SELECT id FROM snapshots
+                        WHERE draft_id = $1 AND editor_session_id = $2::text
+                        ORDER BY sequence DESC
+                        OFFSET $3::bigint)
+`
+
+type PruneEditorSessionEntriesParams struct {
+	DraftID         pgtype.UUID
+	EditorSessionID string
+	Keep            int64
+}
+
+// Clears the inverse patches of an editor session's writes on a draft
+// beyond its newest keep (studio.undoDepth).
+func (q *Queries) PruneEditorSessionEntries(ctx context.Context, arg PruneEditorSessionEntriesParams) error {
+	_, err := q.db.Exec(ctx, pruneEditorSessionEntries, arg.DraftID, arg.EditorSessionID, arg.Keep)
+	return err
 }
 
 const purgePlugin = `-- name: PurgePlugin :execrows
@@ -1430,7 +1530,7 @@ func (q *Queries) SetPluginVersion(ctx context.Context, arg SetPluginVersionPara
 }
 
 const snapshotAtRevision = `-- name: SnapshotAtRevision :one
-SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at FROM snapshots
+SELECT id, organization_id, draft_id, sequence, revision, reason, applied, actor_kind, actor_id, actor_display, keep, created_at, editor_session_id FROM snapshots
  WHERE draft_id = $1 AND applied AND revision = $2::bigint
  ORDER BY sequence DESC
  LIMIT 1
@@ -1457,6 +1557,7 @@ func (q *Queries) SnapshotAtRevision(ctx context.Context, arg SnapshotAtRevision
 		&i.ActorDisplay,
 		&i.Keep,
 		&i.CreatedAt,
+		&i.EditorSessionID,
 	)
 	return i, err
 }

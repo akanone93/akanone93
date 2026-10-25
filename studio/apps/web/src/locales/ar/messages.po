@@ -403,6 +403,12 @@ msgstr "تكرار الشاشة"
 msgid "pluginCanvas.command.duplicate"
 msgstr "تكرار التحديد"
 
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.edit"
+msgstr "تحرير"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -835,17 +841,35 @@ msgstr "إعادة الاستلام والتطبيق"
 msgid "panels.readOnly"
 msgstr "للقراءة فقط: التحرير متوقف."
 
+#. Why undo and redo are disabled: the editor is read-only or lost its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.readOnly"
+msgstr "للقراءة فقط: لا يمكنك تعديل هذه الإضافة الآن"
+
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "chip.reconnecting"
 msgstr "إعادة الاتصال"
 
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo"
+msgstr "إعادة"
+
 #. Button that repeats the last undone edit.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.redo"
 msgstr "إعادة"
+
+#. Command title; the alternative redo chord.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.redo.alt"
+msgstr "إعادة (Ctrl+Y)"
 
 #. Button that reloads the page.
 #. js-lingui-explicit-id
@@ -1200,6 +1224,12 @@ msgstr "اكتب {phrase} للتأكيد"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "اكتب أمرًا"
+
+#. Command title.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.undo"
+msgstr "تراجع"
 
 #. Button that undoes the last edit.
 #. js-lingui-explicit-id
