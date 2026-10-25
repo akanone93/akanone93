@@ -31,6 +31,17 @@ export interface PluginModel {
 interface DocLike {
   readonly kind: string;
   readonly content: Uint8Array;
+  /** The content already parsed, e.g. the editor's local state with unsaved edits (STU-121); wins over `content`. */
+  readonly parsed?: unknown;
+}
+
+/** `content` parsed as JSON, or undefined when it is not JSON. */
+export function parseDocument(content: Uint8Array): unknown {
+  try {
+    return JSON.parse(new TextDecoder().decode(content)) as unknown;
+  } catch {
+    return undefined;
+  }
 }
 
 interface Doc {
@@ -46,12 +57,8 @@ interface Doc {
 }
 
 function json(doc: DocLike): Doc | undefined {
-  try {
-    const v: unknown = JSON.parse(new TextDecoder().decode(doc.content));
-    return v !== null && typeof v === "object" ? (v as Doc) : undefined;
-  } catch {
-    return undefined;
-  }
+  const v = doc.parsed !== undefined ? doc.parsed : parseDocument(doc.content);
+  return v !== null && typeof v === "object" ? (v as Doc) : undefined;
 }
 
 /** Every `navigate` step's route below `value`, in document order. */

@@ -120,6 +120,32 @@ describe("STU-050 plugin canvas C2", () => {
     expect(await screen.findByLabelText("Screens in navigation order")).toBeTruthy();
   });
 
+  test("STU-121 an unsaved edit reaches the canvas at once; untouched screens keep their documents", async () => {
+    let edit: EditSession | undefined;
+    const s = stub();
+    renderApp(path, { documents, surface: s.factory, editor: (e) => (edit = e) });
+    const tallRoot = (sent: { docs: ScreenDocument[] } | undefined) => frames(sent).find((f) => f.id === "tall")?.root;
+    const firstRow = (sent: { docs: ScreenDocument[] } | undefined) =>
+      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature
+      tallRoot(sent)?.slots?.["body"]?.children?.[0]?.props?.["data"];
+    await waitFor(() => expect(edit?.store.getState().docs["pages/tall.page.json"]).toBeDefined());
+    await waitFor(() => expect(firstRow(s.patches.at(-1))).toBe("Row 0"));
+    const before = s.patches.at(-1);
+    edit?.edit("pages/tall.page.json", (d) => {
+      const body = (d as { root: { slots: { body: { children: { props: { data: string } }[] } } } }).root.slots.body;
+      const row = body.children[0];
+      if (row !== undefined) {
+        row.props.data = "Edited, not saved";
+      }
+    });
+    await waitFor(() => expect(firstRow(s.patches.at(-1))).toBe("Edited, not saved"));
+    const after = s.patches.at(-1);
+    const rootOf = (sent: typeof after, id: string) => frames(sent).find((f) => f.id === id)?.root;
+    expect(rootOf(after, "home")).toBe(rootOf(before, "home"));
+    expect(rootOf(after, "detail")).toBe(rootOf(before, "detail"));
+    expect(rootOf(after, "tall")).not.toBe(rootOf(before, "tall"));
+  });
+
   test("STU-056 a screen taller than the device, by the worker's layout, is announced as overflowing", async () => {
     const s = stub();
     renderApp(path, { documents, surface: s.factory });
