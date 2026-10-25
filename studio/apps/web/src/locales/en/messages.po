@@ -85,6 +85,12 @@ msgstr "{holder} took over editing. Your work up to then is kept as a snapshot."
 msgid "lock.requested"
 msgstr "{holder} was asked to hand over the plugin."
 
+#. Explains what deleting an asset does; name is the asset's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.deleteBody"
+msgstr "{name} is removed from the app. Pages that use it show a missing image until you pick another."
+
 #. Announced to screen readers when one element is selected on the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -102,6 +108,12 @@ msgstr "{name}: content beyond the screen"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.requests.body"
 msgstr "{names} asked to edit this plugin."
+
+#. Reading of an upload's progress, such as 2 KB of 10 KB.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.progress"
+msgstr "{received} of {total}"
 
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
@@ -157,6 +169,12 @@ msgstr "Apps, plugins and approvals appear here as they become available."
 msgid "chrome.noorg.body"
 msgstr "Ask an administrator to invite you to an organisation."
 
+#. Label and accessible name of the tab that lists the app's images, fonts and other files.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.tab"
+msgstr "Assets"
+
 #. Label of the field for the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -173,6 +191,12 @@ msgstr "Break-glass justification"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.cancel"
+msgstr "Cancel"
+
+#. Cancel button of the delete-asset dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.cancel"
 msgstr "Cancel"
 
 #. Dialog button.
@@ -343,6 +367,18 @@ msgstr "Decision: {decision}"
 msgid "pluginCanvas.delete"
 msgstr "Delete"
 
+#. Confirm button of the delete-asset dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.confirm"
+msgstr "Delete"
+
+#. Accessible name of the button that deletes an asset; name is the asset's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.delete"
+msgstr "Delete {name}"
+
 #. Question that asks to confirm deleting a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -355,6 +391,12 @@ msgstr "Delete {title}? Its document is removed from the draft."
 msgid "pluginCanvas.deleteScreen"
 msgstr "Delete screen"
 
+#. Title of the confirmation before an asset is deleted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.deleteTitle"
+msgstr "Delete this asset?"
+
 #. Label of the density choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -366,6 +408,12 @@ msgstr "Density"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.discard"
 msgstr "Discard"
+
+#. Button that drops a failed upload.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.dismiss"
+msgstr "Dismiss"
 
 #. Help menu entry that opens the documentation.
 #. js-lingui-explicit-id
@@ -571,6 +619,12 @@ msgstr "Light"
 msgid "chrome.loading"
 msgstr "Loading"
 
+#. Shown in the Assets tab while the list loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.loading"
+msgstr "Loading assets…"
+
 #. Shown while the plugin's screens load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -612,6 +666,12 @@ msgstr "New screen"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.untitled"
 msgstr "New screen"
+
+#. Shown in the Assets tab when the app has no files.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.empty"
+msgstr "No assets yet."
 
 #. Shown when the filter matches nothing.
 #. js-lingui-explicit-id
@@ -793,6 +853,12 @@ msgstr "Rename screen"
 msgid "lock.request-edit"
 msgstr "Request edit"
 
+#. Button that continues a failed upload where it stopped.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.resume"
+msgstr "Resume"
+
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -936,6 +1002,12 @@ msgstr "Take over is possible from {at}, once the holder has stopped editing."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.take-server"
 msgstr "Take the server's"
+
+#. Shown in the Assets tab when the list request failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.loadFailed"
+msgstr "The assets could not be loaded."
 
 #. Shown when the WebAuthn check was cancelled or failed.
 #. js-lingui-explicit-id
@@ -1104,6 +1176,24 @@ msgstr "Unread only"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.command.unwrap"
 msgstr "Unwrap selection"
+
+#. Button that opens the file picker to upload an asset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.upload"
+msgstr "Upload file"
+
+#. Accessible name of the progress meter of a file being uploaded; name is the file's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploading"
+msgstr "Uploading {name}"
+
+#. Shown when a chunk of an upload failed; the upload can be resumed. name is the file's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failed"
+msgstr "Uploading {name} failed."
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
