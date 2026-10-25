@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Count, Popover } from "@plux/ui";
+import { Count, Icon, Popover } from "@plux/ui";
 import { useParams, useRouter } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { useInbox } from "../notifications/use-inbox.ts";
@@ -23,7 +23,8 @@ export function NotificationsPopover(): ReactElement {
       title={m.bell}
       trigger={
         <button type="button" className="inline-flex items-center gap-1 text-body">
-          <span>{m.bell}</span>
+          <Icon name="bell" size="capsule" />
+          <span className="sr-only">{m.bell}</span>
           {unread > 0 && <Count value={unread} tone="warning" label={m.unread(unread)} />}
         </button>
       }

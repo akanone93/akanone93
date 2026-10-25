@@ -85,6 +85,8 @@ services:
     environment:
       PLUX_BFF_API_UPSTREAM: https://plux-server:8080
       PLUX_BFF_PUBLIC_BASE_URL: http://localhost:8081
+      # Optional https URL of a documentation site, shown in the help menu:
+      # PLUX_BFF_DOCS_URL: https://docs.example.org
       NODE_EXTRA_CA_CERTS: /etc/plux/ca.crt
     volumes:
       - ./.secrets/ca/ca.crt:/etc/plux/ca.crt:ro
