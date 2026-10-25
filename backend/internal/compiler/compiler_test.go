@@ -332,3 +332,27 @@ func ExampleCompile() {
 	fmt.Println(len(res.Diagnostics), res.App.Key, res.Plugins[0].Key, res.Plugins[0].Features)
 	// Output: 0 demo loans [pxl.v1]
 }
+
+func TestCanvasDocumentNeverCompiled_STU_032(t *testing.T) {
+	t.Parallel()
+	base := Compile(project(t, filepath.Join("..", "..", "..", "schema", "testdata", "documents", "experiments")), DefaultOptions())
+	withCanvas := project(t, filepath.Join("..", "..", "..", "schema", "testdata", "documents", "experiments"))
+	const doc = `{"schemaVersion":"1.0.0","kind":"canvas","id":"01a0c450-6c00-7033-8000-0000000a0001","positions":[{"id":"01a0c450-6c00-7012-8000-000000022cce","x":10,"y":20}]}`
+	withCanvas["canvas.json"] = &fstest.MapFile{Data: []byte(doc)}
+	withCanvas["plugins/shop/canvas.json"] = &fstest.MapFile{Data: []byte(doc)}
+	got := Compile(withCanvas, DefaultOptions())
+	if len(got.Diagnostics) > 0 || len(base.Diagnostics) > 0 {
+		t.Fatalf("diagnostics:\n%s\n%s", list(base.Diagnostics), list(got.Diagnostics))
+	}
+	if got.Project == nil || got.Project.Canvas == nil || len(got.Plugins) != len(base.Plugins) {
+		t.Fatalf("canvas not loaded or plugins differ")
+	}
+	if !bytes.Equal(base.App.Data, got.App.Data) {
+		t.Error("a canvas document changed the app bundle bytes")
+	}
+	for i := range base.Plugins {
+		if !bytes.Equal(base.Plugins[i].Data, got.Plugins[i].Data) {
+			t.Errorf("a canvas document changed plugin bundle %s", base.Plugins[i].Key)
+		}
+	}
+}
