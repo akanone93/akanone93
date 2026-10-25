@@ -19,6 +19,9 @@ import { CommandPalette } from "./command-palette.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 
 /** U9.2: the top bar (identity, organisation switcher, profile menu) over the page content. */
+/** One empty list, so memoised commands do not rebuild while queries load. */
+const NONE: readonly never[] = [];
+
 export function ShellLayout() {
   const { i18n } = useLingui();
   const m = chromeMessages(i18n);
@@ -31,12 +34,12 @@ export function ShellLayout() {
     queryKey: ["organisations"],
     queryFn: () => createClient(OrgService, session.transport).listOrganizations({}),
   });
-  const organisations = orgs.data?.organizations ?? [];
+  const organisations = orgs.data?.organizations ?? NONE;
   const currentId = org === undefined ? undefined : organizationIdOf(org);
 
   const [paletteOpen, setPaletteOpen] = useState(false);
   const user = useTanstackQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
-  const permissions = user.data?.permissions ?? [];
+  const permissions = user.data?.permissions ?? NONE;
   const commands = useMemo(
     () =>
       createRegistry(
@@ -48,7 +51,8 @@ export function ShellLayout() {
           openPalette: () => setPaletteOpen(true),
         }),
       ),
-    [i18n, session, router, organisations],
+    // The locale is a dependency because Lingui keeps one i18n object across locale changes.
+    [i18n, i18n.locale, session, router, organisations],
   );
   const value = useMemo(
     () => ({ registry: commands, states: commands.stateFor(permissions) }),
