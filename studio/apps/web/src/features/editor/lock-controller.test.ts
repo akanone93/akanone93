@@ -25,7 +25,7 @@ const takeoverIdleMs = limitDefault("studio.lockTakeoverIdleMinutes") * 60_000;
 function fakeClock() {
   let now = 1_000_000;
   let next = 0;
-  const timers = new Map<number, { at: number; fn: () => void; every?: number }>();
+  const timers = new Map<number, { at: number; fn: () => void; every?: number | undefined }>();
   const add = (fn: () => void, ms: number, every?: number) => {
     next += 1;
     timers.set(next, { at: now + ms, fn, every });

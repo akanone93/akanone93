@@ -115,7 +115,7 @@ describe("STU-075 lock banner, D36 and D37 (F1, L-1)", () => {
     });
     session.open({ path: "a.page.json", revision: 1n, content: { kind: "page" } });
     session.edit("a.page.json", (d) => {
-      d.title = "x";
+      (d as { title?: string }).title = "x";
     });
     renderI18n(<LockLostDialog lock={lock} session={session} />);
     expect(await screen.findByText("You no longer hold the editing lock")).toBeDefined();
