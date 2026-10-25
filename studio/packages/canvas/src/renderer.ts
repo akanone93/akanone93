@@ -38,6 +38,8 @@ export interface RendererOptions {
   readonly tileSize: number;
   readonly background: number;
   readonly fontFamily: string;
+  /** Families after `fontFamily` that glyphs missing from it fall back to, in order. */
+  readonly fallbackFamilies?: readonly string[];
   readonly measureFrames: boolean;
 }
 
@@ -575,7 +577,11 @@ export class SceneRenderer {
     }
     const ck = this.ck;
     const style = new ck.ParagraphStyle({
-      textStyle: { color: color4f(ck, spec.color), fontSize: spec.size, fontFamilies: [this.options.fontFamily] },
+      textStyle: {
+        color: color4f(ck, spec.color),
+        fontSize: spec.size,
+        fontFamilies: [this.options.fontFamily, ...(this.options.fallbackFamilies ?? [])],
+      },
     });
     const builder = ck.ParagraphBuilder.Make(style, this.fontMgr);
     builder.addText(spec.text);

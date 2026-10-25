@@ -91,6 +91,9 @@
     "packages/canvas": {
       "name": "@plux/canvas",
       "version": "0.0.1",
+      "dependencies": {
+        "@plux/layout": "workspace:*",
+      },
       "devDependencies": {
         "canvaskit-wasm": "0.42.0",
       },

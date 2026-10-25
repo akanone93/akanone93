@@ -8,6 +8,9 @@
     ".": "./src/index.ts",
     "./worker": "./src/worker.ts"
   },
+  "dependencies": {
+    "@plux/layout": "workspace:*"
+  },
   "devDependencies": {
     "canvaskit-wasm": "0.42.0"
   }
