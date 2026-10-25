@@ -7,6 +7,18 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: ar\n"
 
+#. Progress under the justification field; {count} typed so far, {min} required.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.justification.hint"
+msgstr "{count} من {min} حرفًا على الأقل"
+
+#. Number of unread notifications.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.unread"
+msgstr "{count} غير مقروءة"
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -37,6 +49,12 @@ msgstr "الحساب"
 msgid "profile.account"
 msgstr "الحساب"
 
+#. Option that shows every event type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.all-types"
+msgstr "كل الأنواع"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -61,6 +79,24 @@ msgstr "اطلب من مسؤول دعوتك إلى مؤسسة."
 msgid "auth.factor.code"
 msgstr "رمز المصادقة"
 
+#. Title of the dialog asking why emergency access is used.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.justification.title"
+msgstr "مبرر الوصول الطارئ"
+
+#. Button that dismisses a dialog without acting.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.cancel"
+msgstr "إلغاء"
+
+#. Shown while the explanation loads.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.loading"
+msgstr "جارٍ فحص الوصول"
+
 #. Label of the new-password field on the invitation page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -71,6 +107,12 @@ msgstr "اختر كلمة مرور"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
+msgstr "إغلاق"
+
+#. Accessible name of a dialog's close button.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.close"
 msgstr "إغلاق"
 
 #. Density option.
@@ -97,6 +139,24 @@ msgstr "الأوامر"
 msgid "profile.density.compact"
 msgstr "مضغوطة"
 
+#. Button that confirms the action of a dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.confirm"
+msgstr "تأكيد"
+
+#. Title of the type-to-confirm dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.typeconfirm.title"
+msgstr "تأكيد إجراء مدمّر"
+
+#. Title of the dialog asking for a security key or passkey before a sensitive action.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.title"
+msgstr "أكّد هويتك"
+
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -115,11 +175,23 @@ msgstr "داكن"
 msgid "chrome.forbidden.decision"
 msgstr "القرار: {decision}"
 
+#. Shows the access decision; {decision} is the server's word.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.decision"
+msgstr "القرار: {decision}"
+
 #. Label of the density choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "الكثافة"
+
+#. Help menu entry that opens the documentation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.docs"
+msgstr "التوثيق"
 
 #. Label of the email field.
 #. js-lingui-explicit-id
@@ -157,6 +229,12 @@ msgstr "أدخل كلمة المرور."
 msgid "chrome.licence.title"
 msgstr "النسخة المؤسسية: تتطلب ترخيصًا"
 
+#. Label of the event type filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.type"
+msgstr "نوع الحدث"
+
 #. Button that asks the server why access is denied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -168,6 +246,12 @@ msgstr "اشرح سبب الوصول"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.caption"
 msgstr "مُنشأة من أوامر هذه النافذة."
+
+#. Help menu entry that opens the onboarding guide.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.onboarding"
+msgstr "البدء"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -181,6 +265,12 @@ msgstr "الانتقال إلى الصفحة الرئيسية"
 msgid "cmd.nav.profile"
 msgstr "الانتقال إلى الملف الشخصي"
 
+#. Label of the help menu.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.menu"
+msgstr "المساعدة"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -193,10 +283,22 @@ msgstr "تباين عالٍ"
 msgid "chrome.home"
 msgstr "الرئيسية"
 
+#. Label of the free-text reason field.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.justification.label"
+msgstr "المبرر"
+
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.title"
+msgstr "اختصارات لوحة المفاتيح"
+
+#. Help menu entry that opens the shortcut sheet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "help.shortcuts"
 msgstr "اختصارات لوحة المفاتيح"
 
 #. Label of the language choice.
@@ -204,6 +306,18 @@ msgstr "اختصارات لوحة المفاتيح"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.language"
 msgstr "اللغة"
+
+#. Button that leaves and discards changes.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.leave"
+msgstr "مغادرة"
+
+#. Title of the dialog shown when leaving a page with unsaved changes.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.title"
+msgstr "المغادرة دون حفظ؟"
 
 #. Theme option.
 #. js-lingui-explicit-id
@@ -216,6 +330,12 @@ msgstr "فاتح"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.loading"
 msgstr "جارٍ التحميل"
+
+#. Button that marks one notification read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mark-read"
+msgstr "وضع علامة مقروء"
 
 #. Theme option that follows the operating system.
 #. js-lingui-explicit-id
@@ -241,11 +361,47 @@ msgstr "يتطلب الصلاحية {permission}"
 msgid "cmd.palette.empty"
 msgstr "لا يوجد أمر مطابق."
 
+#. Shown when the inbox has no items.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.empty"
+msgstr "لا توجد إشعارات"
+
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "لا يوجد اختصار"
+
+#. Accessible name of the notifications button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.bell"
+msgstr "الإشعارات"
+
+#. Heading of the notification inbox page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.title"
+msgstr "الإشعارات"
+
+#. Shown when the inbox request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.failed"
+msgstr "تعذّر تحميل الإشعارات."
+
+#. Status chip: the browser has no network.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "chip.offline"
+msgstr "غير متصل"
+
+#. Link from the popover to the full inbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.open-inbox"
+msgstr "فتح كل الإشعارات"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -283,6 +439,12 @@ msgstr "كلمة المرور"
 msgid "shell.app.title"
 msgstr "استوديو Plux"
 
+#. Explains why the browser cannot run Studio.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "unsupported.body"
+msgstr "يحتاج Plux Studio إلى WebGL2 لرسم اللوحة. استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari مع تفعيل تسريع الأجهزة."
+
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -294,6 +456,18 @@ msgstr "الملف الشخصي"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.title"
 msgstr "الملف الشخصي"
+
+#. Status chip: the live connection to the server dropped and is being retried.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "chip.reconnecting"
+msgstr "إعادة الاتصال"
+
+#. Button that reloads the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "banner.reload"
+msgstr "إعادة التحميل"
 
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
@@ -331,6 +505,12 @@ msgstr "تسجيل الدخول"
 msgid "chrome.signedout.again"
 msgstr "سجّل الدخول مرة أخرى"
 
+#. Button that opens the sign-in window.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.signedout.signin"
+msgstr "تسجيل الدخول مجددًا"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -361,17 +541,35 @@ msgstr "جارٍ تسجيل الدخول"
 msgid "auth.providers"
 msgstr "تسجيل الدخول الموحّد"
 
+#. Button that keeps the person on the page.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.stay"
+msgstr "البقاء"
+
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.topbar"
 msgstr "التنقل في الاستوديو"
 
+#. Banner shown when the server runs a newer Studio.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "banner.updated"
+msgstr "تم تحديث Studio. أعد التحميل لاستخدام الإصدار الجديد."
+
 #. Command title; name is an organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.org.switch"
 msgstr "التبديل إلى {name}"
+
+#. Shown when the WebAuthn check was cancelled or failed.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.failed"
+msgstr "لم ينجح التحقق. حاول مرة أخرى."
 
 #. Shown when the server refuses the one-time code.
 #. js-lingui-explicit-id
@@ -384,6 +582,12 @@ msgstr "الرمز غير صحيح أو منتهي الصلاحية."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.rejected"
 msgstr "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+
+#. Shown when explain-access fails.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.failed"
+msgstr "تعذّر تحميل التفسير."
 
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
@@ -403,6 +607,18 @@ msgstr "تعذّر استخدام مفتاح المرور."
 msgid "profile.theme"
 msgstr "السمة"
 
+#. Explains why the step-up dialog appears.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.body"
+msgstr "يتطلب هذا الإجراء تحققًا جديدًا بمفتاح الأمان أو مفتاح المرور."
+
+#. Heading shown when WebGL2 is missing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "unsupported.title"
+msgstr "هذا المتصفح غير مدعوم"
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -421,11 +637,23 @@ msgstr "هذه الصفحة جزء من النسخة المؤسسية. اطلب 
 msgid "cmd.theme.toggle"
 msgstr "التبديل بين السمة الفاتحة والداكنة"
 
+#. Label of the field where the person retypes the phrase; {phrase} is the exact text to type.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.typeconfirm.prompt"
+msgstr "اكتب {phrase} للتأكيد"
+
 #. Label of the palette search box.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "اكتب أمرًا"
+
+#. Toggle that hides read notifications.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.inbox.unread-only"
+msgstr "غير المقروءة فقط"
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
@@ -439,6 +667,12 @@ msgstr "استخدم مفتاح المرور"
 msgid "auth.error.password-short"
 msgstr "استخدم 12 حرفًا على الأقل."
 
+#. Button that starts the WebAuthn check.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.stepup.use"
+msgstr "استخدام مفتاح الأمان أو مفتاح المرور"
+
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -450,6 +684,12 @@ msgstr "تحقق"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "مرحبًا بك في {name}"
+
+#. Title of the dialog that explains an access decision.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.explain.title"
+msgstr "لماذا هذا غير متاح؟"
 
 #. Heading shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
@@ -468,6 +708,18 @@ msgstr "لقد سجّلت الخروج"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.title"
 msgstr "ليس لديك صلاحية الوصول"
+
+#. Title of the dialog shown when the session ended.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.signedout.title"
+msgstr "تم تسجيل خروجك"
+
+#. Explains the unsaved-changes dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.unsaved.body"
+msgstr "لديك تغييرات غير محفوظة. إذا غادرت الآن فستفقدها."
 
 #. Caption under the profile heading.
 #. js-lingui-explicit-id
@@ -492,3 +744,9 @@ msgstr "تعذّر حفظ إعدادك."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.body"
 msgstr "دورك لا يتضمن الصلاحية التي تحتاجها هذه الصفحة."
+
+#. Explains the signed-out dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.signedout.body"
+msgstr "انتهت جلستك. سجّل الدخول مجددًا للمتابعة؛ عملك في هذه الصفحة محفوظ."

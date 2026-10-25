@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useStudioI18n } from "./i18n-provider.tsx";
 import { createSession, type Session } from "./lib/session.ts";
 import { AppContextProvider } from "./lib/use-app.tsx";
+import { detectWebGL2 } from "./lib/webgl.ts";
 import { createAppRouter } from "./router.tsx";
 
 /** The Studio application root: owns the session and the router; nothing is module-level. */
@@ -20,7 +21,7 @@ export function App({
 }) {
   const studio = useStudioI18n();
   const [session] = useState(() => provided ?? createSession("/api"));
-  const [router] = useState(() => providedRouter ?? createAppRouter({ session }));
+  const [router] = useState(() => providedRouter ?? createAppRouter({ session, webgl2: detectWebGL2() }));
   return (
     <AppContextProvider value={{ session, studio }}>
       <TransportProvider transport={session.transport}>
