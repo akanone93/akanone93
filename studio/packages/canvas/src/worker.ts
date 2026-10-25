@@ -13,7 +13,9 @@
  * The base surface is overscanned and re-rendered only when the content
  * changes or the view nears its edge; the host moves it with a CSS transform
  * in between. Dragged items are drawn into the interaction layer (M-12, see
- * `compositor.ts`).
+ * `compositor.ts`). With tiles, a recentred base is re-rendered progressively
+ * in tile-sized jobs under a per-frame budget (`progressive.ts`), replanned
+ * whenever the view moves, so no frame waits for the whole base.
  */
 
 import type { CanvasKit, Surface } from "canvaskit-wasm";
@@ -28,6 +30,7 @@ import {
   overscanMargin,
 } from "./compositor.ts";
 import { intersectInto, makeRect, unionInto } from "./geometry.ts";
+import { BaseJobQueue } from "./progressive.ts";
 import {
   type CanvasOptions,
   type HostMessage,
@@ -76,8 +79,10 @@ interface Running {
   gesture: InteractionKind | null;
   dragging: boolean;
   recentreWhenIdle: boolean;
-  /** The base moved to a new origin and is drawn once its tiles are ready. */
-  awaitingTiles: boolean;
+  /** The view's movement since the previous viewport change, in world units; orders the base jobs. */
+  readonly direction: { x: number; y: number };
+  /** The base was realigned to `origin` by a job and the host has not been told yet. */
+  originPending: boolean;
   layerSurface: Surface | null;
   layerBox: LayerBox | null;
   layerChanged: boolean;
@@ -101,11 +106,15 @@ export class CanvasWorkerCore {
   private readonly live: SceneItem[] = [];
   private readonly liveBounds = makeRect(0, 0, 0, 0);
   private readonly shown = makeRect(0, 0, 0, 0);
+  private readonly focus = makeRect(0, 0, 0, 0);
+  private readonly jobs: BaseJobQueue;
 
   constructor(
     private readonly post: (message: WorkerMessage) => void,
     private readonly deps: WorkerDeps,
-  ) {}
+  ) {
+    this.jobs = new BaseJobQueue({ now: () => deps.now(), schedule: (callback) => deps.requestFrame(callback) });
+  }
 
   /** Handles one message from the main thread. */
   async receive(data: unknown): Promise<void> {
@@ -171,7 +180,8 @@ export class CanvasWorkerCore {
         gesture: null,
         dragging: false,
         recentreWhenIdle: false,
-        awaitingTiles: false,
+        direction: { x: 0, y: 0 },
+        originPending: false,
         layerSurface: null,
         layerBox: null,
         layerChanged: false,
@@ -236,10 +246,17 @@ export class CanvasWorkerCore {
         running.scene.apply(message.ops);
         this.markBase(running);
         break;
-      case "viewport":
+      case "viewport": {
+        const { x, y } = running.viewport;
         running.viewport.apply(message.change);
+        running.direction.x = running.viewport.x - x;
+        running.direction.y = running.viewport.y - y;
         this.place(running);
+        if (this.jobs.active) {
+          this.rebase(running);
+        }
         break;
+      }
       case "interaction":
         this.interaction(running, message);
         break;
@@ -255,6 +272,7 @@ export class CanvasWorkerCore {
         });
         return;
       case "dispose":
+        this.jobs.cancel();
         running.renderer.dispose();
         this.running = null;
         this.disposed = true;
@@ -281,8 +299,14 @@ export class CanvasWorkerCore {
 
   /** Marks the base for re-rendering when the static content changed, or when drags draw on it. */
   private markBase(running: Running): void {
-    if (running.scene.hasDirty || (running.dragging && !running.layerCanvas)) {
+    if (running.dragging && !running.layerCanvas) {
       running.baseDirty = true;
+    } else if (running.scene.hasDirty) {
+      if (this.jobs.active) {
+        this.rebase(running);
+      } else {
+        running.baseDirty = true;
+      }
     }
   }
 
@@ -298,7 +322,7 @@ export class CanvasWorkerCore {
       if (gesturing) {
         this.recentreLater(running);
       } else {
-        this.recentre(running);
+        this.recentre(running, true);
       }
     } else if (!gesturing && !isCentred(running.viewport, running.origin, running.margin, running.dpr)) {
       this.recentreLater(running);
@@ -311,20 +335,63 @@ export class CanvasWorkerCore {
   }
 
   /**
-   * Centres the base on the view. The next frame re-renders it, or — when
-   * `whenTilesReady`, as the old base still covers the view — the first frame
-   * after idle time has rendered every tile of the new base, so the base is
-   * blitted once rather than once per idle slice.
+   * Centres the base on the view. The next frame re-renders it whole, or —
+   * when `progressive` and tiled, as the old base still covers the view — it
+   * is re-rendered in base jobs (`rebase`).
    */
-  private recentre(running: Running, whenTilesReady = false): void {
+  private recentre(running: Running, progressive = false): void {
     const origin = centredOrigin(running.viewport, running.margin, running.dpr);
     running.origin = origin;
     running.render.x = origin.x;
     running.render.y = origin.y;
     running.render.zoom = origin.zoom;
     running.recentreWhenIdle = false;
-    running.awaitingTiles = whenTilesReady && running.renderer.hasIdleWork();
-    running.baseDirty = !running.awaitingTiles;
+    if (progressive && running.renderer.tiled) {
+      this.rebase(running);
+    } else {
+      this.jobs.cancel();
+      running.baseDirty = true;
+    }
+  }
+
+  /**
+   * (Re)plans the progressive base re-render around what the view shows and
+   * where it heads, replacing any queued jobs, and arms the job queue.
+   */
+  private rebase(running: Running): void {
+    running.viewport.worldRect(this.focus);
+    running.renderer.planBase(this.focus, running.direction);
+    if (running.renderer.baseJobs === 0) {
+      this.jobs.cancel();
+      return;
+    }
+    this.jobs.start(
+      (deadline) => {
+        if (running.renderer.baseJob(deadline).shifted) {
+          running.originPending = true;
+        }
+        return running.renderer.baseJobs > 0;
+      },
+      (ms, more) => this.jobDone(running, ms, more),
+    );
+  }
+
+  /** Reports a slice of base jobs to the host, with the new origin once the base was realigned. */
+  private jobDone(running: Running, ms: number, more: boolean): void {
+    if (this.running !== running) {
+      return;
+    }
+    const origin = running.originPending;
+    running.originPending = false;
+    this.post({
+      v: PROTOCOL_VERSION,
+      type: "frame",
+      stats: running.renderer.jobStats(ms),
+      ...(origin ? { origin: running.origin } : {}),
+    });
+    if (!more && running.renderer.hasIdleWork()) {
+      this.requestIdle();
+    }
   }
 
   private resize(running: Running, width: number, height: number, dpr: number): void {
@@ -429,6 +496,11 @@ export class CanvasWorkerCore {
     const layer = this.prepareLayer(running);
     const drawBase = running.baseDirty;
     running.baseDirty = false;
+    if (drawBase) {
+      // A whole base draw supersedes the queued jobs.
+      this.jobs.cancel();
+      running.originPending = false;
+    }
     const stats = running.renderer.frame(drawBase, layer);
     const layerChanged = running.layerChanged;
     running.layerChanged = false;
@@ -461,16 +533,12 @@ export class CanvasWorkerCore {
     if (running.recentreWhenIdle) {
       this.recentre(running, true);
     }
+    if (this.jobs.active) {
+      // The base jobs render the tiles the base needs; `jobDone` asks for idle time again when they finish.
+      return;
+    }
     const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS);
-    if (running.awaitingTiles) {
-      if (running.renderer.hasIdleWork()) {
-        this.requestIdle();
-        return;
-      }
-      running.awaitingTiles = false;
-      running.baseDirty = true;
-      this.requestFrame();
-    } else if (rendered > 0) {
+    if (rendered > 0) {
       running.baseDirty = true;
       this.requestFrame();
     }
