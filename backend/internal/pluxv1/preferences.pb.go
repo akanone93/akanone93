@@ -27,7 +27,7 @@ const (
 
 type Preferences struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// theme is "system", "light" or "dark"; empty reads as "system".
+	// theme is "system", "light", "dark" or "contrast"; empty reads as "system".
 	Theme string `protobuf:"bytes,1,opt,name=theme,proto3" json:"theme,omitempty"`
 	// language is a BCP 47 tag; empty follows the browser.
 	Language string `protobuf:"bytes,2,opt,name=language,proto3" json:"language,omitempty"`

@@ -3,10 +3,10 @@
 
 import { directionOf } from "@plux/i18n";
 
-export type ThemePreference = "system" | "light" | "dark";
+export type ThemePreference = "system" | "light" | "dark" | "contrast";
 export type DensityPreference = "comfortable" | "compact";
 
-export const themes: readonly ThemePreference[] = ["system", "light", "dark"];
+export const themes: readonly ThemePreference[] = ["system", "light", "dark", "contrast"];
 export const densities: readonly DensityPreference[] = ["comfortable", "compact"];
 
 export function asTheme(value: string): ThemePreference {

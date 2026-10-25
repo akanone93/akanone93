@@ -32,6 +32,8 @@ export const orgB = "0192f000-0000-7000-8000-00000000000b";
 export interface Upstream {
   signedIn?: boolean;
   permissions?: string[];
+  installationAdmin?: boolean;
+  csrfToken?: string;
   memberships?: string[];
   stored?: { theme: string; language: string; density: string };
   explained?: { permission: string }[];
@@ -53,6 +55,8 @@ export function createUpstream(state: Upstream) {
             create(MemberSchema, { organizationId: id, userId: "u1" }),
           ),
           permissions: state.permissions ?? [],
+          installationAdmin: state.installationAdmin ?? false,
+          csrfToken: state.csrfToken ?? "",
         });
       },
     });

@@ -20017,6 +20017,16 @@ components:
           description: |-
             permissions are those the caller holds in the organisation named by
              the X-Plux-Organization header, when there is one (SEC-102).
+        csrfToken:
+          type: string
+          title: csrf_token
+          description: |-
+            csrf_token is the session's CSRF token, which Studio holds in memory
+             and echoes in X-CSRF-Token (SEC-101). Empty for a bearer-token caller.
+        installationAdmin:
+          type: boolean
+          title: installation_admin
+          description: installation_admin is true when the caller administers the installation.
       title: GetCurrentUserResponse
       additionalProperties: false
     plux.v1.GetDeviceRequest:
@@ -25002,7 +25012,7 @@ components:
         theme:
           type: string
           title: theme
-          description: theme is "system", "light" or "dark"; empty reads as "system".
+          description: theme is "system", "light", "dark" or "contrast"; empty reads as "system".
         language:
           type: string
           title: language

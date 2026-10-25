@@ -133,6 +133,12 @@ msgstr "النسخة المؤسسية: تتطلب ترخيصًا"
 msgid "chrome.forbidden.explain"
 msgstr "اشرح سبب الوصول"
 
+#. Theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.theme.contrast"
+msgstr "تباين عالٍ"
+
 #. Name of the personal home page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts

@@ -133,6 +133,14 @@ func TestPreferencesRoundTrip_STU_014(t *testing.T) {
 	}
 }
 
+func TestPreferencesAcceptContrastTheme_STU_014(t *testing.T) {
+	f := newFixture(t)
+	got, err := f.svc.Update(context.Background(), f.owner, preferences.Preferences{Theme: "contrast"}, []string{"theme"})
+	if err != nil || got.Theme != preferences.ThemeContrast {
+		t.Fatalf("contrast theme: %+v, %v", got, err)
+	}
+}
+
 func TestPreferencesMaskLeavesOthers_STU_014(t *testing.T) {
 	f := newFixture(t)
 	ctx := context.Background()

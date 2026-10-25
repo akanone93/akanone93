@@ -36,6 +36,7 @@ const (
 	ThemeSystem        = "system"
 	ThemeLight         = "light"
 	ThemeDark          = "dark"
+	ThemeContrast      = "contrast"
 	DensityComfortable = "comfortable"
 	DensityCompact     = "compact"
 	PlatformMaterial   = "material"
@@ -297,7 +298,7 @@ func withDefaults(p Preferences) Preferences {
 // validate checks every field of p against its enum, format and bound, and
 // writes back the canonical form of the language tags.
 func validate(p *Preferences, lim limits.Set) error {
-	if !slices.Contains([]string{"", ThemeSystem, ThemeLight, ThemeDark}, p.Theme) {
+	if !slices.Contains([]string{"", ThemeSystem, ThemeLight, ThemeDark, ThemeContrast}, p.Theme) {
 		return plxerr.New(plxerr.InvalidEnumValue, "theme %q is not system, light or dark", p.Theme)
 	}
 	if !slices.Contains([]string{"", DensityComfortable, DensityCompact}, p.Density) {
