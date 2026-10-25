@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 export { commandMessages } from "./commands.messages.ts";
-export { CommandsProvider, type CommandsValue, useCommands, useScopedCommands } from "./commands-context.tsx";
+export {
+  CommandsProvider,
+  type CommandsValue,
+  useCommands,
+  useOptionalCommands,
+  useScopedCommands,
+} from "./commands-context.tsx";
 export {
   type Command,
   type CommandGroup,
