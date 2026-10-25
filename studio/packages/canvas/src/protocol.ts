@@ -164,6 +164,8 @@ export interface FrameStats {
   readonly jobMs: number;
   /** Progressive base jobs still queued (M-12). */
   readonly baseJobs: number;
+  /** Of `baseJobs`, those before every tile the view shows is current (M-12). */
+  readonly visibleJobs: number;
 }
 
 /** A node of the read-only scene model (studio-development §9.2). */
