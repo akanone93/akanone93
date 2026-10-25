@@ -99,7 +99,7 @@ describe("STU-050 plugin canvas C2", () => {
 
   test("saved positions of the canvas document win over auto-layout", async () => {
     const s = stub();
-    const canvas = { kind: "canvas", path: "canvas.json", json: { screens: { home: { x: 900, y: 40 } } } };
+    const canvas = { kind: "canvas", path: "canvas.json", json: { positions: [{ id: "home", x: 900, y: 40 }] } };
     renderApp(path, { documents: [...documents, canvas], surface: s.factory });
     await waitFor(() => expect(s.patches.length).toBeGreaterThan(0));
     const home = frames(adds(s.patches[0] ?? [])).find((f) => f.name === "Home");
