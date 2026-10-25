@@ -292,7 +292,7 @@ func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d d
 		HolderKind: p.Kind, HolderID: p.ID, HolderDisplay: p.Display, Session: session,
 		ExpiresAt:       storage.Timestamp(s.now().Add(LockTTL)),
 		PreviousSession: previousSession, PreviousHolder: previousHolder,
-		LastEditAt:      storage.Timestamp(s.now()),
+		LastEditAt: storage.Timestamp(s.now()),
 	})
 	if err != nil {
 		return Lock{}, "", fmt.Errorf("document: take the lock: %w", err)
