@@ -6,7 +6,7 @@ import { defaultScreenTheme, type WidgetNode } from "@plux/layout";
 import type { CanvasKit } from "canvaskit-wasm";
 import { fontBytes, loadCanvasKit, TestEnvironment } from "../test-support/canvaskit.ts";
 import { type ScreenStyle, PROTOCOL_VERSION as v, type WorkerMessage } from "./protocol.ts";
-import { CanvasWorkerCore, fallbackFamilies } from "./worker.ts";
+import { CanvasWorkerCore, canvasParagraphEngine, fallbackFamilies } from "./worker.ts";
 
 let ck: CanvasKit;
 beforeAll(async () => {
@@ -86,6 +86,74 @@ describe("ADR-0013 screens laid out in the canvas worker (STU-005, STU-056)", ()
     await core.receive({ v, type: "snapshot", requestId: 1 });
     const snapshot = posted.find((m): m is Extract<WorkerMessage, { type: "snapshot" }> => m.type === "snapshot");
     expect(snapshot?.model.frames).toEqual(["screen:long", "screen:short"]);
+    await core.receive({ v, type: "dispose" });
+  });
+
+  test("STU-121 a screensUpdate lays out only the changed screen and touches only its changed items", async () => {
+    const env = new TestEnvironment(ck);
+    const posted: WorkerMessage[] = [];
+    let paragraphs = 0;
+    const core = new CanvasWorkerCore((m) => posted.push(m), {
+      ...env.deps(),
+      paragraphEngine: (c, o) => {
+        const engine = canvasParagraphEngine(c, o);
+        return {
+          buildParagraph: (st, runs) => {
+            paragraphs++;
+            return engine.buildParagraph(st, runs);
+          },
+          dispose: () => engine.dispose(),
+        };
+      },
+    });
+    await core.receive({
+      v,
+      type: "init",
+      canvas: { width: 0, height: 0 },
+      width: 320,
+      height: 200,
+      dpr: 1,
+      options: {
+        renderer: "raster",
+        tileSize: 256,
+        fonts: [fontBytes()],
+        fontFamilies: ["Noto Sans"],
+        fontFamily: "Noto Sans",
+        measureFrames: false,
+      },
+    });
+    const column = (rows: number, edited: string) => ({
+      id: "col",
+      type: "Column",
+      children: Array.from({ length: rows }, (_, i) => text(`t${i}`, i === 3 ? edited : `Row ${i}`)),
+    });
+    const screens = Array.from({ length: 4 }, (_, n) => ({
+      id: `s${n}`,
+      title: `S${n}`,
+      x: n * 500,
+      y: 0,
+      root: column(10, "Row 3"),
+    }));
+    await core.receive({ v, type: "screens", requestId: 1, style, screens });
+    const full = paragraphs;
+    expect(full).toBeGreaterThanOrEqual(40);
+    paragraphs = 0;
+    const edited = { ...screens[1], id: "s1", title: "S1", x: 500, y: 0, root: column(10, "Row 3 edited") };
+    await core.receive({ v, type: "screensUpdate", requestId: 2, style, screens: [edited], removed: ["s3"] });
+    expect(paragraphs).toBe(full / 4);
+    const reply = posted.findLast((m): m is Extract<WorkerMessage, { type: "screens" }> => m.type === "screens");
+    expect(reply?.requestId).toBe(2);
+    expect(reply?.heights.map((h) => h.id)).toEqual(["s1"]);
+    const changed = (reply?.ops ?? []).flatMap((op) => (op.op === "replace" ? [op.item.id] : []));
+    expect(changed).toContain("s1/t3");
+    expect(changed.every((id) => id.startsWith("s1/")) && changed.length <= 2).toBe(true);
+    const removed = (reply?.ops ?? []).flatMap((op) => (op.op === "remove" ? [op.id] : []));
+    expect(removed).toContain("screen:s3");
+    expect(removed.every((id) => id.endsWith("s3") || id.startsWith("s3/"))).toBe(true);
+    expect((reply?.ops ?? []).some((op) => op.op === "clear" || op.op === "add")).toBe(false);
+    await core.receive({ v, type: "snapshot", requestId: 3 });
+    const snapshot = posted.find((m): m is Extract<WorkerMessage, { type: "snapshot" }> => m.type === "snapshot");
+    expect(snapshot?.model.frames).toEqual(["screen:s0", "screen:s1", "screen:s2"]);
     await core.receive({ v, type: "dispose" });
   });
 

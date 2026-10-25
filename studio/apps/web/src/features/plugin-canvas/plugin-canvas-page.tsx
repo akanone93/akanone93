@@ -15,13 +15,14 @@ import { UndoManager } from "../editor/undo-stack.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
+import { RightDock } from "../panels/right-dock.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
-import { readPlugin } from "./plugin-model.ts";
+import { parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
 import {
   contentBounds,
@@ -43,6 +44,7 @@ import { type SelectionStore, useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import { useGestures } from "./select/use-gestures.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
+import { useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 
 const MARQUEE_PX = 4;
@@ -180,10 +182,20 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
     strict: false,
   }) as Pick<RouterContext, "createSurface" | "createValidator">;
   const appDocs = useAppDocuments(params.app ?? "");
+  const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
-  const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
+  const local = useEditor((st) => st.docs);
+  const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: parseDocument(d.content) })), [docs.data]);
+  // The editor's documents, unsaved edits included, over the server's (STU-121); untouched documents keep
+  // their parsed objects, so the canvas lays out again only the screens whose root changed.
+  const live = useMemo(
+    () => parsed.map((d) => (local[d.path] === undefined ? d : { ...d, parsed: local[d.path]?.content })),
+    [parsed, local],
+  );
+  const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
+  const fittedRef = useRef<CanvasSurface | null>(null);
   const [heights, setHeights] = useState<Heights>(new Map());
   const session = useEditSession();
   const canEdit = useCanEdit();
@@ -306,7 +318,11 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
       }
       const byId = heightsById(laidOut);
       setHeights(byId);
-      fitView(surface, canvas, screens, byId, searchRef.current);
+      // Only the first layout on a surface fits the view; an edit keeps where the user looks.
+      if (fittedRef.current !== surface) {
+        fittedRef.current = surface;
+        fitView(surface, canvas, screens, byId, searchRef.current);
+      }
     });
     return () => {
       current = false;
@@ -425,6 +441,7 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         ))}
       </ol>
       <LeftDock
+        nativeWidgets={nativeWidgets}
         screens={screens}
         entryPage={entryPage}
         index={index}
@@ -437,6 +454,16 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         canvas={() => canvasRef.current}
       />
       <ProblemsDrawer validation={validation} />
+      <RightDock
+        screens={screens}
+        index={index}
+        screenOf={screenOf}
+        edit={edit}
+        pathOf={pathOf}
+        problems={validation.state === "done" ? validation.problems : []}
+        documents={docs.data}
+        validatePage={validation.state === "done" ? validation.validatePage : undefined}
+      />
       {docs.data !== undefined && (
         <ScreensController
           appId={params.app ?? ""}

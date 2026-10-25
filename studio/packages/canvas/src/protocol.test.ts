@@ -117,6 +117,24 @@ describe("STU-003 canvas worker protocol", () => {
     }
   });
 
+  test("STU-121 a screensUpdate message (changed screens, removed ids) survives structured clone", () => {
+    const full = hostMessages.find((m): m is Extract<HostMessage, { type: "screens" }> => m.type === "screens");
+    if (full === undefined) {
+      throw new Error("no screens message");
+    }
+    const update: HostMessage = {
+      v,
+      type: "screensUpdate",
+      requestId: 5,
+      screens: full.screens.slice(0, 1),
+      removed: ["empty"],
+      style: full.style,
+    };
+    const copy = structuredClone(update);
+    expect(readHostMessage(copy)).toEqual(update);
+    expect(readWorkerMessage({ ...copy })).toBeUndefined();
+  });
+
   test("other versions, unknown types and non-objects are rejected", () => {
     expect(readHostMessage({ v: v + 1, type: "patch", ops: [] })).toBeUndefined();
     expect(readHostMessage({ v, type: "eval" })).toBeUndefined();

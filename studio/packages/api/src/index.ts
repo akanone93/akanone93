@@ -8,6 +8,7 @@ export * from "./gen/plux/v1/federation_pb.ts";
 export * from "./gen/plux/v1/governance_pb.ts";
 export * from "./gen/plux/v1/identity_pb.ts";
 export * from "./gen/plux/v1/license_pb.ts";
+export * from "./gen/plux/v1/native_catalogue_pb.ts";
 export * from "./gen/plux/v1/notification_pb.ts";
 export * from "./gen/plux/v1/org_pb.ts";
 export * from "./gen/plux/v1/plugin_pb.ts";

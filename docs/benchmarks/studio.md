@@ -118,3 +118,45 @@ its bytes are valid `putImageData` input — and a tile job copies only the tile
 CPU-backed 2D context (`willReadFrequently`; an accelerated one put the copies back on SwiftShader
 and brought back single 670–1,130 ms gaps in Scene B in four of seven runs). The transparent drag
 layer keeps `MakeSWCanvasSurface`.
+
+## Property change to canvas frame (STU-121, NFR-032)
+
+Requirement: a property change reaches the canvas frame in 50 ms at p95.
+
+### Method
+
+- Harness: the `propertyToCanvas` scenario of `make studio-bench-canvas`
+  (`studio/packages/canvas/bench/property.ts`, run by `page.ts`); same software-rendering setup as above.
+- Scene: eight screens of forty text rows each. Each iteration edits one text property (`data`) of one node,
+  hands all screens to `CanvasHost.layoutScreens`, then forces and awaits the next frame. Since S2.6 (live
+  canvas) the host sends only the changed screen (`screensUpdate`), the worker lays out only that screen and
+  answers with `replace` ops for the items that differ, so only the tiles under them redraw. Time = hand-over to that frame; 30 warm-up and 300 measured iterations.
+- Not included: the main-thread Immer recipe of `edit`, which is microseconds for one field.
+- `layoutP95` is the part up to the worker's layout answer; the rest is the frame. `frameP95` is the worker's
+  own drawing time of that frame (`FrameStats.ms`), `flushP95` its flush.
+
+### Result (one run, software rendering, SwiftShader)
+
+| p50 | p95 | max | layoutP95 | budget |
+|---|---|---|---|---|
+| 72.4 ms | 101.0 ms | 165.3 ms | 54.0 ms | 50 ms p95 |
+
+Before the live canvas the worker laid out all 320 paragraphs and redrew the whole scene for a one-field change.
+
+### Result after per-screen relayout (median of 3 runs, software rendering, SwiftShader, raster backend)
+
+| run | p50 | p95 | max | layoutP95 | frameP95 | budget |
+|---|---|---|---|---|---|---|
+| 1 | 50.7 ms | 71.7 ms | 123.0 ms | 36.8 ms | — | 50 ms p95 |
+| 2 | 50.1 ms | 62.7 ms | 100.5 ms | 32.8 ms | 29.7 ms | 50 ms p95 |
+| 3 | 49.9 ms | 66.6 ms | 132.2 ms | 33.6 ms | 33.8 ms | 50 ms p95 |
+| **median** | **50.1 ms** | **66.6 ms** | 123.0 ms | 33.6 ms | | 50 ms p95 |
+
+The budget is **still not met** (p95 66.6 ms against 50 ms). Laying out the edited screen alone takes about
+3 ms in the worker (measured in isolation; 8 screens took about 97 ms), and an edit changes one or two items
+(the text and, as the column shrink-wraps its widest row, the body box). What remains is the drawing: the
+body box spans the whole screen, so every tile under the screen renders again — about 30 ms p95 per frame in
+SwiftShader raster, flush about 5 ms — and the next update waits behind the idle tile work of the previous
+frame (`layoutP95` about 33 ms against about 3 ms of layout). The next step is partial tile re-rendering
+(clip to the dirty rectangle) and yielding idle tile work to a pending message. The
+requirement is therefore not marked `DONE`.

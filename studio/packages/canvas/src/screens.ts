@@ -96,14 +96,96 @@ export function layoutScreens(
   style: ScreenStyle,
   engine: ParagraphEngine,
 ): { ops: SceneOp[]; heights: ScreenHeight[] } {
-  const ops: SceneOp[] = [{ op: "clear" }];
-  const heights: ScreenHeight[] = [];
-  for (const s of screens) {
-    const { boxes, contentHeight } = layoutScreen(s.root, { engine, theme: style.theme, title: s.title });
-    heights.push({ id: s.id, contentHeight });
-    for (const item of screenItems(s, boxes, contentHeight, style)) {
-      ops.push({ op: "add", item });
+  return new ScreenLayouts().replaceAll(screens, style, engine);
+}
+
+function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine): { items: ItemSpec[]; height: number } {
+  const { boxes, contentHeight } = layoutScreen(s.root, { engine, theme: style.theme, title: s.title });
+  return { items: screenItems(s, boxes, contentHeight, style), height: contentHeight };
+}
+
+/** Two item specs draw the same: they are plain data from `screenItems`, so their JSON compares them. */
+const sameItem = (a: ItemSpec, b: ItemSpec): boolean => JSON.stringify(a) === JSON.stringify(b);
+
+/** Pushes removals of the items gone from `before` to `removals`, and adds and replacements to `changes`. */
+function diffItems(
+  before: ReadonlyMap<string, ItemSpec>,
+  after: ReadonlyMap<string, ItemSpec>,
+  removals: SceneOp[],
+  changes: SceneOp[],
+): void {
+  for (const id of before.keys()) {
+    if (!after.has(id)) {
+      removals.push({ op: "remove", id });
     }
   }
-  return { ops, heights };
+  for (const item of after.values()) {
+    const old = before.get(item.id);
+    if (old === undefined) {
+      changes.push({ op: "add", item });
+    } else if (!sameItem(old, item)) {
+      changes.push({ op: "replace", item });
+    }
+  }
+}
+
+/**
+ * The laid-out screens the worker holds, by screen (STU-121): a full
+ * replacement lays every screen out, an update lays out only the screens it
+ * names and answers with the ops that turn their old items into the new ones —
+ * unchanged items are not touched, so only the tiles under a change redraw.
+ */
+export class ScreenLayouts {
+  private readonly byScreen = new Map<string, ReadonlyMap<string, ItemSpec>>();
+  /** How many screens were laid out since construction; tests read it. */
+  laidOut = 0;
+
+  /** Lays every screen out; the ops clear the scene first. */
+  replaceAll(
+    screens: readonly ScreenDocument[],
+    style: ScreenStyle,
+    engine: ParagraphEngine,
+  ): { ops: SceneOp[]; heights: ScreenHeight[] } {
+    this.byScreen.clear();
+    const ops: SceneOp[] = [{ op: "clear" }];
+    const heights: ScreenHeight[] = [];
+    for (const s of screens) {
+      const { items, height } = layOut(s, style, engine);
+      this.laidOut++;
+      heights.push({ id: s.id, contentHeight: height });
+      this.byScreen.set(s.id, new Map(items.map((item) => [item.id, item])));
+      for (const item of items) {
+        ops.push({ op: "add", item });
+      }
+    }
+    return { ops, heights };
+  }
+
+  /** Lays out only `screens` and drops `removed`; the ops change only the items that differ. */
+  update(
+    screens: readonly ScreenDocument[],
+    removed: readonly string[],
+    style: ScreenStyle,
+    engine: ParagraphEngine,
+  ): { ops: SceneOp[]; heights: ScreenHeight[] } {
+    const ops: SceneOp[] = [];
+    const heights: ScreenHeight[] = [];
+    for (const id of removed) {
+      for (const itemId of this.byScreen.get(id)?.keys() ?? []) {
+        ops.push({ op: "remove", id: itemId });
+      }
+      this.byScreen.delete(id);
+    }
+    const changes: SceneOp[] = [];
+    for (const s of screens) {
+      const { items, height } = layOut(s, style, engine);
+      this.laidOut++;
+      heights.push({ id: s.id, contentHeight: height });
+      const after = new Map(items.map((item) => [item.id, item]));
+      diffItems(this.byScreen.get(s.id) ?? new Map<string, ItemSpec>(), after, ops, changes);
+      this.byScreen.set(s.id, after);
+    }
+    ops.push(...changes);
+    return { ops, heights };
+  }
 }

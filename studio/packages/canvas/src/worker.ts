@@ -45,7 +45,7 @@ import {
 import { type LiveLayer, SceneRenderer } from "./renderer.ts";
 import { Scene, type SceneItem } from "./scene.ts";
 import { buildSceneModel } from "./scene-model.ts";
-import { layoutScreens } from "./screens.ts";
+import { ScreenLayouts } from "./screens.ts";
 import { chooseRenderer, type GlProbe } from "./select.ts";
 import { Viewport } from "./viewport.ts";
 
@@ -111,6 +111,8 @@ interface Running {
   readonly options: CanvasOptions;
   /** The paragraph engine screens are laid out with; made on the first `screens` message. */
   layoutEngine: DisposableEngine | null;
+  /** The laid-out screens, kept so an update lays out only what changed (STU-121). */
+  readonly screens: ScreenLayouts;
   /** The surface is lost: frames are skipped until it is rebuilt. */
   lost: boolean;
   readonly layerCanvas: OffscreenCanvasLike | null;
@@ -200,6 +202,7 @@ export class CanvasWorkerCore {
         renderer,
         options,
         layoutEngine: null,
+        screens: new ScreenLayouts(),
         lost: false,
         layerCanvas: message.layer ?? null,
         margin,
@@ -365,9 +368,13 @@ export class CanvasWorkerCore {
           model: buildSceneModel(running.scene, running.viewport),
         });
         return;
-      case "screens": {
+      case "screens":
+      case "screensUpdate": {
         running.layoutEngine ??= (this.deps.paragraphEngine ?? canvasParagraphEngine)(running.ck, running.options);
-        const { ops, heights } = layoutScreens(message.screens, message.style, running.layoutEngine);
+        const { ops, heights } =
+          message.type === "screens"
+            ? running.screens.replaceAll(message.screens, message.style, running.layoutEngine)
+            : running.screens.update(message.screens, message.removed, message.style, running.layoutEngine);
         running.scene.apply(ops);
         this.markBase(running);
         this.post({ v: PROTOCOL_VERSION, type: "screens", requestId: message.requestId, ops, heights });
