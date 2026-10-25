@@ -37,7 +37,14 @@ export function CommandsProvider({ value: base, children }: { value: CommandsVal
     }
     return {
       registry: mergeScoped(base.registry, scoped),
-      states: [...base.states, ...scoped.map((command) => ({ command, enabled: command.permission === null }))],
+      states: [
+        ...base.states,
+        ...scoped.map((command) =>
+          command.disabledReason === undefined
+            ? { command, enabled: command.permission === null }
+            : { command, enabled: false, reason: command.disabledReason },
+        ),
+      ],
     };
   }, [base, scopes]);
   useEffect(() => {

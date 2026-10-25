@@ -763,6 +763,12 @@ msgstr "المشروع"
 msgid "lock.lost.retake"
 msgstr "إعادة الاستلام والتطبيق"
 
+#. Why undo and redo are disabled: the editor is read-only or lost its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.edit.readOnly"
+msgstr ""
+
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts

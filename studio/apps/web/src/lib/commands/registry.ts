@@ -17,6 +17,8 @@ export interface Command {
   /** Default chord such as `mod+k` or `alt+h`; `mod` is Command on macOS and Control elsewhere. */
   readonly shortcut?: string;
   readonly permission: PermissionName | null;
+  /** Why the command cannot run now (read-only, lock lost); it is then disabled and shows this. */
+  readonly disabledReason?: string;
   readonly run: () => void | Promise<void>;
 }
 
@@ -25,6 +27,8 @@ export interface CommandState {
   readonly enabled: boolean;
   /** Set when disabled: the missing permission, never a silent hiding (F14). */
   readonly missing?: PermissionName;
+  /** Set when disabled for a reason other than a permission, such as a read-only editor. */
+  readonly reason?: string;
 }
 
 const modifierOrder = ["mod", "alt", "shift"] as const;

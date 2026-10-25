@@ -43,8 +43,9 @@ export function createUndoFocus(): UndoFocus {
  * Undo (mod+z) and redo (shift+mod+z, and mod+y) through the command registry. With no editor
  * focused they do nothing; an overlay code editor keeps its own undo while it has focus (F3).
  */
-export function undoCommands(i18n: I18n, focus: UndoFocus): readonly Command[] {
+export function undoCommands(i18n: I18n, focus: UndoFocus, readOnly = false): readonly Command[] {
   const m = commandMessages(i18n);
+  const blocked = readOnly ? { disabledReason: m.readOnly } : {};
   return [
     {
       id: "edit.undo",
@@ -52,6 +53,7 @@ export function undoCommands(i18n: I18n, focus: UndoFocus): readonly Command[] {
       group: "edit",
       shortcut: "mod+z",
       permission: null,
+      ...blocked,
       run: () => focus.current?.undo(),
     },
     {
@@ -60,6 +62,7 @@ export function undoCommands(i18n: I18n, focus: UndoFocus): readonly Command[] {
       group: "edit",
       shortcut: "mod+shift+z",
       permission: null,
+      ...blocked,
       run: () => focus.current?.redo(),
     },
     {
@@ -68,6 +71,7 @@ export function undoCommands(i18n: I18n, focus: UndoFocus): readonly Command[] {
       group: "edit",
       shortcut: "mod+y",
       permission: null,
+      ...blocked,
       run: () => focus.current?.redo(),
     },
   ];

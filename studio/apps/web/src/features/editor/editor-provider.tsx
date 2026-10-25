@@ -128,7 +128,12 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
       session.queryClient.setQueryData<Document[]>(documentsKey(appId, pluginId), (old) =>
         old?.map((d) => (d.path === doc.path ? doc : d)),
       );
-    const base = documentTransport(session.transport, { appId, pluginId }, confirmed, () => lock.whenHeld());
+    const base = documentTransport(
+      session.transport,
+      { appId, pluginId, editorSessionId: latest.current.editorSessionId ?? "" },
+      confirmed,
+      () => lock.whenHeld(),
+    );
     return new EditSession({
       transport: {
         ...base,

@@ -111,7 +111,28 @@ function tabStorage(): Storage | undefined {
 /** Hands the plugin's edit pipeline to an observer (tests); renders nothing. */
 function ObserveEditor({ observe }: { readonly observe: (edit: EditSession) => void }): null {
   const edit = useEditSession();
-  useEffect(() => observe(edit), [observe, edit]);
+  useEffect(() => {
+    observe(edit);
+  }, [observe, edit]);
+  return null;
+}
+
+/** Registers edit.undo and edit.redo for the plugin's stack, disabled with the reason while read-only. */
+function UndoCommands(props: {
+  readonly undo: UndoManager;
+  readonly stack: string;
+  readonly canEdit: { current: boolean };
+}): null {
+  const { i18n } = useLingui();
+  const canEdit = useCanEdit();
+  props.canEdit.current = canEdit;
+  const { undo, stack } = props;
+  const list = useMemo(() => {
+    const focus = createUndoFocus();
+    focus.set({ undo: () => undo.undo(stack), redo: () => undo.redo(stack) });
+    return undoCommands(i18n, focus, !canEdit);
+  }, [i18n, undo, stack, canEdit]);
+  useScopedCommands("plugin-undo", list);
   return null;
 }
 
@@ -119,17 +140,18 @@ export function PluginCanvasPage() {
   const params = useParams({ strict: false }) as { app?: string; plugin?: string };
   const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
   const { observeEditor } = useRouteContext({ strict: false }) as Pick<RouterContext, "observeEditor">;
-  const { i18n } = useLingui();
   const stack = params.plugin ?? "";
   // One undo stack per plugin (F3); edit.undo and edit.redo act on it while this page is open.
-  const [undo] = useState(() => new UndoManager({ depth: limitDefault("studio.undoDepth") }));
+  // Undo is blocked while the editor is read-only or lost its lock (F3); UndoCommands keeps this current.
+  const canEdit = useRef(true);
+  const [undo] = useState(
+    () =>
+      new UndoManager({
+        depth: limitDefault("studio.undoDepth"),
+        blocked: () => (canEdit.current ? undefined : "read-only"),
+      }),
+  );
   const [editorSessionId] = useState(() => tabEditorSession(tabStorage()));
-  const undoList = useMemo(() => {
-    const focus = createUndoFocus();
-    focus.set({ undo: () => undo.undo(stack), redo: () => undo.redo(stack) });
-    return undoCommands(i18n, focus);
-  }, [i18n, undo, stack]);
-  useScopedCommands("plugin-undo", undoList);
   return (
     <EditorProvider
       appId={params.app ?? ""}
@@ -139,6 +161,7 @@ export function PluginCanvasPage() {
       editorSessionId={editorSessionId}
     >
       {observeEditor !== undefined && <ObserveEditor observe={observeEditor} />}
+      <UndoCommands undo={undo} stack={stack} canEdit={canEdit} />
       <PluginCanvasView docs={docs} />
     </EditorProvider>
   );

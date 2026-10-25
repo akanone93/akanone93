@@ -13,6 +13,7 @@ import {
   GovernanceService,
   IdentityService,
   InboxItemSchema,
+  LockSchema,
   MemberSchema,
   NotificationService,
   OrganizationSchema,
@@ -51,6 +52,10 @@ export interface Upstream {
   documents?: { kind: string; path: string; json: unknown }[];
   surface?: SurfaceFactory;
   validator?: ValidatorFactory;
+  /** Someone else holds the plugin's editing lock: the editor is read-only. */
+  lockHeldElsewhere?: boolean;
+  /** Collects every PatchDocument the upstream receives (autosave, undo, redo). */
+  sent?: { path: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
   /** Receives the plugin canvas's edit pipeline. */
   editor?: (edit: EditSession) => void;
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
@@ -118,6 +123,43 @@ export function createUpstream(state: Upstream) {
         plugins: Object.keys(state.pluginDocuments ?? {}).map((id) => create(PluginSchema, { id, key: id })),
       }),
     });
+    service(PluginService, {
+      // The editing lock: free until taken, then held by the session that took it.
+      getLock: (req) =>
+        state.lockHeldElsewhere === true
+          ? {
+              lock: create(LockSchema, {
+                appId: req.appId,
+                pluginId: req.pluginId,
+                session: "another-tab",
+                holder: { kind: "user", id: "someone-else", display: "Ana" },
+                expiresAt: { seconds: BigInt(Math.floor(Date.now() / 1000) + 3600), nanos: 0 },
+              }),
+            }
+          : {},
+      acquireLock: (req) => {
+        if (state.lockHeldElsewhere === true) {
+          throw new ConnectError("the lock is held by someone else", Code.FailedPrecondition);
+        }
+        return {
+          lock: create(LockSchema, {
+            appId: req.appId,
+            pluginId: req.pluginId,
+            session: req.session,
+            expiresAt: { seconds: BigInt(Math.floor(Date.now() / 1000) + 3600), nanos: 0 },
+          }),
+        };
+      },
+      renewLock: (req) => ({
+        lock: create(LockSchema, {
+          appId: req.appId,
+          pluginId: req.pluginId,
+          session: req.session,
+          expiresAt: { seconds: BigInt(Math.floor(Date.now() / 1000) + 3600), nanos: 0 },
+        }),
+      }),
+      releaseLock: () => ({}),
+    });
     service(DocumentService, {
       // Autosave: applies the patch to the stored document and returns it one revision on.
       patchDocument: (req) => {
@@ -130,6 +172,7 @@ export function createUpstream(state: Upstream) {
           path: o.path,
           ...(o.value.length > 0 && { value: JSON.parse(new TextDecoder().decode(o.value)) as JsonValue }),
         }));
+        state.sent?.push({ path: req.path, stepId: req.stepId, ops });
         if (doc !== undefined) {
           doc.json = applyPatch(doc.json as JsonValue, ops);
           patched.set(req.path, doc);
