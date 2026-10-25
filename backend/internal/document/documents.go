@@ -394,6 +394,11 @@ func (s *Service) commit(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d dra
 		out, err = s.preserve(ctx, q, d, p, changes)
 		return out, lockErr, err
 	}
+	for _, scope := range scopes {
+		if err := touchLock(ctx, q, d, scope, session, storage.Timestamp(s.now())); err != nil {
+			return Written{}, nil, fmt.Errorf("document: record the last edit: %w", err)
+		}
+	}
 	if out, err = s.apply(ctx, q, tx, d, p, changes, reason); err != nil || then == nil {
 		return out, nil, err
 	}

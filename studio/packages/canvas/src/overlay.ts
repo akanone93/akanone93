@@ -82,6 +82,41 @@ export interface Context2DLike {
   setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void;
   clearRect(x: number, y: number, w: number, h: number): void;
   fillRect(x: number, y: number, w: number, h: number): void;
+  font?: string;
+  fillText?(text: string, x: number, y: number): void;
+}
+
+/** Transient interaction feedback in world coordinates: smart guides, distance labels, an insertion indicator. */
+export interface Guides {
+  /** `axis` x is a vertical line at `at` spanning `from`..`to` in y; `axis` y is horizontal. */
+  readonly lines: readonly {
+    readonly axis: "x" | "y";
+    readonly at: number;
+    readonly from: number;
+    readonly to: number;
+  }[];
+  readonly labels: readonly { readonly x: number; readonly y: number; readonly text: string }[];
+  readonly indicator?: Rect;
+}
+
+/** Device-pixel bars of a guide line, one device pixel wide at any zoom. */
+export function guideBars(view: OverlayView, dpr: number, guides: Guides): DeviceRect[] {
+  const bars: DeviceRect[] = [];
+  const px = (w: number, o: number): number => Math.round((w - o) * view.zoom * dpr);
+  for (const g of guides.lines) {
+    const a = px(g.from, g.axis === "x" ? view.y : view.x);
+    const len = Math.max(1, px(g.to, g.axis === "x" ? view.y : view.x) - a);
+    const at = px(g.at, g.axis === "x" ? view.x : view.y);
+    bars.push(g.axis === "x" ? { x: at, y: a, w: 1, h: len } : { x: a, y: at, w: len, h: 1 });
+  }
+  const i = guides.indicator;
+  if (i) {
+    const t = Math.max(2, Math.round(2 * dpr));
+    const x = px(i.l, view.x);
+    const y = px(i.t, view.y);
+    bars.push({ x, y, w: Math.max(t, px(i.r, view.x) - x), h: Math.max(t, px(i.b, view.y) - y) });
+  }
+  return bars;
 }
 
 /** The overlay canvas element; an `HTMLCanvasElement` in the browser. */
@@ -136,7 +171,7 @@ export class SelectionOverlay {
   }
 
   /** Clears the overlay and draws the marks of every world rectangle in `boxes`. */
-  draw(view: OverlayView, dpr: number, boxes: readonly Rect[]): void {
+  draw(view: OverlayView, dpr: number, boxes: readonly Rect[], guides?: Guides): void {
     const context = this.context;
     if (!context) {
       return;
@@ -156,6 +191,20 @@ export class SelectionOverlay {
         context.fillRect(handle.x, handle.y, handle.w, handle.h);
         context.fillStyle = css(this.colors.handleFill);
         context.fillRect(handle.x + line, handle.y + line, handle.w - 2 * line, handle.h - 2 * line);
+      }
+    }
+    if (guides) {
+      context.fillStyle = css(this.colors.outline);
+      for (const bar of guideBars(view, dpr, guides)) {
+        context.fillRect(bar.x, bar.y, bar.w, bar.h);
+      }
+      context.font = `${Math.round(11 * dpr)}px sans-serif`;
+      for (const l of guides.labels) {
+        context.fillText?.(
+          l.text,
+          Math.round((l.x - view.x) * view.zoom * dpr),
+          Math.round((l.y - view.y) * view.zoom * dpr),
+        );
       }
     }
   }

@@ -52,6 +52,8 @@ export {
 export {
   type Context2DLike,
   type DeviceRect,
+  type Guides,
+  guideBars,
   HANDLE_SIZE,
   OUTLINE_WIDTH,
   type OverlayCanvasLike,

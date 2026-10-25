@@ -285,6 +285,8 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	if err := save(w.admin, "own", map[string]string{keyHello: "Hallo.", keyBye: "Tschüss"}, approved); code(err) != plxerr.EditingLockHeld {
 		t.Errorf("the admin saving under the owner's lock: %v", err)
 	}
+	// The owner's lease lapses after two missed heartbeats (L-1).
+	w.now = w.now.Add(document.LockLeaseLapse)
 	if _, _, err := w.docs.AcquireLock(ctx, w.admin, w.app, "", "adm", true); err != nil {
 		t.Fatalf("the admin taking the draft lock over: %v", err)
 	}
@@ -305,6 +307,7 @@ func TestLocaleLocksAreIndependent_I18N_008(t *testing.T) {
 	ctx := context.Background()
 	de, ar := document.TranslationsScope("de"), document.TranslationsScope("ar")
 
+	w.now = w.now.Add(document.LockLeaseLapse)
 	if _, _, err := w.docs.AcquireLock(ctx, w.admin, w.app, "", "adm", true); err != nil {
 		t.Fatalf("the admin takes the draft lock: %v", err)
 	}

@@ -51,6 +51,8 @@ describe("SRV-030 D35 conflict dialog and the waiting chip (F2, F4)", () => {
       transport: {
         patch: () => Promise.reject(new ConnectError("stale", Code.Aborted)),
         get: () => Promise.resolve(server),
+        put: () => Promise.resolve(server),
+        remove: () => Promise.resolve(),
         classify: classifySaveError,
       },
       debounceMs: 0,

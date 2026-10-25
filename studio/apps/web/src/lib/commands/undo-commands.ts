@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { I18n } from "@lingui/core";
-import { createContext, useContext } from "react";
 import { commandMessages } from "./commands.messages.ts";
 import type { Command } from "./registry.ts";
 
@@ -38,16 +37,6 @@ export function createUndoFocus(): UndoFocus {
       return () => listeners.delete(listener);
     },
   };
-}
-
-const UndoFocusContext = createContext<UndoFocus | null>(null);
-
-/** Provides the shell's undo slot to the editors below it. */
-export const UndoFocusProvider = UndoFocusContext.Provider;
-
-/** The shell's undo slot, or null outside the shell. */
-export function useUndoFocus(): UndoFocus | null {
-  return useContext(UndoFocusContext);
 }
 
 /**
