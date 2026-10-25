@@ -231,8 +231,12 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
   const ids = [box, `label-${DRAGGED}`, ...arrows.beginDrag(box)];
   const origin = boxPosition(DRAGGED);
   host.startInteraction("drag", ids);
+  // Lifting the arrows into the interaction layer re-renders the tiles under them once.
+  const dragStartMs = (await settleTimes(host)).fullMs;
+  worker.length = 0;
   const intervals: number[] = [];
   const route: number[] = [];
+  const main: number[] = [];
   const rerouted: number[] = [];
   let previous = await animationFrame();
   for (let i = 0; i < WARMUP + FRAMES; i++) {
@@ -242,8 +246,10 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
     const patch = arrows.moveBox(box, origin.x + (i + 1) * 2, origin.y + (i + 1));
     const ms = performance.now() - begin;
     host.patch([{ op: "move", id: box, dx: 2, dy: 1 }, { op: "move", id: `label-${DRAGGED}`, dx: 2, dy: 1 }, ...patch]);
+    const mainMs = performance.now() - begin;
     if (i >= WARMUP) {
       intervals.push(now - previous);
+      main.push(mainMs);
       route.push(ms);
       rerouted.push(patch.length);
     }
@@ -275,7 +281,15 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
       routeMsP50: round(percentile(route, 0.5)),
       routeMsP95: round(percentile(route, 0.95)),
       routeMsMax: round(route.at(-1) ?? 0),
+      mainThreadMsP95: round(
+        percentile(
+          main.sort((a, b) => a - b),
+          0.95,
+        ),
+      ),
+      layerMsMean: round(mean(worker.map((f) => f.layerMs))),
       opsPerFrameMean: round(mean(rerouted)),
+      dragStartMs,
       dropRouteMs: round(dropRouteMs),
       dropOps: caughtUp.length,
       workerFrameMsP95: round(
@@ -285,6 +299,7 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
         ),
       ),
       ...baseRenders(worker),
+      workerFrames: worker.length,
     },
   };
 }
