@@ -21,7 +21,7 @@ export interface DocumentTransport {
     path: string,
     ops: readonly JsonPatchOp[],
     ifRevision: bigint,
-    options: { readonly keepalive: boolean },
+    options: { readonly keepalive: boolean; readonly step?: string | undefined },
   ): Promise<ServerDocument>;
   get(path: string): Promise<ServerDocument>;
   classify(error: unknown): SaveFailure;
@@ -51,6 +51,8 @@ export interface EditSessionOptions {
   readonly onRejected?: (path: string, error: unknown, undone: readonly string[]) => void;
   /** Every edit with its forward and inverse Immer patches, for the S2.4 undo stack. */
   readonly onEdit?: (record: EditRecord) => void;
+  /** The undo step an edit belongs to; a save never mixes steps, so the server can regroup them (STU-069). */
+  readonly stepFor?: (path: string, group: string | undefined) => string | undefined;
 }
 
 /** A document as an edit recipe sees it: the mutable Immer draft of its root JSON object. */
@@ -65,6 +67,7 @@ export interface EditRecord {
   readonly patches: readonly Patch[];
   readonly inversePatches: readonly Patch[];
   readonly group: string | undefined;
+  readonly step: string | undefined;
 }
 
 export type DocStatus = "saved" | "pending" | "saving" | "waiting" | "conflict";
@@ -94,6 +97,7 @@ export interface EditState {
 interface Unit {
   ops: JsonPatchOp[];
   readonly group: string | undefined;
+  readonly step: string | undefined;
 }
 
 interface Track {
@@ -181,7 +185,7 @@ export class EditSession {
   edit(
     path: string,
     recipe: (draft: DocumentDraft) => void,
-    options: { readonly group?: string } = {},
+    options: { readonly group?: string; readonly step?: string } = {},
   ): EditRecord | undefined {
     const t = this.tracks.get(path);
     if (t === undefined || !isObject(t.local)) {
@@ -192,18 +196,19 @@ export class EditSession {
       return undefined;
     }
     const ops = toJsonPatch(t.local, patches);
+    const step = options.step ?? this.options.stepFor?.(path, options.group);
     t.local = next as JsonValue;
     const last = t.queue[t.queue.length - 1];
-    if (options.group !== undefined && last !== undefined && last.group === options.group) {
+    if (options.group !== undefined && last !== undefined && last.group === options.group && last.step === step) {
       last.ops = [...last.ops, ...ops];
     } else {
-      t.queue.push({ ops, group: options.group });
+      t.queue.push({ ops, group: options.group, step });
     }
     if (!t.edited) {
       t.edited = true;
       this.options.onFirstEdit?.(path);
     }
-    const record = { path, patches, inversePatches, group: options.group };
+    const record = { path, patches, inversePatches, group: options.group, step };
     this.options.onEdit?.(record);
     this.schedule(path, t, this.options.debounceMs);
     this.publish(path);
@@ -314,8 +319,11 @@ export class EditSession {
       return;
     }
     this.clearTimer(t);
-    const units = t.queue;
-    t.queue = [];
+    // One save carries one undo step: the leading units that share it.
+    const first = t.queue[0]?.step;
+    const run = t.queue.findIndex((u) => u.step !== first);
+    const units = run === -1 ? t.queue : t.queue.slice(0, run);
+    t.queue = run === -1 ? [] : t.queue.slice(run);
     t.inFlight = units;
     this.publish(path);
     try {
@@ -323,7 +331,7 @@ export class EditSession {
         path,
         units.flatMap((u) => u.ops),
         t.base.revision,
-        { keepalive },
+        { keepalive, step: first },
       );
       t.base = doc;
       t.inFlight = null;

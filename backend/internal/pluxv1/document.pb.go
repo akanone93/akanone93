@@ -489,8 +489,11 @@ type PutDocumentRequest struct {
 	// editor_session_id names the Studio tab's editor session; the write's
 	// snapshot is tagged with it for the undo rebuild (ADR-0095, STU-069).
 	EditorSessionId string `protobuf:"bytes,7,opt,name=editor_session_id,json=editorSessionId,proto3" json:"editor_session_id,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// step_id names the undo step the write belongs to, so the rebuild
+	// regroups a step that spans writes and documents (STU-069).
+	StepId        string `protobuf:"bytes,8,opt,name=step_id,json=stepId,proto3" json:"step_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PutDocumentRequest) Reset() {
@@ -572,6 +575,13 @@ func (x *PutDocumentRequest) GetEditorSessionId() string {
 	return ""
 }
 
+func (x *PutDocumentRequest) GetStepId() string {
+	if x != nil {
+		return x.StepId
+	}
+	return ""
+}
+
 type PutDocumentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Document      *Document              `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
@@ -640,8 +650,9 @@ type PatchDocumentRequest struct {
 	Patch      []*PatchOp             `protobuf:"bytes,4,rep,name=patch,proto3" json:"patch,omitempty"`
 	IfRevision int64                  `protobuf:"varint,5,opt,name=if_revision,json=ifRevision,proto3" json:"if_revision,omitempty"`
 	Session    string                 `protobuf:"bytes,6,opt,name=session,proto3" json:"session,omitempty"`
-	// editor_session_id is as in PutDocumentRequest.
+	// editor_session_id and step_id are as in PutDocumentRequest.
 	EditorSessionId string `protobuf:"bytes,7,opt,name=editor_session_id,json=editorSessionId,proto3" json:"editor_session_id,omitempty"`
+	StepId          string `protobuf:"bytes,8,opt,name=step_id,json=stepId,proto3" json:"step_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -721,6 +732,13 @@ func (x *PatchDocumentRequest) GetSession() string {
 func (x *PatchDocumentRequest) GetEditorSessionId() string {
 	if x != nil {
 		return x.EditorSessionId
+	}
+	return ""
+}
+
+func (x *PatchDocumentRequest) GetStepId() string {
+	if x != nil {
+		return x.StepId
 	}
 	return ""
 }
@@ -1305,8 +1323,10 @@ type EditorSessionEntry struct {
 	Revision int64 `protobuf:"varint,3,opt,name=revision,proto3" json:"revision,omitempty"`
 	// inverse turns the document the write produced back into the one it
 	// replaced.
-	Inverse       []*PatchOp             `protobuf:"bytes,4,rep,name=inverse,proto3" json:"inverse,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Inverse   []*PatchOp             `protobuf:"bytes,4,rep,name=inverse,proto3" json:"inverse,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// step_id is the undo step of the write; empty when none was given.
+	StepId        string `protobuf:"bytes,6,opt,name=step_id,json=stepId,proto3" json:"step_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1374,6 +1394,13 @@ func (x *EditorSessionEntry) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *EditorSessionEntry) GetStepId() string {
+	if x != nil {
+		return x.StepId
+	}
+	return ""
 }
 
 type ListEditorSessionEntriesResponse struct {
@@ -2085,7 +2112,7 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\x10content_included\x18\x04 \x01(\bR\x0fcontentIncluded\"q\n" +
 	"\x15ListDocumentsResponse\x12/\n" +
 	"\tdocuments\x18\x01 \x03(\v2\x11.plux.v1.DocumentR\tdocuments\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xdd\x01\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xf6\x01\n" +
 	"\x12PutDocumentRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x12\n" +
@@ -2094,12 +2121,13 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\vif_revision\x18\x05 \x01(\x03R\n" +
 	"ifRevision\x12\x18\n" +
 	"\asession\x18\x06 \x01(\tR\asession\x12*\n" +
-	"\x11editor_session_id\x18\a \x01(\tR\x0feditorSessionId\"\x9c\x01\n" +
+	"\x11editor_session_id\x18\a \x01(\tR\x0feditorSessionId\x12\x17\n" +
+	"\astep_id\x18\b \x01(\tR\x06stepId\"\x9c\x01\n" +
 	"\x13PutDocumentResponse\x12-\n" +
 	"\bdocument\x18\x01 \x01(\v2\x11.plux.v1.DocumentR\bdocument\x12\x1f\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tR\n" +
 	"snapshotId\x125\n" +
-	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics\"\xed\x01\n" +
+	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics\"\x86\x02\n" +
 	"\x14PatchDocumentRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x12\n" +
@@ -2108,7 +2136,8 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\vif_revision\x18\x05 \x01(\x03R\n" +
 	"ifRevision\x12\x18\n" +
 	"\asession\x18\x06 \x01(\tR\asession\x12*\n" +
-	"\x11editor_session_id\x18\a \x01(\tR\x0feditorSessionId\"\x9e\x01\n" +
+	"\x11editor_session_id\x18\a \x01(\tR\x0feditorSessionId\x12\x17\n" +
+	"\astep_id\x18\b \x01(\tR\x06stepId\"\x9e\x01\n" +
 	"\x15PatchDocumentResponse\x12-\n" +
 	"\bdocument\x18\x01 \x01(\v2\x11.plux.v1.DocumentR\bdocument\x12\x1f\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tR\n" +
@@ -2147,7 +2176,7 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12*\n" +
 	"\x11editor_session_id\x18\x03 \x01(\tR\x0feditorSessionId\x12!\n" +
-	"\x04page\x18\x04 \x01(\v2\r.plux.v1.PageR\x04page\"\xcc\x01\n" +
+	"\x04page\x18\x04 \x01(\v2\r.plux.v1.PageR\x04page\"\xe5\x01\n" +
 	"\x12EditorSessionEntry\x12\x1f\n" +
 	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
 	"snapshotId\x12\x12\n" +
@@ -2155,7 +2184,8 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\brevision\x18\x03 \x01(\x03R\brevision\x12*\n" +
 	"\ainverse\x18\x04 \x03(\v2\x10.plux.v1.PatchOpR\ainverse\x129\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x82\x01\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x17\n" +
+	"\astep_id\x18\x06 \x01(\tR\x06stepId\"\x82\x01\n" +
 	" ListEditorSessionEntriesResponse\x125\n" +
 	"\aentries\x18\x01 \x03(\v2\x1b.plux.v1.EditorSessionEntryR\aentries\x12'\n" +
 	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\":\n" +

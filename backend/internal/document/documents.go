@@ -53,6 +53,7 @@ type change struct {
 	// editor session: inverse is the stored JSON of the patch that undoes
 	// it, nil for a document the write created (STU-069).
 	editorSession string
+	step          string
 	inverse       []byte
 }
 
@@ -123,6 +124,7 @@ type recorded struct {
 	path, kind string
 	sum        []byte
 	inverse    []byte
+	step       string
 }
 
 // apply writes changes to a draft as one snapshot, in the caller's
@@ -150,7 +152,7 @@ func (s *Service) apply(ctx context.Context, q *dbgen.Queries, tx pgx.Tx, d draf
 		if err != nil {
 			return Written{}, err
 		}
-		e.inverse = c.inverse
+		e.inverse, e.step = c.inverse, c.step
 		entries = append(entries, e)
 		if c.editorSession != "" {
 			d.editorSession = c.editorSession
@@ -163,7 +165,7 @@ func (s *Service) apply(ctx context.Context, q *dbgen.Queries, tx pgx.Tx, d draf
 	for _, e := range entries {
 		if err := q.AddSnapshotDocument(ctx, dbgen.AddSnapshotDocumentParams{
 			SnapshotID: snap.ID, OrganizationID: d.row.OrganizationID, Path: e.path, Kind: e.kind, Sha256: e.sum,
-			InversePatch: e.inverse,
+			InversePatch: e.inverse, StepID: e.step,
 		}); err != nil {
 			return Written{}, fmt.Errorf("document: record the snapshot: %w", err)
 		}
@@ -472,14 +474,14 @@ func (s *Service) preserve(ctx context.Context, q *dbgen.Queries, d draft, p aut
 
 // PutDocument writes a document whole (SRV-030).
 func (s *Service) PutDocument(ctx context.Context, p auth.Principal, appID, pluginID, session, path string, content []byte, ifRevision int64) (Written, error) {
-	return s.PutDocumentTagged(ctx, p, appID, pluginID, session, "", path, content, ifRevision)
+	return s.PutDocumentTagged(ctx, p, appID, pluginID, session, Tag{}, path, content, ifRevision)
 }
 
 // PutDocumentTagged is PutDocument for a write from a Studio editor
 // session, which tags its snapshot and stores the inverse patch that
 // undoes it (STU-069). An empty editorSession tags nothing.
-func (s *Service) PutDocumentTagged(ctx context.Context, p auth.Principal, appID, pluginID, session, editorSession, path string, content []byte, ifRevision int64) (Written, error) {
-	if err := checkEditorSession(editorSession); err != nil {
+func (s *Service) PutDocumentTagged(ctx context.Context, p auth.Principal, appID, pluginID, session string, tag Tag, path string, content []byte, ifRevision int64) (Written, error) {
+	if err := tag.check(); err != nil {
 		return Written{}, err
 	}
 	if err := guardTranslator(p, appID, pluginID, path, true); err != nil {
@@ -490,8 +492,8 @@ func (s *Service) PutDocumentTagged(ctx context.Context, p auth.Principal, appID
 	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
 		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
 			c, diags, err := s.prepare(d, lim, path, content, ifRevision)
-			if err == nil && editorSession != "" {
-				c, err = s.tagPut(ctx, q, d, lim, editorSession, c)
+			if err == nil && tag.EditorSession != "" {
+				c, err = s.tagPut(ctx, q, d, lim, tag, c)
 			}
 			if err == nil && scope != "" {
 				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)
@@ -519,13 +521,13 @@ func translationsScope(pluginID, path string) string {
 // autosave sends (SRV-030). The patch applies to the revision it names;
 // the result is validated like a whole document.
 func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pluginID, session, path string, patch []Op, ifRevision int64) (Written, error) {
-	return s.PatchDocumentTagged(ctx, p, appID, pluginID, session, "", path, patch, ifRevision)
+	return s.PatchDocumentTagged(ctx, p, appID, pluginID, session, Tag{}, path, patch, ifRevision)
 }
 
 // PatchDocumentTagged is PatchDocument for a write from a Studio editor
 // session, as PutDocumentTagged.
-func (s *Service) PatchDocumentTagged(ctx context.Context, p auth.Principal, appID, pluginID, session, editorSession, path string, patch []Op, ifRevision int64) (Written, error) {
-	if err := checkEditorSession(editorSession); err != nil {
+func (s *Service) PatchDocumentTagged(ctx context.Context, p auth.Principal, appID, pluginID, session string, tag Tag, path string, patch []Op, ifRevision int64) (Written, error) {
+	if err := tag.check(); err != nil {
 		return Written{}, err
 	}
 	if ifRevision <= 0 {
@@ -543,8 +545,8 @@ func (s *Service) PatchDocumentTagged(ctx context.Context, p auth.Principal, app
 				return nil, nil, err
 			}
 			c, diags, err := s.prepare(d, lim, path, data, ifRevision)
-			if err == nil && editorSession != "" {
-				c, err = s.tag(ctx, q, d, lim, editorSession, c, Diff(patched, tree), false)
+			if err == nil && tag.EditorSession != "" {
+				c, err = s.tag(ctx, q, d, lim, tag, c, Diff(patched, tree), false)
 			}
 			if err == nil && scope != "" {
 				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)

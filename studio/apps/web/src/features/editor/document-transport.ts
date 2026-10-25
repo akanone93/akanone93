@@ -43,12 +43,13 @@ export function documentTransport(
 ): DocumentTransport {
   const client = createClient(DocumentService, transport);
   return {
-    async patch(path, ops, ifRevision, { keepalive }) {
+    async patch(path, ops, ifRevision, { keepalive, step }) {
       const res = await client.patchDocument(
         {
           ...ids,
           path,
           ifRevision,
+          stepId: step ?? "",
           patch: ops.map((o) => ({
             op: o.op,
             path: o.path,
@@ -92,6 +93,7 @@ export async function loadSessionEntries(
     for (const e of res.entries) {
       out.push({
         path: e.path,
+        step: e.stepId,
         inverse: e.inverse.map(
           (o): JsonPatchOp =>
             ({

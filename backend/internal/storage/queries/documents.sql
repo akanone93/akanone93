@@ -143,8 +143,8 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING *;
 
 -- name: AddSnapshotDocument :exec
-INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried, inverse_patch)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried, inverse_patch, step_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 ON CONFLICT (snapshot_id, path) DO NOTHING;
 
 -- name: GetSnapshot :one
@@ -160,7 +160,7 @@ SELECT * FROM snapshots
 -- The entries of an editor session on a draft, newest first, for Studio's
 -- undo rebuild (STU-069): every applied write it made that kept its
 -- inverse patch.
-SELECT s.id, s.sequence, s.revision, s.created_at, sd.path, sd.inverse_patch
+SELECT s.id, s.sequence, s.revision, s.created_at, sd.path, sd.inverse_patch, sd.step_id
   FROM snapshots s
   JOIN snapshot_documents sd ON sd.snapshot_id = s.id
  WHERE s.draft_id = $1

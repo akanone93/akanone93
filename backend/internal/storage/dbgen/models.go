@@ -1624,6 +1624,7 @@ type SnapshotDocument struct {
 	Sha256         []byte
 	Carried        bool
 	InversePatch   []byte
+	StepID         string
 }
 
 type StepUpRequest struct {

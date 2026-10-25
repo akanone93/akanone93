@@ -65,6 +65,7 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
       debounceMs: limitDefault("studio.autosaveDebounceMs"),
       maxReplays: limitDefault("studio.autosaveReplays"),
       onFirstEdit: (path) => latest.current.onFirstEdit?.({ appId, pluginId, path }),
+      stepFor: (_path, group) => latest.current.undo?.stepFor(pluginId, group),
       onEdit: (record) => {
         latest.current.undo?.record(pluginId, record);
         latest.current.onEdit?.(record);

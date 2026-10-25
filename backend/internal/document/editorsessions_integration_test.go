@@ -28,13 +28,13 @@ func TestEditorSessionEntries(t *testing.T) {
 		t.Fatal(err)
 	}
 	home := "plugins/loans/pages/home.page.json"
-	if _, err := f.docs.PutDocumentTagged(ctx, f.owner, f.app, plugin, lock, tab, home, pageJSON("home", "One"), 0); err != nil {
+	if _, err := f.docs.PutDocumentTagged(ctx, f.owner, f.app, plugin, lock, document.Tag{EditorSession: tab, Step: "s1"}, home, pageJSON("home", "One"), 0); err != nil {
 		t.Fatal(err)
 	}
 	text := func(v string) []document.Op {
 		return []document.Op{{Op: "replace", Path: "/root/props/data", Value: v}}
 	}
-	second, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, tab, home, text("Two"), 1)
+	second, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, document.Tag{EditorSession: tab, Step: "s2"}, home, text("Two"), 1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func TestEditorSessionEntries(t *testing.T) {
 	if _, err := f.docs.PatchDocument(ctx, f.owner, f.app, plugin, lock, home, text("Three"), 2); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, "tab-2", home, text("Four"), 3); err != nil {
+	if _, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, document.Tag{EditorSession: "tab-2"}, home, text("Four"), 3); err != nil {
 		t.Fatal(err)
 	}
 
@@ -52,7 +52,7 @@ func TestEditorSessionEntries(t *testing.T) {
 	}
 	// The created document has no inverse; the patch's inverse restores "One".
 	if len(entries) != 1 || entries[0].SnapshotID != second.SnapshotID || entries[0].Path != home ||
-		len(entries[0].Inverse) != 1 || entries[0].Inverse[0].Value != "One" {
+		len(entries[0].Inverse) != 1 || entries[0].Inverse[0].Value != "One" || entries[0].Step != "s2" {
 		t.Fatalf("entries = %+v", entries)
 	}
 	snaps, err := f.docs.ListSnapshots(ctx, f.viewer, f.app, plugin, 0, 10)
@@ -68,7 +68,7 @@ func TestEditorSessionEntries(t *testing.T) {
 	}
 
 	// Undo is the inverse sent as a new forward write.
-	_, err = f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, "tab-2", home, entries[0].Inverse, 4)
+	_, err = f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, document.Tag{EditorSession: "tab-2"}, home, entries[0].Inverse, 4)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func TestEditorSessionEntries(t *testing.T) {
 	}
 	rev := int64(5)
 	for _, v := range []string{"a", "b", "c"} {
-		if _, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, tab, home, text(v), rev); err != nil {
+		if _, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, document.Tag{EditorSession: tab, Step: v}, home, text(v), rev); err != nil {
 			t.Fatal(err)
 		}
 		rev++
@@ -99,7 +99,10 @@ func TestEditorSessionEntries(t *testing.T) {
 	if _, err := f.docs.ListEditorSessionEntries(ctx, f.viewer, f.app, plugin, "", 0, 50); code(err) != plxerr.MissingProperty {
 		t.Errorf("no session: %v", err)
 	}
-	if _, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, "bad tab", home, text("x"), rev); code(err) != plxerr.InvalidFormat {
+	if _, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, document.Tag{EditorSession: "bad tab"}, home, text("x"), rev); code(err) != plxerr.InvalidFormat {
 		t.Errorf("malformed session: %v", err)
+	}
+	if _, err := f.docs.PatchDocumentTagged(ctx, f.owner, f.app, plugin, lock, document.Tag{Step: "s9"}, home, text("x"), rev); code(err) != plxerr.InvalidFormat {
+		t.Errorf("step without a session: %v", err)
 	}
 }
