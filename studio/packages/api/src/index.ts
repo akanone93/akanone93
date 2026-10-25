@@ -12,4 +12,5 @@ export * from "./gen/plux/v1/org_pb.ts";
 export * from "./gen/plux/v1/plugin_pb.ts";
 export * from "./gen/plux/v1/preferences_pb.ts";
 export * from "./gen/plux/v1/search_pb.ts";
+export * from "./gen/plux/v1/studio_events_pb.ts";
 export * from "./transport.ts";
