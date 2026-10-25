@@ -68,6 +68,12 @@ const (
 	// before it is decoded so that a small file cannot expand into a huge image.
 	// (SRV-060, CMP-030)
 	AssetImagePixels Key = "asset.imagePixels"
+	// AssetUploadChunkBytes: Bytes in one chunk of a chunked asset upload; a
+	// larger chunk is refused. (SRV-060)
+	AssetUploadChunkBytes Key = "asset.uploadChunkBytes"
+	// AssetUploadSessionTtl: Time an unfinished chunked upload is kept after its
+	// last chunk before it expires. (SRV-060)
+	AssetUploadSessionTtl Key = "asset.uploadSessionTtl"
 	// AttestAppAttestObjectBytes: Size of an App Attest attestation object or
 	// assertion. (SEC-004)
 	AttestAppAttestObjectBytes Key = "attest.appAttestObjectBytes"
@@ -634,6 +640,8 @@ var registry = [...]Definition{
 	{Key: AppTranslationKeys, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Translation keys one app may declare."},
 	{Key: AssetFileSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Size of one asset file, checked at upload and again at publish."},
 	{Key: AssetImagePixels, Unit: UnitCount, Default: 40000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image."},
+	{Key: AssetUploadChunkBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes in one chunk of a chunked asset upload; a larger chunk is refused."},
+	{Key: AssetUploadSessionTtl, Unit: UnitMilliseconds, Default: 3600000, Warning: 0, Max: 86400000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Time an unfinished chunked upload is kept after its last chunk before it expires."},
 	{Key: AttestAppAttestObjectBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 262144, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of an App Attest attestation object or assertion."},
 	{Key: AttestKeyAttestationChainCerts, Unit: UnitCount, Default: 10, Warning: 0, Max: 16, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Certificates an Android Key Attestation chain may hold."},
 	{Key: AttestPlayIntegrityTokenBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 65536, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a Play Integrity token the server accepts."},
