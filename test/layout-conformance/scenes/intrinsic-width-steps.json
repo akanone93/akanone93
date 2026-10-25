@@ -1,0 +1,43 @@
+{
+  "name": "intrinsic-width-steps",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "iw",
+        "type": "IntrinsicWidth",
+        "props": {
+          "stepWidth": 50,
+          "stepHeight": 30
+        },
+        "children": [
+          {
+            "id": "d1",
+            "type": "DecoratedBox",
+            "props": {},
+            "children": [
+              {
+                "id": "t1",
+                "type": "Text",
+                "props": {
+                  "text": "Hello Plux",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 18
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

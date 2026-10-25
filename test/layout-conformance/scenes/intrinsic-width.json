@@ -1,0 +1,86 @@
+{
+  "name": "intrinsic-width",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "iw",
+        "type": "IntrinsicWidth",
+        "props": {},
+        "children": [
+          {
+            "id": "col",
+            "type": "Column",
+            "props": {
+              "crossAxisAlignment": "stretch",
+              "mainAxisSize": "min"
+            },
+            "children": [
+              {
+                "id": "d1",
+                "type": "DecoratedBox",
+                "props": {},
+                "children": [
+                  {
+                    "id": "t1",
+                    "type": "Text",
+                    "props": {
+                      "text": "Short",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 16
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "d2",
+                "type": "DecoratedBox",
+                "props": {},
+                "children": [
+                  {
+                    "id": "t2",
+                    "type": "Text",
+                    "props": {
+                      "text": "A much longer line of text",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 16
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "d3",
+                "type": "DecoratedBox",
+                "props": {},
+                "children": [
+                  {
+                    "id": "t3",
+                    "type": "Text",
+                    "props": {
+                      "text": "Medium line",
+                      "style": {
+                        "fontFamily": "NotoSans",
+                        "fontSize": 16
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

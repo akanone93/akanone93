@@ -1,0 +1,104 @@
+{
+  "name": "fractionally-sized-box",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s1",
+            "type": "SizedBox",
+            "props": {
+              "width": 200,
+              "height": 100
+            },
+            "children": [
+              {
+                "id": "fs1",
+                "type": "FractionallySizedBox",
+                "props": {
+                  "widthFactor": 0.5,
+                  "heightFactor": 1.5,
+                  "alignment": {
+                    "start": 1,
+                    "y": 1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "fc1",
+                    "type": "SizedBox",
+                    "props": {
+                      "width": "infinity",
+                      "height": "infinity"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "fs2",
+            "type": "FractionallySizedBox",
+            "props": {
+              "widthFactor": 0.25,
+              "alignment": [
+                -1,
+                0
+              ]
+            },
+            "children": [
+              {
+                "id": "fc2",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "type": "SizedBox",
+            "props": {
+              "width": 160,
+              "height": 60
+            },
+            "children": [
+              {
+                "id": "fs3",
+                "type": "FractionallySizedBox",
+                "props": {
+                  "heightFactor": 0.5
+                },
+                "children": [
+                  {
+                    "id": "fc3",
+                    "type": "SizedBox",
+                    "props": {
+                      "width": 40,
+                      "height": "infinity"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

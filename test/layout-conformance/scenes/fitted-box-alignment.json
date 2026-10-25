@@ -1,0 +1,117 @@
+{
+  "name": "fitted-box-alignment",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s1",
+            "type": "SizedBox",
+            "props": {
+              "width": 120,
+              "height": 40
+            },
+            "children": [
+              {
+                "id": "fb1",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "none",
+                  "alignment": {
+                    "start": 1,
+                    "y": 1
+                  }
+                },
+                "children": [
+                  {
+                    "id": "c1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 200,
+                      "height": 100
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "type": "SizedBox",
+            "props": {
+              "width": 120,
+              "height": 40
+            },
+            "children": [
+              {
+                "id": "fb2",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "cover",
+                  "alignment": {
+                    "start": -1,
+                    "y": 0.5
+                  }
+                },
+                "children": [
+                  {
+                    "id": "c2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 60,
+                      "height": 30
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "type": "SizedBox",
+            "props": {
+              "width": 120,
+              "height": 40
+            },
+            "children": [
+              {
+                "id": "fb3",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "fitHeight",
+                  "alignment": {
+                    "start": 0.5,
+                    "y": 0
+                  }
+                },
+                "children": [
+                  {
+                    "id": "c3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 30,
+                      "height": 90
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

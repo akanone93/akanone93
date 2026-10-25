@@ -126,15 +126,46 @@ AlignmentGeometry _alignment(Object? value) {
 T _enum<T extends Enum>(List<T> values, Object? name, T fallback) =>
     name == null ? fallback : values.byName(name as String);
 
-Widget _build(Map<String, Object?> node) {
+/// An animation running from the node's `begin` (default 0) to `end` (default
+/// 1), held at the scene's animation value [t].
+Animation<double> _animation(Map<String, Object?> props, double t) =>
+    Tween<double>(
+      begin: _optionalNumber(props, 'begin') ?? 0,
+      end: _optionalNumber(props, 'end') ?? 1,
+    ).animate(AlwaysStoppedAnimation<double>(t));
+
+Offset _offset(Object? value) {
+  final List<Object?> pair = value! as List<Object?>;
+  return Offset(_number(pair[0]), _number(pair[1]));
+}
+
+TableColumnWidth _columnWidth(Object? spec) {
+  final Map<String, Object?> props = spec! as Map<String, Object?>;
+  return switch (props['type']) {
+    'fixed' => FixedColumnWidth(_number(props['value'])),
+    'fraction' => FractionColumnWidth(_number(props['value'])),
+    'flex' => FlexColumnWidth(_optionalNumber(props, 'value') ?? 1),
+    'intrinsic' => IntrinsicColumnWidth(flex: _optionalNumber(props, 'flex')),
+    'max' => MaxColumnWidth(_columnWidth(props['a']), _columnWidth(props['b'])),
+    'min' => MinColumnWidth(_columnWidth(props['a']), _columnWidth(props['b'])),
+    _ => throw ArgumentError('unknown table column width $spec'),
+  };
+}
+
+const Duration _animationDuration = Duration(seconds: 1);
+
+/// Builds the widget for [node]. Implicitly animated nodes take their `from`
+/// or `to` props according to [phase]; transitions are held at the scene's
+/// animation value [t].
+Widget _build(Map<String, Object?> node, String phase, double t) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
   final List<Widget> children = <Widget>[
     for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[])
-      _build(child! as Map<String, Object?>),
+      _build(child! as Map<String, Object?>, phase, t),
   ];
-  const Set<String> multiChild = <String>{'Row', 'Column', 'Flex', 'Stack', 'IndexedStack', 'Wrap'};
+  const Set<String> multiChild = <String>{'Row', 'Column', 'Flex', 'Stack', 'IndexedStack', 'Wrap', 'Table'};
   if (!multiChild.contains(type) && children.length > 1) {
     throw ArgumentError('node "$id" of type $type takes at most one child');
   }
@@ -284,6 +315,184 @@ Widget _build(Map<String, Object?> node) {
         overflow: props.containsKey('overflow') ? TextOverflow.values.byName(props['overflow']! as String) : null,
         softWrap: props['softWrap'] as bool?,
       );
+    case 'LimitedBox':
+      return LimitedBox(
+        key: key,
+        maxWidth: _optionalNumber(props, 'maxWidth') ?? double.infinity,
+        maxHeight: _optionalNumber(props, 'maxHeight') ?? double.infinity,
+        child: child,
+      );
+    case 'FittedBox':
+      return FittedBox(
+        key: key,
+        fit: _enum(BoxFit.values, props['fit'], BoxFit.contain),
+        alignment: _alignment(props['alignment']),
+        child: child,
+      );
+    case 'AspectRatio':
+      return AspectRatio(key: key, aspectRatio: _number(props['aspectRatio']), child: child);
+    case 'FractionallySizedBox':
+      return FractionallySizedBox(
+        key: key,
+        alignment: _alignment(props['alignment']),
+        widthFactor: _optionalNumber(props, 'widthFactor'),
+        heightFactor: _optionalNumber(props, 'heightFactor'),
+        child: child,
+      );
+    case 'Baseline':
+      return Baseline(
+        key: key,
+        baseline: _number(props['baseline']),
+        baselineType: _enum(TextBaseline.values, props['baselineType'], TextBaseline.alphabetic),
+        child: child,
+      );
+    case 'IntrinsicWidth':
+      return IntrinsicWidth(
+        key: key,
+        stepWidth: _optionalNumber(props, 'stepWidth'),
+        stepHeight: _optionalNumber(props, 'stepHeight'),
+        child: child,
+      );
+    case 'IntrinsicHeight':
+      return IntrinsicHeight(key: key, child: child);
+    case 'Table':
+      final int columns = props['columns']! as int;
+      return Table(
+        key: key,
+        columnWidths: <int, TableColumnWidth>{
+          for (final MapEntry<String, Object?> entry
+              in ((props['columnWidths'] as Map<String, Object?>?) ?? <String, Object?>{}).entries)
+            int.parse(entry.key): _columnWidth(entry.value),
+        },
+        defaultColumnWidth: props.containsKey('defaultColumnWidth')
+            ? _columnWidth(props['defaultColumnWidth'])
+            : const FlexColumnWidth(),
+        defaultVerticalAlignment: _enum(
+          TableCellVerticalAlignment.values,
+          props['defaultVerticalAlignment'],
+          TableCellVerticalAlignment.top,
+        ),
+        textBaseline: props.containsKey('textBaseline') ? TextBaseline.values.byName(props['textBaseline']! as String) : null,
+        children: <TableRow>[
+          for (int row = 0; row < children.length; row += columns)
+            TableRow(children: children.sublist(row, row + columns)),
+        ],
+      );
+    case 'TableCell':
+      return TableCell(
+        key: key,
+        verticalAlignment: props.containsKey('verticalAlignment')
+            ? TableCellVerticalAlignment.values.byName(props['verticalAlignment']! as String)
+            : null,
+        child: child!,
+      );
+    case 'Transform':
+      final Object? scale = props['scale'] ?? 1;
+      final List<Object?> translate = (props['translate'] as List<Object?>?) ?? <Object?>[0, 0];
+      return Transform(
+        key: key,
+        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : null,
+        transform: Matrix4.translationValues(_number(translate[0]), _number(translate[1]), 0)
+          ..rotateZ(_optionalNumber(props, 'rotate') ?? 0)
+          ..scaleByDouble(
+            scale is List<Object?> ? _number(scale[0]) : _number(scale),
+            scale is List<Object?> ? _number(scale[1]) : _number(scale),
+            1,
+            1,
+          ),
+        child: child,
+      );
+    case 'ClipRect':
+      return ClipRect(key: key, child: child);
+    case 'ClipRRect':
+      return ClipRRect(key: key, borderRadius: BorderRadius.circular(8), child: child);
+    case 'ClipOval':
+      return ClipOval(key: key, child: child);
+    case 'ClipPath':
+      return ClipPath(key: key, child: child);
+    case 'Opacity':
+      return Opacity(key: key, opacity: _optionalNumber(props, 'opacity') ?? 1, child: child);
+    case 'AnimatedContainer':
+      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      return AnimatedContainer(
+        key: key,
+        duration: _animationDuration,
+        curve: Curves.linear,
+        alignment: p.containsKey('alignment') ? _alignment(p['alignment']) : null,
+        padding: p.containsKey('padding') ? _padding(p['padding']) : null,
+        margin: p.containsKey('margin') ? _padding(p['margin']) : null,
+        width: _optionalNumber(p, 'width'),
+        height: _optionalNumber(p, 'height'),
+        child: child,
+      );
+    case 'AnimatedPadding':
+      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      return AnimatedPadding(
+        key: key,
+        duration: _animationDuration,
+        curve: Curves.linear,
+        padding: _padding(p['padding']),
+        child: child,
+      );
+    case 'AnimatedAlign':
+      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      return AnimatedAlign(
+        key: key,
+        duration: _animationDuration,
+        curve: Curves.linear,
+        alignment: _alignment(p['alignment']),
+        widthFactor: _optionalNumber(p, 'widthFactor'),
+        heightFactor: _optionalNumber(p, 'heightFactor'),
+        child: child,
+      );
+    case 'AnimatedPositioned':
+      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      return AnimatedPositioned(
+        key: key,
+        duration: _animationDuration,
+        curve: Curves.linear,
+        left: _optionalNumber(p, 'left'),
+        top: _optionalNumber(p, 'top'),
+        right: _optionalNumber(p, 'right'),
+        bottom: _optionalNumber(p, 'bottom'),
+        width: _optionalNumber(p, 'width'),
+        height: _optionalNumber(p, 'height'),
+        child: child!,
+      );
+    case 'AnimatedOpacity':
+      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      return AnimatedOpacity(
+        key: key,
+        duration: _animationDuration,
+        curve: Curves.linear,
+        opacity: _number(p['opacity']),
+        child: child,
+      );
+    case 'SizeTransition':
+      return SizeTransition(
+        key: key,
+        axis: _enum(Axis.values, props['axis'], Axis.vertical),
+        sizeFactor: _animation(props, t),
+        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : null,
+        fixedCrossAxisSizeFactor: _optionalNumber(props, 'fixedCrossAxisSizeFactor'),
+        child: child,
+      );
+    case 'ScaleTransition':
+      return ScaleTransition(key: key, scale: _animation(props, t),
+        alignment: _alignment(props['alignment']) as Alignment,
+        child: child,
+      );
+    case 'SlideTransition':
+      return SlideTransition(
+        key: key,
+        position: Tween<Offset>(
+          begin: props.containsKey('begin') ? _offset(props['begin']) : Offset.zero,
+          end: props.containsKey('end') ? _offset(props['end']) : Offset.zero,
+        ).animate(AlwaysStoppedAnimation<double>(t)),
+        child: child,
+      );
+    case 'FadeTransition':
+      return FadeTransition(key: key, opacity: _animation(props, t), child: child);
     case 'Spacer':
       return Spacer(key: key, flex: (props['flex'] as int?) ?? 1);
   }
@@ -322,6 +531,7 @@ void main() {
     final Map<String, Object?> scene = jsonDecode(sceneFile.readAsStringSync()) as Map<String, Object?>;
     final String name = scene['name']! as String;
     final Map<String, Object?> root = scene['root']! as Map<String, Object?>;
+    final double? sceneT = scene.containsKey('t') ? _number(scene['t']) : null;
     final List<String> ids = <String>[];
     _collectIds(root, ids);
     ids.sort();
@@ -339,16 +549,23 @@ void main() {
             tester.view.devicePixelRatio = frame.devicePixelRatio;
             addTearDown(tester.view.reset);
 
-            await tester.pumpWidget(
-              MediaQuery(
-                data: MediaQueryData(
-                  size: Size(frame.width, frame.height),
-                  devicePixelRatio: frame.devicePixelRatio,
-                  textScaler: TextScaler.linear(scale),
-                ),
-                child: Directionality(textDirection: direction.textDirection, child: _build(root)),
+            Widget frameWidget(String phase) => MediaQuery(
+              data: MediaQueryData(
+                size: Size(frame.width, frame.height),
+                devicePixelRatio: frame.devicePixelRatio,
+                textScaler: TextScaler.linear(scale),
               ),
+              child: Directionality(textDirection: direction.textDirection, child: _build(root, phase, sceneT ?? 1)),
             );
+            if (sceneT == null) {
+              await tester.pumpWidget(frameWidget('to'));
+            } else {
+              // Implicit animations run from `from` to `to`; hold them `sceneT` of the way (linear, one second).
+              await tester.pumpWidget(frameWidget('from'));
+              await tester.pumpWidget(frameWidget('to'));
+              await tester.pump();
+              await tester.pump(Duration(microseconds: (sceneT * 1000000).round()));
+            }
             final Object? exception = tester.takeException();
             if (exception != null && !_expectsOverflow(root)) {
               fail('scene "$name" threw during layout: $exception');
