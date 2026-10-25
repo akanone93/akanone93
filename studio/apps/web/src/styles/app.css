@@ -3,6 +3,8 @@
 
 @import "./fonts.css";
 @import "./theme.gen.css";
+/* sonner's own stylesheet: its runtime <style> injection is disabled (vite.config.ts, CSP §11.2). */
+@import "../../../../packages/ui/node_modules/sonner/dist/styles.css";
 
 /* The shared components carry their utilities in their own sources. */
 @source "../../../../packages/ui/src";
