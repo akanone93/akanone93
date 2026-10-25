@@ -19,8 +19,19 @@ import {
   screenDocuments,
   screenStyle,
 } from "./scene.ts";
+import type { EditFn } from "./select/edits.ts";
+import { handleKey } from "./select/keys.ts";
+import { announce } from "./select/live-region.ts";
+import * as sel from "./select/selection.ts";
+import { SelectionProvider, type SelectionStore, useSelection, useSelectionStore } from "./select/store.ts";
+import { indexNodes, type NodeIndex } from "./select/tree.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
 import { usePluginDocuments } from "./use-plugin-documents.ts";
+
+/** The document-edit pipeline arrives with S2.2; until then the route stays read-only and edits do nothing. */
+const readOnlyEdit: EditFn = () => undefined;
+
+const MARQUEE_PX = 4;
 
 /** Screens placed: saved positions, else flow order (STU-050); the canvas worker lays them out. */
 export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedScreen[] {
@@ -35,6 +46,26 @@ export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedS
     const p = at.get(id);
     return s === undefined || p === undefined ? [] : [{ id, title: s.title, at: p, root: s.root }];
   });
+}
+
+/** A pointer gesture ended: a click selects, Shift+drag is a marquee (Alt: contain). */
+function pointerSelect(
+  surface: CanvasSurface,
+  store: SelectionStore,
+  index: NodeIndex,
+  box: { left: number; top: number },
+  from: { x: number; y: number },
+  e: { clientX: number; clientY: number; shiftKey: boolean; altKey: boolean; ctrlKey: boolean; metaKey: boolean },
+): void {
+  const a = { x: from.x - box.left, y: from.y - box.top };
+  const z = { x: e.clientX - box.left, y: e.clientY - box.top };
+  if (Math.hypot(z.x - a.x, z.y - a.y) <= MARQUEE_PX) {
+    const hits = surface.hitTest?.(z.x, z.y) ?? [];
+    store.set(sel.click(index, store.get(), hits, { toggle: e.shiftKey, deep: e.ctrlKey || e.metaKey }));
+  } else if (e.shiftKey) {
+    const rect = { l: Math.min(a.x, z.x), t: Math.min(a.y, z.y), r: Math.max(a.x, z.x), b: Math.max(a.y, z.y) };
+    store.set(sel.marquee(index, store.get(), surface.hitTestRect?.(rect, e.altKey ? "contain" : "intersect") ?? []));
+  }
 }
 
 /** Fits the first view to the laid-out screens, unless the URL sets it. */
@@ -57,8 +88,16 @@ function fitView(
   surface.setViewport(cx - width / 2 / zoom, cy - height / 2 / zoom, zoom);
 }
 
-/** C2: the plugin canvas, read-only (S1.4). */
+/** C2: the plugin canvas, read-only (S1.4), with selection (S2.5). */
 export function PluginCanvasPage() {
+  return (
+    <SelectionProvider>
+      <PluginCanvasView edit={readOnlyEdit} />
+    </SelectionProvider>
+  );
+}
+
+function PluginCanvasView({ edit }: { edit: EditFn }) {
   const m = pluginCanvasMessages(useLingui().i18n);
   const params = useParams({ strict: false }) as { app?: string; plugin?: string };
   const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number };
@@ -69,6 +108,29 @@ export function PluginCanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const [heights, setHeights] = useState<Heights>(new Map());
+  const store = useSelectionStore();
+  const selection = useSelection();
+  const index = useMemo(() => indexNodes(screens.map((s) => s.root)), [screens]);
+  const screenOf = useMemo(() => {
+    const out = new Map<string, string>();
+    for (const sc of screens) {
+      for (const id of indexNodes([sc.root]).parent.keys()) {
+        out.set(id, sc.id);
+      }
+    }
+    return out;
+  }, [screens]);
+  const announcement = announce(
+    { none: () => m.selectionNone, one: m.selectionOne, many: m.selectionMany },
+    selection,
+    (id) => id,
+  );
+  useEffect(() => {
+    store.set(sel.prune(index, store.get()));
+  }, [index, store]);
+  useEffect(() => {
+    surfaceRef.current?.setSelection?.(selection.ids);
+  }, [selection]);
   const searchRef = useRef(search);
   searchRef.current = search;
 
@@ -121,6 +183,7 @@ export function PluginCanvasPage() {
   };
 
   const drag = useRef<{ x: number; y: number } | null>(null);
+  const start = useRef<{ x: number; y: number } | null>(null);
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
@@ -130,19 +193,34 @@ export function PluginCanvasPage() {
         role="application"
         aria-label={m.title}
         ref={canvasRef}
-        className="absolute inset-0 h-full w-full touch-none"
+        className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          const handled = handleKey({ store, index, edit, docOf: (id) => screenOf.get(id) }, e);
+          if (handled) {
+            e.preventDefault();
+          }
+        }}
+        onDoubleClick={() => store.set(sel.enter(index, store.get()))}
         onPointerDown={(e) => {
           drag.current = { x: e.clientX, y: e.clientY };
+          start.current = { x: e.clientX, y: e.clientY };
         }}
         onPointerMove={(e) => {
           const d = drag.current;
-          if (d !== null) {
+          if (d !== null && !e.shiftKey) {
             surfaceRef.current?.pan(e.clientX - d.x, e.clientY - d.y);
             drag.current = { x: e.clientX, y: e.clientY };
           }
         }}
-        onPointerUp={() => {
+        onPointerUp={(e) => {
           drag.current = null;
+          const from = start.current;
+          start.current = null;
+          const box = canvasRef.current?.getBoundingClientRect();
+          if (from !== null && surfaceRef.current && box) {
+            pointerSelect(surfaceRef.current, store, index, box, from, e);
+          }
           sync();
         }}
         onWheel={(e) => {
@@ -163,6 +241,9 @@ export function PluginCanvasPage() {
       {docs.isSuccess && screens.length === 0 && (
         <p className="absolute start-4 top-4 text-body text-secondary">{m.empty}</p>
       )}
+      <p role="status" aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
       <ol aria-label={m.screens} className="sr-only">
         {screens.map((s) => (
           <li key={s.id}>

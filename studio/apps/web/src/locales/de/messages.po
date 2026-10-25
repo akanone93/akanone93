@@ -7,6 +7,12 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: de\n"
 
+#. Announced to screen readers when several elements are selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionMany"
+msgstr "{count, plural, one {# Element ausgewählt} other {# Elemente ausgewählt}}"
+
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -18,6 +24,12 @@ msgstr "{count} von höchstens {max} Zeichen"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.unread"
 msgstr "{count} ungelesen"
+
+#. Announced to screen readers when one element is selected on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionOne"
+msgstr "{name} ausgewählt"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -384,6 +396,12 @@ msgstr "Keine Benachrichtigungen"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
+
+#. Announced to screen readers when the canvas selection becomes empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectionNone"
+msgstr "Nichts ausgewählt"
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
