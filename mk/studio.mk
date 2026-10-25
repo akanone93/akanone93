@@ -41,8 +41,13 @@ studio-conformance-update: ## Regenerate the layout goldens with Flutter
 studio-cover: studio-test ## Enforce Studio coverage floors (QA-001)
 	$(COVGATE) -kind studio studio/coverage/lcov.info
 
-studio-dev: studio-gen-theme ## Run the Studio web app with the Vite dev server
-	cd studio && bun run dev
+# The API the dev BFF proxies to: plux-server from deploy/compose (TLS under its development CA).
+STUDIO_DEV_API ?= https://localhost:8080
+STUDIO_DEV_CA ?= $(CURDIR)/deploy/compose/.secrets/ca/ca.crt
+
+studio-dev: studio-gen-theme ## Run Studio for development: the BFF and the Vite dev server (http://127.0.0.1:5173)
+	cd studio && PLUX_BFF_API_UPSTREAM=$(STUDIO_DEV_API) PLUX_BFF_PUBLIC_BASE_URL=http://127.0.0.1:5173 \
+		NODE_EXTRA_CA_CERTS=$(STUDIO_DEV_CA) bun run dev
 
 studio-gen-theme: studio-install ## Regenerate Studio's Tailwind theme from the design tokens
 	cd studio && bun run gen:theme

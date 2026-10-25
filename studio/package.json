@@ -13,7 +13,7 @@
     "format": "biome format --write .",
     "typecheck": "tsc -p tsconfig.json && tsc -p packages/ui && tsc -p apps/web && tsc -p apps/bff",
     "test": "bun test ./apps ./packages ./scripts ./lint",
-    "dev": "bun run --filter @plux/web dev",
+    "dev": "bun run --filter './apps/*' dev",
     "build": "bun run --filter @plux/web build",
     "size": "bun scripts/bundle-size.ts",
     "gen:theme": "bun scripts/gen-theme.ts"
