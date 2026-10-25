@@ -31,7 +31,7 @@ export function stage(source: string, target: string): void {
 
 if (import.meta.main) {
   const source =
-    process.env.PLUX_CANVASKIT_DIR ??
+    process.env["PLUX_CANVASKIT_DIR"] ??
     join(homedir(), ".cache/plux/flutter-3.47.5/bin/cache/flutter_web_sdk/canvaskit");
   stage(source, new URL("../apps/web/src/features/plugin-canvas/canvaskit", import.meta.url).pathname);
 }

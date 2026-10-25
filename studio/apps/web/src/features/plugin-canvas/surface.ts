@@ -50,7 +50,14 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
   CanvasHost.create(
     canvas,
     size,
-    { renderer: "auto", tileSize: 512, background: 0xf2f4f9ff, fonts: [], fontFamily: "Noto Sans", measureFrames: false },
+    {
+      renderer: "auto",
+      tileSize: 512,
+      background: 0xf2f4f9ff,
+      fonts: [],
+      fontFamily: "Noto Sans",
+      measureFrames: false,
+    },
     {
       createWorker: () =>
         new Worker(new URL("./canvas-worker.ts", import.meta.url), { type: "module" }) as unknown as WorkerLike,
@@ -59,7 +66,12 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
       },
     },
     {
-      request: { device: [], roboto: toSource(FONT_FILES[0] as readonly [string, string]), noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource), sfPro: false },
+      request: {
+        device: [],
+        roboto: toSource(FONT_FILES[0] as readonly [string, string]),
+        noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
+        sfPro: false,
+      },
       deps: { fetchFont: (url) => fetch(url).then((r) => r.arrayBuffer()) },
     },
   )
