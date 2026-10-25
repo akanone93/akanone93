@@ -347,6 +347,10 @@ studio:
   publicBaseUrl: ""
   # Optional https URL of your documentation site; PLUX_BFF_DOCS_URL. Unset hides the help menu's documentation links.
   docsUrl: ""
+  # Name of a Secret with key "stateSecret": base64 of at least 32 random bytes
+  # (openssl rand -base64 32), PLUX_BFF_STATE_SECRET. Every replica must share
+  # it. Unset, the chart generates one and keeps it across upgrades.
+  existingSecret: ""
   service: {type: ClusterIP, port: 8081, annotations: {}}
   ingress:
     enabled: false

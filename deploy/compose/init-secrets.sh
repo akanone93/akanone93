@@ -202,7 +202,15 @@ function_key() {
   chmod 644 .secrets/plux-fnrunner.yaml
 }
 
+# Studio's sign-in state key, shared by every BFF replica (PLUX_BFF_STATE_SECRET):
+# base64 of 32 random bytes. Kept once created, also on an existing .secrets/.
+studio_env() {
+  command -v openssl >/dev/null 2>&1 || { echo "init-secrets.sh: openssl is required to create the Studio state secret" >&2; exit 1; }
+  printf 'PLUX_BFF_STATE_SECRET=%s\n' "$(openssl rand -base64 32)" > .secrets/studio.env
+}
+
 [ -d .secrets ] || credentials
+[ -s .secrets/studio.env ] || studio_env
 dev_tls
 internal_tls
 function_key

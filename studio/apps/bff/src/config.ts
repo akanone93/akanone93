@@ -31,6 +31,40 @@ export type LoadedConfig = { config: BffConfig; warnings: string[] };
 
 export class ConfigError extends Error {}
 
+/** Minimum decoded length of the sign-in state key, in bytes (256 bits). */
+export const STATE_SECRET_MIN_BYTES = 32;
+
+/**
+ * Decodes the state secret: base64 or base64url (padding optional) that
+ * decodes to at least 32 bytes, so at least 43 characters. Generate one with
+ * `openssl rand -base64 32`. Returns null when the text is not in that format.
+ */
+export function decodeStateSecret(text: string): Uint8Array | null {
+  if (!/^[A-Za-z0-9+/_-]+={0,2}$/.test(text)) {
+    return null;
+  }
+  const bytes = new Uint8Array(Buffer.from(text, "base64"));
+  return bytes.length >= STATE_SECRET_MIN_BYTES ? bytes : null;
+}
+
+/**
+ * The state secret is required and shared by every replica: a per-process
+ * fallback would make a callback that lands on another replica fail. The value
+ * is never echoed in the error.
+ */
+function readStateSecret(raw: unknown): string {
+  const text = typeof raw === "string" ? raw.trim() : "";
+  if (text === "") {
+    throw new ConfigError(
+      "stateSecret is required (PLUX_BFF_STATE_SECRET): one base64 value of at least 32 bytes shared by all replicas; generate with `openssl rand -base64 32`",
+    );
+  }
+  if (decodeStateSecret(text) === null) {
+    throw new ConfigError("stateSecret must be base64 or base64url encoding at least 32 bytes (43 characters)");
+  }
+  return text;
+}
+
 type Env = Record<string, string | undefined>;
 
 const localHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
@@ -178,7 +212,7 @@ export function loadConfig(env: Env, fileText?: string): LoadedConfig {
       .split(",")
       .map((x) => x.trim())
       .filter((x) => x !== ""),
-    stateSecret: String(pick(file, env, "stateSecret", "PLUX_BFF_STATE_SECRET") ?? ""),
+    stateSecret: readStateSecret(pick(file, env, "stateSecret", "PLUX_BFF_STATE_SECRET")),
   };
   return { config, warnings };
 }

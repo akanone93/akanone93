@@ -31,8 +31,8 @@ export type AppOptions = {
   logLine?: (line: Record<string, unknown>) => void;
   /** Random source for sampling. */
   random?: () => number;
-  /** Key for the sign-in state cookie; generated when absent. */
-  stateKey?: Uint8Array;
+  /** Key for the sign-in state cookie; required and identical on every replica. */
+  stateKey: Uint8Array;
 };
 
 export type BffApp = {
@@ -67,7 +67,7 @@ export function createBff(options: AppOptions): BffApp {
   const reportLimiter = new MemoryRateLimiter(60);
   const streams = new StreamCounter(config.streamsPerSession, config.maxStreamConnections);
   const ip = makeClientIp(config.trustedProxies, options.clientIp ?? (() => "unknown"));
-  const stateKey = options.stateKey ?? crypto.getRandomValues(new Uint8Array(32));
+  const stateKey = options.stateKey;
   const telemetryLimiter = options.limiter ?? new MemoryRateLimiter(config.telemetryEventsPerMinute);
   let reports = 0;
   let draining = false;
