@@ -30,3 +30,5 @@ ALTER TABLE upload_sessions FORCE ROW LEVEL SECURITY;
 CREATE POLICY plux_tenant ON upload_sessions
     USING (organization_id = plux_current_organization())
     WITH CHECK (organization_id = plux_current_organization());
+
+SELECT plux_app_policy('upload_sessions');

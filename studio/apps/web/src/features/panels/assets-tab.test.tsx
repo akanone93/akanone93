@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
-import { Code, ConnectError, createRouterTransport, createClient } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
+import { Code, ConnectError, createClient, createRouterTransport } from "@connectrpc/connect";
 import { AssetSchema, AssetService } from "@plux/api";
 import { createStudioI18n } from "@plux/i18n";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
