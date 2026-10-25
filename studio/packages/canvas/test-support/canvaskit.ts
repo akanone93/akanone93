@@ -84,7 +84,7 @@ export class TestEnvironment {
       requestIdle: (callback) => this.idles.push(callback),
       probeGl: () => this.probe,
       makeSurface: (_ck, canvas, kind) =>
-        this.surfaces && (this.webglSurfaces || kind === "raster") ? ck.MakeSurface(canvas.width, canvas.height) : null,
+        this.surfaces && (this.webglSurfaces || kind !== "webgl") ? ck.MakeSurface(canvas.width, canvas.height) : null,
     };
   }
 

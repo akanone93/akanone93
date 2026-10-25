@@ -57,7 +57,8 @@ export interface WorkerDeps {
   requestFrame(callback: () => void): void;
   requestIdle(callback: () => void): void;
   probeGl(): GlProbe;
-  makeSurface(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster"): Surface | null;
+  /** A surface on `canvas`; `layer` is the transparent CPU raster interaction layer. */
+  makeSurface(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster" | "layer"): Surface | null;
   /**
    * Watches `canvas` for the loss and restoration of its context
    * (`webglcontextlost`/`webglcontextrestored`, `contextlost`/`contextrestored`);
@@ -535,7 +536,7 @@ export class CanvasWorkerCore {
     }
     sizeCanvas(canvas, box.w, box.h, running.dpr);
     // The layer is small and redrawn every frame: a raster surface avoids a second GL context.
-    const surface = this.deps.makeSurface(running.ck, canvas, "raster");
+    const surface = this.deps.makeSurface(running.ck, canvas, "layer");
     if (surface) {
       running.layerSurface = resources.own(surface);
     } else {
