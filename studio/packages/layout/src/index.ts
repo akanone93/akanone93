@@ -7,6 +7,17 @@
  * the device does.
  */
 
+export {
+  buildContainer,
+  buildSizeTransition,
+  type ContainerLayout,
+  lerpAlignment,
+  lerpBoxConstraints,
+  lerpDouble,
+  lerpEdgeInsets,
+  lerpProperty,
+} from "./animated.ts";
+export { applyBoxFit, BoxFit, type FittedSizes } from "./flutter/box-fit.ts";
 export { BoxConstraints, type Constraints } from "./flutter/constraints.ts";
 export { ContainerBoxParentData, ContainerRenderBox } from "./flutter/container.ts";
 export {
@@ -36,6 +47,7 @@ export {
   Size,
   TextDirection,
 } from "./flutter/geometry.ts";
+export { Affine, isPaintTransformer, type PaintTransformer } from "./flutter/matrix.ts";
 export { ParentData, PipelineOwner, RenderObject } from "./flutter/object.ts";
 export { RenderParagraph, type RenderParagraphOptions, TextOverflow } from "./flutter/paragraph.ts";
 export {
@@ -44,6 +56,19 @@ export {
   RenderDecoratedBox,
   RenderProxyBox,
 } from "./flutter/proxy-box.ts";
+export {
+  applyStep,
+  ClipShape,
+  RenderAspectRatio,
+  RenderClip,
+  RenderFittedBox,
+  RenderFractionalTranslation,
+  RenderIntrinsicHeight,
+  RenderIntrinsicWidth,
+  RenderLimitedBox,
+  RenderOpacity,
+  RenderTransform,
+} from "./flutter/proxy-boxes.ts";
 export {
   BaselineOffset,
   BoxParentData,
@@ -57,6 +82,7 @@ export {
   RenderPositionedBox,
   RenderShiftedBox,
 } from "./flutter/shifted-box.ts";
+export { RenderBaseline, RenderFractionallySizedOverflowBox } from "./flutter/shifted-boxes.ts";
 export {
   RenderIndexedStack,
   type RenderIndexedStackOptions,
@@ -65,6 +91,19 @@ export {
   StackFit,
   StackParentData,
 } from "./flutter/stack.ts";
+export {
+  FixedColumnWidth,
+  FlexColumnWidth,
+  FractionColumnWidth,
+  IntrinsicColumnWidth,
+  MaxColumnWidth,
+  MinColumnWidth,
+  RenderTable,
+  type RenderTableOptions,
+  TableCellParentData,
+  TableCellVerticalAlignment,
+  TableColumnWidth,
+} from "./flutter/table.ts";
 export {
   computePaintOffsetFraction,
   TextPainter,

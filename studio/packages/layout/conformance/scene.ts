@@ -11,39 +11,72 @@
 
 import * as layout from "../src/index.ts";
 import {
+  Affine,
   Alignment,
   AlignmentDirectional,
   type AlignmentGeometry,
   Axis,
   BoxConstraints,
+  BoxFit,
+  buildContainer,
+  buildSizeTransition,
+  ClipShape,
   CrossAxisAlignment,
   EdgeInsets,
   EdgeInsetsDirectional,
   type EdgeInsetsGeometry,
+  FixedColumnWidth,
+  FlexColumnWidth,
   FlexFit,
   FlexParentData,
+  FractionColumnWidth,
+  IntrinsicColumnWidth,
   type LayoutGolden,
+  lerpAlignment,
+  lerpBoxConstraints,
+  lerpDouble,
+  lerpEdgeInsets,
+  lerpProperty,
   MainAxisAlignment,
   MainAxisSize,
+  MaxColumnWidth,
+  MinColumnWidth,
+  Offset,
   type ParagraphEngine,
   PipelineOwner,
+  RenderAspectRatio,
+  RenderBaseline,
   type RenderBox,
+  RenderClip,
   RenderConstrainedBox,
   RenderDecoratedBox,
+  RenderFittedBox,
   RenderFlex,
+  RenderFractionallySizedOverflowBox,
+  RenderFractionalTranslation,
   RenderIndexedStack,
+  RenderIntrinsicHeight,
+  RenderIntrinsicWidth,
+  RenderLimitedBox,
   type RenderObject,
+  RenderOpacity,
   RenderPadding,
   RenderParagraph,
   RenderPositionedBox,
   RenderStack,
+  RenderTable,
+  RenderTransform,
   RenderView,
   RenderWrap,
   Size,
   StackFit,
   StackParentData,
   type StrutStyle,
+  TableCellParentData,
+  TableCellVerticalAlignment,
+  type TableColumnWidth,
   TextAlign,
+  TextBaseline,
   TextDirection,
   type TextLeadingDistribution,
   TextOverflow,
@@ -71,6 +104,8 @@ export interface SceneNode {
 /** A conformance scene, shared verbatim with the Flutter golden writer. */
 export interface Scene {
   name: string;
+  /** The animation value in [0, 1] animated nodes are laid out at; absent means 1 (their `to` state). */
+  t?: number;
   root: SceneNode;
 }
 
@@ -83,6 +118,30 @@ export const boxTypes: ReadonlySet<string> = new Set([
   "Center",
   "DecoratedBox",
   "TestBox",
+  "LimitedBox",
+  "FittedBox",
+  "AspectRatio",
+  "FractionallySizedBox",
+  "Baseline",
+  "IntrinsicWidth",
+  "IntrinsicHeight",
+  "Table",
+  "TableCell",
+  "Transform",
+  "ClipRect",
+  "ClipRRect",
+  "ClipOval",
+  "ClipPath",
+  "Opacity",
+  "AnimatedContainer",
+  "AnimatedPadding",
+  "AnimatedAlign",
+  "AnimatedPositioned",
+  "AnimatedOpacity",
+  "SizeTransition",
+  "ScaleTransition",
+  "SlideTransition",
+  "FadeTransition",
 ]);
 
 /** Node types that need `RenderFlex`. */
@@ -97,7 +156,15 @@ export const stackTypes: ReadonlySet<string> = new Set([
   "Wrap",
 ]);
 
-const multiChildTypes: ReadonlySet<string> = new Set(["Row", "Column", "Flex", "Stack", "IndexedStack", "Wrap"]);
+const multiChildTypes: ReadonlySet<string> = new Set([
+  "Row",
+  "Column",
+  "Flex",
+  "Stack",
+  "IndexedStack",
+  "Wrap",
+  "Table",
+]);
 
 export function renderFlexAvailable(): boolean {
   return "RenderFlex" in layout;
@@ -350,13 +417,273 @@ function buildWrap(node: SceneNode, children: RenderBox[], textDirection: TextDi
   });
 }
 
+/** A scene object field, or an empty record. */
+function record(value: unknown): Record<string, unknown> {
+  return (value ?? {}) as Record<string, unknown>;
+}
+
+/** An animated node's `from` and `to` props. */
+function fromTo(node: SceneNode): { from: Record<string, unknown>; to: Record<string, unknown> } {
+  return { from: record(field(node.props, "from")), to: record(field(node.props, "to")) };
+}
+
+/** An animated property: `from` and `to` values interpolated at `t` (see `lerpProperty`). */
+function animatedProperty<T>(
+  from: Record<string, unknown>,
+  to: Record<string, unknown>,
+  name: string,
+  parse: (value: unknown) => T,
+  lerp: (a: T, b: T, t: number) => T,
+  t: number,
+): T | null {
+  return lerpProperty(name in from ? parse(from[name]) : null, name in to ? parse(to[name]) : null, t, lerp);
+}
+
+/** A Table column width spec: `{type: fixed|fraction|flex|intrinsic|max|min, value, flex, a, b}`. */
+function columnWidth(spec: unknown): TableColumnWidth {
+  const props = record(spec);
+  switch (field(props, "type")) {
+    case "fixed":
+      return new FixedColumnWidth(num(field(props, "value"), "value"));
+    case "fraction":
+      return new FractionColumnWidth(num(field(props, "value"), "value"));
+    case "flex":
+      return new FlexColumnWidth(optionalNum(props, "value") ?? 1);
+    case "intrinsic":
+      return new IntrinsicColumnWidth(optionalNum(props, "flex"));
+    case "max":
+      return new MaxColumnWidth(columnWidth(field(props, "a")), columnWidth(field(props, "b")));
+    case "min":
+      return new MinColumnWidth(columnWidth(field(props, "a")), columnWidth(field(props, "b")));
+    default:
+      throw new Error(`unknown table column width ${JSON.stringify(spec)}`);
+  }
+}
+
+/** Table: a [RenderTable] over the node's children, row-major, `columns` per row. */
+function buildTable(node: SceneNode, children: RenderBox[], textDirection: TextDirection): RenderBox {
+  const props = node.props;
+  const columns = num(field(props, "columns"), "columns");
+  const specs = record(field(props, "columnWidths"));
+  const columnWidths = new Map<number, TableColumnWidth>(
+    Object.entries(specs).map(([index, spec]) => [Number(index), columnWidth(spec)]),
+  );
+  return new RenderTable({
+    columns,
+    rows: columns === 0 ? 0 : children.length / columns,
+    children,
+    columnWidths,
+    defaultColumnWidth:
+      "defaultColumnWidth" in props ? columnWidth(field(props, "defaultColumnWidth")) : new FlexColumnWidth(),
+    textDirection,
+    defaultVerticalAlignment: (field(props, "defaultVerticalAlignment") ??
+      TableCellVerticalAlignment.top) as TableCellVerticalAlignment,
+    textBaseline: (field(props, "textBaseline") ?? null) as TextBaseline | null,
+  });
+}
+
+/** TableCell: table cell parent data on the child's render object. */
+function applyTableCell(node: SceneNode, child: RenderBox | null): RenderBox {
+  if (child === null) {
+    throw new Error(`node "${node.id}" of type ${node.type} needs a child`);
+  }
+  const parentData = new TableCellParentData();
+  parentData.verticalAlignment = (field(node.props, "verticalAlignment") ?? null) as TableCellVerticalAlignment | null;
+  child.parentData = parentData;
+  return child;
+}
+
+/** AnimatedPositioned: stack parent data with each side interpolated at `t`. */
+function applyAnimatedPositioned(node: SceneNode, child: RenderBox | null, t: number): RenderBox {
+  if (child === null) {
+    throw new Error(`node "${node.id}" of type ${node.type} needs a child`);
+  }
+  const { from, to } = fromTo(node);
+  const side = (name: string): number | null =>
+    animatedProperty(from, to, name, (value) => num(value, name), lerpDouble, t);
+  const parentData = new StackParentData();
+  parentData.left = side("left");
+  parentData.top = side("top");
+  parentData.right = side("right");
+  parentData.bottom = side("bottom");
+  parentData.width = side("width");
+  parentData.height = side("height");
+  child.parentData = parentData;
+  return child;
+}
+
+/** Transform: translate, then rotate, then scale, about the alignment. */
+function buildTransform(node: SceneNode, textDirection: TextDirection, child: RenderBox | null): RenderBox {
+  const props = node.props;
+  const translate = (field(props, "translate") ?? [0, 0]) as unknown[];
+  const scale = field(props, "scale") ?? 1;
+  const [sx, sy] = Array.isArray(scale)
+    ? [num(scale[0], "sx"), num(scale[1], "sy")]
+    : [num(scale, "scale"), num(scale, "scale")];
+  const matrix = Affine.translation(num(translate[0], "dx"), num(translate[1], "dy"))
+    .multiply(Affine.rotation(optionalNum(props, "rotate") ?? 0))
+    .scale(sx, sy);
+  return new RenderTransform({
+    transform: matrix,
+    alignment: "alignment" in props ? alignment(field(props, "alignment")) : null,
+    textDirection,
+    child,
+  });
+}
+
+/** The animated nodes (implicit animations): the layout `t` of the way from `from` to `to`. */
+function buildAnimated(node: SceneNode, child: RenderBox | null, textDirection: TextDirection, t: number): RenderBox {
+  const { from, to } = fromTo(node);
+  const prop = <T>(name: string, parse: (value: unknown) => T, lerp: (a: T, b: T, t: number) => T): T | null =>
+    animatedProperty(from, to, name, parse, lerp, t);
+  const number = (name: string): number | null => prop(name, (value) => num(value, name), lerpDouble);
+  const insets = (name: string): EdgeInsets | null =>
+    prop(name, (value) => padding(value) as EdgeInsets, lerpEdgeInsets);
+  switch (node.type) {
+    case "AnimatedContainer": {
+      const constraintsOf = (props: Record<string, unknown>): BoxConstraints | null =>
+        "width" in props || "height" in props
+          ? BoxConstraints.tightFor({ width: optionalNum(props, "width"), height: optionalNum(props, "height") })
+          : null;
+      const box = buildContainer({
+        alignment: prop("alignment", alignment, lerpAlignment),
+        padding: insets("padding"),
+        constraints: lerpProperty(constraintsOf(from), constraintsOf(to), t, lerpBoxConstraints),
+        margin: insets("margin"),
+        textDirection,
+        child,
+      });
+      if (box === null || box === child) {
+        throw new Error(`node "${node.id}": AnimatedContainer needs at least one layout property`);
+      }
+      return box;
+    }
+    case "AnimatedPadding":
+      return new RenderPadding({
+        padding: insets("padding") ?? EdgeInsets.zero,
+        textDirection,
+        child,
+      });
+    case "AnimatedAlign":
+      return new RenderPositionedBox({
+        alignment: prop("alignment", alignment, lerpAlignment) ?? Alignment.center,
+        textDirection,
+        widthFactor: number("widthFactor"),
+        heightFactor: number("heightFactor"),
+        child,
+      });
+    default:
+      // AnimatedOpacity: FadeTransition under the hood.
+      return new RenderOpacity({ opacity: number("opacity") ?? 1, child });
+  }
+}
+
+/** The transition nodes: an animation running from `begin` to `end`, here at `t`. */
+function buildTransition(node: SceneNode, child: RenderBox | null, textDirection: TextDirection, t: number): RenderBox {
+  const props = node.props;
+  const value = lerpDouble(optionalNum(props, "begin") ?? 0, optionalNum(props, "end") ?? 1, t);
+  switch (node.type) {
+    case "SizeTransition":
+      return buildSizeTransition({
+        axis: (field(props, "axis") ?? Axis.vertical) as Axis,
+        sizeFactor: value,
+        alignment: "alignment" in props ? alignment(field(props, "alignment")) : null,
+        fixedCrossAxisSizeFactor: optionalNum(props, "fixedCrossAxisSizeFactor"),
+        textDirection,
+        child,
+      });
+    case "ScaleTransition":
+      return new RenderTransform({
+        transform: Affine.scaling(value, value),
+        alignment: alignment(field(props, "alignment")),
+        textDirection,
+        child,
+      });
+    case "SlideTransition": {
+      const begin = (field(props, "begin") ?? [0, 0]) as unknown[];
+      const end = (field(props, "end") ?? [0, 0]) as unknown[];
+      return new RenderFractionalTranslation({
+        translation: new Offset(
+          lerpDouble(num(begin[0], "begin.dx"), num(end[0], "end.dx"), t),
+          lerpDouble(num(begin[1], "begin.dy"), num(end[1], "end.dy"), t),
+        ),
+        child,
+      });
+    }
+    default:
+      // FadeTransition.
+      return new RenderOpacity({ opacity: value, child });
+  }
+}
+
+/** The other box widgets: limited, fitted, aspect-ratio, fractionally sized, baseline, intrinsic, clips, opacity. */
+function buildOtherBox(node: SceneNode, child: RenderBox | null, textDirection: TextDirection): RenderBox | null {
+  const props = node.props;
+  switch (node.type) {
+    case "LimitedBox":
+      return new RenderLimitedBox({
+        maxWidth: optionalNum(props, "maxWidth") ?? Number.POSITIVE_INFINITY,
+        maxHeight: optionalNum(props, "maxHeight") ?? Number.POSITIVE_INFINITY,
+        child,
+      });
+    case "FittedBox":
+      return new RenderFittedBox({
+        fit: (field(props, "fit") ?? BoxFit.contain) as BoxFit,
+        alignment: alignment(field(props, "alignment")),
+        textDirection,
+        child,
+      });
+    case "AspectRatio":
+      return new RenderAspectRatio({ aspectRatio: num(field(props, "aspectRatio"), "aspectRatio"), child });
+    case "FractionallySizedBox":
+      return new RenderFractionallySizedOverflowBox({
+        alignment: alignment(field(props, "alignment")),
+        textDirection,
+        widthFactor: optionalNum(props, "widthFactor"),
+        heightFactor: optionalNum(props, "heightFactor"),
+        child,
+      });
+    case "Baseline":
+      return new RenderBaseline({
+        baseline: num(field(props, "baseline"), "baseline"),
+        baselineType: (field(props, "baselineType") ?? TextBaseline.alphabetic) as TextBaseline,
+        child,
+      });
+    case "IntrinsicWidth":
+      return new RenderIntrinsicWidth({
+        stepWidth: optionalNum(props, "stepWidth"),
+        stepHeight: optionalNum(props, "stepHeight"),
+        child,
+      });
+    case "IntrinsicHeight":
+      return new RenderIntrinsicHeight(child);
+    case "ClipRect":
+      return new RenderClip({ shape: ClipShape.rect, child });
+    case "ClipRRect":
+      return new RenderClip({ shape: ClipShape.rrect, child });
+    case "ClipOval":
+      return new RenderClip({ shape: ClipShape.oval, child });
+    case "ClipPath":
+      return new RenderClip({ shape: ClipShape.path, child });
+    case "Opacity":
+      return new RenderOpacity({ opacity: optionalNum(props, "opacity") ?? 1, child });
+    default:
+      return null;
+  }
+}
+
 /**
  * Builds the render tree of `node` under `textDirection` (Flutter's ambient
  * `Directionality`). Throws on an unknown type and on a flex type, which
  * needs `RenderFlex`.
  */
-export function buildNode(node: SceneNode, textDirection: TextDirection, text: SceneText | null = null): RenderBox {
-  const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text));
+export function buildNode(
+  node: SceneNode,
+  textDirection: TextDirection,
+  text: SceneText | null = null,
+  t = 1,
+): RenderBox {
+  const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text, t));
   const child = singleChild(node, children);
   const props = node.props;
   let box: RenderBox;
@@ -380,6 +707,28 @@ export function buildNode(node: SceneNode, textDirection: TextDirection, text: S
     case "Flexible":
     case "Spacer":
       return applyFlexible(node, child);
+    case "TableCell":
+      return applyTableCell(node, child);
+    case "AnimatedPositioned":
+      return applyAnimatedPositioned(node, child, t);
+    case "Table":
+      box = buildTable(node, children, textDirection);
+      break;
+    case "Transform":
+      box = buildTransform(node, textDirection, child);
+      break;
+    case "AnimatedContainer":
+    case "AnimatedPadding":
+    case "AnimatedAlign":
+    case "AnimatedOpacity":
+      box = buildAnimated(node, child, textDirection, t);
+      break;
+    case "SizeTransition":
+    case "ScaleTransition":
+    case "SlideTransition":
+    case "FadeTransition":
+      box = buildTransition(node, child, textDirection, t);
+      break;
     case "Text":
       box = buildText(node, textDirection, text);
       break;
@@ -428,8 +777,13 @@ export function buildNode(node: SceneNode, textDirection: TextDirection, text: S
     case "DecoratedBox":
       box = new RenderDecoratedBox({ decoration: { color: field(props, "color") }, child });
       break;
-    default:
-      throw unsupported(node);
+    default: {
+      const other = buildOtherBox(node, child, textDirection);
+      if (other === null) {
+        throw unsupported(node);
+      }
+      box = other;
+    }
   }
   box.debugId = node.id;
   return box;
@@ -445,6 +799,7 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
       scene.root,
       direction,
       engine === null ? null : { engine, textScaler: TextScaler.linear(golden.textScale) },
+      scene.t ?? 1,
     ),
   });
   owner.rootNode = view;
@@ -462,7 +817,12 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
   const rects = layout.goldenRects(view);
   const alias = (node: SceneNode): void => {
     const child = node.children?.[0];
-    if (["Expanded", "Flexible", "Positioned", "PositionedDirectional"].includes(node.type) && child !== undefined) {
+    if (
+      ["Expanded", "Flexible", "Positioned", "PositionedDirectional", "TableCell", "AnimatedPositioned"].includes(
+        node.type,
+      ) &&
+      child !== undefined
+    ) {
       const rect = rects[child.id];
       if (rect !== undefined) {
         rects[node.id] = rect;
