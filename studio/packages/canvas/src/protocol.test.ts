@@ -47,7 +47,6 @@ const workerMessages: WorkerMessage[] = [
       software: true,
       majorPerformanceCaveat: true,
       tiles: true,
-      measuredMs: { webgl: 3, raster: 4 },
     },
   },
   {
