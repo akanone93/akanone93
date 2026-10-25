@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 
 /** The BFF serves the built app under its strict CSP (rule book §11.2): loading must not violate it. */
 for (const path of ["/", "/signin", "/unsupported"]) {
-  test(`${path} loads without a CSP violation [STU-011]`, async ({ page }) => {
+  test(`${path} loads without a CSP violation [SEC-101]`, async ({ page }) => {
     await page.addInitScript(() => {
       const w = window as unknown as { __csp: string[] };
       w.__csp = [];
