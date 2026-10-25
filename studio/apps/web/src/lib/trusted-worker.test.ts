@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
-import { CANVAS_WORKER_POLICY, canvasWorkerScriptURL, isCanvasWorkerURL } from "./trusted-worker.ts";
+import {
+  CANVAS_WORKER_POLICY,
+  canvasWorkerScriptURL,
+  isCanvasWorkerURL,
+  isValidatorWorkerURL,
+  validatorWorkerScriptURL,
+} from "./trusted-worker.ts";
 
 const origin = "https://studio.example.org";
 
@@ -46,5 +52,42 @@ describe("the canvas worker's Trusted Types policy", () => {
     expect(names).toEqual([CANVAS_WORKER_POLICY]);
     expect(() => canvasWorkerScriptURL("https://evil.example/x.js", scope, false)).toThrow(TypeError);
     expect(() => canvasWorkerScriptURL("/x.js", { location: { origin } }, false)).toThrow(TypeError);
+  });
+});
+
+describe("the validator worker through the same policy (S2.1)", () => {
+  test("admits only its own built asset, and its dev module path in dev", () => {
+    expect(isValidatorWorkerURL("/assets/validator-worker-Ab_1-9.js", origin, false)).toBe(true);
+    for (const bad of [
+      "/assets/canvas-worker-x.js",
+      "/assets/validator-worker-x.js?y=1",
+      "https://evil.example/assets/validator-worker-x.js",
+      "javascript:alert(1)",
+      "/src/features/problems/validator-worker.ts",
+    ]) {
+      expect(isValidatorWorkerURL(bad, origin, false)).toBe(false);
+    }
+    expect(isValidatorWorkerURL("/src/features/problems/validator-worker.ts", origin, true)).toBe(true);
+  });
+
+  test("creates no policy of its own name and refuses the canvas worker's address", () => {
+    const names: string[] = [];
+    const scope = {
+      location: { origin },
+      trustedTypes: {
+        createPolicy(name: string, rules: { createScriptURL(input: string): string }) {
+          names.push(name);
+          return { createScriptURL: (input: string) => rules.createScriptURL(input) };
+        },
+      },
+    };
+    expect(validatorWorkerScriptURL("/assets/validator-worker-x.js", scope, false)).toBe(
+      "/assets/validator-worker-x.js",
+    );
+    expect(names).toEqual([CANVAS_WORKER_POLICY]);
+    expect(() => validatorWorkerScriptURL("/assets/canvas-worker-x.js", scope, false)).toThrow(TypeError);
+    expect(validatorWorkerScriptURL("/assets/validator-worker-x.js", { location: { origin } }, false)).toBe(
+      "/assets/validator-worker-x.js",
+    );
   });
 });

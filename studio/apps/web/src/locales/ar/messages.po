@@ -7,6 +7,18 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: ar\n"
 
+#. Accessible name of the error count in the action bar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.errors"
+msgstr "{count, plural, zero {لا أخطاء} one {خطأ واحد} two {خطآن} few {# أخطاء} many {# خطأً} other {# خطأ}}"
+
+#. Accessible name of the warning count in the action bar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.warnings"
+msgstr "{count, plural, zero {لا تحذيرات} one {تحذير واحد} two {تحذيران} few {# تحذيرات} many {# تحذيرًا} other {# تحذير}}"
+
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -102,6 +114,12 @@ msgstr "إلغاء"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.loading"
 msgstr "جارٍ فحص الوصول"
+
+#. Shown in the Problems tab while the validator runs on the plugin that was just opened.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.validating"
+msgstr "جارٍ فحص الإضافة…"
 
 #. Label of the new-password field on the invitation page.
 #. js-lingui-explicit-id
@@ -199,6 +217,12 @@ msgstr "الكثافة"
 msgid "help.docs"
 msgstr "التوثيق"
 
+#. Accessible name of the drawer below the canvas that holds tabs such as Problems.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.drawer"
+msgstr "الدرج"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -234,6 +258,12 @@ msgstr "أدخل كلمة المرور."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.title"
 msgstr "النسخة المؤسسية: تتطلب ترخيصًا"
+
+#. Accessible name of the icon of an error in the Problems tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.severity.error"
+msgstr "خطأ"
 
 #. Label of the event type filter.
 #. js-lingui-explicit-id
@@ -288,6 +318,12 @@ msgstr "تباين عالٍ"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.home"
 msgstr "الرئيسية"
+
+#. Accessible name of the icon of an information item in the Problems tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.severity.info"
+msgstr "معلومة"
 
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
@@ -379,6 +415,12 @@ msgstr "لا يوجد أمر مطابق."
 msgid "notify.empty"
 msgstr "لا توجد إشعارات"
 
+#. Shown in the Problems tab when the validator found nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.none"
+msgstr "لم يتم العثور على مشكلات."
+
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -463,6 +505,18 @@ msgstr "استوديو Plux"
 msgid "unsupported.body"
 msgstr "يحتاج Plux Studio إلى WebGL2 لرسم اللوحة. استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari مع تفعيل تسريع الأجهزة."
 
+#. Accessible name of the group in the action bar that shows how many errors and warnings there are.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.counts"
+msgstr "عدد المشكلات"
+
+#. Label of the drawer tab that lists the validator's findings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.tab"
+msgstr "المشكلات"
+
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -474,6 +528,12 @@ msgstr "الملف الشخصي"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.title"
 msgstr "الملف الشخصي"
+
+#. Heading of the problems that belong to the whole project rather than to one file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.project"
+msgstr "المشروع"
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
@@ -631,6 +691,12 @@ msgstr "تعذّر استخدام مفتاح المرور."
 msgid "pluginCanvas.failed"
 msgstr "تعذر تحميل الشاشات."
 
+#. Shown in the Problems tab when the validator failed to start or crashed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.unavailable"
+msgstr "تعذّر تشغيل المدقق."
+
 #. Label of the theme choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -714,6 +780,12 @@ msgstr "استخدام مفتاح الأمان أو مفتاح المرور"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.verify"
 msgstr "تحقق"
+
+#. Accessible name of the icon of a warning in the Problems tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.severity.warning"
+msgstr "تحذير"
 
 #. Heading of the organisation home; name is the organisation.
 #. js-lingui-explicit-id
