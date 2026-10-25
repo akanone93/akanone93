@@ -69,6 +69,109 @@ function shift(p: Point, dx: number, dy: number): Point {
   return { x: p.x + dx, y: p.y + dy };
 }
 
+/** Antialiasing allowance around a moved box edge, in world units. */
+const EDGE_AA = 1;
+
+function sameItem(a: ItemSpec, b: ItemSpec): boolean {
+  const ka = Object.keys(a) as (keyof ItemSpec)[];
+  if (ka.length !== Object.keys(b).length) {
+    return false;
+  }
+  for (const key of ka) {
+    const va: unknown = a[key];
+    const vb: unknown = (b as unknown as Record<string, unknown>)[key];
+    if (va !== vb && !(typeof va === "object" && typeof vb === "object" && sameShallow(va, vb))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function sameShallow(a: unknown, b: unknown): boolean {
+  if (a === null || b === null || typeof a !== "object" || typeof b !== "object") {
+    return a === b;
+  }
+  const ra = a as Record<string, unknown>;
+  const rb = b as Record<string, unknown>;
+  const keys = Object.keys(ra);
+  return keys.length === Object.keys(rb).length && keys.every((k) => ra[k] === rb[k]);
+}
+
+/** Whether two boxes are drawn alike apart from their geometry. */
+function sameBoxStyle(a: ItemSpec, b: ItemSpec): boolean {
+  if (a.kind !== b.kind || (a.kind !== "rect" && a.kind !== "frame") || (b.kind !== "rect" && b.kind !== "frame")) {
+    return false;
+  }
+  if (a.kind === "frame" && b.kind === "frame" && (a.shadow || b.shadow || a.name !== b.name)) {
+    return false;
+  }
+  return (
+    a.z === b.z &&
+    a.radius === b.radius &&
+    a.fill === b.fill &&
+    a.stroke?.color === b.stroke?.color &&
+    a.stroke?.width === b.stroke?.width &&
+    (a.kind !== "rect" || b.kind !== "rect" || (a.frame === b.frame && a.label === b.label))
+  );
+}
+
+/**
+ * Pushes to `out` the world rectangles whose pixels change when `old` (with
+ * bounds `oldBounds`) becomes `next` (with bounds `nextBounds`). A box that
+ * only moved an edge, with the same fill and stroke, damages just a strip
+ * around each moved edge — its interior paints the same — so widening a
+ * column does not dirty the whole column; anything else damages the old and
+ * the new bounds.
+ */
+export function damageOf(old: ItemSpec, oldBounds: Rect, next: ItemSpec, nextBounds: Rect, out: Rect[]): void {
+  if (sameItem(old, next)) {
+    return;
+  }
+  if (
+    !sameBoxStyle(old, next) ||
+    old.kind === "link" ||
+    old.kind === "text" ||
+    next.kind === "link" ||
+    next.kind === "text"
+  ) {
+    out.push(copyRect(oldBounds), copyRect(nextBounds));
+    return;
+  }
+  const pad = (next.stroke ? next.stroke.width / 2 : 0) + next.radius + EDGE_AA;
+  const t = Math.min(oldBounds.t, nextBounds.t) - pad;
+  const b = Math.max(oldBounds.b, nextBounds.b) + pad;
+  const l = Math.min(oldBounds.l, nextBounds.l) - pad;
+  const r = Math.max(oldBounds.r, nextBounds.r) + pad;
+  const edges: readonly [number, number, boolean][] = [
+    [old.x, next.x, false],
+    [old.x + old.w, next.x + next.w, false],
+    [old.y, next.y, true],
+    [old.y + old.h, next.y + next.h, true],
+  ];
+  const strips: Rect[] = [];
+  let stripArea = 0;
+  for (const [a, z, horizontal] of edges) {
+    if (a === z) {
+      continue;
+    }
+    const lo = Math.min(a, z) - pad;
+    const hi = Math.max(a, z) + pad;
+    const strip = horizontal ? { l, t: lo, r, b: hi } : { l: lo, t, r: hi, b };
+    stripArea += area(strip);
+    strips.push(strip);
+  }
+  // Strips only pay off when they cover less than the two boxes (a resize, not a move of a small box).
+  if (stripArea >= area(oldBounds) + area(nextBounds)) {
+    out.push(copyRect(oldBounds), copyRect(nextBounds));
+  } else {
+    out.push(...strips);
+  }
+}
+
+function area(rect: Rect): number {
+  return Math.max(0, rect.r - rect.l) * Math.max(0, rect.b - rect.t);
+}
+
 /** `spec` moved by `dx`, `dy`. */
 export function moveSpec(spec: ItemSpec, dx: number, dy: number): ItemSpec {
   if (spec.kind !== "link") {
@@ -143,13 +246,16 @@ export class Scene {
   private put(spec: ItemSpec): void {
     const existing = this.byId.get(spec.id);
     if (existing) {
-      this.markDirty(existing);
       if (existing.spec.z !== spec.z) {
         this.orderDirty = true;
       }
+      const old = existing.spec;
+      const oldBounds = copyRect(existing.bounds);
       existing.spec = spec;
       this.derive(existing);
-      this.markDirty(existing);
+      if (!existing.live) {
+        damageOf(old, oldBounds, spec, existing.bounds, this.dirty);
+      }
       return;
     }
     const item: SceneItem = {

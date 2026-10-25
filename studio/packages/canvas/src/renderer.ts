@@ -62,7 +62,10 @@ export interface BaseJobResult {
 export const TILE_PARTS = 4;
 
 /** Above this many dirty regions in a frame they are merged into one. */
-export const MAX_REGIONS = 4;
+export const MAX_REGIONS = 8;
+
+/** Above this many undrawn damage rectangles the next base draw is a whole one. */
+export const MAX_DAMAGE = 32;
 
 /** Where the interaction layer draws: its surface, the world point at its top-left, and its scale. */
 export interface LiveLayer {
@@ -151,8 +154,16 @@ export class SceneRenderer {
   private partial: { readonly tile: Tile<Image>; readonly next: number } | null = null;
   /** The world rectangle the host shows, as of the last plan. */
   private readonly focus = makeRect(0, 0, 0, 0);
+  /** World rectangles changed since the surface was last drawn; the next base draw redraws only them when it can. */
+  private readonly damage: Rect[] = [];
+  private readonly damageUnion = makeRect(0, 0, 0, 0);
+  private partialRenders = 0;
+  private viewChanged = false;
   private readonly invalidate = (rect: Rect): void => {
     this.tiles.invalidate(rect);
+    if (this.damage.length <= MAX_DAMAGE) {
+      this.damage.push(makeRect(rect.l, rect.t, rect.r, rect.b));
+    }
   };
   private readonly forget = (id: string): void => {
     const cached = this.paragraphs.get(id);
@@ -279,6 +290,9 @@ export class SceneRenderer {
       canvas.clear(this.background);
       this.calls++;
     }
+    if (this.options.tiles && this.canDrawDamage(scale, includeLive)) {
+      return this.drawDamage(canvas, scale);
+    }
     canvas.save();
     canvas.scale(scale, scale);
     canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
@@ -290,6 +304,69 @@ export class SceneRenderer {
     }
     canvas.restore();
     return this.flushBase(canvas);
+  }
+
+  /**
+   * Whether the surface already shows every visible tile at this placement,
+   * so a base draw only has to redraw the damaged rectangles over it.
+   */
+  private canDrawDamage(scale: number, includeLive: boolean): boolean {
+    if (
+      this.damage.length > MAX_DAMAGE ||
+      this.needsShift() ||
+      this.tiles.scale !== scale ||
+      this.tiles.hasStale ||
+      (includeLive && this.scene.liveItems(this.items).length > 0)
+    ) {
+      return false;
+    }
+    for (const tile of this.tiles.collect(this.view, this.visible)) {
+      if (tile.image === null || !this.shownTiles.has(tile)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Redraws only the damaged rectangles (clipped, over the pixels the
+   * surface keeps) and presents only their union; returns the flush time.
+   */
+  private drawDamage(canvas: Canvas, scale: number): number {
+    const start = this.now();
+    this.regionCount = 0;
+    for (const rect of this.damage) {
+      this.addRegion(rect, this.view);
+    }
+    this.damage.length = 0;
+    if (this.regionCount === 0) {
+      return 0;
+    }
+    const u = this.damageUnion;
+    setRect(u, Infinity, Infinity, -Infinity, -Infinity);
+    for (let i = 0; i < this.regionCount; i++) {
+      const region = this.regions[i];
+      if (region) {
+        unionInto(u, region);
+      }
+    }
+    canvas.save();
+    canvas.scale(scale, scale);
+    canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
+    this.drawRegions(canvas);
+    canvas.restore();
+    this.counters.regionMs = this.now() - start;
+    return this.flushBase(canvas, this.deviceRect(this.toArray(u, this.dst), scale));
+  }
+
+  /** Whether the last `idle` rendered a visible tile the surface does not show yet, so the base needs drawing. */
+  get idleChangedView(): boolean {
+    return this.viewChanged;
+  }
+
+  /** Tiles refreshed in place (only their dirty rectangle redrawn) since creation; for tests and the benchmark. */
+  get partialTileRenders(): number {
+    return this.partialRenders;
   }
 
   /**
@@ -385,6 +462,7 @@ export class SceneRenderer {
       this.counters.staleTilesDrawn++;
     }
     this.regionCount = 0;
+    this.damage.length = 0;
     // The whole base is drawn here, so it is now placed at this viewport and holds exactly these tiles.
     this.shown = { x: this.viewport.x, y: this.viewport.y, zoom: this.viewport.zoom };
     this.shownTiles.clear();
@@ -607,20 +685,26 @@ export class SceneRenderer {
 
   /**
    * Renders queued tiles until `deadline` (at least one), visible tiles
-   * first; returns how many were rendered.
+   * first, stopping early between tiles when `yieldNow` says a message
+   * waits; returns how many were rendered.
    */
-  idle(deadline: number): number {
+  idle(deadline: number, yieldNow: () => boolean = () => false): number {
     if (!this.options.tiles || this.tiles.scale === 0) {
       return 0;
     }
     this.viewport.worldRect(this.view);
     let rendered = 0;
+    this.viewChanged = false;
+    const visible = this.tiles.collect(this.view, this.visible);
     for (const tile of this.tiles.pending(this.view, this.interacting, this.pendingTiles, this.scratchTiles)) {
-      if (rendered > 0 && this.now() >= deadline) {
+      if (rendered > 0 && (this.now() >= deadline || yieldNow())) {
         break;
       }
       this.renderTile(tile);
       rendered++;
+      if (!this.shownTiles.has(tile) && visible.includes(tile)) {
+        this.viewChanged = true;
+      }
     }
     this.tiles.dropStaleIfCovered(this.view, this.scratchTiles);
     const margin = 2 * this.tiles.worldSize;
@@ -835,12 +919,16 @@ export class SceneRenderer {
   }
 
   private renderTile(tile: Tile<Image>): void {
-    this.shownTiles.delete(tile);
     this.partial = null;
     const surface = this.tileSurface;
     if (!surface) {
+      this.shownTiles.delete(tile);
       return;
     }
+    if (this.refreshTile(tile, surface)) {
+      return;
+    }
+    this.shownTiles.delete(tile);
     const start = this.now();
     const lowRes = this.interacting;
     const resolution = resolutionFor(lowRes);
@@ -862,6 +950,56 @@ export class SceneRenderer {
     this.syncGpu(canvas);
     this.tileRenders++;
     this.tileRenderMs += this.now() - start;
+  }
+
+  /**
+   * Re-renders only the dirty rectangle of a full-resolution tile over its
+   * cached pixels; returns false when the tile needs a whole render. A tile
+   * the surface shows with all damage drawn stays shown: its pixels are
+   * already on the surface.
+   */
+  private refreshTile(tile: Tile<Image>, surface: Surface): boolean {
+    const image = tile.image;
+    const dirty = tile.dirty;
+    if (image === null || dirty === null || tile.lowRes || this.interacting) {
+      return false;
+    }
+    const start = this.now();
+    const px = Math.max(1, Math.round(this.options.tileSize));
+    const scale = this.tiles.scale;
+    const world = this.tiles.tileRect(tile, this.tileTarget);
+    if (!intersectInto(this.stripWorld, dirty, world)) {
+      return false;
+    }
+    const d = this.stripWorld;
+    const l = Math.max(0, Math.floor((d.l - world.l) * scale));
+    const t = Math.max(0, Math.floor((d.t - world.t) * scale));
+    const r = Math.min(px, Math.ceil((d.r - world.l) * scale));
+    const b = Math.min(px, Math.ceil((d.b - world.t) * scale));
+    const current = this.shownTiles.has(tile) && this.damage.length === 0;
+    const canvas = surface.getCanvas();
+    canvas.save();
+    canvas.clipRect(this.src.fill(0).fill(px, 2), this.ck.ClipOp.Intersect, false);
+    canvas.drawImage(image, 0, 0);
+    this.src.set([l, t, r, b]);
+    canvas.clipRect(this.src, this.ck.ClipOp.Intersect, false);
+    canvas.clear(this.background);
+    canvas.scale(scale, scale);
+    canvas.translate(-world.l, -world.t);
+    setRect(d, world.l + l / scale, world.t + t / scale, world.l + r / scale, world.t + b / scale);
+    this.drawScene(canvas, d, false);
+    canvas.restore();
+    this.irect.set([0, 0, px, px]);
+    this.tiles.store(tile, this.resources.own(surface.makeImageSnapshot(this.irect)), false);
+    surface.flush();
+    this.syncGpu(canvas);
+    if (!current) {
+      this.shownTiles.delete(tile);
+    }
+    this.partialRenders++;
+    this.tileRenders++;
+    this.tileRenderMs += this.now() - start;
+    return true;
   }
 
   /** Deletes every CanvasKit object the renderer owns. */

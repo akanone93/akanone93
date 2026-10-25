@@ -121,8 +121,9 @@ describe("STU-120 tile cache, dirty regions and idle rendering (M-12)", () => {
     expect(renderer.frame().regions).toBe(0);
     scene.apply([{ op: "move", id: "a", dx: 5, dy: 5 }]);
     const moved = renderer.frame();
-    expect(moved.regions).toBe(1);
-    expect(moved.tilesDrawn).toBe(4);
+    // The surface already shows every tile: only the damage (a strip around each moved edge) is redrawn, no tile blitted.
+    expect(moved.regions).toBe(4);
+    expect(moved.tilesDrawn).toBe(0);
     renderer.idle(Number.POSITIVE_INFINITY);
     expect(renderer.frame().regions).toBe(0);
     renderer.dispose();
@@ -216,5 +217,114 @@ describe("STU-121 CanvasKit objects are owned and never leaked", () => {
     renderer.dispose();
     expect(renderer.resources.live).toBe(0);
     expect(owned.every((object) => object.isDeleted())).toBe(true);
+  });
+});
+
+describe("STU-121 damage-rect redraw", () => {
+  function pixels(s: Surface): Uint8Array {
+    const image = s.makeImageSnapshot();
+    const read = image.readPixels(0, 0, {
+      width: s.width(),
+      height: s.height(),
+      colorType: ck.ColorType.RGBA_8888,
+      alphaType: ck.AlphaType.Unpremul,
+      colorSpace: ck.ColorSpace.SRGB,
+    });
+    image.delete();
+    if (!(read instanceof Uint8Array)) {
+      throw new Error("no pixels");
+    }
+    return read;
+  }
+
+  function differing(a: Uint8Array, b: Uint8Array): number {
+    let count = 0;
+    for (let i = 0; i < a.length; i++) {
+      if (Math.abs((a[i] ?? 0) - (b[i] ?? 0)) > 8) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  function render(tiles: boolean, items: Parameters<Scene["apply"]>[0]) {
+    const scene = new Scene();
+    const viewport = new Viewport(400, 300);
+    const target = surface(400, 300);
+    const renderer = new SceneRenderer(
+      ck,
+      scene,
+      viewport,
+      target,
+      1,
+      { tiles, tileSize: 128, background: 0xf5f5f7ff, fontFamily: "Noto Sans", measureFrames: true },
+      () => performance.now(),
+      ck.FontMgr.FromData(fontBytes()),
+    );
+    scene.apply(items);
+    return { scene, viewport, renderer, target };
+  }
+
+  const column = { ...box("col", 40, 40), w: 120, h: 220, fill: 0xffffffff };
+  const rows = [text("r0", 50, 50, "Row 0"), text("r1", 50, 80, "Row 1")];
+
+  test("a widened column and an edited row redraw only their damage, present only it, and match a whole redraw", () => {
+    const { scene, renderer, target } = render(true, [
+      { op: "add", item: column },
+      ...rows.map((item) => ({ op: "add" as const, item })),
+    ]);
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    expect(renderer.frame().tilesDrawn).toBeGreaterThan(0);
+    const edit = [
+      { op: "replace" as const, item: { ...column, w: 150 } },
+      { op: "replace" as const, item: text("r1", 50, 80, "Row 1 edited") },
+    ];
+    scene.apply(edit);
+    const damaged = renderer.frame();
+    // The right-edge strip of the column and the old and new row: nothing blitted, no tile rendered in the frame.
+    expect([damaged.tilesDrawn, damaged.regions]).toEqual([0, 3]);
+    const whole = render(false, [
+      { op: "add", item: { ...column, w: 150 } },
+      { op: "add", item: rows[0] ?? column },
+      { op: "add", item: text("r1", 50, 80, "Row 1 edited") },
+    ]);
+    whole.renderer.frame();
+    expect(differing(pixels(target), pixels(whole.target))).toBe(0);
+    // Idle time refreshes only the dirty rectangles of the cached tiles; the surface already shows them.
+    const before = renderer.partialTileRenders;
+    expect(renderer.idle(Number.POSITIVE_INFINITY)).toBeGreaterThan(0);
+    expect(renderer.partialTileRenders - before).toBeGreaterThan(0);
+    expect(renderer.idleChangedView).toBe(false);
+    expect(renderer.hasIdleWork()).toBe(false);
+    renderer.dispose();
+    whole.renderer.dispose();
+  });
+
+  test("tiles refreshed in place hold the same pixels as a whole redraw", () => {
+    const items = [{ op: "add" as const, item: column }, ...rows.map((item) => ({ op: "add" as const, item }))];
+    const { scene, viewport, renderer, target } = render(true, items);
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame();
+    scene.apply([{ op: "replace", item: { ...column, w: 90 } }]);
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    expect(renderer.partialTileRenders).toBeGreaterThan(0);
+    // A pan away and back draws the whole base from the cached tiles, the refreshed ones included.
+    viewport.pan(-7, 0);
+    renderer.frame();
+    viewport.pan(7, 0);
+    const blitted = renderer.frame();
+    expect(blitted.tilesDrawn).toBeGreaterThan(0);
+    expect(blitted.regions).toBe(0);
+    const whole = render(false, [
+      { op: "add", item: { ...column, w: 90 } },
+      ...rows.map((item) => ({ op: "add" as const, item })),
+    ]);
+    whole.renderer.frame();
+    expect(differing(pixels(target), pixels(whole.target))).toBe(0);
+    renderer.dispose();
+    whole.renderer.dispose();
   });
 });
