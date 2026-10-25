@@ -21,3 +21,19 @@ export function usePluginDocuments(appId: string, pluginId: string) {
     },
   });
 }
+
+/** ListDocuments of the whole app with content: app.json and every plugin's documents, which the validator loads as one project. */
+export function useAppDocuments(appId: string) {
+  const { session } = useApp();
+  return useQuery({
+    queryKey: ["app-documents", appId],
+    queryFn: async () => {
+      const res = await createClient(DocumentService, session.transport).listDocuments({
+        appId,
+        pluginId: "",
+        contentIncluded: true,
+      });
+      return res.documents;
+    },
+  });
+}

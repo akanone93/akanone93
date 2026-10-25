@@ -14,24 +14,40 @@ export type Validation =
 
 type Documents = Parameters<typeof projectFiles>[0];
 
+/** The whole project's files: the app's documents plus the plugin's own, by path. */
+export function wholeProject(app: Documents, plugin: Documents): Documents {
+  const byPath = new Map([...app, ...plugin].map((d) => [d.path, d]));
+  return [...byPath.values()];
+}
+
+/** Only the problems in the open plugin's own files. */
+export function inFiles(problems: readonly Problem[], plugin: Documents): Problem[] {
+  const own = new Set(plugin.map((d) => d.path));
+  return problems.filter((p) => own.has(p.file));
+}
+
 /** Loads the project into the validator when the documents arrive and validates it project-wide (validate on open). */
-export function useValidation(createValidator: ValidatorFactory, documents: Documents | undefined): Validation {
+export function useValidation(
+  createValidator: ValidatorFactory,
+  app: Documents | undefined,
+  plugin: Documents | undefined,
+): Validation {
   const [result, setResult] = useState<Validation>({ state: "idle" });
   useEffect(() => {
-    if (documents === undefined) {
+    if (app === undefined || plugin === undefined) {
       return undefined;
     }
     setResult({ state: "running" });
     const validator = createValidator();
     let live = true;
     validator
-      .load(projectFiles(documents))
-      .then((problems) => live && setResult({ state: "done", problems }))
+      .load(projectFiles(wholeProject(app, plugin)))
+      .then((problems) => live && setResult({ state: "done", problems: inFiles(problems, plugin) }))
       .catch(() => live && setResult({ state: "failed" }));
     return () => {
       live = false;
       validator.dispose();
     };
-  }, [createValidator, documents]);
+  }, [createValidator, app, plugin]);
   return result;
 }
