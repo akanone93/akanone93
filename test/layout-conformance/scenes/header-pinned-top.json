@@ -1,0 +1,146 @@
+{
+  "name": "header-pinned-top",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "scroll",
+            "type": "CustomScrollView",
+            "props": {
+              "scrollOffset": 0
+            },
+            "children": [
+              {
+                "id": "header",
+                "type": "SliverPersistentHeader",
+                "props": {
+                  "minExtent": 60,
+                  "maxExtent": 150,
+                  "pinned": true
+                }
+              },
+              {
+                "id": "list",
+                "type": "SliverList",
+                "props": {},
+                "children": [
+                  {
+                    "id": "i0",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 60
+                    }
+                  },
+                  {
+                    "id": "i1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 100
+                    }
+                  },
+                  {
+                    "id": "i2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 40
+                    }
+                  },
+                  {
+                    "id": "i3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 80
+                    }
+                  },
+                  {
+                    "id": "i4",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 120
+                    }
+                  },
+                  {
+                    "id": "i5",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 50
+                    }
+                  },
+                  {
+                    "id": "i6",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 90
+                    }
+                  },
+                  {
+                    "id": "i7",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 70
+                    }
+                  },
+                  {
+                    "id": "i8",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 110
+                    }
+                  },
+                  {
+                    "id": "i9",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 60
+                    }
+                  },
+                  {
+                    "id": "i10",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 80
+                    }
+                  },
+                  {
+                    "id": "i11",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 100
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

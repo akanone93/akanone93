@@ -1,0 +1,67 @@
+{
+  "name": "page-view-fraction",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "pages",
+            "type": "PageView",
+            "props": {
+              "viewportFraction": 0.8,
+              "initialPage": 1
+            },
+            "children": [
+              {
+                "id": "p0",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "p1",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "p2",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              },
+              {
+                "id": "p3",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 10
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

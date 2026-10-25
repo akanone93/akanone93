@@ -8,6 +8,7 @@
 // golden is missing, stale or orphaned.
 
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -154,6 +155,260 @@ TableColumnWidth _columnWidth(Object? spec) {
 
 const Duration _animationDuration = Duration(seconds: 1);
 
+
+/// Viewport and sliver scene nodes (STU-068, S4.1): their children are built lazily, so a scene
+/// golden holds only the nodes Flutter has built.
+const Set<String> _lazyTypes = <String>{
+  'ListView', 'GridView', 'PageView', 'ReorderableListView', 'SliverList', 'SliverFixedExtentList',
+  'SliverVariedExtentList', 'SliverGrid', 'SliverFillViewport',
+};
+
+bool _hasLazy(Map<String, Object?> node) =>
+    _lazyTypes.contains(node['type']) ||
+    ((node['children'] as List<Object?>?) ?? <Object?>[]).any(
+      (Object? child) => _hasLazy(child! as Map<String, Object?>),
+    );
+
+/// A header delegate with fixed extents and a fixed child (SliverPersistentHeader, SliverAppBar).
+class _FixedHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const _FixedHeaderDelegate(this.min, this.max, this.child);
+  final double min;
+  final double max;
+  final Widget child;
+
+  @override
+  double get minExtent => min;
+
+  @override
+  double get maxExtent => max;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => child;
+
+  @override
+  bool shouldRebuild(covariant _FixedHeaderDelegate oldDelegate) => true;
+}
+
+SliverGridDelegate _gridDelegate(Map<String, Object?> props) {
+  final double mainAxisSpacing = _optionalNumber(props, 'mainAxisSpacing') ?? 0;
+  final double crossAxisSpacing = _optionalNumber(props, 'crossAxisSpacing') ?? 0;
+  final double childAspectRatio = _optionalNumber(props, 'childAspectRatio') ?? 1;
+  final double? mainAxisExtent = _optionalNumber(props, 'mainAxisExtent');
+  if (props.containsKey('maxCrossAxisExtent')) {
+    return SliverGridDelegateWithMaxCrossAxisExtent(
+      maxCrossAxisExtent: _number(props['maxCrossAxisExtent']),
+      mainAxisSpacing: mainAxisSpacing,
+      crossAxisSpacing: crossAxisSpacing,
+      childAspectRatio: childAspectRatio,
+      mainAxisExtent: mainAxisExtent,
+    );
+  }
+  return SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: props['crossAxisCount']! as int,
+    mainAxisSpacing: mainAxisSpacing,
+    crossAxisSpacing: crossAxisSpacing,
+    childAspectRatio: childAspectRatio,
+    mainAxisExtent: mainAxisExtent,
+  );
+}
+
+SliverChildListDelegate _listDelegate(List<Widget> children) => SliverChildListDelegate(
+  children,
+  addAutomaticKeepAlives: false,
+  addRepaintBoundaries: false,
+  addSemanticIndexes: false,
+);
+
+ScrollCacheExtent? _cacheExtent(Map<String, Object?> props) =>
+    props.containsKey('cacheExtent') ? ScrollCacheExtent.pixels(_number(props['cacheExtent'])) : null;
+
+Widget _buildScroll(String type, Key key, Map<String, Object?> props, List<Widget> children) {
+  final Axis scrollDirection = _enum(Axis.values, props['scrollDirection'], Axis.vertical);
+  final bool reverse = props['reverse'] == true;
+  final bool shrinkWrap = props['shrinkWrap'] == true;
+  final ScrollController controller = ScrollController(initialScrollOffset: _optionalNumber(props, 'scrollOffset') ?? 0);
+  final EdgeInsetsGeometry? padding = props.containsKey('padding') ? _padding(props['padding']) : null;
+  final double? itemExtent = _optionalNumber(props, 'itemExtent');
+  switch (type) {
+    case 'Viewport':
+      return Viewport(
+        key: key,
+        axisDirection: _enum(AxisDirection.values, props['axisDirection'], AxisDirection.down),
+        anchor: _optionalNumber(props, 'anchor') ?? 0,
+        offset: ViewportOffset.fixed(_optionalNumber(props, 'offset') ?? 0),
+        scrollCacheExtent: _cacheExtent(props),
+        slivers: children,
+      );
+    case 'ShrinkWrappingViewport':
+      return ShrinkWrappingViewport(
+        key: key,
+        axisDirection: _enum(AxisDirection.values, props['axisDirection'], AxisDirection.down),
+        offset: ViewportOffset.fixed(_optionalNumber(props, 'offset') ?? 0),
+        slivers: children,
+      );
+    case 'CustomScrollView':
+      return CustomScrollView(
+        key: key,
+        scrollDirection: scrollDirection,
+        reverse: reverse,
+        controller: controller,
+        primary: false,
+        shrinkWrap: shrinkWrap,
+        anchor: _optionalNumber(props, 'anchor') ?? 0,
+        scrollCacheExtent: _cacheExtent(props),
+        slivers: children,
+      );
+    case 'ListView':
+      return ListView(
+        key: key,
+        scrollDirection: scrollDirection,
+        reverse: reverse,
+        controller: controller,
+        primary: false,
+        shrinkWrap: shrinkWrap,
+        padding: padding,
+        itemExtent: itemExtent,
+        scrollCacheExtent: _cacheExtent(props),
+        addAutomaticKeepAlives: false,
+        addRepaintBoundaries: false,
+        addSemanticIndexes: false,
+        children: children,
+      );
+    case 'GridView':
+      return GridView(
+        key: key,
+        scrollDirection: scrollDirection,
+        reverse: reverse,
+        controller: controller,
+        primary: false,
+        shrinkWrap: shrinkWrap,
+        padding: padding,
+        gridDelegate: _gridDelegate(props),
+        scrollCacheExtent: _cacheExtent(props),
+        addAutomaticKeepAlives: false,
+        addRepaintBoundaries: false,
+        addSemanticIndexes: false,
+        children: children,
+      );
+    case 'PageView':
+      return PageView(
+        key: key,
+        scrollDirection: scrollDirection,
+        reverse: reverse,
+        controller: PageController(
+          initialPage: (props['initialPage'] as int?) ?? 0,
+          viewportFraction: _optionalNumber(props, 'viewportFraction') ?? 1,
+        ),
+        padEnds: props['padEnds'] != false,
+        children: children,
+      );
+    case 'NestedScrollView':
+      return NestedScrollView(
+        key: key,
+        scrollDirection: scrollDirection,
+        reverse: reverse,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) =>
+            children.sublist(0, children.length - 1),
+        body: children.last,
+      );
+    case 'ReorderableListView':
+      return Localizations(
+        locale: const Locale('en'),
+        delegates: const <LocalizationsDelegate<dynamic>>[
+          DefaultWidgetsLocalizations.delegate,
+          DefaultMaterialLocalizations.delegate,
+        ],
+        child: Material(
+          type: MaterialType.transparency,
+          child: Overlay(initialEntries: <OverlayEntry>[OverlayEntry(builder: (BuildContext context) => ReorderableListView(
+            key: key,
+            scrollDirection: scrollDirection,
+            reverse: reverse,
+            scrollController: controller,
+            primary: false,
+            shrinkWrap: shrinkWrap,
+            padding: padding is EdgeInsets ? padding : null,
+            itemExtent: itemExtent,
+            onReorder: (int oldIndex, int newIndex) {},
+            children: children,
+          ))]),
+        ),
+      );
+  }
+  throw ArgumentError('unknown scroll view type "$type"');
+}
+
+Widget _buildSliver(String type, Key key, Map<String, Object?> props, List<Widget> children) {
+  final Widget? child = children.length == 1 ? children.single : null;
+  switch (type) {
+    case 'SliverToBoxAdapter':
+      return SliverToBoxAdapter(key: key, child: child);
+    case 'SliverList':
+      return SliverList(key: key, delegate: _listDelegate(children));
+    case 'SliverFixedExtentList':
+      return SliverFixedExtentList(key: key, itemExtent: _number(props['itemExtent']), delegate: _listDelegate(children));
+    case 'SliverVariedExtentList':
+      final List<double> extents = <double>[for (final Object? e in props['itemExtents']! as List<Object?>) _number(e)];
+      return SliverVariedExtentList(
+        key: key,
+        itemExtentBuilder: (int index, SliverLayoutDimensions dimensions) => index < extents.length ? extents[index] : null,
+        delegate: _listDelegate(children),
+      );
+    case 'SliverGrid':
+      return SliverGrid(key: key, gridDelegate: _gridDelegate(props), delegate: _listDelegate(children));
+    case 'SliverFillViewport':
+      return SliverFillViewport(
+        key: key,
+        viewportFraction: _optionalNumber(props, 'viewportFraction') ?? 1,
+        padEnds: props['padEnds'] != false,
+        delegate: _listDelegate(children),
+      );
+    case 'SliverFillRemaining':
+      return SliverFillRemaining(
+        key: key,
+        hasScrollBody: props['hasScrollBody'] != false,
+        fillOverscroll: props['fillOverscroll'] == true,
+        child: child,
+      );
+    case 'SliverPadding':
+      return SliverPadding(key: key, padding: _padding(props['padding']), sliver: child);
+    case 'SliverPersistentHeader':
+    case 'SliverAppBar':
+      final double min;
+      final double max;
+      if (type == 'SliverAppBar') {
+        // SliverAppBar's delegate: collapsedHeight or toolbarHeight collapsed, expandedHeight or toolbarHeight expanded.
+        final double toolbarHeight = _optionalNumber(props, 'toolbarHeight') ?? kToolbarHeight;
+        min = _optionalNumber(props, 'collapsedHeight') ?? toolbarHeight;
+        max = math.max(_optionalNumber(props, 'expandedHeight') ?? toolbarHeight, min);
+      } else {
+        min = _number(props['minExtent']);
+        max = _number(props['maxExtent']);
+      }
+      return SliverPersistentHeader(
+        key: key,
+        pinned: props['pinned'] == true,
+        floating: props['floating'] == true,
+        delegate: _FixedHeaderDelegate(min, max, child ?? const SizedBox.expand()),
+      );
+  }
+  throw ArgumentError('unknown sliver type "$type"');
+}
+
+/// The rect of the render object a scene id keys: a box's global rect, a sliver's paint area.
+List<double> _rectOf(WidgetTester tester, String id) {
+  final Finder finder = find.byKey(ValueKey<String>(id), skipOffstage: false);
+  final RenderObject renderObject = tester.element(finder).renderObject!;
+  if (renderObject is RenderSliver) {
+    final Offset origin = MatrixUtils.transformPoint(renderObject.getTransformTo(null), Offset.zero);
+    final Rect bounds = renderObject.paintBounds;
+    return <double>[origin.dx, origin.dy, bounds.width, bounds.height];
+  }
+  final Rect rect = tester.getRect(finder);
+  return <double>[rect.left, rect.top, rect.width, rect.height];
+}
+
+
 /// Builds the widget for [node]. Implicitly animated nodes take their `from`
 /// or `to` props according to [phase]; transitions are held at the scene's
 /// animation value [t].
@@ -165,12 +420,26 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
     for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[])
       _build(child! as Map<String, Object?>, phase, t),
   ];
-  const Set<String> multiChild = <String>{'Row', 'Column', 'Flex', 'Stack', 'IndexedStack', 'Wrap', 'Table'};
+  const Set<String> multiChild = <String>{
+    'Row', 'Column', 'Flex', 'Stack', 'IndexedStack', 'Wrap', 'Table', //
+    'Viewport', 'ShrinkWrappingViewport', 'CustomScrollView', 'ListView', 'GridView', 'PageView', 'NestedScrollView', //
+    'ReorderableListView', 'SliverList', 'SliverFixedExtentList', 'SliverVariedExtentList', 'SliverGrid', 'SliverFillViewport',
+  };
   if (!multiChild.contains(type) && children.length > 1) {
     throw ArgumentError('node "$id" of type $type takes at most one child');
   }
   final Widget? child = children.length == 1 ? children.single : null;
   final Key key = ValueKey<String>(id);
+  const Set<String> scrollTypes = <String>{
+    'Viewport', 'ShrinkWrappingViewport', 'CustomScrollView', 'ListView', 'GridView', 'PageView', 'NestedScrollView',
+    'ReorderableListView',
+  };
+  if (scrollTypes.contains(type)) {
+    return _buildScroll(type, key, props, children);
+  }
+  if (type.startsWith('Sliver')) {
+    return _buildSliver(type, key, props, children);
+  }
   switch (type) {
     case 'TestBox':
       return SizedBox(key: key, width: _number(props['width']), height: _number(props['height']));
@@ -571,12 +840,13 @@ void main() {
               fail('scene "$name" threw during layout: $exception');
             }
 
+            // Lazily built children exist only while they are in or near the viewport, so a scene with
+            // lists records the nodes Flutter has built; every other scene must find every node.
+            final bool lazy = _hasLazy(root);
             final Map<String, List<double>> rects = <String, List<double>>{
               for (final String id in ids)
-                id: () {
-                  final Rect rect = tester.getRect(find.byKey(ValueKey<String>(id), skipOffstage: false));
-                  return <double>[rect.left, rect.top, rect.width, rect.height];
-                }(),
+                if (!lazy || find.byKey(ValueKey<String>(id), skipOffstage: false).evaluate().isNotEmpty)
+                  id: _rectOf(tester, id),
             };
             final List<String> textIds = <String>[];
             _collectTextIds(root, textIds);
