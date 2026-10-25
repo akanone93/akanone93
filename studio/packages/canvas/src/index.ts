@@ -13,6 +13,25 @@ export {
   AccessibleTree,
   ROLES,
 } from "./a11y.ts";
+export { ArrowCanvas, type ArrowPick, type ArrowStyle, defaultArrowStyle } from "./arrow-layer.ts";
+export {
+  type ArrowBox,
+  ArrowRouter,
+  type Bundle,
+  bundleId,
+  type Cubic,
+  chooseSides,
+  cubicAt,
+  deriveAppBundles,
+  deriveBundles,
+  derivePluginBundles,
+  type NavigateEdge,
+  type Route,
+  type RouterOptions,
+  type Side,
+  sideNormal,
+  sidePoint,
+} from "./arrows.ts";
 export { Batches, BatchLayer, color4f } from "./batch.ts";
 export { type BrowserScope, browserWorkerDeps, watchCanvasContext } from "./browser.ts";
 export {
@@ -40,6 +59,22 @@ export {
   type HostLayers,
   type WorkerLike,
 } from "./host.ts";
+export {
+  ARROW_DETAIL_BELOW,
+  type ArrowLod,
+  arrowLodForZoom,
+  EXPAND_MS,
+  Expansion,
+  easeOut,
+  LANE_SPACING,
+  type Lane,
+  type LaneAction,
+  type LaneMenuItem,
+  laneGeometry,
+  laneMenu,
+  routeMidpoint,
+  splitCubic,
+} from "./lanes.ts";
 export {
   INTERACTION_RESOLUTION,
   type Lod,

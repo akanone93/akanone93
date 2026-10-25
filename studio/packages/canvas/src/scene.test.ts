@@ -88,6 +88,12 @@ describe("STU-003 retained scene graph", () => {
     expect(scene.query(makeRect(0, 0, 1000, 100), out, false).map((i) => i.spec.id)).toEqual(["b"]);
     expect(scene.query(makeRect(0, 0, 1000, 100), out, true)).toHaveLength(2);
     expect(scene.liveItems(out).map((i) => i.spec.id)).toEqual(["a"]);
+    // An item added under a live id (a re-routed arrow's new piece) is live at once.
+    scene.apply([{ op: "add", item: box("missing", 0, 0) }]);
+    expect(drain(scene)).toEqual([]);
+    expect(scene.liveItems(out).map((i) => i.spec.id)).toEqual(["a", "missing"]);
+    scene.setLive(["missing"], false);
+    drain(scene);
     scene.setLive(["a"], false);
     expect(drain(scene)).toEqual([{ l: 9.5, t: 9.5, r: 110.5, b: 60.5 }]);
     scene.setLive(["a"], false);
