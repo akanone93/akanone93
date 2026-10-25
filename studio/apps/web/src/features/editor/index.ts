@@ -15,6 +15,7 @@ export {
   type SaveFailure,
   type Scheduler,
   type ServerDocument,
+  type WholeWrite,
 } from "./edit-session.ts";
 export {
   type AcquireLock,

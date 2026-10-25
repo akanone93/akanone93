@@ -69,6 +69,22 @@ export function documentTransport(
       confirmed(res.document);
       return toServerDocument(res.document);
     },
+    async put(path, content) {
+      const res = await client.putDocument({
+        ...ids,
+        path,
+        ifRevision: 0n,
+        content: encoder.encode(JSON.stringify(content)),
+      });
+      if (res.document === undefined) {
+        throw new ConnectError("the server returned no document", Code.Internal);
+      }
+      confirmed(res.document);
+      return toServerDocument(res.document);
+    },
+    async remove(path, ifRevision) {
+      await client.deleteDocument({ ...ids, path, ifRevision });
+    },
     classify: classifySaveError,
   };
 }

@@ -25,6 +25,10 @@ export interface DocumentTransport {
     options: { readonly keepalive: boolean },
   ): Promise<ServerDocument>;
   get(path: string): Promise<ServerDocument>;
+  /** Creates a whole document (PutDocument with revision zero). */
+  put(path: string, content: JsonValue): Promise<ServerDocument>;
+  /** Deletes a whole document at the revision it was read at (DeleteDocument). */
+  remove(path: string, ifRevision: bigint): Promise<void>;
   classify(error: unknown): SaveFailure;
 }
 
@@ -53,6 +57,11 @@ export interface EditSessionOptions {
   /** Every edit with its forward and inverse Immer patches, for the S2.4 undo stack. */
   readonly onEdit?: (record: EditRecord) => void;
 }
+
+/** How a whole-document write ended; nothing is dropped silently (F4). */
+export type WholeWrite =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly reason: "offline" | "pending" | "unknown" | SaveFailure };
 
 /** A document as an edit recipe sees it: the mutable Immer draft of its root JSON object. */
 export type DocumentDraft = Record<string, unknown>;
@@ -211,6 +220,58 @@ export class EditSession {
     this.schedule(path, t, this.options.debounceMs);
     this.publish(path);
     return record;
+  }
+
+  /**
+   * Creates a document. Whole-document writes use the same offline rule as saves: offline, nothing is
+   * sent and the caller keeps its intent. On success the document is opened for editing.
+   */
+  async create(path: string, content: JsonValue): Promise<WholeWrite> {
+    if (!this.online()) {
+      return { ok: false, reason: "offline" };
+    }
+    if (this.tracks.has(path)) {
+      return { ok: false, reason: "rejected" };
+    }
+    try {
+      const doc = await this.options.transport.put(path, content);
+      this.open(doc);
+      this.options.onConfirmed?.(doc);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, reason: this.options.transport.classify(error) };
+    }
+  }
+
+  /**
+   * Deletes a document at the revision this session holds. Refused while edits of it are unsaved or in
+   * flight, so a delete never races the one save in flight.
+   */
+  async remove(path: string): Promise<WholeWrite> {
+    const t = this.tracks.get(path);
+    if (t === undefined) {
+      return { ok: false, reason: "unknown" };
+    }
+    if (t.queue.length > 0 || t.inFlight !== null || t.paused) {
+      return { ok: false, reason: "pending" };
+    }
+    if (!this.online()) {
+      return { ok: false, reason: "offline" };
+    }
+    t.inFlight = [];
+    try {
+      await this.options.transport.remove(path, t.base.revision);
+    } catch (error) {
+      t.inFlight = null;
+      return { ok: false, reason: this.options.transport.classify(error) };
+    }
+    this.clearTimer(t);
+    this.tracks.delete(path);
+    this.store.setState((s) => {
+      const { [path]: _gone, ...docs } = s.docs;
+      return { docs };
+    });
+    return { ok: true };
   }
 
   /** Sends every pending document now; `keepalive` lets the request outlive a hidden tab. */

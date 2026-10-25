@@ -7,6 +7,12 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: ar\n"
 
+#. Appended to the title of a duplicated screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.copySuffix"
+msgstr "(نسخة)"
+
 #. Status chip: edits not yet saved, kept in memory until the server is reachable.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -127,11 +133,23 @@ msgstr "رمز المصادقة"
 msgid "dialog.justification.title"
 msgstr "مبرر الوصول الطارئ"
 
+#. Button that closes a dialog without changing anything.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.cancel"
+msgstr "إلغاء"
+
 #. Button that dismisses a dialog without acting.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.cancel"
 msgstr "إلغاء"
+
+#. Accessible name of the toolbar under the plugin canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.actionBar"
+msgstr "إجراءات اللوحة"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -155,6 +173,12 @@ msgstr "اختر كلمة مرور"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
+msgstr "إغلاق"
+
+#. Accessible name of the close button of a dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.close"
 msgstr "إغلاق"
 
 #. Accessible name of the D35 close button.
@@ -229,6 +253,18 @@ msgstr "نُسخت إلى الحافظة"
 msgid "editor.conflict.copy-mine"
 msgstr "نسخ نسختي بصيغة JSON"
 
+#. Button that confirms creating a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.create"
+msgstr "إنشاء"
+
+#. Accessible name of the select that chooses the screen the screen actions apply to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.currentScreen"
+msgstr "الشاشة الحالية"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -247,6 +283,24 @@ msgstr "القرار: {decision}"
 msgid "dialog.explain.decision"
 msgstr "القرار: {decision}"
 
+#. Button that confirms deleting a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.delete"
+msgstr "حذف"
+
+#. Question that asks to confirm deleting a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.confirmDelete"
+msgstr "حذف {title}؟ تتم إزالة مستندها من المسودة."
+
+#. Command that deletes the current screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.deleteScreen"
+msgstr "حذف الشاشة"
+
 #. Label of the density choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -264,6 +318,12 @@ msgstr "التوثيق"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.drawer"
 msgstr "الدرج"
+
+#. Command that copies the current screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.duplicateScreen"
+msgstr "تكرار الشاشة"
 
 #. Command that copies the selected canvas elements right after themselves.
 #. js-lingui-explicit-id
@@ -324,6 +384,12 @@ msgstr "نوع الحدث"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.explain"
 msgstr "اشرح سبب الوصول"
+
+#. Button that fits all screens into the view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomFit"
+msgstr "ملاءمة"
 
 #. Caption of the shortcuts page.
 #. js-lingui-explicit-id
@@ -462,6 +528,18 @@ msgstr "التنقل"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.disabled.reason"
 msgstr "يتطلب الصلاحية {permission}"
+
+#. Button and command that create a blank screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.newScreen"
+msgstr "شاشة جديدة"
+
+#. Default title of a newly created screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.untitled"
+msgstr "شاشة جديدة"
 
 #. Shown when the filter matches nothing.
 #. js-lingui-explicit-id
@@ -607,17 +685,47 @@ msgstr "المشروع"
 msgid "chip.reconnecting"
 msgstr "إعادة الاتصال"
 
+#. Button that repeats the last undone edit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.redo"
+msgstr "إعادة"
+
 #. Button that reloads the page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "banner.reload"
 msgstr "إعادة التحميل"
 
+#. Button that confirms renaming a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.rename"
+msgstr "إعادة تسمية"
+
+#. Command that renames the current screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.renameScreen"
+msgstr "إعادة تسمية الشاشة"
+
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.saved"
 msgstr "تم الحفظ"
+
+#. Label of the text field that names a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.screenTitle"
+msgstr "عنوان الشاشة"
+
+#. Command group heading.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.group.screens"
+msgstr "الشاشات"
 
 #. Label of the list of the plugin's screens, in the order the navigation flow reaches them.
 #. js-lingui-explicit-id
@@ -757,11 +865,23 @@ msgstr "الدعوة غير صالحة أو منتهية الصلاحية."
 msgid "auth.error.passkey"
 msgstr "تعذّر استخدام مفتاح المرور."
 
+#. Reason a screen cannot be deleted: another screen navigates to it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.blockedNavigate"
+msgstr "تنتقل الشاشة {title} إليها. أزل تلك الخطوة أولاً."
+
 #. Shown when loading the plugin's screens failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.failed"
 msgstr "تعذر تحميل الشاشات."
+
+#. Shown when a screen action failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.writeFailed"
+msgstr "لم يقبل الخادم التغيير."
 
 #. Shown in the Problems tab when the validator failed to start or crashed.
 #. js-lingui-explicit-id
@@ -793,6 +913,12 @@ msgstr "يتطلب هذا الإجراء تحققًا جديدًا بمفتاح 
 msgid "unsupported.title"
 msgstr "هذا المتصفح غير مدعوم"
 
+#. Reason a screen cannot be deleted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.blockedEntry"
+msgstr "هذه هي صفحة الدخول للإضافة. اختر صفحة دخول أخرى قبل حذفها."
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -817,6 +943,18 @@ msgstr "تغيّرت هذه الإضافة على الخادم"
 msgid "pluginCanvas.empty"
 msgstr "لا تحتوي هذه الإضافة على شاشات بعد."
 
+#. Heading of the dialog that lists what blocks deleting a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.blockedTitle"
+msgstr "لا يمكن حذف هذه الشاشة"
+
+#. Shown when a screen cannot be deleted while edits are waiting to be saved.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.pendingSave"
+msgstr "لهذه الشاشة تغييرات غير محفوظة. انتظر حتى تُحفظ ثم حاول مرة أخرى."
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -834,6 +972,12 @@ msgstr "اكتب {phrase} للتأكيد"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "اكتب أمرًا"
+
+#. Button that undoes the last edit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.undo"
+msgstr "تراجع"
 
 #. Toggle that hides read notifications.
 #. js-lingui-explicit-id
@@ -907,6 +1051,12 @@ msgstr "لف التحديد في عمود"
 msgid "chrome.noorg.title"
 msgstr "أنت لست عضوًا في أي مؤسسة بعد"
 
+#. Shown when a screen action needs the server and the browser is offline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.offline"
+msgstr "أنت غير متصل. لم يتغير شيء؛ حاول مرة أخرى عند عودة الاتصال."
+
 #. Heading of the page shown after signing out.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -972,3 +1122,15 @@ msgstr "انتهت جلستك. سجّل الدخول مجددًا للمتابع
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoom"
 msgstr "التكبير {percent}٪"
+
+#. Button that zooms the canvas in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomIn"
+msgstr "تكبير"
+
+#. Button that zooms the canvas out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomOut"
+msgstr "تصغير"
