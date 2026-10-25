@@ -81,3 +81,8 @@ export function useScopedCommands(key: string, commands: readonly Command[]): vo
   const register = use(RegisterContext);
   useEffect(() => (register === null ? undefined : register(key, commands)), [register, key, commands]);
 }
+
+/** The commands when a provider surrounds the caller, else null: a reader for views that also render without the shell. */
+export function useOptionalCommands(): CommandsValue | null {
+  return use(Context);
+}
