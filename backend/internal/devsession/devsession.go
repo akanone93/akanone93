@@ -105,7 +105,7 @@ type Service struct {
 	// drafts is this replica's cache of the drafts of live sessions; the
 	// database holds what rebuilds it (ADR-0087 Revision 2026-10-24).
 	draftsMu sync.Mutex
-	// follow runs the Studio draft compiles off the write path (STU-130).
+	// drafter runs the Studio draft compiles off the write path (STU-130).
 	drafter *dispatcher
 	drafts  map[string]*draftState
 }
