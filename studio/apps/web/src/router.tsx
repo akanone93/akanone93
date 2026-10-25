@@ -13,6 +13,7 @@ import {
 } from "@tanstack/react-router";
 import { z } from "zod";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
+import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { PublicLayout } from "./features/shell/layouts.tsx";
 import { ShellLayout } from "./features/shell/shell-layout.tsx";
@@ -21,6 +22,8 @@ import type { Session } from "./lib/session.ts";
 
 export interface RouterContext {
   readonly session: Session;
+  /** False when the browser lacks WebGL2 (P8); unset means supported. */
+  readonly webgl2?: boolean;
 }
 
 function RouteError({ error }: ErrorComponentProps) {
@@ -31,6 +34,11 @@ function RouteError({ error }: ErrorComponentProps) {
 }
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
+  beforeLoad: ({ context, location }) => {
+    if (context.webgl2 === false && location.pathname !== "/unsupported") {
+      throw redirect({ to: "/unsupported" });
+    }
+  },
   component: Outlet,
   notFoundComponent: NotFoundPage,
   errorComponent: RouteError,
@@ -64,6 +72,12 @@ const signedOutRoute = createRoute({
   getParentRoute: () => publicLayout,
   path: "/signed-out",
   component: lazyRouteComponent(() => import("./features/shell/signed-out-page.tsx"), "SignedOutPage"),
+});
+
+const unsupportedRoute = createRoute({
+  getParentRoute: () => publicLayout,
+  path: "/unsupported",
+  component: lazyRouteComponent(() => import("./features/shell/unsupported-page.tsx"), "UnsupportedPage"),
 });
 
 const shellLayout = createRoute({
@@ -106,9 +120,16 @@ const orgHomeRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/home/index.ts"), "HomePage"),
 });
 
+const notificationsRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/notifications",
+  validateSearch: (search) => inboxSearchSchema.parse(search),
+  component: lazyRouteComponent(() => import("./features/notifications/index.ts"), "NotificationsPage"),
+});
+
 const routeTree = rootRoute.addChildren([
-  publicLayout.addChildren([signInRoute, inviteRoute, signedOutRoute]),
-  shellLayout.addChildren([personalHomeRoute, profileRoute, orgRoute.addChildren([orgHomeRoute])]),
+  publicLayout.addChildren([signInRoute, inviteRoute, signedOutRoute, unsupportedRoute]),
+  shellLayout.addChildren([personalHomeRoute, profileRoute, orgRoute.addChildren([orgHomeRoute, notificationsRoute])]),
 ]);
 
 /** The route tree: only pages that exist (L-7). `canvas` and `page` layouts join with their first pages. */

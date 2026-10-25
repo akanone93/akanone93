@@ -33,8 +33,19 @@ export function StepUpDialog({ open, onOpenChange, options, onAssertion }: StepU
     }
   };
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} size="sm" title={m.stepUpTitle} description={m.stepUpBody} labels={{ close: m.close }}>
-      {failed && <p role="alert" className="text-body text-danger">{m.stepUpFailed}</p>}
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="sm"
+      title={m.stepUpTitle}
+      description={m.stepUpBody}
+      labels={{ close: m.close }}
+    >
+      {failed && (
+        <p role="alert" className="text-body text-danger">
+          {m.stepUpFailed}
+        </p>
+      )}
       <div className="flex justify-end">
         <Button onClick={() => void run()}>{m.stepUpUse}</Button>
       </div>

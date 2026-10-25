@@ -17,18 +17,39 @@ export interface JustificationDialogProps {
 }
 
 /** D5 (GOV-024): submit is disabled below the minimum; the maximum is the registry's governance.justificationLength. */
-export function JustificationDialog({ open, onOpenChange, minLength, description, onSubmit }: JustificationDialogProps): ReactElement {
+export function JustificationDialog({
+  open,
+  onOpenChange,
+  minLength,
+  description,
+  onSubmit,
+}: JustificationDialogProps): ReactElement {
   const m = dialogMessages(useLingui().i18n);
   const [text, setText] = useState("");
   const count = [...text.trim()].length;
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} size="md" title={m.justificationTitle} description={description} labels={{ close: m.close }}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="md"
+      title={m.justificationTitle}
+      description={description}
+      labels={{ close: m.close }}
+    >
       <Field label={m.justificationLabel} description={m.justificationHint(count, minLength)}>
-        <Textarea value={text} maxLength={limit("governance.justificationLength").max} onChange={(e) => setText(e.target.value)} />
+        <Textarea
+          value={text}
+          maxLength={limit("governance.justificationLength").max}
+          onChange={(e) => setText(e.target.value)}
+        />
       </Field>
       <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={() => onOpenChange(false)}>{m.cancel}</Button>
-        <Button disabled={count < minLength} onClick={() => onSubmit(text.trim())}>{m.confirm}</Button>
+        <Button variant="secondary" onClick={() => onOpenChange(false)}>
+          {m.cancel}
+        </Button>
+        <Button disabled={count < minLength} onClick={() => onSubmit(text.trim())}>
+          {m.confirm}
+        </Button>
       </div>
     </Dialog>
   );

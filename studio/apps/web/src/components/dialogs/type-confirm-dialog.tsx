@@ -16,7 +16,13 @@ export interface TypeConfirmDialogProps {
 }
 
 /** D4: the confirm button stays disabled until the typed text equals the phrase exactly. */
-export function TypeConfirmDialog({ open, onOpenChange, phrase, description, onConfirm }: TypeConfirmDialogProps): ReactElement {
+export function TypeConfirmDialog({
+  open,
+  onOpenChange,
+  phrase,
+  description,
+  onConfirm,
+}: TypeConfirmDialogProps): ReactElement {
   const { i18n } = useLingui();
   const m = dialogMessages(i18n);
   const [typed, setTyped] = useState("");
@@ -25,7 +31,9 @@ export function TypeConfirmDialog({ open, onOpenChange, phrase, description, onC
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        if (!next) setTyped("");
+        if (!next) {
+          setTyped("");
+        }
         onOpenChange(next);
       }}
       size="sm"
@@ -37,8 +45,12 @@ export function TypeConfirmDialog({ open, onOpenChange, phrase, description, onC
         <Input value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
       </Field>
       <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={() => onOpenChange(false)}>{m.cancel}</Button>
-        <Button variant="danger" disabled={!matches} onClick={onConfirm}>{m.confirm}</Button>
+        <Button variant="secondary" onClick={() => onOpenChange(false)}>
+          {m.cancel}
+        </Button>
+        <Button variant="danger" disabled={!matches} onClick={onConfirm}>
+          {m.confirm}
+        </Button>
       </div>
     </Dialog>
   );
