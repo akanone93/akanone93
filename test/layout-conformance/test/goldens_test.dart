@@ -414,7 +414,7 @@ List<double> _rectOf(WidgetTester tester, String id) {
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
-  'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination',
+  'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination',
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -488,6 +488,27 @@ Widget _buildNavigationBar(Map<String, Object?> node, Map<String, Object?> props
   );
 }
 
+Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+  return NavigationRail(
+    key: key,
+    selectedIndex: (props['selectedIndex'] as num?)?.toInt() ?? 0,
+    minWidth: _optionalNumber(props, 'minWidth'),
+    groupAlignment: _optionalNumber(props, 'groupAlignment'),
+    labelType: switch (props['labelType']) {
+      'selected' => NavigationRailLabelType.selected,
+      'all' => NavigationRailLabelType.all,
+      _ => NavigationRailLabelType.none,
+    },
+    destinations: <NavigationRailDestination>[
+      for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+        NavigationRailDestination(
+          icon: _buildSlots(raw! as Map<String, Object?>, phase, t)['icon']!.single,
+          label: Text(((raw as Map<String, Object?>)['props'] as Map<String, Object?>)['label']! as String),
+        ),
+    ],
+  );
+}
+
 Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
@@ -495,6 +516,9 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
   if (type == 'NavigationBar') {
     return _buildNavigationBar(node, props, key, phase, t);
+  }
+  if (type == 'NavigationRail') {
+    return _buildNavigationRail(node, props, key, phase, t);
   }
   final Map<String, List<Widget>> slots = <String, List<Widget>>{};
   for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
@@ -1035,7 +1059,10 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
 }
 
 void _collectIds(Map<String, Object?> node, List<String> ids) {
-  ids.add(node['id']! as String);
+  // A NavigationRailDestination is data, not a widget: it has no render object to report.
+  if (node['type'] != 'NavigationRailDestination') {
+    ids.add(node['id']! as String);
+  }
   for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     _collectIds(child! as Map<String, Object?>, ids);
   }
