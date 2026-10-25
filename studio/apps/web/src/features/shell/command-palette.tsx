@@ -105,6 +105,7 @@ export function CommandPalette({ open, onOpenChange }: PaletteProps) {
           >
             <span>{s.command.title}</span>
             {!s.enabled && s.missing !== undefined && <span className="text-caption">{m.missing(s.missing)}</span>}
+            {!s.enabled && s.reason !== undefined && <span className="text-caption">{s.reason}</span>}
           </div>
         ))}
       </div>

@@ -24,6 +24,11 @@ export function commandMessages(i18n: I18n) {
       message: "Redo (Ctrl+Y)",
       comment: "Command title; the alternative redo chord.",
     }),
+    readOnly: i18n._({
+      id: "cmd.edit.readOnly",
+      message: "Read-only: you cannot change this plugin now",
+      comment: "Why undo and redo are disabled: the editor is read-only or lost its lock.",
+    }),
     groupEdit: i18n._({ id: "cmd.group.edit", message: "Edit", comment: "Command group heading." }),
     signOut: i18n._({ id: "cmd.account.signout", message: "Sign out", comment: "Command title." }),
     toggleTheme: i18n._({ id: "cmd.theme.toggle", message: "Toggle light and dark theme", comment: "Command title." }),
