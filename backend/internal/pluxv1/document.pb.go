@@ -1227,6 +1227,207 @@ func (x *ListSnapshotsResponse) GetPage() *PageResult {
 	return nil
 }
 
+type ListEditorSessionEntriesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	// plugin_id is empty for the app's own documents.
+	PluginId        string `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	EditorSessionId string `protobuf:"bytes,3,opt,name=editor_session_id,json=editorSessionId,proto3" json:"editor_session_id,omitempty"`
+	Page            *Page  `protobuf:"bytes,4,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ListEditorSessionEntriesRequest) Reset() {
+	*x = ListEditorSessionEntriesRequest{}
+	mi := &file_plux_v1_document_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListEditorSessionEntriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListEditorSessionEntriesRequest) ProtoMessage() {}
+
+func (x *ListEditorSessionEntriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_document_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListEditorSessionEntriesRequest.ProtoReflect.Descriptor instead.
+func (*ListEditorSessionEntriesRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListEditorSessionEntriesRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ListEditorSessionEntriesRequest) GetPluginId() string {
+	if x != nil {
+		return x.PluginId
+	}
+	return ""
+}
+
+func (x *ListEditorSessionEntriesRequest) GetEditorSessionId() string {
+	if x != nil {
+		return x.EditorSessionId
+	}
+	return ""
+}
+
+func (x *ListEditorSessionEntriesRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+// EditorSessionEntry is one document a tagged write changed.
+type EditorSessionEntry struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	SnapshotId string                 `protobuf:"bytes,1,opt,name=snapshot_id,json=snapshotId,proto3" json:"snapshot_id,omitempty"`
+	Path       string                 `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	// revision is the draft revision the write produced.
+	Revision int64 `protobuf:"varint,3,opt,name=revision,proto3" json:"revision,omitempty"`
+	// inverse turns the document the write produced back into the one it
+	// replaced.
+	Inverse       []*PatchOp             `protobuf:"bytes,4,rep,name=inverse,proto3" json:"inverse,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EditorSessionEntry) Reset() {
+	*x = EditorSessionEntry{}
+	mi := &file_plux_v1_document_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EditorSessionEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EditorSessionEntry) ProtoMessage() {}
+
+func (x *EditorSessionEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_document_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EditorSessionEntry.ProtoReflect.Descriptor instead.
+func (*EditorSessionEntry) Descriptor() ([]byte, []int) {
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *EditorSessionEntry) GetSnapshotId() string {
+	if x != nil {
+		return x.SnapshotId
+	}
+	return ""
+}
+
+func (x *EditorSessionEntry) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *EditorSessionEntry) GetRevision() int64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
+
+func (x *EditorSessionEntry) GetInverse() []*PatchOp {
+	if x != nil {
+		return x.Inverse
+	}
+	return nil
+}
+
+func (x *EditorSessionEntry) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type ListEditorSessionEntriesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Entries       []*EditorSessionEntry  `protobuf:"bytes,1,rep,name=entries,proto3" json:"entries,omitempty"`
+	Page          *PageResult            `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListEditorSessionEntriesResponse) Reset() {
+	*x = ListEditorSessionEntriesResponse{}
+	mi := &file_plux_v1_document_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListEditorSessionEntriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListEditorSessionEntriesResponse) ProtoMessage() {}
+
+func (x *ListEditorSessionEntriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_document_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListEditorSessionEntriesResponse.ProtoReflect.Descriptor instead.
+func (*ListEditorSessionEntriesResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListEditorSessionEntriesResponse) GetEntries() []*EditorSessionEntry {
+	if x != nil {
+		return x.Entries
+	}
+	return nil
+}
+
+func (x *ListEditorSessionEntriesResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
 type GetSnapshotRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -1238,7 +1439,7 @@ type GetSnapshotRequest struct {
 
 func (x *GetSnapshotRequest) Reset() {
 	*x = GetSnapshotRequest{}
-	mi := &file_plux_v1_document_proto_msgTypes[18]
+	mi := &file_plux_v1_document_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1250,7 +1451,7 @@ func (x *GetSnapshotRequest) String() string {
 func (*GetSnapshotRequest) ProtoMessage() {}
 
 func (x *GetSnapshotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[18]
+	mi := &file_plux_v1_document_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1263,7 +1464,7 @@ func (x *GetSnapshotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSnapshotRequest.ProtoReflect.Descriptor instead.
 func (*GetSnapshotRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetSnapshotRequest) GetId() string {
@@ -1290,7 +1491,7 @@ type GetSnapshotResponse struct {
 
 func (x *GetSnapshotResponse) Reset() {
 	*x = GetSnapshotResponse{}
-	mi := &file_plux_v1_document_proto_msgTypes[19]
+	mi := &file_plux_v1_document_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1302,7 +1503,7 @@ func (x *GetSnapshotResponse) String() string {
 func (*GetSnapshotResponse) ProtoMessage() {}
 
 func (x *GetSnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[19]
+	mi := &file_plux_v1_document_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1315,7 +1516,7 @@ func (x *GetSnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSnapshotResponse.ProtoReflect.Descriptor instead.
 func (*GetSnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetSnapshotResponse) GetSnapshot() *Snapshot {
@@ -1342,7 +1543,7 @@ type CompareSnapshotsRequest struct {
 
 func (x *CompareSnapshotsRequest) Reset() {
 	*x = CompareSnapshotsRequest{}
-	mi := &file_plux_v1_document_proto_msgTypes[20]
+	mi := &file_plux_v1_document_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1354,7 +1555,7 @@ func (x *CompareSnapshotsRequest) String() string {
 func (*CompareSnapshotsRequest) ProtoMessage() {}
 
 func (x *CompareSnapshotsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[20]
+	mi := &file_plux_v1_document_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1367,7 +1568,7 @@ func (x *CompareSnapshotsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompareSnapshotsRequest.ProtoReflect.Descriptor instead.
 func (*CompareSnapshotsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CompareSnapshotsRequest) GetFromId() string {
@@ -1394,7 +1595,7 @@ type CompareSnapshotsResponse struct {
 
 func (x *CompareSnapshotsResponse) Reset() {
 	*x = CompareSnapshotsResponse{}
-	mi := &file_plux_v1_document_proto_msgTypes[21]
+	mi := &file_plux_v1_document_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1607,7 @@ func (x *CompareSnapshotsResponse) String() string {
 func (*CompareSnapshotsResponse) ProtoMessage() {}
 
 func (x *CompareSnapshotsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[21]
+	mi := &file_plux_v1_document_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1620,7 @@ func (x *CompareSnapshotsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompareSnapshotsResponse.ProtoReflect.Descriptor instead.
 func (*CompareSnapshotsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CompareSnapshotsResponse) GetChanges() []*DocumentChange {
@@ -1441,7 +1642,7 @@ type DocumentChange struct {
 
 func (x *DocumentChange) Reset() {
 	*x = DocumentChange{}
-	mi := &file_plux_v1_document_proto_msgTypes[22]
+	mi := &file_plux_v1_document_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1453,7 +1654,7 @@ func (x *DocumentChange) String() string {
 func (*DocumentChange) ProtoMessage() {}
 
 func (x *DocumentChange) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[22]
+	mi := &file_plux_v1_document_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1466,7 +1667,7 @@ func (x *DocumentChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentChange.ProtoReflect.Descriptor instead.
 func (*DocumentChange) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *DocumentChange) GetPath() string {
@@ -1501,7 +1702,7 @@ type RestoreSnapshotRequest struct {
 
 func (x *RestoreSnapshotRequest) Reset() {
 	*x = RestoreSnapshotRequest{}
-	mi := &file_plux_v1_document_proto_msgTypes[23]
+	mi := &file_plux_v1_document_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1513,7 +1714,7 @@ func (x *RestoreSnapshotRequest) String() string {
 func (*RestoreSnapshotRequest) ProtoMessage() {}
 
 func (x *RestoreSnapshotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[23]
+	mi := &file_plux_v1_document_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1526,7 +1727,7 @@ func (x *RestoreSnapshotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreSnapshotRequest.ProtoReflect.Descriptor instead.
 func (*RestoreSnapshotRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{23}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *RestoreSnapshotRequest) GetId() string {
@@ -1560,7 +1761,7 @@ type RestoreSnapshotResponse struct {
 
 func (x *RestoreSnapshotResponse) Reset() {
 	*x = RestoreSnapshotResponse{}
-	mi := &file_plux_v1_document_proto_msgTypes[24]
+	mi := &file_plux_v1_document_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1572,7 +1773,7 @@ func (x *RestoreSnapshotResponse) String() string {
 func (*RestoreSnapshotResponse) ProtoMessage() {}
 
 func (x *RestoreSnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[24]
+	mi := &file_plux_v1_document_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1585,7 +1786,7 @@ func (x *RestoreSnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreSnapshotResponse.ProtoReflect.Descriptor instead.
 func (*RestoreSnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *RestoreSnapshotResponse) GetSnapshotId() string {
@@ -1612,7 +1813,7 @@ type ExportDraftRequest struct {
 
 func (x *ExportDraftRequest) Reset() {
 	*x = ExportDraftRequest{}
-	mi := &file_plux_v1_document_proto_msgTypes[25]
+	mi := &file_plux_v1_document_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1624,7 +1825,7 @@ func (x *ExportDraftRequest) String() string {
 func (*ExportDraftRequest) ProtoMessage() {}
 
 func (x *ExportDraftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[25]
+	mi := &file_plux_v1_document_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1637,7 +1838,7 @@ func (x *ExportDraftRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportDraftRequest.ProtoReflect.Descriptor instead.
 func (*ExportDraftRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ExportDraftRequest) GetAppId() string {
@@ -1664,7 +1865,7 @@ type ExportDraftResponse struct {
 
 func (x *ExportDraftResponse) Reset() {
 	*x = ExportDraftResponse{}
-	mi := &file_plux_v1_document_proto_msgTypes[26]
+	mi := &file_plux_v1_document_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1676,7 +1877,7 @@ func (x *ExportDraftResponse) String() string {
 func (*ExportDraftResponse) ProtoMessage() {}
 
 func (x *ExportDraftResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[26]
+	mi := &file_plux_v1_document_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1689,7 +1890,7 @@ func (x *ExportDraftResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportDraftResponse.ProtoReflect.Descriptor instead.
 func (*ExportDraftResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ExportDraftResponse) GetPath() string {
@@ -1720,7 +1921,7 @@ type ImportDraftRequest struct {
 
 func (x *ImportDraftRequest) Reset() {
 	*x = ImportDraftRequest{}
-	mi := &file_plux_v1_document_proto_msgTypes[27]
+	mi := &file_plux_v1_document_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1732,7 +1933,7 @@ func (x *ImportDraftRequest) String() string {
 func (*ImportDraftRequest) ProtoMessage() {}
 
 func (x *ImportDraftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[27]
+	mi := &file_plux_v1_document_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1745,7 +1946,7 @@ func (x *ImportDraftRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportDraftRequest.ProtoReflect.Descriptor instead.
 func (*ImportDraftRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ImportDraftRequest) GetAppId() string {
@@ -1794,7 +1995,7 @@ type ImportDraftResponse struct {
 
 func (x *ImportDraftResponse) Reset() {
 	*x = ImportDraftResponse{}
-	mi := &file_plux_v1_document_proto_msgTypes[28]
+	mi := &file_plux_v1_document_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1806,7 +2007,7 @@ func (x *ImportDraftResponse) String() string {
 func (*ImportDraftResponse) ProtoMessage() {}
 
 func (x *ImportDraftResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_document_proto_msgTypes[28]
+	mi := &file_plux_v1_document_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1819,7 +2020,7 @@ func (x *ImportDraftResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportDraftResponse.ProtoReflect.Descriptor instead.
 func (*ImportDraftResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_document_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_document_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ImportDraftResponse) GetRevision() int64 {
@@ -1941,6 +2142,22 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\x04page\x18\x03 \x01(\v2\r.plux.v1.PageR\x04page\"q\n" +
 	"\x15ListSnapshotsResponse\x12/\n" +
 	"\tsnapshots\x18\x01 \x03(\v2\x11.plux.v1.SnapshotR\tsnapshots\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xa4\x01\n" +
+	"\x1fListEditorSessionEntriesRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
+	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12*\n" +
+	"\x11editor_session_id\x18\x03 \x01(\tR\x0feditorSessionId\x12!\n" +
+	"\x04page\x18\x04 \x01(\v2\r.plux.v1.PageR\x04page\"\xcc\x01\n" +
+	"\x12EditorSessionEntry\x12\x1f\n" +
+	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
+	"snapshotId\x12\x12\n" +
+	"\x04path\x18\x02 \x01(\tR\x04path\x12\x1a\n" +
+	"\brevision\x18\x03 \x01(\x03R\brevision\x12*\n" +
+	"\ainverse\x18\x04 \x03(\v2\x10.plux.v1.PatchOpR\ainverse\x129\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x82\x01\n" +
+	" ListEditorSessionEntriesResponse\x125\n" +
+	"\aentries\x18\x01 \x03(\v2\x1b.plux.v1.EditorSessionEntryR\aentries\x12'\n" +
 	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\":\n" +
 	"\x12GetSnapshotRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
@@ -1981,7 +2198,7 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\brevision\x18\x01 \x01(\x03R\brevision\x12\x1f\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tR\n" +
 	"snapshotId\x125\n" +
-	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics2\xb0\b\n" +
+	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics2\xa3\t\n" +
 	"\x0fDocumentService\x12J\n" +
 	"\vGetDocument\x12\x1b.plux.v1.GetDocumentRequest\x1a\x1c.plux.v1.GetDocumentResponse\"\x00\x12P\n" +
 	"\rListDocuments\x12\x1d.plux.v1.ListDocumentsRequest\x1a\x1e.plux.v1.ListDocumentsResponse\"\x00\x12J\n" +
@@ -1990,7 +2207,8 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\x0eDeleteDocument\x12\x1e.plux.v1.DeleteDocumentRequest\x1a\x1f.plux.v1.DeleteDocumentResponse\"\x00\x12P\n" +
 	"\rValidateDraft\x12\x1d.plux.v1.ValidateDraftRequest\x1a\x1e.plux.v1.ValidateDraftResponse\"\x00\x12M\n" +
 	"\fValidatePage\x12\x1c.plux.v1.ValidatePageRequest\x1a\x1d.plux.v1.ValidatePageResponse\"\x00\x12P\n" +
-	"\rListSnapshots\x12\x1d.plux.v1.ListSnapshotsRequest\x1a\x1e.plux.v1.ListSnapshotsResponse\"\x00\x12J\n" +
+	"\rListSnapshots\x12\x1d.plux.v1.ListSnapshotsRequest\x1a\x1e.plux.v1.ListSnapshotsResponse\"\x00\x12q\n" +
+	"\x18ListEditorSessionEntries\x12(.plux.v1.ListEditorSessionEntriesRequest\x1a).plux.v1.ListEditorSessionEntriesResponse\"\x00\x12J\n" +
 	"\vGetSnapshot\x12\x1b.plux.v1.GetSnapshotRequest\x1a\x1c.plux.v1.GetSnapshotResponse\"\x00\x12Y\n" +
 	"\x10CompareSnapshots\x12 .plux.v1.CompareSnapshotsRequest\x1a!.plux.v1.CompareSnapshotsResponse\"\x00\x12V\n" +
 	"\x0fRestoreSnapshot\x12\x1f.plux.v1.RestoreSnapshotRequest\x1a .plux.v1.RestoreSnapshotResponse\"\x00\x12L\n" +
@@ -2009,100 +2227,110 @@ func file_plux_v1_document_proto_rawDescGZIP() []byte {
 	return file_plux_v1_document_proto_rawDescData
 }
 
-var file_plux_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_plux_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_plux_v1_document_proto_goTypes = []any{
-	(*Document)(nil),                 // 0: plux.v1.Document
-	(*Snapshot)(nil),                 // 1: plux.v1.Snapshot
-	(*GetDocumentRequest)(nil),       // 2: plux.v1.GetDocumentRequest
-	(*GetDocumentResponse)(nil),      // 3: plux.v1.GetDocumentResponse
-	(*ListDocumentsRequest)(nil),     // 4: plux.v1.ListDocumentsRequest
-	(*ListDocumentsResponse)(nil),    // 5: plux.v1.ListDocumentsResponse
-	(*PutDocumentRequest)(nil),       // 6: plux.v1.PutDocumentRequest
-	(*PutDocumentResponse)(nil),      // 7: plux.v1.PutDocumentResponse
-	(*PatchDocumentRequest)(nil),     // 8: plux.v1.PatchDocumentRequest
-	(*PatchDocumentResponse)(nil),    // 9: plux.v1.PatchDocumentResponse
-	(*DeleteDocumentRequest)(nil),    // 10: plux.v1.DeleteDocumentRequest
-	(*DeleteDocumentResponse)(nil),   // 11: plux.v1.DeleteDocumentResponse
-	(*ValidateDraftRequest)(nil),     // 12: plux.v1.ValidateDraftRequest
-	(*ValidateDraftResponse)(nil),    // 13: plux.v1.ValidateDraftResponse
-	(*ValidatePageRequest)(nil),      // 14: plux.v1.ValidatePageRequest
-	(*ValidatePageResponse)(nil),     // 15: plux.v1.ValidatePageResponse
-	(*ListSnapshotsRequest)(nil),     // 16: plux.v1.ListSnapshotsRequest
-	(*ListSnapshotsResponse)(nil),    // 17: plux.v1.ListSnapshotsResponse
-	(*GetSnapshotRequest)(nil),       // 18: plux.v1.GetSnapshotRequest
-	(*GetSnapshotResponse)(nil),      // 19: plux.v1.GetSnapshotResponse
-	(*CompareSnapshotsRequest)(nil),  // 20: plux.v1.CompareSnapshotsRequest
-	(*CompareSnapshotsResponse)(nil), // 21: plux.v1.CompareSnapshotsResponse
-	(*DocumentChange)(nil),           // 22: plux.v1.DocumentChange
-	(*RestoreSnapshotRequest)(nil),   // 23: plux.v1.RestoreSnapshotRequest
-	(*RestoreSnapshotResponse)(nil),  // 24: plux.v1.RestoreSnapshotResponse
-	(*ExportDraftRequest)(nil),       // 25: plux.v1.ExportDraftRequest
-	(*ExportDraftResponse)(nil),      // 26: plux.v1.ExportDraftResponse
-	(*ImportDraftRequest)(nil),       // 27: plux.v1.ImportDraftRequest
-	(*ImportDraftResponse)(nil),      // 28: plux.v1.ImportDraftResponse
-	(*Actor)(nil),                    // 29: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),    // 30: google.protobuf.Timestamp
-	(*Page)(nil),                     // 31: plux.v1.Page
-	(*PageResult)(nil),               // 32: plux.v1.PageResult
-	(*Diagnostic)(nil),               // 33: plux.v1.Diagnostic
-	(*PatchOp)(nil),                  // 34: plux.v1.PatchOp
+	(*Document)(nil),                         // 0: plux.v1.Document
+	(*Snapshot)(nil),                         // 1: plux.v1.Snapshot
+	(*GetDocumentRequest)(nil),               // 2: plux.v1.GetDocumentRequest
+	(*GetDocumentResponse)(nil),              // 3: plux.v1.GetDocumentResponse
+	(*ListDocumentsRequest)(nil),             // 4: plux.v1.ListDocumentsRequest
+	(*ListDocumentsResponse)(nil),            // 5: plux.v1.ListDocumentsResponse
+	(*PutDocumentRequest)(nil),               // 6: plux.v1.PutDocumentRequest
+	(*PutDocumentResponse)(nil),              // 7: plux.v1.PutDocumentResponse
+	(*PatchDocumentRequest)(nil),             // 8: plux.v1.PatchDocumentRequest
+	(*PatchDocumentResponse)(nil),            // 9: plux.v1.PatchDocumentResponse
+	(*DeleteDocumentRequest)(nil),            // 10: plux.v1.DeleteDocumentRequest
+	(*DeleteDocumentResponse)(nil),           // 11: plux.v1.DeleteDocumentResponse
+	(*ValidateDraftRequest)(nil),             // 12: plux.v1.ValidateDraftRequest
+	(*ValidateDraftResponse)(nil),            // 13: plux.v1.ValidateDraftResponse
+	(*ValidatePageRequest)(nil),              // 14: plux.v1.ValidatePageRequest
+	(*ValidatePageResponse)(nil),             // 15: plux.v1.ValidatePageResponse
+	(*ListSnapshotsRequest)(nil),             // 16: plux.v1.ListSnapshotsRequest
+	(*ListSnapshotsResponse)(nil),            // 17: plux.v1.ListSnapshotsResponse
+	(*ListEditorSessionEntriesRequest)(nil),  // 18: plux.v1.ListEditorSessionEntriesRequest
+	(*EditorSessionEntry)(nil),               // 19: plux.v1.EditorSessionEntry
+	(*ListEditorSessionEntriesResponse)(nil), // 20: plux.v1.ListEditorSessionEntriesResponse
+	(*GetSnapshotRequest)(nil),               // 21: plux.v1.GetSnapshotRequest
+	(*GetSnapshotResponse)(nil),              // 22: plux.v1.GetSnapshotResponse
+	(*CompareSnapshotsRequest)(nil),          // 23: plux.v1.CompareSnapshotsRequest
+	(*CompareSnapshotsResponse)(nil),         // 24: plux.v1.CompareSnapshotsResponse
+	(*DocumentChange)(nil),                   // 25: plux.v1.DocumentChange
+	(*RestoreSnapshotRequest)(nil),           // 26: plux.v1.RestoreSnapshotRequest
+	(*RestoreSnapshotResponse)(nil),          // 27: plux.v1.RestoreSnapshotResponse
+	(*ExportDraftRequest)(nil),               // 28: plux.v1.ExportDraftRequest
+	(*ExportDraftResponse)(nil),              // 29: plux.v1.ExportDraftResponse
+	(*ImportDraftRequest)(nil),               // 30: plux.v1.ImportDraftRequest
+	(*ImportDraftResponse)(nil),              // 31: plux.v1.ImportDraftResponse
+	(*Actor)(nil),                            // 32: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),            // 33: google.protobuf.Timestamp
+	(*Page)(nil),                             // 34: plux.v1.Page
+	(*PageResult)(nil),                       // 35: plux.v1.PageResult
+	(*Diagnostic)(nil),                       // 36: plux.v1.Diagnostic
+	(*PatchOp)(nil),                          // 37: plux.v1.PatchOp
 }
 var file_plux_v1_document_proto_depIdxs = []int32{
-	29, // 0: plux.v1.Document.updated_by:type_name -> plux.v1.Actor
-	30, // 1: plux.v1.Document.updated_at:type_name -> google.protobuf.Timestamp
-	29, // 2: plux.v1.Snapshot.actor:type_name -> plux.v1.Actor
-	30, // 3: plux.v1.Snapshot.created_at:type_name -> google.protobuf.Timestamp
+	32, // 0: plux.v1.Document.updated_by:type_name -> plux.v1.Actor
+	33, // 1: plux.v1.Document.updated_at:type_name -> google.protobuf.Timestamp
+	32, // 2: plux.v1.Snapshot.actor:type_name -> plux.v1.Actor
+	33, // 3: plux.v1.Snapshot.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: plux.v1.GetDocumentResponse.document:type_name -> plux.v1.Document
-	31, // 5: plux.v1.ListDocumentsRequest.page:type_name -> plux.v1.Page
+	34, // 5: plux.v1.ListDocumentsRequest.page:type_name -> plux.v1.Page
 	0,  // 6: plux.v1.ListDocumentsResponse.documents:type_name -> plux.v1.Document
-	32, // 7: plux.v1.ListDocumentsResponse.page:type_name -> plux.v1.PageResult
+	35, // 7: plux.v1.ListDocumentsResponse.page:type_name -> plux.v1.PageResult
 	0,  // 8: plux.v1.PutDocumentResponse.document:type_name -> plux.v1.Document
-	33, // 9: plux.v1.PutDocumentResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	34, // 10: plux.v1.PatchDocumentRequest.patch:type_name -> plux.v1.PatchOp
+	36, // 9: plux.v1.PutDocumentResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	37, // 10: plux.v1.PatchDocumentRequest.patch:type_name -> plux.v1.PatchOp
 	0,  // 11: plux.v1.PatchDocumentResponse.document:type_name -> plux.v1.Document
-	33, // 12: plux.v1.PatchDocumentResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	33, // 13: plux.v1.ValidateDraftResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	33, // 14: plux.v1.ValidatePageResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	31, // 15: plux.v1.ListSnapshotsRequest.page:type_name -> plux.v1.Page
+	36, // 12: plux.v1.PatchDocumentResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	36, // 13: plux.v1.ValidateDraftResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	36, // 14: plux.v1.ValidatePageResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	34, // 15: plux.v1.ListSnapshotsRequest.page:type_name -> plux.v1.Page
 	1,  // 16: plux.v1.ListSnapshotsResponse.snapshots:type_name -> plux.v1.Snapshot
-	32, // 17: plux.v1.ListSnapshotsResponse.page:type_name -> plux.v1.PageResult
-	1,  // 18: plux.v1.GetSnapshotResponse.snapshot:type_name -> plux.v1.Snapshot
-	0,  // 19: plux.v1.GetSnapshotResponse.documents:type_name -> plux.v1.Document
-	22, // 20: plux.v1.CompareSnapshotsResponse.changes:type_name -> plux.v1.DocumentChange
-	34, // 21: plux.v1.DocumentChange.patch:type_name -> plux.v1.PatchOp
-	33, // 22: plux.v1.RestoreSnapshotResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	33, // 23: plux.v1.ImportDraftResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	2,  // 24: plux.v1.DocumentService.GetDocument:input_type -> plux.v1.GetDocumentRequest
-	4,  // 25: plux.v1.DocumentService.ListDocuments:input_type -> plux.v1.ListDocumentsRequest
-	6,  // 26: plux.v1.DocumentService.PutDocument:input_type -> plux.v1.PutDocumentRequest
-	8,  // 27: plux.v1.DocumentService.PatchDocument:input_type -> plux.v1.PatchDocumentRequest
-	10, // 28: plux.v1.DocumentService.DeleteDocument:input_type -> plux.v1.DeleteDocumentRequest
-	12, // 29: plux.v1.DocumentService.ValidateDraft:input_type -> plux.v1.ValidateDraftRequest
-	14, // 30: plux.v1.DocumentService.ValidatePage:input_type -> plux.v1.ValidatePageRequest
-	16, // 31: plux.v1.DocumentService.ListSnapshots:input_type -> plux.v1.ListSnapshotsRequest
-	18, // 32: plux.v1.DocumentService.GetSnapshot:input_type -> plux.v1.GetSnapshotRequest
-	20, // 33: plux.v1.DocumentService.CompareSnapshots:input_type -> plux.v1.CompareSnapshotsRequest
-	23, // 34: plux.v1.DocumentService.RestoreSnapshot:input_type -> plux.v1.RestoreSnapshotRequest
-	25, // 35: plux.v1.DocumentService.ExportDraft:input_type -> plux.v1.ExportDraftRequest
-	27, // 36: plux.v1.DocumentService.ImportDraft:input_type -> plux.v1.ImportDraftRequest
-	3,  // 37: plux.v1.DocumentService.GetDocument:output_type -> plux.v1.GetDocumentResponse
-	5,  // 38: plux.v1.DocumentService.ListDocuments:output_type -> plux.v1.ListDocumentsResponse
-	7,  // 39: plux.v1.DocumentService.PutDocument:output_type -> plux.v1.PutDocumentResponse
-	9,  // 40: plux.v1.DocumentService.PatchDocument:output_type -> plux.v1.PatchDocumentResponse
-	11, // 41: plux.v1.DocumentService.DeleteDocument:output_type -> plux.v1.DeleteDocumentResponse
-	13, // 42: plux.v1.DocumentService.ValidateDraft:output_type -> plux.v1.ValidateDraftResponse
-	15, // 43: plux.v1.DocumentService.ValidatePage:output_type -> plux.v1.ValidatePageResponse
-	17, // 44: plux.v1.DocumentService.ListSnapshots:output_type -> plux.v1.ListSnapshotsResponse
-	19, // 45: plux.v1.DocumentService.GetSnapshot:output_type -> plux.v1.GetSnapshotResponse
-	21, // 46: plux.v1.DocumentService.CompareSnapshots:output_type -> plux.v1.CompareSnapshotsResponse
-	24, // 47: plux.v1.DocumentService.RestoreSnapshot:output_type -> plux.v1.RestoreSnapshotResponse
-	26, // 48: plux.v1.DocumentService.ExportDraft:output_type -> plux.v1.ExportDraftResponse
-	28, // 49: plux.v1.DocumentService.ImportDraft:output_type -> plux.v1.ImportDraftResponse
-	37, // [37:50] is the sub-list for method output_type
-	24, // [24:37] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	35, // 17: plux.v1.ListSnapshotsResponse.page:type_name -> plux.v1.PageResult
+	34, // 18: plux.v1.ListEditorSessionEntriesRequest.page:type_name -> plux.v1.Page
+	37, // 19: plux.v1.EditorSessionEntry.inverse:type_name -> plux.v1.PatchOp
+	33, // 20: plux.v1.EditorSessionEntry.created_at:type_name -> google.protobuf.Timestamp
+	19, // 21: plux.v1.ListEditorSessionEntriesResponse.entries:type_name -> plux.v1.EditorSessionEntry
+	35, // 22: plux.v1.ListEditorSessionEntriesResponse.page:type_name -> plux.v1.PageResult
+	1,  // 23: plux.v1.GetSnapshotResponse.snapshot:type_name -> plux.v1.Snapshot
+	0,  // 24: plux.v1.GetSnapshotResponse.documents:type_name -> plux.v1.Document
+	25, // 25: plux.v1.CompareSnapshotsResponse.changes:type_name -> plux.v1.DocumentChange
+	37, // 26: plux.v1.DocumentChange.patch:type_name -> plux.v1.PatchOp
+	36, // 27: plux.v1.RestoreSnapshotResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	36, // 28: plux.v1.ImportDraftResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	2,  // 29: plux.v1.DocumentService.GetDocument:input_type -> plux.v1.GetDocumentRequest
+	4,  // 30: plux.v1.DocumentService.ListDocuments:input_type -> plux.v1.ListDocumentsRequest
+	6,  // 31: plux.v1.DocumentService.PutDocument:input_type -> plux.v1.PutDocumentRequest
+	8,  // 32: plux.v1.DocumentService.PatchDocument:input_type -> plux.v1.PatchDocumentRequest
+	10, // 33: plux.v1.DocumentService.DeleteDocument:input_type -> plux.v1.DeleteDocumentRequest
+	12, // 34: plux.v1.DocumentService.ValidateDraft:input_type -> plux.v1.ValidateDraftRequest
+	14, // 35: plux.v1.DocumentService.ValidatePage:input_type -> plux.v1.ValidatePageRequest
+	16, // 36: plux.v1.DocumentService.ListSnapshots:input_type -> plux.v1.ListSnapshotsRequest
+	18, // 37: plux.v1.DocumentService.ListEditorSessionEntries:input_type -> plux.v1.ListEditorSessionEntriesRequest
+	21, // 38: plux.v1.DocumentService.GetSnapshot:input_type -> plux.v1.GetSnapshotRequest
+	23, // 39: plux.v1.DocumentService.CompareSnapshots:input_type -> plux.v1.CompareSnapshotsRequest
+	26, // 40: plux.v1.DocumentService.RestoreSnapshot:input_type -> plux.v1.RestoreSnapshotRequest
+	28, // 41: plux.v1.DocumentService.ExportDraft:input_type -> plux.v1.ExportDraftRequest
+	30, // 42: plux.v1.DocumentService.ImportDraft:input_type -> plux.v1.ImportDraftRequest
+	3,  // 43: plux.v1.DocumentService.GetDocument:output_type -> plux.v1.GetDocumentResponse
+	5,  // 44: plux.v1.DocumentService.ListDocuments:output_type -> plux.v1.ListDocumentsResponse
+	7,  // 45: plux.v1.DocumentService.PutDocument:output_type -> plux.v1.PutDocumentResponse
+	9,  // 46: plux.v1.DocumentService.PatchDocument:output_type -> plux.v1.PatchDocumentResponse
+	11, // 47: plux.v1.DocumentService.DeleteDocument:output_type -> plux.v1.DeleteDocumentResponse
+	13, // 48: plux.v1.DocumentService.ValidateDraft:output_type -> plux.v1.ValidateDraftResponse
+	15, // 49: plux.v1.DocumentService.ValidatePage:output_type -> plux.v1.ValidatePageResponse
+	17, // 50: plux.v1.DocumentService.ListSnapshots:output_type -> plux.v1.ListSnapshotsResponse
+	20, // 51: plux.v1.DocumentService.ListEditorSessionEntries:output_type -> plux.v1.ListEditorSessionEntriesResponse
+	22, // 52: plux.v1.DocumentService.GetSnapshot:output_type -> plux.v1.GetSnapshotResponse
+	24, // 53: plux.v1.DocumentService.CompareSnapshots:output_type -> plux.v1.CompareSnapshotsResponse
+	27, // 54: plux.v1.DocumentService.RestoreSnapshot:output_type -> plux.v1.RestoreSnapshotResponse
+	29, // 55: plux.v1.DocumentService.ExportDraft:output_type -> plux.v1.ExportDraftResponse
+	31, // 56: plux.v1.DocumentService.ImportDraft:output_type -> plux.v1.ImportDraftResponse
+	43, // [43:57] is the sub-list for method output_type
+	29, // [29:43] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_document_proto_init() }
@@ -2117,7 +2345,7 @@ func file_plux_v1_document_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_document_proto_rawDesc), len(file_plux_v1_document_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   29,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
