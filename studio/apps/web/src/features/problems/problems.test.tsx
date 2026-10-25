@@ -27,7 +27,10 @@ const problems: Problem[] = [
   },
   { code: "PLX-0300", severity: "info", file: "", path: "", message: "Project note" },
 ];
-const documents = [{ kind: "plugin", path: "plugins/pl/plugin.json", json: { id: "pl", kind: "plugin", pages: [] } }];
+const documents = [
+  { kind: "plugin", path: "plugins/pl/plugin.json", json: { id: "pl", kind: "plugin", pages: [] } },
+  { kind: "page", path: "plugins/pl/pages/home.page.json", json: { id: "home", kind: "page" } },
+];
 const path = `/o/${orgA}/apps/app1/plugins/pl`;
 
 describe("S2.1 validation against the whole project", () => {
@@ -80,7 +83,7 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
     expect(screen.getByLabelText("1 error")).toBeTruthy();
     expect(screen.getByLabelText("1 warning")).toBeTruthy();
     expect(screen.getByLabelText("plugins/pl/pages/home.page.json")).toBeTruthy();
-    expect(loaded).toEqual(["plugins/pl/plugin.json"]);
+    expect(loaded).toEqual(["plugins/pl/plugin.json", "plugins/pl/pages/home.page.json"]);
   });
 
   test("says so when nothing is wrong, and when the validator fails", async () => {
