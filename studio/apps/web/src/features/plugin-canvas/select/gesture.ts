@@ -51,7 +51,7 @@ export interface GestureEnv {
 
 const FLOW_TYPES = new Set(["Row", "Column", "Wrap", "Flex"]);
 
-function containersOf(env: GestureEnv): Container[] {
+export function containersOf(env: GestureEnv): Container[] {
   const out: Container[] = [];
   for (const [id, kids] of env.index.children) {
     const type = env.typeOf(id);
