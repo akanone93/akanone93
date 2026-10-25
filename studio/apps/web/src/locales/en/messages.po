@@ -325,12 +325,6 @@ msgstr "Break-glass justification"
 msgid "panels.semButton"
 msgstr "Button"
 
-#. Dialog button that closes it without a change.
-#. js-lingui-explicit-id
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.cancel"
-msgstr "Cancel"
-
 #. Button that closes a dialog without changing anything.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -349,22 +343,28 @@ msgstr "Cancel"
 msgid "lock.cancel"
 msgstr "Cancel"
 
+#. Dialog button that closes it without a change.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.cancel"
+msgstr "Cancel"
+
 #. Button that dismisses a dialog without acting.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.cancel"
 msgstr "Cancel"
 
-#. Accessible name of the toolbar above the app canvas.
-#. js-lingui-explicit-id
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.toolbar"
-msgstr "Canvas actions"
-
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.actionBar"
+msgstr "Canvas actions"
+
+#. Accessible name of the toolbar above the app canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.toolbar"
 msgstr "Canvas actions"
 
 #. Shown while the explanation loads.
@@ -399,12 +399,6 @@ msgstr "Clear {name}"
 
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.close"
-msgstr "Close"
-
-#. Accessible name of the dialog close button.
-#. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
 msgstr "Close"
@@ -425,6 +419,12 @@ msgstr "Close"
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.close"
+msgstr "Close"
+
+#. Accessible name of the dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.close"
 msgstr "Close"
 
 #. Accessible name of a dialog's close button.
@@ -685,16 +685,16 @@ msgstr "Enter your password."
 msgid "chrome.licence.title"
 msgstr "Enterprise: requires a licence"
 
-#. Badge on the plugin box of the entry plugin.
-#. js-lingui-explicit-id
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.entryBadge"
-msgstr "Entry"
-
 #. Marks the screen the plugin opens first.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.entryScreen"
+msgstr "Entry"
+
+#. Badge on the plugin box of the entry plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.entryBadge"
 msgstr "Entry"
 
 #. Accessible name of the icon of an error in the Problems tab.
