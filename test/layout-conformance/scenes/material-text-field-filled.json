@@ -87,6 +87,13 @@
                 }
               }
             ]
+          },
+          {
+            "id": "caption",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
           }
         ]
       }
