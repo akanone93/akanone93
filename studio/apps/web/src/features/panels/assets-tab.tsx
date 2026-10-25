@@ -7,7 +7,7 @@ import type { Asset, AssetService } from "@plux/api";
 import { AlertDialog, Button, Icon, Meter } from "@plux/ui";
 import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
 import { assetsMessages } from "./assets.messages.ts";
-import { type UploadState, uploadAsset } from "./upload-asset.ts";
+import { type UploadFailure, type UploadState, uploadAsset, uploadFailure } from "./upload-asset.ts";
 
 type AssetClient = Pick<Client<typeof AssetService>, "listAssets" | "deleteAsset"> & Parameters<typeof uploadAsset>[0];
 
@@ -18,6 +18,7 @@ interface Pending {
   readonly state: { current: UploadState | null };
   received: number;
   failed: boolean;
+  failure: UploadFailure | null;
 }
 
 function kb(n: number): string {
@@ -61,15 +62,17 @@ export function AssetsTab({
     setPending((list) => list.map((p) => (p.key === key ? { ...p, ...change } : p)));
 
   const run = async (p: Pending) => {
-    patch(p.key, { failed: false });
+    patch(p.key, { failed: false, failure: null });
     try {
       await uploadAsset(client, { appId, name: p.name, session, file: p.file }, p.state, (received) =>
         patch(p.key, { received }),
       );
       setPending((list) => list.filter((x) => x.key !== p.key));
       await refresh();
-    } catch {
-      patch(p.key, { failed: true });
+    } catch (err) {
+      const failure = uploadFailure(err);
+      if (failure === "notFound" || failure === "hashMismatch" || failure === "sizeMismatch") p.state.current = null;
+      patch(p.key, { failed: true, failure });
     }
   };
 
@@ -83,6 +86,7 @@ export function AssetsTab({
         state: { current: null },
         received: 0,
         failed: false,
+        failure: null,
       };
       setPending((list) => [...list, p]);
       void run(p);
@@ -122,6 +126,7 @@ export function AssetsTab({
                 <>
                   <Icon name="warning" size="pill" label={m.failed(p.name)} />
                   <span role="alert">{m.failed(p.name)}</span>
+                  {p.failure !== null && <span>{m.failure(p.failure)}</span>}
                   <Button size="sm" variant="secondary" onClick={() => void run(p)}>
                     <Icon name="arrow-clockwise" size="pill" /> {m.resume}
                   </Button>

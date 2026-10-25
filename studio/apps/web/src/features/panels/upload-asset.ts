@@ -66,3 +66,22 @@ export async function uploadAsset(
   state.current = null;
   return done.asset;
 }
+
+/** What an upload failure means to the person, from the Plux code in the server's message (SRV-060). */
+export type UploadFailure = "notFound" | "outOfOrder" | "chunkTooLarge" | "tooLarge" | "hashMismatch" | "sizeMismatch";
+
+const failureByCode: Readonly<Record<number, UploadFailure>> = {
+  6032: "notFound",
+  6033: "outOfOrder",
+  6034: "chunkTooLarge",
+  6035: "tooLarge",
+  6036: "hashMismatch",
+  6037: "sizeMismatch",
+};
+
+/** The dedicated upload failure an error carries (`PLX-6032` to `PLX-6037`), or null for any other. */
+export function uploadFailure(err: unknown): UploadFailure | null {
+  const text = err instanceof Error ? err.message : "";
+  const m = /PLX-(\d{4})/.exec(text);
+  return (m?.[1] !== undefined ? failureByCode[Number(m[1])] : undefined) ?? null;
+}

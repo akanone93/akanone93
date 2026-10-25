@@ -121,6 +121,18 @@ msgstr "{names} möchte dieses Plugin bearbeiten."
 msgid "assets.progress"
 msgstr "{received} von {total}"
 
+#. Shown when an upload chunk was sent at the wrong offset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.out-of-order"
+msgstr "Ein Teil der Datei kam in der falschen Reihenfolge an. Versuche es erneut, um dort fortzufahren, wo es aufgehört hat."
+
+#. Shown when an upload chunk is above the server's chunk size limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.chunk-too-large"
+msgstr "Ein Teil der Datei war größer, als der Server annimmt. Lade die Datei erneut hoch."
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1165,6 +1177,18 @@ msgstr "E-Mail oder Passwort sind nicht korrekt."
 msgid "dialog.explain.failed"
 msgstr "Die Erklärung konnte nicht geladen werden."
 
+#. Shown when the file is above the maximum asset size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.too-large"
+msgstr "Die Datei überschreitet die Größenbeschränkung für Assets. Wähle eine kleinere Datei."
+
+#. Shown when the SHA-256 of the received bytes differs from the file's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.hash-mismatch"
+msgstr "Die Datei wurde auf dem Weg zum Server beschädigt. Lade sie erneut hoch."
+
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1206,6 +1230,18 @@ msgstr "Die Auswahl kann keine weiteren Knoten aufnehmen."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.writeFailed"
 msgstr "Der Server hat die Änderung nicht akzeptiert."
+
+#. Shown when the received size differs from the declared size of the file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.size-mismatch"
+msgstr "Der Server hat eine andere Anzahl von Bytes erhalten, als die Datei hat. Lade sie erneut hoch."
+
+#. Shown when the server no longer has the upload session, for example after it sat idle too long.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.failure.not-found"
+msgstr "Der Upload ist abgelaufen oder existiert nicht mehr. Lade die Datei erneut hoch."
 
 #. Shown in the Problems tab when the validator failed to start or crashed.
 #. js-lingui-explicit-id
