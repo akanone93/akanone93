@@ -51,10 +51,59 @@ function probe(scope: BrowserScope): GlProbe {
   return { available: true, software: caveat || isSoftwareGl(renderer), renderer, majorPerformanceCaveat: caveat };
 }
 
+interface Context2dLike {
+  putImageData(data: ImageData, dx: number, dy: number, x?: number, y?: number, w?: number, h?: number): void;
+}
+
+/**
+ * A CPU raster surface presented through the canvas's 2D context. Unlike
+ * `MakeSWCanvasSurface`, whose unpremultiplied pixels force Skia off its fast
+ * blitters, it renders premultiplied RGBA: the base is opaque, so the bytes
+ * are the same as unpremultiplied ones and go to `putImageData` unchanged. A
+ * flush copies only its dirty rectangle [l, t, r, b] when one is given.
+ */
+function rasterOn(ck: CanvasKit, canvas: OffscreenCanvasLike): Surface | null {
+  const context = (canvas as { getContext?(type: "2d"): Context2dLike | null }).getContext?.("2d") ?? null;
+  const { width, height } = canvas;
+  if (!context || width <= 0 || height <= 0) {
+    return null;
+  }
+  const pixels = ck.Malloc(Uint8Array, width * height * 4);
+  const info = {
+    width,
+    height,
+    colorType: ck.ColorType.RGBA_8888,
+    alphaType: ck.AlphaType.Premul,
+    colorSpace: ck.ColorSpace.SRGB,
+  };
+  const surface = ck.MakeRasterDirectSurface(info, pixels, width * 4);
+  if (!surface) {
+    ck.Free(pixels);
+    return null;
+  }
+  const flush = surface.flush.bind(surface);
+  const remove = surface.delete.bind(surface);
+  surface.flush = ((dirty?: Int32Array) => {
+    flush();
+    const bytes = pixels.toTypedArray();
+    const image = new ImageData(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset, bytes.length), width, height);
+    if (dirty) {
+      context.putImageData(image, 0, 0, dirty[0], dirty[1], (dirty[2] ?? 0) - (dirty[0] ?? 0), (dirty[3] ?? 0) - (dirty[1] ?? 0));
+    } else {
+      context.putImageData(image, 0, 0);
+    }
+  }) as Surface["flush"];
+  surface.delete = () => {
+    remove();
+    ck.Free(pixels);
+  };
+  return surface;
+}
+
 function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "raster"): Surface | null {
   const target = canvas as unknown as SurfaceTarget;
   if (kind === "raster") {
-    return ck.MakeSWCanvasSurface(target);
+    return rasterOn(ck, canvas);
   }
   return ck.MakeWebGLCanvasSurface(target, ck.ColorSpace.SRGB, {
     majorVersion: 2,

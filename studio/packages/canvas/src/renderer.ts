@@ -118,6 +118,7 @@ export class SceneRenderer {
   private readonly src = new Float32Array(4);
   private readonly dst = new Float32Array(4);
   private readonly irect = new Int32Array(4);
+  private readonly dirty = new Int32Array(4);
   private readonly shadowCenter = Int32Array.of(
     SHADOW_INSET + 4,
     SHADOW_INSET + 4,
@@ -289,10 +290,15 @@ export class SceneRenderer {
     return this.flushBase(canvas);
   }
 
-  /** Flushes the base surface (and waits for the GPU when measuring); returns the time taken. */
-  private flushBase(canvas: Canvas): number {
+  /**
+   * Flushes the base surface (and waits for the GPU when measuring); returns
+   * the time taken. `dirty` is the changed device rectangle [l, t, r, b]: the
+   * CPU raster surface then copies only it to the canvas, not every pixel,
+   * and a WebGL surface ignores it.
+   */
+  private flushBase(canvas: Canvas, dirty?: Int32Array): number {
     const flushStart = this.now();
-    this.surface.flush();
+    (this.surface.flush as (dirtyRect?: Int32Array) => void).call(this.surface, dirty);
     if (this.options.measureFrames) {
       this.syncGpu(canvas);
     }
@@ -716,9 +722,21 @@ export class SceneRenderer {
     this.blit(canvas, tile, false);
     canvas.restore();
     this.counters.tilesDrawn = 1;
-    this.flushBase(canvas);
+    this.flushBase(canvas, this.deviceRect(this.dst, scale));
     this.shownTiles.add(tile);
     return { ms: this.now() - start, shifted: false };
+  }
+
+  /** The whole device pixels the world rectangle `world` ([l, t, r, b]) covers on the base surface, in `this.dirty`. */
+  private deviceRect(world: Float32Array, scale: number): Int32Array {
+    const ox = Math.round(this.viewport.x * scale);
+    const oy = Math.round(this.viewport.y * scale);
+    const l = Math.max(0, Math.floor((world[0] ?? 0) * scale - ox));
+    const t = Math.max(0, Math.floor((world[1] ?? 0) * scale - oy));
+    const r = Math.min(this.surface.width(), Math.max(l, Math.ceil((world[2] ?? 0) * scale - ox)));
+    const b = Math.min(this.surface.height(), Math.max(t, Math.ceil((world[3] ?? 0) * scale - oy)));
+    this.dirty.set([l, t, r, b]);
+    return this.dirty;
   }
 
   /** The statistics of a base job of `ms` milliseconds. */
