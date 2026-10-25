@@ -1,0 +1,58 @@
+{
+  "name": "material-scaffold-bare",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 320,
+          "height": 560
+        },
+        "children": [
+          {
+            "id": "sc",
+            "type": "Scaffold",
+            "props": {
+              "floatingActionButtonLocation": "centerFloat"
+            },
+            "children": [
+              {
+                "id": "body",
+                "type": "Text",
+                "props": {
+                  "text": "Body text"
+                }
+              },
+              {
+                "id": "fab",
+                "type": "FloatingActionButton",
+                "props": {
+                  "kind": "large"
+                },
+                "children": [
+                  {
+                    "id": "fabi",
+                    "type": "Icon",
+                    "props": {
+                      "size": 36
+                    }
+                  }
+                ],
+                "slot": "floatingActionButton"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
