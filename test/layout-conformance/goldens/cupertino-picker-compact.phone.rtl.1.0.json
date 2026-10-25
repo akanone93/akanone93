@@ -1,0 +1,31 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-picker-compact",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "ar",
+  "textScale": 1.0,
+  "rects": {
+    "align": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "picker": [
+      80.0,
+      340.0,
+      200.0,
+      120.0
+    ],
+    "sized": [
+      80.0,
+      340.0,
+      200.0,
+      120.0
+    ]
+  }
+}

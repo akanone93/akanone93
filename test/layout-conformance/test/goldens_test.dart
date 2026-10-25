@@ -11,10 +11,13 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart' show CupertinoTheme, DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'cupertino_builders.dart';
 
 /// The Flutter framework revision the goldens are captured with.
 const String flutterRevision = '6a19cca56475dbfba1478ee68d7bd0c2ef891da1';
@@ -587,6 +590,7 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
     'Row', 'Column', 'Flex', 'Stack', 'IndexedStack', 'Wrap', 'Table', //
     'Viewport', 'ShrinkWrappingViewport', 'CustomScrollView', 'ListView', 'GridView', 'PageView', 'NestedScrollView', //
     'ReorderableListView', 'SliverList', 'SliverFixedExtentList', 'SliverVariedExtentList', 'SliverGrid', 'SliverFillViewport',
+    ...cupertinoMultiChild,
   };
   if (!multiChild.contains(type) && children.length > 1) {
     throw ArgumentError('node "$id" of type $type takes at most one child');
@@ -602,6 +606,9 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
   }
   if (type.startsWith('Sliver')) {
     return _buildSliver(type, key, props, children);
+  }
+  if (cupertinoTypes.contains(type)) {
+    return buildCupertino(node, key, props, children, _padding);
   }
   switch (type) {
     case 'TestBox':
@@ -988,10 +995,22 @@ void main() {
                 devicePixelRatio: frame.devicePixelRatio,
                 textScaler: TextScaler.linear(scale),
               ),
-              child: Directionality(
-                textDirection: direction.textDirection,
-                child: useMaterial ? _materialScope(_build(root, phase, sceneT ?? 1), direction.textDirection) : _build(root, phase, sceneT ?? 1),
-              ),
+              child: usesCupertino(root)
+                  ? Localizations(
+                      locale: const Locale('en'),
+                      delegates: const <LocalizationsDelegate<dynamic>>[
+                        DefaultCupertinoLocalizations.delegate,
+                        DefaultWidgetsLocalizations.delegate,
+                      ],
+                      child: Directionality(
+                        textDirection: direction.textDirection,
+                        child: CupertinoTheme(data: cupertinoTestTheme, child: _build(root, phase, sceneT ?? 1)),
+                      ),
+                    )
+                  : Directionality(
+                      textDirection: direction.textDirection,
+                      child: useMaterial ? _materialScope(_build(root, phase, sceneT ?? 1), direction.textDirection) : _build(root, phase, sceneT ?? 1),
+                    ),
             );
             if (sceneT == null) {
               await tester.pumpWidget(frameWidget('to'));

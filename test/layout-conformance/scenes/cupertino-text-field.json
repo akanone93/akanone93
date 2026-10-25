@@ -1,0 +1,67 @@
+{
+  "name": "cupertino-text-field",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "children": [
+          {
+            "id": "empty",
+            "type": "CupertinoTextField",
+            "props": {
+              "placeholder": "Search"
+            }
+          },
+          {
+            "id": "filled",
+            "type": "CupertinoTextField",
+            "props": {
+              "text": "Hello Plux"
+            }
+          },
+          {
+            "id": "padded",
+            "type": "CupertinoTextField",
+            "props": {
+              "placeholder": "Email",
+              "padding": [
+                12,
+                10,
+                12,
+                10
+              ]
+            }
+          },
+          {
+            "id": "tight",
+            "type": "SizedBox",
+            "props": {
+              "width": 120
+            },
+            "children": [
+              {
+                "id": "narrow",
+                "type": "CupertinoTextField",
+                "props": {
+                  "text": "A narrow field with long content"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

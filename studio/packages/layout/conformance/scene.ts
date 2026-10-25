@@ -115,6 +115,7 @@ import {
   WrapAlignment,
   WrapCrossAlignment,
 } from "../src/index.ts";
+import { buildCupertino, cupertinoAliasTypes, cupertinoMultiChildTypes, cupertinoTypes } from "./cupertino.ts";
 import { buildMaterial, materialTypes, style } from "./material-scene.ts";
 
 /** What text nodes are laid out with: the paragraph engine and the golden's text scale. */
@@ -125,6 +126,8 @@ export interface SceneText {
   base?: TextStyle;
   /** The `DefaultTextStyle` flags `Text` nodes inherit from it. */
   defaults?: TextDefaults;
+  /** The frame's device pixel ratio, for hairlines that are one physical pixel. */
+  devicePixelRatio?: number;
 }
 
 /** The `DefaultTextStyle` fields besides the style that a composite sets. */
@@ -259,6 +262,7 @@ export function supportedTypes(): ReadonlySet<string> {
     ...stackTypes,
     ...scrollTypes,
     ...sliverTypes,
+    ...cupertinoTypes,
     ...(renderFlexAvailable() ? flexTypes : []),
   ]);
 }
@@ -322,7 +326,7 @@ function alignment(value: unknown): AlignmentGeometry {
 }
 
 function singleChild(node: SceneNode, children: RenderBox[]): RenderBox | null {
-  if (!multiChildTypes.has(node.type) && children.length > 1) {
+  if (!multiChildTypes.has(node.type) && !cupertinoMultiChildTypes.has(node.type) && children.length > 1) {
     throw new Error(`node "${node.id}" of type ${node.type} takes at most one child`);
   }
   return children[0] ?? null;
@@ -1054,6 +1058,14 @@ export function buildNode(
   if (scrollTypes.has(node.type)) {
     return buildScrollable(node, textDirection, text);
   }
+  if (cupertinoTypes.has(node.type)) {
+    return buildCupertino(node, {
+      textDirection,
+      text,
+      build: (child, childText) => buildNode(child, textDirection, childText, t),
+      padding: (value) => padding(value),
+    });
+  }
   if (sliverTypes.has(node.type)) {
     throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);
   }
@@ -1214,6 +1226,7 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
             ...([...sceneTypes(scene.root)].some((type) => materialTypes.has(type))
               ? { base: style("bodyMedium") }
               : {}),
+            devicePixelRatio: golden.frame.devicePixelRatio,
           },
       scene.t ?? 1,
     ),
@@ -1234,7 +1247,7 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
   const alias = (node: SceneNode): void => {
     const child = node.children?.[0];
     if (
-      [
+      ([
         "Expanded",
         "Flexible",
         "Positioned",
@@ -1242,7 +1255,8 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
         "TableCell",
         "AnimatedPositioned",
         "PreferredSize",
-      ].includes(node.type) &&
+      ].includes(node.type) ||
+        cupertinoAliasTypes.has(node.type)) &&
       child !== undefined
     ) {
       const rect = rects[child.id];

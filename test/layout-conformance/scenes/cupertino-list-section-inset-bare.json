@@ -1,0 +1,125 @@
+{
+  "name": "cupertino-list-section-inset-bare",
+  "root": {
+    "id": "section",
+    "type": "CupertinoListSection",
+    "props": {
+      "type": "insetGrouped",
+      "hasLeading": false
+    },
+    "children": [
+      {
+        "id": "t1",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "notched"
+        },
+        "children": [
+          {
+            "id": "t1-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t1-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Language",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t1-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "t1-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "notched"
+        },
+        "children": [
+          {
+            "id": "t2-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "t2-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "Region",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-info",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "additionalInfo"
+            },
+            "children": [
+              {
+                "id": "t2-info-text",
+                "type": "Text",
+                "props": {
+                  "text": "Europe",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "t2-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "t2-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
