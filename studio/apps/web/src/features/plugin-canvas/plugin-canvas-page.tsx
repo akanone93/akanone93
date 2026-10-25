@@ -22,7 +22,7 @@ import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
-import { readPlugin } from "./plugin-model.ts";
+import { parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
 import {
   contentBounds,
@@ -184,9 +184,18 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
   const appDocs = useAppDocuments(params.app ?? "");
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
-  const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(docs.data)), [docs.data]);
+  const local = useEditor((st) => st.docs);
+  const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: parseDocument(d.content) })), [docs.data]);
+  // The editor's documents, unsaved edits included, over the server's (STU-121); untouched documents keep
+  // their parsed objects, so the canvas lays out again only the screens whose root changed.
+  const live = useMemo(
+    () => parsed.map((d) => (local[d.path] === undefined ? d : { ...d, parsed: local[d.path]?.content })),
+    [parsed, local],
+  );
+  const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
+  const fittedRef = useRef<CanvasSurface | null>(null);
   const [heights, setHeights] = useState<Heights>(new Map());
   const session = useEditSession();
   const canEdit = useCanEdit();
@@ -309,7 +318,11 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
       }
       const byId = heightsById(laidOut);
       setHeights(byId);
-      fitView(surface, canvas, screens, byId, searchRef.current);
+      // Only the first layout on a surface fits the view; an edit keeps where the user looks.
+      if (fittedRef.current !== surface) {
+        fittedRef.current = surface;
+        fitView(surface, canvas, screens, byId, searchRef.current);
+      }
     });
     return () => {
       current = false;
