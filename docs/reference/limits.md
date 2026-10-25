@@ -55,6 +55,9 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `bundle.pluginSize` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P1 | BND-010 | Size of one plugin bundle. |
 | `bundle.verifierDepth` | count | 64 | 80% | 256 | installation | P1 | BND-006, QA-004 | Maximum nesting of tables the FlatBuffers verifier accepts in one section. |
 | `bundle.verifierTables` | count | 1000000 | 80% | 10000000 | installation | P1 | BND-006, QA-004 | Maximum number of tables and vectors the FlatBuffers verifier visits in one section. |
+| `canvas.frameMembers` | count | 500 | 80% | 10000 | installation, organization | P11 | STU-032, STU-035, STU-050 | Plugins one frame of a canvas document may group. |
+| `canvas.frames` | count | 200 | 80% | 5000 | installation, organization | P11 | STU-032, STU-035, STU-050 | Frames one canvas document may hold. |
+| `canvas.positions` | count | 1000 | 80% | 20000 | installation, organization | P11 | STU-032, STU-035, STU-050 | Box positions one canvas document may hold. |
 | `confidential.bundleBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P6 | SEC-053, LIM-004 | Bytes of confidential content one confidential bundle may hold. |
 | `config.valueBytes` | bytes | 4096 | 80% | 65536 | installation, organization, app | P6 | DAT-090, LIM-004 | Bytes of one server-held configuration value. |
 | `config.valuesPerEnvironment` | count | 256 | 80% | 4096 | installation, organization, app | P6 | DAT-090, LIM-004 | Server-held configuration values one environment holds. |

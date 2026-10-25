@@ -48,6 +48,9 @@ type Plugin struct {
 	Pages      []Loaded[PageDocument]
 	Components []Loaded[ComponentDocument]
 	Graphs     []Loaded[ActionGraphDocument]
+	// Canvas is the editor-only screen layout (STU-032); nil when absent.
+	// It is never compiled (CMP-002).
+	Canvas *Loaded[CanvasDocument]
 }
 
 // Project is a project loaded from the Git layout (SCH-006). Optional
@@ -57,8 +60,11 @@ type Project struct {
 	Theme           Loaded[ThemeDocument]
 	NativeCatalogue *Loaded[NativeCatalogueDocument]
 	TranslationKeys *Loaded[TranslationKeysDocument]
-	Translations    []Loaded[TranslationsDocument]
-	Assets          *Loaded[AssetIndexDocument]
+	// Canvas is the editor-only plugin layout of the app (STU-032,
+	// STU-035); nil when absent. It is never compiled (CMP-002).
+	Canvas       *Loaded[CanvasDocument]
+	Translations []Loaded[TranslationsDocument]
+	Assets       *Loaded[AssetIndexDocument]
 	// AssetFiles holds the content of every file the asset index lists,
 	// keyed by its path under assets/.
 	AssetFiles map[string][]byte
@@ -103,6 +109,7 @@ func (l *Loader) Load(fsys fs.FS) (*Project, plxerr.Diagnostics) {
 	p.Theme = load[ThemeDocument](r, "theme.json", KindTheme)
 	p.NativeCatalogue = loadOptional[NativeCatalogueDocument](r, "native-catalogue.json", KindNativeCatalogue)
 	p.TranslationKeys = loadOptional[TranslationKeysDocument](r, "translations/keys.json", KindTranslationKeys)
+	p.Canvas = loadOptional[CanvasDocument](r, "canvas.json", KindCanvas)
 	p.Assets = loadOptional[AssetIndexDocument](r, "assets/index.json", KindAssetIndex)
 	for _, f := range r.files("translations", ".json", "keys.json") {
 		p.Translations = append(p.Translations, load[TranslationsDocument](r, f, KindTranslations))
@@ -274,6 +281,9 @@ func (l *Loader) parse(file string, data []byte, want DocumentKind) (*Source, pl
 		return nil, plxerr.Diagnostics{*d}
 	}
 	diags := l.validator.Validate(DocumentKind(got), doc, file)
+	if DocumentKind(got) == KindCanvas {
+		diags = append(diags, l.checkCanvasLimits(doc, file)...)
+	}
 	canonical, err := jcs.Marshal(doc)
 	if err != nil {
 		return nil, append(diags, plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{File: file}, "canonicalise: %v", err))
@@ -288,4 +298,26 @@ func position(data []byte, offset int) (line, col int) {
 	line = bytes.Count(before, []byte("\n")) + 1
 	col = offset - bytes.LastIndexByte(before, '\n')
 	return line, col
+}
+
+// checkCanvasLimits enforces the registry bounds on a canvas document's
+// entry counts (STU-032, STU-035, LIM-001).
+func (l *Loader) checkCanvasLimits(doc map[string]any, file string) plxerr.Diagnostics {
+	var out plxerr.Diagnostics
+	over := func(path string, n int, key limits.Key) {
+		if max := l.limits.Get(key); int64(n) > max {
+			out = append(out, plxerr.NewDiagnostic(plxerr.LimitExceeded, plxerr.Location{File: file, Path: path},
+				"%d entries, above the limit %s = %d", n, key, max))
+		}
+	}
+	positions, _ := doc["positions"].([]any)
+	over("/positions", len(positions), limits.CanvasPositions)
+	frames, _ := doc["frames"].([]any)
+	over("/frames", len(frames), limits.CanvasFrames)
+	for i, f := range frames {
+		fr, _ := f.(map[string]any)
+		members, _ := fr["members"].([]any)
+		over(fmt.Sprintf("/frames/%d/members", i), len(members), limits.CanvasFrameMembers)
+	}
+	return out
 }
