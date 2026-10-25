@@ -18,6 +18,8 @@ export interface DropTarget {
   readonly index: number;
   /** The insertion indicator: a line in canvas coordinates. */
   readonly indicator: Box;
+  /** Set for a Stack: the drop point in the Stack's coordinates, rounded to 1 px (F5). */
+  readonly position?: { readonly left: number; readonly top: number };
 }
 
 const inside = (b: Box, x: number, y: number): boolean => x >= b.l && x <= b.r && y >= b.t && y <= b.b;
@@ -40,6 +42,15 @@ export function resolveDrop(
   const c = candidates[0];
   if (c === undefined) {
     return null;
+  }
+  if (c.axis === "stack") {
+    const [px, py] = [Math.round(x), Math.round(y)];
+    return {
+      parent: c.id,
+      index: c.children.length,
+      indicator: { l: px, t: py, r: px, b: py },
+      position: { left: px - Math.round(c.box.l), top: py - Math.round(c.box.t) },
+    };
   }
   const kids = c.children.filter((k) => !dragged.includes(k.id));
   const pos = c.axis === "row" ? x : y;

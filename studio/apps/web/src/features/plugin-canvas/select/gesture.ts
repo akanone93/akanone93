@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Guides } from "@plux/canvas";
+import { uuidv7 } from "../screens.ts";
 import {
   duplicateRecipe,
   type EditFn,
   moveRecipe,
   reparentRecipe,
   resizeRecipe,
+  stackDropRecipe,
   unwrapRecipe,
   wrapRecipe,
 } from "./edits.ts";
@@ -49,7 +51,7 @@ export interface GestureEnv {
   readonly typeOf: (id: string) => string | undefined;
 }
 
-const FLOW_TYPES = new Set(["Row", "Column", "Wrap", "Flex"]);
+const FLOW_TYPES = new Set(["Row", "Column", "Wrap", "Flex", "Stack"]);
 
 export function containersOf(env: GestureEnv): Container[] {
   const out: Container[] = [];
@@ -63,7 +65,7 @@ export function containersOf(env: GestureEnv): Container[] {
       const b = env.boxOf(k);
       return b === undefined ? [] : [{ id: k, box: b }];
     });
-    out.push({ id, box, axis: type === "Row" ? "row" : "column", children });
+    out.push({ id, box, axis: type === "Row" ? "row" : type === "Stack" ? "stack" : "column", children });
   }
   return out;
 }
@@ -75,13 +77,26 @@ export function reparentPreview(env: GestureEnv, ids: readonly string[], x: numb
 }
 
 /** Ends a drag: Stack children move by the offset, flow children are reparented at the indicator. */
-export function finishMove(env: GestureEnv, id: string, delta: { x: number; y: number }, x: number, y: number): void {
+export function finishMove(
+  env: GestureEnv,
+  id: string,
+  delta: { x: number; y: number },
+  x: number,
+  y: number,
+  fresh: () => string = uuidv7,
+): void {
   const doc = env.docOf(id);
   if (doc === undefined) {
     return;
   }
   const drop = resolveDrop(env.index, containersOf(env), [id], x, y);
-  if (drop !== null && drop.parent !== env.index.parent.get(id)) {
+  const parent = env.index.parent.get(id);
+  const sameStack = parent === drop?.parent || (parent != null && env.index.parent.get(parent) === drop?.parent);
+  if (drop?.position !== undefined && !sameStack) {
+    env.edit(doc, stackDropRecipe(id, drop.parent, drop.position, fresh), { group: "move" });
+    return;
+  }
+  if (drop !== null && drop.position === undefined && drop.parent !== parent) {
     env.edit(doc, reparentRecipe([id], drop.parent, drop.index), { group: "move" });
     return;
   }
