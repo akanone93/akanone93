@@ -115,17 +115,31 @@ import {
   WrapAlignment,
   WrapCrossAlignment,
 } from "../src/index.ts";
+import { buildMaterial, materialTypes, style } from "./material-scene.ts";
 
 /** What text nodes are laid out with: the paragraph engine and the golden's text scale. */
 export interface SceneText {
   engine: ParagraphEngine;
   textScaler: TextScaler;
+  /** The style `Text` nodes inherit from the Material composite they sit in. */
+  base?: TextStyle;
+  /** The `DefaultTextStyle` flags `Text` nodes inherit from it. */
+  defaults?: TextDefaults;
+}
+
+/** The `DefaultTextStyle` fields besides the style that a composite sets. */
+export interface TextDefaults {
+  softWrap?: boolean;
+  overflow?: string;
+  maxLines?: number;
 }
 
 /** One node of a scene; `props` use Flutter's parameter names. */
 export interface SceneNode {
   id: string;
   type: string;
+  /** The part of a Material composite this node fills (default `child`). */
+  slot?: string;
   props: Record<string, unknown>;
   children?: SceneNode[];
 }
@@ -241,6 +255,7 @@ export function supportedTypes(): ReadonlySet<string> {
   return new Set([
     ...boxTypes,
     ...textTypes,
+    ...materialTypes,
     ...stackTypes,
     ...scrollTypes,
     ...sliverTypes,
@@ -357,7 +372,7 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
   }
   const props = node.props;
   const style = (field(props, "style") ?? {}) as Record<string, unknown>;
-  const textStyle: TextStyle = {};
+  const textStyle: TextStyle = { ...text.base };
   const fontFamily = field(style, "fontFamily");
   if (typeof fontFamily === "string") {
     textStyle.fontFamily = fontFamily;
@@ -372,7 +387,7 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
   if (distribution !== undefined) {
     textStyle.leadingDistribution = distribution as TextLeadingDistribution;
   }
-  const maxLines = optionalNum(props, "maxLines");
+  const maxLines = optionalNum(props, "maxLines") ?? text.defaults?.maxLines ?? null;
   return new RenderParagraph({
     strutStyle: buildStrut(field(props, "strutStyle") as Record<string, unknown> | undefined),
     text: { text: String(field(props, "text")), style: textStyle },
@@ -381,8 +396,8 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
     textScaler: text.textScaler,
     textAlign: (field(props, "textAlign") ?? TextAlign.start) as TextAlign,
     maxLines,
-    overflow: (field(props, "overflow") ?? TextOverflow.clip) as TextOverflow,
-    softWrap: (field(props, "softWrap") ?? true) as boolean,
+    overflow: (field(props, "overflow") ?? text.defaults?.overflow ?? TextOverflow.clip) as TextOverflow,
+    softWrap: (field(props, "softWrap") ?? text.defaults?.softWrap ?? true) as boolean,
   });
 }
 
@@ -1042,6 +1057,17 @@ export function buildNode(
   if (sliverTypes.has(node.type)) {
     throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);
   }
+  if (materialTypes.has(node.type)) {
+    const composite = buildMaterial(node, {
+      direction: textDirection,
+      text,
+      build: (child, base, options) => buildNode(child, textDirection, inherited(text, base, options), t),
+    });
+    if (node.type !== "PreferredSize") {
+      composite.debugId = node.id;
+    }
+    return composite;
+  }
   const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text, t));
   const child = singleChild(node, children);
   const props = node.props;
@@ -1148,6 +1174,28 @@ export function buildNode(
   return box;
 }
 
+/** The text context below a composite that sets a base style, `DefaultTextStyle` flags or a scale cap. */
+function inherited(
+  text: SceneText | null,
+  base: TextStyle | undefined,
+  options: { defaults?: TextDefaults; maxScale?: number } | undefined,
+): SceneText | null {
+  if (text === null || (base === undefined && options === undefined)) {
+    return text;
+  }
+  const next: SceneText = { ...text };
+  if (base !== undefined) {
+    next.base = base;
+  }
+  if (options?.defaults !== undefined) {
+    next.defaults = options.defaults;
+  }
+  if (options?.maxScale !== undefined) {
+    next.textScaler = TextScaler.linear(Math.min(text.textScaler.textScaleFactor, options.maxScale));
+  }
+  return next;
+}
+
 /** Lays `scene` out in the golden's frame and direction, as the Flutter writer did. */
 export function layOutScene(scene: Scene, golden: LayoutGolden, engine: ParagraphEngine | null = null): RenderView {
   const direction = golden.locale === "ar" ? TextDirection.rtl : TextDirection.ltr;
@@ -1157,7 +1205,16 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
     child: buildNode(
       scene.root,
       direction,
-      engine === null ? null : { engine, textScaler: TextScaler.linear(golden.textScale) },
+      engine === null
+        ? null
+        : {
+            engine,
+            textScaler: TextScaler.linear(golden.textScale),
+            // The golden writer's Material scope gives every Text `bodyMedium`, as Flutter's root `Material` does.
+            ...([...sceneTypes(scene.root)].some((type) => materialTypes.has(type))
+              ? { base: style("bodyMedium") }
+              : {}),
+          },
       scene.t ?? 1,
     ),
   });
@@ -1177,9 +1234,15 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
   const alias = (node: SceneNode): void => {
     const child = node.children?.[0];
     if (
-      ["Expanded", "Flexible", "Positioned", "PositionedDirectional", "TableCell", "AnimatedPositioned"].includes(
-        node.type,
-      ) &&
+      [
+        "Expanded",
+        "Flexible",
+        "Positioned",
+        "PositionedDirectional",
+        "TableCell",
+        "AnimatedPositioned",
+        "PreferredSize",
+      ].includes(node.type) &&
       child !== undefined
     ) {
       const rect = rects[child.id];

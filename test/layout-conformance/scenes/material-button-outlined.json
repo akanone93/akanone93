@@ -1,0 +1,129 @@
+{
+  "name": "material-button-outlined",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "b0",
+            "type": "OutlinedButton",
+            "props": {
+              "tapTargetSize": "padded",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "b0t",
+                "type": "Text",
+                "props": {
+                  "text": "Save"
+                }
+              }
+            ]
+          },
+          {
+            "id": "b1",
+            "type": "OutlinedButton",
+            "props": {
+              "tapTargetSize": "shrinkWrap",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "b1t",
+                "type": "Text",
+                "props": {
+                  "text": "Save"
+                }
+              }
+            ]
+          },
+          {
+            "id": "b2",
+            "type": "OutlinedButton",
+            "props": {
+              "tapTargetSize": "padded",
+              "density": "comfortable"
+            },
+            "children": [
+              {
+                "id": "b2t",
+                "type": "Text",
+                "props": {
+                  "text": "Save"
+                }
+              }
+            ]
+          },
+          {
+            "id": "b3",
+            "type": "OutlinedButton",
+            "props": {
+              "tapTargetSize": "shrinkWrap",
+              "density": "compact"
+            },
+            "children": [
+              {
+                "id": "b3t",
+                "type": "Text",
+                "props": {
+                  "text": "Save"
+                }
+              }
+            ]
+          },
+          {
+            "id": "bi",
+            "type": "OutlinedButton",
+            "props": {},
+            "children": [
+              {
+                "id": "bii",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "icon"
+              },
+              {
+                "id": "bit",
+                "type": "Text",
+                "props": {
+                  "text": "Add item"
+                }
+              }
+            ]
+          },
+          {
+            "id": "bl",
+            "type": "OutlinedButton",
+            "props": {},
+            "children": [
+              {
+                "id": "blt",
+                "type": "Text",
+                "props": {
+                  "text": "A somewhat longer button label"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -48,7 +48,9 @@ describe("layoutScreen (STU-005, STU-006)", () => {
     expect(title?.w).toBeGreaterThan(0);
     expect(title?.w).not.toBeCloseTo(7 * 16 * 0.55, 1);
     expect(go).toMatchObject({ kind: "box", text: "Go", h: 48, y: 16 + (title?.h ?? 0) + 8 });
-    expect(go?.w).toBeCloseTo(measure("Go", theme.fontFamilies).w + 32, 5);
+    // A Material 3 button: its label (14 px, w500) between 24-px paddings, at least 64 px wide (S4.3).
+    expect(go?.w).toBeGreaterThanOrEqual(64);
+    expect(go?.w).toBeCloseTo(66.86, 1);
     expect(byId.has("l")).toBe(false);
     expect(layout.contentHeight).toBeCloseTo(16 + (title?.h ?? 0) + 8 + 48 + 16, 5);
   });
@@ -109,5 +111,52 @@ describe("layoutScreen (STU-005, STU-006)", () => {
     const last = layout.boxes.find((b) => b.id === "t39");
     expect(layout.contentHeight).toBeCloseTo((last?.y ?? 0) + (last?.h ?? 0) + 16, 5);
     expect(layout.contentHeight).toBeGreaterThan(844);
+  });
+
+  test("sizes Material buttons, the FAB and list tiles as Flutter does (S4.3)", () => {
+    const button = (id: string, type: string, props: Record<string, unknown>): WidgetNode => ({
+      id,
+      type,
+      props: { data: undefined, ...props },
+      slots: { child: text(`${id}t`, "Save") },
+    });
+    const tile = (id: string, props: Record<string, unknown>, parts: readonly string[]): WidgetNode => ({
+      id,
+      type: "ListTile",
+      props,
+      slots: Object.fromEntries(parts.map((p) => [p, text(`${id}${p}`, p)])),
+    });
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        button("padded", "TextButton", {}),
+        button("wrap", "OutlinedButton", { tapTargetSize: "shrinkWrap" }),
+        button("compact", "ElevatedButton", { density: "compact", tapTargetSize: "shrinkWrap" }),
+        button("tonal", "FilledTonalButton", {}),
+        button("icon", "IconButton", { tapTargetSize: "shrinkWrap" }),
+        { id: "fab", type: "FloatingActionButton", props: {}, slots: { child: text("fabt", "+") } },
+        { id: "small", type: "FloatingActionButton", props: { kind: "small" } },
+        tile("one", {}, ["title"]),
+        tile("two", {}, ["title", "subtitle"]),
+        tile("lead", { dense: true }, ["title", "leading", "trailing"]),
+        tile("three", { isThreeLine: true, density: "compact" }, ["title", "subtitle"]),
+        { id: "bare", type: "ListTile", props: {} },
+      ],
+    };
+    const byId = new Map(layoutScreen(root, { engine, theme }).boxes.map((b) => [b.id, b]));
+    expect(byId.get("padded")?.h).toBe(48);
+    expect(byId.get("wrap")?.h).toBe(40);
+    expect(byId.get("compact")?.h).toBe(32);
+    expect(byId.get("tonal")?.h).toBe(48);
+    expect(byId.get("icon")).toMatchObject({ w: 40, h: 40 });
+    expect(byId.get("fab")).toMatchObject({ w: 56, h: 56 });
+    expect(byId.get("small")).toMatchObject({ w: 48, h: 48 });
+    expect(byId.get("one")?.h).toBe(56);
+    expect(byId.get("two")?.h).toBe(72);
+    expect(byId.get("lead")?.h).toBe(48);
+    // Short lines cannot keep the three-line spec position, so the tile hugs 8 + title + subtitle + 8 ("compat mode").
+    expect(byId.get("three")?.h).toBe(60);
+    expect(byId.get("bare")?.h).toBe(56);
   });
 });

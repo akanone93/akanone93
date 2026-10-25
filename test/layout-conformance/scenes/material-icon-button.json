@@ -1,0 +1,217 @@
+{
+  "name": "material-icon-button",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "i00",
+            "type": "IconButton",
+            "props": {
+              "variant": "standard",
+              "tapTargetSize": "padded",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i00i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i01",
+            "type": "IconButton",
+            "props": {
+              "variant": "standard",
+              "tapTargetSize": "shrinkWrap",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i01i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i02",
+            "type": "IconButton",
+            "props": {
+              "variant": "standard",
+              "tapTargetSize": "padded",
+              "density": "compact"
+            },
+            "children": [
+              {
+                "id": "i02i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i10",
+            "type": "IconButton",
+            "props": {
+              "variant": "filled",
+              "tapTargetSize": "padded",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i10i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i11",
+            "type": "IconButton",
+            "props": {
+              "variant": "filled",
+              "tapTargetSize": "shrinkWrap",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i11i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i12",
+            "type": "IconButton",
+            "props": {
+              "variant": "filled",
+              "tapTargetSize": "padded",
+              "density": "compact"
+            },
+            "children": [
+              {
+                "id": "i12i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i20",
+            "type": "IconButton",
+            "props": {
+              "variant": "tonal",
+              "tapTargetSize": "padded",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i20i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i21",
+            "type": "IconButton",
+            "props": {
+              "variant": "tonal",
+              "tapTargetSize": "shrinkWrap",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i21i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i22",
+            "type": "IconButton",
+            "props": {
+              "variant": "tonal",
+              "tapTargetSize": "padded",
+              "density": "compact"
+            },
+            "children": [
+              {
+                "id": "i22i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i30",
+            "type": "IconButton",
+            "props": {
+              "variant": "outlined",
+              "tapTargetSize": "padded",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i30i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i31",
+            "type": "IconButton",
+            "props": {
+              "variant": "outlined",
+              "tapTargetSize": "shrinkWrap",
+              "density": "standard"
+            },
+            "children": [
+              {
+                "id": "i31i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "i32",
+            "type": "IconButton",
+            "props": {
+              "variant": "outlined",
+              "tapTargetSize": "padded",
+              "density": "compact"
+            },
+            "children": [
+              {
+                "id": "i32i",
+                "type": "Icon",
+                "props": {}
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

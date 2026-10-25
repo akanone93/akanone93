@@ -409,6 +409,166 @@ List<double> _rectOf(WidgetTester tester, String id) {
 }
 
 
+/// The Material composites (S4.3): scenes name the part of a composite a child
+/// fills with `slot` (default `child`); the golden writer builds the real widget.
+const Set<String> _materialTypes = <String>{
+  'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
+  'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
+};
+
+bool _usesMaterial(Map<String, Object?> node) =>
+    _materialTypes.contains(node['type']) ||
+    ((node['children'] as List<Object?>?) ?? <Object?>[]).any(
+      (Object? child) => _usesMaterial(child! as Map<String, Object?>),
+    );
+
+/// Material 3 in the `NotoSans` the goldens load, with the English strings
+/// `Localizations` needs, a transparent `Material` for ink, and no animation.
+Widget _materialScope(Widget child, TextDirection direction) => Localizations(
+  locale: const Locale('en'),
+  delegates: const <LocalizationsDelegate<dynamic>>[
+    DefaultMaterialLocalizations.delegate,
+    DefaultWidgetsLocalizations.delegate,
+  ],
+  child: Theme(
+    data: ThemeData(useMaterial3: true, fontFamily: 'NotoSans'),
+    child: Directionality(
+      textDirection: direction,
+      child: Material(type: MaterialType.transparency, child: child),
+    ),
+  ),
+);
+
+MaterialTapTargetSize _tapTarget(Map<String, Object?> props) =>
+    props['tapTargetSize'] == 'shrinkWrap' ? MaterialTapTargetSize.shrinkWrap : MaterialTapTargetSize.padded;
+
+VisualDensity _density(Map<String, Object?> props) => switch (props['density']) {
+  'comfortable' => VisualDensity.comfortable,
+  'compact' => VisualDensity.compact,
+  _ => VisualDensity.standard,
+};
+
+Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
+  final String id = node['id']! as String;
+  final String type = node['type']! as String;
+  final Key key = ValueKey<String>(id);
+  final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  final Map<String, List<Widget>> slots = <String, List<Widget>>{};
+  for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+    final Map<String, Object?> child = raw! as Map<String, Object?>;
+    (slots[(child['slot'] as String?) ?? 'child'] ??= <Widget>[]).add(_build(child, phase, t));
+  }
+  Widget? one(String name) {
+    final List<Widget>? found = slots[name];
+    if (found != null && found.length > 1) {
+      throw ArgumentError('node "$id" slot $name takes one child');
+    }
+    return found?.single;
+  }
+
+  final ButtonStyle style = ButtonStyle(tapTargetSize: _tapTarget(props), visualDensity: _density(props));
+  void onPressed() {}
+  switch (type) {
+    case 'Icon':
+      return Icon(Icons.star, key: key, size: _optionalNumber(props, 'size'));
+    case 'ElevatedButton':
+      final Widget? icon = one('icon');
+      return icon == null
+          ? ElevatedButton(key: key, onPressed: onPressed, style: style, child: one('child'))
+          : ElevatedButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+    case 'FilledButton':
+    case 'FilledTonalButton':
+      final Widget? icon = one('icon');
+      final bool tonal = type == 'FilledTonalButton';
+      if (icon == null) {
+        return tonal
+            ? FilledButton.tonal(key: key, onPressed: onPressed, style: style, child: one('child'))
+            : FilledButton(key: key, onPressed: onPressed, style: style, child: one('child'));
+      }
+      return tonal
+          ? FilledButton.tonalIcon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!)
+          : FilledButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+    case 'OutlinedButton':
+      final Widget? icon = one('icon');
+      return icon == null
+          ? OutlinedButton(key: key, onPressed: onPressed, style: style, child: one('child'))
+          : OutlinedButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+    case 'TextButton':
+      final Widget? icon = one('icon');
+      return icon == null
+          ? TextButton(key: key, onPressed: onPressed, style: style, child: one('child')!)
+          : TextButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+    case 'IconButton':
+      return switch (props['variant']) {
+        'filled' => IconButton.filled(key: key, onPressed: onPressed, style: style, icon: one('child')!),
+        'tonal' => IconButton.filledTonal(key: key, onPressed: onPressed, style: style, icon: one('child')!),
+        'outlined' => IconButton.outlined(key: key, onPressed: onPressed, style: style, icon: one('child')!),
+        _ => IconButton(key: key, onPressed: onPressed, style: style, icon: one('child')!),
+      };
+    case 'FloatingActionButton':
+      final MaterialTapTargetSize target = _tapTarget(props);
+      return switch (props['kind']) {
+        'small' => FloatingActionButton.small(key: key, onPressed: onPressed, materialTapTargetSize: target, child: one('child')),
+        'large' => FloatingActionButton.large(key: key, onPressed: onPressed, materialTapTargetSize: target, child: one('child')),
+        'extended' => FloatingActionButton.extended(
+          key: key,
+          onPressed: onPressed,
+          materialTapTargetSize: target,
+          icon: one('child'),
+          label: one('label')!,
+        ),
+        _ => FloatingActionButton(key: key, onPressed: onPressed, materialTapTargetSize: target, child: one('child')),
+      };
+    case 'PreferredSize':
+      return PreferredSize(key: key, preferredSize: Size.fromHeight(_number(props['height'])), child: one('child')!);
+    case 'AppBar':
+      return AppBar(
+        key: key,
+        automaticallyImplyLeading: false,
+        leading: one('leading'),
+        title: one('title'),
+        actions: slots['actions'],
+        bottom: one('bottom') as PreferredSizeWidget?,
+        toolbarHeight: _optionalNumber(props, 'toolbarHeight'),
+        centerTitle: props['centerTitle'] == true,
+        titleSpacing: _optionalNumber(props, 'titleSpacing'),
+        leadingWidth: _optionalNumber(props, 'leadingWidth'),
+      );
+    case 'Scaffold':
+      return Scaffold(
+        key: key,
+        appBar: one('appBar') as PreferredSizeWidget?,
+        body: one('child'),
+        floatingActionButton: one('floatingActionButton'),
+        floatingActionButtonLocation: switch (props['floatingActionButtonLocation']) {
+          'startTop' => FloatingActionButtonLocation.startTop,
+          'centerTop' => FloatingActionButtonLocation.centerTop,
+          'endTop' => FloatingActionButtonLocation.endTop,
+          'startFloat' => FloatingActionButtonLocation.startFloat,
+          'centerFloat' => FloatingActionButtonLocation.centerFloat,
+          'startDocked' => FloatingActionButtonLocation.startDocked,
+          'centerDocked' => FloatingActionButtonLocation.centerDocked,
+          'endDocked' => FloatingActionButtonLocation.endDocked,
+          _ => FloatingActionButtonLocation.endFloat,
+        },
+        bottomNavigationBar: one('bottomNavigationBar'),
+        bottomSheet: one('bottomSheet'),
+      );
+    case 'ListTile':
+      return ListTile(
+        key: key,
+        leading: one('leading'),
+        title: one('title'),
+        subtitle: one('subtitle'),
+        trailing: one('trailing'),
+        dense: props['dense'] == true ? true : null,
+        isThreeLine: props['isThreeLine'] == true,
+        visualDensity: _density(props),
+      );
+  }
+  throw ArgumentError('unknown Material type "$type"');
+}
+
 /// Builds the widget for [node]. Implicitly animated nodes take their `from`
 /// or `to` props according to [phase]; transitions are held at the scene's
 /// animation value [t].
@@ -416,6 +576,9 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  if (_materialTypes.contains(type)) {
+    return _buildMaterial(node, phase, t);
+  }
   final List<Widget> children = <Widget>[
     for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[])
       _build(child! as Map<String, Object?>, phase, t),
@@ -801,6 +964,7 @@ void main() {
     final String name = scene['name']! as String;
     final Map<String, Object?> root = scene['root']! as Map<String, Object?>;
     final double? sceneT = scene.containsKey('t') ? _number(scene['t']) : null;
+    final bool useMaterial = _usesMaterial(root);
     final List<String> ids = <String>[];
     _collectIds(root, ids);
     ids.sort();
@@ -824,7 +988,10 @@ void main() {
                 devicePixelRatio: frame.devicePixelRatio,
                 textScaler: TextScaler.linear(scale),
               ),
-              child: Directionality(textDirection: direction.textDirection, child: _build(root, phase, sceneT ?? 1)),
+              child: Directionality(
+                textDirection: direction.textDirection,
+                child: useMaterial ? _materialScope(_build(root, phase, sceneT ?? 1), direction.textDirection) : _build(root, phase, sceneT ?? 1),
+              ),
             );
             if (sceneT == null) {
               await tester.pumpWidget(frameWidget('to'));
