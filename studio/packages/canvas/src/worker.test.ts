@@ -113,7 +113,13 @@ describe("STU-003 canvas worker core", () => {
     const before = ofType(posted, "frame").length;
     env.drain();
     // The new surface is drawn; a closing idle frame over an unchanged surface draws nothing.
-    expect(Math.max(...ofType(posted, "frame").slice(before).map((f) => f.stats.drawCalls))).toBeGreaterThan(0);
+    expect(
+      Math.max(
+        ...ofType(posted, "frame")
+          .slice(before)
+          .map((f) => f.stats.drawCalls),
+      ),
+    ).toBeGreaterThan(0);
     env.surfaces = false;
     await core.receive({ v, type: "resize", width: 50, height: 50, dpr: 1 });
     expect(ofType(posted, "error")[0]?.message).toBe("no CanvasKit surface after resize");

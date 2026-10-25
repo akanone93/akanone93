@@ -155,4 +155,3 @@ describe("STU-003 retained scene graph", () => {
     expect(drain(scene)).toEqual([{ l: 92.5, t: -8, r: 137.5, b: 408 }]);
   });
 });
-

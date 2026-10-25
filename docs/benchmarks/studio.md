@@ -160,3 +160,30 @@ SwiftShader raster, flush about 5 ms — and the next update waits behind the id
 frame (`layoutP95` about 33 ms against about 3 ms of layout). The next step is partial tile re-rendering
 (clip to the dirty rectangle) and yielding idle tile work to a pending message. The
 requirement is therefore not marked `DONE`.
+
+### Result after damage-rect redraw and preemptible idle work (median of 3 runs, software rendering, SwiftShader, raster backend)
+
+| run | p50 | p95 | max | layoutP95 | frameP95 | flushP95 | budget |
+|---|---|---|---|---|---|---|---|
+| 1 | 16.7 ms | 17.0 ms | 38.5 ms | 8.5 ms | 0.08 ms | 0 ms | 50 ms p95 |
+| 2 | 16.7 ms | 20.0 ms | 52.0 ms | 9.4 ms | 0.07 ms | 0 ms | 50 ms p95 |
+| 3 | 16.7 ms | 17.2 ms | 35.3 ms | 7.7 ms | 0.08 ms | 0 ms | 50 ms p95 |
+| **median** | **16.7 ms** | **17.2 ms** | 38.5 ms | 8.5 ms | 0.08 ms | 0 ms | 50 ms p95 |
+
+The budget is met (p95 17.2 ms against 50 ms); the time is now the wait for the next animation frame. Three
+changes did it:
+
+- **Damage per item** (`damageOf` in `scene.ts`): a box that keeps its fill, stroke and radius and only moves
+  edges damages a strip around each moved edge (stroke, radius and one pixel of antialiasing wide), not its
+  whole bounds, so the widened body column no longer dirties the screen; other changes damage the old and the
+  new bounds.
+- **Damage-rect redraw** (`drawDamage` in `renderer.ts`): when the surface already shows every visible tile at
+  this placement, a frame redraws only the damaged rectangles, clipped over the pixels the surface keeps, and
+  flushes only their union — no tile is blitted. In idle time a dirty tile is refreshed in place: its cached
+  image is drawn and only its dirty rectangle re-rendered over it; a tile the surface already shows needs no
+  further frame.
+- **Preemptible idle work** (`worker.ts`): an idle slice yields when a message has asked for a frame (and
+  between tiles), so an edit's frame never waits behind tile rendering; the frame asks for idle time again.
+
+The other canvas targets still hold in these runs: pan p95 16.7 ms in both scenes, longest pan gap at most
+50.0 ms, drag p95 10.3–18.1 ms (median 11.8 ms), visible settle at most 58.8 ms.
