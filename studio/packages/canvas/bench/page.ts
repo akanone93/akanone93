@@ -6,9 +6,18 @@
 // main thread from one animation frame to the next, since the compositor and
 // not GL moves the base while panning (M-12); drags are timed in the worker.
 
+import { defaultScreenTheme } from "@plux/layout";
 import type { LayerBox } from "../src/compositor.ts";
 import { CanvasHost } from "../src/host.ts";
-import type { FrameStats, ItemSpec, RendererPreference, SceneOp } from "../src/protocol.ts";
+import type {
+  FrameStats,
+  ItemSpec,
+  RendererPreference,
+  SceneOp,
+  ScreenDocument,
+  ScreenStyle,
+} from "../src/protocol.ts";
+import { measurePropertyChange, type PropertySummary } from "./property.ts";
 import { boxPosition, type LinkRef, linkSpec, sceneA, sceneB } from "./scenes.ts";
 
 const WIDTH = 1280;
@@ -195,6 +204,74 @@ async function panScenario(host: CanvasHost): Promise<Record<string, unknown>> {
   };
 }
 
+const propertyStyle: ScreenStyle = {
+  deviceHeight: 844,
+  theme: { ...defaultScreenTheme, fontFamilies: ["Noto Sans"] },
+  frame: 0xffffffff,
+  frameStroke: 0x11,
+  box: 0x22,
+  boxStroke: 0x33,
+  placeholder: 0x44,
+  text: 0x55,
+  overflowFill: 0x66,
+  overflowBox: 0x77,
+  overflowText: 0x88,
+  overflowStroke: 0x99,
+};
+
+/** A plugin of eight screens with forty text rows each: the size of a large page set. */
+function propertyScreens(): ScreenDocument[] {
+  return Array.from({ length: 8 }, (_, s) => ({
+    id: `s${s}`,
+    title: `Screen ${s}`,
+    x: s * 420,
+    y: 0,
+    root: {
+      id: `s${s}-root`,
+      slots: {
+        body: {
+          id: `s${s}-body`,
+          children: Array.from({ length: 40 }, (_, r) => ({
+            id: `s${s}-t${r}`,
+            type: "Text",
+            props: { data: `Row ${r}` },
+          })),
+        },
+      },
+    },
+  }));
+}
+
+/** STU-121: edit one text property, relayout in the worker, draw; p95 against 50 ms. */
+function propertyScenario(host: CanvasHost): Promise<PropertySummary> {
+  return measurePropertyChange(
+    host,
+    propertyScreens(),
+    propertyStyle,
+    (screens, i) =>
+      screens.map((s, n) =>
+        n !== 0
+          ? s
+          : {
+              ...s,
+              root: {
+                id: s.root?.id ?? "",
+                slots: {
+                  body: {
+                    id: "s0-body",
+                    // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature
+                    children: (s.root?.slots?.["body"]?.children ?? []).map((c, r) =>
+                      r === 3 ? { ...c, props: { data: `Row 3 edit ${i}` } } : c,
+                    ),
+                  },
+                },
+              },
+            },
+      ),
+    { warmup: WARMUP, runs: FRAMES, now: () => performance.now() },
+  );
+}
+
 function rendererPreference(): RendererPreference {
   const value = new URLSearchParams(location.search).get("renderer");
   return value === "webgl" || value === "raster" ? value : "auto";
@@ -246,6 +323,8 @@ async function run(): Promise<unknown> {
   host.setViewport(0, 0, 0.3);
   const settleB = await settle(host);
   const bPan = await panScenario(host);
+  host.patch([{ op: "clear" }]);
+  const property = await propertyScenario(host);
   host.dispose();
   return {
     renderer,
@@ -253,6 +332,7 @@ async function run(): Promise<unknown> {
     budgetMs: 16.7,
     sceneA: { items: a.items.length, zoom: 0.6, settleMs: settleA, pan: aPan, drag: aDrag },
     sceneB: { zoom: 0.3, settleMs: settleB, pan: bPan },
+    propertyToCanvas: property,
   };
 }
 
