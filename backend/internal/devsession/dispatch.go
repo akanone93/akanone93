@@ -29,9 +29,9 @@ type dispatcher struct {
 	pending map[dispatchKey]*dispatchJob
 	order   []dispatchKey
 	active  int
-	limit   int // 0 until read; one compile runs meanwhile
+	limit   int // 0 until read (a failed read is retried); one compile runs meanwhile
 	closed  bool
-	// panics counts compiles that ended abnormally; nothing reaches the writer.
+	// failed counts compiles that panicked; nothing reaches the writer.
 	failed atomic.Int64
 }
 

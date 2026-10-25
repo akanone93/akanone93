@@ -32,18 +32,19 @@ func (s *Service) DraftWritten(_ context.Context, p auth.Principal, appID, plugi
 	s.drafter.submit(p, appID, pluginID, paths)
 }
 
-// draftWorkers reads the number of draft compiles that may run at once.
+// draftWorkers reads the number of draft compiles that may run at once; 0
+// when the registry cannot be read, so the next compile reads it again.
 func (s *Service) draftWorkers(ctx context.Context, p auth.Principal, appID string) int {
-	n := 1
+	n := 0
 	_ = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		set, err := s.o.Limits(ctx, tx, p.OrganizationID, appID)
 		if err != nil {
-			return err //nolint:wrapcheck // the conservative default stands
+			return err //nolint:wrapcheck // read again by the next compile
 		}
 		n = int(set.Get(limits.DevSessionDraftCompileWorkers))
 		return nil
 	})
-	return max(n, 1)
+	return max(n, 0)
 }
 
 // followApp compiles and pushes the paths written to an app to its sessions.
