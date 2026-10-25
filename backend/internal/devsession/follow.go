@@ -12,6 +12,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
@@ -24,10 +25,30 @@ var _ document.DraftFollower = (*Service)(nil)
 // (L-14, contract #17, DEV-010). Studio never sends the edit itself. A
 // session whose draft does not compile, or that cannot be pushed to, is
 // left as it was; the write never fails for it.
-func (s *Service) DraftWritten(ctx context.Context, p auth.Principal, appID, _ string, paths []string) {
+func (s *Service) DraftWritten(_ context.Context, p auth.Principal, appID, pluginID string, paths []string) {
 	if !s.CanPush() || len(paths) == 0 {
 		return
 	}
+	s.drafter.submit(p, appID, pluginID, paths)
+}
+
+// draftWorkers reads the number of draft compiles that may run at once; 0
+// when the registry cannot be read, so the next compile reads it again.
+func (s *Service) draftWorkers(ctx context.Context, p auth.Principal, appID string) int {
+	n := 0
+	_ = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		set, err := s.o.Limits(ctx, tx, p.OrganizationID, appID)
+		if err != nil {
+			return err //nolint:wrapcheck // read again by the next compile
+		}
+		n = int(set.Get(limits.DevSessionDraftCompileWorkers))
+		return nil
+	})
+	return max(n, 0)
+}
+
+// followApp compiles and pushes the paths written to an app to its sessions.
+func (s *Service) followApp(ctx context.Context, p auth.Principal, appID string, paths []string) {
 	app, err := storage.UUID(appID)
 	if err != nil {
 		return
