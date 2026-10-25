@@ -33,14 +33,16 @@ export function readSavedPositions(documents: readonly KindedDocument[]): Readon
   }
   try {
     const parsed: unknown = JSON.parse(new TextDecoder().decode(doc.content));
-    const screens = (parsed as { screens?: Record<string, { x?: unknown; y?: unknown }> }).screens;
-    if (screens === null || typeof screens !== "object") {
+    const list = (parsed as { positions?: unknown }).positions;
+    if (!Array.isArray(list)) {
       return undefined;
     }
     const out = new Map<string, Point>();
-    for (const [id, p] of Object.entries(screens)) {
-      if (typeof p?.x === "number" && typeof p.y === "number" && Number.isFinite(p.x) && Number.isFinite(p.y)) {
-        out.set(id, { x: p.x, y: p.y });
+    for (const p of list as { id?: unknown; x?: unknown; y?: unknown }[]) {
+      if (typeof p?.id === "string" && typeof p.x === "number" && typeof p.y === "number") {
+        if (Number.isFinite(p.x) && Number.isFinite(p.y)) {
+          out.set(p.id, { x: p.x, y: p.y });
+        }
       }
     }
     return out.size > 0 ? out : undefined;
