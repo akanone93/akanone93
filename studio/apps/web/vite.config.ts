@@ -18,6 +18,7 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
   },
+  worker: { format: "es" },
   define: { __STUDIO_VERSION__: JSON.stringify(pkg.version) },
   server: { host: "127.0.0.1" },
 });
