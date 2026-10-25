@@ -27,13 +27,34 @@ import (
 // EditorSessionEntry is one document a tagged write changed.
 type EditorSessionEntry struct {
 	SnapshotID string
-	Sequence   int64
-	Path       string
-	Revision   int64
+	// Step is the undo step of the write; empty when none was given.
+	Step     string
+	Sequence int64
+	Path     string
+	Revision int64
 	// Inverse turns the document the write produced back into the one it
 	// replaced.
 	Inverse   []Op
 	CreatedAt time.Time
+}
+
+// Tag names the Studio editor session and undo step of a write; the zero
+// Tag tags nothing.
+type Tag struct {
+	EditorSession string
+	Step          string
+}
+
+// check accepts the zero Tag, or a session with an optional step, both
+// shaped like an editing session.
+func (t Tag) check() error {
+	if t.EditorSession == "" && t.Step != "" {
+		return plxerr.New(plxerr.InvalidFormat, "an undo step needs an editor session")
+	}
+	if err := checkEditorSession(t.Step); err != nil {
+		return err
+	}
+	return checkEditorSession(t.EditorSession)
 }
 
 // checkEditorSession accepts an empty editor session, which tags nothing,
@@ -55,10 +76,10 @@ func checkEditorSession(id string) error {
 
 // tagPut tags a whole-document write: the inverse is the patch from the
 // new content back to the stored document; a created document has none.
-func (s *Service) tagPut(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set, editorSession string, c change) (change, error) {
+func (s *Service) tagPut(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set, tag Tag, c change) (change, error) {
 	row, err := q.GetDocument(ctx, dbgen.GetDocumentParams{DraftID: d.row.ID, Path: c.path})
 	if errors.Is(err, pgx.ErrNoRows) {
-		return s.tag(ctx, q, d, lim, editorSession, c, nil, true)
+		return s.tag(ctx, q, d, lim, tag, c, nil, true)
 	}
 	if err != nil {
 		return change{}, fmt.Errorf("document: read %s: %w", c.path, err)
@@ -76,15 +97,15 @@ func (s *Service) tagPut(ctx context.Context, q *dbgen.Queries, d draft, lim lim
 	if err != nil {
 		return change{}, fmt.Errorf("document: read %s: %w", c.path, err)
 	}
-	return s.tag(ctx, q, d, lim, editorSession, c, Diff(after, before), false)
+	return s.tag(ctx, q, d, lim, tag, c, Diff(after, before), false)
 }
 
 // tag marks a change as made by an editor session with its inverse patch
 // (none for a created document), and clears the inverse patches of the
 // session's older writes to the draft so that, with this one, at most
 // studio.undoDepth remain.
-func (*Service) tag(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set, editorSession string, c change, inverse []Op, created bool) (change, error) {
-	c.editorSession = editorSession
+func (*Service) tag(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set, tag Tag, c change, inverse []Op, created bool) (change, error) {
+	c.editorSession, c.step = tag.EditorSession, tag.Step
 	if !created {
 		data, err := encodeOps(inverse)
 		if err != nil {
@@ -94,7 +115,7 @@ func (*Service) tag(ctx context.Context, q *dbgen.Queries, d draft, lim limits.S
 	}
 	keep := max(lim.Get(limits.StudioUndoDepth)-1, 0)
 	if err := q.PruneEditorSessionEntries(ctx, dbgen.PruneEditorSessionEntriesParams{
-		DraftID: d.row.ID, EditorSessionID: editorSession, Keep: keep,
+		DraftID: d.row.ID, EditorSessionID: tag.EditorSession, Keep: keep,
 	}); err != nil {
 		return change{}, fmt.Errorf("document: trim the editor session: %w", err)
 	}
@@ -188,7 +209,7 @@ func (s *Service) ListEditorSessionEntries(ctx context.Context, p auth.Principal
 				return err
 			}
 			out = append(out, EditorSessionEntry{
-				SnapshotID: storage.ID(row.ID), Sequence: row.Sequence, Path: row.Path,
+				SnapshotID: storage.ID(row.ID), Step: row.StepID, Sequence: row.Sequence, Path: row.Path,
 				Revision: row.Revision, Inverse: ops, CreatedAt: storage.Time(row.CreatedAt),
 			})
 		}

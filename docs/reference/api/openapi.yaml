@@ -18254,6 +18254,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created_at
+        stepId:
+          type: string
+          title: step_id
+          description: step_id is the undo step of the write; empty when none was given.
       title: EditorSessionEntry
       additionalProperties: false
       description: EditorSessionEntry is one document a tagged write changed.
@@ -24785,7 +24789,10 @@ components:
         editorSessionId:
           type: string
           title: editor_session_id
-          description: editor_session_id is as in PutDocumentRequest.
+          description: editor_session_id and step_id are as in PutDocumentRequest.
+        stepId:
+          type: string
+          title: step_id
       title: PatchDocumentRequest
       additionalProperties: false
     plux.v1.PatchDocumentResponse:
@@ -25530,6 +25537,12 @@ components:
           description: |-
             editor_session_id names the Studio tab's editor session; the write's
              snapshot is tagged with it for the undo rebuild (ADR-0095, STU-069).
+        stepId:
+          type: string
+          title: step_id
+          description: |-
+            step_id names the undo step the write belongs to, so the rebuild
+             regroups a step that spans writes and documents (STU-069).
       title: PutDocumentRequest
       additionalProperties: false
     plux.v1.PutDocumentResponse:

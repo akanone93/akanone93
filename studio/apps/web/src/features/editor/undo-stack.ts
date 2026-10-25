@@ -20,6 +20,8 @@ interface Part {
 }
 
 interface Step {
+  /** Sent with every write of the step, so the rebuild after a reload regroups it. */
+  readonly id: string;
   parts: Part[];
   readonly stacks: ReadonlySet<string>;
   readonly group: string | undefined;
@@ -50,6 +52,8 @@ export interface UndoManagerOptions {
   /** Edits of the same group closer than this are one step (a typing burst), F3 "~1 s pause". */
   readonly pauseMs?: number;
   readonly now?: () => number;
+  /** New step IDs: opaque and random. */
+  readonly newId?: () => string;
   /** Why a stack cannot be changed now (read-only, lock lost), or undefined when it can. */
   readonly blocked?: (stack: string) => "read-only" | undefined;
   /** The current selection, recorded with each step; UI state, never a step of its own. */
@@ -61,6 +65,8 @@ export interface UndoManagerOptions {
 /** One rebuilt entry from the server: the inverse of a write, newest first (ListEditorSessionEntries). */
 export interface SessionEntry {
   readonly path: string;
+  /** The write's step: a step's ID, `undo:<id>` or `redo:<id>`; empty for an untagged write. */
+  readonly step: string;
   readonly inverse: readonly JsonPatchOp[];
 }
 
@@ -92,6 +98,7 @@ export class UndoManager {
   private readonly sessions = new Map<string, EditSession>();
   private readonly now: () => number;
   private readonly pauseMs: number;
+  private readonly newId: () => string;
   /** Set while undo or redo applies its own edits, which are not new steps. */
   private applying = false;
   /** Set while a cross-plugin change is made: its edits collect into this one step. */
@@ -101,6 +108,7 @@ export class UndoManager {
   constructor(private readonly options: UndoManagerOptions) {
     this.now = options.now ?? (() => Date.now());
     this.pauseMs = options.pauseMs ?? 1000;
+    this.newId = options.newId ?? (() => globalThis.crypto.randomUUID());
   }
 
   /** Registers the pipeline of a stack (a plugin's EditorProvider, or the app's); returns the detach. */
@@ -127,6 +135,31 @@ export class UndoManager {
     return (this.stacks.get(stack)?.redo.length ?? 0) > 0 && this.options.blocked?.(stack) === undefined;
   }
 
+  /**
+   * The step an edit is about to join (the pipeline's `stepFor`): the open cross-plugin step, the top
+   * step while its group continues without a pause, or a new one.
+   */
+  stepFor(stack: string, group: string | undefined): string {
+    if (this.open !== null) {
+      return this.open.id;
+    }
+    const top = this.stacks.get(stack)?.undo.at(-1);
+    if (this.continues(top, group)) {
+      return (top as Step).id;
+    }
+    return this.newId();
+  }
+
+  private continues(top: Step | undefined, group: string | undefined): boolean {
+    return (
+      top !== undefined &&
+      group !== undefined &&
+      top.group === group &&
+      top.stacks.size === 1 &&
+      this.now() - top.at < this.pauseMs
+    );
+  }
+
   /** Records an edit of the pipeline (its `onEdit`). A new edit clears the stack's redo. */
   record(stack: string, record: EditRecord): void {
     if (this.applying) {
@@ -142,19 +175,14 @@ export class UndoManager {
     s.redo = [];
     const top = s.undo.at(-1);
     const at = this.now();
-    if (
-      top !== undefined &&
-      record.group !== undefined &&
-      top.group === record.group &&
-      top.stacks.size === 1 &&
-      at - top.at < this.pauseMs
-    ) {
+    if (top !== undefined && (record.step === undefined ? this.continues(top, record.group) : top.id === record.step)) {
       top.parts.push(part);
       top.at = at;
       top.selectionAfter = this.options.selection?.();
     } else {
       const selection = this.options.selection?.();
       this.push(s, {
+        id: record.step ?? this.newId(),
         parts: [part],
         stacks: new Set([stack]),
         group: record.group,
@@ -173,6 +201,7 @@ export class UndoManager {
   step(change: () => void): void {
     const selection = this.options.selection?.();
     const step: Step = {
+      id: this.newId(),
       parts: [],
       stacks: new Set(),
       group: undefined,
@@ -216,26 +245,78 @@ export class UndoManager {
   }
 
   /**
-   * Rebuilds a stack after a reload from the editor session's entries on the server, newest first.
-   * Each entry is one step; a stack that already holds steps is left as it is.
+   * Rebuilds a stack after a reload from the editor session's entries on the server, newest first,
+   * replaying them in order: a step's writes regroup by their step ID, `undo:` and `redo:` writes move
+   * it between the stacks, and a step whose ID another stack also holds becomes one cross-plugin
+   * step again. A stack that already holds steps is left as it is.
    */
   rebuild(stack: string, entries: readonly SessionEntry[]): void {
     const s = this.stackOf(stack);
     if (s.undo.length > 0 || s.redo.length > 0) {
       return;
     }
-    const steps = entries.slice(0, this.options.depth).map(
-      (e): Step => ({
-        parts: [{ stack, path: e.path, patches: toImmerPatches(e.inverse) }],
+    const runs: { step: string; parts: Part[] }[] = [];
+    for (const e of [...entries].reverse()) {
+      const part: Part = { stack, path: e.path, patches: toImmerPatches(e.inverse) };
+      const last = runs.at(-1);
+      if (last !== undefined && e.step !== "" && last.step === e.step) {
+        last.parts.push(part);
+      } else {
+        runs.push({ step: e.step, parts: [part] });
+      }
+    }
+    for (const run of runs) {
+      const [kind, id] = run.step.startsWith("undo:")
+        ? ["undo", run.step.slice(5)]
+        : run.step.startsWith("redo:")
+          ? ["redo", run.step.slice(5)]
+          : ["edit", run.step === "" ? this.newId() : run.step];
+      const step: Step = {
+        id,
+        parts: run.parts,
         stacks: new Set([stack]),
         group: undefined,
         at: Number.NEGATIVE_INFINITY,
         selectionBefore: undefined,
         selectionAfter: undefined,
-      }),
-    );
-    s.undo = steps.reverse();
+      };
+      if (kind === "undo") {
+        if (s.undo.at(-1)?.id === id) {
+          s.undo.pop();
+        }
+        s.redo.push(step);
+      } else {
+        if (kind === "redo" && s.redo.at(-1)?.id === id) {
+          s.redo.pop();
+        } else if (kind === "edit") {
+          s.redo = [];
+        }
+        this.push(s, step);
+      }
+    }
+    this.regroup(stack);
     this.changed();
+  }
+
+  /** Merges the steps of a rebuilt stack with the same steps of the other stacks. */
+  private regroup(stack: string): void {
+    const s = this.stackOf(stack);
+    for (const list of [s.undo, s.redo] as const) {
+      list.forEach((step, i) => {
+        for (const [key, other] of this.stacks) {
+          if (key === stack) {
+            continue;
+          }
+          const shared = [...other.undo, ...other.redo].find((o) => o.id === step.id);
+          if (shared !== undefined) {
+            shared.parts.push(...step.parts);
+            (shared.stacks as Set<string>).add(stack);
+            list[i] = shared;
+            return;
+          }
+        }
+      });
+    }
   }
 
   private move(stack: string, from: "undo" | "redo"): UndoResult {
@@ -254,9 +335,13 @@ export class UndoManager {
       // Undone in reverse order of the edits, so later edits of a document are reverted first.
       for (const part of [...step.parts].reverse()) {
         const session = this.sessions.get(part.stack);
-        const record = session?.edit(part.path, (draft) => {
-          applyPatches(draft, part.patches as Patch[]);
-        });
+        const record = session?.edit(
+          part.path,
+          (draft) => {
+            applyPatches(draft, part.patches as Patch[]);
+          },
+          { step: `${from}:${step.id}` },
+        );
         if (record !== undefined) {
           done.push({ stack: part.stack, path: part.path, patches: record.inversePatches });
         }

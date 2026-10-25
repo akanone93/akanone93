@@ -90,7 +90,7 @@ func (s Document) PutDocument(ctx context.Context, req *connect.Request[pluxv1.P
 			return nil, err
 		}
 		m := req.Msg
-		w, err := s.h.Documents.PutDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetEditorSessionId(), m.GetPath(), m.GetContent(), m.GetIfRevision())
+		w, err := s.h.Documents.PutDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, m.GetPath(), m.GetContent(), m.GetIfRevision())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -110,7 +110,7 @@ func (s Document) PatchDocument(ctx context.Context, req *connect.Request[pluxv1
 		if err != nil {
 			return nil, err
 		}
-		w, err := s.h.Documents.PatchDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetEditorSessionId(), m.GetPath(), ops, m.GetIfRevision())
+		w, err := s.h.Documents.PatchDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, m.GetPath(), ops, m.GetIfRevision())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -192,7 +192,7 @@ func (s Document) ListEditorSessionEntries(ctx context.Context, req *connect.Req
 				return nil, err
 			}
 			out.Entries = append(out.Entries, &pluxv1.EditorSessionEntry{
-				SnapshotId: e.SnapshotID, Path: e.Path, Revision: e.Revision, Inverse: inverse, CreatedAt: ts(e.CreatedAt),
+				SnapshotId: e.SnapshotID, Path: e.Path, Revision: e.Revision, Inverse: inverse, CreatedAt: ts(e.CreatedAt), StepId: e.Step,
 			})
 		}
 		out.Page.NextPageToken = s.h.Pages.Next(req.Spec().Procedure, p.OrganizationID, page, len(entries), size, last)

@@ -229,7 +229,7 @@ describe("STU-069 undo stacks", () => {
   test("a step whose document changed underneath is blocked as a conflict", () => {
     const { undo } = setup();
     pipeline(undo, "p9", { v: 1 });
-    undo.rebuild("p9", [{ path, inverse: [{ op: "remove", path: "/missing/deep" }] }]);
+    undo.rebuild("p9", [{ path, step: "", inverse: [{ op: "remove", path: "/missing/deep" }] }]);
     expect(undo.undo("p9")).toEqual({ kind: "blocked", reason: "conflict", stack: "p9" });
   });
 
@@ -237,9 +237,9 @@ describe("STU-069 undo stacks", () => {
     const { undo } = setup({ depth: 2 });
     const s = pipeline(undo, "p1", { title: "C" });
     undo.rebuild("p1", [
-      { path, inverse: [{ op: "replace", path: "/title", value: "B" }] },
-      { path, inverse: [{ op: "replace", path: "/title", value: "A" }] },
-      { path, inverse: [{ op: "replace", path: "/title", value: "0" }] },
+      { path, step: "", inverse: [{ op: "replace", path: "/title", value: "B" }] },
+      { path, step: "", inverse: [{ op: "replace", path: "/title", value: "A" }] },
+      { path, step: "", inverse: [{ op: "replace", path: "/title", value: "0" }] },
     ]);
     undo.undo("p1");
     expect(contentOf(s)).toEqual({ title: "B" });
@@ -253,6 +253,87 @@ describe("STU-069 undo stacks", () => {
   test("JSON pointers become Immer paths", () => {
     expect(pointerSegments("/a~1b/0/c~0d")).toEqual(["a/b", 0, "c~d"]);
     expect(toImmerPatches([{ op: "test", path: "/a", value: 1 }])).toEqual([]);
+  });
+});
+
+describe("STU-069 steps survive a reload", () => {
+  const r = (step: string, title: string) => ({
+    path,
+    step,
+    inverse: [{ op: "replace" as const, path: "/title", value: title }],
+  });
+
+  test("a grouped drag's writes come back as one step; undo and redo writes replay", () => {
+    const { undo } = setup();
+    const s = pipeline(undo, "p1", { title: "D" });
+    // Oldest first: s1 (two writes of one drag), s2, then s2 undone, then s2 redone, then s3 undone.
+    undo.rebuild(
+      "p1",
+      [
+        r("undo:s3", "D"),
+        r("s3", "C"),
+        r("redo:s2", "B"),
+        r("undo:s2", "C"),
+        r("s2", "B"),
+        r("s1", "A0"),
+        r("s1", "A"),
+      ].map((e, i) => (i === 5 ? { ...e, inverse: [{ op: "replace" as const, path: "/x", value: 0 }] } : e)),
+    );
+    expect(undo.canRedo("p1")).toBe(true);
+    undo.undo("p1");
+    expect(contentOf(s)).toEqual({ title: "B" });
+    undo.undo("p1");
+    expect(contentOf(s)).toEqual({ title: "A", x: 0 });
+    expect(undo.undo("p1").kind).toBe("empty");
+  });
+
+  test("a cross-plugin step regroups across stacks and undoes atomically", () => {
+    const { undo } = setup();
+    const a = pipeline(undo, "p1", { title: "a2" });
+    const b = pipeline(undo, "p2", { title: "b2" });
+    undo.rebuild("p1", [r("x", "a1")]);
+    undo.rebuild("p2", [r("x", "b1")]);
+    expect(undo.undo("p2").kind).toBe("done");
+    expect(contentOf(a)).toEqual({ title: "a1" });
+    expect(contentOf(b)).toEqual({ title: "b1" });
+    expect(undo.canUndo("p1")).toBe(false);
+  });
+
+  test("each save carries one step; undo writes carry undo:<step>", async () => {
+    const steps: (string | undefined)[] = [];
+    const undo = new UndoManager({
+      depth: 10,
+      newId: (() => {
+        let n = 0;
+        return () => `s${++n}`;
+      })(),
+    });
+    const transport = stubTransport();
+    const inner = transport.patch;
+    transport.patch = (p, ops, rev, o) => {
+      steps.push(o.step);
+      return inner(p, ops, rev, o);
+    };
+    const s = new EditSession({
+      transport,
+      debounceMs: 1,
+      maxReplays: 3,
+      scheduler: idle,
+      online: () => true,
+      stepFor: (_p, g) => undo.stepFor("p1", g),
+      onEdit: (rec) => undo.record("p1", rec),
+    });
+    s.open({ path, revision: 1n, content: { v: 0 } });
+    undo.attach("p1", s);
+    s.edit(path, (d) => set(d, "v", 1), { group: "drag" });
+    s.edit(path, (d) => set(d, "v", 2), { group: "drag" });
+    s.edit(path, (d) => set(d, "w", 1));
+    undo.undo("p1");
+    for (let i = 0; i < 5; i++) {
+      s.flushAll();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    expect(steps).toEqual(["s1", "s2", "undo:s2"]);
   });
 });
 
