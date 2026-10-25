@@ -16,10 +16,10 @@ export const LOCK_LEASE_LAPSE_MS = 2 * LOCK_HEARTBEAT_MS;
 export interface LockInfo {
   readonly holder: string;
   readonly session: string;
-  readonly acquiredAt?: Date;
-  readonly expiresAt?: Date;
-  readonly lastEditAt?: Date;
-  readonly takeoverAllowedAt?: Date;
+  readonly acquiredAt?: Date | undefined;
+  readonly expiresAt?: Date | undefined;
+  readonly lastEditAt?: Date | undefined;
+  readonly takeoverAllowedAt?: Date | undefined;
   readonly requestedBy: readonly string[];
 }
 
@@ -86,7 +86,7 @@ export interface LockControllerOptions {
   readonly heartbeatMs?: number;
   readonly scheduler: Scheduler;
   readonly ticker: Ticker;
-  readonly channel?: TabChannel;
+  readonly channel?: TabChannel | undefined;
   readonly now?: () => number;
   /** Flushes autosave before an idle release (F1.2). */
   readonly beforeRelease?: () => Promise<void>;
