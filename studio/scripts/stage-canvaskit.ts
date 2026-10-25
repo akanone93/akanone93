@@ -33,5 +33,7 @@ if (import.meta.main) {
   const source =
     process.env["PLUX_CANVASKIT_DIR"] ??
     join(homedir(), ".cache/plux/flutter-3.47.5/bin/cache/flutter_web_sdk/canvaskit");
-  stage(source, new URL("../apps/web/src/features/plugin-canvas/canvaskit", import.meta.url).pathname);
+  // `--to <dir>` stages for the image build context instead of the web app (mk/studio.mk).
+  const to = process.argv[2] === "--to" ? process.argv[3] : undefined;
+  stage(source, to ?? new URL("../apps/web/src/features/plugin-canvas/canvaskit", import.meta.url).pathname);
 }

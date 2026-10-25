@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Studio's shared components on Base UI and the Icon component (STU-010, STU-011, UI language U8, U11).",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./toast.css": "./src/toast.css"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",

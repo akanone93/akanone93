@@ -7,3 +7,5 @@ test-results/
 playwright-report/
 # Pinned CanvasKit staged for the build by scripts/stage-canvaskit.ts
 apps/web/src/features/plugin-canvas/canvaskit/
+# CanvasKit staged for the image build (make studio-image-repro)
+.canvaskit/
