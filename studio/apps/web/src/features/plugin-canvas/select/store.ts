@@ -1,54 +1,31 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createContext, createElement, type ReactNode, useContext, useRef, useSyncExternalStore } from "react";
-import { emptySelection, type Selection } from "./selection.ts";
+import { useMemo } from "react";
+import type { StoreApi } from "zustand/vanilla";
+import { useEditSession } from "../../editor/editor-provider.tsx";
+import type { Selection } from "./selection.ts";
 
-/** A selection store: one per open canvas, created by the provider (no module-level state). */
+/** The selection as the interactions see it: a view of the area's Zustand store (F5, ADR-0014). */
 export interface SelectionStore {
   get(): Selection;
   set(next: Selection): void;
-  subscribe(listener: () => void): () => void;
 }
 
-export function createSelectionStore(initial: Selection = emptySelection): SelectionStore {
-  let state = initial;
-  const listeners = new Set<() => void>();
+/** Adapts any store that holds a `selection` (the editor's area store, or a test store). */
+export function selectionStoreOf(api: StoreApi<{ readonly selection: Selection }>): SelectionStore {
   return {
-    get: () => state,
+    get: () => api.getState().selection,
     set: (next) => {
-      if (next !== state) {
-        state = next;
-        for (const l of [...listeners]) {
-          l();
-        }
+      if (next !== api.getState().selection) {
+        api.setState({ selection: next });
       }
-    },
-    subscribe: (l) => {
-      listeners.add(l);
-      return () => listeners.delete(l);
     },
   };
 }
 
-const Context = createContext<SelectionStore | null>(null);
-
-/** Gives the canvas, Layers tree and panels below it the same selection. */
-export function SelectionProvider({ children }: { children: ReactNode }) {
-  const ref = useRef<SelectionStore | null>(null);
-  ref.current ??= createSelectionStore();
-  return createElement(Context.Provider, { value: ref.current }, children);
-}
-
+/** The selection store of the surrounding EditorProvider. */
 export function useSelectionStore(): SelectionStore {
-  const store = useContext(Context);
-  if (store === null) {
-    throw new Error("useSelectionStore needs a SelectionProvider");
-  }
-  return store;
-}
-
-export function useSelection(): Selection {
-  const store = useSelectionStore();
-  return useSyncExternalStore(store.subscribe, store.get);
+  const api = useEditSession().store;
+  return useMemo(() => selectionStoreOf(api), [api]);
 }

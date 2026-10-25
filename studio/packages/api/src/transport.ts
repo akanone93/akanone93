@@ -39,7 +39,20 @@ export function createStudioTransport(options: StudioTransportOptions) {
   return createConnectTransport({
     baseUrl: options.baseUrl,
     useBinaryFormat: true,
-    fetch: ((input, init) => globalThis.fetch(input, { ...init, credentials: "same-origin" })) as typeof fetch,
+    fetch: ((input, init) => globalThis.fetch(input, keepaliveInit(init))) as typeof fetch,
     interceptors: [headerInterceptor(options)],
   });
+}
+
+/**
+ * A call that must outlive the page (the autosave flush on tab hide) asks for `keepalive` through
+ * this header, since Connect call options do not reach fetch's init; the header is removed again.
+ */
+export const keepaliveHeader = "plux-keepalive";
+
+function keepaliveInit(init: RequestInit | undefined): RequestInit {
+  const headers = new Headers(init?.headers);
+  const keepalive = headers.has(keepaliveHeader);
+  headers.delete(keepaliveHeader);
+  return { ...init, headers, credentials: "same-origin", ...(keepalive ? { keepalive: true } : {}) };
 }

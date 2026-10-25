@@ -19,8 +19,6 @@ export interface KeyContext {
   readonly index: NodeIndex;
   readonly edit: EditFn;
   /** The document that holds a node; nudges are grouped per key burst. */
-  /** Wrap (mod+g), unwrap (mod+shift+g) and duplicate (mod+d) the selection. */
-  readonly structure?: (kind: "wrap" | "unwrap" | "duplicate", ids: readonly string[]) => void;
   readonly docOf: (id: string) => string | undefined;
 }
 
@@ -40,32 +38,15 @@ function navigate(c: KeyContext, e: KeyEventLike, mod: boolean): sel.Selection |
   return mod && e.key.toLowerCase() === "a" ? sel.selectSiblings(c.index, s) : null;
 }
 
-/** The structure command a chord means (command ids \`canvas.wrap\`, \`canvas.unwrap\`, \`canvas.duplicate\`). */
-export function structureKind(e: KeyEventLike): "wrap" | "unwrap" | "duplicate" | null {
-  const key = e.key.toLowerCase();
-  if (!(e.ctrlKey || e.metaKey)) {
-    return null;
-  }
-  if (key === "g") {
-    return e.shiftKey ? "unwrap" : "wrap";
-  }
-  return key === "d" ? "duplicate" : null;
-}
-
 /** Keyboard operation of the canvas (WCAG 2.1.1): returns true when the key was handled. */
 export function handleKey(c: KeyContext, e: KeyEventLike): boolean {
-  const s = c.store.get();
   const mod = e.ctrlKey || e.metaKey;
-  const kind = structureKind(e);
-  if (kind !== null && c.structure !== undefined && s.ids.length > 0) {
-    c.structure(kind, s.ids);
-    return true;
-  }
   const nav = navigate(c, e, mod);
   if (nav !== null) {
     c.store.set(nav);
     return true;
   }
+  const s = c.store.get();
   if (ARROWS.has(e.key) && s.ids.length > 0) {
     for (const id of s.ids) {
       const doc = c.docOf(id);

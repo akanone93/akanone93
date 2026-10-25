@@ -42,6 +42,21 @@ export function pluginCanvasMessages(i18n: I18n) {
         values: { count },
         comment: "Announced to screen readers when several elements are selected on the canvas.",
       }),
+    wrapCommand: i18n._({
+      id: "pluginCanvas.command.wrap",
+      message: "Wrap selection in a column",
+      comment: "Command that wraps the selected canvas elements in a new column.",
+    }),
+    unwrapCommand: i18n._({
+      id: "pluginCanvas.command.unwrap",
+      message: "Unwrap selection",
+      comment: "Command that replaces the selected container on the canvas by its children.",
+    }),
+    duplicateCommand: i18n._({
+      id: "pluginCanvas.command.duplicate",
+      message: "Duplicate selection",
+      comment: "Command that copies the selected canvas elements right after themselves.",
+    }),
     zoom: (percent: number) =>
       i18n._({
         id: "pluginCanvas.zoom",

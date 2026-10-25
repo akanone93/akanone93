@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
+import { createStore } from "zustand/vanilla";
 import type { Node } from "../plugin-model.ts";
 import {
   cloneWithFreshIds,
@@ -14,11 +15,15 @@ import {
   wrapRecipe,
 } from "./edits.ts";
 import { distances, nudgeDelta, resizeBox, snapBox } from "./geometry.ts";
-import { handleKey, structureKind } from "./keys.ts";
+import { handleKey } from "./keys.ts";
 import { announce } from "./live-region.ts";
 import { resolveDrop } from "./reparent.ts";
 import * as sel from "./selection.ts";
-import { createSelectionStore } from "./store.ts";
+import { selectionStoreOf } from "./store.ts";
+
+const createSelectionStore = (initial: sel.Selection = sel.emptySelection) =>
+  selectionStoreOf(createStore<{ selection: sel.Selection }>(() => ({ selection: initial })));
+
 import { indexNodes, itemIdOf, nodeIdOfHit } from "./tree.ts";
 
 interface T {
@@ -82,13 +87,11 @@ describe("live region and store (STU-067)", () => {
     expect(announce(a, sel.click(index, empty, ["a"]), (i) => i.toUpperCase())).toBe("A selected");
     expect(announce(a, { ids: ["a", "b"], anchor: "b", scope: "root" }, (i) => i)).toBe("2 selected");
   });
-  test("STU-067 each store is its own and notifies subscribers", () => {
+  test("STU-067 each area store holds its own selection", () => {
     const s1 = createSelectionStore();
     const s2 = createSelectionStore();
-    let n = 0;
-    s1.subscribe(() => n++);
     s1.set(sel.click(index, empty, ["a"]));
-    expect(n).toBe(1);
+    expect(s1.get().ids).toEqual(["a"]);
     expect(s2.get().ids).toEqual([]);
   });
 });
@@ -146,8 +149,6 @@ describe("keyboard, nudge, edits (STU-067)", () => {
     expect(handleKey(ctx, { key: "ArrowRight", ...k })).toBe(true);
     expect(calls).toEqual([["doc", "nudge"]]);
     expect(handleKey(ctx, { key: "x", ...k })).toBe(false);
-    expect(structureKind({ key: "g", shiftKey: true, ctrlKey: true, metaKey: false })).toBe("unwrap");
-    expect(structureKind({ key: "d", shiftKey: false, ctrlKey: false, metaKey: true })).toBe("duplicate");
   });
   test("STU-067 hit IDs map to document node IDs", () => {
     expect(nodeIdOfHit("home/n-1")).toBe("n-1");
