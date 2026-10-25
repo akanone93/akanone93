@@ -49,6 +49,9 @@ import {
   readWorkerMessage,
   type SceneModel,
   type SceneOp,
+  type ScreenDocument,
+  type ScreenHeight,
+  type ScreenStyle,
 } from "./protocol.ts";
 import { Viewport } from "./viewport.ts";
 import { CanvasWorkerCore, type WorkerDeps } from "./worker.ts";
@@ -119,6 +122,7 @@ export class CanvasHost {
   private readonly worker: WorkerLike | null;
   private readonly frameListeners = new Set<(stats: FrameStats) => void>();
   private readonly snapshots = new Map<number, (model: SceneModel) => void>();
+  private readonly layouts = new Map<number, (heights: readonly ScreenHeight[]) => void>();
   private nextRequest = 0;
   private settle: { resolve(info: RendererInfo): void; reject(error: Error): void } | null = null;
   private readonly view: Viewport;
@@ -154,7 +158,15 @@ export class CanvasHost {
     const host = new CanvasHost(
       canvas,
       size,
-      { ...options, fonts: [...options.fonts, ...loaded.buffers], fontFamily: loaded.primary },
+      {
+        ...options,
+        fonts: [...options.fonts, ...loaded.buffers],
+        fontFamilies: [
+          ...(options.fontFamilies ?? options.fonts.map(() => options.fontFamily)),
+          ...loaded.bufferFamilies,
+        ],
+        fontFamily: loaded.primary,
+      },
       deps,
       layer,
       layers,
@@ -319,6 +331,11 @@ export class CanvasHost {
         this.snapshots.get(message.requestId)?.(message.model);
         this.snapshots.delete(message.requestId);
         break;
+      case "screens":
+        this.follow(message.ops);
+        this.layouts.get(message.requestId)?.(message.heights);
+        this.layouts.delete(message.requestId);
+        break;
       case "surface":
         this.emit({ type: "surface", state: message.state });
         break;
@@ -333,6 +350,24 @@ export class CanvasHost {
   /** Applies scene patches; the hit index and accessible tree follow at once. */
   patch(ops: readonly SceneOp[]): void {
     this.send({ v: PROTOCOL_VERSION, type: "patch", ops });
+    this.follow(ops);
+  }
+
+  /**
+   * Replaces the scene with `screens`, laid out in the worker with SkParagraph
+   * (ADR-0013); resolves with each screen's content height once the hit index
+   * and accessible tree follow the laid-out items.
+   */
+  layoutScreens(screens: readonly ScreenDocument[], style: ScreenStyle): Promise<readonly ScreenHeight[]> {
+    const requestId = this.nextRequest++;
+    return new Promise((resolve) => {
+      this.layouts.set(requestId, resolve);
+      this.send({ v: PROTOCOL_VERSION, type: "screens", requestId, screens, style });
+    });
+  }
+
+  /** The hit index, accessible tree and notices follow `ops`, which the worker applied. */
+  private follow(ops: readonly SceneOp[]): void {
     this.hits.apply(ops);
     this.layers.tree?.apply(ops);
     for (const op of ops) {

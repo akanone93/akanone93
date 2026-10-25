@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
-import type { ItemSpec, SceneOp } from "@plux/canvas";
+import type { ScreenDocument, ScreenStyle } from "@plux/canvas";
 import { cleanup, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import { canvasSearchSchema } from "./plugin-canvas.schema.ts";
@@ -49,11 +49,15 @@ const documents = [
   page("detail", "detail", "Detail", [go("b2", "tall")]),
 ];
 
-function stub() {
-  const patches: SceneOp[][] = [];
+/** A surface that records the documents sent to the worker; the worker's layout is tested in @plux/canvas. */
+function stub(tallHeight = 2000) {
+  const patches: { docs: ScreenDocument[]; style: ScreenStyle }[] = [];
   const views: number[][] = [];
   const surface: CanvasSurface = {
-    patch: (ops) => patches.push([...ops]),
+    layoutScreens: (docs, style) => {
+      patches.push({ docs: [...docs], style });
+      return Promise.resolve(docs.map((d) => ({ id: d.id, contentHeight: d.id === "tall" ? tallHeight : 300 })));
+    },
     setViewport: (x, y, z) => views.push([x, y, z]),
     pan: () => undefined,
     zoomAbout: () => undefined,
@@ -63,8 +67,7 @@ function stub() {
   return { patches, views, factory: () => surface };
 }
 
-const adds = (ops: SceneOp[]) => ops.flatMap((o) => (o.op === "add" ? [o.item] : []));
-const frames = (items: ItemSpec[]) => items.flatMap((i) => (i.kind === "frame" ? [i] : []));
+const frames = (sent: { docs: ScreenDocument[] } | undefined) => sent?.docs ?? [];
 const path = `/o/${orgA}/apps/app1/plugins/pl`;
 
 describe("STU-050 plugin canvas C2", () => {
@@ -72,8 +75,10 @@ describe("STU-050 plugin canvas C2", () => {
     const s = stub();
     renderApp(path, { documents, surface: s.factory });
     await waitFor(() => expect(s.patches.length).toBeGreaterThan(0));
-    const fs = frames(adds(s.patches[0] ?? []));
-    expect(fs.map((f) => f.name)).toEqual(["Home", "Detail", "Tall"]);
+    const fs = frames(s.patches[0]);
+    expect(fs.map((f) => f.title)).toEqual(["Home", "Detail", "Tall"]);
+    expect(fs[0]?.root?.slots?.["body"]?.children?.[0]?.id).toBe("b1");
+    expect(s.patches[0]?.style.theme.fontFamilies).toEqual(["Roboto", "Noto Sans"]);
     const xs = fs.map((f) => f.x);
     expect(xs).toEqual([...xs].sort((a, b) => a - b));
     expect(new Set(xs).size).toBe(3);
@@ -81,20 +86,12 @@ describe("STU-050 plugin canvas C2", () => {
     expect(await screen.findByLabelText("Screens in navigation order")).toBeTruthy();
   });
 
-  test("STU-056 a tall screen gets a translucent overflow region below its frame", async () => {
+  test("STU-056 a screen taller than the device, by the worker's layout, is announced as overflowing", async () => {
     const s = stub();
     renderApp(path, { documents, surface: s.factory });
-    await waitFor(() => expect(s.patches.length).toBeGreaterThan(0));
-    const items = adds(s.patches[0] ?? []);
-    const tall = frames(items).find((f) => f.name === "Tall");
-    const region = items.find((i) => i.id === "overflow:tall");
-    expect(region?.kind).toBe("rect");
-    if (region?.kind === "rect" && tall !== undefined) {
-      expect(region.y).toBe(tall.y + tall.h);
-      expect(region.h).toBeGreaterThan(0);
-    }
-    expect(items.some((i) => i.id === "overflow:home")).toBe(false);
     await screen.findByText(/Tall: content beyond the screen/);
+    expect(document.getElementById("overflow:tall")).not.toBeNull();
+    expect(document.getElementById("overflow:home")).toBeNull();
   });
 
   test("saved positions of the canvas document win over auto-layout", async () => {
@@ -102,7 +99,7 @@ describe("STU-050 plugin canvas C2", () => {
     const canvas = { kind: "canvas", path: "canvas.json", json: { positions: [{ id: "home", x: 900, y: 40 }] } };
     renderApp(path, { documents: [...documents, canvas], surface: s.factory });
     await waitFor(() => expect(s.patches.length).toBeGreaterThan(0));
-    const home = frames(adds(s.patches[0] ?? [])).find((f) => f.name === "Home");
+    const home = frames(s.patches[0]).find((f) => f.title === "Home");
     expect([home?.x, home?.y]).toEqual([900, 40]);
   });
 

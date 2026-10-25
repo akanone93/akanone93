@@ -9,6 +9,7 @@
  * (base and interaction layer) and the font buffers in `init`.
  */
 
+import type { ScreenTheme, WidgetNode } from "@plux/layout";
 import type { BaseOrigin, LayerBox } from "./compositor.ts";
 
 /** The protocol version; a message with another version is rejected. */
@@ -124,6 +125,8 @@ export interface CanvasOptions {
   readonly tileSize: number;
   readonly background: ColorRgba;
   readonly fonts: readonly ArrayBuffer[];
+  /** The family of each buffer in `fonts`, in order; text layout registers them under these names. */
+  readonly fontFamilies?: readonly string[];
   readonly fontFamily: string;
   /** Wait for the GPU at the end of each frame so frame times include it (benchmarks only). */
   readonly measureFrames: boolean;
@@ -191,6 +194,37 @@ export interface SceneModel {
   readonly nodes: readonly SceneModelNode[];
 }
 
+/** A screen document to lay out in the worker (ADR-0013): its widget tree and where it stands. */
+export interface ScreenDocument {
+  readonly id: string;
+  readonly title: string;
+  readonly x: number;
+  readonly y: number;
+  readonly root: WidgetNode | null;
+}
+
+/** How laid-out screens are drawn: colours, the device height and the layout theme. */
+export interface ScreenStyle {
+  readonly deviceHeight: number;
+  readonly theme: ScreenTheme;
+  readonly frame: ColorRgba;
+  readonly frameStroke: ColorRgba;
+  readonly box: ColorRgba;
+  readonly boxStroke: ColorRgba;
+  readonly placeholder: ColorRgba;
+  readonly text: ColorRgba;
+  readonly overflowFill: ColorRgba;
+  readonly overflowBox: ColorRgba;
+  readonly overflowText: ColorRgba;
+  readonly overflowStroke: ColorRgba;
+}
+
+/** The laid-out height of one screen's content (STU-056). */
+export interface ScreenHeight {
+  readonly id: string;
+  readonly contentHeight: number;
+}
+
 /** Main thread → worker. */
 export type HostMessage =
   | {
@@ -221,6 +255,14 @@ export type HostMessage =
       readonly dpr: number;
     }
   | { readonly v: number; readonly type: "snapshot"; readonly requestId: number }
+  /** Replaces the scene with `screens`, laid out in the worker with SkParagraph. */
+  | {
+      readonly v: number;
+      readonly type: "screens";
+      readonly requestId: number;
+      readonly screens: readonly ScreenDocument[];
+      readonly style: ScreenStyle;
+    }
   | { readonly v: number; readonly type: "dispose" };
 
 /** Worker → main thread. */
@@ -236,6 +278,14 @@ export type WorkerMessage =
       readonly layer?: LayerBox | null;
     }
   | { readonly v: number; readonly type: "snapshot"; readonly requestId: number; readonly model: SceneModel }
+  /** The screens of a `screens` request, laid out: the ops applied to the scene and each content height. */
+  | {
+      readonly v: number;
+      readonly type: "screens";
+      readonly requestId: number;
+      readonly ops: readonly SceneOp[];
+      readonly heights: readonly ScreenHeight[];
+    }
   /** The surface was lost, or rebuilt from the scene after a loss. */
   | { readonly v: number; readonly type: "surface"; readonly state: "lost" | "restored" }
   | { readonly v: number; readonly type: "error"; readonly message: string };
@@ -247,9 +297,10 @@ const hostTypes: ReadonlySet<string> = new Set([
   "interaction",
   "resize",
   "snapshot",
+  "screens",
   "dispose",
 ]);
-const workerTypes: ReadonlySet<string> = new Set(["ready", "frame", "snapshot", "surface", "error"]);
+const workerTypes: ReadonlySet<string> = new Set(["ready", "frame", "snapshot", "screens", "surface", "error"]);
 
 function versioned(data: unknown, types: ReadonlySet<string>): boolean {
   if (typeof data !== "object" || data === null) {

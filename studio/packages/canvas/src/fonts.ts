@@ -74,6 +74,8 @@ export interface CanvasNotice {
 export interface LoadedFonts {
   /** The font bytes in priority order, for `CanvasOptions.fonts` (transferred). */
   readonly buffers: ArrayBuffer[];
+  /** The family of each buffer, in order. */
+  readonly bufferFamilies: string[];
   /** The families loaded, in the same order and without repeats. */
   readonly families: readonly string[];
   /** The family to lay text out in: the first loaded, or `fallback` when none loaded. */
@@ -133,6 +135,7 @@ export async function loadCanvasFonts(
   const families = [...new Set(loaded.map((font) => font.family))];
   return {
     buffers: loaded.map((font) => font.bytes),
+    bufferFamilies: loaded.map((font) => font.family),
     families,
     primary: families[0] ?? fallback,
     notices,
