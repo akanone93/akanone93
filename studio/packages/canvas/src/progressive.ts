@@ -7,15 +7,15 @@
  * On software GL the browser's single GPU thread both runs the canvas and
  * composites the page, so one large re-render of the base stalls every
  * animation for as long as it takes. The base is therefore re-rendered as a
- * queue of tile-sized jobs, each flushed on its own and followed by a yield to
- * the event loop: what the view shows first, then the margin the pan heads
- * into, then the rest. A new gesture cancels the queue; the old base stays on
- * screen until each tile is replaced.
+ * queue of tile-sized jobs, each flushed on its own, run in slices of a fixed
+ * budget per animation frame: what the view shows first, then the margin the
+ * pan heads into, then the rest. A new viewport replans the queue; the old
+ * base stays on screen, realigned, until each tile is replaced.
  */
 
 import type { Rect } from "./geometry.ts";
 
-/** Time a job may take before it yields; a tile render that overruns it blits in the next job, in ms. */
+/** Time per animation frame for base jobs; a tile render that overruns it blits in the next slice, in ms. */
 export const JOB_BUDGET_MS = 8;
 
 /** A direction of travel, in world units; zero when unknown. */
@@ -56,37 +56,94 @@ export function orderJobs<T>(
   return keyed.map((entry) => entry.item);
 }
 
-/** The parts of a worker scope used to yield between jobs. */
-export interface JobScope {
-  setTimeout(callback: () => void, ms: number): unknown;
-  readonly scheduler?: unknown;
-}
-
-interface PostTask {
-  postTask(callback: () => void, options: { priority: "background" }): Promise<unknown>;
-}
-
-function hasPostTask(scheduler: unknown): scheduler is PostTask {
-  return (
-    typeof scheduler === "object" &&
-    scheduler !== null &&
-    typeof (scheduler as { postTask?: unknown }).postTask === "function"
-  );
+/** The environment of a `BaseJobQueue`. */
+export interface JobQueueDeps {
+  now(): number;
+  /** Schedules the next slice, once per animation frame. */
+  schedule(callback: () => void): void;
 }
 
 /**
- * Schedules the next job as a new task: `scheduler.postTask` at background
- * priority where the scope has it (a feature test, as workers differ by
- * browser), otherwise `setTimeout(0)`.
+ * Runs one job that may be preempted: returns false when nothing is left to
+ * do, true otherwise; it must stop by `deadline` where it can.
  */
-export function jobScheduler(scope: JobScope): (callback: () => void) => void {
-  const scheduler = scope.scheduler;
-  if (hasPostTask(scheduler)) {
-    return (callback) => {
-      scheduler.postTask(callback, { priority: "background" }).catch(() => undefined);
-    };
+export type Job = (deadline: number) => boolean;
+
+/** Called after each slice with its duration in ms and whether work remains. */
+export type SliceDone = (ms: number, more: boolean) => void;
+
+/**
+ * Runs a job queue in slices of at most `budgetMs` per animation frame (M-12).
+ * Each slice runs at least one job, then as many as fit in the budget; a job
+ * whose start would pass the budget waits for the next frame. `start` (re)arms
+ * the queue with a new job function — the caller replans its queue around the
+ * new viewport first — and `cancel` drops it; at most one slice is scheduled at
+ * a time, and a slice scheduled for a cancelled or replaced run does nothing.
+ */
+export class BaseJobQueue {
+  private job: Job | null = null;
+  private done: SliceDone | null = null;
+  private scheduled = false;
+  private generation = 0;
+
+  constructor(
+    private readonly deps: JobQueueDeps,
+    private readonly budgetMs: number = JOB_BUDGET_MS,
+  ) {}
+
+  /** Whether a run is armed. */
+  get active(): boolean {
+    return this.job !== null;
   }
-  return (callback) => {
-    scope.setTimeout(callback, 0);
-  };
+
+  /** Arms the queue with `job`, replacing any earlier run, and schedules a slice. */
+  start(job: Job, done: SliceDone): void {
+    this.generation++;
+    this.job = job;
+    this.done = done;
+    this.request();
+  }
+
+  /** Drops the current run; a slice already scheduled runs nothing. */
+  cancel(): void {
+    this.generation++;
+    this.job = null;
+    this.done = null;
+  }
+
+  private request(): void {
+    if (this.scheduled) {
+      return;
+    }
+    this.scheduled = true;
+    this.deps.schedule(() => this.slice());
+  }
+
+  private slice(): void {
+    this.scheduled = false;
+    const job = this.job;
+    const done = this.done;
+    if (job === null || done === null) {
+      return;
+    }
+    const generation = this.generation;
+    const start = this.deps.now();
+    const deadline = start + this.budgetMs;
+    let more = true;
+    do {
+      more = job(deadline);
+    } while (more && generation === this.generation && this.deps.now() < deadline);
+    if (generation !== this.generation) {
+      // The job replaced or cancelled the run; the new run has scheduled its own slice.
+      return;
+    }
+    if (!more) {
+      this.job = null;
+      this.done = null;
+    }
+    done(this.deps.now() - start, more);
+    if (more && generation === this.generation) {
+      this.request();
+    }
+  }
 }

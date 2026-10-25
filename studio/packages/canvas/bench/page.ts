@@ -62,7 +62,8 @@ async function settle(host: CanvasHost): Promise<number> {
   const start = performance.now();
   for (let i = 0; i < 400; i++) {
     host.patch([]);
-    if ((await host.nextFrame()).idleQueue === 0) {
+    const stats = await host.nextFrame();
+    if (stats.idleQueue === 0 && stats.baseJobs === 0) {
       break;
     }
     await sleep(2);
@@ -147,6 +148,8 @@ async function panScenario(host: CanvasHost): Promise<Record<string, number>> {
     previous = now;
   }
   host.endInteraction("pan");
+  // Settle: from the gesture's end to the full-resolution base, its progressive jobs done (M-12).
+  const settleMs = await settle(host);
   stop();
   intervals.sort((a, b) => a - b);
   work.sort((a, b) => a - b);
@@ -157,6 +160,7 @@ async function panScenario(host: CanvasHost): Promise<Record<string, number>> {
     max: round(intervals.at(-1) ?? 0),
     droppedFrames: intervals.filter((ms) => ms > 1.5 * FRAME_MS).length,
     mainThreadMsP95: round(percentile(work, 0.95)),
+    settleMs,
     workerFrames: worker.length,
     ...baseRenders(worker),
   };

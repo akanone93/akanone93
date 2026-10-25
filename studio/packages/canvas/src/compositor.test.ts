@@ -123,7 +123,12 @@ describe("STU-120 STU-045 compositor-assisted pan and interaction layer (M-12)",
     expect(frames.some((f) => f.base)).toBe(false);
     host.pan(-60, 0);
     env.drain(200);
-    expect(frames.filter((f) => f.base)).toHaveLength(1);
+    // One re-render at the margin, run as progressive base jobs that end with an empty queue.
+    const rebased = frames.filter((f) => f.base);
+    expect(rebased.length).toBeGreaterThan(0);
+    expect(rebased.at(-1)?.baseJobs).toBe(0);
+    env.drain(200);
+    expect(frames.filter((f) => f.base)).toHaveLength(rebased.length);
     expect(host.transform.tx).toBeCloseTo(-MARGIN, 6);
     host.endInteraction("pan");
     env.drain(200);

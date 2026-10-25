@@ -369,10 +369,14 @@ export class SceneRenderer {
       this.counters.staleTilesDrawn++;
     }
     this.regionCount = 0;
+    // The whole base is drawn here, so it is now placed at this viewport and holds exactly these tiles.
+    this.shown = { x: this.viewport.x, y: this.viewport.y, zoom: this.viewport.zoom };
+    this.shownTiles.clear();
     for (const tile of this.tiles.collect(this.view, this.visible)) {
       this.tiles.tileRect(tile, this.tileWorld);
       if (tile.image !== null) {
         this.blit(canvas, tile, false);
+        this.shownTiles.add(tile);
         this.counters.tilesDrawn++;
         if (tile.dirty) {
           this.addRegion(tile.dirty, this.tileWorld);
