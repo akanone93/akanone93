@@ -127,6 +127,11 @@ SPDX-License-Identifier: Apache-2.0
   goes into children; Esc selects the parent; Ctrl/⌘+click deep-selects the innermost node;
   Shift+click adds/removes; marquee selects touching nodes in scope; Ctrl/⌘+A selects all siblings;
   Tab/Shift+Tab move between siblings; arrows nudge.
+- **Move, nudge and resize follow the parent** (maintainer, 2026-10-25): inside a `Stack`, move and
+  nudge change the child's `Positioned` left/top (arrows 1 px, Shift+arrows 10 px); inside `Row`,
+  `Column` or `Wrap`, move reorders (arrows step one sibling) and dragging reparents with the
+  insertion indicator; resize sets width/height only where the node's descriptor has size
+  properties (e.g. `SizedBox`, `Container`). Only schema fields are written; nothing else moves.
 - **Multi-select:** Properties shows shared properties with "Mixed" where values differ; may span
   screens for copy and delete, not for reparenting; locked/hidden nodes only via the Layers tree.
 - **What is selectable:** app canvas — plugin boxes, frames, arrows; plugin canvas — screens,

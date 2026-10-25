@@ -37,7 +37,7 @@ import {
 } from "./fonts.ts";
 import { makeRect, type Rect } from "./geometry.ts";
 import { HitIndex, type RectMode } from "./hit.ts";
-import type { SelectionOverlay } from "./overlay.ts";
+import type { Guides, SelectionOverlay } from "./overlay.ts";
 import {
   type CanvasOptions,
   type FrameStats,
@@ -139,6 +139,7 @@ export class CanvasHost {
   private readonly notices: CanvasNotice[] = [];
   private readonly noticed = new Set<string>();
   private selected: readonly string[] = [];
+  private guides: Guides | null = null;
 
   /**
    * Loads the fonts of `request` (STU-006) and then starts the canvas, so no
@@ -405,6 +406,11 @@ export class CanvasHost {
     return this.hits.hitRect(makeRect(a.x, a.y, b.x, b.y), mode);
   }
 
+  /** The world rectangle of item `id`, or undefined when there is no such item. */
+  boundsOf(id: string): Rect | undefined {
+    return this.hits.spec(id) === undefined ? undefined : this.hits.shapeOf(id, makeRect(0, 0, 0, 0));
+  }
+
   /** The selected item ids. */
   get selection(): readonly string[] {
     return this.selected;
@@ -416,6 +422,15 @@ export class CanvasHost {
    */
   setSelection(ids: readonly string[]): void {
     this.selected = ids.filter((id) => this.hits.spec(id) !== undefined);
+    this.drawOverlay();
+  }
+
+  /**
+   * Shows smart guides, distance labels and an insertion indicator (world coordinates) on the overlay;
+   * `null` hides them. Only the overlay is redrawn; the worker is not told.
+   */
+  setGuides(guides: Guides | null): void {
+    this.guides = guides;
     this.drawOverlay();
   }
 
@@ -431,13 +446,13 @@ export class CanvasHost {
         boxes.push(box);
       }
     }
-    overlay.draw(this.view, this.dpr, boxes);
+    overlay.draw(this.view, this.dpr, boxes, this.guides ?? undefined);
   }
 
   /** The view changed: the overlay and the accessible tree follow it. */
   private followView(): void {
     this.layers.tree?.setView(this.view.x, this.view.y, this.view.zoom);
-    if (this.selected.length > 0) {
+    if (this.selected.length > 0 || this.guides !== null) {
       this.drawOverlay();
     }
   }

@@ -16,6 +16,7 @@ import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
+import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
 import { ShellLayout } from "./features/shell/shell-layout.tsx";
@@ -28,6 +29,8 @@ export interface RouterContext {
   readonly webgl2?: boolean;
   /** Starts the canvas surface of C2; unset means the browser worker (tests inject a stub). */
   readonly createSurface?: SurfaceFactory;
+  /** Starts the validator of C2's Problems tab; unset means the browser worker (tests inject a stub). */
+  readonly createValidator?: ValidatorFactory;
 }
 
 function RouteError({ error }: ErrorComponentProps) {

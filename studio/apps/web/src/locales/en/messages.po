@@ -7,11 +7,17 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#. Announced to screen readers when several elements are selected on the canvas.
+#. Accessible name of the error count in the action bar.
 #. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.selectionMany"
-msgstr "{count} elements selected"
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.errors"
+msgstr "{count, plural, one {# error} other {# errors}}"
+
+#. Accessible name of the warning count in the action bar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.warnings"
+msgstr "{count, plural, one {# warning} other {# warnings}}"
 
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
@@ -24,12 +30,6 @@ msgstr "{count} of at most {max} characters"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.unread"
 msgstr "{count} unread"
-
-#. Announced to screen readers when one element is selected on the canvas.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.selectionOne"
-msgstr "{name} selected"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -114,6 +114,12 @@ msgstr "Cancel"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.loading"
 msgstr "Checking access"
+
+#. Shown in the Problems tab while the validator runs on the plugin that was just opened.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.validating"
+msgstr "Checking the plugin…"
 
 #. Label of the new-password field on the invitation page.
 #. js-lingui-explicit-id
@@ -211,6 +217,12 @@ msgstr "Density"
 msgid "help.docs"
 msgstr "Documentation"
 
+#. Accessible name of the drawer below the canvas that holds tabs such as Problems.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.drawer"
+msgstr "Drawer"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -246,6 +258,12 @@ msgstr "Enter your password."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.title"
 msgstr "Enterprise: requires a licence"
+
+#. Accessible name of the icon of an error in the Problems tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.severity.error"
+msgstr "Error"
 
 #. Label of the event type filter.
 #. js-lingui-explicit-id
@@ -300,6 +318,12 @@ msgstr "High contrast"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.home"
 msgstr "Home"
+
+#. Accessible name of the icon of an information item in the Problems tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.severity.info"
+msgstr "Information"
 
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
@@ -391,17 +415,17 @@ msgstr "No command matches."
 msgid "notify.empty"
 msgstr "No notifications"
 
+#. Shown in the Problems tab when the validator found nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.none"
+msgstr "No problems found."
+
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "No shortcut"
-
-#. Announced to screen readers when the canvas selection becomes empty.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.selectionNone"
-msgstr "Nothing selected"
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
@@ -481,6 +505,18 @@ msgstr "Plux Studio"
 msgid "unsupported.body"
 msgstr "Plux Studio needs WebGL2 to draw the canvas. Use a current version of Chrome, Edge, Firefox or Safari with hardware acceleration on."
 
+#. Accessible name of the group in the action bar that shows how many errors and warnings there are.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.counts"
+msgstr "Problem counts"
+
+#. Label of the drawer tab that lists the validator's findings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.tab"
+msgstr "Problems"
+
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -492,6 +528,12 @@ msgstr "Profile"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.title"
 msgstr "Profile"
+
+#. Heading of the problems that belong to the whole project rather than to one file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.project"
+msgstr "Project"
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
@@ -649,6 +691,12 @@ msgstr "The passkey could not be used."
 msgid "pluginCanvas.failed"
 msgstr "The screens could not be loaded."
 
+#. Shown in the Problems tab when the validator failed to start or crashed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.unavailable"
+msgstr "The validator could not run."
+
 #. Label of the theme choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -732,6 +780,12 @@ msgstr "Use security key or passkey"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.verify"
 msgstr "Verify"
+
+#. Accessible name of the icon of a warning in the Problems tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.severity.warning"
+msgstr "Warning"
 
 #. Heading of the organisation home; name is the organisation.
 #. js-lingui-explicit-id
