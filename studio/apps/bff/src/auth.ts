@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { create } from "@bufbuild/protobuf";
-import { createClient } from "@connectrpc/connect";
+import { createClient, type Transport } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 import {
   CompleteOidcLoginRequestSchema,
@@ -79,40 +79,44 @@ export function clearStateCookie(https: boolean): string {
 
 export type LoginResult = { ok: true; cookies: string[] } | { ok: false };
 
-/** Calls the server's sign-in completion RPCs; the server sets the session cookie. */
-export function createLoginClient(upstream: string) {
-  let captured: string[] = [];
+/**
+ * One sign-in completion with its own transport: the session cookie is read from
+ * this call's own HTTP response, never from state shared with a concurrent
+ * completion (which could hand one person's session to another).
+ */
+async function completeLogin(upstream: string, call: (transport: Transport) => Promise<unknown>): Promise<LoginResult> {
+  let cookies: string[] = [];
   const transport = createConnectTransport({
     baseUrl: upstream,
     useBinaryFormat: true,
     fetch: (async (input: string | URL | Request, init?: RequestInit) => {
       const res = await fetch(input, init);
-      captured = res.headers.getSetCookie().filter((c) => c.startsWith(sessionCookie));
+      cookies = res.headers.getSetCookie().filter((c) => c.startsWith(sessionCookie));
       return res;
     }) as typeof fetch,
   });
-  const identity = createClient(IdentityService, transport);
-  const federation = createClient(FederationService, transport);
+  try {
+    await call(transport);
+  } catch {
+    return { ok: false };
+  }
+  return cookies.length > 0 ? { ok: true, cookies } : { ok: false };
+}
+
+/** Calls the server's sign-in completion RPCs; the server sets the session cookie. */
+export function createLoginClient(upstream: string) {
   return {
-    async oidc(code: string, state: string): Promise<LoginResult> {
-      captured = [];
-      try {
-        await identity.completeOidcLogin(create(CompleteOidcLoginRequestSchema, { code, state }));
-      } catch {
-        return { ok: false };
-      }
-      return captured.length > 0 ? { ok: true, cookies: captured } : { ok: false };
+    oidc(code: string, state: string): Promise<LoginResult> {
+      return completeLogin(upstream, (t) =>
+        createClient(IdentityService, t).completeOidcLogin(create(CompleteOidcLoginRequestSchema, { code, state })),
+      );
     },
-    async saml(providerId: string, samlResponse: string, relayState: string): Promise<LoginResult> {
-      captured = [];
-      try {
-        await federation.completeSamlLogin(
+    saml(providerId: string, samlResponse: string, relayState: string): Promise<LoginResult> {
+      return completeLogin(upstream, (t) =>
+        createClient(FederationService, t).completeSamlLogin(
           create(CompleteSamlLoginRequestSchema, { providerId, samlResponse, relayState }),
-        );
-      } catch {
-        return { ok: false };
-      }
-      return captured.length > 0 ? { ok: true, cookies: captured } : { ok: false };
+        ),
+      );
     },
   };
 }
