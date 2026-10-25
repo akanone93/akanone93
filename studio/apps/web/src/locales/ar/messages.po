@@ -767,7 +767,7 @@ msgstr "إعادة الاستلام والتطبيق"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.readOnly"
-msgstr ""
+msgstr "للقراءة فقط: لا يمكنك تعديل هذه الإضافة الآن"
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id

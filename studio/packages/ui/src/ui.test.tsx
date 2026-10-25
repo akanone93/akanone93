@@ -97,13 +97,7 @@ describe("STU-011 accessible components", () => {
   });
 
   test("Button: roles, loading and disabled stay focusable", () => {
-    render(
-      <>
-        {buttonCases.map((c) => (
-          <div key={c.name}>{c.element}</div>
-        ))}
-      </>,
-    );
+    render(buttonCases.map((c) => <div key={c.name}>{c.element}</div>));
     const loading = screen.getByRole("button", { name: /Saving/ });
     expect(loading.getAttribute("aria-busy")).toBe("true");
     expect(loading.getAttribute("aria-disabled")).toBe("true");
@@ -125,13 +119,7 @@ describe("STU-011 accessible components", () => {
   });
 
   test("Field: label names the control, error is linked and marks it invalid", () => {
-    render(
-      <>
-        {fieldCases.map((c) => (
-          <div key={c.name}>{c.element}</div>
-        ))}
-      </>,
-    );
+    render(fieldCases.map((c) => <div key={c.name}>{c.element}</div>));
     const inputs = screen.getAllByRole("textbox", { name: "Name" });
     expect(inputs.length).toBeGreaterThan(0);
     const invalid = inputs.find((i) => i.getAttribute("aria-invalid") === "true");

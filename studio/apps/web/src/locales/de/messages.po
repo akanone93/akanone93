@@ -767,7 +767,7 @@ msgstr "Erneut übernehmen und anwenden"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.readOnly"
-msgstr ""
+msgstr "Schreibgeschützt: Dieses Plugin kann jetzt nicht geändert werden"
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
