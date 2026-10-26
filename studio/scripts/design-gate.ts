@@ -4,7 +4,11 @@
 // The design gate of the UI language (U18.6, decision O-4): the Impeccable detector scans the built
 // app and the served catalogue page in each theme, so the element rules (text size, contrast, glow)
 // run on the rendered DOM. Any finding fails the gate; the report is kept in design-gate-report.txt.
-// The project config is studio/.impeccable/config.json.
+// The project config is studio/.impeccable/config.json. Three rules are off there because they flag
+// the approved Porcelain design, not a defect (maintainer, 2026-10-26): `undersized-ui-text` (the 10px
+// `type.tag`, U7), `dark-glow` (`shadow-primary`, U7) and `pulsing-dot` (the live-device dot, U10).
+// The detector has no value-scoped ignore for them on a URL scan, so they are ignored by rule; the
+// decision is listed under Open decisions in docs/WORKLOG.md to be reviewed, not forgotten.
 
 import { chmodSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
