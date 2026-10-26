@@ -450,3 +450,37 @@ describe("Material composites in a screen (STU-005, S4.3)", () => {
     expect(byId.get("menu")?.h).toBe(8 + 48 + 16 + 48 + 8);
   });
 });
+
+describe("Layer 2 components checked as a box only (STU-005, S4.5)", () => {
+  // Maintainer decision (S4.5): the scanner package cannot be built into the runtime's golden writer (its build hook
+  // would make a cycle), so `QrCodeView`, `QrScanner` and `BarcodeScanner` have no conformance scene. Studio lays out
+  // the box the runtime gives them and this test pins it.
+  const boxes = (): Map<string, { w: number; h: number }> => {
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        { id: "qr", type: "QrCodeView", props: { data: "https://example.com", semanticLabel: "Pay" } },
+        { id: "big", type: "QrCodeView", props: { data: "x", semanticLabel: "Pay", size: 120 } },
+        { id: "tiny", type: "QrCodeView", props: { data: "x", semanticLabel: "Pay", size: 4 } },
+        { id: "scan", type: "QrScanner", props: {} },
+        { id: "bar", type: "BarcodeScanner", props: { formats: ["ean13"] } },
+      ],
+    };
+    return new Map(layoutScreen(root, { engine, theme }).boxes.map((b) => [b.id, { w: b.w, h: b.h }]));
+  };
+
+  test("a QR code is a square of size, 200 by default and at least 16", () => {
+    const byId = boxes();
+    expect(byId.get("qr")).toEqual({ w: 200, h: 200 });
+    expect(byId.get("big")).toEqual({ w: 120, h: 120 });
+    expect(byId.get("tiny")).toEqual({ w: 16, h: 16 });
+  });
+
+  test("a scanner is a square as wide as the screen's content", () => {
+    const content = theme.width - 2 * theme.pagePadding;
+    const byId = boxes();
+    expect(byId.get("scan")).toEqual({ w: content, h: content });
+    expect(byId.get("bar")).toEqual({ w: content, h: content });
+  });
+});

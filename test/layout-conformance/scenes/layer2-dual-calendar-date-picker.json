@@ -1,0 +1,15 @@
+{
+  "name": "layer2-dual-calendar-date-picker",
+  "layer2": true,
+  "root": {
+    "id": "picker",
+    "type": "DualCalendarDatePicker",
+    "props": {
+      "value": "2024-03-15",
+      "firstDate": "2020-01-01",
+      "lastDate": "2030-12-31",
+      "calendar": "gregorian",
+      "secondaryCalendar": "islamicUmalqura"
+    }
+  }
+}
