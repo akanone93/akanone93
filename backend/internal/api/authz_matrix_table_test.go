@@ -192,6 +192,12 @@ var matrix = map[string]entry{
 	"DocumentService/PatchDocument": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.PatchDocumentRequest{AppId: f.app, PluginId: f.plugin, Path: "plugins/loans/pages/home.page.json", IfRevision: 1, Session: "tab-2"}
 	})),
+	"DocumentService/ApplyChangeSet": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ApplyChangeSetRequest{AppId: f.app, Drafts: []*pluxv1.ChangeSetDraft{{
+			PluginId: f.plugin, Session: "tab-2",
+			Edits: []*pluxv1.ChangeSetEdit{{Path: "plugins/loans/pages/home.page.json", Content: []byte(pageDoc)}},
+		}}}
+	})),
 	"DocumentService/DeleteDocument": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteDocumentRequest{AppId: f.app, PluginId: f.plugin, Path: "plugins/loans/pages/home.page.json", IfRevision: 1, Session: "tab-2"}
 	})),

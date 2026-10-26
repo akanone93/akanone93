@@ -1884,6 +1884,16 @@ export const limits = [
     description: "Times Studio replays an autosave on a newer revision after a conflict before it asks the user.",
   },
   {
+    key: "studio.changeSetDocuments",
+    unit: "count",
+    default: 500,
+    warning: 0,
+    max: 5000,
+    scopes: ["installation", "organization"],
+    phase: "P11",
+    description: "Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links).",
+  },
+  {
     key: "studio.clipboardBytes",
     unit: "bytes",
     default: 4194304,

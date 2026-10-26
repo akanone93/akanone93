@@ -472,6 +472,9 @@ enum PluxLimit {
   /// Times Studio replays an autosave on a newer revision after a conflict
   /// before it asks the user.
   studioAutosaveReplays('studio.autosaveReplays', PluxLimitUnit.count, 3, 0, 10),
+  /// Documents one atomic change set may write across the drafts of an app
+  /// (moving a screen with its links, redirecting incoming links).
+  studioChangeSetDocuments('studio.changeSetDocuments', PluxLimitUnit.count, 500, 0, 5000),
   /// Size of one Studio clipboard envelope; a larger copy is refused.
   studioClipboardBytes('studio.clipboardBytes', PluxLimitUnit.bytes, 4194304, 0, 33554432),
   /// Events the server keeps per Studio events stream for resumption before it

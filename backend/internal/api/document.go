@@ -119,6 +119,49 @@ func (s Document) PatchDocument(ctx context.Context, req *connect.Request[pluxv1
 	})
 }
 
+// ApplyChangeSet writes documents of several drafts of an app in one
+// transaction (STU-055, STU-070, contracts #15).
+func (s Document) ApplyChangeSet(ctx context.Context, req *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ApplyChangeSetResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		depth := int(s.h.Limits.Get(limits.DocumentJSONDepth))
+		drafts := make([]document.ChangeSetDraft, 0, len(m.GetDrafts()))
+		for _, d := range m.GetDrafts() {
+			part := document.ChangeSetDraft{PluginID: d.GetPluginId(), Session: d.GetSession(), IfDraftRevision: d.GetIfDraftRevision()}
+			for _, e := range d.GetEdits() {
+				ops, err := patchOps(e.GetPatch(), depth)
+				if err != nil {
+					return nil, err
+				}
+				edit := document.ChangeSetEdit{Path: e.GetPath(), Patch: ops, Delete: e.GetDelete(), IfRevision: e.GetIfRevision()}
+				if len(e.GetContent()) > 0 {
+					edit.Content = e.GetContent()
+				}
+				part.Edits = append(part.Edits, edit)
+			}
+			drafts = append(drafts, part)
+		}
+		written, err := s.h.Documents.ApplyChangeSet(ctx, p, m.GetAppId(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, drafts)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ApplyChangeSetResponse{}
+		for _, w := range written {
+			r := &pluxv1.ChangeSetDraftResult{PluginId: w.PluginID, SnapshotId: w.SnapshotID, Revision: w.Revision}
+			for _, d := range w.Documents {
+				r.Documents = append(r.Documents, documentProto(d))
+			}
+			out.Drafts = append(out.Drafts, r)
+			out.Diagnostics = append(out.Diagnostics, diagnosticProtos(w.Diagnostics)...)
+		}
+		return out, nil
+	})
+}
+
 // DeleteDocument deletes a document; a page goes to the trash.
 func (s Document) DeleteDocument(ctx context.Context, req *connect.Request[pluxv1.DeleteDocumentRequest]) (*connect.Response[pluxv1.DeleteDocumentResponse], error) {
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.DeleteDocumentResponse, error) {

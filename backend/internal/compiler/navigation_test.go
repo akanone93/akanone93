@@ -447,3 +447,24 @@ func TestGuardsAndLinksAreEncoded(t *testing.T) {
 		t.Errorf("deep links or push written for an app that declares neither")
 	}
 }
+
+// Verifies: STU-077.
+// Pages that redirect each other from onEnter without user input form a
+// loop that is an error; a cycle with a user-driven step in it is not.
+func TestRedirectLoops(t *testing.T) {
+	t.Parallel()
+	automatic := fixture(t)
+	redirect(t, automatic, calculatorPage, calculatorRedirect)
+	redirect(t, automatic, resultPage, resultRedirect)
+	res := compileFS(automatic)
+	wantDiag(t, res, plxerr.RedirectLoop, calculatorPage, "/lifecycle/onEnter")
+	wantDiag(t, res, plxerr.RedirectLoop, resultPage, "/lifecycle/onEnter")
+
+	// The calculator reaches the result only when the user presses its
+	// button; the result redirecting back closes a user-driven cycle.
+	userDriven := fixture(t)
+	redirect(t, userDriven, resultPage, resultRedirect)
+	if res := compileFS(userDriven); hasCode(res, plxerr.RedirectLoop) {
+		t.Errorf("a user-driven cycle is reported as a redirect loop:\n%s", list(res.Diagnostics))
+	}
+}
