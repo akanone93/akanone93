@@ -10,22 +10,22 @@
  * `DefaultTextStyle` does.
  */
 
-import { BoxConstraints } from "../src/flutter/constraints.ts";
-import type { TextDirection } from "../src/flutter/geometry.ts";
-import { EdgeInsetsDirectional } from "../src/flutter/geometry.ts";
+import { BoxConstraints } from "../flutter/constraints.ts";
+import type { TextDirection } from "../flutter/geometry.ts";
+import { EdgeInsetsDirectional } from "../flutter/geometry.ts";
 import {
   appBarPreferredHeight,
   buildAppBar,
   kLeadingWidth,
   kMaxTitleTextScaleFactor,
   kMiddleSpacing,
-} from "../src/flutter/material/app-bar.ts";
-import { buildModalBottomSheet } from "../src/flutter/material/bottom-sheet.ts";
-import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
-import { buildChip } from "../src/flutter/material/chip.ts";
-import { buildAlertDialog } from "../src/flutter/material/dialog.ts";
-import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../src/flutter/material/input-decorator.ts";
-import { buildListTile } from "../src/flutter/material/list-tile.ts";
+} from "../flutter/material/app-bar.ts";
+import { buildModalBottomSheet } from "../flutter/material/bottom-sheet.ts";
+import { type ButtonKind, buildButton, buildFab, type FabKind } from "../flutter/material/buttons.ts";
+import { buildChip } from "../flutter/material/chip.ts";
+import { buildAlertDialog } from "../flutter/material/dialog.ts";
+import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../flutter/material/input-decorator.ts";
+import { buildListTile } from "../flutter/material/list-tile.ts";
 import {
   buildDestination,
   buildNavigationBar,
@@ -36,7 +36,7 @@ import {
   kMaxLabelTextScaleFactor as kMaxNavLabelScale,
   kNavigationBarHeight,
   type NavigationLabelBehavior,
-} from "../src/flutter/material/navigation-bar.ts";
+} from "../flutter/material/navigation-bar.ts";
 import {
   buildNavigationRail,
   buildRailDestination,
@@ -44,21 +44,22 @@ import {
   kRailMinExtendedWidth,
   kRailMinWidth,
   type RailLabelType,
-} from "../src/flutter/material/navigation-rail.ts";
-import { buildPopupMenu, buildPopupMenuDivider, buildPopupMenuItem } from "../src/flutter/material/popup-menu.ts";
-import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
-import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../src/flutter/material/tab-bar.ts";
+} from "../flutter/material/navigation-rail.ts";
+import { buildPopupMenu, buildPopupMenuDivider, buildPopupMenuItem } from "../flutter/material/popup-menu.ts";
+import { type FabLocation, RenderScaffold } from "../flutter/material/scaffold.ts";
+import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../flutter/material/tab-bar.ts";
 import {
   kToolbarHeight,
   MaterialTapTargetSize,
   m3TextStyle,
   type TextRole,
   VisualDensity,
-} from "../src/flutter/material/theme.ts";
-import { RenderConstrainedBox } from "../src/flutter/proxy-box.ts";
-import type { RenderBox } from "../src/flutter/render-box.ts";
-import { RenderPadding } from "../src/flutter/shifted-box.ts";
-import type { TextStyle } from "../src/flutter/text-style.ts";
+} from "../flutter/material/theme.ts";
+import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
+import type { RenderBox } from "../flutter/render-box.ts";
+import { RenderPadding } from "../flutter/shifted-box.ts";
+import type { TextStyle } from "../flutter/text-style.ts";
+import { leafBuilders } from "./material-leaves.ts";
 import type { SceneNode, SceneText, TextDefaults } from "./scene.ts";
 
 /** The theme's font family, as `ThemeData(fontFamily:)` in the golden writer. */
@@ -502,6 +503,9 @@ const builders: Record<string, Builder> = {
       child: ctx.build(required(node, "child")),
     }),
   Chip: buildChipNode,
+  ActionChip: buildChipNode,
+  ChoiceChip: buildChipNode,
+  ...leafBuilders,
   FilterChip: buildChipNode,
   InputChip: buildChipNode,
   IconButton: (node, ctx) =>

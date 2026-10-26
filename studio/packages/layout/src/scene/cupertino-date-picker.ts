@@ -9,7 +9,7 @@
  * lays text out unscaled (`MediaQuery.withNoTextScaling`).
  */
 
-import { cupertinoDatePicker, kDatePickerItemExtent, type RenderBox, TextDirection, TextScaler } from "../src/index.ts";
+import { cupertinoDatePicker, kDatePickerItemExtent, type RenderBox, TextDirection, TextScaler } from "../index.ts";
 import { type CupertinoContext, label, numberProp, str } from "./cupertino-common.ts";
 import type { SceneNode } from "./scene.ts";
 

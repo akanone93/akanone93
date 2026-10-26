@@ -22,7 +22,7 @@ import {
   isInAccessibilityMode,
   type RenderBox,
   Size,
-} from "../src/index.ts";
+} from "../index.ts";
 import { type CupertinoContext, only, scaled, slotOf, withDefaultText } from "./cupertino-common.ts";
 import type { SceneNode, SceneText } from "./scene.ts";
 

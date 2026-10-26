@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { loadCanvasKit, testParagraphEngine } from "../../test-support/canvaskit.ts";
 import { TextDirection } from "../flutter/geometry.ts";
 import { RenderParagraph } from "../flutter/paragraph.ts";
@@ -9,7 +11,14 @@ import type { TextStyle } from "../flutter/text-style.ts";
 import type { CanvasKitParagraphEngine } from "../text/canvaskit-engine.ts";
 import { TextAlign } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
-import { defaultScreenTheme, layoutScreen, type ScreenTheme, type WidgetContext, type WidgetNode } from "./screen.ts";
+import {
+  defaultScreenTheme,
+  defaultWidgetBuilders,
+  layoutScreen,
+  type ScreenTheme,
+  type WidgetContext,
+  type WidgetNode,
+} from "./screen.ts";
 
 let engine: CanvasKitParagraphEngine;
 const theme: ScreenTheme = { ...defaultScreenTheme, fontFamilies: ["NotoSans", "NotoNaskhArabic"] };
@@ -482,5 +491,70 @@ describe("Layer 2 components checked as a box only (STU-005, S4.5)", () => {
     const byId = boxes();
     expect(byId.get("scan")).toEqual({ w: content, h: content });
     expect(byId.get("bar")).toEqual({ w: content, h: content });
+  });
+});
+
+/** Widget types of `schema/widgets` (Layer 1 and Layer 2): the descriptor file names. */
+function schemaWidgetTypes(): string[] {
+  const root = join(import.meta.dir, "../../../../../schema/widgets");
+  return ["layer1", "layer2"].flatMap((layer) =>
+    readdirSync(join(root, layer))
+      .filter((file) => file.endsWith(".json"))
+      .map((file) => file.slice(0, -".json".length)),
+  );
+}
+
+/**
+ * The widget types still drawn as labelled placeholders (S4.6). A type leaves
+ * this list when it gains a builder, and the test fails until it does.
+ */
+const placeholderTypes: readonly string[] = [
+  "Autocomplete",
+  "BackButton",
+  "BottomAppBar",
+  "BottomNavigationBar",
+  "CalendarDatePicker",
+  "CheckboxListTile",
+  "CloseButton",
+  "CupertinoActivityIndicator",
+  "DataTable",
+  "DropdownMenu",
+  "ExpansionTile",
+  "Image",
+  "MaterialBanner",
+  "NavigationDrawer",
+  "PopupMenuButton",
+  "RadioListTile",
+  "RangeSlider",
+  "RichText",
+  "SearchAnchor",
+  "SearchBar",
+  "SegmentedButton",
+  "SelectableText",
+  "Slider",
+  "Stepper",
+  "SwitchListTile",
+  "Timeline",
+];
+
+describe("builder coverage (STU-005)", () => {
+  test("every widget type has a builder except the listed placeholders", () => {
+    const types = schemaWidgetTypes();
+    expect(types.length).toBeGreaterThan(200);
+    const missing = types.filter((type) => !defaultWidgetBuilders.has(type)).sort();
+    expect(missing).toEqual([...placeholderTypes].sort());
+  });
+
+  test("a type with a builder is not listed as a placeholder", () => {
+    for (const type of placeholderTypes) {
+      expect(defaultWidgetBuilders.has(type)).toBe(false);
+    }
+  });
+
+  test("the builders name no type the schema lacks, besides the screen's own", () => {
+    const own = ["FilledTonalButton", "AlertDialog", "BottomSheet", "PopupMenu"];
+    const known = new Set([...schemaWidgetTypes(), ...own]);
+    const extra = [...defaultWidgetBuilders.keys()].filter((type) => !known.has(type) && !type.startsWith("Cupertino"));
+    expect(extra).toEqual([]);
   });
 });
