@@ -23,6 +23,8 @@ export type Validation =
       readonly validatePage: (file: string, data: string) => Promise<readonly Problem[]>;
       /** Undefined when the validator has no language service. */
       readonly language: PxlLanguage | undefined;
+      /** The Go module's pure tools (importers, migration preview; L-12); undefined in a stub without them. */
+      readonly tool: ValidatorClient["tool"];
     }
   | { readonly state: "failed" };
 
@@ -75,6 +77,10 @@ export function useValidation(
             problems: inFiles(problems, plugin),
             validatePage: (file, data) => validator.validatePage(file, data),
             language: languageOf(validator),
+            tool:
+              validator.tool === undefined
+                ? undefined
+                : (name, args) => validator.tool?.(name, args) ?? Promise.resolve(null),
           }),
       )
       .catch(() => live && setResult({ state: "failed" }));

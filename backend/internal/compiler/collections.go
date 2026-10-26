@@ -4,6 +4,8 @@
 package compiler
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"maps"
 	"slices"
@@ -481,4 +483,43 @@ func simulatePlans(p, c StoredCollection) (fields map[string]string, resets map[
 		}
 	}
 	return fields, resets, deleted
+}
+
+// PreviewCollections is the migration preview of Studio's DB schema designer
+// (DB-005): it runs the publish-time comparison, CheckCollections, on the
+// collections of a released plugin document and of the edited one, each a JSON
+// array of collections, and returns the findings as JSON diagnostics. dropped
+// is a JSON array of collection IDs the edited document lists in
+// droppedCollections; it may be empty. The function is pure, so Studio runs
+// the very code the server runs without a round trip.
+func PreviewCollections(previous, current, dropped []byte) ([]byte, error) {
+	var prev, cur []schema.Collection
+	if err := json.Unmarshal(previous, &prev); err != nil {
+		return nil, fmt.Errorf("compiler.PreviewCollections: previous collections: %w", err)
+	}
+	if err := json.Unmarshal(current, &cur); err != nil {
+		return nil, fmt.Errorf("compiler.PreviewCollections: current collections: %w", err)
+	}
+	var drop []string
+	if len(bytes.TrimSpace(dropped)) > 0 {
+		if err := json.Unmarshal(dropped, &drop); err != nil {
+			return nil, fmt.Errorf("compiler.PreviewCollections: dropped collections: %w", err)
+		}
+	}
+	set := func(cols []schema.Collection) CollectionSet {
+		var s CollectionSet
+		for _, c := range cols {
+			s.Collections = append(s.Collections, storedCollection(c, "", ""))
+		}
+		return s
+	}
+	diags := CheckCollections(set(prev), CollectionSet{Collections: set(cur).Collections, Dropped: drop})
+	if diags == nil {
+		diags = plxerr.Diagnostics{}
+	}
+	out, err := json.Marshal(diags)
+	if err != nil {
+		return nil, fmt.Errorf("compiler.PreviewCollections: %w", err)
+	}
+	return out, nil
 }

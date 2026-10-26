@@ -349,11 +349,35 @@ msgstr "Konto"
 msgid "links.tab"
 msgstr "Aktionen"
 
+#. Button that adds an entry to a list in a designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.add"
+msgstr "Hinzufügen"
+
 #. Choice that adds the navigation after the steps an event already has.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.append"
 msgstr "Danach hinzufügen"
+
+#. Button that adds a collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbAdd"
+msgstr "Collection hinzufügen"
+
+#. Button that adds an empty data source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataAdd"
+msgstr "Datenquelle hinzufügen"
+
+#. Button that adds a field to a collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbAddField"
+msgstr "Feld hinzufügen"
 
 #. Button that appends an item to a list property.
 #. js-lingui-explicit-id
@@ -373,11 +397,29 @@ msgstr "Schlüssel hinzufügen"
 msgid "links.add"
 msgstr "Link hinzufügen"
 
+#. Button that adds a migration plan.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbAddPlan"
+msgstr "Migrationsplan hinzufügen"
+
 #. Button that adds a new state entry to the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.add"
 msgstr "Statuseintrag hinzufügen"
+
+#. Button that adds the imported data sources and types to the draft.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataAddImported"
+msgstr "Importierte Datenquellen hinzufügen"
+
+#. Button that adds a design token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeAddToken"
+msgstr "Token hinzufügen"
 
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
@@ -433,10 +475,22 @@ msgstr "Darstellung"
 msgid "jsonEditor.applied"
 msgstr "Auf das Dokument angewendet."
 
+#. Status after a designer's draft was applied.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.applied"
+msgstr "Auf das Dokument angewendet."
+
 #. Button that applies the edited JSON to the document. Enabled only when the JSON is valid.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.apply"
+msgstr "Übernehmen"
+
+#. Button that applies a designer's draft to the document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.apply"
 msgstr "Übernehmen"
 
 #. Caption on the organisation home.
@@ -565,6 +619,12 @@ msgstr "Canvas-Aktionen"
 msgid "appCanvas.laneChangeTrigger"
 msgstr "Auslöser ändern"
 
+#. Note that edits to the theme apply to the canvas at once.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeLive"
+msgstr "Änderungen erscheinen beim Tippen auf der Leinwand."
+
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -593,6 +653,12 @@ msgstr "Prüfe ..."
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.checking"
+msgstr "Wird geprüft …"
+
+#. Status while the validator checks the draft.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.checking"
 msgstr "Wird geprüft …"
 
 #. Label of the new-password field on the invitation page.
@@ -655,6 +721,18 @@ msgstr "Schließen"
 msgid "dialog.close"
 msgstr "Schließen"
 
+#. Accessible name of the button that closes the data source designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataClose"
+msgstr "Datenquellen-Designer schließen"
+
+#. Accessible name of the button that closes the DB schema designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbClose"
+msgstr "DB-Schema-Designer schließen"
+
 #. Accessible name of the button that closes the full-screen JSON editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -672,6 +750,24 @@ msgstr "Lokalisierungstabelle schließen"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.close"
 msgstr "Status-Designer schließen"
+
+#. Accessible name of the button that closes the theme editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeClose"
+msgstr "Theme-Editor schließen"
+
+#. Accessible name of the list of collections.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbList"
+msgstr "Collections des Plugins"
+
+#. Heading of the swatches that show the colour tokens in both modes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themePreview"
+msgstr "Farbvorschau"
 
 #. Density option.
 #. js-lingui-explicit-id
@@ -720,6 +816,12 @@ msgstr "Mit der zuletzt veröffentlichten Version vergleichen"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layer2"
 msgstr "Komponenten"
+
+#. Status while the migration preview is computed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPreviewChecking"
+msgstr "Migration wird berechnet …"
 
 #. Button that confirms the action of a dialog.
 #. js-lingui-explicit-id
@@ -786,6 +888,48 @@ msgstr "Aktueller Bildschirm"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.dark"
 msgstr "Dunkel"
+
+#. Column heading and preview name of the dark mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeDark"
+msgstr "Dunkel"
+
+#. Accessible name of the field that holds a token's dark value; {token} is its path.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeDarkValue"
+msgstr "Dunkler Wert von {token}"
+
+#. Title of the full-screen data source designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataTitle"
+msgstr "Datenquellen-Designer"
+
+#. Button in the right panel that opens the data source designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataOpen"
+msgstr "Datenquellen"
+
+#. Accessible name of the list of data sources.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataList"
+msgstr "Datenquellen des Plugins"
+
+#. Button in the right panel that opens the DB schema designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbOpen"
+msgstr "DB-Schema"
+
+#. Title of the full-screen DB schema designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbTitle"
+msgstr "DB-Schema-Designer"
 
 #. Result of explaining access; decision is the server's verdict.
 #. js-lingui-explicit-id
@@ -889,6 +1033,12 @@ msgstr "veraltet"
 msgid "appCanvas.description"
 msgstr "Beschreibung"
 
+#. Accessible name of the table of design tokens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeTokens"
+msgstr "Design-Tokens"
+
 #. D37 button: drop the unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -924,6 +1074,12 @@ msgstr "Dokumentation"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.drawer"
 msgstr "Schublade"
+
+#. Label of the field that lists the fields a plan drops.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPlanDrop"
+msgstr "Felder verwerfen (durch Komma getrennt)"
 
 #. Button and dialog title: copy a plugin under a new key.
 #. js-lingui-explicit-id
@@ -1063,6 +1219,24 @@ msgstr "Zugriff erklären"
 msgid "panels.field"
 msgstr "Feld {name}"
 
+#. Label of the field that holds the name of a collection field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbFieldName"
+msgstr "Feldname"
+
+#. Label of the field that holds the type of a collection field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbFieldType"
+msgstr "Feldtyp"
+
+#. Heading of the list of fields of a collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbFields"
+msgstr "Felder"
+
 #. Heading of the list of validator findings about the chosen state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -1105,6 +1279,12 @@ msgstr "Rahmenbezeichnung"
 msgid "appCanvas.newFrame"
 msgstr "Auswahl umrahmen"
 
+#. Label of the field that holds the version a migration plan starts from.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPlanFrom"
+msgstr "Ab Version"
+
 #. D27: type of an affected item, a member of the Dart API that plux codegen writes for host apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -1141,6 +1321,18 @@ msgstr "Zur Startseite"
 msgid "cmd.nav.profile"
 msgstr "Zum Profil"
 
+#. Name of the GraphQL format in the import list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataGraphQl"
+msgstr "GraphQL"
+
+#. Label of the text area that holds the GraphQL operations to import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataOperationsText"
+msgstr "GraphQL-Operationen"
+
 #. Button: release the lock to whoever asked.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -1176,6 +1368,12 @@ msgstr "Hinweis"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.home"
 msgstr "Start"
+
+#. Heading of the import section of the data source designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataImportHeading"
+msgstr "Datenquelle importieren"
 
 #. Option: lost when the plugin closes.
 #. js-lingui-explicit-id
@@ -1281,6 +1479,12 @@ msgstr "Diese Änderungen lassen sich beim Behalten deiner Version nicht anwende
 msgid "l10n.column.key"
 msgstr "Schlüssel"
 
+#. Label of the field that holds a collection's key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbKey"
+msgstr "Schlüssel"
+
 #. Field label for a plugin's key, its stable identifier.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1316,6 +1520,12 @@ msgstr "Schlüssel können nicht hinzugefügt werden, solange eine andere Person
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.scope"
 msgstr "Angezeigte Schlüssel"
+
+#. Label of the list that chooses the kind of a data source (REST, GraphQL, …).
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataKind"
+msgstr "Art"
 
 #. Label of the language choice.
 #. js-lingui-explicit-id
@@ -1364,6 +1574,18 @@ msgstr "Linke Bedienfelder"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.light"
 msgstr "Hell"
+
+#. Column heading and preview name of the light mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeLight"
+msgstr "Hell"
+
+#. Accessible name of the field that holds a token's light value; {token} is its path.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeLightValue"
+msgstr "Heller Wert von {token}"
 
 #. Title of the menu of one navigation link, e.g. 'Link Home → Offers'.
 #. js-lingui-explicit-id
@@ -1515,6 +1737,18 @@ msgstr "Darf leer sein"
 msgid "panels.medium"
 msgstr "Mittel"
 
+#. Heading of the list of migration plans of a collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPlans"
+msgstr "Migrationspläne"
+
+#. Heading of the preview of what a change does to data on devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPreview"
+msgstr "Migrationsvorschau"
+
 #. Shown in a cell of the table whose locale has no message for the key yet.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -1526,6 +1760,12 @@ msgstr "Fehlt"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.mixed"
 msgstr "Gemischt"
+
+#. Label of the text area that holds the design-time mock of a data source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataMock"
+msgstr "Mock-Wert (JSON)"
 
 #. Button that confirms moving a screen to the chosen plugin.
 #. js-lingui-explicit-id
@@ -1567,6 +1807,12 @@ msgstr "Verschieben nach …"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.name"
+msgstr "Name"
+
+#. Label of a name field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.name"
 msgstr "Name"
 
 #. Field label for a plugin's name.
@@ -1647,6 +1893,12 @@ msgstr "Neuer Zielbildschirm"
 msgid "appCanvas.redirectTarget"
 msgstr "Neuer Zielbildschirm"
 
+#. Label of the field that holds the path of a token to add.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeNewPath"
+msgstr "Pfad des neuen Tokens, zum Beispiel color.accent"
+
 #. Shown when the validator found no accessibility problem.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1671,6 +1923,12 @@ msgstr "Keine Änderungen zu übernehmen."
 msgid "cmd.palette.empty"
 msgstr "Kein Befehl passt."
 
+#. Shown when the migration preview has no finding.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPreviewClean"
+msgstr "Keine Migrationsprobleme: Geräte können ohne Datenverlust aktualisieren."
+
 #. Shown when the inbox has no items.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -1688,6 +1946,12 @@ msgstr "Keine Probleme gefunden."
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.noProblems"
 msgstr "Keine Probleme gefunden."
+
+#. Shown when validation found nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.noProblems"
+msgstr "Keine Probleme."
 
 #. Problem shown for a link whose target screen does not exist; route is the route name.
 #. js-lingui-explicit-id
@@ -1737,6 +2001,12 @@ msgstr "Nicht gesetzt"
 msgid "jsonEditor.syntax"
 msgstr "Kein gültiges JSON: {message}"
 
+#. Shown when an import produced no data source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataImportNothing"
+msgstr "Aus dieser Quelle konnte nichts importiert werden."
+
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1748,6 +2018,18 @@ msgstr "Nichts ausgewählt"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.noSelection"
 msgstr "Nichts ausgewählt."
+
+#. Status when the draft equals the document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.nothingToApply"
+msgstr "Nichts zu übernehmen."
+
+#. Shown instead of the migration preview when there is no released version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPreviewNoRelease"
+msgstr "Nichts zu vergleichen: Dieses Plugin wurde noch nicht veröffentlicht."
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
@@ -1808,6 +2090,12 @@ msgstr "Ausgangsbildschirm öffnen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneOpenTarget"
 msgstr "Zielbildschirm öffnen"
+
+#. Name of the OpenAPI format in the import list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataOpenApi"
+msgstr "OpenAPI"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -1893,6 +2181,12 @@ msgstr "Plux Studio benötigt WebGL2, um die Leinwand zu zeichnen. Verwenden Sie
 msgid "appCanvas.readOnly"
 msgstr "Positionen sind schreibgeschützt, solange jemand anderes die App bearbeitet."
 
+#. Label of the field that holds the primary key of a collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPrimaryKey"
+msgstr "Primärschlüssel (Feldnamen, durch Komma getrennt)"
+
 #. Accessible name of the group in the action bar that shows how many errors and warnings there are.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -1909,6 +2203,12 @@ msgstr "Probleme"
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.problems"
+msgstr "Probleme"
+
+#. Heading of the list of validation findings in a designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.problems"
 msgstr "Probleme"
 
 #. Label of the profile menu button and its first entry.
@@ -1953,11 +2253,23 @@ msgstr "PXL-Ausdruck"
 msgid "lock.lost.retake"
 msgstr "Erneut übernehmen und anwenden"
 
+#. Label of the control that fills the import text from a file the user chooses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataChooseFile"
+msgstr "Datei von diesem Computer lesen"
+
 #. Hint above the properties when editing is blocked.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.inspectorReadOnly"
 msgstr "Schreibgeschützt: Du hältst die Bearbeitungssperre nicht."
+
+#. Button that runs the import on the text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataRunImport"
+msgstr "Quelle lesen"
 
 #. Shown in the panels while the document cannot be edited.
 #. js-lingui-explicit-id
@@ -1970,6 +2282,12 @@ msgstr "Schreibgeschützt: Bearbeiten ist gesperrt."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.readOnly"
 msgstr "Schreibgeschützt: Dieses Plugin kann jetzt nicht geändert werden"
+
+#. Status while the importer runs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataImporting"
+msgstr "Quelle wird gelesen …"
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
@@ -2049,11 +2367,35 @@ msgstr "Wiederholen (Strg+Y)"
 msgid "banner.reload"
 msgstr "Neu laden"
 
+#. Button that removes an entry from a list in a designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.remove"
+msgstr "Entfernen"
+
+#. Button that removes the selected collection and lists it as dropped.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbRemove"
+msgstr "Collection entfernen"
+
+#. Button that removes the selected data source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataRemove"
+msgstr "Datenquelle entfernen"
+
 #. Button that removes the chosen state entry unless something still reads it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.remove"
 msgstr "Eintrag entfernen"
+
+#. Button that removes a field from a collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbRemoveField"
+msgstr "Feld entfernen"
 
 #. Accessible name of the button that removes a list item.
 #. js-lingui-explicit-id
@@ -2079,17 +2421,35 @@ msgstr "Link entfernen"
 msgid "appCanvas.laneRemove"
 msgstr "Verknüpfung entfernen"
 
+#. Button that removes a migration plan.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbRemovePlan"
+msgstr "Migrationsplan entfernen"
+
 #. STU-070 assisted fix: delete every navigation step that leaves this plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.fix.remove-outgoing"
 msgstr "Ausgehende Links entfernen"
 
+#. Accessible name of the button that removes a token; {token} is its path.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeRemoveToken"
+msgstr "Token {token} entfernen"
+
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.rename"
 msgstr "Umbenennen"
+
+#. Label of the field that lists the renames of a plan.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPlanRename"
+msgstr "Umbenennen (neu=alt, durch Komma getrennt)"
 
 #. Command that renames the current screen.
 #. js-lingui-explicit-id
@@ -2120,6 +2480,12 @@ msgstr "erforderlich"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.resetOf"
 msgstr "{name} auf Basis zurücksetzen"
+
+#. Label of the field that lists the fields a plan resets to an empty value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPlanReset"
+msgstr "Felder zurücksetzen (durch Komma getrennt)"
 
 #. Button that removes a size class override.
 #. js-lingui-explicit-id
@@ -2235,6 +2601,18 @@ msgstr "Widgets suchen"
 msgid "auth.factor.title"
 msgstr "Zweiter Faktor"
 
+#. Shown when no collection is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbSelect"
+msgstr "Wähle eine Collection zum Bearbeiten."
+
+#. Shown when no data source is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataSelect"
+msgstr "Wähle eine Datenquelle zum Bearbeiten."
+
 #. Hint in the right dock when nothing is selected.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2269,6 +2647,12 @@ msgstr "Semantik-Bezeichnung"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.sensitive"
+msgstr "Sensibel"
+
+#. Label of the checkbox that marks a field as sensitive; it is then stored encrypted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbSensitive"
 msgstr "Sensibel"
 
 #. Label of the list that chooses whether a state entry is a single value, a list or a map.
@@ -2366,6 +2750,24 @@ msgstr "Slots"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.retake-failed"
 msgstr "Jemand anderes hält die Sperre jetzt."
+
+#. Shown when the editing lock is held by someone else.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.readOnly"
+msgstr "Jemand anderes bearbeitet, daher ist dieser Entwurf schreibgeschützt."
+
+#. Label of the list that chooses OpenAPI or GraphQL for an import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataImportFormat"
+msgstr "Quellformat"
+
+#. Label of the text area that holds the text to import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataSourceText"
+msgstr "Quelltext: ein OpenAPI-Dokument oder ein GraphQL-Schema"
 
 #. Error under the name field when the name is not lowerCamelCase.
 #. js-lingui-explicit-id
@@ -2523,6 +2925,12 @@ msgstr "Der Code ist falsch oder abgelaufen."
 msgid "state.notJson"
 msgstr "Der Standardwert ist kein gültiges JSON."
 
+#. Status when the draft fails validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.invalid"
+msgstr "Der Entwurf enthält Fehler; behebe sie, um ihn zu übernehmen."
+
 #. Shown when the server refuses the credentials.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -2547,6 +2955,12 @@ msgstr "Die Datei überschreitet die Größenbeschränkung für Assets. Wähle e
 msgid "assets.failure.hash-mismatch"
 msgstr "Die Datei wurde auf dem Weg zum Server beschädigt. Lade sie erneut hoch."
 
+#. Shown when the importer in the validator module cannot be reached.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataImportFailed"
+msgstr "Der Importer ist nicht verfügbar."
+
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -2564,6 +2978,24 @@ msgstr "Der Schlüssel konnte nicht gespeichert werden. Es wurde nichts geänder
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.takeover.refused"
 msgstr "Die Sperre konnte nicht übernommen werden: Die Person hat wieder bearbeitet, oder Sie dürfen Sperren nicht übernehmen."
+
+#. Shown when the migration planner in the validator module cannot be reached.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbPreviewUnavailable"
+msgstr "Die Migrationsvorschau ist nicht verfügbar."
+
+#. Error under the mock field when it cannot be parsed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataMockInvalid"
+msgstr "Der Mock ist kein gültiges JSON."
+
+#. Help text under the mock field of a data source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataMockHelp"
+msgstr "Der Mock wird auf der Leinwand gezeigt, solange keine echten Daten vorliegen."
 
 #. Shown when the passkey prompt fails or is cancelled.
 #. js-lingui-explicit-id
@@ -2619,6 +3051,18 @@ msgstr "Der Server hat die Änderung nicht akzeptiert."
 msgid "assets.failure.size-mismatch"
 msgstr "Der Server hat eine andere Anzahl von Bytes erhalten, als die Datei hat. Lade sie erneut hoch."
 
+#. Note shown after an import that produced variables, which belong to the app and are not added here.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataVariablesNote"
+msgstr "Die Quelle beschreibt auch Variablen der App; füge sie im App-Dokument hinzu."
+
+#. Status after a successful import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataImportReady"
+msgstr "Die Quelle wurde gelesen. Prüfe sie und füge sie dem Plugin hinzu."
+
 #. Reason a screen cannot move: the key is taken in the target plugin.
 #. Reason a screen cannot move: the key is taken in the target plugin.
 #. js-lingui-explicit-id
@@ -2668,6 +3112,12 @@ msgstr "Der Validator hat an diesem Eintrag nichts gefunden."
 msgid "state.unavailable"
 msgstr "Der Validator ist nicht verfügbar, daher wird der Standardwert nicht geprüft."
 
+#. Status when the validator worker cannot be reached.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.unavailable"
+msgstr "Der Validator ist nicht verfügbar."
+
 #. Status when the validator has not finished loading, so applying is not possible.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -2685,6 +3135,18 @@ msgstr "Das Widget wechselt zu {target}, wenn das gewählte Ereignis eintritt."
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme"
 msgstr "Design"
+
+#. Button in the right panel that opens the theme editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeOpen"
+msgstr "Theme"
+
+#. Title of the full-screen theme editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeTitle"
+msgstr "Theme-Editor"
 
 #. Label of the picker that binds a property to a design token.
 #. js-lingui-explicit-id
@@ -2709,6 +3171,12 @@ msgstr "Diese Aktion erfordert eine neue Prüfung mit Ihrem Sicherheitsschlüsse
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.empty"
 msgstr "Diese App hat noch keine Plugins."
+
+#. Shown when the app has no theme.json.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeNone"
+msgstr "Diese App hat kein Theme-Dokument."
 
 #. Heading shown when WebGL2 is missing.
 #. js-lingui-explicit-id
@@ -2776,6 +3244,18 @@ msgstr "Dieses Plugin"
 msgid "editor.conflict.title"
 msgstr "Dieses Plugin wurde auf dem Server geändert"
 
+#. Shown when the plugin declares no collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbNone"
+msgstr "Dieses Plugin hat noch keine Collections."
+
+#. Shown when the plugin declares no data source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataNone"
+msgstr "Dieses Plugin hat noch keine Datenquellen."
+
 #. Shown on the plugin canvas when the plugin has no screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2817,6 +3297,12 @@ msgstr "Dieses Widget hat noch keine Links."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.theme.toggle"
 msgstr "Zwischen hellem und dunklem Design wechseln"
+
+#. Column heading: the path of a design token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeToken"
+msgstr "Token"
 
 #. Edge inset at the top.
 #. js-lingui-explicit-id
@@ -2968,11 +3454,35 @@ msgstr "Gültig"
 msgid "jsonEditor.valid"
 msgstr "Gültig. Du kannst es übernehmen."
 
+#. Status when the draft passes validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.valid"
+msgstr "Gültig. Du kannst es übernehmen."
+
+#. Label of the field that holds the value of a token to add.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.themeNewValue"
+msgstr "Wert des neuen Tokens"
+
+#. Label of the field that holds the type of the value a data source returns.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataType"
+msgstr "Werttyp"
+
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.verify"
 msgstr "Bestätigen"
+
+#. Label of the field that holds a collection's schema version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dbVersion"
+msgstr "Version"
 
 #. Accessible name of the icon of a warning in the Problems tab.
 #. js-lingui-explicit-id

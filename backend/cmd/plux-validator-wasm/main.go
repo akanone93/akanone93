@@ -16,6 +16,7 @@ import (
 	"testing/fstest"
 
 	"github.com/nightCode42/plux3/backend/internal/compiler"
+	"github.com/nightCode42/plux3/backend/internal/importer"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/pxl/langsvc"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -95,6 +96,40 @@ func pluxPxlSites(_ js.Value, args []js.Value) any {
 	return string(out)
 }
 
+// pluxImport(kind, files) runs an OpenAPI or GraphQL import on text the user
+// provided (L-12); files is an array of {file, data}. It answers
+// {"fragment": …, "diagnostics": […]}.
+func pluxImport(_ js.Value, args []js.Value) any {
+	if len(args) != 2 {
+		return errorJSON("pluxImport takes (kind, files)")
+	}
+	files := args[1]
+	var sources []importer.Source
+	for i := range files.Length() {
+		f := files.Index(i)
+		sources = append(sources, importer.Source{File: f.Get("file").String(), Data: []byte(f.Get("data").String())})
+	}
+	out, err := importer.ImportJSON(args[0].String(), sources)
+	if err != nil {
+		return errorJSON(err.Error())
+	}
+	return string(out)
+}
+
+// pluxCollectionsPreview(previous, current, dropped) is the DB schema
+// designer's migration preview: the publish-time collection comparison
+// (DB-005) on JSON arrays of collections, answered as diagnostics.
+func pluxCollectionsPreview(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return errorJSON("pluxCollectionsPreview takes (previous, current, dropped)")
+	}
+	out, err := compiler.PreviewCollections([]byte(args[0].String()), []byte(args[1].String()), []byte(args[2].String()))
+	if err != nil {
+		return errorJSON(err.Error())
+	}
+	return string(out)
+}
+
 func orEmpty[T any](s []T) []T {
 	if s == nil {
 		return []T{}
@@ -122,5 +157,7 @@ func main() {
 	js.Global().Set("pluxValidatePage", js.FuncOf(pluxValidatePage))
 	js.Global().Set("pluxPxl", js.FuncOf(pluxPxl))
 	js.Global().Set("pluxPxlSites", js.FuncOf(pluxPxlSites))
+	js.Global().Set("pluxImport", js.FuncOf(pluxImport))
+	js.Global().Set("pluxCollectionsPreview", js.FuncOf(pluxCollectionsPreview))
 	select {}
 }

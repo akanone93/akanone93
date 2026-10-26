@@ -6,6 +6,7 @@ import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
 import { Button, Field, FloatingPanel, Icon, Input, Select, Tabs, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { designerMessages } from "../designers/designers.messages.ts";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
 import type { JsonValue } from "../editor/json-patch.ts";
 import { jsonEditorMessages } from "../json-editor/json-editor.messages.ts";
@@ -436,6 +437,8 @@ interface DockProps {
   readonly onOpenState?: (() => void) | undefined;
   /** The app's schema version, for the documents that key extraction creates (I18N-007). */
   readonly schemaVersion?: JsonValue | undefined;
+  /** Opens one of the designers (data sources, DB schema, theme) as a full-screen overlay (STU-063). */
+  readonly onOpenOverlay?: ((id: "data" | "db" | "theme") => void) | undefined;
 }
 
 /** The registry marks string props whose text the user sees (`translatable`, I18N-007). */
@@ -765,6 +768,8 @@ export function RightDock(props: DockProps) {
   const m = panelMessages(i18n);
   const ids = useEditor((st) => st.selection.ids);
   const jsonLabel = jsonEditorMessages(i18n).open;
+  const dm = designerMessages(i18n);
+  const designerLabels = { data: dm.dataOpen, db: dm.dbOpen, theme: dm.themeOpen };
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
     ids.length === 0 ? <p className="text-body text-secondary">{m.nothing}</p> : panel(ids);
   return (
@@ -786,6 +791,15 @@ export function RightDock(props: DockProps) {
           <Icon name="list" />
           {stateMessages(i18n).open}
         </Button>
+      )}
+      {props.onOpenOverlay !== undefined && (
+        <div className="flex flex-wrap gap-2">
+          {(["data", "db", "theme"] as const).map((id) => (
+            <Button key={id} variant="secondary" size="sm" onClick={() => props.onOpenOverlay?.(id)}>
+              {designerLabels[id]}
+            </Button>
+          ))}
+        </div>
       )}
       <Tabs
         defaultValue="properties"

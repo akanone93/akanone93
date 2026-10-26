@@ -20,6 +20,12 @@ export interface ProjectFile {
   readonly encoding?: "base64";
 }
 
+/**
+ * The pure tools the Go module offers beside validation (L-12): `import` reads an OpenAPI or GraphQL source into
+ * data sources, `collections` previews the migration between two versions of a plugin's collections (DB-005).
+ */
+export type ToolName = "import" | "collections";
+
 /** What the PXL language service answers (PXL-007). */
 export type PxlOp = "check" | "complete" | "hover" | "signature";
 
@@ -38,6 +44,8 @@ export type ValidatorRequest =
     }
   /** The expression sites of a page of the loaded project, with what each can read. */
   | { readonly type: "sites"; readonly id: number; readonly file: string; readonly data: string }
+  /** One of the pure tools; `args` are its text arguments (see {@link ValidatorEngine.tool}). */
+  | { readonly type: "tool"; readonly id: number; readonly name: ToolName; readonly args: readonly string[] }
   | { readonly type: "cancel"; readonly id: number };
 
 /** Worker to host. */
@@ -57,6 +65,11 @@ export interface ValidatorEngine {
   pxl(op: PxlOp, scope: string, src: string, offset: number): string;
   /** The expression sites of a page as JSON `{sites, envs}`. */
   pxlSites(file: string, data: string): string;
+  /**
+   * A pure tool as JSON. `import`: `[kind, JSON of [{file, data}]]` gives `{fragment, diagnostics}`;
+   * `collections`: `[previous, current, dropped]` as JSON arrays gives diagnostics.
+   */
+  tool(name: ToolName, args: readonly string[]): string;
 }
 
 const SEVERITIES = new Set(["info", "warning", "error"]);
