@@ -1,0 +1,9 @@
+{
+  "name": "layer2-status-timeline",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "StatusTimeline",
+    "props": { "steps": [{ "label": "Ordered", "detail": "Mon", "state": "done" }, { "label": "Packed", "state": "current" }, { "label": "Delivered", "state": "pending" }] }
+  }
+}
