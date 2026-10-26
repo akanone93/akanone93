@@ -3,7 +3,7 @@
 
 /** What the Cupertino scene builders share: the context, `DefaultTextStyle` and the node-prop readers (STU-005, S4.4). */
 
-import { type EdgeInsetsGeometry, type RenderBox, type TextDirection, TextScaler } from "../src/index.ts";
+import { type EdgeInsetsGeometry, type RenderBox, type TextDirection, TextScaler } from "../index.ts";
 import type { SceneNode, SceneText } from "./scene.ts";
 
 /** What the builder borrows from `scene.ts`. */

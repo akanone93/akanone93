@@ -42,7 +42,7 @@ import {
   type RenderObject,
   type RenderSliver,
   TextScaler,
-} from "../src/index.ts";
+} from "../index.ts";
 import {
   type CupertinoContext,
   type Defaults,

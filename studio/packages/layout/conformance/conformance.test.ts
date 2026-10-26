@@ -9,9 +9,6 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { type CanvasKitParagraphEngine, type LayoutGolden, TextDirection } from "../src/index.ts";
-import { layer2Types } from "../src/widgets/layer2.ts";
-import { loadCanvasKit, testParagraphEngine } from "../test-support/canvaskit.ts";
-import { compareBaselines, compareRects, edgeTolerance, type GoldenRect, textTolerance } from "./compare.ts";
 import {
   buildNode,
   childrenOf,
@@ -25,7 +22,10 @@ import {
   sceneTypes,
   supportedTypes,
   textTypes,
-} from "./scene.ts";
+} from "../src/scene/scene.ts";
+import { layer2Types } from "../src/widgets/layer2.ts";
+import { loadCanvasKit, testParagraphEngine } from "../test-support/canvaskit.ts";
+import { compareBaselines, compareRects, edgeTolerance, type GoldenRect, textTolerance } from "./compare.ts";
 
 let engine: CanvasKitParagraphEngine;
 beforeAll(async () => {

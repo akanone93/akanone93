@@ -1,0 +1,187 @@
+{
+  "name": "material-leaves",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "checkbox",
+            "type": "Checkbox",
+            "props": {
+              "value": true
+            }
+          },
+          {
+            "id": "checkbox-wrap",
+            "type": "Checkbox",
+            "props": {
+              "tapTargetSize": "shrinkWrap"
+            }
+          },
+          {
+            "id": "checkbox-dense",
+            "type": "Checkbox",
+            "props": {
+              "density": "compact"
+            }
+          },
+          {
+            "id": "switch",
+            "type": "Switch",
+            "props": {
+              "value": true
+            }
+          },
+          {
+            "id": "switch-wrap",
+            "type": "Switch",
+            "props": {
+              "tapTargetSize": "shrinkWrap"
+            }
+          },
+          {
+            "id": "radio",
+            "type": "Radio",
+            "props": {
+              "selected": true
+            }
+          },
+          {
+            "id": "radio-wrap",
+            "type": "Radio",
+            "props": {
+              "tapTargetSize": "shrinkWrap"
+            }
+          },
+          {
+            "id": "radio-dense",
+            "type": "Radio",
+            "props": {
+              "density": "compact"
+            }
+          },
+          {
+            "id": "divider",
+            "type": "Divider",
+            "props": {}
+          },
+          {
+            "id": "divider-thick",
+            "type": "Divider",
+            "props": {
+              "height": 24,
+              "thickness": 4
+            }
+          },
+          {
+            "id": "vbox",
+            "type": "SizedBox",
+            "props": {
+              "height": 40
+            },
+            "children": [
+              {
+                "id": "vdivider",
+                "type": "VerticalDivider",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "avatar",
+            "type": "CircleAvatar",
+            "props": {}
+          },
+          {
+            "id": "avatar-big",
+            "type": "CircleAvatar",
+            "props": {
+              "radius": 30
+            }
+          },
+          {
+            "id": "spinner",
+            "type": "CircularProgressIndicator",
+            "props": {
+              "value": 0.5
+            }
+          },
+          {
+            "id": "bar",
+            "type": "LinearProgressIndicator",
+            "props": {
+              "value": 0.5
+            }
+          },
+          {
+            "id": "card",
+            "type": "Card",
+            "props": {},
+            "children": [
+              {
+                "id": "card-box",
+                "type": "SizedBox",
+                "props": {
+                  "width": 80,
+                  "height": 30
+                }
+              }
+            ]
+          },
+          {
+            "id": "card-margin",
+            "type": "Card",
+            "props": {
+              "margin": [
+                8,
+                2,
+                8,
+                2
+              ]
+            },
+            "children": [
+              {
+                "id": "card-box2",
+                "type": "SizedBox",
+                "props": {
+                  "width": 80,
+                  "height": 30
+                }
+              }
+            ]
+          },
+          {
+            "id": "badge",
+            "type": "Badge",
+            "props": {
+              "label": "3"
+            },
+            "children": [
+              {
+                "id": "badge-icon",
+                "type": "Icon",
+                "props": {
+                  "size": 24
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

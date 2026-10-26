@@ -1,0 +1,99 @@
+{
+  "name": "material-chips-action-choice",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "action",
+            "type": "ActionChip",
+            "props": {},
+            "children": [
+              {
+                "id": "action-t",
+                "type": "Text",
+                "props": {
+                  "text": "Action"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "action-icon",
+            "type": "ActionChip",
+            "props": {
+              "tapTargetSize": "shrinkWrap"
+            },
+            "children": [
+              {
+                "id": "action-t2",
+                "type": "Text",
+                "props": {
+                  "text": "Share"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "action-a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              }
+            ]
+          },
+          {
+            "id": "choice",
+            "type": "ChoiceChip",
+            "props": {
+              "selected": true
+            },
+            "children": [
+              {
+                "id": "choice-t",
+                "type": "Text",
+                "props": {
+                  "text": "Choice"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "choice-dense",
+            "type": "ChoiceChip",
+            "props": {
+              "density": "compact"
+            },
+            "children": [
+              {
+                "id": "choice-t2",
+                "type": "Text",
+                "props": {
+                  "text": "Dense"
+                },
+                "slot": "label"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
