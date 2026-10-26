@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'cupertino_builders.dart';
+import 'material_composites.dart';
 
 /// The Flutter framework revision the goldens are captured with.
 const String flutterRevision = '6a19cca56475dbfba1478ee68d7bd0c2ef891da1';
@@ -419,6 +420,7 @@ const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
   'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
+  ...materialCompositeTypes,
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -518,6 +520,9 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
   final String type = node['type']! as String;
   final Key key = ValueKey<String>(id);
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  if (materialCompositeTypes.contains(type)) {
+    return buildMaterialComposite(node, key, (Map<String, Object?> child) => _build(child, phase, t));
+  }
   if (type == 'NavigationBar') {
     return _buildNavigationBar(node, props, key, phase, t);
   }

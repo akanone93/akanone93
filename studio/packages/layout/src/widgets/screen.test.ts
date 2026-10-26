@@ -253,3 +253,32 @@ describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
     expect(layout.boxes.some((b) => b.id === "row")).toBe(true);
   });
 });
+
+describe("Material composites in a screen (STU-005, S4.3)", () => {
+  const tab = (id: string, props: Record<string, unknown>, icon = false): WidgetNode => ({
+    id,
+    type: "Tab",
+    props,
+    ...(icon ? { slots: { icon: { id: `${id}i`, type: "Icon" } } } : {}),
+  });
+
+  test("a tab bar is 48 high with text or icon tabs and 74 with text and icon tabs", () => {
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        { id: "text", type: "TabBar", children: [tab("a", { text: "One" }), tab("b", { text: "Two" })] },
+        { id: "icons", type: "TabBar", children: [tab("c", {}, true), tab("d", {}, true)] },
+        { id: "both", type: "TabBar", children: [tab("e", { text: "One" }, true), tab("f", { text: "Two" })] },
+        { id: "scroll", type: "TabBar", props: { isScrollable: true }, children: [tab("g", { text: "One" })] },
+      ],
+    };
+    const byId = new Map(layoutScreen(root, { engine, theme }).boxes.map((b) => [b.id, b]));
+    expect(byId.get("text")).toMatchObject({ w: 358, h: 48 });
+    expect(byId.get("a")?.h).toBe(46);
+    expect(byId.get("icons")?.h).toBe(48);
+    expect(byId.get("both")?.h).toBe(74);
+    expect(byId.get("f")?.h).toBe(46);
+    expect(byId.get("scroll")?.h).toBe(48);
+  });
+});
