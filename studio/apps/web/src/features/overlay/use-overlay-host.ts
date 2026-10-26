@@ -5,7 +5,7 @@ import { useCallback, useRef, useState } from "react";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 
 /** The heavy editors that open as full-screen overlays (STU-063); one at a time. */
-export type OverlayId = "json" | "l10n" | "state";
+export type OverlayId = "json" | "l10n" | "state" | "data" | "db" | "theme";
 
 /** What the canvas looked like when an overlay opened: everything closing must put back. */
 export interface CanvasSnapshot {

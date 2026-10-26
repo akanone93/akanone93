@@ -9,6 +9,7 @@ export {
   type PxlOp,
   parseProblems,
   parseValue,
+  type ToolName,
   type ValidatorEngine,
   type ValidatorRequest,
   type ValidatorResponse,

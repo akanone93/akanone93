@@ -8,6 +8,7 @@ import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/re
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
+import { DesignersHost } from "../designers/designers-host.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
@@ -640,6 +641,14 @@ function PluginCanvasView({
         onOpenLocalisation={() => overlays.show("l10n")}
         onOpenState={() => overlays.show("state")}
         schemaVersion={stateTarget.schemaVersion}
+        onOpenOverlay={overlays.show}
+      />
+      <DesignersHost
+        open={overlays.open}
+        onClose={overlays.hide}
+        documents={docs.data}
+        appDocuments={appDocs.data}
+        validation={validation}
       />
       <JsonEditorHost
         open={overlays.open === "json"}
