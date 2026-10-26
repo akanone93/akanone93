@@ -1,0 +1,84 @@
+{
+  "name": "material-popup-menu-wide",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "m",
+            "type": "PopupMenu",
+            "props": {},
+            "children": [
+              {
+                "id": "i0",
+                "type": "PopupMenuItem",
+                "props": {},
+                "children": [
+                  {
+                    "id": "i0t",
+                    "type": "Text",
+                    "props": {
+                      "text": "Select all"
+                    },
+                    "slot": "child"
+                  }
+                ]
+              },
+              {
+                "id": "d0",
+                "type": "PopupMenuDivider",
+                "props": {}
+              },
+              {
+                "id": "i1",
+                "type": "PopupMenuItem",
+                "props": {},
+                "children": [
+                  {
+                    "id": "i1t",
+                    "type": "Text",
+                    "props": {
+                      "text": "A considerably longer menu item label"
+                    },
+                    "slot": "child"
+                  }
+                ]
+              },
+              {
+                "id": "i2",
+                "type": "PopupMenuItem",
+                "props": {
+                  "height": 36
+                },
+                "children": [
+                  {
+                    "id": "i2t",
+                    "type": "Text",
+                    "props": {
+                      "text": "Short"
+                    },
+                    "slot": "child"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -24,18 +24,11 @@ import {
   MainAxisSize,
   RenderFlex,
 } from "../flex.ts";
-import {
-  Alignment,
-  AlignmentDirectional,
-  EdgeInsets,
-  EdgeInsetsDirectional,
-  Offset,
-  type Size,
-  TextDirection,
-} from "../geometry.ts";
+import { Alignment, AlignmentDirectional, EdgeInsets, EdgeInsetsDirectional, TextDirection } from "../geometry.ts";
 import { RenderConstrainedBox } from "../proxy-box.ts";
-import type { RenderBox, TextBaseline } from "../render-box.ts";
-import { RenderPadding, RenderPositionedBox, RenderShiftedBox, setChildOffset } from "../shifted-box.ts";
+import type { RenderBox } from "../render-box.ts";
+import { RenderPadding, RenderPositionedBox } from "../shifted-box.ts";
+import { RenderSingleChildScroll } from "../single-child-scroll.ts";
 import { RenderStack } from "../stack.ts";
 
 /** `_kTabHeight` and `_kTextAndIconTabHeight`. */
@@ -102,43 +95,6 @@ export function buildTab(o: TabOptions): RenderBox {
   });
 }
 
-/** `_RenderSingleChildViewport` of a horizontal `SingleChildScrollView` at scroll offset zero. */
-class RenderHorizontalScroll extends RenderShiftedBox {
-  constructor(
-    child: RenderBox,
-    private readonly textDirection: TextDirection,
-  ) {
-    super(child);
-  }
-
-  private innerConstraints(constraints: BoxConstraints): BoxConstraints {
-    return new BoxConstraints({
-      minHeight: constraints.minHeight,
-      maxHeight: constraints.maxHeight,
-      minWidth: 0,
-      maxWidth: Number.POSITIVE_INFINITY,
-    });
-  }
-
-  protected override computeDryLayout(constraints: BoxConstraints): Size {
-    const child = this.child as RenderBox;
-    return constraints.constrain(child.getDryLayout(this.innerConstraints(constraints)));
-  }
-
-  protected override computeDryBaseline(constraints: BoxConstraints, baseline: TextBaseline): number | null {
-    return (this.child as RenderBox).getDryBaseline(this.innerConstraints(constraints), baseline);
-  }
-
-  protected override performLayout(): void {
-    const child = this.child as RenderBox;
-    child.layout(this.innerConstraints(this.constraints), { parentUsesSize: true });
-    this.size = this.constraints.constrain(child.size);
-    // Offset zero on a reversed (right-to-left) axis puts the content's end at the viewport's end.
-    const dx = this.textDirection === TextDirection.rtl ? this.size.width - child.size.width : 0;
-    setChildOffset(child, new Offset(dx, 0));
-  }
-}
-
 export interface TabBarOptions {
   /** The built tabs with their `Tab.preferredSize.height`. */
   tabs: { box: RenderBox; preferredHeight: number }[];
@@ -185,8 +141,9 @@ export function buildTabBar(o: TabBarOptions): RenderBox {
     return bar;
   }
   const inset = o.tabAlignment === "startOffset" ? EdgeInsetsDirectional.only({ start: kStartOffset }) : null;
-  const scroll = new RenderHorizontalScroll(
+  const scroll = new RenderSingleChildScroll(
     inset === null ? bar : new RenderPadding({ padding: inset, textDirection: o.textDirection, child: bar }),
+    Axis.horizontal,
     o.textDirection,
   );
   return new RenderPositionedBox({

@@ -19,6 +19,7 @@ import {
   kMaxTitleTextScaleFactor,
   kMiddleSpacing,
 } from "../src/flutter/material/app-bar.ts";
+import { buildModalBottomSheet } from "../src/flutter/material/bottom-sheet.ts";
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
 import { buildChip } from "../src/flutter/material/chip.ts";
 import { buildAlertDialog } from "../src/flutter/material/dialog.ts";
@@ -42,6 +43,7 @@ import {
   kRailMinWidth,
   type RailLabelType,
 } from "../src/flutter/material/navigation-rail.ts";
+import { buildPopupMenu, buildPopupMenuDivider, buildPopupMenuItem } from "../src/flutter/material/popup-menu.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../src/flutter/material/tab-bar.ts";
 import {
@@ -313,6 +315,39 @@ function buildAlertDialogNode(node: SceneNode, ctx: MaterialContext): RenderBox 
   });
 }
 
+/** A modal `BottomSheet` in its settled state: the `child` slot, with an optional drag handle. */
+function buildBottomSheetNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  return buildModalBottomSheet({
+    child: ctx.build(required(node, "child")),
+    showDragHandle: prop(node.props, "showDragHandle") === true,
+    isScrollControlled: prop(node.props, "isScrollControlled") === true,
+    textDirection: ctx.direction,
+  });
+}
+
+/** A popup menu in its open state: `PopupMenuItem` (a `child` slot, optional `height`) and `PopupMenuDivider` children. */
+function buildPopupMenuNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const optionalHeight = (entry: SceneNode): number | null =>
+    typeof prop(entry.props, "height") === "number" ? num(entry.props, "height", 0) : null;
+  const items = (node.children ?? []).map((entry) => {
+    let box: RenderBox;
+    if (entry.type === "PopupMenuDivider") {
+      box = buildPopupMenuDivider(optionalHeight(entry));
+    } else if (entry.type === "PopupMenuItem") {
+      box = buildPopupMenuItem(
+        ctx.build(required(entry, "child"), style("labelLarge")),
+        optionalHeight(entry),
+        ctx.direction,
+      );
+    } else {
+      throw new Error(`node "${entry.id}": a PopupMenu holds PopupMenuItem and PopupMenuDivider nodes`);
+    }
+    box.debugId = entry.id;
+    return box;
+  });
+  return buildPopupMenu(items, ctx.direction);
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -399,6 +434,8 @@ const builders: Record<string, Builder> = {
   NavigationRail: buildNavigationRailNode,
   TabBar: buildTabBarNode,
   AlertDialog: buildAlertDialogNode,
+  BottomSheet: buildBottomSheetNode,
+  PopupMenu: buildPopupMenuNode,
   // `Drawer`: a `ConstrainedBox` expanded to the drawer width (304 by default) around its child.
   Drawer: (node, ctx) =>
     new RenderConstrainedBox({
@@ -451,7 +488,13 @@ for (const type of Object.keys(buttonKinds)) {
 }
 
 /** Node types only a composite builds, from its children. */
-const partTypes: readonly string[] = ["NavigationDestination", "NavigationRailDestination", "Tab"];
+const partTypes: readonly string[] = [
+  "NavigationDestination",
+  "NavigationRailDestination",
+  "Tab",
+  "PopupMenuItem",
+  "PopupMenuDivider",
+];
 
 /** The node types this module builds, the parts of composites included. */
 export const materialTypes: ReadonlySet<string> = new Set([...Object.keys(builders), ...partTypes]);
