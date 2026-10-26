@@ -117,7 +117,7 @@ func (q *Queries) CreateDraft(ctx context.Context, arg CreateDraftParams) (Draft
 const createPlugin = `-- name: CreatePlugin :one
 INSERT INTO plugins (id, organization_id, app_id, key, name)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at
+RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
 `
 
 type CreatePluginParams struct {
@@ -147,6 +147,11 @@ func (q *Queries) CreatePlugin(ctx context.Context, arg CreatePluginParams) (Plu
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
@@ -504,7 +509,7 @@ func (q *Queries) GetLockForUpdate(ctx context.Context, draftID pgtype.UUID) (Lo
 }
 
 const getPlugin = `-- name: GetPlugin :one
-SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at FROM plugins WHERE id = $1 AND deleted_at IS NULL
+SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM plugins WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetPlugin(ctx context.Context, id pgtype.UUID) (Plugin, error) {
@@ -520,12 +525,17 @@ func (q *Queries) GetPlugin(ctx context.Context, id pgtype.UUID) (Plugin, error)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
 
 const getPluginByKey = `-- name: GetPluginByKey :one
-SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at FROM plugins WHERE app_id = $1 AND key = $2 AND deleted_at IS NULL
+SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM plugins WHERE app_id = $1 AND key = $2 AND deleted_at IS NULL
 `
 
 type GetPluginByKeyParams struct {
@@ -546,12 +556,17 @@ func (q *Queries) GetPluginByKey(ctx context.Context, arg GetPluginByKeyParams) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
 
 const getPluginIncludingDeleted = `-- name: GetPluginIncludingDeleted :one
-SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at FROM plugins WHERE id = $1
+SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM plugins WHERE id = $1
 `
 
 func (q *Queries) GetPluginIncludingDeleted(ctx context.Context, id pgtype.UUID) (Plugin, error) {
@@ -567,6 +582,11 @@ func (q *Queries) GetPluginIncludingDeleted(ctx context.Context, id pgtype.UUID)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
@@ -716,7 +736,7 @@ func (q *Queries) ListAllDocuments(ctx context.Context, draftID pgtype.UUID) ([]
 }
 
 const listAllPlugins = `-- name: ListAllPlugins :many
-SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at FROM plugins WHERE app_id = $1 AND deleted_at IS NULL ORDER BY key
+SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM plugins WHERE app_id = $1 AND deleted_at IS NULL ORDER BY key
 `
 
 func (q *Queries) ListAllPlugins(ctx context.Context, appID pgtype.UUID) ([]Plugin, error) {
@@ -738,6 +758,11 @@ func (q *Queries) ListAllPlugins(ctx context.Context, appID pgtype.UUID) ([]Plug
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Description,
+			&i.IconAssetID,
+			&i.OwningTeamID,
+			&i.Tags,
+			&i.ArchivedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -1098,8 +1123,70 @@ func (q *Queries) ListKeptSnapshotsBefore(ctx context.Context, arg ListKeptSnaps
 	return items, nil
 }
 
+const listKilledPlugins = `-- name: ListKilledPlugins :many
+SELECT DISTINCT unnest(c.kill_switch_plugins)::text AS plugin_key
+  FROM channel_controls c
+  JOIN channels ch ON ch.id = c.channel_id
+  JOIN environments e ON e.id = ch.environment_id
+ WHERE e.app_id = $1
+`
+
+// The plugins any channel of the app's environments currently switches off.
+func (q *Queries) ListKilledPlugins(ctx context.Context, appID pgtype.UUID) ([]string, error) {
+	rows, err := q.db.Query(ctx, listKilledPlugins, appID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var plugin_key string
+		if err := rows.Scan(&plugin_key); err != nil {
+			return nil, err
+		}
+		items = append(items, plugin_key)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPageEntities = `-- name: ListPageEntities :many
+SELECT x.entity_id, d.plugin_id
+  FROM documents x JOIN drafts d ON d.id = x.draft_id
+ WHERE d.app_id = $1 AND d.plugin_id IS NOT NULL AND x.kind = 'page' AND x.deleted_at IS NULL AND x.entity_id IS NOT NULL
+`
+
+type ListPageEntitiesRow struct {
+	EntityID pgtype.UUID
+	PluginID pgtype.UUID
+}
+
+// The entity ID of every page and the plugin that holds it, for resolving
+// the links between plugins.
+func (q *Queries) ListPageEntities(ctx context.Context, appID pgtype.UUID) ([]ListPageEntitiesRow, error) {
+	rows, err := q.db.Query(ctx, listPageEntities, appID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListPageEntitiesRow{}
+	for rows.Next() {
+		var i ListPageEntitiesRow
+		if err := rows.Scan(&i.EntityID, &i.PluginID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPlugins = `-- name: ListPlugins :many
-SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at FROM plugins
+SELECT id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM plugins
  WHERE app_id = $1 AND deleted_at IS NULL
    AND (key, id) > ($2::text, $3::uuid)
  ORDER BY key, id
@@ -1137,6 +1224,11 @@ func (q *Queries) ListPlugins(ctx context.Context, arg ListPluginsParams) ([]Plu
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Description,
+			&i.IconAssetID,
+			&i.OwningTeamID,
+			&i.Tags,
+			&i.ArchivedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -1495,7 +1587,7 @@ func (q *Queries) RestoreDocument(ctx context.Context, id pgtype.UUID) (Document
 }
 
 const restorePlugin = `-- name: RestorePlugin :one
-UPDATE plugins SET deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at
+UPDATE plugins SET deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
 `
 
 func (q *Queries) RestorePlugin(ctx context.Context, id pgtype.UUID) (Plugin, error) {
@@ -1511,6 +1603,11 @@ func (q *Queries) RestorePlugin(ctx context.Context, id pgtype.UUID) (Plugin, er
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
@@ -1635,7 +1732,7 @@ func (q *Queries) SoftDeleteDocument(ctx context.Context, id pgtype.UUID) (Docum
 }
 
 const softDeletePlugin = `-- name: SoftDeletePlugin :one
-UPDATE plugins SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at
+UPDATE plugins SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
 `
 
 func (q *Queries) SoftDeletePlugin(ctx context.Context, id pgtype.UUID) (Plugin, error) {
@@ -1651,8 +1748,86 @@ func (q *Queries) SoftDeletePlugin(ctx context.Context, id pgtype.UUID) (Plugin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
 	)
 	return i, err
+}
+
+const summarisePlugins = `-- name: SummarisePlugins :many
+SELECT p.id, p.key, p.name, p.latest_version, p.archived_at, p.owning_team_id,
+       d.revision AS draft_revision, d.updated_at AS draft_updated_at,
+       (SELECT count(*) FROM documents x WHERE x.draft_id = d.id AND x.kind = 'page' AND x.deleted_at IS NULL)::bigint AS screens,
+       coalesce((SELECT v.bundle_size FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1), 0)::bigint AS bundle_size,
+       (SELECT v.created_at FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1) AS published_at,
+       l.holder_display AS lock_holder, l.expires_at AS lock_expires_at
+  FROM plugins p
+  JOIN drafts d ON d.plugin_id = p.id
+  LEFT JOIN locks l ON l.draft_id = d.id AND l.expires_at > now()
+ WHERE p.app_id = $1 AND p.deleted_at IS NULL
+ ORDER BY p.key
+ LIMIT $2
+`
+
+type SummarisePluginsParams struct {
+	AppID   pgtype.UUID
+	MaxRows int32
+}
+
+type SummarisePluginsRow struct {
+	ID             pgtype.UUID
+	Key            string
+	Name           string
+	LatestVersion  int64
+	ArchivedAt     pgtype.Timestamptz
+	OwningTeamID   pgtype.UUID
+	DraftRevision  int64
+	DraftUpdatedAt pgtype.Timestamptz
+	Screens        int64
+	BundleSize     int64
+	PublishedAt    pgtype.Timestamptz
+	LockHolder     *string
+	LockExpiresAt  pgtype.Timestamptz
+}
+
+// One row per live plugin of an app for the app canvas (plan §4.3 #14): the
+// draft, its screens, the newest published version, and the lock. Bounded by
+// app.plugins.
+func (q *Queries) SummarisePlugins(ctx context.Context, arg SummarisePluginsParams) ([]SummarisePluginsRow, error) {
+	rows, err := q.db.Query(ctx, summarisePlugins, arg.AppID, arg.MaxRows)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SummarisePluginsRow{}
+	for rows.Next() {
+		var i SummarisePluginsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Key,
+			&i.Name,
+			&i.LatestVersion,
+			&i.ArchivedAt,
+			&i.OwningTeamID,
+			&i.DraftRevision,
+			&i.DraftUpdatedAt,
+			&i.Screens,
+			&i.BundleSize,
+			&i.PublishedAt,
+			&i.LockHolder,
+			&i.LockExpiresAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const touchLock = `-- name: TouchLock :exec
@@ -1724,7 +1899,7 @@ func (q *Queries) UpdateDocument(ctx context.Context, arg UpdateDocumentParams) 
 }
 
 const updatePlugin = `-- name: UpdatePlugin :one
-UPDATE plugins SET name = $2, updated_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at
+UPDATE plugins SET name = $2, updated_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
 `
 
 type UpdatePluginParams struct {
@@ -1745,6 +1920,74 @@ func (q *Queries) UpdatePlugin(ctx context.Context, arg UpdatePluginParams) (Plu
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+	)
+	return i, err
+}
+
+const updatePluginMetadata = `-- name: UpdatePluginMetadata :one
+UPDATE plugins
+   SET description    = CASE WHEN $2::boolean THEN $3::text ELSE description END,
+       icon_asset_id  = CASE WHEN $4::boolean THEN $5::text ELSE icon_asset_id END,
+       owning_team_id = CASE WHEN $6::boolean THEN $7::uuid ELSE owning_team_id END,
+       tags           = CASE WHEN $8::boolean THEN $9::text[] ELSE tags END,
+       archived_at    = CASE WHEN $10::boolean THEN (CASE WHEN $11::boolean THEN coalesce(archived_at, now()) END) ELSE archived_at END,
+       name           = CASE WHEN $12::text = '' THEN name ELSE $12::text END,
+       updated_at     = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, organization_id, app_id, key, name, latest_version, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
+`
+
+type UpdatePluginMetadataParams struct {
+	ID             pgtype.UUID
+	SetDescription bool
+	Description    string
+	SetIcon        bool
+	IconAssetID    string
+	SetTeam        bool
+	OwningTeamID   pgtype.UUID
+	SetTags        bool
+	Tags           []string
+	SetArchived    bool
+	Archived       bool
+	Name           string
+}
+
+func (q *Queries) UpdatePluginMetadata(ctx context.Context, arg UpdatePluginMetadataParams) (Plugin, error) {
+	row := q.db.QueryRow(ctx, updatePluginMetadata,
+		arg.ID,
+		arg.SetDescription,
+		arg.Description,
+		arg.SetIcon,
+		arg.IconAssetID,
+		arg.SetTeam,
+		arg.OwningTeamID,
+		arg.SetTags,
+		arg.Tags,
+		arg.SetArchived,
+		arg.Archived,
+		arg.Name,
+	)
+	var i Plugin
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.Key,
+		&i.Name,
+		&i.LatestVersion,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
 	)
 	return i, err
 }

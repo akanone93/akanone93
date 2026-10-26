@@ -54,3 +54,6 @@ UPDATE assets
    SET processing = $2, width = $3, height = $4, variants = $5, diagnostics = $6
  WHERE id = $1
 RETURNING *;
+
+-- name: GetAppAssetByAssetID :one
+SELECT * FROM assets WHERE app_id = $1 AND asset_id = $2 AND deleted_at IS NULL ORDER BY created_at LIMIT 1;

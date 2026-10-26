@@ -2061,7 +2061,7 @@ Every size and resource in Plux is governed by one limits framework. Limits are 
 | Scope | Limits (defaults in Appendix H) |
 |---|---|
 | **Release and bundles** | Total app release size; per-plugin bundle size; per-page section size; total and per-asset bytes; fonts; device function module size |
-| **Counts** | Plugins per app; pages per plugin; nodes per page; components; locales; translation keys; functions; data sources; experiments |
+| **Counts** | Plugins per app; pages per plugin; nodes per page; components; locales; translation keys; functions; data sources; experiments; tags per app or plugin |
 | **Device** | Device function time and memory; disk quota for releases; memory cache; local database size; outbox size; telemetry buffer; image cache |
 | **Server** | Function time, memory, input and output size, HTTP calls, call depth, key-value store and rate limits; function builds; publish frequency; AI usage; API rate limits; storage and retention |
 

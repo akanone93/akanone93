@@ -19,6 +19,50 @@ SELECT * FROM plugins
  ORDER BY key, id
  LIMIT sqlc.arg(page_size);
 
+-- name: UpdatePluginMetadata :one
+UPDATE plugins
+   SET description    = CASE WHEN sqlc.arg(set_description)::boolean THEN sqlc.arg(description)::text ELSE description END,
+       icon_asset_id  = CASE WHEN sqlc.arg(set_icon)::boolean THEN sqlc.arg(icon_asset_id)::text ELSE icon_asset_id END,
+       owning_team_id = CASE WHEN sqlc.arg(set_team)::boolean THEN sqlc.narg(owning_team_id)::uuid ELSE owning_team_id END,
+       tags           = CASE WHEN sqlc.arg(set_tags)::boolean THEN sqlc.arg(tags)::text[] ELSE tags END,
+       archived_at    = CASE WHEN sqlc.arg(set_archived)::boolean THEN (CASE WHEN sqlc.arg(archived)::boolean THEN coalesce(archived_at, now()) END) ELSE archived_at END,
+       name           = CASE WHEN sqlc.arg(name)::text = '' THEN name ELSE sqlc.arg(name)::text END,
+       updated_at     = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;
+
+-- name: SummarisePlugins :many
+-- One row per live plugin of an app for the app canvas (plan §4.3 #14): the
+-- draft, its screens, the newest published version, and the lock. Bounded by
+-- app.plugins.
+SELECT p.id, p.key, p.name, p.latest_version, p.archived_at, p.owning_team_id,
+       d.revision AS draft_revision, d.updated_at AS draft_updated_at,
+       (SELECT count(*) FROM documents x WHERE x.draft_id = d.id AND x.kind = 'page' AND x.deleted_at IS NULL)::bigint AS screens,
+       coalesce((SELECT v.bundle_size FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1), 0)::bigint AS bundle_size,
+       (SELECT v.created_at FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1) AS published_at,
+       l.holder_display AS lock_holder, l.expires_at AS lock_expires_at
+  FROM plugins p
+  JOIN drafts d ON d.plugin_id = p.id
+  LEFT JOIN locks l ON l.draft_id = d.id AND l.expires_at > now()
+ WHERE p.app_id = $1 AND p.deleted_at IS NULL
+ ORDER BY p.key
+ LIMIT sqlc.arg(max_rows);
+
+-- name: ListPageEntities :many
+-- The entity ID of every page and the plugin that holds it, for resolving
+-- the links between plugins.
+SELECT x.entity_id, d.plugin_id
+  FROM documents x JOIN drafts d ON d.id = x.draft_id
+ WHERE d.app_id = $1 AND d.plugin_id IS NOT NULL AND x.kind = 'page' AND x.deleted_at IS NULL AND x.entity_id IS NOT NULL;
+
+-- name: ListKilledPlugins :many
+-- The plugins any channel of the app's environments currently switches off.
+SELECT DISTINCT unnest(c.kill_switch_plugins)::text AS plugin_key
+  FROM channel_controls c
+  JOIN channels ch ON ch.id = c.channel_id
+  JOIN environments e ON e.id = ch.environment_id
+ WHERE e.app_id = $1;
+
 -- name: ListAllPlugins :many
 SELECT * FROM plugins WHERE app_id = $1 AND deleted_at IS NULL ORDER BY key;
 

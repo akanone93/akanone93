@@ -18,6 +18,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/jcs"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
 // Document serves DocumentService.
@@ -431,11 +432,72 @@ func (s Plugin) UpdatePlugin(ctx context.Context, req *connect.Request[pluxv1.Up
 		if err != nil {
 			return nil, err
 		}
-		pl, err := s.h.Documents.UpdatePlugin(ctx, p, req.Msg.GetId(), req.Msg.GetName())
+		var pl document.Plugin
+		if md := req.Msg.GetMetadata(); md != nil {
+			pl, err = s.h.Documents.UpdatePluginMetadata(ctx, p, req.Msg.GetId(), req.Msg.GetName(), metadataOf(md))
+		} else {
+			pl, err = s.h.Documents.UpdatePlugin(ctx, p, req.Msg.GetId(), req.Msg.GetName())
+		}
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.UpdatePluginResponse{Plugin: pluginProto(pl)}, nil
+	})
+}
+
+// DuplicatePlugin copies a plugin under a new key (STU-034).
+func (s Plugin) DuplicatePlugin(ctx context.Context, req *connect.Request[pluxv1.DuplicatePluginRequest]) (*connect.Response[pluxv1.DuplicatePluginResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.DuplicatePluginResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		pl, err := s.h.Documents.DuplicatePlugin(ctx, p, m.GetId(), m.GetKey(), m.GetName(), m.GetSession())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.DuplicatePluginResponse{Plugin: pluginProto(pl)}, nil
+	})
+}
+
+// ArchivePlugin archives or restores a plugin without deleting it.
+func (s Plugin) ArchivePlugin(ctx context.Context, req *connect.Request[pluxv1.ArchivePluginRequest]) (*connect.Response[pluxv1.ArchivePluginResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ArchivePluginResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		archived := req.Msg.GetArchived()
+		pl, err := s.h.Documents.UpdatePluginMetadata(ctx, p, req.Msg.GetId(), "", tenancy.Metadata{Archived: &archived})
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.ArchivePluginResponse{Plugin: pluginProto(pl)}, nil
+	})
+}
+
+// ListPluginSummaries returns the app canvas's summaries in one call.
+func (s Plugin) ListPluginSummaries(ctx context.Context, req *connect.Request[pluxv1.ListPluginSummariesRequest]) (*connect.Response[pluxv1.ListPluginSummariesResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListPluginSummariesResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		sums, err := s.h.Documents.ListPluginSummaries(ctx, p, req.Msg.GetAppId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListPluginSummariesResponse{}
+		for _, m := range sums {
+			out.Summaries = append(out.Summaries, &pluxv1.PluginSummary{
+				Plugin: pluginProto(m.Plugin), Screens: m.Screens, Versions: m.Versions, UnpublishedChanges: m.UnpublishedChanges,
+				LockHolder: m.LockHolder, ValidationErrors: m.ValidationErrors, Killed: m.Killed, OwnerTeamId: m.Plugin.OwningTeamID,
+				BundleSize: m.BundleSize, LinksOut: m.LinksOut, LinksIn: m.LinksIn, FunctionsUsed: m.FunctionsUsed,
+				PublishedAt: ts(m.PublishedAt),
+			})
+		}
+		return out, nil
 	})
 }
 
@@ -769,6 +831,7 @@ func pluginProto(p document.Plugin) *pluxv1.Plugin {
 	return &pluxv1.Plugin{
 		Id: p.ID, AppId: p.AppID, Key: p.Key, Name: p.Name, LatestVersion: p.LatestVersion,
 		DraftRevision: p.DraftRevision, CreatedAt: ts(p.CreatedAt), UpdatedAt: ts(p.UpdatedAt),
+		Description: p.Description, IconAssetId: p.IconAssetID, OwningTeamId: p.OwningTeamID, Tags: p.Tags, Archived: p.Archived,
 	}
 }
 

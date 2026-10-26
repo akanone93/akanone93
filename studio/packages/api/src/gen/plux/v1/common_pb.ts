@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/common.proto.
  */
 export const file_plux_v1_common: GenFile = /*@__PURE__*/
-  fileDesc("ChRwbHV4L3YxL2NvbW1vbi5wcm90bxIHcGx1eC52MSJ+CgRQYWdlEhEKCXBhZ2Vfc2l6ZRgBIAEoBRISCgpwYWdlX3Rva2VuGAIgASgJEg4KBmZpbHRlchgDIAEoCRIQCghvcmRlcl9ieRgEIAEoCRItCglyZWFkX21hc2sYBSABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrIjkKClBhZ2VSZXN1bHQSFwoPbmV4dF9wYWdlX3Rva2VuGAEgASgJEhIKCnRvdGFsX3NpemUYAiABKAUiIwoFUmFuZ2USDQoFc3RhcnQYASABKAUSCwoDZW5kGAIgASgFIkUKCExvY2F0aW9uEgwKBGZpbGUYASABKAkSDAoEcGF0aBgCIAEoCRIdCgVyYW5nZRgDIAEoCzIOLnBsdXgudjEuUmFuZ2UiQAoHUGF0Y2hPcBIKCgJvcBgBIAEoCRIMCgRwYXRoGAIgASgJEgwKBGZyb20YAyABKAkSDQoFdmFsdWUYBCABKAwi9wEKCkRpYWdub3N0aWMSDAoEY29kZRgBIAEoCRIOCgZyZWFzb24YAiABKAkSIwoIc2V2ZXJpdHkYAyABKA4yES5wbHV4LnYxLlNldmVyaXR5EiMKCGxvY2F0aW9uGAQgASgLMhEucGx1eC52MS5Mb2NhdGlvbhIPCgdtZXNzYWdlGAUgASgJEg0KBWNhdXNlGAYgASgJEgsKA2ZpeBgHIAEoCRIfCgVwYXRjaBgIIAMoCzIQLnBsdXgudjEuUGF0Y2hPcBIPCgdkb2NfdXJsGAkgASgJEiIKB3JlbGF0ZWQYCiADKAsyES5wbHV4LnYxLkxvY2F0aW9uIjIKBUFjdG9yEgwKBGtpbmQYASABKAkSCgoCaWQYAiABKAkSDwoHZGlzcGxheRgDIAEoCSJ7CgpMaW1pdFVzYWdlEgsKA2tleRgBIAEoCRIMCgR1bml0GAIgASgJEg0KBXNjb3BlGAMgASgJEg0KBXZhbHVlGAQgASgDEhEKCWVmZmVjdGl2ZRgFIAEoAxIQCghoYXJkX21heBgGIAEoAxIPCgd3YXJuaW5nGAcgASgIIkoKCEFydGlmYWN0Eg4KBnNoYTI1NhgBIAEoCRIMCgRzaXplGAIgASgDEgwKBHVybHMYAyADKAkSEgoKbWVkaWFfdHlwZRgEIAEoCSL9AQoKQXVkaXRFbnRyeRIKCgJpZBgBIAEoCRIoCgR0aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIdCgVhY3RvchgDIAEoCzIOLnBsdXgudjEuQWN0b3ISDgoGYWN0aW9uGAQgASgJEhMKC3RhcmdldF9raW5kGAUgASgJEhEKCXRhcmdldF9pZBgGIAEoCRIRCglzb3VyY2VfaXAYByABKAkSEgoKdXNlcl9hZ2VudBgIIAEoCRISCgpyZXF1ZXN0X2lkGAkgASgJEhMKC2JlZm9yZV9oYXNoGAogASgJEhIKCmFmdGVyX2hhc2gYCyABKAkiuAEKCVRyYXNoSXRlbRIKCgJpZBgBIAEoCRIMCgRraW5kGAIgASgJEgwKBG5hbWUYAyABKAkSIgoKZGVsZXRlZF9ieRgEIAEoCzIOLnBsdXgudjEuQWN0b3ISLgoKZGVsZXRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcHVyZ2VfYWZ0ZXIYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wKmEKCFNldmVyaXR5EhgKFFNFVkVSSVRZX1VOU1BFQ0lGSUVEEAASEQoNU0VWRVJJVFlfSU5GTxABEhQKEFNFVkVSSVRZX1dBUk5JTkcQAhISCg5TRVZFUklUWV9FUlJPUhADQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM", [file_google_protobuf_field_mask, file_google_protobuf_timestamp]);
+  fileDesc("ChRwbHV4L3YxL2NvbW1vbi5wcm90bxIHcGx1eC52MSJ+CgRQYWdlEhEKCXBhZ2Vfc2l6ZRgBIAEoBRISCgpwYWdlX3Rva2VuGAIgASgJEg4KBmZpbHRlchgDIAEoCRIQCghvcmRlcl9ieRgEIAEoCRItCglyZWFkX21hc2sYBSABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrIjkKClBhZ2VSZXN1bHQSFwoPbmV4dF9wYWdlX3Rva2VuGAEgASgJEhIKCnRvdGFsX3NpemUYAiABKAUiIwoFUmFuZ2USDQoFc3RhcnQYASABKAUSCwoDZW5kGAIgASgFIkUKCExvY2F0aW9uEgwKBGZpbGUYASABKAkSDAoEcGF0aBgCIAEoCRIdCgVyYW5nZRgDIAEoCzIOLnBsdXgudjEuUmFuZ2UiQAoHUGF0Y2hPcBIKCgJvcBgBIAEoCRIMCgRwYXRoGAIgASgJEgwKBGZyb20YAyABKAkSDQoFdmFsdWUYBCABKAwi9wEKCkRpYWdub3N0aWMSDAoEY29kZRgBIAEoCRIOCgZyZWFzb24YAiABKAkSIwoIc2V2ZXJpdHkYAyABKA4yES5wbHV4LnYxLlNldmVyaXR5EiMKCGxvY2F0aW9uGAQgASgLMhEucGx1eC52MS5Mb2NhdGlvbhIPCgdtZXNzYWdlGAUgASgJEg0KBWNhdXNlGAYgASgJEgsKA2ZpeBgHIAEoCRIfCgVwYXRjaBgIIAMoCzIQLnBsdXgudjEuUGF0Y2hPcBIPCgdkb2NfdXJsGAkgASgJEiIKB3JlbGF0ZWQYCiADKAsyES5wbHV4LnYxLkxvY2F0aW9uIjIKBUFjdG9yEgwKBGtpbmQYASABKAkSCgoCaWQYAiABKAkSDwoHZGlzcGxheRgDIAEoCSJ7CgpMaW1pdFVzYWdlEgsKA2tleRgBIAEoCRIMCgR1bml0GAIgASgJEg0KBXNjb3BlGAMgASgJEg0KBXZhbHVlGAQgASgDEhEKCWVmZmVjdGl2ZRgFIAEoAxIQCghoYXJkX21heBgGIAEoAxIPCgd3YXJuaW5nGAcgASgIIkoKCEFydGlmYWN0Eg4KBnNoYTI1NhgBIAEoCRIMCgRzaXplGAIgASgDEgwKBHVybHMYAyADKAkSEgoKbWVkaWFfdHlwZRgEIAEoCSL9AQoKQXVkaXRFbnRyeRIKCgJpZBgBIAEoCRIoCgR0aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIdCgVhY3RvchgDIAEoCzIOLnBsdXgudjEuQWN0b3ISDgoGYWN0aW9uGAQgASgJEhMKC3RhcmdldF9raW5kGAUgASgJEhEKCXRhcmdldF9pZBgGIAEoCRIRCglzb3VyY2VfaXAYByABKAkSEgoKdXNlcl9hZ2VudBgIIAEoCRISCgpyZXF1ZXN0X2lkGAkgASgJEhMKC2JlZm9yZV9oYXNoGAogASgJEhIKCmFmdGVyX2hhc2gYCyABKAkiuAEKCVRyYXNoSXRlbRIKCgJpZBgBIAEoCRIMCgRraW5kGAIgASgJEgwKBG5hbWUYAyABKAkSIgoKZGVsZXRlZF9ieRgEIAEoCzIOLnBsdXgudjEuQWN0b3ISLgoKZGVsZXRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcHVyZ2VfYWZ0ZXIYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wItwBCg5NZXRhZGF0YVVwZGF0ZRIYCgtkZXNjcmlwdGlvbhgBIAEoCUgAiAEBEhoKDWljb25fYXNzZXRfaWQYAiABKAlIAYgBARIbCg5vd25pbmdfdGVhbV9pZBgDIAEoCUgCiAEBEhAKCHNldF90YWdzGAQgASgIEgwKBHRhZ3MYBSADKAkSFQoIYXJjaGl2ZWQYBiABKAhIA4gBAUIOCgxfZGVzY3JpcHRpb25CEAoOX2ljb25fYXNzZXRfaWRCEQoPX293bmluZ190ZWFtX2lkQgsKCV9hcmNoaXZlZCphCghTZXZlcml0eRIYChRTRVZFUklUWV9VTlNQRUNJRklFRBAAEhEKDVNFVkVSSVRZX0lORk8QARIUChBTRVZFUklUWV9XQVJOSU5HEAISEgoOU0VWRVJJVFlfRVJST1IQA0I9WjtnaXRodWIuY29tL25pZ2h0Q29kZTQyL3BsdXgzL2JhY2tlbmQvaW50ZXJuYWwvcGx1eHYxO3BsdXh2MWIGcHJvdG8z", [file_google_protobuf_field_mask, file_google_protobuf_timestamp]);
 
 /**
  * Page asks for one page of a list endpoint (SRV-004). No list endpoint
@@ -518,6 +518,53 @@ export type TrashItem = Message<"plux.v1.TrashItem"> & {
  */
 export const TrashItemSchema: GenMessage<TrashItem> = /*@__PURE__*/
   messageDesc(file_plux_v1_common, 10);
+
+/**
+ * MetadataUpdate changes the descriptive metadata of an app or a plugin
+ * (plan P11 §4.3 #13). A field that is absent is left as it is; tags are
+ * replaced whole when set_tags is true. An empty owning_team_id clears the
+ * owner.
+ *
+ * @generated from message plux.v1.MetadataUpdate
+ */
+export type MetadataUpdate = Message<"plux.v1.MetadataUpdate"> & {
+  /**
+   * @generated from field: optional string description = 1;
+   */
+  description?: string | undefined;
+
+  /**
+   * @generated from field: optional string icon_asset_id = 2;
+   */
+  iconAssetId?: string | undefined;
+
+  /**
+   * @generated from field: optional string owning_team_id = 3;
+   */
+  owningTeamId?: string | undefined;
+
+  /**
+   * @generated from field: bool set_tags = 4;
+   */
+  setTags: boolean;
+
+  /**
+   * @generated from field: repeated string tags = 5;
+   */
+  tags: string[];
+
+  /**
+   * @generated from field: optional bool archived = 6;
+   */
+  archived?: boolean | undefined;
+};
+
+/**
+ * Describes the message plux.v1.MetadataUpdate.
+ * Use `create(MetadataUpdateSchema)` to create a new message.
+ */
+export const MetadataUpdateSchema: GenMessage<MetadataUpdate> = /*@__PURE__*/
+  messageDesc(file_plux_v1_common, 11);
 
 /**
  * Severity of a diagnostic (ADR-0018).
