@@ -22,6 +22,7 @@ import {
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
 import { buildChip } from "../src/flutter/material/chip.ts";
 import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../src/flutter/material/input-decorator.ts";
+import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import {
   buildDestination,
   buildNavigationBar,
@@ -40,7 +41,6 @@ import {
   kRailMinWidth,
   type RailLabelType,
 } from "../src/flutter/material/navigation-rail.ts";
-import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import {
   kToolbarHeight,
@@ -183,7 +183,10 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
     input: new RenderEditableLine(line),
     prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
     suffixIcon: suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
-    subtext: subtext === null ? null : syntheticText(node, "subtext", subtext, ctx, style("bodySmall"), { defaults: { overflow: "ellipsis" } }),
+    subtext:
+      subtext === null
+        ? null
+        : syntheticText(node, "subtext", subtext, ctx, style("bodySmall"), { defaults: { overflow: "ellipsis" } }),
     outline: prop(p, "border") === "outline",
     filled: prop(p, "filled") === true,
     isDense: prop(p, "isDense") === true,
@@ -205,9 +208,16 @@ function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBo
       throw new Error(`node "${destination.id}": a NavigationBar holds NavigationDestination nodes`);
     }
     const label = prop(destination.props, "label");
-    const text = syntheticText(destination, "label", typeof label === "string" ? label : "", ctx, style("labelMedium"), {
-      maxScale: kMaxNavLabelScale,
-    });
+    const text = syntheticText(
+      destination,
+      "label",
+      typeof label === "string" ? label : "",
+      ctx,
+      style("labelMedium"),
+      {
+        maxScale: kMaxNavLabelScale,
+      },
+    );
     const shown = behavior === "alwaysShow" || (behavior === "onlyShowSelected" && index === selectedIndex) ? 1 : 0;
     const row = buildDestination(
       indicatorIcon(ctx.build(required(destination, "icon")), kIndicatorWidth, kIndicatorHeight),

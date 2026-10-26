@@ -101,7 +101,8 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
     super();
     this.m = metricsOf(o);
     this.helperError =
-      o.subtext ?? new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 0, height: 0 }) });
+      o.subtext ??
+      new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 0, height: 0 }) });
     for (const child of [o.input, o.prefixIcon, o.suffixIcon, this.helperError]) {
       if (child !== null) {
         this.add(child);
@@ -157,7 +158,9 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
 
   protected override computeDistanceToActualBaseline(baseline: TextBaseline): number | null {
     const input = this.o.input;
-    return (input.parentData as BoxParentData).offset.dy + (input.getDistanceToActualBaseline(baseline) ?? input.size.height);
+    return (
+      (input.parentData as BoxParentData).offset.dy + (input.getDistanceToActualBaseline(baseline) ?? input.size.height)
+    );
   }
 
   /** `_layout`; with `place` the children are laid out, otherwise their dry layout is read. */
@@ -173,7 +176,9 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
       return box.getDryLayout(c);
     };
     const baselineOf = (box: RenderBox, c: BoxConstraints): number => {
-      const b = place ? box.getDistanceToBaseline(TextBaseline.alphabetic) : box.getDryBaseline(c, TextBaseline.alphabetic);
+      const b = place
+        ? box.getDistanceToBaseline(TextBaseline.alphabetic)
+        : box.getDryBaseline(c, TextBaseline.alphabetic);
       return b ?? (place ? box.size.height : box.getDryLayout(c).height);
     };
     const boxConstraints = constraints.loosen();

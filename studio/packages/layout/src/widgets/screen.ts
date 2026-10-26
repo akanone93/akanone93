@@ -14,6 +14,8 @@ import { BoxConstraints } from "../flutter/constraints.ts";
 import { Axis, CrossAxisAlignment, MainAxisSize, RenderFlex } from "../flutter/flex.ts";
 import { Alignment, EdgeInsets, Size, TextDirection } from "../flutter/geometry.ts";
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../flutter/material/buttons.ts";
+import { buildChip } from "../flutter/material/chip.ts";
+import { buildInputDecorator, RenderEditableLine } from "../flutter/material/input-decorator.ts";
 import { buildListTile } from "../flutter/material/list-tile.ts";
 import { MaterialTapTargetSize, m3TextStyle, type TextRole, VisualDensity } from "../flutter/material/theme.ts";
 import { PipelineOwner } from "../flutter/object.ts";
@@ -237,12 +239,19 @@ function materialButton(kind: ButtonKind | "icon"): WidgetBuilder {
   };
 }
 
+const fabKinds: ReadonlySet<unknown> = new Set<FabKind>(["regular", "small", "large", "extended"]);
+
+/** The FAB kind a node names; an unknown value is a regular FAB. */
+function fabKind(value: unknown): FabKind {
+  return fabKinds.has(value) ? (value as FabKind) : "regular";
+}
+
 const floatingActionButton: WidgetBuilder = (node, ctx) => {
   ctx.mark(node.id, "box", textOf(node));
   return named(
     node.id,
     buildFab({
-      kind: (prop(node, "kind") ?? "regular") as FabKind,
+      kind: fabKind(prop(node, "kind")),
       child: new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 24, height: 24 }) }),
       tapTargetSize: tapTarget(node),
       textDirection: TextDirection.ltr,
@@ -269,6 +278,53 @@ const listTile: WidgetBuilder = (node, ctx) => {
       isDense: dense,
       isThreeLine: prop(node, "isThreeLine") === true,
       visualDensity: VisualDensity.named(prop(node, "density")),
+      textDirection: TextDirection.ltr,
+    }),
+  );
+};
+
+/** `Chip`, `FilterChip` and `InputChip`: the `label` slot's text inside the chip's padding and tap target. */
+const chip: WidgetBuilder = (node, ctx) => {
+  const labelSlot = "label";
+  const slot = node.slots?.[labelSlot];
+  ctx.mark(node.id, "box", slot === undefined ? undefined : textOf(slot));
+  return named(
+    node.id,
+    buildChip({
+      label: ctx.paragraph(slot === undefined ? "" : (textOf(slot) ?? ""), material(ctx, "labelLarge")),
+      avatar: null,
+      deleteIcon: null,
+      selected: prop(node, "selected") === true,
+      tapTargetSize: tapTarget(node),
+      density: VisualDensity.named(prop(node, "density")),
+      textScale: 1,
+      textDirection: TextDirection.ltr,
+    }),
+  );
+};
+
+/** A `TextField` under its `InputDecoration`: one line of `bodyLarge`, an optional helper or error text. */
+const textField: WidgetBuilder = (node, ctx) => {
+  const str = (name: string): string | null => {
+    const value = prop(node, name);
+    return typeof value === "string" ? value : null;
+  };
+  const subtext = str("errorText") ?? str("helperText");
+  ctx.mark(node.id, "box", str("labelText") ?? undefined);
+  return named(
+    node.id,
+    buildInputDecorator({
+      input: new RenderEditableLine(ctx.paragraph("A", material(ctx, "bodyLarge"))),
+      prefixIcon: null,
+      suffixIcon: null,
+      subtext: subtext === null ? null : ctx.paragraph(subtext, material(ctx, "bodySmall")),
+      outline: prop(node, "border") === "outline",
+      filled: prop(node, "filled") === true,
+      isDense: prop(node, "isDense") === true,
+      hasLabel: str("labelText") !== null,
+      floating: (str("text") ?? "") !== "",
+      floatingLabelHeight: 16,
+      density: VisualDensity.named(prop(node, "density")),
       textDirection: TextDirection.ltr,
     }),
   );
@@ -306,7 +362,10 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ["IconButton", materialButton("icon")],
   ["FloatingActionButton", floatingActionButton],
   ["ListTile", listTile],
-  ["TextField", control],
+  ["Chip", chip],
+  ["FilterChip", chip],
+  ["InputChip", chip],
+  ["TextField", textField],
   ["TextFormField", control],
 ]);
 

@@ -14,7 +14,7 @@
 import { BoxConstraints } from "../constraints.ts";
 import { ContainerRenderBox } from "../container.ts";
 import { Axis, CrossAxisAlignment, FlexFit, FlexParentData, MainAxisSize, RenderFlex } from "../flex.ts";
-import { Alignment, EdgeInsets, Offset, Size, type TextDirection } from "../geometry.ts";
+import { Alignment, EdgeInsets, Offset, type Size, type TextDirection } from "../geometry.ts";
 import { RenderConstrainedBox } from "../proxy-box.ts";
 import type { RenderBox } from "../render-box.ts";
 import { RenderPadding, setChildOffset } from "../shifted-box.ts";
@@ -36,10 +36,7 @@ export const kLabelPaddingTop = 4;
 export function indicatorIcon(icon: RenderBox, width: number, height: number): RenderBox {
   return new RenderStack({
     alignment: Alignment.center,
-    children: [
-      new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width, height }) }),
-      icon,
-    ],
+    children: [new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width, height }) }), icon],
   });
 }
 
@@ -74,7 +71,10 @@ class RenderDestinationLayout extends ContainerRenderBox<RenderBox> {
     const halfLabel = this.label.size.height / 2;
     const iconY = this.size.height / 2 - (halfIcon + halfLabel * this.shown);
     setChildOffset(this.icon, new Offset(this.size.width / 2 - this.icon.size.width / 2, iconY));
-    setChildOffset(this.label, new Offset(this.size.width / 2 - this.label.size.width / 2, iconY + this.icon.size.height));
+    setChildOffset(
+      this.label,
+      new Offset(this.size.width / 2 - this.label.size.width / 2, iconY + this.icon.size.height),
+    );
   }
 }
 
