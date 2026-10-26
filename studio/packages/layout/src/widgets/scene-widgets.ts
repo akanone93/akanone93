@@ -92,6 +92,9 @@ const compositeTypes: readonly string[] = [
   "CheckboxListTile",
   "SwitchListTile",
   "RadioListTile",
+  "SearchBar",
+  "BottomNavigationBar",
+  "ExpansionTile",
 ];
 
 /** The slot of a document node whose widgets are a list, and so arrive as `children`; scenes name the part the same. */

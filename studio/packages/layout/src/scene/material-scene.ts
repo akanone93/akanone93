@@ -12,7 +12,7 @@
 
 import { BoxConstraints } from "../flutter/constraints.ts";
 import type { TextDirection } from "../flutter/geometry.ts";
-import { EdgeInsetsDirectional } from "../flutter/geometry.ts";
+import { EdgeInsets, EdgeInsetsDirectional } from "../flutter/geometry.ts";
 import {
   appBarPreferredHeight,
   buildAppBar,
@@ -448,6 +448,19 @@ const builders: Record<string, Builder> = {
       lead === null ? null : ctx.build(lead, style("labelSmall")),
       trail === null ? null : ctx.build(trail, style("labelSmall")),
     );
+  },
+  // The tile and its 1-px border above and below; the trailing arrow is a 24-px icon.
+  ExpansionTile: (node, ctx) => {
+    const lead = only(node, "leading");
+    return new RenderPadding({
+      padding: EdgeInsets.symmetric({ vertical: 1 }),
+      child: buildTile(
+        node,
+        ctx,
+        lead === null ? null : ctx.build(lead, style("labelSmall")),
+        prop(node.props, "showTrailingIcon") === false ? null : control(24, 24),
+      ),
+    });
   },
   CheckboxListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), control(40, 48)),
   SwitchListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), control(60, 48)),
