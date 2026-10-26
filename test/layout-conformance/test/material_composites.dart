@@ -97,7 +97,7 @@ class _ModalSheetLayout extends SingleChildLayoutDelegate {
 }
 
 class _SheetHost extends StatefulWidget {
-  const _SheetHost({super.key, required this.node, required this.child});
+  const _SheetHost({required this.node, required this.child});
   final Map<String, Object?> node;
   final Widget child;
 

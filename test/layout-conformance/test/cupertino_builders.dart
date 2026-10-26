@@ -323,7 +323,7 @@ Widget buildCupertino(
         key: key,
         controller: TextEditingController(text: (props['text'] as String?) ?? ''),
         placeholder: props['placeholder'] as String?,
-        padding: props.containsKey('padding') ? padding(props['padding']) as EdgeInsetsGeometry : const EdgeInsets.all(7),
+        padding: props.containsKey('padding') ? padding(props['padding']) : const EdgeInsets.all(7),
       );
     case 'CupertinoSegmentedControl':
       return CupertinoSegmentedControl<int>(
