@@ -27,12 +27,18 @@ async function wasmEngine(): Promise<ValidatorEngine> {
     pluxValidatePage: (files: readonly ProjectFile[], file: string, data: string) => string;
     pluxPxl: (op: string, scope: string, src: string, offset: number) => string;
     pluxPxlSites: (file: string, data: string) => string;
+    pluxImport: (kind: string, files: readonly { file: string; data: string }[]) => string;
+    pluxCollectionsPreview: (previous: string, current: string, dropped: string) => string;
   };
   return {
     load: (files) => g.pluxValidatePage(files, "", ""),
     validatePage: (file, data) => g.pluxValidatePage([], file, data),
     pxl: (op, scope, src, offset) => g.pluxPxl(op, scope, src, offset),
     pxlSites: (file, data) => g.pluxPxlSites(file, data),
+    tool: (name, args) =>
+      name === "import"
+        ? g.pluxImport(args[0] ?? "", JSON.parse(args[1] ?? "[]"))
+        : g.pluxCollectionsPreview(args[0] ?? "[]", args[1] ?? "[]", args[2] ?? ""),
   };
 }
 

@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type Problem, type ProjectFile, type PxlOp, ValidatorHost, type ValidatorWorkerLike } from "@plux/validator";
+import {
+  type Problem,
+  type ProjectFile,
+  type PxlOp,
+  type ToolName,
+  ValidatorHost,
+  type ValidatorWorkerLike,
+} from "@plux/validator";
 import { validatorWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import validatorWorkerURL from "./validator-worker.ts?worker&url";
 
@@ -13,6 +20,8 @@ export interface ValidatorClient {
   pxl?(op: PxlOp, scope: string, src: string, offset: number): Promise<unknown>;
   /** The expression sites of a page of the loaded project with the scope each reads. */
   pxlSites?(file: string, data: string): Promise<unknown>;
+  /** A pure tool of the Go module (L-12): the importers and the migration preview; absent in a stub without the module. */
+  tool?(name: ToolName, args: readonly string[]): Promise<unknown>;
   dispose(): void;
 }
 
