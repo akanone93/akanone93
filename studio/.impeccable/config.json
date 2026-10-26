@@ -1,0 +1,24 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "undersized-ui-text",
+      "dark-glow",
+      "pulsing-dot"
+    ],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "instrument sans",
+        "createdAt": "2026-10-26T14:49:54.611Z",
+        "reason": "Porcelain's approved typefaces (UI language U7); the rule is tuned against the catalogue page per decision O-4 (P11 plan)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "instrument serif",
+        "createdAt": "2026-10-26T14:49:54.682Z",
+        "reason": "Porcelain's approved typefaces (UI language U7); the rule is tuned against the catalogue page per decision O-4 (P11 plan)"
+      }
+    ]
+  }
+}

@@ -77,10 +77,10 @@ studio-size: studio-build ## Check the initial JavaScript against the budget (ST
 studio-e2e: studio-build ## Run Studio's end-to-end tests (Playwright, axe)
 	cd studio && bunx playwright test --config e2e/playwright.config.ts
 
-# O-4: the detector only reports in S0; the exit status stays 0 until S3.
-studio-design-gate: studio-build ## Run the design-gate detector over the built web app (report-only until S3, O-4)
-	cd studio && { bunx impeccable detect apps/web/dist --no-config 2>&1 || true; } > design-gate-report.txt
-	@tail -n 3 studio/design-gate-report.txt
+# O-4, U18.6: gating from S3. The detector scans the built app and the served catalogue page in
+# every theme (script scripts/design-gate.ts); project config: studio/.impeccable/config.json.
+studio-design-gate: studio-build ## Run the design gate: the Impeccable detector over the built app and the catalogue page; any finding fails (O-4)
+	cd studio && bun scripts/design-gate.ts
 
 # Software rendering only (SwiftShader, no GPU): the canvas budgets hold on
 # machines without a GPU (ADR-0013 M-12). Not part of studio-check.
