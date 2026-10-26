@@ -12,6 +12,7 @@
 
 import { BoxConstraints } from "../src/flutter/constraints.ts";
 import type { TextDirection } from "../src/flutter/geometry.ts";
+import { EdgeInsetsDirectional } from "../src/flutter/geometry.ts";
 import {
   appBarPreferredHeight,
   buildAppBar,
@@ -56,6 +57,7 @@ import {
 } from "../src/flutter/material/theme.ts";
 import { RenderConstrainedBox } from "../src/flutter/proxy-box.ts";
 import type { RenderBox } from "../src/flutter/render-box.ts";
+import { RenderPadding } from "../src/flutter/shifted-box.ts";
 import type { TextStyle } from "../src/flutter/text-style.ts";
 import type { SceneNode, SceneText, TextDefaults } from "./scene.ts";
 
@@ -184,8 +186,43 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
   const subtext = text("errorText") ?? text("helperText");
   const withText = (text("text") ?? "") !== "";
   const line = syntheticText(node, "input", "A", ctx, style("bodyLarge"));
+  const affix = (name: string): RenderBox | null => {
+    const value = text(name);
+    return value === null ? null : syntheticText(node, name, value, ctx, style("bodyLarge"));
+  };
+  // The hint is one line (`hintMaxLines` follows `maxLines`) and ellipsized.
+  const hintText = text("hintText");
+  const hint =
+    hintText === null
+      ? null
+      : syntheticText(node, "hint", hintText, ctx, style("bodyLarge"), {
+          defaults: { maxLines: 1, overflow: "ellipsis" },
+        });
+  const leading = only(node, "icon");
   return buildInputDecorator({
     input: new RenderEditableLine(line),
+    // `InputDecoration.icon`: padded by 16 after it.
+    icon:
+      leading === null
+        ? null
+        : new RenderPadding({
+            padding: EdgeInsetsDirectional.only({ end: 16 }),
+            textDirection: ctx.direction,
+            child: ctx.build({
+              ...leading,
+              props: { size: prop(p, "isDense") === true ? 18 : 24, ...leading.props },
+            }),
+          }),
+    prefix: affix("prefixText"),
+    suffix: affix("suffixText"),
+    hint,
+    isEmpty: !withText,
+    counter:
+      text("counterText") === null
+        ? null
+        : syntheticText(node, "counter", text("counterText") ?? "", ctx, style("bodySmall"), {
+            defaults: { overflow: "ellipsis" },
+          }),
     prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
     suffixIcon: suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
     subtext:

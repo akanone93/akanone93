@@ -24,6 +24,8 @@ import { kMinInteractiveDimension, type VisualDensity } from "./theme.ts";
 
 /** `_kSubtextCounterPadding` is unused without a counter; the gap below the container is `subtextGap`. */
 const subtextGap = 4;
+/** `_kSubtextCounterPadding`: the gap between the helper text and the counter. */
+const subtextCounterPadding = 16;
 const prefixToInputGap = 4;
 const inputToSuffixGap = 4;
 /** `_kInputExtraPadding`. */
@@ -36,6 +38,17 @@ export interface InputDecoratorOptions {
   input: RenderBox;
   prefixIcon: RenderBox | null;
   suffixIcon: RenderBox | null;
+  /** `InputDecoration.icon`: outside the container, at the start, with 16 after it. */
+  icon?: RenderBox | null;
+  /** `prefixText` and `suffixText`, drawn inside the container beside the input. */
+  prefix?: RenderBox | null;
+  suffix?: RenderBox | null;
+  /** `hintText`: laid out over the input and sizing it only while the field is empty. */
+  hint?: RenderBox | null;
+  /** Whether the field has no text. */
+  isEmpty?: boolean;
+  /** `counterText`, at the end of the subtext line. */
+  counter?: RenderBox | null;
   /** The helper or error text. */
   subtext: RenderBox | null;
   /** `OutlineInputBorder` rather than `UnderlineInputBorder`. */
@@ -103,8 +116,18 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
     this.helperError =
       o.subtext ??
       new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 0, height: 0 }) });
-    for (const child of [o.input, o.prefixIcon, o.suffixIcon, this.helperError]) {
-      if (child !== null) {
+    for (const child of [
+      o.icon,
+      o.input,
+      o.hint,
+      o.prefix,
+      o.suffix,
+      o.counter,
+      o.prefixIcon,
+      o.suffixIcon,
+      this.helperError,
+    ]) {
+      if (child !== null && child !== undefined) {
         this.add(child);
       }
     }
@@ -128,11 +151,15 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
   }
 
   private intrinsicWidth(of: (b: RenderBox) => number): number {
-    const { prefixIcon, suffixIcon, input } = this.o;
+    const { prefixIcon, suffixIcon, input, icon, prefix, suffix, hint } = this.o;
+    const content = this.o.isEmpty && hint ? Math.max(of(input), of(hint)) : of(input);
     return (
+      (icon ? of(icon) : 0) +
       (prefixIcon !== null ? prefixToInputGap : this.m.start + this.m.inputGap) +
       (prefixIcon === null ? 0 : of(prefixIcon)) +
-      of(input) +
+      (prefix ? of(prefix) : 0) +
+      content +
+      (suffix ? of(suffix) : 0) +
       (suffixIcon === null ? 0 : of(suffixIcon)) +
       (suffixIcon !== null ? inputToSuffixGap : this.m.end + this.m.inputGap)
     );
@@ -182,24 +209,35 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
       return b ?? (place ? box.size.height : box.getDryLayout(c).height);
     };
     const boxConstraints = constraints.loosen();
-    const containerConstraints = boxConstraints;
+    const iconWidth = o.icon ? layoutChild(o.icon, boxConstraints).width : 0;
+    const containerConstraints = boxConstraints.deflate(EdgeInsets.only({ left: iconWidth }));
     const contentConstraints = containerConstraints.deflate(
       EdgeInsetsDirectional.only({ start: m.start + m.inputGap, end: m.end + m.inputGap }),
     );
-    // _computeSubtextSizes (no counter).
-    const helperHeight = layoutChild(this.helperError, contentConstraints).height;
+    // _computeSubtextSizes.
+    const counterSize = o.counter ? layoutChild(o.counter, contentConstraints) : Size.zero;
+    const counterAscent = o.counter ? baselineOf(o.counter, contentConstraints) : 0;
+    const counterPadding = o.counter ? subtextCounterPadding : 0;
+    const helperConstraints = contentConstraints.deflate(EdgeInsets.only({ left: counterSize.width + counterPadding }));
+    const helperHeight = layoutChild(this.helperError, helperConstraints).height;
     const subtext: Subtext | null =
-      helperHeight === 0
+      helperHeight === 0 && counterSize.height === 0
         ? null
         : {
-            ascent: baselineOf(this.helperError, contentConstraints) + subtextGap,
-            bottomHeight: helperHeight + subtextGap,
-            subtextHeight: helperHeight + subtextGap,
+            ascent: Math.max(counterAscent, baselineOf(this.helperError, helperConstraints)) + subtextGap,
+            bottomHeight: Math.max(counterAscent, helperHeight) + subtextGap,
+            subtextHeight: Math.max(counterSize.height, helperHeight) + subtextGap,
           };
     const prefixIconSize = o.prefixIcon === null ? Size.zero : layoutChild(o.prefixIcon, containerConstraints);
     const suffixIconSize = o.suffixIcon === null ? Size.zero : layoutChild(o.suffixIcon, containerConstraints);
-    const accessoryStart = o.prefixIcon === null ? m.start + m.inputGap : prefixIconSize.width + prefixToInputGap;
-    const accessoryEnd = o.suffixIcon === null ? m.end + m.inputGap : suffixIconSize.width + inputToSuffixGap;
+    const prefixSize = o.prefix ? layoutChild(o.prefix, contentConstraints) : Size.zero;
+    const suffixSize = o.suffix ? layoutChild(o.suffix, contentConstraints) : Size.zero;
+    const accessoryStart =
+      iconWidth +
+      prefixSize.width +
+      (o.prefixIcon === null ? m.start + m.inputGap : prefixIconSize.width + prefixToInputGap);
+    const accessoryEnd =
+      suffixSize.width + (o.suffixIcon === null ? m.end + m.inputGap : suffixIconSize.width + inputToSuffixGap);
     const inputWidth = Math.max(0, constraints.maxWidth - (accessoryStart + accessoryEnd));
     const bottomHeight = subtext?.bottomHeight ?? 0;
     const topHeight = o.hasLabel && !o.outline ? m.floatingLabelHeight : 0;
@@ -207,10 +245,17 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
       .deflate(EdgeInsets.only({ top: m.top + m.bottom + topHeight + bottomHeight + this.densityDy }))
       .tighten({ width: inputWidth });
     const inputSize = layoutChild(o.input, inputConstraints);
+    const hintConstraints = boxConstraints.tighten({ width: inputWidth });
+    const hintSize = o.hint ? layoutChild(o.hint, hintConstraints) : Size.zero;
     const inputBaseline = baselineOf(o.input, inputConstraints);
-    const inputHeight = inputSize.height;
-    const fixAboveInput = 0;
-    const fixBelowInput = 0;
+    const hintBaseline = o.hint ? baselineOf(o.hint, hintConstraints) : 0;
+    const inputHeight = Math.max(o.isEmpty ? hintSize.height : 0, inputSize.height);
+    const inputInternalBaseline = Math.max(inputBaseline, hintBaseline);
+    const prefixBaseline = o.prefix ? baselineOf(o.prefix, contentConstraints) : 0;
+    const suffixBaseline = o.suffix ? baselineOf(o.suffix, contentConstraints) : 0;
+    const fixAboveInput = Math.max(0, Math.max(prefixBaseline, suffixBaseline) - inputInternalBaseline);
+    const fixBelowBaseline = Math.max(prefixSize.height - prefixBaseline, suffixSize.height - suffixBaseline);
+    const fixBelowInput = Math.max(0, fixBelowBaseline - (inputHeight - inputInternalBaseline));
     const fixIconHeight = Math.max(prefixIconSize.height, suffixIconSize.height);
     const contentHeight = Math.max(
       fixIconHeight,
@@ -224,13 +269,13 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
     const alignFactor = (this.alignY + 1) / 2;
     const baselineAdjustment = fixAboveInput - overflow * (1 - alignFactor);
     const topInputBaseline =
-      m.top + topHeight + inputBaseline + baselineAdjustment + interactiveAdjustment + this.densityDy / 2;
+      m.top + topHeight + inputInternalBaseline + baselineAdjustment + interactiveAdjustment + this.densityDy / 2;
     const maxContentHeight = containerHeight - m.top - m.bottom - topHeight - this.densityDy;
     const alignableHeight = fixAboveInput + inputHeight + fixBelowInput;
     const maxVerticalOffset = maxContentHeight - alignableHeight;
     let baseline: number;
     if (o.outline) {
-      const centre = inputBaseline + baselineAdjustment / 2 + (containerHeight - inputHeight) / 2;
+      const centre = inputInternalBaseline + baselineAdjustment / 2 + (containerHeight - inputHeight) / 2;
       const bottom = topInputBaseline + maxVerticalOffset;
       const basis = this.alignY <= 0 ? Math.max(centre - topInputBaseline, 0) : Math.max(bottom - centre, 0);
       baseline = centre + basis * this.alignY;
@@ -258,6 +303,7 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
     const overallWidth = layout.size.width;
     const height = layout.containerHeight;
     const rtl = o.textDirection === TextDirection.rtl;
+    const iconWidth = o.icon?.size.width ?? 0;
     const centerLayout = (box: RenderBox, x: number): number => {
       setChildOffset(box, new Offset(x, (height - box.size.height) / 2));
       return box.size.width;
@@ -266,17 +312,24 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
       setChildOffset(box, new Offset(x, layout.baseline - (box.getDistanceToBaseline(TextBaseline.alphabetic) ?? 0)));
       return box.size.width;
     };
+    if (o.icon) {
+      centerLayout(o.icon, rtl ? overallWidth - iconWidth : 0);
+    }
     const subtextBaseline = (layout.subtext?.ascent ?? 0) + layout.containerHeight;
     const helperBaseline = this.helperError.getDistanceToBaseline(TextBaseline.alphabetic) ?? 0;
+    const counterBaseline = o.counter?.getDistanceToBaseline(TextBaseline.alphabetic) ?? 0;
     let start: number;
     let end: number;
     if (rtl) {
-      start = overallWidth - m.start;
+      start = overallWidth - m.start - iconWidth;
       end = m.end;
       setChildOffset(
         this.helperError,
         new Offset(start - this.helperError.size.width - m.inputGap, subtextBaseline - helperBaseline),
       );
+      if (o.counter) {
+        setChildOffset(o.counter, new Offset(end + m.inputGap, subtextBaseline - counterBaseline));
+      }
       if (o.prefixIcon !== null) {
         start += m.start;
         start -= centerLayout(o.prefixIcon, start - o.prefixIcon.size.width);
@@ -284,15 +337,33 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
       } else {
         start -= m.inputGap;
       }
+      if (o.prefix) {
+        start -= baselineLayout(o.prefix, start - o.prefix.size.width);
+      }
       baselineLayout(o.input, start - o.input.size.width);
+      if (o.hint) {
+        baselineLayout(o.hint, start - o.hint.size.width);
+      }
       if (o.suffixIcon !== null) {
         end -= m.end;
         end += centerLayout(o.suffixIcon, end);
+        end += inputToSuffixGap;
+      } else {
+        end += m.inputGap;
+      }
+      if (o.suffix) {
+        baselineLayout(o.suffix, end);
       }
     } else {
-      start = m.start;
+      start = m.start + iconWidth;
       end = overallWidth - m.end;
       setChildOffset(this.helperError, new Offset(start + m.inputGap, subtextBaseline - helperBaseline));
+      if (o.counter) {
+        setChildOffset(
+          o.counter,
+          new Offset(end - o.counter.size.width - m.inputGap, subtextBaseline - counterBaseline),
+        );
+      }
       if (o.prefixIcon !== null) {
         start -= m.start;
         start += centerLayout(o.prefixIcon, start);
@@ -300,10 +371,22 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
       } else {
         start += m.inputGap;
       }
+      if (o.prefix) {
+        start += baselineLayout(o.prefix, start);
+      }
       baselineLayout(o.input, start);
+      if (o.hint) {
+        baselineLayout(o.hint, start);
+      }
       if (o.suffixIcon !== null) {
         end += m.end;
         end -= centerLayout(o.suffixIcon, end - o.suffixIcon.size.width);
+        end -= inputToSuffixGap;
+      } else {
+        end -= m.inputGap;
+      }
+      if (o.suffix) {
+        baselineLayout(o.suffix, end - o.suffix.size.width);
       }
     }
   }

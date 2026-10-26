@@ -660,6 +660,11 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
           isDense: props['isDense'] == true ? true : null,
           prefixIcon: one('prefixIcon'),
           suffixIcon: one('suffixIcon'),
+          icon: one('icon'),
+          hintText: props['hintText'] as String?,
+          prefixText: props['prefixText'] as String?,
+          suffixText: props['suffixText'] as String?,
+          counterText: props['counterText'] as String?,
         ),
       );
     case 'Chip':
