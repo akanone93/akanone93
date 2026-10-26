@@ -12,14 +12,14 @@ import 'package:flutter/cupertino.dart';
 const Set<String> cupertinoTypes = <String>{
   'CupertinoButton', 'CupertinoSwitch', 'CupertinoSlider', 'CupertinoTabBar', 'CupertinoTabItem', //
   'CupertinoNavigationBar', 'CupertinoNavSlot', 'CupertinoPageScaffold', 'CupertinoSlot', 'CupertinoTabScaffold', 'CupertinoPicker', 'CupertinoListTile', //
-  'CupertinoListSection', 'CupertinoTextField', 'CupertinoSegmentedControl',
+  'CupertinoListSection', 'CupertinoTextField', 'CupertinoSegmentedControl', 'CupertinoSlidingSegmentedControl', 'CupertinoSliverNavigationBar',
 };
 
 /// Types that take several children.
 const Set<String> cupertinoMultiChild = <String>{
   'CupertinoTabBar', 'CupertinoNavigationBar', 'CupertinoPageScaffold', 'CupertinoTabScaffold', 'CupertinoListTile', //
   'CupertinoListSection',
-  'CupertinoSegmentedControl',
+  'CupertinoSegmentedControl', 'CupertinoPicker', 'CupertinoSlidingSegmentedControl', 'CupertinoSliverNavigationBar',
 };
 
 TextStyle _style(double size, [FontWeight weight = FontWeight.w400]) =>
@@ -157,14 +157,28 @@ Widget buildCupertino(
                 trailing: trailing,
               ),
       );
+    case 'CupertinoSliverNavigationBar':
+      return _withSafeArea(
+        props,
+        CupertinoSliverNavigationBar(
+          key: key,
+          automaticallyImplyLeading: false,
+          automaticallyImplyTitle: false,
+          transitionBetweenRoutes: false,
+          leading: _hasSlot(raw, 'leading') ? _slot(raw, children, 'leading') : null,
+          middle: _hasSlot(raw, 'middle') ? _slot(raw, children, 'middle') : null,
+          trailing: _hasSlot(raw, 'trailing') ? _slot(raw, children, 'trailing') : null,
+          largeTitle: _slot(raw, children, 'largeTitle'),
+        ),
+      );
     case 'CupertinoPicker':
       return CupertinoPicker(
         key: key,
         itemExtent: _num(props['itemExtent']) ?? 32,
         onSelectedItemChanged: (int _) {},
-        children: <Widget>[
-          for (int i = 0; i < ((props['itemCount'] as int?) ?? 3); i++) Text('Item $i', style: _style(21)),
-        ],
+        children: children.isNotEmpty
+            ? children
+            : <Widget>[for (int i = 0; i < ((props['itemCount'] as int?) ?? 3); i++) Text('Item $i', style: _style(21))],
       );
     case 'CupertinoTabScaffold':
       final int tabBar = raw.indexWhere((Map<String, Object?> n) => n['type'] == 'CupertinoTabBar');
@@ -234,6 +248,15 @@ Widget buildCupertino(
         groupValue: 0,
         onValueChanged: (int _) {},
         padding: props.containsKey('padding') ? padding(props['padding']) : null,
+      );
+    case 'CupertinoSlidingSegmentedControl':
+      return CupertinoSlidingSegmentedControl<int>(
+        key: key,
+        children: <int, Widget>{for (int i = 0; i < children.length; i++) i: children[i]},
+        groupValue: props.containsKey('groupValue') ? props['groupValue'] as int? : 0,
+        onValueChanged: (int? _) {},
+        proportionalWidth: (props['proportionalWidth'] as bool?) ?? false,
+        padding: props.containsKey('padding') ? padding(props['padding']) : const EdgeInsets.symmetric(vertical: 2, horizontal: 3),
       );
     case 'CupertinoPageScaffold':
       final int bar = raw.indexWhere((Map<String, Object?> n) => n['type'] == 'CupertinoNavigationBar');
