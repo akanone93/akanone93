@@ -20,8 +20,10 @@ import {
   OrgService,
   PluginSchema,
   PluginService,
+  PluginVersionSchema,
   PreferencesSchema,
   PreferencesService,
+  ReleaseService,
   UserSchema,
 } from "@plux/api";
 import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
@@ -51,6 +53,8 @@ export interface UpstreamData {
   productionRelease?: boolean;
   /** Collects every ApplyChangeSet the upstream receives. */
   changeSets?: ApplyChangeSetRequest[];
+  /** The documents of the plugin's last published version (ListPluginVersions, GetSnapshot); none means never published. */
+  published?: { path: string; json: unknown }[];
   /** The app canvas: ListPluginSummaries. */
   summaries?: { id: string; key: string; name: string; latestVersion?: number }[];
   /** Collects plugin RPCs the app canvas sends, as `delete:<id>` and `archive:<id>`. */
@@ -186,7 +190,25 @@ export function createUpstream(state: UpstreamData) {
       }),
       releaseLock: () => ({}),
     });
+    service(ReleaseService, {
+      listPluginVersions: () => ({
+        versions:
+          state.published === undefined
+            ? []
+            : [
+                create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1" }),
+                create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0" }),
+              ],
+      }),
+    });
     service(DocumentService, {
+      getSnapshot: (req) => ({
+        documents: (req.id === "snap-1" ? (state.published ?? []) : [])
+          .filter((d) => req.paths.includes(d.path))
+          .map((d) =>
+            create(DocumentSchema, { path: d.path, content: new TextEncoder().encode(JSON.stringify(d.json)) }),
+          ),
+      }),
       // Autosave: applies the patch to the stored document and returns it one revision on.
       patchDocument: (req) => {
         const stored =

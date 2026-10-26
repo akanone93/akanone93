@@ -47,6 +47,8 @@ export interface CanvasSurface {
   thumbnail?(id: string, width: number): Promise<Uint8Array | null>;
   /** Makes encoded images available to scene items under their keys. */
   setImages?(images: readonly { key: string; bytes: Uint8Array }[]): void;
+  /** Pauses (`true`) or resumes the worker's drawing; the scene and view are kept (STU-063). */
+  setPaused?(paused: boolean): void;
   readonly viewport: { readonly x: number; readonly y: number; readonly zoom: number };
   dispose(): void;
 }
@@ -136,6 +138,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     patch: (ops) => run((h) => h.patch(ops)),
     thumbnail: (id, width) => new Promise((resolve) => run((h) => void h.thumbnail(id, width).then(resolve))),
     setImages: (images) => run((h) => h.setImages(images)),
+    setPaused: (paused) => run((h) => h.setPaused(paused)),
     pan: (dx, dy) => run((h) => h.pan(dx, dy)),
     zoomAbout: (factor, x, y) => run((h) => h.zoomAbout(factor, x, y)),
     hitTest: (x, y) => host?.hitTest(x, y) ?? [],

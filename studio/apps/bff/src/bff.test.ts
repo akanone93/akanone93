@@ -178,6 +178,11 @@ describe("SEC-101 STU-002 security headers", () => {
       expect(csp1).toContain(d);
     }
     expect(csp1).not.toContain("'unsafe-eval'");
+    // Only style attributes may be inline (Monaco, ADR-0014 Revision 2026-10-26); elements stay nonce-only.
+    const directives = csp1.split("; ");
+    expect(directives).toContain(`style-src 'self' 'nonce-${n1}'`);
+    expect(directives).toContain("style-src-attr 'unsafe-inline'");
+    expect(directives.filter((d) => d.includes("'unsafe-inline'"))).toEqual(["style-src-attr 'unsafe-inline'"]);
     for (const path of ["/livez", "/missing", "/hello.txt"]) {
       const h = (await app.request(path)).headers;
       expect(h.get("strict-transport-security")).toContain("max-age");

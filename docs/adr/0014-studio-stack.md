@@ -138,3 +138,14 @@ needs its framework mode. Rejected.
 
 `bun-plugin-tailwind` is young and no Lingui plugin exists for the Bun bundler. Elysia's types add
 little to a Connect proxy and tie us to Bun. Radix is the wrong direction for shadcn. Rejected.
+
+## Revision (2026-10-26, P11 S5.1: inline style attributes)
+
+Monaco sets inline `style` attributes on its DOM, which `style-src 'self' 'nonce-…'` blocks. The
+maintainer chose to add `style-src-attr 'unsafe-inline'`: it allows style attributes only;
+`<style>` elements and stylesheets stay nonce-only and `script-src` is unchanged. A style
+attribute cannot run script; the remaining risk is CSS-based UI tampering after an HTML
+injection, which Trusted Types (`require-trusted-types-for 'script'`) already guards. Rejected:
+rewriting Monaco's styles through CSSOM in the Trusted Types policy (fragile across Monaco
+releases, slower), and replacing Monaco with CodeMirror for the full-screen editors (against
+decision A4.6 and `STU-001`). The BFF test pins the directive.

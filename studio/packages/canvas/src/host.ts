@@ -553,6 +553,11 @@ export class CanvasHost {
     this.send({ v: PROTOCOL_VERSION, type: "interaction", phase: "end", kind, ids });
   }
 
+  /** Pauses or resumes the worker's drawing (STU-063); the viewport and scene are kept as they are. */
+  setPaused(paused: boolean): void {
+    this.send({ v: PROTOCOL_VERSION, type: "pause", paused });
+  }
+
   /** Resizes the canvas. */
   resize(width: number, height: number, dpr: number): void {
     this.view.width = width;

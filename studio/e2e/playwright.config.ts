@@ -3,9 +3,11 @@
 
 import { defineConfig, devices } from "@playwright/test";
 
-const previewPort = 4173;
-const devPort = 4174;
-const bffPort = 4175;
+// The ports can move (PLUX_E2E_PORT_BASE) when another run on the machine holds the defaults.
+const base = Number(process.env["PLUX_E2E_PORT_BASE"] ?? 4173);
+const previewPort = base;
+const devPort = base + 1;
+const bffPort = base + 2;
 
 export default defineConfig({
   testDir: ".",
@@ -34,7 +36,7 @@ export default defineConfig({
     {
       // The built app behind the BFF and its strict CSP.
       name: "csp",
-      testMatch: "csp.spec.ts",
+      testMatch: ["csp.spec.ts", "json-editor.spec.ts"],
       use: { ...devices["Desktop Chrome"], baseURL: `http://127.0.0.1:${bffPort}` },
     },
   ],
