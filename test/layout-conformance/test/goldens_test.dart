@@ -414,7 +414,7 @@ List<double> _rectOf(WidgetTester tester, String id) {
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
-  'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination',
+  'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -621,6 +621,8 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         bottomNavigationBar: one('bottomNavigationBar'),
         bottomSheet: one('bottomSheet'),
       );
+    case 'Drawer':
+      return Drawer(key: key, width: _optionalNumber(props, 'width'), child: one('child'));
     case 'TextField':
       return TextField(
         key: key,
