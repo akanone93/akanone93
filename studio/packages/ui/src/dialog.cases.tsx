@@ -41,4 +41,12 @@ export const cases: readonly CaseDefinition[] = [
       />
     ),
   },
+  {
+    name: "full-screen overlay",
+    element: (
+      <Dialog defaultOpen size="full" title={caseText.details} labels={{ close: caseText.close }}>
+        <p>{caseText.body}</p>
+      </Dialog>
+    ),
+  },
 ];

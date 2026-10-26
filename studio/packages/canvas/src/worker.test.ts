@@ -164,6 +164,25 @@ describe("STU-003 canvas worker core", () => {
     expect(ofType(posted, "snapshot")).toHaveLength(0);
   });
 
+  test("STU-063 a paused worker draws nothing, keeps its state, and draws one frame on resume", async () => {
+    const env = new TestEnvironment(ck);
+    const { core, posted } = start(env);
+    await core.receive(init({ tiles: true }));
+    await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("a", 10, 10) }] });
+    env.drain();
+    await core.receive({ v, type: "pause", paused: true });
+    const framesBefore = ofType(posted, "frame").length;
+    await core.receive({ v, type: "viewport", change: { op: "pan", dx: 5, dy: 0 } });
+    await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("b", 50, 10) }] });
+    env.drain();
+    expect(ofType(posted, "frame").length).toBe(framesBefore);
+    await core.receive({ v, type: "snapshot", requestId: 1 });
+    expect(ofType(posted, "snapshot")[0]?.model.nodes.map((n) => n.id)).toEqual(["a", "b"]);
+    await core.receive({ v, type: "pause", paused: false });
+    env.drain();
+    expect(ofType(posted, "frame").length).toBeGreaterThan(framesBefore);
+  });
+
   test("falls back from WebGL to raster, reports failures and unsupported messages", async () => {
     const env = new TestEnvironment(ck);
     env.webglSurfaces = false;

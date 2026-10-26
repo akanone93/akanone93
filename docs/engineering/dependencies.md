@@ -200,9 +200,10 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@playwright/test` 1.63.0 | End-to-end tests of the built web app (dev only) | In use (P11 S0.1; Apache-2.0) |
 | `@axe-core/playwright` 4.14.0, `axe-core` 4.14.0 | Accessibility checks, WCAG 2.1 AA, in the end-to-end tests (dev only; never shipped) | In use (P11 S0.1; MPL-2.0) |
 | `impeccable` 4.7.0 | Design-gate detector, report-only until S3 (O-4) (dev only) | In use (P11 S0.1; Apache-2.0) |
+| `monaco-editor` 0.57.0 (exact pin; MIT) with its two runtime dependencies `dompurify` 3.4.15 (Apache-2.0 OR MPL-2.0, used under Apache-2.0) and `marked` 14.0.0 (MIT) | The full-screen JSON editor and its diff view (STU-063, STU-064; ADR-0014, decisions A4.6 table). Loaded lazily with the first overlay, so it is not in the initial JavaScript (STU-122); its two workers are Studio's own build assets admitted by the Trusted Types worker policy, and the features that would need other policies are off | In use (P11 S5.1; MIT) |
 | `hono` 4.13.13 | The BFF in `studio/apps/bff`; server only, not in the web bundle | In use (P11 S0.1; MIT) |
 
-Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Base UI, Tailwind CSS, Monaco, Connect-ES.
+Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Base UI, Tailwind CSS, Connect-ES.
 
 ### Build and CI tools
 

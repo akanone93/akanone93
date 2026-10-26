@@ -149,6 +149,10 @@ export class CanvasWorkerCore {
   /** An animation frame is awaited to resume patches whose frame budget is spent. */
   private pacing = false;
   private disposed = false;
+  /** Paused (STU-063): no frame, idle or job work runs; scene and view changes still apply and are drawn on resume. */
+  private paused = false;
+  private idleOwed = false;
+  private readonly held: (() => void)[] = [];
   private readonly live: SceneItem[] = [];
   private readonly liveBounds = makeRect(0, 0, 0, 0);
   private readonly shown = makeRect(0, 0, 0, 0);
@@ -159,7 +163,17 @@ export class CanvasWorkerCore {
     private readonly post: (message: WorkerMessage) => void,
     private readonly deps: WorkerDeps,
   ) {
-    this.jobs = new BaseJobQueue({ now: () => deps.now(), schedule: (callback) => deps.requestFrame(callback) });
+    this.jobs = new BaseJobQueue({
+      now: () => deps.now(),
+      schedule: (callback) =>
+        deps.requestFrame(() => {
+          if (this.paused) {
+            this.held.push(callback);
+          } else {
+            callback();
+          }
+        }),
+    });
   }
 
   /** Handles one message from the main thread. */
@@ -394,6 +408,9 @@ export class CanvasWorkerCore {
         this.post({ v: PROTOCOL_VERSION, type: "screens", requestId: message.requestId, ops, heights });
         break;
       }
+      case "pause":
+        this.setPaused(message.paused);
+        return;
       case "dispose":
         this.jobs.cancel();
         running.renderer.dispose();
@@ -604,8 +621,30 @@ export class CanvasWorkerCore {
     }
   }
 
+  /** Pauses or resumes all rendering work; resuming draws what changed meanwhile in one frame. */
+  private setPaused(paused: boolean): void {
+    if (this.paused === paused) {
+      return;
+    }
+    this.paused = paused;
+    if (paused) {
+      return;
+    }
+    for (const callback of this.held.splice(0)) {
+      this.deps.requestFrame(callback);
+    }
+    if (this.running) {
+      this.running.baseDirty = true;
+    }
+    this.requestFrame();
+    if (this.idleOwed) {
+      this.idleOwed = false;
+      this.requestIdle();
+    }
+  }
+
   private requestFrame(): void {
-    if (this.frameRequested || !this.running) {
+    if (this.frameRequested || !this.running || this.paused) {
       return;
     }
     this.frameRequested = true;
@@ -614,6 +653,9 @@ export class CanvasWorkerCore {
 
   private onFrame(): void {
     this.frameRequested = false;
+    if (this.paused) {
+      return;
+    }
     const running = this.running;
     if (!running || running.lost) {
       return;
@@ -648,7 +690,9 @@ export class CanvasWorkerCore {
     this.pacing = true;
     this.deps.requestFrame(() => {
       this.pacing = false;
-      if (this.running === running && !running.lost) {
+      if (this.paused) {
+        this.idleOwed = true;
+      } else if (this.running === running && !running.lost) {
         running.renderer.nextPatchFrame();
         this.requestIdle();
       }
@@ -656,6 +700,10 @@ export class CanvasWorkerCore {
   }
 
   private requestIdle(): void {
+    if (this.paused) {
+      this.idleOwed = true;
+      return;
+    }
     if (this.idleRequested) {
       return;
     }
@@ -665,6 +713,10 @@ export class CanvasWorkerCore {
 
   private onIdle(): void {
     this.idleRequested = false;
+    if (this.paused) {
+      this.idleOwed = true;
+      return;
+    }
     const running = this.running;
     if (!running) {
       return;

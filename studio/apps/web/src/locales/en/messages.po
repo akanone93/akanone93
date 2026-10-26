@@ -265,6 +265,12 @@ msgstr "{screen} belongs to another plugin. Your changes here are saved. Leave t
 msgid "links.targetOption"
 msgstr "{title} ({scope})"
 
+#. Finding shown when the text is JSON but not an object.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.notObject"
+msgstr "A document must be a JSON object."
+
 #. Shown when an upload chunk was sent at the wrong offset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -366,6 +372,18 @@ msgstr "App canvas"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.group.appearance"
 msgstr "Appearance"
+
+#. Confirmation after the edited JSON was applied to the document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.applied"
+msgstr "Applied to the document."
+
+#. Button that applies the edited JSON to the document. Enabled only when the JSON is valid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.apply"
+msgstr "Apply"
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -505,6 +523,12 @@ msgstr "Checking the plugin…"
 msgid "panels.pxlChecking"
 msgstr "Checking..."
 
+#. Status while the validator checks the edited JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.checking"
+msgstr "Checking…"
+
 #. Label of the new-password field on the invitation page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -565,6 +589,12 @@ msgstr "Close"
 msgid "dialog.close"
 msgstr "Close"
 
+#. Accessible name of the button that closes the full-screen JSON editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.close"
+msgstr "Close the JSON editor"
+
 #. Density option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -600,6 +630,12 @@ msgstr "Compact"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.compare"
 msgstr "Compare"
+
+#. Toggle that shows the document next to the version that was last published.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.diff"
+msgstr "Compare with the last published version"
 
 #. Group of the Insert tab: ready-made components (Layer 2).
 #. js-lingui-explicit-id
@@ -781,6 +817,12 @@ msgstr "Dismiss"
 msgid "panels.tabDocs"
 msgstr "Docs"
 
+#. Label of the list from which the document to edit is chosen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.document"
+msgstr "Document"
+
 #. Help menu entry that opens the documentation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -925,6 +967,12 @@ msgstr "Field {name}"
 msgid "pluginCanvas.zoomFit"
 msgstr "Fit"
 
+#. Status when the edited JSON has errors, so it cannot be applied.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.invalid"
+msgstr "Fix the problems below to apply."
+
 #. Accessible name of a frame around plugin boxes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1064,6 +1112,24 @@ msgstr "it is the entry screen; choose another entry first."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.moveReasonPrivate"
 msgstr "it uses a component that is private to this plugin."
+
+#. Button in the right panel that opens the full-screen JSON editor for the selected document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.open"
+msgstr "JSON editor"
+
+#. Title of the full-screen overlay in which a document's JSON is edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.title"
+msgstr "JSON editor"
+
+#. Accessible name of the text editor that holds a document's JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.editorLabel"
+msgstr "JSON of the document"
 
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
@@ -1233,6 +1299,12 @@ msgstr "Loading assets…"
 msgid "pluginCanvas.loading"
 msgstr "Loading screens"
 
+#. Shown while the last published version of the document is fetched for the comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.loadingPublished"
+msgstr "Loading the published version…"
+
 #. Badge: who holds the editing lock of the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1377,6 +1449,12 @@ msgstr "No accessibility problems for this widget."
 msgid "assets.empty"
 msgstr "No assets yet."
 
+#. Status when the edited JSON equals the document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.nothingToApply"
+msgstr "No changes to apply."
+
 #. Shown when the filter matches nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -1393,6 +1471,12 @@ msgstr "No notifications"
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.none"
+msgstr "No problems found."
+
+#. Shown in the list of validation findings when there are none.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.noProblems"
 msgstr "No problems found."
 
 #. Problem shown for a link whose target screen does not exist; route is the route name.
@@ -1430,6 +1514,12 @@ msgstr "Not interactive"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.unset"
 msgstr "Not set"
+
+#. Finding shown when the text is not JSON; {message} is the parser's explanation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.syntax"
+msgstr "Not valid JSON: {message}"
 
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
@@ -1597,6 +1687,12 @@ msgstr "Problem counts"
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.tab"
+msgstr "Problems"
+
+#. Heading of the list of validation findings for the edited JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.problems"
 msgstr "Problems"
 
 #. Label of the profile menu button and its first entry.
@@ -2175,6 +2271,12 @@ msgstr "The lock could not be taken over: the holder edited again, or you may no
 msgid "auth.error.passkey"
 msgstr "The passkey could not be used."
 
+#. Shown when fetching the last published version for the comparison failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.publishedFailed"
+msgstr "The published version could not be loaded."
+
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2248,6 +2350,12 @@ msgstr "The upload expired or no longer exists. Upload the file again."
 msgid "problems.unavailable"
 msgstr "The validator could not run."
 
+#. Status when the validator has not finished loading, so applying is not possible.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.unavailable"
+msgstr "The validator is not ready, so the JSON cannot be applied yet."
+
 #. Description of the trigger picker; target is the title of the screen the link was dropped on.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -2301,6 +2409,12 @@ msgstr "This cannot be deleted yet"
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.rename.title"
 msgstr "This change affects code outside Studio"
+
+#. Shown instead of the comparison when the plugin has no published version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.noPublished"
+msgstr "This document has not been published yet, so there is nothing to compare with."
 
 #. Reason a screen cannot be deleted.
 #. js-lingui-explicit-id
@@ -2482,6 +2596,12 @@ msgstr "Use security key or passkey"
 msgid "appCanvas.valid"
 msgstr "Valid"
 
+#. Status when the edited JSON passed validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.valid"
+msgstr "Valid. You can apply it."
+
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -2565,6 +2685,12 @@ msgstr "You are offline. Nothing was changed; try again when the connection is b
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.signedout.title"
 msgstr "You are signed out"
+
+#. Shown when the editor is read-only (no lock on the plugin or insufficient permission).
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.readOnly"
+msgstr "You cannot edit this plugin now, so the JSON is read-only."
 
 #. Heading of the 403 page.
 #. js-lingui-explicit-id
