@@ -401,7 +401,7 @@ msgstr "إلغاء"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.picker.cancel"
-msgstr ""
+msgstr "إلغاء"
 
 #. Button that closes a dialog without changing anything.
 #. js-lingui-explicit-id
@@ -491,7 +491,7 @@ msgstr "إغلاق"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.picker.close"
-msgstr ""
+msgstr "إغلاق"
 
 #. Accessible name of the close button of a dialog.
 #. js-lingui-explicit-id
