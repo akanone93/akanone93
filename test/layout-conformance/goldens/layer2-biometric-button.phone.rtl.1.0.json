@@ -1,0 +1,19 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "layer2-biometric-button",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "ar",
+  "textScale": 1.0,
+  "rects": {
+    "biometric": [
+      0.0,
+      0.0,
+      218.5174102783203,
+      48.0
+    ]
+  }
+}

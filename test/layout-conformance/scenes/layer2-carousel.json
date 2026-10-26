@@ -1,0 +1,16 @@
+{
+  "name": "layer2-carousel",
+  "layer2": true,
+  "root": {
+    "id": "carousel",
+    "type": "Carousel",
+    "children": [
+      {
+        "id": "page-one",
+        "type": "SizedBox",
+        "props": {}
+      }
+    ],
+    "props": {}
+  }
+}

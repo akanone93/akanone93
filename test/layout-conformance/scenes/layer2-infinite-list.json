@@ -1,0 +1,33 @@
+{
+  "name": "layer2-infinite-list",
+  "layer2": true,
+  "root": {
+    "id": "infinite",
+    "type": "SizedBox",
+    "props": {
+      "height": 300
+    },
+    "slots": {
+      "child": {
+        "id": "list",
+        "type": "InfiniteList",
+        "props": {
+          "items": [
+            "One",
+            "Two",
+            "Three"
+          ]
+        },
+        "slots": {
+          "item": {
+            "id": "list-item",
+            "type": "SizedBox",
+            "props": {
+              "height": 20
+            }
+          }
+        }
+      }
+    }
+  }
+}

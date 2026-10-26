@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_charts/plux_charts.dart';
 import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_player/plux_player.dart';
 
 import '../support/harness.dart';
 
@@ -115,7 +116,10 @@ Future<Map<String, Uint8List>> _compile(List<Map<String, Object?>> pages) async 
   edit('plugins/gallery/plugin.json', (d) {
     d['pages'] = [for (final p in pages) p['id']];
     d['entryPage'] = pages.first['id'];
-    d['dataSources'] = <Object?>[];
+    d['dataSources'] = [
+      for (final s in d['dataSources']! as List<Object?>)
+        if ((s! as Map<String, Object?>)['name'] == 'uploads') s,
+    ];
   });
   edit('app.json', (d) {
     d['entryRoute'] = 'scene0';
@@ -195,6 +199,7 @@ void main() {
             widgetPackages: const [
               PluxComponents(),
               PluxCharts(),
+              PluxPlayer(),
             ],
           );
           await h.loadIconFonts();

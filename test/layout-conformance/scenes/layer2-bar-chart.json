@@ -1,0 +1,13 @@
+{
+  "name": "layer2-bar-chart",
+  "layer2": true,
+  "root": {
+    "id": "chart",
+    "type": "BarChart",
+    "props": {
+      "series": [{ "name": "Sales", "values": [3, 5, 2, 8] }],
+      "labels": ["Q1", "Q2", "Q3", "Q4"],
+      "title": "Sales by quarter"
+    }
+  }
+}

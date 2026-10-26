@@ -1,0 +1,9 @@
+{
+  "name": "layer2-audio-player",
+  "layer2": true,
+  "root": {
+    "id": "audio",
+    "type": "AudioPlayer",
+    "props": { "url": "https://example.com/a.mp3", "title": "Morning briefing" }
+  }
+}
