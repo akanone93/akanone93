@@ -1,0 +1,5 @@
+{
+  "name": "layer2-image-gallery",
+  "layer2": true,
+  "root": { "id": "gallery", "type": "ImageGallery", "props": { "images": [], "indicators": false } }
+}
