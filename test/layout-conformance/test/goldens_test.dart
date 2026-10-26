@@ -429,7 +429,7 @@ const Set<String> _materialTypes = <String>{
   'Chip', 'FilterChip', 'InputChip', 'ActionChip', 'ChoiceChip', 'Checkbox', 'Switch', 'Radio', 'Divider', 'VerticalDivider',
   'CircleAvatar', 'CircularProgressIndicator', 'LinearProgressIndicator', 'Card', 'Badge', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
   'BackButton', 'CloseButton', 'Slider', 'RangeSlider', 'CheckboxListTile', 'SwitchListTile', 'RadioListTile',
-  'SearchBar', 'BottomAppBar', 'BottomNavigationBar', 'ExpansionTile',
+  'SearchBar', 'SearchAnchor', 'BottomAppBar', 'BottomNavigationBar', 'ExpansionTile',
   ...materialCompositeTypes,
 };
 
@@ -807,6 +807,14 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         hintText: props['hintText'] as String?,
         leading: one('leading'),
         trailing: slots['trailing'] == null ? null : <Widget>[one('trailing')!],
+      );
+    case 'SearchAnchor':
+      return KeyedSubtree(
+        key: key,
+        child: SearchAnchor.bar(
+          barHintText: props['hintText'] as String?,
+          suggestionsBuilder: (BuildContext context, SearchController controller) => const <Widget>[],
+        ),
       );
     case 'BottomAppBar':
       return BottomAppBar(key: key, child: one('child'));

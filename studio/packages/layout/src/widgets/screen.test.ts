@@ -514,16 +514,11 @@ const placeholderTypes: readonly string[] = [
   "CalendarDatePicker",
   "DataTable",
   "DropdownMenu",
-  "Image",
   "MaterialBanner",
   "NavigationDrawer",
   "PopupMenuButton",
-  "RichText",
-  "SearchAnchor",
   "SegmentedButton",
-  "SelectableText",
   "Stepper",
-  "Timeline",
 ];
 
 describe("builder coverage (STU-005)", () => {
