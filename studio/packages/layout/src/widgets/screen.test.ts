@@ -207,6 +207,34 @@ describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
     expect(byId.get("bare")?.h).toBe(44);
   });
 
+  test("a picker is a 216-pt wheel across the available width", () => {
+    const layout = layoutScreen(
+      col(node("picker", "CupertinoPicker", { children: [text("a", "One"), text("b", "Two")] })),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    expect(byId.get("picker")).toMatchObject({ w: theme.width - 2 * theme.pagePadding, h: 216 });
+  });
+
+  test("a sliding segmented control is as tall as its content and spans the available width", () => {
+    const layout = layoutScreen(
+      col(node("sliding", "CupertinoSlidingSegmentedControl", { children: [text("x", "Day"), text("y", "Week")] })),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    expect(byId.get("sliding")?.w).toBe(theme.width - 2 * theme.pagePadding);
+    expect(byId.get("sliding")?.h).toBeGreaterThanOrEqual(32);
+  });
+
+  test("a sliver navigation bar is shown expanded: toolbar and large title", () => {
+    const layout = layoutScreen(
+      col(node("large", "CupertinoSliverNavigationBar", { props: { data: { title: "Settings" } } })),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    expect(byId.get("large")).toMatchObject({ w: theme.width - 2 * theme.pagePadding, h: 96, text: "Settings" });
+  });
+
   test("scaffolds and sections lay their content out", () => {
     const layout = layoutScreen(
       node("scaffold", "CupertinoPageScaffold", {

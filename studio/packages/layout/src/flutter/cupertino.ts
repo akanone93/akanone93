@@ -37,6 +37,7 @@ import {
   Size,
   TextDirection,
 } from "./geometry.ts";
+import { RenderListWheelViewport } from "./list-wheel.ts";
 import { Affine, type PaintTransformer } from "./matrix.ts";
 import type { RenderObject } from "./object.ts";
 import { RenderConstrainedBox, RenderDecoratedBox } from "./proxy-box.ts";
@@ -277,6 +278,12 @@ export class RenderLargeTitle extends RenderShiftedBox implements PaintTransform
   }
 }
 
+/** `CupertinoPicker._kDefaultDiameterRatio`. */
+export const kPickerDiameterRatio = 1.07;
+
+/** `_kSqueeze`. */
+export const kPickerSqueeze = 1.45;
+
 /** `_kNavBarPersistentHeight`. */
 export const kNavBarPersistentHeight = kMinInteractiveDimensionCupertino;
 /** `_kNavBarLargeTitleHeightExtension`. */
@@ -300,7 +307,7 @@ export function navBarLargeTitleScale(factor: number): number {
 }
 
 /** `_PersistentNavigationBar`: the 44-pt toolbar under the status bar. */
-function persistentNavigationBar(options: {
+export function persistentNavigationBar(options: {
   leading: RenderBox | null;
   middle: RenderBox | null;
   trailing: RenderBox | null;
@@ -825,13 +832,25 @@ export function cupertinoTabScaffold(options: {
   return new RenderDecoratedBox({ decoration: {}, child: stack });
 }
 
-/** `CupertinoPicker`: the wheel and its selection overlay are positioned fills, so the picker takes all the room it is given. */
-export function cupertinoPicker(textDirection: TextDirection): RenderBox {
-  const fill = positioned(new RenderConstrainedBox({ additionalConstraints: BoxConstraints.expand() }), {
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+/**
+ * `CupertinoPicker`: the wheel (a `ListWheelViewport` with the picker's
+ * diameter ratio and squeeze) is a positioned fill, and so is the selection
+ * overlay, so the picker takes all the room it is given.
+ */
+export function cupertinoPicker(options: {
+  rows: readonly RenderBox[];
+  itemExtent: number;
+  textDirection: TextDirection;
+}): RenderBox {
+  const wheel = new RenderListWheelViewport({
+    children: options.rows,
+    itemExtent: options.itemExtent,
+    diameterRatio: kPickerDiameterRatio,
+    squeeze: kPickerSqueeze,
   });
-  return new RenderDecoratedBox({ decoration: {}, child: new RenderStack({ children: [fill], textDirection }) });
+  const fill = positioned(wheel, { top: 0, left: 0, right: 0, bottom: 0 });
+  return new RenderDecoratedBox({
+    decoration: {},
+    child: new RenderStack({ children: [fill], textDirection: options.textDirection }),
+  });
 }

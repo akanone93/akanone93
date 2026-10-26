@@ -163,7 +163,7 @@ const Duration _animationDuration = Duration(seconds: 1);
 /// golden holds only the nodes Flutter has built.
 const Set<String> _lazyTypes = <String>{
   'ListView', 'GridView', 'PageView', 'ReorderableListView', 'SliverList', 'SliverFixedExtentList',
-  'SliverVariedExtentList', 'SliverGrid', 'SliverFillViewport',
+  'SliverVariedExtentList', 'SliverGrid', 'SliverFillViewport', 'CupertinoPicker',
 };
 
 bool _hasLazy(Map<String, Object?> node) =>
@@ -400,7 +400,8 @@ Widget _buildSliver(String type, Key key, Map<String, Object?> props, List<Widge
 
 /// The rect of the render object a scene id keys: a box's global rect, a sliver's paint area.
 List<double> _rectOf(WidgetTester tester, String id) {
-  final Finder finder = find.byKey(ValueKey<String>(id), skipOffstage: false);
+  // A segment of a sliding control builds its content twice; the first copy is the one that is shown.
+  final Finder finder = find.byKey(ValueKey<String>(id), skipOffstage: false).first;
   final RenderObject renderObject = tester.element(finder).renderObject!;
   if (renderObject is RenderSliver) {
     final Offset origin = MatrixUtils.transformPoint(renderObject.getTransformTo(null), Offset.zero);
@@ -1039,10 +1040,11 @@ void main() {
             textIds.sort();
             final Map<String, double> baselines = <String, double>{
               for (final String id in textIds)
+                if (!lazy || find.byKey(ValueKey<String>(id), skipOffstage: false).evaluate().isNotEmpty)
                 id: () {
                   final RenderParagraph paragraph = tester.renderObject<RenderParagraph>(
                     find.descendant(
-                      of: find.byKey(ValueKey<String>(id), skipOffstage: false),
+                      of: find.byKey(ValueKey<String>(id), skipOffstage: false).first,
                       matching: find.byType(RichText),
                       skipOffstage: false,
                     ),
