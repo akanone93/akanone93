@@ -1,0 +1,66 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-action-sheet-title-only",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "sheet": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "sheet-a0": [
+      8.0,
+      669.66,
+      344.0,
+      57.16999999999996
+    ],
+    "sheet-a0-text": [
+      125.41073608398438,
+      683.745,
+      109.17852783203125,
+      29.0
+    ],
+    "sheet-cancel": [
+      8.0,
+      734.83,
+      344.0,
+      57.16999999999996
+    ],
+    "sheet-cancel-action": [
+      8.0,
+      734.83,
+      344.0,
+      57.16999999999996
+    ],
+    "sheet-cancel-action-text": [
+      145.32913970947266,
+      748.9150000000001,
+      69.34172058105469,
+      29.0
+    ],
+    "sheet-title": [
+      24.0,
+      637.86,
+      312.0,
+      18.0
+    ],
+    "sheet-title-text": [
+      24.0,
+      637.86,
+      312.0,
+      18.0
+    ]
+  },
+  "baselines": {
+    "sheet-a0-text": 22.448999404907227,
+    "sheet-cancel-action-text": 22.448999404907227,
+    "sheet-title-text": 13.897000312805176
+  }
+}

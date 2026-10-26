@@ -54,6 +54,7 @@ const List<(String, String)> _fonts = <(String, String)>[
   ('NotoSans', 'NotoSans_400Regular.ttf'),
   ('NotoSans', 'NotoSans_700Bold.ttf'),
   ('NotoNaskhArabic', 'NotoNaskhArabic_400Regular.ttf'),
+  ...cupertinoFonts,
 ];
 
 Future<void> _loadFonts() async {

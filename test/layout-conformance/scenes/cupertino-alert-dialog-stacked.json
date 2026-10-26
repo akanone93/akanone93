@@ -1,0 +1,88 @@
+{
+  "name": "cupertino-alert-dialog-stacked",
+  "root": {
+    "id": "dialog",
+    "type": "CupertinoAlertDialog",
+    "props": {},
+    "children": [
+      {
+        "id": "dialog-title",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "title"
+        },
+        "children": [
+          {
+            "id": "dialog-title-text",
+            "type": "Text",
+            "props": {
+              "text": "Delete photo"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-content",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "content"
+        },
+        "children": [
+          {
+            "id": "dialog-content-text",
+            "type": "Text",
+            "props": {
+              "text": "This cannot be undone."
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a0",
+        "type": "CupertinoDialogAction",
+        "props": {
+          "isDestructiveAction": true
+        },
+        "children": [
+          {
+            "id": "dialog-a0-text",
+            "type": "Text",
+            "props": {
+              "text": "Delete"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a1",
+        "type": "CupertinoDialogAction",
+        "props": {
+          "isDefaultAction": true
+        },
+        "children": [
+          {
+            "id": "dialog-a1-text",
+            "type": "Text",
+            "props": {
+              "text": "Keep"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a2",
+        "type": "CupertinoDialogAction",
+        "props": {},
+        "children": [
+          {
+            "id": "dialog-a2-text",
+            "type": "Text",
+            "props": {
+              "text": "Cancel"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -29,7 +29,6 @@ import {
   cupertinoTextField,
   cupertinoTextTheme,
   type EdgeInsets,
-  type EdgeInsetsGeometry,
   kNavBarLargeTitleHeightExtension,
   kSlidingSegmentFontSize,
   kSlidingSegmentFontWeight,
@@ -41,13 +40,29 @@ import {
   type RenderBox,
   type RenderObject,
   type RenderSliver,
-  type TextDirection,
   TextScaler,
 } from "../src/index.ts";
-import type { SceneNode, SceneText } from "./scene.ts";
+import {
+  type CupertinoContext,
+  type Defaults,
+  label,
+  numberProp,
+  only,
+  scaled,
+  slotOf,
+  str,
+  withDefaultText,
+} from "./cupertino-common.ts";
+import { buildCupertinoDatePicker, cupertinoDatePickerTypes } from "./cupertino-date-picker.ts";
+import { buildCupertinoDialog, cupertinoDialogMultiChildTypes, cupertinoDialogTypes } from "./cupertino-dialog.ts";
+import type { SceneNode } from "./scene.ts";
+
+export type { CupertinoContext } from "./cupertino-common.ts";
 
 /** The node types of this file; `CupertinoTabItem` and `CupertinoNavSlot` are wrappers without a render object. */
 export const cupertinoTypes: ReadonlySet<string> = new Set([
+  ...cupertinoDatePickerTypes,
+  ...cupertinoDialogTypes,
   "CupertinoButton",
   "CupertinoSwitch",
   "CupertinoSlider",
@@ -68,6 +83,7 @@ export const cupertinoTypes: ReadonlySet<string> = new Set([
 
 /** Types that take several children. */
 export const cupertinoMultiChildTypes: ReadonlySet<string> = new Set([
+  ...cupertinoDialogMultiChildTypes,
   "CupertinoTabBar",
   "CupertinoNavigationBar",
   "CupertinoPageScaffold",
@@ -89,77 +105,6 @@ export const cupertinoAliasTypes: ReadonlySet<string> = new Set([
   "CupertinoNavSlot",
   "CupertinoSlot",
 ]);
-
-/** What the builder borrows from `scene.ts`. */
-export interface CupertinoContext {
-  textDirection: TextDirection;
-  text: SceneText | null;
-  build(node: SceneNode, text: SceneText | null): RenderBox;
-  padding(value: unknown): EdgeInsetsGeometry;
-}
-
-const family = "NotoSans";
-
-type Defaults = { fontSize?: number; fontWeight?: number; maxLines?: number; ellipsis?: boolean };
-
-/** `DefaultTextStyle`: fills the style and line limits a `Text` descendant leaves unset. */
-function withDefaultText(node: SceneNode, defaults: Defaults): SceneNode {
-  const children = node.children?.map((child) => withDefaultText(child, defaults));
-  if (node.type !== "Text") {
-    return children === undefined ? node : { ...node, children };
-  }
-  const style = { fontFamily: family, ...(node.props["style"] as Record<string, unknown> | undefined) } as Record<
-    string,
-    unknown
-  >;
-  for (const name of ["fontSize", "fontWeight"] as const) {
-    if (style[name] === undefined && defaults[name] !== undefined) {
-      style[name] = defaults[name];
-    }
-  }
-  const props: Record<string, unknown> = { ...node.props, style };
-  if (props["maxLines"] === undefined && defaults.maxLines !== undefined) {
-    props["maxLines"] = defaults.maxLines;
-  }
-  if (props["overflow"] === undefined && defaults.ellipsis === true) {
-    props["overflow"] = "ellipsis";
-  }
-  return { ...node, props, children: children ?? [] };
-}
-
-function scaled(text: SceneText | null, factor: (base: number) => number): SceneText | null {
-  return text === null ? null : { ...text, textScaler: TextScaler.linear(factor(text.textScaler.textScaleFactor)) };
-}
-
-function str(node: SceneNode, name: string, fallback: string): string {
-  const value = node.props[name];
-  return typeof value === "string" ? value : fallback;
-}
-
-function numberProp(node: SceneNode, name: string, fallback: number): number {
-  const value = node.props[name];
-  return typeof value === "number" ? value : fallback;
-}
-
-function only(node: SceneNode): SceneNode {
-  const child = node.children?.[0];
-  if (child === undefined) {
-    throw new Error(`node "${node.id}" of type ${node.type} needs a child`);
-  }
-  return child;
-}
-
-function label(ctx: CupertinoContext, text: string, defaults: Defaults): RenderBox {
-  const { maxLines, ...style } = defaults;
-  const node: SceneNode = {
-    id: "",
-    type: "Text",
-    props: { text, style: { fontFamily: family, ...style }, ...(maxLines === undefined ? {} : { maxLines }) },
-  };
-  const box = ctx.build(node, ctx.text);
-  box.debugId = null;
-  return box;
-}
 
 function navSlots(node: SceneNode): Map<string, SceneNode> {
   const slots = new Map<string, SceneNode>();
@@ -207,10 +152,6 @@ function buildNavigationBar(node: SceneNode, ctx: CupertinoContext): RenderBox {
     textDirection: ctx.textDirection,
   });
   return box;
-}
-
-function slotOf(node: SceneNode, name: string): SceneNode | undefined {
-  return (node.children ?? []).find((child) => child.type === "CupertinoSlot" && child.props["slot"] === name);
 }
 
 function buildListTile(node: SceneNode, ctx: CupertinoContext): RenderBox {
@@ -551,7 +492,17 @@ function buildGroup7(node: SceneNode, ctx: CupertinoContext): RenderBox | null {
   return box;
 }
 
-const builders = [buildGroup1, buildGroup2, buildGroup3, buildGroup4, buildGroup5, buildGroup6, buildGroup7] as const;
+const builders = [
+  buildCupertinoDialog,
+  buildCupertinoDatePicker,
+  buildGroup1,
+  buildGroup2,
+  buildGroup3,
+  buildGroup4,
+  buildGroup5,
+  buildGroup6,
+  buildGroup7,
+] as const;
 
 /** Builds a Cupertino node; wrappers return their child's box, which keeps the child's id. */
 export function buildCupertino(node: SceneNode, ctx: CupertinoContext): RenderBox {
