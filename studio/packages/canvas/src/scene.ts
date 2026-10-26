@@ -10,7 +10,7 @@
  * allocates nothing.
  */
 
-import { copyRect, intersects, type Rect, setRect } from "./geometry.ts";
+import { copyRect, intersects, makeRect, type Rect, setRect } from "./geometry.ts";
 import type { ItemSpec, LinkSpec, Point, SceneOp, StrokeStyle } from "./protocol.ts";
 
 /** Extra bounds around a shadowed frame for its pre-rendered shadow. */
@@ -48,6 +48,62 @@ function linkBounds(spec: LinkSpec, out: Rect): Rect {
   }
   const half = spec.stroke.width / 2 + 1;
   return setRect(out, out.l - half, out.t - half, out.r + half, out.b + half);
+}
+
+/** The pieces a link's damage is split into on the interaction layer. */
+export const LINK_PIECES = 8;
+
+function lerp(a: Point, b: Point, t: number): Point {
+  return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+}
+
+/** `bounds` grown by the antialiasing allowance: an edge on a bound still tints the pixel beyond it. */
+function antialiased(bounds: Rect): Rect {
+  return makeRect(bounds.l - EDGE_AA, bounds.t - EDGE_AA, bounds.r + EDGE_AA, bounds.b + EDGE_AA);
+}
+
+/** Pushes the bounds of `LINK_PIECES` consecutive pieces of a cubic, each the hull of its control points, grown by `pad`. */
+function pushPieces(p0: Point, c1: Point, c2: Point, p3: Point, pad: number, out: Rect[]): void {
+  for (let i = 0; i < LINK_PIECES; i++) {
+    const t1 = (i + 1) / LINK_PIECES;
+    // De Casteljau: split at t1, then split the first part at t0 / t1 and keep its end.
+    const ab = lerp(p0, c1, t1);
+    const bc = lerp(c1, c2, t1);
+    const cd = lerp(c2, p3, t1);
+    const abc = lerp(ab, bc, t1);
+    const end = lerp(abc, lerp(bc, cd, t1), t1);
+    const s = i / (i + 1);
+    const q1 = lerp(ab, abc, s);
+    const q2 = lerp(abc, end, s);
+    const r1 = lerp(q1, q2, s);
+    const start = lerp(lerp(lerp(p0, ab, s), q1, s), r1, s);
+    out.push(
+      makeRect(
+        Math.min(start.x, r1.x, q2.x, end.x) - pad,
+        Math.min(start.y, r1.y, q2.y, end.y) - pad,
+        Math.max(start.x, r1.x, q2.x, end.x) + pad,
+        Math.max(start.y, r1.y, q2.y, end.y) + pad,
+      ),
+    );
+  }
+}
+
+/**
+ * Pushes the world rectangles `spec` covers on the interaction layer onto
+ * `out`: its bounds, or for a link pieces along it — of its curve and of the
+ * straight line levels of detail draw instead — so a long diagonal link
+ * damages a band along itself rather than its whole bounding box.
+ */
+export function liveDamageOf(spec: ItemSpec, bounds: Rect, out: Rect[]): void {
+  if (spec.kind !== "link") {
+    out.push(antialiased(bounds));
+    return;
+  }
+  const pad = spec.stroke.width / 2 + 1;
+  pushPieces(spec.from, spec.from, spec.to, spec.to, pad, out);
+  if (spec.c1 && spec.c2) {
+    pushPieces(spec.from, spec.c1, spec.c2, spec.to, pad, out);
+  }
 }
 
 /** The world bounds of `spec`, including stroke and shadow, written into `out`. */
@@ -209,6 +265,8 @@ export class Scene {
   private orderDirty = false;
   private seq = 0;
   private readonly dirty: Rect[] = [];
+  /** World rectangles the live items changed in since the last drain: the interaction layer's damage. */
+  private readonly liveDirty: Rect[] = [];
   private readonly removed: string[] = [];
   /** Ids marked live, kept so an item added mid-drag (a re-routed arrow's new piece) is live too. */
   private readonly liveIds = new Set<string>();
@@ -255,7 +313,10 @@ export class Scene {
       const oldBounds = copyRect(existing.bounds);
       existing.spec = spec;
       this.derive(existing);
-      if (!existing.live) {
+      if (existing.live) {
+        liveDamageOf(old, oldBounds, this.liveDirty);
+        liveDamageOf(spec, existing.bounds, this.liveDirty);
+      } else {
         damageOf(old, oldBounds, spec, existing.bounds, this.dirty);
       }
       return;
@@ -293,9 +354,12 @@ export class Scene {
     this.removed.push(id);
   }
 
+  /** Damages the item's bounds on the base, or on the interaction layer while it is live. */
   private markDirty(item: SceneItem): void {
-    if (!item.live) {
-      this.dirty.push(copyRect(item.bounds));
+    if (item.live) {
+      liveDamageOf(item.spec, item.bounds, this.liveDirty);
+    } else {
+      this.dirty.push(antialiased(item.bounds));
     }
   }
 
@@ -340,7 +404,10 @@ export class Scene {
     return out;
   }
 
-  /** Marks items live (dragged) or static; both transitions dirty the item's bounds. */
+  /**
+   * Marks items live (dragged) or static; both transitions dirty the item's
+   * bounds on the base (it leaves or rejoins the tiles) and on the layer.
+   */
   setLive(ids: readonly string[], live: boolean): void {
     for (const id of ids) {
       if (live) {
@@ -350,8 +417,9 @@ export class Scene {
       }
       const item = this.byId.get(id);
       if (item && item.live !== live) {
-        item.live = false;
-        this.markDirty(item);
+        // Pieces along a link, not its bounding box: lifting long links re-renders only the tiles they cross.
+        liveDamageOf(item.spec, item.bounds, this.dirty);
+        liveDamageOf(item.spec, item.bounds, this.liveDirty);
         item.live = live;
       }
     }
@@ -368,6 +436,14 @@ export class Scene {
       visit(rect);
     }
     this.dirty.length = 0;
+  }
+
+  /** Passes every world rectangle the live items changed in since the last drain to `visit`. */
+  drainLiveDirty(visit: (rect: Rect) => void): void {
+    for (const rect of this.liveDirty) {
+      visit(rect);
+    }
+    this.liveDirty.length = 0;
   }
 
   /** Passes every id removed since the last drain to `visit`. */

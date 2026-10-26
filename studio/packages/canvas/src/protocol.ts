@@ -162,6 +162,8 @@ export interface FrameStats {
   readonly base: boolean;
   /** Time spent drawing the interaction layer, in ms. */
   readonly layerMs: number;
+  /** Device pixels of the interaction layer redrawn and presented this frame; 0 without it. */
+  readonly layerPixels: number;
   /** The duration of the progressive base job this message reports, in ms; 0 for a frame (M-12). */
   readonly jobMs: number;
   /** Progressive base jobs still queued (M-12). */

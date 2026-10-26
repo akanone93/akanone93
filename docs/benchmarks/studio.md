@@ -135,37 +135,61 @@ Requirement: STU-045 (all connected bundles re-route and re-select their sides l
   animation frame, 30 warm-up and 300 measured frames, timed rAF to rAF; every frame calls
   `ArrowCanvas.moveBox` on the main thread (re-select sides with hysteresis, re-spread anchors,
   re-route with obstacle avoidance, build the patches) and sends the patch. `beginDrag` lifts the
-  dragged box's arrows into the interaction layer; the tile re-render this causes is waited out
-  before measuring and reported as drag start. `endDrag` re-routes what the drag held back.
-- Three runs; the table gives the median and the spread.
+  dragged box's arrows into the interaction layer: the first frame after it is the lift frame, and
+  the tile refresh it causes is waited out before measuring and reported as drag start settle.
+  `endDrag` re-routes what the drag held back.
+- Scene A's drag (box 105 and its links, re-computed by the page) is paced and timed the same
+  way, rAF to rAF; the worker's own frame time is reported beside it. Until S3.2b it was a worker
+  frame time only, which hid what the browser spends presenting the frame.
+- `make studio-bench-canvas` runs the page three times and prints the median of every number.
 
-### Results (median of 3 runs, spread in brackets, software rendering, SwiftShader)
+### Results after damage-only presenting of the interaction layer (S3.2b; median of 3 runs, software rendering, SwiftShader)
 
-| Metric | Result | Target | Met |
-|---|---|---|---|
-| Pan p95 / longest gap | 16.67 (16.67–16.67) / 16.67 (16.67–50.01) ms | 16.7 / 50 ms | yes |
-| Re-route per drag frame, p95 / max | 1.27 (0.98–1.93) / 6.96 (6.63–11.89) ms | fits a 16.7 ms frame | yes |
-| Main-thread work per drag frame (route + patch), p95 | 5.31 (4.81–5.35) ms | — | — |
-| Worker frame while dragging, p95 | 5.73 (5.56–7.02) ms | 16.7 ms | yes |
-| Drag, rAF interval p95 | 50.00 (33.33–66.66) ms | 16.7 ms | **no** |
-| Drag, longest gap | 133.33 (99.99–149.99) ms | 50 ms | **no** |
-| Drag, dropped frames of 300 | 40 (37–74) | — | — |
-| Drag start (tiles under the lifted arrows) | 1,003 (986–1,102) ms | — | — |
-| Re-route at drop (`endDrag`) | 19.79 (17.50–25.67) ms | — | — |
-| First route of all 988 bundles | 143 (82–150) ms | — | — |
+| Metric | Before (S3.2) | After | Target | Met |
+|---|---|---|---|---|
+| Scene C pan, p95 / longest gap | 16.67 / 16.67 ms | 16.67 / 16.67 ms | 16.7 / 33 ms | yes |
+| Scene C drag, rAF interval p95 | 50.00 ms | 16.67 ms | 16.7 ms | yes |
+| Scene C drag, longest gap | 183.32 ms | 16.67 ms | 33 ms | yes |
+| Scene C drag, dropped frames of 300 | 50 | 0 | — | — |
+| Scene A drag, rAF interval p95 | 66.67 ms | 16.67 ms | 16.7 ms | yes |
+| Scene A drag, longest gap | 166.66 ms | 33.34 ms | 33 ms | **no** (one frame late) |
+| Scene A drag, dropped frames of 300 | 60 | 8 | — | — |
+| Worker frame while dragging, p95 (A / C) | 12.56 / 5.39 ms | 8.56 / 5.16 ms | 16.7 ms | yes |
+| Layer pixels presented per drag frame, mean (A / C) | whole layer: 1,769,472 / 1,179,648 | 346,962 / 222,073 | — | — |
+| Re-route per drag frame, p95 | 0.95 ms | 0.60 ms | fits a 16.7 ms frame | yes |
+| Main-thread work per drag frame (route + patch), p95 | 3.68 ms | 4.79 ms | — | — |
+| Lift frame (first frame after `beginDrag`) | 134.90 ms | 78.87 ms | one frame, 16.7 ms | **no** |
+| Drag start settle (7 tiles refreshed under the lifted arrows) | 1,029 ms | 595 ms | 300 ms (M-13) | **no** |
+| Re-route at drop (`endDrag`) | 26.65 ms | 15.31 ms | — | — |
+| First route of all 988 bundles | 67.42 ms | 105.16 ms | — | — |
 
 Routing fits the frame with room to spare: a drag re-routes only the dragged box's bundles
 (23 patches per frame on average), and a move outside a drag only the bundles whose tried
 candidates meet the box's old or new place, so the result always equals a full re-route
-(`arrows.test.ts`). The worker draws each drag frame in under 6 ms (p95) and does no base render.
+(`arrows.test.ts`).
 
-The 60 fps cadence while dragging is **not met** in this environment: frames are delivered at a
-p95 interval of 50 ms although neither the main thread (5.3 ms) nor the worker (5.7 ms) is busy for
-long. The dragged box's 10 bundles in this seeded scene are random links across the whole canvas,
-so the interaction layer covers the full viewport; presenting it every frame through SwiftShader
-is the remaining suspect, not routing. Scene A's drag figure is a worker frame time, not a rAF
-interval, so it does not show this. Follow-up: measure scene A's drag rAF-paced, and limit the
-interaction layer to the visible part of the lifted arrows.
+The S3.2 run left drag at 50 ms p95 although neither thread was busy. One instrumented run
+proved the cause: skipping only the interaction layer's `flush` (its `putImageData` to the
+OffscreenCanvas) brought scene C's drag from p95 50 / longest 100 ms to 16.67 / 33.34 ms, while the
+worker's layer draw fell by under 1 ms. Flushing a 256 × 256 dirty rectangle instead gave the same
+16.67 ms p95. The cost was the browser uploading and compositing the whole layer through
+SwiftShader on every frame, not drawing or routing.
+
+The fix keeps the layer and its draw whole but presents only its damage: the scene records where
+live items changed (old and new bounds; a link as eight pieces along its curve and along the
+straight line that level of detail draws, so a long diagonal link damages a band and not its
+bounding box), the renderer merges these into at most 48 regions and copies only those to the
+canvas. The layer is drawn whole and unclipped, so its pixels are identical to a full draw
+(`renderer.test.ts` compares each frame and what the canvas shows, pixel for pixel). Lifting and
+dropping now invalidate the tiles along the lifted links, not under their bounding boxes, and
+every add, remove, lift and drop damages the antialiasing fringe around an item too. The new test
+found the latter: a dropped box left its antialiased top edge in the tile.
+
+Still missed: scene A's longest gap is one frame over 33 ms in the median run (8 frames of 300
+dropped), and the lift. The lift frame redraws the base under every lifted link (78.87 ms), and
+the seven tiles refreshed in idle time take about 85 ms each, 595 ms in all. Meeting one frame and
+300 ms needs the lift not to touch the tiles at all, for example by masking the lifted items out
+of the base instead of re-rendering it; that is a follow-up.
 
 Only 47 of the 988 bundles route clear of every box: random links cross a grid of 200 boxes, and
 the router detours around at most two boxes (STU-043 makes avoidance a SHOULD); links between
