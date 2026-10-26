@@ -4,7 +4,7 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import type { CanvasKit, Surface } from "canvaskit-wasm";
 import { box, fontBytes, link, loadCanvasKit, text } from "../test-support/canvaskit.ts";
-import type { FrameSpec } from "./protocol.ts";
+import type { FrameSpec, ItemSpec } from "./protocol.ts";
 import { MAX_REGIONS, type RendererOptions, SceneRenderer } from "./renderer.ts";
 import { Scene } from "./scene.ts";
 import { Viewport } from "./viewport.ts";
@@ -358,12 +358,49 @@ describe("STU-045 interaction layer damage (M-12)", () => {
     ];
   }
 
+  /** The base surface of `renderer`. */
+  function base(renderer: SceneRenderer): Uint8Array<ArrayBuffer> {
+    return read((renderer as unknown as { surface: Surface }).surface);
+  }
+
+  /**
+   * Pixels over 32 levels apart between `renderer`'s base and a full
+   * re-render of `specs` at the same view: a ghost of a lifted item or a
+   * missing edge (both differ by over 100 levels). Skia picks a path's
+   * antialiasing by the complexity of the whole batched path, so a tile
+   * refreshed in a dirty rectangle may shade an edge pixel a few levels
+   * differently.
+   */
+  function ghosts(renderer: SceneRenderer, viewport: Viewport, specs: readonly ItemSpec[]): number {
+    const fresh = setup({ tiles: true });
+    fresh.scene.apply(specs.map((item) => ({ op: "add" as const, item })));
+    fresh.viewport.x = viewport.x;
+    fresh.viewport.y = viewport.y;
+    fresh.renderer.frame();
+    fresh.renderer.idle(Number.POSITIVE_INFINITY);
+    fresh.renderer.frame();
+    const after = base(renderer);
+    const expected = base(fresh.renderer);
+    expect(after.length).toBe(400 * 300 * 4);
+    let count = 0;
+    for (let k = 0; k < after.length; k++) {
+      if (Math.abs((after[k] ?? 0) - (expected[k] ?? 0)) > 32) {
+        count++;
+      }
+    }
+    fresh.renderer.dispose();
+    return count;
+  }
+
   test("a drag redraws only the layer's damage, and every frame and the drop equal a whole render", () => {
     const { scene: live, viewport, renderer } = setup({ tiles: true });
     live.apply(scene());
     renderer.frame();
     renderer.idle(Number.POSITIVE_INFINITY);
+    // The base shows every tile, as the worker draws it after idle work.
+    const renders = renderer.frame().tileRenders;
     const lifted = ["a", "label", "ab", "ac"];
+    const staticSpecs = () => live.items().flatMap((item) => (lifted.includes(item.spec.id) ? [] : [item.spec]));
     renderer.interacting = true;
     live.setLive(lifted, true);
     const layer = { surface: surface(400, 300), x: 0, y: 0, scale: 1 };
@@ -380,6 +417,13 @@ describe("STU-045 interaction layer damage (M-12)", () => {
     }) as Surface["flush"];
     const start = renderer.frame(true, layer);
     expect(start.layerPixels).toBe(400 * 300);
+    // The lift re-renders no tile (M-13): idle time masks the lifted items out of the base, in patches.
+    expect(start.tileRenders).toBe(renders);
+    expect(renderer.hasIdleWork()).toBe(true);
+    expect(renderer.idle(Number.POSITIVE_INFINITY)).toBeGreaterThan(0);
+    expect(renderer.hasIdleWork()).toBe(false);
+    expect(renderer.frame(false, layer).tileRenders).toBe(renders);
+    expect(ghosts(renderer, viewport, staticSpecs())).toBe(0);
     for (let i = 1; i <= 12; i++) {
       live.apply([
         { op: "move", id: "a", dx: 7, dy: 3 },
@@ -410,31 +454,36 @@ describe("STU-045 interaction layer damage (M-12)", () => {
       check.renderer.dispose();
       whole.surface.delete();
     }
+    // A whole base draw mid-drag (a pan) blits the tiles, which still hold the lifted items, and masks them again.
+    viewport.pan(-30, -20);
+    const panned = renderer.frame(true, layer);
+    expect(panned.tilesDrawn).toBeGreaterThan(0);
+    renderer.idle(Number.POSITIVE_INFINITY);
+    expect(ghosts(renderer, viewport, staticSpecs())).toBe(0);
+    viewport.pan(30, 20);
+    renderer.frame(true, layer);
+    renderer.idle(Number.POSITIVE_INFINITY);
+    expect(ghosts(renderer, viewport, staticSpecs())).toBe(0);
     renderer.interacting = false;
     live.setLive(lifted, false);
-    renderer.frame(true, null);
+    const dropped = renderer.frame(true, null);
+    // The drop's frame renders no tile; it draws the dropped items at once and leaves patches and tiles to idle time.
+    expect(dropped.tileRenders).toBe(start.tileRenders);
+    expect(dropped.regions).toBe(lifted.length);
+    expect(renderer.hasIdleWork()).toBe(true);
+    const all = () => live.items().map((item) => item.spec);
     renderer.idle(Number.POSITIVE_INFINITY);
     renderer.frame(true, null);
-    // After the drop the base equals a full re-render of the same scene.
-    const fresh = setup({ tiles: true });
-    fresh.scene.apply(live.items().map((item) => ({ op: "add" as const, item: item.spec })));
-    fresh.viewport.x = viewport.x;
-    fresh.renderer.frame();
-    fresh.renderer.idle(Number.POSITIVE_INFINITY);
-    fresh.renderer.frame();
-    const surfaces = [renderer, fresh.renderer].map((r) => (r as unknown as { surface: Surface }).surface);
-    const [after = new Uint8Array(), expected = new Uint8Array()] = surfaces.map((s) => (s ? read(s) : undefined));
-    expect(after.length).toBe(400 * 300 * 4);
-    // No ghost of a lifted item and no missing edge (both differ by over 100 levels). Skia picks a path's antialiasing by the complexity of the whole
-    // batched path, so a tile refreshed in a dirty rectangle may shade an edge pixel a few levels differently.
-    let ghosts = 0;
-    for (let k = 0; k < after.length; k++) {
-      if (Math.abs((after[k] ?? 0) - (expected[k] ?? 0)) > 32) {
-        ghosts++;
-      }
-    }
-    expect(ghosts).toBe(0);
-    fresh.renderer.dispose();
+    // After the drop settles the base equals a full re-render of the same scene.
+    expect(renderer.hasIdleWork()).toBe(false);
+    expect(ghosts(renderer, viewport, all())).toBe(0);
+    // And so does a whole draw from the refreshed tiles alone.
+    viewport.pan(-7, 0);
+    renderer.frame(true, null);
+    viewport.pan(7, 0);
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame(true, null);
+    expect(ghosts(renderer, viewport, all())).toBe(0);
     renderer.dispose();
     layer.surface.delete();
   });
