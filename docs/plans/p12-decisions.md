@@ -77,3 +77,17 @@ SPDX-License-Identifier: Apache-2.0
   the stored proposal are what quotas, audit and review-before-apply need anyway.
 - **Rejected:** one long synchronous streaming call (work lost on disconnect, weak fairness);
   polling-only jobs (no progressive canvas, `AI-006`).
+
+### D-4. What the model writes
+
+- **Decision:** the model returns a list of **edit operations** against node IDs: insert
+  subtree, replace node, set property, delete node (exact set fixed in ADR-0017). A new page is
+  one "insert root" operation. Subtrees inside an operation are **real document JSON**; there is
+  no second authoring format.
+- **Reason:** edits touch only the nodes they name (`AI-010` edit selection), each operation is
+  one reviewable change (`AI-005` per-change accept or reject), and operations apply as they
+  arrive (`AI-006` streaming). Node IDs the model references are validated like everything else.
+- **Rejected:** full document JSON for every request (slow and costly on large pages, weak
+  models damage untouched parts, per-change review needs a diff after the fact); a compact
+  authoring format expanded by the server (a second format to keep in step with the schema;
+  revisit only if the evaluation suite shows free models need it).
