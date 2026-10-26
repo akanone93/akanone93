@@ -4,7 +4,8 @@
 /**
  * Font loading for the canvas (STU-006, ADR-0013 Fonts). Text on the canvas
  * uses the font files the device uses: the verified font assets of the app
- * (ADR-0032), then Roboto for Material and the Noto fallbacks per script,
+ * (ADR-0032), the font files its host app bundles (the native catalogue,
+ * S4.6), then Roboto for Material and the Noto fallbacks per script,
  * all open-licensed and served by Plux. SF Pro is never served or stored by
  * Plux: on Chromium the user's own installed copy is read through Local Font
  * Access (`queryLocalFonts`) when the user permits it, and its bytes stay in
@@ -27,6 +28,13 @@ export interface FontSource {
 export interface FontRequest {
   /** The app's own font assets, as the device loads them (ADR-0032). */
   readonly device: readonly FontSource[];
+  /**
+   * The font files the host app bundles, which the device uses by name and
+   * the native catalogue lists (S4.6). They rank after the app's own assets,
+   * as on the device, where a family the plugin ships wins over the host's.
+   * A file that is not available raises the notice for its family.
+   */
+  readonly host?: readonly FontSource[];
   /** Roboto, the Material default; null when not wanted. */
   readonly roboto: FontSource | null;
   /** The Noto fallbacks per script. */
@@ -124,6 +132,7 @@ export async function loadCanvasFonts(
   const loaded: { family: string; bytes: ArrayBuffer }[] = [];
   const notices: CanvasNotice[] = [];
   await fetchAll(request.device, deps, loaded, notices);
+  await fetchAll(request.host ?? [], deps, loaded, notices);
   if (request.sfPro) {
     const sf = await localSfPro(deps);
     if (sf.length === 0) {

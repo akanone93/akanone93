@@ -18,6 +18,11 @@
         "props": {}
       },
       {
+        "id": "activity",
+        "type": "CupertinoActivityIndicator",
+        "props": {}
+      },
+      {
         "id": "row",
         "type": "Row",
         "props": {

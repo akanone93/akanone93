@@ -428,6 +428,8 @@ const Set<String> _materialTypes = <String>{
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
   'Chip', 'FilterChip', 'InputChip', 'ActionChip', 'ChoiceChip', 'Checkbox', 'Switch', 'Radio', 'Divider', 'VerticalDivider',
   'CircleAvatar', 'CircularProgressIndicator', 'LinearProgressIndicator', 'Card', 'Badge', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
+  'BackButton', 'CloseButton', 'Slider', 'RangeSlider', 'CheckboxListTile', 'SwitchListTile', 'RadioListTile',
+  'SearchBar', 'SearchAnchor', 'BottomAppBar', 'BottomNavigationBar', 'ExpansionTile',
   ...materialCompositeTypes,
 };
 
@@ -449,7 +451,11 @@ Widget _materialScope(Widget child, TextDirection direction) => Localizations(
     data: ThemeData(useMaterial3: true, fontFamily: 'NotoSans'),
     child: Directionality(
       textDirection: direction,
-      child: Material(type: MaterialType.transparency, child: child),
+      // The `Overlay` is what tooltips and slider value indicators need; it fills the frame as the view does.
+      child: Material(
+        type: MaterialType.transparency,
+        child: Overlay(initialEntries: <OverlayEntry>[OverlayEntry(builder: (BuildContext context) => child)]),
+      ),
     ),
   ),
 );
@@ -794,6 +800,78 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         dense: props['dense'] == true ? true : null,
         isThreeLine: props['isThreeLine'] == true,
         visualDensity: _density(props),
+      );
+    case 'SearchBar':
+      return SearchBar(
+        key: key,
+        hintText: props['hintText'] as String?,
+        leading: one('leading'),
+        trailing: slots['trailing'] == null ? null : <Widget>[one('trailing')!],
+      );
+    case 'SearchAnchor':
+      return KeyedSubtree(
+        key: key,
+        child: SearchAnchor.bar(
+          barHintText: props['hintText'] as String?,
+          suggestionsBuilder: (BuildContext context, SearchController controller) => const <Widget>[],
+        ),
+      );
+    case 'BottomAppBar':
+      return BottomAppBar(key: key, child: one('child'));
+    case 'BottomNavigationBar':
+      return BottomNavigationBar(
+        key: key,
+        type: props['type'] == 'shifting' ? BottomNavigationBarType.shifting : BottomNavigationBarType.fixed,
+        items: <BottomNavigationBarItem>[
+          for (int i = 0; i < (props['items']! as num).toInt(); i++)
+            BottomNavigationBarItem(icon: const Icon(Icons.star), label: 'Item', tooltip: ''),
+        ],
+      );
+    case 'ExpansionTile':
+      return ExpansionTile(key: key, leading: one('leading'), title: one('title')!, subtitle: one('subtitle'));
+    case 'BackButton':
+      return BackButton(key: key, onPressed: () {});
+    case 'CloseButton':
+      return CloseButton(key: key, onPressed: () {});
+    case 'Slider':
+      return Slider(key: key, value: 0.5, onChanged: (double _) {});
+    case 'RangeSlider':
+      return RangeSlider(key: key, values: const RangeValues(0.25, 0.75), onChanged: (RangeValues _) {});
+    case 'CheckboxListTile':
+      return CheckboxListTile(
+        key: key,
+        value: props['value'] == true,
+        onChanged: (bool? _) {},
+        secondary: one('secondary'),
+        title: one('title'),
+        subtitle: one('subtitle'),
+        dense: props['dense'] == true ? true : null,
+        isThreeLine: props['isThreeLine'] == true,
+      );
+    case 'SwitchListTile':
+      return SwitchListTile(
+        key: key,
+        value: props['value'] == true,
+        onChanged: (bool _) {},
+        secondary: one('secondary'),
+        title: one('title'),
+        subtitle: one('subtitle'),
+        dense: props['dense'] == true ? true : null,
+        isThreeLine: props['isThreeLine'] == true,
+      );
+    case 'RadioListTile':
+      return RadioGroup<int>(
+        groupValue: props['selected'] == true ? 0 : null,
+        onChanged: (int? _) {},
+        child: RadioListTile<int>(
+          key: key,
+          value: 0,
+          secondary: one('secondary'),
+          title: one('title'),
+          subtitle: one('subtitle'),
+          dense: props['dense'] == true ? true : null,
+          isThreeLine: props['isThreeLine'] == true,
+        ),
       );
   }
   throw ArgumentError('unknown Material type "$type"');

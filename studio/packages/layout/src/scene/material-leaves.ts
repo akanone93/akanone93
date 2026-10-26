@@ -60,8 +60,26 @@ const switchControl: LeafBuilder = (node) =>
     node.props["tapTargetSize"] === "shrinkWrap" ? 40 : 48,
   );
 
+/** A `SearchBar`, and the bar that opens a `SearchAnchor`'s view. */
+const searchBar: LeafBuilder = () =>
+  new RenderConstrainedBox({
+    additionalConstraints: new BoxConstraints({ minWidth: 360, maxWidth: 800, minHeight: 56 }),
+    child: expanding("horizontal", 56),
+  });
+
 /** The leaf builders, merged into the Material composites. */
 export const leafBuilders: Readonly<Record<string, LeafBuilder>> = {
+  // `BackButton` and `CloseButton` are `IconButton`s: 48 by 48.
+  BackButton: () => tight(kMinInteractiveDimension, kMinInteractiveDimension),
+  CloseButton: () => tight(kMinInteractiveDimension, kMinInteractiveDimension),
+  // M3 `SearchBar`: 56 high, 360 to 800 wide, as wide as its parent allows.
+  SearchBar: searchBar,
+  SearchAnchor: searchBar,
+  // A `BottomNavigationBar` is 58 high: the bar's 56 and its 2-px border.
+  BottomNavigationBar: () => expanding("horizontal", 58),
+  // A slider is as wide as it may be and 48 high (its tap target).
+  Slider: () => expanding("horizontal", kMinInteractiveDimension),
+  RangeSlider: () => expanding("horizontal", kMinInteractiveDimension),
   Checkbox: selection,
   Radio: selection,
   Switch: switchControl,

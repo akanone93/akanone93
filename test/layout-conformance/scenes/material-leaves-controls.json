@@ -1,0 +1,45 @@
+{
+  "name": "material-leaves-controls",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "back",
+            "type": "BackButton",
+            "props": {}
+          },
+          {
+            "id": "close",
+            "type": "CloseButton",
+            "props": {}
+          },
+          {
+            "id": "slider",
+            "type": "Slider",
+            "props": {}
+          },
+          {
+            "id": "range",
+            "type": "RangeSlider",
+            "props": {}
+          }
+        ]
+      }
+    ]
+  }
+}
