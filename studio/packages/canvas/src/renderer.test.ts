@@ -371,8 +371,14 @@ describe("STU-045 interaction layer damage (M-12)", () => {
    * refreshed in a dirty rectangle may shade an edge pixel a few levels
    * differently.
    */
-  function ghosts(renderer: SceneRenderer, viewport: Viewport, specs: readonly ItemSpec[]): number {
-    const fresh = setup({ tiles: true });
+  function ghosts(
+    renderer: SceneRenderer,
+    viewport: Viewport,
+    specs: readonly ItemSpec[],
+    options: Partial<RendererOptions> = {},
+  ): number {
+    // The reference uses the same tile size: tile seams may shade an edge pixel differently.
+    const fresh = setup({ tiles: true, ...options });
     fresh.scene.apply(specs.map((item) => ({ op: "add" as const, item })));
     fresh.viewport.x = viewport.x;
     fresh.viewport.y = viewport.y;
@@ -484,6 +490,73 @@ describe("STU-045 interaction layer damage (M-12)", () => {
     renderer.idle(Number.POSITIVE_INFINITY);
     renderer.frame(true, null);
     expect(ghosts(renderer, viewport, all())).toBe(0);
+    renderer.dispose();
+    layer.surface.delete();
+  });
+
+  test("M-13 lift patches are paced per frame and a drop refreshes only tile pieces, slice by slice, to a whole render", () => {
+    // Small tiles make the frame's patch budget (one tile's pixels) smaller than the lift's patches.
+    const small = { tileSize: 64 };
+    const { scene: live, viewport, renderer } = setup({ tiles: true, ...small });
+    live.apply(scene());
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame();
+    const lifted = ["a", "label", "ab", "ac"];
+    const staticSpecs = () => live.items().flatMap((item) => (lifted.includes(item.spec.id) ? [] : [item.spec]));
+    renderer.interacting = true;
+    live.setLive(lifted, true);
+    const layer = { surface: surface(400, 300), x: 0, y: 0, scale: 1 };
+    renderer.frame(true, layer);
+    let frames = 0;
+    while (renderer.hasIdleWork() && frames < 1000) {
+      renderer.idle(Number.POSITIVE_INFINITY);
+      if (renderer.patchesWaitForFrame) {
+        // The worker waits for the next animation frame here.
+        expect(renderer.idle(Number.POSITIVE_INFINITY)).toBe(0);
+        renderer.nextPatchFrame();
+        frames++;
+      }
+    }
+    expect(frames).toBeGreaterThan(0);
+    expect(ghosts(renderer, viewport, staticSpecs(), small)).toBe(0);
+    live.apply([
+      { op: "move", id: "a", dx: 84, dy: 36 },
+      { op: "move", id: "label", dx: 84, dy: 36 },
+      { op: "replace", item: link("ab", 224, 101, 300, 245) },
+      { op: "replace", item: link("ac", 224, 86, 260, 45) },
+    ]);
+    renderer.frame(false, layer);
+    renderer.interacting = false;
+    live.setLive(lifted, false);
+    renderer.frame(true, null);
+    // Idle slices whose deadline has passed: each draws one chunk of patches or of a tile's pieces.
+    const refreshed = renderer.partialTileRenders;
+    let slices = 0;
+    while (renderer.hasIdleWork() && slices < 10_000) {
+      renderer.idle(0);
+      slices++;
+      if (renderer.idleChangedView) {
+        renderer.frame(true, null);
+      } else {
+        renderer.nextPatchFrame();
+      }
+    }
+    expect(renderer.hasIdleWork()).toBe(false);
+    expect(slices).toBeGreaterThan(1);
+    expect(renderer.partialTileRenders).toBeGreaterThan(refreshed);
+    // Pieces the settled base shows are copied from it rather than redrawn.
+    expect(renderer.copiedTileRefreshes).toBeGreaterThan(0);
+    renderer.frame(true, null);
+    const all = () => live.items().map((item) => item.spec);
+    expect(ghosts(renderer, viewport, all(), small)).toBe(0);
+    // And so does a whole draw from the refreshed tiles alone.
+    viewport.pan(-7, 0);
+    renderer.frame(true, null);
+    viewport.pan(7, 0);
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame(true, null);
+    expect(ghosts(renderer, viewport, all(), small)).toBe(0);
     renderer.dispose();
     layer.surface.delete();
   });

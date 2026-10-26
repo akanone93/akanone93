@@ -8,7 +8,7 @@ import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import { canvasSearchSchema } from "./plugin-canvas.schema.ts";
 import { flowOrder, readSavedPositions } from "./positions.ts";
-import type { CanvasSurface } from "./surface.ts";
+import { type CanvasSurface, canvasPoint } from "./surface.ts";
 
 afterEach(cleanup);
 
@@ -54,6 +54,7 @@ const documents = [
 function stub(tallHeight = 2000) {
   const patches: { docs: ScreenDocument[]; style: ScreenStyle }[] = [];
   const views: number[][] = [];
+  const zooms: number[][] = [];
   const surface: CanvasSurface = {
     layoutScreens: (docs, style) => {
       patches.push({ docs: [...docs], style });
@@ -61,11 +62,11 @@ function stub(tallHeight = 2000) {
     },
     setViewport: (x, y, z) => views.push([x, y, z]),
     pan: () => undefined,
-    zoomAbout: () => undefined,
+    zoomAbout: (factor, x, y) => zooms.push([factor, x, y]),
     viewport: { x: 0, y: 0, zoom: 1 },
     dispose: () => undefined,
   };
-  return { patches, views, factory: () => surface };
+  return { patches, views, zooms, factory: () => surface };
 }
 
 const frames = (sent: { docs: ScreenDocument[] } | undefined) => sent?.docs ?? [];
@@ -172,6 +173,28 @@ describe("STU-050 plugin canvas C2", () => {
     expect(canvasSearchSchema.parse({ z: 9000 }).z).toBe(400);
     expect(canvasSearchSchema.parse({ z: 1 }).z).toBe(10);
     expect(canvasSearchSchema.parse({ x: "bad" }).x).toBeUndefined();
+  });
+});
+
+describe("wheel zoom", () => {
+  test("Ctrl+wheel zooms about the pointer in canvas-local coordinates, not page ones", async () => {
+    const s = stub();
+    renderApp(path, { documents, surface: s.factory });
+    await waitFor(() => expect(s.views.length).toBeGreaterThan(0));
+    const canvas = screen.getByRole("application");
+    canvas.getBoundingClientRect = () => ({ left: 100, top: 50, width: 800, height: 600 }) as DOMRect;
+    // happy-dom's WheelEvent takes no modifier keys or pointer position from its init: set them on the event.
+    const wheel = new WheelEvent("wheel", { bubbles: true, cancelable: true, deltaY: -100 });
+    Object.defineProperties(wheel, { ctrlKey: { value: true }, clientX: { value: 150 }, clientY: { value: 120 } });
+    fireEvent(canvas, wheel);
+    expect(s.zooms).toHaveLength(1);
+    const [factor, x, y] = s.zooms[0] ?? [];
+    expect(factor).toBeCloseTo(Math.exp(0.5));
+    expect([x, y]).toEqual([50, 70]);
+  });
+
+  test("canvasPoint subtracts the canvas's page offset", () => {
+    expect(canvasPoint({ left: 12, top: 34 }, 112, 134)).toEqual({ x: 100, y: 100 });
   });
 });
 
