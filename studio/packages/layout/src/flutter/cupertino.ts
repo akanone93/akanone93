@@ -840,13 +840,15 @@ export function cupertinoTabScaffold(options: {
 export function cupertinoPicker(options: {
   rows: readonly RenderBox[];
   itemExtent: number;
+  squeeze?: number;
+  diameterRatio?: number;
   textDirection: TextDirection;
 }): RenderBox {
   const wheel = new RenderListWheelViewport({
     children: options.rows,
     itemExtent: options.itemExtent,
-    diameterRatio: kPickerDiameterRatio,
-    squeeze: kPickerSqueeze,
+    diameterRatio: options.diameterRatio ?? kPickerDiameterRatio,
+    squeeze: options.squeeze ?? kPickerSqueeze,
   });
   const fill = positioned(wheel, { top: 0, left: 0, right: 0, bottom: 0 });
   return new RenderDecoratedBox({

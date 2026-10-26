@@ -1,0 +1,32 @@
+{
+  "name": "cupertino-date-picker-date-and-time-24h",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "sized",
+        "type": "SizedBox",
+        "props": {
+          "height": 216
+        },
+        "children": [
+          {
+            "id": "picker",
+            "type": "CupertinoDatePicker",
+            "props": {
+              "mode": "dateAndTime",
+              "use24hFormat": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

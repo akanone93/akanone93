@@ -1,0 +1,42 @@
+{
+  "name": "cupertino-alert-dialog-title-only",
+  "root": {
+    "id": "dialog",
+    "type": "CupertinoAlertDialog",
+    "props": {},
+    "children": [
+      {
+        "id": "dialog-title",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "title"
+        },
+        "children": [
+          {
+            "id": "dialog-title-text",
+            "type": "Text",
+            "props": {
+              "text": "Saved"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a0",
+        "type": "CupertinoDialogAction",
+        "props": {
+          "isDefaultAction": true
+        },
+        "children": [
+          {
+            "id": "dialog-a0-text",
+            "type": "Text",
+            "props": {
+              "text": "OK"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

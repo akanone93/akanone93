@@ -1,0 +1,79 @@
+{
+  "name": "cupertino-action-sheet-message-only",
+  "root": {
+    "id": "sheet",
+    "type": "CupertinoActionSheet",
+    "props": {},
+    "children": [
+      {
+        "id": "sheet-message",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "message"
+        },
+        "children": [
+          {
+            "id": "sheet-message-text",
+            "type": "Text",
+            "props": {
+              "text": "Choose an option."
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a0",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a0-text",
+            "type": "Text",
+            "props": {
+              "text": "Take photo"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a1",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a1-text",
+            "type": "Text",
+            "props": {
+              "text": "Choose from library"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-cancel",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "cancelButton"
+        },
+        "children": [
+          {
+            "id": "sheet-cancel-action",
+            "type": "CupertinoActionSheetAction",
+            "props": {
+              "isDefaultAction": true
+            },
+            "children": [
+              {
+                "id": "sheet-cancel-action-text",
+                "type": "Text",
+                "props": {
+                  "text": "Cancel"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
