@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-validator zap-studio studio-image-repro
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-validator zap-studio studio-image-repro
 
 ##@ Studio (Bun, TypeScript)
 
@@ -86,6 +86,9 @@ studio-design-gate: studio-build ## Run the design-gate detector over the built 
 # machines without a GPU (ADR-0013 M-12). Not part of studio-check.
 studio-bench-canvas: studio-install ## Canvas benchmark in software rendering (STU-045, STU-120, M-12)
 	cd studio && bun packages/canvas/bench/run.ts
+
+studio-bench-overlay: studio-install ## Overlay open benchmark in software rendering, p95 at most 150 ms (STU-123)
+	cd studio/apps/web && bun bench/run.ts
 
 # Verifies: QA-008. The Compose stack runs Studio on port 8081 (make compose-up).
 STUDIO_ZAP_TARGET ?= http://localhost:8081

@@ -6,8 +6,10 @@ import {
   canvasWorkerScriptURL,
   isCanvasWorkerURL,
   isLockWorkerURL,
+  isMonacoWorkerURL,
   isValidatorWorkerURL,
   lockWorkerScriptURL,
+  monacoWorkerScriptURL,
   validatorWorkerScriptURL,
   WORKER_POLICY,
 } from "./trusted-worker.ts";
@@ -123,6 +125,44 @@ describe("the lock heartbeat worker through the same policy (S2.3)", () => {
     };
     expect(String(lockWorkerScriptURL("/assets/lock-worker-a1.js", scope, false))).toBe("/assets/lock-worker-a1.js");
     expect(() => lockWorkerScriptURL("/assets/canvas-worker-a1.js", scope, false)).toThrow(TypeError);
+    expect(names.every((n) => n === WORKER_POLICY)).toBe(true);
+  });
+});
+
+describe("the Monaco workers' Trusted Types policy (S5.1)", () => {
+  test("admits only each worker's own built asset on this origin", () => {
+    expect(isMonacoWorkerURL("editor", "/assets/monaco-editor-worker-a1_B-2.js", origin, false)).toBe(true);
+    expect(isMonacoWorkerURL("json", `${origin}/assets/monaco-json-worker-a1.js`, origin, false)).toBe(true);
+    for (const bad of [
+      "/assets/monaco-json-worker-a1.js",
+      "/assets/monaco-editor-worker-a1.js?x=1",
+      "/assets/monaco-editor-worker-a1.js#h",
+      "/assets/other/monaco-editor-worker-a1.js",
+      "https://evil.example/assets/monaco-editor-worker-a1.js",
+      "javascript:alert(1)",
+      "/src/features/json-editor/monaco-editor-worker.ts",
+    ]) {
+      expect(isMonacoWorkerURL("editor", bad, origin, false)).toBe(false);
+    }
+    expect(isMonacoWorkerURL("json", "/src/features/json-editor/monaco-json-worker.ts", origin, true)).toBe(true);
+    expect(isMonacoWorkerURL("json", "not a url", "", false)).toBe(false);
+  });
+
+  test("goes through the one plux-worker policy and refuses the other Monaco worker's address", () => {
+    const names: string[] = [];
+    const scope = {
+      location: { origin },
+      trustedTypes: {
+        createPolicy(name: string, rules: { createScriptURL(input: string): string }) {
+          names.push(name);
+          return { createScriptURL: (input: string) => rules.createScriptURL(input) };
+        },
+      },
+    };
+    expect(String(monacoWorkerScriptURL("json", "/assets/monaco-json-worker-a1.js", scope, false))).toBe(
+      "/assets/monaco-json-worker-a1.js",
+    );
+    expect(() => monacoWorkerScriptURL("json", "/assets/monaco-editor-worker-a1.js", scope, false)).toThrow(TypeError);
     expect(names.every((n) => n === WORKER_POLICY)).toBe(true);
   });
 });

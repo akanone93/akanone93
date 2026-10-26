@@ -8,17 +8,22 @@ import { Button } from "./button.tsx";
 import { cx } from "./cx.ts";
 import { Icon } from "./icon.tsx";
 
-/** U11 widths 400 / 560 / 800 px, approximated by the container scale until dialog width tokens exist. */
-export type DialogSize = "sm" | "md" | "lg";
+/**
+ * U11 widths 400 / 560 / 800 px, approximated by the container scale until dialog width tokens exist; `full`
+ * is the full-screen overlay of the heavy editors (STU-063): it fills the viewport and has no corners.
+ */
+export type DialogSize = "sm" | "md" | "lg" | "full";
 
 const sizeClass: Readonly<Record<DialogSize, string>> = {
   sm: "max-w-dialog-sm",
   md: "max-w-dialog-md",
   lg: "max-w-dialog-lg",
+  full: "h-full max-w-none rounded-none",
 };
 
 const backdropClass = "fixed inset-0 bg-brand-ink opacity-40";
 const viewportClass = "fixed inset-0 flex items-center justify-center p-4";
+const fullViewportClass = "fixed inset-0 flex items-stretch justify-center";
 const popupClass = "flex w-full flex-col gap-3 rounded-xl bg-raised p-6 shadow-e4";
 const titleClass = "font-serif text-title text-primary";
 const descriptionClass = "text-body text-secondary";
@@ -52,7 +57,7 @@ export function Dialog({
       {trigger !== undefined && <BaseDialog.Trigger render={trigger} />}
       <BaseDialog.Portal>
         <BaseDialog.Backdrop className={backdropClass} />
-        <BaseDialog.Viewport className={viewportClass}>
+        <BaseDialog.Viewport className={size === "full" ? fullViewportClass : viewportClass}>
           <BaseDialog.Popup className={cx(popupClass, sizeClass[size])}>
             <div className="flex items-start justify-between gap-3">
               <BaseDialog.Title className={titleClass}>{title}</BaseDialog.Title>
