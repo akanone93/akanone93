@@ -439,7 +439,7 @@ interface DockProps {
 }
 
 /** The registry marks string props whose text the user sees (`translatable`, I18N-007). */
-const isTranslatable = (prop: PropDescriptor): boolean => (prop as { translatable?: boolean }).translatable === true;
+const isTranslatable = (prop: PropDescriptor): boolean => prop.translatable === true;
 
 /** The selection's nodes from the edited documents (the session's), falling back to the server's screens. */
 function useLiveNodes(p: DockProps): Map<string, Obj> {

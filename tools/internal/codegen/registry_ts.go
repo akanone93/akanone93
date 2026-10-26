@@ -44,7 +44,9 @@ type (
 		Revision    int             `json:"revision"`
 		Deprecated  *tsDeprecation  `json:"deprecated,omitempty"`
 		Bindable    bool            `json:"bindable"`
-		Description string          `json:"description,omitempty"`
+		// Translatable marks a prop whose text is localised (I18N-007); omitted when false.
+		Translatable bool   `json:"translatable,omitempty"`
+		Description  string `json:"description,omitempty"`
 	}
 	tsConstraints struct {
 		Min       *float64 `json:"min,omitempty"`
@@ -280,7 +282,7 @@ func tsWidgets(r *registry.Registry) []tsWidget {
 		for _, p := range sortedByID(w.Props, func(p registry.Prop) uint32 { return p.ID }) {
 			tp := tsProp{
 				Name: p.Name, ID: p.ID, Type: p.Type, Required: p.Required, Default: p.Default, Revision: revisionOr1(p.Revision),
-				Deprecated: tsDep(p.Deprecated), Bindable: p.IsBindable(), Description: p.Description,
+				Deprecated: tsDep(p.Deprecated), Bindable: p.IsBindable(), Translatable: p.Translatable, Description: p.Description,
 			}
 			if c := p.Constraints; c != nil {
 				tp.Constraints = &tsConstraints{Min: c.Min, Max: c.Max, MinLength: c.MinLength, MaxLength: c.MaxLength, Pattern: c.Pattern}
@@ -394,6 +396,8 @@ export interface PropDescriptor {
   readonly deprecated?: Deprecation;
   /** False when the prop accepts only literals. */
   readonly bindable: boolean;
+  /** True when the prop's text is localised and can move to a translation key (I18N-007). */
+  readonly translatable?: boolean;
   readonly description?: string;
 }
 
