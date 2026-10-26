@@ -122,6 +122,7 @@ export class CanvasHost {
   private readonly worker: WorkerLike | null;
   private readonly frameListeners = new Set<(stats: FrameStats) => void>();
   private readonly snapshots = new Map<number, (model: SceneModel) => void>();
+  private readonly thumbnails = new Map<number, (png: Uint8Array | null) => void>();
   private readonly layouts = new Map<number, (heights: readonly ScreenHeight[]) => void>();
   private nextRequest = 0;
   /** The screens last handed to the worker and their style; an update sends only what differs (STU-121). */
@@ -335,6 +336,10 @@ export class CanvasHost {
       case "snapshot":
         this.snapshots.get(message.requestId)?.(message.model);
         this.snapshots.delete(message.requestId);
+        break;
+      case "thumbnail":
+        this.thumbnails.get(message.requestId)?.(message.png);
+        this.thumbnails.delete(message.requestId);
         break;
       case "screens":
         this.follow(message.ops);
@@ -566,6 +571,23 @@ export class CanvasHost {
     return new Promise((resolve) => {
       this.snapshots.set(requestId, resolve);
       this.send({ v: PROTOCOL_VERSION, type: "snapshot", requestId });
+    });
+  }
+
+  /** Makes encoded images (PNG) available to scene items under their keys (`RectSpec.image`). */
+  setImages(images: readonly { key: string; bytes: Uint8Array }[]): void {
+    this.send({ v: PROTOCOL_VERSION, type: "images", images });
+  }
+
+  /**
+   * The PNG of the item `id` rendered in the worker, `width` pixels wide, from the scene the canvas
+   * already holds (STU-052); null when the item is unknown. The main thread does no raster work.
+   */
+  thumbnail(id: string, width: number): Promise<Uint8Array | null> {
+    const requestId = this.nextRequest++;
+    return new Promise((resolve) => {
+      this.thumbnails.set(requestId, resolve);
+      this.send({ v: PROTOCOL_VERSION, type: "thumbnail", requestId, id, width });
     });
   }
 

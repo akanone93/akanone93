@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { overflowId } from "@plux/canvas";
+import { frameId, overflowId } from "@plux/canvas";
 import { limitDefault } from "@plux/schema";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -20,6 +20,8 @@ import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
+import { GhostLeaveDialog } from "./ghost-dialog.tsx";
+import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
 import { LinkLayer } from "./link-layer.tsx";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
@@ -28,6 +30,7 @@ import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
 import {
   contentBounds,
   DEVICE,
+  ghostStyle,
   type Heights,
   heightsById,
   type PlacedScreen,
@@ -45,7 +48,8 @@ import { type SelectionStore, useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import { useGestures } from "./select/use-gestures.ts";
 import { browserSurface, type CanvasSurface } from "./surface.ts";
-import { useNativeWidgets } from "./use-native-widgets.ts";
+import { useGhostLayer } from "./use-ghost-layer.ts";
+import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 
 const MARQUEE_PX = 4;
@@ -73,11 +77,15 @@ function pointerSelect(
   box: { left: number; top: number },
   from: { x: number; y: number },
   e: { clientX: number; clientY: number; shiftKey: boolean; altKey: boolean; ctrlKey: boolean; metaKey: boolean },
+  onGhost: (hits: readonly string[]) => boolean,
 ): void {
   const a = { x: from.x - box.left, y: from.y - box.top };
   const z = { x: e.clientX - box.left, y: e.clientY - box.top };
   if (Math.hypot(z.x - a.x, z.y - a.y) <= MARQUEE_PX) {
     const hits = surface.hitTest?.(z.x, z.y) ?? [];
+    if (onGhost(hits)) {
+      return;
+    }
     store.set(sel.click(index, store.get(), hits, { toggle: e.shiftKey, deep: e.ctrlKey || e.metaKey }));
   } else if (e.shiftKey) {
     const rect = { l: Math.min(a.x, z.x), t: Math.min(a.y, z.y), r: Math.max(a.x, z.x), b: Math.max(a.y, z.y) };
@@ -169,15 +177,21 @@ export function PluginCanvasPage() {
     >
       {observeEditor !== undefined && <ObserveEditor observe={observeEditor} />}
       <UndoCommands undo={undo} stack={stack} canEdit={canEdit} />
-      <PluginCanvasView docs={docs} />
+      <PluginCanvasView docs={docs} editorSessionId={editorSessionId} />
     </EditorProvider>
   );
 }
 
-function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments> }) {
+function PluginCanvasView({
+  docs,
+  editorSessionId,
+}: {
+  docs: ReturnType<typeof usePluginDocuments>;
+  editorSessionId: string;
+}) {
   const m = pluginCanvasMessages(useLingui().i18n);
-  const params = useParams({ strict: false }) as { app?: string; plugin?: string };
-  const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number };
+  const params = useParams({ strict: false }) as { org?: string; app?: string; plugin?: string };
+  const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number; focus?: string };
   const navigate = useNavigate();
   const { createSurface = browserSurface, createValidator = browserValidator } = useRouteContext({
     strict: false,
@@ -198,6 +212,11 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const fittedRef = useRef<CanvasSurface | null>(null);
   const [heights, setHeights] = useState<Heights>(new Map());
+  const nativeRoutes = useNativeRoutes(params.app ?? "");
+  const appScreens = useMemo(() => readAppScreens(appDocs.data ?? []), [appDocs.data]);
+  const own = useMemo(() => (docs.data === undefined ? [] : readPlugin(live).screens), [docs.data, live]);
+  const [leaving, setLeaving] = useState<GhostTarget | null>(null);
+  const [focusNote, setFocusNote] = useState("");
   const session = useEditSession();
   const canEdit = useCanEdit();
   const store = useSelectionStore();
@@ -225,6 +244,18 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
     },
     [canEdit, pathOf, session],
   );
+  const ghostLayer = useGhostLayer({
+    appId: params.app ?? "",
+    pluginId: params.plugin ?? "",
+    editorSessionId,
+    canEdit,
+    surface: () => surfaceRef.current,
+    screens,
+    own,
+    heights,
+    appScreens,
+    nativeRoutes,
+  });
   const index = useMemo(() => indexNodes(screens.map((s) => s.root)), [screens]);
   const screenOf = useMemo(() => {
     const out = new Map<string, string>();
@@ -306,6 +337,49 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
     };
   }, [createSurface]);
 
+  const focusRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (search.focus !== undefined) {
+      focusRef.current = search.focus;
+    }
+  }, [search.focus]);
+  const pulses = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(
+    () => () => {
+      for (const t of pulses.current) {
+        clearTimeout(t);
+      }
+    },
+    [],
+  );
+  /** Pans to the screen the URL names and pulses it for 2 s (STU-053), once. */
+  const showFocus = (surface: CanvasSurface, canvas: HTMLCanvasElement, laidOut: Heights) => {
+    const id = focusRef.current;
+    const target = screens.find((x) => x.id === id);
+    if (id === undefined || target === undefined) {
+      return;
+    }
+    focusRef.current = undefined;
+    const h = Math.max(DEVICE.height, laidOut.get(id) ?? 0);
+    const zoom = Math.min(1, (canvas.clientHeight || window.innerHeight) / (h + 160));
+    const width = canvas.clientWidth || window.innerWidth;
+    const height = canvas.clientHeight || window.innerHeight;
+    surface.setViewport(
+      target.at.x + DEVICE.width / 2 - width / 2 / zoom,
+      target.at.y + h / 2 - height / 2 / zoom,
+      zoom,
+    );
+    const rect = { l: target.at.x, t: target.at.y, r: target.at.x + DEVICE.width, b: target.at.y + h };
+    for (const step of pulseSteps(`pulse:${frameId(id)}`, rect, ghostStyle.pulse)) {
+      pulses.current.push(setTimeout(() => surface.patch?.(step.ops), step.at));
+    }
+    setFocusNote(m.ghostPulse(target.title));
+    void navigate({ to: ".", search: (prev: object) => ({ ...prev, focus: undefined }), replace: true });
+  };
+
+  const showFocusRef = useRef(showFocus);
+  showFocusRef.current = showFocus;
+
   useEffect(() => {
     const surface = surfaceRef.current;
     const canvas = canvasRef.current;
@@ -323,7 +397,9 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
       if (fittedRef.current !== surface) {
         fittedRef.current = surface;
         fitView(surface, canvas, screens, byId, searchRef.current);
+        focusRef.current = searchRef.current.focus;
       }
+      showFocusRef.current(surface, canvas, byId);
     });
     return () => {
       current = false;
@@ -340,6 +416,7 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
     const x = Math.round(v.x + canvas.clientWidth / 2 / v.zoom);
     const y = Math.round(v.y + canvas.clientHeight / 2 / v.zoom);
     const z = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, v.zoom * 100)));
+    ghostLayer.zoomed(v.zoom);
     void navigate({ to: ".", search: (prev: object) => ({ ...prev, x, y, z }), replace: true });
   };
 
@@ -424,7 +501,16 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
           start.current = null;
           const box = canvasRef.current?.getBoundingClientRect();
           if (from !== null && surfaceRef.current && box) {
-            pointerSelect(surfaceRef.current, store, index, box, from, e);
+            pointerSelect(surfaceRef.current, store, index, box, from, e, (hits) => {
+              const ghost = ghostOfHit(hits, ghostLayer.placed);
+              if (ghost === undefined) {
+                return false;
+              }
+              if (ghost.kind === "screen") {
+                setLeaving(ghost);
+              }
+              return true;
+            });
           }
           sync();
         }}
@@ -449,6 +535,23 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
       </p>
+      <p role="status" aria-live="polite" className="sr-only">
+        {focusNote}
+      </p>
+      <GhostLeaveDialog
+        ghost={leaving}
+        onCancel={() => setLeaving(null)}
+        onOpen={(ghost) => {
+          setLeaving(null);
+          if (ghost.pluginId !== undefined && ghost.screenId !== undefined) {
+            void navigate({
+              to: "/o/$org/apps/$app/plugins/$plugin",
+              params: { org: params.org ?? "", app: params.app ?? "", plugin: ghost.pluginId },
+              search: { focus: ghost.screenId },
+            });
+          }
+        }}
+      />
       <ol aria-label={m.screens} className="sr-only">
         {screens.map((s) => (
           <li key={s.id}>

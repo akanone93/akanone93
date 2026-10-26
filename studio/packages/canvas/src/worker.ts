@@ -368,6 +368,18 @@ export class CanvasWorkerCore {
           model: buildSceneModel(running.scene, running.viewport),
         });
         return;
+      case "images":
+        for (const image of message.images) {
+          running.renderer.setImage(image.key, image.bytes);
+        }
+        this.markBase(running);
+        break;
+      case "thumbnail": {
+        const item = running.scene.get(message.id);
+        const png = item === undefined ? null : running.renderer.thumbnail(item.bounds, message.width);
+        this.post({ v: PROTOCOL_VERSION, type: "thumbnail", requestId: message.requestId, png });
+        return;
+      }
       case "screens":
       case "screensUpdate": {
         running.layoutEngine ??= (this.deps.paragraphEngine ?? canvasParagraphEngine)(running.ck, running.options);

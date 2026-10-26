@@ -16,6 +16,8 @@ const finite = z.number().refine(Number.isFinite);
 export const canvasSearchSchema = z.object({
   x: finite.optional().catch(undefined),
   y: finite.optional().catch(undefined),
+  /** A screen to pan to and pulse once the canvas opens (STU-053). */
+  focus: z.string().optional().catch(undefined),
   z: finite
     .transform((v) => Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, v)))
     .optional()

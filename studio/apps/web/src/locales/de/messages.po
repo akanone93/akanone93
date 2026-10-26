@@ -31,6 +31,12 @@ msgstr "{count, plural, one {# Änderung wartet} other {# Änderungen warten}}"
 msgid "problems.errors"
 msgstr "{count, plural, one {# Fehler} other {# Fehler}}"
 
+#. Number of navigate actions of this plugin that lead to a ghost screen or native route, drawn on its card.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.ghostLinks"
+msgstr "{count, plural, one {# Link} other {# Links}}"
+
 #. Summary of a multiple selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -198,6 +204,12 @@ msgstr "{names} möchte dieses Plugin bearbeiten."
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.progress"
 msgstr "{received} von {total}"
+
+#. Body of the confirmation that opens the canvas of the plugin a ghost screen belongs to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.ghostLeaveBody"
+msgstr "{screen} gehört zu einem anderen Plugin. Ihre Änderungen hier sind gespeichert. Diese Canvas verlassen und den Screen öffnen?"
 
 #. A screen in the list of targets; title is the screen's title and scope says which plugin it is in.
 #. js-lingui-explicit-id
@@ -1273,11 +1285,23 @@ msgstr "Offline"
 msgid "notify.open-inbox"
 msgstr "Alle Benachrichtigungen öffnen"
 
+#. Title of the confirmation that opens the canvas of the plugin a ghost screen belongs to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.ghostLeaveTitle"
+msgstr "Anderes Plugin öffnen?"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.open"
 msgstr "Befehlspalette öffnen"
+
+#. Button that leaves this plugin's canvas and opens the ghost screen on its own plugin's canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.ghostOpen"
+msgstr "Screen öffnen"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -1633,6 +1657,12 @@ msgstr "Semantik-Bezeichnung"
 msgid "cmd.nav.shortcuts"
 msgstr "Tastaturkürzel anzeigen"
 
+#. Announced to screen readers when the canvas pans to a screen and highlights it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.ghostPulse"
+msgstr "{screen} wird angezeigt"
+
 #. Heading of the sign-in page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1710,6 +1740,12 @@ msgstr "Jemand anderes hält die Sperre jetzt."
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.unsaved.stay"
 msgstr "Bleiben"
+
+#. Button that closes the confirmation and keeps the current canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.ghostStay"
+msgstr "Hier bleiben"
 
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id

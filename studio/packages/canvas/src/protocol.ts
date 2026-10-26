@@ -59,6 +59,8 @@ export interface RectSpec {
   readonly radius: number;
   readonly fill?: ColorRgba;
   readonly stroke?: StrokeStyle;
+  /** Key of an image set with `images`: drawn over the box, clipped to its corner radius (STU-052). */
+  readonly image?: string;
   readonly z: number;
 }
 
@@ -227,6 +229,12 @@ export interface ScreenHeight {
   readonly contentHeight: number;
 }
 
+/** An encoded image and the key scene items refer to it by. */
+export interface ImageData {
+  readonly key: string;
+  readonly bytes: Uint8Array;
+}
+
 /** Main thread → worker. */
 export type HostMessage =
   | {
@@ -257,6 +265,16 @@ export type HostMessage =
       readonly dpr: number;
     }
   | { readonly v: number; readonly type: "snapshot"; readonly requestId: number }
+  /** Decodes encoded images (PNG) under keys that `RectSpec.image` names; a key is set once. */
+  | { readonly v: number; readonly type: "images"; readonly images: readonly ImageData[] }
+  /** Renders the world rectangle of item `id` into an encoded PNG `width` pixels wide, answered by `thumbnail`. */
+  | {
+      readonly v: number;
+      readonly type: "thumbnail";
+      readonly requestId: number;
+      readonly id: string;
+      readonly width: number;
+    }
   /** Replaces the scene with `screens`, laid out in the worker with SkParagraph. */
   | {
       readonly v: number;
@@ -295,6 +313,8 @@ export type WorkerMessage =
       readonly layer?: LayerBox | null;
     }
   | { readonly v: number; readonly type: "snapshot"; readonly requestId: number; readonly model: SceneModel }
+  /** The PNG of a `thumbnail` request, or null when the item is unknown or the surface cannot render it. */
+  | { readonly v: number; readonly type: "thumbnail"; readonly requestId: number; readonly png: Uint8Array | null }
   /** The screens of a `screens` request, laid out: the ops applied to the scene and each content height. */
   | {
       readonly v: number;
@@ -314,11 +334,21 @@ const hostTypes: ReadonlySet<string> = new Set([
   "interaction",
   "resize",
   "snapshot",
+  "images",
+  "thumbnail",
   "screens",
   "screensUpdate",
   "dispose",
 ]);
-const workerTypes: ReadonlySet<string> = new Set(["ready", "frame", "snapshot", "screens", "surface", "error"]);
+const workerTypes: ReadonlySet<string> = new Set([
+  "ready",
+  "frame",
+  "snapshot",
+  "thumbnail",
+  "screens",
+  "surface",
+  "error",
+]);
 
 function versioned(data: unknown, types: ReadonlySet<string>): boolean {
   if (typeof data !== "object" || data === null) {

@@ -40,6 +40,26 @@ export function nativeDescriptors(doc: NativeCatalogueDocument): readonly Widget
   })) as unknown as readonly WidgetDescriptor[];
 }
 
+/** The native route names of the app's newest host build (NAV-002), cached per app; empty while loading. */
+export function useNativeRoutes(appId: string): readonly string[] {
+  const { session } = useApp();
+  const q = useQuery({
+    queryKey: ["native-routes", appId],
+    enabled: appId !== "",
+    queryFn: async () => {
+      const client = createClient(NativeCatalogueService, session.transport);
+      const newest = (await client["listHostBuilds"]({ appId })).hostBuilds[0];
+      if (newest === undefined) {
+        return [];
+      }
+      const res = await client["getNativeCatalogue"]({ appId, hostBuild: newest.hostBuild });
+      const doc = JSON.parse(new TextDecoder().decode(res.catalogue)) as NativeCatalogueDocument;
+      return (doc.routes ?? []).map((r) => r.name);
+    },
+  });
+  return q.data ?? [];
+}
+
 /**
  * The native widgets of the app's newest host build, fetched with GetNativeCatalogue and cached per app;
  * empty while loading and when the app has no build.
