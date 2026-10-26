@@ -92,6 +92,7 @@ const axeTags = ["wcag2a", "wcag2aa", "wcag21aa"];
 test("S3 flow: app canvas, plugin canvas, lane entry and blocked delete [STU-030 STU-046 STU-047 STU-070]", async ({
   page: p,
 }) => {
+  await p.setViewportSize({ width: 1280, height: 800 });
   await mockUpstream(p);
 
   // C1: the app canvas draws one box per plugin; the accessible list names it.
@@ -118,10 +119,24 @@ test("S3 flow: app canvas, plugin canvas, lane entry and blocked delete [STU-030
   // The target screen is now used by that link: deleting it is blocked and says why.
   await p.getByRole("tab", { name: "Layers" }).click();
   await p.locator('[role="treeitem"][data-item-id="detail-root"]').click();
-  // The action bar sits under the left panel at this width: the menu opens from the keyboard.
-  await p.getByRole("button", { name: "Screen menu" }).focus();
+  // The canvas draws the link handle for the selected widget: create a link detail -> home from the keyboard path.
+  await p.getByRole("button", { name: "Link to screen" }).focus();
   await p.keyboard.press("Enter");
-  await p.getByRole("menuitem", { name: "Delete screen" }).focus();
+  await p.getByRole("menuitem", { name: "home" }).focus();
   await p.keyboard.press("Enter");
+  const picker = p.getByRole("dialog", { name: "Which event starts the link?" });
+  await expect(picker).toBeVisible();
+  await expect(picker.getByRole("radio", { name: "onPressed" })).toBeChecked();
+  await picker.getByRole("button", { name: "Create link" }).focus();
+  await p.keyboard.press("Enter");
+  await expect(p.getByText("onPressed now goes to home")).toBeAttached();
+  await expect(picker).toBeHidden();
+
+  // At 1280 px the action bar clears both docks: the Screen menu takes a pointer click.
+  const menu = p.getByRole("button", { name: "Screen menu" });
+  await expect(menu).toBeVisible();
+  await menu.click({ trial: true });
+  await menu.click();
+  await p.getByRole("menuitem", { name: "Delete screen" }).click();
   await expect(p.getByText("This cannot be deleted yet")).toBeVisible();
 });
