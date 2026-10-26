@@ -1,0 +1,5 @@
+{
+  "name": "layer2-currency-picker",
+  "layer2": true,
+  "root": { "id": "currency", "type": "CurrencyPicker", "props": { "value": "EUR", "searchHint": "Search currencies" } }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "layer2-amount-input",
+  "layer2": true,
+  "root": { "id": "amount", "type": "AmountInput", "props": { "label": "Amount", "currency": "EUR" } }
+}

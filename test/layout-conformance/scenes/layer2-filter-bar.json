@@ -1,0 +1,16 @@
+{
+  "name": "layer2-filter-bar",
+  "layer2": true,
+  "root": {
+    "id": "filters",
+    "type": "FilterBar",
+    "props": {
+      "filters": [
+        { "id": "all", "label": "All", "selected": true },
+        { "id": "income", "label": "Income", "selected": false },
+        { "id": "spending", "label": "Spending", "selected": true },
+        { "id": "transfers", "label": "Transfers", "selected": false }
+      ]
+    }
+  }
+}
