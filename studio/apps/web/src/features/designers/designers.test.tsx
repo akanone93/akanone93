@@ -74,7 +74,10 @@ const surface = () => {
 
 const toolCalls: { name: string; args: readonly string[] }[] = [];
 const validator =
-  (tool: ValidatorClient["tool"], findings: (data: string) => { code: string; message: string }[] = () => []) =>
+  (
+    tool: ((name: string, args: readonly string[]) => unknown) | undefined,
+    findings: (data: string) => { code: string; message: string }[] = () => [],
+  ) =>
   (): ValidatorClient => ({
     load: async () => [],
     validatePage: async (file, data) => findings(data).map((f) => ({ ...f, severity: "error", file, path: "" })),
