@@ -23,7 +23,8 @@
             "type": "CupertinoPicker",
             "props": {
               "itemCount": 3,
-              "itemExtent": 28
+              "itemExtent": 28,
+              "selectedItem": 1
             }
           }
         ]

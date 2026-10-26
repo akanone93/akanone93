@@ -39,9 +39,11 @@ import {
 } from "../flutter/cupertino-dialog.ts";
 import { cupertinoSlidingSegment, cupertinoSlidingSegmentedControl } from "../flutter/cupertino-sliding.ts";
 import { Size, TextDirection } from "../flutter/geometry.ts";
+import { listRows } from "../flutter/list-wheel.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
+import { TextAlign } from "../text/paragraph-engine.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 
 const direction = TextDirection.ltr;
@@ -98,7 +100,13 @@ function alertDialog(node: WidgetNode, ctx: WidgetContext): RenderBox {
   const styles = cupertinoDialogTextStyles;
   const part = (name: string, style: TextStyle): RenderBox | null => {
     const label = dataText(node, name);
-    return label === undefined ? null : ctx.paragraph(label, style);
+    if (label === undefined) {
+      return null;
+    }
+    // CupertinoAlertDialog sets `DefaultTextStyle(textAlign: TextAlign.center)` over its title and content.
+    const text = ctx.paragraph(label, style);
+    text.textAlign = TextAlign.center;
+    return text;
   };
   const actions = labelsOf(node, "CupertinoDialogAction").map((label) =>
     cupertinoDialogAction({
@@ -165,11 +173,11 @@ const datePickerColumns: Readonly<Record<string, readonly string[]>> = {
 function datePicker(node: WidgetNode, ctx: WidgetContext): RenderBox {
   const mode = String(data(node)["mode"] ?? "dateAndTime");
   const texts = datePickerColumns[mode] ?? datePickerColumns["dateAndTime"] ?? [];
-  const rows = texts.map((text) => [ctx.paragraph(text)]);
+  const rows = texts.map((text) => ctx.paragraph(text));
   const picker = cupertinoDatePicker({
     kind: mode === "date" ? "date" : "dateTime",
-    pickers: rows,
-    columnWidths: rows.map((column) => column[0]?.getMaxIntrinsicWidth(Number.POSITIVE_INFINITY) ?? 0),
+    pickers: rows.map((row) => ({ exists: (index: number) => index === 0, build: () => row, selectedItem: 0 })),
+    columnWidths: rows.map((row) => row.getMaxIntrinsicWidth(Number.POSITIVE_INFINITY)),
     itemExtent: kDatePickerItemExtent,
     textDirection: direction,
   });
@@ -311,8 +319,23 @@ export const cupertinoWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new M
     (node, ctx) => {
       const props = data(node);
       const itemExtent = typeof props["itemExtent"] === "number" ? props["itemExtent"] : 32;
-      const rows = (node.children ?? []).map((child) => ctx.paragraph(labelOf(child) ?? ""));
-      const picker = cupertinoPicker({ rows, itemExtent, textDirection: direction });
+      const given = data(node)["items"];
+      const items =
+        (node.children ?? []).length > 0
+          ? (node.children ?? []).map((child) => labelOf(child) ?? "")
+          : Array.isArray(given)
+            ? given.map(String)
+            : [];
+      const selected = data(node)["selectedItem"];
+      const picker = cupertinoPicker({
+        rows: listRows(items.map((item) => ctx.paragraph(item))),
+        selectedItem:
+          typeof selected === "number" && items.length > 0
+            ? Math.min(Math.max(Math.trunc(selected), 0), items.length - 1)
+            : 0,
+        itemExtent,
+        textDirection: direction,
+      });
       return marked(
         node,
         ctx,
