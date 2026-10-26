@@ -73,6 +73,24 @@ msgstr "{count} ungelesen"
 msgid "panels.multi"
 msgstr "{count} Widgets ausgewählt; gemeinsame Eigenschaften werden angezeigt."
 
+#. Shown when the chosen event already has steps; event is the event name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.bound"
+msgstr "{event} tut bereits etwas. Ersetze die Schritte oder füge die Navigation danach hinzu."
+
+#. One existing link; event is the widget event and route the target screen's route name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.linkRow"
+msgstr "{event} führt zu {route}"
+
+#. Announced after a link was created; event is the widget event and target the screen's title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.created"
+msgstr "{event} führt jetzt zu {target}"
+
 #. Read-only banner: someone else holds the plugin's editing lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -181,6 +199,12 @@ msgstr "{names} möchte dieses Plugin bearbeiten."
 msgid "assets.progress"
 msgstr "{received} von {total}"
 
+#. A screen in the list of targets; title is the screen's title and scope says which plugin it is in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.targetOption"
+msgstr "{title} ({scope})"
+
 #. Shown when an upload chunk was sent at the wrong offset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -235,11 +259,29 @@ msgstr "Konto"
 msgid "profile.account"
 msgstr "Konto"
 
+#. Label of the properties tab that lists and creates the selected widget's navigation links.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.tab"
+msgstr "Aktionen"
+
+#. Choice that adds the navigation after the steps an event already has.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.append"
+msgstr "Danach hinzufügen"
+
 #. Button that appends an item to a list property.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.addItem"
 msgstr "Eintrag hinzufügen"
+
+#. Button that writes the navigation link to the document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.add"
+msgstr "Link hinzufügen"
 
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
@@ -325,6 +367,12 @@ msgstr "Begründung für Notfallzugriff"
 msgid "panels.semButton"
 msgstr "Schaltfläche"
 
+#. Button of the trigger picker that discards the link.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.picker.cancel"
+msgstr "Abbrechen"
+
 #. Button that closes a dialog without changing anything.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -401,6 +449,12 @@ msgstr "{name} entfernen"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
+msgstr "Schließen"
+
+#. Accessible name of the close button of the trigger picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.picker.close"
 msgstr "Schließen"
 
 #. Accessible name of the close button of a dialog.
@@ -516,6 +570,12 @@ msgstr "Meine als JSON kopieren"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.create"
 msgstr "Erstellen"
+
+#. Button of the trigger picker that creates the link.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.picker.confirm"
+msgstr "Link erstellen"
 
 #. Accessible name of the select that chooses the screen the screen actions apply to.
 #. js-lingui-explicit-id
@@ -703,11 +763,23 @@ msgstr "Einstieg"
 msgid "problems.severity.error"
 msgstr "Fehler"
 
+#. Label of the choice of the widget event that starts the navigation, for example onPressed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.event"
+msgstr "Ereignis"
+
 #. Label of the event type filter.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.type"
 msgstr "Ereignistyp"
+
+#. Accessible name of the list of events in the trigger picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.picker.events"
+msgstr "Ereignisse"
 
 #. Heading of the list of events in the docs tab.
 #. js-lingui-explicit-id
@@ -943,6 +1015,36 @@ msgstr "Linke Bedienfelder"
 msgid "profile.theme.light"
 msgstr "Hell"
 
+#. Announced when a link drag ended without a target screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.cancelled"
+msgstr "Link abgebrochen"
+
+#. Accessible name of the handle on the selected widget that starts a link by dragging or by keyboard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.handle"
+msgstr "Link-Griff: auf einen Bildschirm ziehen oder mit der Eingabetaste einen Bildschirm wählen"
+
+#. Accessible name of the list of screens the keyboard alternative of the link drag offers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.handleChoose"
+msgstr "Mit Bildschirm verlinken"
+
+#. Announced while a link is dragged over a screen; target is the screen's title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.dragging"
+msgstr "Verlinke mit {target}"
+
+#. Heading of the list of navigation links the selected widget already has.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.existing"
+msgstr "Links dieses Widgets"
+
 #. Option that sets a fixed value instead of a binding.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1027,6 +1129,12 @@ msgstr "Nativ und benutzerdefiniert"
 msgid "cmd.group.navigate"
 msgstr "Navigation"
 
+#. Heading of the section of the Actions tab that creates a navigation link.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.heading"
+msgstr "Navigieren"
+
 #. Shown when the widget must keep a minimum touch target.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1086,6 +1194,18 @@ msgstr "Keine Benachrichtigungen"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.none"
 msgstr "Keine Probleme gefunden."
+
+#. Problem shown for a link whose target screen does not exist; route is the route name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.missing"
+msgstr "Kein Bildschirm hat die Route {route}."
+
+#. Shown when the app has no screen a link could target.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.noTarget"
+msgstr "Keine Bildschirme zum Verlinken."
 
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
@@ -1170,6 +1290,12 @@ msgstr "Organisation"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.org.switcher"
 msgstr "Organisation"
+
+#. Marks screens of another plugin of the app in the list of navigation targets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.otherPlugin"
+msgstr "Anderes Plugin"
 
 #. Marks a property whose value differs from the base for the chosen size class.
 #. js-lingui-explicit-id
@@ -1309,6 +1435,12 @@ msgstr "Schreibgeschützt: Dieses Plugin kann jetzt nicht geändert werden"
 msgid "chip.reconnecting"
 msgstr "Verbindung wird wiederhergestellt"
 
+#. Fix button that points a broken link at the screen chosen in the target list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.redirect"
+msgstr "Auf den gewählten Bildschirm umleiten"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -1339,6 +1471,12 @@ msgstr "Neu laden"
 msgid "panels.removeItem"
 msgstr "Eintrag {n} entfernen"
 
+#. Button that deletes a navigation link from the widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.remove"
+msgstr "Link entfernen"
+
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1350,6 +1488,12 @@ msgstr "Umbenennen"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.renameScreen"
 msgstr "Bildschirm umbenennen"
+
+#. Choice that replaces the steps of an event that already has some with the navigation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.replace"
+msgstr "Ersetzen"
 
 #. Button: ask the person holding the lock to hand it over.
 #. js-lingui-explicit-id
@@ -1458,6 +1602,12 @@ msgstr "Zweiter Faktor"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.nothing"
 msgstr "Wähle ein Widget auf der Zeichenfläche, um es zu bearbeiten."
+
+#. Shown in the Actions tab when no widget is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.nothing"
+msgstr "Wähle ein Widget aus, um einen Link hinzuzufügen."
 
 #. Accessible name of the list of selected nodes.
 #. js-lingui-explicit-id
@@ -1615,6 +1765,12 @@ msgstr "Übernehmen ist ab {at} möglich, sobald die Person nicht mehr bearbeite
 msgid "editor.conflict.take-server"
 msgstr "Version des Servers übernehmen"
 
+#. Label of the choice of the screen the navigation goes to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.target"
+msgstr "Zielbildschirm"
+
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -1723,6 +1879,12 @@ msgstr "Der Upload ist abgelaufen oder existiert nicht mehr. Lade die Datei erne
 msgid "problems.unavailable"
 msgstr "Die Prüfung konnte nicht ausgeführt werden."
 
+#. Description of the trigger picker; target is the title of the screen the link was dropped on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.picker.description"
+msgstr "Das Widget wechselt zu {target}, wenn das gewählte Ereignis eintritt."
+
 #. Label of the theme choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -1777,6 +1939,12 @@ msgstr "Diese Seite existiert nicht oder Sie dürfen sie nicht sehen."
 msgid "chrome.licence.body"
 msgstr "Diese Seite gehört zur Enterprise-Edition. Bitten Sie eine Installationsadministratorin oder einen Installationsadministrator, eine Lizenz einzuspielen."
 
+#. Marks screens of the plugin being edited in the list of navigation targets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.thisPlugin"
+msgstr "Dieses Plugin"
+
 #. D35 title: someone or something saved this plugin while you were editing it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -1800,6 +1968,18 @@ msgstr "Dieser Bildschirm kann nicht gelöscht werden"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.pendingSave"
 msgstr "Dieser Bildschirm hat ungespeicherte Änderungen. Warte, bis sie gespeichert sind, und versuche es dann erneut."
+
+#. Shown in the Actions tab when the selected widget type declares no events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.noEvents"
+msgstr "Dieses Widget hat keine Ereignisse, von denen ein Link ausgehen kann."
+
+#. Shown in the Actions tab when the selected widget navigates nowhere.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.none"
+msgstr "Dieses Widget hat noch keine Links."
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -1926,6 +2106,12 @@ msgstr "Willkommen bei {name}"
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.differences"
 msgstr "Wo sich deine Version und die des Servers unterscheiden"
+
+#. Title of the dialog that asks which widget event should navigate after a link was dragged.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/links.messages.ts
+msgid "links.picker.title"
+msgstr "Welches Ereignis startet den Link?"
 
 #. Title of the dialog that explains an access decision.
 #. js-lingui-explicit-id
