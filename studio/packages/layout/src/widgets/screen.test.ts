@@ -510,31 +510,15 @@ function schemaWidgetTypes(): string[] {
  */
 const placeholderTypes: readonly string[] = [
   "Autocomplete",
-  "BackButton",
   "BottomAppBar",
-  "BottomNavigationBar",
   "CalendarDatePicker",
-  "CheckboxListTile",
-  "CloseButton",
-  "CupertinoActivityIndicator",
   "DataTable",
   "DropdownMenu",
-  "ExpansionTile",
-  "Image",
   "MaterialBanner",
   "NavigationDrawer",
   "PopupMenuButton",
-  "RadioListTile",
-  "RangeSlider",
-  "RichText",
-  "SearchAnchor",
-  "SearchBar",
   "SegmentedButton",
-  "SelectableText",
-  "Slider",
   "Stepper",
-  "SwitchListTile",
-  "Timeline",
 ];
 
 describe("builder coverage (STU-005)", () => {

@@ -117,6 +117,43 @@ const nativeSlot: WidgetBuilder = (node, ctx) => {
   return placeholder(node, ctx, typeof name === "string" ? name : "NativeSlot");
 };
 
+/** `SelectableText`: a `Text` of `data`, laid out as one paragraph. */
+const selectableText: WidgetBuilder = (node, ctx) => {
+  const data = prop(node, "data");
+  const text = typeof data === "string" ? data : "";
+  ctx.mark(node.id, "text", text);
+  const box = ctx.paragraph(text);
+  box.debugId = node.id;
+  return box;
+};
+
+/** The characters of a `TextSpan` document value: its own text, then its children's. */
+function spanText(span: unknown): string {
+  if (typeof span !== "object" || span === null) {
+    return "";
+  }
+  const record = span as Record<string, unknown>;
+  const own = typeof record["text"] === "string" ? record["text"] : "";
+  const children = Array.isArray(record["children"]) ? record["children"] : [];
+  return own + children.map(spanText).join("");
+}
+
+/** `RichText`: the spans' characters as one paragraph in the screen's text style; span styles have no design-time effect. */
+const richText: WidgetBuilder = (node, ctx) => {
+  const text = spanText(prop(node, "textSpan"));
+  ctx.mark(node.id, "text", text);
+  const box = ctx.paragraph(text);
+  box.debugId = node.id;
+  return box;
+};
+
+/** `Image`: its declared `width` and `height`, labelled with the source's name (the canvas loads no pictures). */
+const image: WidgetBuilder = (node, ctx) => {
+  const source = prop(node, "source");
+  const name = typeof source === "object" && source !== null ? (source as Record<string, unknown>)["name"] : undefined;
+  return placeholder(node, ctx, typeof name === "string" ? name : "Image");
+};
+
 const wrapperTypes: readonly string[] = [
   "GestureDetector",
   "InkWell",
@@ -140,6 +177,7 @@ const wrapperTypes: readonly string[] = [
   "AnimatedSize",
   "AnimatedSlide",
   "AnimatedSwitcher",
+  "Timeline",
 ];
 
 /** The builders of the widgets that show one child as it is; merged into the default registry. */
@@ -154,4 +192,7 @@ export const structuralWidgetBuilders: ReadonlyArray<readonly [string, WidgetBui
   ["AnimatedCrossFade", crossFade],
   ["TabBarView", tabBarView],
   ["NativeSlot", nativeSlot],
+  ["SelectableText", selectableText],
+  ["RichText", richText],
+  ["Image", image],
 ];

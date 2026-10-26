@@ -23,7 +23,7 @@ import { RenderParagraph } from "../flutter/paragraph.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
-import type { TextStyle } from "../flutter/text-style.ts";
+import { TextScaler, type TextStyle } from "../flutter/text-style.ts";
 import { RenderView } from "../flutter/view.ts";
 import { globalRects } from "../node-rects.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
@@ -157,7 +157,7 @@ function flex(direction: Axis, node: WidgetNode, ctx: WidgetContext): RenderBox 
       direction,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      textDirection: TextDirection.ltr,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
       spacing: ctx.theme.spacing,
       children: kids.map((c) => ctx.build(c)),
     }),
@@ -175,7 +175,7 @@ const row: WidgetBuilder = (node, ctx) => {
       direction: Axis.horizontal,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      textDirection: TextDirection.ltr,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
       spacing: ctx.theme.spacing,
       children: kids.map(
         (c) =>
@@ -249,8 +249,8 @@ function materialButton(kind: ButtonKind | "icon"): WidgetBuilder {
         label: content,
         tapTargetSize: tapTarget(node),
         density: VisualDensity.named(prop(node, "density")),
-        textDirection: TextDirection.ltr,
-        textScale: 1,
+        textDirection: ctx.textDirection ?? TextDirection.ltr,
+        textScale: ctx.textScale ?? 1,
       }),
     );
   };
@@ -271,7 +271,7 @@ const floatingActionButton: WidgetBuilder = (node, ctx) => {
       kind: fabKind(prop(node, "kind")),
       child: new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 24, height: 24 }) }),
       tapTargetSize: tapTarget(node),
-      textDirection: TextDirection.ltr,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
     }),
   );
 };
@@ -295,7 +295,7 @@ const listTile: WidgetBuilder = (node, ctx) => {
       isDense: dense,
       isThreeLine: prop(node, "isThreeLine") === true,
       visualDensity: VisualDensity.named(prop(node, "density")),
-      textDirection: TextDirection.ltr,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
     }),
   );
 };
@@ -314,8 +314,8 @@ const chip: WidgetBuilder = (node, ctx) => {
       selected: prop(node, "selected") === true,
       tapTargetSize: tapTarget(node),
       density: VisualDensity.named(prop(node, "density")),
-      textScale: 1,
-      textDirection: TextDirection.ltr,
+      textScale: ctx.textScale ?? 1,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
     }),
   );
 };
@@ -342,7 +342,7 @@ const textField: WidgetBuilder = (node, ctx) => {
       floating: (str("text") ?? "") !== "",
       floatingLabelHeight: 16,
       density: VisualDensity.named(prop(node, "density")),
-      textDirection: TextDirection.ltr,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
     }),
   );
 };
@@ -401,6 +401,10 @@ export interface LayoutScreenOptions {
   /** The app bar title; the bar is drawn when the root has an `appBar` slot. */
   readonly title?: string;
   readonly builders?: ReadonlyMap<string, WidgetBuilder>;
+  /** The ambient text scale factor of the preview (default 1): A11Y-005. */
+  readonly textScale?: number;
+  /** The ambient text direction, right to left for `ar` and `he` (default left to right): I18N-010. */
+  readonly textDirection?: TextDirection;
 }
 
 /** Lays one screen out at the theme's device width, text by the paragraph engine. */
@@ -412,9 +416,12 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
   const [family, ...fallback] = theme.fontFamilies;
   const style: TextStyle = { fontSize: theme.fontSize, fontFamily: family, fontFamilyFallback: fallback };
   const widths: number[] = [theme.width - 2 * theme.pagePadding];
+  const textScale = options.textScale ?? 1;
   const ctx: WidgetContext = {
     engine: options.engine,
     theme,
+    textScale,
+    textDirection: options.textDirection ?? TextDirection.ltr,
     build(node, width) {
       const builder = node.type === undefined ? undefined : builders.get(node.type);
       if (width !== undefined) {
@@ -439,7 +446,8 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     paragraph(text, override, paragraphOptions) {
       const p = new RenderParagraph({
         text: { text, style: override ?? style },
-        textDirection: paragraphOptions?.textDirection ?? TextDirection.ltr,
+        textDirection: paragraphOptions?.textDirection ?? options.textDirection ?? TextDirection.ltr,
+        textScaler: textScale === 1 ? undefined : TextScaler.linear(textScale),
         engine: options.engine,
       });
       paragraphs.push(p);
@@ -460,7 +468,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
       direction: Axis.vertical,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      textDirection: TextDirection.ltr,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
       children: [
         ...(hasBar
           ? [
@@ -484,7 +492,14 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
   );
   const view = new RenderView({
     size: new Size(theme.width, MEASURE_HEIGHT),
-    child: new RenderPositionedBox({ alignment: Alignment.topLeft, child: content }),
+    child: new RenderPositionedBox({
+      alignment: Alignment.topLeft,
+      // As wide as the screen, so that a right-to-left page starts at its right edge.
+      child: new RenderConstrainedBox({
+        additionalConstraints: BoxConstraints.tightFor({ width: theme.width }),
+        child: content,
+      }),
+    }),
   });
   const owner = new PipelineOwner();
   owner.rootNode = view;

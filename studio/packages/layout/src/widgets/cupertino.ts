@@ -12,6 +12,7 @@
 import { BoxConstraints } from "../flutter/constraints.ts";
 import {
   type CupertinoButtonSize,
+  cupertinoActivityIndicator,
   cupertinoButton,
   cupertinoListTile,
   cupertinoNavigationBar,
@@ -238,6 +239,7 @@ export const cupertinoWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new M
   ],
   ["CupertinoSwitch", (node, ctx) => marked(node, ctx, cupertinoSwitch())],
   ["CupertinoSlider", (node, ctx) => marked(node, ctx, cupertinoSlider())],
+  ["CupertinoActivityIndicator", (node, ctx) => marked(node, ctx, cupertinoActivityIndicator())],
   [
     "CupertinoTextField",
     (node, ctx) => {

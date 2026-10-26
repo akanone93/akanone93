@@ -1,0 +1,98 @@
+{
+  "name": "material-bars",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "search",
+            "type": "SearchBar",
+            "props": {
+              "hintText": "Search"
+            }
+          },
+          {
+            "id": "anchor",
+            "type": "SearchAnchor",
+            "props": {
+              "hintText": "Search"
+            }
+          },
+          {
+            "id": "nav",
+            "type": "BottomNavigationBar",
+            "props": {
+              "items": 3
+            }
+          },
+          {
+            "id": "nav-shift",
+            "type": "BottomNavigationBar",
+            "props": {
+              "items": 3,
+              "type": "shifting"
+            }
+          },
+          {
+            "id": "expansion",
+            "type": "ExpansionTile",
+            "props": {},
+            "children": [
+              {
+                "id": "expansion-t",
+                "type": "Text",
+                "props": {
+                  "text": "Details"
+                },
+                "slot": "title"
+              }
+            ]
+          },
+          {
+            "id": "expansion-sub",
+            "type": "ExpansionTile",
+            "props": {},
+            "children": [
+              {
+                "id": "expansion-st",
+                "type": "Text",
+                "props": {
+                  "text": "Details"
+                },
+                "slot": "title"
+              },
+              {
+                "id": "expansion-ss",
+                "type": "Text",
+                "props": {
+                  "text": "Open to see more"
+                },
+                "slot": "subtitle"
+              },
+              {
+                "id": "expansion-l",
+                "type": "Icon",
+                "props": {},
+                "slot": "leading"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

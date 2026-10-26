@@ -85,6 +85,17 @@ const compositeTypes: readonly string[] = [
   "CircleAvatar",
   "CircularProgressIndicator",
   "LinearProgressIndicator",
+  "BackButton",
+  "CloseButton",
+  "Slider",
+  "RangeSlider",
+  "CheckboxListTile",
+  "SwitchListTile",
+  "RadioListTile",
+  "SearchBar",
+  "SearchAnchor",
+  "BottomNavigationBar",
+  "ExpansionTile",
 ];
 
 /** The slot of a document node whose widgets are a list, and so arrive as `children`; scenes name the part the same. */
@@ -227,7 +238,7 @@ function sceneChildren(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNo
 }
 
 /** Types that need a bounded height, which a screen does not give: they are drawn in a box of the theme's viewport height. */
-const boundedHeight: ReadonlySet<string> = new Set(["PageView", "Drawer"]);
+const boundedHeight: ReadonlySet<string> = new Set(["PageView", "Drawer", "VerticalDivider"]);
 
 /** `scene` in a box of the viewport height; the box takes the node's id and the node an id of its own. */
 function inViewportHeight(scene: SceneNode, bridge: Bridge): SceneNode {
