@@ -31,11 +31,23 @@ msgstr "{count, plural, one {# change waiting} other {# changes waiting}}"
 msgid "problems.errors"
 msgstr "{count, plural, one {# error} other {# errors}}"
 
+#. STU-070: heading of the list of links from a plugin to other plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.blocked.outgoing"
+msgstr "{count, plural, one {# link leaves it} other {# links leave it}}"
+
 #. Summary of a multiple selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.selectedCount"
 msgstr "{count, plural, one {# node selected} other {# nodes selected}}"
+
+#. STU-070, STU-072: heading of the list of uses of, or links into, the item.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.blocked.incoming"
+msgstr "{count, plural, one {# use or link into it} other {# uses or links into it}}"
 
 #. Accessible name of the warning count in the action bar.
 #. js-lingui-explicit-id
@@ -325,6 +337,12 @@ msgstr "Break-glass justification"
 msgid "panels.semButton"
 msgstr "Button"
 
+#. Button that closes a safety dialog without doing anything.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.cancel"
+msgstr "Cancel"
+
 #. Button that closes a dialog without changing anything.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -396,6 +414,12 @@ msgstr "Choose a password"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.clear"
 msgstr "Clear {name}"
+
+#. Accessible name of a safety dialog's close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.close"
+msgstr "Close"
 
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
@@ -540,6 +564,12 @@ msgstr "Decision: {decision}"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.decision"
 msgstr "Decision: {decision}"
+
+#. D27: type of an affected item, a URL path that opens the screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.rename.deep-link"
+msgstr "Deep link"
 
 #. Button that confirms deleting a screen.
 #. js-lingui-explicit-id
@@ -763,6 +793,12 @@ msgstr "Frame label"
 msgid "appCanvas.newFrame"
 msgstr "Frame selection"
 
+#. D27: type of an affected item, a member of the Dart API that plux codegen writes for host apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.rename.generated"
+msgstr "Generated API"
+
 #. Caption of the shortcuts page.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -774,6 +810,12 @@ msgstr "Generated from the commands of this window."
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.onboarding"
 msgstr "Getting started"
+
+#. Accessible name of the button that navigates to one use of the item.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.use.go"
+msgstr "Go to {title}"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -852,6 +894,12 @@ msgstr "Inspector"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.interactive"
 msgstr "Interactive"
+
+#. STU-071: the item is the app's or plugin's entry and cannot be deleted until another is chosen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.blocked.entry"
+msgstr "It is an entry point. Choose another entry first."
 
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
@@ -1309,6 +1357,12 @@ msgstr "Read-only: you cannot change this plugin now"
 msgid "chip.reconnecting"
 msgstr "Reconnecting"
 
+#. STU-070 assisted fix: send every link into this screen to another screen instead.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.fix.redirect"
+msgstr "Redirect all incoming links to…"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -1338,6 +1392,12 @@ msgstr "Reload"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.removeItem"
 msgstr "Remove item {n}"
+
+#. STU-070 assisted fix: delete every navigation step that leaves this plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.fix.remove-outgoing"
+msgstr "Remove outgoing links"
 
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
@@ -1711,6 +1771,12 @@ msgstr "The server did not accept the change."
 msgid "assets.failure.size-mismatch"
 msgstr "The server received a different number of bytes than the file has. Upload it again."
 
+#. STU-074 type-to-confirm: shown while the typed text differs from the name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.confirm.mismatch"
+msgstr "The text does not match yet"
+
 #. Shown when the server no longer has the upload session, for example after it sat idle too long.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -1758,6 +1824,18 @@ msgstr "This app has no plugins yet."
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "unsupported.title"
 msgstr "This browser is not supported"
+
+#. D19, D24, D26: title of the panel listing what still uses or links to the item being deleted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.blocked.title"
+msgstr "This cannot be deleted yet"
+
+#. D27, STU-076: title of the warning listing deep links and generated APIs a key or route change breaks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.rename.title"
+msgstr "This change affects code outside Studio"
 
 #. Reason a screen cannot be deleted.
 #. js-lingui-explicit-id
@@ -1818,6 +1896,12 @@ msgstr "Top"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.useKey"
 msgstr "Translation key"
+
+#. STU-074 type-to-confirm: label of the field where the user types the name of what is affected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.confirm.instruction"
+msgstr "Type {name} to confirm"
 
 #. Label of the field where the person retypes the phrase; {phrase} is the exact text to type.
 #. js-lingui-explicit-id
