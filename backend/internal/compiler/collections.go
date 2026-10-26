@@ -517,5 +517,9 @@ func PreviewCollections(previous, current, dropped []byte) ([]byte, error) {
 	if diags == nil {
 		diags = plxerr.Diagnostics{}
 	}
-	return json.Marshal(diags)
+	out, err := json.Marshal(diags)
+	if err != nil {
+		return nil, fmt.Errorf("compiler.PreviewCollections: %w", err)
+	}
+	return out, nil
 }
