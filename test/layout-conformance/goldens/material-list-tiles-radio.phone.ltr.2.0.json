@@ -1,0 +1,80 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "material-list-tiles-radio",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 2.0,
+  "rects": {
+    "col": [
+      0.0,
+      0.0,
+      360.0,
+      352.0
+    ],
+    "frame": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "radio": [
+      0.0,
+      0.0,
+      360.0,
+      144.0
+    ],
+    "radio-plain": [
+      0.0,
+      144.0,
+      360.0,
+      64.0
+    ],
+    "radio-plain-t": [
+      72.0,
+      152.0,
+      264.0,
+      48.0
+    ],
+    "radio-s": [
+      72.0,
+      56.0,
+      264.0,
+      80.0
+    ],
+    "radio-t": [
+      72.0,
+      8.0,
+      264.0,
+      48.0
+    ],
+    "radio-three": [
+      0.0,
+      208.0,
+      360.0,
+      144.0
+    ],
+    "radio-three-s": [
+      72.0,
+      264.0,
+      264.0,
+      80.0
+    ],
+    "radio-three-t": [
+      72.0,
+      216.0,
+      264.0,
+      48.0
+    ]
+  },
+  "baselines": {
+    "radio-plain-t": 36.41600036621094,
+    "radio-s": 30.883996963500977,
+    "radio-t": 36.41600036621094,
+    "radio-three-s": 30.883996963500977,
+    "radio-three-t": 36.41600036621094
+  }
+}

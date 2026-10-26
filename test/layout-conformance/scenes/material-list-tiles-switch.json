@@ -1,0 +1,94 @@
+{
+  "name": "material-list-tiles-switch",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "switch",
+            "type": "SwitchListTile",
+            "props": {
+              "value": true
+            },
+            "children": [
+              {
+                "id": "switch-t",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications"
+                },
+                "slot": "title"
+              },
+              {
+                "id": "switch-s",
+                "type": "Text",
+                "props": {
+                  "text": "Receive alerts and a weekly summary"
+                },
+                "slot": "subtitle"
+              }
+            ]
+          },
+          {
+            "id": "switch-plain",
+            "type": "SwitchListTile",
+            "props": {},
+            "children": [
+              {
+                "id": "switch-plain-t",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications"
+                },
+                "slot": "title"
+              }
+            ]
+          },
+          {
+            "id": "switch-icon",
+            "type": "SwitchListTile",
+            "props": {},
+            "children": [
+              {
+                "id": "switch-icon-t",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications"
+                },
+                "slot": "title"
+              },
+              {
+                "id": "switch-icon-s",
+                "type": "Text",
+                "props": {
+                  "text": "Receive alerts and a weekly summary"
+                },
+                "slot": "subtitle"
+              },
+              {
+                "id": "switch-icon-i",
+                "type": "Icon",
+                "props": {},
+                "slot": "secondary"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

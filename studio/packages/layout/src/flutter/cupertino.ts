@@ -137,6 +137,11 @@ export function cupertinoSlider(): RenderBox {
   return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 176, height: 44 }) });
 }
 
+/** `CupertinoActivityIndicator`: a 20 by 20 spinner (radius 10). */
+export function cupertinoActivityIndicator(): RenderBox {
+  return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 20, height: 20 }) });
+}
+
 /** Where `NavigationToolbar` puts a child. */
 export type ToolbarSlot = "leading" | "middle" | "trailing";
 

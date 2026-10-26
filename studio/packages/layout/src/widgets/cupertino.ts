@@ -17,6 +17,7 @@ import {
   cupertinoNavigationBar,
   cupertinoPicker,
   cupertinoSegmentedControl,
+  cupertinoActivityIndicator,
   cupertinoSlider,
   cupertinoSwitch,
   cupertinoTabBar,
@@ -238,6 +239,7 @@ export const cupertinoWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new M
   ],
   ["CupertinoSwitch", (node, ctx) => marked(node, ctx, cupertinoSwitch())],
   ["CupertinoSlider", (node, ctx) => marked(node, ctx, cupertinoSlider())],
+  ["CupertinoActivityIndicator", (node, ctx) => marked(node, ctx, cupertinoActivityIndicator())],
   [
     "CupertinoTextField",
     (node, ctx) => {

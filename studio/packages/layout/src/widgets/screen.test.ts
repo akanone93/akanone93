@@ -510,13 +510,9 @@ function schemaWidgetTypes(): string[] {
  */
 const placeholderTypes: readonly string[] = [
   "Autocomplete",
-  "BackButton",
   "BottomAppBar",
   "BottomNavigationBar",
   "CalendarDatePicker",
-  "CheckboxListTile",
-  "CloseButton",
-  "CupertinoActivityIndicator",
   "DataTable",
   "DropdownMenu",
   "ExpansionTile",
@@ -524,16 +520,12 @@ const placeholderTypes: readonly string[] = [
   "MaterialBanner",
   "NavigationDrawer",
   "PopupMenuButton",
-  "RadioListTile",
-  "RangeSlider",
   "RichText",
   "SearchAnchor",
   "SearchBar",
   "SegmentedButton",
   "SelectableText",
-  "Slider",
   "Stepper",
-  "SwitchListTile",
   "Timeline",
 ];
 
