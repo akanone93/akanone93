@@ -366,6 +366,14 @@ enum PluxLimit {
   /// pinned client when the security setting pinnedMediaOnly is on (SEC-041:
   /// platform players cannot use the pinned client).
   mediaPinnedDownloadSize('media.pinnedDownloadSize', PluxLimitUnit.bytes, 209715200, 0, 1073741824),
+  /// Length of the description of an app or a plugin.
+  metadataDescriptionLength('metadata.descriptionLength', PluxLimitUnit.codepoints, 2000, 0, 20000),
+  /// Length of the asset identifier an app or a plugin uses as its icon.
+  metadataIconIdLength('metadata.iconIdLength', PluxLimitUnit.codepoints, 200, 0, 1000),
+  /// Length of one tag on an app or a plugin.
+  metadataTagLength('metadata.tagLength', PluxLimitUnit.codepoints, 40, 0, 200),
+  /// Tags one app or one plugin may carry.
+  metadataTagsPerItem('metadata.tagsPerItem', PluxLimitUnit.count, 20, 0, 100),
   /// Largest value of one display parameter of a notification; an event with a
   /// larger one is refused.
   notificationsParamBytes('notifications.paramBytes', PluxLimitUnit.bytes, 1024, 0, 8192),

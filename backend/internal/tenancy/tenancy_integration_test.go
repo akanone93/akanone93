@@ -21,6 +21,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
@@ -655,3 +656,159 @@ func errOf[T any](_ T, err error) error { return err }
 
 // errOf3 keeps a three-result call's error.
 func errOf3[T, U any](_ T, _ U, err error) error { return err }
+
+// TestAppMetadataAndListing covers plan P11 §4.3 #13: metadata, archiving and
+// the filters, search and sort orders of ListApps, with a cursor that
+// continues under each order.
+func TestAppMetadataAndListing(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	for _, a := range [][2]string{{"alpha", "Zulu"}, {"bravo", "Yankee"}, {"charlie", "Xray"}} {
+		if _, err := f.svc.CreateApp(ctx, f.owner, a[0], a[1]); err != nil {
+			t.Fatal(err)
+		}
+	}
+	apps, err := f.svc.ListApps(ctx, f.owner, tenancy.Page{Size: 10})
+	if err != nil || len(apps) != 3 {
+		t.Fatalf("ListApps: %d %v", len(apps), err)
+	}
+	desc, yes := "Payments portal", true
+	b, err := f.svc.UpdateAppMetadata(ctx, f.owner, apps[1].ID, tenancy.Metadata{Description: &desc, SetTags: true, Tags: []string{"pay", "pay", "web"}})
+	if err != nil || len(b.Tags) != 2 || b.Description != desc {
+		t.Fatalf("UpdateAppMetadata: %+v %v", b, err)
+	}
+	if _, err := f.svc.UpdateAppMetadata(ctx, f.owner, apps[2].ID, tenancy.Metadata{Archived: &yes}); err != nil {
+		t.Fatal(err)
+	}
+	keys := func(page tenancy.Page) []string {
+		t.Helper()
+		got, err := f.svc.ListApps(ctx, f.owner, page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out []string
+		for _, a := range got {
+			out = append(out, a.Key)
+		}
+		return out
+	}
+	if got := keys(tenancy.Page{Size: 10}); len(got) != 2 {
+		t.Errorf("archived apps are left out: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{IncludeArchived: true}}); len(got) != 3 {
+		t.Errorf("archived apps on request: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{Query: "portal"}}); len(got) != 1 || got[0] != "bravo" {
+		t.Errorf("search by description: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{Tags: []string{"web", "pay"}}}); len(got) != 1 {
+		t.Errorf("filter by tags: %v", got)
+	}
+	if got := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{IncludeArchived: true, Sort: "name"}}); len(got) != 3 || got[0] != "charlie" {
+		t.Errorf("sort by name: %v", got)
+	}
+	first := keys(tenancy.Page{Size: 1, Filter: tenancy.AppFilter{Sort: "name"}})
+	if len(first) != 1 || first[0] != "bravo" {
+		t.Fatalf("first by name: %v", first)
+	}
+	cursor := storage.Cursor{Key: tenancy.SortKey(apps[1], "name"), ID: apps[1].ID}
+	if next := keys(tenancy.Page{After: cursor, Size: 5, Filter: tenancy.AppFilter{Sort: "name"}}); len(next) != 1 || next[0] != "alpha" {
+		t.Errorf("a cursor continues by name: %v", next)
+	}
+	newest := keys(tenancy.Page{Size: 10, Filter: tenancy.AppFilter{Sort: "updated"}})
+	if len(newest) != 2 || newest[0] != "bravo" {
+		t.Errorf("newest first: %v", newest)
+	}
+	if _, err := f.svc.ListApps(ctx, f.owner, tenancy.Page{Size: 1, Filter: tenancy.AppFilter{Sort: "nope"}}); code(err) != plxerr.InvalidEnumValue {
+		t.Errorf("an unknown sort: %v", err)
+	}
+}
+
+// seedAsset inserts a live asset of an app, as the asset pipeline would.
+func (f *fixture) seedAsset(t *testing.T, appID, assetID string) {
+	t.Helper()
+	err := f.db.InTx(context.Background(), storage.Tenant{OrganizationID: f.org, UserID: f.owner.UserID}, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := dbgen.New(tx).InsertAsset(ctx, dbgen.InsertAssetParams{
+			ID: storage.MustUUID("0190b3a0-0000-7000-8000-000000000001"), AssetID: storage.MustUUID(assetID),
+			OrganizationID: storage.MustUUID(f.org), AppID: storage.MustUUID(appID), File: "images/icon.png",
+			MediaType: "image/png", Sha256: make([]byte, 32), Size: 1, Processing: "ready",
+			UploadedByKind: "user", UploadedByID: f.owner.UserID, UploadedBy: "owner",
+		})
+		return err
+	})
+	if err != nil {
+		t.Fatalf("seed asset: %v", err)
+	}
+}
+
+// Verifies: STU-034, LIM-001.
+// The owning team of an app must belong to the caller's organisation and
+// the icon must be an asset of the same app; a reference that does not
+// resolve fails exactly like a missing one, and the metadata limits come
+// from the registry.
+func TestAppMetadataReferences(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	mine, err := f.svc.CreateTeam(ctx, f.owner, "core", "Core")
+	if err != nil {
+		t.Fatal(err)
+	}
+	other, err := f.svc.CreateOrganization(ctx, f.admin, "other", "Other")
+	if err != nil {
+		t.Fatal(err)
+	}
+	foreign, err := f.svc.CreateTeam(ctx, f.principal(t, f.admin, other.ID), "spies", "Spies")
+	if err != nil {
+		t.Fatal(err)
+	}
+	app, err := f.svc.CreateApp(ctx, f.owner, "alpha", "Alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sibling, err := f.svc.CreateApp(ctx, f.owner, "bravo", "Bravo")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ok := tenancy.Metadata{OwningTeamID: &mine.ID}
+	if got, err := f.svc.UpdateAppMetadata(ctx, f.owner, app.ID, ok); err != nil || got.OwningTeamID != mine.ID {
+		t.Fatalf("own team: %+v %v", got, err)
+	}
+	missing := "0190b3a0-0000-7000-8000-0000000000ff"
+	_, errForeign := f.svc.UpdateAppMetadata(ctx, f.owner, app.ID, tenancy.Metadata{OwningTeamID: &foreign.ID})
+	_, errMissing := f.svc.UpdateAppMetadata(ctx, f.owner, app.ID, tenancy.Metadata{OwningTeamID: &missing})
+	if code(errForeign) != plxerr.ResourceNotFound || code(errMissing) != plxerr.ResourceNotFound || errForeign.Error() != errMissing.Error() {
+		t.Errorf("another organisation's team must read as missing: %v | %v", errForeign, errMissing)
+	}
+	none := ""
+	if got, err := f.svc.UpdateAppMetadata(ctx, f.owner, app.ID, tenancy.Metadata{OwningTeamID: &none}); err != nil || got.OwningTeamID != "" {
+		t.Errorf("clearing the team: %+v %v", got, err)
+	}
+
+	const icon = "0190b3a0-0000-7000-8000-0000000000a1"
+	f.seedAsset(t, app.ID, icon)
+	if got, err := f.svc.UpdateAppMetadata(ctx, f.owner, app.ID, tenancy.Metadata{IconAssetID: &[]string{icon}[0]}); err != nil || got.IconAssetID != icon {
+		t.Fatalf("own asset as icon: %+v %v", got, err)
+	}
+	if _, err := f.svc.UpdateAppMetadata(ctx, f.owner, sibling.ID, tenancy.Metadata{IconAssetID: &[]string{icon}[0]}); code(err) != plxerr.ResourceNotFound {
+		t.Errorf("another app's asset as icon: %v", err)
+	}
+	for _, bad := range []string{missing, "not-a-uuid"} {
+		if _, err := f.svc.UpdateAppMetadata(ctx, f.owner, app.ID, tenancy.Metadata{IconAssetID: &bad}); code(err) != plxerr.ResourceNotFound {
+			t.Errorf("icon %q: %v", bad, err)
+		}
+	}
+	if got, err := f.svc.UpdateAppMetadata(ctx, f.owner, app.ID, tenancy.Metadata{IconAssetID: &none}); err != nil || got.IconAssetID != "" {
+		t.Errorf("clearing the icon: %+v %v", got, err)
+	}
+
+	lim, err := limits.Defaults().Tighten(limits.MetadataTagsPerItem, limits.ScopeInstallation, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tenancy.CheckMetadata(tenancy.Metadata{SetTags: true, Tags: []string{"a", "b"}}, lim); code(err) != plxerr.LimitExceeded {
+		t.Errorf("tags beyond the registry limit: %v", err)
+	}
+}

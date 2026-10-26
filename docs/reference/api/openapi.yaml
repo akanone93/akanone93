@@ -10666,6 +10666,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.AcquireLockResponse'
+  /plux.v1.PluginService/ArchivePlugin:
+    post:
+      tags:
+        - plux.v1.PluginService
+      summary: ArchivePlugin
+      description: ArchivePlugin archives or restores a plugin without deleting it.
+      operationId: plux.v1.PluginService.ArchivePlugin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ArchivePluginRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ArchivePluginResponse'
   /plux.v1.PluginService/CreatePlugin:
     post:
       tags:
@@ -10742,6 +10781,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeletePluginResponse'
+  /plux.v1.PluginService/DuplicatePlugin:
+    post:
+      tags:
+        - plux.v1.PluginService
+      summary: DuplicatePlugin
+      description: |-
+        DuplicatePlugin copies a plugin's draft under a new key, with new
+         document IDs (STU-034).
+      operationId: plux.v1.PluginService.DuplicatePlugin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DuplicatePluginRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DuplicatePluginResponse'
   /plux.v1.PluginService/GetLock:
     post:
       tags:
@@ -10856,6 +10936,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListPluginLimitsResponse'
+  /plux.v1.PluginService/ListPluginSummaries:
+    post:
+      tags:
+        - plux.v1.PluginService
+      summary: ListPluginSummaries
+      description: |-
+        ListPluginSummaries returns one bounded summary per plugin of an app,
+         for the app canvas, in a single call (plan P11 §4.3 #14).
+      operationId: plux.v1.PluginService.ListPluginSummaries
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListPluginSummariesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListPluginSummariesResponse'
   /plux.v1.PluginService/ListPlugins:
     post:
       tags:
@@ -13770,6 +13891,26 @@ components:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: updated_at
+        description:
+          type: string
+          title: description
+        iconAssetId:
+          type: string
+          title: icon_asset_id
+          description: icon_asset_id names an image asset of the app, or is empty.
+        owningTeamId:
+          type: string
+          title: owning_team_id
+          description: owning_team_id is the team that owns the app, or empty.
+        tags:
+          type: array
+          items:
+            type: string
+          title: tags
+        archived:
+          type: boolean
+          title: archived
+          description: archived apps are left out of ListApps unless include_archived is set.
       title: App
       additionalProperties: false
     plux.v1.ApprovalDecision:
@@ -13929,6 +14070,26 @@ components:
             type: string
           title: approved_case_ids
       title: ApproveResponse
+      additionalProperties: false
+    plux.v1.ArchivePluginRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        archived:
+          type: boolean
+          title: archived
+      title: ArchivePluginRequest
+      additionalProperties: false
+    plux.v1.ArchivePluginResponse:
+      type: object
+      properties:
+        plugin:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Plugin'
+          title: plugin
+      title: ArchivePluginResponse
       additionalProperties: false
     plux.v1.Artifact:
       type: object
@@ -18430,6 +18591,35 @@ components:
       description: |-
         DropEvent says how many events were dropped before this point of the
          stream, so a watcher knows the gap is not a fault (DEV-021).
+    plux.v1.DuplicatePluginRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+        session:
+          type: string
+          title: session
+          description: |-
+            session is the caller's editing session, which takes the new plugin's
+             lock while the copy is written and releases it.
+      title: DuplicatePluginRequest
+      additionalProperties: false
+    plux.v1.DuplicatePluginResponse:
+      type: object
+      properties:
+        plugin:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Plugin'
+          title: plugin
+      title: DuplicatePluginResponse
+      additionalProperties: false
     plux.v1.EditorSessionEntry:
       type: object
       properties:
@@ -22591,6 +22781,26 @@ components:
           allOf:
             - $ref: '#/components/schemas/plux.v1.Page'
           title: page
+        query:
+          type: string
+          title: query
+          description: query matches the key, name, description and tags, ignoring case.
+        tags:
+          type: array
+          items:
+            type: string
+          title: tags
+          description: tags keeps the apps that carry every one of them.
+        owningTeamId:
+          type: string
+          title: owning_team_id
+        includeArchived:
+          type: boolean
+          title: include_archived
+        sort:
+          type: string
+          title: sort
+          description: sort is "key" (default), "name" or "updated" (newest first).
       title: ListAppsRequest
       additionalProperties: false
     plux.v1.ListAppsResponse:
@@ -23522,6 +23732,24 @@ components:
             $ref: '#/components/schemas/plux.v1.LimitUsage'
           title: limits
       title: ListPluginLimitsResponse
+      additionalProperties: false
+    plux.v1.ListPluginSummariesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ListPluginSummariesRequest
+      additionalProperties: false
+    plux.v1.ListPluginSummariesResponse:
+      type: object
+      properties:
+        summaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PluginSummary'
+          title: summaries
+      title: ListPluginSummariesResponse
       additionalProperties: false
     plux.v1.ListPluginVersionsRequest:
       type: object
@@ -24599,6 +24827,44 @@ components:
       title: Member
       additionalProperties: false
       description: Member binds a user to an organization or a team with a role.
+    plux.v1.MetadataUpdate:
+      type: object
+      properties:
+        description:
+          type:
+            - string
+            - "null"
+          title: description
+        iconAssetId:
+          type:
+            - string
+            - "null"
+          title: icon_asset_id
+        owningTeamId:
+          type:
+            - string
+            - "null"
+          title: owning_team_id
+        setTags:
+          type: boolean
+          title: set_tags
+        tags:
+          type: array
+          items:
+            type: string
+          title: tags
+        archived:
+          type:
+            - boolean
+            - "null"
+          title: archived
+      title: MetadataUpdate
+      additionalProperties: false
+      description: |-
+        MetadataUpdate changes the descriptive metadata of an app or a plugin
+         (plan P11 §4.3 #13). A field that is absent is left as it is; tags are
+         replaced whole when set_tags is true. An empty owning_team_id clears the
+         owner.
     plux.v1.MetricResult:
       type: object
       properties:
@@ -25202,6 +25468,23 @@ components:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: updated_at
+        description:
+          type: string
+          title: description
+        iconAssetId:
+          type: string
+          title: icon_asset_id
+        owningTeamId:
+          type: string
+          title: owning_team_id
+        tags:
+          type: array
+          items:
+            type: string
+          title: tags
+        archived:
+          type: boolean
+          title: archived
       title: Plugin
       additionalProperties: false
     plux.v1.PluginDescriptor:
@@ -25220,6 +25503,73 @@ components:
           title: bundle
       title: PluginDescriptor
       additionalProperties: false
+    plux.v1.PluginSummary:
+      type: object
+      properties:
+        plugin:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Plugin'
+          title: plugin
+        screens:
+          type: string
+          title: screens
+          format: int64
+        versions:
+          type: string
+          title: versions
+          format: int64
+          description: versions is the number of published versions (the highest is the latest).
+        unpublishedChanges:
+          type: boolean
+          title: unpublished_changes
+          description: |-
+            unpublished_changes is true when the draft changed after the newest
+             published version, or nothing was published yet and the draft has content.
+        lockHolder:
+          type: string
+          title: lock_holder
+          description: lock_holder is the display name of the draft's lock holder, or empty.
+        validationErrors:
+          type: string
+          title: validation_errors
+          format: int64
+        killed:
+          type: boolean
+          title: killed
+          description: killed is true when a channel of the app switches the plugin off.
+        ownerTeamId:
+          type: string
+          title: owner_team_id
+          description: owner_team_id mirrors plugin.owning_team_id.
+        bundleSize:
+          type: string
+          title: bundle_size
+          format: int64
+        linksOut:
+          type: array
+          items:
+            type: string
+          title: links_out
+          description: |-
+            links_out and links_in are the distinct other plugins this plugin
+             navigates to, and that navigate to it, by plugin key.
+        linksIn:
+          type: array
+          items:
+            type: string
+          title: links_in
+        functionsUsed:
+          type: array
+          items:
+            type: string
+          title: functions_used
+        publishedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: published_at
+      title: PluginSummary
+      additionalProperties: false
+      description: PluginSummary is what the app canvas shows of one plugin.
     plux.v1.PluginVersion:
       type: object
       properties:
@@ -28901,6 +29251,10 @@ components:
         defaultPluginKey:
           type: string
           title: default_plugin_key
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.MetadataUpdate'
+          title: metadata
       title: UpdateAppRequest
       additionalProperties: false
     plux.v1.UpdateAppResponse:
@@ -29097,6 +29451,11 @@ components:
         name:
           type: string
           title: name
+          description: name is required unless metadata is set, when an empty name keeps it.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.MetadataUpdate'
+          title: metadata
       title: UpdatePluginRequest
       additionalProperties: false
     plux.v1.UpdatePluginResponse:
