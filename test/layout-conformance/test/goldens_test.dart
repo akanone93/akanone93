@@ -429,6 +429,7 @@ const Set<String> _materialTypes = <String>{
   'Chip', 'FilterChip', 'InputChip', 'ActionChip', 'ChoiceChip', 'Checkbox', 'Switch', 'Radio', 'Divider', 'VerticalDivider',
   'CircleAvatar', 'CircularProgressIndicator', 'LinearProgressIndicator', 'Card', 'Badge', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
   'BackButton', 'CloseButton', 'Slider', 'RangeSlider', 'CheckboxListTile', 'SwitchListTile', 'RadioListTile',
+  'SearchBar', 'BottomAppBar', 'BottomNavigationBar', 'ExpansionTile',
   ...materialCompositeTypes,
 };
 
@@ -800,6 +801,26 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         isThreeLine: props['isThreeLine'] == true,
         visualDensity: _density(props),
       );
+    case 'SearchBar':
+      return SearchBar(
+        key: key,
+        hintText: props['hintText'] as String?,
+        leading: one('leading'),
+        trailing: slots['trailing'] == null ? null : <Widget>[one('trailing')!],
+      );
+    case 'BottomAppBar':
+      return BottomAppBar(key: key, child: one('child'));
+    case 'BottomNavigationBar':
+      return BottomNavigationBar(
+        key: key,
+        type: props['type'] == 'shifting' ? BottomNavigationBarType.shifting : BottomNavigationBarType.fixed,
+        items: <BottomNavigationBarItem>[
+          for (int i = 0; i < (props['items']! as num).toInt(); i++)
+            BottomNavigationBarItem(icon: const Icon(Icons.star), label: 'Item', tooltip: ''),
+        ],
+      );
+    case 'ExpansionTile':
+      return ExpansionTile(key: key, leading: one('leading'), title: one('title')!, subtitle: one('subtitle'));
     case 'BackButton':
       return BackButton(key: key, onPressed: () {});
     case 'CloseButton':
