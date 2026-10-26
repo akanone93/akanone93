@@ -1,0 +1,9 @@
+{
+  "name": "layer2-rating-input",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "RatingInput",
+    "props": { "value": 4, "max": 5 }
+  }
+}

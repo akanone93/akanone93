@@ -1,0 +1,9 @@
+{
+  "name": "layer2-skeleton-loader",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "SkeletonLoader",
+    "props": { "lines": 3, "avatar": true, "shimmer": false }
+  }
+}

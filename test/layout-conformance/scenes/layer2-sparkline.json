@@ -1,0 +1,9 @@
+{
+  "name": "layer2-sparkline",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "Sparkline",
+    "props": { "values": [1, 3, 2, 5, 4], "semanticLabel": "Balance" }
+  }
+}
