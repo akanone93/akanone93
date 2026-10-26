@@ -297,7 +297,7 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
   protected override performLayout(): void {
     const constraints = this.constraints;
     const layout = this.layoutAll(constraints, true);
-    const m = this.m;
+    this.size = constraints.constrain(layout.size);
     const o = this.o;
     const overallWidth = layout.size.width;
     const height = layout.containerHeight;
