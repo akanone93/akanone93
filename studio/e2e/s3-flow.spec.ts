@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import AxeBuilder from "@axe-core/playwright";
-import { fromBinary, toBinary } from "@bufbuild/protobuf";
+import { type DescMethodUnary, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { expect, type Page, test } from "@playwright/test";
 import {
   AppService,
@@ -70,7 +70,7 @@ async function mockUpstream(p: Page) {
     }
     try {
       const input = fromBinary(desc.input, route.request().postDataBuffer() ?? new Uint8Array());
-      const res = await transport.unary(desc, undefined, undefined, undefined, input as never);
+      const res = await transport.unary(desc as DescMethodUnary, undefined, undefined, undefined, input as never);
       return route.fulfill({
         status: 200,
         contentType: "application/proto",

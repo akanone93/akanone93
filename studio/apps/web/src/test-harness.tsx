@@ -7,14 +7,23 @@ import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import { App } from "./app.tsx";
+import type { EditSession } from "./features/editor/edit-session.ts";
+import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
+import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { I18nProvider } from "./i18n-provider.tsx";
 import { createSession } from "./lib/session.ts";
 import { configureZod } from "./lib/zod.ts";
 import { createAppRouter } from "./router.tsx";
+import { createUpstream, type UpstreamData } from "./test-upstream.ts";
 
-import { createUpstream, type Upstream } from "./test-upstream.ts";
+export { createUpstream, orgA, orgB } from "./test-upstream.ts";
 
-export { createUpstream, orgA, orgB, type Upstream } from "./test-upstream.ts";
+export interface Upstream extends UpstreamData {
+  surface?: SurfaceFactory;
+  validator?: ValidatorFactory;
+  /** Receives the plugin canvas's edit pipeline. */
+  editor?: (edit: EditSession) => void;
+}
 
 /** Renders the whole app at `path` against the in-memory upstream. */
 export function renderApp(path: string, state: Upstream = {}) {
