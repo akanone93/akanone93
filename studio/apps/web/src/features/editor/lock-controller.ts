@@ -147,6 +147,11 @@ export class LockController {
   private dismissed = new Set<string>();
   private readonly unlisten: () => void;
 
+  /** This tab's editing session, which a change set names as holder of this lock. */
+  get session(): string {
+    return this.options.session;
+  }
+
   constructor(private readonly options: LockControllerOptions) {
     this.heartbeatMs = options.heartbeatMs ?? LOCK_HEARTBEAT_MS;
     this.now = options.now ?? Date.now;

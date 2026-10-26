@@ -34,6 +34,8 @@ import {
   snap,
   type Viewport,
 } from "./app-canvas.model.ts";
+import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
+import { TrashDialog } from "./trash-dialog.tsx";
 
 /** The routing step supplies the arrow layer here (S3.2); until then nothing is drawn between boxes. */
 export type ArrowLayer = ComponentType<ArrowLayerProps>;
@@ -129,6 +131,8 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
   const [view, setView] = useState<Viewport>({ x: 0, y: 0, z: 1 });
   const [message, setMessage] = useState<string | null>(null);
   const [dialogue, setDialogue] = useState<Dialogue>(null);
+  const [safety, setSafety] = useState<SafetyMode | null>(null);
+  const [trashOpen, setTrashOpen] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
 
   const persist = useCallback(
@@ -283,13 +287,19 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
           disabled={one?.plugin === undefined}
           onClick={() => {
             const p = one?.plugin;
-            if (p !== undefined) {
-              mutation.mutate(() => plugins.archivePlugin({ id: p.id, archived: !p.archived }));
+            if (p?.archived === true) {
+              mutation.mutate(() => plugins.archivePlugin({ id: p.id, archived: false }));
+            } else if (p !== undefined) {
+              setSafety("archive");
             }
           }}
         >
           {one?.plugin?.archived === true ? m.restore : m.archive}
         </Button>
+        <Button disabled={one?.plugin === undefined} onClick={() => setSafety("delete")}>
+          {m.deletePlugin}
+        </Button>
+        <Button onClick={() => setTrashOpen(true)}>{m.trash}</Button>
         <Button disabled={one === undefined} onClick={() => setDialogue({ kind: "entry" })}>
           {m.setEntry}
         </Button>
@@ -369,6 +379,25 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
         </div>
         {detail?.plugin === undefined ? null : <DetailCard summary={detail} messages={m} />}
       </div>
+      {safety !== null && one?.plugin !== undefined && (
+        <PluginSafety
+          appId={appId}
+          plugin={one.plugin}
+          mode={safety}
+          onClose={() => setSafety(null)}
+          onDone={() => {
+            setSafety(null);
+            setMessage(null);
+            setSelected(new Set());
+            void refresh();
+          }}
+          onFailed={(text) => {
+            setSafety(null);
+            setMessage(text);
+          }}
+        />
+      )}
+      {trashOpen && <TrashDialog appId={appId} onClose={() => setTrashOpen(false)} onRestored={() => void refresh()} />}
       <PluginDialogs
         dialogue={dialogue}
         messages={m}

@@ -4,7 +4,7 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AssetService } from "@plux/api";
-import { type ArrowBox, ArrowCanvas, ArrowRouter, deriveBundles, type ItemSpec } from "@plux/canvas";
+import { type ArrowBox, ArrowCanvas, type ArrowPick, ArrowRouter, deriveBundles, type ItemSpec } from "@plux/canvas";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
@@ -58,6 +58,8 @@ export function useGhostLayer(input: GhostLayerInput): {
   readonly placed: readonly PlacedGhost[];
   /** Redraws the arrows for the zoom (level of detail, STU-048). */
   readonly zoomed: (zoom: number) => void;
+  /** The arrow lane under a click, from the hit ids (STU-046). */
+  readonly pick: (hits: readonly string[]) => ArrowPick | undefined;
 } {
   const { appId, pluginId, editorSessionId, canEdit, surface, screens, own, heights, appScreens, nativeRoutes } = input;
   const m = pluginCanvasMessages(useLingui().i18n);
@@ -191,5 +193,6 @@ export function useGhostLayer(input: GhostLayerInput): {
       }
     }
   };
-  return { graph, placed, zoomed };
+  const pick = (hits: readonly string[]) => drawn.current?.arrows.pick(hits);
+  return { graph, placed, zoomed, pick };
 }

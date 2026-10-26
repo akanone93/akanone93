@@ -251,5 +251,135 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "The server did not accept the change.",
       comment: "Shown when a screen action failed.",
     }),
+    screenMenu: i18n._({
+      id: "pluginCanvas.screenMenu",
+      message: "Screen menu",
+      comment: "Accessible name of the button that opens the menu of actions on the current screen.",
+    }),
+    moveScreen: i18n._({
+      id: "pluginCanvas.moveScreen",
+      message: "Move to plugin",
+      comment: "Menu entry and command that move the current screen, with its links, to another plugin (D23).",
+    }),
+    move: i18n._({
+      id: "pluginCanvas.move",
+      message: "Move",
+      comment: "Button that confirms moving a screen to the chosen plugin.",
+    }),
+    moveTarget: i18n._({
+      id: "pluginCanvas.moveTarget",
+      message: "Target plugin",
+      comment: "Label of the choice of the plugin a screen moves to.",
+    }),
+    moveRefused: (reason: string) =>
+      i18n._({
+        id: "pluginCanvas.moveRefused",
+        message: "The screen cannot move: {reason}",
+        values: { reason },
+        comment: "Shown when a move to another plugin is refused; reason is one of the moveReason messages.",
+      }),
+    moveReasonEntry: i18n._({
+      id: "pluginCanvas.moveReasonEntry",
+      message: "it is the entry screen; choose another entry first.",
+      comment: "Reason a screen cannot move: it is its plugin's entry (STU-071).",
+    }),
+    moveReasonKey: i18n._({
+      id: "pluginCanvas.moveReasonKey",
+      message: "the target plugin already has a screen with this key.",
+      comment: "Reason a screen cannot move: the key is taken in the target plugin.",
+    }),
+    moveReasonPrivate: i18n._({
+      id: "pluginCanvas.moveReasonPrivate",
+      message: "it uses a component that is private to this plugin.",
+      comment: "Reason a screen cannot move: it uses a component that is not exported.",
+    }),
+    moveReason: (reason: "entry" | "key-taken" | "private-component" | "unknown" | "same-plugin") => {
+      switch (reason) {
+        case "entry":
+          return i18n._({
+            id: "pluginCanvas.moveReasonEntry",
+            message: "it is the entry screen; choose another entry first.",
+            comment: "Reason a screen cannot move: it is its plugin's entry (STU-071).",
+          });
+        case "key-taken":
+          return i18n._({
+            id: "pluginCanvas.moveReasonKey",
+            message: "the target plugin already has a screen with this key.",
+            comment: "Reason a screen cannot move: the key is taken in the target plugin.",
+          });
+        case "private-component":
+          return i18n._({
+            id: "pluginCanvas.moveReasonPrivate",
+            message: "it uses a component that is private to this plugin.",
+            comment: "Reason a screen cannot move: it uses a component that is not exported.",
+          });
+        default:
+          return i18n._({
+            id: "pluginCanvas.moveReasonOther",
+            message: "the screen or the target is unknown.",
+            comment: "Reason a screen cannot move: the screen or the target plugin could not be found.",
+          });
+      }
+    },
+    changeRefused: i18n._({
+      id: "pluginCanvas.changeRefused",
+      message: "The change was not applied because a document changed meanwhile. Nothing was written.",
+      comment: "Shown when an atomic change across documents is refused by the server; nothing was written.",
+    }),
+    redirectTitle: i18n._({
+      id: "pluginCanvas.redirectTitle",
+      message: "Redirect links",
+      comment: "Title of the dialog that chooses the screen links are redirected to.",
+    }),
+    redirectTarget: i18n._({
+      id: "pluginCanvas.redirectTarget",
+      message: "New target screen",
+      comment: "Label of the choice of the screen links are redirected to.",
+    }),
+    redirect: i18n._({
+      id: "pluginCanvas.redirect",
+      message: "Redirect",
+      comment: "Button that confirms redirecting links to the chosen screen.",
+    }),
+    deleteConfirmAction: i18n._({
+      id: "pluginCanvas.deleteConfirmAction",
+      message: "Delete screen",
+      comment:
+        "Label of the destructive button of the type-to-confirm dialog that deletes a screen of an app with a production release.",
+    }),
+    deleteProductionNote: (name: string) =>
+      i18n._({
+        id: "pluginCanvas.deleteProductionNote",
+        message: "{name} is part of an app with a production release. Deleting it changes the next release.",
+        values: { name },
+        comment: "Explains why deleting a screen needs typing its name (STU-074).",
+      }),
+    laneTitle: (title: string) =>
+      i18n._({
+        id: "pluginCanvas.laneTitle",
+        message: "Link: {title}",
+        values: { title },
+        comment: "Title of the dialog of one navigation link picked on the canvas; title names source and target.",
+      }),
+    laneRedirect: i18n._({
+      id: "pluginCanvas.laneRedirect",
+      message: "Redirect to another screen",
+      comment: "Button that points the picked link at another screen (STU-046).",
+    }),
+    laneRemove: i18n._({
+      id: "pluginCanvas.laneRemove",
+      message: "Remove link",
+      comment: "Button that removes the picked navigation link (STU-046).",
+    }),
+    laneReadOnly: i18n._({
+      id: "pluginCanvas.laneReadOnly",
+      message: "Take the editing lock to change this link.",
+      comment: "Shown in the dialog of a picked link when the plugin cannot be edited.",
+    }),
+    laneUnavailable: i18n._({
+      id: "pluginCanvas.laneUnavailable",
+      message: "This link is not set directly on a widget event, so it cannot be changed here.",
+      comment: "Shown when a picked link cannot be redirected or removed from the canvas.",
+    }),
   };
 }
