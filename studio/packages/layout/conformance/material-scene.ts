@@ -40,6 +40,7 @@ import {
   buildNavigationRail,
   buildRailDestination,
   kRailGroupAlignment,
+  kRailMinExtendedWidth,
   kRailMinWidth,
   type RailLabelType,
 } from "../src/flutter/material/navigation-rail.ts";
@@ -202,6 +203,17 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
   });
 }
 
+/** The icon a destination shows: its `selectedIcon` when selected (else its `icon`), its `icon` otherwise. */
+function shownIcon(destination: SceneNode, selected: boolean): SceneNode {
+  const icon = only(destination, "icon");
+  const selectedIcon = only(destination, "selectedIcon");
+  const shown = selected ? (selectedIcon ?? icon) : (icon ?? selectedIcon);
+  if (shown === null) {
+    throw new Error(`node "${destination.id}": a destination needs an icon`);
+  }
+  return shown;
+}
+
 /** `NavigationBar` with `NavigationDestination` children: an `icon` slot and a `label` prop each. */
 function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBox {
   const p = node.props;
@@ -224,7 +236,7 @@ function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBo
     );
     const shown = behavior === "alwaysShow" || (behavior === "onlyShowSelected" && index === selectedIndex) ? 1 : 0;
     const row = buildDestination(
-      indicatorIcon(ctx.build(required(destination, "icon")), kIndicatorWidth, kIndicatorHeight),
+      indicatorIcon(ctx.build(shownIcon(destination, index === selectedIndex)), kIndicatorWidth, kIndicatorHeight),
       destinationLabel(text),
       shown,
       ctx.direction,
@@ -245,22 +257,27 @@ function buildNavigationRailNode(node: SceneNode, ctx: MaterialContext): RenderB
   const selectedIndex = num(p, "selectedIndex", 0);
   const labelType = (prop(p, "labelType") ?? "none") as RailLabelType;
   const minWidth = num(p, "minWidth", kRailMinWidth);
-  const destinations = (node.children ?? []).map((destination, index) => {
+  const destinations = slot(node, "child").map((destination, index) => {
     if (destination.type !== "NavigationRailDestination") {
       throw new Error(`node "${destination.id}": a NavigationRail holds NavigationRailDestination nodes`);
     }
     const label = prop(destination.props, "label");
     return buildRailDestination({
-      icon: ctx.build(required(destination, "icon")),
+      icon: ctx.build(shownIcon(destination, index === selectedIndex)),
       label: syntheticText(destination, "label", typeof label === "string" ? label : "", ctx, style("labelMedium")),
       selected: index === selectedIndex,
       labelType,
       minWidth,
+      extendedWidth: prop(p, "extended") === true ? num(p, "minExtendedWidth", kRailMinExtendedWidth) : null,
       textDirection: ctx.direction,
     });
   });
+  const leading = only(node, "leading");
+  const trailing = only(node, "trailing");
   return buildNavigationRail({
     destinations,
+    leading: leading === null ? null : ctx.build(leading),
+    trailing: trailing === null ? null : ctx.build(trailing),
     groupAlignment: num(p, "groupAlignment", kRailGroupAlignment),
     textDirection: ctx.direction,
   });

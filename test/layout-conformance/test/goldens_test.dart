@@ -469,9 +469,11 @@ Map<String, List<Widget>> _buildSlots(Map<String, Object?> node, String phase, d
 /// as it needs an `Overlay` that has no effect on layout.
 NavigationDestination _destination(Map<String, Object?> node, String phase, double t) {
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  final Map<String, List<Widget>> slots = _buildSlots(node, phase, t);
   return NavigationDestination(
     key: ValueKey<String>(node['id']! as String),
-    icon: _buildSlots(node, phase, t)['icon']!.single,
+    icon: (slots['icon'] ?? slots['selectedIcon']!).single,
+    selectedIcon: slots['selectedIcon']?.single,
     label: (props['label'] as String?) ?? '',
     tooltip: '',
   );
@@ -495,10 +497,22 @@ Widget _buildNavigationBar(Map<String, Object?> node, Map<String, Object?> props
 }
 
 Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+  final List<Map<String, Object?>> all = <Map<String, Object?>>[
+    for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) raw! as Map<String, Object?>,
+  ];
+  Widget? part(String name) {
+    final Iterable<Map<String, Object?>> found = all.where((Map<String, Object?> c) => c['slot'] == name);
+    return found.isEmpty ? null : _build(found.single, phase, t);
+  }
+
   return NavigationRail(
     key: key,
     selectedIndex: (props['selectedIndex'] as num?)?.toInt() ?? 0,
     minWidth: _optionalNumber(props, 'minWidth'),
+    minExtendedWidth: _optionalNumber(props, 'minExtendedWidth'),
+    extended: props['extended'] == true,
+    leading: part('leading'),
+    trailing: part('trailing'),
     groupAlignment: _optionalNumber(props, 'groupAlignment'),
     labelType: switch (props['labelType']) {
       'selected' => NavigationRailLabelType.selected,
@@ -506,10 +520,11 @@ Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> prop
       _ => NavigationRailLabelType.none,
     },
     destinations: <NavigationRailDestination>[
-      for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+      for (final Map<String, Object?> raw in all.where((Map<String, Object?> c) => c['slot'] == null))
         NavigationRailDestination(
-          icon: _buildSlots(raw! as Map<String, Object?>, phase, t)['icon']!.single,
-          label: Text(((raw as Map<String, Object?>)['props'] as Map<String, Object?>)['label']! as String),
+          icon: (_buildSlots(raw, phase, t)['icon'] ?? _buildSlots(raw, phase, t)['selectedIcon']!).single,
+          selectedIcon: _buildSlots(raw, phase, t)['selectedIcon']?.single,
+          label: Text((raw['props']! as Map<String, Object?>)['label']! as String),
         ),
     ],
   );
