@@ -35,57 +35,71 @@ const months = [
 
 const initial = { year: 2018, month: 4, day: 9, hour: 10, minute: 30 };
 
-/** `datePickerMediumDate`. */
+/** `datePickerMediumDate` of the initial day plus `offset` days. */
 function mediumDate(year: number, month: number, day: number): string {
-  const weekday = (new Date(Date.UTC(year, month - 1, day)).getUTCDay() + 6) % 7;
-  return `${shortWeekdays[weekday]} ${shortMonths[month - 1]} ${String(day).padEnd(2)}`;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  const weekday = (date.getUTCDay() + 6) % 7;
+  return `${shortWeekdays[weekday]} ${shortMonths[date.getUTCMonth()]} ${String(date.getUTCDate()).padEnd(2)}`;
 }
 
 const range = (count: number, from = 0): number[] => Array.from({ length: count }, (_, i) => from + i);
 
-/** The rows of a column from its selected index on; a looping column continues round to the rows before it. */
-function fromSelected<T>(items: readonly T[], selected: number, looping: boolean): T[] {
-  return looping ? [...items.slice(selected), ...items.slice(0, selected)] : items.slice(selected);
-}
+/** `x % n` as Dart computes it: never negative. */
+const wrap = (index: number, count: number): number => ((index % count) + count) % count;
 
 interface Column {
   /** The texts the column's width is measured over. */
   widest: string[];
-  /** The texts of the rows, from the selected one. */
-  rows: string[];
+  /** The selected item (`initialItem` of the column's controller). */
+  selected: number;
+  /** Whether the column builds a row at an item index. */
+  exists: (index: number) => boolean;
+  /** The text of the row at an item index. */
+  text: (index: number) => string;
 }
 
 const pad2 = (value: number): string => String(value).padStart(2, "0");
 
-function hourColumn(use24h: boolean): Column {
-  const texts = range(24).map((hour) => String(use24h ? hour : ((hour + 11) % 12) + 1));
-  return { widest: range(24).map(String), rows: fromSelected(texts, initial.hour, true) };
+/** A `looping: true` column over `texts`. */
+function looping(texts: readonly string[], selected: number, widest: readonly string[] = texts): Column {
+  return {
+    widest: [...widest],
+    selected,
+    exists: () => true,
+    text: (index) => texts[wrap(index, texts.length)] ?? "",
+  };
 }
 
-const minuteColumn = (): Column => ({
-  widest: range(60).map(pad2),
-  rows: fromSelected(range(60).map(pad2), initial.minute, true),
-});
+function hourColumn(use24h: boolean): Column {
+  const texts = range(24).map((hour) => String(use24h ? hour : ((hour + 11) % 12) + 1));
+  return looping(texts, initial.hour, range(24).map(String));
+}
 
-const dayPeriodColumn = (): Column => ({ widest: ["AM", "PM"], rows: ["AM", "PM"] });
+const minuteColumn = (): Column => looping(range(60).map(pad2), initial.minute);
+
+const dayPeriodColumn = (): Column => ({
+  widest: ["AM", "PM"],
+  selected: 0,
+  exists: (index) => index === 0 || index === 1,
+  text: (index) => (index === 0 ? "AM" : "PM"),
+});
 
 const dateColumn = (): Column => ({
   widest: range(12, 1).map((month) => mediumDate(2018, month, 25)),
-  rows: range(10).map((offset) => mediumDate(initial.year, initial.month, initial.day + offset)),
+  selected: 0,
+  exists: () => true,
+  text: (index) => mediumDate(initial.year, initial.month, initial.day + index),
 });
 
-const monthColumn = (): Column => ({ widest: months, rows: fromSelected(months, initial.month - 1, false) });
+const monthColumn = (): Column => looping(months, initial.month - 1);
 
-const dayColumn = (): Column => ({
-  widest: range(31, 1).map(String),
-  rows: range(30, 1)
-    .slice(initial.day - 1)
-    .map(String),
-});
+const dayColumn = (): Column => looping(range(31, 1).map(String), initial.day - 1);
 
 const yearColumn = (): Column => ({
   widest: [String(initial.year)],
-  rows: range(10).map((offset) => String(initial.year + offset)),
+  selected: initial.year,
+  exists: (index) => index >= 1,
+  text: String,
 });
 
 /** The columns in the order Flutter builds the pickers, and in the order of its column widths. */
@@ -124,7 +138,12 @@ export function buildCupertinoDatePicker(node: SceneNode, ctx: CupertinoContext)
   );
   const picker = cupertinoDatePicker({
     kind: mode === "date" ? "date" : "dateTime",
-    pickers: pickers.map((column) => column.rows.map(row)),
+    pickers: pickers.map((column) => ({
+      exists: column.exists,
+      build: (index: number) => row(column.text(index)),
+      selectedItem: column.selected,
+    })),
+    rowId: (column, index) => `${node.id}.c${column}.i${index}`,
     columnWidths: widths.map((column) =>
       Math.max(...column.widest.map((value) => row(value).getMaxIntrinsicWidth(Number.POSITIVE_INFINITY))),
     ),

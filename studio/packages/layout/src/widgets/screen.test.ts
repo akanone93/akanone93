@@ -3,8 +3,13 @@
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { loadCanvasKit, testParagraphEngine } from "../../test-support/canvaskit.ts";
+import { TextDirection } from "../flutter/geometry.ts";
+import { RenderParagraph } from "../flutter/paragraph.ts";
+import type { TextStyle } from "../flutter/text-style.ts";
 import type { CanvasKitParagraphEngine } from "../text/canvaskit-engine.ts";
-import { defaultScreenTheme, layoutScreen, type ScreenTheme, type WidgetNode } from "./screen.ts";
+import { TextAlign } from "../text/paragraph-engine.ts";
+import { cupertinoWidgetBuilders } from "./cupertino.ts";
+import { defaultScreenTheme, layoutScreen, type ScreenTheme, type WidgetContext, type WidgetNode } from "./screen.ts";
 
 let engine: CanvasKitParagraphEngine;
 const theme: ScreenTheme = { ...defaultScreenTheme, fontFamilies: ["NotoSans", "NotoNaskhArabic"] };
@@ -292,6 +297,48 @@ describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
     expect(byId.get("two")?.h).toBeGreaterThan(67.8);
     // Two short actions share one row (45 pt); three stack into 3 x 45 pt and two rules.
     expect(byId.get("three")?.h).toBeGreaterThan(3 * 45 + 2 * 0.3);
+  });
+
+  test("an alert dialog centres its title and content text as CupertinoAlertDialog does", () => {
+    const made: { text: string; paragraph: RenderParagraph }[] = [];
+    const ctx = {
+      engine,
+      theme,
+      build: () => {
+        throw new Error("unexpected child build");
+      },
+      available: () => theme.width,
+      paragraph: (text: string, style?: TextStyle) => {
+        const paragraph = new RenderParagraph({
+          text: { text, ...(style === undefined ? {} : { style }) },
+          textDirection: TextDirection.ltr,
+          engine,
+        });
+        made.push({ text, paragraph });
+        return paragraph;
+      },
+      mark: () => undefined,
+    } as unknown as WidgetContext;
+    const builder = cupertinoWidgetBuilders.get("CupertinoAlertDialog");
+    builder?.(
+      node("dialog", "CupertinoAlertDialog", { props: { data: { title: "Allow?", content: "Location helps." } } }),
+      ctx,
+    );
+    const centred = (text: string): TextAlign | undefined => made.find((m) => m.text === text)?.paragraph.textAlign;
+    expect(centred("Allow?")).toBe(TextAlign.center);
+    expect(centred("Location helps.")).toBe(TextAlign.center);
+    for (const { paragraph } of made) {
+      paragraph.dispose();
+    }
+  });
+
+  test("a picker shows its own items, and a date picker its columns", () => {
+    const layout = layoutScreen(
+      col(node("picker", "CupertinoPicker", { props: { data: { items: ["Red", "Green", "Blue"], selectedItem: 1 } } })),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    expect(byId.get("picker")).toMatchObject({ w: theme.width - 2 * theme.pagePadding, h: 216 });
   });
 
   test("an action sheet spans the screen with its cancel button below the main sheet", () => {

@@ -33,6 +33,7 @@ import {
   kSlidingSegmentFontSize,
   kSlidingSegmentFontWeight,
   kSlidingSegmentHighlightedFontWeight,
+  listRows,
   navBarClampedScale,
   navBarEdge,
   navBarLargeTitleScale,
@@ -333,14 +334,23 @@ function buildGroup4(node: SceneNode, ctx: CupertinoContext): RenderBox | null {
   return box;
 }
 
-/** Picker rows: the node's children, or `Item i` labels in the picker text style (21 pt). */
+/** Picker rows: the node's children, or `Item i` labels (id `<picker>.item<i>`) in the picker text style (21 pt). */
 function buildPicker(node: SceneNode, ctx: CupertinoContext): RenderBox {
   const defaults: Defaults = { fontSize: 21 };
   const rows =
     node.children === undefined || node.children.length === 0
-      ? Array.from({ length: numberProp(node, "itemCount", 3) }, (_, i) => label(ctx, `Item ${i}`, defaults))
+      ? Array.from({ length: numberProp(node, "itemCount", 3) }, (_, i) => {
+          const item = label(ctx, `Item ${i}`, defaults);
+          item.debugId = `${node.id}.item${i}`;
+          return item;
+        })
       : node.children.map((child) => ctx.build(withDefaultText(child, defaults), ctx.text));
-  return cupertinoPicker({ rows, itemExtent: numberProp(node, "itemExtent", 32), textDirection: ctx.textDirection });
+  return cupertinoPicker({
+    rows: listRows(rows),
+    selectedItem: numberProp(node, "selectedItem", 0),
+    itemExtent: numberProp(node, "itemExtent", 32),
+    textDirection: ctx.textDirection,
+  });
 }
 
 /** The ids of a copy of a node's render tree: the second copy of a sliding segment's content is not addressable. */
