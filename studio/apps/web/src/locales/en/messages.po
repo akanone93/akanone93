@@ -49,6 +49,12 @@ msgstr "{count, plural, one {# link} other {# links}}"
 msgid "panels.selectedCount"
 msgstr "{count, plural, one {# node selected} other {# nodes selected}}"
 
+#. Count of problems found in one step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.stepProblems"
+msgstr "{count, plural, one {# problem} other {# problems}}"
+
 #. STU-070, STU-072: heading of the list of uses of, or links into, the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -187,6 +193,12 @@ msgstr "{n, plural, one {# screen} other {# screens}}"
 msgid "appCanvas.versions"
 msgstr "{n, plural, one {# version} other {# versions}}"
 
+#. Accessible name of the plain value field of a step input; name is the input's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.valueNamed"
+msgstr "{name}"
+
 #. A deleted item in the trash list; kind is app, plugin or page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -241,11 +253,29 @@ msgstr "{name}, plugin {key}"
 msgid "pluginCanvas.overflow"
 msgstr "{name}: content beyond the screen"
 
+#. Accessible name of a PXL expression field of a step input; name is the input's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.pxlNamed"
+msgstr "{name}: PXL expression"
+
 #. Shown to the holder when others requested the lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.requests.body"
 msgstr "{names} asked to edit this plugin."
+
+#. Accessible name of the point from which a step's port connects onwards; port is the port's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.outgoing"
+msgstr "{port} connection"
+
+#. Label of the list that chooses the step a port continues with; port is the port's name such as next or onError.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.continuesTo"
+msgstr "{port} goes to"
 
 #. Reading of an upload's progress, such as 2 KB of 10 KB.
 #. js-lingui-explicit-id
@@ -325,11 +355,47 @@ msgstr "Account"
 msgid "profile.account"
 msgstr "Account"
 
+#. Button in the right panel that opens the full-screen action graph editor for the selected widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.open"
+msgstr "Action graph"
+
+#. Accessible name of the area in which the steps are drawn.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.graphLabel"
+msgstr "Action graph"
+
+#. Title of the full-screen overlay in which an event's action graph is edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.title"
+msgstr "Action graph editor"
+
 #. Label of the properties tab that lists and creates the selected widget's navigation links.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.tab"
 msgstr "Actions"
+
+#. Heading of the list of actions that can be added to the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.catalogue"
+msgstr "Actions"
+
+#. Button that adds the action to the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.add"
+msgstr "Add"
+
+#. Accessible name of the button that adds an action to the graph; name is the action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.addNamed"
+msgstr "Add {name} to the graph"
 
 #. Choice that adds the navigation after the steps an event already has.
 #. js-lingui-explicit-id
@@ -373,6 +439,12 @@ msgstr "App canvas"
 msgid "cmd.group.appearance"
 msgstr "Appearance"
 
+#. Status shown after a change to the graph is made.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.applied"
+msgstr "Applied"
+
 #. Confirmation after the edited JSON was applied to the document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -409,6 +481,12 @@ msgstr "Archived"
 msgid "appCanvas.autoLayout"
 msgstr "Arrange"
 
+#. Button that lays the steps out again automatically.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.autoLayout"
+msgstr "Arrange"
+
 #. Body shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -438,6 +516,12 @@ msgstr "Bottom"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.title"
 msgstr "Break-glass justification"
+
+#. Heading of the group of built-in actions in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupBuiltin"
+msgstr "Built-in"
 
 #. Checkbox that marks the widget as a button.
 #. js-lingui-explicit-id
@@ -510,6 +594,12 @@ msgstr "Change trigger"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.loading"
 msgstr "Checking access"
+
+#. Shown while the validator checks the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.checking"
+msgstr "Checking the graph..."
 
 #. Shown in the Problems tab while the validator runs on the plugin that was just opened.
 #. js-lingui-explicit-id
@@ -589,6 +679,12 @@ msgstr "Close"
 msgid "dialog.close"
 msgstr "Close"
 
+#. Accessible name of the button that closes the full-screen action graph editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.close"
+msgstr "Close the action graph editor"
+
 #. Accessible name of the button that closes the full-screen JSON editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -660,6 +756,12 @@ msgstr "Confirm destructive action"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.title"
 msgstr "Confirm it is you"
+
+#. Accessible name of a connection point of a step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.handle"
+msgstr "Connection point"
 
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
@@ -907,6 +1009,12 @@ msgstr "Entry"
 msgid "appCanvas.entryBadge"
 msgstr "Entry"
 
+#. Tag on the first step of a graph, where it starts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.entry"
+msgstr "Entry"
+
 #. Accessible name of the icon of an error in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -917,6 +1025,12 @@ msgstr "Error"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.event"
+msgstr "Event"
+
+#. Label of the list from which the widget event to edit is chosen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.event"
 msgstr "Event"
 
 #. Label of the event type filter.
@@ -967,11 +1081,23 @@ msgstr "Field {name}"
 msgid "pluginCanvas.zoomFit"
 msgstr "Fit"
 
+#. Accessible name of the button that fits the whole graph in view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.fitView"
+msgstr "Fit the graph to the view"
+
 #. Status when the edited JSON has errors, so it cannot be applied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.invalid"
 msgstr "Fix the problems below to apply."
+
+#. Heading of the group of the plugin's reusable action graphs in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupFlow"
+msgstr "Flows"
 
 #. Accessible name of a frame around plugin boxes.
 #. js-lingui-explicit-id
@@ -990,6 +1116,12 @@ msgstr "Frame label"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.newFrame"
 msgstr "Frame selection"
+
+#. Heading of the group of plugin functions in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupFunction"
+msgstr "Functions"
 
 #. D27: type of an affected item, a member of the Dart API that plux codegen writes for host apps.
 #. js-lingui-explicit-id
@@ -1027,6 +1159,12 @@ msgstr "Go to home"
 msgid "cmd.nav.profile"
 msgstr "Go to profile"
 
+#. Accessible name of the group of zoom controls.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.controls"
+msgstr "Graph view controls"
+
 #. Button: release the lock to whoever asked.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -1062,6 +1200,18 @@ msgstr "Hint"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.home"
 msgstr "Home"
+
+#. Heading of the group of custom actions registered by the host app in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupCustom"
+msgstr "Host actions"
+
+#. Accessible name of the point at which connections arrive at a step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.incoming"
+msgstr "Incoming connection"
 
 #. Accessible name of the icon of an information item in the Problems tab.
 #. js-lingui-explicit-id
@@ -1305,11 +1455,23 @@ msgstr "Loading screens"
 msgid "jsonEditor.loadingPublished"
 msgstr "Loading the published version…"
 
+#. Accessible name of the button that locks the view in place.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.lockView"
+msgstr "Lock or unlock moving the view"
+
 #. Badge: who holds the editing lock of the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.lockedBy"
 msgstr "Locked by {who}"
+
+#. Button that makes a step the first step of the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.makeEntry"
+msgstr "Make entry"
 
 #. Button and dialog title: the plugin whose entry page the app opens.
 #. js-lingui-explicit-id
@@ -1364,6 +1526,12 @@ msgstr "Move to plugin"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.moveSelection"
 msgstr "Move to…"
+
+#. Announcement after a step is moved with the keyboard; direction is the direction moved.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.moved"
+msgstr "Moved selected step {direction}. New position, x: {x}, y: {y}"
 
 #. Field label for a plugin's name.
 #. js-lingui-explicit-id
@@ -1443,6 +1611,12 @@ msgstr "New target screen"
 msgid "panels.a11yNone"
 msgstr "No accessibility problems for this widget."
 
+#. Shown when the search matches no action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nothingFound"
+msgstr "No action matches."
+
 #. Shown in the Assets tab when the app has no files.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -1477,6 +1651,12 @@ msgstr "No problems found."
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.noProblems"
+msgstr "No problems found."
+
+#. Shown when the validator finds no problem in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.noProblems"
 msgstr "No problems found."
 
 #. Problem shown for a link whose target screen does not exist; route is the route name.
@@ -1551,6 +1731,12 @@ msgstr "Notifications"
 msgid "notify.inbox.failed"
 msgstr "Notifications could not be loaded."
 
+#. Option of the list of target steps that leaves the port unconnected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nowhere"
+msgstr "Nowhere"
+
 #. Status chip: the browser has no network.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -1617,6 +1803,12 @@ msgstr "Other plugin"
 msgid "panels.overridden"
 msgstr "Overridden for this size class"
 
+#. Accessible name of the small overview map of the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.miniMap"
+msgstr "Overview of the graph"
+
 #. Field label for the team that owns a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1677,6 +1869,24 @@ msgstr "Plux Studio needs WebGL2 to draw the canvas. Use a current version of Ch
 msgid "appCanvas.readOnly"
 msgstr "Positions are read-only while someone else edits the app."
 
+#. Description read by screen readers for each connection in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.edgeHint"
+msgstr "Press Enter or Space to select the connection. Press Delete to remove it."
+
+#. Description read by screen readers for each step in a graph that cannot be edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nodeHintFixed"
+msgstr "Press Enter or Space to select the step."
+
+#. Description read by screen readers for each step in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nodeHint"
+msgstr "Press Enter or Space to select the step. Use the lists in the step to connect it and Delete to remove it."
+
 #. Accessible name of the group in the action bar that shows how many errors and warnings there are.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -1693,6 +1903,12 @@ msgstr "Problems"
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.problems"
+msgstr "Problems"
+
+#. Heading of the list of problems found in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.problems"
 msgstr "Problems"
 
 #. Label of the profile menu button and its first entry.
@@ -1729,6 +1945,12 @@ msgstr "Properties"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.pxl"
+msgstr "PXL expression"
+
+#. Label of the switch that writes a step input as a PXL expression.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.pxl"
 msgstr "PXL expression"
 
 #. D37 button: take the lock again and send the unsaved changes.
@@ -1863,6 +2085,18 @@ msgstr "Remove link"
 msgid "safety.fix.remove-outgoing"
 msgstr "Remove outgoing links"
 
+#. Button that removes a step and the edges that lead to it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.removeStep"
+msgstr "Remove step"
+
+#. Accessible name of the button that removes a step; id is the step's identifier.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.removeNamed"
+msgstr "Remove step {id}"
+
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1891,6 +2125,12 @@ msgstr "Request edit"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsRequired"
+msgstr "required"
+
+#. Tag on a step input that must be given.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.required"
 msgstr "required"
 
 #. Accessible name of the button that removes the override of one property.
@@ -1928,6 +2168,12 @@ msgstr "Result type: {type}"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.resume"
 msgstr "Resume"
+
+#. Shows the type a step's result has on its output port; type is a type expression.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.outputType"
+msgstr "Returns {type}"
 
 #. Edge inset on the right.
 #. js-lingui-explicit-id
@@ -1989,6 +2235,12 @@ msgstr "Screens"
 msgid "pluginCanvas.screens"
 msgstr "Screens in navigation order"
 
+#. Label of the field that filters the list of actions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.search"
+msgstr "Search actions"
+
 #. Label of the search field of the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2006,6 +2258,12 @@ msgstr "Second factor"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.nothing"
 msgstr "Select a widget on the canvas to edit it."
+
+#. Shown in the action graph editor when no widget is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.noSelection"
+msgstr "Select a widget on the canvas to edit the action graph of its events."
 
 #. Shown in the Actions tab when no widget is selected.
 #. js-lingui-explicit-id
@@ -2277,6 +2535,12 @@ msgstr "The lock could not be taken over: the holder edited again, or you may no
 msgid "auth.error.passkey"
 msgstr "The passkey could not be used."
 
+#. Shown when the editing lock is not held.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.readOnly"
+msgstr "The plugin is locked by someone else: the graph is read-only."
+
 #. Shown when fetching the last published version for the comparison failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -2356,6 +2620,12 @@ msgstr "The upload expired or no longer exists. Upload the file again."
 msgid "problems.unavailable"
 msgstr "The validator could not run."
 
+#. Shown when the validator worker cannot check the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.unavailable"
+msgstr "The validator is not available."
+
 #. Status when the validator has not finished loading, so applying is not possible.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -2422,6 +2692,18 @@ msgstr "This change affects code outside Studio"
 msgid "jsonEditor.noPublished"
 msgstr "This document has not been published yet, so there is nothing to compare with."
 
+#. Shown when the event's action graph has no steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.empty"
+msgstr "This event has no steps yet. Add an action from the list."
+
+#. Shown when an event's $graph reference names no action graph document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.unresolved"
+msgstr "This event refers to an action graph that does not exist."
+
 #. Reason a screen cannot be deleted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2481,6 +2763,12 @@ msgstr "This screen has unsaved changes. Wait until they are saved, then try aga
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.noEvents"
 msgstr "This widget has no events a link can start from."
+
+#. Shown in the action graph editor when the selected widget declares no events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.noEvents"
+msgstr "This widget has no events."
 
 #. Shown in the Actions tab when the selected widget navigates nowhere.
 #. js-lingui-explicit-id
@@ -2607,6 +2895,12 @@ msgstr "Valid"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.valid"
 msgstr "Valid. You can apply it."
+
+#. Label of a step input written as a plain value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.literal"
+msgstr "Value"
 
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
@@ -2776,10 +3070,22 @@ msgstr "Zoom {percent}%"
 msgid "pluginCanvas.zoomIn"
 msgstr "Zoom in"
 
+#. Accessible name of the button that zooms the graph in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.zoomIn"
+msgstr "Zoom in"
+
 #. Button that zooms the canvas out.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomOut"
+msgstr "Zoom out"
+
+#. Accessible name of the button that zooms the graph out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.zoomOut"
 msgstr "Zoom out"
 
 #. Button: show every plugin box in the view.
