@@ -415,7 +415,12 @@ function secondary(node: SceneNode, ctx: MaterialContext): RenderBox | null {
 }
 
 /** A `ListTile`'s layout: `leading` and `trailing` already built, the title and subtitle from their slots. */
-function buildTile(node: SceneNode, ctx: MaterialContext, leading: RenderBox | null, trailing: RenderBox | null): RenderBox {
+function buildTile(
+  node: SceneNode,
+  ctx: MaterialContext,
+  leading: RenderBox | null,
+  trailing: RenderBox | null,
+): RenderBox {
   const p = node.props;
   const dense = prop(p, "dense") === true;
   const withSize = (role: TextRole, size: number | null): TextStyle =>

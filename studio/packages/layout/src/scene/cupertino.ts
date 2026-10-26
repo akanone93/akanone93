@@ -12,6 +12,7 @@
 import {
   type CupertinoButtonSize,
   type CupertinoListType,
+  cupertinoActivityIndicator,
   cupertinoButton,
   cupertinoListSection,
   cupertinoListTile,
@@ -19,7 +20,6 @@ import {
   cupertinoPageScaffold,
   cupertinoPicker,
   cupertinoSegmentedControl,
-  cupertinoActivityIndicator,
   cupertinoSlider,
   cupertinoSlidingSegment,
   cupertinoSlidingSegmentedControl,

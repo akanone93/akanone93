@@ -12,12 +12,12 @@
 import { BoxConstraints } from "../flutter/constraints.ts";
 import {
   type CupertinoButtonSize,
+  cupertinoActivityIndicator,
   cupertinoButton,
   cupertinoListTile,
   cupertinoNavigationBar,
   cupertinoPicker,
   cupertinoSegmentedControl,
-  cupertinoActivityIndicator,
   cupertinoSlider,
   cupertinoSwitch,
   cupertinoTabBar,
