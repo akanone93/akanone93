@@ -37,7 +37,7 @@ import {
   Size,
   TextDirection,
 } from "./geometry.ts";
-import { RenderListWheelViewport } from "./list-wheel.ts";
+import { RenderListWheelViewport, type WheelRows } from "./list-wheel.ts";
 import { Affine, type PaintTransformer } from "./matrix.ts";
 import type { RenderObject } from "./object.ts";
 import { RenderConstrainedBox, RenderDecoratedBox } from "./proxy-box.ts";
@@ -838,15 +838,19 @@ export function cupertinoTabScaffold(options: {
  * overlay, so the picker takes all the room it is given.
  */
 export function cupertinoPicker(options: {
-  rows: readonly RenderBox[];
+  rows: WheelRows;
   itemExtent: number;
+  selectedItem?: number;
+  offAxisFraction?: number;
   squeeze?: number;
   diameterRatio?: number;
   textDirection: TextDirection;
 }): RenderBox {
   const wheel = new RenderListWheelViewport({
-    children: options.rows,
+    rows: options.rows,
     itemExtent: options.itemExtent,
+    selectedItem: options.selectedItem ?? 0,
+    offAxisFraction: options.offAxisFraction ?? 0,
     diameterRatio: options.diameterRatio ?? kPickerDiameterRatio,
     squeeze: options.squeeze ?? kPickerSqueeze,
   });

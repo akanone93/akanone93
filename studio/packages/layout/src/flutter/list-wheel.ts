@@ -6,9 +6,9 @@
 // Copyright 2014 The Flutter Authors. All rights reserved. Use of this source code is governed by a BSD-style license (BSD-3-Clause).
 
 /**
- * `RenderListWheelViewport` at scroll offset 0 (the first item centred):
- * which rows exist, how they are laid out and the cylinder transform each is
- * painted under, which the canvas' hit rects follow. Scrolling, clipping,
+ * `RenderListWheelViewport` at rest on its selected item (scroll offset
+ * `selectedItem * itemExtent`): which rows exist, how they are laid out and
+ * the cylinder transform each is painted under, which the canvas' hit rects follow. Scrolling, clipping,
  * opacity and the magnifier do not take part in layout and are not ported.
  */
 
@@ -56,44 +56,69 @@ function toPlane(m: number[][]): Affine {
   return new Affine(at(0, 0), at(1, 0), at(0, 1), at(1, 1), at(0, 3), at(1, 3), at(3, 0), at(3, 1), at(3, 3));
 }
 
+/** The rows a wheel can show: `ListWheelChildDelegate.build` returning null is `exists` returning false. */
+export interface WheelRows {
+  /** `RenderListWheelChildManager.childExistsAt`. */
+  exists(index: number): boolean;
+  /** The row at `index`; called once per index while it stays built. */
+  build(index: number): RenderBox;
+}
+
+/** `ListWheelChildListDelegate`: the rows 0 to n - 1, each used once. */
+export function listRows(rows: readonly RenderBox[]): WheelRows {
+  return { exists: (index) => index >= 0 && index < rows.length, build: (index) => rows[index] as RenderBox };
+}
+
 export class RenderListWheelViewport extends ContainerRenderBox<RenderBox> implements PaintTransformer {
   private readonly _itemExtent: number;
   private readonly _diameterRatio: number;
   private readonly _perspective: number;
   private readonly _squeeze: number;
+  private readonly _offAxisFraction: number;
+  private readonly _pixels: number;
+  private readonly _rows: WheelRows;
   private readonly _built = new Map<RenderObject, number>();
+  private readonly _cache = new Map<number, RenderBox>();
 
   constructor(options: {
-    children: readonly RenderBox[];
+    rows: WheelRows;
     itemExtent: number;
+    selectedItem?: number;
     diameterRatio?: number;
     perspective?: number;
     squeeze?: number;
+    offAxisFraction?: number;
   }) {
     super();
+    this._rows = options.rows;
     this._itemExtent = options.itemExtent;
+    this._pixels = (options.selectedItem ?? 0) * options.itemExtent;
     this._diameterRatio = options.diameterRatio ?? 2;
     this._perspective = options.perspective ?? kListWheelPerspective;
     this._squeeze = options.squeeze ?? 1;
-    this.addAll(options.children);
+    this._offAxisFraction = options.offAxisFraction ?? 0;
   }
 
   protected override computeDryLayout(constraints: BoxConstraints): Size {
     return constraints.biggest;
   }
 
-  /** The indices of the rows Flutter builds: those within the squeezed viewport around the centred first item. */
+  /** The index range Flutter builds: those within the squeezed viewport around the centred item, trimmed to rows that exist. */
   private builtRange(height: number): [number, number] {
     const visibleHeight = height * this._squeeze;
-    const first = this._itemExtent / 2 - visibleHeight / 2;
+    const first = this._pixels + this._itemExtent / 2 - visibleHeight / 2;
     const last = first + visibleHeight;
     let firstIndex = Math.floor(first / this._itemExtent);
     let lastIndex = Math.floor(last / this._itemExtent);
     if (lastIndex * this._itemExtent === last) {
       lastIndex--;
     }
-    firstIndex = Math.max(firstIndex, 0);
-    lastIndex = Math.min(lastIndex, this.childCount - 1);
+    while (!this._rows.exists(firstIndex) && firstIndex <= lastIndex) {
+      firstIndex++;
+    }
+    while (!this._rows.exists(lastIndex) && firstIndex <= lastIndex) {
+      lastIndex--;
+    }
     return [firstIndex, lastIndex];
   }
 
@@ -106,17 +131,21 @@ export class RenderListWheelViewport extends ContainerRenderBox<RenderBox> imple
       maxHeight: this._itemExtent,
       minWidth: 0,
     });
+    this.removeAll();
     this._built.clear();
-    this.getChildrenAsList().forEach((child, index) => {
-      if (index < first || index > last) {
-        return;
+    for (let index = first; index <= last; index++) {
+      let child = this._cache.get(index);
+      if (child === undefined) {
+        child = this._rows.build(index);
+        this._cache.set(index, child);
       }
+      this.add(child);
       child.layout(childConstraints, { parentUsesSize: true });
       if (child.parentData instanceof BoxParentData) {
         child.parentData.offset = new Offset(size.width / 2 - child.size.width / 2, index * this._itemExtent);
       }
       this._built.set(child, index);
-    });
+    }
   }
 
   /** `ListWheelParentData.transform`: the cylinder transform of the row's centre-origin paint. */
@@ -129,14 +158,14 @@ export class RenderListWheelViewport extends ContainerRenderBox<RenderBox> imple
     const maxVisibleRadian = this._diameterRatio < 1 ? Math.PI / 2 : Math.asin(1 / this._diameterRatio);
     const topScrollMargin = -height / 2 + this._itemExtent / 2;
     const layoutOffset = child.parentData.offset;
-    const untransformedY = layoutOffset.dy - topScrollMargin;
+    const untransformedY = layoutOffset.dy - topScrollMargin - this._pixels;
     const fractionalY = (untransformedY + this._itemExtent / 2) / height;
     const angle = (-(fractionalY - 0.5) * 2 * maxVisibleRadian) / this._squeeze;
     if (angle > Math.PI / 2 || angle < -Math.PI / 2 || Number.isNaN(angle)) {
       return Affine.identity;
     }
     const cylinder = toPlane(cylindricalProjection((height * this._diameterRatio) / 2, angle, this._perspective));
-    const cx = width / 2;
+    const cx = (width / 2) * (-this._offAxisFraction * 2 + 1);
     const cy = height / 2;
     return Affine.translation(cx, cy)
       .multiply(cylinder)

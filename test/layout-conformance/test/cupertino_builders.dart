@@ -255,10 +255,14 @@ Widget buildCupertino(
       return CupertinoPicker(
         key: key,
         itemExtent: _num(props['itemExtent']) ?? 32,
+        scrollController: FixedExtentScrollController(initialItem: (props['selectedItem'] as int?) ?? 0),
         onSelectedItemChanged: (int _) {},
         children: children.isNotEmpty
             ? children
-            : <Widget>[for (int i = 0; i < ((props['itemCount'] as int?) ?? 3); i++) Text('Item $i', style: _style(21))],
+            : <Widget>[
+                for (int i = 0; i < ((props['itemCount'] as int?) ?? 3); i++)
+                  Text('Item $i', key: ValueKey<String>('${node['id']}.item$i'), style: _style(21)),
+              ],
       );
     case 'CupertinoTabScaffold':
       final int tabBar = raw.indexWhere((Map<String, Object?> n) => n['type'] == 'CupertinoTabBar');

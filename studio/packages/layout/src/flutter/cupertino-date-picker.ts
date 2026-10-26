@@ -8,18 +8,19 @@
 /**
  * `CupertinoDatePicker` (STU-005, S4.4) in its `time`, `date` and
  * `dateAndTime` modes: the wheel columns (`CupertinoPicker`s with the date
- * picker's squeeze) under `_DatePickerLayoutDelegate`, each column's rows
- * positioned by the mode's item-positioning builder. Which rows exist is the
- * caller's: the wheel is laid out at its first row, so a column's rows start
- * at the selected one (a looping column continues round to the rows before
- * it). Scrolling, the selection overlay, the magnifier and validity styling do
- * not take part in layout and are not ported.
+ * picker's squeeze and off-axis fraction) under `_DatePickerLayoutDelegate`,
+ * each column's rows positioned by the mode's item-positioning builder. A
+ * column is its rows (`WheelRows`, looping or not, bounded or not) and the
+ * selected one; the wheel builds those around it, above as well as below.
+ * Scrolling, the selection overlay, the magnifier and validity styling do not
+ * take part in layout and are not ported.
  */
 
 import { BoxConstraints } from "./constraints.ts";
 import { ContainerRenderBox } from "./container.ts";
 import { cupertinoPicker } from "./cupertino.ts";
 import { Alignment, type AlignmentGeometry, EdgeInsets, Offset, Size, TextDirection } from "./geometry.ts";
+import type { WheelRows } from "./list-wheel.ts";
 import { RenderConstrainedBox } from "./proxy-box.ts";
 import { BoxParentData, type RenderBox } from "./render-box.ts";
 import { RenderPadding, RenderPositionedBox } from "./shifted-box.ts";
@@ -145,29 +146,63 @@ function positionDateRow(
   });
 }
 
+/** `_kMaximumOffAxisFraction` of the `time` and `dateAndTime` modes. */
+export const kDatePickerMaxOffAxisFraction = 0.45;
+
+/** The step of the `date` mode's off-axis fractions: column `i` has `(i - 1) * 0.3`. */
+export const kDatePickerDateOffAxisStep = 0.3;
+
+/** One column of the date picker: its rows as the column's own widgets, before the item-positioning builder, and the selected one. */
+export interface DatePickerColumn {
+  exists(index: number): boolean;
+  build(index: number): RenderBox;
+  selectedItem: number;
+}
+
 /**
- * `CupertinoDatePicker.build`. `pickers` are the columns' rows in the order
+ * `CupertinoDatePicker.build`. `pickers` are the columns in the order
  * Flutter builds the pickers, `columnWidths` the measured widths in the order
  * of the columns (the two differ in a right-to-left time picker, as in
  * Flutter).
  */
 export function cupertinoDatePicker(options: {
   kind: "dateTime" | "date";
-  pickers: readonly (readonly RenderBox[])[];
+  pickers: readonly DatePickerColumn[];
   columnWidths: readonly number[];
   itemExtent: number;
   textDirection: TextDirection;
+  /** The id a row is addressed by (column in build order, item index), for conformance goldens. */
+  rowId?: (column: number, index: number) => string | null;
 }): RenderBox {
   const direction = options.textDirection;
   const count = options.columnWidths.length;
   let total = 4 * kDatePickerPadSize;
-  const columns = options.pickers.map((rows, index) => {
+  const factor = direction === TextDirection.ltr ? 1 : -1;
+  const columns = options.pickers.map((picker, index) => {
     const width = options.columnWidths[index] ?? 0;
     total += width + 2 * kDatePickerPadSize;
     const column = { width, first: index === 0, last: index === count - 1 };
     const position = options.kind === "dateTime" ? positionDateTimeRow : positionDateRow;
+    let offAxisFraction = 0;
+    if (options.kind === "date") {
+      offAxisFraction = (index - 1) * kDatePickerDateOffAxisStep * factor;
+    } else if (index === 0) {
+      offAxisFraction = -kDatePickerMaxOffAxisFraction * factor;
+    } else if (index >= 2 || count === 2) {
+      offAxisFraction = kDatePickerMaxOffAxisFraction * factor;
+    }
+    const rows: WheelRows = {
+      exists: (row) => picker.exists(row),
+      build: (row) => {
+        const positioned = position(picker.build(row), column, direction);
+        positioned.debugId = options.rowId?.(index, row) ?? null;
+        return positioned;
+      },
+    };
     return cupertinoPicker({
-      rows: rows.map((row) => position(row, column, direction)),
+      rows,
+      selectedItem: picker.selectedItem,
+      offAxisFraction,
       itemExtent: options.itemExtent,
       squeeze: kDatePickerSqueeze,
       diameterRatio: 1.07,

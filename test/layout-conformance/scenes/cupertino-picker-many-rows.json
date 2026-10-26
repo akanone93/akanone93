@@ -22,7 +22,8 @@
             "id": "picker",
             "type": "CupertinoPicker",
             "props": {
-              "itemExtent": 40
+              "itemExtent": 40,
+              "selectedItem": 5
             },
             "children": [
               {
