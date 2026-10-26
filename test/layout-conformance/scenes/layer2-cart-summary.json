@@ -1,0 +1,17 @@
+{
+  "name": "layer2-cart-summary",
+  "layer2": true,
+  "root": {
+    "id": "cart",
+    "type": "CartSummary",
+    "props": {
+      "lines": [
+        { "label": "Linen shirt", "amount": { "$expr": "money(\"20\", \"EUR\")" } },
+        { "label": "Wool socks, two pairs in a gift box", "amount": { "$expr": "money(\"5.50\", \"EUR\")" } }
+      ],
+      "subtotal": { "$expr": "money(\"25.50\", \"EUR\")" },
+      "tax": { "$expr": "money(\"4.85\", \"EUR\")" },
+      "total": { "$expr": "money(\"25.50\", \"EUR\")" }
+    }
+  }
+}

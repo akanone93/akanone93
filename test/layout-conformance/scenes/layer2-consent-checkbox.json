@@ -1,0 +1,13 @@
+{
+  "name": "layer2-consent-checkbox",
+  "layer2": true,
+  "root": {
+    "id": "consent",
+    "type": "ConsentCheckbox",
+    "props": {
+      "label": "I agree to the terms of service and the privacy policy of this account",
+      "documentVersion": "2026-01",
+      "linkLabel": "Read the terms"
+    }
+  }
+}
