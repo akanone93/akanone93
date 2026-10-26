@@ -47,6 +47,17 @@ function sfPro(): LocalFontLike {
 }
 
 describe("canvas fonts (STU-006)", () => {
+  test("STU-006: host-bundled fonts rank after the app's own and before Roboto; a missing file raises the notice", async () => {
+    const host = [
+      { family: "HostSerif", url: "/host/serif.ttf" },
+      { family: "HostMono", url: "/host/mono.ttf" },
+    ];
+    const deps = fetching(["/assets/brand.ttf", "/host/serif.ttf", "/fonts/roboto.ttf"]);
+    const loaded = await loadCanvasFonts({ ...request, host, noto: [] }, deps);
+    expect(loaded.families).toEqual(["Brand", "HostSerif", "Roboto"]);
+    expect(loaded.notices).toEqual([{ code: AUTHORITATIVE_NOTICE, reason: "font-unavailable", subject: "HostMono" }]);
+  });
+
   test("STU-006: loads device fonts first, then Roboto and Noto, with no notice", async () => {
     const deps = fetching(["/assets/brand.ttf", "/fonts/roboto.ttf", "/fonts/noto-sans.ttf"]);
     const loaded = await loadCanvasFonts(request, deps);
@@ -95,6 +106,23 @@ describe("canvas fonts (STU-006)", () => {
     expect(complexScriptOf("مرحبا")).toBe("Arabic");
     expect(complexScriptOf("नमस्ते")).toBe("Devanagari");
     expect(complexScriptOf("สวัสดี")).toBe("Thai");
+  });
+
+  test("STU-006: every locale of the matrix is classified: Latin is reproduced, each complex script raises the notice", () => {
+    const samples: readonly (readonly [string, string | null])[] = [
+      ["Account settings", null],
+      ["إعدادات الحساب", "Arabic"],
+      ["הגדרות חשבון", "Hebrew"],
+      ["खाता सेटिंग्स", "Devanagari"],
+      ["অ্যাকাউন্ট সেটিংস", "Bengali"],
+      ["கணக்கு அமைப்புகள்", "Tamil"],
+      ["การตั้งค่าบัญชี", "Thai"],
+      ["ការកំណត់គណនី", "Khmer"],
+      ["အကောင့်ဆက်တင်များ", "Myanmar"],
+    ];
+    for (const [text, script] of samples) {
+      expect(complexScriptOf(text)).toBe(script);
+    }
   });
 
   test("STU-006: the host loads fonts before init and raises the notice as a host event", async () => {
