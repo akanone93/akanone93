@@ -1,0 +1,9 @@
+{
+  "name": "layer2-countdown-timer",
+  "layer2": true,
+  "root": {
+    "id": "timer",
+    "type": "CountdownTimer",
+    "props": { "endsAt": "2000-01-01T00:00:00Z", "format": "dhms" }
+  }
+}

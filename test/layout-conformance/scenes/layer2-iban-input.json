@@ -1,0 +1,5 @@
+{
+  "name": "layer2-iban-input",
+  "layer2": true,
+  "root": { "id": "iban", "type": "IbanInput", "props": { "label": "IBAN", "invalidMessage": "Check the IBAN" } }
+}

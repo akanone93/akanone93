@@ -1,0 +1,5 @@
+{
+  "name": "layer2-country-picker",
+  "layer2": true,
+  "root": { "id": "country", "type": "CountryPicker", "props": { "value": "DE", "searchHint": "Search countries" } }
+}
