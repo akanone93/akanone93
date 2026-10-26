@@ -19,6 +19,7 @@ import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding } from "../flutter/shifted-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { layer2AWidgetBuilders } from "./layer2-a.ts";
+import { layer2BWidgetBuilders } from "./layer2-b.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 
 function text(node: WidgetNode, name: string): string | undefined {
@@ -119,6 +120,7 @@ const accountCard: WidgetBuilder = (node, ctx) => {
 export const layer2WidgetBuilders: ReadonlyArray<readonly [string, WidgetBuilder]> = [
   ["AccountCard", accountCard],
   ...layer2AWidgetBuilders,
+  ...layer2BWidgetBuilders,
 ];
 
 /** The Layer 2 types the layout conformance suite compares. */

@@ -1,0 +1,11 @@
+{
+  "name": "layer2-offline-banner",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "OfflineBanner",
+    "props": {
+      "message": "You are offline"
+    }
+  }
+}

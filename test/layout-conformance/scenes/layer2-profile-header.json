@@ -1,0 +1,12 @@
+{
+  "name": "layer2-profile-header",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "ProfileHeader",
+    "props": {
+      "name": "Ada Lovelace",
+      "subtitle": "Mathematician"
+    }
+  }
+}

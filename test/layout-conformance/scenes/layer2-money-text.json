@@ -1,0 +1,13 @@
+{
+  "name": "layer2-money-text",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "MoneyText",
+    "props": {
+      "value": {
+        "$expr": "money(\"1234.56\", \"EUR\")"
+      }
+    }
+  }
+}

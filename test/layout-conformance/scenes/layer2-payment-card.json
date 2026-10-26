@@ -1,0 +1,15 @@
+{
+  "name": "layer2-payment-card",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "PaymentCard",
+    "props": {
+      "brand": "visa",
+      "maskedNumber": "•••• 4242",
+      "expiry": "12/29",
+      "holder": "Ada Lovelace",
+      "backLabel": "Card details"
+    }
+  }
+}
