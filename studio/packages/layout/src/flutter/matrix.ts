@@ -4,7 +4,9 @@
 /**
  * A 2D affine transform: the part of Flutter's `Matrix4` that box layout
  * uses for paint transforms (`applyPaintTransform`). Maps (x, y) to
- * (a·x + c·y + tx, b·x + d·y + ty).
+ * (a·x + c·y + tx, b·x + d·y + ty), divided by p·x + q·y + w when the
+ * transform has a perspective part (`ListWheelViewport`'s cylinder); p, q and
+ * w default to the affine 0, 0, 1.
  */
 
 import { Offset, Rect } from "./geometry.ts";
@@ -20,6 +22,9 @@ export class Affine {
     readonly d: number,
     readonly tx: number,
     readonly ty: number,
+    readonly p = 0,
+    readonly q = 0,
+    readonly w = 1,
   ) {}
 
   static translation(dx: number, dy: number): Affine {
@@ -40,12 +45,15 @@ export class Affine {
   /** `this × other`: `other` applies first (Matrix4.multiply). */
   multiply(other: Affine): Affine {
     return new Affine(
-      this.a * other.a + this.c * other.b,
-      this.b * other.a + this.d * other.b,
-      this.a * other.c + this.c * other.d,
-      this.b * other.c + this.d * other.d,
-      this.a * other.tx + this.c * other.ty + this.tx,
-      this.b * other.tx + this.d * other.ty + this.ty,
+      this.a * other.a + this.c * other.b + this.tx * other.p,
+      this.b * other.a + this.d * other.b + this.ty * other.p,
+      this.a * other.c + this.c * other.d + this.tx * other.q,
+      this.b * other.c + this.d * other.d + this.ty * other.q,
+      this.a * other.tx + this.c * other.ty + this.tx * other.w,
+      this.b * other.tx + this.d * other.ty + this.ty * other.w,
+      this.p * other.a + this.q * other.b + this.w * other.p,
+      this.p * other.c + this.q * other.d + this.w * other.q,
+      this.p * other.tx + this.q * other.ty + this.w * other.w,
     );
   }
 
@@ -61,7 +69,10 @@ export class Affine {
 
   /** Maps a point. */
   apply(point: Offset): Offset {
-    return new Offset(this.a * point.dx + this.c * point.dy + this.tx, this.b * point.dx + this.d * point.dy + this.ty);
+    const x = this.a * point.dx + this.c * point.dy + this.tx;
+    const y = this.b * point.dx + this.d * point.dy + this.ty;
+    const w = this.p * point.dx + this.q * point.dy + this.w;
+    return w === 1 ? new Offset(x, y) : new Offset(x / w, y / w);
   }
 
   /** The bounding box of `rect` after the transform (`MatrixUtils.transformRect`). */

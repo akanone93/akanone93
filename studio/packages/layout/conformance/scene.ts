@@ -115,7 +115,15 @@ import {
   WrapAlignment,
   WrapCrossAlignment,
 } from "../src/index.ts";
-import { buildCupertino, cupertinoAliasTypes, cupertinoMultiChildTypes, cupertinoTypes } from "./cupertino.ts";
+import {
+  buildCupertino,
+  buildCupertinoSliver,
+  type CupertinoContext,
+  cupertinoAliasTypes,
+  cupertinoMultiChildTypes,
+  cupertinoSliverTypes,
+  cupertinoTypes,
+} from "./cupertino.ts";
 import { buildMaterial, materialTypes, style } from "./material-scene.ts";
 
 /** What text nodes are laid out with: the paragraph engine and the golden's text scale. */
@@ -224,6 +232,7 @@ export const scrollTypes: ReadonlySet<string> = new Set([
 
 /** Slivers: the nodes a viewport lays out. */
 export const sliverTypes: ReadonlySet<string> = new Set([
+  ...cupertinoSliverTypes,
   "SliverToBoxAdapter",
   "SliverList",
   "SliverFixedExtentList",
@@ -913,7 +922,11 @@ function buildSliver(node: SceneNode, textDirection: TextDirection, text: SceneT
       sliver = buildHeader(node, textDirection, text);
       break;
     default:
-      throw unsupported(node);
+      if (!cupertinoSliverTypes.has(node.type)) {
+        throw unsupported(node);
+      }
+      sliver = buildCupertinoSliver(node, cupertinoContext(textDirection, text, 1));
+      break;
   }
   sliver.debugId = node.id;
   return sliver;
@@ -1044,6 +1057,16 @@ function buildScrollable(node: SceneNode, textDirection: TextDirection, text: Sc
   return viewport;
 }
 
+/** What the Cupertino builders borrow from this file. */
+function cupertinoContext(textDirection: TextDirection, text: SceneText | null, t: number): CupertinoContext {
+  return {
+    textDirection,
+    text,
+    build: (child, childText) => buildNode(child, textDirection, childText, t),
+    padding: (value) => padding(value),
+  };
+}
+
 /**
  * Builds the render tree of `node` under `textDirection` (Flutter's ambient
  * `Directionality`). Throws on an unknown type and on a flex type, which
@@ -1059,12 +1082,7 @@ export function buildNode(
     return buildScrollable(node, textDirection, text);
   }
   if (cupertinoTypes.has(node.type)) {
-    return buildCupertino(node, {
-      textDirection,
-      text,
-      build: (child, childText) => buildNode(child, textDirection, childText, t),
-      padding: (value) => padding(value),
-    });
+    return buildCupertino(node, cupertinoContext(textDirection, text, t));
   }
   if (sliverTypes.has(node.type)) {
     throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);

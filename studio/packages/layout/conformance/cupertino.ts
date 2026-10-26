@@ -20,17 +20,27 @@ import {
   cupertinoPicker,
   cupertinoSegmentedControl,
   cupertinoSlider,
+  cupertinoSlidingSegment,
+  cupertinoSlidingSegmentedControl,
+  cupertinoSliverNavigationBar,
   cupertinoSwitch,
   cupertinoTabBar,
   cupertinoTabScaffold,
   cupertinoTextField,
   cupertinoTextTheme,
+  type EdgeInsets,
   type EdgeInsetsGeometry,
+  kNavBarLargeTitleHeightExtension,
+  kSlidingSegmentFontSize,
+  kSlidingSegmentFontWeight,
+  kSlidingSegmentHighlightedFontWeight,
   navBarClampedScale,
   navBarEdge,
   navBarLargeTitleScale,
   navBarPreferredHeight,
   type RenderBox,
+  type RenderObject,
+  type RenderSliver,
   type TextDirection,
   TextScaler,
 } from "../src/index.ts";
@@ -53,6 +63,7 @@ export const cupertinoTypes: ReadonlySet<string> = new Set([
   "CupertinoListSection",
   "CupertinoTextField",
   "CupertinoSegmentedControl",
+  "CupertinoSlidingSegmentedControl",
 ]);
 
 /** Types that take several children. */
@@ -64,7 +75,13 @@ export const cupertinoMultiChildTypes: ReadonlySet<string> = new Set([
   "CupertinoListTile",
   "CupertinoListSection",
   "CupertinoSegmentedControl",
+  "CupertinoPicker",
+  "CupertinoSlidingSegmentedControl",
+  "CupertinoSliverNavigationBar",
 ]);
+
+/** Cupertino widgets that are slivers, built by [buildCupertinoSliver]. */
+export const cupertinoSliverTypes: ReadonlySet<string> = new Set(["CupertinoSliverNavigationBar"]);
 
 /** Types that wrap their child without a render object: their id is their child's rect. */
 export const cupertinoAliasTypes: ReadonlySet<string> = new Set([
@@ -375,6 +392,101 @@ function buildGroup4(node: SceneNode, ctx: CupertinoContext): RenderBox | null {
   return box;
 }
 
+/** Picker rows: the node's children, or `Item i` labels in the picker text style (21 pt). */
+function buildPicker(node: SceneNode, ctx: CupertinoContext): RenderBox {
+  const defaults: Defaults = { fontSize: 21 };
+  const rows =
+    node.children === undefined || node.children.length === 0
+      ? Array.from({ length: numberProp(node, "itemCount", 3) }, (_, i) => label(ctx, `Item ${i}`, defaults))
+      : node.children.map((child) => ctx.build(withDefaultText(child, defaults), ctx.text));
+  return cupertinoPicker({ rows, itemExtent: numberProp(node, "itemExtent", 32), textDirection: ctx.textDirection });
+}
+
+/** The ids of a copy of a node's render tree: the second copy of a sliding segment's content is not addressable. */
+function clearIds(box: RenderObject): void {
+  box.debugId = null;
+  box.visitChildren(clearIds);
+}
+
+function buildSlidingSegmentedControl(node: SceneNode, ctx: CupertinoContext): RenderBox {
+  const grouped = node.props["groupValue"];
+  const highlighted = grouped === undefined ? 0 : typeof grouped === "number" ? grouped : -1;
+  const segments = (node.children ?? []).map((child, index) => {
+    const style = { fontSize: kSlidingSegmentFontSize };
+    const content = ctx.build(
+      withDefaultText(child, {
+        ...style,
+        fontWeight: index === highlighted ? kSlidingSegmentHighlightedFontWeight : kSlidingSegmentFontWeight,
+      }),
+      ctx.text,
+    );
+    const highlightedContent = ctx.build(
+      withDefaultText(child, { ...style, fontWeight: kSlidingSegmentHighlightedFontWeight }),
+      ctx.text,
+    );
+    clearIds(highlightedContent);
+    return cupertinoSlidingSegment({ content, highlightedContent, textDirection: ctx.textDirection });
+  });
+  const padding = node.props["padding"];
+  return cupertinoSlidingSegmentedControl({
+    segments,
+    proportionalWidth: node.props["proportionalWidth"] === true,
+    padding: padding === undefined ? null : (ctx.padding(padding) as EdgeInsets),
+    textDirection: ctx.textDirection,
+  });
+}
+
+/** `CupertinoSliverNavigationBar`: the bar's slots like `CupertinoNavigationBar`; without a middle the large title is the toolbar's title. */
+function buildSliverNavigationBar(node: SceneNode, ctx: CupertinoContext): RenderSliver {
+  const slots = navSlots(node);
+  const largeSlot = slots.get("largeTitle");
+  if (largeSlot === undefined) {
+    throw new Error(`node "${node.id}" of type CupertinoSliverNavigationBar needs a largeTitle slot`);
+  }
+  const side = (name: string, edge: "start" | "end"): RenderBox | null => {
+    const slot = slots.get(name);
+    return slot === undefined
+      ? null
+      : navBarEdge(
+          ctx.build(withDefaultText(slot, cupertinoTextTheme.textStyle), scaled(ctx.text, navBarClampedScale)),
+          edge,
+          ctx.textDirection,
+        );
+  };
+  const middleSlot = slots.get("middle") ?? largeSlot;
+  const middle = ctx.build(
+    withDefaultText(middleSlot, cupertinoTextTheme.navTitleTextStyle),
+    scaled(ctx.text, navBarClampedScale),
+  );
+  if (middleSlot === largeSlot) {
+    clearIds(middle);
+  }
+  const largeTitle = ctx.build(
+    withDefaultText(largeSlot, { ...cupertinoTextTheme.navLargeTitleTextStyle, maxLines: 1, ellipsis: true }),
+    scaled(ctx.text, navBarLargeTitleScale),
+  );
+  const factor = ctx.text === null ? 1 : ctx.text.textScaler.textScaleFactor;
+  const sliver = cupertinoSliverNavigationBar({
+    leading: side("leading", "start"),
+    middle,
+    trailing: side("trailing", "end"),
+    largeTitle,
+    largeTitleHeight: kNavBarLargeTitleHeightExtension * navBarLargeTitleScale(factor),
+    safeTop: numberProp(node, "safeTop", 0),
+    textDirection: ctx.textDirection,
+  });
+  sliver.debugId = node.id;
+  return sliver;
+}
+
+/** A Cupertino sliver node: the render object its widget creates. */
+export function buildCupertinoSliver(node: SceneNode, ctx: CupertinoContext): RenderSliver {
+  if (node.type === "CupertinoSliverNavigationBar") {
+    return buildSliverNavigationBar(node, ctx);
+  }
+  throw new Error(`node "${node.id}": ${node.type} is not a Cupertino sliver`);
+}
+
 function buildGroup5(node: SceneNode, ctx: CupertinoContext): RenderBox | null {
   let box: RenderBox;
   switch (node.type) {
@@ -382,7 +494,10 @@ function buildGroup5(node: SceneNode, ctx: CupertinoContext): RenderBox | null {
       box = buildNavigationBar(node, ctx);
       break;
     case "CupertinoPicker":
-      box = cupertinoPicker(ctx.textDirection);
+      box = buildPicker(node, ctx);
+      break;
+    case "CupertinoSlidingSegmentedControl":
+      box = buildSlidingSegmentedControl(node, ctx);
       break;
     default:
       return null;

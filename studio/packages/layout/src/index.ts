@@ -22,6 +22,8 @@ export { ChildList, type ChildListHost, type ContainerParentData } from "./flutt
 export { BoxConstraints, type Constraints } from "./flutter/constraints.ts";
 export { ContainerBoxParentData, ContainerRenderBox } from "./flutter/container.ts";
 export * from "./flutter/cupertino.ts";
+export * from "./flutter/cupertino-sliding.ts";
+export * from "./flutter/cupertino-sliver-nav.ts";
 export {
   Axis,
   CrossAxisAlignment,
@@ -49,6 +51,7 @@ export {
   Size,
   TextDirection,
 } from "./flutter/geometry.ts";
+export * from "./flutter/list-wheel.ts";
 export { Affine, isPaintTransformer, type PaintTransformer } from "./flutter/matrix.ts";
 export { ParentData, PipelineOwner, RenderObject } from "./flutter/object.ts";
 export { RenderParagraph, type RenderParagraphOptions, TextOverflow } from "./flutter/paragraph.ts";

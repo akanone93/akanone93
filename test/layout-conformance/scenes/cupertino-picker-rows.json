@@ -1,0 +1,83 @@
+{
+  "name": "cupertino-picker-rows",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "sized",
+        "type": "SizedBox",
+        "props": {
+          "height": 216
+        },
+        "children": [
+          {
+            "id": "picker",
+            "type": "CupertinoPicker",
+            "props": {
+              "itemExtent": 32
+            },
+            "children": [
+              {
+                "id": "r0",
+                "type": "Text",
+                "props": {
+                  "text": "Row 0",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "r1",
+                "type": "Text",
+                "props": {
+                  "text": "Row 1",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "r2",
+                "type": "Text",
+                "props": {
+                  "text": "Row 2",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "r3",
+                "type": "Text",
+                "props": {
+                  "text": "Row 3",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "r4",
+                "type": "Text",
+                "props": {
+                  "text": "Row 4",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
