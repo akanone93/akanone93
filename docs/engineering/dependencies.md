@@ -199,7 +199,7 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `canvaskit-wasm` 0.42.0 | TypeScript types for CanvasKit in `@plux/layout` (types only; the runtime is Flutter's own CanvasKit build at the pinned engine revision, STU-006) | In use (P11 S1.1, dev; BSD-3-Clause) |
 | `@playwright/test` 1.63.0 | End-to-end tests of the built web app (dev only) | In use (P11 S0.1; Apache-2.0) |
 | `@axe-core/playwright` 4.14.0, `axe-core` 4.14.0 | Accessibility checks, WCAG 2.1 AA, in the end-to-end tests (dev only; never shipped) | In use (P11 S0.1; MPL-2.0) |
-| `impeccable` 4.7.0 | Design-gate detector, report-only until S3 (O-4) (dev only) | In use (P11 S0.1; Apache-2.0) |
+| `impeccable` 4.7.0 | Design-gate detector, gating from S3 (O-4) (dev only) | In use (P11 S0.1; Apache-2.0) |
 | `hono` 4.13.13 | The BFF in `studio/apps/bff`; server only, not in the web bundle | In use (P11 S0.1; MIT) |
 
 Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Base UI, Tailwind CSS, Monaco, Connect-ES.
