@@ -297,7 +297,6 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
   protected override performLayout(): void {
     const constraints = this.constraints;
     const layout = this.layoutAll(constraints, true);
-    this.size = constraints.constrain(layout.size);
     const m = this.m;
     const o = this.o;
     const overallWidth = layout.size.width;
@@ -318,78 +317,109 @@ class RenderDecoration extends ContainerRenderBox<RenderBox> {
     const subtextBaseline = (layout.subtext?.ascent ?? 0) + layout.containerHeight;
     const helperBaseline = this.helperError.getDistanceToBaseline(TextBaseline.alphabetic) ?? 0;
     const counterBaseline = o.counter?.getDistanceToBaseline(TextBaseline.alphabetic) ?? 0;
-    let start: number;
-    let end: number;
+    const place: Placement = {
+      layout,
+      overallWidth,
+      iconWidth,
+      subtextBaseline,
+      helperBaseline,
+      counterBaseline,
+      centerLayout,
+      baselineLayout,
+    };
     if (rtl) {
-      start = overallWidth - m.start - iconWidth;
-      end = m.end;
-      setChildOffset(
-        this.helperError,
-        new Offset(start - this.helperError.size.width - m.inputGap, subtextBaseline - helperBaseline),
-      );
-      if (o.counter) {
-        setChildOffset(o.counter, new Offset(end + m.inputGap, subtextBaseline - counterBaseline));
-      }
-      if (o.prefixIcon !== null) {
-        start += m.start;
-        start -= centerLayout(o.prefixIcon, start - o.prefixIcon.size.width);
-        start -= prefixToInputGap;
-      } else {
-        start -= m.inputGap;
-      }
-      if (o.prefix) {
-        start -= baselineLayout(o.prefix, start - o.prefix.size.width);
-      }
-      baselineLayout(o.input, start - o.input.size.width);
-      if (o.hint) {
-        baselineLayout(o.hint, start - o.hint.size.width);
-      }
-      if (o.suffixIcon !== null) {
-        end -= m.end;
-        end += centerLayout(o.suffixIcon, end);
-        end += inputToSuffixGap;
-      } else {
-        end += m.inputGap;
-      }
-      if (o.suffix) {
-        baselineLayout(o.suffix, end);
-      }
+      this.placeRtl(place);
     } else {
-      start = m.start + iconWidth;
-      end = overallWidth - m.end;
-      setChildOffset(this.helperError, new Offset(start + m.inputGap, subtextBaseline - helperBaseline));
-      if (o.counter) {
-        setChildOffset(
-          o.counter,
-          new Offset(end - o.counter.size.width - m.inputGap, subtextBaseline - counterBaseline),
-        );
-      }
-      if (o.prefixIcon !== null) {
-        start -= m.start;
-        start += centerLayout(o.prefixIcon, start);
-        start += prefixToInputGap;
-      } else {
-        start += m.inputGap;
-      }
-      if (o.prefix) {
-        start += baselineLayout(o.prefix, start);
-      }
-      baselineLayout(o.input, start);
-      if (o.hint) {
-        baselineLayout(o.hint, start);
-      }
-      if (o.suffixIcon !== null) {
-        end += m.end;
-        end -= centerLayout(o.suffixIcon, end - o.suffixIcon.size.width);
-        end -= inputToSuffixGap;
-      } else {
-        end -= m.inputGap;
-      }
-      if (o.suffix) {
-        baselineLayout(o.suffix, end - o.suffix.size.width);
-      }
+      this.placeLtr(place);
     }
   }
+
+  private placeRtl(p: Placement): void {
+    const { m, o } = { m: this.m, o: this.o };
+    const { overallWidth, iconWidth, subtextBaseline, helperBaseline, counterBaseline, centerLayout, baselineLayout } =
+      p;
+    let start = overallWidth - m.start - iconWidth;
+    let end = m.end;
+    setChildOffset(
+      this.helperError,
+      new Offset(start - this.helperError.size.width - m.inputGap, subtextBaseline - helperBaseline),
+    );
+    if (o.counter) {
+      setChildOffset(o.counter, new Offset(end + m.inputGap, subtextBaseline - counterBaseline));
+    }
+    if (o.prefixIcon !== null) {
+      start += m.start;
+      start -= centerLayout(o.prefixIcon, start - o.prefixIcon.size.width);
+      start -= prefixToInputGap;
+    } else {
+      start -= m.inputGap;
+    }
+    if (o.prefix) {
+      start -= baselineLayout(o.prefix, start - o.prefix.size.width);
+    }
+    baselineLayout(o.input, start - o.input.size.width);
+    if (o.hint) {
+      baselineLayout(o.hint, start - o.hint.size.width);
+    }
+    if (o.suffixIcon !== null) {
+      end -= m.end;
+      end += centerLayout(o.suffixIcon, end);
+      end += inputToSuffixGap;
+    } else {
+      end += m.inputGap;
+    }
+    if (o.suffix) {
+      baselineLayout(o.suffix, end);
+    }
+  }
+
+  private placeLtr(p: Placement): void {
+    const { m, o } = { m: this.m, o: this.o };
+    const { overallWidth, iconWidth, subtextBaseline, helperBaseline, counterBaseline, centerLayout, baselineLayout } =
+      p;
+    let start = m.start + iconWidth;
+    let end = overallWidth - m.end;
+    setChildOffset(this.helperError, new Offset(start + m.inputGap, subtextBaseline - helperBaseline));
+    if (o.counter) {
+      setChildOffset(o.counter, new Offset(end - o.counter.size.width - m.inputGap, subtextBaseline - counterBaseline));
+    }
+    if (o.prefixIcon !== null) {
+      start -= m.start;
+      start += centerLayout(o.prefixIcon, start);
+      start += prefixToInputGap;
+    } else {
+      start += m.inputGap;
+    }
+    if (o.prefix) {
+      start += baselineLayout(o.prefix, start);
+    }
+    baselineLayout(o.input, start);
+    if (o.hint) {
+      baselineLayout(o.hint, start);
+    }
+    if (o.suffixIcon !== null) {
+      end += m.end;
+      end -= centerLayout(o.suffixIcon, end - o.suffixIcon.size.width);
+      end -= inputToSuffixGap;
+    } else {
+      end -= m.inputGap;
+    }
+    if (o.suffix) {
+      baselineLayout(o.suffix, end - o.suffix.size.width);
+    }
+  }
+}
+
+/** What `performLayout` hands to the direction-specific placement. */
+interface Placement {
+  layout: { baseline: number; containerHeight: number; subtext: Subtext | null };
+  overallWidth: number;
+  iconWidth: number;
+  subtextBaseline: number;
+  helperBaseline: number;
+  counterBaseline: number;
+  centerLayout: (box: RenderBox, x: number) => number;
+  baselineLayout: (box: RenderBox, x: number) => number;
 }
 
 /** The editable line of a `TextField`: tight to the width given, one `lineBox` high, with the line's baseline. */
