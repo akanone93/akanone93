@@ -55,7 +55,7 @@ labels) comes in through props from the message catalogue.
 
 ## Dialog, AlertDialog
 
-- **Purpose:** modal task (`Dialog`, sizes `sm`, `md`, `lg`) and destructive confirmation (`AlertDialog`).
+- **Purpose:** modal task (`Dialog`, sizes `sm`, `md`, `lg`; `full` is the full-screen overlay of the heavy editors, STU-063) and destructive confirmation (`AlertDialog`).
 - **Props:** `title`, `description?`, `labels { close }` / `labels { cancel, confirm }`, `trigger?`, Base UI root props
   (`open`, `defaultOpen`, `onOpenChange`), `onConfirm` for the alert dialog.
 - **States:** closed, open, long title; alert dialog is not dismissed by an outside press.

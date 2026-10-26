@@ -348,6 +348,8 @@ export const surfaceScalars: readonly ThemedScalar[] = [
 
 /** U6 spacing scale in px, keyed by the Tailwind suffix (`p-0.5`, `p-4`). */
 export const space: Readonly<Record<string, string>> = {
+  // Zero, so `inset-0`, `top-0` and `gap-0` exist: the theme replaces Tailwind's spacing scale.
+  "0": "0px",
   "0.5": "2px",
   "1": "4px",
   "2": "8px",

@@ -12,6 +12,8 @@ import { tabEditorSession } from "../editor/document-transport.ts";
 import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { UndoManager } from "../editor/undo-stack.ts";
+import { JsonEditorHost } from "../json-editor/index.ts";
+import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
@@ -322,6 +324,7 @@ function PluginCanvasView({
       }),
     [index, screens, edit, screenOf, canEdit],
   );
+  const overlays = useOverlayHost({ surface: () => surfaceRef.current, canvas: () => canvasRef.current });
   const searchRef = useRef(search);
   searchRef.current = search;
 
@@ -626,6 +629,15 @@ function PluginCanvasView({
         appDocuments={appDocs.data}
         validatePage={checked?.validatePage}
         language={checked?.language}
+        onOpenJson={() => overlays.show("json")}
+      />
+      <JsonEditorHost
+        open={overlays.open === "json"}
+        onClose={overlays.hide}
+        documents={docs.data}
+        screenOf={screenOf}
+        pathOf={pathOf}
+        validation={validation}
       />
       {docs.data !== undefined && (
         <ScreensController

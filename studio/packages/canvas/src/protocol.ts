@@ -298,6 +298,8 @@ export type HostMessage =
       readonly removed: readonly string[];
       readonly style: ScreenStyle;
     }
+  /** Pauses (`true`) or resumes (`false`) all drawing; the scene and view keep their state (STU-063). */
+  | { readonly v: number; readonly type: "pause"; readonly paused: boolean }
   | { readonly v: number; readonly type: "dispose" };
 
 /** Worker → main thread. */
@@ -338,6 +340,7 @@ const hostTypes: ReadonlySet<string> = new Set([
   "thumbnail",
   "screens",
   "screensUpdate",
+  "pause",
   "dispose",
 ]);
 const workerTypes: ReadonlySet<string> = new Set([

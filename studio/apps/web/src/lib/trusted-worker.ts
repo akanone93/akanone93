@@ -5,7 +5,8 @@
  * The one Trusted Types policy of Studio (`plux-worker`, allowed by the BFF's
  * CSP). Studio requires Trusted Types for scripts, so a worker can only start
  * from a `TrustedScriptURL`; each use of this policy approves exactly one of
- * Studio's own workers — the canvas or the validator — at its hashed build
+ * Studio's own workers — the canvas, the validator, the lock heartbeat or one
+ * of the two Monaco workers (S5.1) — at its hashed build
  * asset on this origin, and refuses every other address.
  */
 export const WORKER_POLICY = "plux-worker";
@@ -69,6 +70,30 @@ export function isValidatorWorkerURL(url: string, origin: string, dev: boolean):
   return dev ? u.pathname.endsWith("/validator-worker.ts") : BUILT_VALIDATOR_WORKER.test(u.pathname) && u.search === "";
 }
 
+/** The Monaco workers of the JSON editor (S5.1): the editor worker and the JSON language worker. */
+export type MonacoWorker = "editor" | "json";
+
+const BUILT_MONACO_WORKER: Readonly<Record<MonacoWorker, RegExp>> = {
+  editor: /^\/assets\/monaco-editor-worker-[A-Za-z0-9_-]+\.js$/,
+  json: /^\/assets\/monaco-json-worker-[A-Za-z0-9_-]+\.js$/,
+};
+
+/** Whether `url` is that Monaco worker's address; `dev` also admits the dev server's module path. */
+export function isMonacoWorkerURL(which: MonacoWorker, url: string, origin: string, dev: boolean): boolean {
+  let u: URL;
+  try {
+    u = new URL(url, origin);
+  } catch {
+    return false;
+  }
+  if (u.origin !== origin || u.username !== "" || u.password !== "" || u.hash !== "") {
+    return false;
+  }
+  return dev
+    ? u.pathname.endsWith(`/monaco-${which}-worker.ts`)
+    : BUILT_MONACO_WORKER[which].test(u.pathname) && u.search === "";
+}
+
 type Scope = { readonly location: { readonly origin: string }; readonly trustedTypes?: TrustedTypesLike };
 
 /** Approves `url` with the one policy where Trusted Types exist; throws when `accept` refuses it. */
@@ -105,4 +130,9 @@ export function validatorWorkerScriptURL(url: string, scope: Scope, dev: boolean
 /** The lock heartbeat worker's address, through the same policy as the canvas worker. */
 export function lockWorkerScriptURL(url: string, scope: Scope, dev: boolean): string | URL {
   return workerScriptURL(url, scope, (u, origin) => isLockWorkerURL(u, origin, dev));
+}
+
+/** A Monaco worker's address, through the same policy as the canvas worker. */
+export function monacoWorkerScriptURL(which: MonacoWorker, url: string, scope: Scope, dev: boolean): string | URL {
+  return workerScriptURL(url, scope, (u, origin) => isMonacoWorkerURL(which, u, origin, dev));
 }

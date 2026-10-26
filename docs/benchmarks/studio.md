@@ -319,3 +319,27 @@ changes did it:
 
 The other canvas targets still hold in these runs: pan p95 16.7 ms in both scenes, longest pan gap at most
 50.0 ms, drag p95 10.3–18.1 ms (median 11.8 ms), visible settle at most 58.8 ms.
+
+## Full-screen overlay open (STU-123)
+
+Requirement: STU-123 — opening a full-screen overlay takes at most 150 ms after its code is loaded.
+
+- Harness: `make studio-bench-overlay` (`studio/apps/web/bench/`). Headless Chromium with SwiftShader (no GPU), as for
+  the canvas. The page holds 400 paragraphs standing in for the canvas; an overlay is a full-viewport container in which
+  Monaco's JSON editor is created on a document of 2 726 lines, with the same options as the JSON editor. The time is
+  measured from the call that opens the overlay to the second animation frame after the editor exists, the first frame
+  that shows the text. Monaco's code is loaded and warmed by two opens before the 21 measured runs, because the
+  requirement counts from the moment the code is loaded. The page runs three times; the median of each number is printed
+  and the run fails when p95 exceeds 150 ms.
+- Not measured here: loading Monaco's chunk itself (it is lazy; the initial JavaScript is held by `make studio-size`,
+  STU-122), and the canvas worker's pause, which is a message and no work.
+
+### Result (median of 3 runs, software rendering, SwiftShader; 21 opens per run after 2 warm-up opens)
+
+| p50 | p95 | max | budget |
+|---|---|---|---|
+| 33.0 ms | 54.2 ms | 143.3 ms | 150 ms |
+
+The budget is met: p95 is 54.2 ms and even the slowest open of the median run, 143.3 ms, is inside 150 ms. An earlier
+run on a machine that was building at the same time gave p95 117.4 ms and a maximum of 191.6 ms, so the number is
+sensitive to load; the budget is judged on p95 on an otherwise idle machine.

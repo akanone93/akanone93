@@ -21,6 +21,8 @@ export function contentSecurityPolicy(nonce: string): string {
     "default-src 'none'",
     `script-src 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'`,
     `style-src 'self' 'nonce-${nonce}'`,
+    // Monaco sets inline `style` attributes; style elements and sheets stay nonce-only (ADR-0014 Revision 2026-10-26).
+    "style-src-attr 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self'",
     "connect-src 'self'",

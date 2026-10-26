@@ -7,6 +7,7 @@ import { Button, Field, FloatingPanel, Icon, Input, Select, Tabs, TypeTag } from
 import type { Problem } from "@plux/validator";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
+import { jsonEditorMessages } from "../json-editor/json-editor.messages.ts";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
 import { readPlugin } from "../plugin-canvas/plugin-model.ts";
@@ -424,6 +425,8 @@ interface DockProps {
   readonly validatePage?: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   /** The PXL language service of the loaded project (PXL-007); the inline PXL fields use it. */
   readonly language?: PxlLanguage | undefined;
+  /** Opens the full-screen JSON editor (STU-064); the button shows only when given. */
+  readonly onOpenJson?: (() => void) | undefined;
 }
 
 /** The selection's nodes from the edited documents (the session's), falling back to the server's screens. */
@@ -713,10 +716,17 @@ export function RightDock(props: DockProps) {
   const { i18n } = useLingui();
   const m = panelMessages(i18n);
   const ids = useEditor((st) => st.selection.ids);
+  const jsonLabel = jsonEditorMessages(i18n).open;
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
     ids.length === 0 ? <p className="text-body text-secondary">{m.nothing}</p> : panel(ids);
   return (
     <FloatingPanel label={m.dock} className="absolute end-4 top-16 bottom-16 w-80 overflow-y-auto">
+      {props.onOpenJson !== undefined && (
+        <Button variant="secondary" size="sm" onClick={props.onOpenJson}>
+          <Icon name="pencil-simple" />
+          {jsonLabel}
+        </Button>
+      )}
       <Tabs
         defaultValue="properties"
         tabs={[

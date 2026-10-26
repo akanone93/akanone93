@@ -57,6 +57,7 @@
   --shadow-frame-active: 0 0 0 1px rgba(17,20,42,.05), 0 24px 48px -16px rgba(48,34,150,.20), 0 0 0 7px rgba(91,61,245,.12), 0 0 0 1px #5B3DF5;
   --shadow-primary: 0 6px 16px -6px rgba(91,61,245,.60);
   --shadow-e4: 0 24px 64px rgba(17,20,42,.18), 0 4px 12px rgba(17,20,42,.08);
+  --spacing-0: 0px;
   --spacing-1: 4px;
   --spacing-2: 8px;
   --spacing-3: 12px;
