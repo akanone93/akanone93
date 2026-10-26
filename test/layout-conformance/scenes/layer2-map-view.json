@@ -1,0 +1,15 @@
+{
+  "name": "layer2-map-view",
+  "layer2": true,
+  "root": {
+    "id": "map",
+    "type": "MapView",
+    "props": {
+      "semanticLabel": "Store locations",
+      "center": {
+        "lat": 9.03,
+        "lng": 38.74
+      }
+    }
+  }
+}

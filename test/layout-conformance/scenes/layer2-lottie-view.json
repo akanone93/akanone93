@@ -1,0 +1,13 @@
+{
+  "name": "layer2-lottie-view",
+  "layer2": true,
+  "root": {
+    "id": "lottie",
+    "type": "LottieView",
+    "props": {
+      "url": "https://example.com/a.json",
+      "width": 120,
+      "height": 120
+    }
+  }
+}
