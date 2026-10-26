@@ -30,6 +30,8 @@ import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
+import { sceneWidgetBuilders } from "./scene-widgets.ts";
+import { structuralWidgetBuilders } from "./structural.ts";
 
 /** One widget of a screen document: structured-clone data only. */
 export interface WidgetNode {
@@ -50,6 +52,8 @@ export interface ScreenTheme {
   readonly fontSize: number;
   readonly pagePadding: number;
   readonly appBarHeight: number;
+  /** The height a widget that needs a bounded height (a page view, a drawer) is drawn at. */
+  readonly viewportHeight: number;
   readonly controlHeight: number;
   readonly spacing: number;
 }
@@ -61,6 +65,7 @@ export const defaultScreenTheme: ScreenTheme = {
   fontSize: 16,
   pagePadding: 16,
   appBarHeight: 56,
+  viewportHeight: 640,
   controlHeight: 48,
   spacing: 8,
 };
@@ -385,6 +390,8 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ...materialWidgetBuilders,
   ...layer2WidgetBuilders,
   ...cupertinoWidgetBuilders,
+  ...sceneWidgetBuilders,
+  ...structuralWidgetBuilders,
 ]);
 
 /** Options of [layoutScreen]. */

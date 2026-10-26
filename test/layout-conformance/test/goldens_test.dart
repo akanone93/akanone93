@@ -426,7 +426,8 @@ List<double> _rectOf(WidgetTester tester, String id) {
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
-  'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
+  'Chip', 'FilterChip', 'InputChip', 'ActionChip', 'ChoiceChip', 'Checkbox', 'Switch', 'Radio', 'Divider', 'VerticalDivider',
+  'CircleAvatar', 'CircularProgressIndicator', 'LinearProgressIndicator', 'Card', 'Badge', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
   ...materialCompositeTypes,
 };
 
@@ -652,6 +653,70 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         bottomNavigationBar: one('bottomNavigationBar'),
         bottomSheet: one('bottomSheet'),
       );
+    case 'ActionChip':
+      return ActionChip(
+        key: key,
+        label: one('label')!,
+        avatar: one('avatar'),
+        onPressed: () {},
+        visualDensity: _density(props),
+        materialTapTargetSize: _tapTarget(props),
+      );
+    case 'ChoiceChip':
+      return ChoiceChip(
+        key: key,
+        label: one('label')!,
+        avatar: one('avatar'),
+        selected: props['selected'] == true,
+        onSelected: (bool _) {},
+        visualDensity: _density(props),
+        materialTapTargetSize: _tapTarget(props),
+      );
+    case 'Checkbox':
+      return Checkbox(
+        key: key,
+        value: props['value'] == true,
+        onChanged: (bool? _) {},
+        visualDensity: _density(props),
+        materialTapTargetSize: _tapTarget(props),
+      );
+    case 'Switch':
+      return Switch(
+        key: key,
+        value: props['value'] == true,
+        onChanged: (bool _) {},
+        materialTapTargetSize: _tapTarget(props),
+      );
+    case 'Radio':
+      return RadioGroup<int>(
+        groupValue: props['selected'] == true ? 0 : null,
+        onChanged: (int? _) {},
+        child: Radio<int>(
+          key: key,
+          value: 0,
+          visualDensity: _density(props),
+          materialTapTargetSize: _tapTarget(props),
+        ),
+      );
+    case 'Divider':
+      return Divider(key: key, height: _optionalNumber(props, 'height'), thickness: _optionalNumber(props, 'thickness'));
+    case 'VerticalDivider':
+      return VerticalDivider(key: key, width: _optionalNumber(props, 'width'), thickness: _optionalNumber(props, 'thickness'));
+    case 'CircleAvatar':
+      return CircleAvatar(key: key, radius: _optionalNumber(props, 'radius'), child: one('child'));
+    case 'CircularProgressIndicator':
+      return CircularProgressIndicator(key: key, value: _optionalNumber(props, 'value'));
+    case 'LinearProgressIndicator':
+      return LinearProgressIndicator(key: key, value: _optionalNumber(props, 'value'));
+    case 'Card':
+      return Card(
+        key: key,
+        margin: props['margin'] == null ? null : _padding(props['margin']),
+        child: one('child'),
+      );
+    case 'Badge':
+      final String? label = props['label'] as String?;
+      return Badge(key: key, label: label == null ? null : Text(label), child: one('child'));
     case 'Drawer':
       return Drawer(key: key, width: _optionalNumber(props, 'width'), child: one('child'));
     case 'TextField':

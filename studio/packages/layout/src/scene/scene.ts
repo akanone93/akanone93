@@ -9,7 +9,7 @@
  * object's `debugId`, so [goldenRects] yields what Flutter's goldens hold.
  */
 
-import * as layout from "../src/index.ts";
+import * as layout from "../index.ts";
 import {
   Affine,
   Alignment,
@@ -114,9 +114,9 @@ import {
   type ViewportOffset,
   WrapAlignment,
   WrapCrossAlignment,
-} from "../src/index.ts";
-import { layer2Types, layer2WidgetBuilders } from "../src/widgets/layer2.ts";
-import { defaultScreenTheme, type WidgetContext, type WidgetNode } from "../src/widgets/screen.ts";
+} from "../index.ts";
+import { layer2Types, layer2WidgetBuilders } from "../widgets/layer2.ts";
+import { defaultScreenTheme, type WidgetContext, type WidgetNode } from "../widgets/screen.ts";
 import {
   buildCupertino,
   buildCupertinoSliver,
@@ -140,7 +140,12 @@ export interface SceneText {
   devicePixelRatio?: number;
   /** The frame's size, for widgets that size themselves to the screen. */
   screen?: { width: number; height: number };
+  /** The render objects of [hostType] nodes, by node id: widgets the host built itself. */
+  hosts?: ReadonlyMap<string, RenderBox>;
 }
+
+/** The type of a node standing for a render object its host built (the screen builder's own widgets). */
+export const hostType = "__Host";
 
 /** The `DefaultTextStyle` fields besides the style that a composite sets. */
 export interface TextDefaults {
@@ -320,7 +325,12 @@ function optionalNum(props: Record<string, unknown>, name: string): number | nul
   return name in props ? num(props[name], name) : null;
 }
 
-function padding(value: unknown): EdgeInsetsGeometry {
+/**
+ * Insets as a scene or a document spells them: `[left, top, right, bottom]`, or
+ * an object of `all`, `horizontal`, `vertical` and single sides; `left` or
+ * `right` make it physical, `start`/`end` directional.
+ */
+export function padding(value: unknown): EdgeInsetsGeometry {
   if (Array.isArray(value)) {
     return EdgeInsets.fromLTRB(
       num(value[0], "left"),
@@ -330,15 +340,49 @@ function padding(value: unknown): EdgeInsetsGeometry {
     );
   }
   const sides = value as Record<string, unknown>;
+  const side = (name: string, axis: string): number =>
+    num(field(sides, name) ?? field(sides, axis) ?? field(sides, "all") ?? 0, name);
+  if ("left" in sides || "right" in sides) {
+    return EdgeInsets.fromLTRB(
+      side("left", "horizontal"),
+      side("top", "vertical"),
+      side("right", "horizontal"),
+      side("bottom", "vertical"),
+    );
+  }
   return EdgeInsetsDirectional.fromSTEB(
-    num(field(sides, "start") ?? 0, "start"),
-    num(field(sides, "top") ?? 0, "top"),
-    num(field(sides, "end") ?? 0, "end"),
-    num(field(sides, "bottom") ?? 0, "bottom"),
+    side("start", "horizontal"),
+    side("top", "vertical"),
+    side("end", "horizontal"),
+    side("bottom", "vertical"),
   );
 }
 
-function alignment(value: unknown): AlignmentGeometry {
+/** The named alignments of a document's `Alignment` value, as `[x, y]`. */
+const alignmentPresets: Readonly<Record<string, readonly [number, number]>> = {
+  topLeft: [-1, -1],
+  topCenter: [0, -1],
+  topRight: [1, -1],
+  centerLeft: [-1, 0],
+  center: [0, 0],
+  centerRight: [1, 0],
+  bottomLeft: [-1, 1],
+  bottomCenter: [0, 1],
+  bottomRight: [1, 1],
+};
+
+/** The named directional alignments, as `[start, y]`. */
+const directionalPresets: Readonly<Record<string, readonly [number, number]>> = {
+  topStart: [-1, -1],
+  topEnd: [1, -1],
+  centerStart: [-1, 0],
+  centerEnd: [1, 0],
+  bottomStart: [-1, 1],
+  bottomEnd: [1, 1],
+};
+
+/** An alignment as a scene (`[x, y]`, `{start, y}`) or a document (`{x, y}`, `{start, y}`, a named preset) spells it. */
+export function alignment(value: unknown): AlignmentGeometry {
   if (value === undefined) {
     return Alignment.center;
   }
@@ -346,7 +390,23 @@ function alignment(value: unknown): AlignmentGeometry {
     return new Alignment(num(value[0], "x"), num(value[1], "y"));
   }
   const parts = value as Record<string, unknown>;
-  return new AlignmentDirectional(num(field(parts, "start"), "start"), num(field(parts, "y"), "y"));
+  if ("start" in parts) {
+    return new AlignmentDirectional(num(field(parts, "start"), "start"), num(field(parts, "y") ?? 0, "y"));
+  }
+  if ("x" in parts) {
+    return new Alignment(num(field(parts, "x"), "x"), num(field(parts, "y") ?? 0, "y"));
+  }
+  for (const name of Object.keys(parts)) {
+    const flat = alignmentPresets[name];
+    if (flat !== undefined) {
+      return new Alignment(flat[0], flat[1]);
+    }
+    const directional = directionalPresets[name];
+    if (directional !== undefined) {
+      return new AlignmentDirectional(directional[0], directional[1]);
+    }
+  }
+  return Alignment.center;
 }
 
 function singleChild(node: SceneNode, children: RenderBox[]): RenderBox | null {
@@ -360,7 +420,7 @@ function unsupported(node: SceneNode): Error {
   if (flexTypes.has(node.type)) {
     return new Error(
       `node "${node.id}": ${node.type} needs RenderFlex; ` +
-        (renderFlexAvailable() ? "map the flex types in conformance/scene.ts" : "it is not exported yet"),
+        (renderFlexAvailable() ? "map the flex types in scene/scene.ts" : "it is not exported yet"),
     );
   }
   return new Error(`node "${node.id}": unknown scene node type "${node.type}"`);
@@ -1164,17 +1224,20 @@ function layer2Page(root: SceneNode): SceneNode {
     children: [{ id: "__body", type: "Column", props: { crossAxisAlignment: "start" }, children: [root] }],
   };
 }
-/**
- * Builds the render tree of `node` under `textDirection` (Flutter's ambient
- * `Directionality`). Throws on an unknown type and on a flex type, which
- * needs `RenderFlex`.
- */
-export function buildNode(
+/** The node types other builders own: hosts, Layer 2, scroll views, Cupertino and Material composites; null for the rest. */
+function buildDelegated(
   node: SceneNode,
   textDirection: TextDirection,
-  text: SceneText | null = null,
-  t = 1,
-): RenderBox {
+  text: SceneText | null,
+  t: number,
+): RenderBox | null {
+  if (node.type === hostType) {
+    const host = text?.hosts?.get(node.id);
+    if (host === undefined) {
+      throw new Error(`node "${node.id}": no host built it`);
+    }
+    return host;
+  }
   if (layer2Types.has(node.type)) {
     return buildLayer2(node, textDirection, text);
   }
@@ -1187,8 +1250,23 @@ export function buildNode(
   if (sliverTypes.has(node.type)) {
     throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);
   }
-  if (materialTypes.has(node.type)) {
-    return buildMaterialNode(node, textDirection, text, t);
+  return materialTypes.has(node.type) ? buildMaterialNode(node, textDirection, text, t) : null;
+}
+
+/**
+ * Builds the render tree of `node` under `textDirection` (Flutter's ambient
+ * `Directionality`). Throws on an unknown type and on a flex type, which
+ * needs `RenderFlex`.
+ */
+export function buildNode(
+  node: SceneNode,
+  textDirection: TextDirection,
+  text: SceneText | null = null,
+  t = 1,
+): RenderBox {
+  const delegated = buildDelegated(node, textDirection, text, t);
+  if (delegated !== null) {
+    return delegated;
   }
   const children = childrenOf(node).map((child) => buildNode(child, textDirection, text, t));
   const child = singleChild(node, children);
