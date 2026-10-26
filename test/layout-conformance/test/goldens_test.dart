@@ -8,8 +8,8 @@
 // golden is missing, stale or orphaned.
 
 import 'dart:convert';
-import 'dart:math' as math;
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart' show CupertinoTheme, DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart';
@@ -340,7 +340,7 @@ Widget _buildScroll(String type, Key key, Map<String, Object?> props, List<Widge
             shrinkWrap: shrinkWrap,
             padding: padding is EdgeInsets ? padding : null,
             itemExtent: itemExtent,
-            onReorder: (int oldIndex, int newIndex) {},
+            onReorderItem: (int oldIndex, int newIndex) {},
             children: children,
           ))]),
         ),
@@ -988,7 +988,7 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child!,
       );
     case 'Transform':
-      final Object? scale = props['scale'] ?? 1;
+      final Object scale = props['scale'] ?? 1;
       final List<Object?> translate = (props['translate'] as List<Object?>?) ?? <Object?>[0, 0];
       return Transform(
         key: key,
