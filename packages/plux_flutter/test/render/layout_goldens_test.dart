@@ -14,6 +14,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plux_charts/plux_charts.dart';
+import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
 import '../support/harness.dart';
@@ -187,7 +189,14 @@ void main() {
         tester.platformDispatcher.localeTestValue = Locale(locale);
         final h = await Harness.create();
         await tester.runAsync(() async {
-          await h.startFrom(bundles!['app']!, {'gallery': bundles['gallery']!});
+          await h.startFrom(
+            bundles!['app']!,
+            {'gallery': bundles['gallery']!},
+            widgetPackages: const [
+              PluxComponents(),
+              PluxCharts(),
+            ],
+          );
           await h.loadIconFonts();
         });
         for (final (frame, w, ht, dpr) in _frames) {
