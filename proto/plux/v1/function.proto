@@ -117,6 +117,32 @@ service FunctionAdminService {
   // GetMetrics returns invocation counts, errors by kind, latency
   // percentiles, memory peak and cache hits (FN-032).
   rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {}
+
+  // RunTests builds an uploaded source and runs its stored test cases in the
+  // build sandbox, streaming one event per case and a last event with the
+  // summary (FN-034). It stores nothing and deploys nothing.
+  rpc RunTests(RunTestsRequest) returns (stream RunTestsResponse) {}
+}
+
+message RunTestsRequest {
+  string source_id = 1;
+}
+
+message RunTestsResponse {
+  oneof event {
+    // result is the outcome of one stored test case.
+    FunctionTestResult result = 1;
+    // finished ends the stream.
+    RunTestsFinished finished = 2;
+  }
+}
+
+message RunTestsFinished {
+  uint32 passed = 1;
+  uint32 failed = 2;
+  // diagnostics is the JSON of the build diagnostics when the source did
+  // not build; empty otherwise.
+  bytes diagnostics = 3;
 }
 
 // FunctionVersion is one immutable version of a function (FN-006).

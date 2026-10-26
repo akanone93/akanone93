@@ -146,6 +146,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `governance.justificationLength` | codepoints | 2000 | 80% | 20000 | installation, organization | P9 | GOV-024 | Length of the written justification of a break-glass action. |
 | `governance.reportChanges` | count | 20000 | 80% | 1000000 | installation, organization | P9 | GOV-026 | Production changes one compliance report may list; a longer period is refused and is split into shorter ones. |
 | `http.responseSize` | bytes | 1048576 | 80% | 67108864 | installation | P2 | SEC-104, SEC-105 | Size of a response the server reads when it fetches a URL, such as an identity provider's keys. |
+| `lsp.messageBytes` | bytes | 1048576 | 80% | 8388608 | installation, organization | P11 | FN-033 | Size of one language-server message the Rust editor sends to its sandbox; a document the editor opens must fit. |
 | `lsp.sessionMinutes` | count | 60 | 80% | 480 | installation, organization | P11 | STU-110 | Minutes one language-server sandbox may run before it is stopped. |
 | `lsp.sessionsPerOrganization` | count | 10 | 80% | 1000 | installation, organization | P11 | STU-110 | Language-server sandboxes of the Rust editor running at once in one organisation. |
 | `media.pinnedDownloadSize` | bytes | 209715200 | 80% | 1073741824 | installation, organization, app | P8 | SEC-041 | Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client). |

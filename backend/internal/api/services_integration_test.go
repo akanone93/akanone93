@@ -172,9 +172,10 @@ type world struct {
 	devSession pluxv1connect.DevSessionServiceClient
 	// functions is the function service, and fn the fakes it runs builds
 	// with, as the worker role would.
-	functions     *function.Service
-	functionAdmin pluxv1connect.FunctionAdminServiceClient
-	fn            *functionFakes
+	functions      *function.Service
+	functionAdmin  pluxv1connect.FunctionAdminServiceClient
+	languageServer pluxv1connect.LanguageServerServiceClient
+	fn             *functionFakes
 	// fnrt is the api role's side of server functions: the invoker behind
 	// FunctionService, the host service the runner calls and the fakes
 	// that stand in for the runner, the SCA verifier and the clock.
@@ -558,6 +559,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
 		},
 		func() (string, http.Handler) {
+			return pluxv1connect.NewLanguageServerServiceHandler(h.LanguageServer(), opts)
+		},
+		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewScaServiceHandler(h.ScaService(), opts) },
@@ -606,17 +610,18 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		config:       pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
 		sca:          pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
 
-		functions:     functions,
-		functionAdmin: pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),
-		fn:            fn,
-		fnrt:          fnrt,
-		db:            db,
-		configs:       configs,
-		resolver:      resolver,
-		events:        pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
-		devices:       devices,
-		fakes:         fakes,
-		base:          base,
+		functions:      functions,
+		functionAdmin:  pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),
+		languageServer: pluxv1connect.NewLanguageServerServiceClient(srv.Client(), srv.URL),
+		fn:             fn,
+		fnrt:           fnrt,
+		db:             db,
+		configs:        configs,
+		resolver:       resolver,
+		events:         pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
+		devices:        devices,
+		fakes:          fakes,
+		base:           base,
 
 		deviceAuth: deviceAuth,
 		issuer:     issuer,

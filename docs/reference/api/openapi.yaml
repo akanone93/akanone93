@@ -6584,6 +6584,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.PromoteFunctionResponse'
+  /plux.v1.FunctionAdminService/RunTests: {}
   /plux.v1.FunctionAdminService/SetAlias:
     post:
       tags:
@@ -9274,6 +9275,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.VerifySecondFactorResponse'
+  /plux.v1.LanguageServerService/Open: {}
+  /plux.v1.LanguageServerService/Send:
+    post:
+      tags:
+        - plux.v1.LanguageServerService
+      summary: Send
+      description: |-
+        Send delivers one client message to the session's language server. The
+         sequence starts at 1 and rises by one; a repeat or a gap is refused.
+      operationId: plux.v1.LanguageServerService.Send
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.LanguageServerServiceSendRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.LanguageServerServiceSendResponse'
   /plux.v1.LicenseService/GetLicenseState:
     post:
       tags:
@@ -22738,6 +22781,115 @@ components:
         - KILL_SWITCH_SCOPE_DATA_SOURCE
         - KILL_SWITCH_SCOPE_FUNCTION
       description: KillSwitchScope is what a kill switch disables.
+    plux.v1.LanguageServerClosed:
+      type: object
+      properties:
+        reason:
+          type: string
+          title: reason
+          description: reason is one of "client", "time", "exited" and "failed".
+        detail:
+          type: string
+          title: detail
+      title: LanguageServerClosed
+      additionalProperties: false
+    plux.v1.LanguageServerOpened:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+          description: session_id names the session in Send.
+        rootUri:
+          type: string
+          title: root_uri
+          description: |-
+            root_uri is the workspace root the client addresses documents under,
+             such as file:///workspace/. Every document URI must lie below it.
+        sessionSeconds:
+          type: integer
+          title: session_seconds
+          description: session_seconds is the time left before the session is ended.
+      title: LanguageServerOpened
+      additionalProperties: false
+    plux.v1.LanguageServerServiceOpenRequest:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          title: source_id
+          description: source_id is an uploaded function source (UploadSource).
+      title: LanguageServerServiceOpenRequest
+      additionalProperties: false
+    plux.v1.LanguageServerServiceOpenResponse:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            closed:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.LanguageServerClosed'
+              title: closed
+          title: closed
+        - type: object
+          properties:
+            message:
+              type: string
+              title: message
+              format: byte
+              description: |-
+                message is one JSON-RPC message of the language server, without the
+                 Content-Length framing; the client decodes it as UTF-8 JSON.
+          title: message
+        - type: object
+          properties:
+            opened:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.LanguageServerOpened'
+              title: opened
+          title: opened
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - closed
+              - required:
+                  - message
+              - required:
+                  - opened
+          - not:
+              oneOf:
+                - required:
+                    - closed
+                - required:
+                    - message
+                - required:
+                    - opened
+      title: LanguageServerServiceOpenResponse
+    plux.v1.LanguageServerServiceSendRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        sequence:
+          type: string
+          title: sequence
+          format: int64
+        message:
+          type: string
+          title: message
+          format: byte
+          description: |-
+            message is one JSON-RPC message without framing, at most
+             `lsp.messageBytes` long.
+      title: LanguageServerServiceSendRequest
+      additionalProperties: false
+    plux.v1.LanguageServerServiceSendResponse:
+      type: object
+      title: LanguageServerServiceSendResponse
+      additionalProperties: false
     plux.v1.LifecycleCommand:
       type: object
       properties:
@@ -27753,6 +27905,66 @@ components:
           title: export
       title: RunExportResponse
       additionalProperties: false
+    plux.v1.RunTestsFinished:
+      type: object
+      properties:
+        passed:
+          type: integer
+          title: passed
+        failed:
+          type: integer
+          title: failed
+        diagnostics:
+          type: string
+          title: diagnostics
+          format: byte
+          description: |-
+            diagnostics is the JSON of the build diagnostics when the source did
+             not build; empty otherwise.
+      title: RunTestsFinished
+      additionalProperties: false
+    plux.v1.RunTestsRequest:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          title: source_id
+      title: RunTestsRequest
+      additionalProperties: false
+    plux.v1.RunTestsResponse:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            finished:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.RunTestsFinished'
+              title: finished
+              description: finished ends the stream.
+          title: finished
+        - type: object
+          properties:
+            result:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.FunctionTestResult'
+              title: result
+              description: result is the outcome of one stored test case.
+          title: result
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - finished
+              - required:
+                  - result
+          - not:
+              oneOf:
+                - required:
+                    - finished
+                - required:
+                    - result
+      title: RunTestsResponse
     plux.v1.SamlProviderConfig:
       type: object
       properties:
@@ -30593,6 +30805,15 @@ tags:
        enterprise feature (PLX-8600 without the licence): every production
        change of a period with author, approvers, timestamps, content hashes and
        evidence, as a DSSE envelope signed with the audit key, and as a PDF.
+  - name: plux.v1.LanguageServerService
+    description: |-
+      LanguageServerService carries the Language Server Protocol between the
+       Rust editor of Studio and a rust-analyzer running in the function build
+       sandbox (FN-033, ADR-0099, decision A5.3). Open is a server stream per
+       editor session and Send a unary, sequenced call, because a browser cannot
+       stream requests. Both need the `function.deploy` permission on the app of
+       the source: the sandbox runs on the builder role at the organisation's
+       cost, and the editor works on a source that Build accepts.
   - name: plux.v1.LicenseService
     description: |-
       LicenseService reports the installation's enterprise licence (GOV-030,

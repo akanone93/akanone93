@@ -45,6 +45,9 @@ type Options struct {
 	IDs     IDs
 	// Jobs enqueues builds; the api role sets it.
 	Jobs Enqueuer
+	// Editor runs the language-server sessions and the test runs of the
+	// Rust editor on the builder role (FN-033, FN-034). Nil refuses them.
+	Editor Editor
 	// Builder compiles a source on the builder role. Nil refuses to run a
 	// build, as on the api role.
 	Builder Builder
@@ -97,6 +100,8 @@ type Service struct {
 	// invoker runs schedules and hooks; it is set by UseInvoker once the
 	// invoker, which needs the service itself, has been built.
 	invoker atomic.Pointer[invokerBox]
+	// editors are the live language-server sessions of this process.
+	editors editorRegistry
 }
 
 // invokerBox lets an interface value sit in an atomic pointer.

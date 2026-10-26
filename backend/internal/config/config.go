@@ -91,7 +91,7 @@ type License struct {
 }
 
 // Builder configures the builder role. The role's fields are read only when
-// the process runs it; Address is read by the worker role.
+// the process runs it; Address is read by the worker and api roles.
 type Builder struct {
 	// Listen is the address of the mutual-TLS listener the worker connects
 	// to.
@@ -122,6 +122,15 @@ type Builder struct {
 	// Concurrency is the number of builds the role runs at once; the next is
 	// refused as unavailable.
 	Concurrency int `json:"concurrency"`
+	// LanguageServer is the rust-analyzer executable the role runs for the
+	// Rust editor of Studio (FN-033, ADR-0099), in the same sandbox as builds
+	// with build scripts and procedural macros off. Empty, the default,
+	// leaves the editor without language services.
+	LanguageServer string `json:"languageServer"`
+	// LanguageSessions is how many editor sessions the role runs at once,
+	// beside Concurrency; each is one sandboxed process. Zero, the default,
+	// refuses them.
+	LanguageSessions int `json:"languageSessions"`
 	// WorkDir is the parent of the scratch directories of builds; empty
 	// means the system's temporary directory.
 	WorkDir string `json:"workDir"`

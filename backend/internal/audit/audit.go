@@ -167,6 +167,13 @@ const (
 	FunctionPromoted       Action = "function.promoted"
 	FunctionAliasSet       Action = "function.alias_set"
 
+	// FunctionEditorStarted and FunctionEditorStopped: a language-server
+	// sandbox of the Rust editor started or ended for a person; the entry
+	// names the source, the session and why it ended, never the code
+	// (FN-033, ADR-0099).
+	FunctionEditorStarted Action = "function.editor_started"
+	FunctionEditorStopped Action = "function.editor_stopped"
+
 	// UpdateMetadataRootUploaded: an operator stored a root signed
 	// offline (SEC-051, SEC-140).
 	UpdateMetadataRootUploaded Action = "update_metadata.root_uploaded"
@@ -445,6 +452,7 @@ var actions = sorted(
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
 	ConfigValueSet, ConfigValueDeleted,
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
+	FunctionEditorStarted, FunctionEditorStopped,
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,
 	RestrictionCreated, RestrictionDeleted, RestrictionRefused,
