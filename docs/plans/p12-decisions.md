@@ -44,3 +44,36 @@ SPDX-License-Identifier: Apache-2.0
     wording (spec change, `AGENTS.md` §3) and ADR-0006's role table.
   - What the role holds (database access for context, signing keys: none), how it reaches
     providers, and its name are settled in later decisions of this file.
+
+### D-2. What the AI role holds and how it reaches providers
+
+- **Decision:** the AI role holds **database access** (read context for `AI-004`; write
+  proposals, usage and audit records) and **no signing keys**. Provider credentials are stored
+  under envelope encryption and unwrapped only at call time (`SEC-106`). Every provider call
+  goes through the existing **`egress` role**, which allows only the configured provider hosts.
+- **Private addresses:** `egress` refuses private addresses by default. Only providers
+  configured by an **installation administrator** may point at private addresses (a local
+  Ollama, vLLM or LM Studio). Providers configured by an **organisation** must resolve to
+  public addresses. The organisation setting "local providers only" (`AI-040`) is enforced by
+  the same rule.
+- **Reason:** reuses the isolation the server already has (L-3, L-4, `FN-017`) instead of
+  inventing a new one; an organisation cannot turn a provider URL into server-side request
+  forgery against the internal network.
+- **Rejected:** direct outbound calls from the AI role (no allowlist, SSRF risk); a role with
+  no database like `fnrunner` (every context lookup and repair attempt becomes extra round trips
+  through `api`).
+- **Follow-ups:** a test that asserts the AI role's dependency set (no signer), as ADR-0006 does
+  for the other roles; the egress allowlist source for AI providers.
+
+### D-3. How an AI request runs
+
+- **Decision:** **hybrid job model.** `Start` enqueues a job and returns its ID; the AI role
+  takes jobs from a database-backed queue with per-organisation and per-user concurrency limits
+  (`AI-041`); clients follow progress through a server-streaming `Watch` call that streams
+  partial output (`AI-006`). The finished output is stored as a **proposal record** that the
+  user accepts or rejects in whole or per change (`AI-005`) and that survives a closed tab or a
+  dropped connection. Studio, the CLI (`plux ai`) and the MCP server (`AI-060`) use the same path.
+- **Reason:** gives streaming, fairness between tenants and reliability at once; the queue and
+  the stored proposal are what quotas, audit and review-before-apply need anyway.
+- **Rejected:** one long synchronous streaming call (work lost on disconnect, weak fairness);
+  polling-only jobs (no progressive canvas, `AI-006`).
