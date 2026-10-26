@@ -268,6 +268,12 @@ export class Scene {
   /** World rectangles the live items changed in since the last drain: the interaction layer's damage. */
   private readonly liveDirty: Rect[] = [];
   private readonly removed: string[] = [];
+  /** Where items were lifted (made live) since the last drain: the base hides them there, the tiles keep them. */
+  private readonly lifted: Rect[] = [];
+  /** Where items were dropped (made static) since the last drain: the tiles take them in there. */
+  private readonly dropped: Rect[] = [];
+  /** The items dropped since the last drain. */
+  private readonly droppedItems: SceneItem[] = [];
   /** Ids marked live, kept so an item added mid-drag (a re-routed arrow's new piece) is live too. */
   private readonly liveIds = new Set<string>();
 
@@ -405,8 +411,10 @@ export class Scene {
   }
 
   /**
-   * Marks items live (dragged) or static; both transitions dirty the item's
-   * bounds on the base (it leaves or rejoins the tiles) and on the layer.
+   * Marks items live (dragged) or static; both transitions damage the item on
+   * the layer, and record where it left or rejoined the base (`drainLifts`):
+   * the renderer masks a lifted item out of the base without re-rendering
+   * the tiles, and re-renders them only after the drop.
    */
   setLive(ids: readonly string[], live: boolean): void {
     for (const id of ids) {
@@ -418,16 +426,50 @@ export class Scene {
       const item = this.byId.get(id);
       if (item && item.live !== live) {
         // Pieces along a link, not its bounding box: lifting long links re-renders only the tiles they cross.
-        liveDamageOf(item.spec, item.bounds, this.dirty);
+        liveDamageOf(item.spec, item.bounds, live ? this.lifted : this.dropped);
+        if (!live) {
+          this.droppedItems.push(item);
+        }
         liveDamageOf(item.spec, item.bounds, this.liveDirty);
         item.live = live;
       }
     }
   }
 
-  /** Whether rectangles wait to be drained: the static content changed. */
+  /** Whether rectangles wait to be drained: the static content changed, or items were lifted or dropped. */
   get hasDirty(): boolean {
-    return this.dirty.length > 0;
+    return this.dirty.length > 0 || this.lifted.length > 0 || this.dropped.length > 0;
+  }
+
+  /** Whether any item is marked live. */
+  get hasLive(): boolean {
+    return this.liveIds.size > 0;
+  }
+
+  /**
+   * Passes every world rectangle items were lifted from since the last
+   * drain to `lift`, every one they were dropped at to `drop`, and each
+   * dropped item still in the scene to `dropItem`.
+   */
+  drainLifts(
+    lift: (rect: Rect) => void,
+    drop: (rect: Rect) => void,
+    dropItem: (item: SceneItem) => void = () => undefined,
+  ): void {
+    for (const rect of this.lifted) {
+      lift(rect);
+    }
+    this.lifted.length = 0;
+    for (const rect of this.dropped) {
+      drop(rect);
+    }
+    this.dropped.length = 0;
+    for (const item of this.droppedItems) {
+      if (this.byId.get(item.spec.id) === item && !item.live) {
+        dropItem(item);
+      }
+    }
+    this.droppedItems.length = 0;
   }
 
   /** Passes every dirty world rectangle since the last drain to `visit`. */

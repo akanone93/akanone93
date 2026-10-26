@@ -107,6 +107,36 @@ function workerDrag(worker: FrameStats[]): Record<string, number> {
   };
 }
 
+/** Where a frame's time went: the base's patches and flush, and the interaction layer. */
+function breakdown(frame: FrameStats | undefined): Record<string, number> {
+  if (!frame) {
+    return {};
+  }
+  const { ms, regionMs, flushMs, layerMs, layerPixels, regions } = frame;
+  return {
+    ms: round(ms),
+    regionMs: round(regionMs),
+    flushMs: round(flushMs),
+    layerMs: round(layerMs),
+    layerPixels,
+    regions,
+  };
+}
+
+/**
+ * The drop at the end of a drag: the worker's first frame after
+ * `endInteraction` (`dropFrameMs`) and the time until the tiles the dropped
+ * items left and joined are refreshed (`dropSettleMs`, M-13).
+ */
+async function dropScenario(host: CanvasHost, ids: readonly string[]): Promise<Record<string, number>> {
+  const frames: FrameStats[] = [];
+  const stop = host.onFrame((stats) => frames.push(stats));
+  host.endInteraction("drag", ids);
+  const dropSettleMs = (await settleTimes(host)).fullMs;
+  stop();
+  return { dropFrameMs: round(frames[0]?.ms ?? 0), dropSettleMs };
+}
+
 /** Scene A: one box and its links dragged 2 × 1 world units per animation frame, timed rAF to rAF. */
 async function dragScenario(host: CanvasHost, links: LinkRef[]): Promise<Record<string, unknown>> {
   const touching = links.filter((l) => l.a === DRAGGED || l.b === DRAGGED);
@@ -117,9 +147,14 @@ async function dragScenario(host: CanvasHost, links: LinkRef[]): Promise<Record<
   host.startInteraction("drag", ids);
   const intervals: number[] = [];
   let previous = await animationFrame();
+  let liftFrameMs = 0;
+  let liftFrame: Record<string, number> = {};
   for (let i = 0; i < WARMUP + FRAMES; i++) {
     const now = await animationFrame();
     if (i === WARMUP) {
+      // The lift's frame is the first after `startInteraction`; the warm-up hides its cost from the drag.
+      liftFrameMs = round(worker[0]?.ms ?? 0);
+      liftFrame = breakdown(worker[0]);
       worker.length = 0;
     }
     const at = { x: origin.x + (i + 1) * 2, y: origin.y + (i + 1) };
@@ -139,9 +174,17 @@ async function dragScenario(host: CanvasHost, links: LinkRef[]): Promise<Record<
     previous = now;
   }
   const layerBox = host.layerBox;
-  host.endInteraction("drag", ids);
   stop();
-  return { ...intervalSummary(intervals), ...workerDrag(worker), ...baseRenders(worker), layerBox };
+  const drop = await dropScenario(host, ids);
+  return {
+    ...intervalSummary(intervals),
+    ...workerDrag(worker),
+    ...baseRenders(worker),
+    layerBox,
+    liftFrameMs,
+    liftFrame,
+    ...drop,
+  };
 }
 
 function animationFrame(): Promise<number> {
@@ -238,6 +281,7 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
   const dragStartMs = (await settleTimes(host)).fullMs;
   const lift = worker.filter((f) => f.tileRenders > 0);
   const liftFrameMs = round(worker[0]?.ms ?? 0);
+  const liftFrame = breakdown(worker[0]);
   const liftTileRenders = (lift.at(-1)?.tileRenders ?? 0) - (worker[0]?.tileRenders ?? 0);
   worker.length = 0;
   const intervals: number[] = [];
@@ -272,8 +316,8 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
   const caughtUp = arrows.endDrag();
   const dropRouteMs = performance.now() - drop;
   host.patch(caughtUp);
-  host.endInteraction("drag", ids);
   stop();
+  const dropped = await dropScenario(host, ids);
   route.sort((a, b) => a - b);
   const clear = [...router.routes.values()].filter((r) => r.clear).length;
   return {
@@ -301,9 +345,11 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
       opsPerFrameMean: round(mean(rerouted)),
       dragStartMs,
       liftFrameMs,
+      liftFrame,
       liftTileRenders,
       dropRouteMs: round(dropRouteMs),
       dropOps: caughtUp.length,
+      ...dropped,
       ...baseRenders(worker),
     },
   };
