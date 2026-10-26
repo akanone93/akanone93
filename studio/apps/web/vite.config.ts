@@ -39,8 +39,46 @@ function sonnerNoStyleInjection(): Plugin {
   };
 }
 
+const monacoPinned = "0.57.0";
+const monacoStyle = "const style = document.createElement('style');";
+const monacoStyleFiles =
+  /[\\/]monaco-editor[\\/]esm[\\/]vs[\\/]base[\\/]browser[\\/](domStylesheets|ui[\\/]contextview[\\/]contextview)\.js$/;
+
+/**
+ * Monaco creates its runtime <style> elements without a nonce, which the strict CSP blocks for
+ * elements (style attributes are allowed, ADR-0014 Revision 2026-10-26). This transform gives each
+ * one the nonce of the page's scripts, as CodeMirror's fields do. Pinned to one Monaco version:
+ * another version, or a changed code shape, fails the build.
+ */
+function monacoStyleNonce(): Plugin {
+  return {
+    name: "plux:monaco-style-nonce",
+    enforce: "pre",
+    transform(code, id) {
+      if (!monacoStyleFiles.test(id)) {
+        return null;
+      }
+      const version = (
+        JSON.parse(readFileSync(id.replace(/esm[\\/]vs[\\/].*$/, "package.json"), "utf-8")) as { version: string }
+      ).version;
+      if (version !== monacoPinned || code.split(monacoStyle).length !== 2) {
+        throw new Error(
+          `monaco-editor ${version}: expected exactly one "${monacoStyle}" in ${id} of monaco-editor ${monacoPinned}; review the CSP transform in vite.config.ts`,
+        );
+      }
+      return {
+        code: code.replace(
+          monacoStyle,
+          `${monacoStyle} style.nonce = document.querySelector('script[nonce]')?.nonce ?? '';`,
+        ),
+        map: null,
+      };
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [sonnerNoStyleInjection(), lingui(), react(), tailwindcss()],
+  plugins: [sonnerNoStyleInjection(), monacoStyleNonce(), lingui(), react(), tailwindcss()],
   build: {
     target: "es2023",
     sourcemap: true,

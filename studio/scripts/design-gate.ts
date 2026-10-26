@@ -9,6 +9,8 @@
 // `type.tag`, U7), `dark-glow` (`shadow-primary`, U7) and `pulsing-dot` (the live-device dot, U10).
 // The detector has no value-scoped ignore for them on a URL scan, so they are ignored by rule; the
 // decision is listed under Open decisions in docs/WORKLOG.md to be reviewed, not forgotten.
+// Monaco's bundled chunk (`monaco-view-*.js`) is skipped in the regex scan of dist: it is vendor
+// code (an `<img>` template of its Markdown renderer), not Studio's markup.
 
 import { chmodSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
