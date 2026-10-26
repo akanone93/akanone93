@@ -54,7 +54,8 @@ describe("STU-003 retained scene graph", () => {
   test("every change records the old and new bounds as dirty", () => {
     const scene = new Scene();
     scene.apply([{ op: "add", item: box("a", 0, 0) }]);
-    expect(drain(scene)).toEqual([{ l: -0.5, t: -0.5, r: 100.5, b: 50.5 }]);
+    // The bounds and the antialiasing allowance around them.
+    expect(drain(scene)).toEqual([{ l: -1.5, t: -1.5, r: 101.5, b: 51.5 }]);
     scene.apply([{ op: "move", id: "a", dx: 200, dy: 0 }]);
     expect(drain(scene)).toEqual([
       { l: -0.5, t: -0.5, r: 100.5, b: 50.5 },
@@ -95,7 +96,7 @@ describe("STU-003 retained scene graph", () => {
     scene.setLive(["missing"], false);
     drain(scene);
     scene.setLive(["a"], false);
-    expect(drain(scene)).toEqual([{ l: 9.5, t: 9.5, r: 110.5, b: 60.5 }]);
+    expect(drain(scene)).toEqual([{ l: 8.5, t: 8.5, r: 111.5, b: 61.5 }]);
     scene.setLive(["a"], false);
     expect(drain(scene)).toEqual([]);
   });

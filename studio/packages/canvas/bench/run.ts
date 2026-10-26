@@ -3,7 +3,8 @@
 
 // Canvas benchmark in software rendering (STU-045, STU-120, ADR-0013 M-12):
 // headless Chromium with SwiftShader (no GPU), the pinned Flutter CanvasKit,
-// scenes A and B; prints a JSON summary. `make studio-bench-canvas`.
+// scenes A, B and C; runs the page RUNS times and prints the median of every
+// number as a JSON summary. `make studio-bench-canvas`.
 
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
@@ -55,23 +56,49 @@ function route(request: Request): Response {
   return new Response("not found", { status: 404 });
 }
 
+/** Runs of the page; the summary holds each number's median across them. */
+const RUNS = 3;
+
+/** The median of every number across `runs`, by position; anything else is taken from the first run. */
+function median(runs: unknown[]): unknown {
+  const [first] = runs;
+  if (typeof first === "number") {
+    const sorted = (runs as number[]).slice().sort((a, b) => a - b);
+    return sorted[Math.floor(sorted.length / 2)];
+  }
+  if (first !== null && typeof first === "object" && !Array.isArray(first)) {
+    return Object.fromEntries(
+      Object.keys(first).map((key) => [key, median(runs.map((run) => (run as Record<string, unknown>)[key]))]),
+    );
+  }
+  return first;
+}
+
 const server = Bun.serve({ port: 0, fetch: route });
 const browser = await chromium.launch({
   headless: true,
   args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
 });
 try {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  const renderer = process.env.PLUX_CANVAS_RENDERER ?? "auto";
-  await page.goto(`http://localhost:${server.port}/?renderer=${encodeURIComponent(renderer)}`);
-  const result = await page.waitForSelector("#result", { state: "attached", timeout: 600_000 });
-  const text = (await result.textContent()) ?? "";
-  process.stdout.write(`${text}\n`);
-  if (errors.length > 0 || text.includes('"error"')) {
-    process.stderr.write(`page errors: ${errors.join("; ")}\n`);
-    process.exitCode = 1;
+  const results: unknown[] = [];
+  for (let run = 0; run < RUNS && process.exitCode === undefined; run++) {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    const renderer = process.env.PLUX_CANVAS_RENDERER ?? "auto";
+    await page.goto(`http://localhost:${server.port}/?renderer=${encodeURIComponent(renderer)}`);
+    const result = await page.waitForSelector("#result", { state: "attached", timeout: 600_000 });
+    const text = (await result.textContent()) ?? "";
+    await page.close();
+    if (errors.length > 0 || text.includes('"error"')) {
+      process.stderr.write(`page errors: ${errors.join("; ")}\n${text}\n`);
+      process.exitCode = 1;
+    } else {
+      results.push(JSON.parse(text));
+    }
+  }
+  if (process.exitCode === undefined) {
+    process.stdout.write(`${JSON.stringify({ runs: RUNS, median: median(results) }, null, 2)}\n`);
   }
 } finally {
   await browser.close();

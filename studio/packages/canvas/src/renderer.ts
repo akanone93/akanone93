@@ -11,7 +11,10 @@
  *   else can be shown;
  * - dirty-region redraw: a changed area of a cached tile is redrawn clipped
  *   on top of the tile until the tile is re-rendered; dragged ("live") items
- *   are excluded from tiles and drawn on top each frame;
+ *   are excluded from tiles and drawn on top each frame — into the
+ *   interaction layer only where they changed, so a frame presents the
+ *   layer's damage and not the whole layer, whose upload through software
+ *   GL is what stalls the browser's frames;
  * - level of detail by zoom (`lod.ts`), with pre-rendered nine-patch shadow
  *   images instead of blur;
  * - tiles rendered at half resolution while the user interacts, refined
@@ -74,6 +77,82 @@ export interface LiveLayer {
   readonly y: number;
   readonly scale: number;
 }
+/** Device pixels added around the layer's damage for antialiasing. */
+const LAYER_PAD = 2;
+
+/** The most regions the interaction layer's damage is merged into per frame, each redrawn and presented alone. */
+export const LAYER_REGIONS = 48;
+
+/** Two damage rectangles merge when their union covers at most this factor of their summed areas. */
+const LAYER_MERGE = 1.25;
+
+/** What the interaction layer shows: where it was drawn, so a frame redraws only its damage. */
+interface LayerShown {
+  readonly surface: Surface;
+  readonly x: number;
+  readonly y: number;
+  readonly scale: number;
+  readonly zoom: number;
+}
+
+function area(r: Rect): number {
+  return (r.r - r.l) * (r.b - r.t);
+}
+
+/**
+ * Merges `rect` into the first `count` of `regions`: into the first whose
+ * union with it is hardly larger than both (`LAYER_MERGE`), else into a new
+ * one, else into the one it grows least; returns the new count. Pieces along
+ * a link only touch at their corners, so they stay apart.
+ */
+function mergeRegion(regions: readonly Rect[], count: number, rect: Rect, scratch: Rect): number {
+  let best: Rect | null = null;
+  let growth = Number.POSITIVE_INFINITY;
+  const size = area(rect);
+  for (let i = 0; i < count; i++) {
+    const region = regions[i];
+    if (!region) {
+      continue;
+    }
+    const union = area(unionInto(setRect(scratch, region.l, region.t, region.r, region.b), rect));
+    if (union <= (area(region) + size) * LAYER_MERGE) {
+      unionInto(region, rect);
+      return count;
+    }
+    if (union - area(region) < growth) {
+      growth = union - area(region);
+      best = region;
+    }
+  }
+  const next = regions[count];
+  if (next) {
+    setRect(next, rect.l, rect.t, rect.r, rect.b);
+    return count + 1;
+  }
+  if (best) {
+    unionInto(best, rect);
+  }
+  return count;
+}
+
+/**
+ * Adds `a` clipped to `b` to the first `count` of `regions`, merging into the
+ * last one beyond `regions.length`; returns the new count.
+ */
+function addClipped(regions: readonly Rect[], count: number, a: Rect, b: Rect, merge: Rect): number {
+  const target = regions[Math.min(count, regions.length - 1)];
+  if (!target) {
+    return count;
+  }
+  if (count < regions.length) {
+    return intersectInto(target, a, b) ? count + 1 : count;
+  }
+  if (intersectInto(merge, a, b)) {
+    unionInto(target, merge);
+  }
+  return count;
+}
+
 const SHADOW_SIZE = 64;
 const SHADOW_INSET = 16;
 
@@ -90,6 +169,7 @@ interface FrameCounters {
   liveMs: number;
   liveItems: number;
   layerMs: number;
+  layerPixels: number;
 }
 
 /** Renders a `Scene` through a `Viewport` onto a CanvasKit surface. */
@@ -138,6 +218,7 @@ export class SceneRenderer {
     liveMs: 0,
     layerMs: 0,
     liveItems: 0,
+    layerPixels: 0,
   };
   private lod: Lod = lodForZoom(1);
   private calls = 0;
@@ -157,6 +238,13 @@ export class SceneRenderer {
   /** World rectangles changed since the surface was last drawn; the next base draw redraws only them when it can. */
   private readonly damage: Rect[] = [];
   private readonly damageUnion = makeRect(0, 0, 0, 0);
+  /** The interaction layer's damage this frame: where live items changed, clipped to the layer and merged. */
+  private readonly layerRegions: Rect[] = Array.from({ length: LAYER_REGIONS }, () => makeRect(0, 0, 0, 0));
+  private layerRegionCount = 0;
+  private readonly layerWorld = makeRect(0, 0, 0, 0);
+  private readonly layerClip = makeRect(0, 0, 0, 0);
+  private readonly layerDirty = new Int32Array(4);
+  private layerShown: LayerShown | null = null;
   private partialRenders = 0;
   private viewChanged = false;
   private readonly invalidate = (rect: Rect): void => {
@@ -165,6 +253,12 @@ export class SceneRenderer {
       this.damage.push(makeRect(rect.l, rect.t, rect.r, rect.b));
     }
   };
+  private readonly damageLayer = (rect: Rect): void => {
+    if (intersectInto(this.layerClip, rect, this.layerWorld)) {
+      this.layerRegionCount = mergeRegion(this.layerRegions, this.layerRegionCount, this.layerClip, this.merge);
+    }
+  };
+  private readonly ignore = (): void => undefined;
   private readonly forget = (id: string): void => {
     const cached = this.paragraphs.get(id);
     if (cached) {
@@ -276,6 +370,9 @@ export class SceneRenderer {
     }
     if (layer) {
       this.drawLayer(layer);
+    } else {
+      this.layerShown = null;
+      this.scene.drainLiveDirty(this.ignore);
     }
     const end = this.now();
     return this.stats(end - start, flushMs, drawBase);
@@ -384,22 +481,73 @@ export class SceneRenderer {
     return this.now() - flushStart;
   }
 
-  /** Draws the live items into the interaction layer, on a transparent background. */
+  /**
+   * Draws the live items into the interaction layer, on a transparent
+   * background, and presents the whole layer when it is new, moved or
+   * rescaled, otherwise only the regions live items changed in (each old and
+   * new bounds, merged). The draw itself stays whole and unclipped: it is
+   * cheap, and pixels outside the regions then equal those presented before.
+   */
   private drawLayer(layer: LiveLayer): void {
     const start = this.now();
     const canvas = layer.surface.getCanvas();
+    const shown = this.layerShown;
+    const zoom = this.viewport.zoom;
+    const { scale } = layer;
+    const width = layer.surface.width();
+    const height = layer.surface.height();
+    setRect(this.layerWorld, layer.x, layer.y, layer.x + width / scale, layer.y + height / scale);
+    this.layerRegionCount = 0;
+    this.scene.drainLiveDirty(this.damageLayer);
+    const live = this.scene.liveItems(this.items);
+    this.counters.liveItems = live.length;
     canvas.clear(this.ck.TRANSPARENT);
     canvas.save();
-    canvas.scale(layer.scale, layer.scale);
+    canvas.scale(scale, scale);
     canvas.translate(-layer.x, -layer.y);
-    this.drawScene(canvas, this.view, false, this.scene.liveItems(this.items));
-    this.counters.liveItems = this.items.length;
+    this.drawScene(canvas, this.view, false, live);
     canvas.restore();
-    layer.surface.flush();
+    if (
+      shown === null ||
+      shown.surface !== layer.surface ||
+      shown.x !== layer.x ||
+      shown.y !== layer.y ||
+      shown.scale !== scale ||
+      shown.zoom !== zoom
+    ) {
+      layer.surface.flush();
+      this.counters.layerPixels = width * height;
+    } else {
+      this.presentLayerDamage(layer, width, height);
+    }
+    this.layerShown = { surface: layer.surface, x: layer.x, y: layer.y, scale, zoom };
     if (this.options.measureFrames) {
       this.syncGpu(canvas);
     }
     this.counters.layerMs = this.now() - start;
+  }
+
+  /** Presents the layer's damaged regions, each in whole device pixels padded for antialiasing. */
+  private presentLayerDamage(layer: LiveLayer, width: number, height: number): void {
+    const { scale } = layer;
+    const pixels = this.layerDirty;
+    for (let i = 0; i < this.layerRegionCount; i++) {
+      const region = this.layerRegions[i];
+      if (!region) {
+        continue;
+      }
+      const l = Math.max(0, Math.floor((region.l - layer.x) * scale) - LAYER_PAD);
+      const t = Math.max(0, Math.floor((region.t - layer.y) * scale) - LAYER_PAD);
+      const r = Math.min(width, Math.ceil((region.r - layer.x) * scale) + LAYER_PAD);
+      const b = Math.min(height, Math.ceil((region.b - layer.y) * scale) + LAYER_PAD);
+      if (r <= l || b <= t) {
+        continue;
+      }
+      pixels.set([l, t, r, b]);
+      // The CPU raster layer copies only this rectangle [l, t, r, b] to its canvas, as the base does.
+      (layer.surface.flush as (dirtyRect?: Int32Array) => void).call(layer.surface, pixels);
+      this.counters.layerPixels += (r - l) * (b - t);
+    }
   }
 
   private resetCounters(): void {
@@ -411,6 +559,7 @@ export class SceneRenderer {
     c.liveMs = 0;
     c.liveItems = 0;
     c.layerMs = 0;
+    c.layerPixels = 0;
   }
 
   private syncGpu(canvas: Canvas): void {
@@ -444,6 +593,7 @@ export class SceneRenderer {
       tileRenderMs: this.tileRenderMs,
       base,
       layerMs: c.layerMs,
+      layerPixels: c.layerPixels,
       jobMs,
       baseJobs: this.baseJobs,
       visibleJobs: this.visibleJobs,
@@ -506,19 +656,7 @@ export class SceneRenderer {
   }
 
   private addRegion(a: Rect, b: Rect): void {
-    const target = this.regions[Math.min(this.regionCount, MAX_REGIONS - 1)];
-    if (!target) {
-      return;
-    }
-    if (this.regionCount < MAX_REGIONS) {
-      if (intersectInto(target, a, b)) {
-        this.regionCount++;
-      }
-      return;
-    }
-    if (intersectInto(this.merge, a, b)) {
-      unionInto(target, this.merge);
-    }
+    this.regionCount = addClipped(this.regions, this.regionCount, a, b, this.merge);
   }
 
   private drawRegions(canvas: Canvas): void {
