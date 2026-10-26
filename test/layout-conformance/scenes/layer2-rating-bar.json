@@ -1,0 +1,9 @@
+{
+  "name": "layer2-rating-bar",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "RatingBar",
+    "props": { "value": 3.5, "max": 5 }
+  }
+}

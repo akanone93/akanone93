@@ -1,0 +1,9 @@
+{
+  "name": "layer2-transaction-list-item",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "TransactionListItem",
+    "props": { "title": "Coffee", "subtitle": "Cafe", "amount": { "$expr": "money(\"-4.50\", \"EUR\")" }, "status": "completed", "statusLabel": "Done" }
+  }
+}
