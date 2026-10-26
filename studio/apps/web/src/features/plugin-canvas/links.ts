@@ -176,3 +176,55 @@ export function routeOptions(
     ...app.filter((s) => !ownRoutes.has(s.route)).map((s) => ({ route: s.route, title: s.title, own: false })),
   ];
 }
+
+/** The widget and event step a navigate action sits in, for the lane fixes of the canvas (STU-046). */
+export interface NavigateSite {
+  readonly nodeId: string;
+  readonly link: NavigateLink;
+}
+
+/**
+ * The `index`-th navigate action of a page in document order, the order the arrows are numbered in
+ * (`deriveGhosts`). Undefined when it is not a step directly in a widget's event handler, which the
+ * redirect and remove recipes cannot change.
+ */
+export function navigateSite(root: unknown, index: number): NavigateSite | undefined {
+  const found: { step: Obj; node: Obj | undefined; route: string }[] = [];
+  collectNavigates(root, undefined, found);
+  const at = found[index];
+  return at === undefined ? undefined : siteOf(at.node, at.step, at.route);
+}
+
+function collectNavigates(
+  value: unknown,
+  node: Obj | undefined,
+  out: { step: Obj; node: Obj | undefined; route: string }[],
+): void {
+  if (Array.isArray(value)) {
+    for (const v of value) {
+      collectNavigates(v, node, out);
+    }
+  } else if (isObj(value)) {
+    const route = isObj(value["input"]) ? value["input"]["route"] : undefined;
+    if (value["action"] === "navigate" && typeof route === "string") {
+      out.push({ step: value, node, route });
+    }
+    const here = typeof value["id"] === "string" ? value : node;
+    for (const v of Object.values(value)) {
+      collectNavigates(v, here, out);
+    }
+  }
+}
+
+function siteOf(node: Obj | undefined, step: Obj, route: string): NavigateSite | undefined {
+  if (node === undefined || typeof node["id"] !== "string" || !isObj(node["events"])) {
+    return undefined;
+  }
+  for (const [event, handler] of Object.entries(node["events"])) {
+    const at = handlerSteps(handler).indexOf(step);
+    if (at >= 0) {
+      return { nodeId: node["id"], link: { event, step: at, route } };
+    }
+  }
+  return undefined;
+}

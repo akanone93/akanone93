@@ -181,6 +181,30 @@ msgstr "{n, plural, zero {0 شاشة} one {شاشة واحدة} two {شاشتا�
 msgid "appCanvas.versions"
 msgstr "{n, plural, zero {0 إصدار} one {إصدار واحد} two {إصداران} few {# إصدارات} many {# إصدارًا} other {# إصدار}}"
 
+#. A deleted item in the trash list; kind is app, plugin or page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.trashItem"
+msgstr "{name} ({kind})"
+
+#. Explains why deleting a screen needs typing its name (STU-074).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.deleteProductionNote"
+msgstr "{name} جزء من تطبيق له إصدار إنتاج. حذفه يغيّر الإصدار التالي."
+
+#. STU-074: explains why a destructive action on a plugin asks for its key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.productionNote"
+msgstr "{name} جزء من تطبيق له إصدار إنتاج. اكتب مفتاحه للتأكيد."
+
+#. STU-073: explains that deleting a published plugin deprecates it and says what still links to it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.deprecateConfirm"
+msgstr "{name} منشور. سيُوسَم بأنه متقادم، و{links, plural, =0 {لا شيء يشير إليه} one {لا يزال رابط واحد يشير إليه} two {لا يزال رابطان يشيران إليه} few {لا تزال # روابط تشير إليه} many {لا يزال # رابطًا يشير إليه} other {لا يزال # رابط يشير إليه}}. لا يغادر الإصدار التالي إلا عندما لا يشير إليه شيء؛ والإصدارات السابقة تحتفظ به."
+
 #. Explains what deleting an asset does; name is the asset's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -661,16 +685,34 @@ msgstr "حذف"
 msgid "assets.delete"
 msgstr "حذف {name}"
 
+#. Question that asks to confirm deleting a plugin (GOV-031, A44).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.deleteConfirm"
+msgstr "هل تريد حذف {name}؟ سينتقل إلى سلة المحذوفات لمدة 30 يومًا ويمكن استعادته مع روابطه."
+
 #. Question that asks to confirm deleting a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.confirmDelete"
 msgstr "حذف {title}؟ تتم إزالة مستندها من المسودة."
 
+#. Button: delete the selected plugin; a published plugin is deprecated first, an unpublished one goes to the trash.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.deletePlugin"
+msgstr "حذف الإضافة"
+
 #. Command that deletes the current screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.deleteScreen"
+msgstr "حذف الشاشة"
+
+#. Label of the destructive button of the type-to-confirm dialog that deletes a screen of an app with a production release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.deleteConfirmAction"
 msgstr "حذف الشاشة"
 
 #. Title of the confirmation before an asset is deleted.
@@ -684,6 +726,12 @@ msgstr "هل تريد حذف هذا الأصل؟"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "الكثافة"
+
+#. Confirm button of the dialog that marks a published plugin deprecated (STU-073).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.deprecate"
+msgstr "وسم الإضافة كمتقادمة"
 
 #. Marks a deprecated property in the docs tab.
 #. js-lingui-explicit-id
@@ -985,6 +1033,20 @@ msgstr "تفاعلي"
 msgid "safety.blocked.entry"
 msgstr "هذه نقطة دخول. اختر نقطة دخول أخرى أولًا."
 
+#. Reason a screen cannot move: it is its plugin's entry (STU-071).
+#. Reason a screen cannot move: it is its plugin's entry (STU-071).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.moveReasonEntry"
+msgstr "إنها شاشة الدخول؛ اختر نقطة دخول أخرى أولًا."
+
+#. Reason a screen cannot move: it uses a component that is not exported.
+#. Reason a screen cannot move: it uses a component that is not exported.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.moveReasonPrivate"
+msgstr "تستخدم مكوّنًا خاصًا بهذه الإضافة."
+
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -1093,6 +1155,12 @@ msgstr "مقبض الرابط: اسحبه إلى شاشة، أو اضغط Enter 
 msgid "links.handleChoose"
 msgstr "ربط بشاشة"
 
+#. Title of the dialog of one navigation link picked on the canvas; title names source and target.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.laneTitle"
+msgstr "الرابط: {title}"
+
 #. Announced while a link is dragged over a screen; target is the screen's title.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -1171,6 +1239,18 @@ msgstr "متوسط"
 msgid "panels.mixed"
 msgstr "مختلط"
 
+#. Button that confirms moving a screen to the chosen plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.move"
+msgstr "نقل"
+
+#. Menu entry and command that move the current screen, with its links, to another plugin (D23).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.moveScreen"
+msgstr "نقل إلى إضافة"
+
 #. Field label for a plugin's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1224,6 +1304,18 @@ msgstr "شاشة جديدة"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.untitled"
 msgstr "شاشة جديدة"
+
+#. Label of the choice of the screen links are redirected to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.redirectTarget"
+msgstr "شاشة الهدف الجديدة"
+
+#. Label of the choice of the screen links are redirected to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.redirectTarget"
+msgstr "شاشة الهدف الجديدة"
 
 #. Shown when the validator found no accessibility problem.
 #. js-lingui-explicit-id
@@ -1507,11 +1599,41 @@ msgstr "للقراءة فقط: لا يمكنك تعديل هذه الإضافة 
 msgid "chip.reconnecting"
 msgstr "إعادة الاتصال"
 
+#. Button that confirms redirecting links to the chosen screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.redirect"
+msgstr "إعادة توجيه"
+
+#. Button that confirms redirecting links to the chosen screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.redirect"
+msgstr "إعادة توجيه"
+
 #. STU-070 assisted fix: send every link into this screen to another screen instead.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.fix.redirect"
 msgstr "إعادة توجيه كل الروابط الواردة إلى…"
+
+#. Title of the dialog that chooses the screen links into a plugin are redirected to (STU-070).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.redirectTitle"
+msgstr "إعادة توجيه الروابط الواردة"
+
+#. Title of the dialog that chooses the screen links are redirected to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.redirectTitle"
+msgstr "إعادة توجيه الروابط"
+
+#. Button that points the picked link at another screen (STU-046).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.laneRedirect"
+msgstr "إعادة التوجيه إلى شاشة أخرى"
 
 #. Fix button that points a broken link at the screen chosen in the target list.
 #. js-lingui-explicit-id
@@ -1553,6 +1675,12 @@ msgstr "إزالة العنصر {n}"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.remove"
+msgstr "إزالة الرابط"
+
+#. Button that removes the picked navigation link (STU-046).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.laneRemove"
 msgstr "إزالة الرابط"
 
 #. STU-070 assisted fix: delete every navigation step that leaves this plugin.
@@ -1603,6 +1731,12 @@ msgstr "إعادة {name} إلى الأساس"
 msgid "panels.reset"
 msgstr "إعادة إلى الأساس"
 
+#. Accessible name of the button that restores one deleted item with its old IDs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.trashRestore"
+msgstr "استعادة {name}"
+
 #. Button: bring an archived plugin back.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1638,6 +1772,12 @@ msgstr "حفظ"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.saved"
 msgstr "تم الحفظ"
+
+#. Accessible name of the button that opens the menu of actions on the current screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.screenMenu"
+msgstr "قائمة الشاشة"
 
 #. Label of the text field that names a screen.
 #. js-lingui-explicit-id
@@ -1855,11 +1995,23 @@ msgstr "استلام التحرير؟"
 msgid "lock.take-over-from"
 msgstr "يمكن الاستلام ابتداءً من {at}، بعد توقف صاحب القفل عن التحرير."
 
+#. Shown in the dialog of a picked link when the plugin cannot be edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.laneReadOnly"
+msgstr "احصل على قفل التحرير لتغيير هذا الرابط."
+
 #. D35 button: discard your unsaved changes and use the server's version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.take-server"
 msgstr "اعتماد نسخة الخادم"
+
+#. Label of the choice of the plugin a screen moves to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.moveTarget"
+msgstr "الإضافة الهدف"
 
 #. Label of the choice of the screen the navigation goes to.
 #. js-lingui-explicit-id
@@ -1878,6 +2030,18 @@ msgstr "تعذر تحميل الأصول."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.failed"
 msgstr "تعذّر حفظ التغيير."
+
+#. Shown when an atomic change across documents is refused by the server; nothing was written.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.changeRefused"
+msgstr "لم يُطبَّق التغيير لأن مستندًا تغيّر في هذه الأثناء. لم تُكتب أي بيانات."
+
+#. Shown when an atomic change across plugins is refused by the server; nothing was written.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.changeRefused"
+msgstr "لم يُطبَّق التغيير لأن مستندًا تغيّر في هذه الأثناء. لم تُكتب أي بيانات."
 
 #. Shown when the WebAuthn check was cancelled or failed.
 #. js-lingui-explicit-id
@@ -1939,6 +2103,18 @@ msgstr "تعذّر استخدام مفتاح المرور."
 msgid "pluginCanvas.blockedNavigate"
 msgstr "تنتقل الشاشة {title} إليها. أزل تلك الخطوة أولاً."
 
+#. Shown when a move to another plugin is refused; reason is one of the moveReason messages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.moveRefused"
+msgstr "لا يمكن نقل الشاشة: {reason}"
+
+#. Reason a screen cannot move: the screen or the target plugin could not be found.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.moveReasonOther"
+msgstr "الشاشة أو الهدف غير معروف."
+
 #. Shown when loading the plugin's screens failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1963,11 +2139,24 @@ msgstr "لم يقبل الخادم التغيير."
 msgid "assets.failure.size-mismatch"
 msgstr "استلم الخادم عددًا من البايتات يختلف عن حجم الملف. ارفعه مرة أخرى."
 
+#. Reason a screen cannot move: the key is taken in the target plugin.
+#. Reason a screen cannot move: the key is taken in the target plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.moveReasonKey"
+msgstr "الإضافة الهدف فيها شاشة بالمفتاح نفسه."
+
 #. STU-074 type-to-confirm: shown while the typed text differs from the name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.confirm.mismatch"
 msgstr "النص لا يطابق بعد"
+
+#. Shown in the trash dialog when nothing was deleted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.trashEmpty"
+msgstr "سلة المحذوفات فارغة."
 
 #. Shown when the server no longer has the upload session, for example after it sat idle too long.
 #. js-lingui-explicit-id
@@ -2041,6 +2230,12 @@ msgstr "هذا التغيير يؤثر في شيفرة خارج Studio"
 msgid "pluginCanvas.blockedEntry"
 msgstr "هذه هي صفحة الدخول للإضافة. اختر صفحة دخول أخرى قبل حذفها."
 
+#. Shown when a picked link cannot be redirected or removed from the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.laneUnavailable"
+msgstr "هذا الرابط غير مرتبط مباشرة بحدث ودجت، لذا لا يمكن تغييره هنا."
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -2112,6 +2307,12 @@ msgstr "أعلى"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.useKey"
 msgstr "مفتاح الترجمة"
+
+#. Button and dialog title: deleted plugins and screens that can still be restored (A44).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.trash"
+msgstr "سلة المحذوفات"
 
 #. STU-074 type-to-confirm: label of the field where the user types the name of what is affected.
 #. js-lingui-explicit-id

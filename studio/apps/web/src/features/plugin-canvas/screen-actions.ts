@@ -125,17 +125,7 @@ export function renameScreen(session: EditSession, ctx: ScreenContext, pageId: s
   if (page === undefined) {
     return { ok: false, reason: "unknown" };
   }
-  const referenced =
-    deleteBlockers(
-      page.json,
-      undefined,
-      c.appPages.map((p) => p.json),
-    ).length > 0;
-  const followsKey = page.json["route"] === page.json["key"];
-  const newRoute =
-    !referenced && followsKey
-      ? uniqueName(slug(title), new Set([...c.names.routes].filter((r) => r !== page.json["route"])))
-      : undefined;
+  const newRoute = renamedRoute(ctx, pageId, title);
   session.edit(page.path, (d) => {
     d["title"] = title;
     if (newRoute !== undefined) {
@@ -143,6 +133,25 @@ export function renameScreen(session: EditSession, ctx: ScreenContext, pageId: s
     }
   });
   return { ok: true };
+}
+
+/** The route a rename to `title` gives the screen, or undefined when the route stays (D27 warns about the change). */
+export function renamedRoute(ctx: ScreenContext, pageId: string, title: string): string | undefined {
+  const c = context(ctx);
+  const page = c.ownPages.find((p) => p.json["id"] === pageId);
+  if (page === undefined) {
+    return undefined;
+  }
+  const referenced =
+    deleteBlockers(
+      page.json,
+      undefined,
+      c.appPages.map((p) => p.json),
+    ).length > 0;
+  const followsKey = page.json["route"] === page.json["key"];
+  return !referenced && followsKey
+    ? uniqueName(slug(title), new Set([...c.names.routes].filter((r) => r !== page.json["route"])))
+    : undefined;
 }
 
 /** What stops a screen from being deleted; empty when it can go. */
