@@ -1,0 +1,9 @@
+{
+  "name": "layer2-biometric-button",
+  "layer2": true,
+  "root": {
+    "id": "biometric",
+    "type": "BiometricButton",
+    "props": { "label": "Unlock with biometrics", "reason": "Confirm it is you" }
+  }
+}
