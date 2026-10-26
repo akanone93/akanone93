@@ -336,6 +336,17 @@ const builders: Record<string, Builder> = {
   TextField: buildTextField,
   NavigationBar: buildNavigationBarNode,
   NavigationRail: buildNavigationRailNode,
+  // `Drawer`: a `ConstrainedBox` expanded to the drawer width (304 by default) around its child.
+  Drawer: (node, ctx) =>
+    new RenderConstrainedBox({
+      additionalConstraints: new BoxConstraints({
+        minWidth: num(node.props, "width", 304),
+        maxWidth: num(node.props, "width", 304),
+        minHeight: Number.POSITIVE_INFINITY,
+        maxHeight: Number.POSITIVE_INFINITY,
+      }),
+      child: ctx.build(required(node, "child")),
+    }),
   Chip: buildChipNode,
   FilterChip: buildChipNode,
   InputChip: buildChipNode,
