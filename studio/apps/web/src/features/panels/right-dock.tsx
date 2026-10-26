@@ -7,13 +7,17 @@ import { Button, Field, FloatingPanel, Icon, Input, Select, Tabs, TypeTag } from
 import type { Problem } from "@plux/validator";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
+import type { JsonValue } from "../editor/json-patch.ts";
 import { jsonEditorMessages } from "../json-editor/json-editor.messages.ts";
+import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../localisation/index.ts";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
 import { readPlugin } from "../plugin-canvas/plugin-model.ts";
+import { uuidv7 } from "../plugin-canvas/screens.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { PxlLanguage } from "../problems/use-validation.ts";
+import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { panelMessages } from "./panels.messages.ts";
 import {
@@ -427,7 +431,15 @@ interface DockProps {
   readonly language?: PxlLanguage | undefined;
   /** Opens the full-screen JSON editor (STU-064); the button shows only when given. */
   readonly onOpenJson?: (() => void) | undefined;
+  /** Opens the localisation table (STU-063) and the state designer (STU-063); each button shows only when given. */
+  readonly onOpenLocalisation?: (() => void) | undefined;
+  readonly onOpenState?: (() => void) | undefined;
+  /** The app's schema version, for the documents that key extraction creates (I18N-007). */
+  readonly schemaVersion?: JsonValue | undefined;
 }
+
+/** The registry marks string props whose text the user sees (`translatable`, I18N-007). */
+const isTranslatable = (prop: PropDescriptor): boolean => (prop as { translatable?: boolean }).translatable === true;
 
 /** The selection's nodes from the edited documents (the session's), falling back to the server's screens. */
 function useLiveNodes(p: DockProps): Map<string, Obj> {
@@ -487,6 +499,9 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const first = ids[0] ?? "";
   const screen = p.screenOf.get(first);
   const file = screen === undefined ? undefined : p.pathOf.get(screen);
+  const l10n = useL10nSessions();
+  const lm = localisationMessages(useLingui().i18n);
+  const [extracting, setExtracting] = useState<{ readonly name: string; readonly text: string } | null>(null);
 
   const apply = (name: string, value: unknown) => {
     for (const id of ids) {
@@ -544,6 +559,22 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
                 burst.current += 1;
               }}
             />
+            {l10n !== null &&
+              canEdit &&
+              ids.length === 1 &&
+              isTranslatable(prop) &&
+              !mixed &&
+              typeof sv.value === "string" &&
+              sv.value !== "" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExtracting({ name: prop.name, text: sv.value as string })}
+                >
+                  <Icon name="globe" />
+                  {lm.extract}
+                </Button>
+              )}
             {!mixed && sv.overridden && (
               <div className="flex items-center gap-2 text-caption text-secondary">
                 <span>{m.overridden}</span>
@@ -565,6 +596,23 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
           </Field>
         );
       })}
+      {l10n !== null && extracting !== null && (
+        <ExtractKeyDialog
+          open
+          onClose={() => setExtracting(null)}
+          sessions={l10n}
+          text={extracting.text}
+          prefix={p.index.type.get(first) ?? ""}
+          schemaVersion={p.schemaVersion ?? 1}
+          newId={uuidv7}
+          replaceProp={(reference, step) => {
+            const doc = p.screenOf.get(first);
+            if (doc !== undefined) {
+              p.edit(doc, setPropRecipe(first, bp, extracting.name, reference), { step });
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -725,6 +773,18 @@ export function RightDock(props: DockProps) {
         <Button variant="secondary" size="sm" onClick={props.onOpenJson}>
           <Icon name="pencil-simple" />
           {jsonLabel}
+        </Button>
+      )}
+      {props.onOpenLocalisation !== undefined && (
+        <Button variant="secondary" size="sm" onClick={props.onOpenLocalisation}>
+          <Icon name="globe" />
+          {localisationMessages(i18n).open}
+        </Button>
+      )}
+      {props.onOpenState !== undefined && (
+        <Button variant="secondary" size="sm" onClick={props.onOpenState}>
+          <Icon name="list" />
+          {stateMessages(i18n).open}
         </Button>
       )}
       <Tabs

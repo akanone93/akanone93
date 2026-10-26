@@ -34,7 +34,7 @@ function required(l: Lock | undefined): LockInfo {
 /** Binds the lock controller to PluginService for one plugin (SRV-040–SRV-042). */
 export function lockTransport(
   transport: Transport,
-  ids: { readonly appId: string; readonly pluginId: string },
+  ids: { readonly appId: string; readonly pluginId: string; readonly scope?: string },
 ): LockTransport {
   const client = createClient(PluginService, transport);
   return {
@@ -60,11 +60,11 @@ export function lockTransport(
 }
 
 /** One BroadcastChannel per plugin, so one person's tabs share one lock (F1.3). */
-export function tabChannel(appId: string, pluginId: string): TabChannel | undefined {
+export function tabChannel(appId: string, pluginId: string, scope = ""): TabChannel | undefined {
   if (typeof BroadcastChannel === "undefined") {
     return undefined;
   }
-  const channel = new BroadcastChannel(`plux-lock:${appId}/${pluginId}`);
+  const channel = new BroadcastChannel(`plux-lock:${appId}/${pluginId}${scope === "" ? "" : `#${scope}`}`);
   return {
     post: (m) => channel.postMessage(m),
     listen(fn) {

@@ -23,6 +23,7 @@ export {
   checkEntityDelete,
   checkPluginDelete,
   checkScreenDelete,
+  checkStateDelete,
   componentKeyEffects,
   type DeleteCheck,
   isBlocked,

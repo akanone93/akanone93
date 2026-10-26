@@ -19,6 +19,12 @@ msgstr "(Kopie)"
 msgid "lock.lost.unsaved"
 msgstr "{count, plural, =0 {Keine ungespeicherten Änderungen} one {# ungespeicherte Änderung} other {# ungespeicherte Änderungen}}"
 
+#. Beside a state entry: how many PXL expressions of the plugin read it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.uses"
+msgstr "{count, plural, =0 {Nicht verwendet} one {# Mal verwendet} other {# Mal verwendet}}"
+
 #. Status chip: edits not yet saved, kept in memory until the server is reachable.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -144,6 +150,12 @@ msgstr "{holder} wurde gebeten, das Plugin zu übergeben."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.bundleSize"
 msgstr "{kb} KB Bundle"
+
+#. Accessible name of the field that holds one message: the key and the locale it is in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.message"
+msgstr "{key} in {locale}"
 
 #. Badge: validation errors in a plugin.
 #. js-lingui-explicit-id
@@ -271,6 +283,12 @@ msgstr "{title} ({scope})"
 msgid "jsonEditor.notObject"
 msgstr "Ein Dokument muss ein JSON-Objekt sein."
 
+#. Error under the key name field when the name is in use.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.problem.taken"
+msgstr "Ein Schlüssel mit diesem Namen existiert bereits."
+
 #. Shown when an upload chunk was sent at the wrong offset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -343,11 +361,23 @@ msgstr "Danach hinzufügen"
 msgid "panels.addItem"
 msgstr "Eintrag hinzufügen"
 
+#. Button that adds the typed translation key to the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.addKey"
+msgstr "Schlüssel hinzufügen"
+
 #. Button that writes the navigation link to the document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.add"
 msgstr "Link hinzufügen"
+
+#. Button that adds a new state entry to the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.add"
+msgstr "Statuseintrag hinzufügen"
 
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
@@ -355,11 +385,35 @@ msgstr "Link hinzufügen"
 msgid "panels.alignment"
 msgstr "Ausrichtung"
 
+#. Option: every translation key of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.scope.all"
+msgstr "Alle Schlüssel der App"
+
 #. Option that shows every event type.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.all-types"
 msgstr "Alle Typen"
+
+#. Error under the name field when the name is in use.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.problem.taken"
+msgstr "Ein anderer Eintrag hat diesen Namen."
+
+#. Notice when the plugin's draft lock is held by someone else.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.readOnly"
+msgstr "Eine andere Person hält die Entwurfssperre, der Status ist daher schreibgeschützt."
+
+#. Notice when the lock of the locale being edited is held by someone else.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.readOnly"
+msgstr "Eine andere Person hält die Sperre dieser Sprache, die Tabelle ist daher schreibgeschützt."
 
 #. Accessible name of the canvas that shows the plugins of an app.
 #. js-lingui-explicit-id
@@ -469,6 +523,12 @@ msgstr "Abbrechen"
 msgid "assets.cancel"
 msgstr "Abbrechen"
 
+#. Button that closes the key extraction dialog without changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract.cancel"
+msgstr "Abbrechen"
+
 #. Dialog button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -510,6 +570,12 @@ msgstr "Auslöser ändern"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.loading"
 msgstr "Zugriff wird geprüft"
+
+#. Shown while the validator checks the chosen state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.checking"
+msgstr "Eintrag wird geprüft …"
 
 #. Shown in the Problems tab while the validator runs on the plugin that was just opened.
 #. js-lingui-explicit-id
@@ -594,6 +660,18 @@ msgstr "Schließen"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.close"
 msgstr "JSON-Editor schließen"
+
+#. Accessible name of the button that closes the localisation table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.close"
+msgstr "Lokalisierungstabelle schließen"
+
+#. Accessible name of the button that closes the state designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.close"
+msgstr "Status-Designer schließen"
 
 #. Density option.
 #. js-lingui-explicit-id
@@ -685,6 +763,12 @@ msgstr "Meine als JSON kopieren"
 msgid "pluginCanvas.create"
 msgstr "Erstellen"
 
+#. Button that creates the translation key and replaces the text with it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract.confirm"
+msgstr "Schlüssel anlegen"
+
 #. Button of the trigger picker that creates the link.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -720,6 +804,12 @@ msgstr "Entscheidung: {decision}"
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.rename.deep-link"
 msgstr "Deep Link"
+
+#. Label of the field in which the entry's default value is typed as JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.default"
+msgstr "Standardwert (JSON)"
 
 #. Button that confirms deleting a screen.
 #. js-lingui-explicit-id
@@ -865,6 +955,18 @@ msgstr "Bearbeiten"
 msgid "auth.field.email"
 msgstr "E-Mail"
 
+#. Error under the key name field when it is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.problem.empty"
+msgstr "Gib einen Schlüsselnamen ein."
+
+#. Error under the name field when it is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.problem.empty"
+msgstr "Gib einen Namen ein."
+
 #. Validation error of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -961,6 +1063,12 @@ msgstr "Zugriff erklären"
 msgid "panels.field"
 msgstr "Feld {name}"
 
+#. Heading of the list of validator findings about the chosen state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.problems"
+msgstr "Befunde des Validators"
+
 #. Button that fits all screens into the view.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -972,6 +1080,12 @@ msgstr "Einpassen"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.invalid"
 msgstr "Behebe die folgenden Probleme, um zu übernehmen."
+
+#. Option: kept until the app session ends.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.persistence.session"
+msgstr "Für die Sitzung"
 
 #. Accessible name of a frame around plugin boxes.
 #. js-lingui-explicit-id
@@ -1062,6 +1176,12 @@ msgstr "Hinweis"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.home"
 msgstr "Start"
+
+#. Option: lost when the plugin closes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.persistence.memory"
+msgstr "Im Arbeitsspeicher"
 
 #. Accessible name of the icon of an information item in the Problems tab.
 #. js-lingui-explicit-id
@@ -1155,6 +1275,12 @@ msgstr "Meine behalten"
 msgid "editor.conflict.would-drop"
 msgstr "Diese Änderungen lassen sich beim Behalten deiner Version nicht anwenden"
 
+#. Column heading of the table: the name of the translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.column.key"
+msgstr "Schlüssel"
+
 #. Field label for a plugin's key, its stable identifier.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1172,6 +1298,24 @@ msgstr "Tastaturkürzel"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.shortcuts"
 msgstr "Tastenkürzel"
+
+#. Notice in the key extraction dialog when a lock the extraction needs is held by someone else.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract.unavailable"
+msgstr "Schlüssel lassen sich anlegen, sobald du die Entwurfssperre und die Sperre der Standardsprache hältst."
+
+#. Notice when the app's draft lock, which new keys need, is held by someone else.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.keysReadOnly"
+msgstr "Schlüssel können nicht hinzugefügt werden, solange eine andere Person die Entwurfssperre hält."
+
+#. Label of the list that chooses which translation keys the table shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.scope"
+msgstr "Angezeigte Schlüssel"
 
 #. Label of the language choice.
 #. js-lingui-explicit-id
@@ -1269,6 +1413,12 @@ msgstr "Verknüpfungen zwischen Plugins"
 msgid "links.existing"
 msgstr "Links dieses Widgets"
 
+#. Option: the entry holds a list of values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.list"
+msgstr "Liste"
+
 #. Option that sets a fixed value instead of a binding.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1305,6 +1455,24 @@ msgstr "Bildschirme werden geladen"
 msgid "jsonEditor.loadingPublished"
 msgstr "Veröffentlichte Version wird geladen …"
 
+#. Label of the list that chooses the locale whose messages the table edits; each locale has its own lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.editLocale"
+msgstr "Zu bearbeitende Sprache"
+
+#. Title of the full-screen overlay in which translation keys are edited for every locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.title"
+msgstr "Lokalisierung"
+
+#. Button in the right panel that opens the full-screen table of translation keys and locales.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.open"
+msgstr "Lokalisierungstabelle"
+
 #. Badge: who holds the editing lock of the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1316,6 +1484,12 @@ msgstr "Gesperrt von {who}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.setEntry"
 msgstr "Zum Einstiegs-Plugin machen"
+
+#. Option: the entry holds a map from text keys to values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.map"
+msgstr "Zuordnung mit Textschlüsseln"
 
 #. Button that marks one notification read.
 #. js-lingui-explicit-id
@@ -1329,11 +1503,23 @@ msgstr "Als gelesen markieren"
 msgid "profile.theme.system"
 msgstr "Wie System"
 
+#. Label of the checkbox that makes the entry's type nullable.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.nullable"
+msgstr "Darf leer sein"
+
 #. Window size class from 600 to 839 dp.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.medium"
 msgstr "Mittel"
+
+#. Shown in a cell of the table whose locale has no message for the key yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.missing"
+msgstr "Fehlt"
 
 #. Shown in a property field when the selected widgets have different values.
 #. js-lingui-explicit-id
@@ -1353,6 +1539,18 @@ msgstr "Verschieben"
 msgid "appCanvas.moveTo"
 msgstr "{name} verschieben nach …"
 
+#. Title of the dialog that creates a translation key from literal text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract.title"
+msgstr "Text in einen Übersetzungsschlüssel verschieben"
+
+#. Button under a text property: offers to turn the typed text into a translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract"
+msgstr "In einen Übersetzungsschlüssel verschieben"
+
 #. Menu entry and command that move the current screen, with its links, to another plugin (D23).
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1364,6 +1562,12 @@ msgstr "In Plugin verschieben"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.moveSelection"
 msgstr "Verschieben nach …"
+
+#. Label of the field with the name PXL uses to address a state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.name"
+msgstr "Name"
 
 #. Field label for a plugin's name.
 #. js-lingui-explicit-id
@@ -1406,6 +1610,12 @@ msgstr "Benötigt eine Touch-Fläche von mindestens 44 mal 44 dp."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.disabled.reason"
 msgstr "Benötigt die Berechtigung {permission}"
+
+#. Label of the field in which the name of a new translation key is typed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.newKey"
+msgstr "Neuer Schlüssel"
 
 #. Button and dialog title: add a plugin to the app.
 #. js-lingui-explicit-id
@@ -1496,6 +1706,12 @@ msgstr "Keine Bildschirme zum Verlinken."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
+
+#. Shown when the table has no key for the chosen scope.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.empty"
+msgstr "Keine Übersetzungsschlüssel vorhanden."
 
 #. Shown when the Insert search finds nothing.
 #. js-lingui-explicit-id
@@ -1833,6 +2049,12 @@ msgstr "Wiederholen (Strg+Y)"
 msgid "banner.reload"
 msgstr "Neu laden"
 
+#. Button that removes the chosen state entry unless something still reads it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.remove"
+msgstr "Eintrag entfernen"
+
 #. Accessible name of the button that removes a list item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1953,6 +2175,18 @@ msgstr "Speichern"
 msgid "profile.saved"
 msgstr "Gespeichert"
 
+#. Option: kept in the device's secure storage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.persistence.secure"
+msgstr "Im sicheren Speicher gespeichert"
+
+#. Option: kept on the device between sessions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.persistence.persisted"
+msgstr "Auf dem Gerät gespeichert"
+
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2031,6 +2265,18 @@ msgstr "Auswahl"
 msgid "panels.semLabel"
 msgstr "Semantik-Bezeichnung"
 
+#. Label of the checkbox that marks the entry as holding personal or secret data.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.sensitive"
+msgstr "Sensibel"
+
+#. Label of the list that chooses whether a state entry is a single value, a list or a map.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.container"
+msgstr "Form"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -2097,6 +2343,12 @@ msgstr "Anmeldung läuft"
 msgid "auth.providers"
 msgstr "Einmalanmeldung"
 
+#. Option: the entry holds one value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.single"
+msgstr "Einzelwert"
+
 #. Label of the control that picks the window size class an edit applies to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2114,6 +2366,30 @@ msgstr "Slots"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.retake-failed"
 msgstr "Jemand anderes hält die Sperre jetzt."
+
+#. Error under the name field when the name is not lowerCamelCase.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.problem.invalid"
+msgstr "Beginne mit einem Kleinbuchstaben und verwende nur Buchstaben und Ziffern, etwa loanAmount."
+
+#. Button in the right panel that opens the full-screen designer of the plugin's state entries.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.open"
+msgstr "Status-Designer"
+
+#. Title of the full-screen overlay in which a plugin's state entries are added, edited and removed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.title"
+msgstr "Status-Designer"
+
+#. Accessible name of the list of the plugin's state entries.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.entries"
+msgstr "Statuseinträge"
 
 #. Button that keeps the person on the page.
 #. js-lingui-explicit-id
@@ -2199,6 +2475,12 @@ msgstr "Ziel-Plugin"
 msgid "links.target"
 msgstr "Zielbildschirm"
 
+#. Label of the read-only field that shows the text being moved to a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract.text"
+msgstr "Text"
+
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -2235,6 +2517,12 @@ msgstr "Die Prüfung war nicht erfolgreich. Versuchen Sie es erneut."
 msgid "auth.error.code-rejected"
 msgstr "Der Code ist falsch oder abgelaufen."
 
+#. Error under the default field when the text is not JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.notJson"
+msgstr "Der Standardwert ist kein gültiges JSON."
+
 #. Shown when the server refuses the credentials.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -2264,6 +2552,12 @@ msgstr "Die Datei wurde auf dem Weg zum Server beschädigt. Lade sie erneut hoch
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.invite"
 msgstr "Die Einladung ist ungültig oder abgelaufen."
+
+#. Error in the key extraction dialog when the server did not accept the new key or message.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract.failed"
+msgstr "Der Schlüssel konnte nicht gespeichert werden. Es wurde nichts geändert."
 
 #. Shown when the server refused a takeover.
 #. js-lingui-explicit-id
@@ -2332,6 +2626,12 @@ msgstr "Der Server hat eine andere Anzahl von Bytes erhalten, als die Datei hat.
 msgid "pluginCanvas.moveReasonKey"
 msgstr "das Ziel-Plugin hat bereits einen Bildschirm mit diesem Schlüssel."
 
+#. Explains what moving literal text to a translation key does; the locale is the app's default.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.extract.hint"
+msgstr "Der Text wird zur Nachricht des Schlüssels in {locale}, und die Eigenschaft verweist auf den Schlüssel. Das ist ein einziger Rückgängig-Schritt."
+
 #. STU-074 type-to-confirm: shown while the typed text differs from the name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -2355,6 +2655,18 @@ msgstr "Der Upload ist abgelaufen oder existiert nicht mehr. Lade die Datei erne
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.unavailable"
 msgstr "Die Prüfung konnte nicht ausgeführt werden."
+
+#. Shown when the validator accepts the chosen state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.valid"
+msgstr "Der Validator hat an diesem Eintrag nichts gefunden."
+
+#. Shown when the validator worker cannot check the entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.unavailable"
+msgstr "Der Validator ist nicht verfügbar, daher wird der Standardwert nicht geprüft."
 
 #. Status when the validator has not finished loading, so applying is not possible.
 #. js-lingui-explicit-id
@@ -2422,6 +2734,12 @@ msgstr "Diese Änderung betrifft Code außerhalb von Studio"
 msgid "jsonEditor.noPublished"
 msgstr "Dieses Dokument wurde noch nicht veröffentlicht, daher gibt es nichts zu vergleichen."
 
+#. Notice that a state entry has a computed expression, which this designer does not edit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.computed"
+msgstr "Dieser Eintrag wird aus einem Ausdruck berechnet; bearbeite den Ausdruck im JSON-Editor."
+
 #. Reason a screen cannot be deleted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2463,6 +2781,12 @@ msgstr "Dieses Plugin wurde auf dem Server geändert"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.empty"
 msgstr "Dieses Plugin hat noch keine Bildschirme."
+
+#. Shown when the plugin declares no state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.none"
+msgstr "Dieses Plugin hat noch keine Statuseinträge."
 
 #. Heading of the dialog that lists what blocks deleting a screen.
 #. js-lingui-explicit-id
@@ -2506,11 +2830,23 @@ msgstr "Oben"
 msgid "panels.useKey"
 msgstr "Übersetzungsschlüssel"
 
+#. Accessible name of the table of translation keys and their messages in every locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.table"
+msgstr "Übersetzungsschlüssel nach Sprache"
+
 #. Button and dialog title: deleted plugins and screens that can still be restored (A44).
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.trash"
 msgstr "Papierkorb"
+
+#. Label of the list that chooses the type of the entry's value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.base"
+msgstr "Typ"
 
 #. STU-074 type-to-confirm: label of the field where the user types the name of what is affected.
 #. js-lingui-explicit-id
@@ -2529,6 +2865,12 @@ msgstr "Geben Sie {phrase} zur Bestätigung ein"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search"
 msgstr "Befehl eingeben"
+
+#. Label of the field in which a type that the pickers cannot express is edited as text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.rawType"
+msgstr "Typausdruck"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -2590,11 +2932,29 @@ msgstr "Passkey verwenden"
 msgid "auth.error.password-short"
 msgstr "Verwenden Sie mindestens 12 Zeichen."
 
+#. Error under the key name field when the name does not follow the key pattern.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.problem.invalid"
+msgstr "Verwende Kleinbuchstaben-Wörter, durch Punkte oder Bindestriche verbunden, etwa home.title."
+
 #. Button that starts the WebAuthn check.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.use"
 msgstr "Sicherheitsschlüssel oder Passkey verwenden"
+
+#. Option: only the translation keys that the selected nodes use.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.scope.selection"
+msgstr "Von der Auswahl verwendet"
+
+#. Option: only the translation keys that the pages of this plugin use.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.scope.plugin"
+msgstr "Von diesem Plugin verwendet"
 
 #. Badge: a plugin has no validation errors.
 #. js-lingui-explicit-id
@@ -2625,6 +2985,12 @@ msgstr "Warnung"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "Willkommen bei {name}"
+
+#. Label of the list that chooses how long the entry's value is kept.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.persistence"
+msgstr "Aufbewahrung"
 
 #. D35 heading of the list of document paths that differ.
 #. js-lingui-explicit-id

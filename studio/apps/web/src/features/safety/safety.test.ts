@@ -19,6 +19,7 @@ import {
   checkEntityDelete,
   checkPluginDelete,
   checkScreenDelete,
+  checkStateDelete,
   componentKeyEffects,
   isBlocked,
   type LoadedDoc,
@@ -300,5 +301,48 @@ describe("STU-055 move a screen to another plugin (D23) and undo it as one step 
     expect(sent?.drafts[0]?.edits[0]?.delete).toBe(true);
     expect(sent?.drafts[0]?.edits[0]?.ifRevision).toBe(5n);
     expect(new TextDecoder().decode(sent?.drafts[1]?.edits[0]?.content)).toContain('"p-offers"');
+  });
+});
+
+describe("STU-063 state entries in the where-used index", () => {
+  const docs: LoadedDoc[] = [
+    {
+      pluginId: "p1",
+      path: "plugins/p1/plugin.json",
+      kind: "plugin",
+      revision: 1,
+      json: { id: "p1", state: [{ id: "s1", name: "count", type: "int", computed: "state.base + 1" }] },
+    },
+    {
+      pluginId: "p1",
+      path: "plugins/p1/pages/home.page.json",
+      kind: "page",
+      revision: 1,
+      json: {
+        id: "home",
+        key: "home",
+        root: { id: "n1", props: { text: { $expr: "state.count + state.countdown" } } },
+      },
+    },
+    {
+      pluginId: "p2",
+      path: "plugins/p2/pages/x.page.json",
+      kind: "page",
+      revision: 1,
+      json: { id: "x", key: "x", root: { id: "n2", props: { text: { $expr: "state.count" } } } },
+    },
+  ];
+
+  test("a PXL read of state.<name> is a use, and only in the entry's own plugin", () => {
+    const index = buildWhereUsed(docs);
+    const check = checkStateDelete(index, "p1", "count");
+    expect(check.incoming.map((u) => u.path)).toEqual(["plugins/p1/pages/home.page.json"]);
+    expect(isBlocked(check)).toBe(true);
+    expect(isBlocked(checkStateDelete(index, "p1", "unused"))).toBe(false);
+  });
+
+  test("a computed expression of another entry counts as a use", () => {
+    const check = checkStateDelete(buildWhereUsed(docs), "p1", "base");
+    expect(check.incoming.map((u) => u.pointer)).toEqual(["/state/0/computed"]);
   });
 });

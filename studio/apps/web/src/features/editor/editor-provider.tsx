@@ -43,6 +43,8 @@ export interface EditorProviderProps {
   readonly onRejected?: (path: string, error: unknown, undone: readonly string[]) => void;
   /** The tab's editor session, which tags every write for the undo rebuild (STU-069). */
   readonly editorSessionId?: string;
+  /** The lock this editor takes: empty for the draft's, "translations/<locale>" for one locale's messages (I18N-008). */
+  readonly lockScope?: string;
   /** The undo stacks this plugin's edits go to (stack key: the plugin ID, "" for app documents). */
   readonly undo?: UndoManager;
   readonly children: ReactNode;
@@ -113,13 +115,13 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
   const [lock] = useState(
     () =>
       new LockController({
-        transport: lockTransport(session.transport, { appId, pluginId }),
+        transport: lockTransport(session.transport, { appId, pluginId, scope: props.lockScope ?? "" }),
         session: crypto.randomUUID(),
         idleReleaseMs: limitDefault("studio.lockIdleReleaseMinutes") * 60_000,
         takeoverIdleMs: limitDefault("studio.lockTakeoverIdleMinutes") * 60_000,
         scheduler: { setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (h) => clearTimeout(h as number) },
         ticker: workerTicker(lockWorkerFactory()),
-        channel: tabChannel(appId, pluginId),
+        channel: tabChannel(appId, pluginId, props.lockScope ?? ""),
         beforeRelease: () => flushed(edit),
       }),
   );
