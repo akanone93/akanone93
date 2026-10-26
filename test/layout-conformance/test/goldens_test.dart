@@ -83,6 +83,12 @@ void _collectTextIds(Map<String, Object?> node, List<String> into) {
   if (node['type'] == 'Text') {
     into.add(node['id']! as String);
   }
+  if (node['type'] == 'CupertinoPicker' && ((node['children'] as List<Object?>?) ?? const <Object?>[]).isEmpty) {
+    final int count = ((node['props'] as Map<String, Object?>)['itemCount'] as int?) ?? 3;
+    for (int i = 0; i < count; i++) {
+      into.add('${node['id']}.item$i');
+    }
+  }
   for (final Object? child in (node['children'] as List<Object?>?) ?? const <Object?>[]) {
     _collectTextIds(child! as Map<String, Object?>, into);
   }
@@ -1069,10 +1075,48 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
   throw ArgumentError('unknown scene node type "$type" (node "$id")');
 }
 
+/// The ids of the CupertinoDatePicker nodes under [node].
+void _collectDatePickerIds(Map<String, Object?> node, List<String> ids) {
+  if (node['type'] == 'CupertinoDatePicker') {
+    ids.add(node['id']! as String);
+  }
+  for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+    _collectDatePickerIds(child! as Map<String, Object?>, ids);
+  }
+}
+
+/// The rows every wheel of the date picker [id] has built, keyed `<id>.c<column>.i<item index>`:
+/// the date picker builds its rows itself, so they are read from the wheels' children.
+Map<String, List<double>> _wheelRowRects(WidgetTester tester, String id) {
+  final Map<String, List<double>> rects = <String, List<double>>{};
+  final Iterable<Element> wheels = find
+      .descendant(of: find.byKey(ValueKey<String>(id), skipOffstage: false), matching: find.byType(ListWheelViewport), skipOffstage: false)
+      .evaluate();
+  int column = 0;
+  for (final Element wheel in wheels) {
+    (wheel.renderObject! as RenderListWheelViewport).visitChildren((RenderObject row) {
+      final RenderBox box = row as RenderBox;
+      final int index = (box.parentData! as ListWheelParentData).index!;
+      // As WidgetTester.getRect: the transformed corners.
+      final Rect rect = Rect.fromPoints(box.localToGlobal(Offset.zero), box.localToGlobal(box.size.bottomRight(Offset.zero)));
+      rects['$id.c$column.i$index'] = <double>[rect.left, rect.top, rect.width, rect.height];
+    });
+    column++;
+  }
+  return rects;
+}
+
 void _collectIds(Map<String, Object?> node, List<String> ids) {
   // A NavigationRailDestination is data, not a widget: it has no render object to report.
   if (node['type'] != 'NavigationRailDestination') {
     ids.add(node['id']! as String);
+  }
+  // A CupertinoPicker without children builds `Item i` rows, keyed `<id>.item<i>`.
+  if (node['type'] == 'CupertinoPicker' && ((node['children'] as List<Object?>?) ?? <Object?>[]).isEmpty) {
+    final int count = ((node['props'] as Map<String, Object?>)['itemCount'] as int?) ?? 3;
+    for (int i = 0; i < count; i++) {
+      ids.add('${node['id']}.item$i');
+    }
   }
   for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     _collectIds(child! as Map<String, Object?>, ids);
@@ -1168,6 +1212,11 @@ void main() {
                 if (!lazy || find.byKey(ValueKey<String>(id), skipOffstage: false).evaluate().isNotEmpty)
                   id: _rectOf(tester, id),
             };
+            final List<String> datePickerIds = <String>[];
+            _collectDatePickerIds(root, datePickerIds);
+            for (final String id in datePickerIds) {
+              rects.addAll(_wheelRowRects(tester, id));
+            }
             final List<String> textIds = <String>[];
             _collectTextIds(root, textIds);
             textIds.sort();
