@@ -137,6 +137,10 @@ describe("layoutScreen (STU-005, STU-006)", () => {
         button("icon", "IconButton", { tapTargetSize: "shrinkWrap" }),
         { id: "fab", type: "FloatingActionButton", props: {}, slots: { child: text("fabt", "+") } },
         { id: "small", type: "FloatingActionButton", props: { kind: "small" } },
+        { id: "unknown", type: "FloatingActionButton", props: { kind: "huge" } },
+        { id: "chip", type: "Chip", slots: { label: text("chipt", "Label") } },
+        { id: "field", type: "TextField", props: { border: "outline", labelText: "Name" } },
+        { id: "helped", type: "TextField", props: { helperText: "Help" } },
         tile("one", {}, ["title"]),
         tile("two", {}, ["title", "subtitle"]),
         tile("lead", { dense: true }, ["title", "leading", "trailing"]),
@@ -152,6 +156,10 @@ describe("layoutScreen (STU-005, STU-006)", () => {
     expect(byId.get("icon")).toMatchObject({ w: 40, h: 40 });
     expect(byId.get("fab")).toMatchObject({ w: 56, h: 56 });
     expect(byId.get("small")).toMatchObject({ w: 48, h: 48 });
+    expect(byId.get("unknown")).toMatchObject({ w: 56, h: 56 });
+    expect(byId.get("chip")?.h).toBe(48);
+    expect(byId.get("field")?.h).toBe(56);
+    expect(byId.get("helped")?.h).toBeGreaterThan(56);
     expect(byId.get("one")?.h).toBe(56);
     expect(byId.get("two")?.h).toBe(72);
     expect(byId.get("lead")?.h).toBe(48);

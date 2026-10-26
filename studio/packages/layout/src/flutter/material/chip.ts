@@ -16,7 +16,7 @@ import { BoxConstraints } from "../constraints.ts";
 import { ContainerRenderBox } from "../container.ts";
 import { Alignment, EdgeInsets, Offset, Size, TextDirection } from "../geometry.ts";
 import { RenderConstrainedBox } from "../proxy-box.ts";
-import { type BoxParentData, type RenderBox, TextBaseline } from "../render-box.ts";
+import type { BoxParentData, RenderBox, TextBaseline } from "../render-box.ts";
 import { RenderPadding, RenderPositionedBox, setChildOffset } from "../shifted-box.ts";
 import { kMinInteractiveDimension, MaterialTapTargetSize, type VisualDensity } from "./theme.ts";
 
@@ -183,10 +183,7 @@ class RenderChip extends ContainerRenderBox<RenderBox> {
     const labelOffset = centred(s.labelWidth, s.labelHeight, advance(s.labelWidth));
     place(
       this.label,
-      new Offset(
-        labelOffset.dx + this.labelPadding,
-        labelOffset.dy + (s.labelHeight - this.label.size.height) / 2,
-      ),
+      new Offset(labelOffset.dx + this.labelPadding, labelOffset.dy + (s.labelHeight - this.label.size.height) / 2),
     );
     if (this.deleteIcon !== null) {
       place(this.deleteIcon, centred(this.deleteIcon.size.width, this.deleteIcon.size.height, advance(s.deleteWidth)));
