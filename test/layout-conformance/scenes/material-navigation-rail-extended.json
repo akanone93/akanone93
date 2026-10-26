@@ -1,0 +1,104 @@
+{
+  "name": "material-navigation-rail-extended",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "a",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 420
+            },
+            "children": [
+              {
+                "id": "ar",
+                "type": "Row",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "children": [
+                  {
+                    "id": "r0",
+                    "type": "NavigationRail",
+                    "props": {
+                      "extended": true
+                    },
+                    "children": [
+                      {
+                        "id": "r0d0",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Home"
+                        },
+                        "children": [
+                          {
+                            "id": "r0d0-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r0d1",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Favorites"
+                        },
+                        "children": [
+                          {
+                            "id": "r0d1-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r0d2",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "A longer destination"
+                        },
+                        "children": [
+                          {
+                            "id": "r0d2-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

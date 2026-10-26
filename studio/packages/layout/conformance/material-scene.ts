@@ -12,6 +12,7 @@
 
 import { BoxConstraints } from "../src/flutter/constraints.ts";
 import type { TextDirection } from "../src/flutter/geometry.ts";
+import { EdgeInsetsDirectional } from "../src/flutter/geometry.ts";
 import {
   appBarPreferredHeight,
   buildAppBar,
@@ -19,8 +20,10 @@ import {
   kMaxTitleTextScaleFactor,
   kMiddleSpacing,
 } from "../src/flutter/material/app-bar.ts";
+import { buildModalBottomSheet } from "../src/flutter/material/bottom-sheet.ts";
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
 import { buildChip } from "../src/flutter/material/chip.ts";
+import { buildAlertDialog } from "../src/flutter/material/dialog.ts";
 import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../src/flutter/material/input-decorator.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import {
@@ -38,10 +41,13 @@ import {
   buildNavigationRail,
   buildRailDestination,
   kRailGroupAlignment,
+  kRailMinExtendedWidth,
   kRailMinWidth,
   type RailLabelType,
 } from "../src/flutter/material/navigation-rail.ts";
+import { buildPopupMenu, buildPopupMenuDivider, buildPopupMenuItem } from "../src/flutter/material/popup-menu.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
+import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../src/flutter/material/tab-bar.ts";
 import {
   kToolbarHeight,
   MaterialTapTargetSize,
@@ -51,6 +57,7 @@ import {
 } from "../src/flutter/material/theme.ts";
 import { RenderConstrainedBox } from "../src/flutter/proxy-box.ts";
 import type { RenderBox } from "../src/flutter/render-box.ts";
+import { RenderPadding } from "../src/flutter/shifted-box.ts";
 import type { TextStyle } from "../src/flutter/text-style.ts";
 import type { SceneNode, SceneText, TextDefaults } from "./scene.ts";
 
@@ -179,8 +186,43 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
   const subtext = text("errorText") ?? text("helperText");
   const withText = (text("text") ?? "") !== "";
   const line = syntheticText(node, "input", "A", ctx, style("bodyLarge"));
+  const affix = (name: string): RenderBox | null => {
+    const value = text(name);
+    return value === null ? null : syntheticText(node, name, value, ctx, style("bodyLarge"));
+  };
+  // The hint is one line (`hintMaxLines` follows `maxLines`) and ellipsized.
+  const hintText = text("hintText");
+  const hint =
+    hintText === null
+      ? null
+      : syntheticText(node, "hint", hintText, ctx, style("bodyLarge"), {
+          defaults: { maxLines: 1, overflow: "ellipsis" },
+        });
+  const leading = only(node, "icon");
   return buildInputDecorator({
     input: new RenderEditableLine(line),
+    // `InputDecoration.icon`: padded by 16 after it.
+    icon:
+      leading === null
+        ? null
+        : new RenderPadding({
+            padding: EdgeInsetsDirectional.only({ end: 16 }),
+            textDirection: ctx.direction,
+            child: ctx.build({
+              ...leading,
+              props: { size: prop(p, "isDense") === true ? 18 : 24, ...leading.props },
+            }),
+          }),
+    prefix: affix("prefixText"),
+    suffix: affix("suffixText"),
+    hint,
+    isEmpty: !withText,
+    counter:
+      text("counterText") === null
+        ? null
+        : syntheticText(node, "counter", text("counterText") ?? "", ctx, style("bodySmall"), {
+            defaults: { overflow: "ellipsis" },
+          }),
     prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
     suffixIcon: suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
     subtext:
@@ -196,6 +238,17 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
     density: dens,
     textDirection: ctx.direction,
   });
+}
+
+/** The icon a destination shows: its `selectedIcon` when selected (else its `icon`), its `icon` otherwise. */
+function shownIcon(destination: SceneNode, selected: boolean): SceneNode {
+  const icon = only(destination, "icon");
+  const selectedIcon = only(destination, "selectedIcon");
+  const shown = selected ? (selectedIcon ?? icon) : (icon ?? selectedIcon);
+  if (shown === null) {
+    throw new Error(`node "${destination.id}": a destination needs an icon`);
+  }
+  return shown;
 }
 
 /** `NavigationBar` with `NavigationDestination` children: an `icon` slot and a `label` prop each. */
@@ -220,7 +273,7 @@ function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBo
     );
     const shown = behavior === "alwaysShow" || (behavior === "onlyShowSelected" && index === selectedIndex) ? 1 : 0;
     const row = buildDestination(
-      indicatorIcon(ctx.build(required(destination, "icon")), kIndicatorWidth, kIndicatorHeight),
+      indicatorIcon(ctx.build(shownIcon(destination, index === selectedIndex)), kIndicatorWidth, kIndicatorHeight),
       destinationLabel(text),
       shown,
       ctx.direction,
@@ -241,25 +294,112 @@ function buildNavigationRailNode(node: SceneNode, ctx: MaterialContext): RenderB
   const selectedIndex = num(p, "selectedIndex", 0);
   const labelType = (prop(p, "labelType") ?? "none") as RailLabelType;
   const minWidth = num(p, "minWidth", kRailMinWidth);
-  const destinations = (node.children ?? []).map((destination, index) => {
+  const destinations = slot(node, "child").map((destination, index) => {
     if (destination.type !== "NavigationRailDestination") {
       throw new Error(`node "${destination.id}": a NavigationRail holds NavigationRailDestination nodes`);
     }
     const label = prop(destination.props, "label");
     return buildRailDestination({
-      icon: ctx.build(required(destination, "icon")),
+      icon: ctx.build(shownIcon(destination, index === selectedIndex)),
       label: syntheticText(destination, "label", typeof label === "string" ? label : "", ctx, style("labelMedium")),
       selected: index === selectedIndex,
       labelType,
       minWidth,
+      extendedWidth: prop(p, "extended") === true ? num(p, "minExtendedWidth", kRailMinExtendedWidth) : null,
       textDirection: ctx.direction,
     });
   });
+  const leading = only(node, "leading");
+  const trailing = only(node, "trailing");
   return buildNavigationRail({
     destinations,
+    leading: leading === null ? null : ctx.build(leading),
+    trailing: trailing === null ? null : ctx.build(trailing),
     groupAlignment: num(p, "groupAlignment", kRailGroupAlignment),
     textDirection: ctx.direction,
   });
+}
+
+/** `TabBar` with `Tab` children: an optional `icon` slot and a `text` prop each. */
+function buildTabBarNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const isScrollable = prop(p, "isScrollable") === true;
+  const tabs = (node.children ?? []).map((tab) => {
+    if (tab.type !== "Tab") {
+      throw new Error(`node "${tab.id}": a TabBar holds Tab nodes`);
+    }
+    const label = prop(tab.props, "text");
+    const icon = only(tab, "icon");
+    const height = typeof prop(tab.props, "height") === "number" ? num(tab.props, "height", 0) : null;
+    const box = buildTab({
+      icon: icon === null ? null : ctx.build(icon),
+      text:
+        typeof label === "string"
+          ? syntheticText(tab, "label", label, ctx, style("titleSmall"), {
+              defaults: { softWrap: false, overflow: "fade" },
+            })
+          : null,
+      height,
+    });
+    box.debugId = tab.id;
+    return {
+      box,
+      preferredHeight: tabPreferredHeight({ hasIcon: icon !== null, hasText: typeof label === "string", height }),
+    };
+  });
+  return buildTabBar({
+    tabs,
+    isScrollable,
+    tabAlignment: (prop(p, "tabAlignment") ?? (isScrollable ? "startOffset" : "fill")) as TabAlignment,
+    textDirection: ctx.direction,
+  });
+}
+
+/** `AlertDialog`: `title`, `content` and `actions` slots in the dialog panel's text styles. */
+function buildAlertDialogNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const title = only(node, "title");
+  const content = only(node, "content");
+  const actions = slot(node, "actions");
+  return buildAlertDialog({
+    title: title === null ? null : ctx.build(title, style("headlineSmall")),
+    content: content === null ? null : ctx.build(content, style("bodyMedium")),
+    actions: actions.length === 0 ? null : actions.map((a) => ctx.build(a)),
+    textScale: ctx.text?.textScaler.textScaleFactor ?? 1,
+    textDirection: ctx.direction,
+  });
+}
+
+/** A modal `BottomSheet` in its settled state: the `child` slot, with an optional drag handle. */
+function buildBottomSheetNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  return buildModalBottomSheet({
+    child: ctx.build(required(node, "child")),
+    showDragHandle: prop(node.props, "showDragHandle") === true,
+    isScrollControlled: prop(node.props, "isScrollControlled") === true,
+    textDirection: ctx.direction,
+  });
+}
+
+/** A popup menu in its open state: `PopupMenuItem` (a `child` slot, optional `height`) and `PopupMenuDivider` children. */
+function buildPopupMenuNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const optionalHeight = (entry: SceneNode): number | null =>
+    typeof prop(entry.props, "height") === "number" ? num(entry.props, "height", 0) : null;
+  const items = (node.children ?? []).map((entry) => {
+    let box: RenderBox;
+    if (entry.type === "PopupMenuDivider") {
+      box = buildPopupMenuDivider(optionalHeight(entry));
+    } else if (entry.type === "PopupMenuItem") {
+      box = buildPopupMenuItem(
+        ctx.build(required(entry, "child"), style("labelLarge")),
+        optionalHeight(entry),
+        ctx.direction,
+      );
+    } else {
+      throw new Error(`node "${entry.id}": a PopupMenu holds PopupMenuItem and PopupMenuDivider nodes`);
+    }
+    box.debugId = entry.id;
+    return box;
+  });
+  return buildPopupMenu(items, ctx.direction);
 }
 
 const builders: Record<string, Builder> = {
@@ -346,6 +486,10 @@ const builders: Record<string, Builder> = {
   TextField: buildTextField,
   NavigationBar: buildNavigationBarNode,
   NavigationRail: buildNavigationRailNode,
+  TabBar: buildTabBarNode,
+  AlertDialog: buildAlertDialogNode,
+  BottomSheet: buildBottomSheetNode,
+  PopupMenu: buildPopupMenuNode,
   // `Drawer`: a `ConstrainedBox` expanded to the drawer width (304 by default) around its child.
   Drawer: (node, ctx) =>
     new RenderConstrainedBox({
@@ -398,7 +542,13 @@ for (const type of Object.keys(buttonKinds)) {
 }
 
 /** Node types only a composite builds, from its children. */
-const partTypes: readonly string[] = ["NavigationDestination", "NavigationRailDestination"];
+const partTypes: readonly string[] = [
+  "NavigationDestination",
+  "NavigationRailDestination",
+  "Tab",
+  "PopupMenuItem",
+  "PopupMenuDivider",
+];
 
 /** The node types this module builds, the parts of composites included. */
 export const materialTypes: ReadonlySet<string> = new Set([...Object.keys(builders), ...partTypes]);

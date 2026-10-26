@@ -1,0 +1,106 @@
+{
+  "name": "material-alert-dialog-stacked",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 640
+            },
+            "children": [
+              {
+                "id": "d",
+                "type": "AlertDialog",
+                "props": {},
+                "children": [
+                  {
+                    "id": "dti",
+                    "type": "Text",
+                    "props": {
+                      "text": "Update available"
+                    },
+                    "slot": "title"
+                  },
+                  {
+                    "id": "dco",
+                    "type": "Text",
+                    "props": {
+                      "text": "A new version is ready."
+                    },
+                    "slot": "content"
+                  },
+                  {
+                    "id": "da0",
+                    "type": "TextButton",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "da0t",
+                        "type": "Text",
+                        "props": {
+                          "text": "Remind me tomorrow"
+                        },
+                        "slot": "child"
+                      }
+                    ],
+                    "slot": "actions"
+                  },
+                  {
+                    "id": "da1",
+                    "type": "TextButton",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "da1t",
+                        "type": "Text",
+                        "props": {
+                          "text": "Skip this version"
+                        },
+                        "slot": "child"
+                      }
+                    ],
+                    "slot": "actions"
+                  },
+                  {
+                    "id": "da2",
+                    "type": "TextButton",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "da2t",
+                        "type": "Text",
+                        "props": {
+                          "text": "Update now"
+                        },
+                        "slot": "child"
+                      }
+                    ],
+                    "slot": "actions"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

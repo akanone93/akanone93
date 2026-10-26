@@ -1,0 +1,109 @@
+{
+  "name": "material-text-field-counter",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "wf0",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f0",
+                "type": "TextField",
+                "props": {
+                  "counterText": "0/20",
+                  "helperText": "Pick a short name"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf1",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f1",
+                "type": "TextField",
+                "props": {
+                  "counterText": "3/10",
+                  "errorText": "Too short",
+                  "border": "outline",
+                  "text": "abc"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf2",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f2",
+                "type": "TextField",
+                "props": {
+                  "counterText": "5/5",
+                  "filled": true,
+                  "labelText": "Code",
+                  "text": "12345"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf3",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f3",
+                "type": "TextField",
+                "props": {
+                  "counterText": "0/100",
+                  "border": "outline",
+                  "hintText": "Say something"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "cap",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

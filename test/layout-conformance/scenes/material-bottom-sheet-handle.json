@@ -1,0 +1,117 @@
+{
+  "name": "material-bottom-sheet-handle",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 640
+            },
+            "children": [
+              {
+                "id": "sh",
+                "type": "BottomSheet",
+                "props": {
+                  "showDragHandle": true
+                },
+                "children": [
+                  {
+                    "id": "shc",
+                    "type": "Column",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "mainAxisSize": "min"
+                    },
+                    "children": [
+                      {
+                        "id": "a0",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "a0l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "a0t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Share"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "a1",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "a1l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "a1t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Copy link"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "a2",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "a2l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "a2t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Edit name"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

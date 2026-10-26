@@ -1,0 +1,106 @@
+{
+  "name": "material-text-field-hint",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "wf0",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f0",
+                "type": "TextField",
+                "props": {
+                  "hintText": "Search products"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf1",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f1",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "hintText": "Enter your full name and surname here to continue"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf2",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f2",
+                "type": "TextField",
+                "props": {
+                  "filled": true,
+                  "labelText": "Email",
+                  "hintText": "name@example.com"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf3",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f3",
+                "type": "TextField",
+                "props": {
+                  "border": "outline",
+                  "labelText": "Email",
+                  "hintText": "name@example.com",
+                  "text": "a@b.c"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "cap",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
