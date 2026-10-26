@@ -115,6 +115,8 @@ import {
   WrapAlignment,
   WrapCrossAlignment,
 } from "../src/index.ts";
+import { layer2Types, layer2WidgetBuilders } from "../src/widgets/layer2.ts";
+import { defaultScreenTheme, type WidgetContext, type WidgetNode } from "../src/widgets/screen.ts";
 import {
   buildCupertino,
   buildCupertinoSliver,
@@ -160,6 +162,8 @@ export interface SceneNode {
 /** A conformance scene, shared verbatim with the Flutter golden writer. */
 export interface Scene {
   name: string;
+  /** A Layer 2 scene: its root is a Plux node, laid out in the page the runtime's golden writer builds. */
+  layer2?: boolean;
   /** The animation value in [0, 1] animated nodes are laid out at; absent means 1 (their `to` state). */
   t?: number;
   root: SceneNode;
@@ -263,7 +267,7 @@ export function renderFlexAvailable(): boolean {
 
 /** The node types a scene may use to be compared; everything else awaits an engine feature. */
 /** Node types laid out by `RenderParagraph`, which needs a [ParagraphEngine]. */
-export const textTypes: ReadonlySet<string> = new Set(["Text"]);
+export const textTypes: ReadonlySet<string> = new Set(["Text", ...layer2Types]);
 
 export function supportedTypes(): ReadonlySet<string> {
   return new Set([
@@ -1087,6 +1091,48 @@ function buildMaterialNode(
   return composite;
 }
 
+const layer2Builders = new Map(layer2WidgetBuilders);
+
+/** Builds a Layer 2 component with the screen builder, text laid out as the scene's engine and scale say. */
+function buildLayer2(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox {
+  if (text === null) {
+    throw new Error(`node "${node.id}": ${node.type} needs a ParagraphEngine`);
+  }
+  const builder = layer2Builders.get(node.type);
+  if (builder === undefined) {
+    throw unsupported(node);
+  }
+  const widget: WidgetNode = { id: node.id, type: node.type, props: node.props };
+  const width = text.screen?.width ?? defaultScreenTheme.width;
+  const ctx: WidgetContext = {
+    engine: text.engine,
+    theme: { ...defaultScreenTheme, width, fontFamilies: ["NotoSans"] },
+    textDirection,
+    build: () => {
+      throw new Error(`node "${node.id}": ${node.type} takes no children yet`);
+    },
+    available: () => width,
+    paragraph: (value, paragraphStyle, options) =>
+      new RenderParagraph({
+        text: { text: value, style: paragraphStyle ?? {} },
+        textDirection: options?.textDirection ?? textDirection,
+        engine: text.engine,
+        textScaler: text.textScaler,
+      }),
+    mark: () => undefined,
+  };
+  return builder(widget, ctx);
+}
+
+/** The page the runtime's golden writer lays a Layer 2 scene out in: a Scaffold body starting its children. */
+function layer2Page(root: SceneNode): SceneNode {
+  return {
+    id: "__page",
+    type: "Scaffold",
+    props: {},
+    children: [{ id: "__body", type: "Column", props: { crossAxisAlignment: "start" }, children: [root] }],
+  };
+}
 /**
  * Builds the render tree of `node` under `textDirection` (Flutter's ambient
  * `Directionality`). Throws on an unknown type and on a flex type, which
@@ -1098,6 +1144,9 @@ export function buildNode(
   text: SceneText | null = null,
   t = 1,
 ): RenderBox {
+  if (layer2Types.has(node.type)) {
+    return buildLayer2(node, textDirection, text);
+  }
   if (scrollTypes.has(node.type)) {
     return buildScrollable(node, textDirection, text);
   }
@@ -1245,7 +1294,7 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
   const view = new RenderView({
     size: new Size(golden.frame.width, golden.frame.height),
     child: buildNode(
-      scene.root,
+      scene.layer2 === true ? layer2Page(scene.root) : scene.root,
       direction,
       engine === null
         ? null
@@ -1275,6 +1324,11 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
  */
 export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typeof layout.goldenRects> {
   const rects = layout.goldenRects(view);
+  for (const id of Object.keys(rects)) {
+    if (id.startsWith("__")) {
+      delete rects[id];
+    }
+  }
   const alias = (node: SceneNode): void => {
     const child = node.children?.[0];
     if (

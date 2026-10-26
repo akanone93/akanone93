@@ -1164,7 +1164,7 @@ String _goldenName(String scene, _Frame frame, _Direction direction, double scal
 void main() {
   final bool update = Platform.environment['UPDATE_GOLDENS'] == '1';
   final List<File> sceneFiles =
-      Directory('scenes').listSync().whereType<File>().where((File file) => file.path.endsWith('.json')).toList()
+      Directory('scenes').listSync().whereType<File>().where((File file) => file.path.endsWith('.json') && !file.uri.pathSegments.last.startsWith('layer2-')).toList()
         ..sort((File a, File b) => a.path.compareTo(b.path));
   final Set<String> expectedGoldens = <String>{};
   setUpAll(_loadFonts);
@@ -1292,7 +1292,7 @@ void main() {
         .listSync()
         .whereType<File>()
         .map((File file) => file.uri.pathSegments.last)
-        .where((String name) => name.endsWith('.json'))
+        .where((String name) => name.endsWith('.json') && !name.startsWith('layer2-'))
         .toSet();
     if (update) {
       for (final String orphan in present.difference(expectedGoldens)) {
