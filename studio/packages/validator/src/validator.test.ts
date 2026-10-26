@@ -46,6 +46,10 @@ const engine = (calls: string[]): ValidatorEngine => ({
     return '{"type":"int","diagnostics":[]}';
   },
   pxlSites: () => '{"sites":[],"envs":[]}',
+  tool: (name, args) => {
+    calls.push(`tool:${name}`);
+    return JSON.stringify({ name, args });
+  },
 });
 
 describe("parseProblems", () => {
@@ -95,6 +99,7 @@ describe("ValidatorHost", () => {
       },
       pxl: () => '{"error":"scope: bad"}',
       pxlSites: () => "{}",
+      tool: () => "{}",
     });
     await expect(host.validatePage("a", "{}")).rejects.toThrow("boom");
   });
@@ -110,8 +115,22 @@ describe("ValidatorHost", () => {
       validatePage: () => "[]",
       pxl: () => '{"error":"scope: bad"}',
       pxlSites: () => "{}",
+      tool: () => '{"error":"importer: unknown kind"}',
     });
+    await expect(bad.host.tool("import", ["soap", "[]"])).rejects.toThrow("importer: unknown kind");
     await expect(bad.host.pxl("check", "{", "1", 0)).rejects.toThrow("scope: bad");
+  });
+
+  test("a tool request carries its name and arguments and never supersedes another (L-12)", async () => {
+    const calls: string[] = [];
+    const { host } = await pair(engine(calls));
+    const [a, b] = await Promise.all([
+      host.tool("import", ["openapi", "[]"]),
+      host.tool("collections", ["[]", "[]", ""]),
+    ]);
+    expect(a).toEqual({ name: "import", args: ["openapi", "[]"] });
+    expect(b).toEqual({ name: "collections", args: ["[]", "[]", ""] });
+    expect(calls).toEqual(["tool:import", "tool:collections"]);
   });
 
   test("language-service requests never supersede each other", async () => {

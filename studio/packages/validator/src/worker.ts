@@ -51,6 +51,9 @@ export function serveValidatorWorker(
         case "sites":
           scope.postMessage({ type: "value", id: req.id, value: parseValue(engine.pxlSites(req.file, req.data)) });
           break;
+        case "tool":
+          scope.postMessage({ type: "value", id: req.id, value: parseValue(engine.tool(req.name, req.args)) });
+          break;
       }
     } catch (e) {
       scope.postMessage({ type: "failure", id: req.id, message: e instanceof Error ? e.message : String(e) });
