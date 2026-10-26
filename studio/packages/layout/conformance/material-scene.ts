@@ -21,6 +21,7 @@ import {
 } from "../src/flutter/material/app-bar.ts";
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
 import { buildChip } from "../src/flutter/material/chip.ts";
+import { buildAlertDialog } from "../src/flutter/material/dialog.ts";
 import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../src/flutter/material/input-decorator.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
 import {
@@ -298,6 +299,20 @@ function buildTabBarNode(node: SceneNode, ctx: MaterialContext): RenderBox {
   });
 }
 
+/** `AlertDialog`: `title`, `content` and `actions` slots in the dialog panel's text styles. */
+function buildAlertDialogNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const title = only(node, "title");
+  const content = only(node, "content");
+  const actions = slot(node, "actions");
+  return buildAlertDialog({
+    title: title === null ? null : ctx.build(title, style("headlineSmall")),
+    content: content === null ? null : ctx.build(content, style("bodyMedium")),
+    actions: actions.length === 0 ? null : actions.map((a) => ctx.build(a)),
+    textScale: ctx.text?.textScaler.textScaleFactor ?? 1,
+    textDirection: ctx.direction,
+  });
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -383,6 +398,7 @@ const builders: Record<string, Builder> = {
   NavigationBar: buildNavigationBarNode,
   NavigationRail: buildNavigationRailNode,
   TabBar: buildTabBarNode,
+  AlertDialog: buildAlertDialogNode,
   // `Drawer`: a `ConstrainedBox` expanded to the drawer width (304 by default) around its child.
   Drawer: (node, ctx) =>
     new RenderConstrainedBox({

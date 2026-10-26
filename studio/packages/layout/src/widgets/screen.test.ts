@@ -281,4 +281,24 @@ describe("Material composites in a screen (STU-005, S4.3)", () => {
     expect(byId.get("f")?.h).toBe(46);
     expect(byId.get("scroll")?.h).toBe(48);
   });
+
+  test("an alert dialog is at least 280 wide, with 24 around its title and its actions at the end", () => {
+    const root: WidgetNode = {
+      id: "dialog",
+      type: "AlertDialog",
+      slots: { title: text("title", "Discard?"), content: text("body", "Your draft will be lost.") },
+      children: [
+        { id: "cancel", type: "TextButton", slots: { child: text("c", "Cancel") } },
+        { id: "ok", type: "TextButton", slots: { child: text("o", "Discard") } },
+      ],
+    };
+    const byId = new Map(layoutScreen(root, { engine, theme }).boxes.map((b) => [b.id, b]));
+    const dialog = byId.get("dialog");
+    expect(dialog?.w).toBe(358);
+    const cancel = byId.get("cancel");
+    const ok = byId.get("ok");
+    expect(cancel?.h).toBe(48);
+    expect((ok?.x ?? 0) + (ok?.w ?? 0)).toBeCloseTo(358 - 40 - 24 + 16, 0);
+    expect((ok?.x ?? 0) - ((cancel?.x ?? 0) + (cancel?.w ?? 0))).toBeCloseTo(8, 5);
+  });
 });

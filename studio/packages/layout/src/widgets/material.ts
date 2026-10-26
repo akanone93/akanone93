@@ -11,6 +11,7 @@
 
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { TextDirection } from "../flutter/geometry.ts";
+import { buildAlertDialog } from "../flutter/material/dialog.ts";
 import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../flutter/material/tab-bar.ts";
 import { m3TextStyle, type TextRole } from "../flutter/material/theme.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
@@ -22,6 +23,19 @@ const direction = TextDirection.ltr;
 
 function prop(node: WidgetNode, name: string): unknown {
   return (node.props as Record<string, unknown> | undefined)?.[name];
+}
+
+function textOf(node: WidgetNode): string | undefined {
+  if (node.type === "Text" && typeof node.props?.data === "string") {
+    return node.props.data;
+  }
+  for (const child of [...(node.children ?? []), ...Object.values(node.slots ?? {})]) {
+    const label = textOf(child);
+    if (label !== undefined) {
+      return label;
+    }
+  }
+  return undefined;
 }
 
 function str(node: WidgetNode, name: string): string | null {
@@ -70,5 +84,31 @@ const tabBar: WidgetBuilder = (node, ctx) => {
   );
 };
 
+/** The text of the widget in `node`'s slot `name`, drawn in the role's style; null when the slot is empty. */
+function slotText(node: WidgetNode, ctx: WidgetContext, name: string, style: TextRole): RenderBox | null {
+  const found = node.slots?.[name];
+  const label = found === undefined ? undefined : textOf(found);
+  return label === undefined ? null : ctx.paragraph(label, role(ctx, style));
+}
+
+/** An `AlertDialog` static state: `title` and `content` slots, its children the actions. */
+const alertDialog: WidgetBuilder = (node, ctx) => {
+  const actions = (node.children ?? []).map((a) => ctx.build(a));
+  return named(
+    node,
+    ctx,
+    buildAlertDialog({
+      title: slotText(node, ctx, "title", "headlineSmall"),
+      content: slotText(node, ctx, "content", "bodyMedium"),
+      actions: actions.length === 0 ? null : actions,
+      textScale: 1,
+      textDirection: direction,
+    }),
+  );
+};
+
 /** The builders of the Material composite types; merged into the default registry. */
-export const materialWidgetBuilders: ReadonlyArray<readonly [string, WidgetBuilder]> = [["TabBar", tabBar]];
+export const materialWidgetBuilders: ReadonlyArray<readonly [string, WidgetBuilder]> = [
+  ["TabBar", tabBar],
+  ["AlertDialog", alertDialog],
+];
