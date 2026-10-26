@@ -19,6 +19,7 @@ import {
   cupertinoPageScaffold,
   cupertinoPicker,
   cupertinoSegmentedControl,
+  cupertinoActivityIndicator,
   cupertinoSlider,
   cupertinoSlidingSegment,
   cupertinoSlidingSegmentedControl,
@@ -67,6 +68,7 @@ export const cupertinoTypes: ReadonlySet<string> = new Set([
   "CupertinoButton",
   "CupertinoSwitch",
   "CupertinoSlider",
+  "CupertinoActivityIndicator",
   "CupertinoTabBar",
   "CupertinoTabItem",
   "CupertinoNavigationBar",
@@ -326,6 +328,9 @@ function buildGroup4(node: SceneNode, ctx: CupertinoContext): RenderBox | null {
     }
     case "CupertinoSlider":
       box = cupertinoSlider();
+      break;
+    case "CupertinoActivityIndicator":
+      box = cupertinoActivityIndicator();
       break;
     default:
       return null;

@@ -1,0 +1,86 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "material-list-tiles-switch",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 2.0,
+  "rects": {
+    "col": [
+      0.0,
+      0.0,
+      360.0,
+      432.0
+    ],
+    "frame": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "switch": [
+      0.0,
+      0.0,
+      360.0,
+      184.0
+    ],
+    "switch-icon": [
+      0.0,
+      248.0,
+      360.0,
+      184.0
+    ],
+    "switch-icon-i": [
+      16.0,
+      328.0,
+      24.0,
+      24.0
+    ],
+    "switch-icon-s": [
+      56.0,
+      304.0,
+      204.0,
+      120.0
+    ],
+    "switch-icon-t": [
+      56.0,
+      256.0,
+      204.0,
+      48.0
+    ],
+    "switch-plain": [
+      0.0,
+      184.0,
+      360.0,
+      64.0
+    ],
+    "switch-plain-t": [
+      16.0,
+      192.0,
+      244.0,
+      48.0
+    ],
+    "switch-s": [
+      16.0,
+      56.0,
+      244.0,
+      120.0
+    ],
+    "switch-t": [
+      16.0,
+      8.0,
+      244.0,
+      48.0
+    ]
+  },
+  "baselines": {
+    "switch-icon-s": 30.883996963500977,
+    "switch-icon-t": 36.41600036621094,
+    "switch-plain-t": 36.41600036621094,
+    "switch-s": 30.883996963500977,
+    "switch-t": 36.41600036621094
+  }
+}

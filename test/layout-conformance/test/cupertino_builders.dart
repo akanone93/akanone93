@@ -12,7 +12,7 @@ import 'package:flutter/cupertino.dart';
 const Set<String> cupertinoTypes = <String>{
   'CupertinoDatePicker', //
   'CupertinoContextMenu', 'CupertinoContextMenuAction', 'CupertinoAlertDialog', 'CupertinoDialogAction', 'CupertinoActionSheet', 'CupertinoActionSheetAction', //
-  'CupertinoButton', 'CupertinoSwitch', 'CupertinoSlider', 'CupertinoTabBar', 'CupertinoTabItem', //
+  'CupertinoButton', 'CupertinoSwitch', 'CupertinoSlider', 'CupertinoActivityIndicator', 'CupertinoTabBar', 'CupertinoTabItem', //
   'CupertinoNavigationBar', 'CupertinoNavSlot', 'CupertinoPageScaffold', 'CupertinoSlot', 'CupertinoTabScaffold', 'CupertinoPicker', 'CupertinoListTile', //
   'CupertinoListSection', 'CupertinoTextField', 'CupertinoSegmentedControl', 'CupertinoSlidingSegmentedControl', 'CupertinoSliverNavigationBar',
 };
@@ -189,6 +189,8 @@ Widget buildCupertino(
       };
     case 'CupertinoSwitch':
       return CupertinoSwitch(key: key, value: props['value'] == true, onChanged: (bool _) {});
+    case 'CupertinoActivityIndicator':
+      return CupertinoActivityIndicator(key: key);
     case 'CupertinoSlider':
       return CupertinoSlider(key: key, value: 0.5, onChanged: (double _) {});
     case 'CupertinoTabItem':

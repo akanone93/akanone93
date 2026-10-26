@@ -85,6 +85,13 @@ const compositeTypes: readonly string[] = [
   "CircleAvatar",
   "CircularProgressIndicator",
   "LinearProgressIndicator",
+  "BackButton",
+  "CloseButton",
+  "Slider",
+  "RangeSlider",
+  "CheckboxListTile",
+  "SwitchListTile",
+  "RadioListTile",
 ];
 
 /** The slot of a document node whose widgets are a list, and so arrive as `children`; scenes name the part the same. */

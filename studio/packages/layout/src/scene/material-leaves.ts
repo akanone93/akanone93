@@ -62,6 +62,12 @@ const switchControl: LeafBuilder = (node) =>
 
 /** The leaf builders, merged into the Material composites. */
 export const leafBuilders: Readonly<Record<string, LeafBuilder>> = {
+  // `BackButton` and `CloseButton` are `IconButton`s: 48 by 48.
+  BackButton: () => tight(kMinInteractiveDimension, kMinInteractiveDimension),
+  CloseButton: () => tight(kMinInteractiveDimension, kMinInteractiveDimension),
+  // A slider is as wide as it may be and 48 high (its tap target).
+  Slider: () => expanding("horizontal", kMinInteractiveDimension),
+  RangeSlider: () => expanding("horizontal", kMinInteractiveDimension),
   Checkbox: selection,
   Radio: selection,
   Switch: switchControl,

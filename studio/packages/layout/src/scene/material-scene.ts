@@ -403,6 +403,36 @@ function buildPopupMenuNode(node: SceneNode, ctx: MaterialContext): RenderBox {
   return buildPopupMenu(items, ctx.direction);
 }
 
+/** A control of a list tile, a box of the size the Flutter control takes inside the tile. */
+function control(width: number, height: number): RenderBox {
+  return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width, height }) });
+}
+
+/** The `secondary` widget of a `CheckboxListTile`, `SwitchListTile` or `RadioListTile`, or null. */
+function secondary(node: SceneNode, ctx: MaterialContext): RenderBox | null {
+  const part = only(node, "secondary");
+  return part === null ? null : ctx.build(part, style("labelSmall"));
+}
+
+/** A `ListTile`'s layout: `leading` and `trailing` already built, the title and subtitle from their slots. */
+function buildTile(node: SceneNode, ctx: MaterialContext, leading: RenderBox | null, trailing: RenderBox | null): RenderBox {
+  const p = node.props;
+  const dense = prop(p, "dense") === true;
+  const withSize = (role: TextRole, size: number | null): TextStyle =>
+    size === null ? style(role) : { ...style(role), fontSize: size };
+  const sub = only(node, "subtitle");
+  return buildListTile({
+    leading,
+    title: ctx.build(required(node, "title"), withSize("bodyLarge", dense ? 13 : null)),
+    subtitle: sub === null ? null : ctx.build(sub, withSize("bodyMedium", dense ? 12 : null)),
+    trailing,
+    isDense: dense,
+    isThreeLine: prop(p, "isThreeLine") === true,
+    visualDensity: density(p),
+    textDirection: ctx.direction,
+  });
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -410,24 +440,19 @@ const builders: Record<string, Builder> = {
     return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: size, height: size }) });
   },
   ListTile: (node, ctx) => {
-    const p = node.props;
-    const dense = prop(p, "dense") === true;
-    const withSize = (role: TextRole, size: number | null): TextStyle =>
-      size === null ? style(role) : { ...style(role), fontSize: size };
-    const sub = only(node, "subtitle");
     const lead = only(node, "leading");
     const trail = only(node, "trailing");
-    return buildListTile({
-      leading: lead === null ? null : ctx.build(lead, style("labelSmall")),
-      title: ctx.build(required(node, "title"), withSize("bodyLarge", dense ? 13 : null)),
-      subtitle: sub === null ? null : ctx.build(sub, withSize("bodyMedium", dense ? 12 : null)),
-      trailing: trail === null ? null : ctx.build(trail, style("labelSmall")),
-      isDense: dense,
-      isThreeLine: prop(p, "isThreeLine") === true,
-      visualDensity: density(p),
-      textDirection: ctx.direction,
-    });
+    return buildTile(
+      node,
+      ctx,
+      lead === null ? null : ctx.build(lead, style("labelSmall")),
+      trail === null ? null : ctx.build(trail, style("labelSmall")),
+    );
   },
+  CheckboxListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), control(40, 48)),
+  SwitchListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), control(60, 48)),
+  // The radio is the leading part, 40 wide; the secondary widget trails.
+  RadioListTile: (node, ctx) => buildTile(node, ctx, control(40, 40), secondary(node, ctx)),
   PreferredSize: (node, ctx) => ctx.build(required(node, "child")),
   AppBar: (node, ctx) => {
     const p = node.props;

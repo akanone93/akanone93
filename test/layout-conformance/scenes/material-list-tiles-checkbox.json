@@ -1,0 +1,119 @@
+{
+  "name": "material-list-tiles-checkbox",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "check",
+            "type": "CheckboxListTile",
+            "props": {
+              "value": true
+            },
+            "children": [
+              {
+                "id": "check-t",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications"
+                },
+                "slot": "title"
+              },
+              {
+                "id": "check-s",
+                "type": "Text",
+                "props": {
+                  "text": "Receive alerts and a weekly summary"
+                },
+                "slot": "subtitle"
+              }
+            ]
+          },
+          {
+            "id": "check-plain",
+            "type": "CheckboxListTile",
+            "props": {},
+            "children": [
+              {
+                "id": "check-plain-t",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications"
+                },
+                "slot": "title"
+              }
+            ]
+          },
+          {
+            "id": "check-icon",
+            "type": "CheckboxListTile",
+            "props": {},
+            "children": [
+              {
+                "id": "check-icon-t",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications"
+                },
+                "slot": "title"
+              },
+              {
+                "id": "check-icon-s",
+                "type": "Text",
+                "props": {
+                  "text": "Receive alerts and a weekly summary"
+                },
+                "slot": "subtitle"
+              },
+              {
+                "id": "check-icon-i",
+                "type": "Icon",
+                "props": {},
+                "slot": "secondary"
+              }
+            ]
+          },
+          {
+            "id": "check-dense",
+            "type": "CheckboxListTile",
+            "props": {
+              "dense": true
+            },
+            "children": [
+              {
+                "id": "check-dense-t",
+                "type": "Text",
+                "props": {
+                  "text": "Notifications"
+                },
+                "slot": "title"
+              },
+              {
+                "id": "check-dense-s",
+                "type": "Text",
+                "props": {
+                  "text": "Receive alerts and a weekly summary"
+                },
+                "slot": "subtitle"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
