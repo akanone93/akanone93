@@ -284,5 +284,89 @@ export function appCanvasMessages(i18n: I18n) {
         values: { name },
         comment: "Accessible name of the button that restores one deleted item with its old IDs.",
       }),
+    boxes: i18n._({
+      id: "appCanvas.boxes",
+      message: "Plugins on the canvas",
+      comment: "Accessible name of the list of plugin boxes that screen readers and the keyboard use.",
+    }),
+    native: i18n._({
+      id: "appCanvas.native",
+      message: "Native screen",
+      comment: "Type of a box on the app canvas that stands for a screen of the host app, not a plugin.",
+    }),
+    moveTo: (name: string) =>
+      i18n._({
+        id: "appCanvas.moveTo",
+        message: "Move {name} to…",
+        values: { name },
+        comment:
+          "Button: opens a dialog to place a box at exact canvas coordinates (keyboard alternative to dragging).",
+      }),
+    moveSelection: i18n._({
+      id: "appCanvas.moveSelection",
+      message: "Move to…",
+      comment: "Toolbar button: place the selected box at exact canvas coordinates (keyboard alternative to dragging).",
+    }),
+    moveX: i18n._({
+      id: "appCanvas.moveX",
+      message: "X position",
+      comment: "Field label: horizontal canvas coordinate of a box, in canvas units.",
+    }),
+    moveY: i18n._({
+      id: "appCanvas.moveY",
+      message: "Y position",
+      comment: "Field label: vertical canvas coordinate of a box, in canvas units.",
+    }),
+    moved: (name: string, x: number, y: number) =>
+      i18n._({
+        id: "appCanvas.moved",
+        message: "{name} moved to {x}, {y}",
+        values: { name, x, y },
+        comment: "Announced after a box was moved with the keyboard; x and y are canvas coordinates.",
+      }),
+    links: i18n._({
+      id: "appCanvas.links",
+      message: "Links between plugins",
+      comment: "Accessible name of the list of arrows between plugin boxes.",
+    }),
+    bundle: (from: string, to: string, count: number) =>
+      i18n._({
+        id: "appCanvas.bundle",
+        message: "{from} to {to}, {count, plural, one {# link} other {# links}}",
+        values: { from, to, count },
+        comment: "One arrow between two boxes: source, target and how many navigation links it bundles.",
+      }),
+    laneMenu: (title: string) =>
+      i18n._({
+        id: "appCanvas.laneMenu",
+        message: "Link {title}",
+        values: { title },
+        comment: "Title of the menu of one navigation link, e.g. 'Link Home → Offers'.",
+      }),
+    laneOpenSource: i18n._({
+      id: "appCanvas.laneOpenSource",
+      message: "Open source screen",
+      comment: "Lane menu action: open the plugin canvas at the screen the link starts from.",
+    }),
+    laneOpenTarget: i18n._({
+      id: "appCanvas.laneOpenTarget",
+      message: "Open target screen",
+      comment: "Lane menu action: open the plugin canvas at the screen the link goes to.",
+    }),
+    laneChangeTrigger: i18n._({
+      id: "appCanvas.laneChangeTrigger",
+      message: "Change trigger",
+      comment: "Lane menu action: open the widget whose event starts the link, to change the event.",
+    }),
+    laneRedirect: i18n._({
+      id: "appCanvas.laneRedirect",
+      message: "Redirect…",
+      comment: "Lane menu action: point this one link at another screen.",
+    }),
+    laneRemove: i18n._({
+      id: "appCanvas.laneRemove",
+      message: "Remove link",
+      comment: "Lane menu action: delete this one navigation step.",
+    }),
   };
 }
