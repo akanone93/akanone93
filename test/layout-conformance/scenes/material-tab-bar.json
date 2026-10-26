@@ -1,0 +1,217 @@
+{
+  "name": "material-tab-bar",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b0",
+                "type": "TabBar",
+                "props": {},
+                "children": [
+                  {
+                    "id": "b0t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Flights"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b0t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Trips"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b1",
+                "type": "TabBar",
+                "props": {},
+                "children": [
+                  {
+                    "id": "b1t0",
+                    "type": "Tab",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "b1t0i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b1t1",
+                    "type": "Tab",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "b1t1i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b1t2",
+                    "type": "Tab",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "b1t2i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b2",
+                "type": "TabBar",
+                "props": {},
+                "children": [
+                  {
+                    "id": "b2t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Home"
+                    },
+                    "children": [
+                      {
+                        "id": "b2t0i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b2t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Map"
+                    },
+                    "children": [
+                      {
+                        "id": "b2t1i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w3",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b3",
+                "type": "TabBar",
+                "props": {},
+                "children": [
+                  {
+                    "id": "b3t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Plain"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b3t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Both"
+                    },
+                    "children": [
+                      {
+                        "id": "b3t1i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b3t2",
+                    "type": "Tab",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "b3t2i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cap",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

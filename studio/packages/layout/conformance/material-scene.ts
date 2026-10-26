@@ -42,6 +42,7 @@ import {
   type RailLabelType,
 } from "../src/flutter/material/navigation-rail.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
+import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../src/flutter/material/tab-bar.ts";
 import {
   kToolbarHeight,
   MaterialTapTargetSize,
@@ -262,6 +263,41 @@ function buildNavigationRailNode(node: SceneNode, ctx: MaterialContext): RenderB
   });
 }
 
+/** `TabBar` with `Tab` children: an optional `icon` slot and a `text` prop each. */
+function buildTabBarNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const isScrollable = prop(p, "isScrollable") === true;
+  const tabs = (node.children ?? []).map((tab) => {
+    if (tab.type !== "Tab") {
+      throw new Error(`node "${tab.id}": a TabBar holds Tab nodes`);
+    }
+    const label = prop(tab.props, "text");
+    const icon = only(tab, "icon");
+    const height = typeof prop(tab.props, "height") === "number" ? num(tab.props, "height", 0) : null;
+    const box = buildTab({
+      icon: icon === null ? null : ctx.build(icon),
+      text:
+        typeof label === "string"
+          ? syntheticText(tab, "label", label, ctx, style("titleSmall"), {
+              defaults: { softWrap: false, overflow: "fade" },
+            })
+          : null,
+      height,
+    });
+    box.debugId = tab.id;
+    return {
+      box,
+      preferredHeight: tabPreferredHeight({ hasIcon: icon !== null, hasText: typeof label === "string", height }),
+    };
+  });
+  return buildTabBar({
+    tabs,
+    isScrollable,
+    tabAlignment: (prop(p, "tabAlignment") ?? (isScrollable ? "startOffset" : "fill")) as TabAlignment,
+    textDirection: ctx.direction,
+  });
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -346,6 +382,7 @@ const builders: Record<string, Builder> = {
   TextField: buildTextField,
   NavigationBar: buildNavigationBarNode,
   NavigationRail: buildNavigationRailNode,
+  TabBar: buildTabBarNode,
   // `Drawer`: a `ConstrainedBox` expanded to the drawer width (304 by default) around its child.
   Drawer: (node, ctx) =>
     new RenderConstrainedBox({
@@ -398,7 +435,7 @@ for (const type of Object.keys(buttonKinds)) {
 }
 
 /** Node types only a composite builds, from its children. */
-const partTypes: readonly string[] = ["NavigationDestination", "NavigationRailDestination"];
+const partTypes: readonly string[] = ["NavigationDestination", "NavigationRailDestination", "Tab"];
 
 /** The node types this module builds, the parts of composites included. */
 export const materialTypes: ReadonlySet<string> = new Set([...Object.keys(builders), ...partTypes]);
