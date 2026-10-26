@@ -1,0 +1,13 @@
+{
+  "name": "layer2-signature-pad",
+  "layer2": true,
+  "root": {
+    "id": "pad",
+    "type": "SignaturePad",
+    "props": {
+      "height": 120,
+      "clearLabel": "Clear",
+      "semanticLabel": "Signature"
+    }
+  }
+}

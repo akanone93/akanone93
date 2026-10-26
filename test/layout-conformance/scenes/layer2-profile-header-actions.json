@@ -1,0 +1,23 @@
+{
+  "name": "layer2-profile-header-actions",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "ProfileHeader",
+    "props": {
+      "name": "Ada Lovelace",
+      "subtitle": "Mathematician",
+      "radius": 40
+    },
+    "slots": {
+      "actions": {
+        "id": "edit",
+        "type": "SizedBox",
+        "props": {
+          "width": 120,
+          "height": 48
+        }
+      }
+    }
+  }
+}

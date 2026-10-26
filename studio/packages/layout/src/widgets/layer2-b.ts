@@ -12,14 +12,14 @@
 
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { Axis, CrossAxisAlignment, FlexFit, FlexParentData, MainAxisSize, RenderFlex } from "../flutter/flex.ts";
-import { EdgeInsets, EdgeInsetsDirectional, TextDirection } from "../flutter/geometry.ts";
+import { Alignment, EdgeInsets, EdgeInsetsDirectional, TextDirection } from "../flutter/geometry.ts";
 import { type ButtonKind, buildButton } from "../flutter/material/buttons.ts";
 import { buildInputDecorator, RenderEditableLine } from "../flutter/material/input-decorator.ts";
 import { MaterialTapTargetSize, m3TextStyle, type TextRole, VisualDensity } from "../flutter/material/theme.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import { RenderAspectRatio } from "../flutter/proxy-boxes.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
-import { RenderPadding } from "../flutter/shifted-box.ts";
+import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { RenderWrap, WrapCrossAlignment } from "../flutter/wrap.ts";
 import { formatMoney, moneyOf } from "./layer2.ts";
@@ -333,7 +333,7 @@ const productCard: WidgetBuilder = (node, ctx) => {
   );
 };
 
-/** `ProfileHeader`: the avatar circle, the name and the subtitle, centred on 16 padding. */
+/** `ProfileHeader`: the avatar circle, the name, the subtitle and the `actions` slot (16 below, centred), on 16 padding. */
 const profileHeader: WidgetBuilder = (node, ctx) => {
   const radius = count(node, "radius") ?? 32;
   const lines: RenderBox[] = [
@@ -347,15 +347,33 @@ const profileHeader: WidgetBuilder = (node, ctx) => {
   if (subtitle !== undefined) {
     lines.push(line(ctx, subtitle, "bodyMedium"));
   }
+  const actions = node.slots?.["actions"];
+  if (actions !== undefined) {
+    // An `Align` takes the whole width of the column, so the header is as wide as its space.
+    lines.push(
+      gap(16),
+      new RenderPositionedBox({
+        alignment: Alignment.center,
+        textDirection: direction(ctx),
+        child: ctx.build(actions),
+      }),
+    );
+  }
   return named(node, all(ctx, 16, column(ctx, lines, CrossAxisAlignment.center)));
 };
 
-/** `PromoBanner`: title, subtitle and the call to action's pill on 16 padding. */
+/**
+ * `PromoBanner`: title, subtitle, the countdown to `endsAt` (8 below) and the call to action's pill on 16 padding.
+ * A design-time screen has no clock, so the countdown is laid out at zero, as `CountdownTimer` is.
+ */
 const promoBanner: WidgetBuilder = (node, ctx) => {
   const lines: RenderBox[] = [line(ctx, text(node, "title") ?? "", "titleLarge")];
   const subtitle = text(node, "subtitle");
   if (subtitle !== undefined) {
     lines.push(line(ctx, subtitle, "bodyMedium"));
+  }
+  if (text(node, "endsAt") !== undefined) {
+    lines.push(gap(8), line(ctx, "00:00:00", "titleMedium", true));
   }
   const cta = text(node, "ctaLabel");
   if (cta !== undefined) {

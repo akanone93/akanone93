@@ -1,0 +1,46 @@
+{
+  "name": "layer2-wizard-form",
+  "layer2": true,
+  "unbuilt": [
+    "step1",
+    "step3"
+  ],
+  "root": {
+    "id": "wizard",
+    "type": "WizardForm",
+    "props": {
+      "titles": [
+        "Account",
+        "Address",
+        "Review"
+      ],
+      "currentStep": 1,
+      "backLabel": "Back",
+      "nextLabel": "Next",
+      "submitLabel": "Submit"
+    },
+    "children": [
+      {
+        "id": "step1",
+        "type": "SizedBox",
+        "props": {
+          "height": 120
+        }
+      },
+      {
+        "id": "step2",
+        "type": "SizedBox",
+        "props": {
+          "height": 120
+        }
+      },
+      {
+        "id": "step3",
+        "type": "SizedBox",
+        "props": {
+          "height": 120
+        }
+      }
+    ]
+  }
+}

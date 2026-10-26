@@ -171,6 +171,8 @@ export interface Scene {
   name: string;
   /** A Layer 2 scene: its root is a Plux node, laid out in the page the runtime's golden writer builds. */
   layer2?: boolean;
+  /** Ids of nodes the component does not build (a wizard's other steps); the golden writer records no rect for them. */
+  unbuilt?: string[];
   /** The animation value in [0, 1] animated nodes are laid out at; absent means 1 (their `to` state). */
   t?: number;
   root: SceneNode;

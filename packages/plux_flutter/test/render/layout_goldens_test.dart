@@ -17,7 +17,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_charts/plux_charts.dart';
 import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_lottie/plux_lottie.dart';
+import 'package:plux_maps/plux_maps.dart';
+import 'package:plux_markdown/plux_markdown.dart';
+import 'package:plux_media/plux_media.dart';
 import 'package:plux_player/plux_player.dart';
+import 'package:plux_rive/plux_rive.dart';
 
 import '../support/harness.dart';
 
@@ -188,7 +193,9 @@ void main() {
     final expected = <String>{};
     for (var i = 0; i < scenes.length; i++) {
       final name = scenes[i]['name']! as String;
-      final ids = _testIds(scenes[i]['root']! as Map<String, Object?>);
+      // Nodes a component does not build (the steps of a wizard but the shown one).
+      final unbuilt = {...?(scenes[i]['unbuilt'] as List<Object?>?)?.cast<String>()};
+      final ids = _testIds(scenes[i]['root']! as Map<String, Object?>)..removeAll(unbuilt);
       for (final (dir, locale) in _directions) {
         tester.platformDispatcher.localeTestValue = Locale(locale);
         final h = await Harness.create();
@@ -200,6 +207,11 @@ void main() {
               PluxComponents(),
               PluxCharts(),
               PluxPlayer(),
+              PluxLottieWidgets(),
+              PluxMaps(),
+              PluxMarkdown(),
+              PluxMediaWidgets(),
+              PluxRiveWidgets(),
             ],
           );
           await h.loadIconFonts();

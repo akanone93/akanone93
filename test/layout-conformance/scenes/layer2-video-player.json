@@ -1,0 +1,12 @@
+{
+  "name": "layer2-video-player",
+  "layer2": true,
+  "root": {
+    "id": "video",
+    "type": "VideoPlayer",
+    "props": {
+      "url": "https://example.com/v.mp4",
+      "semanticLabel": "Product tour"
+    }
+  }
+}
