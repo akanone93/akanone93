@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
+import { EditorView } from "@codemirror/view";
 import type { I18n } from "@lingui/core";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { type PxlBackend, PxlService } from "@plux/validator";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { produce } from "immer";
 import { panelMessages } from "./panels.messages.ts";
 import {
@@ -163,5 +165,32 @@ describe("STU-121 panels: editors", () => {
       sources: { tokens: [], keys: [{ id: "k1", key: "home.title" }], check: undefined },
     });
     expect((screen.getByLabelText("data") as HTMLInputElement).value).toBe("Hi");
+  });
+
+  test("a PXL expression opens the inline editor with the language service and reports its edits", async () => {
+    const backend: PxlBackend = { pxl: async () => ({ type: "int", diagnostics: [] }) };
+    const changes = editor({
+      type: "string",
+      name: "data",
+      value: { $expr: "page.months" },
+      sources: {
+        tokens: [],
+        keys: [],
+        check: undefined,
+        pxl: { service: new PxlService(backend), scope: async () => "{}" },
+      },
+    });
+    await waitFor(() => expect(document.querySelector(".cm-content")).not.toBeNull(), { timeout: 3000 });
+    const content = screen.getByLabelText("data: PXL expression");
+    expect(content.textContent).toBe("page.months");
+    const view = EditorView.findFromDOM(content.closest(".cm-editor") as HTMLElement) as EditorView;
+    view.dispatch({ changes: { from: 11, insert: "+1" }, userEvent: "input.type" });
+    expect(changes).toEqual([{ $expr: "page.months+1" }]);
+    await waitFor(() => expect(screen.getByText("Result type: {type}")).toBeTruthy(), { timeout: 2000 });
+  });
+
+  test("without the language service a PXL expression stays a plain field", () => {
+    editor({ type: "string", name: "data", value: { $expr: "page.months" } });
+    expect((screen.getByLabelText("data: PXL expression") as HTMLInputElement).value).toBe("page.months");
   });
 });

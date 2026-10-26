@@ -132,3 +132,34 @@ func TestNewValidatorReportsTheProject(t *testing.T) {
 		}
 	}
 }
+
+// Verifies: PXL-007.
+// PXLSites reports the scope of an expression of the page, so the language
+// service completes against what that site can read.
+func TestPXLSites(t *testing.T) {
+	t.Parallel()
+	m := fixture(t)
+	v := newValidator(t, m)
+	data := pageEdit(t, func(doc map[string]any) {
+		at(t, doc, sliderNode)["props"].(map[string]any)["value"] = map[string]any{"$expr": "page.nothing"}
+	})
+	sites, envs := v.PXLSites(calculatorPage, data)
+	var site *PXLSite
+	for i := range sites {
+		if sites[i].Pointer == "/"+sliderNode+"/props/value" {
+			site = &sites[i]
+		}
+	}
+	if site == nil || site.Env < 0 || site.Env >= len(envs) {
+		t.Fatalf("no site for the slider value in %v", sites)
+	}
+	if _, ok := envs[site.Env].Roots["page"]; !ok {
+		t.Errorf("the page root is missing from %v", envs[site.Env].Roots)
+	}
+	if got, _ := v.PXLSites("pages/extra.page.json", data); got != nil {
+		t.Errorf("a page outside a plugin has sites: %v", got)
+	}
+	if got, _ := v.PXLSites(calculatorPage, []byte(`{`)); got != nil {
+		t.Errorf("a page that does not parse has sites: %v", got)
+	}
+}

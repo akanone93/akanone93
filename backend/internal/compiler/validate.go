@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/pxl"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 )
 
@@ -53,24 +54,10 @@ func (v *Validator) ValidatePage(file string, data []byte) (diags plxerr.Diagnos
 			diags = append(diags, plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{File: file}, "the validator failed unexpectedly: %v", r))
 		}
 	}()
-	src, diags := v.loader.ParseDocument(file, data, schema.KindPage)
-	if src == nil || diags.HasErrors() {
+	u, diags, ok := v.checkPage(file, data)
+	if !ok {
 		return diags
 	}
-	var doc schema.PageDocument
-	if err := json.Unmarshal(src.Canonical, &doc); err != nil {
-		return append(diags, plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{File: file}, "decode validated page: %v", err))
-	}
-	project, ok := v.withPage(file, schema.Loaded[schema.PageDocument]{Doc: &doc, Source: src})
-	if !ok {
-		return append(diags, plxerr.NewDiagnostic(plxerr.InvalidProjectLayout, plxerr.Location{File: file}, "no plugin directory holds %s", file))
-	}
-	u := newUnit(v.opts)
-	u.project = project
-	u.focus = map[string]bool{file: true}
-	u.validating = true
-	checks := slices.DeleteFunc(slices.Clone(pipeline), func(s stage) bool { return !s.checking })
-	run(u, checks)
 	files := map[string]bool{file: true}
 	for _, pl := range u.plugins {
 		for _, g := range pl.graphs {
@@ -86,6 +73,70 @@ func (v *Validator) ValidatePage(file string, data []byte) (diags plxerr.Diagnos
 	}
 	diags.Sort()
 	return diags
+}
+
+// checkPage parses the page and runs the checking stages on it. It returns
+// the unit when the page parsed and belongs to a plugin directory; otherwise
+// the diagnostics say why not.
+func (v *Validator) checkPage(file string, data []byte) (*unit, plxerr.Diagnostics, bool) {
+	src, diags := v.loader.ParseDocument(file, data, schema.KindPage)
+	if src == nil || diags.HasErrors() {
+		return nil, diags, false
+	}
+	var doc schema.PageDocument
+	if err := json.Unmarshal(src.Canonical, &doc); err != nil {
+		return nil, append(diags, plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{File: file}, "decode validated page: %v", err)), false
+	}
+	project, ok := v.withPage(file, schema.Loaded[schema.PageDocument]{Doc: &doc, Source: src})
+	if !ok {
+		return nil, append(diags, plxerr.NewDiagnostic(plxerr.InvalidProjectLayout, plxerr.Location{File: file}, "no plugin directory holds %s", file)), false
+	}
+	u := newUnit(v.opts)
+	u.project = project
+	u.focus = map[string]bool{file: true}
+	u.validating = true
+	checks := slices.DeleteFunc(slices.Clone(pipeline), func(s stage) bool { return !s.checking })
+	run(u, checks)
+	return u, diags, true
+}
+
+// PXLSite is where a PXL expression of a page can be written: the binding
+// object's JSON Pointer and what an expression there can read (PXL-007).
+type PXLSite struct {
+	Pointer string   `json:"pointer"`
+	Env     int      `json:"env"`
+	NonNull []string `json:"nonNull,omitempty"`
+}
+
+// PXLSites checks the page like ValidatePage and returns the expression
+// sites it found, by pointer, with their distinct environments, so the
+// language service completes and types expressions against the real scope.
+func (v *Validator) PXLSites(file string, data []byte) (sites []PXLSite, envs []pxl.EnvSpec) {
+	defer func() {
+		if recover() != nil {
+			sites, envs = nil, nil
+		}
+	}()
+	u, _, ok := v.checkPage(file, data)
+	if !ok {
+		return nil, nil
+	}
+	index := map[string]int{}
+	for _, key := range sortedKeys(u.exprs) {
+		e := u.exprs[key]
+		if e.file != file || e.scope == nil {
+			continue
+		}
+		k := e.scope.key()
+		i, seen := index[k]
+		if !seen {
+			i = len(envs)
+			index[k] = i
+			envs = append(envs, u.envSpec(e.scope))
+		}
+		sites = append(sites, PXLSite{Pointer: e.ptr, Env: i, NonNull: e.scope.nonNull})
+	}
+	return sites, envs
 }
 
 // withPage returns a copy of the project in which file holds page; the

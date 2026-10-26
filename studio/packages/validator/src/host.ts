@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Problem, ProjectFile, ValidatorRequest, ValidatorResponse } from "./protocol.ts";
+import type { Problem, ProjectFile, PxlOp, ValidatorRequest, ValidatorResponse } from "./protocol.ts";
 
 /** The part of a Worker the host uses; a stub implements it in tests. */
 export interface ValidatorWorkerLike {
@@ -20,8 +20,9 @@ export class ValidatorCancelled extends Error {
 }
 
 interface Pending {
-  readonly key: string;
-  readonly resolve: (p: readonly Problem[]) => void;
+  /** Requests with the same key supersede each other; `null` never does. */
+  readonly key: string | null;
+  readonly resolve: (value: unknown) => void;
   readonly reject: (e: Error) => void;
 }
 
@@ -44,12 +45,22 @@ export class ValidatorHost {
 
   /** Loads the project once; resolves with the project's own problems. */
   load(files: readonly ProjectFile[]): Promise<readonly Problem[]> {
-    return this.#send("load", (id) => ({ type: "load", id, files }));
+    return this.#send<readonly Problem[]>("load", (id) => ({ type: "load", id, files }));
   }
 
   /** Validates one page of the loaded project. */
   validatePage(file: string, data: string): Promise<readonly Problem[]> {
-    return this.#send(`validate:${file}`, (id) => ({ type: "validate", id, file, data }));
+    return this.#send<readonly Problem[]>(`validate:${file}`, (id) => ({ type: "validate", id, file, data }));
+  }
+
+  /** One PXL language-service request; `offset` counts code points. Answers pile up, none supersedes another. */
+  pxl(op: PxlOp, scope: string, src: string, offset: number): Promise<unknown> {
+    return this.#send<unknown>(null, (id) => ({ type: "pxl", id, op, scope, src, offset }));
+  }
+
+  /** The expression sites of a page of the loaded project and the scopes they read. */
+  pxlSites(file: string, data: string): Promise<unknown> {
+    return this.#send<unknown>(`sites:${file}`, (id) => ({ type: "sites", id, file, data }));
   }
 
   dispose(): void {
@@ -57,9 +68,9 @@ export class ValidatorHost {
     this.#worker.terminate();
   }
 
-  #send(key: string, make: (id: number) => ValidatorRequest): Promise<readonly Problem[]> {
+  #send<T>(key: string | null, make: (id: number) => ValidatorRequest): Promise<T> {
     for (const [id, p] of this.#pending) {
-      if (p.key === key) {
+      if (key !== null && p.key === key) {
         this.#pending.delete(id);
         this.#post({ type: "cancel", id });
         p.reject(new ValidatorCancelled());
@@ -67,7 +78,7 @@ export class ValidatorHost {
     }
     const id = this.#next++;
     return new Promise((resolve, reject) => {
-      this.#pending.set(id, { key, resolve, reject });
+      this.#pending.set(id, { key, resolve: (v) => resolve(v as T), reject });
       this.#post(make(id));
     });
   }
@@ -99,6 +110,8 @@ export class ValidatorHost {
     this.#pending.delete(msg.id);
     if (msg.type === "result") {
       p.resolve(msg.problems);
+    } else if (msg.type === "value") {
+      p.resolve(msg.value);
     } else {
       p.reject(new Error(msg.message));
     }

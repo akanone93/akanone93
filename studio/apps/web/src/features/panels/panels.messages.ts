@@ -200,6 +200,13 @@ export function panelMessages(i18n: I18n) {
       comment: "Option that sets a fixed value instead of a binding.",
     }),
     pxl: i18n._({ id: "panels.pxl", message: "PXL expression", comment: "Label of the field for a PXL expression." }),
+    pxlResultType: (type: string) =>
+      i18n._({
+        id: "panels.pxlResultType",
+        message: "Result type: {type}",
+        values: { type },
+        comment: "Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.",
+      }),
     pxlChecking: i18n._({
       id: "panels.pxlChecking",
       message: "Checking...",
