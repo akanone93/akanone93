@@ -8,6 +8,7 @@ import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/re
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
+import { ActionGraphHost } from "../action-graph/index.ts";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
@@ -630,9 +631,18 @@ function PluginCanvasView({
         validatePage={checked?.validatePage}
         language={checked?.language}
         onOpenJson={() => overlays.show("json")}
+        onOpenGraph={() => overlays.show("graph")}
       />
       <JsonEditorHost
         open={overlays.open === "json"}
+        onClose={overlays.hide}
+        documents={docs.data}
+        screenOf={screenOf}
+        pathOf={pathOf}
+        validation={validation}
+      />
+      <ActionGraphHost
+        open={overlays.open === "graph"}
         onClose={overlays.hide}
         documents={docs.data}
         screenOf={screenOf}

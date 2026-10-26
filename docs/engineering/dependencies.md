@@ -179,7 +179,8 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@headless-tree/core`, `@headless-tree/react` 1.8.0 | Tree state and WAI-ARIA keyboard behind `@plux/ui` Tree, used for the Layers panel (decisions A3) | In use (P11 S0.2; MIT) |
 | `@lingui/core`, `@lingui/react` 6.10.1 | ICU MessageFormat runtime and React bindings for Studio localisation (ADR-0094) | In use (P11 S0.3; MIT) |
 | `@leeoniya/ufuzzy` 1.0.19 | Fuzzy filtering of the Studio command palette (ADR-0014, STU-013) | In use (P11 S0.6; MIT) |
-| `@dagrejs/dagre` 3.1.1 | Automatic layout of plugin boxes on the app canvas when no positions are saved (ADR-0014, STU-032); ships its own types | In use (P11 S3.1; MIT) |
+| `@dagrejs/dagre` 3.1.1 | Automatic layout of plugin boxes on the app canvas when no positions are saved (ADR-0014, STU-032) and of the steps of an action graph (STU-065); ships its own types | In use (P11 S3.1; MIT) |
+| `@xyflow/react` 12.12.0 | Node drawing, pan and zoom, connections and keyboard access of the action graph editor, loaded only when that overlay opens (decisions A4.5, STU-065, STU-122); its stylesheet is imported statically and it injects no `<style>` element, so the CSP needs no transform; pins `zustand` ^4, so a second copy ships in its chunk | In use (P11 S5.3; MIT) |
 | `zustand` 5.0.15 | Per-area editor stores created in a provider, never module-level (ADR-0014 State) | In use (P11 S2.2; MIT) |
 | `immer` 11.1.21 | Immutable document edits with forward and inverse patches for autosave and undo (ADR-0014 State) | In use (P11 S2.2; MIT) |
 | `@lingui/cli`, `@lingui/format-po`, `@lingui/vite-plugin`, `@lingui/babel-plugin-lingui-macro` 6.10.1 | Strict extraction, PO catalogues and build-time catalogue compilation; not shipped | In use (P11 S0.3; MIT) |
