@@ -21,8 +21,15 @@ export default defineConfig({
     {
       // The catalogue page is compiled only by the dev server (STU-011).
       name: "dev",
-      testMatch: ["catalogue.spec.ts", "shell.spec.ts"],
-      use: { ...devices["Desktop Chrome"], baseURL: `http://127.0.0.1:${devPort}` },
+      testMatch: ["catalogue.spec.ts", "shell.spec.ts", "s3-flow.spec.ts"],
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: `http://127.0.0.1:${devPort}`,
+        // The canvas renders with CanvasKit on WebGL; SwiftShader gives machines without a GPU the same pipeline (ADR-0013 M-12).
+        launchOptions: {
+          args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
+        },
+      },
     },
     {
       // The built app behind the BFF and its strict CSP.
