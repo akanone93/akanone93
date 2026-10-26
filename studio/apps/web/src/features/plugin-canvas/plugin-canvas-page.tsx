@@ -49,7 +49,7 @@ import * as sel from "./select/selection.ts";
 import { type SelectionStore, useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import { useGestures } from "./select/use-gestures.ts";
-import { browserSurface, type CanvasSurface } from "./surface.ts";
+import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
 import { useGhostLayer } from "./use-ghost-layer.ts";
 import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
@@ -427,8 +427,9 @@ function PluginCanvasView({
     if (canvas === null) {
       return;
     }
+    // `zoomAbout` takes canvas-local CSS pixels: the centre of the canvas, not of its place on the page.
     const r = canvas.getBoundingClientRect();
-    surfaceRef.current?.zoomAbout(factor, r.left + r.width / 2, r.top + r.height / 2);
+    surfaceRef.current?.zoomAbout(factor, r.width / 2, r.height / 2);
     sync();
   };
   const fit = () => {
@@ -525,7 +526,8 @@ function PluginCanvasView({
         }}
         onWheel={(e) => {
           if (e.ctrlKey || e.metaKey) {
-            surfaceRef.current?.zoomAbout(Math.exp(-e.deltaY / 200), e.clientX, e.clientY);
+            const p = canvasPoint(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY);
+            surfaceRef.current?.zoomAbout(Math.exp(-e.deltaY / 200), p.x, p.y);
           } else {
             surfaceRef.current?.pan(-e.deltaX, -e.deltaY);
           }

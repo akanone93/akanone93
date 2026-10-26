@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { makeRect } from "./geometry.ts";
-import { type Tile, TileCache } from "./tiles.ts";
+import { MAX_TILE_PIECES, type Tile, TileCache } from "./tiles.ts";
 
 interface FakeImage {
   readonly id: number;
@@ -72,6 +72,31 @@ describe("STU-120 tile cache (M-12)", () => {
     render(tiles, images, [dirty[0] as Tile<FakeImage>]);
     expect(images[0]?.released).toBe(true);
     expect(dirty[0]?.dirty).toBeNull();
+  });
+
+  test("M-13 a tile keeps its dirty pieces apart, clipped to it, and merges them beyond the cap", () => {
+    const { tiles, images } = cache();
+    tiles.setScale(1);
+    const view = makeRect(0, 0, 1280, 800);
+    const out: Tile<FakeImage>[] = [];
+    render(tiles, images, tiles.collect(view, out));
+    tiles.invalidate(makeRect(10, 10, 20, 20));
+    tiles.invalidate(makeRect(400, 400, 600, 410));
+    const tile = tiles.collect(view, out)[0] as Tile<FakeImage>;
+    expect(tile.pieces).toEqual([
+      { l: 10, t: 10, r: 20, b: 20 },
+      { l: 400, t: 400, r: 512, b: 410 },
+    ]);
+    for (let i = 0; i < MAX_TILE_PIECES; i++) {
+      tiles.invalidate(makeRect(i * 4, 100, i * 4 + 2, 102));
+    }
+    expect(tile.pieces).toHaveLength(MAX_TILE_PIECES);
+    // A partial refresh keeps the pieces it did not redraw dirty.
+    const rest = tile.pieces.slice(60);
+    tiles.storePartial(tile, { id: 999, released: false }, rest);
+    expect(tile.pieces).toEqual(rest);
+    expect(tile.dirty).not.toBeNull();
+    expect(tiles.needsWork(tile, false)).toBe(true);
   });
 
   test("panning within 25 % of zoom reuses tiles; a larger change re-tiles and keeps stale tiles until covered", () => {
