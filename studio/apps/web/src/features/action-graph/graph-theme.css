@@ -1,0 +1,24 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* React Flow's own stylesheet, themed with the Porcelain tokens; its runtime styles are style attributes only (CSP §11.2). */
+.react-flow {
+  --xy-background-color: var(--color-canvas);
+  --xy-edge-stroke: var(--color-arrow);
+  --xy-edge-stroke-selected: var(--color-arrow-active);
+  --xy-connectionline-stroke: var(--color-arrow-active);
+  --xy-handle-background-color: var(--color-arrow);
+  --xy-handle-border-color: var(--color-card);
+  --xy-node-boxshadow-selected: none;
+  --xy-controls-button-background-color: var(--color-raised);
+  --xy-controls-button-background-color-hover: var(--color-hover);
+  --xy-controls-button-color: var(--color-primary);
+  --xy-controls-button-border-color: var(--color-hairline);
+  --xy-attribution-background-color: var(--color-raised);
+}
+
+.react-flow__node:focus-visible,
+.react-flow__edge:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
