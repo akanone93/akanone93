@@ -77,6 +77,25 @@ function nodeOf(descriptor: Descriptor, label: string): WidgetNode {
   return { id: "n", type: descriptor.name, props: {}, slots, children: parts };
 }
 
+/** The descriptors that fail to lay out at `width`, in `locale` and at `scale`, each with why. */
+function failuresOf(width: number, locale: (typeof locales)[number], scale: number): string[] {
+  const theme = { ...defaultScreenTheme, width, fontFamilies: ["NotoSans", "NotoNaskhArabic"] };
+  const textDirection = locale.rtl ? TextDirection.rtl : TextDirection.ltr;
+  const failures: string[] = [];
+  for (const descriptor of descriptors) {
+    try {
+      const layout = layoutScreen(nodeOf(descriptor, locale.label), { engine, theme, textScale: scale, textDirection });
+      const usable = layout.boxes.every((b) => [b.x, b.y, b.w, b.h].every(Number.isFinite) && b.w >= 0 && b.h >= 0);
+      if (!usable || !Number.isFinite(layout.contentHeight) || layout.boxes.length === 0) {
+        failures.push(`${descriptor.name}: unusable boxes`);
+      }
+    } catch (error) {
+      failures.push(`${descriptor.name}: ${(error as Error).message}`);
+    }
+  }
+  return failures;
+}
+
 describe("the full matrix (S4.6, STU-005)", () => {
   test("covers every descriptor of schema/widgets", () => {
     expect(descriptors.length).toBeGreaterThan(200);
@@ -86,25 +105,7 @@ describe("the full matrix (S4.6, STU-005)", () => {
     for (const locale of locales) {
       for (const scale of scales) {
         test(`every descriptor lays out in the ${frame.name} frame, ${locale.code}, text scale ${scale}`, () => {
-          const theme = { ...defaultScreenTheme, width: frame.width, fontFamilies: ["NotoSans", "NotoNaskhArabic"] };
-          const failures: string[] = [];
-          for (const descriptor of descriptors) {
-            try {
-              const layout = layoutScreen(nodeOf(descriptor, locale.label), {
-                engine,
-                theme,
-                textScale: scale,
-                textDirection: locale.rtl ? TextDirection.rtl : TextDirection.ltr,
-              });
-              const bad = layout.boxes.filter((b) => ![b.x, b.y, b.w, b.h].every(Number.isFinite) || b.w < 0 || b.h < 0);
-              if (bad.length > 0 || !Number.isFinite(layout.contentHeight) || layout.boxes.length === 0) {
-                failures.push(`${descriptor.name}: unusable boxes`);
-              }
-            } catch (error) {
-              failures.push(`${descriptor.name}: ${(error as Error).message}`);
-            }
-          }
-          expect(failures).toEqual([]);
+          expect(failuresOf(frame.width, locale, scale)).toEqual([]);
         });
       }
     }
