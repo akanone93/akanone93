@@ -5,6 +5,7 @@ import {
   CanvasHost,
   type FontSource,
   type Guides,
+  type SceneOp,
   type ScreenDocument,
   type ScreenHeight,
   type ScreenStyle,
@@ -27,6 +28,8 @@ export interface CanvasSurface {
   /** World rectangle of an item, and the overlay feedback of a drag (guides, distance labels, insertion indicator). */
   boundsOf?(id: string): { l: number; t: number; r: number; b: number } | undefined;
   setGuides?(guides: Guides | null): void;
+  /** Applies scene patches, for the provisional arrow of a link drag (STU-047). */
+  patch?(ops: readonly SceneOp[]): void;
   readonly viewport: { readonly x: number; readonly y: number; readonly zoom: number };
   dispose(): void;
 }
@@ -119,6 +122,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     hitTestRect: (rect, mode) => host?.hitTestRect(rect, mode) ?? [],
     boundsOf: (id) => host?.boundsOf(id),
     setGuides: (g) => run((h) => h.setGuides(g)),
+    patch: (ops) => run((h) => h.patch(ops)),
     setSelection: (ids) => run((h) => h.setSelection(ids)),
     get viewport() {
       return host ? host.viewport : view;

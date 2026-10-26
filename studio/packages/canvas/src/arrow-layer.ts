@@ -86,6 +86,51 @@ function segment(id: string, from: Point, to: Point, stroke: StrokeStyle, z: num
   return { kind: "link", id, from, to, stroke, z };
 }
 
+/** Scene item ids of the arrow shown while a link is being dragged (F6, STU-047). */
+const PROVISIONAL = ["arrow:provisional:s0", "arrow:provisional:h0", "arrow:provisional:h1"] as const;
+
+/**
+ * The provisional arrow of a link drag (STU-047): a straight shaft from the handle to the pointer
+ * with the same head as a real arrow, drawn in the focus style. Nothing is created until the drop
+ * is confirmed, so it lives outside the router and is removed by `clear`.
+ */
+export class ProvisionalArrow {
+  private shown = false;
+
+  constructor(
+    private readonly style: ArrowStyle = defaultArrowStyle,
+    private readonly depth = 20,
+  ) {}
+
+  /** Patches that draw (first call) or move (later calls) the arrow from `from` to `to`. */
+  update(from: Point, to: Point): SceneOp[] {
+    const stroke = this.style.focus;
+    const dx = from.x - to.x;
+    const dy = from.y - to.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const n = { x: dx / len, y: dy / len };
+    const items: ItemSpec[] = [segment(PROVISIONAL[0], from, to, stroke, this.depth)];
+    for (const [k, angle] of [HEAD_ANGLE, -HEAD_ANGLE].entries()) {
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      const end = { x: to.x + HEAD * (n.x * cos - n.y * sin), y: to.y + HEAD * (n.x * sin + n.y * cos) };
+      items.push(segment(PROVISIONAL[k + 1] as string, to, end, stroke, this.depth));
+    }
+    const op = this.shown ? "replace" : "add";
+    this.shown = true;
+    return items.map((item) => ({ op, item }));
+  }
+
+  /** Patches that remove the arrow; none when it was never drawn. */
+  clear(): SceneOp[] {
+    if (!this.shown) {
+      return [];
+    }
+    this.shown = false;
+    return PROVISIONAL.map((id) => ({ op: "remove", id }));
+  }
+}
+
 /** Scene items and patches for the arrows of one canvas. */
 export class ArrowCanvas {
   readonly expansion = new Expansion();
