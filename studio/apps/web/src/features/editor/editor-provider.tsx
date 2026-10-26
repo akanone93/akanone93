@@ -71,7 +71,7 @@ function lockWorkerFactory(): (() => TickWorker) | undefined {
 }
 
 /** Resolves once the pipeline has nothing unconfirmed, after flushing it. */
-function flushed(edit: EditSession): Promise<void> {
+export function flushed(edit: EditSession): Promise<void> {
   edit.flushAll();
   return new Promise((resolve) => {
     if (edit.waiting() === 0) {

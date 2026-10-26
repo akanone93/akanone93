@@ -6,6 +6,8 @@ import { create } from "@bufbuild/protobuf";
 import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import type { Messages } from "@lingui/core";
 import {
+  type ApplyChangeSetRequest,
+  AppService,
   DocumentSchema,
   DocumentService,
   FederationService,
@@ -62,6 +64,17 @@ export interface Upstream {
   /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
   pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
   appDocuments?: { kind: string; path: string; json: unknown }[];
+  /** A production channel serves a release (STU-074). */
+  productionRelease?: boolean;
+  /** Collects every ApplyChangeSet the upstream receives. */
+  changeSets?: ApplyChangeSetRequest[];
+  /** The app canvas: ListPluginSummaries. */
+  summaries?: { id: string; key: string; name: string; latestVersion?: number }[];
+  /** Collects plugin RPCs the app canvas sends, as `delete:<id>` and `archive:<id>`. */
+  pluginCalls?: string[];
+  /** The app's trash, and the ids restored from it. */
+  trash?: { id: string; kind: string; name: string }[];
+  restored?: string[];
   updates?: { paths: string[]; theme: string; language: string; density: string }[];
 }
 
@@ -118,7 +131,39 @@ export function createUpstream(state: Upstream) {
         };
       },
     });
+    service(AppService, {
+      getApp: () => ({ app: { id: "app1", name: "App", defaultPluginKey: "" } }),
+      listEnvironments: () => ({ environments: [{ id: "env-prod", key: "production", production: true }] }),
+      listChannels: () => ({
+        channels: [
+          {
+            id: "ch",
+            environmentId: "env-prod",
+            key: "production",
+            releaseSequence: state.productionRelease === true ? 3n : 0n,
+          },
+        ],
+      }),
+      listTrash: () => ({ items: state.trash ?? [] }),
+      restoreFromTrash: (req) => {
+        state.restored?.push(req.id);
+        return {};
+      },
+    });
     service(PluginService, {
+      listPluginSummaries: () => ({
+        summaries: (state.summaries ?? []).map((p) => ({
+          plugin: { id: p.id, key: p.key, name: p.name, latestVersion: BigInt(p.latestVersion ?? 0) },
+        })),
+      }),
+      deletePlugin: (req) => {
+        state.pluginCalls?.push(`delete:${req.id}`);
+        return {};
+      },
+      archivePlugin: (req) => {
+        state.pluginCalls?.push(`archive:${req.id}`);
+        return {};
+      },
       listPlugins: () => ({
         plugins: Object.keys(state.pluginDocuments ?? {}).map((id) => create(PluginSchema, { id, key: id })),
       }),
@@ -184,12 +229,17 @@ export function createUpstream(state: Upstream) {
           }),
         };
       },
+      applyChangeSet: (req) => {
+        state.changeSets?.push(req);
+        return {};
+      },
       listDocuments: (req) => ({
         documents: (req.pluginId === ""
           ? (state.appDocuments ?? state.documents ?? [])
           : (state.pluginDocuments?.[req.pluginId] ?? state.documents ?? [])
         ).map((d) =>
           create(DocumentSchema, {
+            pluginId: req.pluginId,
             kind: d.kind,
             path: d.path,
             content: new TextEncoder().encode(JSON.stringify(d.json)),

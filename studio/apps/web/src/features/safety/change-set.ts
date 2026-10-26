@@ -66,6 +66,29 @@ export function redirectIncoming(
   );
 }
 
+/**
+ * "Redirect incoming links" for a plugin (STU-070): every link into any of its screens now goes to
+ * `toRoute`, each checked against the route of the screen it pointed at.
+ */
+export function redirectPluginIncoming(
+  docs: readonly LoadedDoc[],
+  incoming: readonly Use[],
+  pages: ReadonlyMap<string, PageInfo>,
+  toRoute: string,
+): ChangeSet {
+  const links = incoming.flatMap((u) => {
+    const from = u.kind === "navigates" ? pages.get(u.target.id) : undefined;
+    return from === undefined ? [] : [{ use: u, route: from.route }];
+  });
+  return group(
+    docs,
+    links.flatMap(({ use, route }) => [
+      { path: use.path, op: { op: "test", path: use.pointer, value: route } as const },
+      { path: use.path, op: { op: "replace", path: use.pointer, value: toRoute } as const },
+    ]),
+  );
+}
+
 /** Sorts JSON pointers so that removing array items one by one never shifts a later one. */
 function laterFirst(a: string, b: string): number {
   const pa = a.split("/");

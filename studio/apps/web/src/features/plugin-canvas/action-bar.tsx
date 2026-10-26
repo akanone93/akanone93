@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, GlassCapsule, Icon, Select } from "@plux/ui";
+import { Button, GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useOptionalCommands } from "../../lib/commands/index.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
 import type { Validation } from "../problems/use-validation.ts";
@@ -17,6 +17,8 @@ export interface ActionBarProps {
   readonly current: string | undefined;
   readonly onCurrent: (id: string) => void;
   readonly onNewScreen: () => void;
+  /** The screen menu of the current screen (rename, move, delete); hidden when absent. */
+  readonly onScreenAction?: ((action: "rename" | "move" | "delete") => void) | undefined;
 }
 
 /** Undo and redo run the registered `edit.undo` and `edit.redo` commands and stay disabled while none is registered. */
@@ -39,6 +41,20 @@ export function ActionBar(props: ActionBarProps) {
             value={props.current ?? ""}
             options={props.screens.map((s) => ({ value: s.id, label: s.title }))}
             onValueChange={props.onCurrent}
+          />
+        )}
+        {props.onScreenAction !== undefined && props.current !== undefined && (
+          <Menu
+            trigger={
+              <Button size="sm" variant="ghost" aria-label={m.screenMenu}>
+                <Icon name="dots-three" size="capsule" />
+              </Button>
+            }
+            entries={[
+              { kind: "item", id: "rename", label: m.renameScreen, onSelect: () => props.onScreenAction?.("rename") },
+              { kind: "item", id: "move", label: m.moveScreen, onSelect: () => props.onScreenAction?.("move") },
+              { kind: "item", id: "delete", label: m.deleteScreen, onSelect: () => props.onScreenAction?.("delete") },
+            ]}
           />
         )}
         <Button

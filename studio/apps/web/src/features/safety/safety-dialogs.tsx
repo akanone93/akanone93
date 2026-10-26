@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Input } from "@plux/ui";
+import { Button, Dialog, Field, Input, Select, type SelectOption } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { safetyMessages } from "./safety.messages.ts";
 import type { DeleteCheck, RenameEffect, Use } from "./where-used.ts";
@@ -175,5 +175,65 @@ export function RenameWarning({ effects }: { readonly effects: readonly RenameEf
         ))}
       </ul>
     </section>
+  );
+}
+
+/**
+ * A target picker: where a screen moves to (D23) or where incoming links are redirected (STU-070).
+ * Nothing is written until the choice is confirmed.
+ */
+export function TargetPicker({
+  open,
+  title,
+  description,
+  label,
+  options,
+  action,
+  onConfirm,
+  onOpenChange,
+}: {
+  readonly open: boolean;
+  readonly title: string;
+  readonly description?: string;
+  readonly label: string;
+  readonly options: readonly SelectOption[];
+  /** The label of the confirming button, naming the action. */
+  readonly action: string;
+  readonly onConfirm: (value: string) => void;
+  readonly onOpenChange: (open: boolean) => void;
+}): ReactElement {
+  const m = safetyMessages(useLingui().i18n);
+  const [value, setValue] = useState("");
+  const chosen = options.some((o) => o.value === value) ? value : "";
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title}
+      {...(description !== undefined ? { description } : {})}
+      labels={{ close: m.close }}
+    >
+      <form
+        className="mt-3 flex flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (chosen !== "") {
+            onConfirm(chosen);
+          }
+        }}
+      >
+        <Field label={label}>
+          <Select options={options} value={chosen} label={label} onValueChange={setValue} />
+        </Field>
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            {m.cancel}
+          </Button>
+          <Button type="submit" variant="primary" disabled={chosen === ""}>
+            {action}
+          </Button>
+        </div>
+      </form>
+    </Dialog>
   );
 }
