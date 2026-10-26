@@ -146,6 +146,8 @@ export class CanvasWorkerCore {
   private readonly queued: HostMessage[] = [];
   private frameRequested = false;
   private idleRequested = false;
+  /** An animation frame is awaited to resume patches whose frame budget is spent. */
+  private pacing = false;
   private disposed = false;
   private readonly live: SceneItem[] = [];
   private readonly liveBounds = makeRect(0, 0, 0, 0);
@@ -639,6 +641,20 @@ export class CanvasWorkerCore {
     }
   }
 
+  private idleAfterFrame(running: Running): void {
+    if (this.pacing) {
+      return;
+    }
+    this.pacing = true;
+    this.deps.requestFrame(() => {
+      this.pacing = false;
+      if (this.running === running && !running.lost) {
+        running.renderer.nextPatchFrame();
+        this.requestIdle();
+      }
+    });
+  }
+
   private requestIdle(): void {
     if (this.idleRequested) {
       return;
@@ -665,6 +681,10 @@ export class CanvasWorkerCore {
       return;
     }
     const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS, () => this.frameRequested);
+    if (running.renderer.patchesWaitForFrame) {
+      // Patches are paced to one frame's budget per animation frame: idle time resumes them after the next one.
+      this.idleAfterFrame(running);
+    }
     if (rendered === 0) {
       return;
     }

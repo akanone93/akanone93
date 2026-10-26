@@ -49,15 +49,20 @@ function sleep(ms: number): Promise<void> {
  * Time until every tile the view shows is current at full resolution
  * (`visibleMs`, the settle target) and until the overscan and idle work are
  * done too (`fullMs`). The first frame is skipped: it may have been in flight
- * before the call.
+ * before the call; so is every frame until `after` holds, when frames queued
+ * before the change being timed may still arrive.
  */
-async function settleTimes(host: CanvasHost): Promise<{ visibleMs: number; fullMs: number }> {
+async function settleTimes(
+  host: CanvasHost,
+  after: () => boolean = () => true,
+): Promise<{ visibleMs: number; fullMs: number }> {
   const start = performance.now();
   let visibleMs = -1;
   for (let i = 0; i < 400; i++) {
     host.patch([]);
     const stats = await host.nextFrame();
-    if (i === 0) {
+    // Frames queued before the change that started the wait report a state before it.
+    if (i === 0 || !after()) {
       continue;
     }
     if (visibleMs < 0 && stats.visibleJobs === 0 && stats.resolution === 1) {
@@ -130,11 +135,30 @@ function breakdown(frame: FrameStats | undefined): Record<string, number> {
  */
 async function dropScenario(host: CanvasHost, ids: readonly string[]): Promise<Record<string, number>> {
   const frames: FrameStats[] = [];
-  const stop = host.onFrame((stats) => frames.push(stats));
+  // The drop's frame is the first without live items: frames of the drag may still be queued before it.
+  let dropFrame: FrameStats | undefined;
+  const stop = host.onFrame((stats) => {
+    frames.push(stats);
+    if (dropFrame === undefined && stats.liveItems === 0) {
+      dropFrame = stats;
+    }
+  });
   host.endInteraction("drag", ids);
-  const dropSettleMs = (await settleTimes(host)).fullMs;
+  const dropSettleMs = (await settleTimes(host, () => dropFrame !== undefined)).fullMs;
   stop();
-  return { dropFrameMs: round(frames[0]?.ms ?? 0), dropSettleMs };
+  // Where the settle went: tiles rendered or refreshed in idle time, and frames that drew the whole base.
+  const after = frames.slice(frames.indexOf(dropFrame as FrameStats));
+  const first = after[0];
+  const last = after.at(-1);
+  return {
+    dropFrameMs: round(dropFrame?.ms ?? 0),
+    dropSettleMs,
+    framesBeforeDrop: frames.indexOf(dropFrame as FrameStats),
+    dropTileRenders: (last?.tileRenders ?? 0) - (first?.tileRenders ?? 0),
+    dropTileRenderMs: round((last?.tileRenderMs ?? 0) - (first?.tileRenderMs ?? 0)),
+    dropBaseFrames: after.filter((f) => f.base).length,
+    dropBaseMs: round(after.filter((f) => f.base).reduce((sum, f) => sum + f.ms, 0)),
+  };
 }
 
 /** Scene A: one box and its links dragged 2 × 1 world units per animation frame, timed rAF to rAF. */
