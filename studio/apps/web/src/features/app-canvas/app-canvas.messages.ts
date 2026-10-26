@@ -207,5 +207,82 @@ export function appCanvasMessages(i18n: I18n) {
         comment: "Announced when the selection changes.",
         values: { n },
       }),
+    deletePlugin: i18n._({
+      id: "appCanvas.deletePlugin",
+      message: "Delete plugin",
+      comment:
+        "Button: delete the selected plugin; a published plugin is deprecated first, an unpublished one goes to the trash.",
+    }),
+    deleteConfirm: (name: string) =>
+      i18n._({
+        id: "appCanvas.deleteConfirm",
+        message: "Delete {name}? It moves to the trash for 30 days and can be restored with its links.",
+        values: { name },
+        comment: "Question that asks to confirm deleting a plugin (GOV-031, A44).",
+      }),
+    deprecateConfirm: (name: string, links: number) =>
+      i18n._({
+        id: "appCanvas.deprecateConfirm",
+        message:
+          "{name} is published. It is marked deprecated, and {links, plural, =0 {nothing links to it} one {# link still points to it} other {# links still point to it}}. It leaves the next release only when nothing links to it; earlier releases keep it.",
+        values: { name, links },
+        comment: "STU-073: explains that deleting a published plugin deprecates it and says what still links to it.",
+      }),
+    deprecate: i18n._({
+      id: "appCanvas.deprecate",
+      message: "Deprecate plugin",
+      comment: "Confirm button of the dialog that marks a published plugin deprecated (STU-073).",
+    }),
+    productionNote: (name: string) =>
+      i18n._({
+        id: "appCanvas.productionNote",
+        message: "{name} is part of an app with a production release. Type its key to confirm.",
+        values: { name },
+        comment: "STU-074: explains why a destructive action on a plugin asks for its key.",
+      }),
+    redirectTitle: i18n._({
+      id: "appCanvas.redirectTitle",
+      message: "Redirect incoming links",
+      comment: "Title of the dialog that chooses the screen links into a plugin are redirected to (STU-070).",
+    }),
+    redirectTarget: i18n._({
+      id: "appCanvas.redirectTarget",
+      message: "New target screen",
+      comment: "Label of the choice of the screen links are redirected to.",
+    }),
+    redirect: i18n._({
+      id: "appCanvas.redirect",
+      message: "Redirect",
+      comment: "Button that confirms redirecting links to the chosen screen.",
+    }),
+    changeRefused: i18n._({
+      id: "appCanvas.changeRefused",
+      message: "The change was not applied because a document changed meanwhile. Nothing was written.",
+      comment: "Shown when an atomic change across plugins is refused by the server; nothing was written.",
+    }),
+    trash: i18n._({
+      id: "appCanvas.trash",
+      message: "Trash",
+      comment: "Button and dialog title: deleted plugins and screens that can still be restored (A44).",
+    }),
+    trashEmpty: i18n._({
+      id: "appCanvas.trashEmpty",
+      message: "The trash is empty.",
+      comment: "Shown in the trash dialog when nothing was deleted.",
+    }),
+    trashItem: (name: string, kind: string) =>
+      i18n._({
+        id: "appCanvas.trashItem",
+        message: "{name} ({kind})",
+        values: { name, kind },
+        comment: "A deleted item in the trash list; kind is app, plugin or page.",
+      }),
+    trashRestore: (name: string) =>
+      i18n._({
+        id: "appCanvas.trashRestore",
+        message: "Restore {name}",
+        values: { name },
+        comment: "Accessible name of the button that restores one deleted item with its old IDs.",
+      }),
   };
 }

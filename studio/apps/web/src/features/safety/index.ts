@@ -10,10 +10,13 @@ export {
   type MoveResult,
   moveScreen,
   redirectIncoming,
+  redirectPluginIncoming,
   removeOutgoing,
   undoStep,
 } from "./change-set.ts";
-export { BlockedDeletePanel, RenameWarning, TypeToConfirmDialog } from "./safety-dialogs.tsx";
+export { loadedDocs, type PluginRef, pluginRefs } from "./loaded.ts";
+export { BlockedDeletePanel, RenameWarning, TargetPicker, TypeToConfirmDialog } from "./safety-dialogs.tsx";
+export { type OpenPlugin, useChangeSets, useProductionRelease } from "./use-safety.ts";
 export {
   buildWhereUsed,
   camel,

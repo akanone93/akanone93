@@ -22,7 +22,9 @@ import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
+import { LaneDialog, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
+import { redirectRecipe, removeLinkRecipe } from "./links.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { parseDocument, readPlugin } from "./plugin-model.ts";
@@ -455,6 +457,8 @@ function PluginCanvasView({
   }, [selection, screenOf, screens]);
   const entryPage = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
 
+  const { lane, setLane, site: laneSite, routes: laneRoutes } = useLane(screens, linkScreens, appScreens);
+
   const drag = useRef<{ x: number; y: number } | null>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
@@ -502,6 +506,11 @@ function PluginCanvasView({
           const box = canvasRef.current?.getBoundingClientRect();
           if (from !== null && surfaceRef.current && box) {
             pointerSelect(surfaceRef.current, store, index, box, from, e, (hits) => {
+              const lane = ghostLayer.pick(hits)?.link;
+              if (lane !== undefined) {
+                setLane(lane);
+                return true;
+              }
               const ghost = ghostOfHit(hits, ghostLayer.placed);
               if (ghost === undefined) {
                 return false;
@@ -581,6 +590,27 @@ function PluginCanvasView({
         canEdit={canEdit}
         edit={edit}
       />
+      {lane !== null && (
+        <LaneDialog
+          title={lane.title}
+          site={laneSite}
+          routes={laneRoutes}
+          canEdit={canEdit}
+          onClose={() => setLane(null)}
+          onRedirect={(route) => {
+            if (laneSite !== undefined) {
+              edit(lane.source, redirectRecipe(laneSite.nodeId, laneSite.link, route));
+            }
+            setLane(null);
+          }}
+          onRemove={() => {
+            if (laneSite !== undefined) {
+              edit(lane.source, removeLinkRecipe(laneSite.nodeId, laneSite.link));
+            }
+            setLane(null);
+          }}
+        />
+      )}
       <ProblemsDrawer validation={validation} />
       <RightDock
         screens={screens}
@@ -597,6 +627,7 @@ function PluginCanvasView({
         <ScreensController
           appId={params.app ?? ""}
           pluginId={params.plugin ?? ""}
+          editorSessionId={editorSessionId}
           documents={docs.data}
           appDocuments={appDocs.data}
           screens={screens.map((x) => ({ id: x.id, title: x.title }))}

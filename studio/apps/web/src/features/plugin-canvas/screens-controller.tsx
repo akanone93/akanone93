@@ -5,28 +5,62 @@ import { useLingui } from "@lingui/react";
 import type { Document } from "@plux/api";
 import { AlertDialog, Button, Dialog, Field, Input } from "@plux/ui";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
-import { useEditSession } from "../editor/editor-provider.tsx";
+import { useEditSession, useLock } from "../editor/editor-provider.tsx";
 import type { Validation } from "../problems/use-validation.ts";
+import {
+  BlockedDeletePanel,
+  buildWhereUsed,
+  type ChangeSet,
+  checkScreenDelete,
+  isBlocked,
+  loadedDocs,
+  moveScreen,
+  type PageInfo,
+  pluginRefs,
+  RenameWarning,
+  redirectIncoming,
+  routeChangeEffects,
+  TargetPicker,
+  TypeToConfirmDialog,
+  type Use,
+  useChangeSets,
+  useProductionRelease,
+} from "../safety/index.ts";
 import { ActionBar } from "./action-bar.tsx";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import {
-  blockersOf,
   createScreen,
   deleteScreen,
   duplicateScreen,
+  renamedRoute,
   renameScreen,
   type ScreenContext,
   type ScreenResult,
 } from "./screen-actions.ts";
-import type { Blocker } from "./screens.ts";
 
-type Dialogue = { kind: "new" } | { kind: "rename" } | { kind: "delete" } | null;
+/** What renaming `page` to `title` breaks outside Studio: its route may change with it (D27). */
+function renameEffects(ctx: ScreenContext, page: PageInfo | undefined, id: string | undefined, title: string) {
+  if (page === undefined || id === undefined || title === "") {
+    return [];
+  }
+  return routeChangeEffects(page.route, renamedRoute(ctx, id, title) ?? page.route);
+}
+
+type Dialogue =
+  | { kind: "new" }
+  | { kind: "rename" }
+  | { kind: "delete" }
+  | { kind: "move" }
+  | { kind: "redirect" }
+  | null;
 
 export interface ScreensControllerProps {
   readonly appId: string;
   readonly pluginId: string;
+  readonly editorSessionId: string;
   readonly documents: readonly Document[];
   readonly appDocuments: readonly Document[] | undefined;
   readonly screens: readonly { readonly id: string; readonly title: string }[];
@@ -37,11 +71,26 @@ export interface ScreensControllerProps {
   readonly onFit: () => void;
 }
 
-/** The action bar, the screen dialogs and the screen commands of one open plugin (S2.7). */
+/**
+ * The action bar, the screen dialogs and the screen commands of one open plugin (S2.7), with the
+ * safety rules of F13: every delete checks the where-used index and opens the blocked-delete panel
+ * with its assisted fixes (STU-070, STU-071), a rename lists what a route change breaks (D27),
+ * deleting in an app with a production release asks for the name (STU-074), and a screen moves to
+ * another plugin as one change set (D23).
+ */
 export function ScreensController(props: ScreensControllerProps): ReactNode {
   const m = pluginCanvasMessages(useLingui().i18n);
   const session = useEditSession();
+  const lock = useLock();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const params = useParams({ strict: false }) as { org?: string };
+  const production = useProductionRelease(props.appId);
+  const openPlugin = useMemo(
+    () => ({ pluginId: props.pluginId, lock, edit: session }),
+    [props.pluginId, lock, session],
+  );
+  const applyChanges = useChangeSets(props.appId, props.editorSessionId, openPlugin);
   const [picked, setPicked] = useState<string | undefined>();
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [title, setTitle] = useState("");
@@ -51,6 +100,16 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
   const ctx: ScreenContext = useMemo(
     () => ({ plugin: [...props.documents], app: props.appDocuments ?? [] }),
     [props.documents, props.appDocuments],
+  );
+  const loaded = useMemo(
+    () => loadedDocs(props.appDocuments ?? props.documents),
+    [props.appDocuments, props.documents],
+  );
+  const index = useMemo(() => buildWhereUsed(loaded), [loaded]);
+  const page = current === undefined ? undefined : index.pages.get(current);
+  const check = useMemo(
+    () => (current === undefined ? undefined : checkScreenDelete(index, current)),
+    [index, current],
   );
 
   const finish = useCallback(
@@ -70,8 +129,19 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
     [queryClient, props.appId, props.pluginId, m.offline, m.pendingSave, m.writeFailed],
   );
 
+  const applyAndClose = useCallback(
+    async (changeSet: ChangeSet) => {
+      const ok = await applyChanges(changeSet);
+      setMessage(ok ? null : m.changeRefused);
+      if (ok) {
+        setDialogue(null);
+      }
+    },
+    [applyChanges, m.changeRefused],
+  );
+
   const open = useCallback(
-    (kind: "new" | "rename" | "delete") => {
+    (kind: "new" | "rename" | "delete" | "move") => {
       setMessage(null);
       setTitle(kind === "new" ? m.untitled : kind === "rename" ? currentTitle : "");
       setDialogue({ kind });
@@ -90,9 +160,10 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
       { id: "screen.new", title: m.newScreen, group: "screens", permission: null, run: () => open("new") },
       { id: "screen.duplicate", title: m.duplicateScreen, group: "screens", permission: null, run: duplicate },
       { id: "screen.rename", title: m.renameScreen, group: "screens", permission: null, run: () => open("rename") },
+      { id: "screen.move", title: m.moveScreen, group: "screens", permission: null, run: () => open("move") },
       { id: "screen.delete", title: m.deleteScreen, group: "screens", permission: null, run: () => open("delete") },
     ],
-    [m.newScreen, m.duplicateScreen, m.renameScreen, m.deleteScreen, open, duplicate],
+    [m.newScreen, m.duplicateScreen, m.renameScreen, m.moveScreen, m.deleteScreen, open, duplicate],
   );
   useScopedCommands("screens", commands);
 
@@ -110,7 +181,35 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
     }
   };
 
-  const blockers: Blocker[] = dialogue?.kind === "delete" && current !== undefined ? blockersOf(ctx, current) : [];
+  const blocked = dialogue?.kind === "delete" && check !== undefined && isBlocked(check);
+  const effects = dialogue?.kind === "rename" ? renameEffects(ctx, page, current, title.trim()) : [];
+  const otherPlugins = pluginRefs(loaded).filter((p) => p.id !== props.pluginId);
+  const goTo = (use: Use) => {
+    setDialogue(null);
+    void navigate({
+      to: "/o/$org/apps/$app/plugins/$plugin",
+      params: { org: params.org ?? "", app: props.appId, plugin: use.pluginId },
+      search: { focus: use.fromId },
+    });
+  };
+  const doMove = (target: string) => {
+    if (current === undefined) {
+      return;
+    }
+    const moved = moveScreen(loaded, index, current, target);
+    if (moved.ok) {
+      void applyAndClose(moved.changeSet);
+      return;
+    }
+    setMessage(m.moveRefused(m.moveReason(moved.reason)));
+    setDialogue(null);
+  };
+  const doDelete = () => {
+    if (current !== undefined) {
+      void finish(deleteScreen(session, ctx, current)).then((ok) => ok && setDialogue(null));
+    }
+  };
+
   const labels = { close: m.close };
   const titleField = (
     <form
@@ -123,6 +222,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
       <Field label={m.screenTitle}>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
       </Field>
+      <RenameWarning effects={effects} />
       <Button type="submit">{dialogue?.kind === "new" ? m.create : m.rename}</Button>
     </form>
   );
@@ -138,6 +238,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         current={current}
         onCurrent={setPicked}
         onNewScreen={() => open("new")}
+        onScreenAction={open}
       />
       {message !== null && (
         <p role="alert" className="absolute inset-x-0 bottom-20 text-center text-body">
@@ -152,31 +253,55 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
       >
         {titleField}
       </Dialog>
-      <Dialog
-        open={dialogue?.kind === "delete" && blockers.length > 0}
+      {check !== undefined && (
+        <BlockedDeletePanel
+          open={blocked}
+          check={check}
+          onNavigate={goTo}
+          onRedirect={() => setDialogue({ kind: "redirect" })}
+          onOpenChange={(o) => !o && setDialogue(null)}
+        />
+      )}
+      <TargetPicker
+        open={dialogue?.kind === "move"}
+        title={m.moveScreen}
+        label={m.moveTarget}
+        options={otherPlugins.map((p) => ({ value: p.id, label: p.label }))}
+        action={m.move}
+        onConfirm={doMove}
         onOpenChange={(o) => !o && setDialogue(null)}
-        title={m.blockedTitle}
-        labels={labels}
-      >
-        <ul className="flex flex-col gap-2 text-body">
-          {blockers.map((b) => (
-            <li key={`${b.kind}-${b.pageId ?? ""}`}>
-              {b.kind === "entry" ? m.blockedEntry : m.blockedNavigate(b.title ?? "")}
-            </li>
-          ))}
-        </ul>
-      </Dialog>
+      />
+      <TargetPicker
+        open={dialogue?.kind === "redirect"}
+        title={m.redirectTitle}
+        label={m.redirectTarget}
+        options={[...index.pages.values()]
+          .filter((p) => p.id !== current)
+          .map((p) => ({ value: p.route, label: p.title }))}
+        action={m.redirect}
+        onConfirm={(route) => {
+          if (page !== undefined && check !== undefined) {
+            void applyAndClose(redirectIncoming(loaded, check.incoming, page, route));
+          }
+        }}
+        onOpenChange={(o) => !o && setDialogue(null)}
+      />
       <AlertDialog
-        open={dialogue?.kind === "delete" && blockers.length === 0}
+        open={dialogue?.kind === "delete" && !blocked && !production}
         onOpenChange={(o) => !o && setDialogue(null)}
         title={m.deleteScreen}
         description={m.confirmDelete(currentTitle)}
         labels={{ cancel: m.cancel, confirm: m.delete }}
-        onConfirm={() => {
-          if (current !== undefined) {
-            void finish(deleteScreen(session, ctx, current)).then((ok) => ok && setDialogue(null));
-          }
-        }}
+        onConfirm={doDelete}
+      />
+      <TypeToConfirmDialog
+        open={dialogue?.kind === "delete" && !blocked && production}
+        title={m.deleteScreen}
+        description={m.deleteProductionNote(currentTitle)}
+        name={page?.key ?? currentTitle}
+        action={m.deleteConfirmAction}
+        onConfirm={doDelete}
+        onOpenChange={(o) => !o && setDialogue(null)}
       />
     </>
   );
