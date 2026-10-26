@@ -1,0 +1,217 @@
+{
+  "name": "material-navigation-bar-selected-icon",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 360
+            },
+            "children": [
+              {
+                "id": "b0",
+                "type": "NavigationBar",
+                "props": {
+                  "selectedIndex": 0
+                },
+                "children": [
+                  {
+                    "id": "b0d0",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Home"
+                    },
+                    "children": [
+                      {
+                        "id": "b0d0-selectedIcon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 40
+                        },
+                        "slot": "selectedIcon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b0d1",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Search"
+                    },
+                    "children": [
+                      {
+                        "id": "b0d1-icon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 24
+                        },
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b0d2",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Saved"
+                    },
+                    "children": [
+                      {
+                        "id": "b0d2-icon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 24
+                        },
+                        "slot": "icon"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 360
+            },
+            "children": [
+              {
+                "id": "b1",
+                "type": "NavigationBar",
+                "props": {
+                  "selectedIndex": 1,
+                  "labelBehavior": "onlyShowSelected"
+                },
+                "children": [
+                  {
+                    "id": "b1d0",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Home"
+                    },
+                    "children": [
+                      {
+                        "id": "b1d0-icon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 24
+                        },
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b1d1",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Search"
+                    },
+                    "children": [
+                      {
+                        "id": "b1d1-selectedIcon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 32
+                        },
+                        "slot": "selectedIcon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b1d2",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Saved"
+                    },
+                    "children": [
+                      {
+                        "id": "b1d2-icon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 24
+                        },
+                        "slot": "icon"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 360
+            },
+            "children": [
+              {
+                "id": "b2",
+                "type": "NavigationBar",
+                "props": {
+                  "selectedIndex": 0,
+                  "height": 64
+                },
+                "children": [
+                  {
+                    "id": "b2d0",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Home"
+                    },
+                    "children": [
+                      {
+                        "id": "b2d0-selectedIcon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 24
+                        },
+                        "slot": "selectedIcon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b2d1",
+                    "type": "NavigationDestination",
+                    "props": {
+                      "label": "Search"
+                    },
+                    "children": [
+                      {
+                        "id": "b2d1-icon",
+                        "type": "Icon",
+                        "props": {
+                          "size": 24
+                        },
+                        "slot": "icon"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

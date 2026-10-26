@@ -1,0 +1,110 @@
+{
+  "name": "material-navigation-rail-extended-parts",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "b",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 380
+            },
+            "children": [
+              {
+                "id": "br",
+                "type": "Row",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "children": [
+                  {
+                    "id": "r1",
+                    "type": "NavigationRail",
+                    "props": {
+                      "extended": true,
+                      "minExtendedWidth": 200,
+                      "groupAlignment": 0
+                    },
+                    "children": [
+                      {
+                        "id": "r1d0",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Home"
+                        },
+                        "children": [
+                          {
+                            "id": "r1d0-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r1d1",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Search"
+                        },
+                        "children": [
+                          {
+                            "id": "r1d1-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r1lead",
+                        "type": "FloatingActionButton",
+                        "props": {
+                          "kind": "small"
+                        },
+                        "children": [
+                          {
+                            "id": "r1leadi",
+                            "type": "Icon",
+                            "props": {}
+                          }
+                        ],
+                        "slot": "leading"
+                      },
+                      {
+                        "id": "r1trail",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "trailing"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
