@@ -1821,6 +1821,12 @@ msgstr "Restore {name}"
 msgid "appCanvas.restore"
 msgstr "Restore plugin"
 
+#. Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.pxlResultType"
+msgstr "Result type: {type}"
+
 #. Button that continues a failed upload where it stopped.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts

@@ -20,16 +20,31 @@ export interface ProjectFile {
   readonly encoding?: "base64";
 }
 
+/** What the PXL language service answers (PXL-007). */
+export type PxlOp = "check" | "complete" | "hover" | "signature";
+
 /** Host to worker. `id` ties a response to its request. */
 export type ValidatorRequest =
   | { readonly type: "load"; readonly id: number; readonly files: readonly ProjectFile[] }
   | { readonly type: "validate"; readonly id: number; readonly file: string; readonly data: string }
+  /** A language-service request; `offset` counts code points, `scope` is the serialised use site. */
+  | {
+      readonly type: "pxl";
+      readonly id: number;
+      readonly op: PxlOp;
+      readonly scope: string;
+      readonly src: string;
+      readonly offset: number;
+    }
+  /** The expression sites of a page of the loaded project, with what each can read. */
+  | { readonly type: "sites"; readonly id: number; readonly file: string; readonly data: string }
   | { readonly type: "cancel"; readonly id: number };
 
 /** Worker to host. */
 export type ValidatorResponse =
   | { readonly type: "ready" }
   | { readonly type: "result"; readonly id: number; readonly problems: readonly Problem[] }
+  | { readonly type: "value"; readonly id: number; readonly value: unknown }
   | { readonly type: "failure"; readonly id: number; readonly message: string };
 
 /** The validation engine behind the worker: the WebAssembly module, or a stub in tests. */
@@ -38,6 +53,10 @@ export interface ValidatorEngine {
   load(files: readonly ProjectFile[]): string;
   /** Validates one page of the loaded project; returns diagnostics as JSON. */
   validatePage(file: string, data: string): string;
+  /** Answers one PXL language-service request as JSON; `offset` counts code points. */
+  pxl(op: PxlOp, scope: string, src: string, offset: number): string;
+  /** The expression sites of a page as JSON `{sites, envs}`. */
+  pxlSites(file: string, data: string): string;
 }
 
 const SEVERITIES = new Set(["info", "warning", "error"]);
@@ -56,4 +75,14 @@ export function parseProblems(json: string): Problem[] {
     path: typeof d["path"] === "string" ? d["path"] : "",
     message: String(d["message"] ?? ""),
   }));
+}
+
+/** Parses an engine answer that is a value; throws with the engine's own message on `{error}`. */
+export function parseValue(json: string): unknown {
+  const v: unknown = JSON.parse(json);
+  const message = (v as { error?: unknown } | null)?.error;
+  if (typeof message === "string") {
+    throw new Error(message);
+  }
+  return v;
 }

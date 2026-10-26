@@ -167,6 +167,9 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@base-ui/react` 1.9.0 | Unstyled accessible primitives under `@plux/ui` (ADR-0014; button, field, select, dialog, popover, menu, tabs, tooltip) | In use (P11 S0.2; MIT) |
 | `@phosphor-icons/core` 2.1.1 | Duotone icon paths, read at build time by `studio-gen-icons` and inlined as data; not shipped as a package. The MIT notice is kept in `icons.gen.ts`; legal review open (O-7) | In use (dev, P11 S0.2; MIT) |
 | `sonner` 2.0.8 | Toast engine behind `@plux/ui` Toast, styled with tokens only | In use (P11 S0.2; MIT) |
+| `@codemirror/view` 6.43.14, `@codemirror/state` 6.7.6 | The inline PXL editor of the Properties panel (A4.6, `PXL-007`); lazy-loaded chunk, styles through a CSP nonce, no runtime style attribute | In use (P11 S5.2; MIT) |
+| `@codemirror/autocomplete` 6.20.4, `@codemirror/lint` 6.9.7, `@codemirror/commands` 6.11.1 | Completion with signature help, inline diagnostics and undo history of the inline PXL editor, fed by the validator module's language service | In use (P11 S5.2; MIT) |
+| `@codemirror/language` 6.13.1, `@lezer/common` 1.5.4, `@lezer/highlight` 1.2.5, `style-mod` 4.1.4, `crelt` 1.0.7, `w3c-keyname` 2.2.8, `@marijn/find-cluster-break` 1.0.4 | Transitive dependencies of the CodeMirror packages above, locked by `studio/bun.lock`; not imported by Studio code | In use (P11 S5.2; MIT) |
 | `@tanstack/react-table` 9.3.1 | Headless table model behind `@plux/ui` VirtualTable (STU-120; decisions A3) | In use (P11 S0.2; MIT) |
 | `@tanstack/react-virtual` 3.14.21 | Row virtualisation for `@plux/ui` VirtualTable, so only visible rows are in the DOM (STU-120; decisions A3) | In use (P11 S0.2; MIT) |
 | `@tanstack/react-router` 1.170.46 | Typed routes, guards and code-split route chunks for `studio/apps/web` (A4.9, `STU-013`) | In use (P11 S0.6; MIT) |

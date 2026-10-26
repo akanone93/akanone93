@@ -201,6 +201,7 @@ function PluginCanvasView({
   const appDocs = useAppDocuments(params.app ?? "");
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
+  const checked = validation.state === "done" ? validation : undefined;
   const local = useEditor((st) => st.docs);
   const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: parseDocument(d.content) })), [docs.data]);
   // The editor's documents, unsaved edits included, over the server's (STU-121); untouched documents keep
@@ -620,10 +621,11 @@ function PluginCanvasView({
         screenOf={screenOf}
         edit={edit}
         pathOf={pathOf}
-        problems={validation.state === "done" ? validation.problems : []}
+        problems={checked?.problems ?? []}
         documents={docs.data}
         appDocuments={appDocs.data}
-        validatePage={validation.state === "done" ? validation.validatePage : undefined}
+        validatePage={checked?.validatePage}
+        language={checked?.language}
       />
       {docs.data !== undefined && (
         <ScreensController

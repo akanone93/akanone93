@@ -1,7 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { parseProblems, type ValidatorEngine, type ValidatorRequest, type ValidatorResponse } from "./protocol.ts";
+import {
+  parseProblems,
+  parseValue,
+  type ValidatorEngine,
+  type ValidatorRequest,
+  type ValidatorResponse,
+} from "./protocol.ts";
 
 /** The part of a worker's global scope the server uses. */
 export interface ValidatorScope {
@@ -24,8 +30,28 @@ export function serveValidatorWorker(
 
   const run = (req: (typeof queue)[number]): void => {
     try {
-      const json = req.type === "load" ? engine.load(req.files) : engine.validatePage(req.file, req.data);
-      scope.postMessage({ type: "result", id: req.id, problems: parseProblems(json) });
+      switch (req.type) {
+        case "load":
+          scope.postMessage({ type: "result", id: req.id, problems: parseProblems(engine.load(req.files)) });
+          break;
+        case "validate":
+          scope.postMessage({
+            type: "result",
+            id: req.id,
+            problems: parseProblems(engine.validatePage(req.file, req.data)),
+          });
+          break;
+        case "pxl":
+          scope.postMessage({
+            type: "value",
+            id: req.id,
+            value: parseValue(engine.pxl(req.op, req.scope, req.src, req.offset)),
+          });
+          break;
+        case "sites":
+          scope.postMessage({ type: "value", id: req.id, value: parseValue(engine.pxlSites(req.file, req.data)) });
+          break;
+      }
     } catch (e) {
       scope.postMessage({ type: "failure", id: req.id, message: e instanceof Error ? e.message : String(e) });
     }

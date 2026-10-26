@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type Problem, type ProjectFile, ValidatorHost, type ValidatorWorkerLike } from "@plux/validator";
+import { type Problem, type ProjectFile, type PxlOp, ValidatorHost, type ValidatorWorkerLike } from "@plux/validator";
 import { validatorWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import validatorWorkerURL from "./validator-worker.ts?worker&url";
 
@@ -9,6 +9,10 @@ import validatorWorkerURL from "./validator-worker.ts?worker&url";
 export interface ValidatorClient {
   load(files: readonly ProjectFile[]): Promise<readonly Problem[]>;
   validatePage(file: string, data: string): Promise<readonly Problem[]>;
+  /** One request of the PXL language service (PXL-007); absent in a stub without the module. */
+  pxl?(op: PxlOp, scope: string, src: string, offset: number): Promise<unknown>;
+  /** The expression sites of a page of the loaded project with the scope each reads. */
+  pxlSites?(file: string, data: string): Promise<unknown>;
   dispose(): void;
 }
 

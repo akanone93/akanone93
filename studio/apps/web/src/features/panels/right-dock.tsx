@@ -5,13 +5,14 @@ import { useLingui } from "@lingui/react";
 import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
 import { Button, Field, FloatingPanel, Icon, Input, Select, Tabs, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
 import { readPlugin } from "../plugin-canvas/plugin-model.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
+import type { PxlLanguage } from "../problems/use-validation.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { panelMessages } from "./panels.messages.ts";
 import {
@@ -33,9 +34,14 @@ import {
   sharedValue,
   unitOf,
 } from "./properties-model.ts";
+import type { PxlEditorSource } from "./pxl-editor.tsx";
+import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
 
 /** Milliseconds a PXL field waits after the last keystroke before the validator worker checks it (F9). */
 export const PXL_DEBOUNCE_MS = 300;
+
+/** The CodeMirror editor is its own chunk: it loads when the first PXL field opens, not with the shell (STU-122). */
+const PxlEditor = lazy(() => import("./pxl-editor.tsx"));
 
 const enumNames: ReadonlySet<string> = new Set(enums.map((e) => e.name));
 const constantsOf = (type: string) => valueTypes.find((v) => v.name === type)?.constants ?? [];
@@ -47,6 +53,8 @@ export interface Sources {
   readonly tokens: readonly string[];
   readonly keys: readonly { readonly id: string; readonly key: string }[];
   readonly check: Check | undefined;
+  /** The language service for the field's expression; undefined without the validator module. */
+  readonly pxl?: PxlEditorSource | undefined;
 }
 
 export interface EditorProps {
@@ -70,6 +78,7 @@ const numberOrUndefined = (s: string): number | undefined =>
 function PxlField(p: EditorProps & { expr: string }) {
   const [errors, setErrors] = useState<readonly string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [type, setType] = useState("");
   const check = p.sources.check;
   useEffect(() => {
     if (check === undefined || p.expr === "") {
@@ -89,15 +98,35 @@ function PxlField(p: EditorProps & { expr: string }) {
       clearTimeout(timer);
     };
   }, [check, p.expr]);
+  const label = `${p.name}: ${p.m.pxl}`;
+  const change = (text: string) => p.onChange(text === "" ? undefined : { $expr: text });
+  const plain = (
+    <Input
+      value={p.expr}
+      readOnly={p.readOnly}
+      aria-label={label}
+      onChange={(e) => change(e.target.value)}
+      onBlur={p.onEnd}
+    />
+  );
+  const description = busy ? p.m.pxlChecking : type === "" || p.expr === "" ? undefined : p.m.pxlResultType(type);
   return (
-    <Field label={p.m.pxl} error={errors[0]} description={busy ? p.m.pxlChecking : undefined}>
-      <Input
-        value={p.expr}
-        readOnly={p.readOnly}
-        aria-label={`${p.name}: ${p.m.pxl}`}
-        onChange={(e) => p.onChange(e.target.value === "" ? undefined : { $expr: e.target.value })}
-        onBlur={p.onEnd}
-      />
+    <Field label={p.m.pxl} error={errors[0]} description={description}>
+      {p.sources.pxl === undefined ? (
+        plain
+      ) : (
+        <Suspense fallback={plain}>
+          <PxlEditor
+            value={p.expr}
+            label={label}
+            readOnly={p.readOnly}
+            source={p.sources.pxl}
+            onChange={change}
+            onBlur={p.onEnd}
+            onType={setType}
+          />
+        </Suspense>
+      )}
     </Field>
   );
 }
@@ -393,6 +422,8 @@ interface DockProps {
   readonly appDocuments?: readonly { readonly kind: string; readonly content: Uint8Array }[] | undefined;
   /** Validates the page with an edit applied; undefined while the worker is unavailable. */
   readonly validatePage?: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
+  /** The PXL language service of the loaded project (PXL-007); the inline PXL fields use it. */
+  readonly language?: PxlLanguage | undefined;
 }
 
 /** The selection's nodes from the edited documents (the session's), falling back to the server's screens. */
@@ -440,6 +471,7 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const canEdit = useCanEdit();
   const [bp, setBp] = useState<Breakpoint>("compact");
   const burst = useRef(0);
+  const scopes = useRef<PxlScopeCache>(new Map());
   const nodes = useLiveNodes(p);
   const selected = ids.flatMap((id) => {
     const n = nodes.get(id);
@@ -489,7 +521,20 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
               mixed={mixed}
               unit={unitOf(prop)}
               readOnly={!canEdit}
-              sources={{ tokens, keys, check: makeCheck(prop.name) }}
+              sources={{
+                tokens,
+                keys,
+                check: makeCheck(prop.name),
+                pxl: pxlSource(
+                  p.language,
+                  file,
+                  file === undefined ? undefined : docsState[file]?.content,
+                  first,
+                  bp,
+                  prop.name,
+                  scopes.current,
+                ),
+              }}
               m={m}
               onChange={(v) => apply(prop.name, v)}
               onEnd={() => {

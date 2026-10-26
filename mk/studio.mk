@@ -29,7 +29,7 @@ studio-i18n-check: studio-install ## Catalogues are complete and current: strict
 studio-typecheck: studio-gen-theme studio-gen-icons studio-validator ## Type-check Studio code
 	cd studio && bun run typecheck
 
-studio-test: studio-gen-theme studio-gen-icons ## Run Studio tests
+studio-test: studio-gen-theme studio-gen-icons studio-validator ## Run Studio tests
 	cd studio && bun run test
 
 studio-conformance: ## Compare Studio's layout with Flutter's goldens (STU-005)
