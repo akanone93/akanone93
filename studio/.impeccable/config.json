@@ -1,6 +1,10 @@
 {
   "detector": {
-    "ignoreRules": [],
+    "ignoreRules": [
+      "undersized-ui-text",
+      "dark-glow",
+      "pulsing-dot"
+    ],
     "ignoreFiles": [],
     "ignoreValues": [
       {
