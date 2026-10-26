@@ -1,0 +1,25 @@
+{
+  "name": "layer2-pie-chart",
+  "layer2": true,
+  "root": {
+    "id": "chart",
+    "type": "PieChart",
+    "props": {
+      "slices": [
+        {
+          "label": "Food",
+          "value": 40
+        },
+        {
+          "label": "Rent",
+          "value": 35
+        },
+        {
+          "label": "Travel and leisure",
+          "value": 25
+        }
+      ],
+      "title": "Spending"
+    }
+  }
+}

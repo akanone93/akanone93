@@ -1,0 +1,11 @@
+{
+  "name": "layer2-rive-view",
+  "layer2": true,
+  "root": {
+    "id": "rive",
+    "type": "RiveView",
+    "props": {
+      "url": "https://example.com/a.riv"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "layer2-promo-banner-countdown",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "PromoBanner",
+    "props": {
+      "title": "Summer sale",
+      "subtitle": "Up to 50% off",
+      "ctaLabel": "Shop now",
+      "endsAt": "2000-01-01T00:00:00Z"
+    }
+  }
+}
