@@ -1067,6 +1067,24 @@ function cupertinoContext(textDirection: TextDirection, text: SceneText | null, 
   };
 }
 
+/** Builds a Material composite; its slots inherit the composite's text style. */
+function buildMaterialNode(
+  node: SceneNode,
+  textDirection: TextDirection,
+  text: SceneText | null,
+  t: number,
+): RenderBox {
+  const composite = buildMaterial(node, {
+    direction: textDirection,
+    text,
+    build: (child, base, options) => buildNode(child, textDirection, inherited(text, base, options), t),
+  });
+  if (node.type !== "PreferredSize") {
+    composite.debugId = node.id;
+  }
+  return composite;
+}
+
 /**
  * Builds the render tree of `node` under `textDirection` (Flutter's ambient
  * `Directionality`). Throws on an unknown type and on a flex type, which
@@ -1088,15 +1106,7 @@ export function buildNode(
     throw new Error(`node "${node.id}": ${node.type} is a sliver; it belongs inside a viewport`);
   }
   if (materialTypes.has(node.type)) {
-    const composite = buildMaterial(node, {
-      direction: textDirection,
-      text,
-      build: (child, base, options) => buildNode(child, textDirection, inherited(text, base, options), t),
-    });
-    if (node.type !== "PreferredSize") {
-      composite.debugId = node.id;
-    }
-    return composite;
+    return buildMaterialNode(node, textDirection, text, t);
   }
   const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text, t));
   const child = singleChild(node, children);
