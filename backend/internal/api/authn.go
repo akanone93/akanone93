@@ -113,7 +113,8 @@ func backgroundProcedure(procedure string) bool {
 		pluxv1connect.PluginServiceGetLockProcedure,
 		pluxv1connect.GovernanceServiceWatchPermissionsProcedure,
 		pluxv1connect.DevSessionServiceWatchEventsProcedure,
-		pluxv1connect.StudioEventsServiceWatchProcedure:
+		pluxv1connect.StudioEventsServiceWatchProcedure,
+		pluxv1connect.LanguageServerServiceOpenProcedure:
 		return true
 	default:
 		return false

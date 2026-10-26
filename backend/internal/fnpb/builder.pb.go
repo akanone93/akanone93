@@ -811,6 +811,510 @@ func (x *LinkedFunction) GetIndex() uint32 {
 	return 0
 }
 
+// LanguageOpenRequest starts a language-server session on a source archive.
+type LanguageOpenRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// source is the archive of the function crate, as for a build.
+	Source []byte `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
+	// source_sha256 is the hex SHA-256 of source.
+	SourceSha256 string `protobuf:"bytes,2,opt,name=source_sha256,json=sourceSha256,proto3" json:"source_sha256,omitempty"`
+	// name is the dotted function name.
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// placement is the placement asked for, or empty for the document's.
+	Placement string `protobuf:"bytes,4,opt,name=placement,proto3" json:"placement,omitempty"`
+	// session_minutes is the time the sandbox may run; the role uses the
+	// smaller of it and the registry maximum of `lsp.sessionMinutes`.
+	SessionMinutes uint32 `protobuf:"varint,5,opt,name=session_minutes,json=sessionMinutes,proto3" json:"session_minutes,omitempty"`
+	// memory_bytes is the address space the language server may map; the role
+	// uses the smaller of it and the registry maximum of
+	// `function.buildMemory`.
+	MemoryBytes   uint64 `protobuf:"varint,6,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LanguageOpenRequest) Reset() {
+	*x = LanguageOpenRequest{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LanguageOpenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LanguageOpenRequest) ProtoMessage() {}
+
+func (x *LanguageOpenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LanguageOpenRequest.ProtoReflect.Descriptor instead.
+func (*LanguageOpenRequest) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *LanguageOpenRequest) GetSource() []byte {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *LanguageOpenRequest) GetSourceSha256() string {
+	if x != nil {
+		return x.SourceSha256
+	}
+	return ""
+}
+
+func (x *LanguageOpenRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LanguageOpenRequest) GetPlacement() string {
+	if x != nil {
+		return x.Placement
+	}
+	return ""
+}
+
+func (x *LanguageOpenRequest) GetSessionMinutes() uint32 {
+	if x != nil {
+		return x.SessionMinutes
+	}
+	return 0
+}
+
+func (x *LanguageOpenRequest) GetMemoryBytes() uint64 {
+	if x != nil {
+		return x.MemoryBytes
+	}
+	return 0
+}
+
+// LanguageEvent is one event of a session's server stream.
+type LanguageEvent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Event:
+	//
+	//	*LanguageEvent_Opened
+	//	*LanguageEvent_Message
+	//	*LanguageEvent_Closed
+	Event         isLanguageEvent_Event `protobuf_oneof:"event"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LanguageEvent) Reset() {
+	*x = LanguageEvent{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LanguageEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LanguageEvent) ProtoMessage() {}
+
+func (x *LanguageEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LanguageEvent.ProtoReflect.Descriptor instead.
+func (*LanguageEvent) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *LanguageEvent) GetEvent() isLanguageEvent_Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+func (x *LanguageEvent) GetOpened() *LanguageOpened {
+	if x != nil {
+		if x, ok := x.Event.(*LanguageEvent_Opened); ok {
+			return x.Opened
+		}
+	}
+	return nil
+}
+
+func (x *LanguageEvent) GetMessage() []byte {
+	if x != nil {
+		if x, ok := x.Event.(*LanguageEvent_Message); ok {
+			return x.Message
+		}
+	}
+	return nil
+}
+
+func (x *LanguageEvent) GetClosed() *LanguageClosed {
+	if x != nil {
+		if x, ok := x.Event.(*LanguageEvent_Closed); ok {
+			return x.Closed
+		}
+	}
+	return nil
+}
+
+type isLanguageEvent_Event interface {
+	isLanguageEvent_Event()
+}
+
+type LanguageEvent_Opened struct {
+	// opened is the first event.
+	Opened *LanguageOpened `protobuf:"bytes,1,opt,name=opened,proto3,oneof"`
+}
+
+type LanguageEvent_Message struct {
+	// message is one JSON-RPC message from the language server, without the
+	// Content-Length framing.
+	Message []byte `protobuf:"bytes,2,opt,name=message,proto3,oneof"`
+}
+
+type LanguageEvent_Closed struct {
+	// closed is the last event.
+	Closed *LanguageClosed `protobuf:"bytes,3,opt,name=closed,proto3,oneof"`
+}
+
+func (*LanguageEvent_Opened) isLanguageEvent_Event() {}
+
+func (*LanguageEvent_Message) isLanguageEvent_Event() {}
+
+func (*LanguageEvent_Closed) isLanguageEvent_Event() {}
+
+// LanguageOpened announces a started session.
+type LanguageOpened struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// session_id names the session in LanguageSend.
+	SessionId string `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	// root_uri is the workspace root a client addresses documents under; the
+	// role maps it to the sandbox's directory.
+	RootUri       string `protobuf:"bytes,2,opt,name=root_uri,json=rootUri,proto3" json:"root_uri,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LanguageOpened) Reset() {
+	*x = LanguageOpened{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LanguageOpened) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LanguageOpened) ProtoMessage() {}
+
+func (x *LanguageOpened) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LanguageOpened.ProtoReflect.Descriptor instead.
+func (*LanguageOpened) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *LanguageOpened) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *LanguageOpened) GetRootUri() string {
+	if x != nil {
+		return x.RootUri
+	}
+	return ""
+}
+
+// LanguageClosed says why a session ended.
+type LanguageClosed struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// reason is one of "client", "time", "exited" and "failed".
+	Reason string `protobuf:"bytes,1,opt,name=reason,proto3" json:"reason,omitempty"`
+	// detail is a short diagnostic without host paths; empty for "client".
+	Detail        string `protobuf:"bytes,2,opt,name=detail,proto3" json:"detail,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LanguageClosed) Reset() {
+	*x = LanguageClosed{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LanguageClosed) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LanguageClosed) ProtoMessage() {}
+
+func (x *LanguageClosed) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LanguageClosed.ProtoReflect.Descriptor instead.
+func (*LanguageClosed) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *LanguageClosed) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *LanguageClosed) GetDetail() string {
+	if x != nil {
+		return x.Detail
+	}
+	return ""
+}
+
+// LanguageSendRequest carries one client message.
+type LanguageSendRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	SessionId string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	// sequence starts at 1 and rises by one per message of a session.
+	Sequence uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// message is one JSON-RPC message without framing.
+	Message       []byte `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LanguageSendRequest) Reset() {
+	*x = LanguageSendRequest{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LanguageSendRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LanguageSendRequest) ProtoMessage() {}
+
+func (x *LanguageSendRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LanguageSendRequest.ProtoReflect.Descriptor instead.
+func (*LanguageSendRequest) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *LanguageSendRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *LanguageSendRequest) GetSequence() uint64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+func (x *LanguageSendRequest) GetMessage() []byte {
+	if x != nil {
+		return x.Message
+	}
+	return nil
+}
+
+type LanguageSendResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LanguageSendResponse) Reset() {
+	*x = LanguageSendResponse{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LanguageSendResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LanguageSendResponse) ProtoMessage() {}
+
+func (x *LanguageSendResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LanguageSendResponse.ProtoReflect.Descriptor instead.
+func (*LanguageSendResponse) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{16}
+}
+
+// TestRequest is a BuildRequest whose result is only the test results.
+type TestRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Build         *BuildRequest          `protobuf:"bytes,1,opt,name=build,proto3" json:"build,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestRequest) Reset() {
+	*x = TestRequest{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestRequest) ProtoMessage() {}
+
+func (x *TestRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestRequest.ProtoReflect.Descriptor instead.
+func (*TestRequest) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *TestRequest) GetBuild() *BuildRequest {
+	if x != nil {
+		return x.Build
+	}
+	return nil
+}
+
+type TestResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	TestResults     []*BuildTestResult     `protobuf:"bytes,1,rep,name=test_results,json=testResults,proto3" json:"test_results,omitempty"`
+	DiagnosticsJson []byte                 `protobuf:"bytes,2,opt,name=diagnostics_json,json=diagnosticsJson,proto3" json:"diagnostics_json,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *TestResponse) Reset() {
+	*x = TestResponse{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestResponse) ProtoMessage() {}
+
+func (x *TestResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestResponse.ProtoReflect.Descriptor instead.
+func (*TestResponse) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *TestResponse) GetTestResults() []*BuildTestResult {
+	if x != nil {
+		return x.TestResults
+	}
+	return nil
+}
+
+func (x *TestResponse) GetDiagnosticsJson() []byte {
+	if x != nil {
+		return x.DiagnosticsJson
+	}
+	return nil
+}
+
 var File_plux_internal_fn_v1_builder_proto protoreflect.FileDescriptor
 
 const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
@@ -881,10 +1385,43 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x10diagnostics_json\x18\x05 \x01(\fR\x0fdiagnosticsJson\":\n" +
 	"\x0eLinkedFunction\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05index\x18\x02 \x01(\rR\x05index2\xb1\x01\n" +
+	"\x05index\x18\x02 \x01(\rR\x05index\"\xd0\x01\n" +
+	"\x13LanguageOpenRequest\x12\x16\n" +
+	"\x06source\x18\x01 \x01(\fR\x06source\x12#\n" +
+	"\rsource_sha256\x18\x02 \x01(\tR\fsourceSha256\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1c\n" +
+	"\tplacement\x18\x04 \x01(\tR\tplacement\x12'\n" +
+	"\x0fsession_minutes\x18\x05 \x01(\rR\x0esessionMinutes\x12!\n" +
+	"\fmemory_bytes\x18\x06 \x01(\x04R\vmemoryBytes\"\xb2\x01\n" +
+	"\rLanguageEvent\x12=\n" +
+	"\x06opened\x18\x01 \x01(\v2#.plux.internal.fn.v1.LanguageOpenedH\x00R\x06opened\x12\x1a\n" +
+	"\amessage\x18\x02 \x01(\fH\x00R\amessage\x12=\n" +
+	"\x06closed\x18\x03 \x01(\v2#.plux.internal.fn.v1.LanguageClosedH\x00R\x06closedB\a\n" +
+	"\x05event\"J\n" +
+	"\x0eLanguageOpened\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x19\n" +
+	"\broot_uri\x18\x02 \x01(\tR\arootUri\"@\n" +
+	"\x0eLanguageClosed\x12\x16\n" +
+	"\x06reason\x18\x01 \x01(\tR\x06reason\x12\x16\n" +
+	"\x06detail\x18\x02 \x01(\tR\x06detail\"j\n" +
+	"\x13LanguageSendRequest\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1a\n" +
+	"\bsequence\x18\x02 \x01(\x04R\bsequence\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\fR\amessage\"\x16\n" +
+	"\x14LanguageSendResponse\"F\n" +
+	"\vTestRequest\x127\n" +
+	"\x05build\x18\x01 \x01(\v2!.plux.internal.fn.v1.BuildRequestR\x05build\"\x82\x01\n" +
+	"\fTestResponse\x12G\n" +
+	"\ftest_results\x18\x01 \x03(\v2$.plux.internal.fn.v1.BuildTestResultR\vtestResults\x12)\n" +
+	"\x10diagnostics_json\x18\x02 \x01(\fR\x0fdiagnosticsJson2\xc9\x03\n" +
 	"\x0eBuilderService\x12P\n" +
 	"\x05Build\x12!.plux.internal.fn.v1.BuildRequest\x1a\".plux.internal.fn.v1.BuildResponse\"\x00\x12M\n" +
-	"\x04Link\x12 .plux.internal.fn.v1.LinkRequest\x1a!.plux.internal.fn.v1.LinkResponse\"\x00B9Z7github.com/nightCode42/plux3/backend/internal/fnpb;fnpbb\x06proto3"
+	"\x04Link\x12 .plux.internal.fn.v1.LinkRequest\x1a!.plux.internal.fn.v1.LinkResponse\"\x00\x12`\n" +
+	"\fLanguageOpen\x12(.plux.internal.fn.v1.LanguageOpenRequest\x1a\".plux.internal.fn.v1.LanguageEvent\"\x000\x01\x12e\n" +
+	"\fLanguageSend\x12(.plux.internal.fn.v1.LanguageSendRequest\x1a).plux.internal.fn.v1.LanguageSendResponse\"\x00\x12M\n" +
+	"\x04Test\x12 .plux.internal.fn.v1.TestRequest\x1a!.plux.internal.fn.v1.TestResponse\"\x00B9Z7github.com/nightCode42/plux3/backend/internal/fnpb;fnpbb\x06proto3"
 
 var (
 	file_plux_internal_fn_v1_builder_proto_rawDescOnce sync.Once
@@ -898,19 +1435,27 @@ func file_plux_internal_fn_v1_builder_proto_rawDescGZIP() []byte {
 	return file_plux_internal_fn_v1_builder_proto_rawDescData
 }
 
-var file_plux_internal_fn_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_plux_internal_fn_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_plux_internal_fn_v1_builder_proto_goTypes = []any{
-	(*BuildRequest)(nil),    // 0: plux.internal.fn.v1.BuildRequest
-	(*BuildLimits)(nil),     // 1: plux.internal.fn.v1.BuildLimits
-	(*BuildResponse)(nil),   // 2: plux.internal.fn.v1.BuildResponse
-	(*BuiltFunction)(nil),   // 3: plux.internal.fn.v1.BuiltFunction
-	(*BuildProvenance)(nil), // 4: plux.internal.fn.v1.BuildProvenance
-	(*BuildDependency)(nil), // 5: plux.internal.fn.v1.BuildDependency
-	(*BuildTestResult)(nil), // 6: plux.internal.fn.v1.BuildTestResult
-	(*LinkRequest)(nil),     // 7: plux.internal.fn.v1.LinkRequest
-	(*LinkSource)(nil),      // 8: plux.internal.fn.v1.LinkSource
-	(*LinkResponse)(nil),    // 9: plux.internal.fn.v1.LinkResponse
-	(*LinkedFunction)(nil),  // 10: plux.internal.fn.v1.LinkedFunction
+	(*BuildRequest)(nil),         // 0: plux.internal.fn.v1.BuildRequest
+	(*BuildLimits)(nil),          // 1: plux.internal.fn.v1.BuildLimits
+	(*BuildResponse)(nil),        // 2: plux.internal.fn.v1.BuildResponse
+	(*BuiltFunction)(nil),        // 3: plux.internal.fn.v1.BuiltFunction
+	(*BuildProvenance)(nil),      // 4: plux.internal.fn.v1.BuildProvenance
+	(*BuildDependency)(nil),      // 5: plux.internal.fn.v1.BuildDependency
+	(*BuildTestResult)(nil),      // 6: plux.internal.fn.v1.BuildTestResult
+	(*LinkRequest)(nil),          // 7: plux.internal.fn.v1.LinkRequest
+	(*LinkSource)(nil),           // 8: plux.internal.fn.v1.LinkSource
+	(*LinkResponse)(nil),         // 9: plux.internal.fn.v1.LinkResponse
+	(*LinkedFunction)(nil),       // 10: plux.internal.fn.v1.LinkedFunction
+	(*LanguageOpenRequest)(nil),  // 11: plux.internal.fn.v1.LanguageOpenRequest
+	(*LanguageEvent)(nil),        // 12: plux.internal.fn.v1.LanguageEvent
+	(*LanguageOpened)(nil),       // 13: plux.internal.fn.v1.LanguageOpened
+	(*LanguageClosed)(nil),       // 14: plux.internal.fn.v1.LanguageClosed
+	(*LanguageSendRequest)(nil),  // 15: plux.internal.fn.v1.LanguageSendRequest
+	(*LanguageSendResponse)(nil), // 16: plux.internal.fn.v1.LanguageSendResponse
+	(*TestRequest)(nil),          // 17: plux.internal.fn.v1.TestRequest
+	(*TestResponse)(nil),         // 18: plux.internal.fn.v1.TestResponse
 }
 var file_plux_internal_fn_v1_builder_proto_depIdxs = []int32{
 	1,  // 0: plux.internal.fn.v1.BuildRequest.limits:type_name -> plux.internal.fn.v1.BuildLimits
@@ -922,15 +1467,25 @@ var file_plux_internal_fn_v1_builder_proto_depIdxs = []int32{
 	1,  // 6: plux.internal.fn.v1.LinkRequest.limits:type_name -> plux.internal.fn.v1.BuildLimits
 	10, // 7: plux.internal.fn.v1.LinkResponse.functions:type_name -> plux.internal.fn.v1.LinkedFunction
 	4,  // 8: plux.internal.fn.v1.LinkResponse.provenance:type_name -> plux.internal.fn.v1.BuildProvenance
-	0,  // 9: plux.internal.fn.v1.BuilderService.Build:input_type -> plux.internal.fn.v1.BuildRequest
-	7,  // 10: plux.internal.fn.v1.BuilderService.Link:input_type -> plux.internal.fn.v1.LinkRequest
-	2,  // 11: plux.internal.fn.v1.BuilderService.Build:output_type -> plux.internal.fn.v1.BuildResponse
-	9,  // 12: plux.internal.fn.v1.BuilderService.Link:output_type -> plux.internal.fn.v1.LinkResponse
-	11, // [11:13] is the sub-list for method output_type
-	9,  // [9:11] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	13, // 9: plux.internal.fn.v1.LanguageEvent.opened:type_name -> plux.internal.fn.v1.LanguageOpened
+	14, // 10: plux.internal.fn.v1.LanguageEvent.closed:type_name -> plux.internal.fn.v1.LanguageClosed
+	0,  // 11: plux.internal.fn.v1.TestRequest.build:type_name -> plux.internal.fn.v1.BuildRequest
+	6,  // 12: plux.internal.fn.v1.TestResponse.test_results:type_name -> plux.internal.fn.v1.BuildTestResult
+	0,  // 13: plux.internal.fn.v1.BuilderService.Build:input_type -> plux.internal.fn.v1.BuildRequest
+	7,  // 14: plux.internal.fn.v1.BuilderService.Link:input_type -> plux.internal.fn.v1.LinkRequest
+	11, // 15: plux.internal.fn.v1.BuilderService.LanguageOpen:input_type -> plux.internal.fn.v1.LanguageOpenRequest
+	15, // 16: plux.internal.fn.v1.BuilderService.LanguageSend:input_type -> plux.internal.fn.v1.LanguageSendRequest
+	17, // 17: plux.internal.fn.v1.BuilderService.Test:input_type -> plux.internal.fn.v1.TestRequest
+	2,  // 18: plux.internal.fn.v1.BuilderService.Build:output_type -> plux.internal.fn.v1.BuildResponse
+	9,  // 19: plux.internal.fn.v1.BuilderService.Link:output_type -> plux.internal.fn.v1.LinkResponse
+	12, // 20: plux.internal.fn.v1.BuilderService.LanguageOpen:output_type -> plux.internal.fn.v1.LanguageEvent
+	16, // 21: plux.internal.fn.v1.BuilderService.LanguageSend:output_type -> plux.internal.fn.v1.LanguageSendResponse
+	18, // 22: plux.internal.fn.v1.BuilderService.Test:output_type -> plux.internal.fn.v1.TestResponse
+	18, // [18:23] is the sub-list for method output_type
+	13, // [13:18] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_plux_internal_fn_v1_builder_proto_init() }
@@ -938,13 +1493,18 @@ func file_plux_internal_fn_v1_builder_proto_init() {
 	if File_plux_internal_fn_v1_builder_proto != nil {
 		return
 	}
+	file_plux_internal_fn_v1_builder_proto_msgTypes[12].OneofWrappers = []any{
+		(*LanguageEvent_Opened)(nil),
+		(*LanguageEvent_Message)(nil),
+		(*LanguageEvent_Closed)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_internal_fn_v1_builder_proto_rawDesc), len(file_plux_internal_fn_v1_builder_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

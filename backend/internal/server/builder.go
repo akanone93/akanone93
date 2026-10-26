@@ -50,6 +50,7 @@ func (s *Server) buildBuilder() error {
 				Sandbox: sandbox, Clock: time.Now, Identity: identity, SDKDir: b.SDKDir, TempDir: b.WorkDir,
 				Cargo: b.Cargo, Rustc: b.Rustc, WasmOpt: b.WasmOpt,
 			},
+			LanguageServer: b.LanguageServer, LanguageSessions: b.LanguageSessions,
 			Unsandboxed: b.Sandbox == "none",
 			Limits:      s.limits, Concurrency: b.Concurrency,
 			Clock: time.Now, Random: rand.Reader, Log: log,

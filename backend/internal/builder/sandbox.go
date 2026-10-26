@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os/exec"
 	"runtime"
 	"sync"
@@ -52,6 +53,13 @@ type Command struct {
 	Env []string
 	// Limits bound the child.
 	Limits Limits
+	// Stdin, when set, is the child's standard input; otherwise it reads
+	// nothing. A language server session feeds the child through it (FN-033).
+	Stdin io.Reader
+	// Stdout, when set, receives the child's standard output as it is
+	// written, and Result.Stdout stays empty; the caller bounds what it
+	// accepts. Standard error is always captured and bounded.
+	Stdout io.Writer
 }
 
 // Result is the outcome of a command that ran to an end, whatever its exit
@@ -115,10 +123,14 @@ func runChild(ctx context.Context, cmd Command, h childHooks) (Result, error) {
 
 	stdout := newBoundedBuffer(cmd.Limits.OutputBytes, cancelRun)
 	stderr := newBoundedBuffer(cmd.Limits.OutputBytes, cancelRun)
+	var stdoutSink io.Writer = stdout
+	if cmd.Stdout != nil {
+		stdoutSink = cmd.Stdout
+	}
 	c := exec.CommandContext(runCtx, cmd.Path, cmd.Args...) //nolint:gosec // G204: the builder constructs every command itself.
 	c.Dir = cmd.Dir
 	c.Env = append([]string{}, cmd.Env...)
-	c.Stdout, c.Stderr = stdout, stderr
+	c.Stdin, c.Stdout, c.Stderr = cmd.Stdin, stdoutSink, stderr
 	c.WaitDelay = waitDelay
 	configureGroup(c)
 	if h.prepare != nil {

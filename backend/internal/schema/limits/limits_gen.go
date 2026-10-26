@@ -421,6 +421,9 @@ const (
 	// HTTPResponseSize: Size of a response the server reads when it fetches a
 	// URL, such as an identity provider's keys. (SEC-104, SEC-105)
 	HTTPResponseSize Key = "http.responseSize"
+	// LspMessageBytes: Size of one language-server message the Rust editor sends
+	// to its sandbox; a document the editor opens must fit. (FN-033)
+	LspMessageBytes Key = "lsp.messageBytes"
 	// LspSessionMinutes: Minutes one language-server sandbox may run before it
 	// is stopped. (STU-110)
 	LspSessionMinutes Key = "lsp.sessionMinutes"
@@ -771,6 +774,7 @@ var registry = [...]Definition{
 	{Key: GovernanceJustificationLength, Unit: UnitCodepoints, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the written justification of a break-glass action."},
 	{Key: GovernanceReportChanges, Unit: UnitCount, Default: 20000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Production changes one compliance report may list; a longer period is refused and is split into shorter ones."},
 	{Key: HTTPResponseSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 67108864, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."},
+	{Key: LspMessageBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of one language-server message the Rust editor sends to its sandbox; a document the editor opens must fit."},
 	{Key: LspSessionMinutes, Unit: UnitCount, Default: 60, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Minutes one language-server sandbox may run before it is stopped."},
 	{Key: LspSessionsPerOrganization, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Language-server sandboxes of the Rust editor running at once in one organisation."},
 	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},

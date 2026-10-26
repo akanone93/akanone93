@@ -1,0 +1,71 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// LanguageServerService carries the Language Server Protocol between the
+// Rust editor of Studio and a rust-analyzer running in the function build
+// sandbox (FN-033, ADR-0099, decision A5.3). Open is a server stream per
+// editor session and Send a unary, sequenced call, because a browser cannot
+// stream requests. Both need the `function.deploy` permission on the app of
+// the source: the sandbox runs on the builder role at the organisation's
+// cost, and the editor works on a source that Build accepts.
+service LanguageServerService {
+  // Open starts a sandboxed language server on an uploaded source and
+  // streams its JSON-RPC messages. The first event is Opened. The stream
+  // ends when the client cancels it, the language server exits or the
+  // session time of `lsp.sessionMinutes` passes; a limit of
+  // `lsp.sessionsPerOrganization` refuses a new session. The server forces
+  // the language server's settings: build scripts, procedural macros and
+  // check-on-save stay off whatever the client sends.
+  rpc Open(LanguageServerServiceOpenRequest) returns (stream LanguageServerServiceOpenResponse) {}
+
+  // Send delivers one client message to the session's language server. The
+  // sequence starts at 1 and rises by one; a repeat or a gap is refused.
+  rpc Send(LanguageServerServiceSendRequest) returns (LanguageServerServiceSendResponse) {}
+}
+
+message LanguageServerServiceOpenRequest {
+  // source_id is an uploaded function source (UploadSource).
+  string source_id = 1;
+}
+
+message LanguageServerServiceOpenResponse {
+  oneof event {
+    LanguageServerOpened opened = 1;
+    // message is one JSON-RPC message of the language server, without the
+    // Content-Length framing; the client decodes it as UTF-8 JSON.
+    bytes message = 2;
+    LanguageServerClosed closed = 3;
+  }
+}
+
+message LanguageServerOpened {
+  // session_id names the session in Send.
+  string session_id = 1;
+  // root_uri is the workspace root the client addresses documents under,
+  // such as file:///workspace/. Every document URI must lie below it.
+  string root_uri = 2;
+  // session_seconds is the time left before the session is ended.
+  uint32 session_seconds = 3;
+}
+
+message LanguageServerClosed {
+  // reason is one of "client", "time", "exited" and "failed".
+  string reason = 1;
+  string detail = 2;
+}
+
+message LanguageServerServiceSendRequest {
+  string session_id = 1;
+  uint64 sequence = 2;
+  // message is one JSON-RPC message without framing, at most
+  // `lsp.messageBytes` long.
+  bytes message = 3;
+}
+
+message LanguageServerServiceSendResponse {}

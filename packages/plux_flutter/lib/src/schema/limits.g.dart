@@ -357,6 +357,9 @@ enum PluxLimit {
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
+  /// Size of one language-server message the Rust editor sends to its sandbox;
+  /// a document the editor opens must fit.
+  lspMessageBytes('lsp.messageBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
   /// Minutes one language-server sandbox may run before it is stopped.
   lspSessionMinutes('lsp.sessionMinutes', PluxLimitUnit.count, 60, 0, 480),
   /// Language-server sandboxes of the Rust editor running at once in one
