@@ -418,6 +418,7 @@ List<double> _rectOf(WidgetTester tester, String id) {
 const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
+  'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -452,11 +453,77 @@ VisualDensity _density(Map<String, Object?> props) => switch (props['density']) 
   _ => VisualDensity.standard,
 };
 
+/// The slot children of [node] built, keyed by slot name.
+Map<String, List<Widget>> _buildSlots(Map<String, Object?> node, String phase, double t) {
+  final Map<String, List<Widget>> slots = <String, List<Widget>>{};
+  for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+    final Map<String, Object?> child = raw! as Map<String, Object?>;
+    (slots[(child['slot'] as String?) ?? 'child'] ??= <Widget>[]).add(_build(child, phase, t));
+  }
+  return slots;
+}
+
+/// A [NavigationDestination] node: the icon slot and the `label` prop. The tooltip is left empty,
+/// as it needs an `Overlay` that has no effect on layout.
+NavigationDestination _destination(Map<String, Object?> node, String phase, double t) {
+  final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  return NavigationDestination(
+    key: ValueKey<String>(node['id']! as String),
+    icon: _buildSlots(node, phase, t)['icon']!.single,
+    label: (props['label'] as String?) ?? '',
+    tooltip: '',
+  );
+}
+
+Widget _buildNavigationBar(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+  return NavigationBar(
+    key: key,
+    selectedIndex: (props['selectedIndex'] as num?)?.toInt() ?? 0,
+    height: _optionalNumber(props, 'height'),
+    labelBehavior: switch (props['labelBehavior']) {
+      'alwaysHide' => NavigationDestinationLabelBehavior.alwaysHide,
+      'onlyShowSelected' => NavigationDestinationLabelBehavior.onlyShowSelected,
+      _ => NavigationDestinationLabelBehavior.alwaysShow,
+    },
+    destinations: <Widget>[
+      for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+        _destination(raw! as Map<String, Object?>, phase, t),
+    ],
+  );
+}
+
+Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+  return NavigationRail(
+    key: key,
+    selectedIndex: (props['selectedIndex'] as num?)?.toInt() ?? 0,
+    minWidth: _optionalNumber(props, 'minWidth'),
+    groupAlignment: _optionalNumber(props, 'groupAlignment'),
+    labelType: switch (props['labelType']) {
+      'selected' => NavigationRailLabelType.selected,
+      'all' => NavigationRailLabelType.all,
+      _ => NavigationRailLabelType.none,
+    },
+    destinations: <NavigationRailDestination>[
+      for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+        NavigationRailDestination(
+          icon: _buildSlots(raw! as Map<String, Object?>, phase, t)['icon']!.single,
+          label: Text(((raw as Map<String, Object?>)['props'] as Map<String, Object?>)['label']! as String),
+        ),
+    ],
+  );
+}
+
 Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
   final Key key = ValueKey<String>(id);
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  if (type == 'NavigationBar') {
+    return _buildNavigationBar(node, props, key, phase, t);
+  }
+  if (type == 'NavigationRail') {
+    return _buildNavigationRail(node, props, key, phase, t);
+  }
   final Map<String, List<Widget>> slots = <String, List<Widget>>{};
   for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     final Map<String, Object?> child = raw! as Map<String, Object?>;
@@ -558,6 +625,68 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         bottomNavigationBar: one('bottomNavigationBar'),
         bottomSheet: one('bottomSheet'),
       );
+    case 'Drawer':
+      return Drawer(key: key, width: _optionalNumber(props, 'width'), child: one('child'));
+    case 'TextField':
+      return TextField(
+        key: key,
+        controller: TextEditingController(text: props['text'] as String?),
+        decoration: InputDecoration(
+          labelText: props['labelText'] as String?,
+          helperText: props['helperText'] as String?,
+          errorText: props['errorText'] as String?,
+          filled: props['filled'] == true,
+          border: props['border'] == 'outline' ? const OutlineInputBorder() : const UnderlineInputBorder(),
+          isDense: props['isDense'] == true ? true : null,
+          prefixIcon: one('prefixIcon'),
+          suffixIcon: one('suffixIcon'),
+        ),
+      );
+    case 'Chip':
+    case 'FilterChip':
+    case 'InputChip':
+      final Widget label = one('label')!;
+      final Widget? avatar = one('avatar');
+      final Widget? deleteIcon = props['deletable'] == true ? one('deleteIcon') : null;
+      final VoidCallback? onDeleted = deleteIcon == null ? null : () {};
+      final bool selected = props['selected'] == true;
+      final VisualDensity density = _density(props);
+      final MaterialTapTargetSize target = _tapTarget(props);
+      return switch (type) {
+        'FilterChip' => FilterChip(
+          key: key,
+          label: label,
+          avatar: avatar,
+          selected: selected,
+          onSelected: (bool _) {},
+          deleteIcon: deleteIcon,
+          deleteButtonTooltipMessage: '',
+          visualDensity: density,
+          materialTapTargetSize: target,
+        ),
+        'InputChip' => InputChip(
+          key: key,
+          label: label,
+          avatar: avatar,
+          selected: selected,
+          onPressed: () {},
+          onDeleted: onDeleted,
+          deleteIcon: deleteIcon,
+          deleteButtonTooltipMessage: '',
+          visualDensity: density,
+          materialTapTargetSize: target,
+        ),
+        _ => Chip(
+          key: key,
+          label: label,
+          avatar: avatar,
+          onDeleted: onDeleted,
+          deleteIcon: deleteIcon,
+          deleteButtonTooltipMessage: '',
+          visualDensity: density,
+          materialTapTargetSize: target,
+        ),
+      };
     case 'ListTile':
       return ListTile(
         key: key,
@@ -940,7 +1069,10 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
 }
 
 void _collectIds(Map<String, Object?> node, List<String> ids) {
-  ids.add(node['id']! as String);
+  // A NavigationRailDestination is data, not a widget: it has no render object to report.
+  if (node['type'] != 'NavigationRailDestination') {
+    ids.add(node['id']! as String);
+  }
   for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     _collectIds(child! as Map<String, Object?>, ids);
   }

@@ -1,0 +1,168 @@
+{
+  "name": "material-navigation-bar",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "b0",
+            "type": "NavigationBar",
+            "props": {},
+            "children": [
+              {
+                "id": "b0d0",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Home"
+                },
+                "children": [
+                  {
+                    "id": "b0d0i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b0d1",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Search"
+                },
+                "children": [
+                  {
+                    "id": "b0d1i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b0d2",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Inbox"
+                },
+                "children": [
+                  {
+                    "id": "b0d2i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "b1",
+            "type": "NavigationBar",
+            "props": {
+              "selectedIndex": 2
+            },
+            "children": [
+              {
+                "id": "b1d0",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Home"
+                },
+                "children": [
+                  {
+                    "id": "b1d0i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b1d1",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Search"
+                },
+                "children": [
+                  {
+                    "id": "b1d1i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b1d2",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Inbox"
+                },
+                "children": [
+                  {
+                    "id": "b1d2i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b1d3",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Settings"
+                },
+                "children": [
+                  {
+                    "id": "b1d3i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              },
+              {
+                "id": "b1d4",
+                "type": "NavigationDestination",
+                "props": {
+                  "label": "Profile"
+                },
+                "children": [
+                  {
+                    "id": "b1d4i",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "icon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "caption",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

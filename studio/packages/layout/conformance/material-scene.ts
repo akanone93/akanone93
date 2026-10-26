@@ -20,7 +20,27 @@ import {
   kMiddleSpacing,
 } from "../src/flutter/material/app-bar.ts";
 import { type ButtonKind, buildButton, buildFab, type FabKind } from "../src/flutter/material/buttons.ts";
+import { buildChip } from "../src/flutter/material/chip.ts";
+import { buildInputDecorator, decoratorIcon, RenderEditableLine } from "../src/flutter/material/input-decorator.ts";
 import { buildListTile } from "../src/flutter/material/list-tile.ts";
+import {
+  buildDestination,
+  buildNavigationBar,
+  destinationLabel,
+  indicatorIcon,
+  kIndicatorHeight,
+  kIndicatorWidth,
+  kMaxLabelTextScaleFactor as kMaxNavLabelScale,
+  kNavigationBarHeight,
+  type NavigationLabelBehavior,
+} from "../src/flutter/material/navigation-bar.ts";
+import {
+  buildNavigationRail,
+  buildRailDestination,
+  kRailGroupAlignment,
+  kRailMinWidth,
+  type RailLabelType,
+} from "../src/flutter/material/navigation-rail.ts";
 import { type FabLocation, RenderScaffold } from "../src/flutter/material/scaffold.ts";
 import {
   kToolbarHeight,
@@ -113,6 +133,135 @@ function preferredHeight(node: SceneNode | null): number {
   return num(node.props, "height", 0);
 }
 
+/** `Chip`, `FilterChip` and `InputChip`: all build `RawChip`, with the label, an avatar and an optional delete icon. */
+function buildChipNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const avatar = only(node, "avatar");
+  const deleteIcon = prop(p, "deletable") === true ? required(node, "deleteIcon") : null;
+  return buildChip({
+    label: ctx.build(required(node, "label"), style("labelLarge"), {
+      defaults: { softWrap: false, overflow: "fade", maxLines: 1 },
+    }),
+    avatar: avatar === null ? null : ctx.build(avatar),
+    deleteIcon: deleteIcon === null ? null : ctx.build(deleteIcon),
+    selected: prop(p, "selected") === true,
+    tapTargetSize: tapTarget(p),
+    density: density(p),
+    textScale: ctx.text?.textScaler.textScaleFactor ?? 1,
+    textDirection: ctx.direction,
+  });
+}
+
+/** A text the composite makes up itself: a scene node nothing keys, so no rect is reported for it. */
+function syntheticText(
+  node: SceneNode,
+  name: string,
+  text: string,
+  ctx: MaterialContext,
+  base: TextStyle,
+  options: TextOptions = {},
+): RenderBox {
+  const box = ctx.build({ id: `${node.id}:${name}`, type: "Text", props: { text } }, base, options);
+  box.debugId = null;
+  return box;
+}
+
+/** `TextField` with an `InputDecoration`: the input line is one line of `bodyLarge`; label and hint add no box. */
+function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const text = (name: string): string | null => {
+    const value = prop(p, name);
+    return typeof value === "string" ? value : null;
+  };
+  const dens = density(p);
+  const prefix = only(node, "prefixIcon");
+  const suffix = only(node, "suffixIcon");
+  const subtext = text("errorText") ?? text("helperText");
+  const withText = (text("text") ?? "") !== "";
+  const line = syntheticText(node, "input", "A", ctx, style("bodyLarge"));
+  return buildInputDecorator({
+    input: new RenderEditableLine(line),
+    prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
+    suffixIcon: suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
+    subtext:
+      subtext === null
+        ? null
+        : syntheticText(node, "subtext", subtext, ctx, style("bodySmall"), { defaults: { overflow: "ellipsis" } }),
+    outline: prop(p, "border") === "outline",
+    filled: prop(p, "filled") === true,
+    isDense: prop(p, "isDense") === true,
+    hasLabel: text("labelText") !== null,
+    floating: withText,
+    floatingLabelHeight: 16 * (ctx.text?.textScaler.textScaleFactor ?? 1),
+    density: dens,
+    textDirection: ctx.direction,
+  });
+}
+
+/** `NavigationBar` with `NavigationDestination` children: an `icon` slot and a `label` prop each. */
+function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const selectedIndex = num(p, "selectedIndex", 0);
+  const behavior = (prop(p, "labelBehavior") ?? "alwaysShow") as NavigationLabelBehavior;
+  const destinations = (node.children ?? []).map((destination, index) => {
+    if (destination.type !== "NavigationDestination") {
+      throw new Error(`node "${destination.id}": a NavigationBar holds NavigationDestination nodes`);
+    }
+    const label = prop(destination.props, "label");
+    const text = syntheticText(
+      destination,
+      "label",
+      typeof label === "string" ? label : "",
+      ctx,
+      style("labelMedium"),
+      {
+        maxScale: kMaxNavLabelScale,
+      },
+    );
+    const shown = behavior === "alwaysShow" || (behavior === "onlyShowSelected" && index === selectedIndex) ? 1 : 0;
+    const row = buildDestination(
+      indicatorIcon(ctx.build(required(destination, "icon")), kIndicatorWidth, kIndicatorHeight),
+      destinationLabel(text),
+      shown,
+      ctx.direction,
+    );
+    row.debugId = destination.id;
+    return row;
+  });
+  return buildNavigationBar({
+    destinations,
+    height: num(p, "height", kNavigationBarHeight),
+    textDirection: ctx.direction,
+  });
+}
+
+/** `NavigationRail` with `NavigationRailDestination` children: an `icon` slot and a `label` prop each. */
+function buildNavigationRailNode(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const p = node.props;
+  const selectedIndex = num(p, "selectedIndex", 0);
+  const labelType = (prop(p, "labelType") ?? "none") as RailLabelType;
+  const minWidth = num(p, "minWidth", kRailMinWidth);
+  const destinations = (node.children ?? []).map((destination, index) => {
+    if (destination.type !== "NavigationRailDestination") {
+      throw new Error(`node "${destination.id}": a NavigationRail holds NavigationRailDestination nodes`);
+    }
+    const label = prop(destination.props, "label");
+    return buildRailDestination({
+      icon: ctx.build(required(destination, "icon")),
+      label: syntheticText(destination, "label", typeof label === "string" ? label : "", ctx, style("labelMedium")),
+      selected: index === selectedIndex,
+      labelType,
+      minWidth,
+      textDirection: ctx.direction,
+    });
+  });
+  return buildNavigationRail({
+    destinations,
+    groupAlignment: num(p, "groupAlignment", kRailGroupAlignment),
+    textDirection: ctx.direction,
+  });
+}
+
 const builders: Record<string, Builder> = {
   Icon: (node) => {
     const given = prop(node.props, "size");
@@ -194,6 +343,23 @@ const builders: Record<string, Builder> = {
       textDirection: ctx.direction,
     });
   },
+  TextField: buildTextField,
+  NavigationBar: buildNavigationBarNode,
+  NavigationRail: buildNavigationRailNode,
+  // `Drawer`: a `ConstrainedBox` expanded to the drawer width (304 by default) around its child.
+  Drawer: (node, ctx) =>
+    new RenderConstrainedBox({
+      additionalConstraints: new BoxConstraints({
+        minWidth: num(node.props, "width", 304),
+        maxWidth: num(node.props, "width", 304),
+        minHeight: Number.POSITIVE_INFINITY,
+        maxHeight: Number.POSITIVE_INFINITY,
+      }),
+      child: ctx.build(required(node, "child")),
+    }),
+  Chip: buildChipNode,
+  FilterChip: buildChipNode,
+  InputChip: buildChipNode,
   IconButton: (node, ctx) =>
     buildButton({
       kind: "icon",
@@ -231,8 +397,11 @@ for (const type of Object.keys(buttonKinds)) {
   };
 }
 
-/** The node types this module builds. */
-export const materialTypes: ReadonlySet<string> = new Set(Object.keys(builders));
+/** Node types only a composite builds, from its children. */
+const partTypes: readonly string[] = ["NavigationDestination", "NavigationRailDestination"];
+
+/** The node types this module builds, the parts of composites included. */
+export const materialTypes: ReadonlySet<string> = new Set([...Object.keys(builders), ...partTypes]);
 
 /** Builds `node`, a Material composite. */
 export function buildMaterial(node: SceneNode, ctx: MaterialContext): RenderBox {

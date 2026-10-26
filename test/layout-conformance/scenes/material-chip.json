@@ -1,0 +1,121 @@
+{
+  "name": "material-chip",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "c0",
+            "type": "Chip",
+            "props": {},
+            "children": [
+              {
+                "id": "c0t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "c1",
+            "type": "Chip",
+            "props": {
+              "deletable": true
+            },
+            "children": [
+              {
+                "id": "c1t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c1d",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "deleteIcon"
+              }
+            ]
+          },
+          {
+            "id": "c2",
+            "type": "Chip",
+            "props": {},
+            "children": [
+              {
+                "id": "c2t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c2a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              }
+            ]
+          },
+          {
+            "id": "c3",
+            "type": "Chip",
+            "props": {
+              "deletable": true
+            },
+            "children": [
+              {
+                "id": "c3t",
+                "type": "Text",
+                "props": {
+                  "text": "Chip label"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "c3a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              },
+              {
+                "id": "c3d",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "deleteIcon"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

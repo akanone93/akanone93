@@ -1,0 +1,158 @@
+{
+  "name": "material-drawer",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "h",
+            "type": "SizedBox",
+            "props": {
+              "height": 400
+            },
+            "children": [
+              {
+                "id": "dr",
+                "type": "Drawer",
+                "props": {},
+                "children": [
+                  {
+                    "id": "dc",
+                    "type": "Column",
+                    "props": {
+                      "mainAxisSize": "max",
+                      "crossAxisAlignment": "stretch"
+                    },
+                    "children": [
+                      {
+                        "id": "t0",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t0t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Inbox"
+                            },
+                            "slot": "title"
+                          },
+                          {
+                            "id": "t0i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t1",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t1t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Sent"
+                            },
+                            "slot": "title"
+                          },
+                          {
+                            "id": "t1i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "dsp",
+                        "type": "Spacer",
+                        "props": {}
+                      },
+                      {
+                        "id": "t2",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t2t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Trash"
+                            },
+                            "slot": "title"
+                          },
+                          {
+                            "id": "t2i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "h2",
+            "type": "SizedBox",
+            "props": {
+              "height": 120
+            },
+            "children": [
+              {
+                "id": "dr2",
+                "type": "Drawer",
+                "props": {
+                  "width": 240
+                },
+                "children": [
+                  {
+                    "id": "u0",
+                    "type": "ListTile",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "u0t",
+                        "type": "Text",
+                        "props": {
+                          "text": "Narrow"
+                        },
+                        "slot": "title"
+                      },
+                      {
+                        "id": "u0i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "leading"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
