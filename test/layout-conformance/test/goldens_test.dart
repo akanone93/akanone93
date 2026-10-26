@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'cupertino_builders.dart';
+import 'material_composites.dart';
 
 /// The Flutter framework revision the goldens are captured with.
 const String flutterRevision = '6a19cca56475dbfba1478ee68d7bd0c2ef891da1';
@@ -420,6 +421,7 @@ const Set<String> _materialTypes = <String>{
   'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
   'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
   'Chip', 'FilterChip', 'InputChip', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
+  ...materialCompositeTypes,
 };
 
 bool _usesMaterial(Map<String, Object?> node) =>
@@ -468,9 +470,11 @@ Map<String, List<Widget>> _buildSlots(Map<String, Object?> node, String phase, d
 /// as it needs an `Overlay` that has no effect on layout.
 NavigationDestination _destination(Map<String, Object?> node, String phase, double t) {
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  final Map<String, List<Widget>> slots = _buildSlots(node, phase, t);
   return NavigationDestination(
     key: ValueKey<String>(node['id']! as String),
-    icon: _buildSlots(node, phase, t)['icon']!.single,
+    icon: (slots['icon'] ?? slots['selectedIcon']!).single,
+    selectedIcon: slots['selectedIcon']?.single,
     label: (props['label'] as String?) ?? '',
     tooltip: '',
   );
@@ -494,10 +498,22 @@ Widget _buildNavigationBar(Map<String, Object?> node, Map<String, Object?> props
 }
 
 Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+  final List<Map<String, Object?>> all = <Map<String, Object?>>[
+    for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) raw! as Map<String, Object?>,
+  ];
+  Widget? part(String name) {
+    final Iterable<Map<String, Object?>> found = all.where((Map<String, Object?> c) => c['slot'] == name);
+    return found.isEmpty ? null : _build(found.single, phase, t);
+  }
+
   return NavigationRail(
     key: key,
     selectedIndex: (props['selectedIndex'] as num?)?.toInt() ?? 0,
     minWidth: _optionalNumber(props, 'minWidth'),
+    minExtendedWidth: _optionalNumber(props, 'minExtendedWidth'),
+    extended: props['extended'] == true,
+    leading: part('leading'),
+    trailing: part('trailing'),
     groupAlignment: _optionalNumber(props, 'groupAlignment'),
     labelType: switch (props['labelType']) {
       'selected' => NavigationRailLabelType.selected,
@@ -505,10 +521,11 @@ Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> prop
       _ => NavigationRailLabelType.none,
     },
     destinations: <NavigationRailDestination>[
-      for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+      for (final Map<String, Object?> raw in all.where((Map<String, Object?> c) => c['slot'] == null))
         NavigationRailDestination(
-          icon: _buildSlots(raw! as Map<String, Object?>, phase, t)['icon']!.single,
-          label: Text(((raw as Map<String, Object?>)['props'] as Map<String, Object?>)['label']! as String),
+          icon: (_buildSlots(raw, phase, t)['icon'] ?? _buildSlots(raw, phase, t)['selectedIcon']!).single,
+          selectedIcon: _buildSlots(raw, phase, t)['selectedIcon']?.single,
+          label: Text((raw['props']! as Map<String, Object?>)['label']! as String),
         ),
     ],
   );
@@ -519,6 +536,9 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
   final String type = node['type']! as String;
   final Key key = ValueKey<String>(id);
   final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  if (materialCompositeTypes.contains(type)) {
+    return buildMaterialComposite(node, key, (Map<String, Object?> child) => _build(child, phase, t));
+  }
   if (type == 'NavigationBar') {
     return _buildNavigationBar(node, props, key, phase, t);
   }
@@ -641,6 +661,11 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
           isDense: props['isDense'] == true ? true : null,
           prefixIcon: one('prefixIcon'),
           suffixIcon: one('suffixIcon'),
+          icon: one('icon'),
+          hintText: props['hintText'] as String?,
+          prefixText: props['prefixText'] as String?,
+          suffixText: props['suffixText'] as String?,
+          counterText: props['counterText'] as String?,
         ),
       );
     case 'Chip':

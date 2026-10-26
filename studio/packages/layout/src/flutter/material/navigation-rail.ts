@@ -13,7 +13,7 @@
 
 import { BoxConstraints } from "../constraints.ts";
 import { Axis, CrossAxisAlignment, FlexFit, FlexParentData, MainAxisSize, RenderFlex } from "../flex.ts";
-import { Alignment, EdgeInsets, type TextDirection } from "../geometry.ts";
+import { Alignment, AlignmentDirectional, EdgeInsets, type TextDirection } from "../geometry.ts";
 import { RenderConstrainedBox } from "../proxy-box.ts";
 import type { RenderBox } from "../render-box.ts";
 import { RenderPadding, RenderPositionedBox } from "../shifted-box.ts";
@@ -31,6 +31,8 @@ const verticalDestinationSpacing = 12;
 /** The default `NavigationRailThemeData.minWidth` and `groupAlignment` of Material 3. */
 export const kRailMinWidth = 80;
 export const kRailGroupAlignment = -1;
+/** The default `NavigationRailThemeData.minExtendedWidth`. */
+export const kRailMinExtendedWidth = 256;
 
 const sizedHeight = (height: number): RenderBox =>
   new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ height }) });
@@ -65,7 +67,41 @@ export interface RailDestinationOptions {
   selected: boolean;
   labelType: RailLabelType;
   minWidth: number;
+  /** The destination's minimum width once the rail is extended (`minExtendedWidth`); null when it is not. */
+  extendedWidth?: number | null;
   textDirection: TextDirection;
+}
+
+/** `_RailDestinationState.build` for an extended rail: the icon part and the label beside it. */
+function extendedDestination(o: RailDestinationOptions, iconPart: RenderBox, minExtendedWidth: number): RenderBox {
+  const label = new RenderPositionedBox({
+    alignment: AlignmentDirectional.centerStart,
+    textDirection: o.textDirection,
+    heightFactor: 1,
+    widthFactor: 1,
+    child: o.label,
+  });
+  const flexible = new FlexParentData();
+  flexible.flex = 1;
+  flexible.fit = FlexFit.loose;
+  label.parentData = flexible;
+  const row = new RenderFlex({
+    direction: Axis.horizontal,
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    textDirection: o.textDirection,
+    children: [
+      iconPart,
+      label,
+      new RenderConstrainedBox({
+        additionalConstraints: BoxConstraints.tightFor({ width: horizontalDestinationPadding }),
+      }),
+    ],
+  });
+  return new RenderConstrainedBox({
+    additionalConstraints: new BoxConstraints({ minWidth: minExtendedWidth }),
+    child: row,
+  });
 }
 
 /** `_RailDestinationState.build`: the content of one destination. */
@@ -85,6 +121,12 @@ export function buildRailDestination(o: RailDestinationOptions): RenderBox {
       MainAxisSize.max,
       o.textDirection,
     );
+    if (o.extendedWidth !== undefined && o.extendedWidth !== null) {
+      return new RenderPadding({
+        padding: EdgeInsets.all(0),
+        child: extendedDestination(o, iconPart, o.extendedWidth),
+      });
+    }
     return new RenderPadding({
       padding: EdgeInsets.all(0),
       child: new RenderStack({ textDirection: o.textDirection, children: [iconPart] }),
@@ -122,17 +164,22 @@ export function buildRailDestination(o: RailDestinationOptions): RenderBox {
 
 export interface NavigationRailOptions {
   destinations: RenderBox[];
+  /** `NavigationRail.leading`, above the destinations. */
+  leading?: RenderBox | null;
+  /** `NavigationRail.trailing`, below the destinations. */
+  trailing?: RenderBox | null;
   groupAlignment: number;
   textDirection: TextDirection;
 }
 
 /** `NavigationRail.build`: a spacer, then the destinations aligned by `groupAlignment` in the rest. */
 export function buildNavigationRail(o: NavigationRailOptions): RenderBox {
-  const group = column(o.destinations, MainAxisSize.min, o.textDirection);
+  const group = column([...o.destinations, ...(o.trailing ? [o.trailing] : [])], MainAxisSize.min, o.textDirection);
   const aligned = new RenderPositionedBox({ alignment: new Alignment(0, o.groupAlignment), child: group });
   const flexible = new FlexParentData();
   flexible.flex = 1;
   flexible.fit = FlexFit.loose;
   aligned.parentData = flexible;
-  return column([sizedHeight(8), aligned], MainAxisSize.max, o.textDirection);
+  const top = o.leading ? [o.leading, sizedHeight(8)] : [];
+  return column([sizedHeight(8), ...top, aligned], MainAxisSize.max, o.textDirection);
 }

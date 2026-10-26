@@ -28,6 +28,7 @@ import { RenderView } from "../flutter/view.ts";
 import { globalRects } from "../node-rects.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
+import { materialWidgetBuilders } from "./material.ts";
 
 /** One widget of a screen document: structured-clone data only. */
 export interface WidgetNode {
@@ -371,6 +372,7 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ["CupertinoPageScaffold", wrapper],
   ["CupertinoTabScaffold", wrapper],
   ["CupertinoListSection", (node, ctx) => flex(Axis.vertical, node, ctx)],
+  ...materialWidgetBuilders,
   ...cupertinoWidgetBuilders,
 ]);
 

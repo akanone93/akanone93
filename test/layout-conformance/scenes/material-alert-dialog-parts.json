@@ -1,0 +1,91 @@
+{
+  "name": "material-alert-dialog-parts",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s0",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 360
+            },
+            "children": [
+              {
+                "id": "d0",
+                "type": "AlertDialog",
+                "props": {},
+                "children": [
+                  {
+                    "id": "d0ti",
+                    "type": "Text",
+                    "props": {
+                      "text": "Title only"
+                    },
+                    "slot": "title"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "s1",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 360
+            },
+            "children": [
+              {
+                "id": "d1",
+                "type": "AlertDialog",
+                "props": {},
+                "children": [
+                  {
+                    "id": "d1co",
+                    "type": "Text",
+                    "props": {
+                      "text": "Content only, no title."
+                    },
+                    "slot": "content"
+                  },
+                  {
+                    "id": "d1a0",
+                    "type": "TextButton",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "d1a0t",
+                        "type": "Text",
+                        "props": {
+                          "text": "OK"
+                        },
+                        "slot": "child"
+                      }
+                    ],
+                    "slot": "actions"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

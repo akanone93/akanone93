@@ -1,0 +1,176 @@
+{
+  "name": "material-navigation-rail-parts",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "c",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 420
+            },
+            "children": [
+              {
+                "id": "cr",
+                "type": "Row",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "children": [
+                  {
+                    "id": "r2",
+                    "type": "NavigationRail",
+                    "props": {
+                      "labelType": "all"
+                    },
+                    "children": [
+                      {
+                        "id": "r2d0",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Home"
+                        },
+                        "children": [
+                          {
+                            "id": "r2d0-selectedIcon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 32
+                            },
+                            "slot": "selectedIcon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r2d1",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Search"
+                        },
+                        "children": [
+                          {
+                            "id": "r2d1-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r2lead",
+                        "type": "FloatingActionButton",
+                        "props": {
+                          "kind": "small"
+                        },
+                        "children": [
+                          {
+                            "id": "r2leadi",
+                            "type": "Icon",
+                            "props": {}
+                          }
+                        ],
+                        "slot": "leading"
+                      },
+                      {
+                        "id": "r2trail",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "trailing"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "d",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 300
+            },
+            "children": [
+              {
+                "id": "dr",
+                "type": "Row",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "children": [
+                  {
+                    "id": "r3",
+                    "type": "NavigationRail",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "r3d0",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Home"
+                        },
+                        "children": [
+                          {
+                            "id": "r3d0-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r3d1",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Search"
+                        },
+                        "children": [
+                          {
+                            "id": "r3d1-icon",
+                            "type": "Icon",
+                            "props": {
+                              "size": 24
+                            },
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r3lead",
+                        "type": "Icon",
+                        "props": {
+                          "size": 40
+                        },
+                        "slot": "leading"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
