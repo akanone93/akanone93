@@ -1,0 +1,14 @@
+{
+  "name": "layer2-product-card",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "ProductCard",
+    "props": {
+      "title": "Trail shoes",
+      "price": "€89.00",
+      "originalPrice": "€119.00",
+      "badge": "-25%"
+    }
+  }
+}

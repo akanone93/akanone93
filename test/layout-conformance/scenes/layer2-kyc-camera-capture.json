@@ -1,0 +1,11 @@
+{
+  "name": "layer2-kyc-camera-capture",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "KycCameraCapture",
+    "props": {
+      "mode": "selfie"
+    }
+  }
+}

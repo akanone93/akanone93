@@ -1,0 +1,11 @@
+{
+  "name": "layer2-otp-input",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "OtpInput",
+    "props": {
+      "length": 6
+    }
+  }
+}
