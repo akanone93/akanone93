@@ -1,0 +1,72 @@
+{
+  "name": "cupertino-alert-dialog-long",
+  "root": {
+    "id": "dialog",
+    "type": "CupertinoAlertDialog",
+    "props": {},
+    "children": [
+      {
+        "id": "dialog-title",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "title"
+        },
+        "children": [
+          {
+            "id": "dialog-title-text",
+            "type": "Text",
+            "props": {
+              "text": "A very long title that wraps over several lines in the dialog"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-content",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "content"
+        },
+        "children": [
+          {
+            "id": "dialog-content-text",
+            "type": "Text",
+            "props": {
+              "text": "This message is long enough that it wraps onto many lines, and with the larger text scales it has to scroll inside the dialog because the screen is only so tall. This message is long enough that it wraps onto many lines, and with the larger text scales it has to scroll inside the dialog because the screen is only so tall. This message is long enough that it wraps onto many lines, and with the larger text scales it has to scroll inside the dialog because the screen is only so tall. This message is long enough that it wraps onto many lines, and with the larger text scales it has to scroll inside the dialog because the screen is only so tall. "
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a0",
+        "type": "CupertinoDialogAction",
+        "props": {},
+        "children": [
+          {
+            "id": "dialog-a0-text",
+            "type": "Text",
+            "props": {
+              "text": "A rather long action label that has to shrink"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a1",
+        "type": "CupertinoDialogAction",
+        "props": {
+          "isDefaultAction": true
+        },
+        "children": [
+          {
+            "id": "dialog-a1-text",
+            "type": "Text",
+            "props": {
+              "text": "OK"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

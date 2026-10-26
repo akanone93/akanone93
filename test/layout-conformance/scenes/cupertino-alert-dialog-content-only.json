@@ -1,0 +1,56 @@
+{
+  "name": "cupertino-alert-dialog-content-only",
+  "root": {
+    "id": "dialog",
+    "type": "CupertinoAlertDialog",
+    "props": {},
+    "children": [
+      {
+        "id": "dialog-content",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "content"
+        },
+        "children": [
+          {
+            "id": "dialog-content-text",
+            "type": "Text",
+            "props": {
+              "text": "Something went wrong. Please try again later."
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a0",
+        "type": "CupertinoDialogAction",
+        "props": {},
+        "children": [
+          {
+            "id": "dialog-a0-text",
+            "type": "Text",
+            "props": {
+              "text": "Cancel"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-a1",
+        "type": "CupertinoDialogAction",
+        "props": {
+          "isDefaultAction": true
+        },
+        "children": [
+          {
+            "id": "dialog-a1-text",
+            "type": "Text",
+            "props": {
+              "text": "OK"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

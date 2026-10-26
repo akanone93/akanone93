@@ -224,6 +224,34 @@ describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
     expect(byId.get("picker")).toMatchObject({ w: theme.width - 2 * theme.pagePadding, h: 216 });
   });
 
+  test("a date picker is a 216-pt row of wheels across the available width in each mode", () => {
+    const layout = layoutScreen(
+      col(
+        node("time", "CupertinoDatePicker", { props: { data: { mode: "time" } } }),
+        node("date", "CupertinoDatePicker", { props: { data: { mode: "date" } } }),
+        node("both", "CupertinoDatePicker"),
+      ),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    for (const id of ["time", "date", "both"]) {
+      expect(byId.get(id)).toMatchObject({ w: theme.width - 2 * theme.pagePadding, h: 216 });
+    }
+  });
+
+  test("a closed context menu is its child, and an action is a 43-pt row", () => {
+    const layout = layoutScreen(
+      col(
+        node("menu", "CupertinoContextMenu", { children: [text("preview", "Preview")] }),
+        node("action", "CupertinoContextMenuAction", { children: [text("label", "Share")] }),
+      ),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    expect(byId.get("menu")).toMatchObject({ h: byId.get("preview")?.h ?? -1 });
+    expect(byId.get("action")).toMatchObject({ w: theme.width - 2 * theme.pagePadding, h: 43 });
+  });
+
   test("a sliding segmented control is as tall as its content and spans the available width", () => {
     const layout = layoutScreen(
       col(node("sliding", "CupertinoSlidingSegmentedControl", { children: [text("x", "Day"), text("y", "Week")] })),
@@ -241,6 +269,46 @@ describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
     );
     const byId = new Map(layout.boxes.map((b) => [b.id, b]));
     expect(byId.get("large")).toMatchObject({ w: theme.width - 2 * theme.pagePadding, h: 96, text: "Settings" });
+  });
+
+  test("an alert dialog fills the width with its actions side by side, and stacks three", () => {
+    const action = (id: string, label: string): WidgetNode =>
+      node(id, "CupertinoDialogAction", { children: [text(`${id}-t`, label)] });
+    const layout = layoutScreen(
+      col(
+        node("two", "CupertinoAlertDialog", {
+          props: { data: { title: "Allow?", content: "Location helps." } },
+          children: [action("no", "No"), action("yes", "Yes")],
+        }),
+        node("three", "CupertinoAlertDialog", {
+          props: { data: { title: "Delete" } },
+          children: [action("a", "Delete"), action("b", "Keep"), action("c", "Cancel")],
+        }),
+      ),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    expect(byId.get("two")?.w).toBe(theme.width - 2 * theme.pagePadding);
+    expect(byId.get("two")?.h).toBeGreaterThan(67.8);
+    // Two short actions share one row (45 pt); three stack into 3 x 45 pt and two rules.
+    expect(byId.get("three")?.h).toBeGreaterThan(3 * 45 + 2 * 0.3);
+  });
+
+  test("an action sheet spans the screen with its cancel button below the main sheet", () => {
+    const action = (id: string, label: string): WidgetNode =>
+      node(id, "CupertinoActionSheetAction", { children: [text(`${id}-t`, label)] });
+    const layout = layoutScreen(
+      col(
+        node("sheet", "CupertinoActionSheet", {
+          props: { data: { title: "Photo", message: "Pick one.", cancel: "Cancel" } },
+          children: [action("a", "Take"), action("b", "Choose")],
+        }),
+      ),
+      { engine, theme },
+    );
+    const byId = new Map(layout.boxes.map((b) => [b.id, b]));
+    // Two 57.17-pt actions, the 0.3-pt rule, the content, a cancel button of 57.17 pt and 8 pt between, and the 8-pt bottom margin.
+    expect(byId.get("sheet")?.h).toBeGreaterThan(2 * 57.17 + 57.17 + 8 + 8);
   });
 
   test("scaffolds and sections lay their content out", () => {
