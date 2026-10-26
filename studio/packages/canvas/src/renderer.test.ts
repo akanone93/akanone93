@@ -328,3 +328,114 @@ describe("STU-121 damage-rect redraw", () => {
     whole.renderer.dispose();
   });
 });
+
+describe("STU-045 interaction layer damage (M-12)", () => {
+  function read(s: Surface): Uint8Array<ArrayBuffer> {
+    const image = s.makeImageSnapshot();
+    const out = image.readPixels(0, 0, {
+      width: s.width(),
+      height: s.height(),
+      colorType: ck.ColorType.RGBA_8888,
+      alphaType: ck.AlphaType.Premul,
+      colorSpace: ck.ColorSpace.SRGB,
+    });
+    image.delete();
+    if (!(out instanceof Uint8Array)) {
+      throw new Error("no pixels");
+    }
+    return Uint8Array.from(out);
+  }
+
+  function scene(): Parameters<Scene["apply"]>[0] {
+    return [
+      { op: "add", item: box("a", 40, 40) },
+      { op: "add", item: text("label", 44, 50) },
+      { op: "add", item: box("b", 300, 220) },
+      { op: "add", item: box("c", 260, 20) },
+      { op: "add", item: link("ab", 140, 65, 300, 245) },
+      { op: "add", item: link("ac", 140, 50, 260, 45) },
+      { op: "add", item: link("bc", 350, 220, 310, 70) },
+    ];
+  }
+
+  test("a drag redraws only the layer's damage, and every frame and the drop equal a whole render", () => {
+    const { scene: live, viewport, renderer } = setup({ tiles: true });
+    live.apply(scene());
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    const lifted = ["a", "label", "ab", "ac"];
+    renderer.interacting = true;
+    live.setLive(lifted, true);
+    const layer = { surface: surface(400, 300), x: 0, y: 0, scale: 1 };
+    // The canvas the layer presents to: a flush copies its dirty rectangle [l, t, r, b], or everything.
+    const presented = new Uint8Array(400 * 300 * 4);
+    const flush = layer.surface.flush.bind(layer.surface);
+    layer.surface.flush = ((dirty?: Int32Array) => {
+      flush();
+      const pixels = read(layer.surface);
+      const [l, t, r, b] = dirty ?? [0, 0, 400, 300];
+      for (let y = t ?? 0; y < (b ?? 0); y++) {
+        presented.set(pixels.subarray((y * 400 + (l ?? 0)) * 4, (y * 400 + (r ?? 0)) * 4), (y * 400 + (l ?? 0)) * 4);
+      }
+    }) as Surface["flush"];
+    const start = renderer.frame(true, layer);
+    expect(start.layerPixels).toBe(400 * 300);
+    for (let i = 1; i <= 12; i++) {
+      live.apply([
+        { op: "move", id: "a", dx: 7, dy: 3 },
+        { op: "move", id: "label", dx: 7, dy: 3 },
+        { op: "replace", item: link("ab", 140 + 7 * i, 65 + 3 * i, 300, 245) },
+        { op: "replace", item: link("ac", 140 + 7 * i, 50 + 3 * i, 260, 45) },
+      ]);
+      const stats = renderer.frame(false, layer);
+      // Only the moved items' pieces are presented, not the whole layer.
+      expect(stats.layerPixels).toBeGreaterThan(0);
+      expect(stats.layerPixels).toBeLessThan(400 * 300 * 0.6);
+      // A whole draw of the same live items on a fresh layer is identical, pixel for pixel.
+      const whole = { surface: surface(400, 300), x: 0, y: 0, scale: 1 };
+      const check = setup({ tiles: true });
+      check.scene.apply(scene());
+      check.scene.setLive(lifted, true);
+      check.scene.apply(
+        live
+          .items()
+          .filter((item) => lifted.includes(item.spec.id))
+          .map((item) => ({ op: "replace" as const, item: item.spec })),
+      );
+      check.renderer.frame(false, whole);
+      const want = read(whole.surface);
+      expect(read(layer.surface)).toEqual(want);
+      // What the layer's canvas shows — the whole start, then each frame's presented regions — equals it too.
+      expect(presented).toEqual(want);
+      check.renderer.dispose();
+      whole.surface.delete();
+    }
+    renderer.interacting = false;
+    live.setLive(lifted, false);
+    renderer.frame(true, null);
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame(true, null);
+    // After the drop the base equals a full re-render of the same scene.
+    const fresh = setup({ tiles: true });
+    fresh.scene.apply(live.items().map((item) => ({ op: "add" as const, item: item.spec })));
+    fresh.viewport.x = viewport.x;
+    fresh.renderer.frame();
+    fresh.renderer.idle(Number.POSITIVE_INFINITY);
+    fresh.renderer.frame();
+    const surfaces = [renderer, fresh.renderer].map((r) => (r as unknown as { surface: Surface }).surface);
+    const [after = new Uint8Array(), expected = new Uint8Array()] = surfaces.map((s) => (s ? read(s) : undefined));
+    expect(after.length).toBe(400 * 300 * 4);
+    // No ghost of a lifted item and no missing edge (both differ by over 100 levels). Skia picks a path's antialiasing by the complexity of the whole
+    // batched path, so a tile refreshed in a dirty rectangle may shade an edge pixel a few levels differently.
+    let ghosts = 0;
+    for (let k = 0; k < after.length; k++) {
+      if (Math.abs((after[k] ?? 0) - (expected[k] ?? 0)) > 32) {
+        ghosts++;
+      }
+    }
+    expect(ghosts).toBe(0);
+    fresh.renderer.dispose();
+    renderer.dispose();
+    layer.surface.delete();
+  });
+});

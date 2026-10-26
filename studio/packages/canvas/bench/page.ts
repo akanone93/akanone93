@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 // Benchmark page: drives the canvas worker through the host API and writes a
-// JSON summary into <pre id="result"> for the runner. Pans are timed on the
-// main thread from one animation frame to the next, since the compositor and
-// not GL moves the base while panning (M-12); drags are timed in the worker.
+// JSON summary into <pre id="result"> for the runner. Pans and drags are timed
+// on the main thread from one animation frame to the next — what the user
+// sees, including the browser presenting the base and the interaction layer
+// (M-12) — with the worker's own frame times beside them.
 
 import { defaultScreenTheme } from "@plux/layout";
 import { ArrowCanvas } from "../src/arrow-layer.ts";
 import { ArrowRouter, deriveAppBundles } from "../src/arrows.ts";
-import type { LayerBox } from "../src/compositor.ts";
 import { CanvasHost } from "../src/host.ts";
 import type {
   FrameStats,
@@ -39,30 +39,6 @@ function mean(values: number[]): number {
 
 function round(value: number): number {
   return Math.round(value * 100) / 100;
-}
-
-function summarise(frames: FrameStats[]): Record<string, number> {
-  const ms = frames.map((f) => f.ms).sort((a, b) => a - b);
-  const first = frames[0];
-  const last = frames.at(-1);
-  const renders = first && last ? last.tileRenders - first.tileRenders : 0;
-  const renderMs = first && last ? last.tileRenderMs - first.tileRenderMs : 0;
-  return {
-    frames: frames.length,
-    p50: round(percentile(ms, 0.5)),
-    p95: round(percentile(ms, 0.95)),
-    max: round(ms.at(-1) ?? 0),
-    drawCallsMean: round(mean(frames.map((f) => f.drawCalls))),
-    drawCallsMax: Math.max(...frames.map((f) => f.drawCalls)),
-    tileBlitMsMean: round(mean(frames.map((f) => f.tileMs))),
-    regionMsMean: round(mean(frames.map((f) => f.regionMs))),
-    liveMsMean: round(mean(frames.map((f) => f.liveMs))),
-    flushMsMean: round(mean(frames.map((f) => f.flushMs))),
-    regionsMean: round(mean(frames.map((f) => f.regions))),
-    tilesDrawnMean: round(mean(frames.map((f) => f.tilesDrawn))),
-    idleTileRenders: renders,
-    idleMsPerTile: renders > 0 ? round(renderMs / renders) : 0,
-  };
 }
 
 function sleep(ms: number): Promise<void> {
@@ -99,31 +75,53 @@ async function settle(host: CanvasHost): Promise<number> {
   return (await settleTimes(host)).fullMs;
 }
 
-async function measure(host: CanvasHost, step: (i: number) => void): Promise<FrameStats[]> {
-  const out: FrameStats[] = [];
-  for (let i = 0; i < WARMUP + FRAMES; i++) {
-    step(i);
-    const stats = await host.nextFrame();
-    if (i >= WARMUP) {
-      out.push(stats);
-    }
-  }
-  return out;
-}
-
 function add(items: ItemSpec[]): SceneOp[] {
   return items.map((item) => ({ op: "add", item }));
 }
 
-async function dragScenario(
-  host: CanvasHost,
-  links: LinkRef[],
-): Promise<{ frames: FrameStats[]; layerBox: LayerBox | null }> {
+/** Frame-to-frame intervals on the main thread, sorted: percentiles, longest gap and frames dropped. */
+function intervalSummary(intervals: number[]): Record<string, number> {
+  intervals.sort((a, b) => a - b);
+  return {
+    frames: intervals.length,
+    p50: round(percentile(intervals, 0.5)),
+    p95: round(percentile(intervals, 0.95)),
+    max: round(intervals.at(-1) ?? 0),
+    droppedFrames: intervals.filter((ms) => ms > 1.5 * FRAME_MS).length,
+  };
+}
+
+/** The worker's side of a drag: its frame time and what the interaction layer drew and presented. */
+function workerDrag(worker: FrameStats[]): Record<string, number> {
+  return {
+    workerFrames: worker.length,
+    workerFrameMsP95: round(
+      percentile(
+        worker.map((f) => f.ms).sort((a, b) => a - b),
+        0.95,
+      ),
+    ),
+    layerMsMean: round(mean(worker.map((f) => f.layerMs))),
+    layerPixelsMean: Math.round(mean(worker.map((f) => f.layerPixels))),
+    layerPixelsMax: Math.max(0, ...worker.map((f) => f.layerPixels)),
+  };
+}
+
+/** Scene A: one box and its links dragged 2 × 1 world units per animation frame, timed rAF to rAF. */
+async function dragScenario(host: CanvasHost, links: LinkRef[]): Promise<Record<string, unknown>> {
   const touching = links.filter((l) => l.a === DRAGGED || l.b === DRAGGED);
   const ids = [`box-${DRAGGED}`, `label-${DRAGGED}`, ...touching.map((l) => l.id)];
   const origin = boxPosition(DRAGGED);
+  const worker: FrameStats[] = [];
+  const stop = host.onFrame((stats) => worker.push(stats));
   host.startInteraction("drag", ids);
-  const frames = await measure(host, (i) => {
+  const intervals: number[] = [];
+  let previous = await animationFrame();
+  for (let i = 0; i < WARMUP + FRAMES; i++) {
+    const now = await animationFrame();
+    if (i === WARMUP) {
+      worker.length = 0;
+    }
     const at = { x: origin.x + (i + 1) * 2, y: origin.y + (i + 1) };
     const ops: SceneOp[] = [
       { op: "move", id: `box-${DRAGGED}`, dx: 2, dy: 1 },
@@ -135,10 +133,15 @@ async function dragScenario(
       ops.push({ op: "replace", item: linkSpec(l.id, a, b, l.style) });
     }
     host.patch(ops);
-  });
+    if (i >= WARMUP) {
+      intervals.push(now - previous);
+    }
+    previous = now;
+  }
   const layerBox = host.layerBox;
   host.endInteraction("drag", ids);
-  return { frames, layerBox };
+  stop();
+  return { ...intervalSummary(intervals), ...workerDrag(worker), ...baseRenders(worker), layerBox };
 }
 
 function animationFrame(): Promise<number> {
@@ -231,13 +234,18 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
   const ids = [box, `label-${DRAGGED}`, ...arrows.beginDrag(box)];
   const origin = boxPosition(DRAGGED);
   host.startInteraction("drag", ids);
-  // Lifting the arrows into the interaction layer re-renders the tiles under them once.
+  // Lifting the arrows: its first frame (`liftFrameMs`), then the tiles under them refreshed in idle time.
   const dragStartMs = (await settleTimes(host)).fullMs;
+  const lift = worker.filter((f) => f.tileRenders > 0);
+  const liftFrameMs = round(worker[0]?.ms ?? 0);
+  const liftTileRenders = (lift.at(-1)?.tileRenders ?? 0) - (worker[0]?.tileRenders ?? 0);
   worker.length = 0;
   const intervals: number[] = [];
   const route: number[] = [];
   const main: number[] = [];
   const rerouted: number[] = [];
+  let box0 = host.layerBox;
+  let layerBoxChanges = 0;
   let previous = await animationFrame();
   for (let i = 0; i < WARMUP + FRAMES; i++) {
     const now = await animationFrame();
@@ -247,6 +255,10 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
     const ms = performance.now() - begin;
     host.patch([{ op: "move", id: box, dx: 2, dy: 1 }, { op: "move", id: `label-${DRAGGED}`, dx: 2, dy: 1 }, ...patch]);
     const mainMs = performance.now() - begin;
+    if (host.layerBox !== box0) {
+      box0 = host.layerBox;
+      layerBoxChanges++;
+    }
     if (i >= WARMUP) {
       intervals.push(now - previous);
       main.push(mainMs);
@@ -255,13 +267,13 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
     }
     previous = now;
   }
+  const layerBox = host.layerBox;
   const drop = performance.now();
   const caughtUp = arrows.endDrag();
   const dropRouteMs = performance.now() - drop;
   host.patch(caughtUp);
   host.endInteraction("drag", ids);
   stop();
-  intervals.sort((a, b) => a - b);
   route.sort((a, b) => a - b);
   const clear = [...router.routes.values()].filter((r) => r.clear).length;
   return {
@@ -273,11 +285,7 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
     settleMs,
     pan,
     drag: {
-      frames: intervals.length,
-      p50: round(percentile(intervals, 0.5)),
-      p95: round(percentile(intervals, 0.95)),
-      max: round(intervals.at(-1) ?? 0),
-      droppedFrames: intervals.filter((ms) => ms > 1.5 * FRAME_MS).length,
+      ...intervalSummary(intervals),
       routeMsP50: round(percentile(route, 0.5)),
       routeMsP95: round(percentile(route, 0.95)),
       routeMsMax: round(route.at(-1) ?? 0),
@@ -287,19 +295,16 @@ async function arrowScenario(host: CanvasHost): Promise<Record<string, unknown>>
           0.95,
         ),
       ),
-      layerMsMean: round(mean(worker.map((f) => f.layerMs))),
+      ...workerDrag(worker),
+      layerBox,
+      layerBoxChanges,
       opsPerFrameMean: round(mean(rerouted)),
       dragStartMs,
+      liftFrameMs,
+      liftTileRenders,
       dropRouteMs: round(dropRouteMs),
       dropOps: caughtUp.length,
-      workerFrameMsP95: round(
-        percentile(
-          worker.map((f) => f.ms).sort((a, b) => a - b),
-          0.95,
-        ),
-      ),
       ...baseRenders(worker),
-      workerFrames: worker.length,
     },
   };
 }
@@ -412,13 +417,7 @@ async function run(): Promise<unknown> {
   const aPan = await panScenario(host);
   host.setViewport(0, 0, 0.6);
   await settle(host);
-  const { frames: dragFrames, layerBox } = await dragScenario(host, a.links);
-  const aDrag = {
-    ...summarise(dragFrames),
-    layerMsMean: round(mean(dragFrames.map((f) => f.layerMs))),
-    ...baseRenders(dragFrames),
-    layerBox,
-  };
+  const aDrag = await dragScenario(host, a.links);
   host.patch([{ op: "clear" }, ...add(sceneB())]);
   host.setViewport(0, 0, 0.3);
   const settleB = await settle(host);
