@@ -1,0 +1,214 @@
+{
+  "name": "material-navigation-rail-all",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "a",
+            "type": "SizedBox",
+            "props": {
+              "height": 420
+            },
+            "children": [
+              {
+                "id": "ar",
+                "type": "Row",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "children": [
+                  {
+                    "id": "r0",
+                    "type": "NavigationRail",
+                    "props": {
+                      "labelType": "all"
+                    },
+                    "children": [
+                      {
+                        "id": "r0d0",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Home"
+                        },
+                        "children": [
+                          {
+                            "id": "r0d0i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r0d1",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Search"
+                        },
+                        "children": [
+                          {
+                            "id": "r0d1i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r0d2",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Inbox"
+                        },
+                        "children": [
+                          {
+                            "id": "r0d2i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r0d3",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Settings"
+                        },
+                        "children": [
+                          {
+                            "id": "r0d3i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "icon"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "ax",
+                    "type": "Expanded",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "at",
+                        "type": "Text",
+                        "props": {
+                          "text": "Content"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "b",
+            "type": "SizedBox",
+            "props": {
+              "height": 360
+            },
+            "children": [
+              {
+                "id": "br",
+                "type": "Row",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "children": [
+                  {
+                    "id": "r1",
+                    "type": "NavigationRail",
+                    "props": {
+                      "labelType": "all",
+                      "groupAlignment": 0,
+                      "selectedIndex": 2
+                    },
+                    "children": [
+                      {
+                        "id": "r1d0",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Home"
+                        },
+                        "children": [
+                          {
+                            "id": "r1d0i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r1d1",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Search"
+                        },
+                        "children": [
+                          {
+                            "id": "r1d1i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "icon"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "r1d2",
+                        "type": "NavigationRailDestination",
+                        "props": {
+                          "label": "Inbox"
+                        },
+                        "children": [
+                          {
+                            "id": "r1d2i",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "icon"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "bx",
+                    "type": "Expanded",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "bt",
+                        "type": "Text",
+                        "props": {
+                          "text": "Content"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
