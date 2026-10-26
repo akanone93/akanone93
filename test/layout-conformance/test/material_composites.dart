@@ -8,7 +8,7 @@
 
 import 'package:flutter/material.dart';
 
-const Set<String> materialCompositeTypes = <String>{'TabBar', 'Tab'};
+const Set<String> materialCompositeTypes = <String>{'TabBar', 'Tab', 'AlertDialog'};
 
 /// Builds one scene node (the golden writer's own builder).
 typedef BuildScene = Widget Function(Map<String, Object?> node);
@@ -63,11 +63,23 @@ Widget _tabBar(Map<String, Object?> node, Key key, BuildScene build) {
   );
 }
 
+Widget _alertDialog(Map<String, Object?> node, Key key, BuildScene build) {
+  final List<Widget> actions = <Widget>[for (final Map<String, Object?> a in _slot(node, 'actions')) build(a)];
+  return AlertDialog(
+    key: key,
+    title: _one(node, 'title', build),
+    content: _one(node, 'content', build),
+    actions: actions.isEmpty ? null : actions,
+  );
+}
+
 /// Builds [node], one of [materialCompositeTypes].
 Widget buildMaterialComposite(Map<String, Object?> node, Key key, BuildScene build) {
   switch (node['type']) {
     case 'TabBar':
       return _tabBar(node, key, build);
+    case 'AlertDialog':
+      return _alertDialog(node, key, build);
   }
   throw ArgumentError('unknown Material composite "${node['type']}"');
 }
