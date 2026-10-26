@@ -20,6 +20,7 @@ import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
+import { LinkLayer } from "./link-layer.tsx";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { parseDocument, readPlugin } from "./plugin-model.ts";
@@ -35,7 +36,7 @@ import {
 } from "./scene.ts";
 import { ScreensController } from "./screens-controller.tsx";
 import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
-import type { EditFn } from "./select/edits.ts";
+import { type EditFn, findNode } from "./select/edits.ts";
 import { structureEdit } from "./select/gesture.ts";
 import { handleKey } from "./select/keys.ts";
 import { announce } from "./select/live-region.ts";
@@ -359,6 +360,22 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
       sync();
     }
   };
+  const linkScreens = useMemo(
+    () =>
+      docs.data === undefined
+        ? []
+        : readPlugin(live).screens.map((s) => ({ id: s.id, title: s.title, route: s.route })),
+    [docs.data, live],
+  );
+  const linkWidget = useMemo(() => {
+    const id = selection.ids.length === 1 ? selection.ids[0] : undefined;
+    const screen = id === undefined ? undefined : screenOf.get(id);
+    const root = screens.find((s) => s.id === screen)?.root;
+    const node = id === undefined || root === undefined ? null : findNode(root, id)?.node;
+    return id === undefined || screen === undefined || node === null || node === undefined
+      ? undefined
+      : { id, screen, node };
+  }, [selection, screenOf, screens]);
   const entryPage = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
 
   const drag = useRef<{ x: number; y: number } | null>(null);
@@ -453,6 +470,14 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         surface={() => surfaceRef.current}
         canvas={() => canvasRef.current}
       />
+      <LinkLayer
+        surface={() => surfaceRef.current}
+        canvas={() => canvasRef.current}
+        widget={linkWidget}
+        screens={linkScreens}
+        canEdit={canEdit}
+        edit={edit}
+      />
       <ProblemsDrawer validation={validation} />
       <RightDock
         screens={screens}
@@ -462,6 +487,7 @@ function PluginCanvasView({ docs }: { docs: ReturnType<typeof usePluginDocuments
         pathOf={pathOf}
         problems={validation.state === "done" ? validation.problems : []}
         documents={docs.data}
+        appDocuments={appDocs.data}
         validatePage={validation.state === "done" ? validation.validatePage : undefined}
       />
       {docs.data !== undefined && (
