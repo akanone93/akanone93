@@ -301,4 +301,37 @@ describe("Material composites in a screen (STU-005, S4.3)", () => {
     expect((ok?.x ?? 0) + (ok?.w ?? 0)).toBeCloseTo(358 - 40 - 24 + 16, 0);
     expect((ok?.x ?? 0) - ((cancel?.x ?? 0) + (cancel?.w ?? 0))).toBeCloseTo(8, 5);
   });
+
+  test("a bottom sheet is as wide as the screen and a handle adds 48; a popup menu steps its width by 56", () => {
+    const sheet = (id: string, props: Record<string, unknown>): WidgetNode => ({
+      id,
+      type: "BottomSheet",
+      props,
+      slots: { child: { id: `${id}c`, type: "SizedBox", props: { height: 100 } } },
+    });
+    const item = (id: string, label: string): WidgetNode => ({
+      id,
+      type: "PopupMenuItem",
+      slots: { child: text(`${id}t`, label) },
+    });
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        sheet("plain", {}),
+        sheet("handle", { showDragHandle: true }),
+        {
+          id: "menu",
+          type: "PopupMenu",
+          children: [item("a", "Cut"), { id: "div", type: "PopupMenuDivider" }, item("b", "Copy")],
+        },
+      ],
+    };
+    const byId = new Map(layoutScreen(root, { engine, theme }).boxes.map((b) => [b.id, b]));
+    expect(byId.get("plain")).toMatchObject({ w: 358 });
+    expect(byId.get("handle")?.h).toBe((byId.get("plain")?.h ?? 0) + 48);
+    expect(byId.get("a")?.h).toBe(48);
+    expect(byId.get("menu")?.w).toBe(112);
+    expect(byId.get("menu")?.h).toBe(8 + 48 + 16 + 48 + 8);
+  });
 });

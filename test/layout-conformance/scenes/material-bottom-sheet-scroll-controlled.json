@@ -1,0 +1,244 @@
+{
+  "name": "material-bottom-sheet-scroll-controlled",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "s",
+            "type": "SizedBox",
+            "props": {
+              "width": 360,
+              "height": 640
+            },
+            "children": [
+              {
+                "id": "sh",
+                "type": "BottomSheet",
+                "props": {
+                  "isScrollControlled": true,
+                  "showDragHandle": true
+                },
+                "children": [
+                  {
+                    "id": "shc",
+                    "type": "Column",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "mainAxisSize": "min"
+                    },
+                    "children": [
+                      {
+                        "id": "t0",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t0l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t0t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 0"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t1",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t1l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t1t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 1"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t2",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t2l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t2t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 2"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t3",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t3l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t3t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 3"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t4",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t4l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t4t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 4"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t5",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t5l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t5t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 5"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t6",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t6l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t6t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 6"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t7",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t7l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t7t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 7"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "t8",
+                        "type": "ListTile",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "t8l",
+                            "type": "Icon",
+                            "props": {},
+                            "slot": "leading"
+                          },
+                          {
+                            "id": "t8t",
+                            "type": "Text",
+                            "props": {
+                              "text": "Item 8"
+                            },
+                            "slot": "title"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -11,7 +11,9 @@
 
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { TextDirection } from "../flutter/geometry.ts";
+import { buildBottomSheet } from "../flutter/material/bottom-sheet.ts";
 import { buildAlertDialog } from "../flutter/material/dialog.ts";
+import { buildPopupMenu, buildPopupMenuDivider, buildPopupMenuItem } from "../flutter/material/popup-menu.ts";
 import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../flutter/material/tab-bar.ts";
 import { m3TextStyle, type TextRole } from "../flutter/material/theme.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
@@ -107,8 +109,48 @@ const alertDialog: WidgetBuilder = (node, ctx) => {
   );
 };
 
+/** A `BottomSheet` in a screen: as wide as the screen, its `child` slot below the optional drag handle. */
+const bottomSheet: WidgetBuilder = (node, ctx) => {
+  const child = node.slots?.["child"];
+  return named(
+    node,
+    ctx,
+    new RenderConstrainedBox({
+      additionalConstraints: BoxConstraints.tightFor({ width: ctx.available() }),
+      child: buildBottomSheet({
+        child:
+          child === undefined
+            ? new RenderConstrainedBox({ additionalConstraints: new BoxConstraints() })
+            : ctx.build(child),
+        showDragHandle: prop(node, "showDragHandle") === true,
+        isScrollControlled: false,
+        textDirection: direction,
+      }),
+    }),
+  );
+};
+
+/** A popup menu in its open state: `PopupMenuItem` children with a label each, and `PopupMenuDivider`s. */
+const popupMenu: WidgetBuilder = (node, ctx) => {
+  const items = (node.children ?? []).map((entry) => {
+    const given = prop(entry, "height");
+    const height = typeof given === "number" ? given : null;
+    if (entry.type === "PopupMenuDivider") {
+      return buildPopupMenuDivider(height);
+    }
+    const label = textOf(entry) ?? "";
+    const box = buildPopupMenuItem(ctx.paragraph(label, role(ctx, "labelLarge")), height, direction);
+    box.debugId = entry.id;
+    ctx.mark(entry.id, "box", label);
+    return box;
+  });
+  return named(node, ctx, buildPopupMenu(items, direction));
+};
+
 /** The builders of the Material composite types; merged into the default registry. */
 export const materialWidgetBuilders: ReadonlyArray<readonly [string, WidgetBuilder]> = [
   ["TabBar", tabBar],
   ["AlertDialog", alertDialog],
+  ["BottomSheet", bottomSheet],
+  ["PopupMenu", popupMenu],
 ];
