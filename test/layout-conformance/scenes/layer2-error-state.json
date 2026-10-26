@@ -1,0 +1,13 @@
+{
+  "name": "layer2-error-state",
+  "layer2": true,
+  "root": {
+    "id": "error",
+    "type": "ErrorState",
+    "props": {
+      "title": "Something went wrong",
+      "message": "We could not load your data.",
+      "retryLabel": "Try again"
+    }
+  }
+}

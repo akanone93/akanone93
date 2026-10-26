@@ -1,0 +1,22 @@
+{
+  "name": "layer2-empty-state",
+  "layer2": true,
+  "root": {
+    "id": "empty",
+    "type": "EmptyState",
+    "props": {
+      "title": "Nothing here yet",
+      "message": "Items you add will show up in this list."
+    },
+    "slots": {
+      "action": {
+        "id": "empty-action",
+        "type": "SizedBox",
+        "props": {
+          "width": 80,
+          "height": 20
+        }
+      }
+    }
+  }
+}
