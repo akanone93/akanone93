@@ -43,5 +43,9 @@ func ImportJSON(kind string, sources []Source) ([]byte, error) {
 	if frag == nil {
 		frag = map[string]any{}
 	}
-	return json.Marshal(map[string]any{"fragment": frag, "diagnostics": diags})
+	out, err := json.Marshal(map[string]any{"fragment": frag, "diagnostics": diags})
+	if err != nil {
+		return nil, fmt.Errorf("importer.ImportJSON: %w", err)
+	}
+	return out, nil
 }
