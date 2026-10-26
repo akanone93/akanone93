@@ -14,6 +14,19 @@ import {
 import { canvasWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import canvasWorkerURL from "./canvas-worker.ts?worker&url";
 
+/**
+ * The canvas-local CSS point of the page point (`clientX`, `clientY`), for a
+ * canvas whose bounding rectangle is `rect`: `zoomAbout` and hit-testing take
+ * canvas-local coordinates, pointer events give page ones.
+ */
+export function canvasPoint(
+  rect: { readonly left: number; readonly top: number },
+  clientX: number,
+  clientY: number,
+): { x: number; y: number } {
+  return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
 /** The part of the canvas host the plugin canvas uses; a stub in tests. */
 export interface CanvasSurface {
   /** Replaces the scene with `screens`, laid out in the canvas worker; resolves with their content heights. */

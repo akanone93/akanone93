@@ -27,8 +27,41 @@ export interface Tile<T> {
   image: T | null;
   /** Rendered at reduced resolution during an interaction. */
   lowRes: boolean;
-  /** The world rectangle changed since the image was rendered. */
+  /** The world rectangle changed since the image was rendered: the union of the changes, `pieces` unclipped. */
   dirty: Rect | null;
+  /**
+   * The changed world rectangles themselves, clipped to the tile, at most
+   * `MAX_TILE_PIECES` (beyond that a new one merges into the piece it grows
+   * least): a refresh redraws only these, not their union.
+   */
+  readonly pieces: Rect[];
+}
+
+/** The most dirty pieces a tile keeps apart; more are merged. */
+export const MAX_TILE_PIECES = 64;
+
+function area(r: Rect): number {
+  return (r.r - r.l) * (r.b - r.t);
+}
+
+/** Adds the world rectangle `rect` to `pieces`, merging it into the piece it grows least once there are `MAX_TILE_PIECES`. */
+function addPiece(pieces: Rect[], rect: Rect): void {
+  if (pieces.length < MAX_TILE_PIECES) {
+    pieces.push(makeRect(rect.l, rect.t, rect.r, rect.b));
+    return;
+  }
+  let best = 0;
+  let growth = Infinity;
+  for (let i = 0; i < pieces.length; i++) {
+    const p = pieces[i] as Rect;
+    const merged =
+      (Math.max(p.r, rect.r) - Math.min(p.l, rect.l)) * (Math.max(p.b, rect.b) - Math.min(p.t, rect.t)) - area(p);
+    if (merged < growth) {
+      growth = merged;
+      best = i;
+    }
+  }
+  unionInto(pieces[best] as Rect, rect);
 }
 
 function keyOf(ix: number, iy: number): number {
@@ -43,6 +76,7 @@ export class TileCache<T> {
   private readonly tiles = new Map<number, Tile<T>>();
   private readonly staleTiles = new Map<number, Tile<T>>();
   private readonly scratch: Rect = makeRect(0, 0, 0, 0);
+  private readonly piece: Rect = makeRect(0, 0, 0, 0);
 
   constructor(
     readonly tileSize: number,
@@ -114,7 +148,7 @@ export class TileCache<T> {
     const key = keyOf(ix, iy);
     let tile = this.tiles.get(key);
     if (!tile) {
-      tile = { ix, iy, image: null, lowRes: false, dirty: null };
+      tile = { ix, iy, image: null, lowRes: false, dirty: null, pieces: [] };
       this.tiles.set(key, tile);
     }
     return tile;
@@ -123,8 +157,17 @@ export class TileCache<T> {
   /** Records that the world rectangle `rect` changed: overlapping tiles become dirty, stale ones are dropped. */
   invalidate(rect: Rect): void {
     for (const tile of this.tiles.values()) {
-      if (tile.image !== null && intersects(this.tileRect(tile, this.scratch), rect)) {
+      const world = this.tileRect(tile, this.scratch);
+      if (tile.image !== null && intersects(world, rect)) {
+        const piece = setRect(
+          this.piece,
+          Math.max(rect.l, world.l),
+          Math.max(rect.t, world.t),
+          Math.min(rect.r, world.r),
+          Math.min(rect.b, world.b),
+        );
         tile.dirty = tile.dirty ? unionInto(tile.dirty, rect) : makeRect(rect.l, rect.t, rect.r, rect.b);
+        addPiece(tile.pieces, piece);
       }
     }
     for (const [key, tile] of this.staleTiles) {
@@ -163,6 +206,20 @@ export class TileCache<T> {
     tile.image = image;
     tile.lowRes = lowRes;
     tile.dirty = null;
+    tile.pieces.length = 0;
+  }
+
+  /**
+   * Stores an image of `tile` in which only some of its dirty pieces were
+   * redrawn: `rest` (taken from the tile's own pieces) stays dirty.
+   */
+  storePartial(tile: Tile<T>, image: T, rest: readonly Rect[]): void {
+    const kept = rest.slice();
+    this.store(tile, image, false);
+    for (const piece of kept) {
+      tile.pieces.push(piece);
+      tile.dirty = tile.dirty ? unionInto(tile.dirty, piece) : makeRect(piece.l, piece.t, piece.r, piece.b);
+    }
   }
 
   /** Fills `out` with the stale tiles overlapping `view`. */

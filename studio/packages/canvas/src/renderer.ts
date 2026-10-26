@@ -17,10 +17,11 @@
  *   GL is what stalls the browser's frames;
  * - lift and drop without re-rendering tiles: a lifted item stays in the
  *   cached tiles and is masked out of the base by patches — its pieces
- *   redrawn without it, in clipped chunks in preemptible idle time, again
- *   after every later blit of the tiles — and a drop draws the items over
- *   the base at once, then patches their pieces in z-order and refreshes the
- *   tiles they left and joined in idle time after the frame is shown (M-13);
+ *   redrawn without it, in clipped chunks in preemptible idle time, paced
+ *   to one tile's pixels per animation frame, again after every later blit
+ *   of the tiles — and a drop draws the items over the base at once, then
+ *   patches their pieces in z-order and, in idle time after the frame is
+ *   shown, redraws only those pieces of the tiles they left and joined (M-13);
  * - level of detail by zoom (`lod.ts`), with pre-rendered nine-patch shadow
  *   images instead of blur;
  * - tiles rendered at half resolution while the user interacts, refined
@@ -82,6 +83,14 @@ function cellOf(rect: Rect, size: number): number {
   const col = Math.floor((rect.l + rect.r) / 2 / size);
   return row * 1_000_003 + col;
 }
+
+/**
+ * The most dirty pieces of a tile redrawn together in one refresh pass: one
+ * clip and one draw of the items meeting any of them, since the long links
+ * a drop leaves pieces along meet most pieces of a tile and would otherwise
+ * be drawn once per pass.
+ */
+export const REFRESH_CHUNK = 32;
 
 /** Above this many undrawn damage rectangles the next base draw is a whole one. */
 export const MAX_DAMAGE = 32;
@@ -276,8 +285,15 @@ export class SceneRenderer {
   private readonly dropItems: SceneItem[] = [];
   private readonly patchClip: Rect[] = [];
   private readonly patchUnion = makeRect(0, 0, 0, 0);
+  /** The patches drawn since the last flush of the base. */
+  private readonly patchGroup = makeRect(0, 0, 0, 0);
+  /** Device pixels of patches flushed since the last animation frame (`patchBudget`). */
+  private patchPixels = 0;
   private readonly dropUnion = makeRect(0, 0, 0, 0);
   private readonly patchRect = new Float32Array(4);
+  /** The tile pixels [l, t, r, b] a refresh chunk's pieces cover. */
+  private readonly pieceBounds = new Float32Array(4);
+  private copiedRefreshes = 0;
   private readonly patchItems: SceneItem[] = [];
   private readonly patchPath: PathBuilder;
   /** The last frame drew live items into an interaction layer: a lift masks the base instead of re-rendering tiles. */
@@ -428,6 +444,7 @@ export class SceneRenderer {
     const start = this.now();
     this.calls = 0;
     this.resetCounters();
+    this.patchPixels = 0;
     this.layered = layer !== null;
     this.drainScene();
     this.lod = lodForZoom(this.viewport.zoom);
@@ -807,47 +824,106 @@ export class SceneRenderer {
 
   /**
    * Draws queued patches on the base in chunks of at most `PATCH_CHUNK`
-   * rectangles from one tile-sized cell, so a chunk meets few items, until `deadline` or `yieldNow` (at least one chunk);
+   * rectangles from one tile-sized cell, so a chunk meets few items, until `deadline`, `yieldNow` or the frame's
+   * budget of flushed pixels (`patchBudget`; at least one chunk per frame), flushing each cell's chunks on their own;
    * returns how many chunks it drew. The base must be placed at the current
    * view; otherwise the realignment queues the masks again.
    */
   private patchIdle(deadline: number, yieldNow: () => boolean): number {
     const scale = this.viewport.zoom * this.dpr;
-    if (this.patches.length === 0 || this.needsShift() || this.tiles.scale !== scale) {
+    if (
+      this.patches.length === 0 ||
+      this.needsShift() ||
+      this.tiles.scale !== scale ||
+      this.patchPixels >= this.patchBudget()
+    ) {
       return 0;
     }
     const canvas = this.surface.getCanvas();
     const size = this.tiles.worldSize;
     this.patches.sort((a, b) => cellOf(a, size) - cellOf(b, size));
-    // One flush for the call: every commit of the base canvas costs the browser an upload through software GL.
-    const drawn = setRect(this.dropUnion, Infinity, Infinity, -Infinity, -Infinity);
+    // During an interaction each cell's chunks are flushed together, apart from other cells': every commit of the
+    // base canvas costs the browser an upload through software GL, which a drag frame then waits for, so a flush
+    // covers one cell, not the union of distant ones. Outside one, a single flush per call costs least.
+    const group = setRect(this.patchGroup, Infinity, Infinity, -Infinity, -Infinity);
+    let cell = Number.NaN;
     let chunks = 0;
     while (this.patches.length > 0) {
-      if (chunks > 0 && (this.now() >= deadline || yieldNow())) {
+      if (
+        chunks > 0 &&
+        (this.now() >= deadline || yieldNow() || this.patchPixels + this.areaOf(group, scale) >= this.patchBudget())
+      ) {
         break;
+      }
+      const first = this.patches[0] as Rect;
+      if (cellOf(first, size) !== cell && this.interacting) {
+        this.flushPatches(canvas, scale);
+        cell = cellOf(first, size);
       }
       const chunk = this.patches.splice(0, this.chunkLength(size));
       canvas.save();
       canvas.scale(scale, scale);
       canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
       if (this.drawPatch(canvas, chunk, this.view) > 0) {
-        unionInto(drawn, this.patchUnion);
+        unionInto(group, this.patchUnion);
       }
       canvas.restore();
       chunks++;
     }
-    if (drawn.r > drawn.l && drawn.b > drawn.t) {
-      this.flushBase(canvas, this.deviceRect(this.toArray(drawn, this.dst), scale));
-    }
+    this.flushPatches(canvas, scale);
     return chunks;
   }
 
-  /** How many of the queued patches, from the first, share its cell: at least one, at most `PATCH_CHUNK`. */
+  /**
+   * The device pixels patches may flush per animation frame during an
+   * interaction: one tile's. A
+   * flush of the base is an upload on the browser's single software-GL
+   * thread, which also composites the page, so patches are paced by it —
+   * lift masks then never hold a drag frame up by more than this (M-13).
+   */
+  private patchBudget(): number {
+    // Outside an interaction no animation waits on the patches: the idle deadline bounds them alone.
+    return this.interacting ? this.options.tileSize * this.options.tileSize : Number.POSITIVE_INFINITY;
+  }
+
+  /** The device pixels the world rectangle `rect` covers at `scale`; 0 when empty. */
+  private areaOf(rect: Rect, scale: number): number {
+    return rect.r > rect.l && rect.b > rect.t ? (rect.r - rect.l) * (rect.b - rect.t) * scale * scale : 0;
+  }
+
+  /** Flushes the patches drawn since the last flush (`patchGroup`) and counts their pixels against the frame's budget. */
+  private flushPatches(canvas: Canvas, scale: number): void {
+    const group = this.patchGroup;
+    if (group.r > group.l && group.b > group.t) {
+      const d = this.deviceRect(this.toArray(group, this.dst), scale);
+      this.patchPixels += Math.max(0, (d[2] ?? 0) - (d[0] ?? 0)) * Math.max(0, (d[3] ?? 0) - (d[1] ?? 0));
+      this.flushBase(canvas, d);
+    }
+    setRect(group, Infinity, Infinity, -Infinity, -Infinity);
+  }
+
+  /** Whether patches wait only for the next animation frame: this frame's budget of them is spent. */
+  get patchesWaitForFrame(): boolean {
+    return this.patches.length > 0 && this.patchPixels >= this.patchBudget();
+  }
+
+  /** Starts a new animation frame's budget of patches without drawing a frame; `frame` does the same. */
+  nextPatchFrame(): void {
+    this.patchPixels = 0;
+  }
+
+  /**
+   * How many of the queued patches, from the first, share its cell: at least
+   * one, at most `PATCH_CHUNK` during an interaction (the grain a drag frame
+   * may wait for) and `REFRESH_CHUNK` outside one, where nothing waits and
+   * fewer passes draw the long links that meet the pieces fewer times.
+   */
   private chunkLength(size: number): number {
     const first = this.patches[0];
     const cell = first ? cellOf(first, size) : 0;
+    const most = this.interacting ? PATCH_CHUNK : REFRESH_CHUNK;
     let end = 1;
-    for (; end < PATCH_CHUNK && end < this.patches.length; end++) {
+    for (; end < most && end < this.patches.length; end++) {
       const next = this.patches[end];
       if (!next || cellOf(next, size) !== cell) {
         break;
@@ -1144,7 +1220,7 @@ export class SceneRenderer {
       if (rendered > 0 && (this.now() >= deadline || yieldNow())) {
         break;
       }
-      this.renderTile(tile);
+      this.renderTile(tile, deadline, yieldNow);
       rendered++;
       if (!this.shownTiles.has(tile) && visible.includes(tile)) {
         this.viewChanged = true;
@@ -1369,14 +1445,14 @@ export class SceneRenderer {
     return done;
   }
 
-  private renderTile(tile: Tile<Image>): void {
+  private renderTile(tile: Tile<Image>, deadline: number, yieldNow: () => boolean): void {
     this.partial = null;
     const surface = this.tileSurface;
     if (!surface) {
       this.shownTiles.delete(tile);
       return;
     }
-    if (this.refreshTile(tile, surface)) {
+    if (this.refreshTile(tile, surface, deadline, yieldNow)) {
       return;
     }
     this.shownTiles.delete(tile);
@@ -1404,44 +1480,46 @@ export class SceneRenderer {
   }
 
   /**
-   * Re-renders only the dirty rectangle of a full-resolution tile over its
-   * cached pixels; returns false when the tile needs a whole render. A tile
-   * the surface shows with all damage drawn stays shown: its pixels are
-   * already on the surface.
+   * Re-renders only the dirty pieces of a full-resolution tile over its
+   * cached pixels — each snapped to whole tile pixels, drawn behind one
+   * non-antialiased clip per chunk of `REFRESH_CHUNK` pieces, not their union —
+   * in chunks until `deadline` or `yieldNow` (at least one chunk); pieces
+   * left over keep the tile dirty for the next idle slice. Returns false
+   * when the tile needs a whole render. A tile the surface shows with all
+   * damage drawn stays shown: its pixels are already on the surface.
    */
-  private refreshTile(tile: Tile<Image>, surface: Surface): boolean {
+  private refreshTile(tile: Tile<Image>, surface: Surface, deadline: number, yieldNow: () => boolean): boolean {
     const image = tile.image;
-    const dirty = tile.dirty;
-    if (image === null || dirty === null || tile.lowRes || this.interacting) {
+    const pieces = tile.pieces;
+    if (image === null || tile.dirty === null || pieces.length === 0 || tile.lowRes || this.interacting) {
       return false;
     }
     const start = this.now();
     const px = Math.max(1, Math.round(this.options.tileSize));
-    const scale = this.tiles.scale;
     const world = this.tiles.tileRect(tile, this.tileTarget);
-    if (!intersectInto(this.stripWorld, dirty, world)) {
-      return false;
-    }
-    const d = this.stripWorld;
-    const l = Math.max(0, Math.floor((d.l - world.l) * scale));
-    const t = Math.max(0, Math.floor((d.t - world.t) * scale));
-    const r = Math.min(px, Math.ceil((d.r - world.l) * scale));
-    const b = Math.min(px, Math.ceil((d.b - world.t) * scale));
     const current = this.shownTiles.has(tile) && this.damage.length === 0;
+    const fromBase = current && this.baseIsCurrent();
     const canvas = surface.getCanvas();
     canvas.save();
     canvas.clipRect(this.src.fill(0).fill(px, 2), this.ck.ClipOp.Intersect, false);
     canvas.drawImage(image, 0, 0);
-    this.src.set([l, t, r, b]);
-    canvas.clipRect(this.src, this.ck.ClipOp.Intersect, false);
-    canvas.clear(this.background);
-    canvas.scale(scale, scale);
-    canvas.translate(-world.l, -world.t);
-    setRect(d, world.l + l / scale, world.t + t / scale, world.l + r / scale, world.t + b / scale);
-    this.drawScene(canvas, d, false);
+    let done = 0;
+    while (done < pieces.length) {
+      if (done > 0 && (this.now() >= deadline || yieldNow())) {
+        break;
+      }
+      const end = Math.min(pieces.length, done + REFRESH_CHUNK);
+      this.refreshPieces(canvas, pieces, done, end, world, px, fromBase);
+      done = end;
+    }
     canvas.restore();
     this.irect.set([0, 0, px, px]);
-    this.tiles.store(tile, this.resources.own(surface.makeImageSnapshot(this.irect)), false);
+    const snapshot = this.resources.own(surface.makeImageSnapshot(this.irect));
+    if (done < pieces.length) {
+      this.tiles.storePartial(tile, snapshot, pieces.slice(done));
+    } else {
+      this.tiles.store(tile, snapshot, false);
+    }
     surface.flush();
     this.syncGpu(canvas);
     if (!current) {
@@ -1451,6 +1529,141 @@ export class SceneRenderer {
     this.tileRenders++;
     this.tileRenderMs += this.now() - start;
     return true;
+  }
+
+  /**
+   * Redraws `pieces[from..to)` of the tile at `world` ([px] pixels square)
+   * on `canvas`, which holds its cached image: each piece snapped to whole
+   * pixels, one clip of all of them, the background, then the static items
+   * that meet any of them, in z-order.
+   */
+  private refreshPieces(
+    canvas: Canvas,
+    pieces: readonly Rect[],
+    from: number,
+    to: number,
+    world: Rect,
+    px: number,
+    fromBase: boolean,
+  ): void {
+    const scale = this.tiles.scale;
+    const u = setRect(this.patchUnion, Infinity, Infinity, -Infinity, -Infinity);
+    const clips = this.patchClip;
+    const bounds = this.pieceBounds.fill(0);
+    bounds[0] = px;
+    bounds[1] = px;
+    let count = 0;
+    for (let i = from; i < to; i++) {
+      const piece = pieces[i] as Rect;
+      const l = Math.max(0, Math.floor((piece.l - world.l) * scale));
+      const t = Math.max(0, Math.floor((piece.t - world.t) * scale));
+      const r = Math.min(px, Math.ceil((piece.r - world.l) * scale));
+      const b = Math.min(px, Math.ceil((piece.b - world.t) * scale));
+      if (r <= l || b <= t) {
+        continue;
+      }
+      let clip = clips[count];
+      if (!clip) {
+        clip = makeRect(0, 0, 0, 0);
+        clips.push(clip);
+      }
+      setRect(clip, world.l + l / scale, world.t + t / scale, world.l + r / scale, world.t + b / scale);
+      this.patchRect.set([l, t, r, b]);
+      this.patchPath.addRect(this.patchRect);
+      unionInto(u, clip);
+      bounds.set([
+        Math.min(bounds[0] ?? l, l),
+        Math.min(bounds[1] ?? t, t),
+        Math.max(bounds[2] ?? r, r),
+        Math.max(bounds[3] ?? b, b),
+      ]);
+      count++;
+    }
+    if (count === 0) {
+      return;
+    }
+    if (fromBase && this.copyFromBase(canvas, world, bounds)) {
+      return;
+    }
+    const list = this.itemsMeeting(u, count);
+    const path = this.patchPath.detach();
+    canvas.save();
+    canvas.clipPath(path, this.ck.ClipOp.Intersect, false);
+    canvas.clear(this.background);
+    canvas.scale(scale, scale);
+    canvas.translate(-world.l, -world.t);
+    this.drawScene(canvas, u, false, list);
+    canvas.restore();
+    path.delete();
+    list.length = 0;
+  }
+
+  /** The static items, in z-order, inside `union` that meet any of the first `count` clips in `patchClip`. */
+  private itemsMeeting(union: Rect, count: number): SceneItem[] {
+    const list = this.patchItems;
+    list.length = 0;
+    for (const item of this.scene.query(union, this.items, false)) {
+      for (let i = 0; i < count; i++) {
+        const clip = this.patchClip[i];
+        if (clip && intersects(item.bounds, clip)) {
+          list.push(item);
+          break;
+        }
+      }
+    }
+    return list;
+  }
+
+  /**
+   * Whether the base surface holds exactly what a full render shows at the
+   * tiles' scale: a CPU raster base (a snapshot of a GL surface stalls
+   * software GL), placed at the current view, with no damage, patch or
+   * dropped item left to draw and nothing live.
+   */
+  private baseIsCurrent(): boolean {
+    return (
+      !this.surface.reportBackendTypeIsGPU() &&
+      !this.needsShift() &&
+      this.tiles.scale === this.viewport.zoom * this.dpr &&
+      this.damage.length === 0 &&
+      this.patches.length === 0 &&
+      this.dropItems.length === 0 &&
+      this.masks.length === 0 &&
+      !this.scene.hasLive
+    );
+  }
+
+  /**
+   * Copies the tile pixels `bounds` ([l, t, r, b]) from the base surface,
+   * behind the clip of the pieces already in `patchPath`, when the base
+   * covers them: base and tile pixels map one to one at the tiles' scale, so
+   * a refresh of what the base already shows needs no redraw. Returns
+   * whether it copied; only then is the clip path consumed.
+   */
+  private copyFromBase(canvas: Canvas, world: Rect, bounds: Float32Array): boolean {
+    const scale = this.tiles.scale;
+    const bx = Math.round(world.l * scale) - Math.round(this.viewport.x * scale);
+    const by = Math.round(world.t * scale) - Math.round(this.viewport.y * scale);
+    const [l = 0, t = 0, r = 0, b = 0] = bounds;
+    if (bx + l < 0 || by + t < 0 || bx + r > this.surface.width() || by + b > this.surface.height()) {
+      return false;
+    }
+    this.irect.set([bx + l, by + t, bx + r, by + b]);
+    const snapshot = this.surface.makeImageSnapshot(this.irect);
+    const path = this.patchPath.detach();
+    canvas.save();
+    canvas.clipPath(path, this.ck.ClipOp.Intersect, false);
+    canvas.drawImage(snapshot, l, t);
+    canvas.restore();
+    path.delete();
+    snapshot.delete();
+    this.copiedRefreshes++;
+    return true;
+  }
+
+  /** Tile refreshes copied from the base instead of redrawn, since creation; for tests and the benchmark. */
+  get copiedTileRefreshes(): number {
+    return this.copiedRefreshes;
   }
 
   /** Deletes every CanvasKit object the renderer owns. */

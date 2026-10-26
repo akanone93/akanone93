@@ -215,20 +215,41 @@ old pixels can show under the layer for a few frames.
 | Drag start settle, scene C | 595 ms | 151.63 ms | 300 ms (M-13) | yes |
 | Lift frame, scene A (new measurement) | — | 16.24 ms | rAF gap ≤ 50 ms | yes |
 | Scene C drag, rAF p95 / longest gap | 16.67 / 16.67 ms | 16.67 / 16.67 ms | 16.7 / 50 ms | yes |
-| Scene A drag, rAF p95 / longest gap | 16.67 / 33.34 ms | 16.67 / 66.66 ms | 16.7 / 50 ms | p95 yes; gap **no** |
+| Scene A drag, rAF p95 / longest gap | 16.67 / 33.34 ms | 16.67 / 33.33 ms (S3.2d; S3.2c: 66.66) | 16.7 / 50 ms | yes |
 | Worker frame while dragging, p95 (A / C) | 8.56 / 5.16 ms | 13.97 / 8.02 ms | 16.7 ms | yes |
 | Drop frame (worker, first frame after `endInteraction`; A / C) | — | 6.88 / 4.58 ms | — | — |
-| Drop settle, scene A (new measurement) | — | 511.42 ms | 300 ms (M-13) | **no** |
+| Drop settle, scene A (new measurement) | — | 266.70 ms (S3.2d; S3.2c: 511.42) | 300 ms (M-13) | yes |
+| Drop settle, scene C (measurement fixed in S3.2d) | — | 244.53 ms | 300 ms (M-13) | yes |
+| Drop frame, scene C (worker, the real drop frame; S3.2d) | — | 116.74 ms | — | — |
 
-Scene A's drag starts without waiting for the lift's patches, so they run during its warm-up and
-first measured frames; its longest gap missed 50 ms in the median run (66.66 ms, 6 frames of 300
-dropped). The drop settles slowly in scene A because the tiles under the masks and the drop are
-refreshed whole: a tile keeps one dirty rectangle, the union of the pieces, which covers most of
-it. Refreshing only the pieces is the next step. Scene C's drop settle read 0.70 ms because frames
-already queued ended the wait, so it is not a measurement. The runs shared the machine with other
-builds (load average 2–3 on four cores). Runs beside heavier load (load average 6–13) are not
-comparable: there drag p95 rose to 33–83 ms, and the S3.2b build's longest drag gaps to 50 ms (A)
-and 66.67 ms (C).
+S3.2d closed the two misses of S3.2c (median of 3 runs, 2026-10-26, idle machine: load average 1.30
+at the start, 1.82 at the end, on four cores):
+
+- **Lift masks paced per frame.** While a drag runs, patches may flush at most one tile's device
+  pixels (512 × 512) per animation frame — the worker waits for the next frame before resuming them
+  — and each tile-sized cell's chunks are flushed on their own instead of as one union of distant
+  cells. Every flush of the base is an upload on the browser's single software-GL thread, which also
+  composites the page, so this bounds what a drag frame can wait for. Scene A's longest drag gap:
+  33.33 ms (2 frames of 300 dropped), was 66.66 ms.
+- **Region refresh after a drop.** A tile keeps its dirty pieces apart (at most 64, clipped to the
+  tile; more merge into the piece they grow least), and idle time redraws only those pieces, 32 per
+  pass behind one non-antialiased clip, preemptible between passes. Pieces the settled base shows
+  (a CPU raster base at the tiles' scale, nothing left to patch or draw) are copied from it, pixel
+  for pixel, instead of redrawn. Outside an interaction, patches are drawn in chunks of 32 and
+  flushed once per idle slice. Drop settle: scene A 266.70 ms (10 tile refreshes, 57 ms), scene C
+  244.53 ms (13 refreshes, 101 ms).
+- **Scene C's drop settle measured.** The bench now waits for the drop's own frame (the first
+  without live items) before it counts settle frames; drag frames still queued had ended the wait
+  at 0.70 ms. The same fix exposes scene C's real drop frame: 116.74 ms in the worker, mostly the
+  rerouted arrows of `endDrag` drawn as regions. It has no target; it is the next cost to cut.
+
+`renderer.test.ts` checks that the lift's patches are paced, that the drop settles slice by slice
+with tile pieces refreshed (some copied from the base), and that the base after the drop and a
+whole draw from the refreshed tiles equal a full re-render (same tolerance as before). Other
+numbers of the same runs: lift frame 9.81 ms (A) and 5.69 ms (C), drag start settle 138.04 ms (C),
+scene C drag p95 / longest gap 16.67 / 16.67 ms, worker frame while dragging p95 10.28 / 8.59 ms,
+pan p95 and longest gap 16.67 ms in scenes A, B and C. Earlier S3.2c runs shared the machine with
+other builds (load average 2–3); runs beside heavier load (6–13) are not comparable.
 
 ## Property change to canvas frame (STU-121, NFR-032)
 
