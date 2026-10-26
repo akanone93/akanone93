@@ -129,7 +129,6 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     hitTestRect: (rect, mode) => host?.hitTestRect(rect, mode) ?? [],
     boundsOf: (id) => host?.boundsOf(id),
     setGuides: (g) => run((h) => h.setGuides(g)),
-    patch: (ops) => run((h) => h.patch(ops)),
     setSelection: (ids) => run((h) => h.setSelection(ids)),
     get viewport() {
       return host ? host.viewport : view;
