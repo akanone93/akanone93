@@ -51,17 +51,10 @@ export interface PlacedBox extends Point {
   readonly key: string;
 }
 
-/** A link between two boxes; the typed hook where the routing step draws arrows. */
+/** A link between two boxes, for the automatic layout. */
 export interface BoxLink {
   readonly from: string;
   readonly to: string;
-}
-
-/** What an arrow layer receives; the routing step supplies the component (S3.2). */
-export interface ArrowLayerProps {
-  readonly boxes: readonly PlacedBox[];
-  readonly links: readonly BoxLink[];
-  readonly boxSize: Size;
 }
 
 interface FrameRow {

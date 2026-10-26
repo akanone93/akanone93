@@ -15,7 +15,7 @@ export const DEVICE = { width: defaultScreenTheme.width, height: 844 } as const;
 const OVERFLOW_ALPHA = 0x50;
 
 /** A CSS colour of the brand tokens as 0xRRGGBBAA. */
-function rgba(css: string, alphaOverride?: number): ColorRgba {
+export function rgba(css: string, alphaOverride?: number): ColorRgba {
   const hex = /^#([0-9a-f]{6})$/i.exec(css);
   if (hex?.[1] !== undefined) {
     return ((Number.parseInt(hex[1], 16) << 8) | (alphaOverride ?? 0xff)) >>> 0;
