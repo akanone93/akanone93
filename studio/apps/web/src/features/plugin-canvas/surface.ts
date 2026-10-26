@@ -87,47 +87,54 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
       queued.push(action);
     }
   };
-  CanvasHost.create(
-    canvas,
-    size,
-    {
-      renderer: "auto",
-      tileSize: 512,
-      background: 0xf2f4f9ff,
-      fonts: [],
-      fontFamily: "Noto Sans",
-      measureFrames: false,
-    },
-    {
-      createWorker: () =>
-        new Worker(canvasWorkerScriptURL(canvasWorkerURL, window, import.meta.env.DEV), {
-          type: "module",
-        }) as unknown as WorkerLike,
-      mainThread: () => {
-        throw new Error("the plugin canvas needs a worker");
+  // A canvas hands its control to a worker once. React's development double mount disposes the first
+  // surface in the same task it was made, so the transfer waits for a microtask and skips a disposed surface.
+  queueMicrotask(() => {
+    if (disposed) {
+      return;
+    }
+    CanvasHost.create(
+      canvas,
+      size,
+      {
+        renderer: "auto",
+        tileSize: 512,
+        background: 0xf2f4f9ff,
+        fonts: [],
+        fontFamily: "Noto Sans",
+        measureFrames: false,
       },
-    },
-    {
-      request: {
-        device: [],
-        roboto: toSource(FONT_FILES[0] as readonly [string, string]),
-        noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
-        sfPro: false,
+      {
+        createWorker: () =>
+          new Worker(canvasWorkerScriptURL(canvasWorkerURL, window, import.meta.env.DEV), {
+            type: "module",
+          }) as unknown as WorkerLike,
+        mainThread: () => {
+          throw new Error("the plugin canvas needs a worker");
+        },
       },
-      deps: { fetchFont: (url) => fetch(url).then((r) => r.arrayBuffer()) },
-    },
-  )
-    .then((created) => {
-      if (disposed) {
-        created.dispose();
-        return;
-      }
-      host = created;
-      for (const action of queued.splice(0)) {
-        action(created);
-      }
-    })
-    .catch(() => undefined);
+      {
+        request: {
+          device: [],
+          roboto: toSource(FONT_FILES[0] as readonly [string, string]),
+          noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
+          sfPro: false,
+        },
+        deps: { fetchFont: (url) => fetch(url).then((r) => r.arrayBuffer()) },
+      },
+    )
+      .then((created) => {
+        if (disposed) {
+          created.dispose();
+          return;
+        }
+        host = created;
+        for (const action of queued.splice(0)) {
+          action(created);
+        }
+      })
+      .catch(() => undefined);
+  });
   return {
     layoutScreens: (screens, style) =>
       new Promise((resolve) => run((h) => void h.layoutScreens(screens, style).then(resolve))),
