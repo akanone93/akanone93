@@ -91,9 +91,8 @@ func (f *changeSetFixture) move() []document.ChangeSetDraft {
 }
 
 // unchanged fails unless neither draft was written.
-func (f *changeSetFixture) unchanged(t *testing.T) {
+func (f *changeSetFixture) unchanged(ctx context.Context, t *testing.T) {
 	t.Helper()
-	ctx := context.Background()
 	if _, err := f.docs.GetDocument(ctx, f.viewer, f.app, f.loans, offersAt); err != nil {
 		t.Errorf("offers left loans: %v", err)
 	}
@@ -204,7 +203,7 @@ func TestApplyChangeSetRefusals(t *testing.T) {
 		if code(err) != want {
 			t.Errorf("%s: %v, want %v", name, err, want)
 		}
-		f.unchanged(t)
+		f.unchanged(ctx, t)
 	}
 
 	stale := f.move()
@@ -256,5 +255,5 @@ func TestApplyChangeSetRefusals(t *testing.T) {
 			t.Errorf("%s: %v", name, err)
 		}
 	}
-	f.unchanged(t)
+	f.unchanged(ctx, t)
 }
