@@ -1,0 +1,13 @@
+{
+  "name": "layer2-live-eta-card",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "LiveEtaCard",
+    "props": {
+      "title": "Order 1042",
+      "etaMinutes": 12,
+      "status": "On the way"
+    }
+  }
+}

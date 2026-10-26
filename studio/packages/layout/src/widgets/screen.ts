@@ -80,6 +80,8 @@ export interface WidgetContext {
   available(): number;
   /** A paragraph of `text` in the theme's style, owned by the layout. */
   paragraph(text: string, style?: TextStyle, options?: ParagraphOptions): RenderParagraph;
+  /** The ambient text scale factor (default 1). */
+  readonly textScale?: number;
   /** The ambient text direction (default left to right). */
   readonly textDirection?: TextDirection;
   /** Records how the box with `id` is drawn. */

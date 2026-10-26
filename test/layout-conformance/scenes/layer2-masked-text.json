@@ -1,0 +1,12 @@
+{
+  "name": "layer2-masked-text",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "MaskedText",
+    "props": {
+      "value": "4111111111111111",
+      "mask": "card"
+    }
+  }
+}
