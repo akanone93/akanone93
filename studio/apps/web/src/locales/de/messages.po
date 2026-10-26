@@ -109,6 +109,12 @@ msgstr "{event} führt zu {route}"
 msgid "links.created"
 msgstr "{event} führt jetzt zu {target}"
 
+#. One arrow between two boxes: source, target and how many navigation links it bundles.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bundle"
+msgstr "{from} nach {to}, {count, plural, one {# Verknüpfung} other {# Verknüpfungen}}"
+
 #. Read-only banner: someone else holds the plugin's editing lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -210,6 +216,12 @@ msgstr "{name} ist veröffentlicht. Es wird als veraltet markiert, und {links, p
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.deleteBody"
 msgstr "{name} wird aus der App entfernt. Seiten, die es verwenden, zeigen ein fehlendes Bild, bis Sie ein anderes wählen."
+
+#. Announced after a box was moved with the keyboard; x and y are canvas coordinates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.moved"
+msgstr "{name} verschoben nach {x}, {y}"
 
 #. Announced to screen readers when one element is selected on the canvas.
 #. js-lingui-explicit-id
@@ -468,6 +480,12 @@ msgstr "Canvas-Aktionen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.toolbar"
 msgstr "Canvas-Aktionen"
+
+#. Lane menu action: open the widget whose event starts the link, to change the event.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.laneChangeTrigger"
+msgstr "Auslöser ändern"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -1137,6 +1155,12 @@ msgstr "Linke Bedienfelder"
 msgid "profile.theme.light"
 msgstr "Hell"
 
+#. Title of the menu of one navigation link, e.g. 'Link Home → Offers'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.laneMenu"
+msgstr "Verknüpfung {title}"
+
 #. Announced when a link drag ended without a target screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -1166,6 +1190,12 @@ msgstr "Link: {title}"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.dragging"
 msgstr "Verlinke mit {target}"
+
+#. Accessible name of the list of arrows between plugin boxes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.links"
+msgstr "Verknüpfungen zwischen Plugins"
 
 #. Heading of the list of navigation links the selected widget already has.
 #. js-lingui-explicit-id
@@ -1245,11 +1275,23 @@ msgstr "Gemischt"
 msgid "pluginCanvas.move"
 msgstr "Verschieben"
 
+#. Button: opens a dialog to place a box at exact canvas coordinates (keyboard alternative to dragging).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.moveTo"
+msgstr "{name} verschieben nach …"
+
 #. Menu entry and command that move the current screen, with its links, to another plugin (D23).
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.moveScreen"
 msgstr "In Plugin verschieben"
+
+#. Toolbar button: place the selected box at exact canvas coordinates (keyboard alternative to dragging).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.moveSelection"
+msgstr "Verschieben nach …"
 
 #. Field label for a plugin's name.
 #. js-lingui-explicit-id
@@ -1262,6 +1304,12 @@ msgstr "Name"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.native"
 msgstr "Nativ und benutzerdefiniert"
+
+#. Type of a box on the app canvas that stands for a screen of the host app, not a plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.native"
+msgstr "Nativer Bildschirm"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -1443,6 +1491,18 @@ msgstr "Befehlspalette öffnen"
 msgid "pluginCanvas.ghostOpen"
 msgstr "Screen öffnen"
 
+#. Lane menu action: open the plugin canvas at the screen the link starts from.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.laneOpenSource"
+msgstr "Ausgangsbildschirm öffnen"
+
+#. Lane menu action: open the plugin canvas at the screen the link goes to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.laneOpenTarget"
+msgstr "Zielbildschirm öffnen"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -1502,6 +1562,12 @@ msgstr "Plugin-Canvas"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.settings"
 msgstr "Plugin-Einstellungen"
+
+#. Accessible name of the list of plugin boxes that screen readers and the keyboard use.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.boxes"
+msgstr "Plugins auf der Arbeitsfläche"
 
 #. Name of the application, shown as the browser tab title.
 #. js-lingui-explicit-id
@@ -1641,6 +1707,12 @@ msgstr "Auf anderen Bildschirm umleiten"
 msgid "links.redirect"
 msgstr "Auf den gewählten Bildschirm umleiten"
 
+#. Lane menu action: point this one link at another screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.laneRedirect"
+msgstr "Umleiten …"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -1682,6 +1754,12 @@ msgstr "Link entfernen"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.laneRemove"
 msgstr "Link entfernen"
+
+#. Lane menu action: delete this one navigation step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.laneRemove"
+msgstr "Verknüpfung entfernen"
 
 #. STU-070 assisted fix: delete every navigation step that leaves this plugin.
 #. js-lingui-explicit-id
@@ -2451,6 +2529,18 @@ msgstr "Widgets"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.command.wrap"
 msgstr "Auswahl in Spalte einbetten"
+
+#. Field label: horizontal canvas coordinate of a box, in canvas units.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.moveX"
+msgstr "X-Position"
+
+#. Field label: vertical canvas coordinate of a box, in canvas units.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.moveY"
+msgstr "Y-Position"
 
 #. Read-only banner: the same person holds the lock in another browser tab.
 #. js-lingui-explicit-id

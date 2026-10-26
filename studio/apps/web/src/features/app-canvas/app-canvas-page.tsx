@@ -3,44 +3,55 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { AppService, PluginService, type PluginSummary } from "@plux/api";
-import { Button, Dialog, Field, Input, StatusPill, Textarea } from "@plux/ui";
+import { AppService, PluginService } from "@plux/api";
+import type { ArrowPick, NavigateEdge } from "@plux/canvas";
+import { Button } from "@plux/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
-import { type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams, useRouteContext } from "@tanstack/react-router";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
+import type { RouterContext } from "../../router.tsx";
+import { tabEditorSession } from "../editor/document-transport.ts";
 import { EditorProvider, useEditSession } from "../editor/editor-provider.tsx";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
-import { usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
+import { browserSurface, type CanvasSurface } from "../plugin-canvas/surface.ts";
+import { useNativeRoutes } from "../plugin-canvas/use-native-widgets.ts";
+import { useAppDocuments, usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
+import { type ChangeSet, loadedDocs, useChangeSets } from "../safety/index.ts";
 import { appCanvasMessages } from "./app-canvas.messages.ts";
 import {
   APP_CANVAS_PATH,
-  type ArrowLayerProps,
   BOX,
   type BoxLink,
   canvasDocument,
   canvasRecipe,
   type Frame,
   fitViewport,
-  type Guide,
-  marquee,
-  type PlacedBox,
   type Point,
   placeBoxes,
-  pluginKeyFrom,
   readSavedCanvas,
   type SavedCanvas,
   select,
-  snap,
-  type Viewport,
 } from "./app-canvas.model.ts";
+import {
+  type AppLink,
+  appGraph,
+  badgesOf,
+  nativeBox,
+  redirectLink,
+  removeLink,
+  type SceneBox,
+} from "./app-canvas.scene.ts";
+import { BoxList, DetailCard, MoveToDialog } from "./box-list.tsx";
+import { LaneMenu } from "./lane-menu.tsx";
+import { type Dialogue, PluginDialogs } from "./plugin-dialogs.tsx";
 import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
 import { TrashDialog } from "./trash-dialog.tsx";
+import { useAppScene } from "./use-app-scene.ts";
+import { useCanvasGestures } from "./use-canvas-gestures.ts";
 
-/** The routing step supplies the arrow layer here (S3.2); until then nothing is drawn between boxes. */
-export type ArrowLayer = ComponentType<ArrowLayerProps>;
-
-type Dialogue = { kind: "new" | "settings" | "duplicate" | "entry" | "frame" } | null;
+export { PluginBoxCard } from "./box-list.tsx";
+export { PluginDialogs } from "./plugin-dialogs.tsx";
 
 const decoder = new TextDecoder();
 
@@ -52,17 +63,13 @@ function parseJson(bytes: Uint8Array): unknown {
   }
 }
 
-export interface AppCanvasPageProps {
-  readonly arrows?: ArrowLayer | undefined;
-}
-
-export function AppCanvasPage(props: AppCanvasPageProps): ReactNode {
+export function AppCanvasPage(): ReactNode {
   const params = useParams({ strict: false }) as { app?: string };
   const appId = params.app ?? "";
   const docs = usePluginDocuments(appId, "");
   return (
     <EditorProvider appId={appId} pluginId="" documents={docs.data}>
-      <AppCanvasView appId={appId} documents={docs.data} arrows={props.arrows} />
+      <AppCanvasView appId={appId} documents={docs.data} />
     </EditorProvider>
   );
 }
@@ -70,15 +77,21 @@ export function AppCanvasPage(props: AppCanvasPageProps): ReactNode {
 interface ViewProps {
   readonly appId: string;
   readonly documents: ReturnType<typeof usePluginDocuments>["data"];
-  readonly arrows?: ArrowLayer | undefined;
 }
 
-function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNode {
+/** The selection's positions moved by `delta`; every other box keeps its place. */
+function moved(boxes: readonly SceneBox[], ids: ReadonlySet<string>, delta: Point): Map<string, Point> {
+  return new Map(boxes.map((b) => [b.id, ids.has(b.id) ? { x: b.x + delta.x, y: b.y + delta.y } : { x: b.x, y: b.y }]));
+}
+
+/** C1: the app canvas (STU-030 to STU-035), drawn by Plux Canvas with bundled arrows (STU-040 to STU-048). */
+function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const { i18n } = useLingui();
   const m = appCanvasMessages(i18n);
   const { session } = useApp();
   const navigate = useNavigate();
   const params = useParams({ strict: false }) as { org?: string };
+  const { createSurface = browserSurface } = useRouteContext({ strict: false }) as Pick<RouterContext, "createSurface">;
   const queryClient = useQueryClient();
   const edit = useEditSession();
   const plugins = useMemo(() => createClient(PluginService, session.transport), [session]);
@@ -95,45 +108,85 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
   const list = summaries.data ?? [];
   const entryKey = app.data?.defaultPluginKey ?? "";
 
+  // The navigate links of every page, for the arrows and their lane fixes (STU-040, STU-046).
+  const project = useAppDocuments(appId);
+  const nativeRoutes = useNativeRoutes(appId);
+  const loaded = useMemo(() => loadedDocs(project.data ?? []), [project.data]);
+  const graph = useMemo(() => appGraph(loaded, nativeRoutes), [loaded, nativeRoutes]);
+
   const saved = useMemo(() => {
     const doc = documents?.find((d) => d.path === APP_CANVAS_PATH);
     return readSavedCanvas(doc === undefined ? undefined : parseJson(doc.content));
   }, [documents]);
   const links = useMemo<BoxLink[]>(() => {
     const idOf = new Map(list.map((s) => [s.plugin?.key ?? "", s.plugin?.id ?? ""]));
-    return list.flatMap((s) =>
+    const between = list.flatMap((s) =>
       s.linksOut.flatMap((to) => {
         const target = idOf.get(to);
         return target === undefined || s.plugin === undefined ? [] : [{ from: s.plugin.id, to: target }];
       }),
     );
-  }, [list]);
+    const natives = graph.links.flatMap((l) =>
+      l.targetPage === undefined ? [{ from: l.sourcePlugin, to: nativeBox(l.route) }] : [],
+    );
+    return [...between, ...natives];
+  }, [list, graph]);
   const [positions, setPositions] = useState<ReadonlyMap<string, Point>>(new Map());
   const [frames, setFrames] = useState<readonly Frame[]>([]);
   useEffect(() => {
     setPositions(saved.positions);
     setFrames(saved.frames);
   }, [saved]);
-  const boxes = useMemo(
-    () =>
-      placeBoxes(
-        list.flatMap((s) => (s.plugin === undefined ? [] : [{ id: s.plugin.id, key: s.plugin.key }])),
-        positions,
-        links,
-      ),
-    [list, positions, links],
-  );
   const summaryOf = useMemo(() => new Map(list.map((s) => [s.plugin?.id ?? "", s])), [list]);
+  const boxes = useMemo<SceneBox[]>(() => {
+    const nodes = [
+      ...list.flatMap((s) => (s.plugin === undefined ? [] : [{ id: s.plugin.id, key: s.plugin.key }])),
+      ...graph.natives.map((r) => ({ id: nativeBox(r), key: r })),
+    ];
+    return placeBoxes(nodes, positions, links).map((b) => {
+      const s = summaryOf.get(b.id);
+      const native = s === undefined && b.id === nativeBox(b.key);
+      return {
+        ...b,
+        title: native ? b.key : (s?.plugin?.name ?? b.key),
+        native,
+        archived: s?.plugin?.archived === true,
+        badges: native ? [] : badgesOf(s, b.key === entryKey, m),
+      };
+    });
+  }, [list, graph.natives, positions, links, summaryOf, entryKey, m]);
 
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [hover, setHover] = useState<string | undefined>();
-  const [guides, setGuides] = useState<readonly Guide[]>([]);
-  const [view, setView] = useState<Viewport>({ x: 0, y: 0, z: 1 });
+  const [focused, setFocused] = useState<string | undefined>();
   const [message, setMessage] = useState<string | null>(null);
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [safety, setSafety] = useState<SafetyMode | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
-  const stage = useRef<HTMLDivElement>(null);
+  const [movingBox, setMovingBox] = useState<SceneBox | undefined>();
+  const [lane, setLane] = useState<AppLink | undefined>();
+
+  // The surface: Plux Canvas on a worker; the main thread keeps input, the hit index and the DOM layer.
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const surfaceRef = useRef<CanvasSurface | null>(null);
+  const [generation, setGeneration] = useState(0);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) {
+      return undefined;
+    }
+    const width = canvas.clientWidth || window.innerWidth;
+    const height = canvas.clientHeight || window.innerHeight;
+    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1 });
+    surfaceRef.current = surface;
+    setGeneration((g) => g + 1);
+    return () => {
+      surface.dispose();
+      surfaceRef.current = null;
+    };
+  }, [createSurface]);
+  const surface = useCallback(() => surfaceRef.current, []);
+  const scene = useAppScene({ surface, generation, boxes, frames, selected, focused, graph });
 
   const persist = useCallback(
     (next: SavedCanvas) => {
@@ -160,16 +213,22 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
   );
 
   const fit = useCallback(() => {
-    const el = stage.current;
-    setView(fitViewport(boxes, { width: el?.clientWidth ?? 0, height: el?.clientHeight ?? 0 }));
-  }, [boxes]);
-  const fitted = useRef(false);
+    const canvas = canvasRef.current;
+    const target = surfaceRef.current;
+    if (target === null) {
+      return;
+    }
+    const v = fitViewport(boxes, { width: canvas?.clientWidth ?? 0, height: canvas?.clientHeight ?? 0 });
+    target.setViewport(v.x, v.y, v.z);
+    scene.zoomed(v.z);
+  }, [boxes, scene]);
+  const fitted = useRef(0);
   useEffect(() => {
-    if (!fitted.current && boxes.length > 0) {
-      fitted.current = true;
+    if (fitted.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
+      fitted.current = generation;
       fit();
     }
-  }, [boxes, fit]);
+  }, [boxes, fit, generation]);
 
   const arrange = useCallback(() => {
     const laid = placeBoxes(
@@ -180,73 +239,65 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
     commit(new Map(laid.map((b) => [b.id, { x: b.x, y: b.y }])), frames);
   }, [boxes, links, frames, commit]);
 
-  // Dragging: every selected box moves with the pointer; the dragged one snaps to the others.
-  const drag = useRef<{ id: string; start: Point; origin: ReadonlyMap<string, Point>; moved: boolean } | null>(null);
-  const onBoxDown = (e: React.PointerEvent, box: PlacedBox) => {
-    e.stopPropagation();
-    const additive = e.shiftKey || e.metaKey || e.ctrlKey;
-    const next = selected.has(box.id) && !additive ? selected : select(selected, box.id, additive);
-    setSelected(next);
-    drag.current = {
-      id: box.id,
-      start: { x: e.clientX, y: e.clientY },
-      origin: new Map(boxes.filter((b) => next.has(b.id)).map((b) => [b.id, { x: b.x, y: b.y }])),
-      moved: false,
-    };
-    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+  const open = (b: SceneBox) => {
+    if (!b.native) {
+      void navigate({
+        to: "/o/$org/apps/$app/plugins/$plugin",
+        params: { org: params.org ?? "", app: appId, plugin: b.id },
+      });
+    }
   };
-  const onMove = (e: React.PointerEvent) => {
-    const d = drag.current;
-    if (d === null) {
-      return;
-    }
-    const dx = (e.clientX - d.start.x) / view.z;
-    const dy = (e.clientY - d.start.y) / view.z;
-    if (!d.moved && Math.abs(dx) + Math.abs(dy) < 3) {
-      return;
-    }
-    d.moved = true;
-    const lead = d.origin.get(d.id);
-    if (lead === undefined) {
-      return;
-    }
-    const others = boxes.filter((b) => !d.origin.has(b.id));
-    const s = snap({ x: lead.x + dx, y: lead.y + dy }, others);
-    setGuides(s.guides);
-    const ox = s.point.x - lead.x;
-    const oy = s.point.y - lead.y;
-    setPositions((prev) => {
-      const next = new Map(prev.size === 0 ? boxes.map((b) => [b.id, { x: b.x, y: b.y }] as const) : prev);
-      for (const b of boxes) {
-        next.set(b.id, next.get(b.id) ?? { x: b.x, y: b.y });
-      }
-      for (const [id, o] of d.origin) {
-        next.set(id, { x: o.x + ox, y: o.y + oy });
-      }
-      return next;
+  const openScreen = (plugin: string, page: string) =>
+    void navigate({
+      to: "/o/$org/apps/$app/plugins/$plugin",
+      params: { org: params.org ?? "", app: appId, plugin },
+      search: { focus: page },
     });
-  };
-  const onUp = () => {
-    const d = drag.current;
-    drag.current = null;
-    setGuides([]);
-    if (d?.moved === true) {
-      const all = new Map(boxes.map((b) => [b.id, { x: b.x, y: b.y }]));
-      commit(all, frames);
-    }
-  };
+  const linkOf = useMemo(() => new Map(graph.links.map((l) => [l.edge.id, l])), [graph]);
+  const openLane = (edge: NavigateEdge | undefined) => setLane(edge === undefined ? undefined : linkOf.get(edge.id));
 
-  // Marquee on the background; panning is the wheel / the x, y, z of the viewport (zoom to fit).
-  const [rubber, setRubber] = useState<{ from: Point; to: Point } | null>(null);
-  const world = (e: React.PointerEvent): Point => {
-    const r = stage.current?.getBoundingClientRect();
-    return { x: view.x + (e.clientX - (r?.left ?? 0)) / view.z, y: view.y + (e.clientY - (r?.top ?? 0)) / view.z };
+  const gestures = useCanvasGestures({
+    surface,
+    canvas: canvasRef,
+    boxes,
+    selected,
+    setSelected,
+    setPositions,
+    commit: (next) => commit(next, frames),
+    setHover,
+    expand: scene.expand,
+    pick: scene.pick,
+    onLane: (p: ArrowPick) => openLane(p.link),
+    onOpen: open,
+    onView: () => scene.zoomed(surfaceRef.current?.viewport.zoom ?? 1),
+  });
+
+  const nudge = (box: SceneBox, delta: Point) => {
+    const ids = selected.has(box.id) ? selected : new Set([box.id]);
+    commit(moved(boxes, ids, delta), frames);
+    setMessage(m.moved(box.title, Math.round(box.x + delta.x), Math.round(box.y + delta.y)));
   };
-  const rect = rubber && {
-    x: Math.min(rubber.from.x, rubber.to.x),
-    y: Math.min(rubber.from.y, rubber.to.y),
-    width: Math.abs(rubber.to.x - rubber.from.x),
-    height: Math.abs(rubber.to.y - rubber.from.y),
+  const moveTo = (box: SceneBox, to: Point) => {
+    commit(moved(boxes, new Set([box.id]), { x: to.x - box.x, y: to.y - box.y }), frames);
+    setMessage(m.moved(box.title, Math.round(to.x), Math.round(to.y)));
+    setMovingBox(undefined);
+  };
+  /** Keyboard focus on a box: the ring is drawn, and the view follows when the box is out of sight. */
+  const focusBox = (id: string | undefined) => {
+    setFocused(id);
+    setHover(id);
+    const b = boxes.find((x) => x.id === id);
+    const target = surfaceRef.current;
+    const canvas = canvasRef.current;
+    if (b === undefined || target === null || canvas === null) {
+      return;
+    }
+    const v = target.viewport;
+    const w = canvas.clientWidth / v.zoom;
+    const h = canvas.clientHeight / v.zoom;
+    if (b.x < v.x || b.y < v.y || b.x + BOX.width > v.x + w || b.y + BOX.height > v.y + h) {
+      target.setViewport(b.x + BOX.width / 2 - w / 2, b.y + BOX.height / 2 - h / 2, v.zoom);
+    }
   };
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["plugin-summaries", appId] });
@@ -259,13 +310,17 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
     },
     onError: () => setMessage(m.failed),
   });
+  const [editorSession] = useState(() => tabEditorSession(undefined));
+  const applyChanges = useChangeSets(appId, editorSession, undefined);
+  const applyLane = (changeSet: ChangeSet) => {
+    setLane(undefined);
+    void applyChanges(changeSet).then(async (ok) => {
+      setMessage(ok ? null : m.changeRefused);
+      await queryClient.invalidateQueries({ queryKey: ["project-documents", appId] });
+    });
+  };
 
   const one = selected.size === 1 ? summaryOf.get([...selected][0] ?? "") : undefined;
-  const open = (b: PlacedBox) =>
-    void navigate({
-      to: "/o/$org/apps/$app/plugins/$plugin",
-      params: { org: params.org ?? "", app: appId, plugin: b.id },
-    });
   const detail = summaryOf.get(hover ?? [...selected][0] ?? "");
 
   return (
@@ -299,6 +354,9 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
         <Button disabled={one?.plugin === undefined} onClick={() => setSafety("delete")}>
           {m.deletePlugin}
         </Button>
+        <Button disabled={selected.size !== 1} onClick={() => setMovingBox(boxes.find((b) => selected.has(b.id)))}>
+          {m.moveSelection}
+        </Button>
         <Button onClick={() => setTrashOpen(true)}>{m.trash}</Button>
         <Button disabled={one === undefined} onClick={() => setDialogue({ kind: "entry" })}>
           {m.setEntry}
@@ -307,78 +365,49 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
           {message ?? m.selected(selected.size)}
         </output>
       </div>
-      <div
-        ref={stage}
-        className="relative flex-1 overflow-hidden"
-        onPointerDown={(e) => {
-          setSelected(new Set());
-          setRubber({ from: world(e), to: world(e) });
-        }}
-        onPointerMove={(e) => {
-          onMove(e);
-          if (rubber !== null) {
-            const to = world(e);
-            setRubber({ from: rubber.from, to });
-          }
-        }}
-        onPointerUp={() => {
-          onUp();
-          if (rect) {
-            setSelected(marquee(boxes, rect));
-          }
-          setRubber(null);
-        }}
-      >
-        {list.length === 0 && summaries.isSuccess ? <p className="p-4 text-secondary">{m.empty}</p> : null}
-        <div
-          className="absolute start-0 top-0 origin-top-left"
-          style={{ transform: `scale(${view.z}) translate(${-view.x}px, ${-view.y}px)` }}
-        >
-          {frames.map((f) => (
-            <fieldset
-              key={f.id}
-              aria-label={m.frame(f.label)}
-              className="absolute rounded-md border border-dashed"
-              style={{ left: f.x, top: f.y, width: f.width, height: f.height }}
-            >
-              <span className="text-tag text-secondary">{f.label}</span>
-            </fieldset>
-          ))}
-          {Arrows === undefined ? null : <Arrows boxes={boxes} links={links} boxSize={BOX} />}
-          {guides.map((g) => (
-            <div
-              key={`${g.axis}${g.at}`}
-              data-guide={g.axis}
-              className="absolute bg-primary"
-              style={
-                g.axis === "x"
-                  ? { left: g.at, top: -10000, width: 1, height: 20000 }
-                  : { top: g.at, left: -10000, height: 1, width: 20000 }
-              }
-            />
-          ))}
-          {boxes.map((b) => (
-            <PluginBoxCard
-              key={b.id}
-              box={b}
-              summary={summaryOf.get(b.id)}
-              selected={selected.has(b.id)}
-              entry={b.key === entryKey}
-              messages={m}
-              onPointerDown={(e) => onBoxDown(e, b)}
-              onOpen={() => open(b)}
-              onHover={(on) => setHover(on ? b.id : undefined)}
-            />
-          ))}
-          {rect ? (
-            <div
-              className="absolute border"
-              style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
-            />
-          ) : null}
-        </div>
-        {detail?.plugin === undefined ? null : <DetailCard summary={detail} messages={m} />}
+      <div className="relative flex-1 overflow-hidden">
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full touch-none" {...gestures.handlers} />
+        {list.length === 0 && summaries.isSuccess ? (
+          <p className="pointer-events-none absolute start-4 top-4 text-secondary">{m.empty}</p>
+        ) : null}
+        {detail?.plugin === undefined ? null : (
+          <DetailCard
+            summary={detail}
+            badges={boxes.find((b) => b.id === detail.plugin?.id)?.badges ?? []}
+            messages={m}
+          />
+        )}
+        <BoxList
+          boxes={boxes}
+          bundles={scene.bundles}
+          frames={frames}
+          selected={selected}
+          messages={m}
+          onPointerDown={(e, b) => gestures.pressBox(b, e.shiftKey || e.metaKey || e.ctrlKey)}
+          onSelect={(b, additive) => setSelected(select(selected, b.id, additive))}
+          onOpen={open}
+          onFocusBox={focusBox}
+          onNudge={nudge}
+          onFocusBundle={scene.expand}
+          onLane={openLane}
+        />
       </div>
+      <MoveToDialog
+        box={movingBox}
+        messages={m}
+        onMove={(to) => movingBox !== undefined && moveTo(movingBox, to)}
+        onClose={() => setMovingBox(undefined)}
+      />
+      <LaneMenu
+        key={lane?.edge.id}
+        link={lane}
+        pages={graph.pages}
+        messages={m}
+        onOpenScreen={openScreen}
+        onRedirect={(l, route) => applyLane(redirectLink(loaded, l, route))}
+        onRemove={(l) => applyLane(removeLink(loaded, l))}
+        onClose={() => setLane(undefined)}
+      />
       {safety !== null && one?.plugin !== undefined && (
         <PluginSafety
           appId={appId}
@@ -429,210 +458,5 @@ function AppCanvasView({ appId, documents, arrows: Arrows }: ViewProps): ReactNo
         }}
       />
     </section>
-  );
-}
-
-interface CardProps {
-  readonly box: PlacedBox;
-  readonly summary: PluginSummary | undefined;
-  readonly selected: boolean;
-  readonly entry: boolean;
-  readonly messages: ReturnType<typeof appCanvasMessages>;
-  readonly onPointerDown: (e: React.PointerEvent) => void;
-  readonly onOpen: () => void;
-  readonly onHover: (on: boolean) => void;
-}
-
-/** One plugin box with its live badges: lock, unpublished changes, validation, kill switch. */
-export function PluginBoxCard(props: CardProps): ReactNode {
-  const { box, summary: s, messages: m } = props;
-  const name = s?.plugin?.name ?? box.key;
-  return (
-    <button
-      type="button"
-      aria-label={m.plugin(name, box.key)}
-      aria-pressed={props.selected}
-      data-plugin={box.key}
-      className="absolute flex flex-col items-start gap-1 rounded-md border p-2 text-start"
-      style={{
-        left: box.x,
-        top: box.y,
-        width: BOX.width,
-        height: BOX.height,
-        opacity: s?.plugin?.archived === true ? 0.6 : 1,
-      }}
-      onPointerDown={props.onPointerDown}
-      onDoubleClick={props.onOpen}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          props.onOpen();
-        }
-      }}
-      onPointerEnter={() => props.onHover(true)}
-      onPointerLeave={() => props.onHover(false)}
-      onFocus={() => props.onHover(true)}
-      onBlur={() => props.onHover(false)}
-    >
-      <span className="text-title">{name}</span>
-      <span className="text-data text-secondary">{box.key}</span>
-      <span className="flex flex-wrap gap-1">
-        {props.entry ? <StatusPill status="neutral" label={m.entryBadge} /> : null}
-        {s?.plugin?.archived === true ? <StatusPill status="neutral" label={m.archivedBadge} /> : null}
-        {s !== undefined && s.lockHolder !== "" ? (
-          <StatusPill status="warning" label={m.lockedBy(s.lockHolder)} />
-        ) : null}
-        {s?.unpublishedChanges === true ? <StatusPill status="warning" label={m.unpublished} /> : null}
-        {s !== undefined && s.validationErrors > 0n ? (
-          <StatusPill status="danger" label={m.validationErrors(Number(s.validationErrors))} />
-        ) : s !== undefined ? (
-          <StatusPill status="success" label={m.valid} />
-        ) : null}
-        {s?.killed === true ? <StatusPill status="danger" label={m.killed} /> : null}
-      </span>
-    </button>
-  );
-}
-
-/** The hover/focus detail card of a plugin (E5, STU-031). */
-function DetailCard(props: { summary: PluginSummary; messages: ReturnType<typeof appCanvasMessages> }): ReactNode {
-  const { summary: s, messages: m } = props;
-  return (
-    <aside aria-label={s.plugin?.name} className="absolute end-4 top-4 flex w-64 flex-col gap-1 rounded-md border p-3">
-      <span className="text-section">{s.plugin?.name}</span>
-      <span className="text-data">{m.screens(Number(s.screens))}</span>
-      <span className="text-data">{m.versions(Number(s.versions))}</span>
-      <span className="text-data">{m.bundleSize(Math.ceil(Number(s.bundleSize) / 1024))}</span>
-      <span className="text-data">{m.linksOut(s.linksOut.length)}</span>
-      <span className="text-data">{m.linksIn(s.linksIn.length)}</span>
-      <span className="text-data">{m.functions(s.functionsUsed.length)}</span>
-      {s.plugin?.description ? <span>{s.plugin.description}</span> : null}
-    </aside>
-  );
-}
-
-interface DialogsProps {
-  readonly dialogue: Dialogue;
-  readonly messages: ReturnType<typeof appCanvasMessages>;
-  readonly summary: PluginSummary | undefined;
-  readonly taken: ReadonlySet<string>;
-  readonly selectedBoxes: readonly PlacedBox[];
-  readonly close: () => void;
-  readonly onCreate: (name: string, key: string) => void;
-  readonly onSettings: (id: string, name: string, description: string, tags: string[]) => void;
-  readonly onDuplicate: (id: string, name: string, key: string) => void;
-  readonly onEntry: (key: string) => void;
-  readonly onFrame: (label: string) => void;
-}
-
-/** The name a dialog opens with: the plugin's own for settings, a numbered copy for a duplicate. */
-function initialName(kind: NonNullable<Dialogue>["kind"], current: string): string {
-  if (kind === "settings") {
-    return current;
-  }
-  return kind === "duplicate" ? `${current} 2` : "";
-}
-
-interface Fields {
-  readonly name: string;
-  readonly description: string;
-  readonly tags: string[];
-}
-
-const splitTags = (text: string): string[] =>
-  text
-    .split(",")
-    .map((t) => t.trim())
-    .filter((t) => t !== "");
-
-function dialogTitle(kind: NonNullable<Dialogue>["kind"], m: ReturnType<typeof appCanvasMessages>): string {
-  const titles = {
-    new: m.newPlugin,
-    settings: m.settings,
-    duplicate: m.duplicate,
-    entry: m.setEntry,
-    frame: m.newFrame,
-  };
-  return titles[kind];
-}
-
-/** Runs the dialog's action; an empty name does nothing, as the entry dialog has no name. */
-function submitDialogue(
-  kind: NonNullable<Dialogue>["kind"],
-  f: Fields,
-  p: PluginSummary["plugin"],
-  on: DialogsProps,
-): void {
-  if (kind === "entry") {
-    if (p !== undefined) {
-      on.onEntry(p.key);
-    }
-  } else if (f.name === "") {
-    return;
-  } else if (kind === "new") {
-    on.onCreate(f.name, pluginKeyFrom(f.name, on.taken));
-  } else if (kind === "frame") {
-    on.onFrame(f.name);
-  } else if (p !== undefined && kind === "settings") {
-    on.onSettings(p.id, f.name, f.description, f.tags);
-  } else if (p !== undefined) {
-    on.onDuplicate(p.id, f.name, pluginKeyFrom(f.name, on.taken));
-  }
-}
-
-/** D16 new plugin, D17 settings, D18 duplicate, D25 entry plugin, and the frame label (D20). */
-export function PluginDialogs(props: DialogsProps): ReactNode {
-  const { dialogue, messages: m, summary: s } = props;
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
-  useEffect(() => {
-    if (dialogue === null) {
-      return;
-    }
-    const p = s?.plugin;
-    setName(initialName(dialogue.kind, p?.name ?? ""));
-    setDescription(p?.description ?? "");
-    setTags((p?.tags ?? []).join(", "));
-  }, [dialogue, s]);
-  if (dialogue === null) {
-    return null;
-  }
-  const submit = () =>
-    submitDialogue(dialogue.kind, { name: name.trim(), description, tags: splitTags(tags) }, s?.plugin, props);
-  const title = dialogTitle(dialogue.kind, m);
-  return (
-    <Dialog
-      open
-      onOpenChange={(o) => {
-        if (!o) {
-          props.close();
-        }
-      }}
-      title={title}
-      size={dialogue.kind === "settings" ? "md" : "sm"}
-      labels={{ close: m.close }}
-    >
-      {dialogue.kind === "entry" ? (
-        <p>{s?.plugin?.name}</p>
-      ) : (
-        <Field label={dialogue.kind === "frame" ? m.frameLabel : m.name}>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
-        </Field>
-      )}
-      {dialogue.kind === "settings" ? (
-        <>
-          <Field label={m.description}>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-          </Field>
-          <Field label={m.tags}>
-            <Input value={tags} onChange={(e) => setTags(e.target.value)} />
-          </Field>
-        </>
-      ) : null}
-      <div className="flex justify-end gap-2">
-        <Button onClick={props.close}>{m.cancel}</Button>
-        <Button onClick={submit}>{m.save}</Button>
-      </div>
-    </Dialog>
   );
 }
