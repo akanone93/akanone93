@@ -1,10 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Problem } from "@plux/validator";
+import { type Problem, PxlService, type PxlSites, parseSites } from "@plux/validator";
 import { useEffect, useState } from "react";
 import { projectFiles } from "./project-files.ts";
-import type { ValidatorFactory } from "./validator-client.ts";
+import type { ValidatorClient, ValidatorFactory } from "./validator-client.ts";
+
+/** The PXL language service of the loaded project (PXL-007, S5.2): the service and the scope of each expression site. */
+export interface PxlLanguage {
+  readonly service: PxlService;
+  /** The sites of a page, with each one's scope; the page must carry an expression where the field is. */
+  readonly sites: (file: string, data: string) => Promise<PxlSites>;
+}
 
 export type Validation =
   | { readonly state: "idle" }
@@ -14,6 +21,8 @@ export type Validation =
       readonly problems: readonly Problem[];
       /** Validates one page of the loaded project with an edit applied (F9); the Properties panel uses it. */
       readonly validatePage: (file: string, data: string) => Promise<readonly Problem[]>;
+      /** Undefined when the validator has no language service. */
+      readonly language: PxlLanguage | undefined;
     }
   | { readonly state: "failed" };
 
@@ -29,6 +38,17 @@ export function wholeProject(app: Documents, plugin: Documents): Documents {
 export function inFiles(problems: readonly Problem[], plugin: Documents): Problem[] {
   const own = new Set(plugin.map((d) => d.path));
   return problems.filter((p) => own.has(p.file));
+}
+
+function languageOf(validator: ValidatorClient): PxlLanguage | undefined {
+  const { pxl, pxlSites } = validator;
+  if (pxl === undefined || pxlSites === undefined) {
+    return undefined;
+  }
+  return {
+    service: new PxlService({ pxl: (op, scope, src, offset) => pxl.call(validator, op, scope, src, offset) }),
+    sites: async (file, data) => parseSites(await pxlSites.call(validator, file, data)),
+  };
 }
 
 /** Loads the project into the validator when the documents arrive and validates it project-wide (validate on open). */
@@ -54,6 +74,7 @@ export function useValidation(
             state: "done",
             problems: inFiles(problems, plugin),
             validatePage: (file, data) => validator.validatePage(file, data),
+            language: languageOf(validator),
           }),
       )
       .catch(() => live && setResult({ state: "failed" }));

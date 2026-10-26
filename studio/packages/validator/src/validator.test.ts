@@ -41,6 +41,11 @@ const engine = (calls: string[]): ValidatorEngine => ({
     calls.push(file);
     return diag;
   },
+  pxl: (op) => {
+    calls.push(`pxl:${op}`);
+    return '{"type":"int","diagnostics":[]}';
+  },
+  pxlSites: () => '{"sites":[],"envs":[]}',
 });
 
 describe("parseProblems", () => {
@@ -88,8 +93,36 @@ describe("ValidatorHost", () => {
       validatePage: () => {
         throw new Error("boom");
       },
+      pxl: () => '{"error":"scope: bad"}',
+      pxlSites: () => "{}",
     });
     await expect(host.validatePage("a", "{}")).rejects.toThrow("boom");
+  });
+
+  test("a language-service request is answered and an engine error rejects it", async () => {
+    const calls: string[] = [];
+    const ok = await pair(engine(calls));
+    expect(await ok.host.pxl("check", "{}", "1", 0)).toEqual({ type: "int", diagnostics: [] });
+    expect(await ok.host.pxlSites("a.page.json", "{}")).toEqual({ sites: [], envs: [] });
+    expect(calls).toEqual(["pxl:check"]);
+    const bad = await pair({
+      load: () => "[]",
+      validatePage: () => "[]",
+      pxl: () => '{"error":"scope: bad"}',
+      pxlSites: () => "{}",
+    });
+    await expect(bad.host.pxl("check", "{", "1", 0)).rejects.toThrow("scope: bad");
+  });
+
+  test("language-service requests never supersede each other", async () => {
+    const calls: string[] = [];
+    const { host } = await pair(engine(calls));
+    await Promise.all([
+      host.pxl("check", "{}", "1", 0),
+      host.pxl("complete", "{}", "1", 0),
+      host.pxl("check", "{}", "2", 0),
+    ]);
+    expect(calls).toEqual(["pxl:check", "pxl:complete", "pxl:check"]);
   });
 
   test("a worker error and dispose reject what is pending", async () => {

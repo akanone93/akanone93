@@ -244,6 +244,17 @@ func (s *scope) key() string {
 	return s.envKey
 }
 
+// envSpec returns the declaration of the PXL environment of a scope.
+func (u *unit) envSpec(s *scope) pxl.EnvSpec {
+	spec := pxl.EnvSpec{Types: map[string]pxl.TypeSpec{}, Roots: s.roots}
+	for _, m := range []map[string]pxl.TypeSpec{u.types.base, u.types.app, u.types.plugin[s.plugin], s.synth} {
+		for k, v := range m {
+			spec.Types[k] = v
+		}
+	}
+	return spec
+}
+
 // env returns the PXL environment of a scope, built once per distinct
 // scope.
 func (u *unit) env(s *scope) (*pxl.Env, error) {
@@ -251,13 +262,7 @@ func (u *unit) env(s *scope) (*pxl.Env, error) {
 	if e, ok := u.envs[key]; ok {
 		return e, nil
 	}
-	spec := pxl.EnvSpec{Types: map[string]pxl.TypeSpec{}, Roots: s.roots}
-	for _, m := range []map[string]pxl.TypeSpec{u.types.base, u.types.app, u.types.plugin[s.plugin], s.synth} {
-		for k, v := range m {
-			spec.Types[k] = v
-		}
-	}
-	e, err := pxl.NewEnv(spec)
+	e, err := pxl.NewEnv(u.envSpec(s))
 	if err != nil {
 		return nil, fmt.Errorf("compiler: environment %s: %w", key, err)
 	}

@@ -5,7 +5,8 @@
 
 // Command plux-validator-wasm is a measurement prototype (Studio S0.8): it
 // compiles the page validator to WebAssembly so a browser worker can call
-// it. It exposes one JavaScript function, pluxValidatePage.
+// it. It exposes pluxValidatePage and, for the PXL language service of the
+// editors (PXL-007, ADR-0099), pluxPxl and pluxPxlSites.
 package main
 
 import (
@@ -16,6 +17,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/pxl/langsvc"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
 
@@ -63,6 +65,43 @@ func pluxValidatePage(_ js.Value, args []js.Value) any {
 	return marshal(validator.ValidatePage(file, []byte(args[2].String())))
 }
 
+// language answers the PXL language-service requests of this instance.
+var language = langsvc.NewHost()
+
+// pluxPxl(op, scope, src, offset) answers one language-service request as
+// JSON; see langsvc.Host.Handle.
+func pluxPxl(_ js.Value, args []js.Value) any {
+	if len(args) != 4 {
+		return errorJSON("pluxPxl takes (op, scope, src, offset)")
+	}
+	return language.Handle(args[0].String(), args[1].String(), args[2].String(), args[3].Int())
+}
+
+// pluxPxlSites(file, data) returns the expression sites of the page, by the
+// pointer of their binding, with the distinct environments they read, as
+// {"sites": […], "envs": […]}. The project must be loaded.
+func pluxPxlSites(_ js.Value, args []js.Value) any {
+	if len(args) != 2 {
+		return errorJSON("pluxPxlSites takes (file, data)")
+	}
+	if validator == nil {
+		return errorJSON("no project is loaded")
+	}
+	sites, envs := validator.PXLSites(args[0].String(), []byte(args[1].String()))
+	out, err := json.Marshal(map[string]any{"sites": orEmpty(sites), "envs": orEmpty(envs)})
+	if err != nil {
+		return errorJSON(err.Error())
+	}
+	return string(out)
+}
+
+func orEmpty[T any](s []T) []T {
+	if s == nil {
+		return []T{}
+	}
+	return s
+}
+
 func marshal(diags plxerr.Diagnostics) string {
 	if diags == nil {
 		diags = plxerr.Diagnostics{}
@@ -81,5 +120,7 @@ func errorJSON(msg string) string {
 
 func main() {
 	js.Global().Set("pluxValidatePage", js.FuncOf(pluxValidatePage))
+	js.Global().Set("pluxPxl", js.FuncOf(pluxPxl))
+	js.Global().Set("pluxPxlSites", js.FuncOf(pluxPxlSites))
 	select {}
 }
