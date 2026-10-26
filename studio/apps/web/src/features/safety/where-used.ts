@@ -18,8 +18,8 @@ export interface LoadedDoc {
   readonly json: unknown;
 }
 
-export type UseKind = "navigates" | "usesComponent" | "usesAsset" | "entryPage" | "entryRoute";
-export type TargetKind = "page" | "component" | "asset";
+export type UseKind = "navigates" | "usesComponent" | "usesAsset" | "usesState" | "entryPage" | "entryRoute";
+export type TargetKind = "page" | "component" | "asset" | "state";
 
 /** One reference: the document and JSON pointer that holds it, and what it points at. */
 export interface Use {
@@ -115,6 +115,31 @@ function entryUses(d: LoadedDoc, json: Json, base: UseBase, byRoute: ReadonlyMap
       ];
 }
 
+const stateRef = /\bstate\.([A-Za-z_][A-Za-z0-9_]*)/g;
+
+/** The state entries a string of this object reads or writes in PXL (`state.<name>`), by the entry's name (STA-002). */
+function stateUses(value: Json, pointer: string, base: UseBase): Use[] {
+  const out: Use[] = [];
+  for (const [k, v] of Object.entries(value)) {
+    if (typeof v !== "string") {
+      continue;
+    }
+    for (const m of v.matchAll(stateRef)) {
+      const name = m[1];
+      if (name !== undefined) {
+        out.push({
+          ...base,
+          kind: "usesState",
+          pointer: `${pointer}/${escapeToken(k)}`,
+          target: { kind: "state", id: name },
+          targetPluginId: base.pluginId,
+        });
+      }
+    }
+  }
+  return out;
+}
+
 /** The references one object of a document holds: a route action, a component use, an asset. */
 function objectUses(value: Json, pointer: string, base: UseBase, byRoute: ReadonlyMap<string, PageInfo>): Use[] {
   const out: Use[] = [];
@@ -145,6 +170,7 @@ function objectUses(value: Json, pointer: string, base: UseBase, byRoute: Readon
   if (asset !== undefined) {
     out.push({ ...base, kind: "usesAsset", pointer: `${pointer}/$asset`, target: { kind: "asset", id: asset } });
   }
+  out.push(...stateUses(value, pointer, base));
   return out;
 }
 
@@ -239,6 +265,11 @@ export function checkPluginDelete(index: WhereUsedIndex, pluginId: string): Dele
 /** A component or asset cannot be deleted while anything uses it (D26). */
 export function checkEntityDelete(index: WhereUsedIndex, kind: "component" | "asset", id: string): DeleteCheck {
   return { entry: false, incoming: index.usesOf(kind, id), outgoing: [] };
+}
+
+/** A state entry of a plugin cannot be removed while a PXL expression in that plugin reads it (STU-063, STA-002). */
+export function checkStateDelete(index: WhereUsedIndex, pluginId: string, name: string): DeleteCheck {
+  return { entry: false, incoming: index.usesOf("state", name).filter((u) => u.pluginId === pluginId), outgoing: [] };
 }
 
 /** A generated API or deep link a key or route change affects (D27, STU-076). */

@@ -13,6 +13,7 @@ import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { UndoManager } from "../editor/undo-stack.ts";
 import { JsonEditorHost } from "../json-editor/index.ts";
+import { L10nSessionsProvider } from "../localisation/index.ts";
 import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { LeftDock } from "../panels/left-dock.tsx";
@@ -22,6 +23,8 @@ import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
+import { useStateTarget } from "../state-designer/index.ts";
+import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
 import { LaneDialog, useLane } from "./lane-dialog.tsx";
@@ -160,6 +163,7 @@ export function PluginCanvasPage() {
   const docs = usePluginDocuments(params.app ?? "", params.plugin ?? "");
   const { observeEditor } = useRouteContext({ strict: false }) as Pick<RouterContext, "observeEditor">;
   const stack = params.plugin ?? "";
+  const appDocs = useAppDocuments(params.app ?? "");
   // One undo stack per plugin (F3); edit.undo and edit.redo act on it while this page is open.
   // Undo is blocked while the editor is read-only or lost its lock (F3); UndoCommands keeps this current.
   const canEdit = useRef(true);
@@ -181,7 +185,9 @@ export function PluginCanvasPage() {
     >
       {observeEditor !== undefined && <ObserveEditor observe={observeEditor} />}
       <UndoCommands undo={undo} stack={stack} canEdit={canEdit} />
-      <PluginCanvasView docs={docs} editorSessionId={editorSessionId} />
+      <L10nSessionsProvider appId={params.app ?? ""} documents={appDocs.data}>
+        <PluginCanvasView docs={docs} editorSessionId={editorSessionId} />
+      </L10nSessionsProvider>
     </EditorProvider>
   );
 }
@@ -204,6 +210,7 @@ function PluginCanvasView({
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
   const checked = validation.state === "done" ? validation : undefined;
+  const stateTarget = useStateTarget(docs.data, appDocs.data);
   const local = useEditor((st) => st.docs);
   const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: parseDocument(d.content) })), [docs.data]);
   // The editor's documents, unsaved edits included, over the server's (STU-121); untouched documents keep
@@ -630,6 +637,9 @@ function PluginCanvasView({
         validatePage={checked?.validatePage}
         language={checked?.language}
         onOpenJson={() => overlays.show("json")}
+        onOpenLocalisation={() => overlays.show("l10n")}
+        onOpenState={() => overlays.show("state")}
+        schemaVersion={stateTarget.schemaVersion}
       />
       <JsonEditorHost
         open={overlays.open === "json"}
@@ -638,6 +648,14 @@ function PluginCanvasView({
         screenOf={screenOf}
         pathOf={pathOf}
         validation={validation}
+      />
+      <ExtraOverlays
+        open={overlays.open}
+        onClose={overlays.hide}
+        documents={docs.data}
+        appDocuments={appDocs.data}
+        target={stateTarget}
+        validatePage={checked?.validatePage}
       />
       {docs.data !== undefined && (
         <ScreensController

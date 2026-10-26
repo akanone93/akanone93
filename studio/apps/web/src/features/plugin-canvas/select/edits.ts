@@ -6,7 +6,11 @@ import { type ArrowKey, nudgeDelta } from "./geometry.ts";
 
 /** Document edits of canvas interactions (STU-067) as recipes for the injected `edit` function. */
 
-export type EditFn = (docId: string, recipe: (draft: unknown) => void, options?: { group?: string }) => void;
+export type EditFn = (
+  docId: string,
+  recipe: (draft: unknown) => void,
+  options?: { group?: string; step?: string },
+) => void;
 
 interface Obj {
   type?: unknown;
