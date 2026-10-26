@@ -15,6 +15,17 @@ function drain(scene: Scene): Rect[] {
   return out;
 }
 
+/** The rectangles lifted from and dropped at since the last drain, and the dirty ones, which lifts never add to. */
+function lifts(scene: Scene): { lifted: Rect[]; dropped: Rect[]; dirty: Rect[] } {
+  const lifted: Rect[] = [];
+  const dropped: Rect[] = [];
+  scene.drainLifts(
+    (rect) => lifted.push({ ...rect }),
+    (rect) => dropped.push({ ...rect }),
+  );
+  return { lifted, dropped, dirty: drain(scene) };
+}
+
 const screen: FrameSpec = {
   kind: "frame",
   id: "screen",
@@ -82,7 +93,10 @@ describe("STU-003 retained scene graph", () => {
     ]);
     drain(scene);
     scene.setLive(["a", "missing"], true);
-    expect(drain(scene)).toHaveLength(1);
+    expect(scene.hasDirty).toBe(true);
+    const lifted = lifts(scene);
+    expect([lifted.lifted.length, lifted.dropped.length, lifted.dirty.length]).toEqual([1, 0, 0]);
+    expect(scene.hasLive).toBe(true);
     scene.apply([{ op: "move", id: "a", dx: 10, dy: 10 }]);
     expect(drain(scene)).toEqual([]);
     const out: SceneItem[] = [];
@@ -94,11 +108,12 @@ describe("STU-003 retained scene graph", () => {
     expect(drain(scene)).toEqual([]);
     expect(scene.liveItems(out).map((i) => i.spec.id)).toEqual(["a", "missing"]);
     scene.setLive(["missing"], false);
-    drain(scene);
+    lifts(scene);
     scene.setLive(["a"], false);
-    expect(drain(scene)).toEqual([{ l: 8.5, t: 8.5, r: 111.5, b: 61.5 }]);
+    expect(lifts(scene)).toEqual({ lifted: [], dropped: [{ l: 8.5, t: 8.5, r: 111.5, b: 61.5 }], dirty: [] });
+    expect(scene.hasLive).toBe(false);
     scene.setLive(["a"], false);
-    expect(drain(scene)).toEqual([]);
+    expect(lifts(scene)).toEqual({ lifted: [], dropped: [], dirty: [] });
   });
 
   test("moving a link moves its control points; clear removes everything", () => {

@@ -15,6 +15,12 @@
  *   interaction layer only where they changed, so a frame presents the
  *   layer's damage and not the whole layer, whose upload through software
  *   GL is what stalls the browser's frames;
+ * - lift and drop without re-rendering tiles: a lifted item stays in the
+ *   cached tiles and is masked out of the base by patches — its pieces
+ *   redrawn without it, in clipped chunks in preemptible idle time, again
+ *   after every later blit of the tiles — and a drop draws the items over
+ *   the base at once, then patches their pieces in z-order and refreshes the
+ *   tiles they left and joined in idle time after the frame is shown (M-13);
  * - level of detail by zoom (`lod.ts`), with pre-rendered nine-patch shadow
  *   images instead of blur;
  * - tiles rendered at half resolution while the user interacts, refined
@@ -24,9 +30,9 @@
  * visible items directly, batched and with level of detail.
  */
 
-import type { Canvas, CanvasKit, FontMgr, Image, Paint, Paragraph, Surface } from "canvaskit-wasm";
+import type { Canvas, CanvasKit, FontMgr, Image, Paint, Paragraph, PathBuilder, Surface } from "canvaskit-wasm";
 import { Batches, BatchLayer, color4f } from "./batch.ts";
-import { intersectInto, makeRect, type Rect, setRect, unionInto } from "./geometry.ts";
+import { intersectInto, intersects, makeRect, type Rect, setRect, unionInto } from "./geometry.ts";
 import { type Lod, lodForZoom, resolutionFor } from "./lod.ts";
 import { type Direction, orderJobs } from "./progressive.ts";
 import type { FrameSpec, FrameStats, ItemSpec, TextSpec } from "./protocol.ts";
@@ -66,6 +72,16 @@ export const TILE_PARTS = 4;
 
 /** Above this many dirty regions in a frame they are merged into one. */
 export const MAX_REGIONS = 8;
+
+/** The most patch rectangles drawn together in one idle-time chunk. */
+export const PATCH_CHUNK = 8;
+
+/** The tile-sized cell of the world a patch rectangle's centre falls in, as a sortable number. */
+function cellOf(rect: Rect, size: number): number {
+  const row = Math.floor((rect.t + rect.b) / 2 / size);
+  const col = Math.floor((rect.l + rect.r) / 2 / size);
+  return row * 1_000_003 + col;
+}
 
 /** Above this many undrawn damage rectangles the next base draw is a whole one. */
 export const MAX_DAMAGE = 32;
@@ -163,6 +179,7 @@ interface CachedParagraph {
 
 interface FrameCounters {
   tilesDrawn: number;
+  patches: number;
   staleTilesDrawn: number;
   tileMs: number;
   regionMs: number;
@@ -212,6 +229,7 @@ export class SceneRenderer {
   );
   private readonly counters: FrameCounters = {
     tilesDrawn: 0,
+    patches: 0,
     staleTilesDrawn: 0,
     tileMs: 0,
     regionMs: 0,
@@ -247,6 +265,46 @@ export class SceneRenderer {
   private layerShown: LayerShown | null = null;
   private partialRenders = 0;
   private viewChanged = false;
+  /** World rectangles of lifted items that cached tiles still show: every blit of tiles masks them out again. */
+  private readonly masks: Rect[] = [];
+  /** World rectangles idle time redraws over the base's pixels, in chunks, without touching tiles: lifts and drops. */
+  private readonly patches: Rect[] = [];
+  /** Items dropped since the last base draw, which draws them over the base until their patches are drawn. */
+  private readonly dropItems: SceneItem[] = [];
+  private readonly patchClip: Rect[] = [];
+  private readonly patchUnion = makeRect(0, 0, 0, 0);
+  private readonly dropUnion = makeRect(0, 0, 0, 0);
+  private readonly patchRect = new Float32Array(4);
+  private readonly patchItems: SceneItem[] = [];
+  private readonly patchPath: PathBuilder;
+  /** The last frame drew live items into an interaction layer: a lift masks the base instead of re-rendering tiles. */
+  private layered = false;
+  private readonly lift = (rect: Rect): void => {
+    if (!this.options.tiles) {
+      return;
+    }
+    if (!this.layered) {
+      // Without a layer the base is drawn whole while dragging: the tiles leave the item out instead.
+      this.invalidate(rect);
+      return;
+    }
+    const copy = makeRect(rect.l, rect.t, rect.r, rect.b);
+    this.masks.push(copy);
+    this.patches.push(copy);
+  };
+  private readonly drop = (rect: Rect): void => {
+    if (!this.options.tiles) {
+      return;
+    }
+    // The tiles take the item in when idle; the base shows it at once, from a patch.
+    this.tiles.invalidate(rect);
+    this.patches.push(makeRect(rect.l, rect.t, rect.r, rect.b));
+  };
+  private readonly dropItem = (item: SceneItem): void => {
+    if (this.options.tiles) {
+      this.dropItems.push(item);
+    }
+  };
   private readonly invalidate = (rect: Rect): void => {
     this.tiles.invalidate(rect);
     if (this.damage.length <= MAX_DAMAGE) {
@@ -281,6 +339,7 @@ export class SceneRenderer {
     this.tiles = new TileCache<Image>(options.tileSize, (image) => this.resources.free(image));
     this.batches = new Batches(ck, this.resources);
     this.background = color4f(ck, options.background);
+    this.patchPath = this.resources.own(new ck.PathBuilder());
     this.backgroundPaint = this.resources.own(new ck.Paint());
     this.backgroundPaint.setColor(this.background);
     this.shadow = this.makeShadow();
@@ -308,6 +367,10 @@ export class SceneRenderer {
     this.resources.free(this.surface);
     this.surface = this.resources.own(surface);
     this.shown = null;
+    // New tiles leave live items out: nothing is left to mask.
+    this.masks.length = 0;
+    this.patches.length = 0;
+    this.dropItems.length = 0;
     this.shownTiles.clear();
     this.baseQueue.length = 0;
     this.dpr = dpr;
@@ -360,8 +423,8 @@ export class SceneRenderer {
     const start = this.now();
     this.calls = 0;
     this.resetCounters();
-    this.scene.drainDirty(this.invalidate);
-    this.scene.drainRemoved(this.forget);
+    this.layered = layer !== null;
+    this.drainScene();
     this.lod = lodForZoom(this.viewport.zoom);
     this.viewport.worldRect(this.view);
     let flushMs = 0;
@@ -376,6 +439,24 @@ export class SceneRenderer {
     }
     const end = this.now();
     return this.stats(end - start, flushMs, drawBase);
+  }
+
+  /**
+   * Takes the scene's changes: dirty rectangles invalidate tiles and damage
+   * the base, lifts and drops become patches and masks. Once nothing is
+   * live, the tiles under the masks are invalidated so idle time re-renders
+   * them; the base already hides the lifted items there.
+   */
+  private drainScene(): void {
+    this.scene.drainDirty(this.invalidate);
+    this.scene.drainLifts(this.lift, this.drop, this.dropItem);
+    this.scene.drainRemoved(this.forget);
+    if (this.masks.length > 0 && !this.scene.hasLive) {
+      for (const mask of this.masks) {
+        this.tiles.invalidate(mask);
+      }
+      this.masks.length = 0;
+    }
   }
 
   /** Draws the base surface; returns the flush time. */
@@ -436,7 +517,7 @@ export class SceneRenderer {
       this.addRegion(rect, this.view);
     }
     this.damage.length = 0;
-    if (this.regionCount === 0) {
+    if (this.regionCount === 0 && this.dropItems.length === 0) {
       return 0;
     }
     const u = this.damageUnion;
@@ -451,7 +532,14 @@ export class SceneRenderer {
     canvas.scale(scale, scale);
     canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
     this.drawRegions(canvas);
+    this.counters.patches = this.drawDropped(canvas);
     canvas.restore();
+    if (this.counters.patches > 0) {
+      unionInto(u, this.dropUnion);
+    }
+    if (u.r <= u.l || u.b <= u.t) {
+      return 0;
+    }
     this.counters.regionMs = this.now() - start;
     return this.flushBase(canvas, this.deviceRect(this.toArray(u, this.dst), scale));
   }
@@ -553,6 +641,7 @@ export class SceneRenderer {
   private resetCounters(): void {
     const c = this.counters;
     c.tilesDrawn = 0;
+    c.patches = 0;
     c.staleTilesDrawn = 0;
     c.tileMs = 0;
     c.regionMs = 0;
@@ -581,7 +670,7 @@ export class SceneRenderer {
       drawCalls: this.calls,
       tilesDrawn: c.tilesDrawn,
       staleTilesDrawn: c.staleTilesDrawn,
-      regions: this.regionCount,
+      regions: this.regionCount + c.patches,
       liveItems: c.liveItems,
       idleQueue: this.idleQueue(),
       resolution: resolutionFor(this.interacting),
@@ -629,6 +718,9 @@ export class SceneRenderer {
         this.addRegion(this.tileWorld, this.view);
       }
     }
+    // The tiles may still show lifted items: idle time masks them again. Dropped items are in the dirty regions.
+    this.requeueMasks();
+    this.dropItems.length = 0;
     const t1 = this.now();
     this.drawRegions(canvas);
     const t2 = this.now();
@@ -673,6 +765,151 @@ export class SceneRenderer {
       this.drawScene(canvas, region, false);
       canvas.restore();
     }
+  }
+
+  /**
+   * Draws the items dropped since the last base draw over the base, so the
+   * drop shows at once; their queued patches put them in z-order in idle
+   * time. Leaves their bounds in `dropUnion`; returns how many it drew.
+   */
+  private drawDropped(canvas: Canvas): number {
+    const items = this.dropItems;
+    const count = items.length;
+    if (count === 0) {
+      return 0;
+    }
+    const u = setRect(this.dropUnion, Infinity, Infinity, -Infinity, -Infinity);
+    for (const item of items) {
+      unionInto(u, item.bounds);
+    }
+    setRect(
+      u,
+      Math.max(u.l, this.view.l),
+      Math.max(u.t, this.view.t),
+      Math.min(u.r, this.view.r),
+      Math.min(u.b, this.view.b),
+    );
+    this.drawScene(canvas, this.view, false, items);
+    items.length = 0;
+    return count;
+  }
+
+  /** Queues every mask for idle time again, after a whole draw of the base from the tiles. */
+  private requeueMasks(): void {
+    this.patches.length = 0;
+    this.patches.push(...this.masks);
+  }
+
+  /**
+   * Draws queued patches on the base in chunks of at most `PATCH_CHUNK`
+   * rectangles from one tile-sized cell, so a chunk meets few items, until `deadline` or `yieldNow` (at least one chunk);
+   * returns how many chunks it drew. The base must be placed at the current
+   * view; otherwise the realignment queues the masks again.
+   */
+  private patchIdle(deadline: number, yieldNow: () => boolean): number {
+    const scale = this.viewport.zoom * this.dpr;
+    if (this.patches.length === 0 || this.needsShift() || this.tiles.scale !== scale) {
+      return 0;
+    }
+    const canvas = this.surface.getCanvas();
+    const size = this.tiles.worldSize;
+    this.patches.sort((a, b) => cellOf(a, size) - cellOf(b, size));
+    // One flush for the call: every commit of the base canvas costs the browser an upload through software GL.
+    const drawn = setRect(this.dropUnion, Infinity, Infinity, -Infinity, -Infinity);
+    let chunks = 0;
+    while (this.patches.length > 0) {
+      if (chunks > 0 && (this.now() >= deadline || yieldNow())) {
+        break;
+      }
+      const chunk = this.patches.splice(0, this.chunkLength(size));
+      canvas.save();
+      canvas.scale(scale, scale);
+      canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
+      if (this.drawPatch(canvas, chunk, this.view) > 0) {
+        unionInto(drawn, this.patchUnion);
+      }
+      canvas.restore();
+      chunks++;
+    }
+    if (drawn.r > drawn.l && drawn.b > drawn.t) {
+      this.flushBase(canvas, this.deviceRect(this.toArray(drawn, this.dst), scale));
+    }
+    return chunks;
+  }
+
+  /** How many of the queued patches, from the first, share its cell: at least one, at most `PATCH_CHUNK`. */
+  private chunkLength(size: number): number {
+    const first = this.patches[0];
+    const cell = first ? cellOf(first, size) : 0;
+    let end = 1;
+    for (; end < PATCH_CHUNK && end < this.patches.length; end++) {
+      const next = this.patches[end];
+      if (!next || cellOf(next, size) !== cell) {
+        break;
+      }
+    }
+    return end;
+  }
+
+  /**
+   * Redraws the scene without live items inside the union of `rects`
+   * clipped to `within`: one clip of every rectangle and one batched draw of
+   * the static items that meet any of them, so the many thin pieces along
+   * lifted or dropped links cost one pass over few items, not a redraw of
+   * the regions they merge into. Leaves the union in `patchUnion`; returns
+   * how many rectangles it drew.
+   */
+  private drawPatch(canvas: Canvas, rects: readonly Rect[], within: Rect): number {
+    const u = setRect(this.patchUnion, Infinity, Infinity, -Infinity, -Infinity);
+    const clips = this.patchClip;
+    let count = 0;
+    for (const rect of rects) {
+      let clip = clips[count];
+      if (!clip) {
+        clip = makeRect(0, 0, 0, 0);
+        clips.push(clip);
+      }
+      if (!intersectInto(clip, rect, within)) {
+        continue;
+      }
+      this.patchPath.addRect(this.toArray(clip, this.patchRect));
+      unionInto(u, clip);
+      count++;
+    }
+    if (count === 0) {
+      return 0;
+    }
+    const list = this.patchItemsIn(count);
+    const path = this.patchPath.detach();
+    canvas.save();
+    canvas.clipPath(path, this.ck.ClipOp.Intersect, false);
+    canvas.drawPaint(this.backgroundPaint);
+    this.calls++;
+    this.drawScene(canvas, u, false, list);
+    canvas.restore();
+    path.delete();
+    list.length = 0;
+    return count;
+  }
+
+  /** The static items, in z-order, that meet any of the first `count` patch rectangles. */
+  private patchItemsIn(count: number): SceneItem[] {
+    const list = this.patchItems;
+    const clips = this.patchClip;
+    list.length = 0;
+    for (const item of this.scene.items()) {
+      if (item.live || !intersects(item.bounds, this.patchUnion)) {
+        continue;
+      }
+      for (let i = 0; i < count; i++) {
+        const clip = clips[i];
+        if (clip && intersects(item.bounds, clip)) {
+          list.push(item);
+          break;
+        }
+      }
+    }
+    return list;
   }
 
   private blit(canvas: Canvas, tile: Tile<Image>, stale: boolean): void {
@@ -812,7 +1049,9 @@ export class SceneRenderer {
     if (!this.options.tiles || this.tiles.scale === 0) {
       return 0;
     }
-    return this.tiles.pending(this.view, this.interacting, this.pendingTiles, this.scratchTiles).length;
+    // At least this many chunks are left; cells may split them into more.
+    const patches = Math.ceil(this.patches.length / PATCH_CHUNK);
+    return patches + this.tiles.pending(this.view, this.interacting, this.pendingTiles, this.scratchTiles).length;
   }
 
   /** Whether tiles wait to be rendered or refined. */
@@ -831,8 +1070,8 @@ export class SceneRenderer {
       return 0;
     }
     this.viewport.worldRect(this.view);
-    let rendered = 0;
     this.viewChanged = false;
+    let rendered = this.patchIdle(deadline, yieldNow);
     const visible = this.tiles.collect(this.view, this.visible);
     for (const tile of this.tiles.pending(this.view, this.interacting, this.pendingTiles, this.scratchTiles)) {
       if (rendered > 0 && (this.now() >= deadline || yieldNow())) {
@@ -895,8 +1134,7 @@ export class SceneRenderer {
       return;
     }
     setRect(this.focus, focus.l, focus.t, focus.r, focus.b);
-    this.scene.drainDirty(this.invalidate);
-    this.scene.drainRemoved(this.forget);
+    this.drainScene();
     this.lod = lodForZoom(this.viewport.zoom);
     this.viewport.worldRect(this.view);
     if (this.tiles.setScale(this.viewport.zoom * this.dpr)) {
@@ -951,6 +1189,13 @@ export class SceneRenderer {
     canvas.restore();
     this.counters.tilesDrawn = 1;
     this.flushBase(canvas, this.deviceRect(this.dst, scale));
+    // The tile may still show lifted items: idle time masks them again.
+    const world = this.tiles.tileRect(tile, this.tileWorld);
+    for (const mask of this.masks) {
+      if (intersects(mask, world)) {
+        this.patches.push(mask);
+      }
+    }
     this.shownTiles.add(tile);
     return { ms: this.now() - start, shifted: false };
   }
@@ -1004,6 +1249,7 @@ export class SceneRenderer {
         }
       }
     }
+    this.requeueMasks();
     canvas.restore();
     this.shown = { x: view.x, y: view.y, zoom: view.zoom };
     this.flushBase(canvas);
