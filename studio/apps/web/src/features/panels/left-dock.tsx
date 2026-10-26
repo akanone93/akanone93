@@ -195,7 +195,7 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   return (
     <aside
       aria-label={m.dock}
-      className="absolute start-3 top-3 bottom-3 z-10 flex w-72 flex-col gap-2 overflow-y-auto rounded-lg bg-raised p-3 shadow-e1"
+      className="absolute start-3 top-3 bottom-16 z-10 flex w-72 flex-col gap-2 overflow-y-auto rounded-lg bg-raised p-3 shadow-e1"
     >
       <Tabs defaultValue="insert" tabs={tabs} />
     </aside>
