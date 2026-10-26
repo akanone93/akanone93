@@ -128,22 +128,9 @@ func (s Document) ApplyChangeSet(ctx context.Context, req *connect.Request[pluxv
 			return nil, err
 		}
 		m := req.Msg
-		depth := int(s.h.Limits.Get(limits.DocumentJSONDepth))
-		drafts := make([]document.ChangeSetDraft, 0, len(m.GetDrafts()))
-		for _, d := range m.GetDrafts() {
-			part := document.ChangeSetDraft{PluginID: d.GetPluginId(), Session: d.GetSession(), IfDraftRevision: d.GetIfDraftRevision()}
-			for _, e := range d.GetEdits() {
-				ops, err := patchOps(e.GetPatch(), depth)
-				if err != nil {
-					return nil, err
-				}
-				edit := document.ChangeSetEdit{Path: e.GetPath(), Patch: ops, Delete: e.GetDelete(), IfRevision: e.GetIfRevision()}
-				if len(e.GetContent()) > 0 {
-					edit.Content = e.GetContent()
-				}
-				part.Edits = append(part.Edits, edit)
-			}
-			drafts = append(drafts, part)
+		drafts, err := changeSetDrafts(m.GetDrafts(), int(s.h.Limits.Get(limits.DocumentJSONDepth)))
+		if err != nil {
+			return nil, err
 		}
 		written, err := s.h.Documents.ApplyChangeSet(ctx, p, m.GetAppId(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, drafts)
 		if err != nil {
@@ -160,6 +147,27 @@ func (s Document) ApplyChangeSet(ctx context.Context, req *connect.Request[pluxv
 		}
 		return out, nil
 	})
+}
+
+// changeSetDrafts reads the drafts of a change set request.
+func changeSetDrafts(in []*pluxv1.ChangeSetDraft, depth int) ([]document.ChangeSetDraft, error) {
+	out := make([]document.ChangeSetDraft, 0, len(in))
+	for _, d := range in {
+		part := document.ChangeSetDraft{PluginID: d.GetPluginId(), Session: d.GetSession(), IfDraftRevision: d.GetIfDraftRevision()}
+		for _, e := range d.GetEdits() {
+			ops, err := patchOps(e.GetPatch(), depth)
+			if err != nil {
+				return nil, err
+			}
+			edit := document.ChangeSetEdit{Path: e.GetPath(), Patch: ops, Delete: e.GetDelete(), IfRevision: e.GetIfRevision()}
+			if len(e.GetContent()) > 0 {
+				edit.Content = e.GetContent()
+			}
+			part.Edits = append(part.Edits, edit)
+		}
+		out = append(out, part)
+	}
+	return out, nil
 }
 
 // DeleteDocument deletes a document; a page goes to the trash.

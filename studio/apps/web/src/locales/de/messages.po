@@ -415,16 +415,16 @@ msgstr "Passwort wählen"
 msgid "panels.clear"
 msgstr "{name} entfernen"
 
-#. Accessible name of a safety dialog's close button.
-#. js-lingui-explicit-id
-#: apps/web/src/features/safety/safety.messages.ts
-msgid "safety.close"
-msgstr "Schließen"
-
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
+msgstr "Schließen"
+
+#. Accessible name of a safety dialog's close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/safety/safety.messages.ts
+msgid "safety.close"
 msgstr "Schließen"
 
 #. Accessible name of the close button of a dialog.
