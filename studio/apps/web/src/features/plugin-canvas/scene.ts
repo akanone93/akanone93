@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { primitives } from "@plux/brand";
-import type { ColorRgba, ScreenDocument, ScreenHeight, ScreenStyle } from "@plux/canvas";
+import type { ArrowStyle, ColorRgba, ScreenDocument, ScreenHeight, ScreenStyle } from "@plux/canvas";
 import { defaultScreenTheme } from "@plux/layout";
+import type { GhostStyle } from "./ghosts.ts";
 import type { Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
 
@@ -42,6 +43,26 @@ export const screenStyle: ScreenStyle = {
   overflowBox: rgba(primitives["porcelain.100"], OVERFLOW_ALPHA),
   overflowText: rgba(primitives["navy.900"], OVERFLOW_ALPHA),
   overflowStroke: rgba(primitives["violet.700"], 0x60),
+};
+
+/** Ghost screens and native nodes (STU-052, STU-054): dashed navy outline on porcelain. */
+export const ghostStyle: GhostStyle = {
+  stroke: rgba(primitives["navy.900"], 0x90),
+  fill: rgba(primitives["porcelain.100"]),
+  nativeFill: rgba(primitives["violet.700"], 0x14),
+  text: rgba(primitives["navy.900"]),
+  pulse: rgba(primitives["violet.700"]),
+};
+
+/** Navigation arrows (STU-040 to STU-048) in the brand colours. */
+export const arrowStyle: ArrowStyle = {
+  stroke: { color: rgba(primitives["navy.900"], 0xa0), width: 1.5 },
+  dimmed: { color: rgba(primitives["navy.900"], 0x30), width: 1.5 },
+  focus: { color: rgba(primitives["violet.700"]), width: 2 },
+  badgeFill: rgba(primitives["navy.900"]),
+  badgeText: rgba(primitives.white),
+  labelText: rgba(primitives["navy.900"]),
+  z: 1,
 };
 
 export interface PlacedScreen {

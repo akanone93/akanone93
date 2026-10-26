@@ -104,12 +104,15 @@ export class SceneRenderer {
   private readonly tiles: TileCache<Image>;
   private readonly batches: Batches;
   private readonly paragraphs = new Map<string, CachedParagraph>();
+  private readonly images = new Map<string, Image>();
+  private readonly picture: Paint;
   private readonly fontMgr: FontMgr | null;
   private readonly background: Float32Array;
   private readonly backgroundPaint: Paint;
   private readonly shadow: Image | null;
   private readonly items: SceneItem[] = [];
   private readonly texts: SceneItem[] = [];
+  private readonly pictures: SceneItem[] = [];
   private readonly visible: Tile<Image>[] = [];
   private readonly scratchTiles: Tile<Image>[] = [];
   private readonly pendingTiles: Tile<Image>[] = [];
@@ -189,6 +192,8 @@ export class SceneRenderer {
     this.background = color4f(ck, options.background);
     this.backgroundPaint = this.resources.own(new ck.Paint());
     this.backgroundPaint.setColor(this.background);
+    this.picture = this.resources.own(new ck.Paint());
+    this.picture.setAntiAlias(true);
     this.shadow = this.makeShadow();
     this.surface = this.resources.own(surface);
     this.dpr = dpr;
@@ -562,13 +567,72 @@ export class SceneRenderer {
   private drawScene(canvas: Canvas, rect: Rect, includeLive: boolean, items?: readonly SceneItem[]): void {
     const list = items ?? this.scene.query(rect, this.items, includeLive);
     this.texts.length = 0;
+    this.pictures.length = 0;
     for (const item of list) {
       this.addItem(canvas, item);
     }
     this.calls += this.batches.flush(canvas);
+    for (const item of this.pictures) {
+      this.drawPicture(canvas, item.spec);
+    }
     for (const item of this.texts) {
       this.drawText(canvas, item.spec);
     }
+  }
+
+  /** Decodes `bytes` and keeps the image under `key`; an existing key is left as it is. */
+  setImage(key: string, bytes: Uint8Array): boolean {
+    if (this.images.has(key)) {
+      return true;
+    }
+    const image = this.ck.MakeImageFromEncoded(bytes);
+    if (image === null) {
+      return false;
+    }
+    this.images.set(key, this.resources.own(image));
+    return true;
+  }
+
+  /**
+   * The world rectangle `rect` as an encoded PNG `width` pixels wide, rendered from the scene on a
+   * surface of its own (STU-052, A5.6); null when the surface or the encoding is unavailable.
+   */
+  thumbnail(rect: Rect, width: number): Uint8Array | null {
+    const w = Math.max(1, Math.round(width));
+    const h = Math.max(1, Math.round((w * (rect.b - rect.t)) / Math.max(1, rect.r - rect.l)));
+    const surface = this.ck.MakeSurface(w, h);
+    if (surface === null) {
+      return null;
+    }
+    const canvas = surface.getCanvas();
+    canvas.clear(this.background);
+    canvas.scale(w / (rect.r - rect.l), w / (rect.r - rect.l));
+    canvas.translate(-rect.l, -rect.t);
+    this.drawScene(canvas, rect, false);
+    surface.flush();
+    const image = surface.makeImageSnapshot();
+    const png = image.encodeToBytes();
+    image.delete();
+    surface.delete();
+    return png;
+  }
+
+  private drawPicture(canvas: Canvas, spec: ItemSpec): void {
+    const image = spec.kind === "rect" && spec.image !== undefined ? this.images.get(spec.image) : undefined;
+    if (spec.kind !== "rect" || image === undefined) {
+      return;
+    }
+    const dst = this.toArray(setRect(this.tileWorld, spec.x, spec.y, spec.x + spec.w, spec.y + spec.h), this.dst);
+    const src = this.src;
+    src[0] = 0;
+    src[1] = 0;
+    src[2] = image.width();
+    src[3] = image.height();
+    canvas.save();
+    canvas.clipRRect(this.ck.RRectXY(dst, spec.radius, spec.radius), this.ck.ClipOp.Intersect, true);
+    canvas.drawImageRectOptions(image, src, dst, this.ck.FilterMode.Linear, this.ck.MipmapMode.None, this.picture);
+    canvas.restore();
+    this.calls++;
   }
 
   private addItem(canvas: Canvas, item: SceneItem): void {
@@ -582,6 +646,9 @@ export class SceneRenderer {
         break;
       case "rect":
         this.addBox(item, BatchLayer.rectFill, BatchLayer.rectStroke);
+        if (spec.image !== undefined) {
+          this.pictures.push(item);
+        }
         break;
       case "link":
         this.batches.link(item.strokeKey ?? "", spec, this.lod.straightLinks);
@@ -1006,6 +1073,7 @@ export class SceneRenderer {
   dispose(): void {
     this.tiles.clear();
     this.paragraphs.clear();
+    this.images.clear();
     this.resources.dispose();
   }
 }

@@ -198,6 +198,44 @@ export function pluginCanvasMessages(i18n: I18n) {
         values: { title },
         comment: "Question that asks to confirm deleting a screen.",
       }),
+    ghostLinks: (count: number) =>
+      i18n._({
+        id: "pluginCanvas.ghostLinks",
+        message: "{count, plural, one {# link} other {# links}}",
+        values: { count },
+        comment:
+          "Number of navigate actions of this plugin that lead to a ghost screen or native route, drawn on its card.",
+      }),
+    ghostLeaveTitle: i18n._({
+      id: "pluginCanvas.ghostLeaveTitle",
+      message: "Open another plugin?",
+      comment: "Title of the confirmation that opens the canvas of the plugin a ghost screen belongs to.",
+    }),
+    ghostLeaveBody: (screen: string) =>
+      i18n._({
+        id: "pluginCanvas.ghostLeaveBody",
+        message:
+          "{screen} belongs to another plugin. Your changes here are saved. Leave this canvas and open that screen?",
+        values: { screen },
+        comment: "Body of the confirmation that opens the canvas of the plugin a ghost screen belongs to.",
+      }),
+    ghostOpen: i18n._({
+      id: "pluginCanvas.ghostOpen",
+      message: "Open screen",
+      comment: "Button that leaves this plugin's canvas and opens the ghost screen on its own plugin's canvas.",
+    }),
+    ghostStay: i18n._({
+      id: "pluginCanvas.ghostStay",
+      message: "Stay here",
+      comment: "Button that closes the confirmation and keeps the current canvas.",
+    }),
+    ghostPulse: (screen: string) =>
+      i18n._({
+        id: "pluginCanvas.ghostPulse",
+        message: "Showing {screen}",
+        values: { screen },
+        comment: "Announced to screen readers when the canvas pans to a screen and highlights it.",
+      }),
     offline: i18n._({
       id: "pluginCanvas.offline",
       message: "You are offline. Nothing was changed; try again when the connection is back.",
