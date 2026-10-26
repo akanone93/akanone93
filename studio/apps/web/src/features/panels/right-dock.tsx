@@ -7,8 +7,12 @@ import { Button, Field, FloatingPanel, Icon, Input, Select, Tabs, TypeTag } from
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
+import { linkMessages } from "../plugin-canvas/links.messages.ts";
+import { routeOptions } from "../plugin-canvas/links.ts";
+import { readPlugin } from "../plugin-canvas/plugin-model.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
+import { ActionsTab } from "./actions-tab.tsx";
 import { panelMessages } from "./panels.messages.ts";
 import {
   type Breakpoint,
@@ -382,7 +386,11 @@ interface DockProps {
   /** Page document path by screen ID, to validate PXL fields in the worker. */
   readonly pathOf: ReadonlyMap<string, string>;
   readonly problems: readonly Problem[];
-  readonly documents: readonly { readonly path: string; readonly content: Uint8Array }[] | undefined;
+  readonly documents:
+    | readonly { readonly path: string; readonly kind: string; readonly content: Uint8Array }[]
+    | undefined;
+  /** Every document of the app, to offer other plugins' screens as link targets (F6). */
+  readonly appDocuments?: readonly { readonly kind: string; readonly content: Uint8Array }[] | undefined;
   /** Validates the page with an edit applied; undefined while the worker is unavailable. */
   readonly validatePage?: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
 }
@@ -592,6 +600,33 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
   );
 }
 
+/** The Actions tab (F6) for the selected widget: its events, the app's screens, and the edit pipeline. */
+function ActionsPanel(p: DockProps & { ids: readonly string[] }) {
+  const canEdit = useCanEdit();
+  const m = linkMessages(useLingui().i18n);
+  const nodes = useLiveNodes(p);
+  const id = p.ids.length === 1 ? p.ids[0] : undefined;
+  const node = id === undefined ? undefined : nodes.get(id);
+  const routes = useMemo(() => {
+    const own = readPlugin(p.documents ?? []).screens;
+    return routeOptions(own, readPlugin(p.appDocuments ?? []).screens);
+  }, [p.documents, p.appDocuments]);
+  const doc = id === undefined ? undefined : p.screenOf.get(id);
+  if (id === undefined || node === undefined || doc === undefined) {
+    return <p className="text-body text-secondary">{m.nothing}</p>;
+  }
+  return (
+    <ActionsTab
+      key={id}
+      nodeId={id}
+      node={node}
+      routes={routes}
+      canEdit={canEdit}
+      apply={(recipe) => p.edit(doc, recipe)}
+    />
+  );
+}
+
 function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; m: Messages }) {
   const type = ids[0] === undefined ? undefined : index.type.get(ids[0]);
   const d = type === undefined ? undefined : widget(type);
@@ -630,7 +665,8 @@ function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; 
 
 /** The right dock of the plugin canvas (S2.6): Properties, Accessibility and Docs of the selection. */
 export function RightDock(props: DockProps) {
-  const m = panelMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = panelMessages(i18n);
   const ids = useEditor((st) => st.selection.ids);
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
     ids.length === 0 ? <p className="text-body text-secondary">{m.nothing}</p> : panel(ids);
@@ -644,6 +680,7 @@ export function RightDock(props: DockProps) {
             label: m.tabProperties,
             panel: body((i) => <PropertiesTab {...props} ids={i} m={m} />),
           },
+          { value: "actions", label: linkMessages(i18n).tab, panel: <ActionsPanel {...props} ids={ids} /> },
           {
             value: "accessibility",
             label: m.tabAccessibility,
