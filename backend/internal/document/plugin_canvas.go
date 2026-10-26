@@ -32,7 +32,7 @@ func (s *Service) UpdatePluginMetadata(ctx context.Context, p auth.Principal, pl
 	if len(name) > 200 {
 		return Plugin{}, plxerr.New(plxerr.InvalidFormat, "a plugin name is 1 to 200 characters")
 	}
-	args, err := tenancy.CheckMetadata(m)
+	args, err := tenancy.CheckMetadata(m, s.o.Limits)
 	if err != nil {
 		return Plugin{}, fmt.Errorf("document: %w", err)
 	}
@@ -45,6 +45,13 @@ func (s *Service) UpdatePluginMetadata(ctx context.Context, p auth.Principal, pl
 		}
 		if err := authorize(p, auth.AppManage, d.app); err != nil {
 			return err
+		}
+		appID, err := storage.UUID(d.app)
+		if err != nil {
+			return failure(err, "app")
+		}
+		if err := tenancy.CheckMetadataRefs(ctx, q, p, appID, args); err != nil {
+			return fmt.Errorf("document: %w", err)
 		}
 		row, err := q.UpdatePluginMetadata(ctx, dbgen.UpdatePluginMetadataParams{
 			ID: d.plugin.ID, Name: name, SetDescription: args.SetDescription, Description: args.Description,

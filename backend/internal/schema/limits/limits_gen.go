@@ -432,6 +432,16 @@ const (
 	// pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned
 	// client). (SEC-041)
 	MediaPinnedDownloadSize Key = "media.pinnedDownloadSize"
+	// MetadataDescriptionLength: Length of the description of an app or a
+	// plugin. (STU-034)
+	MetadataDescriptionLength Key = "metadata.descriptionLength"
+	// MetadataIconIDLength: Length of the asset identifier an app or a plugin
+	// uses as its icon. (STU-034)
+	MetadataIconIDLength Key = "metadata.iconIdLength"
+	// MetadataTagLength: Length of one tag on an app or a plugin. (STU-034)
+	MetadataTagLength Key = "metadata.tagLength"
+	// MetadataTagsPerItem: Tags one app or one plugin may carry. (STU-034)
+	MetadataTagsPerItem Key = "metadata.tagsPerItem"
 	// NotificationsParamBytes: Largest value of one display parameter of a
 	// notification; an event with a larger one is refused. (SRV-062)
 	NotificationsParamBytes Key = "notifications.paramBytes"
@@ -760,6 +770,10 @@ var registry = [...]Definition{
 	{Key: LspSessionMinutes, Unit: UnitCount, Default: 60, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Minutes one language-server sandbox may run before it is stopped."},
 	{Key: LspSessionsPerOrganization, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Language-server sandboxes of the Rust editor running at once in one organisation."},
 	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},
+	{Key: MetadataDescriptionLength, Unit: UnitCodepoints, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Length of the description of an app or a plugin."},
+	{Key: MetadataIconIDLength, Unit: UnitCodepoints, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Length of the asset identifier an app or a plugin uses as its icon."},
+	{Key: MetadataTagLength, Unit: UnitCodepoints, Default: 40, Warning: 0, Max: 200, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Length of one tag on an app or a plugin."},
+	{Key: MetadataTagsPerItem, Unit: UnitCount, Default: 20, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Tags one app or one plugin may carry."},
 	{Key: NotificationsParamBytes, Unit: UnitBytes, Default: 1024, Warning: 0, Max: 8192, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Largest value of one display parameter of a notification; an event with a larger one is refused."},
 	{Key: NotificationsParamsPerEvent, Unit: UnitCount, Default: 16, Warning: 0, Max: 64, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Display parameters one notification event may carry; an event with more is refused."},
 	{Key: NotificationsPerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."},

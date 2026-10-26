@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import dagre from "dagre";
+import dagre from "@dagrejs/dagre";
 import type { DocumentDraft } from "../editor/edit-session.ts";
 import type { JsonValue } from "../editor/json-patch.ts";
 
