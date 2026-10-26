@@ -26,6 +26,13 @@ service DocumentService {
   // sends (SRV-030).
   rpc PatchDocument(PatchDocumentRequest) returns (PatchDocumentResponse) {}
   rpc DeleteDocument(DeleteDocumentRequest) returns (DeleteDocumentResponse) {}
+  // ApplyChangeSet applies one change set: edits to documents of the app
+  // and of several of its plugins, written in one transaction or not at
+  // all (STU-055, STU-070, contracts #15). Each draft's revision is checked
+  // and each draft's editing lock must be held by the session named for it;
+  // every write is tagged with the same undo step, so one change set is one
+  // undo step across plugins (STU-069).
+  rpc ApplyChangeSet(ApplyChangeSetRequest) returns (ApplyChangeSetResponse) {}
 
   // ValidateDraft runs the compiler's checking stages over the whole draft.
   rpc ValidateDraft(ValidateDraftRequest) returns (ValidateDraftResponse) {}
@@ -155,6 +162,49 @@ message DeleteDocumentRequest {
 }
 message DeleteDocumentResponse {
   string snapshot_id = 1;
+}
+
+// ChangeSetEdit is one document a change set writes: exactly one of a JSON
+// Patch (which may hold "test" operations), whole content, or a deletion.
+message ChangeSetEdit {
+  string path = 1;
+  repeated PatchOp patch = 2;
+  bytes content = 3;
+  bool delete = 4;
+  // if_revision is the document's revision as read; 0 creates with content.
+  int64 if_revision = 5;
+}
+
+// ChangeSetDraft is the part of a change set that falls on one draft.
+message ChangeSetDraft {
+  // plugin_id is empty for app-level documents.
+  string plugin_id = 1;
+  // session is the editing session that holds this draft's lock.
+  string session = 2;
+  // if_draft_revision, when positive, must be the draft's revision.
+  int64 if_draft_revision = 3;
+  repeated ChangeSetEdit edits = 4;
+}
+
+message ApplyChangeSetRequest {
+  string app_id = 1;
+  repeated ChangeSetDraft drafts = 2;
+  // editor_session_id and step_id tag every write as in PutDocumentRequest.
+  string editor_session_id = 3;
+  string step_id = 4;
+}
+
+// ChangeSetDraftResult is what a change set wrote to one draft.
+message ChangeSetDraftResult {
+  string plugin_id = 1;
+  string snapshot_id = 2;
+  int64 revision = 3;
+  repeated Document documents = 4;
+}
+
+message ApplyChangeSetResponse {
+  repeated ChangeSetDraftResult drafts = 1;
+  repeated Diagnostic diagnostics = 2;
 }
 
 message ValidateDraftRequest {
