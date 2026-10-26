@@ -93,6 +93,7 @@ const compositeTypes: readonly string[] = [
   "SwitchListTile",
   "RadioListTile",
   "SearchBar",
+  "SearchAnchor",
   "BottomNavigationBar",
   "ExpansionTile",
 ];

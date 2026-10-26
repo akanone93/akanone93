@@ -26,6 +26,13 @@
             }
           },
           {
+            "id": "anchor",
+            "type": "SearchAnchor",
+            "props": {
+              "hintText": "Search"
+            }
+          },
+          {
             "id": "nav",
             "type": "BottomNavigationBar",
             "props": {
