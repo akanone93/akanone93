@@ -28,8 +28,12 @@ export interface CanvasSurface {
   /** World rectangle of an item, and the overlay feedback of a drag (guides, distance labels, insertion indicator). */
   boundsOf?(id: string): { l: number; t: number; r: number; b: number } | undefined;
   setGuides?(guides: Guides | null): void;
-  /** Applies scene patches, for the provisional arrow of a link drag (STU-047). */
+  /** Applies scene patches (ghosts, arrows, the pulse); they stay until the next first layout replaces the scene. */
   patch?(ops: readonly SceneOp[]): void;
+  /** The PNG of scene item `id` rendered in the worker, `width` pixels wide, or null (STU-052). */
+  thumbnail?(id: string, width: number): Promise<Uint8Array | null>;
+  /** Makes encoded images available to scene items under their keys. */
+  setImages?(images: readonly { key: string; bytes: Uint8Array }[]): void;
   readonly viewport: { readonly x: number; readonly y: number; readonly zoom: number };
   dispose(): void;
 }
@@ -116,6 +120,9 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
       view = { x, y, zoom };
       run((h) => h.setViewport(x, y, zoom));
     },
+    patch: (ops) => run((h) => h.patch(ops)),
+    thumbnail: (id, width) => new Promise((resolve) => run((h) => void h.thumbnail(id, width).then(resolve))),
+    setImages: (images) => run((h) => h.setImages(images)),
     pan: (dx, dy) => run((h) => h.pan(dx, dy)),
     zoomAbout: (factor, x, y) => run((h) => h.zoomAbout(factor, x, y)),
     hitTest: (x, y) => host?.hitTest(x, y) ?? [],

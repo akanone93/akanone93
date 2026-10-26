@@ -70,6 +70,41 @@ describe("STU-003 canvas worker core", () => {
     expect(snapshot?.model.viewport.x).toBe(-10);
   });
 
+  test("STU-052 renders a thumbnail of an item as a PNG and draws it back as an image", async () => {
+    const env = new TestEnvironment(ck);
+    const { core, posted } = start(env);
+    await core.receive(init({ tiles: true }));
+    await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("a", 10, 10, 0xff0000ff) }] });
+    await core.receive({ v, type: "thumbnail", requestId: 1, id: "a", width: 40 });
+    await core.receive({ v, type: "thumbnail", requestId: 2, id: "missing", width: 40 });
+    const [known, unknown] = ofType(posted, "thumbnail");
+    expect(Array.from(known?.png?.slice(0, 4) ?? [])).toEqual([137, 80, 78, 71]);
+    expect(unknown?.png).toBeNull();
+    const png = known?.png ?? new Uint8Array();
+    await core.receive({
+      v,
+      type: "images",
+      images: [
+        { key: "thumb", bytes: png },
+        { key: "bad", bytes: new Uint8Array(3) },
+      ],
+    });
+    await core.receive({
+      v,
+      type: "patch",
+      ops: [
+        {
+          op: "add",
+          item: { kind: "rect", id: "ghost", x: 200, y: 10, w: 100, h: 50, radius: 6, image: "thumb", z: 3 },
+        },
+      ],
+    });
+    expect(env.drain()).toBeGreaterThan(0);
+    await core.receive({ v, type: "thumbnail", requestId: 3, id: "ghost", width: 40 });
+    expect(ofType(posted, "thumbnail")[2]?.png?.length).toBeGreaterThan(0);
+    expect(ofType(posted, "error")).toEqual([]);
+  });
+
   test("STU-121 idle tile work yields to a pending message's frame", async () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
