@@ -24,15 +24,12 @@ import {
   PreferencesService,
   UserSchema,
 } from "@plux/api";
-import type { EditSession } from "./features/editor/edit-session.ts";
 import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
-import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
-import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
 
-export interface Upstream {
+export interface UpstreamData {
   signedIn?: boolean;
   permissions?: string[];
   installationAdmin?: boolean;
@@ -42,14 +39,10 @@ export interface Upstream {
   explained?: { permission: string }[];
   inbox?: { id: string; eventType: string; title: string; read: boolean }[];
   documents?: { kind: string; path: string; json: unknown }[];
-  surface?: SurfaceFactory;
-  validator?: ValidatorFactory;
   /** Someone else holds the plugin's editing lock: the editor is read-only. */
   lockHeldElsewhere?: boolean;
   /** Collects every PatchDocument the upstream receives (autosave, undo, redo). */
   sent?: { path: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
-  /** Receives the plugin canvas's edit pipeline. */
-  editor?: (edit: EditSession) => void;
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
   /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
   pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
@@ -69,7 +62,7 @@ export interface Upstream {
 }
 
 /** An in-memory upstream for the shell: the same RPCs the BFF forwards. */
-export function createUpstream(state: Upstream) {
+export function createUpstream(state: UpstreamData) {
   // Documents autosave changed, by path; the fixtures themselves stay as given.
   const patched = new Map<string, { kind: string; path: string; json: unknown }>();
   const stored = state.stored ?? { theme: "", language: "", density: "" };
