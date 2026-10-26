@@ -3593,6 +3593,26 @@
       "description": "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."
     },
     {
+      "key": "studio.changeSetDocuments",
+      "unit": "count",
+      "default": 500,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-055",
+        "STU-070"
+      ],
+      "description": "Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links)."
+    },
+    {
       "key": "studio.clipboardBytes",
       "unit": "bytes",
       "default": 4194304,

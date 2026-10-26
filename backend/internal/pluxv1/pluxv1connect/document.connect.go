@@ -51,6 +51,9 @@ const (
 	// DocumentServiceDeleteDocumentProcedure is the fully-qualified name of the DocumentService's
 	// DeleteDocument RPC.
 	DocumentServiceDeleteDocumentProcedure = "/plux.v1.DocumentService/DeleteDocument"
+	// DocumentServiceApplyChangeSetProcedure is the fully-qualified name of the DocumentService's
+	// ApplyChangeSet RPC.
+	DocumentServiceApplyChangeSetProcedure = "/plux.v1.DocumentService/ApplyChangeSet"
 	// DocumentServiceValidateDraftProcedure is the fully-qualified name of the DocumentService's
 	// ValidateDraft RPC.
 	DocumentServiceValidateDraftProcedure = "/plux.v1.DocumentService/ValidateDraft"
@@ -91,6 +94,13 @@ type DocumentServiceClient interface {
 	// sends (SRV-030).
 	PatchDocument(context.Context, *connect.Request[pluxv1.PatchDocumentRequest]) (*connect.Response[pluxv1.PatchDocumentResponse], error)
 	DeleteDocument(context.Context, *connect.Request[pluxv1.DeleteDocumentRequest]) (*connect.Response[pluxv1.DeleteDocumentResponse], error)
+	// ApplyChangeSet applies one change set: edits to documents of the app
+	// and of several of its plugins, written in one transaction or not at
+	// all (STU-055, STU-070, contracts #15). Each draft's revision is checked
+	// and each draft's editing lock must be held by the session named for it;
+	// every write is tagged with the same undo step, so one change set is one
+	// undo step across plugins (STU-069).
+	ApplyChangeSet(context.Context, *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error)
 	// ValidateDraft runs the compiler's checking stages over the whole draft.
 	ValidateDraft(context.Context, *connect.Request[pluxv1.ValidateDraftRequest]) (*connect.Response[pluxv1.ValidateDraftResponse], error)
 	// ValidatePage checks one edited page as the user types (SCH-042); it
@@ -153,6 +163,12 @@ func NewDocumentServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			httpClient,
 			baseURL+DocumentServiceDeleteDocumentProcedure,
 			connect.WithSchema(documentServiceMethods.ByName("DeleteDocument")),
+			connect.WithClientOptions(opts...),
+		),
+		applyChangeSet: connect.NewClient[pluxv1.ApplyChangeSetRequest, pluxv1.ApplyChangeSetResponse](
+			httpClient,
+			baseURL+DocumentServiceApplyChangeSetProcedure,
+			connect.WithSchema(documentServiceMethods.ByName("ApplyChangeSet")),
 			connect.WithClientOptions(opts...),
 		),
 		validateDraft: connect.NewClient[pluxv1.ValidateDraftRequest, pluxv1.ValidateDraftResponse](
@@ -219,6 +235,7 @@ type documentServiceClient struct {
 	putDocument              *connect.Client[pluxv1.PutDocumentRequest, pluxv1.PutDocumentResponse]
 	patchDocument            *connect.Client[pluxv1.PatchDocumentRequest, pluxv1.PatchDocumentResponse]
 	deleteDocument           *connect.Client[pluxv1.DeleteDocumentRequest, pluxv1.DeleteDocumentResponse]
+	applyChangeSet           *connect.Client[pluxv1.ApplyChangeSetRequest, pluxv1.ApplyChangeSetResponse]
 	validateDraft            *connect.Client[pluxv1.ValidateDraftRequest, pluxv1.ValidateDraftResponse]
 	validatePage             *connect.Client[pluxv1.ValidatePageRequest, pluxv1.ValidatePageResponse]
 	listSnapshots            *connect.Client[pluxv1.ListSnapshotsRequest, pluxv1.ListSnapshotsResponse]
@@ -253,6 +270,11 @@ func (c *documentServiceClient) PatchDocument(ctx context.Context, req *connect.
 // DeleteDocument calls plux.v1.DocumentService.DeleteDocument.
 func (c *documentServiceClient) DeleteDocument(ctx context.Context, req *connect.Request[pluxv1.DeleteDocumentRequest]) (*connect.Response[pluxv1.DeleteDocumentResponse], error) {
 	return c.deleteDocument.CallUnary(ctx, req)
+}
+
+// ApplyChangeSet calls plux.v1.DocumentService.ApplyChangeSet.
+func (c *documentServiceClient) ApplyChangeSet(ctx context.Context, req *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error) {
+	return c.applyChangeSet.CallUnary(ctx, req)
 }
 
 // ValidateDraft calls plux.v1.DocumentService.ValidateDraft.
@@ -311,6 +333,13 @@ type DocumentServiceHandler interface {
 	// sends (SRV-030).
 	PatchDocument(context.Context, *connect.Request[pluxv1.PatchDocumentRequest]) (*connect.Response[pluxv1.PatchDocumentResponse], error)
 	DeleteDocument(context.Context, *connect.Request[pluxv1.DeleteDocumentRequest]) (*connect.Response[pluxv1.DeleteDocumentResponse], error)
+	// ApplyChangeSet applies one change set: edits to documents of the app
+	// and of several of its plugins, written in one transaction or not at
+	// all (STU-055, STU-070, contracts #15). Each draft's revision is checked
+	// and each draft's editing lock must be held by the session named for it;
+	// every write is tagged with the same undo step, so one change set is one
+	// undo step across plugins (STU-069).
+	ApplyChangeSet(context.Context, *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error)
 	// ValidateDraft runs the compiler's checking stages over the whole draft.
 	ValidateDraft(context.Context, *connect.Request[pluxv1.ValidateDraftRequest]) (*connect.Response[pluxv1.ValidateDraftResponse], error)
 	// ValidatePage checks one edited page as the user types (SCH-042); it
@@ -369,6 +398,12 @@ func NewDocumentServiceHandler(svc DocumentServiceHandler, opts ...connect.Handl
 		DocumentServiceDeleteDocumentProcedure,
 		svc.DeleteDocument,
 		connect.WithSchema(documentServiceMethods.ByName("DeleteDocument")),
+		connect.WithHandlerOptions(opts...),
+	)
+	documentServiceApplyChangeSetHandler := connect.NewUnaryHandler(
+		DocumentServiceApplyChangeSetProcedure,
+		svc.ApplyChangeSet,
+		connect.WithSchema(documentServiceMethods.ByName("ApplyChangeSet")),
 		connect.WithHandlerOptions(opts...),
 	)
 	documentServiceValidateDraftHandler := connect.NewUnaryHandler(
@@ -437,6 +472,8 @@ func NewDocumentServiceHandler(svc DocumentServiceHandler, opts ...connect.Handl
 			documentServicePatchDocumentHandler.ServeHTTP(w, r)
 		case DocumentServiceDeleteDocumentProcedure:
 			documentServiceDeleteDocumentHandler.ServeHTTP(w, r)
+		case DocumentServiceApplyChangeSetProcedure:
+			documentServiceApplyChangeSetHandler.ServeHTTP(w, r)
 		case DocumentServiceValidateDraftProcedure:
 			documentServiceValidateDraftHandler.ServeHTTP(w, r)
 		case DocumentServiceValidatePageProcedure:
@@ -482,6 +519,10 @@ func (UnimplementedDocumentServiceHandler) PatchDocument(context.Context, *conne
 
 func (UnimplementedDocumentServiceHandler) DeleteDocument(context.Context, *connect.Request[pluxv1.DeleteDocumentRequest]) (*connect.Response[pluxv1.DeleteDocumentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.DeleteDocument is not implemented"))
+}
+
+func (UnimplementedDocumentServiceHandler) ApplyChangeSet(context.Context, *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.ApplyChangeSet is not implemented"))
 }
 
 func (UnimplementedDocumentServiceHandler) ValidateDraft(context.Context, *connect.Request[pluxv1.ValidateDraftRequest]) (*connect.Response[pluxv1.ValidateDraftResponse], error) {

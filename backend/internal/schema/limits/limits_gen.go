@@ -558,6 +558,10 @@ const (
 	// StudioAutosaveReplays: Times Studio replays an autosave on a newer
 	// revision after a conflict before it asks the user. (STU-004)
 	StudioAutosaveReplays Key = "studio.autosaveReplays"
+	// StudioChangeSetDocuments: Documents one atomic change set may write across
+	// the drafts of an app (moving a screen with its links, redirecting incoming
+	// links). (STU-055, STU-070)
+	StudioChangeSetDocuments Key = "studio.changeSetDocuments"
 	// StudioClipboardBytes: Size of one Studio clipboard envelope; a larger copy
 	// is refused. (STU-067)
 	StudioClipboardBytes Key = "studio.clipboardBytes"
@@ -813,6 +817,7 @@ var registry = [...]Definition{
 	{Key: StateSecureBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
 	{Key: StudioAutosaveDebounceMs, Unit: UnitMilliseconds, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Quiet time after the last edit before Studio autosaves the change as a JSON Patch."},
 	{Key: StudioAutosaveReplays, Unit: UnitCount, Default: 3, Warning: 0, Max: 10, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."},
+	{Key: StudioChangeSetDocuments, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links)."},
 	{Key: StudioClipboardBytes, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 33554432, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Size of one Studio clipboard envelope; a larger copy is refused."},
 	{Key: StudioEventsStreamBufferEvents, Unit: UnitCount, Default: 1000, Warning: 0, Max: 10000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state."},
 	{Key: StudioFavouriteApps, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one user may mark as favourites in an organisation's Studio preferences."},

@@ -4370,6 +4370,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.RevokeDeviceResponse'
+  /plux.v1.DocumentService/ApplyChangeSet:
+    post:
+      tags:
+        - plux.v1.DocumentService
+      summary: ApplyChangeSet
+      description: |-
+        ApplyChangeSet applies one change set: edits to documents of the app
+         and of several of its plugins, written in one transaction or not at
+         all (STU-055, STU-070, contracts #15). Each draft's revision is checked
+         and each draft's editing lock must be held by the session named for it;
+         every write is tagged with the same undo step, so one change set is one
+         undo step across plugins (STU-069).
+      operationId: plux.v1.DocumentService.ApplyChangeSet
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ApplyChangeSetRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ApplyChangeSetResponse'
   /plux.v1.DocumentService/CompareSnapshots:
     post:
       tags:
@@ -13913,6 +13958,41 @@ components:
           description: archived apps are left out of ListApps unless include_archived is set.
       title: App
       additionalProperties: false
+    plux.v1.ApplyChangeSetRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        drafts:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ChangeSetDraft'
+          title: drafts
+        editorSessionId:
+          type: string
+          title: editor_session_id
+          description: editor_session_id and step_id tag every write as in PutDocumentRequest.
+        stepId:
+          type: string
+          title: step_id
+      title: ApplyChangeSetRequest
+      additionalProperties: false
+    plux.v1.ApplyChangeSetResponse:
+      type: object
+      properties:
+        drafts:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ChangeSetDraftResult'
+          title: drafts
+        diagnostics:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Diagnostic'
+          title: diagnostics
+      title: ApplyChangeSetResponse
+      additionalProperties: false
     plux.v1.ApprovalDecision:
       type: object
       properties:
@@ -14825,6 +14905,79 @@ components:
       type: object
       title: ChangePasswordResponse
       additionalProperties: false
+    plux.v1.ChangeSetDraft:
+      type: object
+      properties:
+        pluginId:
+          type: string
+          title: plugin_id
+          description: plugin_id is empty for app-level documents.
+        session:
+          type: string
+          title: session
+          description: session is the editing session that holds this draft's lock.
+        ifDraftRevision:
+          type: string
+          title: if_draft_revision
+          format: int64
+          description: if_draft_revision, when positive, must be the draft's revision.
+        edits:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ChangeSetEdit'
+          title: edits
+      title: ChangeSetDraft
+      additionalProperties: false
+      description: ChangeSetDraft is the part of a change set that falls on one draft.
+    plux.v1.ChangeSetDraftResult:
+      type: object
+      properties:
+        pluginId:
+          type: string
+          title: plugin_id
+        snapshotId:
+          type: string
+          title: snapshot_id
+        revision:
+          type: string
+          title: revision
+          format: int64
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Document'
+          title: documents
+      title: ChangeSetDraftResult
+      additionalProperties: false
+      description: ChangeSetDraftResult is what a change set wrote to one draft.
+    plux.v1.ChangeSetEdit:
+      type: object
+      properties:
+        path:
+          type: string
+          title: path
+        patch:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PatchOp'
+          title: patch
+        content:
+          type: string
+          title: content
+          format: byte
+        delete:
+          type: boolean
+          title: delete
+        ifRevision:
+          type: string
+          title: if_revision
+          format: int64
+          description: if_revision is the document's revision as read; 0 creates with content.
+      title: ChangeSetEdit
+      additionalProperties: false
+      description: |-
+        ChangeSetEdit is one document a change set writes: exactly one of a JSON
+         Patch (which may hold "test" operations), whole content, or a deletion.
     plux.v1.ChangelogEntry:
       type: object
       properties:
