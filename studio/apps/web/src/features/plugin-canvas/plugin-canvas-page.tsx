@@ -8,6 +8,7 @@ import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/re
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
 import type { RouterContext } from "../../router.tsx";
+import { ActionGraphHost } from "../action-graph/index.ts";
 import { DesignersHost } from "../designers/designers-host.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import type { EditSession } from "../editor/edit-session.ts";
@@ -642,6 +643,7 @@ function PluginCanvasView({
         onOpenState={() => overlays.show("state")}
         schemaVersion={stateTarget.schemaVersion}
         onOpenOverlay={overlays.show}
+        onOpenGraph={() => overlays.show("graph")}
       />
       <DesignersHost
         open={overlays.open}
@@ -665,6 +667,14 @@ function PluginCanvasView({
         appDocuments={appDocs.data}
         target={stateTarget}
         validatePage={checked?.validatePage}
+      />
+      <ActionGraphHost
+        open={overlays.open === "graph"}
+        onClose={overlays.hide}
+        documents={docs.data}
+        screenOf={screenOf}
+        pathOf={pathOf}
+        validation={validation}
       />
       {docs.data !== undefined && (
         <ScreensController

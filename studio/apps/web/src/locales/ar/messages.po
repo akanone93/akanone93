@@ -55,6 +55,12 @@ msgstr "{count, plural, zero {# روابط} one {رابط #} two {رابطان} 
 msgid "panels.selectedCount"
 msgstr "{count, plural, zero {لم تُحدَّد عقد} one {تم تحديد عقدة واحدة} two {تم تحديد عقدتين} few {تم تحديد # عقد} many {تم تحديد # عقدة} other {تم تحديد # عقدة}}"
 
+#. Count of problems found in one step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.stepProblems"
+msgstr "{count, plural, zero {لا مشكلات} one {مشكلة واحدة} two {مشكلتان} few {# مشكلات} many {# مشكلة} other {# مشكلة}}"
+
 #. STU-070, STU-072: heading of the list of uses of, or links into, the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -199,6 +205,12 @@ msgstr "{n, plural, zero {0 شاشة} one {شاشة واحدة} two {شاشتا�
 msgid "appCanvas.versions"
 msgstr "{n, plural, zero {0 إصدار} one {إصدار واحد} two {إصداران} few {# إصدارات} many {# إصدارًا} other {# إصدار}}"
 
+#. Accessible name of the plain value field of a step input; name is the input's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.valueNamed"
+msgstr "{name}"
+
 #. A deleted item in the trash list; kind is app, plugin or page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -253,11 +265,29 @@ msgstr "{name}، الإضافة {key}"
 msgid "pluginCanvas.overflow"
 msgstr "{name}: محتوى خارج الشاشة"
 
+#. Accessible name of a PXL expression field of a step input; name is the input's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.pxlNamed"
+msgstr "{name}: تعبير PXL"
+
 #. Shown to the holder when others requested the lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.requests.body"
 msgstr "طلب {names} تحرير هذه الإضافة."
+
+#. Accessible name of the point from which a step's port connects onwards; port is the port's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.outgoing"
+msgstr "اتصال {port}"
+
+#. Label of the list that chooses the step a port continues with; port is the port's name such as next or onError.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.continuesTo"
+msgstr "{port} يؤدي إلى"
 
 #. Reading of an upload's progress, such as 2 KB of 10 KB.
 #. js-lingui-explicit-id
@@ -343,10 +373,34 @@ msgstr "الحساب"
 msgid "profile.account"
 msgstr "الحساب"
 
+#. Button in the right panel that opens the full-screen action graph editor for the selected widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.open"
+msgstr "مخطط الإجراءات"
+
+#. Accessible name of the area in which the steps are drawn.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.graphLabel"
+msgstr "مخطط الإجراءات"
+
+#. Title of the full-screen overlay in which an event's action graph is edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.title"
+msgstr "محرر مخطط الإجراءات"
+
 #. Label of the properties tab that lists and creates the selected widget's navigation links.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.tab"
+msgstr "الإجراءات"
+
+#. Heading of the list of actions that can be added to the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.catalogue"
 msgstr "الإجراءات"
 
 #. Button that adds an entry to a list in a designer.
@@ -354,6 +408,18 @@ msgstr "الإجراءات"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.add"
 msgstr "إضافة"
+
+#. Button that adds the action to the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.add"
+msgstr "إضافة"
+
+#. Accessible name of the button that adds an action to the graph; name is the action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.addNamed"
+msgstr "إضافة {name} إلى المخطط"
 
 #. Choice that adds the navigation after the steps an event already has.
 #. js-lingui-explicit-id
@@ -469,6 +535,12 @@ msgstr "لوحة التطبيق"
 msgid "cmd.group.appearance"
 msgstr "المظهر"
 
+#. Status shown after a change to the graph is made.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.applied"
+msgstr "تم التطبيق"
+
 #. Confirmation after the edited JSON was applied to the document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -517,6 +589,12 @@ msgstr "مؤرشفة"
 msgid "appCanvas.autoLayout"
 msgstr "ترتيب"
 
+#. Button that lays the steps out again automatically.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.autoLayout"
+msgstr "ترتيب"
+
 #. Body shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -546,6 +624,12 @@ msgstr "أسفل"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.title"
 msgstr "مبرر الوصول الطارئ"
+
+#. Heading of the group of built-in actions in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupBuiltin"
+msgstr "مدمجة"
 
 #. Checkbox that marks the widget as a button.
 #. js-lingui-explicit-id
@@ -637,6 +721,12 @@ msgstr "جارٍ فحص الوصول"
 msgid "state.checking"
 msgstr "جارٍ فحص العنصر…"
 
+#. Shown while the validator checks the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.checking"
+msgstr "جارٍ فحص المخطط…"
+
 #. Shown in the Problems tab while the validator runs on the plugin that was just opened.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -720,6 +810,12 @@ msgstr "إغلاق"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.close"
 msgstr "إغلاق"
+
+#. Accessible name of the button that closes the full-screen action graph editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.close"
+msgstr "إغلاق محرر مخطط الإجراءات"
 
 #. Accessible name of the button that closes the data source designer.
 #. js-lingui-explicit-id
@@ -840,6 +936,12 @@ msgstr "تأكيد إجراء مدمّر"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.title"
 msgstr "أكّد هويتك"
+
+#. Accessible name of a connection point of a step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.handle"
+msgstr "نقطة اتصال"
 
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
@@ -1165,6 +1267,12 @@ msgstr "البداية"
 msgid "appCanvas.entryBadge"
 msgstr "الدخول"
 
+#. Tag on the first step of a graph, where it starts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.entry"
+msgstr "البداية"
+
 #. Accessible name of the icon of an error in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -1175,6 +1283,12 @@ msgstr "خطأ"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.event"
+msgstr "الحدث"
+
+#. Label of the list from which the widget event to edit is chosen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.event"
 msgstr "الحدث"
 
 #. Label of the event type filter.
@@ -1249,11 +1363,23 @@ msgstr "نتائج المدقق"
 msgid "pluginCanvas.zoomFit"
 msgstr "ملاءمة"
 
+#. Accessible name of the button that fits the whole graph in view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.fitView"
+msgstr "ملاءمة المخطط للعرض"
+
 #. Status when the edited JSON has errors, so it cannot be applied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.invalid"
 msgstr "أصلح المشكلات أدناه لتتمكن من التطبيق."
+
+#. Heading of the group of the plugin's reusable action graphs in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupFlow"
+msgstr "التدفقات"
 
 #. Option: kept until the app session ends.
 #. js-lingui-explicit-id
@@ -1284,6 +1410,12 @@ msgstr "تأطير التحديد"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanFrom"
 msgstr "من الإصدار"
+
+#. Heading of the group of plugin functions in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupFunction"
+msgstr "الدوال"
 
 #. D27: type of an affected item, a member of the Dart API that plux codegen writes for host apps.
 #. js-lingui-explicit-id
@@ -1320,6 +1452,12 @@ msgstr "الانتقال إلى الصفحة الرئيسية"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.nav.profile"
 msgstr "الانتقال إلى الملف الشخصي"
+
+#. Accessible name of the group of zoom controls.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.controls"
+msgstr "عناصر التحكم في عرض المخطط"
 
 #. Name of the GraphQL format in the import list.
 #. js-lingui-explicit-id
@@ -1369,6 +1507,12 @@ msgstr "تلميح"
 msgid "chrome.home"
 msgstr "الرئيسية"
 
+#. Heading of the group of custom actions registered by the host app in the action list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.groupCustom"
+msgstr "إجراءات التطبيق المضيف"
+
 #. Heading of the import section of the data source designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -1380,6 +1524,12 @@ msgstr "استيراد مصدر بيانات"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.persistence.memory"
 msgstr "في الذاكرة"
+
+#. Accessible name of the point at which connections arrive at a step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.incoming"
+msgstr "اتصال وارد"
 
 #. Accessible name of the icon of an information item in the Problems tab.
 #. js-lingui-explicit-id
@@ -1695,11 +1845,23 @@ msgstr "الترجمة"
 msgid "l10n.open"
 msgstr "جدول الترجمة"
 
+#. Accessible name of the button that locks the view in place.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.lockView"
+msgstr "قفل تحريك العرض أو فتحه"
+
 #. Badge: who holds the editing lock of the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.lockedBy"
 msgstr "مقفلة بواسطة {who}"
+
+#. Button that makes a step the first step of the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.makeEntry"
+msgstr "جعله البداية"
 
 #. Button and dialog title: the plugin whose entry page the app opens.
 #. js-lingui-explicit-id
@@ -1803,6 +1965,12 @@ msgstr "نقل إلى إضافة"
 msgid "appCanvas.moveSelection"
 msgstr "نقل إلى…"
 
+#. Announcement after a step is moved with the keyboard; direction is the direction moved.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.moved"
+msgstr "تم نقل الخطوة المحددة {direction}. الموضع الجديد، x: {x}، y: {y}"
+
 #. Label of the field with the name PXL uses to address a state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -1905,6 +2073,12 @@ msgstr "مسار الرمز الجديد، مثل color.accent"
 msgid "panels.a11yNone"
 msgstr "لا توجد مشكلات إمكانية وصول لهذا العنصر."
 
+#. Shown when the search matches no action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nothingFound"
+msgstr "لا يوجد إجراء مطابق."
+
 #. Shown in the Assets tab when the app has no files.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -1946,6 +2120,12 @@ msgstr "لم يتم العثور على مشكلات."
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.noProblems"
 msgstr "لم يتم العثور على مشكلات."
+
+#. Shown when the validator finds no problem in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.noProblems"
+msgstr "لم يُعثر على مشكلات."
 
 #. Shown when validation found nothing.
 #. js-lingui-explicit-id
@@ -2049,6 +2229,12 @@ msgstr "الإشعارات"
 msgid "notify.inbox.failed"
 msgstr "تعذّر تحميل الإشعارات."
 
+#. Option of the list of target steps that leaves the port unconnected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nowhere"
+msgstr "لا مكان"
+
 #. Status chip: the browser has no network.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -2121,6 +2307,12 @@ msgstr "إضافة أخرى"
 msgid "panels.overridden"
 msgstr "مُتجاوَز لفئة الحجم هذه"
 
+#. Accessible name of the small overview map of the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.miniMap"
+msgstr "نظرة عامة على المخطط"
+
 #. Field label for the team that owns a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -2181,6 +2373,24 @@ msgstr "يحتاج Plux Studio إلى WebGL2 لرسم اللوحة. استخدم
 msgid "appCanvas.readOnly"
 msgstr "المواضع للقراءة فقط ما دام شخص آخر يحرّر التطبيق."
 
+#. Description read by screen readers for each connection in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.edgeHint"
+msgstr "اضغط Enter أو Space لتحديد الاتصال. اضغط Delete لإزالته."
+
+#. Description read by screen readers for each step in a graph that cannot be edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nodeHintFixed"
+msgstr "اضغط Enter أو Space لتحديد الخطوة."
+
+#. Description read by screen readers for each step in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.nodeHint"
+msgstr "اضغط Enter أو Space لتحديد الخطوة. اربطها عبر القوائم داخل الخطوة، واحذفها بالضغط على Delete."
+
 #. Label of the field that holds the primary key of a collection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2209,6 +2419,12 @@ msgstr "المشكلات"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.problems"
+msgstr "المشكلات"
+
+#. Heading of the list of problems found in the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.problems"
 msgstr "المشكلات"
 
 #. Label of the profile menu button and its first entry.
@@ -2245,6 +2461,12 @@ msgstr "الخصائص"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.pxl"
+msgstr "تعبير PXL"
+
+#. Label of the switch that writes a step input as a PXL expression.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.pxl"
 msgstr "تعبير PXL"
 
 #. D37 button: take the lock again and send the unsaved changes.
@@ -2433,6 +2655,18 @@ msgstr "إزالة خطة الترحيل"
 msgid "safety.fix.remove-outgoing"
 msgstr "إزالة الروابط الصادرة"
 
+#. Button that removes a step and the edges that lead to it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.removeStep"
+msgstr "إزالة الخطوة"
+
+#. Accessible name of the button that removes a step; id is the step's identifier.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.removeNamed"
+msgstr "إزالة الخطوة {id}"
+
 #. Accessible name of the button that removes a token; {token} is its path.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2473,6 +2707,12 @@ msgstr "طلب التحرير"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsRequired"
+msgstr "مطلوب"
+
+#. Tag on a step input that must be given.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.required"
 msgstr "مطلوب"
 
 #. Accessible name of the button that removes the override of one property.
@@ -2516,6 +2756,12 @@ msgstr "نوع النتيجة: {type}"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.resume"
 msgstr "استئناف"
+
+#. Shows the type a step's result has on its output port; type is a type expression.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.outputType"
+msgstr "يعيد {type}"
 
 #. Edge inset on the right.
 #. js-lingui-explicit-id
@@ -2589,6 +2835,12 @@ msgstr "الشاشات"
 msgid "pluginCanvas.screens"
 msgstr "الشاشات بترتيب التنقل"
 
+#. Label of the field that filters the list of actions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.search"
+msgstr "البحث في الإجراءات"
+
 #. Label of the search field of the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2618,6 +2870,12 @@ msgstr "اختر مصدر بيانات لتحريره."
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.nothing"
 msgstr "حدد عنصرًا على اللوحة لتحريره."
+
+#. Shown in the action graph editor when no widget is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.noSelection"
+msgstr "حدد عنصرًا على اللوحة لتحرير مخطط الإجراءات لأحداثه."
 
 #. Shown in the Actions tab when no widget is selected.
 #. js-lingui-explicit-id
@@ -3003,6 +3261,12 @@ msgstr "القيمة التجريبية هي ما تعرضه اللوحة ما �
 msgid "auth.error.passkey"
 msgstr "تعذّر استخدام مفتاح المرور."
 
+#. Shown when the editing lock is not held.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.readOnly"
+msgstr "الإضافة مقفلة من قبل شخص آخر: المخطط للقراءة فقط."
+
 #. Shown when fetching the last published version for the comparison failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -3118,6 +3382,12 @@ msgstr "المدقق غير متاح، لذا لا يُفحص الافتراضي
 msgid "designers.unavailable"
 msgstr "المدقق غير متاح."
 
+#. Shown when the validator worker cannot check the graph.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.unavailable"
+msgstr "المدقق غير متاح."
+
 #. Status when the validator has not finished loading, so applying is not possible.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -3208,6 +3478,18 @@ msgstr "لم يُنشر هذا المستند بعد، لذا لا يوجد ما
 msgid "state.computed"
 msgstr "يُحسب هذا العنصر من تعبير؛ حرر التعبير في محرر JSON."
 
+#. Shown when the event's action graph has no steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.empty"
+msgstr "لا توجد خطوات لهذا الحدث بعد. أضف إجراءً من القائمة."
+
+#. Shown when an event's $graph reference names no action graph document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.unresolved"
+msgstr "يشير هذا الحدث إلى مخطط إجراءات غير موجود."
+
 #. Reason a screen cannot be deleted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -3285,6 +3567,12 @@ msgstr "لهذه الشاشة تغييرات غير محفوظة. انتظر ح�
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.noEvents"
 msgstr "لا يملك هذا العنصر أحداثًا يمكن أن يبدأ منها رابط."
+
+#. Shown in the action graph editor when the selected widget declares no events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.noEvents"
+msgstr "لا تحتوي هذه الأداة على أحداث."
 
 #. Shown in the Actions tab when the selected widget navigates nowhere.
 #. js-lingui-explicit-id
@@ -3459,6 +3747,12 @@ msgstr "صالح. يمكنك تطبيقه."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.valid"
 msgstr "صالح. يمكنك تطبيقه."
+
+#. Label of a step input written as a plain value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.literal"
+msgstr "قيمة"
 
 #. Label of the field that holds the value of a token to add.
 #. js-lingui-explicit-id
@@ -3652,10 +3946,22 @@ msgstr "التكبير {percent}٪"
 msgid "pluginCanvas.zoomIn"
 msgstr "تكبير"
 
+#. Accessible name of the button that zooms the graph in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.zoomIn"
+msgstr "تكبير"
+
 #. Button that zooms the canvas out.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomOut"
+msgstr "تصغير"
+
+#. Accessible name of the button that zooms the graph out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/action-graph/action-graph.messages.ts
+msgid "actionGraph.zoomOut"
 msgstr "تصغير"
 
 #. Button: show every plugin box in the view.
