@@ -1,0 +1,14 @@
+{
+  "name": "layer2-file-uploader",
+  "layer2": true,
+  "root": {
+    "id": "uploader",
+    "type": "FileUploader",
+    "props": {
+      "dataSource": "uploads",
+      "operation": "send",
+      "label": "Choose a file",
+      "uploadLabel": "Upload"
+    }
+  }
+}

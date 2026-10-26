@@ -157,6 +157,13 @@ export interface SceneNode {
   slot?: string;
   props: Record<string, unknown>;
   children?: SceneNode[];
+  /** The named children of a Plux node, as the runtime's golden writer reads them (a `SizedBox`'s `child`). */
+  slots?: Record<string, SceneNode>;
+}
+
+/** The nodes below `node`: its children, then its slots. */
+export function childrenOf(node: SceneNode): SceneNode[] {
+  return [...(node.children ?? []), ...Object.values(node.slots ?? {})];
 }
 
 /** A conformance scene, shared verbatim with the Flutter golden writer. */
@@ -285,7 +292,7 @@ export function supportedTypes(): ReadonlySet<string> {
 /** Every node type the scene uses. */
 export function sceneTypes(node: SceneNode, into: Set<string> = new Set()): Set<string> {
   into.add(node.type);
-  for (const child of node.children ?? []) {
+  for (const child of childrenOf(node)) {
     sceneTypes(child, into);
   }
   return into;
@@ -409,7 +416,7 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
   const maxLines = optionalNum(props, "maxLines") ?? text.defaults?.maxLines ?? null;
   return new RenderParagraph({
     strutStyle: buildStrut(field(props, "strutStyle") as Record<string, unknown> | undefined),
-    text: { text: String(field(props, "text")), style: textStyle },
+    text: { text: String(field(props, "text") ?? field(props, "data")), style: textStyle },
     textDirection,
     engine: text.engine,
     textScaler: text.textScaler,
@@ -1093,6 +1100,22 @@ function buildMaterialNode(
 
 const layer2Builders = new Map(layer2WidgetBuilders);
 
+/** A scene node as the screen builder reads it; `sources` maps each widget back to its scene node. */
+function widgetOf(node: SceneNode, sources: Map<WidgetNode, SceneNode>): WidgetNode {
+  const slots = Object.entries(node.slots ?? {});
+  const widget: WidgetNode = {
+    id: node.id,
+    type: node.type,
+    props: node.props,
+    ...(node.children === undefined ? {} : { children: node.children.map((child) => widgetOf(child, sources)) }),
+    ...(slots.length === 0
+      ? {}
+      : { slots: Object.fromEntries(slots.map(([name, child]) => [name, widgetOf(child, sources)])) }),
+  };
+  sources.set(widget, node);
+  return widget;
+}
+
 /** Builds a Layer 2 component with the screen builder, text laid out as the scene's engine and scale say. */
 function buildLayer2(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox {
   if (text === null) {
@@ -1102,14 +1125,19 @@ function buildLayer2(node: SceneNode, textDirection: TextDirection, text: SceneT
   if (builder === undefined) {
     throw unsupported(node);
   }
-  const widget: WidgetNode = { id: node.id, type: node.type, props: node.props };
+  const sources = new Map<WidgetNode, SceneNode>();
+  const widget = widgetOf(node, sources);
   const width = text.screen?.width ?? defaultScreenTheme.width;
   const ctx: WidgetContext = {
     engine: text.engine,
     theme: { ...defaultScreenTheme, width, fontFamilies: ["NotoSans"] },
     textDirection,
-    build: () => {
-      throw new Error(`node "${node.id}": ${node.type} takes no children yet`);
+    build: (child) => {
+      const source = sources.get(child);
+      if (source === undefined) {
+        throw new Error(`node "${node.id}": ${node.type} built a node that is not its own`);
+      }
+      return buildNode(source, textDirection, text);
     },
     available: () => width,
     paragraph: (value, paragraphStyle, options) =>
@@ -1159,7 +1187,7 @@ export function buildNode(
   if (materialTypes.has(node.type)) {
     return buildMaterialNode(node, textDirection, text, t);
   }
-  const children = (node.children ?? []).map((child) => buildNode(child, textDirection, text, t));
+  const children = childrenOf(node).map((child) => buildNode(child, textDirection, text, t));
   const child = singleChild(node, children);
   const props = node.props;
   let box: RenderBox;
@@ -1301,8 +1329,8 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
         : {
             engine,
             textScaler: TextScaler.linear(golden.textScale),
-            // The golden writer's Material scope gives every Text `bodyMedium`, as Flutter's root `Material` does.
-            ...([...sceneTypes(scene.root)].some((type) => materialTypes.has(type))
+            // The golden writer's Material scope (a Layer 2 page's Scaffold too) gives every Text `bodyMedium`, as Flutter's root `Material` does.
+            ...(scene.layer2 === true || [...sceneTypes(scene.root)].some((type) => materialTypes.has(type))
               ? { base: style("bodyMedium") }
               : {}),
             devicePixelRatio: golden.frame.devicePixelRatio,
@@ -1349,7 +1377,7 @@ export function sceneGoldenRects(scene: Scene, view: RenderView): ReturnType<typ
         rects[node.id] = rect;
       }
     }
-    for (const c of node.children ?? []) {
+    for (const c of childrenOf(node)) {
       alias(c);
     }
   };

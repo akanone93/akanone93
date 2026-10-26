@@ -14,6 +14,7 @@ import { loadCanvasKit, testParagraphEngine } from "../test-support/canvaskit.ts
 import { compareBaselines, compareRects, edgeTolerance, type GoldenRect, textTolerance } from "./compare.ts";
 import {
   buildNode,
+  childrenOf,
   disposeParagraphs,
   flexTypes,
   layOutScene,
@@ -46,7 +47,7 @@ function textIds(node: SceneNode, into: Set<string> = new Set()): Set<string> {
   ) {
     into.add(node.id);
   }
-  for (const c of node.children ?? []) {
+  for (const c of childrenOf(node)) {
     textIds(c, into);
   }
   return into;
