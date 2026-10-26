@@ -1,0 +1,14 @@
+{
+  "name": "layer2-account-card",
+  "layer2": true,
+  "root": {
+    "id": "card",
+    "type": "AccountCard",
+    "props": {
+      "name": "Everyday account",
+      "maskedNumber": "•••• 4821",
+      "balance": { "$expr": "money(\"1234.56\", \"EUR\")" },
+      "backLabel": "Account details"
+    }
+  }
+}

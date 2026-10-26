@@ -9,6 +9,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { type CanvasKitParagraphEngine, type LayoutGolden, TextDirection } from "../src/index.ts";
+import { layer2Types } from "../src/widgets/layer2.ts";
 import { loadCanvasKit, testParagraphEngine } from "../test-support/canvaskit.ts";
 import { compareBaselines, compareRects, edgeTolerance, type GoldenRect, textTolerance } from "./compare.ts";
 import {
@@ -38,7 +39,11 @@ const hasText = (scene: Scene): boolean => [...sceneTypes(scene.root)].some((typ
 /** Ids whose rect is a paragraph's (Text, and an Expanded or Flexible around one): ADR-0013's text tolerance. */
 function textIds(node: SceneNode, into: Set<string> = new Set()): Set<string> {
   const child = node.children?.[0];
-  if (node.type === "Text" || ((node.type === "Expanded" || node.type === "Flexible") && child?.type === "Text")) {
+  if (
+    node.type === "Text" ||
+    layer2Types.has(node.type) ||
+    ((node.type === "Expanded" || node.type === "Flexible") && child?.type === "Text")
+  ) {
     into.add(node.id);
   }
   for (const c of node.children ?? []) {

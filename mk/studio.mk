@@ -37,6 +37,7 @@ studio-conformance: ## Compare Studio's layout with Flutter's goldens (STU-005)
 
 studio-conformance-update: ## Regenerate the layout goldens with Flutter
 	cd test/layout-conformance && UPDATE_GOLDENS=1 flutter test
+	cd packages/plux_flutter && UPDATE_GOLDENS=1 flutter test test/render/layout_goldens_test.dart
 
 studio-cover: studio-test ## Enforce Studio coverage floors (QA-001)
 	$(COVGATE) -kind studio studio/coverage/lcov.info

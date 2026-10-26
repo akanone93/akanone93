@@ -28,6 +28,7 @@ import { RenderView } from "../flutter/view.ts";
 import { globalRects } from "../node-rects.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
+import { layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
 
 /** One widget of a screen document: structured-clone data only. */
@@ -64,6 +65,11 @@ export const defaultScreenTheme: ScreenTheme = {
   spacing: 8,
 };
 
+/** What a builder may set on a paragraph besides its style. */
+export interface ParagraphOptions {
+  readonly textDirection?: TextDirection;
+}
+
 /** What a builder needs: the engine, the theme, and the labels it records. */
 export interface WidgetContext {
   readonly engine: ParagraphEngine;
@@ -73,7 +79,9 @@ export interface WidgetContext {
   /** The width available to the widget being built. */
   available(): number;
   /** A paragraph of `text` in the theme's style, owned by the layout. */
-  paragraph(text: string, style?: TextStyle): RenderParagraph;
+  paragraph(text: string, style?: TextStyle, options?: ParagraphOptions): RenderParagraph;
+  /** The ambient text direction (default left to right). */
+  readonly textDirection?: TextDirection;
   /** Records how the box with `id` is drawn. */
   mark(id: string, kind: PlacedKind, text?: string): void;
 }
@@ -373,6 +381,7 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ["CupertinoTabScaffold", wrapper],
   ["CupertinoListSection", (node, ctx) => flex(Axis.vertical, node, ctx)],
   ...materialWidgetBuilders,
+  ...layer2WidgetBuilders,
   ...cupertinoWidgetBuilders,
 ]);
 
@@ -418,10 +427,10 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
       }
     },
     available: () => widths.at(-1) ?? theme.width,
-    paragraph(text, override) {
+    paragraph(text, override, paragraphOptions) {
       const p = new RenderParagraph({
         text: { text, style: override ?? style },
-        textDirection: TextDirection.ltr,
+        textDirection: paragraphOptions?.textDirection ?? TextDirection.ltr,
         engine: options.engine,
       });
       paragraphs.push(p);
