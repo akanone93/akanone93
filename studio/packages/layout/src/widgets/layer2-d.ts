@@ -341,9 +341,13 @@ const animation: WidgetBuilder = (node) => named(node, sized(0, 0));
 
 /**
  * `MapView` and `OrderTrackerMap`: the map as wide as the space and, with no height from the parent, three quarters of
- * that high. Its markers, route and the ETA badge sit on the map and take no space.
+ * that high. Its markers, route and the ETA badge sit on the map and take no space. The canvas draws no map, so the
+ * box is marked as a labelled placeholder.
  */
-const map: WidgetBuilder = (node, ctx) => named(node, sized(ctx.available(), ctx.available() * 0.75));
+const map: WidgetBuilder = (node, ctx) => {
+  ctx.mark(node.id, "placeholder", node.type);
+  return named(node, sized(ctx.available(), ctx.available() * 0.75));
+};
 
 /**
  * `QrCodeView`: a square of `size` (200 by default, at least 16). No runtime golden is possible for it (the scanner
@@ -358,7 +362,10 @@ const qrCodeView: WidgetBuilder = (node) => {
  * `QrScanner` and `BarcodeScanner`: the camera view fills its parent, so a design-time screen, which has no camera,
  * lays out a square as wide as the space. Checked as a box only, by a unit test (see `QrCodeView`).
  */
-const scanner: WidgetBuilder = (node, ctx) => named(node, sized(ctx.available(), ctx.available()));
+const scanner: WidgetBuilder = (node, ctx) => {
+  ctx.mark(node.id, "placeholder", node.type);
+  return named(node, sized(ctx.available(), ctx.available()));
+};
 
 /** `WizardForm`: the progress, the shown step and the buttons: Back (after the first step), then Next or Submit. */
 const wizardForm: WidgetBuilder = (node, ctx) => {
