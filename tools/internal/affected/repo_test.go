@@ -226,7 +226,8 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 			files: []string{
 				"mk/stack.mk", "scripts/test-db.sh", "docs/engineering/testing.md", "docs/guides/run-locally.md", "docs/WORKLOG.md",
 			},
-			want: []string{"compose", "image-arm64", "zap-api"},
+			// P11 added the Studio jobs that run against the Compose stack (studio-e2e, zap-studio).
+			want: []string{"compose", "image-arm64", "studio-e2e", "zap-api", "zap-studio"},
 		},
 		{
 			name: "PR #10: retry the pathops downloads, the Run it locally guide",
@@ -284,7 +285,8 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 		{
 			name:  "Studio",
 			files: []string{"studio/biome.json"},
-			want:  []string{"studio"},
+			// Every job that builds or serves Studio covers studio/** (P11).
+			want: []string{"studio", "studio-e2e", "studio-image-repro", "zap-studio"},
 		},
 		{
 			name:  "the Dart job's block of ci.yml",

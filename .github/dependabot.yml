@@ -78,6 +78,23 @@ updates:
       svgc:
         update-types: [minor, patch]
 
+  # The layout conformance harness (STU-005) resolves outside the workspace,
+  # so it has its own lockfile.
+  - package-ecosystem: pub
+    directory: "/test/layout-conformance"
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      conformance:
+        update-types: [minor, patch]
+
   - package-ecosystem: bun
     directory: "/studio"
     schedule:
@@ -125,6 +142,21 @@ updates:
       include: scope
     groups:
       images:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: "/studio"
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      studio-images:
         update-types: [minor, patch]
 
   - package-ecosystem: docker-compose
