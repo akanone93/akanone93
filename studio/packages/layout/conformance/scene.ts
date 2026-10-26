@@ -1093,6 +1093,14 @@ function buildMaterialNode(
 
 const layer2Builders = new Map(layer2WidgetBuilders);
 
+function widgetOf(node: SceneNode): WidgetNode {
+  return { id: node.id, type: node.type, props: node.props, children: (node.children ?? []).map(widgetOf) };
+}
+
+function sceneOf(node: WidgetNode): SceneNode {
+  return { id: node.id, type: node.type ?? "", props: node.props ?? {}, children: (node.children ?? []).map(sceneOf) };
+}
+
 /** Builds a Layer 2 component with the screen builder, text laid out as the scene's engine and scale say. */
 function buildLayer2(node: SceneNode, textDirection: TextDirection, text: SceneText | null): RenderBox {
   if (text === null) {
@@ -1102,15 +1110,14 @@ function buildLayer2(node: SceneNode, textDirection: TextDirection, text: SceneT
   if (builder === undefined) {
     throw unsupported(node);
   }
-  const widget: WidgetNode = { id: node.id, type: node.type, props: node.props };
+  const widget = widgetOf(node);
   const width = text.screen?.width ?? defaultScreenTheme.width;
   const ctx: WidgetContext = {
     engine: text.engine,
     theme: { ...defaultScreenTheme, width, fontFamilies: ["NotoSans"] },
     textDirection,
-    build: () => {
-      throw new Error(`node "${node.id}": ${node.type} takes no children yet`);
-    },
+    textScale: text.textScaler.textScaleFactor,
+    build: (child) => buildNode(sceneOf(child), textDirection, text),
     available: () => width,
     paragraph: (value, paragraphStyle, options) =>
       new RenderParagraph({

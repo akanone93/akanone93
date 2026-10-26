@@ -1,0 +1,12 @@
+{
+  "name": "layer2-phone-input",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "PhoneInput",
+    "props": {
+      "label": "Phone",
+      "region": "DE"
+    }
+  }
+}
