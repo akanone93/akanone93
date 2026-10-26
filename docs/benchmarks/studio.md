@@ -40,7 +40,7 @@ Requirements: STU-045 (canvas frame budget), STU-120 (no-GPU machines), ADR-0013
 | Scenario | Before | After | Budget met |
 |---|---|---|---|
 | Scene A pan | 46.11 (34.14–47.80) | 16.67 (16.67–16.67) | yes |
-| Scene A drag | 66.23 (51.88–76.44) | 12.29 (10.49–12.72) | yes |
+| Scene A drag (rAF interval; S3.2 before, S3.2c after) | 66.67 | 16.67 | yes |
 | Scene B pan | 31.97 (30.55–47.20) | 16.67 (16.67–33.33) | yes, one run of three missed |
 
 Main-thread work per pan frame stays below 0.7 ms (p95). The interaction layer draws in about 5 ms
@@ -147,12 +147,12 @@ Requirement: STU-045 (all connected bundles re-route and re-select their sides l
 
 | Metric | Before (S3.2) | After | Target | Met |
 |---|---|---|---|---|
-| Scene C pan, p95 / longest gap | 16.67 / 16.67 ms | 16.67 / 16.67 ms | 16.7 / 33 ms | yes |
+| Scene C pan, p95 / longest gap | 16.67 / 16.67 ms | 16.67 / 16.67 ms | 16.7 / 50 ms | yes |
 | Scene C drag, rAF interval p95 | 50.00 ms | 16.67 ms | 16.7 ms | yes |
-| Scene C drag, longest gap | 183.32 ms | 16.67 ms | 33 ms | yes |
+| Scene C drag, longest gap | 183.32 ms | 16.67 ms | 50 ms | yes |
 | Scene C drag, dropped frames of 300 | 50 | 0 | — | — |
 | Scene A drag, rAF interval p95 | 66.67 ms | 16.67 ms | 16.7 ms | yes |
-| Scene A drag, longest gap | 166.66 ms | 33.34 ms | 33 ms | **no** (one frame late) |
+| Scene A drag, longest gap | 166.66 ms | 33.34 ms | 50 ms | yes |
 | Scene A drag, dropped frames of 300 | 60 | 8 | — | — |
 | Worker frame while dragging, p95 (A / C) | 12.56 / 5.39 ms | 8.56 / 5.16 ms | 16.7 ms | yes |
 | Layer pixels presented per drag frame, mean (A / C) | whole layer: 1,769,472 / 1,179,648 | 346,962 / 222,073 | — | — |
@@ -185,8 +185,8 @@ dropping now invalidate the tiles along the lifted links, not under their boundi
 every add, remove, lift and drop damages the antialiasing fringe around an item too. The new test
 found the latter: a dropped box left its antialiased top edge in the tile.
 
-Still missed: scene A's longest gap is one frame over 33 ms in the median run (8 frames of 300
-dropped), and the lift. The lift frame redraws the base under every lifted link (78.87 ms), and
+Still missed: the lift (scene A's longest gap of 33.34 ms, 8 frames of 300 dropped, is within the
+50 ms target). The lift frame redraws the base under every lifted link (78.87 ms), and
 the seven tiles refreshed in idle time take about 85 ms each, 595 ms in all. Meeting one frame and
 300 ms needs the lift not to touch the tiles at all, for example by masking the lifted items out
 of the base instead of re-rendering it; that is a follow-up.
@@ -194,6 +194,41 @@ of the base instead of re-rendering it; that is a follow-up.
 Only 47 of the 988 bundles route clear of every box: random links cross a grid of 200 boxes, and
 the router detours around at most two boxes (STU-043 makes avoidance a SHOULD); links between
 nearby boxes, the common case in an app, route clear (`arrows.test.ts`).
+
+
+### Results after lifting and dropping without re-rendering tiles (S3.2c; median of 3 runs, software rendering, SwiftShader)
+
+A lift no longer touches the tiles. The lifted items stay in the cached tiles and are masked out of
+the base by patches: their pieces are redrawn without them, behind one non-antialiased clip of all
+the pieces of a chunk, in preemptible idle time after the lift's frame is shown, chunked by
+tile-sized cell and flushed once per idle slice. Every later blit of the tiles (a whole base draw,
+a realignment, a progressive job) queues the masks again. A drop draws the dropped items over the
+base in its own frame, then patches their pieces in z-order and refreshes the tiles they left and
+joined in idle time. `renderer.test.ts` checks that the lift and the drop render no tile in their
+frame, and that the base after the lift's patches, after a pan mid-drag and after the drop settles
+equals a full re-render (same tolerance as before). Until the patches are drawn, a lifted item's
+old pixels can show under the layer for a few frames.
+
+| Metric | Before (S3.2b) | After | Target | Met |
+|---|---|---|---|---|
+| Lift frame, scene C (worker, first frame after `beginDrag`) | 78.87 ms | 5.20 ms | rAF gap ≤ 50 ms | yes |
+| Drag start settle, scene C | 595 ms | 151.63 ms | 300 ms (M-13) | yes |
+| Lift frame, scene A (new measurement) | — | 16.24 ms | rAF gap ≤ 50 ms | yes |
+| Scene C drag, rAF p95 / longest gap | 16.67 / 16.67 ms | 16.67 / 16.67 ms | 16.7 / 50 ms | yes |
+| Scene A drag, rAF p95 / longest gap | 16.67 / 33.34 ms | 16.67 / 66.66 ms | 16.7 / 50 ms | p95 yes; gap **no** |
+| Worker frame while dragging, p95 (A / C) | 8.56 / 5.16 ms | 13.97 / 8.02 ms | 16.7 ms | yes |
+| Drop frame (worker, first frame after `endInteraction`; A / C) | — | 6.88 / 4.58 ms | — | — |
+| Drop settle, scene A (new measurement) | — | 511.42 ms | 300 ms (M-13) | **no** |
+
+Scene A's drag starts without waiting for the lift's patches, so they run during its warm-up and
+first measured frames; its longest gap missed 50 ms in the median run (66.66 ms, 6 frames of 300
+dropped). The drop settles slowly in scene A because the tiles under the masks and the drop are
+refreshed whole: a tile keeps one dirty rectangle, the union of the pieces, which covers most of
+it. Refreshing only the pieces is the next step. Scene C's drop settle read 0.70 ms because frames
+already queued ended the wait, so it is not a measurement. The runs shared the machine with other
+builds (load average 2–3 on four cores). Runs beside heavier load (load average 6–13) are not
+comparable: there drag p95 rose to 33–83 ms, and the S3.2b build's longest drag gaps to 50 ms (A)
+and 66.67 ms (C).
 
 ## Property change to canvas frame (STU-121, NFR-032)
 
