@@ -1,0 +1,60 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-alert-dialog-content-only",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "en",
+  "textScale": 2.0,
+  "rects": {
+    "dialog": [
+      0.0,
+      0.0,
+      800.0,
+      1280.0
+    ],
+    "dialog-a0": [
+      245.0,
+      683.65,
+      154.85000000000002,
+      78.0
+    ],
+    "dialog-a0-text": [
+      270.13647918701173,
+      699.65,
+      104.57704162597656,
+      46.0
+    ],
+    "dialog-a1": [
+      400.15,
+      683.65,
+      154.85000000000002,
+      78.0
+    ],
+    "dialog-a1-text": [
+      453.13561553955077,
+      699.65,
+      48.87876892089844,
+      46.0
+    ],
+    "dialog-content": [
+      265.0,
+      538.35,
+      270.0,
+      105.0
+    ],
+    "dialog-content-text": [
+      265.0,
+      538.35,
+      270.0,
+      105.0
+    ]
+  },
+  "baselines": {
+    "dialog-a0-text": 35.918399810791016,
+    "dialog-a1-text": 35.918399810791016,
+    "dialog-content-text": 27.54911994934082
+  }
+}

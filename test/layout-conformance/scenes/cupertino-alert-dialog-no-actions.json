@@ -1,0 +1,42 @@
+{
+  "name": "cupertino-alert-dialog-no-actions",
+  "root": {
+    "id": "dialog",
+    "type": "CupertinoAlertDialog",
+    "props": {},
+    "children": [
+      {
+        "id": "dialog-title",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "title"
+        },
+        "children": [
+          {
+            "id": "dialog-title-text",
+            "type": "Text",
+            "props": {
+              "text": "Notice"
+            }
+          }
+        ]
+      },
+      {
+        "id": "dialog-content",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "content"
+        },
+        "children": [
+          {
+            "id": "dialog-content-text",
+            "type": "Text",
+            "props": {
+              "text": "Nothing to do here."
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

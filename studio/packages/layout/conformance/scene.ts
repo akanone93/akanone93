@@ -136,6 +136,8 @@ export interface SceneText {
   defaults?: TextDefaults;
   /** The frame's device pixel ratio, for hairlines that are one physical pixel. */
   devicePixelRatio?: number;
+  /** The frame's size, for widgets that size themselves to the screen. */
+  screen?: { width: number; height: number };
 }
 
 /** The `DefaultTextStyle` fields besides the style that a composite sets. */
@@ -1255,6 +1257,7 @@ export function layOutScene(scene: Scene, golden: LayoutGolden, engine: Paragrap
               ? { base: style("bodyMedium") }
               : {}),
             devicePixelRatio: golden.frame.devicePixelRatio,
+            screen: { width: golden.frame.width, height: golden.frame.height },
           },
       scene.t ?? 1,
     ),

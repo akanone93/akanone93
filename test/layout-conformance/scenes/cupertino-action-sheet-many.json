@@ -1,0 +1,263 @@
+{
+  "name": "cupertino-action-sheet-many",
+  "root": {
+    "id": "sheet",
+    "type": "CupertinoActionSheet",
+    "props": {},
+    "children": [
+      {
+        "id": "sheet-title",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "title"
+        },
+        "children": [
+          {
+            "id": "sheet-title-text",
+            "type": "Text",
+            "props": {
+              "text": "Share"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-message",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "message"
+        },
+        "children": [
+          {
+            "id": "sheet-message-text",
+            "type": "Text",
+            "props": {
+              "text": "Send this to someone."
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a0",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a0-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 0"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a1",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a1-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a2",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a2-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a3",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a3-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a4",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a4-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a5",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a5-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 5"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a6",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a6-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 6"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a7",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a7-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 7"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a8",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a8-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 8"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a9",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a9-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 9"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a10",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a10-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 10"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a11",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a11-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 11"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a12",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a12-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 12"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-a13",
+        "type": "CupertinoActionSheetAction",
+        "props": {},
+        "children": [
+          {
+            "id": "sheet-a13-text",
+            "type": "Text",
+            "props": {
+              "text": "Option number 13"
+            }
+          }
+        ]
+      },
+      {
+        "id": "sheet-cancel",
+        "type": "CupertinoSlot",
+        "props": {
+          "slot": "cancelButton"
+        },
+        "children": [
+          {
+            "id": "sheet-cancel-action",
+            "type": "CupertinoActionSheetAction",
+            "props": {
+              "isDefaultAction": true
+            },
+            "children": [
+              {
+                "id": "sheet-cancel-action-text",
+                "type": "Text",
+                "props": {
+                  "text": "Cancel"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

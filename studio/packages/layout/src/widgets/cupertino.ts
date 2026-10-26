@@ -23,10 +23,25 @@ import {
   cupertinoTextField,
   navBarEdge,
 } from "../flutter/cupertino.ts";
+import {
+  cupertinoContextMenu,
+  cupertinoContextMenuAction,
+  cupertinoContextMenuActionFontSize,
+} from "../flutter/cupertino-context-menu.ts";
+import { cupertinoDatePicker, kDatePickerItemExtent } from "../flutter/cupertino-date-picker.ts";
+import {
+  actionSheetActionFontSize,
+  cupertinoActionSheet,
+  cupertinoActionSheetAction,
+  cupertinoAlertDialog,
+  cupertinoDialogAction,
+  cupertinoDialogTextStyles,
+} from "../flutter/cupertino-dialog.ts";
 import { cupertinoSlidingSegment, cupertinoSlidingSegmentedControl } from "../flutter/cupertino-sliding.ts";
-import { TextDirection } from "../flutter/geometry.ts";
+import { Size, TextDirection } from "../flutter/geometry.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
+import type { TextStyle } from "../flutter/text-style.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 
 const direction = TextDirection.ltr;
@@ -69,6 +84,101 @@ function paragraph(ctx: WidgetContext, text: string | undefined, fallback: strin
 /** `CupertinoDatePicker` and `CupertinoPicker` are 216 pt tall in Flutter's own examples and HIG. */
 const kPickerHeight = 216;
 
+function labelsOf(node: WidgetNode, type: string): string[] {
+  return (node.children ?? []).filter((child) => child.type === type).map((child) => labelOf(child) ?? "");
+}
+
+function dataText(node: WidgetNode, name: string): string | undefined {
+  const value = data(node)[name];
+  return typeof value === "string" && value !== "" ? value : undefined;
+}
+
+/** `CupertinoAlertDialog` as a static state: the dialog's own metrics at the regular text size. */
+function alertDialog(node: WidgetNode, ctx: WidgetContext): RenderBox {
+  const styles = cupertinoDialogTextStyles;
+  const part = (name: string, style: TextStyle): RenderBox | null => {
+    const label = dataText(node, name);
+    return label === undefined ? null : ctx.paragraph(label, style);
+  };
+  const actions = labelsOf(node, "CupertinoDialogAction").map((label) =>
+    cupertinoDialogAction({
+      child: ctx.paragraph(label, styles.action),
+      fontSize: styles.action.fontSize,
+      textScaleFactor: 1,
+      textDirection: direction,
+    }),
+  );
+  return wide(
+    ctx,
+    cupertinoAlertDialog({
+      title: part("title", styles.title),
+      content: part("content", styles.content),
+      actions,
+      textScaleFactor: 1,
+      textDirection: direction,
+    }),
+  );
+}
+
+/** `CupertinoActionSheet` as a static state: the sheet across the screen width, with its cancel button. */
+function actionSheet(node: WidgetNode, ctx: WidgetContext): RenderBox {
+  const content = cupertinoDialogTextStyles.sheetContent;
+  const actionStyle = { fontSize: actionSheetActionFontSize(1) };
+  const action = (label: string): RenderBox =>
+    cupertinoActionSheetAction({
+      child: ctx.paragraph(label, actionStyle),
+      textScaleFactor: 1,
+      textDirection: direction,
+    });
+  const title = dataText(node, "title");
+  const message = dataText(node, "message");
+  const cancel = dataText(node, "cancel");
+  return wide(
+    ctx,
+    cupertinoActionSheet({
+      title:
+        title === undefined
+          ? null
+          : ctx.paragraph(title, { ...content, fontWeight: message === undefined ? 400 : 600 }),
+      message:
+        message === undefined
+          ? null
+          : ctx.paragraph(message, { ...content, fontWeight: title === undefined ? 600 : 400 }),
+      actions: labelsOf(node, "CupertinoActionSheetAction").map(action),
+      cancel: cancel === undefined ? null : action(cancel),
+      screen: new Size(ctx.available(), Number.POSITIVE_INFINITY),
+      safeTop: 0,
+      safeBottom: 0,
+      textDirection: direction,
+    }),
+  );
+}
+
+/** The sample rows of each mode's columns: the selected value of 9 April 2018 10:30, as a screen shows the picker at rest. */
+const datePickerColumns: Readonly<Record<string, readonly string[]>> = {
+  time: ["10", "30", "AM"],
+  dateAndTime: ["Mon Apr 9", "10", "30", "AM"],
+  date: ["April", "9", "2018"],
+};
+
+/** `CupertinoDatePicker`: a 216-pt wheel per column across the available width. */
+function datePicker(node: WidgetNode, ctx: WidgetContext): RenderBox {
+  const mode = String(data(node)["mode"] ?? "dateAndTime");
+  const texts = datePickerColumns[mode] ?? datePickerColumns["dateAndTime"] ?? [];
+  const rows = texts.map((text) => [ctx.paragraph(text)]);
+  const picker = cupertinoDatePicker({
+    kind: mode === "date" ? "date" : "dateTime",
+    pickers: rows,
+    columnWidths: rows.map((column) => column[0]?.getMaxIntrinsicWidth(Number.POSITIVE_INFINITY) ?? 0),
+    itemExtent: kDatePickerItemExtent,
+    textDirection: direction,
+  });
+  return new RenderConstrainedBox({
+    additionalConstraints: BoxConstraints.tightFor({ width: ctx.available(), height: kPickerHeight }),
+    child: picker,
+  });
+}
+
 const sizes = new Set(["small", "medium", "large"]);
 
 /** The Cupertino builders; [defaultWidgetBuilders] includes them. */
@@ -88,6 +198,34 @@ export const cupertinoWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new M
         }),
         label,
       );
+    },
+  ],
+  ["CupertinoAlertDialog", (node, ctx) => marked(node, ctx, alertDialog(node, ctx))],
+  ["CupertinoActionSheet", (node, ctx) => marked(node, ctx, actionSheet(node, ctx))],
+  ["CupertinoDatePicker", (node, ctx) => marked(node, ctx, datePicker(node, ctx))],
+  [
+    "CupertinoContextMenu",
+    // The static state is the closed menu: its child; the actions only show in the open sheet.
+    (node, ctx) => {
+      const child = (node.children ?? []).find((c) => c.type !== "CupertinoContextMenuAction");
+      const label = labelOf(node);
+      return marked(
+        node,
+        ctx,
+        cupertinoContextMenu(child === undefined ? paragraph(ctx, label, "Menu") : ctx.build(child)),
+        label,
+      );
+    },
+  ],
+  [
+    "CupertinoContextMenuAction",
+    (node, ctx) => {
+      const label = labelOf(node);
+      const row = cupertinoContextMenuAction({
+        child: ctx.paragraph(label ?? "Action", { fontSize: cupertinoContextMenuActionFontSize }),
+        textDirection: direction,
+      });
+      return marked(node, ctx, wide(ctx, row), label);
     },
   ],
   ["CupertinoSwitch", (node, ctx) => marked(node, ctx, cupertinoSwitch())],

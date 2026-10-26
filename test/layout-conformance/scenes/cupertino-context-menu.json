@@ -1,0 +1,36 @@
+{
+  "name": "cupertino-context-menu",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "menu",
+        "type": "CupertinoContextMenu",
+        "props": {
+          "actions": [
+            "Share",
+            "Copy",
+            "Delete"
+          ]
+        },
+        "children": [
+          {
+            "id": "preview",
+            "type": "SizedBox",
+            "props": {
+              "width": 120,
+              "height": 80
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

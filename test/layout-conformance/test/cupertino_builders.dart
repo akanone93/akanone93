@@ -10,6 +10,8 @@
 import 'package:flutter/cupertino.dart';
 
 const Set<String> cupertinoTypes = <String>{
+  'CupertinoDatePicker', //
+  'CupertinoContextMenu', 'CupertinoContextMenuAction', 'CupertinoAlertDialog', 'CupertinoDialogAction', 'CupertinoActionSheet', 'CupertinoActionSheetAction', //
   'CupertinoButton', 'CupertinoSwitch', 'CupertinoSlider', 'CupertinoTabBar', 'CupertinoTabItem', //
   'CupertinoNavigationBar', 'CupertinoNavSlot', 'CupertinoPageScaffold', 'CupertinoSlot', 'CupertinoTabScaffold', 'CupertinoPicker', 'CupertinoListTile', //
   'CupertinoListSection', 'CupertinoTextField', 'CupertinoSegmentedControl', 'CupertinoSlidingSegmentedControl', 'CupertinoSliverNavigationBar',
@@ -17,10 +19,19 @@ const Set<String> cupertinoTypes = <String>{
 
 /// Types that take several children.
 const Set<String> cupertinoMultiChild = <String>{
+  'CupertinoContextMenu', 'CupertinoAlertDialog', 'CupertinoActionSheet', //
   'CupertinoTabBar', 'CupertinoNavigationBar', 'CupertinoPageScaffold', 'CupertinoTabScaffold', 'CupertinoListTile', //
   'CupertinoListSection',
   'CupertinoSegmentedControl', 'CupertinoPicker', 'CupertinoSlidingSegmentedControl', 'CupertinoSliverNavigationBar',
 };
+
+/// The families the dialog styles name (`CupertinoSystemText`, `CupertinoSystemDisplay`), registered with the harness font.
+const List<(String, String)> cupertinoFonts = <(String, String)>[
+  ('CupertinoSystemText', 'NotoSans_400Regular.ttf'),
+  ('CupertinoSystemText', 'NotoSans_700Bold.ttf'),
+  ('CupertinoSystemDisplay', 'NotoSans_400Regular.ttf'),
+  ('CupertinoSystemDisplay', 'NotoSans_700Bold.ttf'),
+];
 
 TextStyle _style(double size, [FontWeight weight = FontWeight.w400]) =>
     TextStyle(fontFamily: 'NotoSans', fontSize: size, fontWeight: weight, letterSpacing: 0);
@@ -77,6 +88,11 @@ bool _hasSlot(List<Map<String, Object?>> raw, String name) => raw.any(
       (n['props'] as Map<String, Object?>)['slot'] == name,
 );
 
+List<Widget> _ofType(List<Map<String, Object?>> raw, List<Widget> built, String type) => <Widget>[
+  for (int i = 0; i < raw.length; i++)
+    if (raw[i]['type'] == type) built[i],
+];
+
 /// Builds the Cupertino node [node] of [type] from its built [children].
 Widget buildCupertino(
   Map<String, Object?> node,
@@ -89,6 +105,70 @@ Widget buildCupertino(
     for (final Object? c in (node['children'] as List<Object?>?) ?? <Object?>[]) c! as Map<String, Object?>,
   ];
   switch (node['type']! as String) {
+    case 'CupertinoContextMenu':
+      return CupertinoContextMenu(
+        key: key,
+        // The actions are the open sheet's rows; they are not part of the scene tree.
+        actions: <Widget>[
+          for (final Object? label in (props['actions'] as List<Object?>?) ?? <Object?>['Action'])
+            CupertinoContextMenuAction(onPressed: () {}, child: Text(label! as String)),
+        ],
+        child: children.single,
+      );
+    case 'CupertinoContextMenuAction':
+      return CupertinoContextMenuAction(
+        key: key,
+        isDefaultAction: props['isDefaultAction'] == true,
+        isDestructiveAction: props['isDestructiveAction'] == true,
+        onPressed: () {},
+        child: children.single,
+      );
+    case 'CupertinoDatePicker':
+      return CupertinoDatePicker(
+        key: key,
+        mode: CupertinoDatePickerMode.values.byName((props['mode'] as String?) ?? 'dateAndTime'),
+        initialDateTime: DateTime(2018, 4, 9, 10, 30),
+        use24hFormat: props['use24hFormat'] == true,
+        itemExtent: _num(props['itemExtent']) ?? 32,
+        onDateTimeChanged: (DateTime _) {},
+      );
+    case 'CupertinoAlertDialog':
+      return _withSafeArea(
+        props,
+        CupertinoAlertDialog(
+          key: key,
+          title: _hasSlot(raw, 'title') ? _slot(raw, children, 'title') : null,
+          content: _hasSlot(raw, 'content') ? _slot(raw, children, 'content') : null,
+          actions: _ofType(raw, children, 'CupertinoDialogAction'),
+        ),
+      );
+    case 'CupertinoDialogAction':
+      return CupertinoDialogAction(
+        key: key,
+        isDefaultAction: props['isDefaultAction'] == true,
+        isDestructiveAction: props['isDestructiveAction'] == true,
+        onPressed: () {},
+        child: children.single,
+      );
+    case 'CupertinoActionSheet':
+      return _withSafeArea(
+        props,
+        CupertinoActionSheet(
+          key: key,
+          title: _hasSlot(raw, 'title') ? _slot(raw, children, 'title') : null,
+          message: _hasSlot(raw, 'message') ? _slot(raw, children, 'message') : null,
+          actions: _ofType(raw, children, 'CupertinoActionSheetAction'),
+          cancelButton: _hasSlot(raw, 'cancelButton') ? _slot(raw, children, 'cancelButton') : null,
+        ),
+      );
+    case 'CupertinoActionSheetAction':
+      return CupertinoActionSheetAction(
+        key: key,
+        isDefaultAction: props['isDefaultAction'] == true,
+        isDestructiveAction: props['isDestructiveAction'] == true,
+        onPressed: () {},
+        child: children.single,
+      );
     case 'CupertinoButton':
       final CupertinoButtonSize size = CupertinoButtonSize.values.byName((props['size'] as String?) ?? 'large');
       final double min = switch (size) {
