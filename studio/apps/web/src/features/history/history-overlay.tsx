@@ -9,10 +9,11 @@ import { AlertDialog, Button, Dialog, Select, TypeTag } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
+import { toServerDocument } from "../editor/document-transport.ts";
 import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
 import { MonacoView } from "../json-editor/lazy-view.tsx";
 import { type HistoryMessages, historyMessages } from "./history.messages.ts";
-import { orderedPair, restoreRecipes } from "./history-model.ts";
+import { missingPaths, orderedPair, restoreRecipes, sessionTag } from "./history-model.ts";
 
 export interface HistoryOverlayProps {
   readonly open: boolean;
@@ -166,10 +167,25 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
       const res = await documents.getSnapshot({ id: s.id });
       restores.current += 1;
       const group = `history:restore:${restores.current}`;
+      const open = session.store.getState().docs;
       const applied = restoreRecipes(res.documents).filter(
-        (e) => session.edit(e.path, e.recipe, { group }) !== undefined,
+        (e) => open[e.path] !== undefined && session.edit(e.path, e.recipe, { group }) !== undefined,
       );
-      setNote(applied.length === 0 ? m.restoredNothing : m.restored(applied.length));
+      // Documents the plugin no longer has come back through the server (STU-069).
+      const missing = missingPaths(res.documents, (p) => open[p] !== undefined);
+      let brought = 0;
+      if (missing.length > 0) {
+        await documents.restoreSnapshot({ id: s.id, paths: [...missing] });
+        for (const p of missing) {
+          const back = await documents.getDocument({ appId, pluginId: plugin, path: p });
+          if (back.document !== undefined) {
+            session.open(toServerDocument(back.document));
+            brought += 1;
+          }
+        }
+      }
+      const total = applied.length + brought;
+      setNote(total === 0 ? m.restoredNothing : m.restored(total));
     } catch {
       setNote(m.restoreFailed);
     }
@@ -221,6 +237,11 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
                   {m.by(s.actor?.display === undefined || s.actor.display === "" ? m.unknownAuthor : s.actor.display)}
                 </span>
                 <TypeTag>{reasonOf(s.reason, m)}</TypeTag>
+                {s.editorSessionId !== "" && (
+                  <span className="text-data text-secondary" title={m.sessionTitle}>
+                    {m.sessionTag(sessionTag(s.editorSessionId))}
+                  </span>
+                )}
                 <Button
                   size="sm"
                   variant="secondary"

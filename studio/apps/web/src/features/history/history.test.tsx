@@ -7,7 +7,7 @@ import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import type { MonacoViewProps } from "../json-editor/monaco-view.types.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
-import { orderedPair, restoreRecipes } from "./history-model.ts";
+import { missingPaths, orderedPair, restoreRecipes, sessionTag } from "./history-model.ts";
 
 /** Monaco needs a real browser; the overlay's own behaviour is tested against a stand-in with the same props. */
 const views: MonacoViewProps[] = [];
@@ -80,6 +80,38 @@ describe("STU-069 history overlay V9", () => {
     expect(view.dataset["newer"]).toContain('"route": "start"');
   });
 
+  test("restore brings back a deleted document through RestoreSnapshot", async () => {
+    let edit: EditSession | undefined;
+    const restoredSnapshots: { id: string; paths: string[] }[] = [];
+    const extra = { kind: "page", path: "pages/gone.page.json", json: { id: "gone", kind: "page" } };
+    renderApp(path, {
+      documents,
+      snapshots: [{ id: "s3", revision: 3, reason: "write", author: "Ada", documents: [plugin, page("home"), extra] }],
+      restoredSnapshots,
+      surface,
+      editor: (e) => (edit = e),
+    });
+    await open();
+    await screen.findByRole("list", { name: "Snapshots" });
+    fireEvent.click(screen.getAllByRole("button", { name: /^Restore the snapshot of/ })[0] as HTMLElement);
+    fireEvent.click(await screen.findByRole("button", { name: "Restore" }));
+    await waitFor(() => expect(restoredSnapshots).toEqual([{ id: "s3", paths: ["pages/gone.page.json"] }]));
+    await waitFor(() => expect(edit?.store.getState().docs["pages/gone.page.json"]).toBeDefined());
+  });
+
+  test("each snapshot shows the tag of its editor session", async () => {
+    renderApp(path, {
+      documents,
+      snapshots: [
+        { ...(snapshots[0] as (typeof snapshots)[number]), editorSession: "abcdef12-3456" },
+        snapshots[1] as (typeof snapshots)[number],
+      ],
+      surface,
+    });
+    await open();
+    expect(await screen.findByText("session abcdef12")).toBeTruthy();
+  });
+
   test("restore asks for confirmation and writes the snapshot through the edit pipeline as one step", async () => {
     let edit: EditSession | undefined;
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
@@ -106,6 +138,20 @@ describe("STU-069 history overlay V9", () => {
 });
 
 describe("history model", () => {
+  test("missingPaths names the documents the editor lacks and sessionTag shortens an id", () => {
+    const enc = new TextEncoder().encode("{}");
+    expect(
+      missingPaths(
+        [
+          { path: "a", content: enc },
+          { path: "b", content: enc },
+        ],
+        (p) => p === "a",
+      ),
+    ).toEqual(["b"]);
+    expect(sessionTag("abcdef12-3456")).toBe("abcdef12");
+  });
+
   test("orderedPair puts the older revision first and needs exactly two", () => {
     const rows = [
       { id: "a", revision: 5n },

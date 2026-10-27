@@ -445,6 +445,12 @@ msgstr "Aktionen"
 msgid "actionGraph.catalogue"
 msgstr "Aktionen"
 
+#. Button that adds a state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateAdd"
+msgstr "Hinzufügen"
+
 #. Button that adds an entry to a list in a designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -462,6 +468,12 @@ msgstr "Hinzufügen"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.addNamed"
 msgstr "{name} zum Graphen hinzufügen"
+
+#. Accessible name of the form that adds a state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateAddForm"
+msgstr "Zustandseintrag hinzufügen"
 
 #. Choice that adds the navigation after the steps an event already has.
 #. js-lingui-explicit-id
@@ -1339,6 +1351,12 @@ msgstr "Bearbeiten"
 msgid "history.reasonWrite"
 msgstr "Änderung"
 
+#. Tooltip of the editor-session tag of a snapshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.sessionTitle"
+msgstr "Editor-Sitzung, die diesen Snapshot erstellt hat"
+
 #. Label of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1704,6 +1722,12 @@ msgstr "Eingehende Verbindung"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.severity.info"
 msgstr "Information"
+
+#. Accessible name of the field that edits a state entry's initial value; the placeholder is its name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateDefault"
+msgstr "Anfangswert von {name}"
 
 #. Tab: add widgets to the screen.
 #. js-lingui-explicit-id
@@ -2192,6 +2216,18 @@ msgstr "Name"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.name"
 msgstr "Name"
+
+#. Accessible name of the field that renames a state entry; the placeholder is its current name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateRename"
+msgstr "Name des Zustandseintrags {name}"
+
+#. Accessible name of the field for the name of a new state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateAddName"
+msgstr "Name des neuen Zustandseintrags"
 
 #. Group of the Insert tab: widgets of the host app (native slots) and custom widgets.
 #. js-lingui-explicit-id
@@ -3261,6 +3297,12 @@ msgstr "Sensibel"
 msgid "designers.dbSensitive"
 msgstr "Sensibel"
 
+#. Tag on a snapshot: the short id of the editor session that made it; the placeholder is that id.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.sessionTag"
+msgstr "Sitzung {tag}"
+
 #. Label of the list that chooses whether a state entry is a single value, a list or a map.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -3608,6 +3650,12 @@ msgstr "Die Datei wurde auf dem Weg zum Server beschädigt. Lade sie erneut hoch
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImportFailed"
 msgstr "Der Importer ist nicht verfügbar."
+
+#. Shown beside a state entry's initial value that does not parse as JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateNotJson"
+msgstr "Der Anfangswert ist kein gültiges JSON."
 
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
@@ -4149,6 +4197,12 @@ msgstr "Das Hochladen von {name} ist fehlgeschlagen."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.passkey"
 msgstr "Passkey verwenden"
+
+#. Shown beside a state entry name that is empty, malformed or already taken.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateNameProblem"
+msgstr "Einen eindeutigen Namen in lowerCamelCase verwenden."
 
 #. Validation error of the new password.
 #. js-lingui-explicit-id

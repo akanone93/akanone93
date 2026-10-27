@@ -4,14 +4,22 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { PluginService } from "@plux/api";
-import { Button, Icon, Meter, MetricStrip, type StatusKind, StatusPill, TypeTag } from "@plux/ui";
+import { Button, Icon, Input, Meter, MetricStrip, type StatusKind, StatusPill, TypeTag } from "@plux/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { type FormEvent, type KeyboardEvent, useMemo, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { extrasOf } from "../action-graph/graph-model.ts";
 import { type DesignerDocument, useDocumentValue } from "../designers/use-document.ts";
-import { readState } from "../state-designer/state-model.ts";
+import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
+import {
+  addEntryRecipe,
+  nameProblem,
+  parseDefault,
+  readState,
+  type StateEntry,
+  setFieldRecipe,
+} from "../state-designer/state-model.ts";
 import {
   type BudgetStatus,
   budgetStatus,
@@ -34,11 +42,98 @@ export interface SummaryTabProps {
   readonly onOpen: (() => void) | undefined;
 }
 
-/** The State tab of the left panel (STU-061): a summary of the plugin's state that opens the state designer. */
+/** One state entry with inline rename and initial-value fields; each commits on Enter or blur through the edit pipeline. */
+function StateRow({
+  entry,
+  names,
+  path,
+}: {
+  readonly entry: StateEntry;
+  readonly names: readonly string[];
+  readonly path: string | undefined;
+}) {
+  const m = tabMessages(useLingui().i18n);
+  const session = useEditSession();
+  const canEdit = useCanEdit() && path !== undefined;
+  const [name, setName] = useState(entry.name);
+  const [text, setText] = useState(entry.defaultText);
+  const nameBad = nameProblem(
+    name,
+    names.filter((n) => n !== entry.name),
+  );
+  const defaultBad = parseDefault(text) === undefined;
+  const commit = (field: string, value: unknown) => {
+    if (path !== undefined) {
+      session.edit(path, setFieldRecipe(entry.id, field, value), { group: `state:${entry.id}:${field}` });
+    }
+  };
+  const commitName = () => {
+    if (nameBad === undefined && name !== entry.name) {
+      commit("name", name);
+    }
+  };
+  const commitDefault = () => {
+    const parsed = parseDefault(text);
+    if (parsed !== undefined && text !== entry.defaultText) {
+      commit("default", parsed === null ? undefined : parsed.value);
+    }
+  };
+  const onEnter = (fn: () => void) => (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      fn();
+    }
+  };
+  return (
+    <li className="flex flex-col gap-1 text-body">
+      <div className="flex items-center gap-2">
+        <Input
+          aria-label={m.stateRename(entry.name)}
+          value={name}
+          dir="ltr"
+          readOnly={!canEdit}
+          aria-invalid={nameBad !== undefined}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={commitName}
+          onKeyDown={onEnter(commitName)}
+        />
+        <TypeTag>{entry.type}</TypeTag>
+      </div>
+      {!entry.computed && (
+        <Input
+          aria-label={m.stateDefault(entry.name)}
+          value={text}
+          dir="ltr"
+          readOnly={!canEdit}
+          aria-invalid={defaultBad}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={commitDefault}
+          onKeyDown={onEnter(commitDefault)}
+        />
+      )}
+      {nameBad !== undefined && <span className="text-caption text-secondary">{m.stateNameProblem}</span>}
+      {defaultBad && <span className="text-caption text-secondary">{m.stateNotJson}</span>}
+    </li>
+  );
+}
+
+/** The State tab of the left panel (STU-061): the plugin's state with inline add, rename and initial-value forms, and the state designer. */
 export function StateTab({ documents, onOpen }: SummaryTabProps) {
   const m = tabMessages(useLingui().i18n);
-  const entries = readState(useDocumentValue(documents, "plugin.json").value);
+  const session = useEditSession();
+  const canEdit = useCanEdit();
+  const { path, value } = useDocumentValue(documents, "plugin.json");
+  const entries = readState(value);
   const computed = entries.filter((e) => e.computed).length;
+  const [fresh, setFresh] = useState("");
+  const names = entries.map((e) => e.name);
+  const freshBad = nameProblem(fresh, names);
+  const add = (e: FormEvent) => {
+    e.preventDefault();
+    if (canEdit && path !== undefined && freshBad === undefined) {
+      session.edit(path, addEntryRecipe({ id: crypto.randomUUID(), name: fresh, type: "string" }));
+      setFresh("");
+    }
+  };
   return (
     <div className="flex flex-col gap-2">
       {entries.length === 0 ? (
@@ -48,15 +143,26 @@ export function StateTab({ documents, onOpen }: SummaryTabProps) {
           <p className="text-body">
             {m.stateSummary(entries.length)}, {m.stateComputed(computed)}
           </p>
-          <ul aria-label={m.stateList} className="flex flex-col gap-0.5">
+          <ul aria-label={m.stateList} className="flex flex-col gap-2">
             {entries.map((e) => (
-              <li key={e.id} className="flex items-center gap-2 text-body">
-                <code className="truncate">{e.name}</code>
-                <TypeTag>{e.type}</TypeTag>
-              </li>
+              <StateRow key={`${e.id}:${e.name}:${e.defaultText}`} entry={e} names={names} path={path} />
             ))}
           </ul>
         </>
+      )}
+      {canEdit && (
+        <form onSubmit={add} aria-label={m.stateAddForm} className="flex items-center gap-2">
+          <Input
+            aria-label={m.stateAddName}
+            value={fresh}
+            dir="ltr"
+            aria-invalid={fresh !== "" && freshBad !== undefined}
+            onChange={(e) => setFresh(e.target.value)}
+          />
+          <Button type="submit" variant="secondary" size="sm" disabled={freshBad !== undefined}>
+            {m.stateAdd}
+          </Button>
+        </form>
       )}
       {onOpen !== undefined && (
         <Button variant="secondary" size="sm" onClick={onOpen}>

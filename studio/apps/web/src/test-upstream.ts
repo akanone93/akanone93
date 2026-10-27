@@ -75,8 +75,11 @@ export interface UpstreamData {
     revision: number;
     reason: string;
     author: string;
+    editorSession?: string;
     documents: { path: string; json: unknown }[];
   }[];
+  /** Collects the RestoreSnapshot calls. */
+  restoredSnapshots?: { id: string; paths: string[] }[];
   /** Collects plugin RPCs the app canvas sends, as `delete:<id>` and `archive:<id>`. */
   pluginCalls?: string[];
   /** The app's trash, and the ids restored from it. */
@@ -234,6 +237,7 @@ export function createUpstream(state: UpstreamData) {
           revision: BigInt(x.revision),
           reason: x.reason,
           actor: { kind: "user", id: "u", display: x.author },
+          editorSessionId: x.editorSession ?? "",
           createdAt: { seconds: BigInt(1_700_000_000 + x.revision * 60), nanos: 0 },
         })),
       }),
@@ -249,6 +253,10 @@ export function createUpstream(state: UpstreamData) {
             return JSON.stringify(x?.json) === JSON.stringify(y?.json) ? [] : [{ path, change, patch: [] }];
           }),
         };
+      },
+      restoreSnapshot: (req) => {
+        state.restoredSnapshots?.push({ id: req.id, paths: [...req.paths] });
+        return { snapshotId: "restored" };
       },
       getSnapshot: (req) => ({
         documents: (req.id === "snap-1"
@@ -288,6 +296,21 @@ export function createUpstream(state: UpstreamData) {
       applyChangeSet: (req) => {
         state.changeSets?.push(req);
         return {};
+      },
+      // The document a restore brought back: found in the snapshots by path.
+      getDocument: (req) => {
+        const found = (state.snapshots ?? []).flatMap((x) => x.documents).find((d) => d.path === req.path);
+        return {
+          document:
+            found === undefined
+              ? undefined
+              : create(DocumentSchema, {
+                  pluginId: req.pluginId,
+                  path: found.path,
+                  revision: 1n,
+                  content: new TextEncoder().encode(JSON.stringify(found.json)),
+                }),
+        };
       },
       listDocuments: (req) => ({
         documents: (req.pluginId === ""

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
-import { cleanup, fireEvent, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
+import type { EditSession } from "../editor/edit-session.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { budgetStatus, compactJson, functionsIn, nodeBudget, stringsIn, subtreeOf } from "./tab-model.ts";
 
@@ -74,6 +75,29 @@ describe("S5.6 panel tabs (STU-061, STU-062)", () => {
     expect(await screen.findByText("1 data source, 1 mock, 0 collections")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Open the data source designer" }));
     expect(await screen.findByRole("dialog")).toBeTruthy();
+  });
+
+  test("STU-061 the State tab adds, renames and sets the initial value of an entry through the edit pipeline", async () => {
+    let edit: EditSession | undefined;
+    renderApp(path, { documents, surface: surface("b1"), editor: (e) => (edit = e) });
+    fireEvent.click(await screen.findByRole("tab", { name: "State" }, { timeout: 5000 }));
+    const state = () =>
+      ((edit?.store.getState().docs["plugin.json"]?.content ?? {}) as { state?: Record<string, unknown>[] }).state ??
+      [];
+
+    fireEvent.change(await screen.findByLabelText("Name of the new state entry"), { target: { value: "total" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+    await waitFor(() => expect(state().map((e) => e["name"])).toEqual(["count", "double", "total"]));
+
+    const rename = screen.getByLabelText("Name of state entry count");
+    fireEvent.change(rename, { target: { value: "clicks" } });
+    fireEvent.blur(rename);
+    await waitFor(() => expect(state()[0]?.["name"]).toBe("clicks"));
+
+    const initial = await screen.findByLabelText("Initial value of clicks");
+    fireEvent.change(initial, { target: { value: "5" } });
+    fireEvent.blur(initial);
+    await waitFor(() => expect(state()[0]?.["default"]).toBe(5));
   });
 
   test("STU-062 the right JSON, Code, Localisation and Performance tabs describe the selection", async () => {
