@@ -36,7 +36,8 @@ afterAll(() => {
   engine.dispose();
 });
 
-const hasText = (scene: Scene): boolean => [...sceneTypes(scene.root)].some((type) => textTypes.has(type) || labelledTypes.has(type));
+const hasText = (scene: Scene): boolean =>
+  [...sceneTypes(scene.root)].some((type) => textTypes.has(type) || labelledTypes.has(type));
 
 /** Ids whose rect is a paragraph's (Text, and an Expanded or Flexible around one): ADR-0013's text tolerance. */
 function textIds(node: SceneNode, into: Set<string> = new Set()): Set<string> {

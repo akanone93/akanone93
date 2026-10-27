@@ -52,7 +52,6 @@ import {
   kToolbarHeight,
   MaterialTapTargetSize,
   m3TextStyle,
-  scaledPadding,
   type TextRole,
   VisualDensity,
 } from "../flutter/material/theme.ts";
@@ -176,6 +175,13 @@ function syntheticText(
   return box;
 }
 
+/** The trailing arrow of a `DropdownMenu`: an icon no golden id names. */
+function arrowIcon(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const arrow = ctx.build({ id: `${node.id}:arrow`, type: "Icon", props: {} });
+  arrow.debugId = null;
+  return arrow;
+}
+
 /** `TextField` with an `InputDecoration`: the input line is one line of `bodyLarge`; label and hint add no box. */
 function buildTextField(node: SceneNode, ctx: MaterialContext, trailingArrow = false): RenderBox {
   const p = node.props;
@@ -203,10 +209,7 @@ function buildTextField(node: SceneNode, ctx: MaterialContext, trailingArrow = f
         });
   const leading = only(node, "icon");
   // A `DropdownMenu`'s arrow: a 24-px icon button's icon, in the suffix.
-  const arrow = trailingArrow ? ctx.build({ id: `${node.id}:arrow`, type: "Icon", props: {} }) : null;
-  if (arrow !== null) {
-    arrow.debugId = null;
-  }
+  const arrow = trailingArrow ? arrowIcon(node, ctx) : null;
   return buildInputDecorator({
     input: new RenderEditableLine(line),
     // `InputDecoration.icon`: padded by 16 after it.
@@ -232,7 +235,8 @@ function buildTextField(node: SceneNode, ctx: MaterialContext, trailingArrow = f
             defaults: { overflow: "ellipsis" },
           }),
     prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
-    suffixIcon: arrow !== null ? decoratorIcon(arrow, dens) : suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
+    suffixIcon:
+      arrow !== null ? decoratorIcon(arrow, dens) : suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
     subtext:
       subtext === null
         ? null
@@ -248,18 +252,19 @@ function buildTextField(node: SceneNode, ctx: MaterialContext, trailingArrow = f
   });
 }
 
-/** The width of a `DropdownMenu` whose `width` is not set: its widest entry, the trailing button and the prefix gap. */
+/** The width of a `DropdownMenu` whose `width` is not set: its widest entry (a 12-px padding each side, not scaled), the trailing button and the field's own gaps. */
 function dropdownWidth(node: SceneNode, ctx: MaterialContext, trailing: boolean): number {
-  const scale = ctx.text?.textScaler.textScaleFactor ?? 1;
-  const [start, , end] = scaledPadding([12, 0, 12, 0], [8, 0, 8, 0], [4, 0, 4, 0], scale);
+  const itemPadding = 24;
   let widest = 0;
-  const entries = Array.isArray(node.props["dropdownMenuEntries"]) ? (node.props["dropdownMenuEntries"] as unknown[]) : [];
+  const entries = Array.isArray(node.props["dropdownMenuEntries"])
+    ? (node.props["dropdownMenuEntries"] as unknown[])
+    : [];
   for (const entry of entries) {
     const text = typeof entry === "object" && entry !== null ? (entry as Record<string, unknown>)["label"] : undefined;
     const box = syntheticText(node, "entry", typeof text === "string" ? text : "", ctx, style("labelLarge"));
-    widest = Math.max(widest, box.getMaxIntrinsicWidth(Number.POSITIVE_INFINITY) + start + end);
+    widest = Math.max(widest, box.getMaxIntrinsicWidth(Number.POSITIVE_INFINITY) + itemPadding);
   }
-  return Math.max(112, widest + (trailing ? 56 : 0) + 16);
+  return Math.max(112, widest + (trailing ? 56 : 0) + 20);
 }
 
 /** `DropdownMenu`: an outlined field as wide as its entries, with the trailing arrow; the menu is not open at design time. */

@@ -14,7 +14,7 @@
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { Axis, CrossAxisAlignment, FlexFit, FlexParentData, MainAxisSize, RenderFlex } from "../flutter/flex.ts";
 import { AlignmentDirectional, EdgeInsets, EdgeInsetsDirectional } from "../flutter/geometry.ts";
-import { type Steb, m3TextStyle, scaledPadding, type TextRole } from "../flutter/material/theme.ts";
+import { m3TextStyle, type Steb, scaledPadding, type TextRole } from "../flutter/material/theme.ts";
 import { RenderOverflowBar } from "../flutter/overflow-bar.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
@@ -39,7 +39,9 @@ function num(node: SceneNode, name: string, fallback: number): number {
 }
 
 function records(value: unknown): Record<string, unknown>[] {
-  return Array.isArray(value) ? value.filter((v): v is Record<string, unknown> => typeof v === "object" && v !== null) : [];
+  return Array.isArray(value)
+    ? value.filter((v): v is Record<string, unknown> => typeof v === "object" && v !== null)
+    : [];
 }
 
 function textScale(ctx: MaterialContext): number {
@@ -81,11 +83,20 @@ function scaledSides(scale: number, one: Steb, two: Steb, three: Steb): readonly
 const bottomAppBar: Builder = (node, ctx) => {
   const height = num(node, "height", 80);
   const child = slotOf(node, "child")[0];
-  const inset = node.props["padding"] === undefined ? EdgeInsets.symmetric({ horizontal: 16, vertical: 12 }) : padding(node.props["padding"]);
+  const inset =
+    node.props["padding"] === undefined
+      ? EdgeInsets.symmetric({ horizontal: 16, vertical: 12 })
+      : padding(node.props["padding"]);
   return new RenderConstrainedBox({
-    additionalConstraints: new BoxConstraints({ minWidth: Number.POSITIVE_INFINITY, minHeight: height, maxHeight: height }),
+    additionalConstraints: new BoxConstraints({
+      minWidth: Number.POSITIVE_INFINITY,
+      minHeight: height,
+      maxHeight: height,
+    }),
     child:
-      child === undefined ? null : new RenderPadding({ padding: inset, textDirection: ctx.direction, child: ctx.build(child) }),
+      child === undefined
+        ? null
+        : new RenderPadding({ padding: inset, textDirection: ctx.direction, child: ctx.build(child) }),
   });
 };
 
@@ -94,7 +105,11 @@ const calendarDatePicker: Builder = (_node, ctx) => {
   const scale = Math.min(3, textScale(ctx));
   const grid = 48 * 7 + (scale > 1.3 ? 7 * ((scale - 1) * 8) : 0);
   return new RenderConstrainedBox({
-    additionalConstraints: new BoxConstraints({ minWidth: Number.POSITIVE_INFINITY, minHeight: 52 + grid, maxHeight: 52 + grid }),
+    additionalConstraints: new BoxConstraints({
+      minWidth: Number.POSITIVE_INFINITY,
+      minHeight: 52 + grid,
+      maxHeight: 52 + grid,
+    }),
   });
 };
 
@@ -258,7 +273,10 @@ const segmentedButton: Builder = (node, ctx) => {
     const text = typeof segment["label"] === "string" ? segment["label"] : null;
     const shown = selected.includes(segment["value"]) && node.props["showSelectedIcon"] !== false;
     const icon = shown || (text !== null && segment["icon"] !== undefined);
-    const body = text === null ? iconWidth : label(node, "segment", text, ctx, style("labelLarge")).getMaxIntrinsicWidth(Number.POSITIVE_INFINITY);
+    const body =
+      text === null
+        ? iconWidth
+        : label(node, "segment", text, ctx, style("labelLarge")).getMaxIntrinsicWidth(Number.POSITIVE_INFINITY);
     const [start, end] = icon
       ? scaledSides(scale, [12, 8, 16, 8], [4, 0, 4, 0], [4, 0, 4, 0])
       : scaledSides(scale, [12, 8, 12, 8], [8, 0, 8, 0], [4, 0, 4, 0]);
@@ -331,4 +349,3 @@ export const moreBuilders: Readonly<Record<string, Builder>> = {
   SegmentedButton: segmentedButton,
   Stepper: stepper,
 };
-
