@@ -3,39 +3,101 @@
 
 import { useLingui } from "@lingui/react";
 import { Button, Dialog } from "@plux/ui";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import { clipboardMessages } from "./clipboard.messages.ts";
-import type { DependencyKind, DependencyReport, RefusalReason } from "./envelope.ts";
+import {
+  choiceKey,
+  type DependencyKind,
+  presetChoices,
+  type RefusalReason,
+  type ReportItem,
+  type Resolution,
+  type ResolutionAction,
+  type TargetHas,
+} from "./envelope.ts";
+
+type Messages = ReturnType<typeof clipboardMessages>;
+type Choices = ReadonlyMap<string, Resolution>;
 
 const KINDS: readonly DependencyKind[] = ["functions", "translations", "assets", "dataSources"];
 
+const SELECT = "h-8 rounded-sm border border-border bg-surface px-2 text-body";
+
+function ItemRow({
+  item,
+  candidates,
+  choice,
+  m,
+  onChange,
+}: {
+  readonly item: ReportItem;
+  readonly candidates: readonly string[];
+  readonly choice: Resolution;
+  readonly m: Messages;
+  readonly onChange: (next: Resolution) => void;
+}): ReactElement {
+  const label: Record<ResolutionAction, string> = { map: m.actionMap, copy: m.actionCopy, drop: m.actionDrop };
+  return (
+    <li className="flex flex-wrap items-center gap-2 py-1">
+      <code>{item.id}</code>
+      <select
+        className={SELECT}
+        aria-label={m.actionFor(item.id)}
+        value={choice.action}
+        onChange={(e) => {
+          const action = e.target.value as ResolutionAction;
+          onChange(action === "map" ? { action, to: candidates[0] ?? "" } : { action });
+        }}
+      >
+        {item.options.map((o) => (
+          <option key={o} value={o}>
+            {label[o]}
+          </option>
+        ))}
+      </select>
+      {choice.action === "map" && (
+        <select
+          className={SELECT}
+          aria-label={m.mapTarget(item.id)}
+          value={choice.to ?? ""}
+          onChange={(e) => onChange({ action: "map", to: e.target.value })}
+        >
+          {candidates.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      )}
+    </li>
+  );
+}
+
 /**
- * The dependency report of a paste across plugins or apps (D34): per kind what the target lacks and what
- * Studio will do about it, or the reason a paste was refused. IDs render as text only.
+ * The dependency report of a paste (D34, F7): per missing item the user maps it to an existing one, copies it
+ * over or drops it. Nothing is applied until the user confirms with the choices; cancelling applies nothing.
+ * IDs render as text only. Also shows the reason a paste was refused.
  */
 export function ClipboardReportDialog({
-  report,
+  items,
+  candidates,
   refusal,
   onConfirm,
   onClose,
 }: {
-  readonly report: DependencyReport | undefined;
+  readonly items: readonly ReportItem[] | undefined;
+  readonly candidates: TargetHas;
   readonly refusal: RefusalReason | undefined;
-  readonly onConfirm: () => void;
+  readonly onConfirm: (choices: Choices) => void;
   readonly onClose: () => void;
 }): ReactElement {
   const m = clipboardMessages(useLingui().i18n);
+  const [choices, setChoices] = useState<Choices>(() => presetChoices(items ?? []));
   const heading = {
     functions: m.functions,
     translations: m.translations,
     assets: m.assets,
     dataSources: m.dataSources,
-  };
-  const action = {
-    functions: m.functionsAction,
-    translations: m.translationsAction,
-    assets: m.assetsAction,
-    dataSources: m.dataSourcesAction,
   };
   const why = {
     "too-large": m.refusedTooLarge,
@@ -43,6 +105,8 @@ export function ClipboardReportDialog({
     malformed: m.refusedMalformed,
     invalid: m.refusedInvalid,
   };
+  const change = (item: ReportItem, next: Resolution) =>
+    setChoices((c) => new Map(c).set(choiceKey(item.kind, item.id), next));
   return (
     <Dialog
       open
@@ -51,20 +115,26 @@ export function ClipboardReportDialog({
       labels={{ close: m.close }}
     >
       {refusal !== undefined && <p className="text-body text-secondary">{why[refusal]}</p>}
-      {refusal === undefined && report !== undefined && (
+      {refusal === undefined && items !== undefined && (
         <>
           <p className="text-body text-secondary">{m.reportIntro}</p>
-          {KINDS.filter((k) => report[k].length > 0).map((k) => (
+          {KINDS.filter((k) => items.some((i) => i.kind === k)).map((k) => (
             <section key={k} className="mt-3">
               <h3 className="text-body font-medium">{heading[k]}</h3>
               <ul className="text-body">
-                {report[k].map((id) => (
-                  <li key={id}>
-                    <code>{id}</code>
-                  </li>
-                ))}
+                {items
+                  .filter((i) => i.kind === k)
+                  .map((item) => (
+                    <ItemRow
+                      key={item.id}
+                      item={item}
+                      candidates={[...candidates[k]].sort()}
+                      choice={choices.get(choiceKey(k, item.id)) ?? item.preset}
+                      m={m}
+                      onChange={(next) => change(item, next)}
+                    />
+                  ))}
               </ul>
-              <p className="text-body text-secondary">{action[k]}</p>
             </section>
           ))}
         </>
@@ -73,7 +143,7 @@ export function ClipboardReportDialog({
         <Button variant="secondary" onClick={onClose}>
           {refusal === undefined ? m.cancel : m.close}
         </Button>
-        {refusal === undefined && <Button onClick={onConfirm}>{m.pasteAnyway}</Button>}
+        {refusal === undefined && <Button onClick={() => onConfirm(choices)}>{m.pasteWithChoices}</Button>}
       </div>
     </Dialog>
   );

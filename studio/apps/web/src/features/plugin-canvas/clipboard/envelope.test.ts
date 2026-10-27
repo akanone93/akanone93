@@ -3,12 +3,16 @@
 
 import { describe, expect, test } from "bun:test";
 import {
+  applyResolutions,
   buildEnvelope,
   CLIPBOARD_MIME,
+  choiceKey,
   freshNodes,
   hasMissing,
   missingDependencies,
   parseClipboard,
+  planReport,
+  presetChoices,
   type TargetHas,
 } from "./envelope.ts";
 
@@ -98,5 +102,50 @@ describe("STU-067 STU-055 the clipboard envelope", () => {
     expect(across.translations).toEqual([]);
     expect(hasMissing(across)).toBe(true);
     expect(hasMissing(missingDependencies(env, source, has))).toBe(false);
+  });
+});
+
+const none: TargetHas = { functions: new Set(), translations: new Set(), assets: new Set(), dataSources: new Set() };
+const readable: TargetHas = { ...none, functions: new Set(["fn.mine"]), translations: new Set(["greet"]) };
+
+describe("STU-067 F7 report before paste", () => {
+  test("another organisation keeps only readable references; everything else is a drop, never a copy", () => {
+    const env = buildEnvelope({ organisation: "orgA", ...source }, nodes());
+    const items = planReport(env, { organisation: "orgB", app: "app1", plugin: "p1" }, readable);
+    expect(items.map((i) => `${i.kind}:${i.id}`)).toEqual(["functions:fn.sum"]);
+    expect(items[0]?.preset).toEqual({ action: "drop" });
+    expect(items[0]?.options).toEqual(["map", "drop"]);
+    const out = applyResolutions(env.nodes, presetChoices(items)) as [{ events: { onPressed: { steps: object[] } } }];
+    expect(JSON.stringify(out)).not.toContain("fn.sum");
+    expect(JSON.stringify(out)).toContain("greet");
+    expect(out[0].events.onPressed.steps).toEqual([{ action: "call" }]);
+  });
+
+  test("the same organisation may copy within the limit, and map to an existing item", () => {
+    const env = buildEnvelope(source, nodes());
+    const target = { app: "app2", plugin: "p9" };
+    const items = planReport(env, target, readable, { copies: 1 });
+    expect(items.map((i) => i.preset.action)).toEqual(["copy"]);
+    expect(items[0]?.options).toEqual(["map", "copy", "drop"]);
+    expect(planReport(env, target, readable, { copies: 0 })[0]?.preset).toEqual({ action: "drop" });
+    const choices = new Map([[choiceKey("functions", "fn.sum"), { action: "map" as const, to: "fn.mine" }]]);
+    expect(JSON.stringify(applyResolutions(env.nodes, choices))).toContain('"function":"fn.mine"');
+  });
+
+  test("in the same app, links to existing screens and components stay and are not reported", () => {
+    const withLinks = [
+      {
+        id: A,
+        type: "Button",
+        onPressed: { steps: [{ action: "navigate", input: { screenId: "screen-elsewhere" } }] },
+        component: "component-elsewhere",
+      },
+    ];
+    const env = buildEnvelope({ organisation: "orgA", ...source }, withLinks);
+    expect(planReport(env, { organisation: "orgA", app: "app1", plugin: "p2" }, none)).toEqual([]);
+    const out = JSON.stringify(applyResolutions(freshNodes(env), new Map()));
+    expect(out).toContain("screen-elsewhere");
+    expect(out).toContain("component-elsewhere");
+    expect(out).not.toContain(A);
   });
 });

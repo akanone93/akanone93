@@ -28,7 +28,8 @@ export function clipboardMessages(i18n: I18n) {
     }),
     reportIntro: i18n._({
       id: "clipboard.reportIntro",
-      message: "Nothing is added silently. Here is what Studio does for each missing item.",
+      message:
+        "Nothing is added silently. Choose what happens to each missing item; nothing is pasted until you confirm.",
       comment: "Intro of the paste dependency report.",
     }),
     functions: i18n._({
@@ -36,46 +37,55 @@ export function clipboardMessages(i18n: I18n) {
       message: "Functions",
       comment: "Heading of the functions that the pasted elements call but the target plugin is not granted.",
     }),
-    functionsAction: i18n._({
-      id: "clipboard.functionsAction",
-      message: "The calls stay. They fail validation until the function is granted to this plugin.",
-      comment: "What Studio does about functions the target lacks.",
-    }),
     translations: i18n._({
       id: "clipboard.translations",
       message: "Translation keys",
       comment: "Heading of the translation keys that the pasted elements use but the target lacks.",
-    }),
-    translationsAction: i18n._({
-      id: "clipboard.translationsAction",
-      message: "The keys stay. Add their translations in Localisation.",
-      comment: "What Studio does about translation keys the target lacks.",
     }),
     assets: i18n._({
       id: "clipboard.assets",
       message: "Assets",
       comment: "Heading of the assets that the pasted elements use but the target lacks.",
     }),
-    assetsAction: i18n._({
-      id: "clipboard.assetsAction",
-      message: "The references stay and show a placeholder until you add the assets.",
-      comment: "What Studio does about assets the target lacks.",
-    }),
     dataSources: i18n._({
       id: "clipboard.dataSources",
       message: "Data sources",
       comment: "Heading of the data sources that the pasted elements read but the target lacks.",
     }),
-    dataSourcesAction: i18n._({
-      id: "clipboard.dataSourcesAction",
-      message: "The bindings stay. They are flagged as problems until the data source exists.",
-      comment: "What Studio does about data sources the target lacks.",
+    pasteWithChoices: i18n._({
+      id: "clipboard.pasteWithChoices",
+      message: "Paste with these choices",
+      comment: "Button that applies the paste with the choices made for the missing items.",
     }),
-    pasteAnyway: i18n._({
-      id: "clipboard.pasteAnyway",
-      message: "Paste anyway",
-      comment: "Button that applies the paste although dependencies are missing.",
+    actionMap: i18n._({
+      id: "clipboard.actionMap",
+      message: "Map to existing",
+      comment: "Choice for a missing item in the paste report: use an existing item of the target instead.",
     }),
+    actionCopy: i18n._({
+      id: "clipboard.actionCopy",
+      message: "Copy over",
+      comment: "Choice for a missing item in the paste report: copy the item into the target.",
+    }),
+    actionDrop: i18n._({
+      id: "clipboard.actionDrop",
+      message: "Drop",
+      comment: "Choice for a missing item in the paste report: remove the reference from the pasted elements.",
+    }),
+    actionFor: (id: string) =>
+      i18n._({
+        id: "clipboard.actionFor",
+        message: "What to do with {id}",
+        values: { id },
+        comment: "Accessible name of the select that chooses what happens to one missing item. {id} is its ID.",
+      }),
+    mapTarget: (id: string) =>
+      i18n._({
+        id: "clipboard.mapTarget",
+        message: "Existing item to use for {id}",
+        values: { id },
+        comment: "Accessible name of the select that picks the existing item a missing one is mapped to.",
+      }),
     cancel: i18n._({
       id: "clipboard.cancel",
       message: "Cancel",

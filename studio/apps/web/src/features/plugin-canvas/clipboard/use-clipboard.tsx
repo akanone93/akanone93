@@ -8,17 +8,19 @@ import { type Command, useScopedCommands } from "../../../lib/commands/index.ts"
 import { uuidv7 } from "../screens.ts";
 import type { EditFn } from "../select/edits.ts";
 import { findNode } from "../select/edits.ts";
+import { type Board, readEnvelopeText, writeEnvelope } from "./board.ts";
 import { clipboardMessages } from "./clipboard.messages.ts";
 import {
+  applyResolutions,
   buildEnvelope,
   type ClipboardSource,
-  type DependencyReport,
   type Envelope,
   freshNodes,
-  hasMissing,
-  missingDependencies,
   parseClipboard,
+  planReport,
   type RefusalReason,
+  type ReportItem,
+  type Resolution,
   type TargetHas,
 } from "./envelope.ts";
 import { ClipboardReportDialog } from "./report-dialog.tsx";
@@ -79,7 +81,7 @@ export function targetHas(documents: readonly { readonly content: Uint8Array }[]
 
 interface Pending {
   readonly envelope: Envelope;
-  readonly report: DependencyReport;
+  readonly items: readonly ReportItem[];
 }
 
 const pageAround = (nodes: readonly unknown[]) =>
@@ -103,7 +105,7 @@ export interface ClipboardInput {
   readonly source: ClipboardSource;
   readonly has: TargetHas;
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
-  readonly clipboard?: Pick<Clipboard, "readText" | "writeText">;
+  readonly clipboard?: Board;
 }
 
 /** Registers edit.copy, edit.cut and edit.paste on the plugin canvas; returns the dialog to render. */
@@ -129,7 +131,7 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
     if (nodes.length === 0) {
       return false;
     }
-    await board.writeText(JSON.stringify(buildEnvelope(source, nodes)));
+    await writeEnvelope(board, JSON.stringify(buildEnvelope(source, nodes)));
     return true;
   }, [selectedNodes, board, source]);
 
@@ -148,11 +150,11 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
   }, [copy, selected, screenOf, edit]);
 
   const apply = useCallback(
-    (envelope: Envelope) => {
+    (envelope: Envelope, choices: ReadonlyMap<string, Resolution> = new Map()) => {
       const anchor = selected()[0];
       const doc = (anchor === undefined ? undefined : screenOf.get(anchor)) ?? screens[0]?.id;
       if (doc !== undefined) {
-        edit(doc, pasteRecipe(anchor, freshNodes(envelope)), { step: "paste" });
+        edit(doc, pasteRecipe(anchor, applyResolutions(freshNodes(envelope), choices)), { step: "paste" });
       }
     },
     [selected, screenOf, screens, edit],
@@ -170,13 +172,13 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
   );
 
   const paste = useCallback(async () => {
-    const result = await parseClipboard(await board.readText(), { validate });
+    const result = await parseClipboard(await readEnvelopeText(board), { validate });
     if (result.kind === "refused") {
       setRefusal(result.reason);
     } else if (result.kind === "envelope") {
-      const report = missingDependencies(result.envelope, source, has);
-      if (hasMissing(report)) {
-        setPending({ envelope: result.envelope, report });
+      const items = planReport(result.envelope, source, has);
+      if (items.length > 0) {
+        setPending({ envelope: result.envelope, items });
       } else {
         apply(result.envelope);
       }
@@ -211,11 +213,12 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
   };
   return (
     <ClipboardReportDialog
-      report={pending?.report}
+      items={pending?.items}
+      candidates={has}
       refusal={refusal}
-      onConfirm={() => {
+      onConfirm={(choices) => {
         if (pending !== undefined) {
-          apply(pending.envelope);
+          apply(pending.envelope, choices);
         }
         close();
       }}

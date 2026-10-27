@@ -321,8 +321,12 @@ function PluginCanvasView({
   );
   useScopedCommands("plugin-canvas", canvasCommandList);
   const clipboardSource = useMemo(
-    () => ({ app: params.app ?? "", plugin: params.plugin ?? "" }),
-    [params.app, params.plugin],
+    () => ({
+      ...(params.org === undefined ? {} : { organisation: params.org }),
+      app: params.app ?? "",
+      plugin: params.plugin ?? "",
+    }),
+    [params.org, params.app, params.plugin],
   );
   const clipboardHas = useMemo(
     () => targetHas([...(docs.data ?? []), ...(appDocs.data ?? [])]),
