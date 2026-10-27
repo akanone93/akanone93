@@ -7,12 +7,13 @@ import { AppService } from "@plux/api";
 import { Button } from "@plux/ui";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useRef, useState } from "react";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { AdoptDialog } from "./adopt-dialog.tsx";
+import { ComponentImpactDialog, type ImpactRow } from "./impact-dialog.tsx";
 import { libraryMessages } from "./library.messages.ts";
-import { saveFile } from "./library-model.ts";
+import { interfaceDiff, readFile, saveFile, screenOfFile } from "./library-model.ts";
 import { useCan, useLibraryClients } from "./use-library.ts";
 import { VisibilityDialog } from "./visibility-dialog.tsx";
 
@@ -44,7 +45,12 @@ export function ComponentDetailPage(): ReactElement {
             clients.components.listUsages({ appId: app.id, entityKind: "component", entityId: item?.documentId ?? id }),
             clients.components.listComponentAdoptions({ appId: app.id }),
           ]);
-          return { app, count: usages.usages.length, adopted: adoptions.adoptions.find((a) => a.itemId === id) };
+          return {
+            app,
+            usages: usages.usages,
+            count: usages.usages.length,
+            adopted: adoptions.adoptions.find((a) => a.itemId === id),
+          };
         }),
       );
     },
@@ -53,6 +59,34 @@ export function ComponentDetailPage(): ReactElement {
   const exportVersion = async (version: number) => {
     const file = await clients.components.exportComponent({ id, version });
     saveFile(file.fileName, file.file);
+  };
+  const [revision, setRevision] = useState<Uint8Array | undefined>();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const head = versions[0];
+  const impact: ImpactRow[] = (perApp.data ?? []).flatMap(({ app, usages }) =>
+    usages.map((u, i) => ({
+      key: `${app.id}:${u.location?.file ?? ""}:${u.location?.path ?? i}`,
+      app: app.name,
+      screen: screenOfFile(u.location?.file ?? ""),
+    })),
+  );
+  const removed =
+    revision === undefined
+      ? []
+      : (() => {
+          const d = interfaceDiff(head?.content, revision);
+          return [...d.removedProps, ...d.removedSlots];
+        })();
+  const saveRevision = async () => {
+    if (item === undefined || revision === undefined || head === undefined) {
+      return;
+    }
+    await clients.components.reviseComponent({
+      id,
+      expectedVersion: head.version,
+      draft: { key: item.key, name: item.name, description: item.description, content: revision },
+    });
+    await clients.invalidate();
   };
   const adoptTarget = perApp.data?.find((a) => a.app.id === dialog);
   return (
@@ -76,6 +110,27 @@ export function ComponentDetailPage(): ReactElement {
             <div>
               <Button variant="secondary" onClick={() => setDialog("visibility")}>
                 {m.changeVisibility}
+              </Button>
+            </div>
+          )}
+          {canEdit && (
+            <div>
+              <input
+                ref={fileInput}
+                type="file"
+                accept=".json,application/json"
+                hidden
+                data-testid="revise-component"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file !== undefined) {
+                    void readFile(file).then(setRevision);
+                  }
+                  e.target.value = "";
+                }}
+              />
+              <Button variant="secondary" onClick={() => fileInput.current?.click()}>
+                {m.reviseComponent}
               </Button>
             </div>
           )}
@@ -121,6 +176,14 @@ export function ComponentDetailPage(): ReactElement {
             await clients.invalidate();
           }}
           onClose={() => setDialog(undefined)}
+        />
+      )}
+      {revision !== undefined && (
+        <ComponentImpactDialog
+          rows={impact}
+          removed={removed}
+          save={saveRevision}
+          onClose={() => setRevision(undefined)}
         />
       )}
       {adoptTarget !== undefined && (

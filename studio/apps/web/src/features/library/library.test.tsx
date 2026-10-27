@@ -107,6 +107,36 @@ describe("STU-084 STU-085 component detail (O5)", () => {
     expect(screen.queryByRole("button", { name: "Adopt a version" })).toBeNull();
   });
 
+  test("D31 saving a revision lists the instances per app and screen, flags removed props, and confirm saves", async () => {
+    const calls: string[] = [];
+    const lib: LibraryFixture = {
+      ...library,
+      calls,
+      sites: [{ file: "plugins/p/pages/home.page.json", path: "/root/0" }],
+    };
+    renderApp(`/o/${orgA}/library/components/c1`, { library: lib, permissions: ["plugin.edit"] });
+    const input = await screen.findByTestId("revise-component");
+    await screen.findByText("Shop: 1 instances");
+    fireEvent.change(input, { target: { files: [new File(['{"props":{}}'], "c.json")] } });
+    const dialog = await screen.findByRole("dialog");
+    within(dialog).getByText("Shop, screen home");
+    within(dialog).getByText("Overrides may conflict: a removed");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Save new version" }));
+    await waitFor(() => expect(calls).toEqual(["revise:c1:2:12"]));
+  });
+
+  test("D31 cancelling the impact dialog saves nothing", async () => {
+    const calls: string[] = [];
+    const lib: LibraryFixture = { ...library, calls, sites: [{ file: "plugins/p/pages/home.page.json", path: "/r" }] };
+    renderApp(`/o/${orgA}/library/components/c1`, { library: lib, permissions: ["plugin.edit"] });
+    const input = await screen.findByTestId("revise-component");
+    await screen.findByText("Shop: 1 instances");
+    fireEvent.change(input, { target: { files: [new File(["{}"], "c.json")] } });
+    fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(calls).toEqual([]);
+  });
+
   test("a missing item is an error state", async () => {
     renderApp(`/o/${orgA}/library/components/nope`, { library });
     await screen.findByRole("alert");
