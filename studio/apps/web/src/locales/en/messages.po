@@ -3003,6 +3003,12 @@ msgstr "Size class"
 msgid "panels.docsSlots"
 msgstr "Slots"
 
+#. Note shown after an import that produced variables while the app is read-only because another editor holds its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataVariablesLocked"
+msgstr "Someone else holds the app lock, so the imported variables cannot be added to the app now."
+
 #. D37: re-taking failed because the lock is not free.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -3315,11 +3321,11 @@ msgstr "The server did not accept the change."
 msgid "assets.failure.size-mismatch"
 msgstr "The server received a different number of bytes than the file has. Upload it again."
 
-#. Note shown after an import that produced variables, which belong to the app and are not added here.
+#. Note shown after an import that produced variables, which belong to the app and are added to it when the draft is applied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataVariablesNote"
-msgstr "The source also describes app-level variables; add them in the app document."
+msgstr "The source also describes app-level variables; applying adds them to the app under the app lock."
 
 #. Status after a successful import.
 #. js-lingui-explicit-id
