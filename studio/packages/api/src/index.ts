@@ -1,8 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+export * from "./gen/plux/v1/analytics_pb.ts";
 export * from "./gen/plux/v1/app_pb.ts";
 export * from "./gen/plux/v1/asset_pb.ts";
+export * from "./gen/plux/v1/audit_pb.ts";
+export * from "./gen/plux/v1/common_pb.ts";
 export * from "./gen/plux/v1/component_pb.ts";
 export * from "./gen/plux/v1/devevents_pb.ts";
 export * from "./gen/plux/v1/device_pb.ts";
@@ -12,6 +15,7 @@ export * from "./gen/plux/v1/federation_pb.ts";
 export * from "./gen/plux/v1/function_pb.ts";
 export * from "./gen/plux/v1/governance_pb.ts";
 export * from "./gen/plux/v1/identity_pb.ts";
+export * from "./gen/plux/v1/installation_pb.ts";
 export * from "./gen/plux/v1/language_server_pb.ts";
 export * from "./gen/plux/v1/library_pb.ts";
 export * from "./gen/plux/v1/license_pb.ts";

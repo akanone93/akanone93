@@ -1128,7 +1128,8 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push, Approvals: svc.Approvals,
+		Limiter: limiter, Limits: s.limits, Edition: s.edition,
+		InstallationState: installationReader{health: s.health, db: s.db, jobs: s.jobs, issuers: s.cfg.Auth.CI.Issuers}, Push: svc.Push, Approvals: svc.Approvals,
 		Emergencies: svc.BreakGlass, Freezes: svc.Freezes, Reports: svc.Reports, Library: svc.Library,
 	}
 	if svc.AuditCheckpoints != nil {
@@ -1290,6 +1291,9 @@ func operationsRegistrations(svc *Services, h *api.Handlers, opts connect.Handle
 	}
 	registrations = append(registrations, func() (string, http.Handler) {
 		return pluxv1connect.NewLicenseServiceHandler(h.License(), opts)
+	})
+	registrations = append(registrations, func() (string, http.Handler) {
+		return pluxv1connect.NewInstallationServiceHandler(h.Installation(), opts)
 	})
 	if svc.Functions != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
