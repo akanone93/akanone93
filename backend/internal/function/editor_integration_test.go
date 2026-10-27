@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -143,6 +144,59 @@ func TestEditorSessionIsOwnedBoundedAndAudited_FN_033(t *testing.T) {
 	close(ed.release)
 	if err := <-next; err != nil {
 		t.Errorf("a session after the slot was freed: %v", err)
+	}
+}
+
+// brokenCache is a shared cache that cannot count.
+type brokenCache struct{ cache.Cache }
+
+func (brokenCache) SetNX(context.Context, string, []byte, time.Duration) (bool, error) {
+	return false, errors.New("cache down")
+}
+
+// Verifies: FN-033.
+func TestEditorCapIsSharedAcrossReplicas_FN_033(t *testing.T) {
+	t.Parallel()
+	w, _, source := editorWorld(t, 1)
+	shared := cache.NewMemory(time.Now)
+	t.Cleanup(func() { _ = shared.Close() })
+	first := w.service(t, func(o *function.Options) { o.Editor = newFakeEditor(); o.Shared = shared })
+	edB := newFakeEditor()
+	second := w.service(t, func(o *function.Options) { o.Editor = edB; o.Shared = shared })
+
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan error, 1)
+	go func() {
+		done <- first.OpenEditor(ctx, w.developer, source, func(function.EditorEvent) error { return nil })
+	}()
+	// The first replica's session is open once its slot is taken; wait for the audit entry.
+	deadline := time.Now().Add(20 * time.Second)
+	for w.auditCount(t, audit.FunctionEditorStarted) < 1 {
+		if time.Now().After(deadline) {
+			t.Fatal("the session did not open")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	err := second.OpenEditor(t.Context(), w.developer, source, func(function.EditorEvent) error { return nil })
+	if !isCode(err, plxerr.LimitExceeded) {
+		t.Errorf("a second replica beyond lsp.sessionsPerOrganization: %v; want LIMIT_EXCEEDED", err)
+	}
+	cancel()
+	<-done
+	// The slot went back to the shared cache, so the other replica may start.
+	next := make(chan error, 1)
+	go func() {
+		next <- second.OpenEditor(t.Context(), w.developer, source, func(function.EditorEvent) error { return nil })
+	}()
+	<-edB.opened
+	close(edB.release)
+	if err := <-next; err != nil {
+		t.Errorf("the other replica after the slot was freed: %v", err)
+	}
+
+	broken := w.service(t, func(o *function.Options) { o.Editor = newFakeEditor(); o.Shared = brokenCache{shared} })
+	if err := broken.OpenEditor(t.Context(), w.developer, source, func(function.EditorEvent) error { return nil }); err == nil || isCode(err, plxerr.LimitExceeded) {
+		t.Errorf("a cache that cannot count: %v; want the start refused with the failure", err)
 	}
 }
 

@@ -349,7 +349,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	resolver := &gateway.ConfigResolver{Source: configs, Cache: shared, Now: cfg.Now}
 	fn := &functionFakes{}
 	functions, err := function.NewService(function.Options{
-		DB: db, Audit: log, Objects: files, IDs: gen, Jobs: fn, Builder: fn, Signer: fn,
+		DB: db, Audit: log, Objects: files, IDs: gen, Jobs: fn, Builder: fn, Signer: fn, Editor: fn,
 		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
 			return tenancyService.Effective(ctx, tx, org, app, "")
 		},

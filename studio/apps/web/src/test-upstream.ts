@@ -9,10 +9,12 @@ import {
   DocumentSchema,
   DocumentService,
   FederationService,
+  FunctionAdminService,
   GetCurrentUserResponseSchema,
   GovernanceService,
   IdentityService,
   InboxItemSchema,
+  LanguageServerService,
   LockSchema,
   MemberSchema,
   NotificationService,
@@ -62,6 +64,15 @@ export interface UpstreamData {
   /** The app's trash, and the ids restored from it. */
   trash?: { id: string; kind: string; name: string }[];
   restored?: string[];
+  /** A language server and a test runner behind the Rust editor (FN-033, FN-034); absent means the RPCs are unimplemented. */
+  rust?: {
+    /** Answers one client message (JSON text) with the messages the server sends back. */
+    reply: (message: string) => string[];
+    /** Every message the language server received, in order. */
+    received?: string[];
+    /** The test cases the runner reports, and the summary. */
+    tests?: { results: { name: string; passed: boolean; message: string }[]; diagnostics?: string };
+  };
   updates?: { paths: string[]; theme: string; language: string; density: string }[];
 }
 
@@ -252,6 +263,64 @@ export function createUpstream(state: UpstreamData) {
         ),
       }),
     });
+    if (state.rust !== undefined) {
+      rustServices(service, state.rust);
+    }
     service(FederationService, { listSignInProviders: () => ({ providers: [] }) });
+  });
+}
+
+type Rust = NonNullable<UpstreamData["rust"]>;
+
+/** The language-server stream and the test runner of the Rust editor, in memory. */
+function rustServices(service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"], rust: Rust) {
+  const outbox: Uint8Array[] = [];
+  let wake: (() => void) | undefined;
+  service(LanguageServerService, {
+    async *open() {
+      yield {
+        event: {
+          case: "opened",
+          value: { sessionId: "s1", rootUri: "file:///workspace/functions/x/", sessionSeconds: 60 },
+        },
+      };
+      for (;;) {
+        const next = outbox.shift();
+        if (next !== undefined) {
+          yield { event: { case: "message", value: next } };
+        } else {
+          await new Promise<void>((resolve) => {
+            wake = resolve;
+          });
+        }
+      }
+    },
+    send(req) {
+      const text = new TextDecoder().decode(req.message);
+      rust.received?.push(text);
+      for (const r of rust.reply(text)) {
+        outbox.push(new TextEncoder().encode(r));
+      }
+      wake?.();
+      return {};
+    },
+  });
+  service(FunctionAdminService, {
+    async *runTests() {
+      for (const r of rust.tests?.results ?? []) {
+        yield { event: { case: "result", value: r } };
+      }
+      const results = rust.tests?.results ?? [];
+      yield {
+        event: {
+          case: "finished",
+          value: {
+            passed: results.filter((r) => r.passed).length,
+            failed: results.filter((r) => !r.passed).length,
+            diagnostics: new TextEncoder().encode(rust.tests?.diagnostics ?? ""),
+          },
+        },
+      };
+    },
   });
 }
