@@ -54,6 +54,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/library"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/observability"
@@ -152,6 +153,9 @@ type Services struct {
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
+	// Library holds the templates and components authored in Studio
+	// (STU-080).
+	Library *library.Service
 	// ReleaseRequests holds release requests and their visual-diff jobs
 	// (STU-100); nil where there are no releases.
 	ReleaseRequests *releasereq.Service
@@ -545,6 +549,14 @@ func (k *serviceKit) buildFoundation(ctx context.Context, svc *Services) error {
 		return fmt.Errorf("server: %w", err)
 	}
 	svc.Auth, svc.Tenancy, svc.Documents = core.auth, core.tenancy, core.docs
+	if svc.Library, err = library.NewService(library.Options{
+		DB: k.db, Audit: k.log, IDs: k.gen, Instances: svc.Documents,
+		Limits: func(ctx context.Context, tx pgx.Tx, organizationID string) (limits.Set, error) {
+			return svc.Tenancy.Effective(ctx, tx, organizationID, "", "") //nolint:wrapcheck // a domain error
+		},
+	}); err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
 	if svc.Idempotency, svc.Pages, err = buildEdge(ctx, k.db, k.backend, k.set); err != nil {
 		return err
 	}
@@ -1117,7 +1129,7 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
 		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push, Approvals: svc.Approvals,
-		Emergencies: svc.BreakGlass, Freezes: svc.Freezes, Reports: svc.Reports,
+		Emergencies: svc.BreakGlass, Freezes: svc.Freezes, Reports: svc.Reports, Library: svc.Library,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints

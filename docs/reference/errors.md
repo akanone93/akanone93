@@ -3294,6 +3294,14 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Request the visual diff and wait for it to finish; request it again if it failed or the content changed.
 
+### PLX-8063
+
+`LIBRARY_PUBLIC_SCAN_FAILED` · error · Public scan found sensitive content
+
+**Cause.** A template or component cannot be made public while its content holds a secret, a field tagged sensitive, or a URL that is not reachable from the public internet (STU-081, ADR-0098). The error names each finding by its JSON pointer and category, never by its value.
+
+**Fix.** Remove or replace the content at each pointer, save a new version and make that version public.
+
 ### PLX-8090
 
 `INTERNAL_SERVER_ERROR` · error · Internal error

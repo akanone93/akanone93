@@ -357,6 +357,11 @@ enum PluxLimit {
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
+  /// Templates and components one organisation may keep in its library.
+  libraryItemsPerOrganization('library.itemsPerOrganization', PluxLimitUnit.count, 500, 0, 10000),
+  /// Versions one template or component may have; older versions an app adopted
+  /// are kept.
+  libraryVersionsPerItem('library.versionsPerItem', PluxLimitUnit.count, 100, 0, 1000),
   /// Size of one language-server message the Rust editor sends to its sandbox;
   /// a document the editor opens must fit.
   lspMessageBytes('lsp.messageBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),

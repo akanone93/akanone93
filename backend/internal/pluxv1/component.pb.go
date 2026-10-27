@@ -519,11 +519,936 @@ func (x *ListUsagesResponse) GetPage() *PageResult {
 	return nil
 }
 
+type CreateComponentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Draft         *LibraryDraft          `protobuf:"bytes,1,opt,name=draft,proto3" json:"draft,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateComponentRequest) Reset() {
+	*x = CreateComponentRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateComponentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateComponentRequest) ProtoMessage() {}
+
+func (x *CreateComponentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateComponentRequest.ProtoReflect.Descriptor instead.
+func (*CreateComponentRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreateComponentRequest) GetDraft() *LibraryDraft {
+	if x != nil {
+		return x.Draft
+	}
+	return nil
+}
+
+type CreateComponentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Version       *LibraryVersion        `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateComponentResponse) Reset() {
+	*x = CreateComponentResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateComponentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateComponentResponse) ProtoMessage() {}
+
+func (x *CreateComponentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateComponentResponse.ProtoReflect.Descriptor instead.
+func (*CreateComponentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreateComponentResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *CreateComponentResponse) GetVersion() *LibraryVersion {
+	if x != nil {
+		return x.Version
+	}
+	return nil
+}
+
+type ReviseComponentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// expected_version is the head version the caller revised from.
+	ExpectedVersion int32         `protobuf:"varint,2,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
+	Draft           *LibraryDraft `protobuf:"bytes,3,opt,name=draft,proto3" json:"draft,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ReviseComponentRequest) Reset() {
+	*x = ReviseComponentRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviseComponentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviseComponentRequest) ProtoMessage() {}
+
+func (x *ReviseComponentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviseComponentRequest.ProtoReflect.Descriptor instead.
+func (*ReviseComponentRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ReviseComponentRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ReviseComponentRequest) GetExpectedVersion() int32 {
+	if x != nil {
+		return x.ExpectedVersion
+	}
+	return 0
+}
+
+func (x *ReviseComponentRequest) GetDraft() *LibraryDraft {
+	if x != nil {
+		return x.Draft
+	}
+	return nil
+}
+
+type ReviseComponentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Version       *LibraryVersion        `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviseComponentResponse) Reset() {
+	*x = ReviseComponentResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviseComponentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviseComponentResponse) ProtoMessage() {}
+
+func (x *ReviseComponentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviseComponentResponse.ProtoReflect.Descriptor instead.
+func (*ReviseComponentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ReviseComponentResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *ReviseComponentResponse) GetVersion() *LibraryVersion {
+	if x != nil {
+		return x.Version
+	}
+	return nil
+}
+
+type ListComponentVersionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListComponentVersionsRequest) Reset() {
+	*x = ListComponentVersionsRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListComponentVersionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListComponentVersionsRequest) ProtoMessage() {}
+
+func (x *ListComponentVersionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListComponentVersionsRequest.ProtoReflect.Descriptor instead.
+func (*ListComponentVersionsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListComponentVersionsRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type ListComponentVersionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Versions      []*LibraryVersion      `protobuf:"bytes,2,rep,name=versions,proto3" json:"versions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListComponentVersionsResponse) Reset() {
+	*x = ListComponentVersionsResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListComponentVersionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListComponentVersionsResponse) ProtoMessage() {}
+
+func (x *ListComponentVersionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListComponentVersionsResponse.ProtoReflect.Descriptor instead.
+func (*ListComponentVersionsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListComponentVersionsResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *ListComponentVersionsResponse) GetVersions() []*LibraryVersion {
+	if x != nil {
+		return x.Versions
+	}
+	return nil
+}
+
+type ListLibraryComponentsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// visibility filters to one level; empty lists all the caller may see.
+	Visibility string `protobuf:"bytes,1,opt,name=visibility,proto3" json:"visibility,omitempty"`
+	// query matches the key and name.
+	Query         string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
+	Page          *Page  `protobuf:"bytes,3,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLibraryComponentsRequest) Reset() {
+	*x = ListLibraryComponentsRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLibraryComponentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLibraryComponentsRequest) ProtoMessage() {}
+
+func (x *ListLibraryComponentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLibraryComponentsRequest.ProtoReflect.Descriptor instead.
+func (*ListLibraryComponentsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListLibraryComponentsRequest) GetVisibility() string {
+	if x != nil {
+		return x.Visibility
+	}
+	return ""
+}
+
+func (x *ListLibraryComponentsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *ListLibraryComponentsRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ListLibraryComponentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*LibraryItem         `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Page          *PageResult            `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLibraryComponentsResponse) Reset() {
+	*x = ListLibraryComponentsResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLibraryComponentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLibraryComponentsResponse) ProtoMessage() {}
+
+func (x *ListLibraryComponentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLibraryComponentsResponse.ProtoReflect.Descriptor instead.
+func (*ListLibraryComponentsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ListLibraryComponentsResponse) GetItems() []*LibraryItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ListLibraryComponentsResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type SetComponentVisibilityRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Visibility    string                 `protobuf:"bytes,2,opt,name=visibility,proto3" json:"visibility,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetComponentVisibilityRequest) Reset() {
+	*x = SetComponentVisibilityRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetComponentVisibilityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetComponentVisibilityRequest) ProtoMessage() {}
+
+func (x *SetComponentVisibilityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetComponentVisibilityRequest.ProtoReflect.Descriptor instead.
+func (*SetComponentVisibilityRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *SetComponentVisibilityRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SetComponentVisibilityRequest) GetVisibility() string {
+	if x != nil {
+		return x.Visibility
+	}
+	return ""
+}
+
+type SetComponentVisibilityResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetComponentVisibilityResponse) Reset() {
+	*x = SetComponentVisibilityResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetComponentVisibilityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetComponentVisibilityResponse) ProtoMessage() {}
+
+func (x *SetComponentVisibilityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetComponentVisibilityResponse.ProtoReflect.Descriptor instead.
+func (*SetComponentVisibilityResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SetComponentVisibilityResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+type ExportComponentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// version is the version to export; zero is the newest.
+	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportComponentRequest) Reset() {
+	*x = ExportComponentRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportComponentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportComponentRequest) ProtoMessage() {}
+
+func (x *ExportComponentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportComponentRequest.ProtoReflect.Descriptor instead.
+func (*ExportComponentRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ExportComponentRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ExportComponentRequest) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+type ExportComponentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	File          []byte                 `protobuf:"bytes,1,opt,name=file,proto3" json:"file,omitempty"`
+	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportComponentResponse) Reset() {
+	*x = ExportComponentResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportComponentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportComponentResponse) ProtoMessage() {}
+
+func (x *ExportComponentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportComponentResponse.ProtoReflect.Descriptor instead.
+func (*ExportComponentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ExportComponentResponse) GetFile() []byte {
+	if x != nil {
+		return x.File
+	}
+	return nil
+}
+
+func (x *ExportComponentResponse) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+type ImportComponentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	File  []byte                 `protobuf:"bytes,1,opt,name=file,proto3" json:"file,omitempty"`
+	// key replaces the file's key when the organisation already has it.
+	Key           string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportComponentRequest) Reset() {
+	*x = ImportComponentRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportComponentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportComponentRequest) ProtoMessage() {}
+
+func (x *ImportComponentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportComponentRequest.ProtoReflect.Descriptor instead.
+func (*ImportComponentRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ImportComponentRequest) GetFile() []byte {
+	if x != nil {
+		return x.File
+	}
+	return nil
+}
+
+func (x *ImportComponentRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type ImportComponentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Version       *LibraryVersion        `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportComponentResponse) Reset() {
+	*x = ImportComponentResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportComponentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportComponentResponse) ProtoMessage() {}
+
+func (x *ImportComponentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportComponentResponse.ProtoReflect.Descriptor instead.
+func (*ImportComponentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ImportComponentResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *ImportComponentResponse) GetVersion() *LibraryVersion {
+	if x != nil {
+		return x.Version
+	}
+	return nil
+}
+
+type AdoptComponentVersionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Version       int32                  `protobuf:"varint,3,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdoptComponentVersionRequest) Reset() {
+	*x = AdoptComponentVersionRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdoptComponentVersionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdoptComponentVersionRequest) ProtoMessage() {}
+
+func (x *AdoptComponentVersionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdoptComponentVersionRequest.ProtoReflect.Descriptor instead.
+func (*AdoptComponentVersionRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *AdoptComponentVersionRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *AdoptComponentVersionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AdoptComponentVersionRequest) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+type AdoptComponentVersionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Adoption      *Adoption              `protobuf:"bytes,1,opt,name=adoption,proto3" json:"adoption,omitempty"`
+	Conflicts     []*AdoptionConflict    `protobuf:"bytes,2,rep,name=conflicts,proto3" json:"conflicts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdoptComponentVersionResponse) Reset() {
+	*x = AdoptComponentVersionResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdoptComponentVersionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdoptComponentVersionResponse) ProtoMessage() {}
+
+func (x *AdoptComponentVersionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdoptComponentVersionResponse.ProtoReflect.Descriptor instead.
+func (*AdoptComponentVersionResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *AdoptComponentVersionResponse) GetAdoption() *Adoption {
+	if x != nil {
+		return x.Adoption
+	}
+	return nil
+}
+
+func (x *AdoptComponentVersionResponse) GetConflicts() []*AdoptionConflict {
+	if x != nil {
+		return x.Conflicts
+	}
+	return nil
+}
+
+type ListComponentAdoptionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListComponentAdoptionsRequest) Reset() {
+	*x = ListComponentAdoptionsRequest{}
+	mi := &file_plux_v1_component_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListComponentAdoptionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListComponentAdoptionsRequest) ProtoMessage() {}
+
+func (x *ListComponentAdoptionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListComponentAdoptionsRequest.ProtoReflect.Descriptor instead.
+func (*ListComponentAdoptionsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ListComponentAdoptionsRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+type ListComponentAdoptionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Adoptions     []*Adoption            `protobuf:"bytes,1,rep,name=adoptions,proto3" json:"adoptions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListComponentAdoptionsResponse) Reset() {
+	*x = ListComponentAdoptionsResponse{}
+	mi := &file_plux_v1_component_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListComponentAdoptionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListComponentAdoptionsResponse) ProtoMessage() {}
+
+func (x *ListComponentAdoptionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_component_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListComponentAdoptionsResponse.ProtoReflect.Descriptor instead.
+func (*ListComponentAdoptionsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_component_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ListComponentAdoptionsResponse) GetAdoptions() []*Adoption {
+	if x != nil {
+		return x.Adoptions
+	}
+	return nil
+}
+
 var File_plux_v1_component_proto protoreflect.FileDescriptor
 
 const file_plux_v1_component_proto_rawDesc = "" +
 	"\n" +
-	"\x17plux/v1/component.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xe0\x01\n" +
+	"\x17plux/v1/component.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\x1a\x15plux/v1/library.proto\"\xe0\x01\n" +
 	"\tComponent\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x1b\n" +
@@ -561,12 +1486,77 @@ const file_plux_v1_component_proto_rawDesc = "" +
 	"\x04page\x18\x04 \x01(\v2\r.plux.v1.PageR\x04page\"e\n" +
 	"\x12ListUsagesResponse\x12&\n" +
 	"\x06usages\x18\x01 \x03(\v2\x0e.plux.v1.UsageR\x06usages\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page2\xff\x01\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"E\n" +
+	"\x16CreateComponentRequest\x12+\n" +
+	"\x05draft\x18\x01 \x01(\v2\x15.plux.v1.LibraryDraftR\x05draft\"v\n" +
+	"\x17CreateComponentResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x121\n" +
+	"\aversion\x18\x02 \x01(\v2\x17.plux.v1.LibraryVersionR\aversion\"\x80\x01\n" +
+	"\x16ReviseComponentRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12)\n" +
+	"\x10expected_version\x18\x02 \x01(\x05R\x0fexpectedVersion\x12+\n" +
+	"\x05draft\x18\x03 \x01(\v2\x15.plux.v1.LibraryDraftR\x05draft\"v\n" +
+	"\x17ReviseComponentResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x121\n" +
+	"\aversion\x18\x02 \x01(\v2\x17.plux.v1.LibraryVersionR\aversion\".\n" +
+	"\x1cListComponentVersionsRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"~\n" +
+	"\x1dListComponentVersionsResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x123\n" +
+	"\bversions\x18\x02 \x03(\v2\x17.plux.v1.LibraryVersionR\bversions\"w\n" +
+	"\x1cListLibraryComponentsRequest\x12\x1e\n" +
+	"\n" +
+	"visibility\x18\x01 \x01(\tR\n" +
+	"visibility\x12\x14\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\x12!\n" +
+	"\x04page\x18\x03 \x01(\v2\r.plux.v1.PageR\x04page\"t\n" +
+	"\x1dListLibraryComponentsResponse\x12*\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.plux.v1.LibraryItemR\x05items\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"O\n" +
+	"\x1dSetComponentVisibilityRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
+	"\n" +
+	"visibility\x18\x02 \x01(\tR\n" +
+	"visibility\"J\n" +
+	"\x1eSetComponentVisibilityResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\"B\n" +
+	"\x16ExportComponentRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\aversion\x18\x02 \x01(\x05R\aversion\"J\n" +
+	"\x17ExportComponentResponse\x12\x12\n" +
+	"\x04file\x18\x01 \x01(\fR\x04file\x12\x1b\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\">\n" +
+	"\x16ImportComponentRequest\x12\x12\n" +
+	"\x04file\x18\x01 \x01(\fR\x04file\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"v\n" +
+	"\x17ImportComponentResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x121\n" +
+	"\aversion\x18\x02 \x01(\v2\x17.plux.v1.LibraryVersionR\aversion\"_\n" +
+	"\x1cAdoptComponentVersionRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x18\n" +
+	"\aversion\x18\x03 \x01(\x05R\aversion\"\x87\x01\n" +
+	"\x1dAdoptComponentVersionResponse\x12-\n" +
+	"\badoption\x18\x01 \x01(\v2\x11.plux.v1.AdoptionR\badoption\x127\n" +
+	"\tconflicts\x18\x02 \x03(\v2\x19.plux.v1.AdoptionConflictR\tconflicts\"6\n" +
+	"\x1dListComponentAdoptionsRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"Q\n" +
+	"\x1eListComponentAdoptionsResponse\x12/\n" +
+	"\tadoptions\x18\x01 \x03(\v2\x11.plux.v1.AdoptionR\tadoptions2\xf7\b\n" +
 	"\x10ComponentService\x12S\n" +
 	"\x0eListComponents\x12\x1e.plux.v1.ListComponentsRequest\x1a\x1f.plux.v1.ListComponentsResponse\"\x00\x12M\n" +
 	"\fGetComponent\x12\x1c.plux.v1.GetComponentRequest\x1a\x1d.plux.v1.GetComponentResponse\"\x00\x12G\n" +
 	"\n" +
-	"ListUsages\x12\x1a.plux.v1.ListUsagesRequest\x1a\x1b.plux.v1.ListUsagesResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"ListUsages\x12\x1a.plux.v1.ListUsagesRequest\x1a\x1b.plux.v1.ListUsagesResponse\"\x00\x12V\n" +
+	"\x0fCreateComponent\x12\x1f.plux.v1.CreateComponentRequest\x1a .plux.v1.CreateComponentResponse\"\x00\x12V\n" +
+	"\x0fReviseComponent\x12\x1f.plux.v1.ReviseComponentRequest\x1a .plux.v1.ReviseComponentResponse\"\x00\x12h\n" +
+	"\x15ListComponentVersions\x12%.plux.v1.ListComponentVersionsRequest\x1a&.plux.v1.ListComponentVersionsResponse\"\x00\x12h\n" +
+	"\x15ListLibraryComponents\x12%.plux.v1.ListLibraryComponentsRequest\x1a&.plux.v1.ListLibraryComponentsResponse\"\x00\x12k\n" +
+	"\x16SetComponentVisibility\x12&.plux.v1.SetComponentVisibilityRequest\x1a'.plux.v1.SetComponentVisibilityResponse\"\x00\x12V\n" +
+	"\x0fExportComponent\x12\x1f.plux.v1.ExportComponentRequest\x1a .plux.v1.ExportComponentResponse\"\x00\x12V\n" +
+	"\x0fImportComponent\x12\x1f.plux.v1.ImportComponentRequest\x1a .plux.v1.ImportComponentResponse\"\x00\x12h\n" +
+	"\x15AdoptComponentVersion\x12%.plux.v1.AdoptComponentVersionRequest\x1a&.plux.v1.AdoptComponentVersionResponse\"\x00\x12k\n" +
+	"\x16ListComponentAdoptions\x12&.plux.v1.ListComponentAdoptionsRequest\x1a'.plux.v1.ListComponentAdoptionsResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_component_proto_rawDescOnce sync.Once
@@ -580,42 +1570,100 @@ func file_plux_v1_component_proto_rawDescGZIP() []byte {
 	return file_plux_v1_component_proto_rawDescData
 }
 
-var file_plux_v1_component_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_plux_v1_component_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_plux_v1_component_proto_goTypes = []any{
-	(*Component)(nil),              // 0: plux.v1.Component
-	(*Usage)(nil),                  // 1: plux.v1.Usage
-	(*ListComponentsRequest)(nil),  // 2: plux.v1.ListComponentsRequest
-	(*ListComponentsResponse)(nil), // 3: plux.v1.ListComponentsResponse
-	(*GetComponentRequest)(nil),    // 4: plux.v1.GetComponentRequest
-	(*GetComponentResponse)(nil),   // 5: plux.v1.GetComponentResponse
-	(*ListUsagesRequest)(nil),      // 6: plux.v1.ListUsagesRequest
-	(*ListUsagesResponse)(nil),     // 7: plux.v1.ListUsagesResponse
-	(*timestamppb.Timestamp)(nil),  // 8: google.protobuf.Timestamp
-	(*Location)(nil),               // 9: plux.v1.Location
-	(*Page)(nil),                   // 10: plux.v1.Page
-	(*PageResult)(nil),             // 11: plux.v1.PageResult
+	(*Component)(nil),                      // 0: plux.v1.Component
+	(*Usage)(nil),                          // 1: plux.v1.Usage
+	(*ListComponentsRequest)(nil),          // 2: plux.v1.ListComponentsRequest
+	(*ListComponentsResponse)(nil),         // 3: plux.v1.ListComponentsResponse
+	(*GetComponentRequest)(nil),            // 4: plux.v1.GetComponentRequest
+	(*GetComponentResponse)(nil),           // 5: plux.v1.GetComponentResponse
+	(*ListUsagesRequest)(nil),              // 6: plux.v1.ListUsagesRequest
+	(*ListUsagesResponse)(nil),             // 7: plux.v1.ListUsagesResponse
+	(*CreateComponentRequest)(nil),         // 8: plux.v1.CreateComponentRequest
+	(*CreateComponentResponse)(nil),        // 9: plux.v1.CreateComponentResponse
+	(*ReviseComponentRequest)(nil),         // 10: plux.v1.ReviseComponentRequest
+	(*ReviseComponentResponse)(nil),        // 11: plux.v1.ReviseComponentResponse
+	(*ListComponentVersionsRequest)(nil),   // 12: plux.v1.ListComponentVersionsRequest
+	(*ListComponentVersionsResponse)(nil),  // 13: plux.v1.ListComponentVersionsResponse
+	(*ListLibraryComponentsRequest)(nil),   // 14: plux.v1.ListLibraryComponentsRequest
+	(*ListLibraryComponentsResponse)(nil),  // 15: plux.v1.ListLibraryComponentsResponse
+	(*SetComponentVisibilityRequest)(nil),  // 16: plux.v1.SetComponentVisibilityRequest
+	(*SetComponentVisibilityResponse)(nil), // 17: plux.v1.SetComponentVisibilityResponse
+	(*ExportComponentRequest)(nil),         // 18: plux.v1.ExportComponentRequest
+	(*ExportComponentResponse)(nil),        // 19: plux.v1.ExportComponentResponse
+	(*ImportComponentRequest)(nil),         // 20: plux.v1.ImportComponentRequest
+	(*ImportComponentResponse)(nil),        // 21: plux.v1.ImportComponentResponse
+	(*AdoptComponentVersionRequest)(nil),   // 22: plux.v1.AdoptComponentVersionRequest
+	(*AdoptComponentVersionResponse)(nil),  // 23: plux.v1.AdoptComponentVersionResponse
+	(*ListComponentAdoptionsRequest)(nil),  // 24: plux.v1.ListComponentAdoptionsRequest
+	(*ListComponentAdoptionsResponse)(nil), // 25: plux.v1.ListComponentAdoptionsResponse
+	(*timestamppb.Timestamp)(nil),          // 26: google.protobuf.Timestamp
+	(*Location)(nil),                       // 27: plux.v1.Location
+	(*Page)(nil),                           // 28: plux.v1.Page
+	(*PageResult)(nil),                     // 29: plux.v1.PageResult
+	(*LibraryDraft)(nil),                   // 30: plux.v1.LibraryDraft
+	(*LibraryItem)(nil),                    // 31: plux.v1.LibraryItem
+	(*LibraryVersion)(nil),                 // 32: plux.v1.LibraryVersion
+	(*Adoption)(nil),                       // 33: plux.v1.Adoption
+	(*AdoptionConflict)(nil),               // 34: plux.v1.AdoptionConflict
 }
 var file_plux_v1_component_proto_depIdxs = []int32{
-	8,  // 0: plux.v1.Component.updated_at:type_name -> google.protobuf.Timestamp
-	9,  // 1: plux.v1.Usage.location:type_name -> plux.v1.Location
-	10, // 2: plux.v1.ListComponentsRequest.page:type_name -> plux.v1.Page
+	26, // 0: plux.v1.Component.updated_at:type_name -> google.protobuf.Timestamp
+	27, // 1: plux.v1.Usage.location:type_name -> plux.v1.Location
+	28, // 2: plux.v1.ListComponentsRequest.page:type_name -> plux.v1.Page
 	0,  // 3: plux.v1.ListComponentsResponse.components:type_name -> plux.v1.Component
-	11, // 4: plux.v1.ListComponentsResponse.page:type_name -> plux.v1.PageResult
+	29, // 4: plux.v1.ListComponentsResponse.page:type_name -> plux.v1.PageResult
 	0,  // 5: plux.v1.GetComponentResponse.component:type_name -> plux.v1.Component
-	10, // 6: plux.v1.ListUsagesRequest.page:type_name -> plux.v1.Page
+	28, // 6: plux.v1.ListUsagesRequest.page:type_name -> plux.v1.Page
 	1,  // 7: plux.v1.ListUsagesResponse.usages:type_name -> plux.v1.Usage
-	11, // 8: plux.v1.ListUsagesResponse.page:type_name -> plux.v1.PageResult
-	2,  // 9: plux.v1.ComponentService.ListComponents:input_type -> plux.v1.ListComponentsRequest
-	4,  // 10: plux.v1.ComponentService.GetComponent:input_type -> plux.v1.GetComponentRequest
-	6,  // 11: plux.v1.ComponentService.ListUsages:input_type -> plux.v1.ListUsagesRequest
-	3,  // 12: plux.v1.ComponentService.ListComponents:output_type -> plux.v1.ListComponentsResponse
-	5,  // 13: plux.v1.ComponentService.GetComponent:output_type -> plux.v1.GetComponentResponse
-	7,  // 14: plux.v1.ComponentService.ListUsages:output_type -> plux.v1.ListUsagesResponse
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	29, // 8: plux.v1.ListUsagesResponse.page:type_name -> plux.v1.PageResult
+	30, // 9: plux.v1.CreateComponentRequest.draft:type_name -> plux.v1.LibraryDraft
+	31, // 10: plux.v1.CreateComponentResponse.item:type_name -> plux.v1.LibraryItem
+	32, // 11: plux.v1.CreateComponentResponse.version:type_name -> plux.v1.LibraryVersion
+	30, // 12: plux.v1.ReviseComponentRequest.draft:type_name -> plux.v1.LibraryDraft
+	31, // 13: plux.v1.ReviseComponentResponse.item:type_name -> plux.v1.LibraryItem
+	32, // 14: plux.v1.ReviseComponentResponse.version:type_name -> plux.v1.LibraryVersion
+	31, // 15: plux.v1.ListComponentVersionsResponse.item:type_name -> plux.v1.LibraryItem
+	32, // 16: plux.v1.ListComponentVersionsResponse.versions:type_name -> plux.v1.LibraryVersion
+	28, // 17: plux.v1.ListLibraryComponentsRequest.page:type_name -> plux.v1.Page
+	31, // 18: plux.v1.ListLibraryComponentsResponse.items:type_name -> plux.v1.LibraryItem
+	29, // 19: plux.v1.ListLibraryComponentsResponse.page:type_name -> plux.v1.PageResult
+	31, // 20: plux.v1.SetComponentVisibilityResponse.item:type_name -> plux.v1.LibraryItem
+	31, // 21: plux.v1.ImportComponentResponse.item:type_name -> plux.v1.LibraryItem
+	32, // 22: plux.v1.ImportComponentResponse.version:type_name -> plux.v1.LibraryVersion
+	33, // 23: plux.v1.AdoptComponentVersionResponse.adoption:type_name -> plux.v1.Adoption
+	34, // 24: plux.v1.AdoptComponentVersionResponse.conflicts:type_name -> plux.v1.AdoptionConflict
+	33, // 25: plux.v1.ListComponentAdoptionsResponse.adoptions:type_name -> plux.v1.Adoption
+	2,  // 26: plux.v1.ComponentService.ListComponents:input_type -> plux.v1.ListComponentsRequest
+	4,  // 27: plux.v1.ComponentService.GetComponent:input_type -> plux.v1.GetComponentRequest
+	6,  // 28: plux.v1.ComponentService.ListUsages:input_type -> plux.v1.ListUsagesRequest
+	8,  // 29: plux.v1.ComponentService.CreateComponent:input_type -> plux.v1.CreateComponentRequest
+	10, // 30: plux.v1.ComponentService.ReviseComponent:input_type -> plux.v1.ReviseComponentRequest
+	12, // 31: plux.v1.ComponentService.ListComponentVersions:input_type -> plux.v1.ListComponentVersionsRequest
+	14, // 32: plux.v1.ComponentService.ListLibraryComponents:input_type -> plux.v1.ListLibraryComponentsRequest
+	16, // 33: plux.v1.ComponentService.SetComponentVisibility:input_type -> plux.v1.SetComponentVisibilityRequest
+	18, // 34: plux.v1.ComponentService.ExportComponent:input_type -> plux.v1.ExportComponentRequest
+	20, // 35: plux.v1.ComponentService.ImportComponent:input_type -> plux.v1.ImportComponentRequest
+	22, // 36: plux.v1.ComponentService.AdoptComponentVersion:input_type -> plux.v1.AdoptComponentVersionRequest
+	24, // 37: plux.v1.ComponentService.ListComponentAdoptions:input_type -> plux.v1.ListComponentAdoptionsRequest
+	3,  // 38: plux.v1.ComponentService.ListComponents:output_type -> plux.v1.ListComponentsResponse
+	5,  // 39: plux.v1.ComponentService.GetComponent:output_type -> plux.v1.GetComponentResponse
+	7,  // 40: plux.v1.ComponentService.ListUsages:output_type -> plux.v1.ListUsagesResponse
+	9,  // 41: plux.v1.ComponentService.CreateComponent:output_type -> plux.v1.CreateComponentResponse
+	11, // 42: plux.v1.ComponentService.ReviseComponent:output_type -> plux.v1.ReviseComponentResponse
+	13, // 43: plux.v1.ComponentService.ListComponentVersions:output_type -> plux.v1.ListComponentVersionsResponse
+	15, // 44: plux.v1.ComponentService.ListLibraryComponents:output_type -> plux.v1.ListLibraryComponentsResponse
+	17, // 45: plux.v1.ComponentService.SetComponentVisibility:output_type -> plux.v1.SetComponentVisibilityResponse
+	19, // 46: plux.v1.ComponentService.ExportComponent:output_type -> plux.v1.ExportComponentResponse
+	21, // 47: plux.v1.ComponentService.ImportComponent:output_type -> plux.v1.ImportComponentResponse
+	23, // 48: plux.v1.ComponentService.AdoptComponentVersion:output_type -> plux.v1.AdoptComponentVersionResponse
+	25, // 49: plux.v1.ComponentService.ListComponentAdoptions:output_type -> plux.v1.ListComponentAdoptionsResponse
+	38, // [38:50] is the sub-list for method output_type
+	26, // [26:38] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_component_proto_init() }
@@ -624,13 +1672,14 @@ func file_plux_v1_component_proto_init() {
 		return
 	}
 	file_plux_v1_common_proto_init()
+	file_plux_v1_library_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_component_proto_rawDesc), len(file_plux_v1_component_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
