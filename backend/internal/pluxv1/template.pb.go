@@ -552,11 +552,736 @@ func (x *InstantiateResponse) GetDiagnostics() []*Diagnostic {
 	return nil
 }
 
+type CreateTemplateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Draft         *LibraryDraft          `protobuf:"bytes,1,opt,name=draft,proto3" json:"draft,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTemplateRequest) Reset() {
+	*x = CreateTemplateRequest{}
+	mi := &file_plux_v1_template_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTemplateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTemplateRequest) ProtoMessage() {}
+
+func (x *CreateTemplateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTemplateRequest.ProtoReflect.Descriptor instead.
+func (*CreateTemplateRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreateTemplateRequest) GetDraft() *LibraryDraft {
+	if x != nil {
+		return x.Draft
+	}
+	return nil
+}
+
+type CreateTemplateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Version       *LibraryVersion        `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTemplateResponse) Reset() {
+	*x = CreateTemplateResponse{}
+	mi := &file_plux_v1_template_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTemplateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTemplateResponse) ProtoMessage() {}
+
+func (x *CreateTemplateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTemplateResponse.ProtoReflect.Descriptor instead.
+func (*CreateTemplateResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreateTemplateResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *CreateTemplateResponse) GetVersion() *LibraryVersion {
+	if x != nil {
+		return x.Version
+	}
+	return nil
+}
+
+type ReviseTemplateRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// expected_version is the head version the caller revised from.
+	ExpectedVersion int32         `protobuf:"varint,2,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
+	Draft           *LibraryDraft `protobuf:"bytes,3,opt,name=draft,proto3" json:"draft,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ReviseTemplateRequest) Reset() {
+	*x = ReviseTemplateRequest{}
+	mi := &file_plux_v1_template_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviseTemplateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviseTemplateRequest) ProtoMessage() {}
+
+func (x *ReviseTemplateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviseTemplateRequest.ProtoReflect.Descriptor instead.
+func (*ReviseTemplateRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ReviseTemplateRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ReviseTemplateRequest) GetExpectedVersion() int32 {
+	if x != nil {
+		return x.ExpectedVersion
+	}
+	return 0
+}
+
+func (x *ReviseTemplateRequest) GetDraft() *LibraryDraft {
+	if x != nil {
+		return x.Draft
+	}
+	return nil
+}
+
+type ReviseTemplateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Version       *LibraryVersion        `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviseTemplateResponse) Reset() {
+	*x = ReviseTemplateResponse{}
+	mi := &file_plux_v1_template_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviseTemplateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviseTemplateResponse) ProtoMessage() {}
+
+func (x *ReviseTemplateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviseTemplateResponse.ProtoReflect.Descriptor instead.
+func (*ReviseTemplateResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ReviseTemplateResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *ReviseTemplateResponse) GetVersion() *LibraryVersion {
+	if x != nil {
+		return x.Version
+	}
+	return nil
+}
+
+type ListTemplateVersionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListTemplateVersionsRequest) Reset() {
+	*x = ListTemplateVersionsRequest{}
+	mi := &file_plux_v1_template_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTemplateVersionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTemplateVersionsRequest) ProtoMessage() {}
+
+func (x *ListTemplateVersionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTemplateVersionsRequest.ProtoReflect.Descriptor instead.
+func (*ListTemplateVersionsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListTemplateVersionsRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type ListTemplateVersionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Versions      []*LibraryVersion      `protobuf:"bytes,2,rep,name=versions,proto3" json:"versions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListTemplateVersionsResponse) Reset() {
+	*x = ListTemplateVersionsResponse{}
+	mi := &file_plux_v1_template_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTemplateVersionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTemplateVersionsResponse) ProtoMessage() {}
+
+func (x *ListTemplateVersionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTemplateVersionsResponse.ProtoReflect.Descriptor instead.
+func (*ListTemplateVersionsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListTemplateVersionsResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *ListTemplateVersionsResponse) GetVersions() []*LibraryVersion {
+	if x != nil {
+		return x.Versions
+	}
+	return nil
+}
+
+type ListLibraryTemplatesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// visibility filters to one level; empty lists all the caller may see.
+	Visibility string `protobuf:"bytes,1,opt,name=visibility,proto3" json:"visibility,omitempty"`
+	// query matches the key and name.
+	Query         string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
+	Page          *Page  `protobuf:"bytes,3,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLibraryTemplatesRequest) Reset() {
+	*x = ListLibraryTemplatesRequest{}
+	mi := &file_plux_v1_template_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLibraryTemplatesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLibraryTemplatesRequest) ProtoMessage() {}
+
+func (x *ListLibraryTemplatesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLibraryTemplatesRequest.ProtoReflect.Descriptor instead.
+func (*ListLibraryTemplatesRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListLibraryTemplatesRequest) GetVisibility() string {
+	if x != nil {
+		return x.Visibility
+	}
+	return ""
+}
+
+func (x *ListLibraryTemplatesRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *ListLibraryTemplatesRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ListLibraryTemplatesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*LibraryItem         `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Page          *PageResult            `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLibraryTemplatesResponse) Reset() {
+	*x = ListLibraryTemplatesResponse{}
+	mi := &file_plux_v1_template_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLibraryTemplatesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLibraryTemplatesResponse) ProtoMessage() {}
+
+func (x *ListLibraryTemplatesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLibraryTemplatesResponse.ProtoReflect.Descriptor instead.
+func (*ListLibraryTemplatesResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ListLibraryTemplatesResponse) GetItems() []*LibraryItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ListLibraryTemplatesResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type SetTemplateVisibilityRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Visibility    string                 `protobuf:"bytes,2,opt,name=visibility,proto3" json:"visibility,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetTemplateVisibilityRequest) Reset() {
+	*x = SetTemplateVisibilityRequest{}
+	mi := &file_plux_v1_template_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetTemplateVisibilityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetTemplateVisibilityRequest) ProtoMessage() {}
+
+func (x *SetTemplateVisibilityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetTemplateVisibilityRequest.ProtoReflect.Descriptor instead.
+func (*SetTemplateVisibilityRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *SetTemplateVisibilityRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SetTemplateVisibilityRequest) GetVisibility() string {
+	if x != nil {
+		return x.Visibility
+	}
+	return ""
+}
+
+type SetTemplateVisibilityResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetTemplateVisibilityResponse) Reset() {
+	*x = SetTemplateVisibilityResponse{}
+	mi := &file_plux_v1_template_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetTemplateVisibilityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetTemplateVisibilityResponse) ProtoMessage() {}
+
+func (x *SetTemplateVisibilityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetTemplateVisibilityResponse.ProtoReflect.Descriptor instead.
+func (*SetTemplateVisibilityResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SetTemplateVisibilityResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+type ExportTemplateRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// version is the version to export; zero is the newest.
+	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportTemplateRequest) Reset() {
+	*x = ExportTemplateRequest{}
+	mi := &file_plux_v1_template_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportTemplateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportTemplateRequest) ProtoMessage() {}
+
+func (x *ExportTemplateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportTemplateRequest.ProtoReflect.Descriptor instead.
+func (*ExportTemplateRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ExportTemplateRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ExportTemplateRequest) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+type ExportTemplateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	File          []byte                 `protobuf:"bytes,1,opt,name=file,proto3" json:"file,omitempty"`
+	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportTemplateResponse) Reset() {
+	*x = ExportTemplateResponse{}
+	mi := &file_plux_v1_template_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportTemplateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportTemplateResponse) ProtoMessage() {}
+
+func (x *ExportTemplateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportTemplateResponse.ProtoReflect.Descriptor instead.
+func (*ExportTemplateResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ExportTemplateResponse) GetFile() []byte {
+	if x != nil {
+		return x.File
+	}
+	return nil
+}
+
+func (x *ExportTemplateResponse) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+type ImportTemplateRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	File  []byte                 `protobuf:"bytes,1,opt,name=file,proto3" json:"file,omitempty"`
+	// key replaces the file's key when the organisation already has it.
+	Key           string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportTemplateRequest) Reset() {
+	*x = ImportTemplateRequest{}
+	mi := &file_plux_v1_template_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportTemplateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportTemplateRequest) ProtoMessage() {}
+
+func (x *ImportTemplateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportTemplateRequest.ProtoReflect.Descriptor instead.
+func (*ImportTemplateRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ImportTemplateRequest) GetFile() []byte {
+	if x != nil {
+		return x.File
+	}
+	return nil
+}
+
+func (x *ImportTemplateRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type ImportTemplateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *LibraryItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Version       *LibraryVersion        `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportTemplateResponse) Reset() {
+	*x = ImportTemplateResponse{}
+	mi := &file_plux_v1_template_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportTemplateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportTemplateResponse) ProtoMessage() {}
+
+func (x *ImportTemplateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_template_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportTemplateResponse.ProtoReflect.Descriptor instead.
+func (*ImportTemplateResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_template_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ImportTemplateResponse) GetItem() *LibraryItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *ImportTemplateResponse) GetVersion() *LibraryVersion {
+	if x != nil {
+		return x.Version
+	}
+	return nil
+}
+
 var File_plux_v1_template_proto protoreflect.FileDescriptor
 
 const file_plux_v1_template_proto_rawDesc = "" +
 	"\n" +
-	"\x16plux/v1/template.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x84\x02\n" +
+	"\x16plux/v1/template.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\x1a\x15plux/v1/library.proto\"\x84\x02\n" +
 	"\bTemplate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x10\n" +
@@ -598,11 +1323,63 @@ const file_plux_v1_template_proto_rawDesc = "" +
 	"\acreated\x18\x01 \x03(\tR\acreated\x12\x1f\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tR\n" +
 	"snapshotId\x125\n" +
-	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics2\xfb\x01\n" +
+	"\vdiagnostics\x18\x03 \x03(\v2\x13.plux.v1.DiagnosticR\vdiagnostics\"D\n" +
+	"\x15CreateTemplateRequest\x12+\n" +
+	"\x05draft\x18\x01 \x01(\v2\x15.plux.v1.LibraryDraftR\x05draft\"u\n" +
+	"\x16CreateTemplateResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x121\n" +
+	"\aversion\x18\x02 \x01(\v2\x17.plux.v1.LibraryVersionR\aversion\"\x7f\n" +
+	"\x15ReviseTemplateRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12)\n" +
+	"\x10expected_version\x18\x02 \x01(\x05R\x0fexpectedVersion\x12+\n" +
+	"\x05draft\x18\x03 \x01(\v2\x15.plux.v1.LibraryDraftR\x05draft\"u\n" +
+	"\x16ReviseTemplateResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x121\n" +
+	"\aversion\x18\x02 \x01(\v2\x17.plux.v1.LibraryVersionR\aversion\"-\n" +
+	"\x1bListTemplateVersionsRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"}\n" +
+	"\x1cListTemplateVersionsResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x123\n" +
+	"\bversions\x18\x02 \x03(\v2\x17.plux.v1.LibraryVersionR\bversions\"v\n" +
+	"\x1bListLibraryTemplatesRequest\x12\x1e\n" +
+	"\n" +
+	"visibility\x18\x01 \x01(\tR\n" +
+	"visibility\x12\x14\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\x12!\n" +
+	"\x04page\x18\x03 \x01(\v2\r.plux.v1.PageR\x04page\"s\n" +
+	"\x1cListLibraryTemplatesResponse\x12*\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.plux.v1.LibraryItemR\x05items\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"N\n" +
+	"\x1cSetTemplateVisibilityRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
+	"\n" +
+	"visibility\x18\x02 \x01(\tR\n" +
+	"visibility\"I\n" +
+	"\x1dSetTemplateVisibilityResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\"A\n" +
+	"\x15ExportTemplateRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\aversion\x18\x02 \x01(\x05R\aversion\"I\n" +
+	"\x16ExportTemplateResponse\x12\x12\n" +
+	"\x04file\x18\x01 \x01(\fR\x04file\x12\x1b\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\"=\n" +
+	"\x15ImportTemplateRequest\x12\x12\n" +
+	"\x04file\x18\x01 \x01(\fR\x04file\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"u\n" +
+	"\x16ImportTemplateResponse\x12(\n" +
+	"\x04item\x18\x01 \x01(\v2\x14.plux.v1.LibraryItemR\x04item\x121\n" +
+	"\aversion\x18\x02 \x01(\v2\x17.plux.v1.LibraryVersionR\aversion2\x87\a\n" +
 	"\x0fTemplateService\x12P\n" +
 	"\rListTemplates\x12\x1d.plux.v1.ListTemplatesRequest\x1a\x1e.plux.v1.ListTemplatesResponse\"\x00\x12J\n" +
 	"\vGetTemplate\x12\x1b.plux.v1.GetTemplateRequest\x1a\x1c.plux.v1.GetTemplateResponse\"\x00\x12J\n" +
-	"\vInstantiate\x12\x1b.plux.v1.InstantiateRequest\x1a\x1c.plux.v1.InstantiateResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\vInstantiate\x12\x1b.plux.v1.InstantiateRequest\x1a\x1c.plux.v1.InstantiateResponse\"\x00\x12S\n" +
+	"\x0eCreateTemplate\x12\x1e.plux.v1.CreateTemplateRequest\x1a\x1f.plux.v1.CreateTemplateResponse\"\x00\x12S\n" +
+	"\x0eReviseTemplate\x12\x1e.plux.v1.ReviseTemplateRequest\x1a\x1f.plux.v1.ReviseTemplateResponse\"\x00\x12e\n" +
+	"\x14ListTemplateVersions\x12$.plux.v1.ListTemplateVersionsRequest\x1a%.plux.v1.ListTemplateVersionsResponse\"\x00\x12e\n" +
+	"\x14ListLibraryTemplates\x12$.plux.v1.ListLibraryTemplatesRequest\x1a%.plux.v1.ListLibraryTemplatesResponse\"\x00\x12h\n" +
+	"\x15SetTemplateVisibility\x12%.plux.v1.SetTemplateVisibilityRequest\x1a&.plux.v1.SetTemplateVisibilityResponse\"\x00\x12S\n" +
+	"\x0eExportTemplate\x12\x1e.plux.v1.ExportTemplateRequest\x1a\x1f.plux.v1.ExportTemplateResponse\"\x00\x12S\n" +
+	"\x0eImportTemplate\x12\x1e.plux.v1.ImportTemplateRequest\x1a\x1f.plux.v1.ImportTemplateResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_template_proto_rawDescOnce sync.Once
@@ -616,40 +1393,85 @@ func file_plux_v1_template_proto_rawDescGZIP() []byte {
 	return file_plux_v1_template_proto_rawDescData
 }
 
-var file_plux_v1_template_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_plux_v1_template_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_plux_v1_template_proto_goTypes = []any{
-	(*Template)(nil),              // 0: plux.v1.Template
-	(*TemplateParameter)(nil),     // 1: plux.v1.TemplateParameter
-	(*ListTemplatesRequest)(nil),  // 2: plux.v1.ListTemplatesRequest
-	(*ListTemplatesResponse)(nil), // 3: plux.v1.ListTemplatesResponse
-	(*GetTemplateRequest)(nil),    // 4: plux.v1.GetTemplateRequest
-	(*GetTemplateResponse)(nil),   // 5: plux.v1.GetTemplateResponse
-	(*InstantiateRequest)(nil),    // 6: plux.v1.InstantiateRequest
-	(*InstantiateResponse)(nil),   // 7: plux.v1.InstantiateResponse
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
-	(*Page)(nil),                  // 9: plux.v1.Page
-	(*PageResult)(nil),            // 10: plux.v1.PageResult
-	(*Diagnostic)(nil),            // 11: plux.v1.Diagnostic
+	(*Template)(nil),                      // 0: plux.v1.Template
+	(*TemplateParameter)(nil),             // 1: plux.v1.TemplateParameter
+	(*ListTemplatesRequest)(nil),          // 2: plux.v1.ListTemplatesRequest
+	(*ListTemplatesResponse)(nil),         // 3: plux.v1.ListTemplatesResponse
+	(*GetTemplateRequest)(nil),            // 4: plux.v1.GetTemplateRequest
+	(*GetTemplateResponse)(nil),           // 5: plux.v1.GetTemplateResponse
+	(*InstantiateRequest)(nil),            // 6: plux.v1.InstantiateRequest
+	(*InstantiateResponse)(nil),           // 7: plux.v1.InstantiateResponse
+	(*CreateTemplateRequest)(nil),         // 8: plux.v1.CreateTemplateRequest
+	(*CreateTemplateResponse)(nil),        // 9: plux.v1.CreateTemplateResponse
+	(*ReviseTemplateRequest)(nil),         // 10: plux.v1.ReviseTemplateRequest
+	(*ReviseTemplateResponse)(nil),        // 11: plux.v1.ReviseTemplateResponse
+	(*ListTemplateVersionsRequest)(nil),   // 12: plux.v1.ListTemplateVersionsRequest
+	(*ListTemplateVersionsResponse)(nil),  // 13: plux.v1.ListTemplateVersionsResponse
+	(*ListLibraryTemplatesRequest)(nil),   // 14: plux.v1.ListLibraryTemplatesRequest
+	(*ListLibraryTemplatesResponse)(nil),  // 15: plux.v1.ListLibraryTemplatesResponse
+	(*SetTemplateVisibilityRequest)(nil),  // 16: plux.v1.SetTemplateVisibilityRequest
+	(*SetTemplateVisibilityResponse)(nil), // 17: plux.v1.SetTemplateVisibilityResponse
+	(*ExportTemplateRequest)(nil),         // 18: plux.v1.ExportTemplateRequest
+	(*ExportTemplateResponse)(nil),        // 19: plux.v1.ExportTemplateResponse
+	(*ImportTemplateRequest)(nil),         // 20: plux.v1.ImportTemplateRequest
+	(*ImportTemplateResponse)(nil),        // 21: plux.v1.ImportTemplateResponse
+	(*timestamppb.Timestamp)(nil),         // 22: google.protobuf.Timestamp
+	(*Page)(nil),                          // 23: plux.v1.Page
+	(*PageResult)(nil),                    // 24: plux.v1.PageResult
+	(*Diagnostic)(nil),                    // 25: plux.v1.Diagnostic
+	(*LibraryDraft)(nil),                  // 26: plux.v1.LibraryDraft
+	(*LibraryItem)(nil),                   // 27: plux.v1.LibraryItem
+	(*LibraryVersion)(nil),                // 28: plux.v1.LibraryVersion
 }
 var file_plux_v1_template_proto_depIdxs = []int32{
 	1,  // 0: plux.v1.Template.parameters:type_name -> plux.v1.TemplateParameter
-	8,  // 1: plux.v1.Template.updated_at:type_name -> google.protobuf.Timestamp
-	9,  // 2: plux.v1.ListTemplatesRequest.page:type_name -> plux.v1.Page
+	22, // 1: plux.v1.Template.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 2: plux.v1.ListTemplatesRequest.page:type_name -> plux.v1.Page
 	0,  // 3: plux.v1.ListTemplatesResponse.templates:type_name -> plux.v1.Template
-	10, // 4: plux.v1.ListTemplatesResponse.page:type_name -> plux.v1.PageResult
+	24, // 4: plux.v1.ListTemplatesResponse.page:type_name -> plux.v1.PageResult
 	0,  // 5: plux.v1.GetTemplateResponse.template:type_name -> plux.v1.Template
-	11, // 6: plux.v1.InstantiateResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	2,  // 7: plux.v1.TemplateService.ListTemplates:input_type -> plux.v1.ListTemplatesRequest
-	4,  // 8: plux.v1.TemplateService.GetTemplate:input_type -> plux.v1.GetTemplateRequest
-	6,  // 9: plux.v1.TemplateService.Instantiate:input_type -> plux.v1.InstantiateRequest
-	3,  // 10: plux.v1.TemplateService.ListTemplates:output_type -> plux.v1.ListTemplatesResponse
-	5,  // 11: plux.v1.TemplateService.GetTemplate:output_type -> plux.v1.GetTemplateResponse
-	7,  // 12: plux.v1.TemplateService.Instantiate:output_type -> plux.v1.InstantiateResponse
-	10, // [10:13] is the sub-list for method output_type
-	7,  // [7:10] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	25, // 6: plux.v1.InstantiateResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	26, // 7: plux.v1.CreateTemplateRequest.draft:type_name -> plux.v1.LibraryDraft
+	27, // 8: plux.v1.CreateTemplateResponse.item:type_name -> plux.v1.LibraryItem
+	28, // 9: plux.v1.CreateTemplateResponse.version:type_name -> plux.v1.LibraryVersion
+	26, // 10: plux.v1.ReviseTemplateRequest.draft:type_name -> plux.v1.LibraryDraft
+	27, // 11: plux.v1.ReviseTemplateResponse.item:type_name -> plux.v1.LibraryItem
+	28, // 12: plux.v1.ReviseTemplateResponse.version:type_name -> plux.v1.LibraryVersion
+	27, // 13: plux.v1.ListTemplateVersionsResponse.item:type_name -> plux.v1.LibraryItem
+	28, // 14: plux.v1.ListTemplateVersionsResponse.versions:type_name -> plux.v1.LibraryVersion
+	23, // 15: plux.v1.ListLibraryTemplatesRequest.page:type_name -> plux.v1.Page
+	27, // 16: plux.v1.ListLibraryTemplatesResponse.items:type_name -> plux.v1.LibraryItem
+	24, // 17: plux.v1.ListLibraryTemplatesResponse.page:type_name -> plux.v1.PageResult
+	27, // 18: plux.v1.SetTemplateVisibilityResponse.item:type_name -> plux.v1.LibraryItem
+	27, // 19: plux.v1.ImportTemplateResponse.item:type_name -> plux.v1.LibraryItem
+	28, // 20: plux.v1.ImportTemplateResponse.version:type_name -> plux.v1.LibraryVersion
+	2,  // 21: plux.v1.TemplateService.ListTemplates:input_type -> plux.v1.ListTemplatesRequest
+	4,  // 22: plux.v1.TemplateService.GetTemplate:input_type -> plux.v1.GetTemplateRequest
+	6,  // 23: plux.v1.TemplateService.Instantiate:input_type -> plux.v1.InstantiateRequest
+	8,  // 24: plux.v1.TemplateService.CreateTemplate:input_type -> plux.v1.CreateTemplateRequest
+	10, // 25: plux.v1.TemplateService.ReviseTemplate:input_type -> plux.v1.ReviseTemplateRequest
+	12, // 26: plux.v1.TemplateService.ListTemplateVersions:input_type -> plux.v1.ListTemplateVersionsRequest
+	14, // 27: plux.v1.TemplateService.ListLibraryTemplates:input_type -> plux.v1.ListLibraryTemplatesRequest
+	16, // 28: plux.v1.TemplateService.SetTemplateVisibility:input_type -> plux.v1.SetTemplateVisibilityRequest
+	18, // 29: plux.v1.TemplateService.ExportTemplate:input_type -> plux.v1.ExportTemplateRequest
+	20, // 30: plux.v1.TemplateService.ImportTemplate:input_type -> plux.v1.ImportTemplateRequest
+	3,  // 31: plux.v1.TemplateService.ListTemplates:output_type -> plux.v1.ListTemplatesResponse
+	5,  // 32: plux.v1.TemplateService.GetTemplate:output_type -> plux.v1.GetTemplateResponse
+	7,  // 33: plux.v1.TemplateService.Instantiate:output_type -> plux.v1.InstantiateResponse
+	9,  // 34: plux.v1.TemplateService.CreateTemplate:output_type -> plux.v1.CreateTemplateResponse
+	11, // 35: plux.v1.TemplateService.ReviseTemplate:output_type -> plux.v1.ReviseTemplateResponse
+	13, // 36: plux.v1.TemplateService.ListTemplateVersions:output_type -> plux.v1.ListTemplateVersionsResponse
+	15, // 37: plux.v1.TemplateService.ListLibraryTemplates:output_type -> plux.v1.ListLibraryTemplatesResponse
+	17, // 38: plux.v1.TemplateService.SetTemplateVisibility:output_type -> plux.v1.SetTemplateVisibilityResponse
+	19, // 39: plux.v1.TemplateService.ExportTemplate:output_type -> plux.v1.ExportTemplateResponse
+	21, // 40: plux.v1.TemplateService.ImportTemplate:output_type -> plux.v1.ImportTemplateResponse
+	31, // [31:41] is the sub-list for method output_type
+	21, // [21:31] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_template_proto_init() }
@@ -658,13 +1480,14 @@ func file_plux_v1_template_proto_init() {
 		return
 	}
 	file_plux_v1_common_proto_init()
+	file_plux_v1_library_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_template_proto_rawDesc), len(file_plux_v1_template_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

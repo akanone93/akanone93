@@ -1,0 +1,88 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// The messages the library's authoring calls of TemplateService and
+// ComponentService share (STU-080 to STU-086, ADR-0098).
+
+// LibraryItem is a template or a component of the library. Its content is in
+// its versions; the item holds what may change without a new version.
+message LibraryItem {
+  string id = 1;
+  // kind is "template" or "component".
+  string kind = 2;
+  string key = 3;
+  string name = 4;
+  string description = 5;
+  // template_kind is "page" or "flow" for a template and empty for a
+  // component.
+  string template_kind = 6;
+  // visibility is "private", "organization" or "public" (STU-081).
+  string visibility = 7;
+  int32 head_version = 8;
+  // document_id is the identifier the content documents carry, which
+  // instances of a component refer to (SCH-030).
+  string document_id = 9;
+  string organization_id = 10;
+  string created_by = 11;
+  string created_by_name = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
+}
+
+// LibraryVersion is one immutable version of an item.
+message LibraryVersion {
+  string item_id = 1;
+  int32 version = 2;
+  // content is the canonical JSON of the template or component document.
+  bytes content = 3;
+  bytes content_sha256 = 4;
+  string note = 5;
+  string created_by_name = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+// LibraryDraft is what a new item or a new version is made from.
+message LibraryDraft {
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  // template_kind is "page" or "flow" for a template.
+  string template_kind = 4;
+  // content is the template or component document, as JSON.
+  bytes content = 5;
+  string note = 6;
+}
+
+// LibraryFinding is one thing the public scan refused, located by JSON
+// pointer; it never carries the value (STU-081).
+message LibraryFinding {
+  string pointer = 1;
+  // category is "secret", "sensitive" or "url".
+  string category = 2;
+}
+
+// AdoptionConflict is an instance whose overrides name props or slots the
+// adopted version no longer has (STU-085).
+message AdoptionConflict {
+  string file = 1;
+  string path = 2;
+  repeated string removed_props = 3;
+  repeated string removed_slots = 4;
+}
+
+// Adoption is the component version an app adopted.
+message Adoption {
+  string app_id = 1;
+  string item_id = 2;
+  int32 version = 3;
+  string adopted_by = 4;
+  google.protobuf.Timestamp adopted_at = 5;
+}

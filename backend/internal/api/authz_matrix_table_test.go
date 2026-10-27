@@ -281,6 +281,54 @@ var matrix = map[string]entry{
 		return &pluxv1.InstantiateRequest{TemplateId: f.template, AppId: f.app, PluginId: f.plugin, Session: "tab-2", Key: "copy"}
 	})),
 
+	// The library's authoring calls (STU-080 to STU-086, ADR-0098). Items the
+	// calls act on are made by the owner and shared with the organisation, so
+	// that a refusal is the role's and not a hidden item's.
+	"TemplateService/CreateTemplate": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateTemplateRequest{Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDoc("template"))}}
+	}),
+	"TemplateService/ReviseTemplate": atPerm(auth.LibraryManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ReviseTemplateRequest{Id: f.libraryItem(t, "template"), ExpectedVersion: 1, Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDocOf("template", f.libraryItem(t, "template")))}}
+	}),
+	"TemplateService/ListTemplateVersions": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ListTemplateVersionsRequest{Id: f.libraryItem(t, "template")}
+	}),
+	"TemplateService/ListLibraryTemplates": atPerm(auth.PluginRead, anyone(&pluxv1.ListLibraryTemplatesRequest{})),
+	"TemplateService/SetTemplateVisibility": atPerm(auth.LibraryPublish, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.SetTemplateVisibilityRequest{Id: f.libraryItem(t, "template"), Visibility: "public"}
+	}),
+	"TemplateService/ExportTemplate": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ExportTemplateRequest{Id: f.libraryItem(t, "template")}
+	}),
+	"TemplateService/ImportTemplate": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ImportTemplateRequest{File: []byte("{}")}
+	}),
+	"ComponentService/CreateComponent": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateComponentRequest{Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDoc("component"))}}
+	}),
+	"ComponentService/ReviseComponent": atPerm(auth.LibraryManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ReviseComponentRequest{Id: f.libraryItem(t, "component"), ExpectedVersion: 1, Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDocOf("component", f.libraryItem(t, "component")))}}
+	}),
+	"ComponentService/ListComponentVersions": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ListComponentVersionsRequest{Id: f.libraryItem(t, "component")}
+	}),
+	"ComponentService/ListLibraryComponents": atPerm(auth.PluginRead, anyone(&pluxv1.ListLibraryComponentsRequest{})),
+	"ComponentService/SetComponentVisibility": atPerm(auth.LibraryPublish, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.SetComponentVisibilityRequest{Id: f.libraryItem(t, "component"), Visibility: "public"}
+	}),
+	"ComponentService/ExportComponent": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ExportComponentRequest{Id: f.libraryItem(t, "component")}
+	}),
+	"ComponentService/ImportComponent": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ImportComponentRequest{File: []byte("{}")}
+	}),
+	"ComponentService/AdoptComponentVersion": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.AdoptComponentVersionRequest{AppId: f.app, Id: f.libraryItem(t, "component"), Version: 1}
+	}),
+	"ComponentService/ListComponentAdoptions": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListComponentAdoptionsRequest{AppId: f.app}
+	})),
+
 	// LocalisationService
 	"LocalisationService/ExportTranslations": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ExportTranslationsRequest{AppId: f.app, Locale: "de", Format: "csv"}

@@ -126,10 +126,18 @@ const (
 	ControlChanged       Action = "release.control_changed"
 	SnapshotRestored     Action = "snapshot.restored"
 	TemplateInstantiated Action = "template.instantiated"
-	LockAcquired         Action = "plugin.lock.acquired"
-	LockTakenOver        Action = "plugin.lock.override"
-	LockReleased         Action = "plugin.lock.released"
-	LockRequested        Action = "plugin.lock.requested"
+	// The library (STU-080 to STU-085, ADR-0098). LibraryItemCreated: a
+	// template or component was made or imported. LibraryVersionAdded: a new
+	// immutable version was written. LibraryVisibilitySet: who can see an item
+	// changed. LibraryVersionAdopted: an app adopted a component version.
+	LibraryItemCreated    Action = "library.item_created"
+	LibraryVersionAdded   Action = "library.version_added"
+	LibraryVisibilitySet  Action = "library.visibility_set"
+	LibraryVersionAdopted Action = "library.version_adopted"
+	LockAcquired          Action = "plugin.lock.acquired"
+	LockTakenOver         Action = "plugin.lock.override"
+	LockReleased          Action = "plugin.lock.released"
+	LockRequested         Action = "plugin.lock.requested"
 
 	// DeviceRevoked: a device's trust was withdrawn (SEC-006).
 	DeviceRevoked Action = "device.revoked"
@@ -474,6 +482,7 @@ var actions = sorted(
 	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
 	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
 	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionCommandSent, DevSessionPatched,
+	LibraryItemCreated, LibraryVersionAdded, LibraryVisibilitySet, LibraryVersionAdopted,
 )
 
 // sorted returns its arguments in order.
