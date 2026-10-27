@@ -18,6 +18,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -48,6 +49,10 @@ type Options struct {
 	// Editor runs the language-server sessions and the test runs of the
 	// Rust editor on the builder role (FN-033, FN-034). Nil refuses them.
 	Editor Editor
+	// Shared counts the Rust editor sessions of an organisation across the
+	// API replicas (lsp.sessionsPerOrganization, M-8); nil counts them in
+	// this process only.
+	Shared cache.Cache
 	// Builder compiles a source on the builder role. Nil refuses to run a
 	// build, as on the api role.
 	Builder Builder

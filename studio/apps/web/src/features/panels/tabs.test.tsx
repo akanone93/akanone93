@@ -154,3 +154,16 @@ describe("tab model", () => {
     expect(budgetStatus(b.limit + 1, b)).toBe("over");
   });
 });
+
+describe("Code tab functions (FN-033, FN-034)", () => {
+  test("a listed function opens the Rust editor on its source and offers its tests", async () => {
+    renderApp(path, { documents, surface: surface("b1") });
+    pick(await screen.findByLabelText("Plugin canvas", undefined, { timeout: 5000 }));
+    fireEvent.click(await screen.findByRole("tab", { name: "Code" }));
+    const used = await screen.findByRole("list", { name: "Functions used by the selection" });
+    expect(within(used).getByRole("button", { name: "Run the tests of bank.transferFee" })).toBeTruthy();
+    fireEvent.click(within(used).getByRole("button", { name: "Edit bank.transferFee in the Rust editor" }));
+    const dialog = await screen.findByRole("dialog");
+    expect((within(dialog).getByLabelText("Uploaded source") as HTMLInputElement).value).toBe("bank.transferFee");
+  });
+});
