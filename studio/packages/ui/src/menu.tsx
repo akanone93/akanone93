@@ -27,7 +27,7 @@ export function Menu({ trigger, entries, ...root }: MenuProps): ReactElement {
     <BaseMenu.Root {...root}>
       <BaseMenu.Trigger render={trigger} />
       <BaseMenu.Portal>
-        <BaseMenu.Positioner sideOffset={8}>
+        <BaseMenu.Positioner sideOffset={8} className="z-20">
           <BaseMenu.Popup className="flex min-w-40 flex-col rounded-xl bg-glass p-1 shadow-e2">
             {entries.map((e) =>
               e.kind === "separator" ? (

@@ -801,7 +801,7 @@ export function RightDock(props: DockProps) {
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
     ids.length === 0 ? <p className="text-body text-secondary">{m.nothing}</p> : panel(ids);
   return (
-    <FloatingPanel label={m.dock} className="absolute end-4 top-16 bottom-16 w-80 overflow-y-auto">
+    <FloatingPanel label={m.dock} className="absolute end-4 top-16 bottom-16 w-1/5 overflow-y-auto">
       {props.onOpenJson !== undefined && (
         <Button variant="secondary" size="sm" onClick={props.onOpenJson}>
           <Icon name="pencil-simple" />
