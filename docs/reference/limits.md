@@ -195,6 +195,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `studio.autosaveReplays` | count | 3 | 80% | 10 | installation, organization | P11 | STU-004 | Times Studio replays an autosave on a newer revision after a conflict before it asks the user. |
 | `studio.changeSetDocuments` | count | 500 | 80% | 5000 | installation, organization | P11 | STU-055, STU-070 | Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links). |
 | `studio.clipboardBytes` | bytes | 4194304 | 80% | 33554432 | installation, organization | P11 | STU-067 | Size of one Studio clipboard envelope; a larger copy is refused. |
+| `studio.customFrameMaxDensity` | count | 4 | 80% | 4 | installation, organization | P11 | STU-057 | Largest pixel density of a custom device frame (D40); the smallest is 1. |
+| `studio.customFrameMaxPixels` | count | 4096 | 80% | 8192 | installation, organization | P11 | STU-057 | Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused. |
 | `studio.eventsStreamBufferEvents` | count | 1000 | 80% | 10000 | installation | P11 | STU-075 | Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state. |
 | `studio.favouriteApps` | count | 100 | 80% | 1000 | installation, organization | P11 | STU-014 | Apps one user may mark as favourites in an organisation's Studio preferences. |
 | `studio.lockIdleReleaseMinutes` | count | 10 | 80% | 120 | installation, organization, app | P11 | SRV-040 | Minutes without an edit after which Studio releases an editing lock it holds. |

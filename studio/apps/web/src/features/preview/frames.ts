@@ -3,6 +3,8 @@
 
 /** Device frames and the device matrix (STU-057). */
 
+import { limitDefault } from "@plux/schema";
+
 export type FramePlatform = "material" | "cupertino";
 export type FrameKind = "phone" | "tablet" | "desktop";
 export type SizeClass = "compact" | "medium" | "expanded";
@@ -56,14 +58,37 @@ export interface CustomFrameInput {
   readonly density: number;
 }
 
+/** The limit a custom frame breaks: its size, or its pixel density (D40). */
+export type CustomFrameRefusal = "size" | "density";
+
+/** The largest width or height and the largest density of a custom frame (studio.customFrame*). */
+export function customFrameLimits(): { readonly maxPixels: number; readonly maxDensity: number } {
+  return {
+    maxPixels: limitDefault("studio.customFrameMaxPixels"),
+    maxDensity: limitDefault("studio.customFrameMaxDensity"),
+  };
+}
+
+/** The limit the frame breaks, if any; the first one checked is reported. */
+export function customFrameRefusal(input: CustomFrameInput): CustomFrameRefusal | undefined {
+  const { maxPixels, maxDensity } = customFrameLimits();
+  if (input.width > maxPixels || input.height > maxPixels) {
+    return "size";
+  }
+  if (input.density < 1 || input.density > maxDensity) {
+    return "density";
+  }
+  return undefined;
+}
+
 /**
- * A custom frame (D40). schema/limits.json holds no limit for device-frame sizes, so only positivity
- * and finiteness are checked here; whole logical pixels for width and height.
+ * A custom frame (D40): whole logical pixels for width and height, and a density from 1 up to the
+ * configured maximum. A frame beyond studio.customFrameMaxPixels or studio.customFrameMaxDensity is refused.
  */
 export function customFrame(id: string, input: CustomFrameInput): DeviceFrame | "invalid" {
   const { width, height, density } = input;
   const ok = Number.isInteger(width) && Number.isInteger(height) && width > 0 && height > 0;
-  if (!ok || !Number.isFinite(density) || density <= 0) {
+  if (!ok || !Number.isFinite(density) || customFrameRefusal(input) !== undefined) {
     return "invalid";
   }
   return {
