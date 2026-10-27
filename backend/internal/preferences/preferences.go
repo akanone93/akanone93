@@ -24,6 +24,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -54,6 +55,7 @@ const (
 	FieldPinned              = "pinned"
 	FieldPreview             = "preview"
 	FieldOnboardingDismissed = "onboarding_dismissed"
+	FieldMutedTypes          = "muted_notification_types"
 )
 
 // The onboarding steps, in the order Studio shows them (STU-015).
@@ -76,6 +78,7 @@ type Preferences struct {
 	Pinned              []string                   `json:"pinned,omitempty"`
 	Preview             map[string]PreviewSwitches `json:"preview,omitempty"`
 	OnboardingDismissed bool                       `json:"onboardingDismissed,omitempty"`
+	MutedTypes          []string                   `json:"mutedTypes,omitempty"`
 }
 
 // PreviewSwitches are the switches of one app's live preview (STU-058).
@@ -213,7 +216,7 @@ func (s *Service) Onboarding(ctx context.Context, p auth.Principal) ([]Step, err
 // known reports whether an update mask may name a field.
 func known(field string) bool {
 	switch field {
-	case FieldTheme, FieldLanguage, FieldDensity, FieldShortcuts, FieldFavouriteAppIDs, FieldPinned, FieldPreview, FieldOnboardingDismissed:
+	case FieldTheme, FieldLanguage, FieldDensity, FieldShortcuts, FieldFavouriteAppIDs, FieldPinned, FieldPreview, FieldOnboardingDismissed, FieldMutedTypes:
 		return true
 	}
 	return false
@@ -277,6 +280,8 @@ func apply(cur, in Preferences, mask []string) Preferences {
 			cur.Pinned = slices.Clone(in.Pinned)
 		case FieldPreview:
 			cur.Preview = maps.Clone(in.Preview)
+		case FieldMutedTypes:
+			cur.MutedTypes = slices.Clone(in.MutedTypes)
 		case FieldOnboardingDismissed:
 			cur.OnboardingDismissed = in.OnboardingDismissed
 		}
@@ -333,6 +338,24 @@ func validate(p *Preferences, lim limits.Set) error {
 			return err
 		}
 		p.Preview[app] = sw
+	}
+	return validateMuted(p.MutedTypes)
+}
+
+// validateMuted accepts only registered event types a user may mute: the
+// approval and security types always reach the inbox (F16, STU-013). The
+// registry size bounds the list.
+func validateMuted(muted []string) error {
+	if len(muted) > len(notify.Types()) {
+		return plxerr.New(plxerr.OutOfRange, "muted_notification_types holds more entries than there are event types")
+	}
+	for _, t := range muted {
+		switch {
+		case !notify.Known(notify.EventType(t)):
+			return plxerr.New(plxerr.InvalidEnumValue, "notification type %q is not a known event type", t)
+		case !notify.Mutable(notify.EventType(t)):
+			return plxerr.New(plxerr.InvalidEnumValue, "notification type %q cannot be muted", t)
+		}
 	}
 	return nil
 }

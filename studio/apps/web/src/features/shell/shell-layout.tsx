@@ -21,7 +21,7 @@ import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 import { CommandPalette } from "./command-palette.tsx";
 import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
-import type { OrgSearchFn } from "./palette-search.ts";
+import { hitPath, type OrgSearchFn } from "./palette-search.ts";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
 import { useServerVersion } from "./use-server-version.ts";
@@ -135,7 +135,17 @@ export function ShellLayout() {
           <main className="flex-1 p-6">
             <Outlet />
           </main>
-          <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} search={orgSearch} />
+          <CommandPalette
+            open={paletteOpen}
+            onOpenChange={setPaletteOpen}
+            search={orgSearch}
+            onOpenHit={(hit) => {
+              const path = org === undefined ? undefined : hitPath(org, hit);
+              if (path !== undefined) {
+                router.history.push(path);
+              }
+            }}
+          />
         </div>
       </CommandsProvider>
     </PendingChangesProvider>

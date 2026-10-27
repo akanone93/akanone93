@@ -33,23 +33,9 @@ export function retentionDays(): number {
   return limitDefault("notifications.retentionDays");
 }
 
-const mutedKey = "plux.notifications.muted";
-
-export function readMuted(): ReadonlySet<string> {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(mutedKey) ?? "[]");
-    return new Set(Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : []);
-  } catch {
-    return new Set();
-  }
-}
-
-export function writeMuted(muted: ReadonlySet<string>): void {
-  try {
-    localStorage.setItem(mutedKey, JSON.stringify([...muted]));
-  } catch {
-    // Mutes are a per-device convenience; a blocked store keeps the defaults.
-  }
+/** The muted event types in the user's server preferences, as a set. */
+export function mutedSet(types: readonly string[] | undefined): ReadonlySet<string> {
+  return new Set(types ?? []);
 }
 
 export interface InboxLike {

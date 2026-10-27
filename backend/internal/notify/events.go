@@ -86,6 +86,12 @@ var types = []TypeInfo{
 // Types returns the registry, in order.
 func Types() []TypeInfo { return slices.Clone(types) }
 
+// Mutable reports whether a user may mute event type t: approval and
+// break-glass types always reach the inbox (F16, STU-013).
+func Mutable(t EventType) bool {
+	return !strings.HasPrefix(string(t), "approval.") && !strings.HasPrefix(string(t), "breakglass.")
+}
+
 // Known reports whether t is a registered event type.
 func Known(t EventType) bool {
 	_, found := slices.BinarySearchFunc(types, t, func(i TypeInfo, t EventType) int { return strings.Compare(string(i.Type), string(t)) })

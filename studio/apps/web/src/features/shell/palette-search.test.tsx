@@ -9,6 +9,7 @@ import { type Command, CommandsProvider, createRegistry } from "../../lib/comman
 import { loadSourceCatalogue } from "../../test-harness.tsx";
 import { CommandPalette } from "./command-palette.tsx";
 import {
+  hitPath,
   type OrgHit,
   type OrgSearchFn,
   parseScope,
@@ -76,6 +77,28 @@ describe("STU-013 F15 organisation search", () => {
     renderHook(() => useOrgSearch(search, "all", ""));
     await sleep(searchDebounceMs + 20);
     expect(n).toBe(0);
+  });
+
+  test("an app hit opens its canvas; other kinds have no route (STU-013)", () => {
+    expect(hitPath("acme", hit("a1"))).toBe("/o/acme/apps/a1");
+    expect(hitPath("acme", { kind: "plugin", id: "p", name: "p" })).toBeUndefined();
+  });
+
+  test("choosing a hit in the palette reports it", async () => {
+    const registry = createRegistry([]);
+    const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });
+    const search: OrgSearchFn = async () => [hit("Shop app")];
+    const opened: OrgHit[] = [];
+    render(
+      <I18nProvider studio={studio}>
+        <CommandsProvider value={{ registry, states: registry.stateFor([]) }}>
+          <CommandPalette open onOpenChange={() => undefined} search={search} onOpenHit={(h) => opened.push(h)} />
+        </CommandsProvider>
+      </I18nProvider>,
+    );
+    fireEvent.change(await screen.findByRole("combobox"), { target: { value: "shop" } });
+    fireEvent.click(await screen.findByRole("option", {}, { timeout: 2000 }));
+    expect(opened).toEqual([hit("Shop app")]);
   });
 
   test("the palette shows server hits below the local results", async () => {

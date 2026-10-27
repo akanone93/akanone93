@@ -11,7 +11,6 @@ import { fetchServerVersion } from "../../lib/server-version.ts";
 import { createSession } from "../../lib/session.ts";
 import { AppContextProvider } from "../../lib/use-app.tsx";
 import { createUpstream, loadSourceCatalogue, orgA, renderApp } from "../../test-harness.tsx";
-import { MuteSettings } from "../notifications/mute-settings.tsx";
 import { isMutable, kindOf } from "../notifications/notification-kinds.ts";
 import { HelpMenu } from "./help-menu.tsx";
 import { StatusChips, UpdateBanner } from "./status-chips.tsx";
@@ -139,12 +138,24 @@ describe("F16 kinds and mutes", () => {
   });
 
   test("the profile lists every type, locking the approval ones", async () => {
-    renderPlain(<MuteSettings />);
+    renderApp("/me");
     const approval = (await screen.findAllByRole("checkbox")).find((c) => (c as HTMLInputElement).disabled);
     expect(approval).toBeTruthy();
     const publish = screen.getAllByRole("checkbox").find((c) => !(c as HTMLInputElement).disabled) as HTMLInputElement;
     fireEvent.click(publish);
-    expect(publish.checked).toBe(true);
+    await waitFor(() => expect(publish.checked).toBe(true));
     fireEvent.click(publish);
+    await waitFor(() => expect(publish.checked).toBe(false));
+  });
+
+  test("a mute is stored in the server preferences under its own mask path (STU-013)", async () => {
+    const updates: NonNullable<Parameters<typeof renderApp>[1]>["updates"] = [];
+    renderApp("/me", { updates });
+    const publish = (await screen.findAllByRole("checkbox")).find((c) => !(c as HTMLInputElement).disabled);
+    fireEvent.click(publish as HTMLElement);
+    await waitFor(() => expect(updates?.length).toBe(1));
+    expect(updates?.[0]?.paths).toEqual(["muted_notification_types"]);
+    expect(updates?.[0]?.mutedNotificationTypes?.length).toBe(1);
+    expect(localStorage.getItem("plux.notifications.muted")).toBeNull();
   });
 });

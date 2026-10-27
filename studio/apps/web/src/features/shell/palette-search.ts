@@ -11,6 +11,11 @@ export interface OrgHit {
   readonly name: string;
 }
 
+/** The route a hit opens: an app opens its canvas; other kinds need their app and have no route of their own yet. */
+export function hitPath(org: string, hit: OrgHit): string | undefined {
+  return hit.kind === "app" ? `/o/${org}/apps/${hit.id}` : undefined;
+}
+
 export type OrgSearchFn = (query: string, kinds: readonly string[], limit: number) => Promise<readonly OrgHit[]>;
 
 export type PaletteScope = "all" | "commands" | "screens";
