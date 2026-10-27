@@ -46,7 +46,9 @@ export interface UpstreamData {
   /** Someone else holds the plugin's editing lock: the editor is read-only. */
   lockHeldElsewhere?: boolean;
   /** Collects every PatchDocument the upstream receives (autosave, undo, redo). */
-  sent?: { path: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
+  sent?: { path: string; pluginId: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
+  /** Collects every lock taken, by the plugin it names (empty for the app's own lock) and its scope. */
+  acquired?: { pluginId: string; scope: string }[];
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
   /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
   pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
@@ -58,7 +60,25 @@ export interface UpstreamData {
   /** The documents of the plugin's last published version (ListPluginVersions, GetSnapshot); none means never published. */
   published?: { path: string; json: unknown }[];
   /** The app canvas: ListPluginSummaries. */
-  summaries?: { id: string; key: string; name: string; latestVersion?: number }[];
+  summaries?: {
+    id: string;
+    key: string;
+    name: string;
+    latestVersion?: number;
+    bundleSize?: number;
+    screens?: number;
+    versions?: number;
+    validationErrors?: number;
+    functionsUsed?: string[];
+  }[];
+  /** The plugin's history: ListSnapshots, GetSnapshot, CompareSnapshots and RestoreSnapshot (STU-069). */
+  snapshots?: {
+    id: string;
+    revision: number;
+    reason: string;
+    author: string;
+    documents: { path: string; json: unknown }[];
+  }[];
   /** Collects plugin RPCs the app canvas sends, as `delete:<id>` and `archive:<id>`. */
   pluginCalls?: string[];
   /** The app's trash, and the ids restored from it. */
@@ -152,6 +172,11 @@ export function createUpstream(state: UpstreamData) {
       listPluginSummaries: () => ({
         summaries: (state.summaries ?? []).map((p) => ({
           plugin: { id: p.id, key: p.key, name: p.name, latestVersion: BigInt(p.latestVersion ?? 0) },
+          bundleSize: BigInt(p.bundleSize ?? 0),
+          screens: BigInt(p.screens ?? 0),
+          versions: BigInt(p.versions ?? 0),
+          validationErrors: BigInt(p.validationErrors ?? 0),
+          functionsUsed: p.functionsUsed ?? [],
         })),
       }),
       deletePlugin: (req) => {
@@ -179,6 +204,7 @@ export function createUpstream(state: UpstreamData) {
             }
           : {},
       acquireLock: (req) => {
+        state.acquired?.push({ pluginId: req.pluginId, scope: req.scope });
         if (state.lockHeldElsewhere === true) {
           throw new ConnectError("the lock is held by someone else", Code.FailedPrecondition);
         }
@@ -213,9 +239,34 @@ export function createUpstream(state: UpstreamData) {
       }),
     });
     service(DocumentService, {
+      listSnapshots: () => ({
+        snapshots: (state.snapshots ?? []).map((x) => ({
+          id: x.id,
+          revision: BigInt(x.revision),
+          reason: x.reason,
+          actor: { kind: "user", id: "u", display: x.author },
+          createdAt: { seconds: BigInt(1_700_000_000 + x.revision * 60), nanos: 0 },
+        })),
+      }),
+      compareSnapshots: (req) => {
+        const find = (id: string) => (state.snapshots ?? []).find((x) => x.id === id)?.documents ?? [];
+        const [a, b] = [find(req.fromId), find(req.toId)];
+        const paths = [...new Set([...a, ...b].map((d) => d.path))].sort();
+        return {
+          changes: paths.flatMap((path) => {
+            const x = a.find((d) => d.path === path);
+            const y = b.find((d) => d.path === path);
+            const change = x === undefined ? "added" : y === undefined ? "removed" : "changed";
+            return JSON.stringify(x?.json) === JSON.stringify(y?.json) ? [] : [{ path, change, patch: [] }];
+          }),
+        };
+      },
       getSnapshot: (req) => ({
-        documents: (req.id === "snap-1" ? (state.published ?? []) : [])
-          .filter((d) => req.paths.includes(d.path))
+        documents: (req.id === "snap-1"
+          ? (state.published ?? [])
+          : ((state.snapshots ?? []).find((x) => x.id === req.id)?.documents ?? [])
+        )
+          .filter((d) => req.paths.length === 0 || req.paths.includes(d.path))
           .map((d) =>
             create(DocumentSchema, { path: d.path, content: new TextEncoder().encode(JSON.stringify(d.json)) }),
           ),
@@ -231,7 +282,7 @@ export function createUpstream(state: UpstreamData) {
           path: o.path,
           ...(o.value.length > 0 && { value: JSON.parse(new TextDecoder().decode(o.value)) as JsonValue }),
         }));
-        state.sent?.push({ path: req.path, stepId: req.stepId, ops });
+        state.sent?.push({ path: req.path, pluginId: req.pluginId, stepId: req.stepId, ops });
         if (doc !== undefined) {
           doc.json = applyPatch(doc.json as JsonValue, ops);
           patched.set(req.path, doc);

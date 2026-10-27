@@ -31,6 +31,24 @@ msgstr "{count, plural, =0 {Nicht verwendet} one {# Mal verwendet} other {# Mal 
 msgid "chip.waiting"
 msgstr "{count, plural, one {# Änderung wartet} other {# Änderungen warten}}"
 
+#. Summary line of the Data tab; the count is the number of database collections.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.dataCollections"
+msgstr "{count, plural, one {# Sammlung} other {# Sammlungen}}"
+
+#. Summary line of the State tab; the count is the number of state entries that are computed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateComputed"
+msgstr "{count, plural, one {# berechneter Wert} other {# berechnete Werte}}"
+
+#. Summary line of the Data tab; the count is the number of data sources.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.dataSources"
+msgstr "{count, plural, one {# Datenquelle} other {# Datenquellen}}"
+
 #. Accessible name of the error count in the action bar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -49,6 +67,12 @@ msgstr "{count, plural, one {# Link führt hinaus} other {# Links führen hinaus
 msgid "pluginCanvas.ghostLinks"
 msgstr "{count, plural, one {# Link} other {# Links}}"
 
+#. Summary line of the Data tab; the count is the number of data sources that have a mock response.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.dataMocks"
+msgstr "{count, plural, one {# Mock} other {# Mocks}}"
+
 #. Summary of a multiple selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -60,6 +84,12 @@ msgstr "{count, plural, one {# Knoten ausgewählt} other {# Knoten ausgewählt}}
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.stepProblems"
 msgstr "{count, plural, one {# Problem} other {# Probleme}}"
+
+#. Summary line of the State tab; the count is the number of state entries of the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateSummary"
+msgstr "{count, plural, one {# Zustandseintrag} other {# Zustandseinträge}}"
 
 #. STU-070, STU-072: heading of the list of uses of, or links into, the item.
 #. js-lingui-explicit-id
@@ -79,11 +109,23 @@ msgstr "{count, plural, one {# Warnung} other {# Warnungen}}"
 msgid "chip.offline-waiting"
 msgstr "{count, plural, one {Offline — # Änderung wartet} other {Offline — # Änderungen warten}}"
 
+#. Result after a restore; the count is the number of documents that changed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.restored"
+msgstr "{count, plural, one {# Dokument wiederhergestellt.} other {# Dokumente wiederhergestellt.}}"
+
 #. Announced to screen readers when several elements are selected on the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.selectionMany"
 msgstr "{count, plural, one {# Element ausgewählt} other {# Elemente ausgewählt}}"
+
+#. Reading of the node budget meter: nodes used of the allowed nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfBudgetText"
+msgstr "{count} von {limit} Knoten"
 
 #. Progress under the justification field; {count} typed so far, {max} allowed.
 #. js-lingui-explicit-id
@@ -282,6 +324,12 @@ msgstr "{names} möchte dieses Plugin bearbeiten."
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.testsPassed"
 msgstr "{passed, plural, one {# Test bestanden} other {# Tests bestanden}}, {failed, plural, one {# fehlgeschlagen} other {# fehlgeschlagen}}."
+
+#. Status in the Code tab after the tests of a function ran.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codeResult"
+msgstr "{passed} bestanden, {failed} fehlgeschlagen"
 
 #. Accessible name of the point from which a step's port connects onwards; port is the port's name.
 #. js-lingui-explicit-id
@@ -505,6 +553,12 @@ msgstr "Importierte Datenquellen hinzufügen"
 msgid "designers.themeAddToken"
 msgstr "Token hinzufügen"
 
+#. Tag of a document that exists only in the newer of two compared snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.changeAdded"
+msgstr "hinzugefügt"
+
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -655,11 +709,23 @@ msgstr "Build-Ausgabe"
 msgid "actionGraph.groupBuiltin"
 msgstr "Eingebaut"
 
+#. Label of the plugin's compiled bundle size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfBundle"
+msgstr "Bundle-Größe"
+
 #. Checkbox that marks the widget as a button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.semButton"
 msgstr "Schaltfläche"
+
+#. Author of a snapshot, after its time; the placeholder is a person's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.by"
+msgstr "von {author}"
 
 #. Button that closes a safety dialog without doing anything.
 #. js-lingui-explicit-id
@@ -689,6 +755,12 @@ msgstr "Abbrechen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.extract.cancel"
+msgstr "Abbrechen"
+
+#. Button that cancels the restore.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.cancel"
 msgstr "Abbrechen"
 
 #. Dialog button.
@@ -732,6 +804,12 @@ msgstr "Cargo-Manifest"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneChangeTrigger"
 msgstr "Auslöser ändern"
+
+#. Tag of a document that differs between two compared snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.changeChanged"
+msgstr "geändert"
 
 #. Note that edits to the theme apply to the canvas at once.
 #. js-lingui-explicit-id
@@ -786,6 +864,18 @@ msgstr "Wird geprüft …"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.invite.password"
 msgstr "Passwort wählen"
+
+#. Label prefix of the checkbox that picks a snapshot for comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.pick"
+msgstr "Für den Vergleich auswählen"
+
+#. Shown while fewer than two snapshots are chosen for comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.compareHint"
+msgstr "Wählen Sie zwei Snapshots zum Vergleichen aus."
 
 #. Accessible name of the button that removes a property value.
 #. js-lingui-explicit-id
@@ -859,6 +949,12 @@ msgstr "Datenquellen-Designer schließen"
 msgid "designers.dbClose"
 msgstr "DB-Schema-Designer schließen"
 
+#. Accessible name of the button that closes the history overlay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.close"
+msgstr "Verlauf schließen"
+
 #. Accessible name of the button that closes the full-screen JSON editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -888,6 +984,12 @@ msgstr "Status-Designer schließen"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeClose"
 msgstr "Theme-Editor schließen"
+
+#. Tab of the right panel: the functions the selection uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.tabCode"
+msgstr "Code"
 
 #. Accessible name of the list of collections.
 #. js-lingui-explicit-id
@@ -936,6 +1038,12 @@ msgstr "Kompakt"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.compare"
 msgstr "Vergleichen"
+
+#. Accessible name of the checkbox of one snapshot; the placeholder is its time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.pickRow"
+msgstr "{when} vergleichen"
 
 #. Toggle that shows the document next to the version that was last published.
 #. js-lingui-explicit-id
@@ -1051,11 +1159,23 @@ msgstr "Dunkel"
 msgid "designers.themeDarkValue"
 msgstr "Dunkler Wert von {token}"
 
+#. Tab of the left panel: the plugin's data sources and collections.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.dataTab"
+msgstr "Daten"
+
 #. Title of the full-screen data source designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataTitle"
 msgstr "Datenquellen-Designer"
+
+#. Accessible name of the list of data sources.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.dataList"
+msgstr "Datenquellen"
 
 #. Button in the right panel that opens the data source designer.
 #. js-lingui-explicit-id
@@ -1195,6 +1315,12 @@ msgstr "Beschreibung"
 msgid "designers.themeTokens"
 msgstr "Design-Tokens"
 
+#. Heading of the list of documents that differ between two snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.compareTitle"
+msgstr "Unterschiede zwischen den beiden Snapshots"
+
 #. D37 button: drop the unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -1217,6 +1343,12 @@ msgstr "Doku"
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.document"
+msgstr "Dokument"
+
+#. Label of the list of documents that differ between two snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.document"
 msgstr "Dokument"
 
 #. Help menu entry that opens the documentation.
@@ -1260,6 +1392,18 @@ msgstr "Auswahl duplizieren"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.group.edit"
 msgstr "Bearbeiten"
+
+#. Why a snapshot was made: an edit was saved.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.reasonWrite"
+msgstr "Änderung"
+
+#. Button in the Code tab that opens the Rust editor for the named function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codeEdit"
+msgstr "{name} im Rust-Editor bearbeiten"
 
 #. Label of the email field.
 #. js-lingui-explicit-id
@@ -1332,6 +1476,12 @@ msgstr "Einstieg"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.severity.error"
 msgstr "Fehler"
+
+#. Label of the share of the page's node budget the selection uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfCost"
+msgstr "Geschätzte Kosten"
 
 #. Label of the choice of the widget event that starts the navigation, for example onPressed.
 #. js-lingui-explicit-id
@@ -1471,11 +1621,29 @@ msgstr "Auswahl umrahmen"
 msgid "designers.dbPlanFrom"
 msgstr "Ab Version"
 
+#. Label of the number of functions the plugin uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfFunctions"
+msgstr "Funktionen"
+
 #. Heading of the group of plugin functions in the action list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupFunction"
 msgstr "Funktionen"
+
+#. Heading in the Code tab: the functions the plugin may call.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codePlugin"
+msgstr "Funktionen des Plugins"
+
+#. Accessible name of the list of functions the selection calls.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codeList"
+msgstr "Von der Auswahl verwendete Funktionen"
 
 #. D27: type of an affected item, a member of the Dart API that plux codegen writes for host apps.
 #. js-lingui-explicit-id
@@ -1561,6 +1729,18 @@ msgstr "Hoher Kontrast"
 msgid "panels.semHint"
 msgstr "Hinweis"
 
+#. Button in the right panel that opens the history of the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.open"
+msgstr "Verlauf"
+
+#. Title of the full-screen overlay that lists the snapshots of the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.title"
+msgstr "Verlauf"
+
 #. Name of the personal home page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1641,6 +1821,12 @@ msgstr "es ist der Einstiegsbildschirm; wählen Sie zuerst einen anderen Einstie
 msgid "pluginCanvas.moveReasonPrivate"
 msgstr "es verwendet eine Komponente, die privat für dieses Plugin ist."
 
+#. Tab of the right panel: the JSON of the selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.tabJson"
+msgstr "JSON"
+
 #. Button in the right panel that opens the full-screen JSON editor for the selected document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -1658,6 +1844,12 @@ msgstr "JSON-Editor"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.editorLabel"
 msgstr "JSON des Dokuments"
+
+#. Accessible name of the compact JSON of the selected nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.jsonOf"
+msgstr "JSON der Auswahl"
 
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
@@ -1863,6 +2055,12 @@ msgstr "Festwert"
 msgid "panels.semLive"
 msgstr "Live-Bereich"
 
+#. Button that loads the next page of snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.more"
+msgstr "Mehr laden"
+
 #. Shown while a page loads.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1887,11 +2085,23 @@ msgstr "Bildschirme werden geladen"
 msgid "jsonEditor.loadingPublished"
 msgstr "Veröffentlichte Version wird geladen …"
 
+#. Shown while the snapshots load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.loading"
+msgstr "Snapshots werden geladen."
+
 #. Label of the list that chooses the locale whose messages the table edits; each locale has its own lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.editLocale"
 msgstr "Zu bearbeitende Sprache"
+
+#. Tab of the right panel: the strings of the selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.tabLocalisation"
+msgstr "Lokalisierung"
 
 #. Title of the full-screen overlay in which translation keys are edited for every locale.
 #. js-lingui-explicit-id
@@ -1910,6 +2120,12 @@ msgstr "Lokalisierungstabelle"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.lockView"
 msgstr "Verschieben der Ansicht sperren oder entsperren"
+
+#. Why a snapshot was made: someone took over the editing lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.reasonLockTakeover"
+msgstr "Sperre übernommen"
 
 #. Badge: who holds the editing lock of the plugin.
 #. js-lingui-explicit-id
@@ -2223,6 +2439,30 @@ msgstr "Keine Übersetzungsschlüssel vorhanden."
 msgid "panels.noMatches"
 msgstr "Kein Widget passt."
 
+#. Accessible name of the meter that shows the page's nodes against its budget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfBudget"
+msgstr "Knotenbudget"
+
+#. Label of the number of nodes in the selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfNodes"
+msgstr "Knoten"
+
+#. Label of the number of nodes of the whole page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfPage"
+msgstr "Knoten auf der Seite"
+
+#. Shown for a plugin number the server did not return.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfUnknown"
+msgstr "Nicht verfügbar"
+
 #. Shown when the widget cannot be operated.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2235,11 +2475,23 @@ msgstr "Nicht interaktiv"
 msgid "panels.unset"
 msgstr "Nicht gesetzt"
 
+#. Tag beside a string of the Localisation tab that is a literal and has no translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.l10nLiteral"
+msgstr "Nicht übersetzt"
+
 #. Finding shown when the text is not JSON; {message} is the parser's explanation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.syntax"
 msgstr "Kein gültiges JSON: {message}"
+
+#. Result after a restore that changed nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.restoredNothing"
+msgstr "Nichts geändert: Das Plugin entspricht bereits diesem Snapshot."
 
 #. Shown when an import produced no data source.
 #. js-lingui-explicit-id
@@ -2301,6 +2553,12 @@ msgstr "Nirgendwohin"
 msgid "chip.offline"
 msgstr "Offline"
 
+#. Accessible name of the side-by-side view of the two versions of a document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.diffLabel"
+msgstr "Ältere und neuere Version des Dokuments"
+
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -2319,6 +2577,12 @@ msgstr "Anderes Plugin öffnen?"
 msgid "cmd.palette.open"
 msgstr "Befehlspalette öffnen"
 
+#. Button of the JSON tab that opens the full-screen JSON editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.openJson"
+msgstr "Im JSON-Editor öffnen"
+
 #. Button that leaves this plugin's canvas and opens the ghost screen on its own plugin's canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2336,6 +2600,24 @@ msgstr "Ausgangsbildschirm öffnen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneOpenTarget"
 msgstr "Zielbildschirm öffnen"
+
+#. Button of the Data tab that opens the full-screen data source designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.openData"
+msgstr "Datenquellen-Designer öffnen"
+
+#. Button of the Localisation tab that opens the localisation table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.l10nOpen"
+msgstr "Lokalisierungstabelle öffnen"
+
+#. Button of the State tab that opens the full-screen state designer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.openState"
+msgstr "Zustands-Designer öffnen"
 
 #. Name of the OpenAPI format in the import list.
 #. js-lingui-explicit-id
@@ -2360,6 +2642,18 @@ msgstr "Organisation"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.otherPlugin"
 msgstr "Anderes Plugin"
+
+#. Status word: the page has more nodes than the budget allows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfOver"
+msgstr "Budget überschritten"
+
+#. Status word: the page has more nodes than the warning threshold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfWarning"
+msgstr "Warnschwelle überschritten"
 
 #. Marks a property whose value differs from the base for the chosen size class.
 #. js-lingui-explicit-id
@@ -2397,10 +2691,22 @@ msgstr "Bestanden"
 msgid "auth.field.password"
 msgstr "Passwort"
 
+#. Tab of the right panel: node count, cost and budget of the selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.tabPerformance"
+msgstr "Leistung"
+
 #. Name of the top level of the layer tree.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.pluginRoot"
+msgstr "Plugin"
+
+#. Heading of the section with the plugin's summary numbers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfPlugin"
 msgstr "Plugin"
 
 #. Accessible name of the canvas that shows all screens of a plugin.
@@ -2522,6 +2828,12 @@ msgstr "Eigenschaften"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsProps"
 msgstr "Eigenschaften"
+
+#. Why a snapshot was made: the plugin was published.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.reasonPublish"
+msgstr "Veröffentlicht"
 
 #. Label of the field for a PXL expression.
 #. js-lingui-explicit-id
@@ -2745,6 +3057,12 @@ msgstr "Schritt {id} entfernen"
 msgid "designers.themeRemoveToken"
 msgstr "Token {token} entfernen"
 
+#. Tag of a document that exists only in the older of two compared snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.changeRemoved"
+msgstr "entfernt"
+
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2811,6 +3129,18 @@ msgstr "Felder zurücksetzen (durch Komma getrennt)"
 msgid "panels.reset"
 msgstr "Auf Basis zurücksetzen"
 
+#. Button that restores one snapshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.restore"
+msgstr "Wiederherstellen"
+
+#. Button that confirms the restore.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.confirm"
+msgstr "Wiederherstellen"
+
 #. Accessible name of the button that restores one deleted item with its old IDs.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -2822,6 +3152,24 @@ msgstr "{name} wiederherstellen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.restore"
 msgstr "Plugin wiederherstellen"
+
+#. Accessible name of the restore button of one snapshot; the placeholder is its time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.restoreRow"
+msgstr "Snapshot vom {when} wiederherstellen"
+
+#. Title of the confirmation before a snapshot is restored.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.confirmTitle"
+msgstr "Diesen Snapshot wiederherstellen?"
+
+#. Why a snapshot was made: an earlier snapshot was restored.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.reasonRestore"
+msgstr "Wiederhergestellt"
 
 #. Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.
 #. js-lingui-explicit-id
@@ -2859,11 +3207,23 @@ msgstr "Rolle"
 msgid "rustEditor.runTests"
 msgstr "Tests ausführen"
 
+#. Button in the Code tab that runs the stored tests of the named function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codeTest"
+msgstr "Tests von {name} ausführen"
+
 #. Shown in the tests tab before any run.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.noTests"
 msgstr "Führen Sie die Tests aus, um ihre Ergebnisse hier zu sehen."
+
+#. Status in the Code tab while the tests of a function run.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codeRunning"
+msgstr "Tests laufen …"
 
 #. Status shown while the tests run.
 #. js-lingui-explicit-id
@@ -2943,6 +3303,12 @@ msgstr "Bildschirme"
 msgid "panels.screensLabel"
 msgstr "Bildschirme"
 
+#. Label of the number of screens of the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfScreens"
+msgstr "Bildschirme"
+
 #. Label of the list of the plugin's screens, in the order the navigation flow reaches them.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -3007,6 +3373,12 @@ msgstr "Ausgewählte Knoten"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.selectionTab"
+msgstr "Auswahl"
+
+#. Heading of the section with the selection's numbers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfSelection"
 msgstr "Auswahl"
 
 #. Label of the field for the text a screen reader announces.
@@ -3117,11 +3489,29 @@ msgstr "Größenklasse"
 msgid "panels.docsSlots"
 msgstr "Slots"
 
+#. Accessible name of the list of snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.list"
+msgstr "Snapshots"
+
+#. Note shown after an import that produced variables while the app is read-only because another editor holds its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataVariablesLocked"
+msgstr "Jemand anderes hält die App-Sperre, daher können die importierten Variablen jetzt nicht zur App hinzugefügt werden."
+
 #. D37: re-taking failed because the lock is not free.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.retake-failed"
 msgstr "Jemand anderes hält die Sperre jetzt."
+
+#. Shown when the editor is read-only.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.readOnly"
+msgstr "Jemand anderes bearbeitet dieses Plugin, daher können Snapshots nicht wiederhergestellt werden."
 
 #. Shown when the editing lock is held by someone else.
 #. js-lingui-explicit-id
@@ -3165,6 +3555,12 @@ msgstr "Startvorlage"
 msgid "rustEditor.starting"
 msgstr "Language-Server wird gestartet …"
 
+#. Tab of the left panel: the plugin's state entries.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateTab"
+msgstr "Zustand"
+
 #. Button in the right panel that opens the full-screen designer of the plugin's state entries.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -3183,6 +3579,12 @@ msgstr "Status-Designer"
 msgid "state.entries"
 msgstr "Statuseinträge"
 
+#. Accessible name of the list of state entries.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateList"
+msgstr "Zustandseinträge"
+
 #. Button that keeps the person on the page.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -3200,6 +3602,12 @@ msgstr "Hier bleiben"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.stop"
 msgstr "Language-Server beenden"
+
+#. Accessible name of the list of strings of the selection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.l10nList"
+msgstr "Zeichenfolgen der Auswahl"
 
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id
@@ -3333,6 +3741,12 @@ msgstr "Die Verbindung zum Language-Server ist abgebrochen: {detail}"
 msgid "state.notJson"
 msgstr "Der Standardwert ist kein gültiges JSON."
 
+#. Shown when the two versions of a document could not be loaded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.diffFailed"
+msgstr "Die Dokumente konnten nicht geladen werden."
+
 #. Status when the draft fails validation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3459,11 +3873,29 @@ msgstr "Der Mock wird auf der Leinwand gezeigt, solange keine echten Daten vorli
 msgid "auth.error.passkey"
 msgstr "Der Passkey konnte nicht verwendet werden."
 
+#. Shown in the Data tab when the plugin declares neither.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.dataEmpty"
+msgstr "Das Plugin hat noch keine Datenquellen oder Sammlungen."
+
+#. Shown in the State tab when the plugin declares no state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.stateEmpty"
+msgstr "Das Plugin hat noch keinen Zustand."
+
 #. Shown when the editing lock is not held.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.readOnly"
 msgstr "Das Plugin ist von jemand anderem gesperrt: Der Graph ist schreibgeschützt."
+
+#. Body of the confirmation before a snapshot is restored; the placeholder is the snapshot's time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.confirmBody"
+msgstr "Die Dokumente des Plugins kehren zum Stand von {when} zurück. Sie können die Wiederherstellung in einem Schritt rückgängig machen."
 
 #. Shown when fetching the last published version for the comparison failed.
 #. js-lingui-explicit-id
@@ -3495,11 +3927,23 @@ msgstr "der Bildschirm oder das Ziel ist unbekannt."
 msgid "pluginCanvas.failed"
 msgstr "Die Bildschirme konnten nicht geladen werden."
 
+#. Shown in the Code tab when no selected node calls a function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codeNone"
+msgstr "Die Auswahl ruft keine Funktionen auf."
+
 #. Shown when a widget cannot be inserted into the selected node.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.cannotHold"
 msgstr "Die Auswahl kann keine weiteren Knoten aufnehmen."
+
+#. Shown in the Localisation tab when the selection has no translatable strings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.l10nNone"
+msgstr "Die Auswahl zeigt keinen übersetzbaren Text."
 
 #. Shown when a screen action failed.
 #. js-lingui-explicit-id
@@ -3513,11 +3957,23 @@ msgstr "Der Server hat die Änderung nicht akzeptiert."
 msgid "assets.failure.size-mismatch"
 msgstr "Der Server hat eine andere Anzahl von Bytes erhalten, als die Datei hat. Lade sie erneut hoch."
 
-#. Note shown after an import that produced variables, which belong to the app and are not added here.
+#. Shown when restoring a snapshot failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.restoreFailed"
+msgstr "Der Snapshot konnte nicht wiederhergestellt werden."
+
+#. Shown when the list of snapshots could not be loaded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.failed"
+msgstr "Die Snapshots konnten nicht geladen werden."
+
+#. Note shown after an import that produced variables, which belong to the app and are added to it when the draft is applied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataVariablesNote"
-msgstr "Die Quelle beschreibt auch Variablen der App; füge sie im App-Dokument hinzu."
+msgstr "Die Quelle beschreibt auch Variablen der App; Anwenden fügt sie der App unter der App-Sperre hinzu."
 
 #. Status after a successful import.
 #. js-lingui-explicit-id
@@ -3531,6 +3987,12 @@ msgstr "Die Quelle wurde gelesen. Prüfe sie und füge sie dem Plugin hinzu."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.moveReasonKey"
 msgstr "das Ziel-Plugin hat bereits einen Bildschirm mit diesem Schlüssel."
+
+#. Status in the Code tab when the tests of a function could not run.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.codeFailed"
+msgstr "Der Testlauf ist fehlgeschlagen."
 
 #. Shown when the test run itself failed; {detail} is the reason.
 #. js-lingui-explicit-id
@@ -3555,6 +4017,12 @@ msgstr "Der Text stimmt noch nicht überein"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.trashEmpty"
 msgstr "Der Papierkorb ist leer."
+
+#. Shown when two compared snapshots hold the same documents.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.noChanges"
+msgstr "Die beiden Snapshots sind identisch."
 
 #. Shown when the server no longer has the upload session, for example after it sat idle too long.
 #. js-lingui-explicit-id
@@ -3627,6 +4095,12 @@ msgstr "Theme-Editor"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.useToken"
 msgstr "Design-Token"
+
+#. Shown when the plugin has no snapshots.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.empty"
+msgstr "Es gibt noch keine Snapshots."
 
 #. Shown after keep mine: the changes that did not fit and were left out.
 #. js-lingui-explicit-id
@@ -3862,6 +4336,12 @@ msgstr "Rückgängig"
 msgid "pluginCanvas.undo"
 msgstr "Rückgängig"
 
+#. Shown when the author of a snapshot is not known.
+#. js-lingui-explicit-id
+#: apps/web/src/features/history/history.messages.ts
+msgid "history.unknownAuthor"
+msgstr "unbekannter Autor"
+
 #. Badge: the plugin's draft differs from its newest version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -3964,6 +4444,12 @@ msgstr "Gültig. Du kannst es übernehmen."
 msgid "designers.valid"
 msgstr "Gültig. Du kannst es übernehmen."
 
+#. Label of the number of validation errors of the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfErrors"
+msgstr "Validierungsfehler"
+
 #. Label of a step input written as a plain value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -3999,6 +4485,12 @@ msgstr "Version"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.version"
 msgstr "Versionsanforderung"
+
+#. Label of the number of published versions of the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfVersions"
+msgstr "Versionen"
 
 #. Accessible name of the icon of a warning in the Problems tab.
 #. js-lingui-explicit-id
@@ -4041,6 +4533,12 @@ msgstr "Warum ist das nicht verfügbar?"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layer1"
 msgstr "Widgets"
+
+#. Status word: the page is within its node budget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfWithin"
+msgstr "Im Budget"
 
 #. Command that wraps the selected canvas elements in a new column.
 #. js-lingui-explicit-id

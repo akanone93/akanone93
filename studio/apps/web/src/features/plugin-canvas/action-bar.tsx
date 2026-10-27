@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Button, GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useOptionalCommands } from "../../lib/commands/index.ts";
+import { historyMessages } from "../history/history.messages.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
 import type { Validation } from "../problems/use-validation.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
@@ -18,12 +19,16 @@ export interface ActionBarProps {
   readonly onCurrent: (id: string) => void;
   readonly onNewScreen: () => void;
   /** The screen menu of the current screen (rename, move, delete); hidden when absent. */
+  /** Opens the history overlay (STU-069); hidden when absent. */
+  readonly onHistory?: (() => void) | undefined;
   readonly onScreenAction?: ((action: "rename" | "move" | "delete") => void) | undefined;
 }
 
 /** Undo and redo run the registered `edit.undo` and `edit.redo` commands and stay disabled while none is registered. */
 export function ActionBar(props: ActionBarProps) {
-  const m = pluginCanvasMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = pluginCanvasMessages(i18n);
+  const history = historyMessages(i18n).open;
   const states = useOptionalCommands()?.states ?? [];
   const command = (id: string) => states.find((s) => s.command.id === id);
   const undo = command("edit.undo");
@@ -75,6 +80,11 @@ export function ActionBar(props: ActionBarProps) {
         >
           <Icon name="arrow-clockwise" size="capsule" />
         </Button>
+        {props.onHistory !== undefined && (
+          <Button size="sm" variant="ghost" aria-label={history} onClick={props.onHistory}>
+            <Icon name="clock" size="capsule" />
+          </Button>
+        )}
         <Button size="sm" variant="ghost" aria-label={m.zoomOut} onClick={() => props.onZoom(1 / 1.25)}>
           <Icon name="minus" size="capsule" />
         </Button>
