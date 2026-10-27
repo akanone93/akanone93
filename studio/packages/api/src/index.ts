@@ -9,6 +9,7 @@ export * from "./gen/plux/v1/devevents_pb.ts";
 export * from "./gen/plux/v1/device_pb.ts";
 export * from "./gen/plux/v1/devsession_pb.ts";
 export * from "./gen/plux/v1/document_pb.ts";
+export * from "./gen/plux/v1/experiment_pb.ts";
 export * from "./gen/plux/v1/federation_pb.ts";
 export * from "./gen/plux/v1/function_pb.ts";
 export * from "./gen/plux/v1/governance_pb.ts";
