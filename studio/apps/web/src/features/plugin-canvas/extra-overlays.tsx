@@ -5,6 +5,7 @@ import type { Document } from "@plux/api";
 import type { Problem } from "@plux/validator";
 import { useParams } from "@tanstack/react-router";
 import { useCanEdit, useEditSession } from "../editor/index.ts";
+import { HistoryOverlay } from "../history/index.ts";
 import { LocalisationHost } from "../localisation/index.ts";
 import type { OverlayId } from "../overlay/index.ts";
 import { StateDesignerOverlay, type StateTarget } from "../state-designer/index.ts";
@@ -19,7 +20,7 @@ export interface ExtraOverlaysProps {
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
 }
 
-/** The localisation table V4 and the state designer V5 over the plugin canvas (STU-063). */
+/** The localisation table V4, the state designer V5 and the history V9 over the plugin canvas (STU-063). */
 export function ExtraOverlays(props: ExtraOverlaysProps) {
   const session = useEditSession();
   const editable = useCanEdit();
@@ -32,6 +33,7 @@ export function ExtraOverlays(props: ExtraOverlaysProps) {
         documents={props.documents}
         appDocuments={props.appDocuments}
       />
+      <HistoryOverlay open={props.open === "history"} onClose={props.onClose} />
       <StateDesignerOverlay
         open={props.open === "state"}
         onClose={props.onClose}

@@ -69,6 +69,8 @@ export interface ScreensControllerProps {
   readonly percent: number;
   readonly onZoom: (factor: number) => void;
   readonly onFit: () => void;
+  /** Opens the history overlay (STU-069); the action bar button shows only when given. */
+  readonly onHistory?: (() => void) | undefined;
 }
 
 /**
@@ -239,6 +241,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         onCurrent={setPicked}
         onNewScreen={() => open("new")}
         onScreenAction={open}
+        onHistory={props.onHistory}
       />
       {message !== null && (
         <p role="alert" className="absolute inset-x-0 bottom-20 text-center text-body">
