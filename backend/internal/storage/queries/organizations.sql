@@ -93,3 +93,15 @@ SELECT count(*) FROM (
 -- For maintenance that visits every tenant in turn, such as purging
 -- the trash; organisations are not tenant data.
 SELECT id FROM organizations WHERE id > sqlc.arg(after_id)::uuid ORDER BY id LIMIT sqlc.arg(page_size);
+
+-- name: ListInstallationOrganizations :many
+-- Runs in the 'overview' scope, which admits reading memberships and apps
+-- across organisations. It returns identifiers, names, the creation time
+-- and two counts: no content of any organisation.
+SELECT o.id, o.name, o.created_at,
+       (SELECT count(*) FROM memberships m
+         WHERE m.organization_id = o.id AND m.team_id IS NULL)::bigint AS member_count,
+       (SELECT count(*) FROM apps a
+         WHERE a.organization_id = o.id AND a.deleted_at IS NULL)::bigint AS app_count
+  FROM organizations o
+ ORDER BY o.key, o.id;

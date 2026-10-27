@@ -766,6 +766,12 @@ msgstr "مضاف"
 msgid "admin.colAdded"
 msgstr "تاريخ الإضافة"
 
+#. Link in the top bar to the organisation's administration area; shown only with the permission the area needs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.admin"
+msgstr "الإدارة"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -981,6 +987,12 @@ msgstr "تطبيق فوري"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.approvals"
 msgstr "الموافقات"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colApps"
+msgstr "التطبيقات"
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -2500,6 +2512,12 @@ msgstr "الأحداث"
 msgid "admin.auditCaption"
 msgstr "كل تغيير في هذه المؤسسة، قابل للبحث والتصدير."
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.organisationsCaption"
+msgstr "كل مؤسسة في هذا التثبيت."
+
 #. Checkbox that hides the widget from screen readers.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3246,12 +3264,6 @@ msgstr "المفتاح"
 msgid "library.canvas.key"
 msgstr "المفتاح"
 
-#. Text in the installation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/installation/installation.messages.ts
-msgid "installation.colKey"
-msgstr "المفتاح"
-
 #. Label of the field that holds a collection's key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3791,6 +3803,12 @@ msgstr "متوسط"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.memberTitle"
 msgstr "عضو"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colMembers"
+msgstr "الأعضاء"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -6833,12 +6851,6 @@ msgstr "القيمة التجريبية ليست JSON صالحًا."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataMockHelp"
 msgstr "القيمة التجريبية هي ما تعرضه اللوحة ما دامت البيانات الحقيقية غير متاحة."
-
-#. Text in the installation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/installation/installation.messages.ts
-msgid "installation.organisationsCaption"
-msgstr "كل مؤسسة في هذا التثبيت."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id

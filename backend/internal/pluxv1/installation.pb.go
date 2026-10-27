@@ -570,6 +570,163 @@ func (x *ListTrustedIssuersResponse) GetIssuers() []*TrustedIssuer {
 	return nil
 }
 
+type InstallationOrganization struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	CreatedAtMs int64                  `protobuf:"varint,3,opt,name=created_at_ms,json=createdAtMs,proto3" json:"created_at_ms,omitempty"`
+	// member_count counts the people with a direct membership.
+	MemberCount   int64 `protobuf:"varint,4,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
+	AppCount      int64 `protobuf:"varint,5,opt,name=app_count,json=appCount,proto3" json:"app_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstallationOrganization) Reset() {
+	*x = InstallationOrganization{}
+	mi := &file_plux_v1_installation_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallationOrganization) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallationOrganization) ProtoMessage() {}
+
+func (x *InstallationOrganization) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_installation_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallationOrganization.ProtoReflect.Descriptor instead.
+func (*InstallationOrganization) Descriptor() ([]byte, []int) {
+	return file_plux_v1_installation_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *InstallationOrganization) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *InstallationOrganization) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *InstallationOrganization) GetCreatedAtMs() int64 {
+	if x != nil {
+		return x.CreatedAtMs
+	}
+	return 0
+}
+
+func (x *InstallationOrganization) GetMemberCount() int64 {
+	if x != nil {
+		return x.MemberCount
+	}
+	return 0
+}
+
+func (x *InstallationOrganization) GetAppCount() int64 {
+	if x != nil {
+		return x.AppCount
+	}
+	return 0
+}
+
+type ListInstallationOrganizationsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListInstallationOrganizationsRequest) Reset() {
+	*x = ListInstallationOrganizationsRequest{}
+	mi := &file_plux_v1_installation_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListInstallationOrganizationsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListInstallationOrganizationsRequest) ProtoMessage() {}
+
+func (x *ListInstallationOrganizationsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_installation_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListInstallationOrganizationsRequest.ProtoReflect.Descriptor instead.
+func (*ListInstallationOrganizationsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_installation_proto_rawDescGZIP(), []int{13}
+}
+
+type ListInstallationOrganizationsResponse struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Organizations []*InstallationOrganization `protobuf:"bytes,1,rep,name=organizations,proto3" json:"organizations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListInstallationOrganizationsResponse) Reset() {
+	*x = ListInstallationOrganizationsResponse{}
+	mi := &file_plux_v1_installation_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListInstallationOrganizationsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListInstallationOrganizationsResponse) ProtoMessage() {}
+
+func (x *ListInstallationOrganizationsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_installation_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListInstallationOrganizationsResponse.ProtoReflect.Descriptor instead.
+func (*ListInstallationOrganizationsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_installation_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListInstallationOrganizationsResponse) GetOrganizations() []*InstallationOrganization {
+	if x != nil {
+		return x.Organizations
+	}
+	return nil
+}
+
 var File_plux_v1_installation_proto protoreflect.FileDescriptor
 
 const file_plux_v1_installation_proto_rawDesc = "" +
@@ -600,12 +757,22 @@ const file_plux_v1_installation_proto_rawDesc = "" +
 	"\x0fsubject_pattern\x18\x03 \x01(\tR\x0esubjectPattern\"\x1b\n" +
 	"\x19ListTrustedIssuersRequest\"N\n" +
 	"\x1aListTrustedIssuersResponse\x120\n" +
-	"\aissuers\x18\x01 \x03(\v2\x16.plux.v1.TrustedIssuerR\aissuers2\xb4\x03\n" +
+	"\aissuers\x18\x01 \x03(\v2\x16.plux.v1.TrustedIssuerR\aissuers\"\xa2\x01\n" +
+	"\x18InstallationOrganization\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\"\n" +
+	"\rcreated_at_ms\x18\x03 \x01(\x03R\vcreatedAtMs\x12!\n" +
+	"\fmember_count\x18\x04 \x01(\x03R\vmemberCount\x12\x1b\n" +
+	"\tapp_count\x18\x05 \x01(\x03R\bappCount\"&\n" +
+	"$ListInstallationOrganizationsRequest\"p\n" +
+	"%ListInstallationOrganizationsResponse\x12G\n" +
+	"\rorganizations\x18\x01 \x03(\v2!.plux.v1.InstallationOrganizationR\rorganizations2\xb7\x04\n" +
 	"\x13InstallationService\x12h\n" +
 	"\x15GetInstallationHealth\x12%.plux.v1.GetInstallationHealthRequest\x1a&.plux.v1.GetInstallationHealthResponse\"\x00\x12k\n" +
 	"\x16GetInstallationStorage\x12&.plux.v1.GetInstallationStorageRequest\x1a'.plux.v1.GetInstallationStorageResponse\"\x00\x12e\n" +
 	"\x14ListInstallationJobs\x12$.plux.v1.ListInstallationJobsRequest\x1a%.plux.v1.ListInstallationJobsResponse\"\x00\x12_\n" +
-	"\x12ListTrustedIssuers\x12\".plux.v1.ListTrustedIssuersRequest\x1a#.plux.v1.ListTrustedIssuersResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\x12ListTrustedIssuers\x12\".plux.v1.ListTrustedIssuersRequest\x1a#.plux.v1.ListTrustedIssuersResponse\"\x00\x12\x80\x01\n" +
+	"\x1dListInstallationOrganizations\x12-.plux.v1.ListInstallationOrganizationsRequest\x1a..plux.v1.ListInstallationOrganizationsResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_installation_proto_rawDescOnce sync.Once
@@ -619,39 +786,45 @@ func file_plux_v1_installation_proto_rawDescGZIP() []byte {
 	return file_plux_v1_installation_proto_rawDescData
 }
 
-var file_plux_v1_installation_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_plux_v1_installation_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_plux_v1_installation_proto_goTypes = []any{
-	(*HealthCheck)(nil),                    // 0: plux.v1.HealthCheck
-	(*GetInstallationHealthRequest)(nil),   // 1: plux.v1.GetInstallationHealthRequest
-	(*GetInstallationHealthResponse)(nil),  // 2: plux.v1.GetInstallationHealthResponse
-	(*StorageArea)(nil),                    // 3: plux.v1.StorageArea
-	(*GetInstallationStorageRequest)(nil),  // 4: plux.v1.GetInstallationStorageRequest
-	(*GetInstallationStorageResponse)(nil), // 5: plux.v1.GetInstallationStorageResponse
-	(*JobCount)(nil),                       // 6: plux.v1.JobCount
-	(*ListInstallationJobsRequest)(nil),    // 7: plux.v1.ListInstallationJobsRequest
-	(*ListInstallationJobsResponse)(nil),   // 8: plux.v1.ListInstallationJobsResponse
-	(*TrustedIssuer)(nil),                  // 9: plux.v1.TrustedIssuer
-	(*ListTrustedIssuersRequest)(nil),      // 10: plux.v1.ListTrustedIssuersRequest
-	(*ListTrustedIssuersResponse)(nil),     // 11: plux.v1.ListTrustedIssuersResponse
+	(*HealthCheck)(nil),                           // 0: plux.v1.HealthCheck
+	(*GetInstallationHealthRequest)(nil),          // 1: plux.v1.GetInstallationHealthRequest
+	(*GetInstallationHealthResponse)(nil),         // 2: plux.v1.GetInstallationHealthResponse
+	(*StorageArea)(nil),                           // 3: plux.v1.StorageArea
+	(*GetInstallationStorageRequest)(nil),         // 4: plux.v1.GetInstallationStorageRequest
+	(*GetInstallationStorageResponse)(nil),        // 5: plux.v1.GetInstallationStorageResponse
+	(*JobCount)(nil),                              // 6: plux.v1.JobCount
+	(*ListInstallationJobsRequest)(nil),           // 7: plux.v1.ListInstallationJobsRequest
+	(*ListInstallationJobsResponse)(nil),          // 8: plux.v1.ListInstallationJobsResponse
+	(*TrustedIssuer)(nil),                         // 9: plux.v1.TrustedIssuer
+	(*ListTrustedIssuersRequest)(nil),             // 10: plux.v1.ListTrustedIssuersRequest
+	(*ListTrustedIssuersResponse)(nil),            // 11: plux.v1.ListTrustedIssuersResponse
+	(*InstallationOrganization)(nil),              // 12: plux.v1.InstallationOrganization
+	(*ListInstallationOrganizationsRequest)(nil),  // 13: plux.v1.ListInstallationOrganizationsRequest
+	(*ListInstallationOrganizationsResponse)(nil), // 14: plux.v1.ListInstallationOrganizationsResponse
 }
 var file_plux_v1_installation_proto_depIdxs = []int32{
 	0,  // 0: plux.v1.GetInstallationHealthResponse.checks:type_name -> plux.v1.HealthCheck
 	3,  // 1: plux.v1.GetInstallationStorageResponse.areas:type_name -> plux.v1.StorageArea
 	6,  // 2: plux.v1.ListInstallationJobsResponse.jobs:type_name -> plux.v1.JobCount
 	9,  // 3: plux.v1.ListTrustedIssuersResponse.issuers:type_name -> plux.v1.TrustedIssuer
-	1,  // 4: plux.v1.InstallationService.GetInstallationHealth:input_type -> plux.v1.GetInstallationHealthRequest
-	4,  // 5: plux.v1.InstallationService.GetInstallationStorage:input_type -> plux.v1.GetInstallationStorageRequest
-	7,  // 6: plux.v1.InstallationService.ListInstallationJobs:input_type -> plux.v1.ListInstallationJobsRequest
-	10, // 7: plux.v1.InstallationService.ListTrustedIssuers:input_type -> plux.v1.ListTrustedIssuersRequest
-	2,  // 8: plux.v1.InstallationService.GetInstallationHealth:output_type -> plux.v1.GetInstallationHealthResponse
-	5,  // 9: plux.v1.InstallationService.GetInstallationStorage:output_type -> plux.v1.GetInstallationStorageResponse
-	8,  // 10: plux.v1.InstallationService.ListInstallationJobs:output_type -> plux.v1.ListInstallationJobsResponse
-	11, // 11: plux.v1.InstallationService.ListTrustedIssuers:output_type -> plux.v1.ListTrustedIssuersResponse
-	8,  // [8:12] is the sub-list for method output_type
-	4,  // [4:8] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	12, // 4: plux.v1.ListInstallationOrganizationsResponse.organizations:type_name -> plux.v1.InstallationOrganization
+	1,  // 5: plux.v1.InstallationService.GetInstallationHealth:input_type -> plux.v1.GetInstallationHealthRequest
+	4,  // 6: plux.v1.InstallationService.GetInstallationStorage:input_type -> plux.v1.GetInstallationStorageRequest
+	7,  // 7: plux.v1.InstallationService.ListInstallationJobs:input_type -> plux.v1.ListInstallationJobsRequest
+	10, // 8: plux.v1.InstallationService.ListTrustedIssuers:input_type -> plux.v1.ListTrustedIssuersRequest
+	13, // 9: plux.v1.InstallationService.ListInstallationOrganizations:input_type -> plux.v1.ListInstallationOrganizationsRequest
+	2,  // 10: plux.v1.InstallationService.GetInstallationHealth:output_type -> plux.v1.GetInstallationHealthResponse
+	5,  // 11: plux.v1.InstallationService.GetInstallationStorage:output_type -> plux.v1.GetInstallationStorageResponse
+	8,  // 12: plux.v1.InstallationService.ListInstallationJobs:output_type -> plux.v1.ListInstallationJobsResponse
+	11, // 13: plux.v1.InstallationService.ListTrustedIssuers:output_type -> plux.v1.ListTrustedIssuersResponse
+	14, // 14: plux.v1.InstallationService.ListInstallationOrganizations:output_type -> plux.v1.ListInstallationOrganizationsResponse
+	10, // [10:15] is the sub-list for method output_type
+	5,  // [5:10] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_installation_proto_init() }
@@ -665,7 +838,7 @@ func file_plux_v1_installation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_installation_proto_rawDesc), len(file_plux_v1_installation_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

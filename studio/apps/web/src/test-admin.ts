@@ -42,6 +42,7 @@ export interface AdminData {
     storage?: { area: string; bytes: bigint }[];
     jobs?: { queue: string; state: string; count: bigint }[];
     issuers?: { issuer: string; audience: string; subjectPattern: string }[];
+    organizations?: { id: string; name: string; createdAtMs: bigint; memberCount: bigint; appCount: bigint }[];
   };
   /** Every change the Studio sent, as `rpc:json` in order. */
   calls?: string[];
@@ -290,5 +291,6 @@ export function installationAdmin(a: AdminData): Partial<ServiceImpl<typeof Inst
     getInstallationStorage: () => ({ areas: i.storage ?? [] }),
     listInstallationJobs: () => ({ jobs: i.jobs ?? [] }),
     listTrustedIssuers: () => ({ issuers: i.issuers ?? [] }),
+    listInstallationOrganizations: () => ({ organizations: i.organizations ?? [] }),
   };
 }

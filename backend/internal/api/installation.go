@@ -130,3 +130,26 @@ func (s Installation) ListTrustedIssuers(ctx context.Context, _ *connect.Request
 		return out, nil
 	})
 }
+
+// ListInstallationOrganizations lists every organisation with its member
+// and app counts. It reads through the tenancy service, which refuses
+// everyone but an installation administrator and records the read.
+func (s Installation) ListInstallationOrganizations(ctx context.Context, _ *connect.Request[pluxv1.ListInstallationOrganizationsRequest]) (*connect.Response[pluxv1.ListInstallationOrganizationsResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListInstallationOrganizationsResponse, error) {
+		id, err := identity(ctx)
+		if err != nil {
+			return nil, err
+		}
+		orgs, err := s.h.Tenancy.InstallationOrganizations(ctx, id)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListInstallationOrganizationsResponse{}
+		for _, o := range orgs {
+			out.Organizations = append(out.Organizations, &pluxv1.InstallationOrganization{
+				Id: o.ID, Name: o.Name, CreatedAtMs: o.CreatedAt.UnixMilli(), MemberCount: o.MemberCount, AppCount: o.AppCount,
+			})
+		}
+		return out, nil
+	})
+}

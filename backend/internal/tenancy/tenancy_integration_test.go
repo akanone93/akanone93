@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -810,5 +811,75 @@ func TestAppMetadataReferences(t *testing.T) {
 	}
 	if _, err := tenancy.CheckMetadata(tenancy.Metadata{SetTags: true, Tags: []string{"a", "b"}}, lim); code(err) != plxerr.LimitExceeded {
 		t.Errorf("tags beyond the registry limit: %v", err)
+	}
+}
+
+// Verifies: STU-116, SRV-022.
+// An installation administrator lists every organisation with its member
+// and app counts and the read is audited; an organisation owner who is not
+// an administrator is refused; the answer has no column beyond identity,
+// name, creation time and the two counts; and the overview scope that
+// makes the count possible cannot change a membership.
+func TestInstallationOrganizationsCrossTheTenantWallOnce(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	if _, err := f.svc.CreateApp(ctx, f.owner, "shop", "Shop"); err != nil {
+		t.Fatal(err)
+	}
+	f.member(t, "m@example.com", "developer")
+	other, err := f.svc.CreateOrganization(ctx, f.admin, "globex", "Globex")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	orgs, err := f.svc.InstallationOrganizations(ctx, f.admin)
+	if err != nil || len(orgs) != 2 {
+		t.Fatalf("InstallationOrganizations = %+v, %v", orgs, err)
+	}
+	byID := map[string]tenancy.InstallationOrganization{}
+	for _, o := range orgs {
+		byID[o.ID] = o
+	}
+	if got := byID[f.org]; got.Name != "Acme" || got.MemberCount != 2 || got.AppCount != 1 || got.CreatedAt.IsZero() {
+		t.Errorf("acme = %+v", got)
+	}
+	if got := byID[other.ID]; got.Name != "Globex" || got.MemberCount != 1 || got.AppCount != 0 {
+		t.Errorf("globex = %+v", got)
+	}
+	if n := reflect.TypeFor[tenancy.InstallationOrganization]().NumField(); n != 5 {
+		t.Errorf("InstallationOrganization has %d fields; it may carry identity, name, creation time and two counts only", n)
+	}
+
+	if _, err := f.svc.InstallationOrganizations(ctx, person(f.admin.UserID, false)); code(err) != plxerr.PermissionDenied {
+		t.Errorf("an organisation owner who is not an installation administrator listed every organisation: %v", err)
+	}
+
+	entries, err := f.svc.InstallationAuditEntries(ctx, f.admin, 0, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	viewed := 0
+	for _, e := range entries {
+		if e.Action == audit.InstallationOrganizationsViewed {
+			viewed++
+		}
+	}
+	if viewed != 1 {
+		t.Errorf("%d installation.organizations_viewed entries, want 1 (the refused call records none)", viewed)
+	}
+
+	err = f.db.InTx(ctx, storage.Tenant{Scope: storage.ScopeOverview}, func(ctx context.Context, tx pgx.Tx) error {
+		tag, err := tx.Exec(ctx, `UPDATE memberships SET role = 'viewer'`)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() != 0 {
+			t.Errorf("the overview scope changed %d memberships", tag.RowsAffected())
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }

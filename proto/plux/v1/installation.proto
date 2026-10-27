@@ -21,6 +21,11 @@ service InstallationService {
   // ListTrustedIssuers lists the CI identity providers the installation
   // trusts (ADR-0026); it returns no credential.
   rpc ListTrustedIssuers(ListTrustedIssuersRequest) returns (ListTrustedIssuersResponse) {}
+  // ListInstallationOrganizations lists every organisation with its member
+  // and app counts. It is the only call that reaches across the tenant
+  // wall; it returns identifiers, names, creation times and counts, never
+  // content, and each call is recorded in the installation's audit chain.
+  rpc ListInstallationOrganizations(ListInstallationOrganizationsRequest) returns (ListInstallationOrganizationsResponse) {}
 }
 
 message HealthCheck {
@@ -69,4 +74,19 @@ message ListTrustedIssuersRequest {}
 
 message ListTrustedIssuersResponse {
   repeated TrustedIssuer issuers = 1;
+}
+
+message InstallationOrganization {
+  string id = 1;
+  string name = 2;
+  int64 created_at_ms = 3;
+  // member_count counts the people with a direct membership.
+  int64 member_count = 4;
+  int64 app_count = 5;
+}
+
+message ListInstallationOrganizationsRequest {}
+
+message ListInstallationOrganizationsResponse {
+  repeated InstallationOrganization organizations = 1;
 }

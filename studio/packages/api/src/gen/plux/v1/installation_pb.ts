@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/installation.proto.
  */
 export const file_plux_v1_installation: GenFile = /*@__PURE__*/
-  fileDesc("ChpwbHV4L3YxL2luc3RhbGxhdGlvbi5wcm90bxIHcGx1eC52MSIsCgtIZWFsdGhDaGVjaxIMCgRuYW1lGAEgASgJEg8KB2hlYWx0aHkYAiABKAgiHgocR2V0SW5zdGFsbGF0aW9uSGVhbHRoUmVxdWVzdCJFCh1HZXRJbnN0YWxsYXRpb25IZWFsdGhSZXNwb25zZRIkCgZjaGVja3MYASADKAsyFC5wbHV4LnYxLkhlYWx0aENoZWNrIioKC1N0b3JhZ2VBcmVhEgwKBGFyZWEYASABKAkSDQoFYnl0ZXMYAiABKAMiHwodR2V0SW5zdGFsbGF0aW9uU3RvcmFnZVJlcXVlc3QiRQoeR2V0SW5zdGFsbGF0aW9uU3RvcmFnZVJlc3BvbnNlEiMKBWFyZWFzGAEgAygLMhQucGx1eC52MS5TdG9yYWdlQXJlYSI3CghKb2JDb3VudBINCgVxdWV1ZRgBIAEoCRINCgVzdGF0ZRgCIAEoCRINCgVjb3VudBgDIAEoAyIdChtMaXN0SW5zdGFsbGF0aW9uSm9ic1JlcXVlc3QiPwocTGlzdEluc3RhbGxhdGlvbkpvYnNSZXNwb25zZRIfCgRqb2JzGAEgAygLMhEucGx1eC52MS5Kb2JDb3VudCJKCg1UcnVzdGVkSXNzdWVyEg4KBmlzc3VlchgBIAEoCRIQCghhdWRpZW5jZRgCIAEoCRIXCg9zdWJqZWN0X3BhdHRlcm4YAyABKAkiGwoZTGlzdFRydXN0ZWRJc3N1ZXJzUmVxdWVzdCJFChpMaXN0VHJ1c3RlZElzc3VlcnNSZXNwb25zZRInCgdpc3N1ZXJzGAEgAygLMhYucGx1eC52MS5UcnVzdGVkSXNzdWVyMqwDChNJbnN0YWxsYXRpb25TZXJ2aWNlEmYKFUdldEluc3RhbGxhdGlvbkhlYWx0aBIlLnBsdXgudjEuR2V0SW5zdGFsbGF0aW9uSGVhbHRoUmVxdWVzdBomLnBsdXgudjEuR2V0SW5zdGFsbGF0aW9uSGVhbHRoUmVzcG9uc2USaQoWR2V0SW5zdGFsbGF0aW9uU3RvcmFnZRImLnBsdXgudjEuR2V0SW5zdGFsbGF0aW9uU3RvcmFnZVJlcXVlc3QaJy5wbHV4LnYxLkdldEluc3RhbGxhdGlvblN0b3JhZ2VSZXNwb25zZRJjChRMaXN0SW5zdGFsbGF0aW9uSm9icxIkLnBsdXgudjEuTGlzdEluc3RhbGxhdGlvbkpvYnNSZXF1ZXN0GiUucGx1eC52MS5MaXN0SW5zdGFsbGF0aW9uSm9ic1Jlc3BvbnNlEl0KEkxpc3RUcnVzdGVkSXNzdWVycxIiLnBsdXgudjEuTGlzdFRydXN0ZWRJc3N1ZXJzUmVxdWVzdBojLnBsdXgudjEuTGlzdFRydXN0ZWRJc3N1ZXJzUmVzcG9uc2VCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw");
+  fileDesc("ChpwbHV4L3YxL2luc3RhbGxhdGlvbi5wcm90bxIHcGx1eC52MSIsCgtIZWFsdGhDaGVjaxIMCgRuYW1lGAEgASgJEg8KB2hlYWx0aHkYAiABKAgiHgocR2V0SW5zdGFsbGF0aW9uSGVhbHRoUmVxdWVzdCJFCh1HZXRJbnN0YWxsYXRpb25IZWFsdGhSZXNwb25zZRIkCgZjaGVja3MYASADKAsyFC5wbHV4LnYxLkhlYWx0aENoZWNrIioKC1N0b3JhZ2VBcmVhEgwKBGFyZWEYASABKAkSDQoFYnl0ZXMYAiABKAMiHwodR2V0SW5zdGFsbGF0aW9uU3RvcmFnZVJlcXVlc3QiRQoeR2V0SW5zdGFsbGF0aW9uU3RvcmFnZVJlc3BvbnNlEiMKBWFyZWFzGAEgAygLMhQucGx1eC52MS5TdG9yYWdlQXJlYSI3CghKb2JDb3VudBINCgVxdWV1ZRgBIAEoCRINCgVzdGF0ZRgCIAEoCRINCgVjb3VudBgDIAEoAyIdChtMaXN0SW5zdGFsbGF0aW9uSm9ic1JlcXVlc3QiPwocTGlzdEluc3RhbGxhdGlvbkpvYnNSZXNwb25zZRIfCgRqb2JzGAEgAygLMhEucGx1eC52MS5Kb2JDb3VudCJKCg1UcnVzdGVkSXNzdWVyEg4KBmlzc3VlchgBIAEoCRIQCghhdWRpZW5jZRgCIAEoCRIXCg9zdWJqZWN0X3BhdHRlcm4YAyABKAkiGwoZTGlzdFRydXN0ZWRJc3N1ZXJzUmVxdWVzdCJFChpMaXN0VHJ1c3RlZElzc3VlcnNSZXNwb25zZRInCgdpc3N1ZXJzGAEgAygLMhYucGx1eC52MS5UcnVzdGVkSXNzdWVyInQKGEluc3RhbGxhdGlvbk9yZ2FuaXphdGlvbhIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhUKDWNyZWF0ZWRfYXRfbXMYAyABKAMSFAoMbWVtYmVyX2NvdW50GAQgASgDEhEKCWFwcF9jb3VudBgFIAEoAyImCiRMaXN0SW5zdGFsbGF0aW9uT3JnYW5pemF0aW9uc1JlcXVlc3QiYQolTGlzdEluc3RhbGxhdGlvbk9yZ2FuaXphdGlvbnNSZXNwb25zZRI4Cg1vcmdhbml6YXRpb25zGAEgAygLMiEucGx1eC52MS5JbnN0YWxsYXRpb25Pcmdhbml6YXRpb24yrAQKE0luc3RhbGxhdGlvblNlcnZpY2USZgoVR2V0SW5zdGFsbGF0aW9uSGVhbHRoEiUucGx1eC52MS5HZXRJbnN0YWxsYXRpb25IZWFsdGhSZXF1ZXN0GiYucGx1eC52MS5HZXRJbnN0YWxsYXRpb25IZWFsdGhSZXNwb25zZRJpChZHZXRJbnN0YWxsYXRpb25TdG9yYWdlEiYucGx1eC52MS5HZXRJbnN0YWxsYXRpb25TdG9yYWdlUmVxdWVzdBonLnBsdXgudjEuR2V0SW5zdGFsbGF0aW9uU3RvcmFnZVJlc3BvbnNlEmMKFExpc3RJbnN0YWxsYXRpb25Kb2JzEiQucGx1eC52MS5MaXN0SW5zdGFsbGF0aW9uSm9ic1JlcXVlc3QaJS5wbHV4LnYxLkxpc3RJbnN0YWxsYXRpb25Kb2JzUmVzcG9uc2USXQoSTGlzdFRydXN0ZWRJc3N1ZXJzEiIucGx1eC52MS5MaXN0VHJ1c3RlZElzc3VlcnNSZXF1ZXN0GiMucGx1eC52MS5MaXN0VHJ1c3RlZElzc3VlcnNSZXNwb25zZRJ+Ch1MaXN0SW5zdGFsbGF0aW9uT3JnYW5pemF0aW9ucxItLnBsdXgudjEuTGlzdEluc3RhbGxhdGlvbk9yZ2FuaXphdGlvbnNSZXF1ZXN0Gi4ucGx1eC52MS5MaXN0SW5zdGFsbGF0aW9uT3JnYW5pemF0aW9uc1Jlc3BvbnNlQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM");
 
 /**
  * @generated from message plux.v1.HealthCheck
@@ -238,6 +238,75 @@ export const ListTrustedIssuersResponseSchema: GenMessage<ListTrustedIssuersResp
   messageDesc(file_plux_v1_installation, 11);
 
 /**
+ * @generated from message plux.v1.InstallationOrganization
+ */
+export type InstallationOrganization = Message<"plux.v1.InstallationOrganization"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: int64 created_at_ms = 3;
+   */
+  createdAtMs: bigint;
+
+  /**
+   * member_count counts the people with a direct membership.
+   *
+   * @generated from field: int64 member_count = 4;
+   */
+  memberCount: bigint;
+
+  /**
+   * @generated from field: int64 app_count = 5;
+   */
+  appCount: bigint;
+};
+
+/**
+ * Describes the message plux.v1.InstallationOrganization.
+ * Use `create(InstallationOrganizationSchema)` to create a new message.
+ */
+export const InstallationOrganizationSchema: GenMessage<InstallationOrganization> = /*@__PURE__*/
+  messageDesc(file_plux_v1_installation, 12);
+
+/**
+ * @generated from message plux.v1.ListInstallationOrganizationsRequest
+ */
+export type ListInstallationOrganizationsRequest = Message<"plux.v1.ListInstallationOrganizationsRequest"> & {
+};
+
+/**
+ * Describes the message plux.v1.ListInstallationOrganizationsRequest.
+ * Use `create(ListInstallationOrganizationsRequestSchema)` to create a new message.
+ */
+export const ListInstallationOrganizationsRequestSchema: GenMessage<ListInstallationOrganizationsRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_installation, 13);
+
+/**
+ * @generated from message plux.v1.ListInstallationOrganizationsResponse
+ */
+export type ListInstallationOrganizationsResponse = Message<"plux.v1.ListInstallationOrganizationsResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.InstallationOrganization organizations = 1;
+   */
+  organizations: InstallationOrganization[];
+};
+
+/**
+ * Describes the message plux.v1.ListInstallationOrganizationsResponse.
+ * Use `create(ListInstallationOrganizationsResponseSchema)` to create a new message.
+ */
+export const ListInstallationOrganizationsResponseSchema: GenMessage<ListInstallationOrganizationsResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_installation, 14);
+
+/**
  * InstallationService reports the health of the installation to its
  * administrators (STU-116, P11 §4.3 #22). Every call needs an installation
  * administrator; none returns a secret, a connection string or a customer
@@ -286,6 +355,19 @@ export const InstallationService: GenService<{
     methodKind: "unary";
     input: typeof ListTrustedIssuersRequestSchema;
     output: typeof ListTrustedIssuersResponseSchema;
+  },
+  /**
+   * ListInstallationOrganizations lists every organisation with its member
+   * and app counts. It is the only call that reaches across the tenant
+   * wall; it returns identifiers, names, creation times and counts, never
+   * content, and each call is recorded in the installation's audit chain.
+   *
+   * @generated from rpc plux.v1.InstallationService.ListInstallationOrganizations
+   */
+  listInstallationOrganizations: {
+    methodKind: "unary";
+    input: typeof ListInstallationOrganizationsRequestSchema;
+    output: typeof ListInstallationOrganizationsResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_plux_v1_installation, 0);

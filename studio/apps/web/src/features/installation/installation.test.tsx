@@ -28,10 +28,21 @@ describe("STU-116 installation administration", () => {
     expect(screen.getByRole("link", { name: "Audit chain" })).toBeTruthy();
   });
 
-  test("I2 lists the administrator's organisations", async () => {
-    open("/organisations");
-    await screen.findByText("Alpha Org");
-    expect(screen.getByText("Beta Org")).toBeTruthy();
+  test("I2 lists every organisation of the installation with its counts", async () => {
+    open("/organisations", {
+      admin: {
+        installation: {
+          organizations: [
+            { id: "o1", name: "Acme", createdAtMs: 1_700_000_000_000n, memberCount: 12n, appCount: 3n },
+            { id: "o2", name: "Globex", createdAtMs: 1_700_000_100_000n, memberCount: 4n, appCount: 0n },
+          ],
+        },
+      },
+    });
+    await screen.findByText("Acme");
+    expect(screen.getByText("Globex")).toBeTruthy();
+    expect(screen.getByText("12")).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Apps" })).toBeTruthy();
   });
 
   test("I3 shows the database size", async () => {

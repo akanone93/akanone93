@@ -98,7 +98,7 @@ export function installationMessages(i18n: I18n) {
     }),
     organisationsCaption: i18n._({
       id: "installation.organisationsCaption",
-      message: "The organisations you belong to.",
+      message: "Every organisation of this installation.",
       comment: "Text in the installation administration area.",
     }),
     colName: i18n._({
@@ -106,9 +106,14 @@ export function installationMessages(i18n: I18n) {
       message: "Name",
       comment: "Text in the installation administration area.",
     }),
-    colKey: i18n._({
-      id: "installation.colKey",
-      message: "Key",
+    colMembers: i18n._({
+      id: "installation.colMembers",
+      message: "Members",
+      comment: "Text in the installation administration area.",
+    }),
+    colApps: i18n._({
+      id: "installation.colApps",
+      message: "Apps",
       comment: "Text in the installation administration area.",
     }),
     colCreated: i18n._({

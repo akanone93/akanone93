@@ -12,6 +12,12 @@ export function chromeMessages(i18n: I18n) {
       message: "Organisation",
       comment: "Label of the organisation switcher.",
     }),
+    admin: i18n._({
+      id: "chrome.admin",
+      message: "Administration",
+      comment:
+        "Link in the top bar to the organisation's administration area; shown only with the permission the area needs.",
+    }),
     profile: i18n._({
       id: "chrome.profile.menu",
       message: "Profile",

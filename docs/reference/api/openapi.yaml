@@ -9758,6 +9758,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListInstallationJobsResponse'
+  /plux.v1.InstallationService/ListInstallationOrganizations:
+    post:
+      tags:
+        - plux.v1.InstallationService
+      summary: ListInstallationOrganizations
+      description: |-
+        ListInstallationOrganizations lists every organisation with its member
+         and app counts. It is the only call that reaches across the tenant
+         wall; it returns identifiers, names, creation times and counts, never
+         content, and each call is recorded in the installation's audit chain.
+      operationId: plux.v1.InstallationService.ListInstallationOrganizations
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListInstallationOrganizationsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListInstallationOrganizationsResponse'
   /plux.v1.InstallationService/ListTrustedIssuers:
     post:
       tags:
@@ -24419,6 +24462,30 @@ components:
           description: state is the licence state after the installation.
       title: InstallLicenseResponse
       additionalProperties: false
+    plux.v1.InstallationOrganization:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        name:
+          type: string
+          title: name
+        createdAtMs:
+          type: string
+          title: created_at_ms
+          format: int64
+        memberCount:
+          type: string
+          title: member_count
+          format: int64
+          description: member_count counts the people with a direct membership.
+        appCount:
+          type: string
+          title: app_count
+          format: int64
+      title: InstallationOrganization
+      additionalProperties: false
     plux.v1.InstalledBundle:
       type: object
       properties:
@@ -25872,6 +25939,20 @@ components:
             $ref: '#/components/schemas/plux.v1.JobCount'
           title: jobs
       title: ListInstallationJobsResponse
+      additionalProperties: false
+    plux.v1.ListInstallationOrganizationsRequest:
+      type: object
+      title: ListInstallationOrganizationsRequest
+      additionalProperties: false
+    plux.v1.ListInstallationOrganizationsResponse:
+      type: object
+      properties:
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.InstallationOrganization'
+          title: organizations
+      title: ListInstallationOrganizationsResponse
       additionalProperties: false
     plux.v1.ListLibraryComponentsRequest:
       type: object
