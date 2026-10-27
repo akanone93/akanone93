@@ -31,8 +31,9 @@ export interface DbSchemaOverlayProps {
   readonly loadPublished: LoadPublished;
 }
 
-const objects = (v: unknown): Json[] => (Array.isArray(v) ? v.filter(isObject) : []);
-const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter((s): s is string => typeof s === "string") : []);
+export const objects = (v: unknown): Json[] => (Array.isArray(v) ? v.filter(isObject) : []);
+export const strings = (v: unknown): string[] =>
+  Array.isArray(v) ? v.filter((s): s is string => typeof s === "string") : [];
 
 /** A comma-separated list as names; empty items are dropped. */
 export const splitList = (text: string): string[] =>
@@ -81,14 +82,14 @@ export function draftDocument(base: Json, collections: readonly Json[]): Json {
   return next;
 }
 
-type Preview =
+export type Preview =
   | { readonly state: "none" }
   | { readonly state: "checking" }
   | { readonly state: "unavailable" }
   | { readonly state: "done"; readonly findings: readonly Problem[] };
 
 /** The migration of the draft against the last release, computed by the Go planner in the validator module. */
-function usePreview(
+export function usePreview(
   open: boolean,
   path: string | undefined,
   next: Json | undefined,
@@ -160,7 +161,7 @@ function finding(d: Json): Problem {
   };
 }
 
-function PreviewPanel({ preview, m }: { preview: Preview; m: DesignerMessages }) {
+export function PreviewPanel({ preview, m }: { preview: Preview; m: DesignerMessages }) {
   let body: React.ReactNode;
   if (preview.state === "none") {
     body = <p className="text-body text-secondary">{m.dbPreviewNoRelease}</p>;
