@@ -9,13 +9,18 @@ export interface CanvasCommandText {
   readonly wrap: string;
   readonly unwrap: string;
   readonly duplicate: string;
+  readonly experiment: string;
 }
 
 /**
  * The page-scoped canvas commands. Chords avoid browser-reserved ones: Ctrl/Cmd+D (bookmark), Ctrl+G (find next),
  * Ctrl+Shift+G (find previous) are taken, so all three use Ctrl/Cmd+Alt: G wraps, Shift+G unwraps, J duplicates.
  */
-export function canvasCommands(text: CanvasCommandText, run: (kind: StructureKind) => void): readonly Command[] {
+export function canvasCommands(
+  text: CanvasCommandText,
+  run: (kind: StructureKind) => void,
+  experiment: () => void,
+): readonly Command[] {
   const command = (id: string, title: string, shortcut: string, kind: StructureKind): Command => ({
     id,
     title,
@@ -28,5 +33,6 @@ export function canvasCommands(text: CanvasCommandText, run: (kind: StructureKin
     command("canvas.wrap", text.wrap, "mod+alt+g", "wrap"),
     command("canvas.unwrap", text.unwrap, "mod+alt+shift+g", "unwrap"),
     command("canvas.duplicate", text.duplicate, "mod+alt+j", "duplicate"),
+    { id: "canvas.experiment", title: text.experiment, group: "edit", permission: null, run: experiment },
   ];
 }
