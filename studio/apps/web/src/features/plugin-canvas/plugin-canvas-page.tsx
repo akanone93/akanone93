@@ -30,6 +30,7 @@ import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
+import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
@@ -319,6 +320,28 @@ function PluginCanvasView({
     [m.wrapCommand, m.unwrapCommand, m.duplicateCommand, structure],
   );
   useScopedCommands("plugin-canvas", canvasCommandList);
+  const clipboardSource = useMemo(
+    () => ({
+      ...(params.org === undefined ? {} : { organisation: params.org }),
+      app: params.app ?? "",
+      plugin: params.plugin ?? "",
+    }),
+    [params.org, params.app, params.plugin],
+  );
+  const clipboardHas = useMemo(
+    () => targetHas([...(docs.data ?? []), ...(appDocs.data ?? [])]),
+    [docs.data, appDocs.data],
+  );
+  const clipboardDialog = useClipboard({
+    screens,
+    screenOf,
+    selected: () => store.get().ids,
+    edit,
+    canEdit,
+    source: clipboardSource,
+    has: clipboardHas,
+    validatePage: checked?.validatePage,
+  });
   const gestures = useGestures({
     surface: () => surfaceRef.current,
     canvas: () => canvasRef.current,
@@ -639,6 +662,7 @@ function PluginCanvasView({
           }}
         />
       )}
+      {clipboardDialog}
       <ProblemsDrawer validation={validation} />
       <RightDock
         tests={tests}

@@ -685,6 +685,12 @@ msgstr "Anordnen"
 msgid "chrome.noorg.body"
 msgstr "Bitten Sie eine Administratorin oder einen Administrator, Sie in eine Organisation einzuladen."
 
+#. Heading of the assets that the pasted elements use but the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.assets"
+msgstr "Assets"
+
 #. Label and accessible name of the tab that lists the app's images, fonts and other files.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -755,6 +761,12 @@ msgstr "Abbrechen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.cancel"
+msgstr "Abbrechen"
+
+#. Button that cancels the paste.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.cancel"
 msgstr "Abbrechen"
 
 #. Cancel button of the delete-asset dialog.
@@ -917,6 +929,12 @@ msgstr "Schließen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.close"
+msgstr "Schließen"
+
+#. Accessible name of the button that closes the paste dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.close"
 msgstr "Schließen"
 
 #. Accessible name of the D35 close button.
@@ -1111,11 +1129,23 @@ msgstr "Weiter mit {name}"
 msgid "editor.conflict.copied"
 msgstr "In die Zwischenablage kopiert"
 
+#. Command that copies the selected elements to the clipboard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.copy"
+msgstr "Kopieren"
+
 #. D35 button: copy your version of the document to the clipboard before choosing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.copy-mine"
 msgstr "Meine als JSON kopieren"
+
+#. Choice for a missing item in the paste report: copy the item into the target.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.actionCopy"
+msgstr "Übernehmen"
 
 #. Label of the field for the name of a crate to depend on.
 #. js-lingui-explicit-id
@@ -1153,6 +1183,12 @@ msgstr "Link erstellen"
 msgid "pluginCanvas.currentScreen"
 msgstr "Aktueller Bildschirm"
 
+#. Command that copies the selected elements to the clipboard and removes them.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.cut"
+msgstr "Ausschneiden"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -1182,6 +1218,12 @@ msgstr "Daten"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataTitle"
 msgstr "Datenquellen-Designer"
+
+#. Heading of the data sources that the pasted elements read but the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dataSources"
+msgstr "Datenquellen"
 
 #. Accessible name of the list of data sources.
 #. js-lingui-explicit-id
@@ -1375,6 +1417,12 @@ msgstr "Dokumentation"
 msgid "problems.drawer"
 msgstr "Schublade"
 
+#. Choice for a missing item in the paste report: remove the reference from the pasted elements.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.actionDrop"
+msgstr "Verwerfen"
+
 #. Label of the field that lists the fields a plan drops.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -1537,6 +1585,12 @@ msgstr "Ereignisse"
 msgid "panels.semExclude"
 msgstr "Aus Semantik ausschließen"
 
+#. Accessible name of the select that picks the existing item a missing one is mapped to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.mapTarget"
+msgstr "Vorhandenes Element für {id}"
+
 #. Window size class from 840 dp.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1638,6 +1692,12 @@ msgstr "Auswahl umrahmen"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanFrom"
 msgstr "Ab Version"
+
+#. Heading of the functions that the pasted elements call but the target plugin is not granted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.functions"
+msgstr "Funktionen"
 
 #. Label of the number of functions the plugin uses.
 #. js-lingui-explicit-id
@@ -2169,6 +2229,12 @@ msgstr "Zum Einstieg machen"
 msgid "appCanvas.setEntry"
 msgstr "Zum Einstiegs-Plugin machen"
 
+#. Choice for a missing item in the paste report: use an existing item of the target instead.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.actionMap"
+msgstr "Auf vorhandenes abbilden"
+
 #. Option: the entry holds a map from text keys to values.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -2535,6 +2601,12 @@ msgstr "Nichts geändert: Das Plugin entspricht bereits diesem Snapshot."
 msgid "designers.dataImportNothing"
 msgstr "Aus dieser Quelle konnte nichts importiert werden."
 
+#. Intro of the paste dependency report.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.reportIntro"
+msgstr "Nichts wird stillschweigend hinzugefügt. Wähle für jeden fehlenden Eintrag, was geschieht; bis zur Bestätigung wird nichts eingefügt."
+
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2726,6 +2798,24 @@ msgstr "Bestanden"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.field.password"
 msgstr "Passwort"
+
+#. Command that pastes elements from the clipboard onto the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.paste"
+msgstr "Einfügen"
+
+#. Button that applies the paste with the choices made for the missing items.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.pasteWithChoices"
+msgstr "Mit diesen Auswahlen einfügen"
+
+#. Title of the dialog that lists what a paste from another plugin or app depends on and lacks here.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.reportTitle"
+msgstr "Die eingefügten Elemente brauchen mehr, als dieses Plugin hat"
 
 #. Tab of the right panel: node count, cost and budget of the selection.
 #. js-lingui-explicit-id
@@ -3765,6 +3855,30 @@ msgstr "Die Änderung wurde nicht angewendet, weil sich ein Dokument inzwischen 
 msgid "dialog.stepup.failed"
 msgstr "Die Prüfung war nicht erfolgreich. Versuchen Sie es erneut."
 
+#. Why a paste was refused: the envelope version is unknown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedVersion"
+msgstr "Die Zwischenablage stammt aus einer neueren oder unbekannten Studio-Version."
+
+#. Why a paste was refused: the envelope is malformed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedMalformed"
+msgstr "Der Inhalt der Zwischenablage ist beschädigt."
+
+#. Why a paste was refused: the content is over the size limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedTooLarge"
+msgstr "Die Zwischenablage enthält mehr, als das Größenlimit erlaubt."
+
+#. Title of the dialog that tells the clipboard content was refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedTitle"
+msgstr "Die Zwischenablage wurde nicht eingefügt"
+
 #. Shown when the server refuses the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -3920,6 +4034,12 @@ msgstr "Der Mock wird auf der Leinwand gezeigt, solange keine echten Daten vorli
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.passkey"
 msgstr "Der Passkey konnte nicht verwendet werden."
+
+#. Why a paste was refused: the validator rejected the elements.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedInvalid"
+msgstr "Die eingefügten Elemente bestehen die Prüfung nicht."
 
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id
@@ -4330,6 +4450,12 @@ msgstr "Oben"
 msgid "panels.useKey"
 msgstr "Übersetzungsschlüssel"
 
+#. Heading of the translation keys that the pasted elements use but the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.translations"
+msgstr "Übersetzungsschlüssel"
+
 #. Accessible name of the table of translation keys and their messages in every locale.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -4557,6 +4683,12 @@ msgstr "Warnung"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "Willkommen bei {name}"
+
+#. Accessible name of the select that chooses what happens to one missing item. {id} is its ID.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.actionFor"
+msgstr "Was mit {id} geschehen soll"
 
 #. Label of the list that chooses how long the entry's value is kept.
 #. js-lingui-explicit-id
