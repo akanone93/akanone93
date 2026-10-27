@@ -3,7 +3,14 @@
 
 import type { Document } from "@plux/api";
 import { createContext, type ReactElement, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { EditorProvider, type EditSession, useCanEdit, useEditSession } from "../editor/index.ts";
+import {
+  EditorProvider,
+  type EditSession,
+  type LockController,
+  useCanEdit,
+  useEditSession,
+  useLock,
+} from "../editor/index.ts";
 import { KEYS_PATH, localePath, localeScope, readLocales } from "./l10n-model.ts";
 
 /** What the localisation features of the plugin canvas edit: the app's keys and one locale's messages. */
@@ -21,20 +28,33 @@ export interface L10nSessions {
 
 const Context = createContext<L10nSessions | null>(null);
 
+/** The app's own draft session, which holds the app lock: the app-level documents the designers edit from the plugin canvas (the theme). */
+export interface AppSession {
+  readonly session: EditSession;
+  readonly canEdit: boolean;
+  readonly lock: LockController;
+}
+
+const AppContext = createContext<AppSession | null>(null);
+
+/** The surrounding app session, or null until it is ready. */
+export function useAppSession(): AppSession | null {
+  return useContext(AppContext);
+}
+
+/** The app-level documents besides the translation keys that the plugin canvas edits under the app lock. */
+export const APP_DESIGNER_PATHS: readonly string[] = ["theme.json", "app.json"];
+
 /** The surrounding sessions, or null where the app's documents are not loaded. */
 export function useL10nSessions(): L10nSessions | null {
   return useContext(Context);
 }
 
-interface Slot {
-  readonly session: EditSession;
-  readonly canEdit: boolean;
-}
-
-function Tap({ onSlot }: { readonly onSlot: (slot: Slot) => void }): null {
+function Tap({ onSlot }: { readonly onSlot: (slot: AppSession) => void }): null {
   const session = useEditSession();
   const canEdit = useCanEdit();
-  useEffect(() => onSlot({ session, canEdit }), [session, canEdit, onSlot]);
+  const lock = useLock();
+  useEffect(() => onSlot({ session, canEdit, lock }), [session, canEdit, lock, onSlot]);
   return null;
 }
 
@@ -61,15 +81,18 @@ export function L10nSessionsProvider(props: {
   const [chosen, setLocale] = useState<string | undefined>(undefined);
   const locale = chosen !== undefined && app?.supported.includes(chosen) ? chosen : (app?.defaultLocale ?? "");
   const keyDocs = useMemo(
-    () => (documents ?? []).filter((d) => d.pluginId === "" && d.path === KEYS_PATH),
+    () =>
+      (documents ?? []).filter(
+        (d) => d.pluginId === "" && (d.path === KEYS_PATH || APP_DESIGNER_PATHS.includes(d.path)),
+      ),
     [documents],
   );
   const messageDocs = useMemo(
     () => (documents ?? []).filter((d) => d.pluginId === "" && d.path === localePath(locale)),
     [documents, locale],
   );
-  const [keys, setKeys] = useState<Slot | null>(null);
-  const [messages, setMessages] = useState<Slot | null>(null);
+  const [keys, setKeys] = useState<AppSession | null>(null);
+  const [messages, setMessages] = useState<AppSession | null>(null);
   const value = useMemo<L10nSessions | null>(
     () =>
       app === undefined || keys === null || messages === null
@@ -86,19 +109,20 @@ export function L10nSessionsProvider(props: {
           },
     [app, keys, messages, locale],
   );
-  if (app === undefined) {
-    return <>{props.children}</>;
-  }
   // The editors are siblings of the children, not their ancestors: the children keep the plugin's own editor.
   return (
     <>
-      <EditorProvider appId={appId} pluginId="" documents={keyDocs}>
+      <EditorProvider appId={appId} pluginId="" documents={keyDocs} hideBanner>
         <Tap onSlot={setKeys} />
       </EditorProvider>
-      <EditorProvider key={locale} appId={appId} pluginId="" documents={messageDocs} lockScope={localeScope(locale)}>
-        <Tap onSlot={setMessages} />
-      </EditorProvider>
-      <Context.Provider value={value}>{props.children}</Context.Provider>
+      {app !== undefined && (
+        <EditorProvider key={locale} appId={appId} pluginId="" documents={messageDocs} lockScope={localeScope(locale)}>
+          <Tap onSlot={setMessages} />
+        </EditorProvider>
+      )}
+      <AppContext.Provider value={keys}>
+        <Context.Provider value={value}>{props.children}</Context.Provider>
+      </AppContext.Provider>
     </>
   );
 }

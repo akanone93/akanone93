@@ -3003,6 +3003,12 @@ msgstr "فئة الحجم"
 msgid "panels.docsSlots"
 msgstr "الفتحات"
 
+#. Note shown after an import that produced variables while the app is read-only because another editor holds its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataVariablesLocked"
+msgstr "يحتفظ شخص آخر بقفل التطبيق، لذا لا يمكن إضافة المتغيرات المستوردة إلى التطبيق الآن."
+
 #. D37: re-taking failed because the lock is not free.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -3315,11 +3321,11 @@ msgstr "لم يقبل الخادم التغيير."
 msgid "assets.failure.size-mismatch"
 msgstr "استلم الخادم عددًا من البايتات يختلف عن حجم الملف. ارفعه مرة أخرى."
 
-#. Note shown after an import that produced variables, which belong to the app and are not added here.
+#. Note shown after an import that produced variables, which belong to the app and are added to it when the draft is applied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataVariablesNote"
-msgstr "يصف المصدر أيضًا متغيرات على مستوى التطبيق؛ أضفها في مستند التطبيق."
+msgstr "يصف المصدر أيضًا متغيرات على مستوى التطبيق؛ يضيفها التطبيق عند التنفيذ تحت قفل التطبيق."
 
 #. Status after a successful import.
 #. js-lingui-explicit-id
