@@ -1,7 +1,7 @@
 {
   "detector": {
     "ignoreRules": ["undersized-ui-text", "dark-glow", "pulsing-dot"],
-    "ignoreFiles": ["apps/web/dist/assets/monaco-view-*.js"],
+    "ignoreFiles": ["apps/web/dist/assets/monaco-view-*.js", "apps/web/dist/assets/editor.api-*.js"],
     "ignoreValues": [
       {
         "rule": "overused-font",
