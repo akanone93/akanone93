@@ -46,6 +46,20 @@ export function previewMessages(i18n: I18n) {
       message: "Enter whole positive pixels for the size and a positive density.",
       comment: "Error of the custom frame dialog when the size or density is not a positive number.",
     }),
+    frameTooLarge: (max: number) =>
+      i18n._({
+        id: "preview.frameTooLarge",
+        message: "Width and height must be at most {max} logical pixels.",
+        values: { max },
+        comment: "Error of the custom frame dialog when the width or height is above the configured maximum.",
+      }),
+    densityOutOfRange: (max: number) =>
+      i18n._({
+        id: "preview.densityOutOfRange",
+        message: "Pixel density must be between 1 and {max}.",
+        values: { max },
+        comment: "Error of the custom frame dialog when the pixel density is outside the configured range.",
+      }),
     close: i18n._({
       id: "preview.close",
       message: "Close",
