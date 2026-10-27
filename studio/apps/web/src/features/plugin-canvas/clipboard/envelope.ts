@@ -12,6 +12,7 @@ export const CLIPBOARD_VERSION = 1;
 export type DependencyKind = "functions" | "translations" | "assets" | "dataSources";
 
 export interface ClipboardSource {
+  readonly organisation?: string;
   readonly app: string;
   readonly plugin: string;
 }
@@ -62,6 +63,12 @@ function walk(value: unknown, found: Record<DependencyKind, Set<string>>): unkno
   return out;
 }
 
+const sourceOf = (s: ClipboardSource): ClipboardSource => ({
+  ...(s.organisation === undefined ? {} : { organisation: s.organisation }),
+  app: s.app,
+  plugin: s.plugin,
+});
+
 /** Builds the envelope of the copied nodes: sensitive fields dropped, referenced dependencies listed sorted. */
 export function buildEnvelope(source: ClipboardSource, nodes: readonly unknown[]): Envelope {
   const found = {
@@ -75,7 +82,7 @@ export function buildEnvelope(source: ClipboardSource, nodes: readonly unknown[]
   return {
     format: CLIPBOARD_MIME,
     version: CLIPBOARD_VERSION,
-    source,
+    source: sourceOf(source),
     nodes: copied,
     dependencies: {
       functions: sorted(found.functions),
@@ -124,7 +131,11 @@ function shapeOf(data: Record<string, unknown>): RefusalReason | Envelope {
   return {
     format: CLIPBOARD_MIME,
     version: CLIPBOARD_VERSION,
-    source: { app: source["app"], plugin: source["plugin"] },
+    source: {
+      ...(typeof source["organisation"] === "string" ? { organisation: source["organisation"] } : {}),
+      app: source["app"],
+      plugin: source["plugin"],
+    },
     nodes: data["nodes"],
     dependencies: {
       functions: deps["functions"] as string[],
@@ -176,7 +187,7 @@ export function freshNodes(envelope: Envelope, newId: () => string = uuidv7): re
   return wrapped.nodes;
 }
 
-/** What the target lacks, per kind, after a paste across plugins or apps. */
+/** What the target lacks, per kind, after a paste across plugins, apps or organisations. */
 export type DependencyReport = Readonly<Record<DependencyKind, readonly string[]>>;
 
 export interface TargetHas {
@@ -186,9 +197,15 @@ export interface TargetHas {
   readonly dataSources: ReadonlySet<string>;
 }
 
+const sameOrganisation = (envelope: Envelope, target: ClipboardSource): boolean =>
+  envelope.source.organisation === target.organisation;
+
+const sameScope = (envelope: Envelope, target: ClipboardSource): boolean =>
+  sameOrganisation(envelope, target) && envelope.source.app === target.app && envelope.source.plugin === target.plugin;
+
 /** The dependencies the target lacks; empty when pasting inside the same plugin. */
 export function missingDependencies(envelope: Envelope, target: ClipboardSource, has: TargetHas): DependencyReport {
-  const same = envelope.source.app === target.app && envelope.source.plugin === target.plugin;
+  const same = sameScope(envelope, target);
   const lacking = (kind: DependencyKind) =>
     same ? [] : envelope.dependencies[kind].filter((id) => !has[kind].has(id));
   return {
@@ -200,3 +217,90 @@ export function missingDependencies(envelope: Envelope, target: ClipboardSource,
 }
 
 export const hasMissing = (report: DependencyReport): boolean => DEPENDENCY_KINDS.some((k) => report[k].length > 0);
+
+export type ResolutionAction = "map" | "copy" | "drop";
+
+/** What the user decided for one missing item; `to` names the existing item of a mapping. */
+export interface Resolution {
+  readonly action: ResolutionAction;
+  readonly to?: string;
+}
+
+/** One line of the report: a missing item, the actions offered for it and the one preselected. */
+export interface ReportItem {
+  readonly kind: DependencyKind;
+  readonly id: string;
+  readonly options: readonly ResolutionAction[];
+  readonly preset: Resolution;
+}
+
+export interface PlanLimits {
+  /** How many items may still be copied over (the registry limit minus those already in the change set). */
+  readonly copies: number;
+}
+
+/**
+ * The report of a paste, before anything is applied (F7): for each missing item the actions on offer.
+ * Mapping is offered when the target has something of that kind; copying only inside the same organisation
+ * and within the copy limit. A paste from another organisation keeps only references the user can read in the
+ * current one, so every other item is preset to "drop" and never silently kept (F7).
+ */
+export function planReport(
+  envelope: Envelope,
+  target: ClipboardSource,
+  has: TargetHas,
+  limits: PlanLimits = { copies: limitDefault("studio.changeSetDocuments") },
+): readonly ReportItem[] {
+  const missing = missingDependencies(envelope, target, has);
+  const foreign = !sameOrganisation(envelope, target);
+  let copies = limits.copies;
+  return DEPENDENCY_KINDS.flatMap((kind) =>
+    missing[kind].map((id): ReportItem => {
+      const copyable = !foreign && copies > 0;
+      if (copyable) {
+        copies -= 1;
+      }
+      const options: ResolutionAction[] = [
+        ...(has[kind].size > 0 ? (["map"] as const) : []),
+        ...(copyable ? (["copy"] as const) : []),
+        "drop",
+      ];
+      return { kind, id, options, preset: { action: copyable ? "copy" : "drop" } };
+    }),
+  );
+}
+
+/** The key of a choice: kind and ID of the missing item. */
+export const choiceKey = (kind: DependencyKind, id: string): string => `${kind}:${id}`;
+
+/** The choices of a report keyed by `choiceKey`, starting from the presets. */
+export function presetChoices(items: readonly ReportItem[]): ReadonlyMap<string, Resolution> {
+  return new Map(items.map((i) => [choiceKey(i.kind, i.id), i.preset]));
+}
+
+function resolveIn(value: unknown, choices: ReadonlyMap<string, Resolution>): unknown {
+  if (Array.isArray(value)) {
+    return value.map((v) => resolveIn(v, choices));
+  }
+  if (!isRecord(value)) {
+    return value;
+  }
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value)) {
+    const kind = REFERENCE_KEYS[k];
+    const choice = kind !== undefined && typeof v === "string" ? choices.get(choiceKey(kind, v)) : undefined;
+    if (choice?.action === "drop") {
+      continue;
+    }
+    out[k] = choice?.action === "map" && choice.to !== undefined ? choice.to : resolveIn(v, choices);
+  }
+  return out;
+}
+
+/** The nodes with the user's choices applied: mapped references renamed, dropped ones removed, copied ones kept. */
+export function applyResolutions(
+  nodes: readonly unknown[],
+  choices: ReadonlyMap<string, Resolution>,
+): readonly unknown[] {
+  return nodes.map((n) => resolveIn(n, choices));
+}
