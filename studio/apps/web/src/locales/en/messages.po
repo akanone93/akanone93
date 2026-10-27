@@ -25,6 +25,12 @@ msgstr "{app} adopted version {n}"
 msgid "library.notAdopted"
 msgstr "{app} has not adopted a version"
 
+#. One instance in the impact list: its app and screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.row"
+msgstr "{app}, screen {screen}"
+
 #. Instances of a component in one app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -1419,6 +1425,18 @@ msgstr "Compare {when}"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.diff"
 msgstr "Compare with the last published version"
+
+#. Title of the dialog that lists the instances a revised component version changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.title"
+msgstr "Component edit: instances that will change"
+
+#. Heading of the Properties section that edits a component instance's overrides.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.heading"
+msgstr "Component overrides"
 
 #. Group of the Insert tab: ready-made components (Layer 2).
 #. js-lingui-explicit-id
@@ -3390,6 +3408,12 @@ msgstr "No device is paired yet."
 msgid "security.noDevices"
 msgstr "No devices match."
 
+#. Shown when a revised component has no instances.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.none"
+msgstr "No instance uses this component yet."
+
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3767,6 +3791,12 @@ msgstr "Over the warning threshold"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.overridden"
 msgstr "Overridden for this size class"
+
+#. Flags an instance whose overrides may name props or slots the revision removes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.conflict"
+msgstr "Overrides may conflict: {names} removed"
 
 #. Heading of the flagged overrides after adoption.
 #. js-lingui-explicit-id
@@ -4422,6 +4452,12 @@ msgstr "required"
 msgid "actionGraph.required"
 msgstr "required"
 
+#. Button: remove one override from a component instance.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.reset"
+msgstr "Reset {name}"
+
 #. Accessible name of the button that removes the override of one property.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -4505,6 +4541,12 @@ msgstr "Resume"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.outputType"
 msgstr "Returns {type}"
+
+#. Button: choose a revised component document to save as a new version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.revise"
+msgstr "Revise from file"
 
 #. Heading of the template revision list.
 #. js-lingui-explicit-id
@@ -4619,6 +4661,12 @@ msgstr "Save"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.save.title"
 msgstr "Save as template"
+
+#. Button: save the revised component version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.confirm"
+msgstr "Save new version"
 
 #. Button: stores the screenshot as an app asset.
 #. js-lingui-explicit-id
@@ -4985,6 +5033,12 @@ msgstr "Single value"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.breakpoint"
 msgstr "Size class"
+
+#. Shown when an instance replaces the content of a slot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.slot"
+msgstr "Slot {name} is overridden"
 
 #. Heading of the list of slots in the docs tab.
 #. js-lingui-explicit-id
@@ -5803,6 +5857,12 @@ msgstr "The validator is not ready, so the JSON cannot be applied yet."
 msgid "library.adopt.failed"
 msgstr "The version could not be adopted."
 
+#. Error after a failed save of a revised component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.failed"
+msgstr "The version could not be saved."
+
 #. Error after a failed visibility change.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -5904,6 +5964,12 @@ msgstr "This change affects code outside Studio"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.expired"
 msgstr "This code has expired."
+
+#. Shown when a component instance has nothing to override.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.none"
+msgstr "This component exposes no props or slots."
 
 #. Shown when a request fails.
 #. js-lingui-explicit-id
