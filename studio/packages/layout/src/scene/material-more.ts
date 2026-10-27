@@ -242,7 +242,6 @@ const navigationDrawer: Builder = (node, ctx) => {
     additionalConstraints: new BoxConstraints({
       minWidth: num(node, "width", 304),
       maxWidth: num(node, "width", 304),
-      minHeight: Number.POSITIVE_INFINITY,
     }),
     child: column(parts, CrossAxisAlignment.stretch),
   });
