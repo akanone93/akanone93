@@ -685,6 +685,12 @@ msgstr "Arrange"
 msgid "chrome.noorg.body"
 msgstr "Ask an administrator to invite you to an organisation."
 
+#. Heading of the assets that the pasted elements use but the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.assets"
+msgstr "Assets"
+
 #. Label and accessible name of the tab that lists the app's images, fonts and other files.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -755,6 +761,12 @@ msgstr "Cancel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.cancel"
+msgstr "Cancel"
+
+#. Button that cancels the paste.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.cancel"
 msgstr "Cancel"
 
 #. Cancel button of the delete-asset dialog.
@@ -917,6 +929,12 @@ msgstr "Close"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.close"
+msgstr "Close"
+
+#. Accessible name of the button that closes the paste dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.close"
 msgstr "Close"
 
 #. Accessible name of the D35 close button.
@@ -1111,6 +1129,12 @@ msgstr "Continue with {name}"
 msgid "editor.conflict.copied"
 msgstr "Copied to the clipboard"
 
+#. Command that copies the selected elements to the clipboard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.copy"
+msgstr "Copy"
+
 #. D35 button: copy your version of the document to the clipboard before choosing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -1153,6 +1177,12 @@ msgstr "Create link"
 msgid "pluginCanvas.currentScreen"
 msgstr "Current screen"
 
+#. Command that copies the selected elements to the clipboard and removes them.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.cut"
+msgstr "Cut"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -1182,6 +1212,12 @@ msgstr "Data"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataTitle"
 msgstr "Data source designer"
+
+#. Heading of the data sources that the pasted elements read but the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dataSources"
+msgstr "Data sources"
 
 #. Accessible name of the list of data sources.
 #. js-lingui-explicit-id
@@ -1638,6 +1674,12 @@ msgstr "Frame selection"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanFrom"
 msgstr "From version"
+
+#. Heading of the functions that the pasted elements call but the target plugin is not granted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.functions"
+msgstr "Functions"
 
 #. Label of the number of functions the plugin uses.
 #. js-lingui-explicit-id
@@ -2535,6 +2577,12 @@ msgstr "Nothing changed: the plugin already matches this snapshot."
 msgid "designers.dataImportNothing"
 msgstr "Nothing could be imported from this source."
 
+#. Intro of the paste dependency report.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.reportIntro"
+msgstr "Nothing is added silently. Here is what Studio does for each missing item."
+
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2726,6 +2774,24 @@ msgstr "Passed"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.field.password"
 msgstr "Password"
+
+#. Command that pastes elements from the clipboard onto the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.paste"
+msgstr "Paste"
+
+#. Button that applies the paste although dependencies are missing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.pasteAnyway"
+msgstr "Paste anyway"
+
+#. Title of the dialog that lists what a paste from another plugin or app depends on and lacks here.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.reportTitle"
+msgstr "Pasted elements need more than this plugin has"
 
 #. Tab of the right panel: node count, cost and budget of the selection.
 #. js-lingui-explicit-id
@@ -3741,6 +3807,18 @@ msgstr "Text"
 msgid "assets.loadFailed"
 msgstr "The assets could not be loaded."
 
+#. What Studio does about data sources the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dataSourcesAction"
+msgstr "The bindings stay. They are flagged as problems until the data source exists."
+
+#. What Studio does about functions the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.functionsAction"
+msgstr "The calls stay. They fail validation until the function is granted to this plugin."
+
 #. Shown when a plugin or canvas change was refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -3764,6 +3842,30 @@ msgstr "The change was not applied because a document changed meanwhile. Nothing
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.failed"
 msgstr "The check did not succeed. Try again."
+
+#. Why a paste was refused: the envelope version is unknown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedVersion"
+msgstr "The clipboard comes from a newer or unknown version of Studio."
+
+#. Why a paste was refused: the envelope is malformed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedMalformed"
+msgstr "The clipboard content is damaged."
+
+#. Why a paste was refused: the content is over the size limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedTooLarge"
+msgstr "The clipboard holds more than the size limit allows."
+
+#. Title of the dialog that tells the clipboard content was refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedTitle"
+msgstr "The clipboard was not pasted"
 
 #. Shown when the server refuses the one-time code.
 #. js-lingui-explicit-id
@@ -3855,6 +3957,12 @@ msgstr "The invitation is invalid or has expired."
 msgid "l10n.extract.failed"
 msgstr "The key could not be saved. Nothing was changed."
 
+#. What Studio does about translation keys the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.translationsAction"
+msgstr "The keys stay. Add their translations in Localisation."
+
 #. Status shown when the language server did not start; {detail} is the reason.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -3921,6 +4029,12 @@ msgstr "The mock is what the canvas shows while no real data is available."
 msgid "auth.error.passkey"
 msgstr "The passkey could not be used."
 
+#. Why a paste was refused: the validator rejected the elements.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedInvalid"
+msgstr "The pasted elements do not pass validation."
+
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -3950,6 +4064,12 @@ msgstr "The plugin's documents return to how they were at {when}. You can undo t
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.publishedFailed"
 msgstr "The published version could not be loaded."
+
+#. What Studio does about assets the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.assetsAction"
+msgstr "The references stay and show a placeholder until you add the assets."
 
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
@@ -4329,6 +4449,12 @@ msgstr "Top"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.useKey"
 msgstr "Translation key"
+
+#. Heading of the translation keys that the pasted elements use but the target lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.translations"
+msgstr "Translation keys"
 
 #. Accessible name of the table of translation keys and their messages in every locale.
 #. js-lingui-explicit-id
