@@ -216,6 +216,15 @@ func accountStores() []Store {
 			UserKey: "user_id", Personal: []string{"user_id"}, Retention: retentionAccount, Erase: EraseAccount,
 		},
 		{
+			Name: "user_preferences", Description: "A user's Studio preferences per organisation.",
+			UserKey: "user_id", Personal: []string{"user_id", "preferences"}, Retention: retentionAccount, Erase: EraseAccount,
+		},
+		{
+			Name: "upload_sessions", Description: "Chunked Studio uploads in progress.",
+			UserKey: "user_id", Personal: []string{"user_id", "name", "data"},
+			Retention: "Until the upload completes or expires (expires_at), then the maintenance sweep; the rows go with the account.", Erase: EraseAccount,
+		},
+		{
 			Name: "restriction_policies", Description: "Restrictions that remove permissions from the organisation, a team or a person (GOV-006).",
 			UserKey: "user_id", Personal: []string{"user_id", "created_by"}, Retention: retentionAccount, Erase: EraseAccount,
 			Note: "A person's restrictions go with the account; created_by is cleared when the author's account is deleted.",

@@ -49,6 +49,8 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 | `users` | Staff accounts. | — | — | `email`, `display name`, `password_hash` | While the account exists. | account | Removed when an administrator deletes the user. The account is not a pseudonymous data subject: it is identified by email. |
 | `memberships` | Which organisations and teams a user belongs to. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `role_grants` | Roles bound to a user at a scope. | — | `user_id` | `user_id` | While the account exists. | account | — |
+| `user_preferences` | A user's Studio preferences per organisation. | — | `user_id` | `user_id`, `preferences` | While the account exists. | account | — |
+| `upload_sessions` | Chunked Studio uploads in progress. | — | `user_id` | `user_id`, `name`, `data` | Until the upload completes or expires (expires_at), then the maintenance sweep; the rows go with the account. | account | — |
 | `restriction_policies` | Restrictions that remove permissions from the organisation, a team or a person (GOV-006). | — | `user_id` | `user_id`, `created_by` | While the account exists. | account | A person's restrictions go with the account; created_by is cleared when the author's account is deleted. |
 | `app_access` | Per-app access of a user. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `sessions` | Signed-in sessions of a user. | — | `user_id` | `user_id`, `secret_hash`, `ip_prefix`, `user_agent` | Until the session expires or is revoked. | account | — |
