@@ -25,6 +25,7 @@ import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
+import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
@@ -335,6 +336,7 @@ function PluginCanvasView({
       }),
     [index, screens, edit, screenOf, canEdit],
   );
+  const [rustSource, setRustSource] = useState<string | undefined>(undefined);
   const overlays = useOverlayHost({ surface: () => surfaceRef.current, canvas: () => canvasRef.current });
   const searchRef = useRef(search);
   searchRef.current = search;
@@ -650,6 +652,14 @@ function PluginCanvasView({
         schemaVersion={stateTarget.schemaVersion}
         onOpenOverlay={overlays.show}
         onOpenGraph={() => overlays.show("graph")}
+        onOpenRust={() => {
+          setRustSource(undefined);
+          overlays.show("rust");
+        }}
+        onOpenFunction={(name) => {
+          setRustSource(name);
+          overlays.show("rust");
+        }}
         onOpenHistory={() => overlays.show("history")}
       />
       <DesignersHost
@@ -667,6 +677,7 @@ function PluginCanvasView({
         pathOf={pathOf}
         validation={validation}
       />
+      <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} sourceId={rustSource} />
       <ExtraOverlays
         open={overlays.open}
         onClose={overlays.hide}

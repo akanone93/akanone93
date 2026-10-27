@@ -81,7 +81,7 @@ func (w *functionBuildWorker) Work(ctx context.Context, job *river.Job[function.
 // installation has no object store to keep sources and modules in. The
 // service has no Builder and no ArtifactSigner here: the worker role that
 // runs builds is given them where it is assembled.
-func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, configs *seccfg.Service, gen interface{ New() (string, error) }, retention time.Duration, link *runnerLink, notifier *notify.Service, gate approval.Gate) (*function.Service, error) {
+func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, configs *seccfg.Service, gen interface{ New() (string, error) }, retention time.Duration, link *runnerLink, notifier *notify.Service, gate approval.Gate, shared cache.Cache) (*function.Service, error) {
 	if work.Objects == nil {
 		return nil, nil //nolint:nilnil // the installation runs no functions
 	}
@@ -97,7 +97,7 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 	}
 	o := function.Options{
 		DB: db, Audit: log, Objects: work.Objects, IDs: gen, Jobs: functionQueue{work.Queue},
-		Builder: work.Builder, Editor: work.Editor, Signer: signer, Linker: work.Linker, Retention: retention, Log: work.Log,
+		Builder: work.Builder, Editor: work.Editor, Shared: shared, Signer: signer, Linker: work.Linker, Retention: retention, Log: work.Log,
 		Secrets: notifier, Notify: notifier, Approvals: gate,
 		DeviceFunctions: func(ctx context.Context, appID, environmentID string) (bool, error) {
 			values, _, err := configs.Effective(ctx, appID, environmentID)

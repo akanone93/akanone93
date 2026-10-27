@@ -15,10 +15,19 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
+)
+
+const (
+	// editorSlotGraceMinutes is how long past lsp.sessionMinutes a session slot
+	// of the shared cache lives, so a slot never expires under a running session.
+	editorSlotGraceMinutes = 5
+	// editorSlotRelease bounds giving a slot back after the caller is gone.
+	editorSlotRelease = 5 * time.Second
 )
 
 // Editor is the route to the builder role's language-server sessions and test
@@ -90,18 +99,53 @@ type editorRegistry struct {
 	perOrg map[string]int
 }
 
-// admit reserves a session of the organisation unless it already runs max.
-func (r *editorRegistry) admit(org string, max int64) bool {
+// admit reserves a session of the organisation unless it already runs max. With
+// a shared cache the cap holds across API replicas (M-8): the organisation has
+// max numbered slots, a session takes the first free one with SetNX and gives it
+// back with Delete, and a slot a crashed replica never freed expires after ttl,
+// which outlasts the longest session. The cache failing refuses the start, as a
+// cap that cannot be counted must not be skipped. It returns the function that
+// gives the reservation back, or nil when the organisation is at its cap.
+func (r *editorRegistry) admit(ctx context.Context, shared cache.Cache, org string, max int64, ttl time.Duration) (func(), error) {
+	if shared == nil {
+		return r.admitLocal(org, max), nil
+	}
+	for i := range max {
+		key := fmt.Sprintf("function:editor:%s:slot:%d", org, i)
+		taken, err := shared.SetNX(ctx, key, []byte("1"), ttl)
+		if err != nil {
+			return nil, fmt.Errorf("function: editor: count sessions: %w", err)
+		}
+		if taken {
+			return func() {
+				ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), editorSlotRelease)
+				defer cancel()
+				// A failed delete leaves the slot to expire with its lifetime.
+				_ = shared.Delete(ctx, key)
+			}, nil
+		}
+	}
+	return nil, nil
+}
+
+// admitLocal counts the sessions of this process only.
+func (r *editorRegistry) admitLocal(org string, max int64) func() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.perOrg == nil {
 		r.perOrg = map[string]int{}
 	}
 	if int64(r.perOrg[org]) >= max {
-		return false
+		return nil
 	}
 	r.perOrg[org]++
-	return true
+	return func() {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		if r.perOrg[org] > 0 {
+			r.perOrg[org]--
+		}
+	}
 }
 
 // bind names the session of a reservation.
@@ -114,14 +158,11 @@ func (r *editorRegistry) bind(id string, s *editorSession) {
 	r.byID[id] = s
 }
 
-// release returns a reservation and forgets the session, if it was named.
-func (r *editorRegistry) release(org, id string) {
+// forget drops the session of id, if it was named.
+func (r *editorRegistry) forget(id string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	delete(r.byID, id)
-	if r.perOrg[org] > 0 {
-		r.perOrg[org]--
-	}
 }
 
 // find returns the session of id.
@@ -177,7 +218,7 @@ func (s *Service) editorSource(ctx context.Context, p auth.Principal, sourceID s
 // OpenEditor starts a language-server session on an uploaded source and calls
 // send for each event of the session until it ends (FN-033, ADR-0099). The
 // caller needs function.deploy on the app. The organisation may run
-// lsp.sessionsPerOrganization sessions at once on this server; the start and
+// lsp.sessionsPerOrganization sessions at once across the API replicas; the start and
 // the end are audited with the reason. It returns when the session is over or
 // ctx ends.
 func (s *Service) OpenEditor(ctx context.Context, p auth.Principal, sourceID string, send func(EditorEvent) error) error {
@@ -185,7 +226,12 @@ func (s *Service) OpenEditor(ctx context.Context, p auth.Principal, sourceID str
 	if err != nil {
 		return err
 	}
-	if !s.editors.admit(p.OrganizationID, set.Get(limits.LspSessionsPerOrganization)) {
+	slotTTL := time.Duration(set.Get(limits.LspSessionMinutes)+editorSlotGraceMinutes) * time.Minute
+	giveBack, err := s.editors.admit(ctx, s.o.Shared, p.OrganizationID, set.Get(limits.LspSessionsPerOrganization), slotTTL)
+	if err != nil {
+		return err
+	}
+	if giveBack == nil {
 		return plxerr.New(plxerr.LimitExceeded, "the organisation already runs %d Rust editor sessions (lsp.sessionsPerOrganization); close one and retry",
 			set.Get(limits.LspSessionsPerOrganization))
 	}
@@ -193,7 +239,10 @@ func (s *Service) OpenEditor(ctx context.Context, p auth.Principal, sourceID str
 	defer cancel()
 	session := &editorSession{organizationID: p.OrganizationID, actor: p.Actor(), appID: app, cancel: cancel}
 	boundID := ""
-	defer func() { s.editors.release(p.OrganizationID, boundID) }()
+	defer func() {
+		s.editors.forget(boundID)
+		giveBack()
+	}()
 
 	reason := "client"
 	started := false

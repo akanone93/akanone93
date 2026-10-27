@@ -7,11 +7,12 @@ import { PluginService } from "@plux/api";
 import { Button, Icon, Input, Meter, MetricStrip, type StatusKind, StatusPill, TypeTag } from "@plux/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { type FormEvent, type KeyboardEvent, useMemo, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { extrasOf } from "../action-graph/graph-model.ts";
 import { type DesignerDocument, useDocumentValue } from "../designers/use-document.ts";
 import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
+import { idleRun, runStoredTests, type TestRunState, type TestsClient } from "../rust-editor/test-runner.ts";
 import {
   addEntryRecipe,
   nameProblem,
@@ -242,16 +243,59 @@ export function CodeTab({
   ids,
   nodes,
   documents,
-}: SelectionTabProps & { readonly documents: readonly DesignerDocument[] | undefined }) {
+  onOpenFunction,
+  tests,
+}: SelectionTabProps & {
+  readonly documents: readonly DesignerDocument[] | undefined;
+  /** Opens the Rust editor on the named function (FN-033); the buttons show only when given. */
+  readonly onOpenFunction?: ((name: string) => void) | undefined;
+  /** Runs the stored tests of a function (FN-034); the test buttons show only when given. */
+  readonly tests?: TestsClient | undefined;
+}) {
   const m = tabMessages(useLingui().i18n);
+  const [runs, setRuns] = useState<Readonly<Record<string, TestRunState>>>({});
+  const abort = useRef<AbortController | null>(null);
+  useEffect(() => () => abort.current?.abort(), []);
+  const runTests = (name: string) => {
+    if (tests === undefined) {
+      return;
+    }
+    abort.current?.abort();
+    const controller = new AbortController();
+    abort.current = controller;
+    void runStoredTests(tests, name, (state) => setRuns((prev) => ({ ...prev, [name]: state })), controller.signal);
+  };
+  const statusOf = (name: string): string | undefined => {
+    const run = runs[name] ?? idleRun;
+    if (run.status === "running") {
+      return m.codeRunning;
+    }
+    if (run.status === "finished") {
+      return m.codeResult(run.passed, run.failed);
+    }
+    return run.status === "failed" ? m.codeFailed : undefined;
+  };
   const plugin = useDocumentValue(documents, "plugin.json").value;
   const used = useMemo(() => functionsIn(ids.flatMap((id) => nodes.get(id) ?? [])), [ids, nodes]);
   const granted = useMemo(() => extrasOf(plugin === undefined ? [] : [plugin], []).functions, [plugin]);
   const list = (label: string, names: readonly string[]) => (
     <ul aria-label={label} className="flex flex-col gap-0.5">
       {names.map((f) => (
-        <li key={f}>
+        <li key={f} className="flex flex-wrap items-center gap-1">
           <TypeTag>{f}</TypeTag>
+          {onOpenFunction !== undefined && (
+            <Button variant="secondary" size="sm" onClick={() => onOpenFunction(f)}>
+              <Icon name="pencil-simple" />
+              {m.codeEdit(f)}
+            </Button>
+          )}
+          {tests !== undefined && (
+            <Button variant="secondary" size="sm" onClick={() => runTests(f)}>
+              <Icon name="play" />
+              {m.codeTest(f)}
+            </Button>
+          )}
+          {statusOf(f) !== undefined && <span role="status">{statusOf(f)}</span>}
         </li>
       ))}
     </ul>

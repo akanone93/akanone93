@@ -1,11 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
+import { FunctionAdminService } from "@plux/api";
 import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
 import { Button, Field, FloatingPanel, Icon, Input, Select, Tabs, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useApp } from "../../lib/use-app.tsx";
 import { actionGraphMessages } from "../action-graph/action-graph.messages.ts";
 import { designerMessages } from "../designers/designers.messages.ts";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
@@ -20,6 +23,7 @@ import { uuidv7 } from "../plugin-canvas/screens.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { PxlLanguage } from "../problems/use-validation.ts";
+import { rustEditorMessages } from "../rust-editor/rust-editor.messages.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { panelMessages } from "./panels.messages.ts";
@@ -445,6 +449,9 @@ interface DockProps {
   readonly onOpenOverlay?: ((id: "data" | "db" | "theme") => void) | undefined;
   /** Opens the full-screen action graph editor (STU-065); the button shows only when given. */
   readonly onOpenGraph?: (() => void) | undefined;
+  readonly onOpenRust?: (() => void) | undefined;
+  /** Opens the Rust editor on the named function (Code tab, FN-033). */
+  readonly onOpenFunction?: ((name: string) => void) | undefined;
   /** Opens the history overlay (STU-069); the button shows only when given. */
   readonly onOpenHistory?: (() => void) | undefined;
 }
@@ -772,6 +779,8 @@ function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; 
 
 /** The right dock of the plugin canvas (S2.6): Properties, Accessibility and Docs of the selection. */
 export function RightDock(props: DockProps) {
+  const { session } = useApp();
+  const tests = useMemo(() => createClient(FunctionAdminService, session.transport), [session.transport]);
   const { i18n } = useLingui();
   const m = panelMessages(i18n);
   const ids = useEditor((st) => st.selection.ids);
@@ -833,6 +842,12 @@ export function RightDock(props: DockProps) {
           {graphLabel}
         </Button>
       )}
+      {props.onOpenRust !== undefined && (
+        <Button variant="secondary" size="sm" onClick={props.onOpenRust}>
+          <Icon name="pencil-simple" />
+          {rustEditorMessages(i18n).open}
+        </Button>
+      )}
       <Tabs
         defaultValue="properties"
         tabs={[
@@ -850,7 +865,15 @@ export function RightDock(props: DockProps) {
           {
             value: "code",
             label: tm.tabCode,
-            panel: <CodeTab ids={ids} nodes={nodes} documents={props.documents} />,
+            panel: (
+              <CodeTab
+                ids={ids}
+                nodes={nodes}
+                documents={props.documents}
+                onOpenFunction={props.onOpenFunction}
+                tests={tests}
+              />
+            ),
           },
           {
             value: "localisation",

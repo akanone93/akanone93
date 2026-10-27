@@ -160,6 +160,37 @@ export function tabMessages(i18n: I18n) {
       message: "Functions used by the selection",
       comment: "Accessible name of the list of functions the selection calls.",
     }),
+    codeEdit: (name: string) =>
+      i18n._({
+        id: "panelTabs.codeEdit",
+        message: "Edit {name} in the Rust editor",
+        values: { name },
+        comment: "Button in the Code tab that opens the Rust editor for the named function.",
+      }),
+    codeTest: (name: string) =>
+      i18n._({
+        id: "panelTabs.codeTest",
+        message: "Run the tests of {name}",
+        values: { name },
+        comment: "Button in the Code tab that runs the stored tests of the named function.",
+      }),
+    codeRunning: i18n._({
+      id: "panelTabs.codeRunning",
+      message: "Running tests…",
+      comment: "Status in the Code tab while the tests of a function run.",
+    }),
+    codeResult: (passed: number, failed: number) =>
+      i18n._({
+        id: "panelTabs.codeResult",
+        message: "{passed} passed, {failed} failed",
+        values: { passed, failed },
+        comment: "Status in the Code tab after the tests of a function ran.",
+      }),
+    codeFailed: i18n._({
+      id: "panelTabs.codeFailed",
+      message: "The test run failed.",
+      comment: "Status in the Code tab when the tests of a function could not run.",
+    }),
     codePlugin: i18n._({
       id: "panelTabs.codePlugin",
       message: "Functions of the plugin",
