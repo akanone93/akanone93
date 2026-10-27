@@ -55,8 +55,8 @@ Chosen option: **1**.
 
 - **Transport.** LSP JSON-RPC over Connect: `LanguageServerService.Open` is a server stream per
   editor session (diagnostics, progress, responses) and `Send` is a unary, **sequenced** call
-  (ordered edits; HTTP/2 multiplexing keeps keystroke latency low). The browser uses a standard LSP
-  client with a small custom transport. Streams follow [ADR-0096](0096-studio-live-channels.md).
+  (ordered edits; HTTP/2 multiplexing keeps keystroke latency low). The browser uses Studio's own small,
+  typed LSP JSON-RPC client over that transport (no `monaco-languageclient`; maintainer 2026-10-27). Streams follow [ADR-0096](0096-studio-live-channels.md).
 - **Sandbox.** rust-analyzer runs inside the function **build sandbox** of
   [ADR-0064](0064-function-isolation.md): **no database credentials or signing capability** (L-4),
   **build scripts and procedural macros off**, **no network**, CPU, memory and time limits, and
