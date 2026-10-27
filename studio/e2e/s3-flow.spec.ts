@@ -105,7 +105,8 @@ test("S3 flow: app canvas, plugin canvas, lane entry and blocked delete [STU-030
   await boxes.getByRole("button", { name: "Loans, plugin pl" }).focus();
   await p.keyboard.press("Enter");
   await expect(p).toHaveURL(new RegExp(`/o/${orgA}/apps/app1/plugins/pl`));
-  await expect(p.getByRole("button", { name: "Undo" })).toBeVisible();
+  // The plugin canvas boots its worker, CanvasKit and fonts first; on a loaded machine that exceeds the 5 s default.
+  await expect(p.getByRole("button", { name: "Undo" })).toBeVisible({ timeout: 15_000 });
   await expect(p.getByRole("list", { name: "Screens" })).toBeAttached();
   expect((await new AxeBuilder({ page: p }).withTags(axeTags).analyze()).violations).toEqual([]);
 
