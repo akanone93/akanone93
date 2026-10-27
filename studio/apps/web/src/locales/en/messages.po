@@ -277,6 +277,12 @@ msgstr "{name}: PXL expression"
 msgid "lock.requests.body"
 msgstr "{names} asked to edit this plugin."
 
+#. Summary of a finished test run: the number of tests that passed and failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.testsPassed"
+msgstr "{passed, plural, one {# test passed} other {# tests passed}}, {failed, plural, one {# failed} other {# failed}}."
+
 #. Accessible name of the point from which a step's port connects onwards; port is the port's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -306,6 +312,12 @@ msgstr "{screen} belongs to another plugin. Your changes here are saved. Leave t
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.targetOption"
 msgstr "{title} ({scope})"
+
+#. Note under the dependency list: the builder works from vendored sources only.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.vendorNote"
+msgstr "A crate added here takes effect when the source is uploaded again together with its vendored sources."
 
 #. Finding shown when the text is JSON but not an object.
 #. js-lingui-explicit-id
@@ -469,6 +481,12 @@ msgstr "Add link"
 msgid "designers.dbAddPlan"
 msgstr "Add migration plan"
 
+#. Button that adds a crate to the manifest or updates its version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.addDependency"
+msgstr "Add or update the dependency"
+
 #. Button that adds a new state entry to the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -625,6 +643,12 @@ msgstr "Bottom"
 msgid "dialog.justification.title"
 msgstr "Break-glass justification"
 
+#. Heading of the compiler output shown when the source did not build.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.buildDiagnostics"
+msgstr "Build output"
+
 #. Heading of the group of built-in actions in the action list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -696,6 +720,12 @@ msgstr "Canvas actions"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.toolbar"
 msgstr "Canvas actions"
+
+#. Heading of the Cargo.toml text the dependencies are written to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.manifest"
+msgstr "Cargo manifest"
 
 #. Lane menu action: open the widget whose event starts the link, to change the event.
 #. js-lingui-explicit-id
@@ -841,6 +871,12 @@ msgstr "Close the JSON editor"
 msgid "l10n.close"
 msgstr "Close the localisation table"
 
+#. Accessible name of the button that closes the full-screen Rust editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.close"
+msgstr "Close the Rust editor"
+
 #. Accessible name of the button that closes the state designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -960,6 +996,18 @@ msgstr "Copied to the clipboard"
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.copy-mine"
 msgstr "Copy mine as JSON"
+
+#. Label of the field for the name of a crate to depend on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.crate"
+msgstr "Crate name"
+
+#. Error under the crate-name field when the name is not a valid crate name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.crateInvalid"
+msgstr "Crate names start with a letter and use letters, digits, - and _."
 
 #. Button that confirms creating a screen.
 #. js-lingui-explicit-id
@@ -1116,6 +1164,12 @@ msgstr "Delete this asset?"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "Density"
+
+#. Name of the tab that manages the crates the function depends on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.tabDependencies"
+msgstr "Dependencies"
 
 #. Confirm button of the dialog that marks a published plugin deprecated (STU-073).
 #. js-lingui-explicit-id
@@ -1326,6 +1380,12 @@ msgstr "Expanded"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.explain"
 msgstr "Explain access"
+
+#. Result of one test case that failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.testFail"
+msgstr "Failed"
 
 #. Accessible name of a nested field.
 #. js-lingui-explicit-id
@@ -2325,6 +2385,12 @@ msgstr "Owning team"
 msgid "chrome.notfound.title"
 msgstr "Page not found"
 
+#. Result of one test case that passed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.testPass"
+msgstr "Passed"
+
 #. Label of the password field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -2595,6 +2661,12 @@ msgstr "Reload"
 msgid "designers.remove"
 msgstr "Remove"
 
+#. Accessible name of the button that removes the crate {name} from the dependencies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.removeDependency"
+msgstr "Remove {name}"
+
 #. Button that removes the selected collection and lists it as dropped.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2697,6 +2769,12 @@ msgstr "Rename screen"
 msgid "links.replace"
 msgstr "Replace"
 
+#. Button that puts the chosen starter template into the editor, replacing its text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.useTemplate"
+msgstr "Replace the source with the template"
+
 #. Button: ask the person holding the lock to hand it over.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -2774,6 +2852,42 @@ msgstr "Right"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.role"
 msgstr "Role"
+
+#. Button that builds the source and runs its stored test cases.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.runTests"
+msgstr "Run the tests"
+
+#. Shown in the tests tab before any run.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.noTests"
+msgstr "Run the tests to see their results here."
+
+#. Status shown while the tests run.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.runningTests"
+msgstr "Running the tests…"
+
+#. Button in the right panel that opens the full-screen editor for the Rust source of a function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.open"
+msgstr "Rust editor"
+
+#. Title of the full-screen overlay in which the Rust source of a function is edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.title"
+msgstr "Rust editor"
+
+#. Accessible name of the text editor that holds the function's Rust source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.editorLabel"
+msgstr "Rust source of the function"
 
 #. Dialog button that applies the change.
 #. js-lingui-explicit-id
@@ -3027,11 +3141,29 @@ msgstr "Source format"
 msgid "designers.dataSourceText"
 msgstr "Source text: an OpenAPI document or a GraphQL schema"
 
+#. Button that starts the language server for the uploaded source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.connect"
+msgstr "Start the language server"
+
 #. Error under the name field when the name is not lowerCamelCase.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.problem.invalid"
 msgstr "Start with a lower-case letter and use only letters and digits, such as loanAmount."
+
+#. Label of the list of starter templates for a new function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.template"
+msgstr "Starter template"
+
+#. Status shown while the language-server sandbox starts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.starting"
+msgstr "Starting the language server…"
 
 #. Button in the right panel that opens the full-screen designer of the plugin's state entries.
 #. js-lingui-explicit-id
@@ -3062,6 +3194,12 @@ msgstr "Stay"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.ghostStay"
 msgstr "Stay here"
+
+#. Button that ends the language-server session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.stop"
+msgstr "Stop the language server"
 
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id
@@ -3135,6 +3273,12 @@ msgstr "Target plugin"
 msgid "links.target"
 msgstr "Target screen"
 
+#. Name of the tab that runs the function's tests.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.tabTests"
+msgstr "Tests"
+
 #. Label of the read-only field that shows the text being moved to a key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -3177,6 +3321,12 @@ msgstr "The check did not succeed. Try again."
 msgid "auth.error.code-rejected"
 msgstr "The code is not correct or has expired."
 
+#. Status shown when the connection to the language server failed; {detail} is the reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.closedFailed"
+msgstr "The connection to the language server broke: {detail}"
+
 #. Error under the default field when the text is not JSON.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -3213,6 +3363,18 @@ msgstr "The file is larger than the size limit for assets. Choose a smaller file
 msgid "assets.failure.hash-mismatch"
 msgstr "The file was damaged on the way to the server. Upload it again."
 
+#. Shown when the manifest declares no dependencies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.noDependencies"
+msgstr "The function has no dependencies."
+
+#. Help text under the field for the identifier of an uploaded function source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.sourceHint"
+msgstr "The identifier of the function source already uploaded to the server. The language server and the tests run on that source."
+
 #. Shown when the importer in the validator module cannot be reached.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3230,6 +3392,42 @@ msgstr "The invitation is invalid or has expired."
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.extract.failed"
 msgstr "The key could not be saved. Nothing was changed."
+
+#. Status shown when the language server did not start; {detail} is the reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.failed"
+msgstr "The language server could not start: {detail}"
+
+#. Status shown before the language server was started.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.idle"
+msgstr "The language server is not running. Completion, hints and diagnostics need it."
+
+#. Status shown when the language server answers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.ready"
+msgstr "The language server is ready."
+
+#. Status shown when the language server process exited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.closedExited"
+msgstr "The language server stopped. Start it again to continue."
+
+#. Status shown after the person stopped the language server.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.closedClient"
+msgstr "The language server was stopped."
+
+#. Status shown when the language-server session ended because its time ran out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.closedTime"
+msgstr "The language-server session reached its time limit. Start it again to continue."
 
 #. Shown when the server refused a takeover.
 #. js-lingui-explicit-id
@@ -3333,6 +3531,12 @@ msgstr "The source was read. Review it, then add it to the plugin."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.moveReasonKey"
 msgstr "the target plugin already has a screen with this key."
+
+#. Shown when the test run itself failed; {detail} is the reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.testsFailedToRun"
+msgstr "The tests could not run: {detail}"
 
 #. Explains what moving literal text to a translation key does; the locale is the app's default.
 #. js-lingui-explicit-id
@@ -3682,6 +3886,12 @@ msgstr "Unwrap selection"
 msgid "assets.upload"
 msgstr "Upload file"
 
+#. Label of the field that takes the identifier of an uploaded function source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.source"
+msgstr "Uploaded source"
+
 #. Accessible name of the progress meter of a file being uploaded; name is the file's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -3699,6 +3909,12 @@ msgstr "Uploading {name} failed."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.passkey"
 msgstr "Use a passkey"
+
+#. Error under the version field when the text is not a Cargo version requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.versionInvalid"
+msgstr "Use a version requirement such as 1.0 or ^0.8.2."
 
 #. Validation error of the new password.
 #. js-lingui-explicit-id
@@ -3777,6 +3993,12 @@ msgstr "Verify"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbVersion"
 msgstr "Version"
+
+#. Label of the field for the version requirement of a crate, such as 1.0.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.version"
+msgstr "Version requirement"
 
 #. Accessible name of the icon of a warning in the Problems tab.
 #. js-lingui-explicit-id
@@ -3861,6 +4083,12 @@ msgstr "You are offline. Nothing was changed; try again when the connection is b
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.signedout.title"
 msgstr "You are signed out"
+
+#. Shown when the person may not edit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/rust-editor/rust-editor.messages.ts
+msgid "rustEditor.readOnly"
+msgstr "You can read this source but not change it."
 
 #. Shown when the editor is read-only (no lock on the plugin or insufficient permission).
 #. js-lingui-explicit-id

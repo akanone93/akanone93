@@ -19,6 +19,7 @@ import { uuidv7 } from "../plugin-canvas/screens.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { PxlLanguage } from "../problems/use-validation.ts";
+import { rustEditorMessages } from "../rust-editor/rust-editor.messages.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { panelMessages } from "./panels.messages.ts";
@@ -442,6 +443,7 @@ interface DockProps {
   readonly onOpenOverlay?: ((id: "data" | "db" | "theme") => void) | undefined;
   /** Opens the full-screen action graph editor (STU-065); the button shows only when given. */
   readonly onOpenGraph?: (() => void) | undefined;
+  readonly onOpenRust?: (() => void) | undefined;
 }
 
 /** The registry marks string props whose text the user sees (`translatable`, I18N-007). */
@@ -809,6 +811,12 @@ export function RightDock(props: DockProps) {
         <Button variant="secondary" size="sm" onClick={props.onOpenGraph}>
           <Icon name="pencil-simple" />
           {graphLabel}
+        </Button>
+      )}
+      {props.onOpenRust !== undefined && (
+        <Button variant="secondary" size="sm" onClick={props.onOpenRust}>
+          <Icon name="pencil-simple" />
+          {rustEditorMessages(i18n).open}
         </Button>
       )}
       <Tabs

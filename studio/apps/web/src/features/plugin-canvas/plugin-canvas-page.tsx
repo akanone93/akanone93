@@ -25,6 +25,7 @@ import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
+import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
@@ -644,6 +645,7 @@ function PluginCanvasView({
         schemaVersion={stateTarget.schemaVersion}
         onOpenOverlay={overlays.show}
         onOpenGraph={() => overlays.show("graph")}
+        onOpenRust={() => overlays.show("rust")}
       />
       <DesignersHost
         open={overlays.open}
@@ -660,6 +662,7 @@ function PluginCanvasView({
         pathOf={pathOf}
         validation={validation}
       />
+      <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} />
       <ExtraOverlays
         open={overlays.open}
         onClose={overlays.hide}

@@ -591,7 +591,7 @@ func (k *serviceKit) functionDeps(svc *Services) functionDeps {
 func (k *serviceKit) buildRuntime(ctx context.Context, svc *Services) error {
 	var err error
 	retention := time.Duration(k.cfg.Telemetry.RetentionDays) * 24 * time.Hour
-	svc.Functions, err = buildFunctions(k.db, k.work, k.log, svc.Tenancy, svc.SecurityConfig, k.gen, retention, k.runnerLink, svc.Notify, k.approvals)
+	svc.Functions, err = buildFunctions(k.db, k.work, k.log, svc.Tenancy, svc.SecurityConfig, k.gen, retention, k.runnerLink, svc.Notify, k.approvals, k.shared)
 	if err != nil {
 		return err
 	}
