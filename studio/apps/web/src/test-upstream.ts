@@ -44,7 +44,9 @@ export interface UpstreamData {
   /** Someone else holds the plugin's editing lock: the editor is read-only. */
   lockHeldElsewhere?: boolean;
   /** Collects every PatchDocument the upstream receives (autosave, undo, redo). */
-  sent?: { path: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
+  sent?: { path: string; pluginId: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
+  /** Collects every lock taken, by the plugin it names (empty for the app's own lock) and its scope. */
+  acquired?: { pluginId: string; scope: string }[];
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
   /** The app's plugins (ids) and their documents, for ListPlugins and ListDocuments. */
   pluginDocuments?: Record<string, { kind: string; path: string; json: unknown }[]>;
@@ -191,6 +193,7 @@ export function createUpstream(state: UpstreamData) {
             }
           : {},
       acquireLock: (req) => {
+        state.acquired?.push({ pluginId: req.pluginId, scope: req.scope });
         if (state.lockHeldElsewhere === true) {
           throw new ConnectError("the lock is held by someone else", Code.FailedPrecondition);
         }
@@ -268,7 +271,7 @@ export function createUpstream(state: UpstreamData) {
           path: o.path,
           ...(o.value.length > 0 && { value: JSON.parse(new TextDecoder().decode(o.value)) as JsonValue }),
         }));
-        state.sent?.push({ path: req.path, stepId: req.stepId, ops });
+        state.sent?.push({ path: req.path, pluginId: req.pluginId, stepId: req.stepId, ops });
         if (doc !== undefined) {
           doc.json = applyPatch(doc.json as JsonValue, ops);
           patched.set(req.path, doc);
