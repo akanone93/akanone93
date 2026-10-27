@@ -8,6 +8,8 @@ import {
   type ApplyChangeSetRequest,
   AppService,
   ComponentService,
+  ControlSchema,
+  ControlService,
   DevDeviceSchema,
   type DevEvent,
   DeviceSchema,
@@ -36,7 +38,10 @@ import {
   PreferencesService,
   PublishService,
   ReleaseRequestService,
+  ReleaseSchema,
   ReleaseService,
+  RolloutSchema,
+  RolloutService,
   SecurityAdminService,
   TemplateService,
   UserSchema,
@@ -118,8 +123,26 @@ export interface ReleaseFixture {
 
 const releaseOrder = ["select", "build", "reports", "diffs", "changelog", "target", "approval", "rollout", "release"];
 
+/** The Releases area (STU-101): releases, their rollouts, the kill switches, and every mutation received as \`rpc:detail\`. */
+export interface ReleasesFixture {
+  releases: { sequence: number; notes?: string; rollbackOf?: number }[];
+  rollouts?: {
+    id: string;
+    candidate: number;
+    state: number;
+    basisPoints: number;
+    stages: number[];
+    stageIndex?: number;
+    lastCheck?: unknown;
+  }[];
+  killed?: string[];
+  calls?: string[];
+  failing?: boolean;
+}
+
 export interface UpstreamData {
   release?: ReleaseFixture;
+  releases?: ReleasesFixture;
   security?: SecurityData;
   /** The dev session (DEV-002, DEV-011, DEV-020): paired devices, the pairing token, the event stream and what Studio sent. */
   devSession?: {
@@ -449,6 +472,7 @@ export function createUpstream(state: UpstreamData) {
       });
     }
     service(ReleaseService, {
+      ...releaseHandlers(state.releases),
       listPluginVersions: () => ({
         versions:
           state.published === undefined
@@ -573,6 +597,9 @@ export function createUpstream(state: UpstreamData) {
       rustServices(service, state.rust);
     }
     securityServices(service, state.security ?? {});
+    if (state.releases !== undefined) {
+      releasesServices(service, state.releases);
+    }
     service(FederationService, { listSignInProviders: () => ({ providers: [] }) });
   });
 }
@@ -832,4 +859,86 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
       return move("cancelled");
     },
   };
+}
+const releaseOf = (r: ReleasesFixture["releases"][number]) =>
+  create(ReleaseSchema, {
+    id: `rel-${r.sequence}`,
+    sequence: BigInt(r.sequence),
+    notes: r.notes ?? "",
+    rollbackOf: BigInt(r.rollbackOf ?? 0),
+    createdAt: timestampFromMs(1_700_000_000_000),
+  });
+
+/** The ReleaseService reads of the Releases area; empty without a fixture. */
+function releaseHandlers(data: ReleasesFixture | undefined) {
+  const fail = () => {
+    if (data?.failing === true) {
+      throw new ConnectError("unavailable", Code.Unavailable);
+    }
+  };
+  return {
+    listReleases: () => {
+      fail();
+      return { releases: (data?.releases ?? []).map(releaseOf) };
+    },
+    getRelease: (req: { sequence: bigint }) => {
+      fail();
+      const found = data?.releases.find((r) => BigInt(r.sequence) === req.sequence);
+      return { release: found === undefined ? undefined : releaseOf(found), versions: [] };
+    },
+    getChangelog: () => ({ entries: [{ kind: "page", change: "added", pluginKey: "loans", name: "home" }], notes: "" }),
+    rollbackRelease: (req: { toSequence: bigint; channelKey: string }) => {
+      data?.calls?.push(`rollback:${req.toSequence}:${req.channelKey}`);
+      return {};
+    },
+  };
+}
+
+/** The rollout and control RPCs of the Releases area, in memory. */
+function releasesServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  data: ReleasesFixture,
+) {
+  const rollout = (r: NonNullable<ReleasesFixture["rollouts"]>[number]) =>
+    create(RolloutSchema, {
+      id: r.id,
+      environmentKey: "development",
+      channel: "production",
+      candidateSequence: BigInt(r.candidate),
+      state: r.state,
+      basisPoints: r.basisPoints,
+      stageIndex: r.stageIndex ?? 0,
+      stages: r.stages.map((basisPoints) => ({ basisPoints })),
+      lastCheck: new TextEncoder().encode(r.lastCheck === undefined ? "" : JSON.stringify(r.lastCheck)),
+    });
+  const find = (id: string) => {
+    const found = (data.rollouts ?? []).find((r) => r.id === id);
+    return { rollout: found === undefined ? undefined : rollout(found) };
+  };
+  const act = (name: string, id: string, detail = "") => {
+    data.calls?.push(`${name}:${id}${detail}`);
+    return find(id);
+  };
+  service(RolloutService, {
+    listRollouts: () => ({ rollouts: (data.rollouts ?? []).map(rollout) }),
+    pauseRollout: (req) => act("pause", req.id),
+    resumeRollout: (req) => act("resume", req.id),
+    advanceRollout: (req) => act("advance", req.id),
+    abortRollout: (req) => act("abort", req.id),
+    rescheduleRollout: (req) => act("reschedule", req.id, req.clearEndAt ? ":clear" : ":end"),
+  });
+  const control = () => create(ControlSchema, { killSwitchPlugins: data.killed ?? [] });
+  service(ControlService, {
+    getControl: () => ({ control: control() }),
+    setKillSwitch: (req) => {
+      data.calls?.push(`kill:${req.killSwitch?.target}`);
+      data.killed = [...(data.killed ?? []), req.killSwitch?.target ?? ""];
+      return {};
+    },
+    clearKillSwitch: (req) => {
+      data.calls?.push(`unkill:${req.killSwitch?.target}`);
+      data.killed = (data.killed ?? []).filter((k) => k !== req.killSwitch?.target);
+      return {};
+    },
+  });
 }

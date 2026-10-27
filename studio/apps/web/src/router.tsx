@@ -20,6 +20,7 @@ import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schem
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
 import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { publishSearchSchema } from "./features/publish/publish.schema.ts";
+import { releaseEnvSearchSchema, releasesSearchSchema } from "./features/releases/releases.schema.ts";
 import { devicesSearchSchema, envSearchSchema } from "./features/security/security.schema.ts";
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
@@ -181,6 +182,24 @@ const publishRoute = createRoute({
   beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
   component: lazyRouteComponent(() => import("./features/publish/index.ts"), "PublishPage"),
 });
+/** A3-A5: the Releases area of one app (STU-101); the pages need `app.read`, their actions are gated by rollout.manage and release.promote (F14). */
+function releasesRoute(
+  path: string,
+  component: "ReleasesPage" | "ReleasePage" | "KillSwitchPage",
+  search: typeof releasesSearchSchema | typeof releaseEnvSearchSchema,
+) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/releases${path}`,
+    validateSearch: (raw) => search.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/releases/index.ts"), component),
+  });
+}
+
+const releasesTimelineRoute = releasesRoute("", "ReleasesPage", releasesSearchSchema);
+const killSwitchRoute = releasesRoute("/kill-switch", "KillSwitchPage", releaseEnvSearchSchema);
+const releaseRoute = releasesRoute("/$releaseId", "ReleasePage", releaseEnvSearchSchema);
 
 const libraryRoute = createRoute({
   getParentRoute: () => orgRoute,
@@ -245,6 +264,9 @@ const routeTree = rootRoute.addChildren([
       notificationsRoute,
       devicesRoute,
       deviceRoute,
+      releasesTimelineRoute,
+      killSwitchRoute,
+      releaseRoute,
       securityProfileRoute,
       publishStartRoute,
       publishRoute,
