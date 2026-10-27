@@ -9,7 +9,7 @@
  * (base and interaction layer) and the font buffers in `init`.
  */
 
-import type { ScreenTheme, WidgetNode } from "@plux/layout";
+import type { ScreenTheme, TextDirection, WidgetNode } from "@plux/layout";
 import type { BaseOrigin, LayerBox } from "./compositor.ts";
 
 /** The protocol version; a message with another version is rejected. */
@@ -211,6 +211,10 @@ export interface ScreenDocument {
 export interface ScreenStyle {
   readonly deviceHeight: number;
   readonly theme: ScreenTheme;
+  /** The ambient text scale of the preview (A11Y-005); default 1. */
+  readonly textScale?: number;
+  /** The ambient text direction of the preview (I18N-010); default left to right. */
+  readonly textDirection?: TextDirection;
   readonly frame: ColorRgba;
   readonly frameStroke: ColorRgba;
   readonly box: ColorRgba;

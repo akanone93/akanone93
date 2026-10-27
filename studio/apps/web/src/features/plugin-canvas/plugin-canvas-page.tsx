@@ -25,6 +25,7 @@ import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
 import { RightDock } from "../panels/right-dock.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
+import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -37,6 +38,7 @@ import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghos
 import { LaneDialog, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
+import { dataSourcesOf } from "./look.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { parseDocument, readPlugin } from "./plugin-model.ts";
@@ -49,7 +51,6 @@ import {
   heightsById,
   type PlacedScreen,
   screenDocuments,
-  screenStyle,
 } from "./scene.ts";
 import { ScreensController } from "./screens-controller.tsx";
 import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
@@ -66,6 +67,7 @@ import { useAssetsTab } from "./use-assets-tab.ts";
 import { useGhostLayer } from "./use-ghost-layer.ts";
 import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
+import { usePreviewScene } from "./use-preview-scene.ts";
 
 const MARQUEE_PX = 4;
 
@@ -230,7 +232,13 @@ function PluginCanvasView({
     () => parsed.map((d) => (local[d.path] === undefined ? d : { ...d, parsed: local[d.path]?.content })),
     [parsed, local],
   );
+  const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
+  const { look, bar, matrix } = usePreviewBar(
+    params.app,
+    sources.map((x) => x.id),
+  );
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
+  const { shown, styled } = usePreviewScene(screens, appDocs.data, docs.data, look);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const fittedRef = useRef<CanvasSurface | null>(null);
@@ -434,7 +442,7 @@ function PluginCanvasView({
       return;
     }
     let current = true;
-    void surface.layoutScreens(screenDocuments(screens), screenStyle).then((laidOut) => {
+    void surface.layoutScreens(screenDocuments(shown), styled).then((laidOut) => {
       if (!current) {
         return;
       }
@@ -451,7 +459,7 @@ function PluginCanvasView({
     return () => {
       current = false;
     };
-  }, [screens]);
+  }, [screens, shown, styled]);
 
   const sync = () => {
     const surface = surfaceRef.current;
@@ -510,7 +518,15 @@ function PluginCanvasView({
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
-    <section className="relative h-full w-full overflow-hidden">
+    <section
+      className="relative h-full w-full overflow-hidden"
+      dir={look.direction}
+      data-preview-theme={look.theme}
+      data-preview-platform={look.platform}
+      style={{ fontSize: `${look.textScale}em` }}
+    >
+      {bar}
+      <MatrixOverlay show={matrix} render={look} screen={shown[0]} style={styled} createSurface={createSurface} />
       {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
       <canvas
         role="application"
