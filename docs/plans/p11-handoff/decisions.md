@@ -25,4 +25,5 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-27 | LSP client: Studio's own typed JSON-RPC client, not `monaco-languageclient` (revisit if needed) | p11-studio-decisions.md A5.3, ADR-0099 |
 | 2026-10-27 | S5.4 security defaults confirmed (build scripts, proc macros, check-on-save off; `executeCommand`, `didChangeConfiguration`, `rust-analyzer/*` refused; editor off by default; `builder.address` needs internal TLS; `RunTests` runs stored cases) | S5.4 code |
 | 2026-10-27 | Custom device frame (D40): `studio.customFrameMaxPixels` 4096 (max 8192) per side, density 1–4 | schema/limits.json, spec §30.4 |
+| 2026-10-27 | Library limits `library.itemsPerOrganization` 500 (max 10000), `library.versionsPerItem` 100 (max 1000); public scan refuses non-https URLs, URLs with credentials, private/internal hosts and `sensitive: true` fields | schema/limits.json, S6.2 code |
 | 2026-10-26 | Sign-in page design is not changed now | — |
