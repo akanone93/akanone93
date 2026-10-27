@@ -6,6 +6,15 @@ import { useLingui } from "@lingui/react";
 import { Dialog } from "@plux/ui";
 import { type KeyboardEvent, useId, useMemo, useState } from "react";
 import { type CommandState, commandMessages, useCommands } from "../../lib/commands/index.ts";
+import {
+  type OrgHit,
+  type OrgSearchFn,
+  parseScope,
+  pushRecent,
+  readRecents,
+  recentsFirst,
+  useOrgSearch,
+} from "./palette-search.ts";
 
 const fuzzy = new uFuzzy({ intraMode: 1 });
 
@@ -26,25 +35,48 @@ export function filterCommands(states: readonly CommandState[], needle: string):
 export interface PaletteProps {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
+  /** Organisation-wide search (F15); absent in contexts without a server. */
+  readonly search?: OrgSearchFn;
+  readonly onOpenHit?: (hit: OrgHit) => void;
 }
 
+type Row =
+  | { readonly type: "command"; readonly key: string; readonly state: CommandState }
+  | { readonly type: "hit"; readonly key: string; readonly hit: OrgHit };
+
 /** D1: the local command palette. Arrows move, Enter runs, Escape closes and focus returns to the opener. */
-export function CommandPalette({ open, onOpenChange }: PaletteProps) {
+export function CommandPalette({ open, onOpenChange, search, onOpenHit }: PaletteProps) {
   const { i18n } = useLingui();
   const m = commandMessages(i18n);
   const { states } = useCommands();
   const [needle, setNeedle] = useState("");
   const [active, setActive] = useState(0);
   const listId = useId();
-  const results = useMemo(() => filterCommands(states, needle), [states, needle]);
+  const { scope, text } = parseScope(needle);
+  const org = useOrgSearch(search, scope, text);
+  const rows = useMemo<Row[]>(() => {
+    const local = scope === "screens" ? [] : filterCommands(states, text);
+    const ordered = text === "" ? recentsFirst(local, (s) => s.command.id, readRecents()) : local;
+    return [
+      ...ordered.map((state): Row => ({ type: "command", key: state.command.id, state })),
+      ...org.hits.map((hit): Row => ({ type: "hit", key: `org:${hit.kind}:${hit.id}`, hit })),
+    ];
+  }, [states, scope, text, org.hits]);
+  const results = rows;
   const current = results[Math.min(active, Math.max(results.length - 1, 0))];
 
-  const run = (state: CommandState | undefined) => {
-    if (state?.enabled !== true) {
+  const run = (row: Row | undefined) => {
+    if (row?.type === "hit") {
+      onOpenChange(false);
+      onOpenHit?.(row.hit);
       return;
     }
+    if (row?.state.enabled !== true) {
+      return;
+    }
+    pushRecent(row.state.command.id);
     onOpenChange(false);
-    void state.command.run();
+    void row.state.command.run();
   };
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -73,7 +105,7 @@ export function CommandPalette({ open, onOpenChange }: PaletteProps) {
         role="combobox"
         aria-expanded="true"
         aria-controls={listId}
-        aria-activedescendant={current === undefined ? undefined : `${listId}-${current.command.id}`}
+        aria-activedescendant={current === undefined ? undefined : `${listId}-${current.key}`}
         aria-label={m.paletteSearch}
         placeholder={m.paletteSearch}
         value={needle}
@@ -90,24 +122,45 @@ export function CommandPalette({ open, onOpenChange }: PaletteProps) {
         aria-label={m.paletteTitle}
         className="flex max-h-80 flex-col gap-1 overflow-auto"
       >
-        {results.length === 0 && <div className="px-3 py-2 text-body text-secondary">{m.paletteEmpty}</div>}
-        {results.map((s) => (
+        {results.length === 0 && !org.pending && (
+          <div className="px-3 py-2 text-body text-secondary">{m.paletteEmpty}</div>
+        )}
+        {results.map((row) => (
           <div
-            key={s.command.id}
-            id={`${listId}-${s.command.id}`}
+            key={row.key}
+            id={`${listId}-${row.key}`}
             role="option"
-            aria-selected={s === current}
-            aria-disabled={!s.enabled}
+            aria-selected={row === current}
+            aria-disabled={row.type === "command" && !row.state.enabled}
             tabIndex={-1}
-            onClick={() => run(s)}
+            onClick={() => run(row)}
             onKeyDown={undefined}
-            className={`flex flex-col rounded-md px-3 py-2 text-body ${s === current ? "bg-sunken" : ""} ${s.enabled ? "text-primary" : "text-secondary"}`}
+            className={`flex flex-col rounded-md px-3 py-2 text-body ${row === current ? "bg-sunken" : ""} ${row.type === "hit" || row.state.enabled ? "text-primary" : "text-secondary"}`}
           >
-            <span>{s.command.title}</span>
-            {!s.enabled && s.missing !== undefined && <span className="text-caption">{m.missing(s.missing)}</span>}
-            {!s.enabled && s.reason !== undefined && <span className="text-caption">{s.reason}</span>}
+            {row.type === "hit" ? (
+              <>
+                <span>{row.hit.name}</span>
+                <span className="text-caption text-secondary">{row.hit.kind}</span>
+              </>
+            ) : (
+              <>
+                <span>{row.state.command.title}</span>
+                {!row.state.enabled && row.state.missing !== undefined && (
+                  <span className="text-caption">{m.missing(row.state.missing)}</span>
+                )}
+                {!row.state.enabled && row.state.reason !== undefined && (
+                  <span className="text-caption">{row.state.reason}</span>
+                )}
+              </>
+            )}
           </div>
         ))}
+        {org.pending && <div className="px-3 py-2 text-caption text-secondary">{m.paletteSearching}</div>}
+        {org.failed && (
+          <div role="alert" className="px-3 py-2 text-caption text-danger">
+            {m.paletteSearchFailed}
+          </div>
+        )}
       </div>
     </Dialog>
   );

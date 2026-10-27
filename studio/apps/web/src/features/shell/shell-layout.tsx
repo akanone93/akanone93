@@ -4,7 +4,7 @@
 import { createClient } from "@connectrpc/connect";
 import { useQuery } from "@connectrpc/connect-query";
 import { useLingui } from "@lingui/react";
-import { OrgService, PreferencesService } from "@plux/api";
+import { OrgService, PreferencesService, SearchService } from "@plux/api";
 import { GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { Outlet, useParams, useRouter } from "@tanstack/react-router";
@@ -21,6 +21,7 @@ import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 import { CommandPalette } from "./command-palette.tsx";
 import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
+import { hitPath, type OrgSearchFn } from "./palette-search.ts";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
 import { useServerVersion } from "./use-server-version.ts";
@@ -52,6 +53,17 @@ export function ShellLayout() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [pending] = useState(createPendingCounter);
   const waiting = usePendingTotal(pending);
+  const orgSearch = useMemo<OrgSearchFn>(
+    () => async (query, kinds, limit) => {
+      const res = await createClient(SearchService, session.transport).search({
+        query,
+        kinds: [...kinds],
+        page: { pageSize: limit, pageToken: "" },
+      });
+      return res.hits.map((h) => ({ kind: h.kind, id: h.id, name: h.name }));
+    },
+    [session],
+  );
   const user = useTanstackQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
   const permissions = user.data?.permissions ?? NONE;
   const commands = useMemo(
@@ -123,7 +135,17 @@ export function ShellLayout() {
           <main className="flex-1 p-6">
             <Outlet />
           </main>
-          <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+          <CommandPalette
+            open={paletteOpen}
+            onOpenChange={setPaletteOpen}
+            search={orgSearch}
+            onOpenHit={(hit) => {
+              const path = org === undefined ? undefined : hitPath(org, hit);
+              if (path !== undefined) {
+                router.history.push(path);
+              }
+            }}
+          />
         </div>
       </CommandsProvider>
     </PendingChangesProvider>
