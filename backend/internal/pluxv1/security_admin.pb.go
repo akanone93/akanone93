@@ -328,7 +328,11 @@ type GetEffectiveSecurityConfigResponse struct {
 	EffectiveJson []byte `protobuf:"bytes,3,opt,name=effective_json,json=effectiveJson,proto3" json:"effective_json,omitempty"`
 	// sha256 is the hash of effective_json, the value the manifest pins
 	// (SEC-182).
-	Sha256        []byte `protobuf:"bytes,4,opt,name=sha256,proto3" json:"sha256,omitempty"`
+	Sha256 []byte `protobuf:"bytes,4,opt,name=sha256,proto3" json:"sha256,omitempty"`
+	// overrides_json is the canonical JSON of the overrides an operator set
+	// on top of the profile, "{}" for none. A caller that changes only the
+	// profile sends it back unchanged in SetSecurityConfig.
+	OverridesJson []byte `protobuf:"bytes,5,opt,name=overrides_json,json=overridesJson,proto3" json:"overrides_json,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -387,6 +391,13 @@ func (x *GetEffectiveSecurityConfigResponse) GetEffectiveJson() []byte {
 func (x *GetEffectiveSecurityConfigResponse) GetSha256() []byte {
 	if x != nil {
 		return x.Sha256
+	}
+	return nil
+}
+
+func (x *GetEffectiveSecurityConfigResponse) GetOverridesJson() []byte {
+	if x != nil {
+		return x.OverridesJson
 	}
 	return nil
 }
@@ -2667,12 +2678,13 @@ const file_plux_v1_security_admin_proto_rawDesc = "" +
 	"\aversion\x18\x01 \x01(\x03R\aversion\"a\n" +
 	"!GetEffectiveSecurityConfigRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
-	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\"\x97\x01\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\"\xbe\x01\n" +
 	"\"GetEffectiveSecurityConfigResponse\x12\x18\n" +
 	"\aprofile\x18\x01 \x01(\tR\aprofile\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x03R\aversion\x12%\n" +
 	"\x0eeffective_json\x18\x03 \x01(\fR\reffectiveJson\x12\x16\n" +
-	"\x06sha256\x18\x04 \x01(\fR\x06sha256\"\xdc\x04\n" +
+	"\x06sha256\x18\x04 \x01(\fR\x06sha256\x12%\n" +
+	"\x0eoverrides_json\x18\x05 \x01(\fR\roverridesJson\"\xdc\x04\n" +
 	"\bUpstream\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12%\n" +

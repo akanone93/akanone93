@@ -526,6 +526,12 @@ msgstr "Actions"
 msgid "actionGraph.catalogue"
 msgstr "Actions"
 
+#. State of a device that is not revoked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.stateActive"
+msgstr "Active"
+
 #. Button that adds a state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -634,6 +640,12 @@ msgstr "Add token"
 msgid "history.changeAdded"
 msgstr "added"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colAlgorithm"
+msgstr "Algorithm"
+
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -681,6 +693,12 @@ msgstr "Another person holds the draft lock, so the state is read-only."
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.readOnly"
 msgstr "Another person holds the lock for this locale, so the table is read-only."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colBuild"
+msgstr "App build"
 
 #. Accessible name of the canvas that shows the plugins of an app.
 #. js-lingui-explicit-id
@@ -778,11 +796,29 @@ msgstr "Assets"
 msgid "assets.tab"
 msgstr "Assets"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colAssurance"
+msgstr "Assurance"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.provider"
+msgstr "Attestation provider"
+
 #. Label of the field for the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.code"
 msgstr "Authentication code"
+
+#. Link.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.back"
+msgstr "Back to devices"
 
 #. Edge inset at the bottom.
 #. js-lingui-explicit-id
@@ -825,6 +861,12 @@ msgstr "Button"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.by"
 msgstr "by {author}"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.cancel"
+msgstr "Cancel"
 
 #. Button that closes a safety dialog without doing anything.
 #. js-lingui-explicit-id
@@ -898,11 +940,29 @@ msgstr "Canvas actions"
 msgid "appCanvas.toolbar"
 msgstr "Canvas actions"
 
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.capsTitle"
+msgstr "Capability grants"
+
 #. Heading of the Cargo.toml text the dependencies are written to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.manifest"
 msgstr "Cargo manifest"
+
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.pinsTitle"
+msgstr "Certificate pins"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.changeProfile"
+msgstr "Change profile"
 
 #. Lane menu action: open the widget whose event starts the link, to change the event.
 #. js-lingui-explicit-id
@@ -992,6 +1052,12 @@ msgstr "Clear {name}"
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.close"
+msgstr "Close"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.close"
 msgstr "Close"
 
 #. Accessible name of a safety dialog's close button.
@@ -1486,6 +1552,30 @@ msgstr "Design tokens"
 msgid "preview.frame.desktop"
 msgstr "Desktop window"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colId"
+msgstr "Device"
+
+#. Heading of the device detail.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.deviceTitle"
+msgstr "Device"
+
+#. Page title of a device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.device-of"
+msgstr "Device {id}"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.deviceApis"
+msgstr "Device APIs"
+
 #. Label of the select that picks the device frame of the preview.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -1497,6 +1587,12 @@ msgstr "Device frame"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.matrix"
 msgstr "Device matrix"
+
+#. Heading of the devices list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.devicesTitle"
+msgstr "Devices"
 
 #. Heading of the list of documents that differ between two snapshots.
 #. js-lingui-explicit-id
@@ -1594,11 +1690,23 @@ msgstr "Edit"
 msgid "panelTabs.codeEdit"
 msgstr "Edit {name} in the Rust editor"
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.editGrants"
+msgstr "Edit grants"
+
 #. Tooltip of the editor-session tag of a snapshot.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.sessionTitle"
 msgstr "Editor session that made this snapshot"
+
+#. Heading of the settings table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.effective"
+msgstr "Effective configuration"
 
 #. Label of the email field.
 #. js-lingui-explicit-id
@@ -1857,6 +1965,12 @@ msgstr "Frame selection"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanFrom"
 msgstr "From version"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.functions"
+msgstr "Functions"
 
 #. Heading of the functions that the pasted elements call but the target plugin is not granted.
 #. js-lingui-explicit-id
@@ -2160,6 +2274,12 @@ msgstr "Keep mine"
 msgid "editor.conflict.would-drop"
 msgstr "Keeping yours cannot apply these changes"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colKeyId"
+msgstr "Key"
+
 #. Column heading of the table: the name of the translation key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -2177,6 +2297,24 @@ msgstr "Key"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.key"
 msgstr "Key"
+
+#. Link text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.ceremony"
+msgstr "Key ceremony runbook"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.keyStorage"
+msgstr "Key storage"
+
+#. Label of the DPoP key thumbprint.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.keyId"
+msgstr "Key thumbprint"
 
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
@@ -2208,6 +2346,12 @@ msgstr "Keys cannot be added while another person holds the draft lock."
 msgid "l10n.scope"
 msgstr "Keys shown"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colKind"
+msgstr "Kind"
+
 #. Label of the list that chooses the kind of a data source (REST, GraphQL, …).
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2219,6 +2363,18 @@ msgstr "Kind"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.language"
 msgstr "Language"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colAttested"
+msgstr "Last attestation"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.lastSeen"
+msgstr "Last seen"
 
 #. Tab: the tree of the nodes of the screens.
 #. js-lingui-explicit-id
@@ -2358,6 +2514,12 @@ msgstr "Load more"
 msgid "chrome.loading"
 msgstr "Loading"
 
+#. Shown while a page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.loading"
+msgstr "Loading"
+
 #. Mock data state option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -2483,6 +2645,12 @@ msgstr "Match system"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.material"
 msgstr "Material"
+
+#. Profile name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.profileMaximum"
+msgstr "Maximum"
 
 #. Label of the checkbox that makes the entry's type nullable.
 #. js-lingui-explicit-id
@@ -2640,6 +2808,18 @@ msgstr "Needs a touch target of at least 44 by 44 dp."
 msgid "cmd.disabled.reason"
 msgstr "Needs the permission {permission}"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.networkDomains"
+msgstr "Network domains"
+
+#. Shown when there is no date.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.never"
+msgstr "Never"
+
 #. Label of the field in which the name of a new translation key is typed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -2711,6 +2891,18 @@ msgstr "No changes to apply."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.empty"
 msgstr "No command matches."
+
+#. Shown when the device list is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.noDevices"
+msgstr "No devices match."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.noKeys"
+msgstr "No keys are published for this environment."
 
 #. Shown when the migration preview has no finding.
 #. js-lingui-explicit-id
@@ -2795,6 +2987,12 @@ msgstr "Nodes"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfPage"
 msgstr "Nodes in the page"
+
+#. Shown for an empty list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.none"
+msgstr "None"
 
 #. Shown for a plugin number the server did not return.
 #. js-lingui-explicit-id
@@ -2916,6 +3114,12 @@ msgstr "Offline"
 msgid "history.diffLabel"
 msgstr "Older and newer version of the document"
 
+#. Description of the dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.editGrantsDescription"
+msgstr "One entry per line. Releases are published only when every plugin requests a subset."
+
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -3006,6 +3210,12 @@ msgstr "Organisation"
 msgid "cmd.palette.search-failed"
 msgstr "Organisation search is unavailable."
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.osVersion"
+msgstr "OS version"
+
 #. Marks screens of another plugin of the app in the list of navigation targets.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -3084,6 +3294,12 @@ msgstr "Pasted elements need more than this plugin has"
 msgid "panelTabs.tabPerformance"
 msgstr "Performance"
 
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.pinsCaption"
+msgstr "Pins live in the root metadata made by the offline ceremony and cannot be edited here."
+
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -3101,6 +3317,12 @@ msgstr "Pixel density"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.densityOutOfRange"
 msgstr "Pixel density must be between 1 and {max}."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colPlatform"
+msgstr "Platform"
 
 #. Label of the select that picks Material or Cupertino for the preview.
 #. js-lingui-explicit-id
@@ -3222,6 +3444,12 @@ msgstr "Problems"
 msgid "chrome.profile.menu"
 msgstr "Profile"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.profileLabel"
+msgstr "Profile"
+
 #. Heading of the profile page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -3245,6 +3473,12 @@ msgstr "Properties"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsProps"
 msgstr "Properties"
+
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.keysCaption"
+msgstr "Public keys that may sign for this environment. Keys are rotated in the offline ceremony."
 
 #. Why a snapshot was made: the plugin was published.
 #. js-lingui-explicit-id
@@ -3377,6 +3611,18 @@ msgstr "Redo"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.redo.alt"
 msgstr "Redo (Ctrl+Y)"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.registered"
+msgstr "Registered"
+
+#. Caption under the devices heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.devicesCaption"
+msgstr "Registered devices of this environment."
 
 #. Button that reloads the page.
 #. js-lingui-explicit-id
@@ -3606,17 +3852,41 @@ msgstr "Resume"
 msgid "actionGraph.outputType"
 msgstr "Returns {type}"
 
+#. Button that revokes a device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.revoke"
+msgstr "Revoke device"
+
+#. State of a revoked device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.stateRevoked"
+msgstr "Revoked"
+
 #. Edge inset on the right.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.right"
 msgstr "Right"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colRole"
+msgstr "Role"
+
 #. Label of the role the descriptor assigns to the widget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.role"
 msgstr "Role"
+
+#. Label of the rotation state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.rootVersions"
+msgstr "Root versions served"
 
 #. Button that builds the source and runs its stored test cases.
 #. js-lingui-explicit-id
@@ -3648,6 +3918,12 @@ msgstr "Running tests…"
 msgid "rustEditor.runningTests"
 msgstr "Running the tests…"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.runtimeVersion"
+msgstr "Runtime version"
+
 #. Button in the right panel that opens the full-screen editor for the Rust source of a function.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -3665,6 +3941,12 @@ msgstr "Rust editor"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.editorLabel"
 msgstr "Rust source of the function"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.save"
+msgstr "Save"
 
 #. Dialog button that applies the change.
 #. js-lingui-explicit-id
@@ -3738,6 +4020,12 @@ msgstr "Screens in navigation order"
 msgid "actionGraph.search"
 msgstr "Search actions"
 
+#. Label of the device search field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.search"
+msgstr "Search devices"
+
 #. Label of the search field of the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3755,6 +4043,12 @@ msgstr "Searching the organisation"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.title"
 msgstr "Second factor"
+
+#. Heading of the security page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.profileTitle"
+msgstr "Security profile"
 
 #. Shown when no collection is selected.
 #. js-lingui-explicit-id
@@ -3828,6 +4122,12 @@ msgstr "Sensitive"
 msgid "history.sessionTag"
 msgstr "session {tag}"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colSetting"
+msgstr "Setting"
+
 #. Label of the list that chooses whether a state entry is a single value, a list or a map.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -3893,6 +4193,12 @@ msgstr "Sign-in failed. Try again in a moment."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.signin.submitting"
 msgstr "Signing in"
+
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.keysTitle"
+msgstr "Signing keys"
 
 #. Accessible name of the group of single sign-on buttons.
 #. js-lingui-explicit-id
@@ -3966,6 +4272,12 @@ msgstr "Source format"
 msgid "designers.dataSourceText"
 msgstr "Source text: an OpenAPI document or a GraphQL schema"
 
+#. Profile name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.profileStandard"
+msgstr "Standard"
+
 #. Button that starts the language server for the uploaded source.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -3989,6 +4301,12 @@ msgstr "Starter template"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.starting"
 msgstr "Starting the language server…"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colState"
+msgstr "State"
 
 #. Tab of the left panel: the plugin's state entries.
 #. js-lingui-explicit-id
@@ -4037,6 +4355,12 @@ msgstr "Stay here"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.stop"
 msgstr "Stop the language server"
+
+#. Profile name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.profileStrict"
+msgstr "Strict"
 
 #. Accessible name of the list of strings of the selection.
 #. js-lingui-explicit-id
@@ -4146,6 +4470,12 @@ msgstr "Text scale"
 msgid "assets.loadFailed"
 msgstr "The assets could not be loaded."
 
+#. Shown when saving fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.saveFailed"
+msgstr "The change could not be saved."
+
 #. Shown when a plugin or canvas change was refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4211,6 +4541,12 @@ msgstr "The connection to the language server broke: {detail}"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.notJson"
 msgstr "The default is not valid JSON."
+
+#. Description of the revoke dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.revokeDescription"
+msgstr "The device loses access at once. The reason is kept in the audit log."
 
 #. Shown when the two versions of a document could not be loaded.
 #. js-lingui-explicit-id
@@ -4356,6 +4692,12 @@ msgstr "The passkey could not be used."
 msgid "clipboard.refusedInvalid"
 msgstr "The pasted elements do not pass validation."
 
+#. Explains where the certificate pins live; shown instead of a list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.pinsNote"
+msgstr "The pins are part of the signed root metadata from the offline key ceremony. They are not listed here; follow the runbook to read them from the root."
+
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -4379,6 +4721,12 @@ msgstr "The plugin is locked by someone else: the graph is read-only."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.confirmBody"
 msgstr "The plugin's documents return to how they were at {when}. You can undo the restore in one step."
+
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.profileCaption"
+msgstr "The profile and every setting in force for this environment."
 
 #. Shown when fetching the last published version for the comparison failed.
 #. js-lingui-explicit-id
@@ -4633,6 +4981,12 @@ msgstr "This cannot be deleted yet"
 msgid "safety.rename.title"
 msgstr "This change affects code outside Studio"
 
+#. Shown when a request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.loadFailed"
+msgstr "This could not be loaded."
+
 #. Shown instead of the comparison when the plugin has no published version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -4644,6 +4998,12 @@ msgstr "This document has not been published yet, so there is nothing to compare
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.computed"
 msgstr "This entry is computed from an expression; edit the expression in the JSON editor."
+
+#. Shown when the environment of the URL is unknown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.envMissing"
+msgstr "This environment does not exist."
 
 #. Shown when the event's action graph has no steps.
 #. js-lingui-explicit-id
@@ -4957,6 +5317,12 @@ msgstr "Valid. You can apply it."
 msgid "panelTabs.perfErrors"
 msgstr "Validation errors"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.colValue"
+msgstr "Value"
+
 #. Label of a step input written as a plain value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -4980,6 +5346,12 @@ msgstr "Value type"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.verify"
 msgstr "Verify"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.profileVersion"
+msgstr "Version"
 
 #. Label of the field that holds a collection's schema version.
 #. js-lingui-explicit-id
@@ -5016,6 +5388,12 @@ msgstr "Warning"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "Welcome to {name}"
+
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.capsCaption"
+msgstr "What plugins of this app may do (SEC-080)."
 
 #. Accessible name of the select that chooses what happens to one missing item. {id} is its ID.
 #. js-lingui-explicit-id
@@ -5148,6 +5526,12 @@ msgstr "You have been signed out"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.unsaved.body"
 msgstr "You have changes that are not saved. If you leave now they are lost."
+
+#. Tooltip of a disabled action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.revokeNoPermission"
+msgstr "You may not manage this app."
 
 #. D37 title: the lock was taken over or expired.
 #. js-lingui-explicit-id
