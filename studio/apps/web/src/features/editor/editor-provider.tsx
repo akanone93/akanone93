@@ -45,6 +45,8 @@ export interface EditorProviderProps {
   readonly editorSessionId?: string;
   /** The lock this editor takes: empty for the draft's, "translations/<locale>" for one locale's messages (I18N-008). */
   readonly lockScope?: string;
+  /** Leaves the read-only banner to the caller, for an editor whose children are not the page (the app session of the designers). */
+  readonly hideBanner?: boolean;
   /** The undo stacks this plugin's edits go to (stack key: the plugin ID, "" for app documents). */
   readonly undo?: UndoManager;
   readonly children: ReactNode;
@@ -215,7 +217,9 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
     <EditorContext.Provider value={edit}>
       <LockContext.Provider value={lock}>
         <CanEditContext.Provider value={canEdit}>
-          <LockBanner lock={lock} canEdit={props.canEdit ?? true} canOverride={canOverride} />
+          {props.hideBanner !== true && (
+            <LockBanner lock={lock} canEdit={props.canEdit ?? true} canOverride={canOverride} />
+          )}
           {props.children}
           <ConflictDialog session={edit} />
           <LockLostDialog lock={lock} session={edit} />

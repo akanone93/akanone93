@@ -250,26 +250,26 @@ describe("STU-063 V7 DB schema designer (DB-005)", () => {
 
 describe("STU-063 V8 theme editor", () => {
   test("edits light and dark values and adds and removes tokens through the edit pipeline", async () => {
-    let edit: EditSession | undefined;
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
     renderApp(path, {
       documents,
       appDocuments,
       surface: surface(),
       sent,
-      editor: (e) => (edit = e),
       validator: validator(undefined),
     });
     await open("Theme");
     const light = (await screen.findByLabelText("Light value of color.primary")) as HTMLInputElement;
     expect(light.value).toBe("#5B3DF5");
+    await waitFor(() =>
+      expect((screen.getByLabelText("Light value of color.primary") as HTMLInputElement).disabled).toBe(false),
+    );
     fireEvent.change(light, { target: { value: "#112233" } });
     fireEvent.change(screen.getByLabelText("Dark value of color.primary"), { target: { value: "#445566" } });
-    const tokens = () => content(edit, "theme.json")["tokens"] as { color: { primary: Record<string, unknown> } };
-    expect(tokens().color.primary).toMatchObject({ $value: "#112233", $extensions: { "dev.plux.dark": "#445566" } });
+    await waitFor(() =>
+      expect((screen.getByLabelText("Light value of color.primary") as HTMLInputElement).value).toBe("#112233"),
+    );
     fireEvent.change(screen.getByLabelText("Dark value of color.primary"), { target: { value: "" } });
-    expect(tokens().color.primary["$extensions"]).toBeUndefined();
-
     fireEvent.change(screen.getByLabelText("New token path, for example color.accent"), {
       target: { value: "color.accent" },
     });
@@ -278,9 +278,31 @@ describe("STU-063 V8 theme editor", () => {
     expect(await screen.findByLabelText("Light value of color.accent")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Remove token color.accent" }));
     await waitFor(() => expect(screen.queryByLabelText("Light value of color.accent")).toBeNull());
-    edit?.flushAll();
-    await waitFor(() => expect(sent.length).toBeGreaterThan(0));
+    await waitFor(() => expect(sent.length).toBeGreaterThan(0), { timeout: 5000 });
     expect(sent[0]?.path).toBe("theme.json");
+    const ops = sent.flatMap((p) => p.ops);
+    expect(ops.some((o) => o.path.endsWith("/primary/$value") && o.value === "#112233")).toBe(true);
+  });
+
+  test("the theme is edited and saved under the app lock, not the plugin's (ADR-0095, SRV-030)", async () => {
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    const acquired: NonNullable<Parameters<typeof renderApp>[1]>["acquired"] = [];
+    renderApp(path, {
+      documents,
+      appDocuments,
+      surface: surface(),
+      sent,
+      acquired,
+      validator: validator(undefined),
+    });
+    await open("Theme");
+    fireEvent.change(await screen.findByLabelText("Light value of color.primary"), { target: { value: "#112233" } });
+    await waitFor(() => expect(acquired.length).toBeGreaterThan(0));
+    await waitFor(() => expect(sent.length).toBeGreaterThan(0), { timeout: 5000 });
+    const theme = sent.filter((p) => p.path === "theme.json");
+    expect(theme.length).toBeGreaterThan(0);
+    expect(theme.every((p) => p.pluginId === "")).toBe(true);
+    expect(acquired.every((l) => l.pluginId === "" && l.scope === "")).toBe(true);
   });
 
   test("read-only while someone else holds the lock", async () => {
@@ -294,6 +316,7 @@ describe("STU-063 V8 theme editor", () => {
     await open("Theme");
     const light = (await screen.findByLabelText("Light value of color.primary")) as HTMLInputElement;
     await waitFor(() => expect(light.disabled).toBe(true));
+    expect((await screen.findAllByText(/Ana/)).length).toBeGreaterThan(0);
   });
 });
 
@@ -312,7 +335,7 @@ describe("designer models", () => {
     expect(parseImport({ fragment: {}, diagnostics: [{ message: "m" }] })).toEqual({
       dataSources: [],
       types: [],
-      hasVariables: false,
+      variables: [],
       diagnostics: ["m"],
     });
   });

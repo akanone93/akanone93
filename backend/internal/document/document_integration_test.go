@@ -1080,3 +1080,39 @@ func TestCanvasDocumentRoundTrip_STU_032(t *testing.T) {
 		t.Error("an invalid canvas document was stored")
 	}
 }
+
+// Verifies: SRV-030, SRV-040.
+// An app-level document is edited under the app's own lock: a patch of it
+// that names a plugin, and so is made under the plugin's lock, finds no such
+// document in the plugin's draft and is refused; the same patch under the
+// app's lock is applied.
+func TestAppDocumentPatchNeedsTheAppLock(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	const session = "tab-1"
+	theme := []byte(`{"schemaVersion":"1.0.0","kind":"theme","id":"01a0c450-6c00-7011-8000-000000020de1","key":"default","name":"Default","tokens":{"color":{"$type":"color","primary":{"$value":"#5B3DF5"}}}}`)
+	if _, _, err := f.docs.AcquireLock(ctx, f.owner, f.app, "", session, false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.docs.PutDocument(ctx, f.owner, f.app, "", session, "theme.json", theme, 0); err != nil {
+		t.Fatalf("create the theme: %v", err)
+	}
+	if _, _, err := f.docs.AcquireLock(ctx, f.owner, f.app, plugin, session, false); err != nil {
+		t.Fatal(err)
+	}
+	patch := []document.Op{{Op: "replace", Path: "/tokens/color/primary/$value", Value: "#112233"}}
+	if _, err := f.docs.PatchDocument(ctx, f.owner, f.app, plugin, session, "theme.json", patch, 1); code(err) != plxerr.ResourceNotFound {
+		t.Errorf("a patch of the theme under the plugin lock: %v", err)
+	}
+	if _, err := f.docs.PatchDocument(ctx, f.owner, f.app, "", session, "theme.json", patch, 1); err != nil {
+		t.Errorf("a patch of the theme under the app lock: %v", err)
+	}
+	if err := f.docs.ReleaseLock(ctx, f.owner, f.app, "", session); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.docs.PatchDocument(ctx, f.owner, f.app, "", session, "theme.json", patch, 2); code(err) != plxerr.EditingLockHeld {
+		t.Errorf("a patch of the theme without the app lock: %v", err)
+	}
+}
