@@ -774,6 +774,9 @@ function PluginCanvasView({
           preview={switcher}
           canSend={canSend}
           canPublish={canPublish}
+          onPublish={() =>
+            void navigate({ to: "/o/$org/apps/$app/publish", params: { org: params.org ?? "", app: params.app ?? "" } })
+          }
         />
       )}
     </section>

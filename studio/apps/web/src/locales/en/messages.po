@@ -196,6 +196,12 @@ msgstr "{count, plural, one {Restored # document.} other {Restored # documents.}
 msgid "pluginCanvas.selectionMany"
 msgstr "{count} elements selected"
 
+#. Error count of a plugin in the reports.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportErrors"
+msgstr "{count} errors"
+
 #. Reading of the node budget meter: nodes used of the allowed nodes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -213,6 +219,18 @@ msgstr "{count} of at most {max} characters"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.unread"
 msgstr "{count} unread"
+
+#. Warning count of a plugin in the reports.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportWarnings"
+msgstr "{count} warnings"
+
+#. Count of acknowledged warnings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.acknowledged"
+msgstr "{count} warnings acknowledged"
 
 #. Shown when several widgets are selected.
 #. js-lingui-explicit-id
@@ -376,6 +394,12 @@ msgstr "{name} is part of an app with a production release. Type its key to conf
 msgid "appCanvas.deprecateConfirm"
 msgstr "{name} is published. It is marked deprecated, and {links, plural, =0 {nothing links to it} one {# link still points to it} other {# links still point to it}}. It leaves the next release only when nothing links to it; earlier releases keep it."
 
+#. Banner when someone else owns the open release request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.othersPublishing"
+msgstr "{name} is publishing. You can view this request."
+
 #. Explains what deleting an asset does; name is the asset's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -435,6 +459,18 @@ msgstr "{passed, plural, one {# test passed} other {# tests passed}}, {failed, p
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.codeResult"
 msgstr "{passed} passed, {failed} failed"
+
+#. Progress of a publish job: percent and pipeline stage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildProgress"
+msgstr "{percent}% {stage}"
+
+#. Row of the visual diff: plugin, screen and device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffScreen"
+msgstr "{plugin} / {screen} on {device}"
 
 #. One finding of the public scan: JSON pointer and category.
 #. js-lingui-explicit-id
@@ -502,6 +538,12 @@ msgstr "A part of the file arrived out of order. Try again to continue from wher
 msgid "assets.failure.chunk-too-large"
 msgstr "A part of the file was larger than the server accepts. Upload the file again."
 
+#. Why the reports step is blocked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportsBlocked"
+msgstr "A report has errors. Open Problems, fix them and freeze again."
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -519,6 +561,12 @@ msgstr "Accept your invitation"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.explain-failed"
 msgstr "Access could not be explained right now."
+
+#. Name of the accessibility report.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportAccessibility"
+msgstr "Accessibility"
 
 #. Label of the right dock tab for the selected widget's screen reader semantics.
 #. js-lingui-explicit-id
@@ -549,6 +597,24 @@ msgstr "Account"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.security"
 msgstr "Account and security"
+
+#. Confirm button of the warnings dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.warningsConfirm"
+msgstr "Acknowledge"
+
+#. Button that opens the warnings dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.acknowledge"
+msgstr "Acknowledge warnings"
+
+#. Title of the warnings dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.warningsTitle"
+msgstr "Acknowledge warnings"
 
 #. Button in the right panel that opens the full-screen action graph editor for the selected widget.
 #. js-lingui-explicit-id
@@ -693,6 +759,12 @@ msgstr "Add token"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.changeAdded"
 msgstr "added"
+
+#. Why a dependency plugin is in the release request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reasonDependency"
+msgstr "Added because another plugin needs it"
 
 #. Button: adopt a component version in an app.
 #. js-lingui-explicit-id
@@ -850,11 +922,23 @@ msgstr "Apply"
 msgid "designers.apply"
 msgstr "Apply"
 
+#. Name of the approval publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepApproval"
+msgstr "Approval"
+
 #. Heading of the approval notifications group.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.approvals"
 msgstr "Approvals"
+
+#. Approval granted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.approvalDone"
+msgstr "Approved for content {hash}."
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -934,6 +1018,12 @@ msgstr "Author"
 msgid "devices.latency"
 msgstr "Autosave to device: {ms} ms"
 
+#. Hold of a request that waits for approvers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.holdAwaiting"
+msgstr "Awaiting approval"
+
 #. Button: previous step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -958,6 +1048,12 @@ msgstr "Back to the library"
 msgid "library.canvas.blank"
 msgstr "Blank screen"
 
+#. Hold of a request that waits because a report has errors.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.holdBlocked"
+msgstr "Blocked"
+
 #. Edge inset at the bottom.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -976,11 +1072,23 @@ msgstr "Break-glass justification"
 msgid "rustEditor.buildDiagnostics"
 msgstr "Build output"
 
+#. State of a publish job.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildSucceeded"
+msgstr "Built"
+
 #. Heading of the group of built-in actions in the action list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupBuiltin"
 msgstr "Built-in"
+
+#. Short bundle hash of a plugin build.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportBundle"
+msgstr "Bundle {sha}"
 
 #. Label of the plugin's compiled bundle size.
 #. js-lingui-explicit-id
@@ -1010,6 +1118,12 @@ msgstr "Cancel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.cancel"
+msgstr "Cancel"
+
+#. Cancel button of the warnings dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.warningsCancel"
 msgstr "Cancel"
 
 #. Button of the trigger picker that discards the link.
@@ -1077,6 +1191,36 @@ msgstr "Cancel"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.cancel"
 msgstr "Cancel"
+
+#. Button that opens the cancel dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.cancelRequest"
+msgstr "Cancel request"
+
+#. Button that cancels the request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.cancelConfirm"
+msgstr "Cancel request"
+
+#. Title of the cancel dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.cancelTitle"
+msgstr "Cancel this release request?"
+
+#. State of a request that was cancelled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.ended_cancelled"
+msgstr "Cancelled"
+
+#. State of a publish job.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildCancelled"
+msgstr "Cancelled"
 
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
@@ -1150,11 +1294,29 @@ msgstr "Change visibility"
 msgid "history.changeChanged"
 msgstr "changed"
 
+#. A screen that changed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffChanged"
+msgstr "Changed"
+
+#. Name of the changelog publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepChangelog"
+msgstr "Changelog"
+
 #. Note that edits to the theme apply to the canvas at once.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeLive"
 msgstr "Changes show on the canvas as you type."
+
+#. Label of the channel field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.channel"
+msgstr "Channel"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -1238,6 +1400,12 @@ msgstr "Close"
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.close"
+msgstr "Close"
+
+#. Accessible name of the close button of the publish dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.warningsClose"
 msgstr "Close"
 
 #. Accessible name of the close button of the custom frame dialog.
@@ -1485,6 +1653,18 @@ msgstr "Connection point"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabConsole"
 msgstr "Console"
+
+#. Short content hash of the release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.hash"
+msgstr "Content {hash}"
+
+#. Button that completes a publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.continue"
+msgstr "Continue"
 
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
@@ -1972,6 +2152,12 @@ msgstr "Edit {name} in the Rust editor"
 msgid "security.editGrants"
 msgstr "Edit grants"
 
+#. Hint under the build step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildsHint"
+msgstr "Editing may continue; the builds freeze the draft as it is now."
+
 #. Tooltip of the editor-session tag of a snapshot.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -2068,6 +2254,12 @@ msgstr "Entry"
 msgid "preview.frame.android-entry"
 msgstr "Entry-level Android"
 
+#. Label of the environment of the release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.environment"
+msgstr "Environment"
+
 #. Level label of a console line.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -2128,6 +2320,12 @@ msgstr "Events"
 msgid "panels.docsEvents"
 msgstr "Events"
 
+#. Description of the warnings dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.warningsBody"
+msgstr "Every warning needs an acknowledgement before the release can continue."
+
 #. Checkbox that hides the widget from screen readers.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2145,6 +2343,12 @@ msgstr "Existing item to use for {id}"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.expanded"
 msgstr "Expanded"
+
+#. State of a request whose approval expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.ended_expired"
+msgstr "Expired"
 
 #. Countdown of the pairing token; time is minutes and seconds such as 1:59.
 #. js-lingui-explicit-id
@@ -2193,6 +2397,24 @@ msgstr "Extract to component"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.testFail"
 msgstr "Failed"
+
+#. Hold of a request whose build failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.holdFailed"
+msgstr "Failed"
+
+#. State of a publish job.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildFailed"
+msgstr "Failed"
+
+#. Visual diff failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffFailed"
+msgstr "Failed. Request it again."
 
 #. Accessible name of a nested field.
 #. js-lingui-explicit-id
@@ -2283,6 +2505,24 @@ msgstr "Frame label"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.newFrame"
 msgstr "Frame selection"
+
+#. Button that discards the failed builds and freezes the draft again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.refreeze"
+msgstr "Freeze again"
+
+#. Name of the build publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepBuild"
+msgstr "Freeze and build"
+
+#. Button that starts the publish jobs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.startBuild"
+msgstr "Freeze and build"
 
 #. Label of the field that holds the version a migration plan starts from.
 #. js-lingui-explicit-id
@@ -2664,6 +2904,12 @@ msgstr "Keep it as"
 msgid "editor.conflict.keep-mine"
 msgstr "Keep mine"
 
+#. Button that keeps the request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.cancelKeep"
+msgstr "Keep request"
+
 #. D35 heading of the list of your changes that no longer fit the server's version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -2765,6 +3011,12 @@ msgstr "Kind"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataKind"
 msgstr "Kind"
+
+#. Label of the release label field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.label"
+msgstr "Label (optional)"
 
 #. Label of the language choice.
 #. js-lingui-explicit-id
@@ -2950,6 +3202,12 @@ msgstr "Loading"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.loading"
+msgstr "Loading"
+
+#. Status while the release request loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.loading"
 msgstr "Loading"
 
 #. Mock data state option.
@@ -3294,6 +3552,12 @@ msgstr "Network domains"
 msgid "security.never"
 msgstr "Never"
 
+#. A screen that has no earlier version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffNew"
+msgstr "New"
+
 #. Button: request a new pairing token.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -3408,6 +3672,12 @@ msgstr "No device is paired yet."
 msgid "security.noDevices"
 msgstr "No devices match."
 
+#. Shown when a plugin has no errors or warnings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportOk"
+msgstr "No findings"
+
 #. Shown when a revised component has no instances.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -3431,6 +3701,18 @@ msgstr "No migration problems: devices can update without losing data."
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.empty"
 msgstr "No notifications"
+
+#. Shown when there is nothing to publish.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.nothing"
+msgstr "No plugin has unpublished changes."
+
+#. Shown when no approval is needed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.approvalNone"
+msgstr "No policy requires approval."
 
 #. Shown in the Problems tab when the validator found nothing.
 #. js-lingui-explicit-id
@@ -3720,6 +4002,12 @@ msgstr "Open the state designer"
 msgid "designers.dataOpenApi"
 msgstr "OpenAPI"
 
+#. Status while the publish flow looks for the open release request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.starting"
+msgstr "Opening the release request"
+
 #. Heading of the operations notifications group.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -3960,6 +4248,12 @@ msgstr "Plugin canvas"
 msgid "appCanvas.settings"
 msgstr "Plugin settings"
 
+#. Description of the cancel dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.cancelBody"
+msgstr "Plugin versions already built stay; they are immutable and harmless."
+
 #. Accessible name of the list of plugin boxes that screen readers and the keyboard use.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4128,11 +4422,23 @@ msgstr "Public items are visible to the whole installation and are scanned for s
 msgid "security.keysCaption"
 msgstr "Public keys that may sign for this environment. Keys are rotated in the offline ceremony."
 
+#. Heading of the publish flow.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.title"
+msgstr "Publish"
+
 #. Primary button of the canvas action bar that opens the release flow.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.publish"
 msgstr "Publish"
+
+#. Accessible name of the list of publish steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepsLabel"
+msgstr "Publish steps"
 
 #. Why a snapshot was made: the plugin was published.
 #. js-lingui-explicit-id
@@ -4157,6 +4463,18 @@ msgstr "PXL expression"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.qrLabel"
 msgstr "QR code of the pairing link"
+
+#. State of a publish job.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildQueued"
+msgstr "Queued"
+
+#. Visual diff queued or deferred.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffQueued"
+msgstr "Queued. Rendering waits for earlier jobs and is rate-limited."
 
 #. D37 button: take the lock again and send the unsaved changes.
 #. js-lingui-explicit-id
@@ -4283,6 +4601,42 @@ msgstr "Registered"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.devicesCaption"
 msgstr "Registered devices of this environment."
+
+#. State of a request whose approval was rejected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.ended_rejected"
+msgstr "Rejected"
+
+#. Name of the final publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepRelease"
+msgstr "Release"
+
+#. Button that releases after the step-up.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.release"
+msgstr "Release"
+
+#. Label of the notes field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.notes"
+msgstr "Release notes"
+
+#. State of a request that was released.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.ended_released"
+msgstr "Released"
+
+#. Result of the release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.releasedAs"
+msgstr "Released as release {sequence}."
 
 #. Button that reloads the page.
 #. js-lingui-explicit-id
@@ -4428,6 +4782,24 @@ msgstr "Rename (new=old, comma-separated)"
 msgid "pluginCanvas.renameScreen"
 msgstr "Rename screen"
 
+#. Button that queues the visual diff.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.requestDiff"
+msgstr "Render visual diff"
+
+#. Visual diff finished.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffSucceeded"
+msgstr "Rendered"
+
+#. Visual diff running.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffRunning"
+msgstr "Rendering"
+
 #. Choice that replaces the steps of an event that already has some with the navigation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -4439,6 +4811,18 @@ msgstr "Replace"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.useTemplate"
 msgstr "Replace the source with the template"
+
+#. Name of the reports publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepReports"
+msgstr "Reports"
+
+#. Button that asks the approvers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.requestApproval"
+msgstr "Request approval"
 
 #. Button: ask the person holding the lock to hand it over.
 #. js-lingui-explicit-id
@@ -4590,6 +4974,18 @@ msgstr "Role"
 msgid "panels.role"
 msgstr "Role"
 
+#. Name of the rollout plan publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepRollout"
+msgstr "Rollout plan"
+
+#. Label of the rollout plan field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.rolloutPlan"
+msgstr "Rollout plan (JSON)"
+
 #. Label of the rotation state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -4613,6 +5009,12 @@ msgstr "Run the tests of {name}"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.noTests"
 msgstr "Run the tests to see their results here."
+
+#. State of a publish job.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildRunning"
+msgstr "Running"
 
 #. Status in the Code tab while the tests of a function run.
 #. js-lingui-explicit-id
@@ -4866,6 +5268,12 @@ msgstr "Select a widget on the canvas to edit the action graph of its events."
 msgid "links.nothing"
 msgstr "Select a widget to add a link."
 
+#. Name of the first publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepSelect"
+msgstr "Select plugins"
+
 #. Announced when a tap on the device selected a node in Studio.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -5033,6 +5441,12 @@ msgstr "Single sign-on"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.single"
 msgstr "Single value"
+
+#. Name of the size report.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportSize"
+msgstr "Size"
 
 #. Label of the control that picks the window size class an edit applies to.
 #. js-lingui-explicit-id
@@ -5310,6 +5724,12 @@ msgstr "Take the editing lock to change this link."
 msgid "editor.conflict.take-server"
 msgstr "Take the server's"
 
+#. Name of the target publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepTarget"
+msgstr "Target"
+
 #. Label of the choice of the plugin a screen moves to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -5357,6 +5777,18 @@ msgstr "Text scale"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.textScale"
 msgstr "Text scale"
+
+#. Approval expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.approvalExpired"
+msgstr "The approval expired."
+
+#. Approval refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.approvalRejected"
+msgstr "The approval was rejected."
 
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
@@ -5628,6 +6060,12 @@ msgstr "The pasted elements do not pass validation."
 msgid "security.pinsNote"
 msgstr "The pins are part of the signed root metadata from the offline key ceremony. They are not listed here; follow the runbook to read them from the root."
 
+#. Error when the rollout plan is not valid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.rolloutInvalid"
+msgstr "The plan is not a JSON object."
+
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -5670,17 +6108,29 @@ msgstr "The public scan found content that cannot be public"
 msgid "jsonEditor.publishedFailed"
 msgstr "The published version could not be loaded."
 
-#. Why the Publish button of the canvas action bar is disabled while no release flow exists.
+#. Error when the release request cannot be read.
 #. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.publishPending"
-msgstr "The release flow is not available yet"
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.loadFailed"
+msgstr "The release request could not be loaded."
+
+#. Error when the release request cannot be created.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.startFailed"
+msgstr "The release request could not be opened."
 
 #. Shown when a device request fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.failed"
 msgstr "The request failed. Try again."
+
+#. Error PLX-8060.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.err8060"
+msgstr "The request was at another step. It has been reloaded."
 
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
@@ -5705,6 +6155,12 @@ msgstr "the screen or the target is unknown."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.failed"
 msgstr "The screens could not be loaded."
+
+#. Error when the step-up cannot start.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepUpFailed"
+msgstr "The security check could not start."
 
 #. Shown in the Code tab when no selected node calls a function.
 #. js-lingui-explicit-id
@@ -5765,6 +6221,12 @@ msgstr "The source also describes app-level variables; applying adds them to the
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImportReady"
 msgstr "The source was read. Review it, then add it to the plugin."
+
+#. Generic publish step error.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.errGeneric"
+msgstr "The step failed. Try again."
 
 #. Reason a screen cannot move: the key is taken in the target plugin.
 #. Reason a screen cannot move: the key is taken in the target plugin.
@@ -5880,6 +6342,18 @@ msgstr "The version could not be saved."
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.visibility.failed"
 msgstr "The visibility could not be changed."
+
+#. Shown before a visual diff was requested.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffNone"
+msgstr "The visual diff has not been requested."
+
+#. Error PLX-8062.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.err8062"
+msgstr "The visual diff has not finished for this content. Request it and wait."
 
 #. Description of the trigger picker; target is the title of the screen the link was dropped on.
 #. js-lingui-explicit-id
@@ -6085,6 +6559,12 @@ msgstr "This plugin has no screens yet."
 msgid "state.none"
 msgstr "This plugin has no state entries yet."
 
+#. Error PLX-8061.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.err8061"
+msgstr "This request has ended. Open a new one."
+
 #. Heading of the dialog that lists what blocks deleting a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -6199,6 +6679,12 @@ msgstr "Type a command"
 msgid "state.rawType"
 msgstr "Type expression"
 
+#. A screen that did not change.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffSame"
+msgstr "Unchanged"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -6216,6 +6702,12 @@ msgstr "Undo"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.unknownAuthor"
 msgstr "unknown author"
+
+#. Why a plugin is in the release request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reasonChanged"
+msgstr "Unpublished changes"
 
 #. Badge: the plugin's draft differs from its newest version.
 #. js-lingui-explicit-id
@@ -6331,6 +6823,12 @@ msgstr "Valid. You can apply it."
 msgid "designers.valid"
 msgstr "Valid. You can apply it."
 
+#. Name of the validation report.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.reportValidation"
+msgstr "Validation"
+
 #. Label of the number of validation errors of the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -6397,6 +6895,12 @@ msgstr "Version {n} by {who}"
 msgid "library.adopt.done"
 msgstr "Version {n} is adopted."
 
+#. Version a publish job built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.buildVersion"
+msgstr "Version {version}"
+
 #. Label of the field for the version requirement of a crate, such as 1.0.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -6432,6 +6936,18 @@ msgstr "Visibility"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.visibility"
 msgstr "Visibility"
+
+#. Name of the visual diff publish step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.stepDiffs"
+msgstr "Visual diffs"
+
+#. Approval is pending.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.approvalWaiting"
+msgstr "Waiting for approvers. You can close Studio; a notification brings you back."
 
 #. Level label of a console line.
 #. js-lingui-explicit-id
@@ -6606,6 +7122,12 @@ msgstr "You have changes that are not saved. If you leave now they are lost."
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.revokeNoPermission"
 msgstr "You may not manage this app."
+
+#. Banner when the person cannot change the request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.viewOnly"
+msgstr "You need the permission release.publish to change this request."
 
 #. D37 title: the lock was taken over or expired.
 #. js-lingui-explicit-id
