@@ -2091,6 +2091,11 @@ var registry = []Definition{
 		"Request the visual diff and wait for it to finish; request it again if it failed or the content changed.", false,
 	},
 	{
+		LibraryPublicScanFailed, "LIBRARY_PUBLIC_SCAN_FAILED", SeverityError, "Public scan found sensitive content",
+		"A template or component cannot be made public while its content holds a secret, a field tagged sensitive, or a URL that is not reachable from the public internet (STU-081, ADR-0098). The error names each finding by its JSON pointer and category, never by its value.",
+		"Remove or replace the content at each pointer, save a new version and make that version public.", false,
+	},
+	{
 		InternalServerError, "INTERNAL_SERVER_ERROR", SeverityError, "Internal error",
 		"The server failed in a way it does not recognise. The incident identifier in the message appears in the server's logs; nothing else about the failure is returned.",
 		"Retry the call. If it keeps failing, give the incident identifier to the operator of the installation.", false,

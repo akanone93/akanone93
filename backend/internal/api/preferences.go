@@ -73,7 +73,7 @@ func (s Preferences) GetOnboarding(ctx context.Context, req *connect.Request[plu
 func preferencesProto(p preferences.Preferences) *pluxv1.Preferences {
 	out := &pluxv1.Preferences{
 		Theme: p.Theme, Language: p.Language, Density: p.Density, Shortcuts: p.Shortcuts,
-		FavouriteAppIds: p.FavouriteAppIDs, Pinned: p.Pinned, OnboardingDismissed: p.OnboardingDismissed,
+		FavouriteAppIds: p.FavouriteAppIDs, Pinned: p.Pinned, OnboardingDismissed: p.OnboardingDismissed, MutedNotificationTypes: p.MutedTypes,
 	}
 	if len(p.Preview) > 0 {
 		out.Preview = make(map[string]*pluxv1.PreviewSwitches, len(p.Preview))
@@ -90,7 +90,7 @@ func preferencesProto(p preferences.Preferences) *pluxv1.Preferences {
 func preferencesFromProto(p *pluxv1.Preferences) preferences.Preferences {
 	out := preferences.Preferences{
 		Theme: p.GetTheme(), Language: p.GetLanguage(), Density: p.GetDensity(), Shortcuts: p.GetShortcuts(),
-		FavouriteAppIDs: p.GetFavouriteAppIds(), Pinned: p.GetPinned(), OnboardingDismissed: p.GetOnboardingDismissed(),
+		FavouriteAppIDs: p.GetFavouriteAppIds(), Pinned: p.GetPinned(), OnboardingDismissed: p.GetOnboardingDismissed(), MutedTypes: p.GetMutedNotificationTypes(),
 	}
 	if len(p.GetPreview()) > 0 {
 		out.Preview = make(map[string]preferences.PreviewSwitches, len(p.GetPreview()))

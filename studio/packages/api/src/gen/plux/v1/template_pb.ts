@@ -11,13 +11,15 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Diagnostic, Page, PageResult } from "./common_pb.ts";
 import { file_plux_v1_common } from "./common_pb.ts";
+import type { LibraryDraft, LibraryItem, LibraryVersion } from "./library_pb.ts";
+import { file_plux_v1_library } from "./library_pb.ts";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file plux/v1/template.proto.
  */
 export const file_plux_v1_template: GenFile = /*@__PURE__*/
-  fileDesc("ChZwbHV4L3YxL3RlbXBsYXRlLnByb3RvEgdwbHV4LnYxIsQBCghUZW1wbGF0ZRIKCgJpZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSCwoDa2V5GAMgASgJEgwKBG5hbWUYBCABKAkSEwoLZGVzY3JpcHRpb24YBSABKAkSDAoEa2luZBgGIAEoCRIuCgpwYXJhbWV0ZXJzGAcgAygLMhoucGx1eC52MS5UZW1wbGF0ZVBhcmFtZXRlchIuCgp1cGRhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJWChFUZW1wbGF0ZVBhcmFtZXRlchIMCgRuYW1lGAEgASgJEgwKBHR5cGUYAiABKAkSEAoIcmVxdWlyZWQYAyABKAgSEwoLZGVzY3JpcHRpb24YBCABKAkiUQoUTGlzdFRlbXBsYXRlc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEgwKBGtpbmQYAiABKAkSGwoEcGFnZRgDIAEoCzINLnBsdXgudjEuUGFnZSJgChVMaXN0VGVtcGxhdGVzUmVzcG9uc2USJAoJdGVtcGxhdGVzGAEgAygLMhEucGx1eC52MS5UZW1wbGF0ZRIhCgRwYWdlGAIgASgLMhMucGx1eC52MS5QYWdlUmVzdWx0IiAKEkdldFRlbXBsYXRlUmVxdWVzdBIKCgJpZBgBIAEoCSJLChNHZXRUZW1wbGF0ZVJlc3BvbnNlEiMKCHRlbXBsYXRlGAEgASgLMhEucGx1eC52MS5UZW1wbGF0ZRIPCgdjb250ZW50GAIgASgMIn0KEkluc3RhbnRpYXRlUmVxdWVzdBITCgt0ZW1wbGF0ZV9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSEQoJcGx1Z2luX2lkGAMgASgJEg8KB3Nlc3Npb24YBCABKAkSEQoJYXJndW1lbnRzGAUgASgMEgsKA2tleRgGIAEoCSJlChNJbnN0YW50aWF0ZVJlc3BvbnNlEg8KB2NyZWF0ZWQYASADKAkSEwoLc25hcHNob3RfaWQYAiABKAkSKAoLZGlhZ25vc3RpY3MYAyADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMy9QEKD1RlbXBsYXRlU2VydmljZRJOCg1MaXN0VGVtcGxhdGVzEh0ucGx1eC52MS5MaXN0VGVtcGxhdGVzUmVxdWVzdBoeLnBsdXgudjEuTGlzdFRlbXBsYXRlc1Jlc3BvbnNlEkgKC0dldFRlbXBsYXRlEhsucGx1eC52MS5HZXRUZW1wbGF0ZVJlcXVlc3QaHC5wbHV4LnYxLkdldFRlbXBsYXRlUmVzcG9uc2USSAoLSW5zdGFudGlhdGUSGy5wbHV4LnYxLkluc3RhbnRpYXRlUmVxdWVzdBocLnBsdXgudjEuSW5zdGFudGlhdGVSZXNwb25zZUI9WjtnaXRodWIuY29tL25pZ2h0Q29kZTQyL3BsdXgzL2JhY2tlbmQvaW50ZXJuYWwvcGx1eHYxO3BsdXh2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_plux_v1_common]);
+  fileDesc("ChZwbHV4L3YxL3RlbXBsYXRlLnByb3RvEgdwbHV4LnYxIsQBCghUZW1wbGF0ZRIKCgJpZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSCwoDa2V5GAMgASgJEgwKBG5hbWUYBCABKAkSEwoLZGVzY3JpcHRpb24YBSABKAkSDAoEa2luZBgGIAEoCRIuCgpwYXJhbWV0ZXJzGAcgAygLMhoucGx1eC52MS5UZW1wbGF0ZVBhcmFtZXRlchIuCgp1cGRhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJWChFUZW1wbGF0ZVBhcmFtZXRlchIMCgRuYW1lGAEgASgJEgwKBHR5cGUYAiABKAkSEAoIcmVxdWlyZWQYAyABKAgSEwoLZGVzY3JpcHRpb24YBCABKAkiUQoUTGlzdFRlbXBsYXRlc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEgwKBGtpbmQYAiABKAkSGwoEcGFnZRgDIAEoCzINLnBsdXgudjEuUGFnZSJgChVMaXN0VGVtcGxhdGVzUmVzcG9uc2USJAoJdGVtcGxhdGVzGAEgAygLMhEucGx1eC52MS5UZW1wbGF0ZRIhCgRwYWdlGAIgASgLMhMucGx1eC52MS5QYWdlUmVzdWx0IiAKEkdldFRlbXBsYXRlUmVxdWVzdBIKCgJpZBgBIAEoCSJLChNHZXRUZW1wbGF0ZVJlc3BvbnNlEiMKCHRlbXBsYXRlGAEgASgLMhEucGx1eC52MS5UZW1wbGF0ZRIPCgdjb250ZW50GAIgASgMIn0KEkluc3RhbnRpYXRlUmVxdWVzdBITCgt0ZW1wbGF0ZV9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSEQoJcGx1Z2luX2lkGAMgASgJEg8KB3Nlc3Npb24YBCABKAkSEQoJYXJndW1lbnRzGAUgASgMEgsKA2tleRgGIAEoCSJlChNJbnN0YW50aWF0ZVJlc3BvbnNlEg8KB2NyZWF0ZWQYASADKAkSEwoLc25hcHNob3RfaWQYAiABKAkSKAoLZGlhZ25vc3RpY3MYAyADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMiPQoVQ3JlYXRlVGVtcGxhdGVSZXF1ZXN0EiQKBWRyYWZ0GAEgASgLMhUucGx1eC52MS5MaWJyYXJ5RHJhZnQiZgoWQ3JlYXRlVGVtcGxhdGVSZXNwb25zZRIiCgRpdGVtGAEgASgLMhQucGx1eC52MS5MaWJyYXJ5SXRlbRIoCgd2ZXJzaW9uGAIgASgLMhcucGx1eC52MS5MaWJyYXJ5VmVyc2lvbiJjChVSZXZpc2VUZW1wbGF0ZVJlcXVlc3QSCgoCaWQYASABKAkSGAoQZXhwZWN0ZWRfdmVyc2lvbhgCIAEoBRIkCgVkcmFmdBgDIAEoCzIVLnBsdXgudjEuTGlicmFyeURyYWZ0ImYKFlJldmlzZVRlbXBsYXRlUmVzcG9uc2USIgoEaXRlbRgBIAEoCzIULnBsdXgudjEuTGlicmFyeUl0ZW0SKAoHdmVyc2lvbhgCIAEoCzIXLnBsdXgudjEuTGlicmFyeVZlcnNpb24iKQobTGlzdFRlbXBsYXRlVmVyc2lvbnNSZXF1ZXN0EgoKAmlkGAEgASgJIm0KHExpc3RUZW1wbGF0ZVZlcnNpb25zUmVzcG9uc2USIgoEaXRlbRgBIAEoCzIULnBsdXgudjEuTGlicmFyeUl0ZW0SKQoIdmVyc2lvbnMYAiADKAsyFy5wbHV4LnYxLkxpYnJhcnlWZXJzaW9uIl0KG0xpc3RMaWJyYXJ5VGVtcGxhdGVzUmVxdWVzdBISCgp2aXNpYmlsaXR5GAEgASgJEg0KBXF1ZXJ5GAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiZgocTGlzdExpYnJhcnlUZW1wbGF0ZXNSZXNwb25zZRIjCgVpdGVtcxgBIAMoCzIULnBsdXgudjEuTGlicmFyeUl0ZW0SIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCI+ChxTZXRUZW1wbGF0ZVZpc2liaWxpdHlSZXF1ZXN0EgoKAmlkGAEgASgJEhIKCnZpc2liaWxpdHkYAiABKAkiQwodU2V0VGVtcGxhdGVWaXNpYmlsaXR5UmVzcG9uc2USIgoEaXRlbRgBIAEoCzIULnBsdXgudjEuTGlicmFyeUl0ZW0iNAoVRXhwb3J0VGVtcGxhdGVSZXF1ZXN0EgoKAmlkGAEgASgJEg8KB3ZlcnNpb24YAiABKAUiOQoWRXhwb3J0VGVtcGxhdGVSZXNwb25zZRIMCgRmaWxlGAEgASgMEhEKCWZpbGVfbmFtZRgCIAEoCSIyChVJbXBvcnRUZW1wbGF0ZVJlcXVlc3QSDAoEZmlsZRgBIAEoDBILCgNrZXkYAiABKAkiZgoWSW1wb3J0VGVtcGxhdGVSZXNwb25zZRIiCgRpdGVtGAEgASgLMhQucGx1eC52MS5MaWJyYXJ5SXRlbRIoCgd2ZXJzaW9uGAIgASgLMhcucGx1eC52MS5MaWJyYXJ5VmVyc2lvbjLzBgoPVGVtcGxhdGVTZXJ2aWNlEk4KDUxpc3RUZW1wbGF0ZXMSHS5wbHV4LnYxLkxpc3RUZW1wbGF0ZXNSZXF1ZXN0Gh4ucGx1eC52MS5MaXN0VGVtcGxhdGVzUmVzcG9uc2USSAoLR2V0VGVtcGxhdGUSGy5wbHV4LnYxLkdldFRlbXBsYXRlUmVxdWVzdBocLnBsdXgudjEuR2V0VGVtcGxhdGVSZXNwb25zZRJICgtJbnN0YW50aWF0ZRIbLnBsdXgudjEuSW5zdGFudGlhdGVSZXF1ZXN0GhwucGx1eC52MS5JbnN0YW50aWF0ZVJlc3BvbnNlElEKDkNyZWF0ZVRlbXBsYXRlEh4ucGx1eC52MS5DcmVhdGVUZW1wbGF0ZVJlcXVlc3QaHy5wbHV4LnYxLkNyZWF0ZVRlbXBsYXRlUmVzcG9uc2USUQoOUmV2aXNlVGVtcGxhdGUSHi5wbHV4LnYxLlJldmlzZVRlbXBsYXRlUmVxdWVzdBofLnBsdXgudjEuUmV2aXNlVGVtcGxhdGVSZXNwb25zZRJjChRMaXN0VGVtcGxhdGVWZXJzaW9ucxIkLnBsdXgudjEuTGlzdFRlbXBsYXRlVmVyc2lvbnNSZXF1ZXN0GiUucGx1eC52MS5MaXN0VGVtcGxhdGVWZXJzaW9uc1Jlc3BvbnNlEmMKFExpc3RMaWJyYXJ5VGVtcGxhdGVzEiQucGx1eC52MS5MaXN0TGlicmFyeVRlbXBsYXRlc1JlcXVlc3QaJS5wbHV4LnYxLkxpc3RMaWJyYXJ5VGVtcGxhdGVzUmVzcG9uc2USZgoVU2V0VGVtcGxhdGVWaXNpYmlsaXR5EiUucGx1eC52MS5TZXRUZW1wbGF0ZVZpc2liaWxpdHlSZXF1ZXN0GiYucGx1eC52MS5TZXRUZW1wbGF0ZVZpc2liaWxpdHlSZXNwb25zZRJRCg5FeHBvcnRUZW1wbGF0ZRIeLnBsdXgudjEuRXhwb3J0VGVtcGxhdGVSZXF1ZXN0Gh8ucGx1eC52MS5FeHBvcnRUZW1wbGF0ZVJlc3BvbnNlElEKDkltcG9ydFRlbXBsYXRlEh4ucGx1eC52MS5JbXBvcnRUZW1wbGF0ZVJlcXVlc3QaHy5wbHV4LnYxLkltcG9ydFRlbXBsYXRlUmVzcG9uc2VCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_common, file_plux_v1_library]);
 
 /**
  * @generated from message plux.v1.Template
@@ -275,6 +277,319 @@ export const InstantiateResponseSchema: GenMessage<InstantiateResponse> = /*@__P
   messageDesc(file_plux_v1_template, 7);
 
 /**
+ * @generated from message plux.v1.CreateTemplateRequest
+ */
+export type CreateTemplateRequest = Message<"plux.v1.CreateTemplateRequest"> & {
+  /**
+   * @generated from field: plux.v1.LibraryDraft draft = 1;
+   */
+  draft?: LibraryDraft | undefined;
+};
+
+/**
+ * Describes the message plux.v1.CreateTemplateRequest.
+ * Use `create(CreateTemplateRequestSchema)` to create a new message.
+ */
+export const CreateTemplateRequestSchema: GenMessage<CreateTemplateRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 8);
+
+/**
+ * @generated from message plux.v1.CreateTemplateResponse
+ */
+export type CreateTemplateResponse = Message<"plux.v1.CreateTemplateResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: plux.v1.LibraryVersion version = 2;
+   */
+  version?: LibraryVersion | undefined;
+};
+
+/**
+ * Describes the message plux.v1.CreateTemplateResponse.
+ * Use `create(CreateTemplateResponseSchema)` to create a new message.
+ */
+export const CreateTemplateResponseSchema: GenMessage<CreateTemplateResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 9);
+
+/**
+ * @generated from message plux.v1.ReviseTemplateRequest
+ */
+export type ReviseTemplateRequest = Message<"plux.v1.ReviseTemplateRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * expected_version is the head version the caller revised from.
+   *
+   * @generated from field: int32 expected_version = 2;
+   */
+  expectedVersion: number;
+
+  /**
+   * @generated from field: plux.v1.LibraryDraft draft = 3;
+   */
+  draft?: LibraryDraft | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ReviseTemplateRequest.
+ * Use `create(ReviseTemplateRequestSchema)` to create a new message.
+ */
+export const ReviseTemplateRequestSchema: GenMessage<ReviseTemplateRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 10);
+
+/**
+ * @generated from message plux.v1.ReviseTemplateResponse
+ */
+export type ReviseTemplateResponse = Message<"plux.v1.ReviseTemplateResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: plux.v1.LibraryVersion version = 2;
+   */
+  version?: LibraryVersion | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ReviseTemplateResponse.
+ * Use `create(ReviseTemplateResponseSchema)` to create a new message.
+ */
+export const ReviseTemplateResponseSchema: GenMessage<ReviseTemplateResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 11);
+
+/**
+ * @generated from message plux.v1.ListTemplateVersionsRequest
+ */
+export type ListTemplateVersionsRequest = Message<"plux.v1.ListTemplateVersionsRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message plux.v1.ListTemplateVersionsRequest.
+ * Use `create(ListTemplateVersionsRequestSchema)` to create a new message.
+ */
+export const ListTemplateVersionsRequestSchema: GenMessage<ListTemplateVersionsRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 12);
+
+/**
+ * @generated from message plux.v1.ListTemplateVersionsResponse
+ */
+export type ListTemplateVersionsResponse = Message<"plux.v1.ListTemplateVersionsResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: repeated plux.v1.LibraryVersion versions = 2;
+   */
+  versions: LibraryVersion[];
+};
+
+/**
+ * Describes the message plux.v1.ListTemplateVersionsResponse.
+ * Use `create(ListTemplateVersionsResponseSchema)` to create a new message.
+ */
+export const ListTemplateVersionsResponseSchema: GenMessage<ListTemplateVersionsResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 13);
+
+/**
+ * @generated from message plux.v1.ListLibraryTemplatesRequest
+ */
+export type ListLibraryTemplatesRequest = Message<"plux.v1.ListLibraryTemplatesRequest"> & {
+  /**
+   * visibility filters to one level; empty lists all the caller may see.
+   *
+   * @generated from field: string visibility = 1;
+   */
+  visibility: string;
+
+  /**
+   * query matches the key and name.
+   *
+   * @generated from field: string query = 2;
+   */
+  query: string;
+
+  /**
+   * @generated from field: plux.v1.Page page = 3;
+   */
+  page?: Page | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ListLibraryTemplatesRequest.
+ * Use `create(ListLibraryTemplatesRequestSchema)` to create a new message.
+ */
+export const ListLibraryTemplatesRequestSchema: GenMessage<ListLibraryTemplatesRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 14);
+
+/**
+ * @generated from message plux.v1.ListLibraryTemplatesResponse
+ */
+export type ListLibraryTemplatesResponse = Message<"plux.v1.ListLibraryTemplatesResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.LibraryItem items = 1;
+   */
+  items: LibraryItem[];
+
+  /**
+   * @generated from field: plux.v1.PageResult page = 2;
+   */
+  page?: PageResult | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ListLibraryTemplatesResponse.
+ * Use `create(ListLibraryTemplatesResponseSchema)` to create a new message.
+ */
+export const ListLibraryTemplatesResponseSchema: GenMessage<ListLibraryTemplatesResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 15);
+
+/**
+ * @generated from message plux.v1.SetTemplateVisibilityRequest
+ */
+export type SetTemplateVisibilityRequest = Message<"plux.v1.SetTemplateVisibilityRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string visibility = 2;
+   */
+  visibility: string;
+};
+
+/**
+ * Describes the message plux.v1.SetTemplateVisibilityRequest.
+ * Use `create(SetTemplateVisibilityRequestSchema)` to create a new message.
+ */
+export const SetTemplateVisibilityRequestSchema: GenMessage<SetTemplateVisibilityRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 16);
+
+/**
+ * @generated from message plux.v1.SetTemplateVisibilityResponse
+ */
+export type SetTemplateVisibilityResponse = Message<"plux.v1.SetTemplateVisibilityResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+};
+
+/**
+ * Describes the message plux.v1.SetTemplateVisibilityResponse.
+ * Use `create(SetTemplateVisibilityResponseSchema)` to create a new message.
+ */
+export const SetTemplateVisibilityResponseSchema: GenMessage<SetTemplateVisibilityResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 17);
+
+/**
+ * @generated from message plux.v1.ExportTemplateRequest
+ */
+export type ExportTemplateRequest = Message<"plux.v1.ExportTemplateRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * version is the version to export; zero is the newest.
+   *
+   * @generated from field: int32 version = 2;
+   */
+  version: number;
+};
+
+/**
+ * Describes the message plux.v1.ExportTemplateRequest.
+ * Use `create(ExportTemplateRequestSchema)` to create a new message.
+ */
+export const ExportTemplateRequestSchema: GenMessage<ExportTemplateRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 18);
+
+/**
+ * @generated from message plux.v1.ExportTemplateResponse
+ */
+export type ExportTemplateResponse = Message<"plux.v1.ExportTemplateResponse"> & {
+  /**
+   * @generated from field: bytes file = 1;
+   */
+  file: Uint8Array;
+
+  /**
+   * @generated from field: string file_name = 2;
+   */
+  fileName: string;
+};
+
+/**
+ * Describes the message plux.v1.ExportTemplateResponse.
+ * Use `create(ExportTemplateResponseSchema)` to create a new message.
+ */
+export const ExportTemplateResponseSchema: GenMessage<ExportTemplateResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 19);
+
+/**
+ * @generated from message plux.v1.ImportTemplateRequest
+ */
+export type ImportTemplateRequest = Message<"plux.v1.ImportTemplateRequest"> & {
+  /**
+   * @generated from field: bytes file = 1;
+   */
+  file: Uint8Array;
+
+  /**
+   * key replaces the file's key when the organisation already has it.
+   *
+   * @generated from field: string key = 2;
+   */
+  key: string;
+};
+
+/**
+ * Describes the message plux.v1.ImportTemplateRequest.
+ * Use `create(ImportTemplateRequestSchema)` to create a new message.
+ */
+export const ImportTemplateRequestSchema: GenMessage<ImportTemplateRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 20);
+
+/**
+ * @generated from message plux.v1.ImportTemplateResponse
+ */
+export type ImportTemplateResponse = Message<"plux.v1.ImportTemplateResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: plux.v1.LibraryVersion version = 2;
+   */
+  version?: LibraryVersion | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ImportTemplateResponse.
+ * Use `create(ImportTemplateResponseSchema)` to create a new message.
+ */
+export const ImportTemplateResponseSchema: GenMessage<ImportTemplateResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_template, 21);
+
+/**
  * TemplateService lists page and flow templates and instantiates them into
  * a draft with fresh identifiers (SCH-031).
  *
@@ -307,6 +622,83 @@ export const TemplateService: GenService<{
     methodKind: "unary";
     input: typeof InstantiateRequestSchema;
     output: typeof InstantiateResponseSchema;
+  },
+  /**
+   * CreateTemplate makes a private template with its first version (STU-080).
+   *
+   * @generated from rpc plux.v1.TemplateService.CreateTemplate
+   */
+  createTemplate: {
+    methodKind: "unary";
+    input: typeof CreateTemplateRequestSchema;
+    output: typeof CreateTemplateResponseSchema;
+  },
+  /**
+   * ReviseTemplate writes a new immutable version of a template, and may rename
+   * it. The author may revise it; for another person's it needs
+   * library.manage. expected_version guards against a lost update.
+   *
+   * @generated from rpc plux.v1.TemplateService.ReviseTemplate
+   */
+  reviseTemplate: {
+    methodKind: "unary";
+    input: typeof ReviseTemplateRequestSchema;
+    output: typeof ReviseTemplateResponseSchema;
+  },
+  /**
+   * ListTemplateVersions returns a template with all its versions, newest first.
+   *
+   * @generated from rpc plux.v1.TemplateService.ListTemplateVersions
+   */
+  listTemplateVersions: {
+    methodKind: "unary";
+    input: typeof ListTemplateVersionsRequestSchema;
+    output: typeof ListTemplateVersionsResponseSchema;
+  },
+  /**
+   * ListLibraryTemplates lists the templates the caller may see: the organisation's
+   * shared ones, the caller's own private ones and every public one (STU-086).
+   *
+   * @generated from rpc plux.v1.TemplateService.ListLibraryTemplates
+   */
+  listLibraryTemplates: {
+    methodKind: "unary";
+    input: typeof ListLibraryTemplatesRequestSchema;
+    output: typeof ListLibraryTemplatesResponseSchema;
+  },
+  /**
+   * SetTemplateVisibility changes who can see a template. Making it public, or
+   * taking it back from public, needs library.publish, and the public scan
+   * of the newest version must pass first (STU-081).
+   *
+   * @generated from rpc plux.v1.TemplateService.SetTemplateVisibility
+   */
+  setTemplateVisibility: {
+    methodKind: "unary";
+    input: typeof SetTemplateVisibilityRequestSchema;
+    output: typeof SetTemplateVisibilityResponseSchema;
+  },
+  /**
+   * ExportTemplate returns a version of a template as a library file, byte for
+   * byte the same for the same version.
+   *
+   * @generated from rpc plux.v1.TemplateService.ExportTemplate
+   */
+  exportTemplate: {
+    methodKind: "unary";
+    input: typeof ExportTemplateRequestSchema;
+    output: typeof ExportTemplateResponseSchema;
+  },
+  /**
+   * ImportTemplate makes a private template from a library file, which is
+   * validated as untrusted input.
+   *
+   * @generated from rpc plux.v1.TemplateService.ImportTemplate
+   */
+  importTemplate: {
+    methodKind: "unary";
+    input: typeof ImportTemplateRequestSchema;
+    output: typeof ImportTemplateResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_plux_v1_template, 0);

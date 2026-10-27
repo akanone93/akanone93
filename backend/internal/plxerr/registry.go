@@ -464,6 +464,7 @@ const (
 	ReleaseRequestState          Code = 8060
 	ReleaseRequestEnded          Code = 8061
 	VisualDiffRequired           Code = 8062
+	LibraryPublicScanFailed      Code = 8063
 	InternalServerError          Code = 8090
 	UpstreamUnavailable          Code = 8091
 	TranslationStateForbidden    Code = 8092

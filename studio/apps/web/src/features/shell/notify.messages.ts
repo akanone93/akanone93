@@ -29,6 +29,50 @@ export function notifyMessages(i18n: I18n) {
       message: "Mark as read",
       comment: "Button that marks one notification read.",
     }),
+    markAllRead: i18n._({
+      id: "notify.mark-all-read",
+      message: "Mark all as read",
+      comment: "Button that marks every notification read.",
+    }),
+    kindWork: i18n._({ id: "notify.kind.work", message: "Work", comment: "Heading of the work notifications group." }),
+    kindApprovals: i18n._({
+      id: "notify.kind.approvals",
+      message: "Approvals",
+      comment: "Heading of the approval notifications group.",
+    }),
+    kindOperations: i18n._({
+      id: "notify.kind.operations",
+      message: "Operations",
+      comment: "Heading of the operations notifications group.",
+    }),
+    kindSecurity: i18n._({
+      id: "notify.kind.security",
+      message: "Account and security",
+      comment: "Heading of the security notifications group.",
+    }),
+    retention: (days: number) =>
+      i18n._({
+        id: "notify.retention",
+        message: "Notifications are kept for {days} days. The audit log is the permanent record.",
+        comment: "Retention note on the inbox page.",
+        values: { days },
+      }),
+    auditRecord: i18n._({
+      id: "notify.audit-record",
+      message: "View audited record",
+      comment: "Link from an approval or security notification to its audit record.",
+    }),
+    muteTitle: i18n._({
+      id: "notify.mute.title",
+      message: "Notifications",
+      comment: "Heading of the notification settings in the profile.",
+    }),
+    muteLocked: i18n._({
+      id: "notify.mute.locked",
+      message: "Always on",
+      comment: "Shown next to approval and security types that cannot be muted.",
+    }),
+    muteLabel: i18n._({ id: "notify.mute.label", message: "Mute", comment: "Label of the per-type mute checkbox." }),
     inboxTitle: i18n._({
       id: "notify.inbox.title",
       message: "Notifications",

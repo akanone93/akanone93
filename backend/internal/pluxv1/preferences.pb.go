@@ -41,8 +41,11 @@ type Preferences struct {
 	// preview maps an app ID to its preview switches (STU-058).
 	Preview             map[string]*PreviewSwitches `protobuf:"bytes,7,rep,name=preview,proto3" json:"preview,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	OnboardingDismissed bool                        `protobuf:"varint,8,opt,name=onboarding_dismissed,json=onboardingDismissed,proto3" json:"onboarding_dismissed,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// muted_notification_types lists the event types whose inbox items the user
+	// mutes (F16, STU-013); approval and security types are refused.
+	MutedNotificationTypes []string `protobuf:"bytes,9,rep,name=muted_notification_types,json=mutedNotificationTypes,proto3" json:"muted_notification_types,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *Preferences) Reset() {
@@ -129,6 +132,13 @@ func (x *Preferences) GetOnboardingDismissed() bool {
 		return x.OnboardingDismissed
 	}
 	return false
+}
+
+func (x *Preferences) GetMutedNotificationTypes() []string {
+	if x != nil {
+		return x.MutedNotificationTypes
+	}
+	return nil
 }
 
 // PreviewSwitches are the switches of an app's live preview (STU-058).
@@ -541,7 +551,7 @@ var File_plux_v1_preferences_proto protoreflect.FileDescriptor
 
 const file_plux_v1_preferences_proto_rawDesc = "" +
 	"\n" +
-	"\x19plux/v1/preferences.proto\x12\aplux.v1\x1a google/protobuf/field_mask.proto\"\xe4\x03\n" +
+	"\x19plux/v1/preferences.proto\x12\aplux.v1\x1a google/protobuf/field_mask.proto\"\x9e\x04\n" +
 	"\vPreferences\x12\x14\n" +
 	"\x05theme\x18\x01 \x01(\tR\x05theme\x12\x1a\n" +
 	"\blanguage\x18\x02 \x01(\tR\blanguage\x12\x18\n" +
@@ -550,7 +560,8 @@ const file_plux_v1_preferences_proto_rawDesc = "" +
 	"\x11favourite_app_ids\x18\x05 \x03(\tR\x0ffavouriteAppIds\x12\x16\n" +
 	"\x06pinned\x18\x06 \x03(\tR\x06pinned\x12;\n" +
 	"\apreview\x18\a \x03(\v2!.plux.v1.Preferences.PreviewEntryR\apreview\x121\n" +
-	"\x14onboarding_dismissed\x18\b \x01(\bR\x13onboardingDismissed\x1a<\n" +
+	"\x14onboarding_dismissed\x18\b \x01(\bR\x13onboardingDismissed\x128\n" +
+	"\x18muted_notification_types\x18\t \x03(\tR\x16mutedNotificationTypes\x1a<\n" +
 	"\x0eShortcutsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aT\n" +

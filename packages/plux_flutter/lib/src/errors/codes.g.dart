@@ -1237,6 +1237,9 @@ enum PluxErrorCode {
   /// Visual diff not finished.
   visualDiffRequired(8062, 'VISUAL_DIFF_REQUIRED', 'Visual diff not finished'),
 
+  /// Public scan found sensitive content.
+  libraryPublicScanFailed(8063, 'LIBRARY_PUBLIC_SCAN_FAILED', 'Public scan found sensitive content'),
+
   /// Internal error.
   internalServerError(8090, 'INTERNAL_SERVER_ERROR', 'Internal error'),
 

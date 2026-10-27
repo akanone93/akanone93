@@ -421,6 +421,12 @@ const (
 	// HTTPResponseSize: Size of a response the server reads when it fetches a
 	// URL, such as an identity provider's keys. (SEC-104, SEC-105)
 	HTTPResponseSize Key = "http.responseSize"
+	// LibraryItemsPerOrganization: Templates and components one organisation may
+	// keep in its library. (STU-080, STU-084)
+	LibraryItemsPerOrganization Key = "library.itemsPerOrganization"
+	// LibraryVersionsPerItem: Versions one template or component may have; older
+	// versions an app adopted are kept. (STU-080, STU-084)
+	LibraryVersionsPerItem Key = "library.versionsPerItem"
 	// LspMessageBytes: Size of one language-server message the Rust editor sends
 	// to its sandbox; a document the editor opens must fit. (FN-033)
 	LspMessageBytes Key = "lsp.messageBytes"
@@ -568,6 +574,12 @@ const (
 	// StudioClipboardBytes: Size of one Studio clipboard envelope; a larger copy
 	// is refused. (STU-067)
 	StudioClipboardBytes Key = "studio.clipboardBytes"
+	// StudioCustomFrameMaxDensity: Largest pixel density of a custom device
+	// frame (D40); the smallest is 1. (STU-057)
+	StudioCustomFrameMaxDensity Key = "studio.customFrameMaxDensity"
+	// StudioCustomFrameMaxPixels: Largest width or height, in logical pixels, of
+	// a custom device frame (D40); a larger frame is refused. (STU-057)
+	StudioCustomFrameMaxPixels Key = "studio.customFrameMaxPixels"
 	// StudioEventsStreamBufferEvents: Events the server keeps per Studio events
 	// stream for resumption before it drops the oldest and the tab reloads its
 	// state. (STU-075)
@@ -774,6 +786,8 @@ var registry = [...]Definition{
 	{Key: GovernanceJustificationLength, Unit: UnitCodepoints, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the written justification of a break-glass action."},
 	{Key: GovernanceReportChanges, Unit: UnitCount, Default: 20000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Production changes one compliance report may list; a longer period is refused and is split into shorter ones."},
 	{Key: HTTPResponseSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 67108864, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."},
+	{Key: LibraryItemsPerOrganization, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Templates and components one organisation may keep in its library."},
+	{Key: LibraryVersionsPerItem, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Versions one template or component may have; older versions an app adopted are kept."},
 	{Key: LspMessageBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of one language-server message the Rust editor sends to its sandbox; a document the editor opens must fit."},
 	{Key: LspSessionMinutes, Unit: UnitCount, Default: 60, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Minutes one language-server sandbox may run before it is stopped."},
 	{Key: LspSessionsPerOrganization, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Language-server sandboxes of the Rust editor running at once in one organisation."},
@@ -823,6 +837,8 @@ var registry = [...]Definition{
 	{Key: StudioAutosaveReplays, Unit: UnitCount, Default: 3, Warning: 0, Max: 10, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."},
 	{Key: StudioChangeSetDocuments, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links)."},
 	{Key: StudioClipboardBytes, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 33554432, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Size of one Studio clipboard envelope; a larger copy is refused."},
+	{Key: StudioCustomFrameMaxDensity, Unit: UnitCount, Default: 4, Warning: 0, Max: 4, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Largest pixel density of a custom device frame (D40); the smallest is 1."},
+	{Key: StudioCustomFrameMaxPixels, Unit: UnitCount, Default: 4096, Warning: 0, Max: 8192, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused."},
 	{Key: StudioEventsStreamBufferEvents, Unit: UnitCount, Default: 1000, Warning: 0, Max: 10000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state."},
 	{Key: StudioFavouriteApps, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one user may mark as favourites in an organisation's Studio preferences."},
 	{Key: StudioLockIdleReleaseMinutes, Unit: UnitCount, Default: 10, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Minutes without an edit after which Studio releases an editing lock it holds."},
