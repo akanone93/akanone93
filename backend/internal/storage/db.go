@@ -156,6 +156,10 @@ const (
 	// rescoped to that organisation (DEV-002). Only dev_session_devices
 	// admits it, and only for reading.
 	ScopeDevSocket Scope = "devsocket"
+	// ScopeOverview lets an installation administrator count the members
+	// and apps of every organisation for the installation page. Only
+	// memberships and apps admit it, and only for reading.
+	ScopeOverview Scope = "overview"
 )
 
 // InTx runs f in a transaction bound to a tenant. The settings are set

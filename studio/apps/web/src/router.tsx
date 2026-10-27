@@ -12,6 +12,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { z } from "zod";
+import { accessSearchSchema, auditSearchSchema } from "./features/admin/admin.schema.ts";
 import { approvalsInboxSearchSchema, appSearchSchema } from "./features/approvals/approvals.schema.ts";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import { dataSearchSchema } from "./features/data/data.schema.ts";
@@ -29,7 +30,15 @@ import { devicesSearchSchema, envSearchSchema } from "./features/security/securi
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
 import { ShellLayout } from "./features/shell/shell-layout.tsx";
-import { AccessError, loadUser, requireMembership, requirePermission, requireUser, safeNext } from "./lib/guards.ts";
+import {
+  AccessError,
+  loadUser,
+  requireInstallationAdmin,
+  requireMembership,
+  requirePermission,
+  requireUser,
+  safeNext,
+} from "./lib/guards.ts";
 import type { Session } from "./lib/session.ts";
 
 export interface RouterContext {
@@ -280,6 +289,64 @@ const approvalsBreakGlassRoute = approvalsRoute("/break-glass", "BreakGlassPage"
 const approvalsPoliciesRoute = approvalsRoute("/policies", "PoliciesPage", "app.read");
 const approvalsPolicyRoute = approvalsRoute("/policies/$policyId", "PolicyPage", "app.read");
 const approvalsRequestRoute = approvalsRoute("/$requestId", "RequestPage", "app.read");
+/** O15-O31: the organisation's administration area (STU-116); each page needs the permission its first RPC checks (F14). */
+function adminRoute<const P extends string>(
+  path: P,
+  component: keyof typeof import("./features/admin/index.ts"),
+  permission: string,
+  search?: typeof accessSearchSchema | typeof auditSearchSchema,
+) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/admin${path}` as const,
+    ...(search !== undefined && { validateSearch: (raw: Record<string, unknown>) => search.parse(raw) }),
+    beforeLoad: ({ context }) => requirePermission(context.user, permission),
+    component: lazyRouteComponent(() => import("./features/admin/index.ts"), component as "SettingsPage"),
+  });
+}
+
+const adminRoutes = [
+  adminRoute("", "SettingsPage", "organization.manage"),
+  adminRoute("/members", "MembersPage", "members.manage"),
+  adminRoute("/members/$userId", "MemberPage", "members.manage"),
+  adminRoute("/teams", "TeamsPage", "teams.manage"),
+  adminRoute("/teams/$teamId", "TeamPage", "teams.manage"),
+  adminRoute("/roles", "RolesPage", "roles.manage"),
+  adminRoute("/roles/$roleId", "RolePage", "roles.manage"),
+  adminRoute("/restrictions", "RestrictionsPage", "restrictions.manage"),
+  adminRoute("/access", "AccessPage", "roles.manage", accessSearchSchema),
+  adminRoute("/sso", "SsoPage", "sso.manage"),
+  adminRoute("/tokens", "TokensPage", "tokens.manage"),
+  adminRoute("/sessions", "SessionsPage", "sessions.manage"),
+  adminRoute("/audit", "AuditPage", "audit.read", auditSearchSchema),
+  adminRoute("/compliance", "CompliancePage", "compliance.report"),
+  adminRoute("/retention", "RetentionPage", "retention.manage"),
+  adminRoute("/license", "LicensePage", "organization.manage"),
+  adminRoute("/limits", "LimitsPage", "limits.manage"),
+];
+
+/** I1-I7: the installation's pages for installation administrators only (STU-116); they live outside any organisation. */
+function installationRoute(path: string, component: keyof typeof import("./features/installation/index.ts")) {
+  return createRoute({
+    getParentRoute: () => shellLayout,
+    path: `/installation${path}`,
+    beforeLoad: ({ context }) => {
+      requireInstallationAdmin(context.user);
+      context.session.setOrganization(undefined);
+    },
+    component: lazyRouteComponent(() => import("./features/installation/index.ts"), component),
+  });
+}
+
+const installationRoutes = [
+  installationRoute("", "HealthPage"),
+  installationRoute("/organisations", "OrganisationsPage"),
+  installationRoute("/storage", "StoragePage"),
+  installationRoute("/jobs", "JobsPage"),
+  installationRoute("/backups", "BackupsPage"),
+  installationRoute("/issuers", "IssuersPage"),
+  installationRoute("/audit", "InstallationAuditPage"),
+];
 
 const libraryRoute = createRoute({
   getParentRoute: () => orgRoute,
@@ -339,6 +406,7 @@ const routeTree = rootRoute.addChildren([
     personalHomeRoute,
     profileRoute,
     shortcutsRoute,
+    ...installationRoutes,
     orgRoute.addChildren([
       orgHomeRoute,
       notificationsRoute,
@@ -370,6 +438,7 @@ const routeTree = rootRoute.addChildren([
       keysRoute,
       pinsRoute,
       capabilitiesRoute,
+      ...adminRoutes,
       libraryRoute,
       libraryComponentRoute,
       libraryTemplateRoute,

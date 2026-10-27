@@ -658,6 +658,12 @@ msgstr "الإقرار بالتحذيرات"
 msgid "publish.warningsTitle"
 msgstr "الإقرار بالتحذيرات"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colAction"
+msgstr "الإجراء"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -668,6 +674,18 @@ msgstr "الإجراء"
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.sampleAction"
+msgstr "الإجراء"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.filterAction"
+msgstr "الإجراء"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colAction"
 msgstr "الإجراء"
 
 #. Button in the right panel that opens the full-screen action graph editor for the selected widget.
@@ -717,6 +735,36 @@ msgstr "نشط"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.stateActive"
 msgstr "نشط"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.stateActive"
+msgstr "نشط"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.sessionsTitle"
+msgstr "الجلسات النشطة"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colActor"
+msgstr "الفاعل"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.filterActor"
+msgstr "الفاعل"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colActor"
+msgstr "الفاعل"
 
 #. Button that adds a state entry.
 #. js-lingui-explicit-id
@@ -772,6 +820,12 @@ msgstr "إضافة مصدر بيانات"
 msgid "designers.dbAddField"
 msgstr "إضافة حقل"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.addGrant"
+msgstr "إضافة منحة"
+
 #. Button that appends an item to a list property.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -802,6 +856,12 @@ msgstr "إضافة خطة ترحيل"
 msgid "rustEditor.addDependency"
 msgstr "إضافة الاعتمادية أو تحديثها"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.addRestriction"
+msgstr "إضافة قيد"
+
 #. Button that adds a new state entry to the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -826,17 +886,41 @@ msgstr "إضافة رمز"
 msgid "experiments.addVariant"
 msgstr "إضافة متغير"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.createWorkload"
+msgstr "إضافة هوية حمل عمل"
+
 #. Tag of a document that exists only in the newer of two compared snapshots.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.changeAdded"
 msgstr "مضاف"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colAdded"
+msgstr "تاريخ الإضافة"
+
 #. Why a dependency plugin is in the release request.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reasonDependency"
 msgstr "أُضيفت لأن إضافة أخرى تحتاجها"
+
+#. Link in the top bar to the organisation's administration area; shown only with the permission the area needs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.admin"
+msgstr "الإدارة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navLabel"
+msgstr "الإدارة"
 
 #. Button: adopt a component version in an app.
 #. js-lingui-explicit-id
@@ -958,6 +1042,12 @@ msgstr "كل الأنواع"
 msgid "experiments.stepAllocation"
 msgstr "التوزيع"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.allowed"
+msgstr "مسموح"
+
 #. Shown next to approval and security types that cannot be muted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -1012,6 +1102,12 @@ msgstr "أي حالة"
 msgid "library.visibility.all"
 msgstr "أي مستوى رؤية"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.tokensTitle"
+msgstr "رموز API وCI"
+
 #. Heading of the data sources page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -1048,6 +1144,18 @@ msgstr "إصدار التطبيق"
 msgid "appCanvas.title"
 msgstr "لوحة التطبيق"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessApp"
+msgstr "معرّف التطبيق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.grantApp"
+msgstr "معرّف التطبيق (فارغ للمؤسسة)"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -1078,6 +1186,18 @@ msgstr "تم التطبيق على المستند."
 msgid "data.applied"
 msgstr "تم التطبيق على المستند."
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.subjectKind"
+msgstr "ينطبق على"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colSubject"
+msgstr "ينطبق على"
+
 #. Button: apply the chosen visibility.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -1107,6 +1227,18 @@ msgstr "تطبيق"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.apply"
 msgstr "تطبيق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.apply"
+msgstr "تطبيق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.applyNow"
+msgstr "تطبيق فوري"
 
 #. Name of the approval publish step.
 #. js-lingui-explicit-id
@@ -1186,6 +1318,12 @@ msgstr "الأساس المعتمد"
 msgid "publish.approvalDone"
 msgstr "تمت الموافقة على المحتوى {hash}."
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colApps"
+msgstr "التطبيقات"
+
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -1203,6 +1341,12 @@ msgstr "أرشفة الإضافة"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.archivedBadge"
 msgstr "مؤرشفة"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colArea"
+msgstr "المنطقة"
 
 #. Button: lay the plugin boxes out automatically.
 #. js-lingui-explicit-id
@@ -1252,11 +1396,41 @@ msgstr "الضمان"
 msgid "security.provider"
 msgstr "مزود الإثبات"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.audience"
+msgstr "الجمهور"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.audience"
+msgstr "الجمهور"
+
 #. Label of the segment field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
 msgstr "شريحة الجمهور"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navAudit"
+msgstr "سلسلة التدقيق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navAudit"
+msgstr "سجل التدقيق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.auditTitle"
+msgstr "سجل التدقيق"
 
 #. Label of a linked audit record.
 #. js-lingui-explicit-id
@@ -1317,6 +1491,30 @@ msgstr "العودة إلى الأجهزة"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.back"
 msgstr "العودة إلى المكتبة"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.jobsCaption"
+msgstr "العمل في الخلفية حسب الطابور والحالة."
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.backupsCaption"
+msgstr "حالة النسخ الاحتياطي للتثبيت."
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navBackups"
+msgstr "النسخ الاحتياطية"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.backupsTitle"
+msgstr "النسخ الاحتياطية"
 
 #. Heading of the base URL section.
 #. js-lingui-explicit-id
@@ -1582,6 +1780,12 @@ msgstr "ملف Cargo"
 msgid "library.category"
 msgstr "الفئة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictionsCaption"
+msgstr "حدود عليا تزيل الصلاحيات مهما كانت المنح. المنع هو الغالب دائمًا."
+
 #. Heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1660,11 +1864,23 @@ msgstr "سجل التغييرات"
 msgid "approvals.diffHeading"
 msgstr "التغييرات"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colChanges"
+msgstr "التغييرات"
+
 #. Risk attribute.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.riskChangesFunctionUsedBy"
 msgstr "يغيّر دالة يستخدمها آخرون"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.auditCaption"
+msgstr "تغييرات على مستوى التثبيت، الأحدث أولًا."
 
 #. Note that edits to the theme apply to the canvas at once.
 #. js-lingui-explicit-id
@@ -1695,6 +1911,12 @@ msgstr "القناة"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.colChannel"
 msgstr "القناة"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colCheck"
+msgstr "الفحص"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -1762,11 +1984,23 @@ msgstr "اختيار للمقارنة"
 msgid "history.compareHint"
 msgstr "اختر لقطتين لمقارنتهما."
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navIssuers"
+msgstr "جهات CI"
+
 #. Accessible name of the button that removes a property value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.clear"
 msgstr "مسح {name}"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colClient"
+msgstr "العميل"
 
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
@@ -2032,6 +2266,18 @@ msgstr "المقارنة مع آخر إصدار منشور"
 msgid "releases.stateCompleted"
 msgstr "مكتمل"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navCompliance"
+msgstr "الامتثال"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.complianceTitle"
+msgstr "تقارير الامتثال"
+
 #. Title of the dialog that lists the instances a revised component version changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -2152,6 +2398,12 @@ msgstr "نُسخت إلى الحافظة"
 msgid "clipboard.copy"
 msgstr "نسخ"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretNote"
+msgstr "انسخه الآن. لن يُعرض مرة أخرى."
+
 #. D35 button: copy your version of the document to the clipboard before choosing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -2212,16 +2464,52 @@ msgstr "إنشاء المفتاح"
 msgid "links.picker.confirm"
 msgstr "إنشاء الرابط"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.createReport"
+msgstr "إنشاء تقرير"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.createScim"
+msgstr "إنشاء رمز SCIM"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.createTeam"
+msgstr "إنشاء فريق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.createToken"
+msgstr "إنشاء رمز"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colCreated"
 msgstr "تاريخ الإنشاء"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colCreated"
+msgstr "تاريخ الإنشاء"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.colCreated"
+msgstr "تاريخ الإنشاء"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colCreated"
 msgstr "تاريخ الإنشاء"
 
 #. Explains the rollback button.
@@ -2290,6 +2578,12 @@ msgstr "القيمة الداكنة لـ {token}"
 msgid "panelTabs.dataTab"
 msgstr "البيانات"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colClass"
+msgstr "فئة البيانات"
+
 #. Heading of one data source page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -2331,6 +2625,18 @@ msgstr "مصادر بيانات الإضافة"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.mock"
 msgstr "حالة البيانات"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colDays"
+msgstr "الأيام"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.setDays"
+msgstr "أيام الاحتفاظ"
 
 #. Button in the right panel that opens the DB schema designer.
 #. js-lingui-explicit-id
@@ -2404,6 +2710,12 @@ msgstr "رابط عميق"
 msgid "experiments.colDefault"
 msgstr "الافتراضي"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colDefault"
+msgstr "افتراضي"
+
 #. Label of the field in which the entry's default value is typed as JSON.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -2446,6 +2758,12 @@ msgstr "حذف"
 msgid "experiments.deleteFlag"
 msgstr "حذف"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.delete"
+msgstr "حذف"
+
 #. Accessible name of a delete button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -2476,6 +2794,12 @@ msgstr "حذف {title}؟ تتم إزالة مستندها من المسودة."
 msgid "appCanvas.deletePlugin"
 msgstr "حذف الإضافة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.deleteRole"
+msgstr "حذف الدور"
+
 #. Command that deletes the current screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2493,6 +2817,12 @@ msgstr "حذف الشاشة"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.deleteTitle"
 msgstr "هل تريد حذف هذا الأصل؟"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.denied"
+msgstr "مرفوض"
 
 #. Label of the density choice.
 #. js-lingui-explicit-id
@@ -2540,6 +2870,12 @@ msgstr "الوصف"
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.description"
+msgstr "الوصف"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.roleDescription"
 msgstr "الوصف"
 
 #. Accessible name of the table of design tokens.
@@ -2674,6 +3010,12 @@ msgstr "تجاهل"
 msgid "assets.dismiss"
 msgstr "تجاهل"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.dismiss"
+msgstr "إغلاق"
+
 #. Label of the right dock tab that documents the selected widget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2697,6 +3039,12 @@ msgstr "المستند"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.docs"
 msgstr "التوثيق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.download"
+msgstr "تنزيل"
 
 #. Tag of the draft among the matching policies.
 #. js-lingui-explicit-id
@@ -2824,6 +3172,12 @@ msgstr "يمكنك متابعة التحرير؛ تجمّد عمليات الب�
 msgid "history.sessionTitle"
 msgstr "جلسة المحرر التي أنشأت هذه اللقطة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colEffective"
+msgstr "الفعلي"
+
 #. Heading of the settings table.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2836,6 +3190,18 @@ msgstr "الإعدادات السارية"
 msgid "auth.field.email"
 msgstr "البريد الإلكتروني"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colEmail"
+msgstr "البريد الإلكتروني"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.inviteEmail"
+msgstr "عنوان البريد المراد دعوته"
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -2847,6 +3213,12 @@ msgstr "إجراءات طارئة اتُّخذت دون موافقة مسبقة�
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.mockEmpty"
 msgstr "فارغ"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colEnabled"
+msgstr "مفعّل"
 
 #. Label of the end date field.
 #. js-lingui-explicit-id
@@ -2974,6 +3346,12 @@ msgstr "البيئة"
 msgid "approvals.colEnvironment"
 msgstr "البيئة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessEnv"
+msgstr "البيئة"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -3057,6 +3435,18 @@ msgstr "الأحداث"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsEvents"
 msgstr "الأحداث"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.auditCaption"
+msgstr "كل تغيير في هذه المؤسسة، قابل للبحث والتصدير."
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.organisationsCaption"
+msgstr "كل مؤسسة في هذا التثبيت."
 
 #. Caption under the release timeline heading.
 #. js-lingui-explicit-id
@@ -3142,11 +3532,23 @@ msgstr "منتهي"
 msgid "approvals.colExpires"
 msgstr "ينتهي"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colExpires"
+msgstr "ينتهي"
+
 #. Countdown of the pairing token; time is minutes and seconds such as 1:59.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.expiresIn"
 msgstr "تنتهي الصلاحية خلال {time}"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.explain"
+msgstr "شرح"
 
 #. Button that asks the server why access is denied.
 #. js-lingui-explicit-id
@@ -3154,11 +3556,41 @@ msgstr "تنتهي الصلاحية خلال {time}"
 msgid "chrome.forbidden.explain"
 msgstr "اشرح سبب الوصول"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navAccess"
+msgstr "شرح الوصول"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.explainLink"
+msgstr "شرح الوصول"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessTitle"
+msgstr "شرح الوصول"
+
 #. Button: download a version as a library file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.export"
 msgstr "تصدير"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.exportCsv"
+msgstr "تصدير CSV"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations"
+msgstr "وجهات التصدير"
 
 #. Button: download the session's redacted trace file.
 #. js-lingui-explicit-id
@@ -3214,6 +3646,12 @@ msgstr "فشلت"
 msgid "publish.diffFailed"
 msgstr "فشل. اطلبه مرة أخرى."
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.unhealthy"
+msgstr "معطّل"
+
 #. Link to and heading of the flags page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -3225,6 +3663,12 @@ msgstr "أعلام الميزات"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.flagsTitle"
 msgstr "أعلام الميزات"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseFeatures"
+msgstr "الميزات"
 
 #. Accessible name of a nested field.
 #. js-lingui-explicit-id
@@ -3370,6 +3814,12 @@ msgstr "التجميد والبناء"
 msgid "publish.startBuild"
 msgstr "التجميد والبناء"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.filterFrom"
+msgstr "من (تاريخ)"
+
 #. Label of the field that holds the version a migration plan starts from.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3448,6 +3898,12 @@ msgstr "الدوال التي يستخدمها التحديد"
 msgid "preview.frame.galaxy-a"
 msgstr "سلسلة Galaxy A"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.generalFeature"
+msgstr "عام"
+
 #. D27: type of an affected item, a member of the Dart API that plux codegen writes for host apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -3490,6 +3946,24 @@ msgstr "الانتقال إلى الملف الشخصي"
 msgid "approvals.goldenHeading"
 msgstr "فروق الصور المرجعية"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.allowedBy"
+msgstr "مُنحت بواسطة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.grantsHeading"
+msgstr "المنح"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.deleteRoleDesc"
+msgstr "ستتوقف المنح التي تستخدم هذا الدور."
+
 #. Accessible name of the group of zoom controls.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -3507,6 +3981,12 @@ msgstr "GraphQL"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataOperationsText"
 msgstr "عمليات GraphQL"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.teamsCaption"
+msgstr "مجموعات تتلقى المنح والقيود معًا."
 
 #. Label of the guardrail event field.
 #. js-lingui-explicit-id
@@ -3538,11 +4018,23 @@ msgstr "تسليم"
 msgid "panels.semHeader"
 msgstr "عنوان"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navHealth"
+msgstr "الصحة"
+
 #. Heading of the health comparison.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.health"
 msgstr "الصحة مقارنة بالإصدار السابق"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.healthy"
+msgstr "سليم"
 
 #. Label of the height field of the custom frame dialog.
 #. js-lingui-explicit-id
@@ -3627,6 +4119,30 @@ msgstr "إصدار واجهة المضيف الثنائية"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupCustom"
 msgstr "إجراءات التطبيق المضيف"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.retentionCaption"
+msgstr "المدة التي تُحفظ بها كل فئة بيانات. ينتظر التغيير فترة الإشعار ما لم يُطبّق فورًا."
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.storageCaption"
+msgstr "المساحة التي تستخدمها قاعدة البيانات ومخزن الكائنات."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.providers"
+msgstr "مزوّدو الهوية"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.ssoCaption"
+msgstr "مزوّدو الهوية لهذه المؤسسة والرموز التي تتيح للدليل توفير الأشخاص."
 
 #. Heading of the import section of the data source designer.
 #. js-lingui-explicit-id
@@ -3802,6 +4318,24 @@ msgstr "المفتش"
 msgid "approvals.installBaseHeading"
 msgstr "قاعدة التثبيت"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navLabel"
+msgstr "التثبيت"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.auditTitle"
+msgstr "سلسلة تدقيق التثبيت"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.healthTitle"
+msgstr "صحة التثبيت"
+
 #. Heading of the list of component instances per app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -3819,6 +4353,18 @@ msgstr "تفاعلي"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colInterval"
 msgstr "الفاصل"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.inviteLink"
+msgstr "الدعوة (تُعرض مرة واحدة)"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.invite"
+msgstr "دعوة"
 
 #. Metric label.
 #. js-lingui-explicit-id
@@ -3850,6 +4396,18 @@ msgstr "iPhone Pro Max"
 msgid "preview.frame.iphone-se"
 msgstr "iPhone SE"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.issuer"
+msgstr "الجهة المُصدِرة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.issuer"
+msgstr "الجهة المُصدِرة"
+
 #. STU-071: the item is the app's or plugin's entry and cannot be deleted until another is chosen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -3869,6 +4427,24 @@ msgstr "إنها شاشة الدخول؛ اختر نقطة دخول أخرى أ�
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.moveReasonPrivate"
 msgstr "تستخدم مكوّنًا خاصًا بهذه الإضافة."
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.jobsTitle"
+msgstr "طوابير المهام"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navJobs"
+msgstr "المهام"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colCount"
+msgstr "المهام"
 
 #. Tab of the right panel: the JSON of the selection.
 #. js-lingui-explicit-id
@@ -4008,6 +4584,12 @@ msgstr "المفتاح"
 msgid "appCanvas.key"
 msgstr "المفتاح"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colKey"
+msgstr "المفتاح"
+
 #. Link text.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -4080,6 +4662,12 @@ msgstr "النوع"
 msgid "library.kind"
 msgstr "النوع"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colKind"
+msgstr "النوع"
+
 #. Label of the list that chooses the kind of a data source (REST, GraphQL, …).
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -4096,6 +4684,12 @@ msgstr "النوع"
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.kind"
+msgstr "النوع"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colKind"
 msgstr "النوع"
 
 #. Label of the release label field.
@@ -4127,6 +4721,18 @@ msgstr "آخر إثبات"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.lastSeen"
 msgstr "آخر ظهور"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colSeen"
+msgstr "آخر ظهور"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colLastUsed"
+msgstr "آخر استخدام"
 
 #. Metric label.
 #. js-lingui-explicit-id
@@ -4212,6 +4818,42 @@ msgstr "المستوى"
 msgid "library.title"
 msgstr "المكتبة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navLicense"
+msgstr "الترخيص"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseTitle"
+msgstr "الترخيص"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseFile"
+msgstr "ملف الترخيص"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseId"
+msgstr "معرّف الترخيص"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseOrg"
+msgstr "مرخّص لـ"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.tokenDays"
+msgstr "مدة الصلاحية بالأيام"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -4241,6 +4883,24 @@ msgstr "فاتح"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeLightValue"
 msgstr "القيمة الفاتحة لـ {token}"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colLimit"
+msgstr "الحد"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navLimits"
+msgstr "الحدود"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.limitsTitle"
+msgstr "الحدود والاستخدام"
 
 #. Title of the menu of one navigation link, e.g. 'Link Home → Offers'.
 #. js-lingui-explicit-id
@@ -4314,6 +4974,12 @@ msgstr "منطقة حية"
 msgid "history.more"
 msgstr "تحميل المزيد"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.moreEntries"
+msgstr "تحميل المزيد"
+
 #. Shown while a page loads.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -4344,6 +5010,12 @@ msgstr "جارٍ التحميل"
 msgid "preview.mockLoading"
 msgstr "جارٍ التحميل"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.loading"
+msgstr "جارٍ التحميل"
+
 #. Shown while a page loads.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -4354,6 +5026,12 @@ msgstr "جارٍ التحميل"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.loading"
+msgstr "جارٍ التحميل"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.loading"
 msgstr "جارٍ التحميل"
 
 #. Shown in the Assets tab while the list loads.
@@ -4530,6 +5208,12 @@ msgstr "Material"
 msgid "security.profileMaximum"
 msgstr "أقصى"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colMax"
+msgstr "الأقصى"
+
 #. Label of the checkbox that makes the entry's type nullable.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -4559,6 +5243,30 @@ msgstr "متوسط"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.riskMedium"
 msgstr "متوسطة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.memberTitle"
+msgstr "عضو"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colMembers"
+msgstr "الأعضاء"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navMembers"
+msgstr "الأعضاء"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.membersTitle"
+msgstr "الأعضاء والدعوات"
 
 #. Metric label.
 #. js-lingui-explicit-id
@@ -4722,6 +5430,12 @@ msgstr "الاسم"
 msgid "library.canvas.name"
 msgstr "الاسم"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colName"
+msgstr "الاسم"
+
 #. Label of a name field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -4756,6 +5470,12 @@ msgstr "الاسم"
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.name"
+msgstr "الاسم"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colName"
 msgstr "الاسم"
 
 #. Accessible name of the field that renames a state entry; the placeholder is its current name.
@@ -4818,11 +5538,23 @@ msgstr "التنقل"
 msgid "links.heading"
 msgstr "الانتقال"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.limitWarning"
+msgstr "قريب من الحد"
+
 #. Shown when the widget must keep a minimum touch target.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.minTarget"
 msgstr "يتطلب هدف لمس لا يقل عن 44 في 44 dp."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.needsStepUp"
+msgstr "يتطلب تحققًا إضافيًا"
 
 #. Why a command is disabled.
 #. js-lingui-explicit-id
@@ -4834,6 +5566,12 @@ msgstr "يتطلب الصلاحية {permission}"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabNetwork"
+msgstr "الشبكة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colNetwork"
 msgstr "الشبكة"
 
 #. Label.
@@ -4864,6 +5602,12 @@ msgstr "أبدًا"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.never"
+msgstr "أبدًا"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.never"
 msgstr "أبدًا"
 
 #. A screen that has no earlier version.
@@ -4914,6 +5658,12 @@ msgstr "سياسة جديدة"
 msgid "library.adopt.addedProps"
 msgstr "خصائص جديدة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.newRole"
+msgstr "دور جديد"
+
 #. Button and command that create a blank screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -4961,6 +5711,18 @@ msgstr "التالي"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.next"
 msgstr "التالي"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.no"
+msgstr "لا"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.no"
+msgstr "لا"
 
 #. Shown when the validator found no accessibility problem.
 #. js-lingui-explicit-id
@@ -5364,6 +6126,18 @@ msgstr "لا شيء لتطبيقه."
 msgid "designers.dbPreviewNoRelease"
 msgstr "لا شيء للمقارنة: لم تُنشر هذه الإضافة بعد."
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.nothing"
+msgstr "لا شيء لعرضه."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.nothing"
+msgstr "لا شيء لعرضه."
+
 #. Shown in a drawer tab that has no events.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -5441,6 +6215,12 @@ msgstr "إدخال واحد في كل سطر. لا يُنشر الإصدار إ�
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.indexesHelp"
 msgstr "فهرس واحد في كل سطر؛ افصل الحقول بفواصل."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseNote"
+msgstr "يرفع مديرو التثبيت الترخيص فقط. يتحقق الخادم منه دون اتصال."
 
 #. Link to one data source or collection.
 #. js-lingui-explicit-id
@@ -5586,11 +6366,41 @@ msgstr "المؤسسة"
 msgid "library.canvas.organization"
 msgstr "المؤسسة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.kindOrg"
+msgstr "المؤسسة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.orgName"
+msgstr "اسم المؤسسة"
+
 #. Shown when the server search request fails.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search-failed"
 msgstr "بحث المؤسسة غير متاح."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.settingsTitle"
+msgstr "إعدادات المؤسسة"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navOrganisations"
+msgstr "المؤسسات"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.organisationsTitle"
+msgstr "المؤسسات"
 
 #. Label.
 #. js-lingui-explicit-id
@@ -5645,6 +6455,12 @@ msgstr "متأخرة"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.overridden"
 msgstr "مُتجاوَز لفئة الحجم هذه"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colOverride"
+msgstr "التجاوز"
 
 #. Flags an instance whose overrides may name props or slots the revision removes.
 #. js-lingui-explicit-id
@@ -5760,6 +6576,12 @@ msgstr "العناصر الملصقة تحتاج إلى أكثر مما يملك
 msgid "data.colPath"
 msgstr "المسار"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colPatterns"
+msgstr "الأنماط"
+
 #. Button: stop a rollout from advancing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -5778,6 +6600,12 @@ msgstr "إيقاف مؤقت"
 msgid "releases.statePaused"
 msgstr "متوقف مؤقتاً"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.membersCaption"
+msgstr "الأشخاص في هذه المؤسسة وأدوارهم."
+
 #. Tab of the right panel: node count, cost and budget of the selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -5789,6 +6617,54 @@ msgstr "الأداء"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabPerformance"
 msgstr "الأداء"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colPeriod"
+msgstr "الفترة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.periodFrom"
+msgstr "الفترة من"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.periodTo"
+msgstr "الفترة إلى"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessPermission"
+msgstr "الصلاحية"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.patterns"
+msgstr "أنماط الصلاحيات (مفصولة بفواصل)"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.permissionsTree"
+msgstr "الصلاحيات"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.kindUser"
+msgstr "شخص"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.builderCaption"
+msgstr "اختر صلاحيات الدور. المناطق تضم الميزات والميزات تضم الإجراءات."
 
 #. Caption.
 #. js-lingui-explicit-id
@@ -5939,6 +6815,30 @@ msgstr "تم حفظ السياسة."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.readOnly"
 msgstr "المواضع للقراءة فقط ما دام شخص آخر يحرّر التطبيق."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colPredefined"
+msgstr "معرّف مسبقًا"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.rolesCaption"
+msgstr "الأدوار المعرّفة مسبقًا والأدوار المخصصة لهذه المؤسسة."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.predefinedLocked"
+msgstr "لا يمكن تغيير الأدوار المعرّفة مسبقًا."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colPrefix"
+msgstr "البادئة"
 
 #. Description read by screen readers for each connection in the graph.
 #. js-lingui-explicit-id
@@ -6180,6 +7080,12 @@ msgstr "تعبير PXL"
 msgid "devices.qrLabel"
 msgstr "رمز QR لرابط الإقران"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colQueue"
+msgstr "الطابور"
+
 #. State of a publish job.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -6239,6 +7145,12 @@ msgstr "للقراءة فقط: لا يمكنك تحرير هذه المستند�
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImporting"
 msgstr "جارٍ قراءة المصدر…"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.reason"
+msgstr "السبب"
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
@@ -6432,6 +7344,12 @@ msgstr "إعادة تحميل الشاشة"
 msgid "designers.remove"
 msgstr "إزالة"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.remove"
+msgstr "إزالة"
+
 #. Accessible name of the button that removes the crate {name} from the dependencies.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -6485,6 +7403,12 @@ msgstr "إزالة الرابط"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneRemove"
 msgstr "إزالة الرابط"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.removeMember"
+msgstr "إزالة العضو"
 
 #. Button that removes a migration plan.
 #. js-lingui-explicit-id
@@ -6540,6 +7464,12 @@ msgstr "إزالة المتغير {name}"
 msgid "history.changeRemoved"
 msgstr "محذوف"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.removedBy"
+msgstr "أُزيلت بواسطة قيد"
+
 #. Diff label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -6569,6 +7499,12 @@ msgstr "إعادة التسمية (جديد=قديم، مفصولة بفواصل
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.renameScreen"
 msgstr "إعادة تسمية الشاشة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.settingsCaption"
+msgstr "أعد تسمية المؤسسة وافتح كل صفحات الإدارة."
 
 #. Button that queues the visual diff.
 #. js-lingui-explicit-id
@@ -6690,10 +7626,28 @@ msgstr "إعادة تعيين الحقول (مفصولة بفواصل)"
 msgid "panels.reset"
 msgstr "إعادة إلى الأساس"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colResource"
+msgstr "المورد"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.colResource"
+msgstr "المورد"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.filterResource"
+msgstr "المورد"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colResource"
 msgstr "المورد"
 
 #. Label.
@@ -6750,6 +7704,30 @@ msgstr "استعادة هذه اللقطة؟"
 msgid "history.reasonRestore"
 msgstr "مستعاد"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictionsTitle"
+msgstr "سياسات القيود"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navRestrictions"
+msgstr "القيود"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictionsHeading"
+msgstr "القيود"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colResult"
+msgstr "النتيجة"
+
 #. Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -6779,6 +7757,18 @@ msgstr "استئناف"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.resume"
 msgstr "استئناف"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navRetention"
+msgstr "الاحتفاظ"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.retentionTitle"
+msgstr "الاحتفاظ"
 
 #. Shows the type a step's result has on its output port; type is a type expression.
 #. js-lingui-explicit-id
@@ -6828,6 +7818,12 @@ msgstr "مراجعة من ملف"
 msgid "library.revisions"
 msgstr "المراجعات"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.revoke"
+msgstr "إلغاء"
+
 #. Button that revokes a device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -6838,6 +7834,12 @@ msgstr "إلغاء الجهاز"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.stateRevoked"
+msgstr "ملغى"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.stateRevoked"
 msgstr "ملغى"
 
 #. Edge inset on the right.
@@ -6869,6 +7871,36 @@ msgstr "الدور"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.role"
 msgstr "الدور"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colRole"
+msgstr "الدور"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.builderTitle"
+msgstr "منشئ الأدوار"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.grantRole"
+msgstr "الدور المراد منحه"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navRoles"
+msgstr "الأدوار"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.rolesTitle"
+msgstr "الأدوار"
 
 #. Label.
 #. js-lingui-explicit-id
@@ -6929,6 +7961,12 @@ msgstr "خطة الطرح (JSON)"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.rootVersions"
 msgstr "إصدارات الجذر المقدَّمة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.rotate"
+msgstr "تدوير"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -7038,6 +8076,12 @@ msgstr "حفظ"
 msgid "appCanvas.save"
 msgstr "حفظ"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.save"
+msgstr "حفظ"
+
 #. Title of the save-as-template dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -7098,6 +8142,12 @@ msgstr "محفوظ في التخزين الآمن"
 msgid "state.persistence.persisted"
 msgstr "محفوظ على الجهاز"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.saved"
+msgstr "تم الحفظ."
+
 #. Instruction in the pairing dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -7116,17 +8166,41 @@ msgstr "الجدول"
 msgid "releases.stateScheduled"
 msgstr "مجدول"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.scheduledChanges"
+msgstr "التغييرات المجدولة"
+
 #. Heading of the schemas list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.schemas"
 msgstr "المخططات"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.scimTokens"
+msgstr "رموز SCIM"
+
 #. Label of the scope select.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.scopeLabel"
 msgstr "النطاق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.grantScope"
+msgstr "النطاق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.tokenScopes"
+msgstr "النطاقات (مفصولة بفواصل)"
 
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
@@ -7241,6 +8315,12 @@ msgstr "جارٍ البحث في المؤسسة"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.title"
 msgstr "العامل الثاني"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretHeading"
+msgstr "السر (يُعرض مرة واحدة)"
 
 #. Heading of the security page.
 #. js-lingui-explicit-id
@@ -7368,11 +8448,29 @@ msgstr "الجلسة {tag}"
 msgid "releases.sessions"
 msgstr "الجلسات"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navSessions"
+msgstr "الجلسات"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.sessionsHeading"
+msgstr "الجلسات"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colSetting"
 msgstr "الإعداد"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navSettings"
+msgstr "الإعدادات"
 
 #. Label of the list that chooses whether a state entry is a single value, a list or a map.
 #. js-lingui-explicit-id
@@ -7482,11 +8580,29 @@ msgstr "تسجيل الخروج"
 msgid "auth.error.failed"
 msgstr "فشل تسجيل الدخول. حاول مرة أخرى بعد قليل."
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.sessionsCaption"
+msgstr "عمليات تسجيل دخول الأشخاص في هذه المؤسسة. الإلغاء يُنهي الجلسة."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colSigned"
+msgstr "موقّع"
+
 #. Says the version carries a builder signature.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceSigned"
 msgstr "موقّع من أداة البناء"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.complianceCaption"
+msgstr "تقارير موقّعة عن التغييرات في فترة."
 
 #. Button label while the sign-in request runs.
 #. js-lingui-explicit-id
@@ -7528,6 +8644,12 @@ msgstr "قيمة واحدة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reportSize"
+msgstr "الحجم"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colBytes"
 msgstr "الحجم"
 
 #. Label of the control that picks the window size class an edit applies to.
@@ -7608,6 +8730,18 @@ msgstr "بصمة المصدر"
 msgid "designers.dataSourceText"
 msgstr "نص المصدر: مستند OpenAPI أو مخطط GraphQL"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navSso"
+msgstr "SSO وSCIM"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.ssoTitle"
+msgstr "SSO وSCIM"
+
 #. Position of a rollout in its stages.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -7686,6 +8820,12 @@ msgstr "الحالة"
 msgid "panelTabs.stateTab"
 msgstr "الحالة"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colState"
+msgstr "الحالة"
+
 #. Label of the state filter and a column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -7696,6 +8836,18 @@ msgstr "الحالة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabState"
+msgstr "الحالة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colState"
+msgstr "الحالة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseState"
 msgstr "الحالة"
 
 #. Button in the right panel that opens the full-screen designer of the plugin's state entries.
@@ -7776,6 +8928,18 @@ msgstr "إيقاف خادم اللغة"
 msgid "experiments.stateStopped"
 msgstr "متوقفة"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.navStorage"
+msgstr "التخزين"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.storageTitle"
+msgstr "استخدام التخزين"
+
 #. Label of the stored tests state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -7823,6 +8987,18 @@ msgstr "تم تحديث Studio. أعد التحميل لاستخدام الإص�
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.targetLabel"
 msgstr "موضوع التجربة"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.subjectPattern"
+msgstr "نمط الموضوع"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.subjectPattern"
+msgstr "نمط الموضوع"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -7986,6 +9162,42 @@ msgstr "الشاشة المستهدفة"
 msgid "experiments.stepTargeting"
 msgstr "الاستهداف"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.teamTitle"
+msgstr "فريق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.kindTeam"
+msgstr "فريق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.teamMembers"
+msgstr "أعضاء الفريق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.subjectId"
+msgstr "معرّف الفريق أو الشخص"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navTeams"
+msgstr "الفرق"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.teamsTitle"
+msgstr "الفرق"
+
 #. Label of the template picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -8111,6 +9323,12 @@ msgstr "لم يُطبَّق التغيير لأن مستندًا تغيّر في
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.changeRefused"
 msgstr "لم يُطبَّق التغيير لأن مستندًا تغيّر في هذه الأثناء. لم تُكتب أي بيانات."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.saveFailed"
+msgstr "لم يُحفظ التغيير."
 
 #. Shown when the WebAuthn check was cancelled or failed.
 #. js-lingui-explicit-id
@@ -8262,6 +9480,12 @@ msgstr "المسودة صالحة."
 msgid "auth.error.rejected"
 msgstr "البريد الإلكتروني أو كلمة المرور غير صحيحة."
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseCaption"
+msgstr "ترخيص المؤسسة لهذا التثبيت، يُتحقق منه دون اتصال."
+
 #. Shown when explain-access fails.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -8309,6 +9533,12 @@ msgstr "دوال هذه البيئة مع أحدث إصدار لكل منها."
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.sourceHint"
 msgstr "معرّف مصدر الدالة الذي رُفع إلى الخادم بالفعل. يعمل خادم اللغة والاختبارات على هذا المصدر."
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.issuersCaption"
+msgstr "مزوّدو الهوية الذين يجوز لأحمال CI لديهم استبدال رمز."
 
 #. Shown when the importer in the validator module cannot be reached.
 #. js-lingui-explicit-id
@@ -8382,11 +9612,23 @@ msgstr "تم إيقاف خادم اللغة."
 msgid "rustEditor.closedTime"
 msgstr "بلغت جلسة خادم اللغة حدّها الزمني. شغّلها من جديد للمتابعة."
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.lockoutNote"
+msgstr "لا يمكن أن يفقد المالك الأخير قدرته على إدارة الأعضاء والسياسات."
+
 #. Error when the library list fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.loadFailed"
 msgstr "تعذّر تحميل المكتبة. حاول مرة أخرى."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.limitsCaption"
+msgstr "حدود هذه المؤسسة. يمكن للتجاوز خفض الحد أو رفعه حتى الحد الأقصى."
 
 #. Shown when the server refused a takeover.
 #. js-lingui-explicit-id
@@ -8417,6 +9659,12 @@ msgstr "النموذج التجريبي ليس JSON صالحًا."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataMockHelp"
 msgstr "القيمة التجريبية هي ما تعرضه اللوحة ما دامت البيانات الحقيقية غير متاحة."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.ownerFloor"
+msgstr "ينطبق حد المالك: يحتفظ المالك الأخير بهذه الصلاحية."
 
 #. Shown when the passkey prompt fails or is cancelled.
 #. js-lingui-explicit-id
@@ -8597,6 +9845,12 @@ msgstr "لم يقبل الخادم التغيير."
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.failure.size-mismatch"
 msgstr "استلم الخادم عددًا من البايتات يختلف عن حجم الملف. ارفعه مرة أخرى."
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.backupsNote"
+msgstr "لا يسجّل الخادم نسخًا احتياطية بعد. انسخ قاعدة البيانات ومخزن الكائنات بأدواتك واتبع دليل التشغيل."
 
 #. Error: variant shares do not sum to 100.
 #. js-lingui-explicit-id
@@ -8917,6 +10171,12 @@ msgstr "تعذّر التحميل."
 msgid "releases.loadFailed"
 msgstr "تعذر التحميل."
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.loadFailed"
+msgstr "تعذّر التحميل."
+
 #. Shown when a request fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -8933,6 +10193,12 @@ msgstr "تعذر التحميل."
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.loadFailed"
+msgstr "تعذّر التحميل."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.loadFailed"
 msgstr "تعذّر التحميل."
 
 #. Shown for an unknown source.
@@ -9012,6 +10278,12 @@ msgstr "هذه الصفحة غير موجودة أو لا يمكنك رؤيته�
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.body"
 msgstr "هذه الصفحة جزء من النسخة المؤسسية. اطلب من مسؤول التثبيت تثبيت ترخيص."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.removeMemberDesc"
+msgstr "سيفقد هذا الشخص الوصول إلى المؤسسة."
 
 #. Marks screens of the plugin being edited in the list of navigation targets.
 #. js-lingui-explicit-id
@@ -9115,11 +10387,29 @@ msgstr "لا توجد روابط لهذا العنصر بعد."
 msgid "data.routePlux"
 msgstr "عبر بوابة Plux"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colTime"
+msgstr "الوقت"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.colTime"
 msgstr "الوقت"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colTime"
+msgstr "الوقت"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.filterTo"
+msgstr "إلى (تاريخ)"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -9132,6 +10422,24 @@ msgstr "التبديل بين السمة الفاتحة والداكنة"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeToken"
 msgstr "الرمز"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.tokenName"
+msgstr "اسم الرمز"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navTokens"
+msgstr "الرموز"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.tokensCaption"
+msgstr "رموز للنصوص وخطوط الإنتاج وأحمال CI الموثوقة بلا رمز."
 
 #. Label.
 #. js-lingui-explicit-id
@@ -9192,6 +10500,12 @@ msgstr "مفاتيح الترجمة حسب اللغة"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.trash"
 msgstr "سلة المحذوفات"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.issuersTitle"
+msgstr "جهات CI الموثوقة"
 
 #. Label of the list that chooses the type of the entry's value.
 #. js-lingui-explicit-id
@@ -9295,6 +10609,12 @@ msgstr "غير المقروءة فقط"
 msgid "pluginCanvas.command.unwrap"
 msgstr "إلغاء لف التحديد"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licenseUpload"
+msgstr "رفع ترخيص"
+
 #. Button that opens the file picker to upload an asset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -9396,6 +10716,18 @@ msgstr "المستخدمة في التحديد"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.scope.plugin"
 msgstr "المستخدمة في هذه الإضافة"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colUser"
+msgstr "المستخدم"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessUser"
+msgstr "معرّف المستخدم"
 
 #. Badge: a plugin has no validation errors.
 #. js-lingui-explicit-id
@@ -9655,6 +10987,12 @@ msgstr "مكان الحفظ"
 msgid "editor.conflict.differences"
 msgstr "المواضع التي تختلف فيها نسختك عن نسخة الخادم"
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.healthCaption"
+msgstr "هل يستجيب كل جزء من التثبيت."
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -9672,6 +11010,12 @@ msgstr "أي حدث يبدأ الرابط؟"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.simulatorCaption"
 msgstr "من الذي سيحتاج إلى الموافقة على هذا التغيير؟"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessCaption"
+msgstr "لماذا يملك شخص صلاحية أو يفتقدها، مع ذكر المنحة أو القيد."
 
 #. Title of the dialog that explains an access decision.
 #. js-lingui-explicit-id
@@ -9715,6 +11059,12 @@ msgstr "ضمن الميزانية"
 msgid "notify.kind.work"
 msgstr "العمل"
 
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.workloads"
+msgstr "هويات أحمال العمل"
+
 #. Verdict of a comparison.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -9738,6 +11088,18 @@ msgstr "الموضع X"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.moveY"
 msgstr "الموضع Y"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.yes"
+msgstr "نعم"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.yes"
+msgstr "نعم"
 
 #. Read-only banner: the same person holds the lock in another browser tab.
 #. js-lingui-explicit-id
@@ -9792,6 +11154,12 @@ msgstr "تم تسجيل خروجك"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.unsaved.body"
 msgstr "لديك تغييرات غير محفوظة. إذا غادرت الآن فستفقدها."
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.noPermission"
+msgstr "ليس لديك صلاحية لهذا الإجراء."
 
 #. Tooltip of a disabled action.
 #. js-lingui-explicit-id

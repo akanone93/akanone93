@@ -147,6 +147,7 @@ type world struct {
 	native       pluxv1connect.NativeCatalogueServiceClient
 	secAdmin     pluxv1connect.SecurityAdminServiceClient
 	license      pluxv1connect.LicenseServiceClient
+	installation pluxv1connect.InstallationServiceClient
 	audit        pluxv1connect.AuditServiceClient
 	dsr          pluxv1connect.DataSubjectServiceClient
 	config       pluxv1connect.ConfigServiceClient
@@ -212,6 +213,9 @@ type worldConfig struct {
 	Windows func(ctx context.Context, appID, environmentID string) (time.Duration, time.Duration, error)
 	// Checkpoints, when set, serves ListAuditCheckpoints.
 	Checkpoints api.CheckpointSource
+	// Edition is the licence provider the handlers consult; nil is the
+	// open-source core.
+	Edition edition.Provider
 }
 
 // newWorldWith is newWorld with the configuration applied.
@@ -466,6 +470,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		t.Fatal(err)
 	}
 	h := &api.Handlers{
+		Edition:     cfg.Edition,
 		DevSessions: devSessions, Library: libraryService,
 		Emergencies: emergencies, Freezes: freezes, Reports: reports,
 		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
@@ -549,6 +554,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewLicenseServiceHandler(h.License(), opts) },
 		func() (string, http.Handler) {
+			return pluxv1connect.NewInstallationServiceHandler(h.Installation(), opts)
+		},
+		func() (string, http.Handler) {
 			return pluxv1connect.NewNotificationServiceHandler(h.Notification(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewWebhookServiceHandler(h.Webhook(), opts) },
@@ -615,6 +623,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		compliance:   pluxv1connect.NewComplianceServiceClient(srv.Client(), srv.URL),
 		secAdmin:     pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
 		license:      pluxv1connect.NewLicenseServiceClient(srv.Client(), srv.URL),
+		installation: pluxv1connect.NewInstallationServiceClient(srv.Client(), srv.URL),
 		audit:        pluxv1connect.NewAuditServiceClient(srv.Client(), srv.URL),
 		dsr:          pluxv1connect.NewDataSubjectServiceClient(srv.Client(), srv.URL),
 		flags:        pluxv1connect.NewFlagServiceClient(srv.Client(), srv.URL),

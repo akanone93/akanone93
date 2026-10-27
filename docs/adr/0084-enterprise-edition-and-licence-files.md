@@ -54,7 +54,8 @@ Chosen option: **1** (maintainer decisions Q6, Q7, Q8; plan decision D-L).
   licensed limit: warnings and an audit entry (`PLX-8603`), never refused device traffic.
 - **Never gated.** Security capabilities, the audit log, the kill switch, rollbacks and
   break-glass work identically with or without a licence.
-- **CLI.** `plux license inspect <file>` and `plux admin license`.
+- **CLI.** `plux license inspect <file>` and `plux admin license`. A licence can also be uploaded
+  through the API (Revision 2026-10-27).
 - **Licence text.** `ee/LICENSE`, drafted by the lead and marked for legal review before the
   first public release (it stays on the open-decisions list). `REUSE.toml` covers `ee/` with
   `LicenseRef-Plux-Enterprise`.
@@ -66,6 +67,25 @@ Chosen option: **1** (maintainer decisions Q6, Q7, Q8; plan decision D-L).
 - **Negative:** extension points are an API to keep stable; a licence cannot be revoked remotely
   before it expires (short terms mitigate); the commercial text is unreviewed until legal sign-off.
 - **Follow-up:** migration 0045; licence key rotation runbook; legal review.
+
+## Revision 2026-10-27
+
+The maintainer decided that a licence may also be uploaded through the API, so an installation
+administrator can renew it from Studio without access to the host. `LicenseService.InstallLicense`
+stays:
+
+- **Who.** An installation administrator only (`GOV-030`); an organisation role never suffices.
+- **Size.** At most 64 KiB, a limit well above any licence file and below anything useful for abuse.
+- **Verification.** The edition verifies the signature offline, exactly as for a file on disk; a file
+  that does not verify is refused (`PLX-8601`) and changes nothing. The core without the enterprise
+  edition cannot hold a licence and refuses the call.
+- **Audit.** Every installation is recorded in the installation's own chain as `license.state_changed`.
+- **File and upload together.** The file named by `PLUX_LICENSE_FILE` (or the `license` Helm secret)
+  remains the way to deliver a licence at start-up and for air-gapped installs; an uploaded licence
+  replaces the installation's current one, and the hourly verification applies to both.
+
+Nothing else in this decision changes: the licence is still verified offline, never calls home, and
+never gates a security capability (`GOV-032`).
 
 ## Options in detail
 

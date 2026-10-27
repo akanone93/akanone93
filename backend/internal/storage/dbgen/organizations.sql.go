@@ -245,6 +245,53 @@ func (q *Queries) ListAllMembershipsForUser(ctx context.Context, arg ListAllMemb
 	return items, nil
 }
 
+const listInstallationOrganizations = `-- name: ListInstallationOrganizations :many
+SELECT o.id, o.name, o.created_at,
+       (SELECT count(*) FROM memberships m
+         WHERE m.organization_id = o.id AND m.team_id IS NULL)::bigint AS member_count,
+       (SELECT count(*) FROM apps a
+         WHERE a.organization_id = o.id AND a.deleted_at IS NULL)::bigint AS app_count
+  FROM organizations o
+ ORDER BY o.key, o.id
+`
+
+type ListInstallationOrganizationsRow struct {
+	ID          pgtype.UUID
+	Name        string
+	CreatedAt   pgtype.Timestamptz
+	MemberCount int64
+	AppCount    int64
+}
+
+// Runs in the 'overview' scope, which admits reading memberships and apps
+// across organisations. It returns identifiers, names, the creation time
+// and two counts: no content of any organisation.
+func (q *Queries) ListInstallationOrganizations(ctx context.Context) ([]ListInstallationOrganizationsRow, error) {
+	rows, err := q.db.Query(ctx, listInstallationOrganizations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListInstallationOrganizationsRow{}
+	for rows.Next() {
+		var i ListInstallationOrganizationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.MemberCount,
+			&i.AppCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMembers = `-- name: ListMembers :many
 SELECT m.id, m.organization_id, m.user_id, m.team_id, m.role, m.added_at, u.display_name, u.email
   FROM memberships m

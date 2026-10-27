@@ -793,10 +793,16 @@ var matrix = map[string]entry{
 	"ExperimentService/GetHoldout": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetHoldoutRequest{AppId: f.app, EnvironmentId: f.prod}
 	})),
-	"ExperimentService/GetResults":              atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetResultsRequest{Id: unknownID})),
-	"ExperimentService/PromoteExperiment":       atPerm(auth.ExperimentsManage, anyone(&pluxv1.PromoteExperimentRequest{Id: unknownID, Variant: "b"})),
-	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
-	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
+	"ExperimentService/GetResults":                      atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetResultsRequest{Id: unknownID})),
+	"ExperimentService/PromoteExperiment":               atPerm(auth.ExperimentsManage, anyone(&pluxv1.PromoteExperimentRequest{Id: unknownID, Variant: "b"})),
+	"InstallationService/GetInstallationHealth":         {kind: installation, build: anyone(&pluxv1.GetInstallationHealthRequest{})},
+	"InstallationService/GetInstallationStorage":        {kind: installation, build: anyone(&pluxv1.GetInstallationStorageRequest{})},
+	"InstallationService/ListInstallationJobs":          {kind: installation, build: anyone(&pluxv1.ListInstallationJobsRequest{})},
+	"InstallationService/ListTrustedIssuers":            {kind: installation, build: anyone(&pluxv1.ListTrustedIssuersRequest{})},
+	"InstallationService/ListInstallationOrganizations": {kind: installation, build: anyone(&pluxv1.ListInstallationOrganizationsRequest{})},
+	"LicenseService/InstallLicense":                     {kind: installation, build: anyone(&pluxv1.InstallLicenseRequest{License: []byte("x")})},
+	"LicenseService/GetLicenseState":                    atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
+	"SecurityAdminService/ListAuditCheckpoints":         atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
 	// NotificationService, WebhookService (SRV-062, SRV-063)
 	"NotificationService/ListEventTypes":    {kind: self, build: anyone(&pluxv1.ListEventTypesRequest{})},

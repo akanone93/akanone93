@@ -39,6 +39,9 @@ const (
 	// LicenseServiceGetLicenseStateProcedure is the fully-qualified name of the LicenseService's
 	// GetLicenseState RPC.
 	LicenseServiceGetLicenseStateProcedure = "/plux.v1.LicenseService/GetLicenseState"
+	// LicenseServiceInstallLicenseProcedure is the fully-qualified name of the LicenseService's
+	// InstallLicense RPC.
+	LicenseServiceInstallLicenseProcedure = "/plux.v1.LicenseService/InstallLicense"
 )
 
 // LicenseServiceClient is a client for the plux.v1.LicenseService service.
@@ -46,6 +49,12 @@ type LicenseServiceClient interface {
 	// GetLicenseState returns the state of the licence and what it enables.
 	// It never quotes a file that failed verification.
 	GetLicenseState(context.Context, *connect.Request[pluxv1.GetLicenseStateRequest]) (*connect.Response[pluxv1.GetLicenseStateResponse], error)
+	// InstallLicense verifies a licence file offline and, when it is valid,
+	// makes it the installation's licence. It needs an installation
+	// administrator, is audited, and never quotes a file that failed
+	// verification. An edition that cannot hold a licence refuses it with
+	// FAILED_PRECONDITION.
+	InstallLicense(context.Context, *connect.Request[pluxv1.InstallLicenseRequest]) (*connect.Response[pluxv1.InstallLicenseResponse], error)
 }
 
 // NewLicenseServiceClient constructs a client for the plux.v1.LicenseService service. By default,
@@ -65,12 +74,19 @@ func NewLicenseServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(licenseServiceMethods.ByName("GetLicenseState")),
 			connect.WithClientOptions(opts...),
 		),
+		installLicense: connect.NewClient[pluxv1.InstallLicenseRequest, pluxv1.InstallLicenseResponse](
+			httpClient,
+			baseURL+LicenseServiceInstallLicenseProcedure,
+			connect.WithSchema(licenseServiceMethods.ByName("InstallLicense")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // licenseServiceClient implements LicenseServiceClient.
 type licenseServiceClient struct {
 	getLicenseState *connect.Client[pluxv1.GetLicenseStateRequest, pluxv1.GetLicenseStateResponse]
+	installLicense  *connect.Client[pluxv1.InstallLicenseRequest, pluxv1.InstallLicenseResponse]
 }
 
 // GetLicenseState calls plux.v1.LicenseService.GetLicenseState.
@@ -78,11 +94,22 @@ func (c *licenseServiceClient) GetLicenseState(ctx context.Context, req *connect
 	return c.getLicenseState.CallUnary(ctx, req)
 }
 
+// InstallLicense calls plux.v1.LicenseService.InstallLicense.
+func (c *licenseServiceClient) InstallLicense(ctx context.Context, req *connect.Request[pluxv1.InstallLicenseRequest]) (*connect.Response[pluxv1.InstallLicenseResponse], error) {
+	return c.installLicense.CallUnary(ctx, req)
+}
+
 // LicenseServiceHandler is an implementation of the plux.v1.LicenseService service.
 type LicenseServiceHandler interface {
 	// GetLicenseState returns the state of the licence and what it enables.
 	// It never quotes a file that failed verification.
 	GetLicenseState(context.Context, *connect.Request[pluxv1.GetLicenseStateRequest]) (*connect.Response[pluxv1.GetLicenseStateResponse], error)
+	// InstallLicense verifies a licence file offline and, when it is valid,
+	// makes it the installation's licence. It needs an installation
+	// administrator, is audited, and never quotes a file that failed
+	// verification. An edition that cannot hold a licence refuses it with
+	// FAILED_PRECONDITION.
+	InstallLicense(context.Context, *connect.Request[pluxv1.InstallLicenseRequest]) (*connect.Response[pluxv1.InstallLicenseResponse], error)
 }
 
 // NewLicenseServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -98,10 +125,18 @@ func NewLicenseServiceHandler(svc LicenseServiceHandler, opts ...connect.Handler
 		connect.WithSchema(licenseServiceMethods.ByName("GetLicenseState")),
 		connect.WithHandlerOptions(opts...),
 	)
+	licenseServiceInstallLicenseHandler := connect.NewUnaryHandler(
+		LicenseServiceInstallLicenseProcedure,
+		svc.InstallLicense,
+		connect.WithSchema(licenseServiceMethods.ByName("InstallLicense")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.LicenseService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case LicenseServiceGetLicenseStateProcedure:
 			licenseServiceGetLicenseStateHandler.ServeHTTP(w, r)
+		case LicenseServiceInstallLicenseProcedure:
+			licenseServiceInstallLicenseHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -113,4 +148,8 @@ type UnimplementedLicenseServiceHandler struct{}
 
 func (UnimplementedLicenseServiceHandler) GetLicenseState(context.Context, *connect.Request[pluxv1.GetLicenseStateRequest]) (*connect.Response[pluxv1.GetLicenseStateResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.LicenseService.GetLicenseState is not implemented"))
+}
+
+func (UnimplementedLicenseServiceHandler) InstallLicense(context.Context, *connect.Request[pluxv1.InstallLicenseRequest]) (*connect.Response[pluxv1.InstallLicenseResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.LicenseService.InstallLicense is not implemented"))
 }

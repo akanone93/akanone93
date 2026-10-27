@@ -190,6 +190,10 @@ const (
 	// became invalid, or came back to a valid state (GOV-030). It is
 	// recorded in the installation's own chain.
 	LicenseStateChanged Action = "license.state_changed"
+	// InstallationOrganizationsViewed: an installation administrator listed
+	// every organisation with its counts (STU-116). It is recorded in the
+	// installation's own chain.
+	InstallationOrganizationsViewed Action = "installation.organizations_viewed"
 	// GitExportConfigured: an app's Git export setting was set (GOV-011).
 	GitExportConfigured Action = "git.export_configured"
 	// GitExported: a publish was pushed to the app's Git remote (GOV-011).
@@ -468,7 +472,7 @@ var actions = sorted(
 	RoleGranted, RoleGrantChanged, RoleRevoked,
 	RestrictionCreated, RestrictionDeleted, RestrictionRefused,
 	SessionRevoked, StepUpRequested, StepUpApproved, StepUpRefused, StepUpGrantIssued, StepUpGrantRefused,
-	LicenseStateChanged,
+	LicenseStateChanged, InstallationOrganizationsViewed,
 	NotificationChannelSet, NotificationChannelDeleted, NotificationSubscriptionSet, NotificationsDropped,
 	WebhookSet, WebhookDeleted, WebhookSecretRotated, DeliveryFailed,
 	FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet, FunctionHookDeleted, FunctionHookSecretRotated,

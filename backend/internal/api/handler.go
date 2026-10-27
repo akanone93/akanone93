@@ -137,6 +137,9 @@ type Handlers struct {
 	// Edition answers what the licence allows (GOV-030); nil is the
 	// community provider.
 	Edition edition.Provider
+	// InstallationState supplies what InstallationService reports; nil
+	// reports nothing.
+	InstallationState InstallationReader
 	// Functions administers functions (FN-006, FN-016); nil leaves
 	// FunctionAdminService unmounted.
 	Functions *function.Service

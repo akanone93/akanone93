@@ -143,6 +143,15 @@ type Provider interface {
 	Status() Status
 }
 
+// Installer is implemented by a Provider that can take a licence file at
+// run time (P11 §4.3 #23). Install verifies the file offline exactly as the
+// operator-placed file is verified, keeps it only when it is valid, and
+// returns the resulting status; a file that fails verification is refused
+// and the previous licence stays in force.
+type Installer interface {
+	Install(ctx context.Context, file []byte) (Status, error)
+}
+
 // Settings are what a Verifier needs to open a provider.
 type Settings struct {
 	// File is the licence file's path (PLUX_LICENSE_FILE); empty means none.
