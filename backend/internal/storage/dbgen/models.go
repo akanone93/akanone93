@@ -1745,6 +1745,22 @@ type TelemetryEvent struct {
 	ReceivedAt      pgtype.Timestamptz
 }
 
+type TestRun struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	ReportKey      string
+	Source         string
+	Label          string
+	Passed         int32
+	Failed         int32
+	Skipped        int32
+	DurationMs     int64
+	Results        []byte
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+}
+
 type TranslationLock struct {
 	DraftID         pgtype.UUID
 	Locale          string

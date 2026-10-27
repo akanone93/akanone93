@@ -1,0 +1,99 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// TestRunService holds the runs of Plux Test scenarios that `plux test` and
+// CI report, so Studio lists them per app and shows the result of every
+// scenario and step (TST-001, TST-002).
+service TestRunService {
+  // ReportRun records a run with its results. The report is idempotent per
+  // app and report key: reporting the same key again returns the first run.
+  // It needs plugin.edit.
+  rpc ReportRun(ReportRunRequest) returns (ReportRunResponse) {}
+  // ListRuns lists the runs of an app, newest first. It needs app.read.
+  rpc ListRuns(ListRunsRequest) returns (ListRunsResponse) {}
+  // GetRun returns one run with all its results. It needs app.read.
+  rpc GetRun(GetRunRequest) returns (GetRunResponse) {}
+}
+
+// TestStepResult is the outcome of one step or expectation of a scenario.
+message TestStepResult {
+  // Index is the position of the step in the scenario, from 0.
+  int32 index = 1;
+  // Description says what the step does, e.g. "tap checkout.pay".
+  string description = 2;
+  // Status is "passed", "failed" or "skipped".
+  string status = 3;
+  // Message explains a failure; empty otherwise.
+  string message = 4;
+}
+
+// TestScenarioResult is the outcome of one scenario.
+message TestScenarioResult {
+  // Id is the scenario's identifier in its document.
+  string id = 1;
+  string name = 2;
+  // Status is "passed", "failed" or "skipped".
+  string status = 3;
+  int64 duration_ms = 4;
+  repeated TestStepResult steps = 5;
+}
+
+// TestRun is a recorded run.
+message TestRun {
+  string id = 1;
+  string app_id = 2;
+  string report_key = 3;
+  // Source says where the run came from, e.g. "ci" or "cli".
+  string source = 4;
+  // Label names what was tested, e.g. a branch or a commit.
+  string label = 5;
+  int32 passed = 6;
+  int32 failed = 7;
+  int32 skipped = 8;
+  int64 duration_ms = 9;
+  string created_by = 10;
+  google.protobuf.Timestamp created_at = 11;
+  // Scenarios are set by GetRun and ReportRun, not by ListRuns.
+  repeated TestScenarioResult scenarios = 12;
+}
+
+message ReportRunRequest {
+  string app_id = 1;
+  // ReportKey makes the report idempotent; 1 to 128 bytes.
+  string report_key = 2;
+  string source = 3;
+  string label = 4;
+  repeated TestScenarioResult scenarios = 5;
+}
+
+message ReportRunResponse {
+  TestRun run = 1;
+}
+
+message ListRunsRequest {
+  string app_id = 1;
+  Page page = 2;
+}
+
+message ListRunsResponse {
+  repeated TestRun runs = 1;
+  PageResult page = 2;
+}
+
+message GetRunRequest {
+  string app_id = 1;
+  string run_id = 2;
+}
+
+message GetRunResponse {
+  TestRun run = 1;
+}

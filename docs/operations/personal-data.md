@@ -69,4 +69,5 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 |---|---|---|---|---|---|---|---|
 | `translation_locks` | The editing lock of one locale of an app's translations. | — | — | — | Until released or taken over. | none | locale is the language being translated, not a person's locale. |
 | `change_freezes` | Change-freeze windows of an organisation (GOV-025). | — | — | `created_by` | Until the window is deleted. | none | Holds the display name of the administrator who last wrote the window; the window itself is not about a person. |
+| `test_runs` | Plux Test runs reported for an app, with their scenario results (TST-002). | — | — | `created_by` | Until the app is deleted. | none | created_by is the identifier of the token or person that reported the run; the results describe scenarios, not people. |
 | `golden_cases` | Golden-test cases of an app. | — | — | — | Until the case is deleted. | none | locale is the language the case renders in, not a person's locale. |

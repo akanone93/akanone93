@@ -31,4 +31,5 @@ export * from "./gen/plux/v1/search_pb.ts";
 export * from "./gen/plux/v1/security_admin_pb.ts";
 export * from "./gen/plux/v1/studio_events_pb.ts";
 export * from "./gen/plux/v1/template_pb.ts";
+export * from "./gen/plux/v1/test_run_pb.ts";
 export * from "./transport.ts";

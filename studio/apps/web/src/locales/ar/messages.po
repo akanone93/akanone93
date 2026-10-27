@@ -682,6 +682,12 @@ msgstr "مخطط الإجراءات"
 msgid "actionGraph.title"
 msgstr "محرر مخطط الإجراءات"
 
+#. Column heading of the row actions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colActions"
+msgstr "الإجراءات"
+
 #. Label of the properties tab that lists and creates the selected widget's navigation links.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -748,6 +754,12 @@ msgstr "إضافة إدخال حالة"
 msgid "links.append"
 msgstr "إضافة بعدها"
 
+#. Validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.problemExpect"
+msgstr "أضف توقعًا واحدًا مكتملًا على الأقل."
+
 #. Button that adds a collection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -759,6 +771,12 @@ msgstr "إضافة مجموعة"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataAdd"
 msgstr "إضافة مصدر بيانات"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.addExpect"
+msgstr "إضافة توقع"
 
 #. Button that adds a field to a collection.
 #. js-lingui-explicit-id
@@ -801,6 +819,12 @@ msgstr "إضافة الاعتمادية أو تحديثها"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.add"
 msgstr "إضافة عنصر حالة"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.addStep"
+msgstr "إضافة خطوة"
 
 #. Button that adds the imported data sources and types to the draft.
 #. js-lingui-explicit-id
@@ -1245,6 +1269,12 @@ msgstr "رجوع"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.back"
 msgstr "العودة إلى الأجهزة"
+
+#. Link back to the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.back"
+msgstr "العودة إلى اختبار Plux"
 
 #. Link from a detail page to the library.
 #. js-lingui-explicit-id
@@ -2236,6 +2266,12 @@ msgstr "القرار: {decision}"
 msgid "approvals.decisionsHeading"
 msgstr "القرارات"
 
+#. Caption under the Plux Test heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.listCaption"
+msgstr "سيناريوهات الاختبار التصريحية لهذا التطبيق، والتشغيلات التي أبلغ عنها `plux test` وCI."
+
 #. Direction option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -2464,12 +2500,6 @@ msgstr "إطار الجهاز"
 msgid "preview.matrix"
 msgstr "مصفوفة الأجهزة"
 
-#. Column heading.
-#. js-lingui-explicit-id
-#: apps/web/src/features/approvals/approvals.messages.ts
-msgid "approvals.colDevices"
-msgstr "الأجهزة"
-
 #. Heading of the devices list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2480,6 +2510,12 @@ msgstr "الأجهزة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.bayToggle"
+msgstr "الأجهزة"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colDevices"
 msgstr "الأجهزة"
 
 #. Column heading.
@@ -2583,6 +2619,12 @@ msgstr "تكرار الشاشة"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.command.duplicate"
 msgstr "تكرار التحديد"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colDuration"
+msgstr "المدة"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -2703,6 +2745,12 @@ msgstr "أدخل اسمًا."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.email"
 msgstr "أدخل عنوان بريد إلكتروني صالحًا."
+
+#. Step kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.stepEnterText"
+msgstr "إدخال نص"
 
 #. Validation error of the one-time code.
 #. js-lingui-explicit-id
@@ -2854,6 +2902,12 @@ msgstr "الأحداث"
 msgid "releases.timelineCaption"
 msgstr "كل إصدارات هذه البيئة، الأحدث أولاً، مع عمليات الطرح التي تقدمها."
 
+#. Validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.problemStep"
+msgstr "تحتاج كل خطوة إلى معرّف اختبار صالح، ويحتاج النص المُدخل إلى نص."
+
 #. Description of the warnings dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -2883,6 +2937,18 @@ msgstr "العنصر الموجود المستخدم بدل {id}"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.expanded"
 msgstr "موسع"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colExpectations"
+msgstr "التوقعات"
+
+#. Heading of the expectations group.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.expectsHeading"
+msgstr "التوقعات"
 
 #. Heading of the experiment page.
 #. js-lingui-explicit-id
@@ -2974,6 +3040,12 @@ msgstr "استخراج التحديد إلى مكوّن"
 msgid "library.canvas.extract.title"
 msgstr "استخراج إلى مكوّن"
 
+#. Status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.failed"
+msgstr "فشل"
+
 #. Result of one test case that failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -3033,6 +3105,24 @@ msgstr "نوع الحقل"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbFields"
 msgstr "الحقول"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colFile"
+msgstr "الملف"
+
+#. Label: the scenarios file name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.fileLabel"
+msgstr "الملف"
+
+#. Label of the scenario filter box.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.searchLabel"
+msgstr "تصفية السيناريوهات"
 
 #. Heading of the list of validator findings about the chosen state entry.
 #. js-lingui-explicit-id
@@ -3544,6 +3634,18 @@ msgstr "iPhone Pro Max"
 msgid "preview.frame.iphone-se"
 msgstr "iPhone SE"
 
+#. Expectation kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.expectNotVisible"
+msgstr "غير ظاهر"
+
+#. Expectation kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.expectVisible"
+msgstr "ظاهر"
+
 #. STU-071: the item is the app's or plugin's entry and cannot be deleted until another is chosen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -3750,6 +3852,12 @@ msgstr "مفتاح الإيقاف الطارئ"
 msgid "releases.killTitle"
 msgstr "مفتاح الإيقاف الطارئ"
 
+#. Label of a step or expectation kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.kindLabel"
+msgstr "النوع"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3767,6 +3875,12 @@ msgstr "النوع"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataKind"
 msgstr "النوع"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colLabel"
+msgstr "التسمية"
 
 #. Label of the release label field.
 #. js-lingui-explicit-id
@@ -4178,6 +4292,12 @@ msgstr "متوسطة"
 
 #. Column heading.
 #. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colMessage"
+msgstr "الرسالة"
+
+#. Column heading.
+#. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colMetric"
 msgstr "المقياس"
@@ -4271,6 +4391,12 @@ msgstr "تم نقل الخطوة المحددة {direction}. الموضع الج
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.mute.label"
 msgstr "كتم"
+
+#. Label: the scenario name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.nameLabel"
+msgstr "الاسم"
 
 #. Label of the field with the name PXL uses to address a state entry.
 #. js-lingui-explicit-id
@@ -4368,6 +4494,12 @@ msgstr "التنقل"
 msgid "links.heading"
 msgstr "الانتقال"
 
+#. Expectation kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.expectNavigatedTo"
+msgstr "تم الانتقال إلى"
+
 #. Shown when the widget must keep a minimum touch target.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -4463,6 +4595,12 @@ msgstr "سياسة جديدة"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.adopt.addedProps"
 msgstr "خصائص جديدة"
+
+#. Heading of the scenario form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.newTitle"
+msgstr "سيناريو جديد"
 
 #. Button and command that create a blank screen.
 #. js-lingui-explicit-id
@@ -4704,6 +4842,18 @@ msgstr "لا توجد نتائج بعد."
 msgid "releases.noRollout"
 msgstr "لا يوجد طرح"
 
+#. Empty state of the runs table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.noRuns"
+msgstr "لم يُبلَّغ عن أي تشغيل بعد."
+
+#. Empty state of the scenarios table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.noScenarios"
+msgstr "لا توجد سيناريوهات بعد."
+
 #. Problem shown for a link whose target screen does not exist; route is the route name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -4787,6 +4937,12 @@ msgstr "غير تفاعلي"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.productionNever"
 msgstr "ليست إنتاجًا"
+
+#. Fallback of a missing time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.never"
+msgstr "لم يُبلَّغ"
 
 #. Shown for an optional property that has no value.
 #. js-lingui-explicit-id
@@ -5148,6 +5304,18 @@ msgstr "صفحة"
 msgid "chrome.notfound.title"
 msgstr "الصفحة غير موجودة"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colTarget"
+msgstr "الصفحة أو التدفق"
+
+#. Label: the route of the page under test.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.pageLabel"
+msgstr "مسار الصفحة"
+
 #. Title of the dialog that shows the QR code for pairing a device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -5178,11 +5346,23 @@ msgstr "المعاملات"
 msgid "library.canvas.expose"
 msgstr "المعاملات المطلوبة عند إدراج القالب"
 
+#. Status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.passed"
+msgstr "نجح"
+
 #. Result of one test case that passed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.testPass"
 msgstr "نجح"
+
+#. Accessible name of the run summary.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.summary"
+msgstr "السيناريوهات الناجحة والفاشلة والمتخطاة"
 
 #. Label of the password field.
 #. js-lingui-explicit-id
@@ -5333,6 +5513,12 @@ msgstr "استوديو Plux"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "unsupported.body"
 msgstr "يحتاج Plux Studio إلى WebGL2 لرسم اللوحة. استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari مع تفعيل تسريع الأجهزة."
+
+#. Heading of the Plux Test page: scenarios and runs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.listTitle"
+msgstr "اختبار Plux"
 
 #. Link to the approval policies.
 #. js-lingui-explicit-id
@@ -5826,6 +6012,12 @@ msgstr "إعادة التحميل"
 msgid "devices.reload"
 msgstr "إعادة تحميل الشاشة"
 
+#. Button: remove one scenario.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.remove"
+msgstr "إزالة"
+
 #. Button that removes an entry from a list in a designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -6000,6 +6192,12 @@ msgstr "استبدال"
 msgid "rustEditor.useTemplate"
 msgstr "استبدال المصدر بالقالب"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colWhen"
+msgstr "وقت الإبلاغ"
+
 #. Name of the reports publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -6150,6 +6348,12 @@ msgstr "استعادة هذه اللقطة؟"
 msgid "history.reasonRestore"
 msgstr "مستعاد"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colResult"
+msgstr "النتيجة"
+
 #. Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -6161,6 +6365,12 @@ msgstr "نوع النتيجة: {type}"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.results"
 msgstr "النتائج"
+
+#. Caption of the run page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.runCaption"
+msgstr "النتائج لكل سيناريو وخطوة."
 
 #. Button: continue a paused rollout.
 #. js-lingui-explicit-id
@@ -6330,6 +6540,18 @@ msgstr "خطة الطرح (JSON)"
 msgid "security.rootVersions"
 msgstr "إصدارات الجذر المقدَّمة"
 
+#. Label of a route in an expectation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.routeLabel"
+msgstr "المسار"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colRun"
+msgstr "التشغيل"
+
 #. Button that builds the source and runs its stored test cases.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -6371,6 +6593,12 @@ msgstr "جارٍ تشغيل الاختبارات …"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.runningTests"
 msgstr "جارٍ تشغيل الاختبارات…"
+
+#. Heading of the runs table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.runsHeading"
+msgstr "التشغيلات"
 
 #. Label.
 #. js-lingui-explicit-id
@@ -6438,6 +6666,12 @@ msgstr "حفظ إصدار جديد"
 msgid "approvals.save"
 msgstr "حفظ السياسة"
 
+#. Button: save the scenario.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.save"
+msgstr "حفظ السيناريو"
+
 #. Button: stores the screenshot as an app asset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -6479,6 +6713,30 @@ msgstr "محفوظ على الجهاز"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.pairHelp"
 msgstr "امسح الرمز ضوئيًا باستخدام تطبيق Plux Dev أو اكتب الرمز القصير في التطبيق."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colName"
+msgstr "السيناريو"
+
+#. Status after removing a scenario.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.removed"
+msgstr "أُزيل السيناريو."
+
+#. Status after saving a scenario.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.saved"
+msgstr "حُفظ السيناريو."
+
+#. Heading of the scenarios table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.scenariosHeading"
+msgstr "السيناريوهات"
 
 #. Wizard step.
 #. js-lingui-explicit-id
@@ -6569,6 +6827,12 @@ msgstr "لقطة شاشة للجهاز المقترن"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.screenshotSaved"
 msgstr "تم حفظ لقطة الشاشة."
+
+#. Step kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.stepScroll"
+msgstr "تمرير"
 
 #. Label of the library search field.
 #. js-lingui-explicit-id
@@ -6894,6 +7158,12 @@ msgstr "الحجم"
 msgid "panels.breakpoint"
 msgstr "فئة الحجم"
 
+#. Status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.skipped"
+msgstr "تم تخطيه"
+
 #. Shown when an instance replaces the content of a slot.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -6941,6 +7211,12 @@ msgstr "شخص آخر يحرر هذه الإضافة، لذلك لا يمكن ا
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.readOnly"
 msgstr "شخص آخر يحرر الآن، لذا هذا المصمم للقراءة فقط."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colSource"
+msgstr "المصدر"
 
 #. Label of the picker that chooses which device feeds the drawer.
 #. js-lingui-explicit-id
@@ -7074,6 +7350,12 @@ msgstr "عناصر الحالة"
 msgid "panelTabs.stateList"
 msgstr "إدخالات الحالة"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colStatus"
+msgstr "الحالة"
+
 #. Label of the status filter.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -7098,6 +7380,12 @@ msgstr "البقاء"
 msgid "pluginCanvas.ghostStay"
 msgstr "البقاء هنا"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colStep"
+msgstr "الخطوة"
+
 #. First step of saving a template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -7109,6 +7397,18 @@ msgstr "الخطوة 1 من 2: التفاصيل"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.save.step2"
 msgstr "الخطوة 2 من 2: المعاملات والرؤية"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.colSteps"
+msgstr "الخطوات"
+
+#. Heading of the steps group.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.stepsHeading"
+msgstr "الخطوات"
 
 #. Button that stops the experiment.
 #. js-lingui-explicit-id
@@ -7296,6 +7596,12 @@ msgstr "وقت التنفيذ"
 msgid "approvals.colInvokedBy"
 msgstr "نفّذه"
 
+#. Step kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.stepTap"
+msgstr "نقر"
+
 #. Name of the target publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -7338,17 +7644,41 @@ msgstr "القالب"
 msgid "library.kind.template"
 msgstr "القوالب"
 
+#. Label of a node test ID.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.testIdLabel"
+msgstr "معرّف الاختبار"
+
+#. Heading of the run page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.runTitle"
+msgstr "تشغيل اختبار"
+
 #. Name of the tab that runs the function's tests.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.tabTests"
 msgstr "الاختبارات"
 
+#. Label of the text of a step or expectation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.textLabel"
+msgstr "النص"
+
 #. Label of the read-only field that shows the text being moved to a key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.extract.text"
 msgstr "النص"
+
+#. Expectation kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.expectTextEquals"
+msgstr "النص يساوي"
 
 #. Label of the preview text scale select.
 #. js-lingui-explicit-id
@@ -7548,6 +7878,12 @@ msgstr "تعذّر استيراد الملف. تحقق من أنه ملف مكت
 msgid "assets.failure.too-large"
 msgstr "الملف أكبر من الحد المسموح به لحجم الأصول. اختر ملفًا أصغر."
 
+#. Validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.problemFile"
+msgstr "يحتاج اسم الملف إلى أحرف صغيرة وأرقام وشرطات."
+
 #. Shown when the SHA-256 of the received bytes differs from the file's.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -7668,6 +8004,12 @@ msgstr "القيمة التجريبية ليست JSON صالحًا."
 msgid "designers.dataMockHelp"
 msgstr "القيمة التجريبية هي ما تعرضه اللوحة ما دامت البيانات الحقيقية غير متاحة."
 
+#. Validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.problemPage"
+msgstr "تحتاج الصفحة إلى اسم مسار."
+
 #. Shown when the passkey prompt fails or is cancelled.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -7769,6 +8111,18 @@ msgstr "كان الطلب عند خطوة أخرى. أُعيد تحميله."
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.reviewFailed"
 msgstr "لم تُسجَّل المراجعة."
+
+#. Error after a refused save.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.saveFailed"
+msgstr "تعذّر حفظ السيناريو."
+
+#. Validation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.problemName"
+msgstr "يحتاج السيناريو إلى اسم."
 
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
@@ -8263,6 +8617,12 @@ msgstr "هذا الإصدار"
 msgid "publish.err8061"
 msgstr "انتهى هذا الطلب. افتح طلبًا جديدًا."
 
+#. Shown for a scenario without steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.noSteps"
+msgstr "لم يُبلِّغ هذا السيناريو عن أي خطوات."
+
 #. Heading of the dialog that lists what blocks deleting a screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -8707,6 +9067,12 @@ msgstr "الرؤية"
 msgid "publish.stepDiffs"
 msgstr "الفروق المرئية"
 
+#. Step kind.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.stepWaitFor"
+msgstr "انتظار"
+
 #. Approval is pending.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -8910,6 +9276,12 @@ msgstr "لديك تغييرات غير محفوظة. إذا غادرت الآن 
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.revokeNoPermission"
 msgstr "لا يحق لك إدارة هذا التطبيق."
+
+#. Shown when the person lacks plugin.edit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.readOnly"
+msgstr "يمكنك قراءة السيناريوهات لكن لا يمكنك تغييرها."
 
 #. Banner when the person cannot change the request.
 #. js-lingui-explicit-id
