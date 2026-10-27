@@ -328,8 +328,37 @@ function PluginCanvasView({
     [index, edit, screenOf, store],
   );
   const canvasCommandList = useMemo(
-    () => canvasCommands({ wrap: m.wrapCommand, unwrap: m.unwrapCommand, duplicate: m.duplicateCommand }, structure),
-    [m.wrapCommand, m.unwrapCommand, m.duplicateCommand, structure],
+    () =>
+      canvasCommands(
+        {
+          wrap: m.wrapCommand,
+          unwrap: m.unwrapCommand,
+          duplicate: m.duplicateCommand,
+          experiment: m.experimentCommand,
+        },
+        structure,
+        () => {
+          const ids = store.get().ids;
+          if (ids.length > 0) {
+            void navigate({
+              to: "/o/$org/apps/$app/experiments/new",
+              params: { org: params.org ?? "", app: params.app ?? "" },
+              search: { target: ids.join(",") },
+            } as never);
+          }
+        },
+      ),
+    [
+      m.wrapCommand,
+      m.unwrapCommand,
+      m.duplicateCommand,
+      m.experimentCommand,
+      structure,
+      store,
+      navigate,
+      params.org,
+      params.app,
+    ],
   );
   useScopedCommands("plugin-canvas", canvasCommandList);
   const clipboardSource = useMemo(

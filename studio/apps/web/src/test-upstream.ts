@@ -18,7 +18,9 @@ import {
   type DevSessionServiceSendCommandRequest,
   DocumentSchema,
   DocumentService,
+  ExperimentService,
   FederationService,
+  FlagService,
   FunctionAdminService,
   GetCurrentUserResponseSchema,
   GovernanceService,
@@ -140,7 +142,16 @@ export interface ReleasesFixture {
   failing?: boolean;
 }
 
+/** The Experiments and flags area (STU-103): experiments with results, flags, and every mutation received as \`rpc:detail\`. */
+export interface ExperimentsFixture {
+  experiments: { id: string; key: string; state: number; definition?: unknown; winner?: string }[];
+  flags?: { key: string; type: number; defaultJson: string; description?: string }[];
+  calls?: string[];
+  failing?: boolean;
+}
+
 export interface UpstreamData {
+  experiments?: ExperimentsFixture;
   release?: ReleaseFixture;
   releases?: ReleasesFixture;
   security?: SecurityData;
@@ -600,6 +611,9 @@ export function createUpstream(state: UpstreamData) {
     if (state.releases !== undefined) {
       releasesServices(service, state.releases);
     }
+    if (state.experiments !== undefined) {
+      experimentsServices(service, state.experiments);
+    }
     service(FederationService, { listSignInProviders: () => ({ providers: [] }) });
   });
 }
@@ -938,6 +952,94 @@ function releasesServices(
     clearKillSwitch: (req) => {
       data.calls?.push(`unkill:${req.killSwitch?.target}`);
       data.killed = (data.killed ?? []).filter((k) => k !== req.killSwitch?.target);
+      return {};
+    },
+  });
+}
+
+/** The experiment and flag RPCs of the Experiments area, in memory. */
+function experimentsServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  data: ExperimentsFixture,
+) {
+  const view = (x: ExperimentsFixture["experiments"][number]) => ({
+    id: x.id,
+    key: x.key,
+    state: x.state,
+    winner: x.winner ?? "",
+    definitionJson: JSON.stringify(x.definition ?? {}),
+  });
+  const find = (id: string) => data.experiments.find((x) => x.id === id);
+  const guard = () => {
+    if (data.failing === true) {
+      throw new ConnectError("failing", Code.Internal);
+    }
+  };
+  const mean = (variant: string, value: number) => ({ variant, subjects: 500n, mean: value });
+  service(ExperimentService, {
+    listExperiments: (req) => {
+      guard();
+      return { experiments: data.experiments.filter((x) => req.state === 0 || x.state === req.state).map(view) };
+    },
+    getExperiment: (req) => ({ experiment: view(find(req.id) ?? { id: req.id, key: "", state: 1 }) }),
+    createExperiment: (req) => {
+      const doc = JSON.parse(new TextDecoder().decode(req.document)) as { key: string };
+      data.calls?.push(`create:${doc.key}:${new TextDecoder().decode(req.document)}`);
+      return { experiment: view({ id: "exp-new", key: doc.key, state: 1 }) };
+    },
+    startExperiment: (req) => {
+      data.calls?.push(`start:${req.id}`);
+      return { experiment: view({ id: req.id, key: "", state: 2 }) };
+    },
+    stopExperiment: (req) => {
+      data.calls?.push(`stop:${req.id}`);
+      return { experiment: view({ id: req.id, key: "", state: 3 }) };
+    },
+    promoteExperiment: (req) => {
+      data.calls?.push(`ship:${req.id}:${req.variant}:${req.label}`);
+      return { publishJobId: "job-1" };
+    },
+    getResults: (req) => ({
+      experimentId: req.id,
+      sampleRatioMismatch: find(req.id)?.key === "mismatch",
+      variants: [
+        { name: "control", control: true, subjects: 500n, share: 0.5 },
+        { name: "bold", subjects: 500n, share: 0.5 },
+      ],
+      primary: {
+        event: "purchase",
+        means: [mean("control", 0.1), mean("bold", 0.12)],
+        comparisons: [{ variant: "bold", diff: 0.02, lower: 0.01, upper: 0.03, pValue: 0.01, improved: true }],
+      },
+    }),
+  });
+  const flag = (f: NonNullable<ExperimentsFixture["flags"]>[number]) => ({
+    id: `flag-${f.key}`,
+    key: f.key,
+    type: f.type,
+    defaultJson: f.defaultJson,
+    description: f.description ?? "",
+  });
+  service(FlagService, {
+    listFlags: () => ({ flags: (data.flags ?? []).map(flag) }),
+    createFlag: (req) => {
+      data.calls?.push(`createFlag:${req.key}:${req.spec?.defaultJson}`);
+      data.flags = [
+        ...(data.flags ?? []),
+        { key: req.key, type: req.spec?.type ?? 1, defaultJson: req.spec?.defaultJson ?? "" },
+      ];
+      return {};
+    },
+    updateFlag: (req) => {
+      data.calls?.push(`updateFlag:${req.key}:${req.spec?.defaultJson}`);
+      data.flags = (data.flags ?? []).map((f) =>
+        f.key === req.key ? { ...f, defaultJson: req.spec?.defaultJson ?? f.defaultJson } : f,
+      );
+      return {};
+    },
+    deleteFlag: (req) => {
+      data.calls?.push(`deleteFlag:${req.key}`);
+      data.flags = (data.flags ?? []).filter((f) => f.key !== req.key);
       return {};
     },
   });
