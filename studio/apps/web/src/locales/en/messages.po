@@ -3357,6 +3357,12 @@ msgstr "Slots"
 msgid "history.list"
 msgstr "Snapshots"
 
+#. Note shown after an import that produced variables while the app is read-only because another editor holds its lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.dataVariablesLocked"
+msgstr "Someone else holds the app lock, so the imported variables cannot be added to the app now."
+
 #. D37: re-taking failed because the lock is not free.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -3741,11 +3747,11 @@ msgstr "The snapshot could not be restored."
 msgid "history.failed"
 msgstr "The snapshots could not be loaded."
 
-#. Note shown after an import that produced variables, which belong to the app and are not added here.
+#. Note shown after an import that produced variables, which belong to the app and are added to it when the draft is applied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataVariablesNote"
-msgstr "The source also describes app-level variables; add them in the app document."
+msgstr "The source also describes app-level variables; applying adds them to the app under the app lock."
 
 #. Status after a successful import.
 #. js-lingui-explicit-id

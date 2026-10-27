@@ -6,11 +6,14 @@ import { Button, Dialog, Field, Icon, Input, Select, Textarea, TypeTag } from "@
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useState } from "react";
 import { jsonEqual } from "../editor/json-patch.ts";
+import { LockBanner } from "../editor/lock-ui.tsx";
+import type { AppSession } from "../localisation/l10n-sessions.tsx";
 import type { ValidatorClient } from "../problems/validator-client.ts";
 import { type DesignerMessages, designerMessages } from "./designers.messages.ts";
 import { ProblemList, Status } from "./parts.tsx";
 import {
   type DesignerDocument,
+  findDocument,
   hasErrors,
   isObject,
   type Json,
@@ -29,6 +32,10 @@ export interface DataSourceOverlayProps {
   /** The plugin's documents. */
   readonly documents: readonly DesignerDocument[] | undefined;
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
+  /** The app's session, which holds the app lock: the importer's app-level variables go to the app document through it. */
+  readonly app: AppSession | null;
+  /** The app's documents: `app.json` carries the variables. */
+  readonly appDocuments: readonly DesignerDocument[] | undefined;
   /** The Go module's importer (L-12). */
   readonly tool: ValidatorClient["tool"];
 }
@@ -37,7 +44,8 @@ export interface DataSourceOverlayProps {
 export interface ImportAnswer {
   readonly dataSources: Json[];
   readonly types: Json[];
-  readonly hasVariables: boolean;
+  /** The app-level variables of the source, which belong to the app document and not to the plugin. */
+  readonly variables: Json[];
   readonly diagnostics: readonly string[];
 }
 
@@ -48,7 +56,6 @@ export function parseImport(raw: unknown): ImportAnswer | undefined {
   }
   const list = (v: unknown): Json[] => (Array.isArray(v) ? v.filter(isObject) : []);
   const fragment = raw["fragment"];
-  const vars = fragment["variables"];
   const diagnostics = Array.isArray(raw["diagnostics"])
     ? raw["diagnostics"]
         .filter(isObject)
@@ -57,12 +64,19 @@ export function parseImport(raw: unknown): ImportAnswer | undefined {
   return {
     dataSources: list(fragment["dataSources"]),
     types: list(fragment["types"]),
-    hasVariables: Array.isArray(vars) ? vars.length > 0 : isObject(vars) && Object.keys(vars).length > 0,
+    variables: list(fragment["variables"]),
     diagnostics,
   };
 }
 
 /** The draft of the plugin document: its data sources, and the types an import added, over the document. */
+/** The app document with the variables it does not have yet added; a variable it has is kept as it is. */
+export function withVariables(base: Json, variables: readonly Json[]): Json {
+  const have = Array.isArray(base["variables"]) ? (base["variables"] as unknown[]) : [];
+  const names = new Set(have.filter(isObject).map((v) => v["name"]));
+  return { ...base, variables: [...have, ...variables.filter((v) => !names.has(v["name"]))] };
+}
+
 export function draftDocument(base: Json, sources: readonly Json[], types: readonly Json[]): Json {
   const next: Json = { ...base };
   if (sources.length > 0 || "dataSources" in base) {
@@ -79,6 +93,7 @@ export function draftDocument(base: Json, sources: readonly Json[], types: reado
 function useDraft(open: boolean, value: Json | undefined) {
   const [sources, setSources] = useState<Json[]>([]);
   const [types, setTypes] = useState<Json[]>([]);
+  const [variables, setVariables] = useState<Json[]>([]);
   const [selected, setSelected] = useState(0);
   const seed = Array.isArray(value?.["dataSources"]) ? (value["dataSources"] as unknown[]).filter(isObject) : [];
   // biome-ignore lint/correctness/useExhaustiveDependencies: the draft is seeded when the overlay opens
@@ -86,10 +101,11 @@ function useDraft(open: boolean, value: Json | undefined) {
     if (open) {
       setSources(structuredClone(seed));
       setTypes([]);
+      setVariables([]);
       setSelected(0);
     }
   }, [open]);
-  return { sources, setSources, types, setTypes, selected, setSelected };
+  return { sources, setSources, types, setTypes, variables, setVariables, selected, setSelected };
 }
 
 function SourceFields(props: { source: Json; onChange: (patch: Json) => void; canEdit: boolean; m: DesignerMessages }) {
@@ -243,7 +259,7 @@ function ImportSection(props: {
                   </li>
                 ))}
               </ul>
-              {answer.hasVariables && <p className="text-caption text-secondary">{m.dataVariablesNote}</p>}
+              {answer.variables.length > 0 && <p className="text-caption text-secondary">{m.dataVariablesNote}</p>}
               <Button
                 disabled={!canEdit}
                 onClick={() => {
@@ -267,6 +283,9 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
   const m = useMemo(() => designerMessages(i18n), [i18n]);
   const { path, value } = useDocumentValue(props.documents, "plugin.json");
   const { canEdit, apply } = useApply(path, "data-sources");
+  const appPath = findDocument(props.appDocuments, "app.json")?.path;
+  const applyApp = useApply(appPath, "app-variables", props.app);
+  const { value: appValue } = useDocumentValue(props.appDocuments, "app.json", props.app);
   const d = useDraft(props.open, value);
   const next = useMemo(
     () => (value === undefined ? undefined : draftDocument(value, d.sources, d.types)),
@@ -274,7 +293,9 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
   );
   const check = useCheck(props.open, path, next, props.validatePage);
   const changed = next !== undefined && !jsonEqual(next, value);
-  const canApply = canEdit && changed && !hasErrors(check);
+  const staged = d.variables.length > 0;
+  const variablesBlocked = staged && (!applyApp.canEdit || appValue === undefined);
+  const canApply = canEdit && (changed || staged) && !variablesBlocked && !hasErrors(check);
   const [note, setNote] = useState("");
   // biome-ignore lint/correctness/useExhaustiveDependencies: a note belongs to the draft it was made for
   useEffect(() => setNote(""), [d.sources, d.types]);
@@ -318,6 +339,12 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
             onClick={() => {
               if (next !== undefined) {
                 apply(next);
+                if (staged) {
+                  if (appValue !== undefined) {
+                    applyApp.apply(withVariables(appValue, d.variables));
+                  }
+                  d.setVariables([]);
+                }
                 d.setTypes((all) => (all.length === 0 ? all : []));
                 setNote(m.applied);
               }
@@ -327,7 +354,9 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
           </Button>
           <Status check={check} valid={!hasErrors(check)} changed={changed} note={note} m={m} />
         </div>
+        {props.app !== null && <LockBanner lock={props.app.lock} />}
         {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+        {variablesBlocked && <p className="text-caption text-secondary">{m.dataVariablesLocked}</p>}
         <div className="flex min-h-0 flex-1 gap-6 overflow-y-auto">
           <nav aria-label={m.dataList} className="flex w-56 shrink-0 flex-col gap-1">
             {d.sources.length === 0 && <p className="text-body text-secondary">{m.dataNone}</p>}
@@ -357,6 +386,7 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
                 const known = new Set(d.sources.map((s) => s["id"]));
                 d.setSources((all) => [...all, ...answer.dataSources.filter((s) => !known.has(s["id"]))]);
                 d.setTypes((all) => [...all, ...answer.types]);
+                d.setVariables((all) => withVariables({ variables: all }, answer.variables)["variables"] as Json[]);
               }}
             />
           </div>

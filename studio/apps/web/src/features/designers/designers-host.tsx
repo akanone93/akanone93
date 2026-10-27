@@ -3,6 +3,7 @@
 
 import { useParams } from "@tanstack/react-router";
 import { usePublishedLoader } from "../json-editor/use-published.ts";
+import { useAppSession } from "../localisation/l10n-sessions.tsx";
 import type { OverlayId } from "../overlay/index.ts";
 import type { Validation } from "../problems/use-validation.ts";
 import { DataSourceOverlay } from "./data-source-overlay.tsx";
@@ -24,6 +25,8 @@ export interface DesignersHostProps {
 export function DesignersHost(props: DesignersHostProps) {
   const { plugin } = useParams({ strict: false }) as { plugin?: string };
   const loadPublished = usePublishedLoader(plugin ?? "");
+  // The app's documents belong to the app lock, not the plugin's (ADR-0095): the designers edit them through the app session.
+  const app = useAppSession();
   const done = props.validation.state === "done" ? props.validation : undefined;
   return (
     <>
@@ -31,6 +34,8 @@ export function DesignersHost(props: DesignersHostProps) {
         open={props.open === "data"}
         onClose={props.onClose}
         documents={props.documents}
+        app={app}
+        appDocuments={props.appDocuments}
         validatePage={done?.validatePage}
         tool={done?.tool}
       />
@@ -46,6 +51,7 @@ export function DesignersHost(props: DesignersHostProps) {
         open={props.open === "theme"}
         onClose={props.onClose}
         documents={props.appDocuments}
+        app={app}
         validatePage={done?.validatePage}
       />
     </>
