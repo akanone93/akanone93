@@ -44,6 +44,9 @@ message Preferences {
   // preview maps an app ID to its preview switches (STU-058).
   map<string, PreviewSwitches> preview = 7;
   bool onboarding_dismissed = 8;
+  // muted_notification_types lists the event types whose inbox items the user
+  // mutes (F16, STU-013); approval and security types are refused.
+  repeated string muted_notification_types = 9;
 }
 
 // PreviewSwitches are the switches of an app's live preview (STU-058).

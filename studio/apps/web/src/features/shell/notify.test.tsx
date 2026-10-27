@@ -11,6 +11,7 @@ import { fetchServerVersion } from "../../lib/server-version.ts";
 import { createSession } from "../../lib/session.ts";
 import { AppContextProvider } from "../../lib/use-app.tsx";
 import { createUpstream, loadSourceCatalogue, orgA, renderApp } from "../../test-harness.tsx";
+import { isMutable, kindOf } from "../notifications/notification-kinds.ts";
 import { HelpMenu } from "./help-menu.tsx";
 import { StatusChips, UpdateBanner } from "./status-chips.tsx";
 import { backoffMs } from "./studio-events.ts";
@@ -98,17 +99,63 @@ describe("STU-075 O14 inbox filter", () => {
     { id: "n3", eventType: "release.published", title: "Release three", read: true },
   ];
 
-  test("?type filters the list to that event type", async () => {
+  test("?type filters the list to that event type, repeats grouped and worded from the type", async () => {
     renderApp(`/o/${orgA}/notifications?type=release.published`, { inbox });
-    await screen.findByText("Release one");
-    expect(screen.getByText("Release three")).toBeTruthy();
+    await screen.findByText("2 publishes finished");
+    expect(screen.queryByText("Release one")).toBeNull();
     expect(screen.queryByText("Member two")).toBeNull();
   });
 
   test("?unread asks for unread items only", async () => {
     renderApp(`/o/${orgA}/notifications?unread=true`, { inbox });
-    await screen.findByText("Release one");
+    await screen.findByText("1 publish finished");
     expect(screen.queryByText("Member two")).toBeNull();
-    expect(screen.queryByText("Release three")).toBeNull();
+  });
+
+  test("F16 retention comes from the registry and mark all read is offered", async () => {
+    renderApp(`/o/${orgA}/notifications`, { inbox });
+    await screen.findByText("2 publishes finished");
+    expect(screen.getByText(/kept for 90 days/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Mark all as read" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  test("F16 approvals link to their audited record and sit under their own heading", async () => {
+    const approvals = [{ id: "a1", eventType: "approval.requested", read: false, link: "/o/x/audit/1" }];
+    renderApp(`/o/${orgA}/notifications`, { inbox: approvals });
+    await screen.findByText("1 approval requested");
+    expect(screen.getByRole("heading", { name: "Approvals" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "View audited record" }).getAttribute("href")).toBe("/o/x/audit/1");
+  });
+});
+
+describe("F16 kinds and mutes", () => {
+  test("approval and security types cannot be muted", () => {
+    expect(isMutable("approval.requested")).toBe(false);
+    expect(isMutable("breakglass.used")).toBe(false);
+    expect(isMutable("security.role_changed")).toBe(false);
+    expect(isMutable("release.published")).toBe(true);
+    expect(kindOf("rollout.paused")).toBe("operations");
+  });
+
+  test("the profile lists every type, locking the approval ones", async () => {
+    renderApp("/me");
+    const approval = (await screen.findAllByRole("checkbox")).find((c) => (c as HTMLInputElement).disabled);
+    expect(approval).toBeTruthy();
+    const publish = screen.getAllByRole("checkbox").find((c) => !(c as HTMLInputElement).disabled) as HTMLInputElement;
+    fireEvent.click(publish);
+    await waitFor(() => expect(publish.checked).toBe(true));
+    fireEvent.click(publish);
+    await waitFor(() => expect(publish.checked).toBe(false));
+  });
+
+  test("a mute is stored in the server preferences under its own mask path (STU-013)", async () => {
+    const updates: NonNullable<Parameters<typeof renderApp>[1]>["updates"] = [];
+    renderApp("/me", { updates });
+    const publish = (await screen.findAllByRole("checkbox")).find((c) => !(c as HTMLInputElement).disabled);
+    fireEvent.click(publish as HTMLElement);
+    await waitFor(() => expect(updates?.length).toBe(1));
+    expect(updates?.[0]?.paths).toEqual(["muted_notification_types"]);
+    expect(updates?.[0]?.mutedNotificationTypes?.length).toBe(1);
+    expect(localStorage.getItem("plux.notifications.muted")).toBeNull();
   });
 });

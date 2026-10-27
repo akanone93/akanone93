@@ -25,6 +25,26 @@ msgstr "{count, plural, =0 {Keine ungespeicherten Änderungen} one {# ungespeich
 msgid "state.uses"
 msgstr "{count, plural, =0 {Nicht verwendet} one {# Mal verwendet} other {# Mal verwendet}}"
 
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.alert.fired"
+msgstr "{count, plural, one {# Alarm ausgelöst} other {# Alarme ausgelöst}}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.approval.requested"
+msgstr "{count, plural, one {# Genehmigung angefragt} other {# Genehmigungen angefragt}}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.breakglass.review_overdue"
+msgstr "{count, plural, one {# Break-Glass-Prüfung überfällig} other {# Break-Glass-Prüfungen überfällig}}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.breakglass.used"
+msgstr "{count, plural, one {# Break-Glass-Nutzung} other {# Break-Glass-Nutzungen}}"
+
 #. Status chip: edits not yet saved, kept in memory until the server is reachable.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -55,6 +75,16 @@ msgstr "{count, plural, one {# Datenquelle} other {# Datenquellen}}"
 msgid "problems.errors"
 msgstr "{count, plural, one {# Fehler} other {# Fehler}}"
 
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.function.failing"
+msgstr "{count, plural, one {# Funktion schlägt fehl} other {# Funktionen schlagen fehl}}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.licence.expiring"
+msgstr "{count, plural, one {# Lizenz läuft ab} other {# Lizenzen laufen ab}}"
+
 #. STU-070: heading of the list of links from a plugin to other plugins.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -66,6 +96,11 @@ msgstr "{count, plural, one {# Link führt hinaus} other {# Links führen hinaus
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.ghostLinks"
 msgstr "{count, plural, one {# Link} other {# Links}}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.lock.requested"
+msgstr "{count, plural, one {# Sperre angefragt} other {# Sperren angefragt}}"
 
 #. Summary line of the Data tab; the count is the number of data sources that have a mock response.
 #. js-lingui-explicit-id
@@ -79,11 +114,27 @@ msgstr "{count, plural, one {# Mock} other {# Mocks}}"
 msgid "panels.selectedCount"
 msgstr "{count, plural, one {# Knoten ausgewählt} other {# Knoten ausgewählt}}"
 
+#. Fallback line for a notification type this Studio version does not know.
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.unknown"
+msgstr "{count, plural, one {# Benachrichtigung} other {# Benachrichtigungen}}"
+
 #. Count of problems found in one step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.stepProblems"
 msgstr "{count, plural, one {# Problem} other {# Probleme}}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.release.published"
+msgstr "{count, plural, one {# Veröffentlichung abgeschlossen} other {# Veröffentlichungen abgeschlossen}}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.type.rollout.paused"
+msgstr "{count, plural, one {# Rollout durch Health-Gate pausiert} other {# Rollouts durch Health-Gate pausiert}}"
 
 #. Summary line of the State tab; the count is the number of state entries of the plugin.
 #. js-lingui-explicit-id
@@ -439,6 +490,12 @@ msgstr "Konto"
 msgid "profile.account"
 msgstr "Konto"
 
+#. Heading of the security notifications group.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.kind.security"
+msgstr "Konto und Sicherheit"
+
 #. Button in the right panel that opens the full-screen action graph editor for the selected widget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -595,6 +652,12 @@ msgstr "Alle Schlüssel der App"
 msgid "notify.inbox.all-types"
 msgstr "Alle Typen"
 
+#. Shown next to approval and security types that cannot be muted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mute.locked"
+msgstr "Immer aktiv"
+
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -660,6 +723,12 @@ msgstr "Übernehmen"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.apply"
 msgstr "Übernehmen"
+
+#. Heading of the approval notifications group.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.kind.approvals"
+msgstr "Genehmigungen"
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -2391,6 +2460,12 @@ msgstr "Auf vorhandenes abbilden"
 msgid "state.map"
 msgstr "Zuordnung mit Textschlüsseln"
 
+#. Button that marks every notification read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mark-all-read"
+msgstr "Alle als gelesen markieren"
+
 #. Button that marks one notification read.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -2492,6 +2567,12 @@ msgstr "Verschieben nach …"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.moved"
 msgstr "Ausgewählten Schritt {direction} verschoben. Neue Position, x: {x}, y: {y}"
+
+#. Label of the per-type mute checkbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mute.label"
+msgstr "Stummschalten"
 
 #. Label of the field with the name PXL uses to address a state entry.
 #. js-lingui-explicit-id
@@ -2793,11 +2874,23 @@ msgstr "Nichts zu vergleichen: Dieses Plugin wurde noch nicht veröffentlicht."
 msgid "notify.bell"
 msgstr "Benachrichtigungen"
 
+#. Heading of the notification settings in the profile.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mute.title"
+msgstr "Benachrichtigungen"
+
 #. Heading of the notification inbox page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.title"
 msgstr "Benachrichtigungen"
+
+#. Retention note on the inbox page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.retention"
+msgstr "Benachrichtigungen werden {days} Tage aufbewahrt. Das Audit-Log ist der dauerhafte Nachweis."
 
 #. Shown when the inbox request fails.
 #. js-lingui-explicit-id
@@ -2889,6 +2982,12 @@ msgstr "Zustands-Designer öffnen"
 msgid "designers.dataOpenApi"
 msgstr "OpenAPI"
 
+#. Heading of the operations notifications group.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.kind.operations"
+msgstr "Betrieb"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -2900,6 +2999,12 @@ msgstr "Organisation"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.org.switcher"
 msgstr "Organisation"
+
+#. Shown when the server search request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.search-failed"
+msgstr "Die Organisationssuche ist nicht verfügbar."
 
 #. Marks screens of another plugin of the app in the list of navigation targets.
 #. js-lingui-explicit-id
@@ -3638,6 +3743,12 @@ msgstr "Aktionen suchen"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.search"
 msgstr "Widgets suchen"
+
+#. Shown below the local palette results while the server search runs.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.searching"
+msgstr "Organisation wird durchsucht"
 
 #. Heading of the second-factor step.
 #. js-lingui-explicit-id
@@ -4888,6 +4999,12 @@ msgstr "Versionsanforderung"
 msgid "panelTabs.perfVersions"
 msgstr "Versionen"
 
+#. Link from an approval or security notification to its audit record.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.audit-record"
+msgstr "Audit-Eintrag ansehen"
+
 #. Accessible name of the icon of a warning in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -4953,6 +5070,12 @@ msgstr "Breite und Höhe dürfen höchstens {max} logische Pixel betragen."
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfWithin"
 msgstr "Im Budget"
+
+#. Heading of the work notifications group.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.kind.work"
+msgstr "Arbeit"
 
 #. Command that wraps the selected canvas elements in a new column.
 #. js-lingui-explicit-id

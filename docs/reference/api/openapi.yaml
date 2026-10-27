@@ -27866,6 +27866,14 @@ components:
         onboardingDismissed:
           type: boolean
           title: onboarding_dismissed
+        mutedNotificationTypes:
+          type: array
+          items:
+            type: string
+          title: muted_notification_types
+          description: |-
+            muted_notification_types lists the event types whose inbox items the user
+             mutes (F16, STU-013); approval and security types are refused.
       title: Preferences
       additionalProperties: false
     plux.v1.PreviewSwitches:
