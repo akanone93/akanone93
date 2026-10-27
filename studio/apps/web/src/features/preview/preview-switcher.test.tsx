@@ -3,13 +3,16 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { createStudioI18n } from "@plux/i18n";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
+import { type PlacedScreen, screenStyle } from "../plugin-canvas/scene.ts";
+import type { SurfaceFactory } from "../plugin-canvas/surface.ts";
 import { CustomFrameDialog } from "./custom-frame-dialog.tsx";
 import { DeviceMatrix } from "./device-matrix.tsx";
 import { resolveFrame } from "./frames.ts";
+import { MatrixScreen } from "./matrix-screen.tsx";
 import { PreviewBarView } from "./preview-bar.tsx";
 import { PreviewSwitcher } from "./preview-switcher.tsx";
 import { defaultPreview, previewRender } from "./switches.ts";
@@ -64,6 +67,45 @@ describe("STU-057 device matrix", () => {
     expect(items.length).toBe(2);
     expect(items[0]?.getAttribute("data-size-class")).toBe("compact");
     expect((items[1] as HTMLElement).style.fontSize).toBe("1.5em");
+  });
+});
+
+describe("STU-057 matrix cells render the screen", () => {
+  test("each cell lays the screen out at its frame size through the surface", async () => {
+    const laid: { w: number | undefined; h: number | undefined; id: string | undefined }[] = [];
+    const createSurface: SurfaceFactory = () => ({
+      layoutScreens: async (screens, style) => {
+        laid.push({ w: style.theme.width, h: style.deviceHeight, id: screens[0]?.id });
+        return [];
+      },
+      setViewport: () => {},
+      pan: () => {},
+      zoomAbout: () => {},
+      viewport: { x: 0, y: 0, zoom: 1 },
+      dispose: () => {},
+    });
+    const frames = [resolveFrame("android-small"), resolveFrame("ipad")];
+    const screenOf: PlacedScreen = { id: "home", title: "Home", at: { x: 40, y: 40 }, root: undefined };
+    renderI18n(
+      <DeviceMatrix
+        frames={frames}
+        orientation="portrait"
+        render={previewRender(defaultPreview, "material")}
+        renderScreen={(c) => (
+          <MatrixScreen
+            screen={screenOf}
+            style={screenStyle}
+            width={c.width}
+            height={c.height}
+            createSurface={createSurface}
+          />
+        )}
+      />,
+    );
+    await screen.findByRole("list", { name: "Device matrix" });
+    await waitFor(() => expect(laid.length).toBe(2));
+    expect(laid.map((l) => l.id)).toEqual(["home", "home"]);
+    expect(laid[0]?.w).not.toBe(laid[1]?.w);
   });
 });
 

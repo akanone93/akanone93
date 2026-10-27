@@ -84,7 +84,16 @@ export function messagesFor(documents: readonly DocLike[], look: PreviewRender):
   return { ...byLocale.get(fallback), ...byLocale.get(look.locale) };
 }
 
-const TEXT_PROPS: ReadonlySet<string> = new Set(["text", "label", "title", "hint", "tooltip"]);
+const TEXT_PROPS: ReadonlySet<string> = new Set(["data", "text", "label", "title", "hint", "tooltip"]);
+
+/** A Text node's `text` prop is read as the layout's `data` when `data` is absent. */
+function withData(node: Obj): Obj {
+  const props = node["props"];
+  if (node["type"] !== "Text" || !isObj(props) || props["data"] !== undefined || props["text"] === undefined) {
+    return node;
+  }
+  return { ...node, props: { ...props, data: props["text"] } };
+}
 
 /** `value` with `{"$t": id}` resolved to the locale's message and visible texts passed through `localize`. */
 function localizeValue(value: unknown, key: string, messages: Readonly<Record<string, string>>, fn: Fn): unknown {
@@ -96,7 +105,7 @@ function localizeValue(value: unknown, key: string, messages: Readonly<Record<st
     if (typeof id === "string") {
       return fn(messages[id] ?? id);
     }
-    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, localizeValue(v, k, messages, fn)]));
+    return Object.fromEntries(Object.entries(withData(value)).map(([k, v]) => [k, localizeValue(v, k, messages, fn)]));
   }
   return typeof value === "string" && TEXT_PROPS.has(key) ? fn(value) : value;
 }
