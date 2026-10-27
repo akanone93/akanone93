@@ -18,10 +18,11 @@ import { inboxSearchSchema } from "./features/notifications/notifications.schema
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
 import type { ValidatorFactory } from "./features/problems/validator-client.ts";
+import { devicesSearchSchema, envSearchSchema } from "./features/security/security.schema.ts";
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
 import { ShellLayout } from "./features/shell/shell-layout.tsx";
-import { AccessError, loadUser, requireMembership, requireUser, safeNext } from "./lib/guards.ts";
+import { AccessError, loadUser, requireMembership, requirePermission, requireUser, safeNext } from "./lib/guards.ts";
 import type { Session } from "./lib/session.ts";
 
 export interface RouterContext {
@@ -144,6 +145,24 @@ const notificationsRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/notifications/index.ts"), "NotificationsPage"),
 });
 
+/** A31-A36: the Devices and security area of one app (STU-115); every page needs `app.read` (F14). */
+function securityRoute(path: string, component: string, search: typeof envSearchSchema | typeof devicesSearchSchema) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/${path}`,
+    validateSearch: (raw) => search.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/security/index.ts"), component as "DevicesPage"),
+  });
+}
+
+const devicesRoute = securityRoute("devices", "DevicesPage", devicesSearchSchema);
+const deviceRoute = securityRoute("devices/$deviceId", "DevicePage", envSearchSchema);
+const securityProfileRoute = securityRoute("security", "SecurityProfilePage", envSearchSchema);
+const keysRoute = securityRoute("security/keys", "KeysPage", envSearchSchema);
+const pinsRoute = securityRoute("security/pins", "PinsPage", envSearchSchema);
+const capabilitiesRoute = securityRoute("security/capabilities", "CapabilitiesPage", envSearchSchema);
+
 const canvasLayout = createRoute({
   getParentRoute: () => rootRoute,
   id: "canvas",
@@ -183,7 +202,16 @@ const routeTree = rootRoute.addChildren([
     personalHomeRoute,
     profileRoute,
     shortcutsRoute,
-    orgRoute.addChildren([orgHomeRoute, notificationsRoute]),
+    orgRoute.addChildren([
+      orgHomeRoute,
+      notificationsRoute,
+      devicesRoute,
+      deviceRoute,
+      securityProfileRoute,
+      keysRoute,
+      pinsRoute,
+      capabilitiesRoute,
+    ]),
   ]),
 ]);
 
