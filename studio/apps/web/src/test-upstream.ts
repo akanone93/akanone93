@@ -39,7 +39,7 @@ export interface UpstreamData {
   installationAdmin?: boolean;
   csrfToken?: string;
   memberships?: string[];
-  stored?: { theme: string; language: string; density: string };
+  stored?: { theme: string; language: string; density: string; mutedNotificationTypes?: string[] };
   explained?: { permission: string }[];
   inbox?: { id: string; eventType: string; title?: string; link?: string; read: boolean }[];
   documents?: { kind: string; path: string; json: unknown }[];
@@ -96,7 +96,7 @@ export interface UpstreamData {
     /** The test cases the runner reports, and the summary. */
     tests?: { results: { name: string; passed: boolean; message: string }[]; diagnostics?: string };
   };
-  updates?: { paths: string[]; theme: string; language: string; density: string }[];
+  updates?: { paths: string[]; theme: string; language: string; density: string; mutedNotificationTypes?: string[] }[];
 }
 
 /** An in-memory upstream for the shell: the same RPCs the BFF forwards. */

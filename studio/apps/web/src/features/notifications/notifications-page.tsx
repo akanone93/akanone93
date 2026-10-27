@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { useQuery } from "@connectrpc/connect-query";
 import { useLingui } from "@lingui/react";
+import { PreferencesService } from "@plux/api";
 import { Button, Select } from "@plux/ui";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { notifyMessages } from "../shell/notify.messages.ts";
@@ -11,8 +13,8 @@ import {
   isMutable,
   kindOf,
   kindOrder,
+  mutedSet,
   type NotificationKind,
-  readMuted,
   retentionDays,
 } from "./notification-kinds.ts";
 import { useInbox, useMarkRead } from "./use-inbox.ts";
@@ -28,7 +30,9 @@ export function NotificationsPage() {
   const unreadOnly = search.unread === true;
   const inbox = useInbox({ unreadOnly, limit: 200 });
   const markRead = useMarkRead();
-  const muted = readMuted();
+  const muted = mutedSet(
+    useQuery(PreferencesService.method.getPreferences, {}).data?.preferences?.mutedNotificationTypes,
+  );
   const items = (inbox.data?.items ?? []).filter((i) => !muted.has(i.eventType) || !isMutable(i.eventType));
   const types = [...new Set(items.map((i) => i.eventType))].sort();
   const shown = search.type === undefined ? items : items.filter((i) => i.eventType === search.type);
