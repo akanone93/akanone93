@@ -3,7 +3,7 @@
 
 import { create } from "@bufbuild/protobuf";
 import { timestampFromMs } from "@bufbuild/protobuf/wkt";
-import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
+import { Code, ConnectError, createRouterTransport, type ServiceImpl } from "@connectrpc/connect";
 import {
   type ApplyChangeSetRequest,
   AppService,
@@ -34,6 +34,8 @@ import {
   PluginVersionSchema,
   PreferencesSchema,
   PreferencesService,
+  PublishService,
+  ReleaseRequestService,
   ReleaseService,
   SecurityAdminService,
   TemplateService,
@@ -91,7 +93,33 @@ export interface LibraryFixture {
   failList?: boolean;
 }
 
+/** The publish flow (STU-100): one release request that moves through the states, and what the Studio sent. */
+export interface ReleaseFixture {
+  request: {
+    id: string;
+    state: string;
+    hold?: string;
+    createdBy?: string;
+    createdByName?: string;
+    plugins: { pluginKey: string; reason: string }[];
+    warnings?: string[];
+    acknowledged?: string[];
+    errors?: number;
+  };
+  /** The visual diff job, when one was requested. */
+  diff?: { state: string };
+  /** The RPCs received, in order, with the step they completed. */
+  calls: string[];
+  /** The idempotency keys of the publish jobs. */
+  keys?: string[];
+  /** The approval ends rejected instead of moving on. */
+  rejectApproval?: boolean;
+}
+
+const releaseOrder = ["select", "build", "reports", "diffs", "changelog", "target", "approval", "rollout", "release"];
+
 export interface UpstreamData {
+  release?: ReleaseFixture;
   security?: SecurityData;
   /** The dev session (DEV-002, DEV-011, DEV-020): paired devices, the pairing token, the event stream and what Studio sent. */
   devSession?: {
@@ -142,6 +170,7 @@ export interface UpstreamData {
     versions?: number;
     validationErrors?: number;
     functionsUsed?: string[];
+    unpublishedChanges?: boolean;
   }[];
   /** The plugin's history: ListSnapshots, GetSnapshot, CompareSnapshots and RestoreSnapshot (STU-069). */
   snapshots?: {
@@ -358,6 +387,7 @@ export function createUpstream(state: UpstreamData) {
           versions: BigInt(p.versions ?? 0),
           validationErrors: BigInt(p.validationErrors ?? 0),
           functionsUsed: p.functionsUsed ?? [],
+          unpublishedChanges: p.unpublishedChanges ?? false,
         })),
       }),
       deletePlugin: (req) => {
@@ -408,6 +438,16 @@ export function createUpstream(state: UpstreamData) {
       }),
       releaseLock: () => ({}),
     });
+    if (state.release !== undefined) {
+      service(ReleaseRequestService, releaseRequestHandlers(state.release));
+      service(PublishService, {
+        publish: (req, ctx) => {
+          state.release?.keys?.push(ctx.requestHeader.get("Idempotency-Key") ?? "");
+          return { job: { id: `job-${req.pluginId}`, state: "running", percent: 40 } };
+        },
+        getPublishJob: (req) => ({ job: { id: req.jobId, state: "succeeded", percent: 100, version: 1n } }),
+      });
+    }
     service(ReleaseService, {
       listPluginVersions: () => ({
         versions:
@@ -694,4 +734,102 @@ function securityServices(
       return { keys: data.keys ?? [], roots: Array.from({ length: data.roots ?? 0 }, () => new Uint8Array()) };
     },
   });
+}
+
+const releaseHash = "c0ffee00c0ffee00c0ffee00";
+
+function refused(code: string): never {
+  throw new ConnectError(`${code} refused`, Code.FailedPrecondition);
+}
+
+/** The release request state machine of ReleaseRequestService, as far as the Studio needs it. */
+function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof ReleaseRequestService>> {
+  const r = fx.request;
+  const view = () => {
+    const built = releaseOrder.indexOf(r.state) > 1 || ["released", "rejected"].includes(r.state);
+    return {
+      id: r.id,
+      appId: "app1",
+      environmentId: "env-dev",
+      channel: "production",
+      state: r.state,
+      hold: r.hold ?? "",
+      revision: 1n,
+      plugins: r.plugins,
+      builds: built
+        ? r.plugins.map((p) => ({
+            pluginKey: p.pluginKey,
+            jobId: `job-${p.pluginKey}`,
+            state: "succeeded",
+            version: 1n,
+            bundleSha256: "ab".repeat(16),
+            errors: r.errors ?? 0,
+            warnings: r.warnings ?? [],
+          }))
+        : [],
+      acknowledged: r.acknowledged ?? [],
+      contentHash: built ? releaseHash : "",
+      createdBy: r.createdBy ?? "u1",
+      createdByName: r.createdByName ?? "Ada",
+      releaseSequence: r.state === "released" ? 7n : 0n,
+      approvedHash: releaseOrder.indexOf(r.state) > 6 ? releaseHash : "",
+    };
+  };
+  const move = (to: string) => {
+    r.state = to;
+    return { request: view() };
+  };
+  return {
+    createReleaseRequest: (req) => {
+      fx.calls.push(`create:${req.plugins.map((p) => p.pluginKey).join(",")}`);
+      return { request: view(), existing: false };
+    },
+    listReleaseRequests: () => ({ requests: r.state === "released" ? [] : [view()] }),
+    getReleaseRequest: () => ({
+      request: view(),
+      visualDiff: fx.diff && {
+        id: "vd1",
+        state: fx.diff.state,
+        contentHash: releaseHash,
+        screens: [{ pluginKey: "home", screen: "main", device: "phone", afterSha256: "aa", changed: true }],
+      },
+    }),
+    advanceReleaseRequest: (req) => {
+      if (req.expectedState !== r.state) {
+        refused("PLX-8060");
+      }
+      fx.calls.push(`advance:${r.state}`);
+      if (req.step.case === "reports") {
+        r.acknowledged = req.step.value.acknowledgedWarnings;
+      }
+      if (r.state === "diffs" && fx.diff?.state !== "succeeded") {
+        refused("PLX-8062");
+      }
+      return move(releaseOrder[releaseOrder.indexOf(r.state) + 1] ?? "released");
+    },
+    refreezeReleaseRequest: () => {
+      fx.calls.push("refreeze");
+      return move("build");
+    },
+    requestVisualDiff: () => {
+      fx.calls.push("diff");
+      fx.diff = { state: "succeeded" };
+      return { job: { id: "vd1", state: "succeeded", contentHash: releaseHash } };
+    },
+    requestReleaseApproval: () => {
+      fx.calls.push("approval");
+      if (fx.diff?.state !== "succeeded") {
+        refused("PLX-8062");
+      }
+      return move(fx.rejectApproval ? "rejected" : "rollout");
+    },
+    completeReleaseRequest: () => {
+      fx.calls.push("complete");
+      return move("released");
+    },
+    cancelReleaseRequest: () => {
+      fx.calls.push("cancel");
+      return move("cancelled");
+    },
+  };
 }

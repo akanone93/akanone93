@@ -32,6 +32,7 @@ function mount(
           current="a"
           onCurrent={() => undefined}
           onNewScreen={() => undefined}
+          onPublish={() => undefined}
         />
       </CommandsProvider>
     </I18nProvider>,
@@ -71,7 +72,7 @@ describe("STU-050 action bar", () => {
 interface Wiring {
   canSend: boolean;
   canPublish: boolean;
-  onPublish?: () => void;
+  onPublish: () => void;
 }
 
 function mountFull(wiring: Wiring, runs: { send: () => void; pair: () => void; history: () => void }) {
@@ -145,13 +146,6 @@ describe("STU-060 action bar controls", () => {
     expect(send.title).toBe("Needs the permission devsession.create");
     expect(off(publish)).toBe(true);
     expect(publish.title).toBe("Needs the permission release.publish");
-  });
-
-  test("Publish is disabled with a reason while no release flow exists", async () => {
-    mountFull({ canSend: true, canPublish: true }, idle);
-    const publish = (await screen.findByRole("button", { name: "Publish" })) as HTMLButtonElement;
-    expect(off(publish)).toBe(true);
-    expect(publish.title).toBe("The release flow is not available yet");
   });
 
   test("the arrow keys move focus along the controls", async () => {

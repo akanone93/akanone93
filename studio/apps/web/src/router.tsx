@@ -19,6 +19,7 @@ import { inboxSearchSchema } from "./features/notifications/notifications.schema
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
 import type { ValidatorFactory } from "./features/problems/validator-client.ts";
+import { publishSearchSchema } from "./features/publish/publish.schema.ts";
 import { devicesSearchSchema, envSearchSchema } from "./features/security/security.schema.ts";
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
@@ -164,6 +165,23 @@ const keysRoute = securityRoute("security/keys", "KeysPage", envSearchSchema);
 const pinsRoute = securityRoute("security/pins", "PinsPage", envSearchSchema);
 const capabilitiesRoute = securityRoute("security/capabilities", "CapabilitiesPage", envSearchSchema);
 
+/** A1: opens or resumes the release request; A2: the publish flow of one request (STU-100). */
+const publishStartRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/apps/$app/publish",
+  validateSearch: (raw) => envSearchSchema.parse(raw),
+  beforeLoad: ({ context }) => requirePermission(context.user, "release.publish"),
+  component: lazyRouteComponent(() => import("./features/publish/index.ts"), "PublishStartPage"),
+});
+
+const publishRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/apps/$app/publish/$requestId",
+  validateSearch: (raw) => publishSearchSchema.parse(raw),
+  beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+  component: lazyRouteComponent(() => import("./features/publish/index.ts"), "PublishPage"),
+});
+
 const libraryRoute = createRoute({
   getParentRoute: () => orgRoute,
   path: "/library",
@@ -228,6 +246,8 @@ const routeTree = rootRoute.addChildren([
       devicesRoute,
       deviceRoute,
       securityProfileRoute,
+      publishStartRoute,
+      publishRoute,
       keysRoute,
       pinsRoute,
       capabilitiesRoute,

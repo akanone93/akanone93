@@ -28,8 +28,8 @@ export interface ActionBarProps {
   readonly preview?: ReactNode;
   readonly canSend?: boolean | undefined;
   readonly canPublish?: boolean | undefined;
-  /** Opens the release flow; Publish stays disabled with a reason while absent. */
-  readonly onPublish?: (() => void) | undefined;
+  /** Opens the publish flow (A1). */
+  readonly onPublish: () => void;
   readonly onScreenAction?: ((action: "rename" | "move" | "delete") => void) | undefined;
 }
 
@@ -67,11 +67,7 @@ export function ActionBar(props: ActionBarProps) {
   const pair = command("device.pair");
   const devices = devicesMessages(i18n);
   const needs = commandMessages(i18n).missing;
-  const publishReason = !props.canPublish
-    ? needs("release.publish")
-    : props.onPublish === undefined
-      ? m.publishPending
-      : undefined;
+  const publishReason = props.canPublish ? undefined : needs("release.publish");
   return (
     <div className="pointer-events-none absolute inset-x-1/4 top-3 z-10 flex justify-center">
       <GlassCapsule
@@ -163,7 +159,7 @@ export function ActionBar(props: ActionBarProps) {
         <Button
           size="sm"
           variant="primary"
-          disabled={!props.canPublish || props.onPublish === undefined}
+          disabled={!props.canPublish}
           title={publishReason}
           onClick={props.onPublish}
         >

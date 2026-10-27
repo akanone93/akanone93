@@ -89,11 +89,6 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Publish",
       comment: "Primary button of the canvas action bar that opens the release flow.",
     }),
-    publishPending: i18n._({
-      id: "pluginCanvas.publishPending",
-      message: "The release flow is not available yet",
-      comment: "Why the Publish button of the canvas action bar is disabled while no release flow exists.",
-    }),
     undo: i18n._({
       id: "pluginCanvas.undo",
       message: "Undo",
