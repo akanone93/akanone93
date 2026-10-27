@@ -14,6 +14,7 @@ import {
 import { z } from "zod";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import type { EditSession } from "./features/editor/edit-session.ts";
+import { librarySearchSchema } from "./features/library/library.schema.ts";
 import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
@@ -144,6 +145,25 @@ const notificationsRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/notifications/index.ts"), "NotificationsPage"),
 });
 
+const libraryRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/library",
+  validateSearch: (search) => librarySearchSchema.parse(search),
+  component: lazyRouteComponent(() => import("./features/library/index.ts"), "LibraryPage"),
+});
+
+const libraryComponentRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/library/components/$id",
+  component: lazyRouteComponent(() => import("./features/library/index.ts"), "ComponentDetailPage"),
+});
+
+const libraryTemplateRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/library/templates/$id",
+  component: lazyRouteComponent(() => import("./features/library/index.ts"), "TemplateDetailPage"),
+});
+
 const canvasLayout = createRoute({
   getParentRoute: () => rootRoute,
   id: "canvas",
@@ -183,7 +203,7 @@ const routeTree = rootRoute.addChildren([
     personalHomeRoute,
     profileRoute,
     shortcutsRoute,
-    orgRoute.addChildren([orgHomeRoute, notificationsRoute]),
+    orgRoute.addChildren([orgHomeRoute, notificationsRoute, libraryRoute, libraryComponentRoute, libraryTemplateRoute]),
   ]),
 ]);
 

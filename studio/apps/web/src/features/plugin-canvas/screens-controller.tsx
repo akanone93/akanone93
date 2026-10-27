@@ -8,7 +8,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
+import { useApp } from "../../lib/use-app.tsx";
 import { useEditSession, useLock } from "../editor/editor-provider.tsx";
+import { instantiateScreen, TemplateStartField } from "../library/canvas/template-start.tsx";
 import type { Validation } from "../problems/use-validation.ts";
 import {
   BlockedDeletePanel,
@@ -82,6 +84,8 @@ export interface ScreensControllerProps {
  */
 export function ScreensController(props: ScreensControllerProps): ReactNode {
   const m = pluginCanvasMessages(useLingui().i18n);
+  const { session: app } = useApp();
+  const transport = app.transport;
   const session = useEditSession();
   const lock = useLock();
   const queryClient = useQueryClient();
@@ -96,6 +100,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
   const [picked, setPicked] = useState<string | undefined>();
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [title, setTitle] = useState("");
+  const [templateId, setTemplateId] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const current = props.screens.some((s) => s.id === picked) ? picked : (props.entryPage ?? props.screens[0]?.id);
   const currentTitle = props.screens.find((s) => s.id === current)?.title ?? "";
@@ -145,6 +150,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
   const open = useCallback(
     (kind: "new" | "rename" | "delete" | "move") => {
       setMessage(null);
+      setTemplateId("");
       setTitle(kind === "new" ? m.untitled : kind === "rename" ? currentTitle : "");
       setDialogue({ kind });
     },
@@ -176,7 +182,20 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
     }
     const ok =
       dialogue?.kind === "new"
-        ? await finish(createScreen(session, ctx, text))
+        ? await finish(
+            templateId === ""
+              ? createScreen(session, ctx, text)
+              : instantiateScreen(transport, {
+                  templateId,
+                  appId: props.appId,
+                  pluginId: props.pluginId,
+                  editorSessionId: props.editorSessionId,
+                  key: text
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, ""),
+                }),
+          )
         : current !== undefined && (await finish(Promise.resolve(renameScreen(session, ctx, current, text))));
     if (ok) {
       setDialogue(null);
@@ -224,6 +243,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
       <Field label={m.screenTitle}>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
       </Field>
+      {dialogue?.kind === "new" && <TemplateStartField value={templateId} onChange={setTemplateId} />}
       <RenameWarning effects={effects} />
       <Button type="submit">{dialogue?.kind === "new" ? m.create : m.rename}</Button>
     </form>
