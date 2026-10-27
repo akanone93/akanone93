@@ -11,13 +11,15 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Location, Page, PageResult } from "./common_pb.ts";
 import { file_plux_v1_common } from "./common_pb.ts";
+import type { Adoption, AdoptionConflict, LibraryDraft, LibraryItem, LibraryVersion } from "./library_pb.ts";
+import { file_plux_v1_library } from "./library_pb.ts";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file plux/v1/component.proto.
  */
 export const file_plux_v1_component: GenFile = /*@__PURE__*/
-  fileDesc("ChdwbHV4L3YxL2NvbXBvbmVudC5wcm90bxIHcGx1eC52MSKlAQoJQ29tcG9uZW50EgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIRCglwbHVnaW5faWQYAyABKAkSCwoDa2V5GAQgASgJEgwKBG5hbWUYBSABKAkSDAoEcGF0aBgGIAEoCRIQCghyZXZpc2lvbhgHIAEoAxIuCgp1cGRhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJOCgVVc2FnZRISCgpwbHVnaW5fa2V5GAEgASgJEiMKCGxvY2F0aW9uGAIgASgLMhEucGx1eC52MS5Mb2NhdGlvbhIMCgRraW5kGAMgASgJIlcKFUxpc3RDb21wb25lbnRzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiYwoWTGlzdENvbXBvbmVudHNSZXNwb25zZRImCgpjb21wb25lbnRzGAEgAygLMhIucGx1eC52MS5Db21wb25lbnQSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCIhChNHZXRDb21wb25lbnRSZXF1ZXN0EgoKAmlkGAEgASgJIk4KFEdldENvbXBvbmVudFJlc3BvbnNlEiUKCWNvbXBvbmVudBgBIAEoCzISLnBsdXgudjEuQ29tcG9uZW50Eg8KB2NvbnRlbnQYAiABKAwiaAoRTGlzdFVzYWdlc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhMKC2VudGl0eV9raW5kGAIgASgJEhEKCWVudGl0eV9pZBgDIAEoCRIbCgRwYWdlGAQgASgLMg0ucGx1eC52MS5QYWdlIlcKEkxpc3RVc2FnZXNSZXNwb25zZRIeCgZ1c2FnZXMYASADKAsyDi5wbHV4LnYxLlVzYWdlEiEKBHBhZ2UYAiABKAsyEy5wbHV4LnYxLlBhZ2VSZXN1bHQy+QEKEENvbXBvbmVudFNlcnZpY2USUQoOTGlzdENvbXBvbmVudHMSHi5wbHV4LnYxLkxpc3RDb21wb25lbnRzUmVxdWVzdBofLnBsdXgudjEuTGlzdENvbXBvbmVudHNSZXNwb25zZRJLCgxHZXRDb21wb25lbnQSHC5wbHV4LnYxLkdldENvbXBvbmVudFJlcXVlc3QaHS5wbHV4LnYxLkdldENvbXBvbmVudFJlc3BvbnNlEkUKCkxpc3RVc2FnZXMSGi5wbHV4LnYxLkxpc3RVc2FnZXNSZXF1ZXN0GhsucGx1eC52MS5MaXN0VXNhZ2VzUmVzcG9uc2VCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_common]);
+  fileDesc("ChdwbHV4L3YxL2NvbXBvbmVudC5wcm90bxIHcGx1eC52MSKlAQoJQ29tcG9uZW50EgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIRCglwbHVnaW5faWQYAyABKAkSCwoDa2V5GAQgASgJEgwKBG5hbWUYBSABKAkSDAoEcGF0aBgGIAEoCRIQCghyZXZpc2lvbhgHIAEoAxIuCgp1cGRhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJOCgVVc2FnZRISCgpwbHVnaW5fa2V5GAEgASgJEiMKCGxvY2F0aW9uGAIgASgLMhEucGx1eC52MS5Mb2NhdGlvbhIMCgRraW5kGAMgASgJIlcKFUxpc3RDb21wb25lbnRzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSEQoJcGx1Z2luX2lkGAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiYwoWTGlzdENvbXBvbmVudHNSZXNwb25zZRImCgpjb21wb25lbnRzGAEgAygLMhIucGx1eC52MS5Db21wb25lbnQSIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCIhChNHZXRDb21wb25lbnRSZXF1ZXN0EgoKAmlkGAEgASgJIk4KFEdldENvbXBvbmVudFJlc3BvbnNlEiUKCWNvbXBvbmVudBgBIAEoCzISLnBsdXgudjEuQ29tcG9uZW50Eg8KB2NvbnRlbnQYAiABKAwiaAoRTGlzdFVzYWdlc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhMKC2VudGl0eV9raW5kGAIgASgJEhEKCWVudGl0eV9pZBgDIAEoCRIbCgRwYWdlGAQgASgLMg0ucGx1eC52MS5QYWdlIlcKEkxpc3RVc2FnZXNSZXNwb25zZRIeCgZ1c2FnZXMYASADKAsyDi5wbHV4LnYxLlVzYWdlEiEKBHBhZ2UYAiABKAsyEy5wbHV4LnYxLlBhZ2VSZXN1bHQiPgoWQ3JlYXRlQ29tcG9uZW50UmVxdWVzdBIkCgVkcmFmdBgBIAEoCzIVLnBsdXgudjEuTGlicmFyeURyYWZ0ImcKF0NyZWF0ZUNvbXBvbmVudFJlc3BvbnNlEiIKBGl0ZW0YASABKAsyFC5wbHV4LnYxLkxpYnJhcnlJdGVtEigKB3ZlcnNpb24YAiABKAsyFy5wbHV4LnYxLkxpYnJhcnlWZXJzaW9uImQKFlJldmlzZUNvbXBvbmVudFJlcXVlc3QSCgoCaWQYASABKAkSGAoQZXhwZWN0ZWRfdmVyc2lvbhgCIAEoBRIkCgVkcmFmdBgDIAEoCzIVLnBsdXgudjEuTGlicmFyeURyYWZ0ImcKF1JldmlzZUNvbXBvbmVudFJlc3BvbnNlEiIKBGl0ZW0YASABKAsyFC5wbHV4LnYxLkxpYnJhcnlJdGVtEigKB3ZlcnNpb24YAiABKAsyFy5wbHV4LnYxLkxpYnJhcnlWZXJzaW9uIioKHExpc3RDb21wb25lbnRWZXJzaW9uc1JlcXVlc3QSCgoCaWQYASABKAkibgodTGlzdENvbXBvbmVudFZlcnNpb25zUmVzcG9uc2USIgoEaXRlbRgBIAEoCzIULnBsdXgudjEuTGlicmFyeUl0ZW0SKQoIdmVyc2lvbnMYAiADKAsyFy5wbHV4LnYxLkxpYnJhcnlWZXJzaW9uIl4KHExpc3RMaWJyYXJ5Q29tcG9uZW50c1JlcXVlc3QSEgoKdmlzaWJpbGl0eRgBIAEoCRINCgVxdWVyeRgCIAEoCRIbCgRwYWdlGAMgASgLMg0ucGx1eC52MS5QYWdlImcKHUxpc3RMaWJyYXJ5Q29tcG9uZW50c1Jlc3BvbnNlEiMKBWl0ZW1zGAEgAygLMhQucGx1eC52MS5MaWJyYXJ5SXRlbRIhCgRwYWdlGAIgASgLMhMucGx1eC52MS5QYWdlUmVzdWx0Ij8KHVNldENvbXBvbmVudFZpc2liaWxpdHlSZXF1ZXN0EgoKAmlkGAEgASgJEhIKCnZpc2liaWxpdHkYAiABKAkiRAoeU2V0Q29tcG9uZW50VmlzaWJpbGl0eVJlc3BvbnNlEiIKBGl0ZW0YASABKAsyFC5wbHV4LnYxLkxpYnJhcnlJdGVtIjUKFkV4cG9ydENvbXBvbmVudFJlcXVlc3QSCgoCaWQYASABKAkSDwoHdmVyc2lvbhgCIAEoBSI6ChdFeHBvcnRDb21wb25lbnRSZXNwb25zZRIMCgRmaWxlGAEgASgMEhEKCWZpbGVfbmFtZRgCIAEoCSIzChZJbXBvcnRDb21wb25lbnRSZXF1ZXN0EgwKBGZpbGUYASABKAwSCwoDa2V5GAIgASgJImcKF0ltcG9ydENvbXBvbmVudFJlc3BvbnNlEiIKBGl0ZW0YASABKAsyFC5wbHV4LnYxLkxpYnJhcnlJdGVtEigKB3ZlcnNpb24YAiABKAsyFy5wbHV4LnYxLkxpYnJhcnlWZXJzaW9uIksKHEFkb3B0Q29tcG9uZW50VmVyc2lvblJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEgoKAmlkGAIgASgJEg8KB3ZlcnNpb24YAyABKAUicgodQWRvcHRDb21wb25lbnRWZXJzaW9uUmVzcG9uc2USIwoIYWRvcHRpb24YASABKAsyES5wbHV4LnYxLkFkb3B0aW9uEiwKCWNvbmZsaWN0cxgCIAMoCzIZLnBsdXgudjEuQWRvcHRpb25Db25mbGljdCIvCh1MaXN0Q29tcG9uZW50QWRvcHRpb25zUmVxdWVzdBIOCgZhcHBfaWQYASABKAkiRgoeTGlzdENvbXBvbmVudEFkb3B0aW9uc1Jlc3BvbnNlEiQKCWFkb3B0aW9ucxgBIAMoCzIRLnBsdXgudjEuQWRvcHRpb24y3wgKEENvbXBvbmVudFNlcnZpY2USUQoOTGlzdENvbXBvbmVudHMSHi5wbHV4LnYxLkxpc3RDb21wb25lbnRzUmVxdWVzdBofLnBsdXgudjEuTGlzdENvbXBvbmVudHNSZXNwb25zZRJLCgxHZXRDb21wb25lbnQSHC5wbHV4LnYxLkdldENvbXBvbmVudFJlcXVlc3QaHS5wbHV4LnYxLkdldENvbXBvbmVudFJlc3BvbnNlEkUKCkxpc3RVc2FnZXMSGi5wbHV4LnYxLkxpc3RVc2FnZXNSZXF1ZXN0GhsucGx1eC52MS5MaXN0VXNhZ2VzUmVzcG9uc2USVAoPQ3JlYXRlQ29tcG9uZW50Eh8ucGx1eC52MS5DcmVhdGVDb21wb25lbnRSZXF1ZXN0GiAucGx1eC52MS5DcmVhdGVDb21wb25lbnRSZXNwb25zZRJUCg9SZXZpc2VDb21wb25lbnQSHy5wbHV4LnYxLlJldmlzZUNvbXBvbmVudFJlcXVlc3QaIC5wbHV4LnYxLlJldmlzZUNvbXBvbmVudFJlc3BvbnNlEmYKFUxpc3RDb21wb25lbnRWZXJzaW9ucxIlLnBsdXgudjEuTGlzdENvbXBvbmVudFZlcnNpb25zUmVxdWVzdBomLnBsdXgudjEuTGlzdENvbXBvbmVudFZlcnNpb25zUmVzcG9uc2USZgoVTGlzdExpYnJhcnlDb21wb25lbnRzEiUucGx1eC52MS5MaXN0TGlicmFyeUNvbXBvbmVudHNSZXF1ZXN0GiYucGx1eC52MS5MaXN0TGlicmFyeUNvbXBvbmVudHNSZXNwb25zZRJpChZTZXRDb21wb25lbnRWaXNpYmlsaXR5EiYucGx1eC52MS5TZXRDb21wb25lbnRWaXNpYmlsaXR5UmVxdWVzdBonLnBsdXgudjEuU2V0Q29tcG9uZW50VmlzaWJpbGl0eVJlc3BvbnNlElQKD0V4cG9ydENvbXBvbmVudBIfLnBsdXgudjEuRXhwb3J0Q29tcG9uZW50UmVxdWVzdBogLnBsdXgudjEuRXhwb3J0Q29tcG9uZW50UmVzcG9uc2USVAoPSW1wb3J0Q29tcG9uZW50Eh8ucGx1eC52MS5JbXBvcnRDb21wb25lbnRSZXF1ZXN0GiAucGx1eC52MS5JbXBvcnRDb21wb25lbnRSZXNwb25zZRJmChVBZG9wdENvbXBvbmVudFZlcnNpb24SJS5wbHV4LnYxLkFkb3B0Q29tcG9uZW50VmVyc2lvblJlcXVlc3QaJi5wbHV4LnYxLkFkb3B0Q29tcG9uZW50VmVyc2lvblJlc3BvbnNlEmkKFkxpc3RDb21wb25lbnRBZG9wdGlvbnMSJi5wbHV4LnYxLkxpc3RDb21wb25lbnRBZG9wdGlvbnNSZXF1ZXN0GicucGx1eC52MS5MaXN0Q29tcG9uZW50QWRvcHRpb25zUmVzcG9uc2VCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_common, file_plux_v1_library]);
 
 /**
  * @generated from message plux.v1.Component
@@ -252,6 +254,402 @@ export const ListUsagesResponseSchema: GenMessage<ListUsagesResponse> = /*@__PUR
   messageDesc(file_plux_v1_component, 7);
 
 /**
+ * @generated from message plux.v1.CreateComponentRequest
+ */
+export type CreateComponentRequest = Message<"plux.v1.CreateComponentRequest"> & {
+  /**
+   * @generated from field: plux.v1.LibraryDraft draft = 1;
+   */
+  draft?: LibraryDraft | undefined;
+};
+
+/**
+ * Describes the message plux.v1.CreateComponentRequest.
+ * Use `create(CreateComponentRequestSchema)` to create a new message.
+ */
+export const CreateComponentRequestSchema: GenMessage<CreateComponentRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 8);
+
+/**
+ * @generated from message plux.v1.CreateComponentResponse
+ */
+export type CreateComponentResponse = Message<"plux.v1.CreateComponentResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: plux.v1.LibraryVersion version = 2;
+   */
+  version?: LibraryVersion | undefined;
+};
+
+/**
+ * Describes the message plux.v1.CreateComponentResponse.
+ * Use `create(CreateComponentResponseSchema)` to create a new message.
+ */
+export const CreateComponentResponseSchema: GenMessage<CreateComponentResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 9);
+
+/**
+ * @generated from message plux.v1.ReviseComponentRequest
+ */
+export type ReviseComponentRequest = Message<"plux.v1.ReviseComponentRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * expected_version is the head version the caller revised from.
+   *
+   * @generated from field: int32 expected_version = 2;
+   */
+  expectedVersion: number;
+
+  /**
+   * @generated from field: plux.v1.LibraryDraft draft = 3;
+   */
+  draft?: LibraryDraft | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ReviseComponentRequest.
+ * Use `create(ReviseComponentRequestSchema)` to create a new message.
+ */
+export const ReviseComponentRequestSchema: GenMessage<ReviseComponentRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 10);
+
+/**
+ * @generated from message plux.v1.ReviseComponentResponse
+ */
+export type ReviseComponentResponse = Message<"plux.v1.ReviseComponentResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: plux.v1.LibraryVersion version = 2;
+   */
+  version?: LibraryVersion | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ReviseComponentResponse.
+ * Use `create(ReviseComponentResponseSchema)` to create a new message.
+ */
+export const ReviseComponentResponseSchema: GenMessage<ReviseComponentResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 11);
+
+/**
+ * @generated from message plux.v1.ListComponentVersionsRequest
+ */
+export type ListComponentVersionsRequest = Message<"plux.v1.ListComponentVersionsRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message plux.v1.ListComponentVersionsRequest.
+ * Use `create(ListComponentVersionsRequestSchema)` to create a new message.
+ */
+export const ListComponentVersionsRequestSchema: GenMessage<ListComponentVersionsRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 12);
+
+/**
+ * @generated from message plux.v1.ListComponentVersionsResponse
+ */
+export type ListComponentVersionsResponse = Message<"plux.v1.ListComponentVersionsResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: repeated plux.v1.LibraryVersion versions = 2;
+   */
+  versions: LibraryVersion[];
+};
+
+/**
+ * Describes the message plux.v1.ListComponentVersionsResponse.
+ * Use `create(ListComponentVersionsResponseSchema)` to create a new message.
+ */
+export const ListComponentVersionsResponseSchema: GenMessage<ListComponentVersionsResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 13);
+
+/**
+ * @generated from message plux.v1.ListLibraryComponentsRequest
+ */
+export type ListLibraryComponentsRequest = Message<"plux.v1.ListLibraryComponentsRequest"> & {
+  /**
+   * visibility filters to one level; empty lists all the caller may see.
+   *
+   * @generated from field: string visibility = 1;
+   */
+  visibility: string;
+
+  /**
+   * query matches the key and name.
+   *
+   * @generated from field: string query = 2;
+   */
+  query: string;
+
+  /**
+   * @generated from field: plux.v1.Page page = 3;
+   */
+  page?: Page | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ListLibraryComponentsRequest.
+ * Use `create(ListLibraryComponentsRequestSchema)` to create a new message.
+ */
+export const ListLibraryComponentsRequestSchema: GenMessage<ListLibraryComponentsRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 14);
+
+/**
+ * @generated from message plux.v1.ListLibraryComponentsResponse
+ */
+export type ListLibraryComponentsResponse = Message<"plux.v1.ListLibraryComponentsResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.LibraryItem items = 1;
+   */
+  items: LibraryItem[];
+
+  /**
+   * @generated from field: plux.v1.PageResult page = 2;
+   */
+  page?: PageResult | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ListLibraryComponentsResponse.
+ * Use `create(ListLibraryComponentsResponseSchema)` to create a new message.
+ */
+export const ListLibraryComponentsResponseSchema: GenMessage<ListLibraryComponentsResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 15);
+
+/**
+ * @generated from message plux.v1.SetComponentVisibilityRequest
+ */
+export type SetComponentVisibilityRequest = Message<"plux.v1.SetComponentVisibilityRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string visibility = 2;
+   */
+  visibility: string;
+};
+
+/**
+ * Describes the message plux.v1.SetComponentVisibilityRequest.
+ * Use `create(SetComponentVisibilityRequestSchema)` to create a new message.
+ */
+export const SetComponentVisibilityRequestSchema: GenMessage<SetComponentVisibilityRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 16);
+
+/**
+ * @generated from message plux.v1.SetComponentVisibilityResponse
+ */
+export type SetComponentVisibilityResponse = Message<"plux.v1.SetComponentVisibilityResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+};
+
+/**
+ * Describes the message plux.v1.SetComponentVisibilityResponse.
+ * Use `create(SetComponentVisibilityResponseSchema)` to create a new message.
+ */
+export const SetComponentVisibilityResponseSchema: GenMessage<SetComponentVisibilityResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 17);
+
+/**
+ * @generated from message plux.v1.ExportComponentRequest
+ */
+export type ExportComponentRequest = Message<"plux.v1.ExportComponentRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * version is the version to export; zero is the newest.
+   *
+   * @generated from field: int32 version = 2;
+   */
+  version: number;
+};
+
+/**
+ * Describes the message plux.v1.ExportComponentRequest.
+ * Use `create(ExportComponentRequestSchema)` to create a new message.
+ */
+export const ExportComponentRequestSchema: GenMessage<ExportComponentRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 18);
+
+/**
+ * @generated from message plux.v1.ExportComponentResponse
+ */
+export type ExportComponentResponse = Message<"plux.v1.ExportComponentResponse"> & {
+  /**
+   * @generated from field: bytes file = 1;
+   */
+  file: Uint8Array;
+
+  /**
+   * @generated from field: string file_name = 2;
+   */
+  fileName: string;
+};
+
+/**
+ * Describes the message plux.v1.ExportComponentResponse.
+ * Use `create(ExportComponentResponseSchema)` to create a new message.
+ */
+export const ExportComponentResponseSchema: GenMessage<ExportComponentResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 19);
+
+/**
+ * @generated from message plux.v1.ImportComponentRequest
+ */
+export type ImportComponentRequest = Message<"plux.v1.ImportComponentRequest"> & {
+  /**
+   * @generated from field: bytes file = 1;
+   */
+  file: Uint8Array;
+
+  /**
+   * key replaces the file's key when the organisation already has it.
+   *
+   * @generated from field: string key = 2;
+   */
+  key: string;
+};
+
+/**
+ * Describes the message plux.v1.ImportComponentRequest.
+ * Use `create(ImportComponentRequestSchema)` to create a new message.
+ */
+export const ImportComponentRequestSchema: GenMessage<ImportComponentRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 20);
+
+/**
+ * @generated from message plux.v1.ImportComponentResponse
+ */
+export type ImportComponentResponse = Message<"plux.v1.ImportComponentResponse"> & {
+  /**
+   * @generated from field: plux.v1.LibraryItem item = 1;
+   */
+  item?: LibraryItem | undefined;
+
+  /**
+   * @generated from field: plux.v1.LibraryVersion version = 2;
+   */
+  version?: LibraryVersion | undefined;
+};
+
+/**
+ * Describes the message plux.v1.ImportComponentResponse.
+ * Use `create(ImportComponentResponseSchema)` to create a new message.
+ */
+export const ImportComponentResponseSchema: GenMessage<ImportComponentResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 21);
+
+/**
+ * @generated from message plux.v1.AdoptComponentVersionRequest
+ */
+export type AdoptComponentVersionRequest = Message<"plux.v1.AdoptComponentVersionRequest"> & {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+
+  /**
+   * @generated from field: string id = 2;
+   */
+  id: string;
+
+  /**
+   * @generated from field: int32 version = 3;
+   */
+  version: number;
+};
+
+/**
+ * Describes the message plux.v1.AdoptComponentVersionRequest.
+ * Use `create(AdoptComponentVersionRequestSchema)` to create a new message.
+ */
+export const AdoptComponentVersionRequestSchema: GenMessage<AdoptComponentVersionRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 22);
+
+/**
+ * @generated from message plux.v1.AdoptComponentVersionResponse
+ */
+export type AdoptComponentVersionResponse = Message<"plux.v1.AdoptComponentVersionResponse"> & {
+  /**
+   * @generated from field: plux.v1.Adoption adoption = 1;
+   */
+  adoption?: Adoption | undefined;
+
+  /**
+   * @generated from field: repeated plux.v1.AdoptionConflict conflicts = 2;
+   */
+  conflicts: AdoptionConflict[];
+};
+
+/**
+ * Describes the message plux.v1.AdoptComponentVersionResponse.
+ * Use `create(AdoptComponentVersionResponseSchema)` to create a new message.
+ */
+export const AdoptComponentVersionResponseSchema: GenMessage<AdoptComponentVersionResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 23);
+
+/**
+ * @generated from message plux.v1.ListComponentAdoptionsRequest
+ */
+export type ListComponentAdoptionsRequest = Message<"plux.v1.ListComponentAdoptionsRequest"> & {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+};
+
+/**
+ * Describes the message plux.v1.ListComponentAdoptionsRequest.
+ * Use `create(ListComponentAdoptionsRequestSchema)` to create a new message.
+ */
+export const ListComponentAdoptionsRequestSchema: GenMessage<ListComponentAdoptionsRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 24);
+
+/**
+ * @generated from message plux.v1.ListComponentAdoptionsResponse
+ */
+export type ListComponentAdoptionsResponse = Message<"plux.v1.ListComponentAdoptionsResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.Adoption adoptions = 1;
+   */
+  adoptions: Adoption[];
+};
+
+/**
+ * Describes the message plux.v1.ListComponentAdoptionsResponse.
+ * Use `create(ListComponentAdoptionsResponseSchema)` to create a new message.
+ */
+export const ListComponentAdoptionsResponseSchema: GenMessage<ListComponentAdoptionsResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_component, 25);
+
+/**
  * ComponentService lists the components of an app and of its plugins and
  * reports where each is used, so that changing one shows its blast radius.
  * Component documents themselves are written through DocumentService.
@@ -285,6 +683,105 @@ export const ComponentService: GenService<{
     methodKind: "unary";
     input: typeof ListUsagesRequestSchema;
     output: typeof ListUsagesResponseSchema;
+  },
+  /**
+   * CreateComponent makes a private component with its first version (STU-080).
+   *
+   * @generated from rpc plux.v1.ComponentService.CreateComponent
+   */
+  createComponent: {
+    methodKind: "unary";
+    input: typeof CreateComponentRequestSchema;
+    output: typeof CreateComponentResponseSchema;
+  },
+  /**
+   * ReviseComponent writes a new immutable version of a component, and may rename
+   * it. The author may revise it; for another person's it needs
+   * library.manage. expected_version guards against a lost update.
+   *
+   * @generated from rpc plux.v1.ComponentService.ReviseComponent
+   */
+  reviseComponent: {
+    methodKind: "unary";
+    input: typeof ReviseComponentRequestSchema;
+    output: typeof ReviseComponentResponseSchema;
+  },
+  /**
+   * ListComponentVersions returns a component with all its versions, newest first.
+   *
+   * @generated from rpc plux.v1.ComponentService.ListComponentVersions
+   */
+  listComponentVersions: {
+    methodKind: "unary";
+    input: typeof ListComponentVersionsRequestSchema;
+    output: typeof ListComponentVersionsResponseSchema;
+  },
+  /**
+   * ListLibraryComponents lists the components the caller may see: the organisation's
+   * shared ones, the caller's own private ones and every public one (STU-086).
+   *
+   * @generated from rpc plux.v1.ComponentService.ListLibraryComponents
+   */
+  listLibraryComponents: {
+    methodKind: "unary";
+    input: typeof ListLibraryComponentsRequestSchema;
+    output: typeof ListLibraryComponentsResponseSchema;
+  },
+  /**
+   * SetComponentVisibility changes who can see a component. Making it public, or
+   * taking it back from public, needs library.publish, and the public scan
+   * of the newest version must pass first (STU-081).
+   *
+   * @generated from rpc plux.v1.ComponentService.SetComponentVisibility
+   */
+  setComponentVisibility: {
+    methodKind: "unary";
+    input: typeof SetComponentVisibilityRequestSchema;
+    output: typeof SetComponentVisibilityResponseSchema;
+  },
+  /**
+   * ExportComponent returns a version of a component as a library file, byte for
+   * byte the same for the same version.
+   *
+   * @generated from rpc plux.v1.ComponentService.ExportComponent
+   */
+  exportComponent: {
+    methodKind: "unary";
+    input: typeof ExportComponentRequestSchema;
+    output: typeof ExportComponentResponseSchema;
+  },
+  /**
+   * ImportComponent makes a private component from a library file, which is
+   * validated as untrusted input.
+   *
+   * @generated from rpc plux.v1.ComponentService.ImportComponent
+   */
+  importComponent: {
+    methodKind: "unary";
+    input: typeof ImportComponentRequestSchema;
+    output: typeof ImportComponentResponseSchema;
+  },
+  /**
+   * AdoptComponentVersion records the version of a component an app uses
+   * and reports the instances whose overrides the version no longer fits
+   * (STU-085). Adoption is explicit and per app.
+   *
+   * @generated from rpc plux.v1.ComponentService.AdoptComponentVersion
+   */
+  adoptComponentVersion: {
+    methodKind: "unary";
+    input: typeof AdoptComponentVersionRequestSchema;
+    output: typeof AdoptComponentVersionResponseSchema;
+  },
+  /**
+   * ListComponentAdoptions lists the versions an app adopted.
+   *
+   * @generated from rpc plux.v1.ComponentService.ListComponentAdoptions
+   */
+  listComponentAdoptions: {
+    methodKind: "unary";
+    input: typeof ListComponentAdoptionsRequestSchema;
+    output: typeof ListComponentAdoptionsResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_plux_v1_component, 0);

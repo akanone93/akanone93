@@ -7,6 +7,7 @@ package plux.v1;
 
 import "google/protobuf/timestamp.proto";
 import "plux/v1/common.proto";
+import "plux/v1/library.proto";
 
 option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
 
@@ -18,6 +19,28 @@ service TemplateService {
   // Instantiate copies a template into a plugin's draft, generating new
   // UUIDs for every entity it creates (SCH-031). It requires the lock.
   rpc Instantiate(InstantiateRequest) returns (InstantiateResponse) {}
+
+  // CreateTemplate makes a private template with its first version (STU-080).
+  rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse) {}
+  // ReviseTemplate writes a new immutable version of a template, and may rename
+  // it. The author may revise it; for another person's it needs
+  // library.manage. expected_version guards against a lost update.
+  rpc ReviseTemplate(ReviseTemplateRequest) returns (ReviseTemplateResponse) {}
+  // ListTemplateVersions returns a template with all its versions, newest first.
+  rpc ListTemplateVersions(ListTemplateVersionsRequest) returns (ListTemplateVersionsResponse) {}
+  // ListLibraryTemplates lists the templates the caller may see: the organisation's
+  // shared ones, the caller's own private ones and every public one (STU-086).
+  rpc ListLibraryTemplates(ListLibraryTemplatesRequest) returns (ListLibraryTemplatesResponse) {}
+  // SetTemplateVisibility changes who can see a template. Making it public, or
+  // taking it back from public, needs library.publish, and the public scan
+  // of the newest version must pass first (STU-081).
+  rpc SetTemplateVisibility(SetTemplateVisibilityRequest) returns (SetTemplateVisibilityResponse) {}
+  // ExportTemplate returns a version of a template as a library file, byte for
+  // byte the same for the same version.
+  rpc ExportTemplate(ExportTemplateRequest) returns (ExportTemplateResponse) {}
+  // ImportTemplate makes a private template from a library file, which is
+  // validated as untrusted input.
+  rpc ImportTemplate(ImportTemplateRequest) returns (ImportTemplateResponse) {}
 }
 
 message Template {
@@ -75,4 +98,71 @@ message InstantiateResponse {
   repeated string created = 1;
   string snapshot_id = 2;
   repeated Diagnostic diagnostics = 3;
+}
+
+message CreateTemplateRequest {
+  LibraryDraft draft = 1;
+}
+message CreateTemplateResponse {
+  LibraryItem item = 1;
+  LibraryVersion version = 2;
+}
+
+message ReviseTemplateRequest {
+  string id = 1;
+  // expected_version is the head version the caller revised from.
+  int32 expected_version = 2;
+  LibraryDraft draft = 3;
+}
+message ReviseTemplateResponse {
+  LibraryItem item = 1;
+  LibraryVersion version = 2;
+}
+
+message ListTemplateVersionsRequest {
+  string id = 1;
+}
+message ListTemplateVersionsResponse {
+  LibraryItem item = 1;
+  repeated LibraryVersion versions = 2;
+}
+
+message ListLibraryTemplatesRequest {
+  // visibility filters to one level; empty lists all the caller may see.
+  string visibility = 1;
+  // query matches the key and name.
+  string query = 2;
+  Page page = 3;
+}
+message ListLibraryTemplatesResponse {
+  repeated LibraryItem items = 1;
+  PageResult page = 2;
+}
+
+message SetTemplateVisibilityRequest {
+  string id = 1;
+  string visibility = 2;
+}
+message SetTemplateVisibilityResponse {
+  LibraryItem item = 1;
+}
+
+message ExportTemplateRequest {
+  string id = 1;
+  // version is the version to export; zero is the newest.
+  int32 version = 2;
+}
+message ExportTemplateResponse {
+  bytes file = 1;
+  string file_name = 2;
+}
+
+message ImportTemplateRequest {
+  bytes file = 1;
+  // key replaces the file's key when the organisation already has it.
+  string key = 2;
+}
+message ImportTemplateResponse {
+  LibraryItem item = 1;
+  LibraryVersion version = 2;
 }

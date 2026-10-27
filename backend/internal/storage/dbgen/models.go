@@ -1118,6 +1118,44 @@ type InstallationSecret struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type LibraryAdoption struct {
+	AppID          pgtype.UUID
+	ItemID         pgtype.UUID
+	OrganizationID pgtype.UUID
+	Version        int32
+	AdoptedBy      string
+	AdoptedAt      pgtype.Timestamptz
+}
+
+type LibraryItem struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	Kind           string
+	Key            string
+	DocumentID     string
+	Name           string
+	Description    string
+	TemplateKind   string
+	Visibility     string
+	HeadVersion    int32
+	CreatedBy      string
+	CreatedByName  string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type LibraryVersion struct {
+	ItemID         pgtype.UUID
+	OrganizationID pgtype.UUID
+	Version        int32
+	Content        []byte
+	ContentSha256  []byte
+	Note           string
+	CreatedBy      string
+	CreatedByName  string
+	CreatedAt      pgtype.Timestamptz
+}
+
 type LimitOverride struct {
 	OrganizationID pgtype.UUID
 	Scope          string
