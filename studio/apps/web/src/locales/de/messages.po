@@ -4128,6 +4128,12 @@ msgstr "Öffentliche Elemente sind für die ganze Installation sichtbar und werd
 msgid "security.keysCaption"
 msgstr "Öffentliche Schlüssel, die für diese Umgebung signieren dürfen. Schlüssel werden in der Offline-Zeremonie rotiert."
 
+#. Primary button of the canvas action bar that opens the release flow.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.publish"
+msgstr "Veröffentlichen"
+
 #. Why a snapshot was made: the plugin was published.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -5663,6 +5669,12 @@ msgstr "Der Öffentlichkeits-Scan hat Inhalte gefunden, die nicht öffentlich se
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.publishedFailed"
 msgstr "Die veröffentlichte Version konnte nicht geladen werden."
+
+#. Why the Publish button of the canvas action bar is disabled while no release flow exists.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.publishPending"
+msgstr "Der Release-Ablauf ist noch nicht verfügbar"
 
 #. Shown when a device request fails.
 #. js-lingui-explicit-id

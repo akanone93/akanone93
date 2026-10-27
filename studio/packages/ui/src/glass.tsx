@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { ReactElement, ReactNode } from "react";
+import type { KeyboardEventHandler, ReactElement, ReactNode } from "react";
 import { cx } from "./cx.ts";
 
 export interface GlassProps {
@@ -9,15 +9,21 @@ export interface GlassProps {
   readonly label: string;
   readonly children: ReactNode;
   readonly className?: string;
+  /** `toolbar` for a capsule whose controls are reached with the arrow keys; `group` otherwise. */
+  readonly role?: "group" | "toolbar";
+  readonly onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
 }
 
 /** The three top capsules: floating glass, height from the density tokens (U3). Never nested in another glass surface. */
-export function GlassCapsule({ label, children, className }: GlassProps): ReactElement {
+export function GlassCapsule({ label, children, className, role = "group", onKeyDown }: GlassProps): ReactElement {
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: the role is a toolbar or a group; the handler only roves focus
+    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: the role is a toolbar or a group, both name themselves
     // biome-ignore lint/a11y/useSemanticElements: a capsule is a named group of mixed controls, not a form fieldset
     <div
-      role="group"
+      role={role}
       aria-label={label}
+      onKeyDown={onKeyDown}
       className={cx("glass flex h-(--density-capsule) items-center gap-2 rounded-full px-3 text-primary", className)}
     >
       {children}
