@@ -161,7 +161,7 @@ function SourceFields(props: { source: Json; onChange: (patch: Json) => void; ca
   );
 }
 
-function ImportSection(props: {
+export function ImportSection(props: {
   tool: ValidatorClient["tool"];
   canEdit: boolean;
   onAdd: (answer: ImportAnswer) => void;
