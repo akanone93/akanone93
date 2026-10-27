@@ -48,6 +48,9 @@ const (
 	// InstallationServiceListTrustedIssuersProcedure is the fully-qualified name of the
 	// InstallationService's ListTrustedIssuers RPC.
 	InstallationServiceListTrustedIssuersProcedure = "/plux.v1.InstallationService/ListTrustedIssuers"
+	// InstallationServiceListInstallationOrganizationsProcedure is the fully-qualified name of the
+	// InstallationService's ListInstallationOrganizations RPC.
+	InstallationServiceListInstallationOrganizationsProcedure = "/plux.v1.InstallationService/ListInstallationOrganizations"
 )
 
 // InstallationServiceClient is a client for the plux.v1.InstallationService service.
@@ -61,6 +64,11 @@ type InstallationServiceClient interface {
 	// ListTrustedIssuers lists the CI identity providers the installation
 	// trusts (ADR-0026); it returns no credential.
 	ListTrustedIssuers(context.Context, *connect.Request[pluxv1.ListTrustedIssuersRequest]) (*connect.Response[pluxv1.ListTrustedIssuersResponse], error)
+	// ListInstallationOrganizations lists every organisation with its member
+	// and app counts. It is the only call that reaches across the tenant
+	// wall; it returns identifiers, names, creation times and counts, never
+	// content, and each call is recorded in the installation's audit chain.
+	ListInstallationOrganizations(context.Context, *connect.Request[pluxv1.ListInstallationOrganizationsRequest]) (*connect.Response[pluxv1.ListInstallationOrganizationsResponse], error)
 }
 
 // NewInstallationServiceClient constructs a client for the plux.v1.InstallationService service. By
@@ -98,15 +106,22 @@ func NewInstallationServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(installationServiceMethods.ByName("ListTrustedIssuers")),
 			connect.WithClientOptions(opts...),
 		),
+		listInstallationOrganizations: connect.NewClient[pluxv1.ListInstallationOrganizationsRequest, pluxv1.ListInstallationOrganizationsResponse](
+			httpClient,
+			baseURL+InstallationServiceListInstallationOrganizationsProcedure,
+			connect.WithSchema(installationServiceMethods.ByName("ListInstallationOrganizations")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // installationServiceClient implements InstallationServiceClient.
 type installationServiceClient struct {
-	getInstallationHealth  *connect.Client[pluxv1.GetInstallationHealthRequest, pluxv1.GetInstallationHealthResponse]
-	getInstallationStorage *connect.Client[pluxv1.GetInstallationStorageRequest, pluxv1.GetInstallationStorageResponse]
-	listInstallationJobs   *connect.Client[pluxv1.ListInstallationJobsRequest, pluxv1.ListInstallationJobsResponse]
-	listTrustedIssuers     *connect.Client[pluxv1.ListTrustedIssuersRequest, pluxv1.ListTrustedIssuersResponse]
+	getInstallationHealth         *connect.Client[pluxv1.GetInstallationHealthRequest, pluxv1.GetInstallationHealthResponse]
+	getInstallationStorage        *connect.Client[pluxv1.GetInstallationStorageRequest, pluxv1.GetInstallationStorageResponse]
+	listInstallationJobs          *connect.Client[pluxv1.ListInstallationJobsRequest, pluxv1.ListInstallationJobsResponse]
+	listTrustedIssuers            *connect.Client[pluxv1.ListTrustedIssuersRequest, pluxv1.ListTrustedIssuersResponse]
+	listInstallationOrganizations *connect.Client[pluxv1.ListInstallationOrganizationsRequest, pluxv1.ListInstallationOrganizationsResponse]
 }
 
 // GetInstallationHealth calls plux.v1.InstallationService.GetInstallationHealth.
@@ -129,6 +144,11 @@ func (c *installationServiceClient) ListTrustedIssuers(ctx context.Context, req 
 	return c.listTrustedIssuers.CallUnary(ctx, req)
 }
 
+// ListInstallationOrganizations calls plux.v1.InstallationService.ListInstallationOrganizations.
+func (c *installationServiceClient) ListInstallationOrganizations(ctx context.Context, req *connect.Request[pluxv1.ListInstallationOrganizationsRequest]) (*connect.Response[pluxv1.ListInstallationOrganizationsResponse], error) {
+	return c.listInstallationOrganizations.CallUnary(ctx, req)
+}
+
 // InstallationServiceHandler is an implementation of the plux.v1.InstallationService service.
 type InstallationServiceHandler interface {
 	// GetInstallationHealth runs the readiness checks and reports each one.
@@ -140,6 +160,11 @@ type InstallationServiceHandler interface {
 	// ListTrustedIssuers lists the CI identity providers the installation
 	// trusts (ADR-0026); it returns no credential.
 	ListTrustedIssuers(context.Context, *connect.Request[pluxv1.ListTrustedIssuersRequest]) (*connect.Response[pluxv1.ListTrustedIssuersResponse], error)
+	// ListInstallationOrganizations lists every organisation with its member
+	// and app counts. It is the only call that reaches across the tenant
+	// wall; it returns identifiers, names, creation times and counts, never
+	// content, and each call is recorded in the installation's audit chain.
+	ListInstallationOrganizations(context.Context, *connect.Request[pluxv1.ListInstallationOrganizationsRequest]) (*connect.Response[pluxv1.ListInstallationOrganizationsResponse], error)
 }
 
 // NewInstallationServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -173,6 +198,12 @@ func NewInstallationServiceHandler(svc InstallationServiceHandler, opts ...conne
 		connect.WithSchema(installationServiceMethods.ByName("ListTrustedIssuers")),
 		connect.WithHandlerOptions(opts...),
 	)
+	installationServiceListInstallationOrganizationsHandler := connect.NewUnaryHandler(
+		InstallationServiceListInstallationOrganizationsProcedure,
+		svc.ListInstallationOrganizations,
+		connect.WithSchema(installationServiceMethods.ByName("ListInstallationOrganizations")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.InstallationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case InstallationServiceGetInstallationHealthProcedure:
@@ -183,6 +214,8 @@ func NewInstallationServiceHandler(svc InstallationServiceHandler, opts ...conne
 			installationServiceListInstallationJobsHandler.ServeHTTP(w, r)
 		case InstallationServiceListTrustedIssuersProcedure:
 			installationServiceListTrustedIssuersHandler.ServeHTTP(w, r)
+		case InstallationServiceListInstallationOrganizationsProcedure:
+			installationServiceListInstallationOrganizationsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -206,4 +239,8 @@ func (UnimplementedInstallationServiceHandler) ListInstallationJobs(context.Cont
 
 func (UnimplementedInstallationServiceHandler) ListTrustedIssuers(context.Context, *connect.Request[pluxv1.ListTrustedIssuersRequest]) (*connect.Response[pluxv1.ListTrustedIssuersResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.InstallationService.ListTrustedIssuers is not implemented"))
+}
+
+func (UnimplementedInstallationServiceHandler) ListInstallationOrganizations(context.Context, *connect.Request[pluxv1.ListInstallationOrganizationsRequest]) (*connect.Response[pluxv1.ListInstallationOrganizationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.InstallationService.ListInstallationOrganizations is not implemented"))
 }

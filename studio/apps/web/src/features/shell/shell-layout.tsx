@@ -7,8 +7,8 @@ import { useLingui } from "@lingui/react";
 import { OrgService, PreferencesService, SearchService } from "@plux/api";
 import { GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
-import { Outlet, useParams, useRouter } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Link, Outlet, useParams, useRouter } from "@tanstack/react-router";
+import { type ReactElement, useMemo, useState } from "react";
 import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
 import { CommandsProvider, commandMessages, createRegistry, shellCommands } from "../../lib/commands/index.ts";
 import { loadUser } from "../../lib/guards.ts";
@@ -29,6 +29,29 @@ import { useStudioEvents } from "./use-studio-events.ts";
 
 /** One empty list, so memoised commands do not rebuild while queries load. */
 const NONE: readonly never[] = [];
+
+/** The administration area's permission: the one its first page (settings) needs (STU-116). */
+const ADMIN_PERMISSION = "organization.manage";
+
+/** A link to the administration area, shown only to people the area admits. */
+function AdminLink({
+  organisationId,
+  permissions,
+  label,
+}: {
+  readonly organisationId: string | undefined;
+  readonly permissions: readonly string[];
+  readonly label: string;
+}): ReactElement | null {
+  if (organisationId === undefined || !permissions.includes(ADMIN_PERMISSION)) {
+    return null;
+  }
+  return (
+    <Link to="/o/$org/admin" params={{ org: organisationId }} className="text-body">
+      {label}
+    </Link>
+  );
+}
 
 /** U9.2: the top bar (identity, organisation switcher, profile menu) over the page content. */
 
@@ -106,6 +129,7 @@ export function ShellLayout() {
                   onValueChange={(id) => router.history.push(`/o/${id}`)}
                 />
               )}
+              <AdminLink organisationId={currentId} permissions={permissions} label={m.admin} />
               <span className="flex-1" />
               <StatusChips online={online} stream={events.state} waiting={waiting} />
               <button type="button" className="text-body" onClick={() => setPaletteOpen(true)}>

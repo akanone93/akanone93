@@ -146,10 +146,10 @@ export function HealthPage(): ReactElement {
   );
 }
 
-/** I2: the organisations of the signed-in administrator. */
+/** I2: every organisation of the installation, with its size (STU-116, §4.3 #22). */
 export function OrganisationsPage(): ReactElement {
   const m = installationMessages(useLingui().i18n);
-  const q = useInstallationQuery("organisations", (c) => c.org.listOrganizations({}));
+  const q = useInstallationQuery("organisations", (c) => c.installation.listInstallationOrganizations({}));
   return (
     <Frame
       id="inst-orgs"
@@ -160,11 +160,11 @@ export function OrganisationsPage(): ReactElement {
     >
       <Table
         caption={m.organisationsTitle}
-        heads={[m.colName, m.colKey, m.colCreated]}
+        heads={[m.colName, m.colCreated, m.colMembers, m.colApps]}
         empty={m.nothing}
         rows={(q.data?.organizations ?? []).map((o) => ({
           key: o.id,
-          cells: [o.name, o.key, o.createdAt === undefined ? "" : timestampDate(o.createdAt).toLocaleString()],
+          cells: [o.name, new Date(Number(o.createdAtMs)).toLocaleString(), String(o.memberCount), String(o.appCount)],
         }))}
       />
     </Frame>

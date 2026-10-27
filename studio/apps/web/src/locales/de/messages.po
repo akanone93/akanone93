@@ -766,6 +766,12 @@ msgstr "hinzugefügt"
 msgid "admin.colAdded"
 msgstr "Hinzugefügt"
 
+#. Link in the top bar to the organisation's administration area; shown only with the permission the area needs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.admin"
+msgstr "Verwaltung"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -981,6 +987,12 @@ msgstr "Sofort anwenden"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.approvals"
 msgstr "Genehmigungen"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colApps"
+msgstr "Apps"
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -2500,6 +2512,12 @@ msgstr "Ereignisse"
 msgid "admin.auditCaption"
 msgstr "Jede Änderung dieser Organisation, durchsuchbar und exportierbar."
 
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.organisationsCaption"
+msgstr "Jede Organisation dieser Installation."
+
 #. Checkbox that hides the widget from screen readers.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3246,12 +3264,6 @@ msgstr "Schlüssel"
 msgid "library.canvas.key"
 msgstr "Schlüssel"
 
-#. Text in the installation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/installation/installation.messages.ts
-msgid "installation.colKey"
-msgstr "Schlüssel"
-
 #. Label of the field that holds a collection's key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3791,6 +3803,12 @@ msgstr "Mittel"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.memberTitle"
 msgstr "Mitglied"
+
+#. Text in the installation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/installation/installation.messages.ts
+msgid "installation.colMembers"
+msgstr "Mitglieder"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -6833,12 +6851,6 @@ msgstr "Der Mock ist kein gültiges JSON."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataMockHelp"
 msgstr "Der Mock wird auf der Leinwand gezeigt, solange keine echten Daten vorliegen."
-
-#. Text in the installation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/installation/installation.messages.ts
-msgid "installation.organisationsCaption"
-msgstr "Jede Organisation dieser Installation."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id

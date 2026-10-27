@@ -47,7 +47,9 @@ working. Only new writes to enterprise features are refused.
   replacement for a time the organisation's admins can watch.
 - **Renewed licence.** Inspect the new file offline with `plux license inspect`, check that it names the
   right organisation and installation, then put it in place: update the `license` Helm secret or the file
-  `PLUX_LICENSE_FILE` names. The licence is verified again every hour, so the new state appears within an
+  `PLUX_LICENSE_FILE` names. An installation administrator can instead upload the file in Studio
+  (Installation, Licence), which calls `LicenseService.InstallLicense` (at most 64 KiB, verified offline,
+  audited; [ADR-0084](../adr/0084-enterprise-edition-and-licence-files.md)). The licence is verified again every hour, so the new state appears within an
   hour; check it with `plux admin license`.
 - **Grace period.** Features still work. Use the time to renew, and tell the owners of the enterprise
   features (approvals, SCIM, SAML, SIEM export) what changes at the end of grace.
