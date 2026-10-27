@@ -38,6 +38,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/releasereq"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/search"
@@ -78,6 +79,9 @@ type Handlers struct {
 	Reports *compliance.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
 	Goldens *golden.Service
+	// ReleaseRequests serves ReleaseRequestService (STU-100); nil leaves it
+	// unmounted.
+	ReleaseRequests *releasereq.Service
 	// Searches serves SearchService (SRV-061); nil leaves it unmounted.
 	Searches *search.Service
 	// StudioStream serves StudioEventsService (STU-075); nil leaves it

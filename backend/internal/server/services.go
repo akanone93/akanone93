@@ -63,6 +63,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/releasereq"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
 	"github.com/nightCode42/plux3/backend/internal/schema"
@@ -151,6 +152,9 @@ type Services struct {
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
+	// ReleaseRequests holds release requests and their visual-diff jobs
+	// (STU-100); nil where there are no releases.
+	ReleaseRequests *releasereq.Service
 	// Reconstruction reconstructs what a device ran and showed (SEC-142); nil
 	// where the installation has no object store.
 	Reconstruction *reconstruct.Service
@@ -196,7 +200,10 @@ type WorkDeps struct {
 	AnalyticsExporter analytics.Exporter
 	Objects           objects.Store
 	Queue             *JobQueue
-	Codecs            *media.Codecs
+	// Renderer renders visual diffs (O-9); nil in a process that runs no
+	// render jobs. It talks to the render worker, never to the database.
+	Renderer releasereq.Renderer
+	Codecs   *media.Codecs
 	// SVG compiles SVGs; nil where the server has no SVG compiler.
 	SVG    *media.SVGCompiler
 	Signer signing.Signer
@@ -651,7 +658,11 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 		ids: k.gen, audit: k.log, tenancy: svc.Tenancy, documents: svc.Documents, devices: svc.Devices, configs: svc.SecurityConfig,
 		crypter: k.backend, gateway: gatewayRegistry(svc.Gateway), functions: svc.Functions,
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	svc.ReleaseRequests = k.buildReleaseRequests(svc)
+	return nil
 }
 
 // buildOperations builds the services that depend on releases: audit
@@ -1205,6 +1216,12 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 	if svc.Analytics != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewAnalyticsServiceHandler(h.AnalyticsService(), opts)
+		})
+	}
+	if svc.ReleaseRequests != nil {
+		h.ReleaseRequests = svc.ReleaseRequests
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
 		})
 	}
 	if svc.Goldens != nil {

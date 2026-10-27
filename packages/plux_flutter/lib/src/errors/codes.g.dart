@@ -1228,6 +1228,15 @@ enum PluxErrorCode {
   /// Host build lacks a native entry.
   hostBuildIncompatible(8054, 'HOST_BUILD_INCOMPATIBLE', 'Host build lacks a native entry'),
 
+  /// Release request is at another step.
+  releaseRequestState(8060, 'RELEASE_REQUEST_STATE', 'Release request is at another step'),
+
+  /// Release request has ended.
+  releaseRequestEnded(8061, 'RELEASE_REQUEST_ENDED', 'Release request has ended'),
+
+  /// Visual diff not finished.
+  visualDiffRequired(8062, 'VISUAL_DIFF_REQUIRED', 'Visual diff not finished'),
+
   /// Internal error.
   internalServerError(8090, 'INTERNAL_SERVER_ERROR', 'Internal error'),
 

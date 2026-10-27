@@ -51,6 +51,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/releasereq"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
@@ -469,6 +470,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Translations: localisation.New(docs, gen, set),
 		StudioStream: studioEventsService, Searches: searchService, GitExports: gitService, UserPreferences: preferencesService,
 		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
+		ReleaseRequests: releasereq.New(releasereq.Options{
+			DB: db, IDs: gen, Builds: releasereq.ReleaseBuilds{Releases: releases}, Releaser: releasereq.ReleaseMaker{Releases: releases}, Approvals: approvals,
+		}),
 	}
 	// The world's one signed-in person calls every RPC of the authorisation
 	// matrix within a minute, which is more than one person's default
@@ -494,6 +498,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	for _, r := range []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewBreakGlassServiceHandler(h.BreakGlass(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDevSessionServiceHandler(h.DevSession(), opts) },

@@ -49,6 +49,9 @@ const (
 	// that follow, apart from the publish lane so that a kill switch never
 	// waits behind a long publish (SYN-060, NFR-024).
 	QueueControl = "control"
+	// QueueRender runs the visual-diff render jobs of release requests; a
+	// long render must not hold up a publish (O-9).
+	QueueRender = "render"
 )
 
 // queues are the queues a worker serves, with how many jobs each runs at
@@ -61,6 +64,7 @@ var queues = map[string]river.QueueConfig{
 	QueueFunction:    {MaxWorkers: 2},
 	QueueExport:      {MaxWorkers: 2},
 	QueueControl:     {MaxWorkers: 4},
+	QueueRender:      {MaxWorkers: 2},
 }
 
 // Workers is the set of job types a worker process runs. It wraps
