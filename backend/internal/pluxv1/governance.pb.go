@@ -2884,6 +2884,319 @@ func (x *ExportPoliciesResponse) GetFiles() []*PolicyFile {
 	return nil
 }
 
+// SimulatedChange is the sample change a draft policy is tried against.
+type SimulatedChange struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// resource is the kind of artifact, as in the policy schema.
+	Resource string `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	// environment is the key of one of the app's environments; empty for a
+	// change outside any environment.
+	Environment string `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
+	Action      string `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
+	// risk lists the risk attributes the change carries.
+	Risk          []string `protobuf:"bytes,4,rep,name=risk,proto3" json:"risk,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SimulatedChange) Reset() {
+	*x = SimulatedChange{}
+	mi := &file_plux_v1_governance_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulatedChange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulatedChange) ProtoMessage() {}
+
+func (x *SimulatedChange) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulatedChange.ProtoReflect.Descriptor instead.
+func (*SimulatedChange) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *SimulatedChange) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
+}
+
+func (x *SimulatedChange) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *SimulatedChange) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *SimulatedChange) GetRisk() []string {
+	if x != nil {
+		return x.Risk
+	}
+	return nil
+}
+
+type SimulatePolicyRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	// document is the draft policy document as JSON; it is checked as
+	// PutPolicy checks it but not stored.
+	Document      []byte           `protobuf:"bytes,2,opt,name=document,proto3" json:"document,omitempty"`
+	Change        *SimulatedChange `protobuf:"bytes,3,opt,name=change,proto3" json:"change,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SimulatePolicyRequest) Reset() {
+	*x = SimulatePolicyRequest{}
+	mi := &file_plux_v1_governance_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulatePolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulatePolicyRequest) ProtoMessage() {}
+
+func (x *SimulatePolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulatePolicyRequest.ProtoReflect.Descriptor instead.
+func (*SimulatePolicyRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *SimulatePolicyRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *SimulatePolicyRequest) GetDocument() []byte {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+func (x *SimulatePolicyRequest) GetChange() *SimulatedChange {
+	if x != nil {
+		return x.Change
+	}
+	return nil
+}
+
+// SimulatedRequirement is what one matching policy asks of the approvers.
+type SimulatedRequirement struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	PolicyKey string                 `protobuf:"bytes,1,opt,name=policy_key,json=policyKey,proto3" json:"policy_key,omitempty"`
+	// draft is set for the draft and unset for a policy in force.
+	Draft     bool     `protobuf:"varint,2,opt,name=draft,proto3" json:"draft,omitempty"`
+	Approvers int32    `protobuf:"varint,3,opt,name=approvers,proto3" json:"approvers,omitempty"`
+	Roles     []string `protobuf:"bytes,4,rep,name=roles,proto3" json:"roles,omitempty"`
+	Users     []string `protobuf:"bytes,5,rep,name=users,proto3" json:"users,omitempty"`
+	// stages is "", "sequential" or "parallel".
+	Stages             string `protobuf:"bytes,6,opt,name=stages,proto3" json:"stages,omitempty"`
+	DistinctTeams      bool   `protobuf:"varint,7,opt,name=distinct_teams,json=distinctTeams,proto3" json:"distinct_teams,omitempty"`
+	DistinctFromAuthor bool   `protobuf:"varint,8,opt,name=distinct_from_author,json=distinctFromAuthor,proto3" json:"distinct_from_author,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *SimulatedRequirement) Reset() {
+	*x = SimulatedRequirement{}
+	mi := &file_plux_v1_governance_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulatedRequirement) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulatedRequirement) ProtoMessage() {}
+
+func (x *SimulatedRequirement) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulatedRequirement.ProtoReflect.Descriptor instead.
+func (*SimulatedRequirement) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *SimulatedRequirement) GetPolicyKey() string {
+	if x != nil {
+		return x.PolicyKey
+	}
+	return ""
+}
+
+func (x *SimulatedRequirement) GetDraft() bool {
+	if x != nil {
+		return x.Draft
+	}
+	return false
+}
+
+func (x *SimulatedRequirement) GetApprovers() int32 {
+	if x != nil {
+		return x.Approvers
+	}
+	return 0
+}
+
+func (x *SimulatedRequirement) GetRoles() []string {
+	if x != nil {
+		return x.Roles
+	}
+	return nil
+}
+
+func (x *SimulatedRequirement) GetUsers() []string {
+	if x != nil {
+		return x.Users
+	}
+	return nil
+}
+
+func (x *SimulatedRequirement) GetStages() string {
+	if x != nil {
+		return x.Stages
+	}
+	return ""
+}
+
+func (x *SimulatedRequirement) GetDistinctTeams() bool {
+	if x != nil {
+		return x.DistinctTeams
+	}
+	return false
+}
+
+func (x *SimulatedRequirement) GetDistinctFromAuthor() bool {
+	if x != nil {
+		return x.DistinctFromAuthor
+	}
+	return false
+}
+
+type SimulatePolicyResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// matches is whether the draft matches the sample change.
+	Matches bool `protobuf:"varint,1,opt,name=matches,proto3" json:"matches,omitempty"`
+	// requirements are the matching policies, in key order, the draft
+	// included when it matches.
+	Requirements []*SimulatedRequirement `protobuf:"bytes,2,rep,name=requirements,proto3" json:"requirements,omitempty"`
+	// approvals_required is the most approvals any matching policy asks for;
+	// zero when none matches and the change needs no approval.
+	ApprovalsRequired int32 `protobuf:"varint,3,opt,name=approvals_required,json=approvalsRequired,proto3" json:"approvals_required,omitempty"`
+	// requires_enterprise is set when the draft uses stages or distinct teams,
+	// which PutPolicy refuses without the enterprise edition.
+	RequiresEnterprise bool `protobuf:"varint,4,opt,name=requires_enterprise,json=requiresEnterprise,proto3" json:"requires_enterprise,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *SimulatePolicyResponse) Reset() {
+	*x = SimulatePolicyResponse{}
+	mi := &file_plux_v1_governance_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulatePolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulatePolicyResponse) ProtoMessage() {}
+
+func (x *SimulatePolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_governance_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulatePolicyResponse.ProtoReflect.Descriptor instead.
+func (*SimulatePolicyResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *SimulatePolicyResponse) GetMatches() bool {
+	if x != nil {
+		return x.Matches
+	}
+	return false
+}
+
+func (x *SimulatePolicyResponse) GetRequirements() []*SimulatedRequirement {
+	if x != nil {
+		return x.Requirements
+	}
+	return nil
+}
+
+func (x *SimulatePolicyResponse) GetApprovalsRequired() int32 {
+	if x != nil {
+		return x.ApprovalsRequired
+	}
+	return 0
+}
+
+func (x *SimulatePolicyResponse) GetRequiresEnterprise() bool {
+	if x != nil {
+		return x.RequiresEnterprise
+	}
+	return false
+}
+
 // ApprovalDecision is one signed record of a decision (GOV-023).
 type ApprovalDecision struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
@@ -2907,7 +3220,7 @@ type ApprovalDecision struct {
 
 func (x *ApprovalDecision) Reset() {
 	*x = ApprovalDecision{}
-	mi := &file_plux_v1_governance_proto_msgTypes[49]
+	mi := &file_plux_v1_governance_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2919,7 +3232,7 @@ func (x *ApprovalDecision) String() string {
 func (*ApprovalDecision) ProtoMessage() {}
 
 func (x *ApprovalDecision) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[49]
+	mi := &file_plux_v1_governance_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2932,7 +3245,7 @@ func (x *ApprovalDecision) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApprovalDecision.ProtoReflect.Descriptor instead.
 func (*ApprovalDecision) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{49}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ApprovalDecision) GetId() string {
@@ -3043,7 +3356,7 @@ type ApprovalRequest struct {
 
 func (x *ApprovalRequest) Reset() {
 	*x = ApprovalRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[50]
+	mi := &file_plux_v1_governance_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3055,7 +3368,7 @@ func (x *ApprovalRequest) String() string {
 func (*ApprovalRequest) ProtoMessage() {}
 
 func (x *ApprovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[50]
+	mi := &file_plux_v1_governance_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3068,7 +3381,7 @@ func (x *ApprovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApprovalRequest.ProtoReflect.Descriptor instead.
 func (*ApprovalRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{50}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ApprovalRequest) GetId() string {
@@ -3195,7 +3508,7 @@ type ListApprovalsRequest struct {
 
 func (x *ListApprovalsRequest) Reset() {
 	*x = ListApprovalsRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[51]
+	mi := &file_plux_v1_governance_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3207,7 +3520,7 @@ func (x *ListApprovalsRequest) String() string {
 func (*ListApprovalsRequest) ProtoMessage() {}
 
 func (x *ListApprovalsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[51]
+	mi := &file_plux_v1_governance_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3220,7 +3533,7 @@ func (x *ListApprovalsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApprovalsRequest.ProtoReflect.Descriptor instead.
 func (*ListApprovalsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{51}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListApprovalsRequest) GetAppId() string {
@@ -3254,7 +3567,7 @@ type ListApprovalsResponse struct {
 
 func (x *ListApprovalsResponse) Reset() {
 	*x = ListApprovalsResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[52]
+	mi := &file_plux_v1_governance_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3266,7 +3579,7 @@ func (x *ListApprovalsResponse) String() string {
 func (*ListApprovalsResponse) ProtoMessage() {}
 
 func (x *ListApprovalsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[52]
+	mi := &file_plux_v1_governance_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3279,7 +3592,7 @@ func (x *ListApprovalsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApprovalsResponse.ProtoReflect.Descriptor instead.
 func (*ListApprovalsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{52}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ListApprovalsResponse) GetApprovals() []*ApprovalRequest {
@@ -3306,7 +3619,7 @@ type GetApprovalRequest struct {
 
 func (x *GetApprovalRequest) Reset() {
 	*x = GetApprovalRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[53]
+	mi := &file_plux_v1_governance_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3318,7 +3631,7 @@ func (x *GetApprovalRequest) String() string {
 func (*GetApprovalRequest) ProtoMessage() {}
 
 func (x *GetApprovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[53]
+	mi := &file_plux_v1_governance_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3331,7 +3644,7 @@ func (x *GetApprovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetApprovalRequest.ProtoReflect.Descriptor instead.
 func (*GetApprovalRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{53}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *GetApprovalRequest) GetAppId() string {
@@ -3357,7 +3670,7 @@ type GetApprovalResponse struct {
 
 func (x *GetApprovalResponse) Reset() {
 	*x = GetApprovalResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[54]
+	mi := &file_plux_v1_governance_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3369,7 +3682,7 @@ func (x *GetApprovalResponse) String() string {
 func (*GetApprovalResponse) ProtoMessage() {}
 
 func (x *GetApprovalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[54]
+	mi := &file_plux_v1_governance_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3382,7 +3695,7 @@ func (x *GetApprovalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetApprovalResponse.ProtoReflect.Descriptor instead.
 func (*GetApprovalResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{54}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *GetApprovalResponse) GetApproval() *ApprovalRequest {
@@ -3402,7 +3715,7 @@ type GetApprovalReviewRequest struct {
 
 func (x *GetApprovalReviewRequest) Reset() {
 	*x = GetApprovalReviewRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[55]
+	mi := &file_plux_v1_governance_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3414,7 +3727,7 @@ func (x *GetApprovalReviewRequest) String() string {
 func (*GetApprovalReviewRequest) ProtoMessage() {}
 
 func (x *GetApprovalReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[55]
+	mi := &file_plux_v1_governance_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3427,7 +3740,7 @@ func (x *GetApprovalReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetApprovalReviewRequest.ProtoReflect.Descriptor instead.
 func (*GetApprovalReviewRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{55}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *GetApprovalReviewRequest) GetAppId() string {
@@ -3459,7 +3772,7 @@ type ReviewImage struct {
 
 func (x *ReviewImage) Reset() {
 	*x = ReviewImage{}
-	mi := &file_plux_v1_governance_proto_msgTypes[56]
+	mi := &file_plux_v1_governance_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3471,7 +3784,7 @@ func (x *ReviewImage) String() string {
 func (*ReviewImage) ProtoMessage() {}
 
 func (x *ReviewImage) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[56]
+	mi := &file_plux_v1_governance_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3484,7 +3797,7 @@ func (x *ReviewImage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewImage.ProtoReflect.Descriptor instead.
 func (*ReviewImage) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{56}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *ReviewImage) GetPluginKey() string {
@@ -3530,7 +3843,7 @@ type InstallBaseEntry struct {
 
 func (x *InstallBaseEntry) Reset() {
 	*x = InstallBaseEntry{}
-	mi := &file_plux_v1_governance_proto_msgTypes[57]
+	mi := &file_plux_v1_governance_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3542,7 +3855,7 @@ func (x *InstallBaseEntry) String() string {
 func (*InstallBaseEntry) ProtoMessage() {}
 
 func (x *InstallBaseEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[57]
+	mi := &file_plux_v1_governance_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3555,7 +3868,7 @@ func (x *InstallBaseEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstallBaseEntry.ProtoReflect.Descriptor instead.
 func (*InstallBaseEntry) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{57}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *InstallBaseEntry) GetChannel() string {
@@ -3597,7 +3910,7 @@ type ReviewReport struct {
 
 func (x *ReviewReport) Reset() {
 	*x = ReviewReport{}
-	mi := &file_plux_v1_governance_proto_msgTypes[58]
+	mi := &file_plux_v1_governance_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3609,7 +3922,7 @@ func (x *ReviewReport) String() string {
 func (*ReviewReport) ProtoMessage() {}
 
 func (x *ReviewReport) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[58]
+	mi := &file_plux_v1_governance_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3622,7 +3935,7 @@ func (x *ReviewReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewReport.ProtoReflect.Descriptor instead.
 func (*ReviewReport) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{58}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *ReviewReport) GetKind() string {
@@ -3651,7 +3964,7 @@ type ReviewRisk struct {
 
 func (x *ReviewRisk) Reset() {
 	*x = ReviewRisk{}
-	mi := &file_plux_v1_governance_proto_msgTypes[59]
+	mi := &file_plux_v1_governance_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3663,7 +3976,7 @@ func (x *ReviewRisk) String() string {
 func (*ReviewRisk) ProtoMessage() {}
 
 func (x *ReviewRisk) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[59]
+	mi := &file_plux_v1_governance_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3676,7 +3989,7 @@ func (x *ReviewRisk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewRisk.ProtoReflect.Descriptor instead.
 func (*ReviewRisk) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{59}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *ReviewRisk) GetLevel() string {
@@ -3710,7 +4023,7 @@ type GetApprovalReviewResponse struct {
 
 func (x *GetApprovalReviewResponse) Reset() {
 	*x = GetApprovalReviewResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[60]
+	mi := &file_plux_v1_governance_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3722,7 +4035,7 @@ func (x *GetApprovalReviewResponse) String() string {
 func (*GetApprovalReviewResponse) ProtoMessage() {}
 
 func (x *GetApprovalReviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[60]
+	mi := &file_plux_v1_governance_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3735,7 +4048,7 @@ func (x *GetApprovalReviewResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetApprovalReviewResponse.ProtoReflect.Descriptor instead.
 func (*GetApprovalReviewResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{60}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *GetApprovalReviewResponse) GetApproval() *ApprovalRequest {
@@ -3807,7 +4120,7 @@ type DecideApprovalRequest struct {
 
 func (x *DecideApprovalRequest) Reset() {
 	*x = DecideApprovalRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[61]
+	mi := &file_plux_v1_governance_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3819,7 +4132,7 @@ func (x *DecideApprovalRequest) String() string {
 func (*DecideApprovalRequest) ProtoMessage() {}
 
 func (x *DecideApprovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[61]
+	mi := &file_plux_v1_governance_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3832,7 +4145,7 @@ func (x *DecideApprovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DecideApprovalRequest.ProtoReflect.Descriptor instead.
 func (*DecideApprovalRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{61}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *DecideApprovalRequest) GetAppId() string {
@@ -3872,7 +4185,7 @@ type DecideApprovalResponse struct {
 
 func (x *DecideApprovalResponse) Reset() {
 	*x = DecideApprovalResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[62]
+	mi := &file_plux_v1_governance_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3884,7 +4197,7 @@ func (x *DecideApprovalResponse) String() string {
 func (*DecideApprovalResponse) ProtoMessage() {}
 
 func (x *DecideApprovalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[62]
+	mi := &file_plux_v1_governance_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3897,7 +4210,7 @@ func (x *DecideApprovalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DecideApprovalResponse.ProtoReflect.Descriptor instead.
 func (*DecideApprovalResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{62}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *DecideApprovalResponse) GetApproval() *ApprovalRequest {
@@ -3936,7 +4249,7 @@ type BreakGlassInvocation struct {
 
 func (x *BreakGlassInvocation) Reset() {
 	*x = BreakGlassInvocation{}
-	mi := &file_plux_v1_governance_proto_msgTypes[63]
+	mi := &file_plux_v1_governance_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3948,7 +4261,7 @@ func (x *BreakGlassInvocation) String() string {
 func (*BreakGlassInvocation) ProtoMessage() {}
 
 func (x *BreakGlassInvocation) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[63]
+	mi := &file_plux_v1_governance_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3961,7 +4274,7 @@ func (x *BreakGlassInvocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BreakGlassInvocation.ProtoReflect.Descriptor instead.
 func (*BreakGlassInvocation) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{63}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *BreakGlassInvocation) GetId() string {
@@ -4087,7 +4400,7 @@ type ListBreakGlassRequest struct {
 
 func (x *ListBreakGlassRequest) Reset() {
 	*x = ListBreakGlassRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[64]
+	mi := &file_plux_v1_governance_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4099,7 +4412,7 @@ func (x *ListBreakGlassRequest) String() string {
 func (*ListBreakGlassRequest) ProtoMessage() {}
 
 func (x *ListBreakGlassRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[64]
+	mi := &file_plux_v1_governance_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4112,7 +4425,7 @@ func (x *ListBreakGlassRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBreakGlassRequest.ProtoReflect.Descriptor instead.
 func (*ListBreakGlassRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{64}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *ListBreakGlassRequest) GetStatus() string {
@@ -4139,7 +4452,7 @@ type ListBreakGlassResponse struct {
 
 func (x *ListBreakGlassResponse) Reset() {
 	*x = ListBreakGlassResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[65]
+	mi := &file_plux_v1_governance_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4151,7 +4464,7 @@ func (x *ListBreakGlassResponse) String() string {
 func (*ListBreakGlassResponse) ProtoMessage() {}
 
 func (x *ListBreakGlassResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[65]
+	mi := &file_plux_v1_governance_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4164,7 +4477,7 @@ func (x *ListBreakGlassResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBreakGlassResponse.ProtoReflect.Descriptor instead.
 func (*ListBreakGlassResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{65}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *ListBreakGlassResponse) GetInvocations() []*BreakGlassInvocation {
@@ -4191,7 +4504,7 @@ type ReviewBreakGlassRequest struct {
 
 func (x *ReviewBreakGlassRequest) Reset() {
 	*x = ReviewBreakGlassRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[66]
+	mi := &file_plux_v1_governance_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4203,7 +4516,7 @@ func (x *ReviewBreakGlassRequest) String() string {
 func (*ReviewBreakGlassRequest) ProtoMessage() {}
 
 func (x *ReviewBreakGlassRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[66]
+	mi := &file_plux_v1_governance_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4216,7 +4529,7 @@ func (x *ReviewBreakGlassRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewBreakGlassRequest.ProtoReflect.Descriptor instead.
 func (*ReviewBreakGlassRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{66}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *ReviewBreakGlassRequest) GetId() string {
@@ -4242,7 +4555,7 @@ type ReviewBreakGlassResponse struct {
 
 func (x *ReviewBreakGlassResponse) Reset() {
 	*x = ReviewBreakGlassResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[67]
+	mi := &file_plux_v1_governance_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4254,7 +4567,7 @@ func (x *ReviewBreakGlassResponse) String() string {
 func (*ReviewBreakGlassResponse) ProtoMessage() {}
 
 func (x *ReviewBreakGlassResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[67]
+	mi := &file_plux_v1_governance_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4267,7 +4580,7 @@ func (x *ReviewBreakGlassResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewBreakGlassResponse.ProtoReflect.Descriptor instead.
 func (*ReviewBreakGlassResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{67}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *ReviewBreakGlassResponse) GetInvocation() *BreakGlassInvocation {
@@ -4304,7 +4617,7 @@ type ChangeFreeze struct {
 
 func (x *ChangeFreeze) Reset() {
 	*x = ChangeFreeze{}
-	mi := &file_plux_v1_governance_proto_msgTypes[68]
+	mi := &file_plux_v1_governance_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4316,7 +4629,7 @@ func (x *ChangeFreeze) String() string {
 func (*ChangeFreeze) ProtoMessage() {}
 
 func (x *ChangeFreeze) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[68]
+	mi := &file_plux_v1_governance_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4329,7 +4642,7 @@ func (x *ChangeFreeze) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeFreeze.ProtoReflect.Descriptor instead.
 func (*ChangeFreeze) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{68}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *ChangeFreeze) GetId() string {
@@ -4417,7 +4730,7 @@ type ListFreezesRequest struct {
 
 func (x *ListFreezesRequest) Reset() {
 	*x = ListFreezesRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[69]
+	mi := &file_plux_v1_governance_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4429,7 +4742,7 @@ func (x *ListFreezesRequest) String() string {
 func (*ListFreezesRequest) ProtoMessage() {}
 
 func (x *ListFreezesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[69]
+	mi := &file_plux_v1_governance_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4442,7 +4755,7 @@ func (x *ListFreezesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFreezesRequest.ProtoReflect.Descriptor instead.
 func (*ListFreezesRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{69}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{73}
 }
 
 type ListFreezesResponse struct {
@@ -4454,7 +4767,7 @@ type ListFreezesResponse struct {
 
 func (x *ListFreezesResponse) Reset() {
 	*x = ListFreezesResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[70]
+	mi := &file_plux_v1_governance_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4466,7 +4779,7 @@ func (x *ListFreezesResponse) String() string {
 func (*ListFreezesResponse) ProtoMessage() {}
 
 func (x *ListFreezesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[70]
+	mi := &file_plux_v1_governance_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4479,7 +4792,7 @@ func (x *ListFreezesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFreezesResponse.ProtoReflect.Descriptor instead.
 func (*ListFreezesResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{70}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *ListFreezesResponse) GetFreezes() []*ChangeFreeze {
@@ -4498,7 +4811,7 @@ type PutFreezeRequest struct {
 
 func (x *PutFreezeRequest) Reset() {
 	*x = PutFreezeRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[71]
+	mi := &file_plux_v1_governance_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4510,7 +4823,7 @@ func (x *PutFreezeRequest) String() string {
 func (*PutFreezeRequest) ProtoMessage() {}
 
 func (x *PutFreezeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[71]
+	mi := &file_plux_v1_governance_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4523,7 +4836,7 @@ func (x *PutFreezeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFreezeRequest.ProtoReflect.Descriptor instead.
 func (*PutFreezeRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{71}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *PutFreezeRequest) GetFreeze() *ChangeFreeze {
@@ -4542,7 +4855,7 @@ type PutFreezeResponse struct {
 
 func (x *PutFreezeResponse) Reset() {
 	*x = PutFreezeResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[72]
+	mi := &file_plux_v1_governance_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4554,7 +4867,7 @@ func (x *PutFreezeResponse) String() string {
 func (*PutFreezeResponse) ProtoMessage() {}
 
 func (x *PutFreezeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[72]
+	mi := &file_plux_v1_governance_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4567,7 +4880,7 @@ func (x *PutFreezeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFreezeResponse.ProtoReflect.Descriptor instead.
 func (*PutFreezeResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{72}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *PutFreezeResponse) GetFreeze() *ChangeFreeze {
@@ -4586,7 +4899,7 @@ type DeleteFreezeRequest struct {
 
 func (x *DeleteFreezeRequest) Reset() {
 	*x = DeleteFreezeRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[73]
+	mi := &file_plux_v1_governance_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4598,7 +4911,7 @@ func (x *DeleteFreezeRequest) String() string {
 func (*DeleteFreezeRequest) ProtoMessage() {}
 
 func (x *DeleteFreezeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[73]
+	mi := &file_plux_v1_governance_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4611,7 +4924,7 @@ func (x *DeleteFreezeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFreezeRequest.ProtoReflect.Descriptor instead.
 func (*DeleteFreezeRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{73}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *DeleteFreezeRequest) GetId() string {
@@ -4629,7 +4942,7 @@ type DeleteFreezeResponse struct {
 
 func (x *DeleteFreezeResponse) Reset() {
 	*x = DeleteFreezeResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[74]
+	mi := &file_plux_v1_governance_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4641,7 +4954,7 @@ func (x *DeleteFreezeResponse) String() string {
 func (*DeleteFreezeResponse) ProtoMessage() {}
 
 func (x *DeleteFreezeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[74]
+	mi := &file_plux_v1_governance_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4654,7 +4967,7 @@ func (x *DeleteFreezeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFreezeResponse.ProtoReflect.Descriptor instead.
 func (*DeleteFreezeResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{74}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{78}
 }
 
 // ComplianceReportInfo describes a report without its content.
@@ -4676,7 +4989,7 @@ type ComplianceReportInfo struct {
 
 func (x *ComplianceReportInfo) Reset() {
 	*x = ComplianceReportInfo{}
-	mi := &file_plux_v1_governance_proto_msgTypes[75]
+	mi := &file_plux_v1_governance_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4688,7 +5001,7 @@ func (x *ComplianceReportInfo) String() string {
 func (*ComplianceReportInfo) ProtoMessage() {}
 
 func (x *ComplianceReportInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[75]
+	mi := &file_plux_v1_governance_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4701,7 +5014,7 @@ func (x *ComplianceReportInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComplianceReportInfo.ProtoReflect.Descriptor instead.
 func (*ComplianceReportInfo) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{75}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *ComplianceReportInfo) GetId() string {
@@ -4778,7 +5091,7 @@ type CreateComplianceReportRequest struct {
 
 func (x *CreateComplianceReportRequest) Reset() {
 	*x = CreateComplianceReportRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[76]
+	mi := &file_plux_v1_governance_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4790,7 +5103,7 @@ func (x *CreateComplianceReportRequest) String() string {
 func (*CreateComplianceReportRequest) ProtoMessage() {}
 
 func (x *CreateComplianceReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[76]
+	mi := &file_plux_v1_governance_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4803,7 +5116,7 @@ func (x *CreateComplianceReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateComplianceReportRequest.ProtoReflect.Descriptor instead.
 func (*CreateComplianceReportRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{76}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *CreateComplianceReportRequest) GetFrom() *timestamppb.Timestamp {
@@ -4829,7 +5142,7 @@ type CreateComplianceReportResponse struct {
 
 func (x *CreateComplianceReportResponse) Reset() {
 	*x = CreateComplianceReportResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[77]
+	mi := &file_plux_v1_governance_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4841,7 +5154,7 @@ func (x *CreateComplianceReportResponse) String() string {
 func (*CreateComplianceReportResponse) ProtoMessage() {}
 
 func (x *CreateComplianceReportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[77]
+	mi := &file_plux_v1_governance_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4854,7 +5167,7 @@ func (x *CreateComplianceReportResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateComplianceReportResponse.ProtoReflect.Descriptor instead.
 func (*CreateComplianceReportResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{77}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *CreateComplianceReportResponse) GetReport() *ComplianceReportInfo {
@@ -4875,7 +5188,7 @@ type GetComplianceReportRequest struct {
 
 func (x *GetComplianceReportRequest) Reset() {
 	*x = GetComplianceReportRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[78]
+	mi := &file_plux_v1_governance_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4887,7 +5200,7 @@ func (x *GetComplianceReportRequest) String() string {
 func (*GetComplianceReportRequest) ProtoMessage() {}
 
 func (x *GetComplianceReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[78]
+	mi := &file_plux_v1_governance_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4900,7 +5213,7 @@ func (x *GetComplianceReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetComplianceReportRequest.ProtoReflect.Descriptor instead.
 func (*GetComplianceReportRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{78}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *GetComplianceReportRequest) GetId() string {
@@ -4929,7 +5242,7 @@ type GetComplianceReportResponse struct {
 
 func (x *GetComplianceReportResponse) Reset() {
 	*x = GetComplianceReportResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[79]
+	mi := &file_plux_v1_governance_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4941,7 +5254,7 @@ func (x *GetComplianceReportResponse) String() string {
 func (*GetComplianceReportResponse) ProtoMessage() {}
 
 func (x *GetComplianceReportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[79]
+	mi := &file_plux_v1_governance_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4954,7 +5267,7 @@ func (x *GetComplianceReportResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetComplianceReportResponse.ProtoReflect.Descriptor instead.
 func (*GetComplianceReportResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{79}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *GetComplianceReportResponse) GetReport() *ComplianceReportInfo {
@@ -4987,7 +5300,7 @@ type ListComplianceReportsRequest struct {
 
 func (x *ListComplianceReportsRequest) Reset() {
 	*x = ListComplianceReportsRequest{}
-	mi := &file_plux_v1_governance_proto_msgTypes[80]
+	mi := &file_plux_v1_governance_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4999,7 +5312,7 @@ func (x *ListComplianceReportsRequest) String() string {
 func (*ListComplianceReportsRequest) ProtoMessage() {}
 
 func (x *ListComplianceReportsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[80]
+	mi := &file_plux_v1_governance_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5012,7 +5325,7 @@ func (x *ListComplianceReportsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListComplianceReportsRequest.ProtoReflect.Descriptor instead.
 func (*ListComplianceReportsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{80}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *ListComplianceReportsRequest) GetPage() *Page {
@@ -5032,7 +5345,7 @@ type ListComplianceReportsResponse struct {
 
 func (x *ListComplianceReportsResponse) Reset() {
 	*x = ListComplianceReportsResponse{}
-	mi := &file_plux_v1_governance_proto_msgTypes[81]
+	mi := &file_plux_v1_governance_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5044,7 +5357,7 @@ func (x *ListComplianceReportsResponse) String() string {
 func (*ListComplianceReportsResponse) ProtoMessage() {}
 
 func (x *ListComplianceReportsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_governance_proto_msgTypes[81]
+	mi := &file_plux_v1_governance_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5057,7 +5370,7 @@ func (x *ListComplianceReportsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListComplianceReportsResponse.ProtoReflect.Descriptor instead.
 func (*ListComplianceReportsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_governance_proto_rawDescGZIP(), []int{81}
+	return file_plux_v1_governance_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *ListComplianceReportsResponse) GetReports() []*ComplianceReportInfo {
@@ -5270,7 +5583,31 @@ const file_plux_v1_governance_proto_rawDesc = "" +
 	"\x15ExportPoliciesRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\"C\n" +
 	"\x16ExportPoliciesResponse\x12)\n" +
-	"\x05files\x18\x01 \x03(\v2\x13.plux.v1.PolicyFileR\x05files\"\xe5\x02\n" +
+	"\x05files\x18\x01 \x03(\v2\x13.plux.v1.PolicyFileR\x05files\"{\n" +
+	"\x0fSimulatedChange\x12\x1a\n" +
+	"\bresource\x18\x01 \x01(\tR\bresource\x12 \n" +
+	"\venvironment\x18\x02 \x01(\tR\venvironment\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\x12\x12\n" +
+	"\x04risk\x18\x04 \x03(\tR\x04risk\"|\n" +
+	"\x15SimulatePolicyRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
+	"\bdocument\x18\x02 \x01(\fR\bdocument\x120\n" +
+	"\x06change\x18\x03 \x01(\v2\x18.plux.v1.SimulatedChangeR\x06change\"\x86\x02\n" +
+	"\x14SimulatedRequirement\x12\x1d\n" +
+	"\n" +
+	"policy_key\x18\x01 \x01(\tR\tpolicyKey\x12\x14\n" +
+	"\x05draft\x18\x02 \x01(\bR\x05draft\x12\x1c\n" +
+	"\tapprovers\x18\x03 \x01(\x05R\tapprovers\x12\x14\n" +
+	"\x05roles\x18\x04 \x03(\tR\x05roles\x12\x14\n" +
+	"\x05users\x18\x05 \x03(\tR\x05users\x12\x16\n" +
+	"\x06stages\x18\x06 \x01(\tR\x06stages\x12%\n" +
+	"\x0edistinct_teams\x18\a \x01(\bR\rdistinctTeams\x120\n" +
+	"\x14distinct_from_author\x18\b \x01(\bR\x12distinctFromAuthor\"\xd5\x01\n" +
+	"\x16SimulatePolicyResponse\x12\x18\n" +
+	"\amatches\x18\x01 \x01(\bR\amatches\x12A\n" +
+	"\frequirements\x18\x02 \x03(\v2\x1d.plux.v1.SimulatedRequirementR\frequirements\x12-\n" +
+	"\x12approvals_required\x18\x03 \x01(\x05R\x11approvalsRequired\x12/\n" +
+	"\x13requires_enterprise\x18\x04 \x01(\bR\x12requiresEnterprise\"\xe5\x02\n" +
 	"\x10ApprovalDecision\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -5469,13 +5806,14 @@ const file_plux_v1_governance_proto_rawDesc = "" +
 	"\x11DeleteRestriction\x12!.plux.v1.DeleteRestrictionRequest\x1a\".plux.v1.DeleteRestrictionResponse\"\x00\x12n\n" +
 	"\x17GetEffectivePermissions\x12'.plux.v1.GetEffectivePermissionsRequest\x1a(.plux.v1.GetEffectivePermissionsResponse\"\x00\x12[\n" +
 	"\x10WatchPermissions\x12 .plux.v1.WatchPermissionsRequest\x1a!.plux.v1.WatchPermissionsResponse\"\x000\x01\x12P\n" +
-	"\rExplainAccess\x12\x1d.plux.v1.ExplainAccessRequest\x1a\x1e.plux.v1.ExplainAccessResponse\"\x002\xe1\x05\n" +
+	"\rExplainAccess\x12\x1d.plux.v1.ExplainAccessRequest\x1a\x1e.plux.v1.ExplainAccessResponse\"\x002\xb6\x06\n" +
 	"\x0fApprovalService\x12D\n" +
 	"\tPutPolicy\x12\x19.plux.v1.PutPolicyRequest\x1a\x1a.plux.v1.PutPolicyResponse\"\x00\x12D\n" +
 	"\tGetPolicy\x12\x19.plux.v1.GetPolicyRequest\x1a\x1a.plux.v1.GetPolicyResponse\"\x00\x12M\n" +
 	"\fListPolicies\x12\x1c.plux.v1.ListPoliciesRequest\x1a\x1d.plux.v1.ListPoliciesResponse\"\x00\x12M\n" +
 	"\fDeletePolicy\x12\x1c.plux.v1.DeletePolicyRequest\x1a\x1d.plux.v1.DeletePolicyResponse\"\x00\x12S\n" +
-	"\x0eExportPolicies\x12\x1e.plux.v1.ExportPoliciesRequest\x1a\x1f.plux.v1.ExportPoliciesResponse\"\x00\x12P\n" +
+	"\x0eExportPolicies\x12\x1e.plux.v1.ExportPoliciesRequest\x1a\x1f.plux.v1.ExportPoliciesResponse\"\x00\x12S\n" +
+	"\x0eSimulatePolicy\x12\x1e.plux.v1.SimulatePolicyRequest\x1a\x1f.plux.v1.SimulatePolicyResponse\"\x00\x12P\n" +
 	"\rListApprovals\x12\x1d.plux.v1.ListApprovalsRequest\x1a\x1e.plux.v1.ListApprovalsResponse\"\x00\x12J\n" +
 	"\vGetApproval\x12\x1b.plux.v1.GetApprovalRequest\x1a\x1c.plux.v1.GetApprovalResponse\"\x00\x12\\\n" +
 	"\x11GetApprovalReview\x12!.plux.v1.GetApprovalReviewRequest\x1a\".plux.v1.GetApprovalReviewResponse\"\x00\x12S\n" +
@@ -5504,7 +5842,7 @@ func file_plux_v1_governance_proto_rawDescGZIP() []byte {
 	return file_plux_v1_governance_proto_rawDescData
 }
 
-var file_plux_v1_governance_proto_msgTypes = make([]protoimpl.MessageInfo, 82)
+var file_plux_v1_governance_proto_msgTypes = make([]protoimpl.MessageInfo, 86)
 var file_plux_v1_governance_proto_goTypes = []any{
 	(*PermissionEntry)(nil),                 // 0: plux.v1.PermissionEntry
 	(*RoleDefinition)(nil),                  // 1: plux.v1.RoleDefinition
@@ -5555,179 +5893,187 @@ var file_plux_v1_governance_proto_goTypes = []any{
 	(*PolicyFile)(nil),                      // 46: plux.v1.PolicyFile
 	(*ExportPoliciesRequest)(nil),           // 47: plux.v1.ExportPoliciesRequest
 	(*ExportPoliciesResponse)(nil),          // 48: plux.v1.ExportPoliciesResponse
-	(*ApprovalDecision)(nil),                // 49: plux.v1.ApprovalDecision
-	(*ApprovalRequest)(nil),                 // 50: plux.v1.ApprovalRequest
-	(*ListApprovalsRequest)(nil),            // 51: plux.v1.ListApprovalsRequest
-	(*ListApprovalsResponse)(nil),           // 52: plux.v1.ListApprovalsResponse
-	(*GetApprovalRequest)(nil),              // 53: plux.v1.GetApprovalRequest
-	(*GetApprovalResponse)(nil),             // 54: plux.v1.GetApprovalResponse
-	(*GetApprovalReviewRequest)(nil),        // 55: plux.v1.GetApprovalReviewRequest
-	(*ReviewImage)(nil),                     // 56: plux.v1.ReviewImage
-	(*InstallBaseEntry)(nil),                // 57: plux.v1.InstallBaseEntry
-	(*ReviewReport)(nil),                    // 58: plux.v1.ReviewReport
-	(*ReviewRisk)(nil),                      // 59: plux.v1.ReviewRisk
-	(*GetApprovalReviewResponse)(nil),       // 60: plux.v1.GetApprovalReviewResponse
-	(*DecideApprovalRequest)(nil),           // 61: plux.v1.DecideApprovalRequest
-	(*DecideApprovalResponse)(nil),          // 62: plux.v1.DecideApprovalResponse
-	(*BreakGlassInvocation)(nil),            // 63: plux.v1.BreakGlassInvocation
-	(*ListBreakGlassRequest)(nil),           // 64: plux.v1.ListBreakGlassRequest
-	(*ListBreakGlassResponse)(nil),          // 65: plux.v1.ListBreakGlassResponse
-	(*ReviewBreakGlassRequest)(nil),         // 66: plux.v1.ReviewBreakGlassRequest
-	(*ReviewBreakGlassResponse)(nil),        // 67: plux.v1.ReviewBreakGlassResponse
-	(*ChangeFreeze)(nil),                    // 68: plux.v1.ChangeFreeze
-	(*ListFreezesRequest)(nil),              // 69: plux.v1.ListFreezesRequest
-	(*ListFreezesResponse)(nil),             // 70: plux.v1.ListFreezesResponse
-	(*PutFreezeRequest)(nil),                // 71: plux.v1.PutFreezeRequest
-	(*PutFreezeResponse)(nil),               // 72: plux.v1.PutFreezeResponse
-	(*DeleteFreezeRequest)(nil),             // 73: plux.v1.DeleteFreezeRequest
-	(*DeleteFreezeResponse)(nil),            // 74: plux.v1.DeleteFreezeResponse
-	(*ComplianceReportInfo)(nil),            // 75: plux.v1.ComplianceReportInfo
-	(*CreateComplianceReportRequest)(nil),   // 76: plux.v1.CreateComplianceReportRequest
-	(*CreateComplianceReportResponse)(nil),  // 77: plux.v1.CreateComplianceReportResponse
-	(*GetComplianceReportRequest)(nil),      // 78: plux.v1.GetComplianceReportRequest
-	(*GetComplianceReportResponse)(nil),     // 79: plux.v1.GetComplianceReportResponse
-	(*ListComplianceReportsRequest)(nil),    // 80: plux.v1.ListComplianceReportsRequest
-	(*ListComplianceReportsResponse)(nil),   // 81: plux.v1.ListComplianceReportsResponse
-	(*timestamppb.Timestamp)(nil),           // 82: google.protobuf.Timestamp
-	(*Page)(nil),                            // 83: plux.v1.Page
-	(*PageResult)(nil),                      // 84: plux.v1.PageResult
+	(*SimulatedChange)(nil),                 // 49: plux.v1.SimulatedChange
+	(*SimulatePolicyRequest)(nil),           // 50: plux.v1.SimulatePolicyRequest
+	(*SimulatedRequirement)(nil),            // 51: plux.v1.SimulatedRequirement
+	(*SimulatePolicyResponse)(nil),          // 52: plux.v1.SimulatePolicyResponse
+	(*ApprovalDecision)(nil),                // 53: plux.v1.ApprovalDecision
+	(*ApprovalRequest)(nil),                 // 54: plux.v1.ApprovalRequest
+	(*ListApprovalsRequest)(nil),            // 55: plux.v1.ListApprovalsRequest
+	(*ListApprovalsResponse)(nil),           // 56: plux.v1.ListApprovalsResponse
+	(*GetApprovalRequest)(nil),              // 57: plux.v1.GetApprovalRequest
+	(*GetApprovalResponse)(nil),             // 58: plux.v1.GetApprovalResponse
+	(*GetApprovalReviewRequest)(nil),        // 59: plux.v1.GetApprovalReviewRequest
+	(*ReviewImage)(nil),                     // 60: plux.v1.ReviewImage
+	(*InstallBaseEntry)(nil),                // 61: plux.v1.InstallBaseEntry
+	(*ReviewReport)(nil),                    // 62: plux.v1.ReviewReport
+	(*ReviewRisk)(nil),                      // 63: plux.v1.ReviewRisk
+	(*GetApprovalReviewResponse)(nil),       // 64: plux.v1.GetApprovalReviewResponse
+	(*DecideApprovalRequest)(nil),           // 65: plux.v1.DecideApprovalRequest
+	(*DecideApprovalResponse)(nil),          // 66: plux.v1.DecideApprovalResponse
+	(*BreakGlassInvocation)(nil),            // 67: plux.v1.BreakGlassInvocation
+	(*ListBreakGlassRequest)(nil),           // 68: plux.v1.ListBreakGlassRequest
+	(*ListBreakGlassResponse)(nil),          // 69: plux.v1.ListBreakGlassResponse
+	(*ReviewBreakGlassRequest)(nil),         // 70: plux.v1.ReviewBreakGlassRequest
+	(*ReviewBreakGlassResponse)(nil),        // 71: plux.v1.ReviewBreakGlassResponse
+	(*ChangeFreeze)(nil),                    // 72: plux.v1.ChangeFreeze
+	(*ListFreezesRequest)(nil),              // 73: plux.v1.ListFreezesRequest
+	(*ListFreezesResponse)(nil),             // 74: plux.v1.ListFreezesResponse
+	(*PutFreezeRequest)(nil),                // 75: plux.v1.PutFreezeRequest
+	(*PutFreezeResponse)(nil),               // 76: plux.v1.PutFreezeResponse
+	(*DeleteFreezeRequest)(nil),             // 77: plux.v1.DeleteFreezeRequest
+	(*DeleteFreezeResponse)(nil),            // 78: plux.v1.DeleteFreezeResponse
+	(*ComplianceReportInfo)(nil),            // 79: plux.v1.ComplianceReportInfo
+	(*CreateComplianceReportRequest)(nil),   // 80: plux.v1.CreateComplianceReportRequest
+	(*CreateComplianceReportResponse)(nil),  // 81: plux.v1.CreateComplianceReportResponse
+	(*GetComplianceReportRequest)(nil),      // 82: plux.v1.GetComplianceReportRequest
+	(*GetComplianceReportResponse)(nil),     // 83: plux.v1.GetComplianceReportResponse
+	(*ListComplianceReportsRequest)(nil),    // 84: plux.v1.ListComplianceReportsRequest
+	(*ListComplianceReportsResponse)(nil),   // 85: plux.v1.ListComplianceReportsResponse
+	(*timestamppb.Timestamp)(nil),           // 86: google.protobuf.Timestamp
+	(*Page)(nil),                            // 87: plux.v1.Page
+	(*PageResult)(nil),                      // 88: plux.v1.PageResult
 }
 var file_plux_v1_governance_proto_depIdxs = []int32{
-	82, // 0: plux.v1.RoleDefinition.created_at:type_name -> google.protobuf.Timestamp
-	82, // 1: plux.v1.RoleDefinition.updated_at:type_name -> google.protobuf.Timestamp
-	82, // 2: plux.v1.RoleGrant.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 3: plux.v1.ListPermissionsResponse.permissions:type_name -> plux.v1.PermissionEntry
-	83, // 4: plux.v1.ListRolesRequest.page:type_name -> plux.v1.Page
-	1,  // 5: plux.v1.ListRolesResponse.roles:type_name -> plux.v1.RoleDefinition
-	84, // 6: plux.v1.ListRolesResponse.page:type_name -> plux.v1.PageResult
-	1,  // 7: plux.v1.GetRoleResponse.role:type_name -> plux.v1.RoleDefinition
-	1,  // 8: plux.v1.CreateRoleResponse.role:type_name -> plux.v1.RoleDefinition
-	1,  // 9: plux.v1.UpdateRoleResponse.role:type_name -> plux.v1.RoleDefinition
-	83, // 10: plux.v1.ListGrantsRequest.page:type_name -> plux.v1.Page
-	2,  // 11: plux.v1.ListGrantsResponse.grants:type_name -> plux.v1.RoleGrant
-	84, // 12: plux.v1.ListGrantsResponse.page:type_name -> plux.v1.PageResult
-	2,  // 13: plux.v1.CreateGrantResponse.grant:type_name -> plux.v1.RoleGrant
-	2,  // 14: plux.v1.UpdateGrantResponse.grant:type_name -> plux.v1.RoleGrant
-	82, // 15: plux.v1.Restriction.created_at:type_name -> google.protobuf.Timestamp
-	23, // 16: plux.v1.CreateRestrictionResponse.restriction:type_name -> plux.v1.Restriction
-	83, // 17: plux.v1.ListRestrictionsRequest.page:type_name -> plux.v1.Page
-	23, // 18: plux.v1.ListRestrictionsResponse.restrictions:type_name -> plux.v1.Restriction
-	84, // 19: plux.v1.ListRestrictionsResponse.page:type_name -> plux.v1.PageResult
-	34, // 20: plux.v1.ExplainAccessRequest.proposed_grant:type_name -> plux.v1.ProposedGrant
-	24, // 21: plux.v1.ExplainAccessRequest.proposed_restriction:type_name -> plux.v1.CreateRestrictionRequest
-	82, // 22: plux.v1.PolicyRecord.created_at:type_name -> google.protobuf.Timestamp
-	37, // 23: plux.v1.PutPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
-	37, // 24: plux.v1.GetPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
-	37, // 25: plux.v1.ListPoliciesResponse.policies:type_name -> plux.v1.PolicyRecord
-	46, // 26: plux.v1.ExportPoliciesResponse.files:type_name -> plux.v1.PolicyFile
-	82, // 27: plux.v1.ApprovalDecision.decided_at:type_name -> google.protobuf.Timestamp
-	82, // 28: plux.v1.ApprovalRequest.created_at:type_name -> google.protobuf.Timestamp
-	82, // 29: plux.v1.ApprovalRequest.expires_at:type_name -> google.protobuf.Timestamp
-	49, // 30: plux.v1.ApprovalRequest.decisions:type_name -> plux.v1.ApprovalDecision
-	83, // 31: plux.v1.ListApprovalsRequest.page:type_name -> plux.v1.Page
-	50, // 32: plux.v1.ListApprovalsResponse.approvals:type_name -> plux.v1.ApprovalRequest
-	84, // 33: plux.v1.ListApprovalsResponse.page:type_name -> plux.v1.PageResult
-	50, // 34: plux.v1.GetApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
-	50, // 35: plux.v1.GetApprovalReviewResponse.approval:type_name -> plux.v1.ApprovalRequest
-	58, // 36: plux.v1.GetApprovalReviewResponse.reports:type_name -> plux.v1.ReviewReport
-	56, // 37: plux.v1.GetApprovalReviewResponse.golden_diffs:type_name -> plux.v1.ReviewImage
-	57, // 38: plux.v1.GetApprovalReviewResponse.install_base:type_name -> plux.v1.InstallBaseEntry
-	59, // 39: plux.v1.GetApprovalReviewResponse.risk:type_name -> plux.v1.ReviewRisk
-	50, // 40: plux.v1.DecideApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
-	82, // 41: plux.v1.BreakGlassInvocation.invoked_at:type_name -> google.protobuf.Timestamp
-	82, // 42: plux.v1.BreakGlassInvocation.review_due_at:type_name -> google.protobuf.Timestamp
-	82, // 43: plux.v1.BreakGlassInvocation.reviewed_at:type_name -> google.protobuf.Timestamp
-	83, // 44: plux.v1.ListBreakGlassRequest.page:type_name -> plux.v1.Page
-	63, // 45: plux.v1.ListBreakGlassResponse.invocations:type_name -> plux.v1.BreakGlassInvocation
-	84, // 46: plux.v1.ListBreakGlassResponse.page:type_name -> plux.v1.PageResult
-	63, // 47: plux.v1.ReviewBreakGlassResponse.invocation:type_name -> plux.v1.BreakGlassInvocation
-	82, // 48: plux.v1.ChangeFreeze.created_at:type_name -> google.protobuf.Timestamp
-	82, // 49: plux.v1.ChangeFreeze.updated_at:type_name -> google.protobuf.Timestamp
-	68, // 50: plux.v1.ListFreezesResponse.freezes:type_name -> plux.v1.ChangeFreeze
-	68, // 51: plux.v1.PutFreezeRequest.freeze:type_name -> plux.v1.ChangeFreeze
-	68, // 52: plux.v1.PutFreezeResponse.freeze:type_name -> plux.v1.ChangeFreeze
-	82, // 53: plux.v1.ComplianceReportInfo.period_from:type_name -> google.protobuf.Timestamp
-	82, // 54: plux.v1.ComplianceReportInfo.period_to:type_name -> google.protobuf.Timestamp
-	82, // 55: plux.v1.ComplianceReportInfo.requested_at:type_name -> google.protobuf.Timestamp
-	82, // 56: plux.v1.ComplianceReportInfo.signed_at:type_name -> google.protobuf.Timestamp
-	82, // 57: plux.v1.CreateComplianceReportRequest.from:type_name -> google.protobuf.Timestamp
-	82, // 58: plux.v1.CreateComplianceReportRequest.to:type_name -> google.protobuf.Timestamp
-	75, // 59: plux.v1.CreateComplianceReportResponse.report:type_name -> plux.v1.ComplianceReportInfo
-	75, // 60: plux.v1.GetComplianceReportResponse.report:type_name -> plux.v1.ComplianceReportInfo
-	83, // 61: plux.v1.ListComplianceReportsRequest.page:type_name -> plux.v1.Page
-	75, // 62: plux.v1.ListComplianceReportsResponse.reports:type_name -> plux.v1.ComplianceReportInfo
-	84, // 63: plux.v1.ListComplianceReportsResponse.page:type_name -> plux.v1.PageResult
-	3,  // 64: plux.v1.GovernanceService.ListPermissions:input_type -> plux.v1.ListPermissionsRequest
-	5,  // 65: plux.v1.GovernanceService.ListRoles:input_type -> plux.v1.ListRolesRequest
-	7,  // 66: plux.v1.GovernanceService.GetRole:input_type -> plux.v1.GetRoleRequest
-	9,  // 67: plux.v1.GovernanceService.CreateRole:input_type -> plux.v1.CreateRoleRequest
-	11, // 68: plux.v1.GovernanceService.UpdateRole:input_type -> plux.v1.UpdateRoleRequest
-	13, // 69: plux.v1.GovernanceService.DeleteRole:input_type -> plux.v1.DeleteRoleRequest
-	15, // 70: plux.v1.GovernanceService.ListGrants:input_type -> plux.v1.ListGrantsRequest
-	17, // 71: plux.v1.GovernanceService.CreateGrant:input_type -> plux.v1.CreateGrantRequest
-	19, // 72: plux.v1.GovernanceService.UpdateGrant:input_type -> plux.v1.UpdateGrantRequest
-	21, // 73: plux.v1.GovernanceService.DeleteGrant:input_type -> plux.v1.DeleteGrantRequest
-	24, // 74: plux.v1.GovernanceService.CreateRestriction:input_type -> plux.v1.CreateRestrictionRequest
-	26, // 75: plux.v1.GovernanceService.ListRestrictions:input_type -> plux.v1.ListRestrictionsRequest
-	28, // 76: plux.v1.GovernanceService.DeleteRestriction:input_type -> plux.v1.DeleteRestrictionRequest
-	30, // 77: plux.v1.GovernanceService.GetEffectivePermissions:input_type -> plux.v1.GetEffectivePermissionsRequest
-	32, // 78: plux.v1.GovernanceService.WatchPermissions:input_type -> plux.v1.WatchPermissionsRequest
-	35, // 79: plux.v1.GovernanceService.ExplainAccess:input_type -> plux.v1.ExplainAccessRequest
-	38, // 80: plux.v1.ApprovalService.PutPolicy:input_type -> plux.v1.PutPolicyRequest
-	40, // 81: plux.v1.ApprovalService.GetPolicy:input_type -> plux.v1.GetPolicyRequest
-	42, // 82: plux.v1.ApprovalService.ListPolicies:input_type -> plux.v1.ListPoliciesRequest
-	44, // 83: plux.v1.ApprovalService.DeletePolicy:input_type -> plux.v1.DeletePolicyRequest
-	47, // 84: plux.v1.ApprovalService.ExportPolicies:input_type -> plux.v1.ExportPoliciesRequest
-	51, // 85: plux.v1.ApprovalService.ListApprovals:input_type -> plux.v1.ListApprovalsRequest
-	53, // 86: plux.v1.ApprovalService.GetApproval:input_type -> plux.v1.GetApprovalRequest
-	55, // 87: plux.v1.ApprovalService.GetApprovalReview:input_type -> plux.v1.GetApprovalReviewRequest
-	61, // 88: plux.v1.ApprovalService.DecideApproval:input_type -> plux.v1.DecideApprovalRequest
-	64, // 89: plux.v1.BreakGlassService.ListBreakGlass:input_type -> plux.v1.ListBreakGlassRequest
-	66, // 90: plux.v1.BreakGlassService.ReviewBreakGlass:input_type -> plux.v1.ReviewBreakGlassRequest
-	69, // 91: plux.v1.FreezeService.ListFreezes:input_type -> plux.v1.ListFreezesRequest
-	71, // 92: plux.v1.FreezeService.PutFreeze:input_type -> plux.v1.PutFreezeRequest
-	73, // 93: plux.v1.FreezeService.DeleteFreeze:input_type -> plux.v1.DeleteFreezeRequest
-	76, // 94: plux.v1.ComplianceService.CreateComplianceReport:input_type -> plux.v1.CreateComplianceReportRequest
-	78, // 95: plux.v1.ComplianceService.GetComplianceReport:input_type -> plux.v1.GetComplianceReportRequest
-	80, // 96: plux.v1.ComplianceService.ListComplianceReports:input_type -> plux.v1.ListComplianceReportsRequest
-	4,  // 97: plux.v1.GovernanceService.ListPermissions:output_type -> plux.v1.ListPermissionsResponse
-	6,  // 98: plux.v1.GovernanceService.ListRoles:output_type -> plux.v1.ListRolesResponse
-	8,  // 99: plux.v1.GovernanceService.GetRole:output_type -> plux.v1.GetRoleResponse
-	10, // 100: plux.v1.GovernanceService.CreateRole:output_type -> plux.v1.CreateRoleResponse
-	12, // 101: plux.v1.GovernanceService.UpdateRole:output_type -> plux.v1.UpdateRoleResponse
-	14, // 102: plux.v1.GovernanceService.DeleteRole:output_type -> plux.v1.DeleteRoleResponse
-	16, // 103: plux.v1.GovernanceService.ListGrants:output_type -> plux.v1.ListGrantsResponse
-	18, // 104: plux.v1.GovernanceService.CreateGrant:output_type -> plux.v1.CreateGrantResponse
-	20, // 105: plux.v1.GovernanceService.UpdateGrant:output_type -> plux.v1.UpdateGrantResponse
-	22, // 106: plux.v1.GovernanceService.DeleteGrant:output_type -> plux.v1.DeleteGrantResponse
-	25, // 107: plux.v1.GovernanceService.CreateRestriction:output_type -> plux.v1.CreateRestrictionResponse
-	27, // 108: plux.v1.GovernanceService.ListRestrictions:output_type -> plux.v1.ListRestrictionsResponse
-	29, // 109: plux.v1.GovernanceService.DeleteRestriction:output_type -> plux.v1.DeleteRestrictionResponse
-	31, // 110: plux.v1.GovernanceService.GetEffectivePermissions:output_type -> plux.v1.GetEffectivePermissionsResponse
-	33, // 111: plux.v1.GovernanceService.WatchPermissions:output_type -> plux.v1.WatchPermissionsResponse
-	36, // 112: plux.v1.GovernanceService.ExplainAccess:output_type -> plux.v1.ExplainAccessResponse
-	39, // 113: plux.v1.ApprovalService.PutPolicy:output_type -> plux.v1.PutPolicyResponse
-	41, // 114: plux.v1.ApprovalService.GetPolicy:output_type -> plux.v1.GetPolicyResponse
-	43, // 115: plux.v1.ApprovalService.ListPolicies:output_type -> plux.v1.ListPoliciesResponse
-	45, // 116: plux.v1.ApprovalService.DeletePolicy:output_type -> plux.v1.DeletePolicyResponse
-	48, // 117: plux.v1.ApprovalService.ExportPolicies:output_type -> plux.v1.ExportPoliciesResponse
-	52, // 118: plux.v1.ApprovalService.ListApprovals:output_type -> plux.v1.ListApprovalsResponse
-	54, // 119: plux.v1.ApprovalService.GetApproval:output_type -> plux.v1.GetApprovalResponse
-	60, // 120: plux.v1.ApprovalService.GetApprovalReview:output_type -> plux.v1.GetApprovalReviewResponse
-	62, // 121: plux.v1.ApprovalService.DecideApproval:output_type -> plux.v1.DecideApprovalResponse
-	65, // 122: plux.v1.BreakGlassService.ListBreakGlass:output_type -> plux.v1.ListBreakGlassResponse
-	67, // 123: plux.v1.BreakGlassService.ReviewBreakGlass:output_type -> plux.v1.ReviewBreakGlassResponse
-	70, // 124: plux.v1.FreezeService.ListFreezes:output_type -> plux.v1.ListFreezesResponse
-	72, // 125: plux.v1.FreezeService.PutFreeze:output_type -> plux.v1.PutFreezeResponse
-	74, // 126: plux.v1.FreezeService.DeleteFreeze:output_type -> plux.v1.DeleteFreezeResponse
-	77, // 127: plux.v1.ComplianceService.CreateComplianceReport:output_type -> plux.v1.CreateComplianceReportResponse
-	79, // 128: plux.v1.ComplianceService.GetComplianceReport:output_type -> plux.v1.GetComplianceReportResponse
-	81, // 129: plux.v1.ComplianceService.ListComplianceReports:output_type -> plux.v1.ListComplianceReportsResponse
-	97, // [97:130] is the sub-list for method output_type
-	64, // [64:97] is the sub-list for method input_type
-	64, // [64:64] is the sub-list for extension type_name
-	64, // [64:64] is the sub-list for extension extendee
-	0,  // [0:64] is the sub-list for field type_name
+	86,  // 0: plux.v1.RoleDefinition.created_at:type_name -> google.protobuf.Timestamp
+	86,  // 1: plux.v1.RoleDefinition.updated_at:type_name -> google.protobuf.Timestamp
+	86,  // 2: plux.v1.RoleGrant.created_at:type_name -> google.protobuf.Timestamp
+	0,   // 3: plux.v1.ListPermissionsResponse.permissions:type_name -> plux.v1.PermissionEntry
+	87,  // 4: plux.v1.ListRolesRequest.page:type_name -> plux.v1.Page
+	1,   // 5: plux.v1.ListRolesResponse.roles:type_name -> plux.v1.RoleDefinition
+	88,  // 6: plux.v1.ListRolesResponse.page:type_name -> plux.v1.PageResult
+	1,   // 7: plux.v1.GetRoleResponse.role:type_name -> plux.v1.RoleDefinition
+	1,   // 8: plux.v1.CreateRoleResponse.role:type_name -> plux.v1.RoleDefinition
+	1,   // 9: plux.v1.UpdateRoleResponse.role:type_name -> plux.v1.RoleDefinition
+	87,  // 10: plux.v1.ListGrantsRequest.page:type_name -> plux.v1.Page
+	2,   // 11: plux.v1.ListGrantsResponse.grants:type_name -> plux.v1.RoleGrant
+	88,  // 12: plux.v1.ListGrantsResponse.page:type_name -> plux.v1.PageResult
+	2,   // 13: plux.v1.CreateGrantResponse.grant:type_name -> plux.v1.RoleGrant
+	2,   // 14: plux.v1.UpdateGrantResponse.grant:type_name -> plux.v1.RoleGrant
+	86,  // 15: plux.v1.Restriction.created_at:type_name -> google.protobuf.Timestamp
+	23,  // 16: plux.v1.CreateRestrictionResponse.restriction:type_name -> plux.v1.Restriction
+	87,  // 17: plux.v1.ListRestrictionsRequest.page:type_name -> plux.v1.Page
+	23,  // 18: plux.v1.ListRestrictionsResponse.restrictions:type_name -> plux.v1.Restriction
+	88,  // 19: plux.v1.ListRestrictionsResponse.page:type_name -> plux.v1.PageResult
+	34,  // 20: plux.v1.ExplainAccessRequest.proposed_grant:type_name -> plux.v1.ProposedGrant
+	24,  // 21: plux.v1.ExplainAccessRequest.proposed_restriction:type_name -> plux.v1.CreateRestrictionRequest
+	86,  // 22: plux.v1.PolicyRecord.created_at:type_name -> google.protobuf.Timestamp
+	37,  // 23: plux.v1.PutPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
+	37,  // 24: plux.v1.GetPolicyResponse.policy:type_name -> plux.v1.PolicyRecord
+	37,  // 25: plux.v1.ListPoliciesResponse.policies:type_name -> plux.v1.PolicyRecord
+	46,  // 26: plux.v1.ExportPoliciesResponse.files:type_name -> plux.v1.PolicyFile
+	49,  // 27: plux.v1.SimulatePolicyRequest.change:type_name -> plux.v1.SimulatedChange
+	51,  // 28: plux.v1.SimulatePolicyResponse.requirements:type_name -> plux.v1.SimulatedRequirement
+	86,  // 29: plux.v1.ApprovalDecision.decided_at:type_name -> google.protobuf.Timestamp
+	86,  // 30: plux.v1.ApprovalRequest.created_at:type_name -> google.protobuf.Timestamp
+	86,  // 31: plux.v1.ApprovalRequest.expires_at:type_name -> google.protobuf.Timestamp
+	53,  // 32: plux.v1.ApprovalRequest.decisions:type_name -> plux.v1.ApprovalDecision
+	87,  // 33: plux.v1.ListApprovalsRequest.page:type_name -> plux.v1.Page
+	54,  // 34: plux.v1.ListApprovalsResponse.approvals:type_name -> plux.v1.ApprovalRequest
+	88,  // 35: plux.v1.ListApprovalsResponse.page:type_name -> plux.v1.PageResult
+	54,  // 36: plux.v1.GetApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
+	54,  // 37: plux.v1.GetApprovalReviewResponse.approval:type_name -> plux.v1.ApprovalRequest
+	62,  // 38: plux.v1.GetApprovalReviewResponse.reports:type_name -> plux.v1.ReviewReport
+	60,  // 39: plux.v1.GetApprovalReviewResponse.golden_diffs:type_name -> plux.v1.ReviewImage
+	61,  // 40: plux.v1.GetApprovalReviewResponse.install_base:type_name -> plux.v1.InstallBaseEntry
+	63,  // 41: plux.v1.GetApprovalReviewResponse.risk:type_name -> plux.v1.ReviewRisk
+	54,  // 42: plux.v1.DecideApprovalResponse.approval:type_name -> plux.v1.ApprovalRequest
+	86,  // 43: plux.v1.BreakGlassInvocation.invoked_at:type_name -> google.protobuf.Timestamp
+	86,  // 44: plux.v1.BreakGlassInvocation.review_due_at:type_name -> google.protobuf.Timestamp
+	86,  // 45: plux.v1.BreakGlassInvocation.reviewed_at:type_name -> google.protobuf.Timestamp
+	87,  // 46: plux.v1.ListBreakGlassRequest.page:type_name -> plux.v1.Page
+	67,  // 47: plux.v1.ListBreakGlassResponse.invocations:type_name -> plux.v1.BreakGlassInvocation
+	88,  // 48: plux.v1.ListBreakGlassResponse.page:type_name -> plux.v1.PageResult
+	67,  // 49: plux.v1.ReviewBreakGlassResponse.invocation:type_name -> plux.v1.BreakGlassInvocation
+	86,  // 50: plux.v1.ChangeFreeze.created_at:type_name -> google.protobuf.Timestamp
+	86,  // 51: plux.v1.ChangeFreeze.updated_at:type_name -> google.protobuf.Timestamp
+	72,  // 52: plux.v1.ListFreezesResponse.freezes:type_name -> plux.v1.ChangeFreeze
+	72,  // 53: plux.v1.PutFreezeRequest.freeze:type_name -> plux.v1.ChangeFreeze
+	72,  // 54: plux.v1.PutFreezeResponse.freeze:type_name -> plux.v1.ChangeFreeze
+	86,  // 55: plux.v1.ComplianceReportInfo.period_from:type_name -> google.protobuf.Timestamp
+	86,  // 56: plux.v1.ComplianceReportInfo.period_to:type_name -> google.protobuf.Timestamp
+	86,  // 57: plux.v1.ComplianceReportInfo.requested_at:type_name -> google.protobuf.Timestamp
+	86,  // 58: plux.v1.ComplianceReportInfo.signed_at:type_name -> google.protobuf.Timestamp
+	86,  // 59: plux.v1.CreateComplianceReportRequest.from:type_name -> google.protobuf.Timestamp
+	86,  // 60: plux.v1.CreateComplianceReportRequest.to:type_name -> google.protobuf.Timestamp
+	79,  // 61: plux.v1.CreateComplianceReportResponse.report:type_name -> plux.v1.ComplianceReportInfo
+	79,  // 62: plux.v1.GetComplianceReportResponse.report:type_name -> plux.v1.ComplianceReportInfo
+	87,  // 63: plux.v1.ListComplianceReportsRequest.page:type_name -> plux.v1.Page
+	79,  // 64: plux.v1.ListComplianceReportsResponse.reports:type_name -> plux.v1.ComplianceReportInfo
+	88,  // 65: plux.v1.ListComplianceReportsResponse.page:type_name -> plux.v1.PageResult
+	3,   // 66: plux.v1.GovernanceService.ListPermissions:input_type -> plux.v1.ListPermissionsRequest
+	5,   // 67: plux.v1.GovernanceService.ListRoles:input_type -> plux.v1.ListRolesRequest
+	7,   // 68: plux.v1.GovernanceService.GetRole:input_type -> plux.v1.GetRoleRequest
+	9,   // 69: plux.v1.GovernanceService.CreateRole:input_type -> plux.v1.CreateRoleRequest
+	11,  // 70: plux.v1.GovernanceService.UpdateRole:input_type -> plux.v1.UpdateRoleRequest
+	13,  // 71: plux.v1.GovernanceService.DeleteRole:input_type -> plux.v1.DeleteRoleRequest
+	15,  // 72: plux.v1.GovernanceService.ListGrants:input_type -> plux.v1.ListGrantsRequest
+	17,  // 73: plux.v1.GovernanceService.CreateGrant:input_type -> plux.v1.CreateGrantRequest
+	19,  // 74: plux.v1.GovernanceService.UpdateGrant:input_type -> plux.v1.UpdateGrantRequest
+	21,  // 75: plux.v1.GovernanceService.DeleteGrant:input_type -> plux.v1.DeleteGrantRequest
+	24,  // 76: plux.v1.GovernanceService.CreateRestriction:input_type -> plux.v1.CreateRestrictionRequest
+	26,  // 77: plux.v1.GovernanceService.ListRestrictions:input_type -> plux.v1.ListRestrictionsRequest
+	28,  // 78: plux.v1.GovernanceService.DeleteRestriction:input_type -> plux.v1.DeleteRestrictionRequest
+	30,  // 79: plux.v1.GovernanceService.GetEffectivePermissions:input_type -> plux.v1.GetEffectivePermissionsRequest
+	32,  // 80: plux.v1.GovernanceService.WatchPermissions:input_type -> plux.v1.WatchPermissionsRequest
+	35,  // 81: plux.v1.GovernanceService.ExplainAccess:input_type -> plux.v1.ExplainAccessRequest
+	38,  // 82: plux.v1.ApprovalService.PutPolicy:input_type -> plux.v1.PutPolicyRequest
+	40,  // 83: plux.v1.ApprovalService.GetPolicy:input_type -> plux.v1.GetPolicyRequest
+	42,  // 84: plux.v1.ApprovalService.ListPolicies:input_type -> plux.v1.ListPoliciesRequest
+	44,  // 85: plux.v1.ApprovalService.DeletePolicy:input_type -> plux.v1.DeletePolicyRequest
+	47,  // 86: plux.v1.ApprovalService.ExportPolicies:input_type -> plux.v1.ExportPoliciesRequest
+	50,  // 87: plux.v1.ApprovalService.SimulatePolicy:input_type -> plux.v1.SimulatePolicyRequest
+	55,  // 88: plux.v1.ApprovalService.ListApprovals:input_type -> plux.v1.ListApprovalsRequest
+	57,  // 89: plux.v1.ApprovalService.GetApproval:input_type -> plux.v1.GetApprovalRequest
+	59,  // 90: plux.v1.ApprovalService.GetApprovalReview:input_type -> plux.v1.GetApprovalReviewRequest
+	65,  // 91: plux.v1.ApprovalService.DecideApproval:input_type -> plux.v1.DecideApprovalRequest
+	68,  // 92: plux.v1.BreakGlassService.ListBreakGlass:input_type -> plux.v1.ListBreakGlassRequest
+	70,  // 93: plux.v1.BreakGlassService.ReviewBreakGlass:input_type -> plux.v1.ReviewBreakGlassRequest
+	73,  // 94: plux.v1.FreezeService.ListFreezes:input_type -> plux.v1.ListFreezesRequest
+	75,  // 95: plux.v1.FreezeService.PutFreeze:input_type -> plux.v1.PutFreezeRequest
+	77,  // 96: plux.v1.FreezeService.DeleteFreeze:input_type -> plux.v1.DeleteFreezeRequest
+	80,  // 97: plux.v1.ComplianceService.CreateComplianceReport:input_type -> plux.v1.CreateComplianceReportRequest
+	82,  // 98: plux.v1.ComplianceService.GetComplianceReport:input_type -> plux.v1.GetComplianceReportRequest
+	84,  // 99: plux.v1.ComplianceService.ListComplianceReports:input_type -> plux.v1.ListComplianceReportsRequest
+	4,   // 100: plux.v1.GovernanceService.ListPermissions:output_type -> plux.v1.ListPermissionsResponse
+	6,   // 101: plux.v1.GovernanceService.ListRoles:output_type -> plux.v1.ListRolesResponse
+	8,   // 102: plux.v1.GovernanceService.GetRole:output_type -> plux.v1.GetRoleResponse
+	10,  // 103: plux.v1.GovernanceService.CreateRole:output_type -> plux.v1.CreateRoleResponse
+	12,  // 104: plux.v1.GovernanceService.UpdateRole:output_type -> plux.v1.UpdateRoleResponse
+	14,  // 105: plux.v1.GovernanceService.DeleteRole:output_type -> plux.v1.DeleteRoleResponse
+	16,  // 106: plux.v1.GovernanceService.ListGrants:output_type -> plux.v1.ListGrantsResponse
+	18,  // 107: plux.v1.GovernanceService.CreateGrant:output_type -> plux.v1.CreateGrantResponse
+	20,  // 108: plux.v1.GovernanceService.UpdateGrant:output_type -> plux.v1.UpdateGrantResponse
+	22,  // 109: plux.v1.GovernanceService.DeleteGrant:output_type -> plux.v1.DeleteGrantResponse
+	25,  // 110: plux.v1.GovernanceService.CreateRestriction:output_type -> plux.v1.CreateRestrictionResponse
+	27,  // 111: plux.v1.GovernanceService.ListRestrictions:output_type -> plux.v1.ListRestrictionsResponse
+	29,  // 112: plux.v1.GovernanceService.DeleteRestriction:output_type -> plux.v1.DeleteRestrictionResponse
+	31,  // 113: plux.v1.GovernanceService.GetEffectivePermissions:output_type -> plux.v1.GetEffectivePermissionsResponse
+	33,  // 114: plux.v1.GovernanceService.WatchPermissions:output_type -> plux.v1.WatchPermissionsResponse
+	36,  // 115: plux.v1.GovernanceService.ExplainAccess:output_type -> plux.v1.ExplainAccessResponse
+	39,  // 116: plux.v1.ApprovalService.PutPolicy:output_type -> plux.v1.PutPolicyResponse
+	41,  // 117: plux.v1.ApprovalService.GetPolicy:output_type -> plux.v1.GetPolicyResponse
+	43,  // 118: plux.v1.ApprovalService.ListPolicies:output_type -> plux.v1.ListPoliciesResponse
+	45,  // 119: plux.v1.ApprovalService.DeletePolicy:output_type -> plux.v1.DeletePolicyResponse
+	48,  // 120: plux.v1.ApprovalService.ExportPolicies:output_type -> plux.v1.ExportPoliciesResponse
+	52,  // 121: plux.v1.ApprovalService.SimulatePolicy:output_type -> plux.v1.SimulatePolicyResponse
+	56,  // 122: plux.v1.ApprovalService.ListApprovals:output_type -> plux.v1.ListApprovalsResponse
+	58,  // 123: plux.v1.ApprovalService.GetApproval:output_type -> plux.v1.GetApprovalResponse
+	64,  // 124: plux.v1.ApprovalService.GetApprovalReview:output_type -> plux.v1.GetApprovalReviewResponse
+	66,  // 125: plux.v1.ApprovalService.DecideApproval:output_type -> plux.v1.DecideApprovalResponse
+	69,  // 126: plux.v1.BreakGlassService.ListBreakGlass:output_type -> plux.v1.ListBreakGlassResponse
+	71,  // 127: plux.v1.BreakGlassService.ReviewBreakGlass:output_type -> plux.v1.ReviewBreakGlassResponse
+	74,  // 128: plux.v1.FreezeService.ListFreezes:output_type -> plux.v1.ListFreezesResponse
+	76,  // 129: plux.v1.FreezeService.PutFreeze:output_type -> plux.v1.PutFreezeResponse
+	78,  // 130: plux.v1.FreezeService.DeleteFreeze:output_type -> plux.v1.DeleteFreezeResponse
+	81,  // 131: plux.v1.ComplianceService.CreateComplianceReport:output_type -> plux.v1.CreateComplianceReportResponse
+	83,  // 132: plux.v1.ComplianceService.GetComplianceReport:output_type -> plux.v1.GetComplianceReportResponse
+	85,  // 133: plux.v1.ComplianceService.ListComplianceReports:output_type -> plux.v1.ListComplianceReportsResponse
+	100, // [100:134] is the sub-list for method output_type
+	66,  // [66:100] is the sub-list for method input_type
+	66,  // [66:66] is the sub-list for extension type_name
+	66,  // [66:66] is the sub-list for extension extendee
+	0,   // [0:66] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_governance_proto_init() }
@@ -5746,7 +6092,7 @@ func file_plux_v1_governance_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_governance_proto_rawDesc), len(file_plux_v1_governance_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   82,
+			NumMessages:   86,
 			NumExtensions: 0,
 			NumServices:   5,
 		},

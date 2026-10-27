@@ -37,6 +37,12 @@ msgstr "{app}, screen {screen}"
 msgid "library.usage.app"
 msgstr "{app}: {n} instances"
 
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDescribe"
+msgstr "{approvers} approval(s)"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -262,6 +268,12 @@ msgstr "{event} now goes to {target}"
 msgid "appCanvas.bundle"
 msgstr "{from} to {to}, {count, plural, one {# link} other {# links}}"
 
+#. Approvals given of approvals needed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.approvalsOf"
+msgstr "{given} of {needed}"
+
 #. Read-only banner: someone else holds the plugin's editing lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -345,6 +357,18 @@ msgstr "{n, plural, one {# screen} other {# screens}}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.versions"
 msgstr "{n, plural, one {# version} other {# versions}}"
+
+#. The number of approvals a policy requires.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.requires"
+msgstr "{n} approvals"
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simRequired"
+msgstr "{n} approvals needed in all."
 
 #. Accessible name of the plain value field of a step input; name is the input's name.
 #. js-lingui-explicit-id
@@ -628,6 +652,18 @@ msgstr "Acknowledge warnings"
 msgid "publish.warningsTitle"
 msgstr "Acknowledge warnings"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colAction"
+msgstr "Action"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.sampleAction"
+msgstr "Action"
+
 #. Button in the right panel that opens the full-screen action graph editor for the selected widget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -657,6 +693,12 @@ msgstr "Actions"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.catalogue"
 msgstr "Actions"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldActions"
+msgstr "Actions (comma separated)"
 
 #. State of a device that is not revoked.
 #. js-lingui-explicit-id
@@ -838,6 +880,18 @@ msgstr "Alignment"
 msgid "library.kind.all"
 msgstr "All"
 
+#. Option of the app filter that shows the whole organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.allApps"
+msgstr "All apps"
+
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.stagesParallel"
+msgstr "All at once"
+
 #. Option of the source picker: every paired device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -898,6 +952,18 @@ msgstr "Another person holds the draft lock, so the state is read-only."
 msgid "l10n.readOnly"
 msgstr "Another person holds the lock for this locale, so the table is read-only."
 
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.productionAny"
+msgstr "Any"
+
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.stagesNone"
+msgstr "Any order"
+
 #. Filter option: every experiment state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -910,10 +976,22 @@ msgstr "Any state"
 msgid "library.visibility.all"
 msgstr "Any visibility"
 
+#. Label of the app filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.appFilter"
+msgstr "App"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colBuild"
+msgstr "App build"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colBuild"
 msgstr "App build"
 
 #. Accessible name of the canvas that shows the plugins of an app.
@@ -976,11 +1054,71 @@ msgstr "Apply"
 msgid "publish.stepApproval"
 msgstr "Approval"
 
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policiesTitle"
+msgstr "Approval policies"
+
+#. Heading of the request page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.requestTitle"
+msgstr "Approval request"
+
 #. Heading of the approval notifications group.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.approvals"
 msgstr "Approvals"
+
+#. Heading of the approvals inbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.inboxTitle"
+msgstr "Approvals"
+
+#. Column heading: approvals given of those needed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colApprovals"
+msgstr "Approvals"
+
+#. Checkbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldDistinctTeams"
+msgstr "Approvals must come from different teams"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldApprovers"
+msgstr "Approvals needed"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.approve"
+msgstr "Approve"
+
+#. Verb in a decision line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decisionApprove"
+msgstr "approved"
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusApproved"
+msgstr "Approved"
+
+#. Label of the baseline image.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.baseline"
+msgstr "Approved baseline"
 
 #. Approval granted.
 #. js-lingui-explicit-id
@@ -1053,6 +1191,18 @@ msgstr "Attestation provider"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
 msgstr "Audience segment"
+
+#. Label of a linked audit record.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.auditRecord"
+msgstr "Audit record {sequence}"
+
+#. Heading: the audit records linked to the decisions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.auditHeading"
+msgstr "Audit records"
 
 #. Label of the field for the one-time code.
 #. js-lingui-explicit-id
@@ -1131,6 +1281,18 @@ msgstr "Bottom"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.title"
 msgstr "Break-glass justification"
+
+#. Link to the break-glass reviews.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navBreakGlass"
+msgstr "Break-glass reviews"
+
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.breakGlassTitle"
+msgstr "Break-glass reviews"
 
 #. Heading of the compiler output shown when the source did not build.
 #. js-lingui-explicit-id
@@ -1336,6 +1498,12 @@ msgstr "Category"
 msgid "security.pinsTitle"
 msgstr "Certificate pins"
 
+#. Column heading: what changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colSubject"
+msgstr "Change"
+
 #. Button: change when a rollout ends.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -1390,11 +1558,35 @@ msgstr "Changelog"
 msgid "publish.stepChangelog"
 msgstr "Changelog"
 
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.changelogHeading"
+msgstr "Changelog"
+
+#. Heading of the JSON diff.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.diffHeading"
+msgstr "Changes"
+
+#. Risk attribute.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskChangesFunctionUsedBy"
+msgstr "Changes a function that others use"
+
 #. Note that edits to the theme apply to the canvas at once.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeLive"
 msgstr "Changes show on the canvas as you type."
+
+#. Caption under the inbox heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.inboxCaption"
+msgstr "Changes waiting for a decision."
 
 #. Label of the channel filter.
 #. js-lingui-explicit-id
@@ -1406,6 +1598,12 @@ msgstr "Channel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.channel"
+msgstr "Channel"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colChannel"
 msgstr "Channel"
 
 #. Shown while the explanation loads.
@@ -1659,6 +1857,12 @@ msgstr "Command palette"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.trigger"
 msgstr "Commands"
+
+#. Label of the comment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.comment"
+msgstr "Comment"
 
 #. Density option.
 #. js-lingui-explicit-id
@@ -1996,11 +2200,23 @@ msgstr "DB schema designer"
 msgid "devices.lineDebug"
 msgstr "debug"
 
+#. Heading of the history page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.historyTitle"
+msgstr "Decided approvals"
+
 #. Heading of the decision section.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.decision"
 msgstr "Decision"
+
+#. Confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decided"
+msgstr "Decision recorded."
 
 #. Result of explaining access; decision is the server's verdict.
 #. js-lingui-explicit-id
@@ -2013,6 +2229,12 @@ msgstr "Decision: {decision}"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.decision"
 msgstr "Decision: {decision}"
+
+#. Heading of the decisions given so far.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decisionsHeading"
+msgstr "Decisions"
 
 #. Direction option.
 #. js-lingui-explicit-id
@@ -2242,6 +2464,12 @@ msgstr "Device frame"
 msgid "preview.matrix"
 msgstr "Device matrix"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colDevices"
+msgstr "Devices"
+
 #. Heading of the devices list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2265,6 +2493,12 @@ msgstr "Difference"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.compareTitle"
 msgstr "Differences between the two snapshots"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDistinctTeams"
+msgstr "different teams"
 
 #. D37 button: drop the unsaved changes.
 #. js-lingui-explicit-id
@@ -2301,6 +2535,12 @@ msgstr "Document"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.docs"
 msgstr "Documentation"
+
+#. Tag of the draft among the matching policies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDraft"
+msgstr "draft"
 
 #. State of an experiment.
 #. js-lingui-explicit-id
@@ -2380,6 +2620,12 @@ msgstr "Edit {name} in the Rust editor"
 msgid "security.editGrants"
 msgstr "Edit grants"
 
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.editorCaption"
+msgstr "Edit the policy and try it against a sample change before saving."
+
 #. Hint under the build step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -2403,6 +2649,12 @@ msgstr "Effective configuration"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.field.email"
 msgstr "Email"
+
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.breakGlassCaption"
+msgstr "Emergency actions taken without prior approval, each due for review."
 
 #. Mock data state option.
 #. js-lingui-explicit-id
@@ -2511,6 +2763,24 @@ msgstr "Entry-level Android"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.environment"
 msgstr "Environment"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colEnvironment"
+msgstr "Environment"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.sampleEnvironment"
+msgstr "Environment key"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldEnvironments"
+msgstr "Environments (comma separated)"
 
 #. Level label of a console line.
 #. js-lingui-explicit-id
@@ -2649,6 +2919,18 @@ msgstr "Experiments of this environment, with their state and the share of subje
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.ended_expired"
 msgstr "Expired"
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusExpired"
+msgstr "Expired"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colExpires"
+msgstr "Expires"
 
 #. Countdown of the pairing token; time is minutes and seconds such as 1:59.
 #. js-lingui-explicit-id
@@ -2950,6 +3232,12 @@ msgstr "Go to home"
 msgid "cmd.nav.profile"
 msgstr "Go to profile"
 
+#. Heading of the golden-image comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.goldenHeading"
+msgstr "Golden-image differences"
+
 #. Accessible name of the group of zoom controls.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -3016,6 +3304,12 @@ msgstr "Height (logical pixels)"
 msgid "help.menu"
 msgstr "Help"
 
+#. Risk level.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskHigh"
+msgstr "High"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -3050,6 +3344,12 @@ msgstr "History"
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.title"
+msgstr "History"
+
+#. Link to the decided requests.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navHistory"
 msgstr "History"
 
 #. Label of the holdout field.
@@ -3111,6 +3411,18 @@ msgstr "Improvement"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.persistence.memory"
 msgstr "In memory"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simSequential"
+msgstr "in order"
+
+#. Link to the inbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navInbox"
+msgstr "Inbox"
 
 #. Accessible name of the point at which connections arrive at a step.
 #. js-lingui-explicit-id
@@ -3183,6 +3495,12 @@ msgstr "Insert template"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.inspector"
 msgstr "Inspector"
+
+#. Heading: devices affected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.installBaseHeading"
+msgstr "Install base"
 
 #. Heading of the list of component instances per app.
 #. js-lingui-explicit-id
@@ -3282,6 +3600,12 @@ msgstr "JSON of the document"
 msgid "panelTabs.jsonOf"
 msgstr "JSON of the selection"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colJustification"
+msgstr "Justification"
+
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -3346,6 +3670,18 @@ msgstr "Key"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbKey"
+msgstr "Key"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colKey"
+msgstr "Key"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldKey"
 msgstr "Key"
 
 #. Field label for a plugin's key, its stable identifier.
@@ -3690,6 +4026,12 @@ msgstr "Loading the published version…"
 msgid "history.loading"
 msgstr "Loading the snapshots."
 
+#. Shown while a page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.loading"
+msgstr "Loading…"
+
 #. Label of the preview locale select.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -3743,6 +4085,12 @@ msgstr "Locked by {who}"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabLogs"
 msgstr "Logs"
+
+#. Risk level.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskLow"
+msgstr "Low"
 
 #. Button that makes a step the first step of the graph.
 #. js-lingui-explicit-id
@@ -3820,6 +4168,12 @@ msgstr "Mean of a property"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.medium"
+msgstr "Medium"
+
+#. Risk level.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskMedium"
 msgstr "Medium"
 
 #. Column heading.
@@ -3936,6 +4290,18 @@ msgstr "Name"
 msgid "designers.name"
 msgstr "Name"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colName"
+msgstr "Name"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldName"
+msgstr "Name"
+
 #. Field label for a plugin's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -3953,6 +4319,18 @@ msgstr "Name of state entry {name}"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateAddName"
 msgstr "Name of the new state entry"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldUsers"
+msgstr "Named approvers (comma separated)"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simUsers"
+msgstr "named: {users}"
 
 #. Group of the Insert tab: widgets of the host app (native slots) and custom widgets.
 #. js-lingui-explicit-id
@@ -4026,6 +4404,12 @@ msgstr "never"
 msgid "experiments.never"
 msgstr "never"
 
+#. Shown for a missing time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.never"
+msgstr "never"
+
 #. Shown when there is no date.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -4067,6 +4451,12 @@ msgstr "New key"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.newPlugin"
 msgstr "New plugin"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.newPolicy"
+msgstr "New policy"
 
 #. Diff label.
 #. js-lingui-explicit-id
@@ -4140,11 +4530,23 @@ msgstr "No action matches."
 msgid "library.usage.none"
 msgstr "No app uses this component yet."
 
+#. Shown when the list is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.empty"
+msgstr "No approval requests match."
+
 #. Shown in the Assets tab when the app has no files.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.empty"
 msgstr "No assets yet."
+
+#. Shown when a golden case has no baseline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.noBaseline"
+msgstr "No baseline yet"
 
 #. Status when the edited JSON equals the document.
 #. js-lingui-explicit-id
@@ -4175,6 +4577,12 @@ msgstr "No device is paired yet."
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.noDevices"
 msgstr "No devices match."
+
+#. Shown when a request has no diff.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.noDiff"
+msgstr "No diff is attached."
 
 #. Button: remove the end of a rollout.
 #. js-lingui-explicit-id
@@ -4241,6 +4649,12 @@ msgstr "No plugin has unpublished changes."
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.killNone"
 msgstr "No plugin is switched off."
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simNone"
+msgstr "No policy applies, so the change needs no approval."
 
 #. Shown when no approval is needed.
 #. js-lingui-explicit-id
@@ -4326,6 +4740,12 @@ msgstr "No translation keys to show."
 msgid "panels.noMatches"
 msgstr "No widget matches."
 
+#. Shown when there are no decisions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.noDecisions"
+msgstr "Nobody has decided yet."
+
 #. Accessible name of the meter that shows the page's nodes against its budget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -4362,11 +4782,23 @@ msgstr "Not available"
 msgid "panels.notInteractive"
 msgstr "Not interactive"
 
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.productionNever"
+msgstr "Not production"
+
 #. Shown for an optional property that has no value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.unset"
 msgstr "Not set"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDistinctFromAuthor"
+msgstr "not the author"
 
 #. Tag beside a string of the Localisation tab that is a literal and has no translation key.
 #. js-lingui-explicit-id
@@ -4494,11 +4926,29 @@ msgstr "Offline"
 msgid "history.diffLabel"
 msgstr "Older and newer version of the document"
 
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.stagesSequential"
+msgstr "One after the other"
+
 #. Description of the dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.editGrantsDescription"
 msgstr "One entry per line. Releases are published only when every plugin requests a subset."
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusOpen"
+msgstr "Open"
+
+#. Review state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewOpen"
+msgstr "Open"
 
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
@@ -4578,6 +5028,12 @@ msgstr "Opening the release request"
 msgid "notify.kind.operations"
 msgstr "Operations"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldStages"
+msgstr "Order"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -4637,6 +5093,12 @@ msgstr "Over budget"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfWarning"
 msgstr "Over the warning threshold"
+
+#. Flag on a review past its due time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.overdue"
+msgstr "Overdue"
 
 #. Marks a property whose value differs from the base for the chosen size class.
 #. js-lingui-explicit-id
@@ -4872,6 +5334,30 @@ msgstr "Plux Studio"
 msgid "unsupported.body"
 msgstr "Plux Studio needs WebGL2 to draw the canvas. Use a current version of Chrome, Edge, Firefox or Safari with hardware acceleration on."
 
+#. Link to the approval policies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navPolicies"
+msgstr "Policies"
+
+#. Heading: the policies that matched the request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policiesInForce"
+msgstr "Policies that apply"
+
+#. Heading of the policy editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.editorTitle"
+msgstr "Policy"
+
+#. Confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.saved"
+msgstr "Policy saved."
+
 #. Shown when the app-level lock is held by another person.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4979,6 +5465,18 @@ msgstr "Problems"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabFlow"
 msgstr "Process flow"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldProduction"
+msgstr "Production environments"
+
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.productionOnly"
+msgstr "Production only"
 
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
@@ -5232,10 +5730,28 @@ msgstr "Registered devices of this environment."
 msgid "releases.regressions"
 msgstr "Regressed beyond the gate: {metrics}"
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reject"
+msgstr "Reject"
+
+#. Verb in a decision line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decisionReject"
+msgstr "rejected"
+
 #. State of a request whose approval was rejected.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.ended_rejected"
+msgstr "Rejected"
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusRejected"
 msgstr "Rejected"
 
 #. Column heading.
@@ -5254,6 +5770,12 @@ msgstr "Release"
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.release"
+msgstr "Release"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colRelease"
 msgstr "Release"
 
 #. Heading of the release page.
@@ -5484,6 +6006,12 @@ msgstr "Replace the source with the template"
 msgid "publish.stepReports"
 msgstr "Reports"
 
+#. Heading of the validation and accessibility reports.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reportsHeading"
+msgstr "Reports"
+
 #. Button that asks the approvers.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -5496,6 +6024,30 @@ msgstr "Request approval"
 msgid "lock.request-edit"
 msgstr "Request edit"
 
+#. Column heading: when the request was made.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colCreated"
+msgstr "Requested"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colRequester"
+msgstr "Requested by"
+
+#. Checkbox that limits the inbox to the requests the person made.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.mineOnly"
+msgstr "Requested by me"
+
+#. Caption of the history page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.historyCaption"
+msgstr "Requests that were approved, rejected, used or have lapsed."
+
 #. Marks a required property in the docs tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -5507,6 +6059,12 @@ msgstr "required"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.required"
 msgstr "required"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colRequires"
+msgstr "Requires"
 
 #. Button: remove one override from a component instance.
 #. js-lingui-explicit-id
@@ -5531,6 +6089,24 @@ msgstr "Reset fields (comma-separated)"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.reset"
 msgstr "Reset to base"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colResource"
+msgstr "Resource"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.sampleResource"
+msgstr "Resource of the change"
+
+#. Label of the resource checkboxes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldResources"
+msgstr "Resources"
 
 #. Button that restores one snapshot.
 #. js-lingui-explicit-id
@@ -5610,6 +6186,36 @@ msgstr "Resume"
 msgid "actionGraph.outputType"
 msgstr "Returns {type}"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colReview"
+msgstr "Review"
+
+#. Button that starts a review.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.review"
+msgstr "Review"
+
+#. Label of the review comment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewComment"
+msgstr "Review comment"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colDue"
+msgstr "Review due"
+
+#. Review state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewReviewed"
+msgstr "Reviewed"
+
 #. Button: choose a revised component document to save as a new version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -5640,6 +6246,18 @@ msgstr "Revoked"
 msgid "panels.right"
 msgstr "Right"
 
+#. Heading of the risk summary.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskHeading"
+msgstr "Risk"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldRisk"
+msgstr "Risk attributes"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -5651,6 +6269,18 @@ msgstr "Role"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.role"
 msgstr "Role"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldRoles"
+msgstr "Roles (comma separated)"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simRoles"
+msgstr "roles: {roles}"
 
 #. Button: make a new release that reproduces this one.
 #. js-lingui-explicit-id
@@ -5801,6 +6431,12 @@ msgstr "Save flag"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.impact.confirm"
 msgstr "Save new version"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.save"
+msgstr "Save policy"
 
 #. Button: stores the screenshot as an app asset.
 #. js-lingui-explicit-id
@@ -6222,6 +6858,18 @@ msgstr "Signing in"
 msgid "security.keysTitle"
 msgstr "Signing keys"
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulate"
+msgstr "Simulate"
+
+#. Heading of the simulator panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulatorTitle"
+msgstr "Simulator"
+
 #. Accessible name of the group of single sign-on buttons.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -6426,6 +7074,18 @@ msgstr "State entries"
 msgid "panelTabs.stateList"
 msgstr "State entries"
 
+#. Label of the status filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusFilter"
+msgstr "Status"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colStatus"
+msgstr "Status"
+
 #. Button that keeps the person on the page.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -6522,6 +7182,18 @@ msgstr "Subjects per variant before a result"
 msgid "preview.mockSuccess"
 msgstr "Success"
 
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.summary"
+msgstr "Summary"
+
+#. Status of a request whose content changed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusSuperseded"
+msgstr "Superseded"
+
 #. Caption of the kill-switch panel.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -6611,6 +7283,18 @@ msgstr "Take the editing lock to change this link."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.take-server"
 msgstr "Take the server's"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colInvokedAt"
+msgstr "Taken"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colInvokedBy"
+msgstr "Taken by"
 
 #. Name of the target publish step.
 #. js-lingui-explicit-id
@@ -6708,6 +7392,12 @@ msgstr "The approval was rejected."
 msgid "assets.loadFailed"
 msgstr "The assets could not be loaded."
 
+#. Checkbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldDistinctFromAuthor"
+msgstr "The author's approval does not count"
+
 #. Shown when saving fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -6774,6 +7464,12 @@ msgstr "The code is not correct or has expired."
 msgid "rustEditor.closedFailed"
 msgstr "The connection to the language server broke: {detail}"
 
+#. Shown when the step-up or the decision failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decideFailed"
+msgstr "The decision was not recorded."
+
 #. Error under the default field when the text is not JSON.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -6803,6 +7499,18 @@ msgstr "The device stream ended."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.diffFailed"
 msgstr "The documents could not be loaded."
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simMatches"
+msgstr "The draft applies to this change."
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simNoMatch"
+msgstr "The draft does not apply to this change."
 
 #. Status when the draft fails validation.
 #. js-lingui-explicit-id
@@ -7008,6 +7716,12 @@ msgstr "The plugin is locked by someone else: the graph is read-only."
 msgid "history.confirmBody"
 msgstr "The plugin's documents return to how they were at {when}. You can undo the restore in one step."
 
+#. Shown when the save failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.saveFailed"
+msgstr "The policy was not saved."
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -7049,6 +7763,12 @@ msgstr "The request failed. Try again."
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.err8060"
 msgstr "The request was at another step. It has been reloaded."
+
+#. Shown when the review failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewFailed"
+msgstr "The review was not recorded."
 
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
@@ -7121,6 +7841,12 @@ msgstr "The server received a different number of bytes than the file has. Uploa
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.weightsSum"
 msgstr "The shares must add up to 100."
+
+#. Shown when the simulation failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulateFailed"
+msgstr "The simulation failed."
 
 #. Shown when restoring a snapshot failed.
 #. js-lingui-explicit-id
@@ -7369,6 +8095,12 @@ msgstr "This browser is not supported"
 msgid "safety.blocked.title"
 msgstr "This cannot be deleted yet"
 
+#. Label of the image the change produced.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.actual"
+msgstr "This change"
+
 #. D27, STU-076: title of the warning listing deep links and generated APIs a key or route change breaks.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -7405,11 +8137,23 @@ msgstr "This could not be loaded."
 msgid "experiments.loadFailed"
 msgstr "This could not be loaded."
 
+#. Shown when a read fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.loadFailed"
+msgstr "This could not be loaded."
+
 #. Shown instead of the comparison when the plugin has no published version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.noPublished"
 msgstr "This document has not been published yet, so there is nothing to compare with."
+
+#. Warning.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simEnterprise"
+msgstr "This draft uses stages or distinct teams, which need the enterprise edition to save."
 
 #. Notice that a state entry has a computed expression, which this designer does not edit.
 #. js-lingui-explicit-id
@@ -7572,6 +8316,18 @@ msgstr "Token"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.top"
 msgstr "Top"
+
+#. Risk attribute.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskTouchesMoneyFlow"
+msgstr "Touches a money flow"
+
+#. Risk attribute.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskTouchesSecurePage"
+msgstr "Touches a secure page"
 
 #. Screenshot use: context shown to translators.
 #. js-lingui-explicit-id
@@ -7759,6 +8515,12 @@ msgstr "Use lower-case words joined by dots or hyphens, such as home.title."
 msgid "dialog.stepup.use"
 msgstr "Use security key or passkey"
 
+#. Status of an approved request that the change has used.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusUsed"
+msgstr "Used"
+
 #. Option: only the translation keys that the selected nodes use.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -7871,6 +8633,12 @@ msgstr "Version"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbVersion"
+msgstr "Version"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colVersion"
 msgstr "Version"
 
 #. Head version of a library item.
@@ -7999,11 +8767,23 @@ msgstr "Where it lives"
 msgid "editor.conflict.differences"
 msgstr "Where your version and the server's differ"
 
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policiesCaption"
+msgstr "Which changes need approval, and from whom."
+
 #. Title of the dialog that asks which widget event should navigate after a link was dragged.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.picker.title"
 msgstr "Which event starts the link?"
+
+#. Caption of the simulator.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulatorCaption"
+msgstr "Who would need to approve this change?"
 
 #. Title of the dialog that explains an access decision.
 #. js-lingui-explicit-id
@@ -8137,6 +8917,18 @@ msgstr "You may not manage this app."
 msgid "publish.viewOnly"
 msgstr "You need the permission release.publish to change this request."
 
+#. Shown beside disabled decision buttons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decideNeedsPermission"
+msgstr "You need the permission to decide approvals."
+
+#. Shown when the editor is read-only.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.editorNeedsPermission"
+msgstr "You need the permission to manage policies."
+
 #. D37 title: the lock was taken over or expired.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -8154,6 +8946,12 @@ msgstr "Your appearance and language, kept for every device."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.body"
 msgstr "Your changes could not be combined with the newer version. Autosave is paused until you choose."
+
+#. Heading of the decision form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decideHeading"
+msgstr "Your decision"
 
 #. D37: the heartbeat failed until the lock expired.
 #. js-lingui-explicit-id
