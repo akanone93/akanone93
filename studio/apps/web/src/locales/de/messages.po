@@ -502,6 +502,18 @@ msgstr "Ein Teil der Datei kam in der falschen Reihenfolge an. Versuche es erneu
 msgid "assets.failure.chunk-too-large"
 msgstr "Ein Teil der Datei war größer, als der Server annimmt. Lade die Datei erneut hoch."
 
+#. Button: end a rollout and revert.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.abort"
+msgstr "Rollout abbrechen"
+
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stateAborted"
+msgstr "Abgebrochen"
+
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -584,6 +596,12 @@ msgstr "Aktionen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.stateActive"
+msgstr "Aktiv"
+
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stateActive"
 msgstr "Aktiv"
 
 #. Button that adds a state entry.
@@ -711,6 +729,18 @@ msgstr "Version in {app} übernehmen"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.adopt.confirm"
 msgstr "Version übernehmen"
+
+#. Heading of the rollout adoption section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.adoption"
+msgstr "Verbreitung"
+
+#. Button: move a rollout to its next stage now.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.advance"
+msgstr "Zur nächsten Stufe"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -982,6 +1012,12 @@ msgstr "Build-Ausgabe"
 msgid "actionGraph.groupBuiltin"
 msgstr "Eingebaut"
 
+#. Label of the bundle hash.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.bundle"
+msgstr "Bundle-SHA-256"
+
 #. Label of the plugin's compiled bundle size.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -1120,6 +1156,12 @@ msgstr "Kategorie"
 msgid "security.pinsTitle"
 msgstr "Zertifikat-Pins"
 
+#. Button: change when a rollout ends.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.reschedule"
+msgstr "Ende ändern"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1150,11 +1192,23 @@ msgstr "Sichtbarkeit ändern"
 msgid "history.changeChanged"
 msgstr "geändert"
 
+#. Heading of the changes of a release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.changelog"
+msgstr "Änderungen"
+
 #. Note that edits to the theme apply to the canvas at once.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeLive"
 msgstr "Änderungen erscheinen beim Tippen auf der Leinwand."
+
+#. Label of the channel filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.channelLabel"
+msgstr "Kanal"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -1360,6 +1414,12 @@ msgstr "Status-Designer schließen"
 msgid "designers.themeClose"
 msgstr "Theme-Editor schließen"
 
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stateClosing"
+msgstr "Wird beendet"
+
 #. Tab of the right panel: the functions the selection uses.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -1426,6 +1486,12 @@ msgstr "{when} vergleichen"
 msgid "jsonEditor.diff"
 msgstr "Mit der zuletzt veröffentlichten Version vergleichen"
 
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stateCompleted"
+msgstr "Abgeschlossen"
+
 #. Title of the dialog that lists the instances a revised component version changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -1486,6 +1552,12 @@ msgstr "Verbindungspunkt"
 msgid "devices.tabConsole"
 msgstr "Konsole"
 
+#. Heading of the plugin versions of a release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.content"
+msgstr "Inhalt"
+
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1516,6 +1588,12 @@ msgstr "Meine als JSON kopieren"
 msgid "clipboard.actionCopy"
 msgstr "Übernehmen"
 
+#. Metric name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.crashed"
+msgstr "Abgestürzte Sitzungen"
+
 #. Label of the field for the name of a crate to depend on.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -1545,6 +1623,18 @@ msgstr "Schlüssel anlegen"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.picker.confirm"
 msgstr "Link erstellen"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colCreated"
+msgstr "Erstellt"
+
+#. Explains the rollback button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.rollbackHint"
+msgstr "Erstellt ein neues Release mit diesem Inhalt auf dem Kanal. Eine Sicherheitsprüfung ist erforderlich."
 
 #. Platform style option.
 #. js-lingui-explicit-id
@@ -1996,6 +2086,24 @@ msgstr "E-Mail"
 msgid "preview.mockEmpty"
 msgstr "Leer"
 
+#. Label of the end date field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.endLabel"
+msgstr "Ende des Rollouts"
+
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stateEnded"
+msgstr "Beendet"
+
+#. Explains the abort button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.abortHint"
+msgstr "Beendet den Rollout und stellt das vorherige Release des Kanals wieder her. Eine Sicherheitsprüfung ist erforderlich."
+
 #. Error under the key name field when it is empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -2086,6 +2194,12 @@ msgstr "Fehler"
 msgid "preview.mockError"
 msgstr "Fehler"
 
+#. Metric name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.errors"
+msgstr "Fehler"
+
 #. Option: only errors.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -2127,6 +2241,12 @@ msgstr "Ereignisse"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsEvents"
 msgstr "Ereignisse"
+
+#. Caption under the release timeline heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.timelineCaption"
+msgstr "Alle Releases dieser Umgebung, neueste zuerst, mit den Rollouts, die sie ausliefern."
 
 #. Checkbox that hides the widget from screen readers.
 #. js-lingui-explicit-id
@@ -2403,6 +2523,12 @@ msgstr "Übergeben"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.semHeader"
 msgstr "Überschrift"
+
+#. Heading of the health comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.health"
+msgstr "Zustand im Vergleich zum vorherigen Release"
 
 #. Label of the height field of the custom frame dialog.
 #. js-lingui-explicit-id
@@ -2748,6 +2874,18 @@ msgstr "Schlüssel können nicht hinzugefügt werden, solange eine andere Person
 msgid "l10n.scope"
 msgstr "Angezeigte Schlüssel"
 
+#. Link to the kill-switch panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killSwitchLink"
+msgstr "Notausschalter"
+
+#. Heading of the kill-switch panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killTitle"
+msgstr "Notausschalter"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2952,6 +3090,12 @@ msgstr "Wird geladen"
 msgid "security.loading"
 msgstr "Wird geladen"
 
+#. Shown while a page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.loading"
+msgstr "Wird geladen"
+
 #. Mock data state option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -3113,6 +3257,12 @@ msgstr "Darf leer sein"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.medium"
 msgstr "Mittel"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colMetric"
+msgstr "Messwert"
 
 #. Heading of the list of migration plans of a collection.
 #. js-lingui-explicit-id
@@ -3288,6 +3438,12 @@ msgstr "Netzwerk"
 msgid "security.networkDomains"
 msgstr "Netzwerkdomänen"
 
+#. Shown for a missing date.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.never"
+msgstr "nie"
+
 #. Shown when there is no date.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3390,6 +3546,12 @@ msgstr "Noch keine Assets."
 msgid "jsonEditor.nothingToApply"
 msgstr "Keine Änderungen zu übernehmen."
 
+#. Shown when a release changed nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.noChanges"
+msgstr "Keine Änderungen."
+
 #. Shown when the filter matches nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -3407,6 +3569,18 @@ msgstr "Noch kein Gerät gekoppelt."
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.noDevices"
 msgstr "Keine passenden Geräte."
+
+#. Button: remove the end of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.clearEnd"
+msgstr "Kein Ende"
+
+#. Shown while a rollout has no health figures.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.noHealth"
+msgstr "Es wurde noch keine Zustandsprüfung ausgeführt."
 
 #. Shown when a revised component has no instances.
 #. js-lingui-explicit-id
@@ -3432,6 +3606,12 @@ msgstr "Keine Migrationsprobleme: Geräte können ohne Datenverlust aktualisiere
 msgid "notify.empty"
 msgstr "Keine Benachrichtigungen"
 
+#. Shown when no kill switch is set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killNone"
+msgstr "Kein Plugin ist abgeschaltet."
+
 #. Shown in the Problems tab when the validator found nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -3455,6 +3635,18 @@ msgstr "Keine Probleme gefunden."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.noProblems"
 msgstr "Keine Probleme."
+
+#. Shown when the environment has no release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.noReleases"
+msgstr "Noch keine Releases."
+
+#. Shown when a release has no rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.noRollout"
+msgstr "Kein Rollout"
 
 #. Problem shown for a link whose target screen does not exist; route is the route name.
 #. js-lingui-explicit-id
@@ -3545,6 +3737,12 @@ msgstr "Nicht übersetzt"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.syntax"
 msgstr "Kein gültiges JSON: {message}"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colNotes"
+msgstr "Hinweise"
 
 #. Result after a restore that changed nothing.
 #. js-lingui-explicit-id
@@ -3882,11 +4080,23 @@ msgstr "Mit diesen Auswahlen einfügen"
 msgid "clipboard.reportTitle"
 msgstr "Die eingefügten Elemente brauchen mehr, als dieses Plugin hat"
 
+#. Button: stop a rollout from advancing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.pause"
+msgstr "Pausieren"
+
 #. Button: freeze the drawer's list while events keep arriving.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.pause"
 msgstr "Pausieren"
+
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.statePaused"
+msgstr "Pausiert"
 
 #. Tab of the right panel: node count, cost and budget of the selection.
 #. js-lingui-explicit-id
@@ -3954,6 +4164,12 @@ msgstr "Plugin"
 msgid "pluginCanvas.title"
 msgstr "Plugin-Canvas"
 
+#. Label of the plugin key field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.pluginLabel"
+msgstr "Plugin-Schlüssel"
+
 #. Button and dialog title: change a plugin's name, description, owner and tags.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4007,6 +4223,12 @@ msgstr "Drücken Sie Eingabe oder Leertaste, um den Schritt auszuwählen. Verbin
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.switcher"
 msgstr "Vorschau-Schalter"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colPrevious"
+msgstr "Vorheriges Release"
 
 #. Label of the field that holds the primary key of a collection.
 #. js-lingui-explicit-id
@@ -4284,6 +4506,30 @@ msgstr "Registriert"
 msgid "security.devicesCaption"
 msgstr "Registrierte Geräte dieser Umgebung."
 
+#. Names the metrics that failed the health gate.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.regressions"
+msgstr "Schwelle des Gates überschritten: {metrics}"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colRelease"
+msgstr "Release"
+
+#. Heading of the release page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.detailTitle"
+msgstr "Release {sequence}"
+
+#. Heading of the release timeline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.timelineTitle"
+msgstr "Releases"
+
 #. Button that reloads the page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -4530,6 +4776,12 @@ msgstr "Wiederhergestellt"
 msgid "panels.pxlResultType"
 msgstr "Ergebnistyp: {type}"
 
+#. Button: continue a paused rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.resume"
+msgstr "Fortsetzen"
+
 #. Button that continues a failed upload where it stopped.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -4589,6 +4841,36 @@ msgstr "Rolle"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.role"
 msgstr "Rolle"
+
+#. Button: make a new release that reproduces this one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.rollback"
+msgstr "Auf dieses Release zurücksetzen"
+
+#. Says which release a release reproduces.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.rollbackOf"
+msgstr "Rollback von Release {sequence}"
+
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stateRolledBack"
+msgstr "Zurückgesetzt"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colRollout"
+msgstr "Rollout"
+
+#. Heading of the rollout controls.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.controls"
+msgstr "Rollout-Steuerung"
 
 #. Label of the rotation state.
 #. js-lingui-explicit-id
@@ -4715,6 +4997,12 @@ msgstr "Auf dem Gerät gespeichert"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.pairHelp"
 msgstr "Scanne den Code mit der Plux-Dev-App oder gib den Kurzcode in der App ein."
+
+#. State of a rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stateScheduled"
+msgstr "Geplant"
 
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
@@ -4938,6 +5226,12 @@ msgstr "An das Gerät gesendet."
 msgid "history.sessionTag"
 msgstr "Sitzung {tag}"
 
+#. Metric name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.sessions"
+msgstr "Sitzungen"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -4949,6 +5243,12 @@ msgstr "Einstellung"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.container"
 msgstr "Form"
+
+#. Column heading: the share of devices offered the release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colShare"
+msgstr "Anteil der Geräte"
 
 #. Label of the short code a person can type on the device.
 #. js-lingui-explicit-id
@@ -5106,6 +5406,12 @@ msgstr "Quellformat"
 msgid "designers.dataSourceText"
 msgstr "Quelltext: ein OpenAPI-Dokument oder ein GraphQL-Schema"
 
+#. Position of a rollout in its stages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.stage"
+msgstr "Stufe {index} von {total}"
+
 #. Profile name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -5146,6 +5452,12 @@ msgstr "Language-Server wird gestartet …"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colState"
+msgstr "Status"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colState"
 msgstr "Status"
 
 #. Tab of the left panel: the plugin's state entries.
@@ -5244,11 +5556,35 @@ msgstr "Studio wurde aktualisiert. Laden Sie neu, um die neue Version zu nutzen.
 msgid "preview.mockSuccess"
 msgstr "Erfolg"
 
+#. Caption of the kill-switch panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killCaption"
+msgstr "Ein Plugin ohne neues Release für alle Geräte dieser Umgebung abschalten."
+
+#. Button: set a kill switch.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killSet"
+msgstr "Abschalten"
+
+#. Button: clear a kill switch.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killClear"
+msgstr "Einschalten"
+
 #. Command title; name is an organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.org.switch"
 msgstr "Zu {name} wechseln"
+
+#. Heading of the plugins that are switched off.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killActive"
+msgstr "Abgeschaltet"
 
 #. Badge: a kill switch turns the plugin off for devices.
 #. js-lingui-explicit-id
@@ -5357,6 +5693,12 @@ msgstr "Textgröße"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.textScale"
 msgstr "Textgröße"
+
+#. Shown when a release action fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.actionFailed"
+msgstr "Die Aktion ist fehlgeschlagen. Es wurde nichts geändert."
 
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
@@ -5881,6 +6223,12 @@ msgstr "Die Version konnte nicht gespeichert werden."
 msgid "library.visibility.failed"
 msgstr "Die Sichtbarkeit konnte nicht geändert werden."
 
+#. Shown when the app kill switch is set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.killAppWide"
+msgstr "Die gesamte App ist abgeschaltet."
+
 #. Description of the trigger picker; target is the title of the screen the link was dropped on.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -5989,6 +6337,12 @@ msgstr "Diese Komponente stellt keine Props oder Slots bereit."
 msgid "security.loadFailed"
 msgstr "Das konnte nicht geladen werden."
 
+#. Shown when a request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.loadFailed"
+msgstr "Das konnte nicht geladen werden."
+
 #. Shown instead of the comparison when the plugin has no published version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -6005,6 +6359,12 @@ msgstr "Dieser Eintrag wird aus einem Ausdruck berechnet; bearbeite den Ausdruck
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.envMissing"
+msgstr "Diese Umgebung existiert nicht."
+
+#. Shown for an unknown environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.envMissing"
 msgstr "Diese Umgebung existiert nicht."
 
 #. Shown when the event's action graph has no steps.
@@ -6084,6 +6444,12 @@ msgstr "Dieses Plugin hat noch keine Bildschirme."
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.none"
 msgstr "Dieses Plugin hat noch keine Statuseinträge."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.colCandidate"
+msgstr "Dieses Release"
 
 #. Heading of the dialog that lists what blocks deleting a screen.
 #. js-lingui-explicit-id

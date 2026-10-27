@@ -245,6 +245,9 @@ const (
 	// health gate and the channel returned to the previous release as a new
 	// release; the detail says which.
 	RolloutReverted Action = "rollout.reverted"
+	// RolloutRescheduled: a person changed when a rollout starts or ends; the
+	// detail gives the old and the new window.
+	RolloutRescheduled Action = "rollout.rescheduled"
 )
 
 // The actions of feature flags and experiments (ABT-001, ABT-004, ABT-005,
@@ -475,7 +478,7 @@ var actions = sorted(
 	ScimAccessCreated, ScimAccessRotated, ScimAccessRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
 	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
 	DataSubjectExported, DataSubjectErased,
-	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted,
+	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted, RolloutRescheduled,
 	ReconstructionCreated, ReconstructionViewed,
 	FlagCreated, FlagUpdated, FlagDeleted, ExperimentCreated, ExperimentDeleted,
 	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,

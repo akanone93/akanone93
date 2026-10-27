@@ -33,6 +33,13 @@ service RolloutService {
   // AbortRollout ends a rollout and returns the channel to the release it had
   // before, as a new release (REL-006).
   rpc AbortRollout(AbortRolloutRequest) returns (AbortRolloutResponse) {}
+  // AdvanceRollout moves an active rollout to its next stage at once, without
+  // waiting for the stage's duration. PLX-1006 when it is on its last stage.
+  rpc AdvanceRollout(AdvanceRolloutRequest) returns (AdvanceRolloutResponse) {}
+  // RescheduleRollout changes when a rollout starts and ends. A rollout that
+  // has started keeps its start; only its end may change. PLX-3153 when the
+  // new window overlaps another rollout of the channel.
+  rpc RescheduleRollout(RescheduleRolloutRequest) returns (RescheduleRolloutResponse) {}
 }
 
 // RolloutState is where a rollout is in its life.
@@ -203,5 +210,26 @@ message AbortRolloutRequest {
   string reason = 2;
 }
 message AbortRolloutResponse {
+  Rollout rollout = 1;
+}
+
+message AdvanceRolloutRequest {
+  string id = 1;
+}
+message AdvanceRolloutResponse {
+  Rollout rollout = 1;
+}
+
+message RescheduleRolloutRequest {
+  string id = 1;
+  // start_at is the new start; it may differ from the current one only while
+  // the rollout is scheduled. Empty keeps it.
+  google.protobuf.Timestamp start_at = 2;
+  // end_at is the new end; empty keeps it unless clear_end_at is set.
+  google.protobuf.Timestamp end_at = 3;
+  // clear_end_at removes the end, so the rollout lasts until it completes.
+  bool clear_end_at = 4;
+}
+message RescheduleRolloutResponse {
   Rollout rollout = 1;
 }
