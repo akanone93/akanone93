@@ -100,7 +100,13 @@ export function layoutScreens(
 }
 
 function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine): { items: ItemSpec[]; height: number } {
-  const { boxes, contentHeight } = layoutScreen(s.root, { engine, theme: style.theme, title: s.title });
+  const { boxes, contentHeight } = layoutScreen(s.root, {
+    engine,
+    theme: style.theme,
+    title: s.title,
+    ...(style.textScale === undefined ? {} : { textScale: style.textScale }),
+    ...(style.textDirection === undefined ? {} : { textDirection: style.textDirection }),
+  });
   return { items: screenItems(s, boxes, contentHeight, style), height: contentHeight };
 }
 
