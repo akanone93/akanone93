@@ -1,0 +1,71 @@
+{
+  "name": "material-navigation-drawer",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "h",
+            "type": "SizedBox",
+            "props": {
+              "height": 500
+            },
+            "children": [
+              {
+                "id": "nd",
+                "type": "NavigationDrawer",
+                "props": {
+                  "destinations": [
+                    {
+                      "label": "Inbox"
+                    },
+                    {
+                      "label": "Sent items"
+                    },
+                    {
+                      "label": "Drafts",
+                      "selectedIcon": true
+                    }
+                  ],
+                  "selectedIndex": 0
+                },
+                "children": [
+                  {
+                    "id": "nd-h",
+                    "type": "Text",
+                    "props": {
+                      "text": "Mail"
+                    },
+                    "slot": "header"
+                  },
+                  {
+                    "id": "nd-f",
+                    "type": "Text",
+                    "props": {
+                      "text": "v1"
+                    },
+                    "slot": "footer"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

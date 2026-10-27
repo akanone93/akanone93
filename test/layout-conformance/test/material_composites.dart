@@ -11,6 +11,8 @@ import 'package:flutter/rendering.dart';
 
 const Set<String> materialCompositeTypes = <String>{
   'TabBar', 'Tab', 'AlertDialog', 'BottomSheet', 'PopupMenu', 'PopupMenuItem', 'PopupMenuDivider',
+  'Autocomplete', 'BottomAppBar', 'CalendarDatePicker', 'DataTable', 'DropdownMenu', 'MaterialBanner',
+  'NavigationDrawer', 'PopupMenuButton', 'SegmentedButton', 'Stepper',
 };
 
 /// Builds one scene node (the golden writer's own builder).
@@ -175,6 +177,164 @@ Widget _popupMenu(Map<String, Object?> node, Key key, BuildScene build) {
   );
 }
 
+List<Map<String, Object?>> _list(Object? value) => <Map<String, Object?>>[
+  for (final Object? raw in (value as List<Object?>?) ?? <Object?>[]) raw! as Map<String, Object?>,
+];
+
+Widget _autocomplete(Map<String, Object?> node, Key key) {
+  final Map<String, Object?> props = _props(node);
+  return Autocomplete<String>(
+    key: key,
+    optionsBuilder: (TextEditingValue value) => const Iterable<String>.empty(),
+    fieldViewBuilder:
+        (BuildContext context, TextEditingController controller, FocusNode focusNode, VoidCallback onSubmitted) =>
+            TextFormField(
+              controller: controller,
+              focusNode: focusNode,
+              decoration: InputDecoration(hintText: props['hintText'] as String?),
+              onFieldSubmitted: (String _) => onSubmitted(),
+            ),
+  );
+}
+
+/// A `BottomAppBar` needs a `Scaffold` above it; the scaffold is as high as the bar, so the bar fills it.
+Widget _bottomAppBar(Map<String, Object?> node, Key key, BuildScene build) {
+  final Map<String, Object?> props = _props(node);
+  final double height = _num(props['height']) ?? 80;
+  return SizedBox(
+    height: height,
+    child: Scaffold(
+      primary: false,
+      bottomNavigationBar: BottomAppBar(key: key, height: _num(props['height']), child: _one(node, 'child', build)),
+    ),
+  );
+}
+
+Widget _dataTable(Map<String, Object?> node, Key key) {
+  final Map<String, Object?> props = _props(node);
+  return DataTable(
+    key: key,
+    columns: <DataColumn>[
+      for (final Map<String, Object?> column in _list(props['columns']))
+        DataColumn(label: Text(column['label']! as String), numeric: column['numeric'] == true),
+    ],
+    rows: <DataRow>[
+      for (final Object? row in (props['rows'] as List<Object?>?) ?? <Object?>[])
+        DataRow(cells: <DataCell>[for (final Object? cell in row! as List<Object?>) DataCell(Text(cell! as String))]),
+    ],
+    horizontalMargin: _num(props['horizontalMargin']),
+    columnSpacing: _num(props['columnSpacing']),
+    headingRowHeight: _num(props['headingRowHeight']),
+    dataRowMinHeight: _num(props['dataRowMinHeight']),
+    dataRowMaxHeight: _num(props['dataRowMaxHeight']),
+    dividerThickness: _num(props['dividerThickness']),
+    showBottomBorder: props['showBottomBorder'] == true,
+  );
+}
+
+Widget _dropdownMenu(Map<String, Object?> node, Key key, BuildScene build) {
+  final Map<String, Object?> props = _props(node);
+  return DropdownMenu<String>(
+    key: key,
+    width: _num(props['width']),
+    hintText: props['hintText'] as String?,
+    helperText: props['helperText'] as String?,
+    showTrailingIcon: props['showTrailingIcon'] != false,
+    leadingIcon: _one(node, 'leadingIcon', build),
+    label: _one(node, 'label', build),
+    dropdownMenuEntries: <DropdownMenuEntry<String>>[
+      for (final Map<String, Object?> entry in _list(props['dropdownMenuEntries']))
+        DropdownMenuEntry<String>(value: entry['value']! as String, label: entry['label']! as String),
+    ],
+  );
+}
+
+Widget _materialBanner(Map<String, Object?> node, Key key, BuildScene build) {
+  final Map<String, Object?> props = _props(node);
+  return MaterialBanner(
+    key: key,
+    content: _one(node, 'content', build)!,
+    leading: _one(node, 'leading', build),
+    forceActionsBelow: props['forceActionsBelow'] == true,
+    minActionBarHeight: _num(props['minActionBarHeight']) ?? 52,
+    actions: <Widget>[for (final Map<String, Object?> action in _slot(node, 'actions')) build(action)],
+  );
+}
+
+Widget _navigationDrawer(Map<String, Object?> node, Key key, BuildScene build) {
+  final Map<String, Object?> props = _props(node);
+  return NavigationDrawer(
+    key: key,
+    selectedIndex: (props['selectedIndex'] as num?)?.toInt(),
+    children: <Widget>[
+      ?_one(node, 'header', build),
+      for (final Map<String, Object?> destination in _list(props['destinations']))
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.star),
+          selectedIcon: destination['selectedIcon'] == null ? null : const Icon(Icons.star_border),
+          label: Text(destination['label']! as String),
+        ),
+      ?_one(node, 'footer', build),
+    ],
+  );
+}
+
+Widget _popupMenuButton(Map<String, Object?> node, Key key, BuildScene build) {
+  final Map<String, Object?> props = _props(node);
+  return PopupMenuButton<String>(
+    key: key,
+    icon: _one(node, 'icon', build),
+    iconSize: _num(props['iconSize']),
+    enabled: props['enabled'] != false,
+    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+      for (final Map<String, Object?> item in _list(props['items']))
+        PopupMenuItem<String>(value: item['value']! as String, child: Text(item['label']! as String)),
+    ],
+    child: _one(node, 'child', build),
+  );
+}
+
+Widget _segmentedButton(Map<String, Object?> node, Key key) {
+  final Map<String, Object?> props = _props(node);
+  return SegmentedButton<String>(
+    key: key,
+    showSelectedIcon: props['showSelectedIcon'] != false,
+    multiSelectionEnabled: props['multiSelectionEnabled'] == true,
+    emptySelectionAllowed: props['emptySelectionAllowed'] == true,
+    segments: <ButtonSegment<String>>[
+      for (final Map<String, Object?> segment in _list(props['segments']))
+        ButtonSegment<String>(
+          value: segment['value']! as String,
+          label: segment['label'] == null ? null : Text(segment['label']! as String),
+          icon: segment['icon'] == null ? null : const Icon(Icons.star),
+        ),
+    ],
+    selected: <String>{for (final Object? value in (props['selected'] as List<Object?>?) ?? <Object?>[]) value! as String},
+    onSelectionChanged: (Set<String> _) {},
+  );
+}
+
+Widget _stepper(Map<String, Object?> node, Key key) {
+  final Map<String, Object?> props = _props(node);
+  return Stepper(
+    key: key,
+    type: props['type'] == 'horizontal' ? StepperType.horizontal : StepperType.vertical,
+    currentStep: (props['currentStep'] as num?)?.toInt() ?? 0,
+    // The default controls (two text buttons in a 48-px row under 16 px of padding) overflow a phone at text
+    // scale 2; a box of their size keeps the step's height, which `material-stepper` at scale 1 checks.
+    controlsBuilder: (BuildContext context, ControlsDetails details) =>
+        const Padding(padding: EdgeInsets.only(top: 16), child: SizedBox(height: 48)),
+    steps: <Step>[
+      for (final Map<String, Object?> step in _list(props['steps']))
+        Step(
+          title: Text(step['title']! as String),
+          subtitle: step['subtitle'] == null ? null : Text(step['subtitle']! as String),
+          content: const SizedBox.shrink(),
+        ),
+    ],
+  );
+}
+
 /// Builds [node], one of [materialCompositeTypes].
 Widget buildMaterialComposite(Map<String, Object?> node, Key key, BuildScene build) {
   switch (node['type']) {
@@ -186,6 +346,32 @@ Widget buildMaterialComposite(Map<String, Object?> node, Key key, BuildScene bui
       return _bottomSheet(node, build);
     case 'PopupMenu':
       return _popupMenu(node, key, build);
+    case 'Autocomplete':
+      return _autocomplete(node, key);
+    case 'BottomAppBar':
+      return _bottomAppBar(node, key, build);
+    case 'CalendarDatePicker':
+      return CalendarDatePicker(
+        key: key,
+        initialDate: DateTime(2026, 1, 15),
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2030),
+        onDateChanged: (DateTime _) {},
+      );
+    case 'DataTable':
+      return _dataTable(node, key);
+    case 'DropdownMenu':
+      return _dropdownMenu(node, key, build);
+    case 'MaterialBanner':
+      return _materialBanner(node, key, build);
+    case 'NavigationDrawer':
+      return _navigationDrawer(node, key, build);
+    case 'PopupMenuButton':
+      return _popupMenuButton(node, key, build);
+    case 'SegmentedButton':
+      return _segmentedButton(node, key);
+    case 'Stepper':
+      return _stepper(node, key);
   }
   throw ArgumentError('unknown Material composite "${node['type']}"');
 }

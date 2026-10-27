@@ -60,6 +60,7 @@ import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding } from "../flutter/shifted-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { leafBuilders } from "./material-leaves.ts";
+import { moreBuilders } from "./material-more.ts";
 import type { SceneNode, SceneText, TextDefaults } from "./scene.ts";
 
 /** The theme's font family, as `ThemeData(fontFamily:)` in the golden writer. */
@@ -174,8 +175,15 @@ function syntheticText(
   return box;
 }
 
+/** The trailing arrow of a `DropdownMenu`: an icon no golden id names. */
+function arrowIcon(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const arrow = ctx.build({ id: `${node.id}:arrow`, type: "Icon", props: {} });
+  arrow.debugId = null;
+  return arrow;
+}
+
 /** `TextField` with an `InputDecoration`: the input line is one line of `bodyLarge`; label and hint add no box. */
-function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
+function buildTextField(node: SceneNode, ctx: MaterialContext, trailingArrow = false): RenderBox {
   const p = node.props;
   const text = (name: string): string | null => {
     const value = prop(p, name);
@@ -200,6 +208,8 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
           defaults: { maxLines: 1, overflow: "ellipsis" },
         });
   const leading = only(node, "icon");
+  // A `DropdownMenu`'s arrow: a 24-px icon button's icon, in the suffix.
+  const arrow = trailingArrow ? arrowIcon(node, ctx) : null;
   return buildInputDecorator({
     input: new RenderEditableLine(line),
     // `InputDecoration.icon`: padded by 16 after it.
@@ -225,7 +235,8 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
             defaults: { overflow: "ellipsis" },
           }),
     prefixIcon: prefix === null ? null : decoratorIcon(ctx.build(prefix), dens),
-    suffixIcon: suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
+    suffixIcon:
+      arrow !== null ? decoratorIcon(arrow, dens) : suffix === null ? null : decoratorIcon(ctx.build(suffix), dens),
     subtext:
       subtext === null
         ? null
@@ -239,6 +250,40 @@ function buildTextField(node: SceneNode, ctx: MaterialContext): RenderBox {
     density: dens,
     textDirection: ctx.direction,
   });
+}
+
+/** The width of a `DropdownMenu` whose `width` is not set: its widest entry (a 12-px padding each side, not scaled), the trailing button and the field's own gaps. */
+function dropdownWidth(node: SceneNode, ctx: MaterialContext, trailing: boolean): number {
+  const itemPadding = 24;
+  let widest = 0;
+  const entries = Array.isArray(node.props["dropdownMenuEntries"])
+    ? (node.props["dropdownMenuEntries"] as unknown[])
+    : [];
+  for (const entry of entries) {
+    const text = typeof entry === "object" && entry !== null ? (entry as Record<string, unknown>)["label"] : undefined;
+    const box = syntheticText(node, "entry", typeof text === "string" ? text : "", ctx, style("labelLarge"));
+    widest = Math.max(widest, box.getMaxIntrinsicWidth(Number.POSITIVE_INFINITY) + itemPadding);
+  }
+  return Math.max(112, widest + (trailing ? 56 : 0) + 20);
+}
+
+/** `DropdownMenu`: an outlined field as wide as its entries, with the trailing arrow; the menu is not open at design time. */
+function buildDropdownMenu(node: SceneNode, ctx: MaterialContext): RenderBox {
+  if (only(node, "leadingIcon") !== null || only(node, "label") !== null) {
+    throw new Error(`node "${node.id}": a DropdownMenu with a leading icon or a label has no port`);
+  }
+  const trailing = prop(node.props, "showTrailingIcon") !== false;
+  const field = buildTextField(
+    {
+      id: node.id,
+      type: "TextField",
+      props: { border: "outline", hintText: node.props["hintText"], helperText: node.props["helperText"] },
+    },
+    ctx,
+    trailing,
+  );
+  const width = typeof node.props["width"] === "number" ? node.props["width"] : dropdownWidth(node, ctx, trailing);
+  return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width }), child: field });
 }
 
 /** The icon a destination shows: its `selectedIcon` when selected (else its `icon`), its `icon` otherwise. */
@@ -528,6 +573,10 @@ const builders: Record<string, Builder> = {
     });
   },
   TextField: buildTextField,
+  // `Autocomplete`'s field is a `TextFormField` without a decoration: one underline field.
+  Autocomplete: (node, ctx) =>
+    buildTextField({ id: node.id, type: "TextField", props: { hintText: node.props["hintText"] } }, ctx),
+  DropdownMenu: buildDropdownMenu,
   NavigationBar: buildNavigationBarNode,
   NavigationRail: buildNavigationRailNode,
   TabBar: buildTabBarNode,
@@ -549,6 +598,7 @@ const builders: Record<string, Builder> = {
   ActionChip: buildChipNode,
   ChoiceChip: buildChipNode,
   ...leafBuilders,
+  ...moreBuilders,
   FilterChip: buildChipNode,
   InputChip: buildChipNode,
   IconButton: (node, ctx) =>
