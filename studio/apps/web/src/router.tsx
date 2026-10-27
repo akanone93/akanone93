@@ -12,6 +12,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { z } from "zod";
+import { approvalsInboxSearchSchema, appSearchSchema } from "./features/approvals/approvals.schema.ts";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import type { EditSession } from "./features/editor/edit-session.ts";
 import { experimentsSearchSchema, newExperimentSearchSchema } from "./features/experiments/experiments.schema.ts";
@@ -221,6 +222,28 @@ const experimentsListRoute = experimentsRoute("", "ExperimentsPage", experiments
 const newExperimentRoute = experimentsRoute("/new", "NewExperimentPage", newExperimentSearchSchema);
 const flagsRoute = experimentsRoute("/flags", "FlagsPage", releaseEnvSearchSchema);
 const experimentRoute = experimentsRoute("/$expId", "ExperimentPage", releaseEnvSearchSchema);
+/** O7-O12: the Approvals area (STU-102). Reading needs `app.read`; the break-glass list needs `audit.read` (F14). */
+function approvalsRoute(
+  path: string,
+  component: string,
+  permission: string,
+  search: typeof appSearchSchema | typeof approvalsInboxSearchSchema = appSearchSchema,
+) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/approvals${path}`,
+    validateSearch: (raw) => search.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, permission),
+    component: lazyRouteComponent(() => import("./features/approvals/index.ts"), component as "InboxPage"),
+  });
+}
+
+const approvalsInboxRoute = approvalsRoute("", "InboxPage", "app.read", approvalsInboxSearchSchema);
+const approvalsHistoryRoute = approvalsRoute("/history", "HistoryPage", "app.read");
+const approvalsBreakGlassRoute = approvalsRoute("/break-glass", "BreakGlassPage", "audit.read");
+const approvalsPoliciesRoute = approvalsRoute("/policies", "PoliciesPage", "app.read");
+const approvalsPolicyRoute = approvalsRoute("/policies/$policyId", "PolicyPage", "app.read");
+const approvalsRequestRoute = approvalsRoute("/$requestId", "RequestPage", "app.read");
 
 const libraryRoute = createRoute({
   getParentRoute: () => orgRoute,
@@ -283,6 +306,12 @@ const routeTree = rootRoute.addChildren([
     orgRoute.addChildren([
       orgHomeRoute,
       notificationsRoute,
+      approvalsInboxRoute,
+      approvalsHistoryRoute,
+      approvalsBreakGlassRoute,
+      approvalsPoliciesRoute,
+      approvalsPolicyRoute,
+      approvalsRequestRoute,
       devicesRoute,
       deviceRoute,
       releasesTimelineRoute,

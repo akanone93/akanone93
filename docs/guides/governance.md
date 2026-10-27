@@ -189,7 +189,9 @@ JSON diff, validation and accessibility reports, golden-image differences, the i
 changelog and a risk summary.
 
 Policies: `ApprovalService.ListPolicies`, `GetPolicy`, `PutPolicy`, `DeletePolicy`,
-`ExportPolicies`. Requests: `ListApprovals`, `GetApproval`.
+`ExportPolicies`, and `SimulatePolicy`, which answers "who would need to approve this change?" for a
+draft policy and a sample change without saving anything (it needs `policies.manage`, like the
+editor). Requests: `ListApprovals`, `GetApproval`.
 
 ## 9. Break-glass
 

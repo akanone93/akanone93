@@ -107,6 +107,9 @@ const (
 	// ApprovalServiceExportPoliciesProcedure is the fully-qualified name of the ApprovalService's
 	// ExportPolicies RPC.
 	ApprovalServiceExportPoliciesProcedure = "/plux.v1.ApprovalService/ExportPolicies"
+	// ApprovalServiceSimulatePolicyProcedure is the fully-qualified name of the ApprovalService's
+	// SimulatePolicy RPC.
+	ApprovalServiceSimulatePolicyProcedure = "/plux.v1.ApprovalService/SimulatePolicy"
 	// ApprovalServiceListApprovalsProcedure is the fully-qualified name of the ApprovalService's
 	// ListApprovals RPC.
 	ApprovalServiceListApprovalsProcedure = "/plux.v1.ApprovalService/ListApprovals"
@@ -686,6 +689,12 @@ type ApprovalServiceClient interface {
 	// ExportPolicies returns the policies in force as the files of the Git
 	// layout, policies/<key>.policy.json.
 	ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error)
+	// SimulatePolicy answers "who would need to approve this change?" for a
+	// draft policy and a sample change, without saving anything. The draft
+	// stands in for the policy of its key; the policies in force for the app
+	// that also match are listed beside it. It is read-only and needs
+	// policies.manage, like the editor it serves.
+	SimulatePolicy(context.Context, *connect.Request[pluxv1.SimulatePolicyRequest]) (*connect.Response[pluxv1.SimulatePolicyResponse], error)
 	ListApprovals(context.Context, *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error)
 	GetApproval(context.Context, *connect.Request[pluxv1.GetApprovalRequest]) (*connect.Response[pluxv1.GetApprovalResponse], error)
 	// GetApprovalReview returns what an approver sees before deciding: the
@@ -739,6 +748,12 @@ func NewApprovalServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(approvalServiceMethods.ByName("ExportPolicies")),
 			connect.WithClientOptions(opts...),
 		),
+		simulatePolicy: connect.NewClient[pluxv1.SimulatePolicyRequest, pluxv1.SimulatePolicyResponse](
+			httpClient,
+			baseURL+ApprovalServiceSimulatePolicyProcedure,
+			connect.WithSchema(approvalServiceMethods.ByName("SimulatePolicy")),
+			connect.WithClientOptions(opts...),
+		),
 		listApprovals: connect.NewClient[pluxv1.ListApprovalsRequest, pluxv1.ListApprovalsResponse](
 			httpClient,
 			baseURL+ApprovalServiceListApprovalsProcedure,
@@ -773,6 +788,7 @@ type approvalServiceClient struct {
 	listPolicies      *connect.Client[pluxv1.ListPoliciesRequest, pluxv1.ListPoliciesResponse]
 	deletePolicy      *connect.Client[pluxv1.DeletePolicyRequest, pluxv1.DeletePolicyResponse]
 	exportPolicies    *connect.Client[pluxv1.ExportPoliciesRequest, pluxv1.ExportPoliciesResponse]
+	simulatePolicy    *connect.Client[pluxv1.SimulatePolicyRequest, pluxv1.SimulatePolicyResponse]
 	listApprovals     *connect.Client[pluxv1.ListApprovalsRequest, pluxv1.ListApprovalsResponse]
 	getApproval       *connect.Client[pluxv1.GetApprovalRequest, pluxv1.GetApprovalResponse]
 	getApprovalReview *connect.Client[pluxv1.GetApprovalReviewRequest, pluxv1.GetApprovalReviewResponse]
@@ -802,6 +818,11 @@ func (c *approvalServiceClient) DeletePolicy(ctx context.Context, req *connect.R
 // ExportPolicies calls plux.v1.ApprovalService.ExportPolicies.
 func (c *approvalServiceClient) ExportPolicies(ctx context.Context, req *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error) {
 	return c.exportPolicies.CallUnary(ctx, req)
+}
+
+// SimulatePolicy calls plux.v1.ApprovalService.SimulatePolicy.
+func (c *approvalServiceClient) SimulatePolicy(ctx context.Context, req *connect.Request[pluxv1.SimulatePolicyRequest]) (*connect.Response[pluxv1.SimulatePolicyResponse], error) {
+	return c.simulatePolicy.CallUnary(ctx, req)
 }
 
 // ListApprovals calls plux.v1.ApprovalService.ListApprovals.
@@ -840,6 +861,12 @@ type ApprovalServiceHandler interface {
 	// ExportPolicies returns the policies in force as the files of the Git
 	// layout, policies/<key>.policy.json.
 	ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error)
+	// SimulatePolicy answers "who would need to approve this change?" for a
+	// draft policy and a sample change, without saving anything. The draft
+	// stands in for the policy of its key; the policies in force for the app
+	// that also match are listed beside it. It is read-only and needs
+	// policies.manage, like the editor it serves.
+	SimulatePolicy(context.Context, *connect.Request[pluxv1.SimulatePolicyRequest]) (*connect.Response[pluxv1.SimulatePolicyResponse], error)
 	ListApprovals(context.Context, *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error)
 	GetApproval(context.Context, *connect.Request[pluxv1.GetApprovalRequest]) (*connect.Response[pluxv1.GetApprovalResponse], error)
 	// GetApprovalReview returns what an approver sees before deciding: the
@@ -889,6 +916,12 @@ func NewApprovalServiceHandler(svc ApprovalServiceHandler, opts ...connect.Handl
 		connect.WithSchema(approvalServiceMethods.ByName("ExportPolicies")),
 		connect.WithHandlerOptions(opts...),
 	)
+	approvalServiceSimulatePolicyHandler := connect.NewUnaryHandler(
+		ApprovalServiceSimulatePolicyProcedure,
+		svc.SimulatePolicy,
+		connect.WithSchema(approvalServiceMethods.ByName("SimulatePolicy")),
+		connect.WithHandlerOptions(opts...),
+	)
 	approvalServiceListApprovalsHandler := connect.NewUnaryHandler(
 		ApprovalServiceListApprovalsProcedure,
 		svc.ListApprovals,
@@ -925,6 +958,8 @@ func NewApprovalServiceHandler(svc ApprovalServiceHandler, opts ...connect.Handl
 			approvalServiceDeletePolicyHandler.ServeHTTP(w, r)
 		case ApprovalServiceExportPoliciesProcedure:
 			approvalServiceExportPoliciesHandler.ServeHTTP(w, r)
+		case ApprovalServiceSimulatePolicyProcedure:
+			approvalServiceSimulatePolicyHandler.ServeHTTP(w, r)
 		case ApprovalServiceListApprovalsProcedure:
 			approvalServiceListApprovalsHandler.ServeHTTP(w, r)
 		case ApprovalServiceGetApprovalProcedure:
@@ -960,6 +995,10 @@ func (UnimplementedApprovalServiceHandler) DeletePolicy(context.Context, *connec
 
 func (UnimplementedApprovalServiceHandler) ExportPolicies(context.Context, *connect.Request[pluxv1.ExportPoliciesRequest]) (*connect.Response[pluxv1.ExportPoliciesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.ExportPolicies is not implemented"))
+}
+
+func (UnimplementedApprovalServiceHandler) SimulatePolicy(context.Context, *connect.Request[pluxv1.SimulatePolicyRequest]) (*connect.Response[pluxv1.SimulatePolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ApprovalService.SimulatePolicy is not implemented"))
 }
 
 func (UnimplementedApprovalServiceHandler) ListApprovals(context.Context, *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error) {
