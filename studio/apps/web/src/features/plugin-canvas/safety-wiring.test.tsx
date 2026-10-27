@@ -41,7 +41,8 @@ const plugin = (id: string, key: string, pages: string[], entry?: string) => ({
 const path = `/o/${orgA}/apps/app1/plugins/pl`;
 
 async function openMenu(entry: "Rename screen" | "Move to plugin" | "Delete screen") {
-  await screen.findByRole("button", { name: "Undo" });
+  // The canvas boots its worker and fonts first; under a full-suite load that takes over the 1 s default.
+  await screen.findByRole("button", { name: "Undo" }, { timeout: 5000 });
   const trigger = await screen.findByRole("button", { name: "Screen menu" });
   fireEvent.pointerDown(trigger, { button: 0 });
   fireEvent.click(trigger);
