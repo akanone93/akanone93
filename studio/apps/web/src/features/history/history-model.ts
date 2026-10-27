@@ -45,3 +45,13 @@ export function restoreRecipes(documents: readonly SnapshotDocument[]): RestoreE
     return [{ path: d.path, recipe: (draft: Record<string, unknown>) => mergeInto(draft, next) }];
   });
 }
+
+/** The snapshot's documents that the open editor no longer has; the server brings these back. */
+export function missingPaths(documents: readonly SnapshotDocument[], isOpen: (path: string) => boolean): string[] {
+  return documents.filter((d) => !isOpen(d.path)).map((d) => d.path);
+}
+
+/** The short form of an editor-session id shown beside a snapshot. */
+export function sessionTag(id: string): string {
+  return id.slice(0, 8);
+}
