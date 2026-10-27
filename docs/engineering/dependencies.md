@@ -176,6 +176,7 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@tanstack/react-query` 5.104.5, `@connectrpc/connect-query` 2.3.1 | Server state through the generated Connect services (rule book §6.1) | In use (P11 S0.6; MIT) |
 | `@tanstack/react-form` 1.33.5 | Form state of the sign-in and invitation pages | In use (P11 S0.6; MIT) |
 | `zod` 4.6.7 | Form and search-param schemas, configured `jitless` (rule book §11.2) | In use (P11 S0.6; MIT) |
+| `uqr` 0.1.3 | The pairing dialog's QR code (P11 L-2, D39): `encode()` modules drawn as SVG elements in React, never `renderSVG`; about 7.8 kB gzip, no dependencies | In use (P11 S6.4; MIT) |
 | `@headless-tree/core`, `@headless-tree/react` 1.8.0 | Tree state and WAI-ARIA keyboard behind `@plux/ui` Tree, used for the Layers panel (decisions A3) | In use (P11 S0.2; MIT) |
 | `@lingui/core`, `@lingui/react` 6.10.1 | ICU MessageFormat runtime and React bindings for Studio localisation (ADR-0094) | In use (P11 S0.3; MIT) |
 | `@leeoniya/ufuzzy` 1.0.19 | Fuzzy filtering of the Studio command palette (ADR-0014, STU-013) | In use (P11 S0.6; MIT) |

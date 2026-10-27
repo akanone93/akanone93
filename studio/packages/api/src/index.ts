@@ -3,7 +3,9 @@
 
 export * from "./gen/plux/v1/app_pb.ts";
 export * from "./gen/plux/v1/asset_pb.ts";
+export * from "./gen/plux/v1/devevents_pb.ts";
 export * from "./gen/plux/v1/device_pb.ts";
+export * from "./gen/plux/v1/devsession_pb.ts";
 export * from "./gen/plux/v1/document_pb.ts";
 export * from "./gen/plux/v1/federation_pb.ts";
 export * from "./gen/plux/v1/function_pb.ts";
