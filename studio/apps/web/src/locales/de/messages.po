@@ -280,6 +280,12 @@ msgstr "{n, plural, one {# eingehender Link} other {# eingehende Links}}"
 msgid "appCanvas.linksOut"
 msgstr "{n, plural, one {# ausgehender Link} other {# ausgehende Links}}"
 
+#. Shown while the drawer is paused: how many events arrived since.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.pausedCount"
+msgstr "{n, plural, one {# neues Ereignis} other {# neue Ereignisse}}"
+
 #. Announced when the selection changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -309,6 +315,12 @@ msgstr "{name}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.trashItem"
 msgstr "{name} ({kind})"
+
+#. A paired device in a picker; state says whether its socket is open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.deviceName"
+msgstr "{name} ({state, select, true {verbunden} other {offline}})"
 
 #. Explains why deleting a screen needs typing its name (STU-074).
 #. js-lingui-explicit-id
@@ -652,11 +664,23 @@ msgstr "Algorithmus"
 msgid "panels.alignment"
 msgstr "Ausrichtung"
 
+#. Option of the source picker: every paired device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.allDevices"
+msgstr "Alle Geräte"
+
 #. Option: every translation key of the app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.scope.all"
 msgstr "Alle Schlüssel der App"
+
+#. Option: no level filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.levelAll"
+msgstr "Alle Stufen"
 
 #. Option that shows every event type.
 #. js-lingui-explicit-id
@@ -736,6 +760,12 @@ msgstr "Auf das Dokument angewendet."
 msgid "jsonEditor.apply"
 msgstr "Übernehmen"
 
+#. Button: applies the locale, theme, text scale and route to the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.apply"
+msgstr "Anwenden"
+
 #. Button that applies a designer's draft to the document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -813,6 +843,12 @@ msgstr "Attestierungsanbieter"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.code"
 msgstr "Authentifizierungscode"
+
+#. Measured time from the server accepting an autosave to the device applying it (NFR-030).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.latency"
+msgstr "Autosave bis Gerät: {ms} ms"
 
 #. Link.
 #. js-lingui-explicit-id
@@ -945,6 +981,12 @@ msgstr "Canvas-Aktionen"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.capsTitle"
 msgstr "Berechtigungen für Fähigkeiten"
+
+#. Button: asks the paired device for a screenshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotCapture"
+msgstr "Screenshot aufnehmen"
 
 #. Heading of the Cargo.toml text the dependencies are written to.
 #. js-lingui-explicit-id
@@ -1100,6 +1142,12 @@ msgstr "Schließen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.close"
+msgstr "Schließen"
+
+#. Close button of the device dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.close"
 msgstr "Schließen"
 
 #. Accessible name of the dialog close button.
@@ -1270,6 +1318,12 @@ msgstr "Bestätigen Sie, dass Sie es sind"
 msgid "actionGraph.handle"
 msgstr "Verbindungspunkt"
 
+#. Drawer tab: PXL against device state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabConsole"
+msgstr "Konsole"
+
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1366,6 +1420,12 @@ msgstr "Dunkel"
 msgid "preview.themeDark"
 msgstr "Dunkel"
 
+#. Theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.themeDark"
+msgstr "Dunkel"
+
 #. Column heading and preview name of the dark mode.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -1431,6 +1491,12 @@ msgstr "DB-Schema"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbTitle"
 msgstr "DB-Schema-Designer"
+
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineDebug"
+msgstr "Debug"
 
 #. Result of explaining access; decision is the server's verdict.
 #. js-lingui-explicit-id
@@ -1564,6 +1630,12 @@ msgstr "Gerät"
 msgid "security.deviceTitle"
 msgstr "Gerät"
 
+#. Label of the paired device picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.device"
+msgstr "Gerät"
+
 #. Page title of a device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1575,6 +1647,18 @@ msgstr "Gerät {id}"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.deviceApis"
 msgstr "Geräte-APIs"
+
+#. Heading of the controls that change a paired device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.controlsTitle"
+msgstr "Gerätesteuerung"
+
+#. Accessible name of the bottom drawer fed by paired devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.drawer"
+msgstr "Geräteleiste"
 
 #. Label of the select that picks the device frame of the preview.
 #. js-lingui-explicit-id
@@ -1592,6 +1676,12 @@ msgstr "Gerätematrix"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.devicesTitle"
+msgstr "Geräte"
+
+#. Button that shows or hides the device drawer under the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.bayToggle"
 msgstr "Geräte"
 
 #. Heading of the list of documents that differ between two snapshots.
@@ -1792,6 +1882,12 @@ msgstr "Einstieg"
 msgid "preview.frame.android-entry"
 msgstr "Android-Einsteigergerät"
 
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineError"
+msgstr "Fehler"
+
 #. Accessible name of the icon of an error in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -1803,6 +1899,12 @@ msgstr "Fehler"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.mockError"
 msgstr "Fehler"
+
+#. Option: only errors.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.levelError"
+msgstr "Nur Fehler"
 
 #. Label of the share of the page's node budget the selection uses.
 #. js-lingui-explicit-id
@@ -1858,11 +1960,23 @@ msgstr "Vorhandenes Element für {id}"
 msgid "panels.expanded"
 msgstr "Erweitert"
 
+#. Countdown of the pairing token; time is minutes and seconds such as 1:59.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.expiresIn"
+msgstr "Läuft ab in {time}"
+
 #. Button that asks the server why access is denied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.explain"
 msgstr "Zugriff erklären"
+
+#. Button: download the session's redacted trace file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.exportTrace"
+msgstr "Trace exportieren"
 
 #. Result of one test case that failed.
 #. js-lingui-explicit-id
@@ -1984,6 +2098,12 @@ msgstr "Funktionen"
 msgid "panelTabs.perfFunctions"
 msgstr "Funktionen"
 
+#. Drawer tab: function calls.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabFunctions"
+msgstr "Funktionen"
+
 #. Heading of the group of plugin functions in the action list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -2092,6 +2212,18 @@ msgstr "Hilfe"
 msgid "profile.theme.contrast"
 msgstr "Hoher Kontrast"
 
+#. Switch: the node selected in Studio is highlighted on the paired device (inspect mode).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.highlight"
+msgstr "Auswahl auf dem Gerät hervorheben"
+
+#. Status shown while highlighting is on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.highlighted"
+msgstr "Hervorhebung auf dem Gerät."
+
 #. Label of the field for the screen reader hint.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2139,6 +2271,12 @@ msgstr "Im Arbeitsspeicher"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.incoming"
 msgstr "Eingehende Verbindung"
+
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineInfo"
+msgstr "Info"
 
 #. Accessible name of the icon of an information item in the Problems tab.
 #. js-lingui-explicit-id
@@ -2262,6 +2400,12 @@ msgstr "Begründung"
 msgid "lock.requests.keep"
 msgstr "Weiter bearbeiten"
 
+#. Label of the choice of what a screenshot is kept as.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotUse"
+msgstr "Speichern als"
+
 #. D35 button: apply your changes on top of the server's version where they fit.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -2364,6 +2508,12 @@ msgstr "Art"
 msgid "profile.language"
 msgstr "Sprache"
 
+#. Label of the locale to open the screen with.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.locale"
+msgstr "Sprache"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2412,6 +2562,12 @@ msgstr "Links"
 msgid "panels.dock"
 msgstr "Linke Bedienfelder"
 
+#. Label of the drawer's log level filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.level"
+msgstr "Stufe"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -2422,6 +2578,12 @@ msgstr "Hell"
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.themeLight"
+msgstr "Hell"
+
+#. Theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.themeLight"
 msgstr "Hell"
 
 #. Column heading and preview name of the light mode.
@@ -2597,6 +2759,12 @@ msgstr "Sperre übernommen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.lockedBy"
 msgstr "Gesperrt von {who}"
+
+#. Drawer tab: device logs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabLogs"
+msgstr "Protokolle"
 
 #. Button that makes a step the first step of the graph.
 #. js-lingui-explicit-id
@@ -2784,6 +2952,18 @@ msgstr "Nativ und benutzerdefiniert"
 msgid "appCanvas.native"
 msgstr "Nativer Bildschirm"
 
+#. Screenshot use: the preview of a native widget slot on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.useSlotPreview"
+msgstr "Vorschau des nativen Slots"
+
+#. Warning on a screenshot taken while platform views were showing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.platformViews"
+msgstr "Native Ansichten auf dem Bildschirm sind nicht Teil der Aufnahme."
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -2808,6 +2988,12 @@ msgstr "Benötigt eine Touch-Fläche von mindestens 44 mal 44 dp."
 msgid "cmd.disabled.reason"
 msgstr "Benötigt die Berechtigung {permission}"
 
+#. Drawer tab: network calls.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabNetwork"
+msgstr "Netzwerk"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2819,6 +3005,12 @@ msgstr "Netzwerkdomänen"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.never"
 msgstr "Nie"
+
+#. Button: request a new pairing token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.newCode"
+msgstr "Neuer Code"
 
 #. Label of the field in which the name of a new translation key is typed.
 #. js-lingui-explicit-id
@@ -2891,6 +3083,12 @@ msgstr "Keine Änderungen zu übernehmen."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.empty"
 msgstr "Kein Befehl passt."
+
+#. Shown in the send dialog when no device is paired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.noDevices"
+msgstr "Noch kein Gerät gekoppelt."
 
 #. Shown when the device list is empty.
 #. js-lingui-explicit-id
@@ -3065,6 +3263,12 @@ msgstr "Nichts zu übernehmen."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPreviewNoRelease"
 msgstr "Nichts zu vergleichen: Dieses Plugin wurde noch nicht veröffentlicht."
+
+#. Shown in a drawer tab that has no events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.empty"
+msgstr "Noch nichts."
 
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
@@ -3258,6 +3462,24 @@ msgstr "Verantwortliches Team"
 msgid "chrome.notfound.title"
 msgstr "Seite nicht gefunden"
 
+#. Title of the dialog that shows the QR code for pairing a device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.pairTitle"
+msgstr "Gerät koppeln"
+
+#. Toolbar button and palette command that open the pairing dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.pairAction"
+msgstr "Gerät koppeln"
+
+#. Label of the pairing link.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.link"
+msgstr "Kopplungslink"
+
 #. Result of one test case that passed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -3288,10 +3510,22 @@ msgstr "Mit diesen Auswahlen einfügen"
 msgid "clipboard.reportTitle"
 msgstr "Die eingefügten Elemente brauchen mehr, als dieses Plugin hat"
 
+#. Button: freeze the drawer's list while events keep arriving.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.pause"
+msgstr "Pausieren"
+
 #. Tab of the right panel: node count, cost and budget of the selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.tabPerformance"
+msgstr "Leistung"
+
+#. Drawer tab: frame timing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabPerformance"
 msgstr "Leistung"
 
 #. Caption.
@@ -3426,6 +3660,12 @@ msgstr "Probleme"
 msgid "jsonEditor.problems"
 msgstr "Probleme"
 
+#. Drawer tab: validation findings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabProblems"
+msgstr "Probleme"
+
 #. Heading of the list of validation findings in a designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3437,6 +3677,12 @@ msgstr "Probleme"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.problems"
 msgstr "Probleme"
+
+#. Drawer tab: action runs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabFlow"
+msgstr "Prozessfluss"
 
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
@@ -3497,6 +3743,12 @@ msgstr "PXL-Ausdruck"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.pxl"
 msgstr "PXL-Ausdruck"
+
+#. Accessible name of the QR code image.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.qrLabel"
+msgstr "QR-Code des Kopplungslinks"
 
 #. D37 button: take the lock again and send the unsaved changes.
 #. js-lingui-explicit-id
@@ -3629,6 +3881,12 @@ msgstr "Registrierte Geräte dieser Umgebung."
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "banner.reload"
 msgstr "Neu laden"
+
+#. Button: opens the current route on the device again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.reload"
+msgstr "Bildschirm neu laden"
 
 #. Button that removes an entry from a list in a designer.
 #. js-lingui-explicit-id
@@ -3846,6 +4104,12 @@ msgstr "Ergebnistyp: {type}"
 msgid "assets.resume"
 msgstr "Fortsetzen"
 
+#. Button: show the events that arrived while paused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.resume"
+msgstr "Fortsetzen"
+
 #. Shows the type a step's result has on its output port; type is a type expression.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -3954,6 +4218,12 @@ msgstr "Speichern"
 msgid "appCanvas.save"
 msgstr "Speichern"
 
+#. Button: stores the screenshot as an app asset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotSave"
+msgstr "Screenshot speichern"
+
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -3972,11 +4242,35 @@ msgstr "Im sicheren Speicher gespeichert"
 msgid "state.persistence.persisted"
 msgstr "Auf dem Gerät gespeichert"
 
+#. Instruction in the pairing dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.pairHelp"
+msgstr "Scanne den Code mit der Plux-Dev-App oder gib den Kurzcode in der App ein."
+
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screenMenu"
 msgstr "Bildschirmmenü"
+
+#. Label of the field naming the screen or slot a screenshot belongs to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotTarget"
+msgstr "Bildschirm- oder Slot-ID"
+
+#. Label of the route to open on the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.route"
+msgstr "Bildschirmroute"
+
+#. Screenshot use: the thumbnail of a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.useThumbnail"
+msgstr "Bildschirm-Vorschaubild"
 
 #. Label of the text field that names a screen.
 #. js-lingui-explicit-id
@@ -4013,6 +4307,24 @@ msgstr "Bildschirme"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screens"
 msgstr "Bildschirme in Navigationsreihenfolge"
+
+#. Alternative text of a captured device screenshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotAlt"
+msgstr "Screenshot des gekoppelten Geräts"
+
+#. Shown after a screenshot was stored.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotSaved"
+msgstr "Screenshot gespeichert."
+
+#. Label of the drawer's search field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.search"
+msgstr "Suchen"
 
 #. Label of the field that filters the list of actions.
 #. js-lingui-explicit-id
@@ -4080,6 +4392,12 @@ msgstr "Wählen Sie ein Widget auf der Canvas aus, um den Aktionsgraphen seiner 
 msgid "links.nothing"
 msgstr "Wähle ein Widget aus, um einen Link hinzuzufügen."
 
+#. Announced when a tap on the device selected a node in Studio.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.inspected"
+msgstr "Auf dem Gerät ausgewählt."
+
 #. Accessible name of the list of selected nodes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -4104,6 +4422,24 @@ msgstr "Auswahl"
 msgid "panels.semLabel"
 msgstr "Semantik-Bezeichnung"
 
+#. Button: send the screen to the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.send"
+msgstr "Senden"
+
+#. Title of the dialog that opens a screen on a paired device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.sendTitle"
+msgstr "An Gerät senden"
+
+#. Toolbar button and palette command that open the send-to-device dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.sendAction"
+msgstr "An Gerät senden"
+
 #. Label of the checkbox that marks the entry as holding personal or secret data.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -4115,6 +4451,12 @@ msgstr "Sensibel"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbSensitive"
 msgstr "Sensibel"
+
+#. Shown after the command was sent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.sent"
+msgstr "An das Gerät gesendet."
 
 #. Tag on a snapshot: the short id of the editor session that made it; the placeholder is that id.
 #. js-lingui-explicit-id
@@ -4133,6 +4475,12 @@ msgstr "Einstellung"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.container"
 msgstr "Form"
+
+#. Label of the short code a person can type on the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.code"
+msgstr "Kurzcode"
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -4260,6 +4608,12 @@ msgstr "Jemand anderes bearbeitet dieses Plugin, daher können Snapshots nicht w
 msgid "designers.readOnly"
 msgstr "Jemand anderes bearbeitet, daher ist dieser Entwurf schreibgeschützt."
 
+#. Label of the picker that chooses which device feeds the drawer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.source"
+msgstr "Quellgerät"
+
 #. Label of the list that chooses OpenAPI or GraphQL for an import.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -4312,6 +4666,12 @@ msgstr "Status"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateTab"
+msgstr "Zustand"
+
+#. Drawer tab: state changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabState"
 msgstr "Zustand"
 
 #. Button in the right panel that opens the full-screen designer of the plugin's state entries.
@@ -4398,6 +4758,18 @@ msgstr "Zu {name} wechseln"
 msgid "appCanvas.killed"
 msgstr "Abgeschaltet"
 
+#. Drawer tab: sync and hot apply.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabSync"
+msgstr "Synchronisierung"
+
+#. Theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.themeSystem"
+msgstr "System"
+
 #. Field label for a plugin's tags.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4462,6 +4834,12 @@ msgstr "Text"
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.textScale"
+msgstr "Textgröße"
+
+#. Label of the text scale input.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.textScale"
 msgstr "Textgröße"
 
 #. Shown in the Assets tab when the list request failed.
@@ -4547,6 +4925,12 @@ msgstr "Der Standardwert ist kein gültiges JSON."
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.revokeDescription"
 msgstr "Das Gerät verliert sofort den Zugriff. Der Grund wird im Audit-Log festgehalten."
+
+#. Shown when the dev session stream closed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.streamEnded"
+msgstr "Der Gerätestrom wurde beendet."
 
 #. Shown when the two versions of a document could not be loaded.
 #. js-lingui-explicit-id
@@ -4734,6 +5118,12 @@ msgstr "Das Profil und jede geltende Einstellung dieser Umgebung."
 msgid "jsonEditor.publishedFailed"
 msgstr "Die veröffentlichte Version konnte nicht geladen werden."
 
+#. Shown when a device request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.failed"
+msgstr "Die Anfrage ist fehlgeschlagen. Versuche es erneut."
+
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -4915,6 +5305,12 @@ msgstr "Design"
 msgid "preview.theme"
 msgstr "Design"
 
+#. Label of the theme picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.theme"
+msgstr "Design"
+
 #. Button in the right panel that opens the theme editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -4980,6 +5376,12 @@ msgstr "Das kann noch nicht gelöscht werden"
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.rename.title"
 msgstr "Diese Änderung betrifft Code außerhalb von Studio"
+
+#. Shown when the pairing token has expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.expired"
+msgstr "Dieser Code ist abgelaufen."
 
 #. Shown when a request fails.
 #. js-lingui-explicit-id
@@ -5124,6 +5526,12 @@ msgstr "Token"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.top"
 msgstr "Oben"
+
+#. Screenshot use: context shown to translators.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.useTranslationContext"
+msgstr "Übersetzungskontext"
 
 #. Label of the picker that binds a text to a translation key.
 #. js-lingui-explicit-id
@@ -5377,11 +5785,23 @@ msgstr "Versionen"
 msgid "notify.audit-record"
 msgstr "Audit-Eintrag ansehen"
 
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineWarning"
+msgstr "Warnung"
+
 #. Accessible name of the icon of a warning in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.severity.warning"
 msgstr "Warnung"
+
+#. Option: only warnings and errors.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.levelWarning"
+msgstr "Warnungen und Fehler"
 
 #. Heading of the organisation home; name is the organisation.
 #. js-lingui-explicit-id

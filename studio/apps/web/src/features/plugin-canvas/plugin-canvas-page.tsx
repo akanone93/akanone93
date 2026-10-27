@@ -26,12 +26,12 @@ import { modelOf } from "../panels/model.ts";
 import { RightDock } from "../panels/right-dock.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
-import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
+import { DeviceBayHost } from "./device-bay-host.tsx";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
@@ -679,7 +679,18 @@ function PluginCanvasView({
         />
       )}
       {clipboardDialog}
-      <ProblemsDrawer validation={validation} />
+      <DeviceBayHost
+        appId={params.app}
+        validation={validation}
+        screens={screens}
+        store={store}
+        index={index}
+        selection={selection}
+        local={local}
+        assets={assets}
+        screenOf={screenOf}
+        entryPage={entryPage}
+      />
       <RightDock
         tests={tests}
         screens={screens}

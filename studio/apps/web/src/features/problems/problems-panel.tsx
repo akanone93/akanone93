@@ -33,8 +33,8 @@ export function ProblemCounts({ validation }: { readonly validation: Validation 
   );
 }
 
-/** The drawer with the Problems tab: findings grouped by file, each with its severity icon. */
-export function ProblemsDrawer({ validation }: { readonly validation: Validation }) {
+/** The findings grouped by file, each with its severity icon: the body of the Problems tab. */
+export function ProblemsContent({ validation }: { readonly validation: Validation }) {
   const m = problemsMessages(useLingui().i18n);
   const label: Record<Problem["severity"], string> = {
     error: m.severityError,
@@ -81,12 +81,18 @@ export function ProblemsDrawer({ validation }: { readonly validation: Validation
         );
     }
   };
+  return body();
+}
+
+/** The drawer with the Problems tab alone, shown under the canvas until the device drawer is opened. */
+export function ProblemsDrawer({ validation }: { readonly validation: Validation }) {
+  const m = problemsMessages(useLingui().i18n);
   return (
-    <aside
-      aria-label={m.drawer}
-      className="absolute inset-x-4 bottom-12 max-h-64 overflow-auto rounded-lg bg-raised p-3 shadow-e1"
-    >
-      <Tabs defaultValue="problems" tabs={[{ value: "problems", label: m.tab, panel: body() }]} />
+    <aside aria-label={m.drawer} className="max-h-64 overflow-auto rounded-lg bg-raised p-3 shadow-e1">
+      <Tabs
+        defaultValue="problems"
+        tabs={[{ value: "problems", label: m.tab, panel: <ProblemsContent validation={validation} /> }]}
+      />
     </aside>
   );
 }
