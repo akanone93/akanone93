@@ -49,6 +49,7 @@ CREATE UNIQUE INDEX release_requests_one_open
     WHERE state NOT IN ('released', 'rejected', 'expired', 'cancelled');
 CREATE INDEX release_requests_app ON release_requests (app_id, created_at DESC, id DESC);
 SELECT plux_tenant_policy('release_requests');
+SELECT plux_app_policy('release_requests');
 
 -- A visual-diff render job (O-9): queued, run by a render worker that holds no
 -- database credentials, rate-limited per organisation by
