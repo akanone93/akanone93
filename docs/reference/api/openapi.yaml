@@ -2026,6 +2026,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.PutPolicyResponse'
+  /plux.v1.ApprovalService/SimulatePolicy:
+    post:
+      tags:
+        - plux.v1.ApprovalService
+      summary: SimulatePolicy
+      description: |-
+        SimulatePolicy answers "who would need to approve this change?" for a
+         draft policy and a sample change, without saving anything. The draft
+         stands in for the policy of its key; the policies in force for the app
+         that also match are listed beside it. It is read-only and needs
+         policies.manage, like the editor it serves.
+      operationId: plux.v1.ApprovalService.SimulatePolicy
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SimulatePolicyRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SimulatePolicyResponse'
   /plux.v1.AssetService/BeginAssetUpload:
     post:
       tags:
@@ -31048,6 +31092,55 @@ components:
       title: Signature
       additionalProperties: false
       description: Signature is one signature over a signed document (ADR-0004).
+    plux.v1.SimulatePolicyRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        document:
+          type: string
+          title: document
+          format: byte
+          description: |-
+            document is the draft policy document as JSON; it is checked as
+             PutPolicy checks it but not stored.
+        change:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.SimulatedChange'
+          title: change
+      title: SimulatePolicyRequest
+      additionalProperties: false
+    plux.v1.SimulatePolicyResponse:
+      type: object
+      properties:
+        matches:
+          type: boolean
+          title: matches
+          description: matches is whether the draft matches the sample change.
+        requirements:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SimulatedRequirement'
+          title: requirements
+          description: |-
+            requirements are the matching policies, in key order, the draft
+             included when it matches.
+        approvalsRequired:
+          type: integer
+          title: approvals_required
+          format: int32
+          description: |-
+            approvals_required is the most approvals any matching policy asks for;
+             zero when none matches and the change needs no approval.
+        requiresEnterprise:
+          type: boolean
+          title: requires_enterprise
+          description: |-
+            requires_enterprise is set when the draft uses stages or distinct teams,
+             which PutPolicy refuses without the enterprise edition.
+      title: SimulatePolicyResponse
+      additionalProperties: false
     plux.v1.SimulateSecurityDetectionCommand:
       type: object
       properties:
@@ -31060,6 +31153,68 @@ components:
       description: |-
         SimulateSecurityDetectionCommand makes `plux_security` report a
          detection, to try the app's response to it (SEC-071).
+    plux.v1.SimulatedChange:
+      type: object
+      properties:
+        resource:
+          type: string
+          title: resource
+          description: resource is the kind of artifact, as in the policy schema.
+        environment:
+          type: string
+          title: environment
+          description: |-
+            environment is the key of one of the app's environments; empty for a
+             change outside any environment.
+        action:
+          type: string
+          title: action
+        risk:
+          type: array
+          items:
+            type: string
+          title: risk
+          description: risk lists the risk attributes the change carries.
+      title: SimulatedChange
+      additionalProperties: false
+      description: SimulatedChange is the sample change a draft policy is tried against.
+    plux.v1.SimulatedRequirement:
+      type: object
+      properties:
+        policyKey:
+          type: string
+          title: policy_key
+        draft:
+          type: boolean
+          title: draft
+          description: draft is set for the draft and unset for a policy in force.
+        approvers:
+          type: integer
+          title: approvers
+          format: int32
+        roles:
+          type: array
+          items:
+            type: string
+          title: roles
+        users:
+          type: array
+          items:
+            type: string
+          title: users
+        stages:
+          type: string
+          title: stages
+          description: stages is "", "sequential" or "parallel".
+        distinctTeams:
+          type: boolean
+          title: distinct_teams
+        distinctFromAuthor:
+          type: boolean
+          title: distinct_from_author
+      title: SimulatedRequirement
+      additionalProperties: false
+      description: SimulatedRequirement is what one matching policy asks of the approvers.
     plux.v1.Snapshot:
       type: object
       properties:

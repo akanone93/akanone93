@@ -448,6 +448,9 @@ var matrix = map[string]entry{
 	"ApprovalService/ExportPolicies": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ExportPoliciesRequest{AppId: f.app}
 	})),
+	"ApprovalService/SimulatePolicy": atPerm(auth.PoliciesManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SimulatePolicyRequest{AppId: f.app, Document: []byte(`{}`), Change: &pluxv1.SimulatedChange{Resource: "release"}}
+	})),
 	"ApprovalService/ListApprovals": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListApprovalsRequest{AppId: f.app}
 	})),

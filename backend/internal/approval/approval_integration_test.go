@@ -54,6 +54,8 @@ type fixture struct {
 	reviewer auth.Principal
 	second   auth.Principal
 	viewer   auth.Principal
+	// other is the owner of a second organisation, which has no part in app.
+	other    auth.Principal
 	app      string
 	envs     map[string]string
 	gen      ids
@@ -137,6 +139,13 @@ func newFixture(t *testing.T) *fixture {
 			t.Fatal(err)
 		}
 		return p
+	}
+	o2, err := ten.CreateOrganization(ctx, adminID, "globex", "Globex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.other, err = authService.Resolve(ctx, adminID, o2.ID); err != nil {
+		t.Fatal(err)
 	}
 	f.reviewer, f.second, f.viewer = member("r1@example.com", "reviewer"), member("r2@example.com", "reviewer"), member("v@example.com", "viewer")
 	return f
@@ -588,4 +597,69 @@ func TestReview_GOV_023(t *testing.T) {
 	if r.Risk.Level != "medium" && r.Risk.Level != "high" {
 		t.Fatalf("risk = %+v", r.Risk)
 	}
+}
+
+// Verifies: GOV-020, GOV-021.
+// The simulator says which approvals a sample change would need under a
+// draft, with the policies in force beside it, and stores nothing.
+func TestSimulatePolicy_WhoWouldApprove_GOV_020(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	sample := approval.Artifact{Resource: schema.PolicyResourceRelease, Action: approval.ActionPromote, Environment: approval.Environment{Key: "production"}}
+	draft := f.policyJSON(t, "my-draft", `{"resources":["release"],"production":true}`, `{"approvers":3,"roles":["reviewer"],"distinctFromAuthor":true}`)
+	before, err := f.svc.ListPolicies(ctx, f.owner, f.app)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sim, err := f.svc.SimulatePolicy(ctx, f.owner, f.app, draft, sample)
+	if err != nil || !sim.Matches || sim.Required < 3 || sim.RequiresEnterprise {
+		t.Fatalf("simulation = %+v, %v", sim, err)
+	}
+	var found bool
+	for _, r := range sim.Requirements {
+		if r.PolicyKey == "my-draft" {
+			found = r.Draft && r.Policy.Approvers == 3 && len(r.Policy.Roles) == 1
+		}
+	}
+	if !found {
+		t.Fatalf("the draft is not among the requirements: %+v", sim.Requirements)
+	}
+	dev := sample
+	dev.Environment = approval.Environment{Key: "development"}
+	if sim, err = f.svc.SimulatePolicy(ctx, f.owner, f.app, draft, dev); err != nil || sim.Matches {
+		t.Fatalf("the draft matched a development change: %+v, %v", sim, err)
+	}
+	after, err := f.svc.ListPolicies(ctx, f.owner, f.app)
+	if err != nil || len(after) != len(before) {
+		t.Fatalf("the simulation stored a policy: %d before, %d after, %v", len(before), len(after), err)
+	}
+	if _, err := f.svc.GetPolicy(ctx, f.owner, f.app, "my-draft"); err == nil {
+		t.Fatal("the draft was saved")
+	}
+	staged := f.policyJSON(t, "staged", `{"resources":["release"]}`, `{"approvers":2,"stages":"sequential","roles":["reviewer","owner"]}`)
+	if sim, err = f.svc.SimulatePolicy(ctx, f.owner, f.app, staged, dev); err != nil || !sim.RequiresEnterprise {
+		t.Fatalf("a staged draft = %+v, %v", sim, err)
+	}
+	f.verifyChain(t)
+}
+
+// Verifies: GOV-020.
+// The simulator refuses what the editor refuses: a viewer, a person of
+// another organisation, an invalid draft and an unknown environment.
+func TestSimulatePolicy_Refusals_GOV_020(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	sample := approval.Artifact{Resource: schema.PolicyResourceRelease, Environment: approval.Environment{Key: "production"}}
+	draft := f.policyJSON(t, "my-draft", `{"resources":["release"]}`, `{"approvers":1}`)
+	if _, err := f.svc.SimulatePolicy(ctx, f.viewer, f.app, draft, sample); err == nil {
+		t.Fatal("a viewer simulated a policy")
+	}
+	if _, err := f.svc.SimulatePolicy(ctx, f.other, f.app, draft, sample); err == nil {
+		t.Fatal("a person of another organisation simulated a policy of this app")
+	}
+	_, err := f.svc.SimulatePolicy(ctx, f.owner, f.app, []byte(`{"kind":"policy"}`), sample)
+	wantCode(t, err, plxerr.PolicyDocumentInvalid, "invalid draft")
+	sample.Environment.Key = "no-such-environment"
+	_, err = f.svc.SimulatePolicy(ctx, f.owner, f.app, draft, sample)
+	wantCode(t, err, plxerr.PolicyDocumentInvalid, "unknown environment")
 }
