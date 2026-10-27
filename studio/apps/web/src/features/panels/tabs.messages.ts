@@ -35,6 +35,45 @@ export function tabMessages(i18n: I18n) {
       message: "The plugin has no state yet.",
       comment: "Shown in the State tab when the plugin declares no state.",
     }),
+    stateRename: (name: string) =>
+      i18n._({
+        id: "panelTabs.stateRename",
+        message: "Name of state entry {name}",
+        values: { name },
+        comment: "Accessible name of the field that renames a state entry; the placeholder is its current name.",
+      }),
+    stateDefault: (name: string) =>
+      i18n._({
+        id: "panelTabs.stateDefault",
+        message: "Initial value of {name}",
+        values: { name },
+        comment: "Accessible name of the field that edits a state entry's initial value; the placeholder is its name.",
+      }),
+    stateNameProblem: i18n._({
+      id: "panelTabs.stateNameProblem",
+      message: "Use a unique name in lowerCamelCase.",
+      comment: "Shown beside a state entry name that is empty, malformed or already taken.",
+    }),
+    stateNotJson: i18n._({
+      id: "panelTabs.stateNotJson",
+      message: "The initial value is not valid JSON.",
+      comment: "Shown beside a state entry's initial value that does not parse as JSON.",
+    }),
+    stateAddForm: i18n._({
+      id: "panelTabs.stateAddForm",
+      message: "Add a state entry",
+      comment: "Accessible name of the form that adds a state entry.",
+    }),
+    stateAddName: i18n._({
+      id: "panelTabs.stateAddName",
+      message: "Name of the new state entry",
+      comment: "Accessible name of the field for the name of a new state entry.",
+    }),
+    stateAdd: i18n._({
+      id: "panelTabs.stateAdd",
+      message: "Add",
+      comment: "Button that adds a state entry.",
+    }),
     stateList: i18n._({
       id: "panelTabs.stateList",
       message: "State entries",

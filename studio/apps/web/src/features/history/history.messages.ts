@@ -63,6 +63,18 @@ export function historyMessages(i18n: I18n) {
       message: "Restore",
       comment: "Button that restores one snapshot.",
     }),
+    sessionTag: (tag: string) =>
+      i18n._({
+        id: "history.sessionTag",
+        message: "session {tag}",
+        values: { tag },
+        comment: "Tag on a snapshot: the short id of the editor session that made it; the placeholder is that id.",
+      }),
+    sessionTitle: i18n._({
+      id: "history.sessionTitle",
+      message: "Editor session that made this snapshot",
+      comment: "Tooltip of the editor-session tag of a snapshot.",
+    }),
     restoreRow: (when: string) =>
       i18n._({
         id: "history.restoreRow",
