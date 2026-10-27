@@ -71,12 +71,17 @@ func (s SecurityAdmin) GetEffectiveSecurityConfig(ctx context.Context, req *conn
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
+		overrides, err := c.Values.OverridesJSON()
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
 		_, sum, err := c.DeviceDocument()
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.GetEffectiveSecurityConfigResponse{
 			Profile: string(c.Values.Profile()), Version: c.Version, EffectiveJson: effective, Sha256: sum[:],
+			OverridesJson: overrides,
 		}, nil
 	})
 }

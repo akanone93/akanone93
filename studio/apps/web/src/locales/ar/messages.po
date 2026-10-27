@@ -901,12 +901,6 @@ msgstr "معدّل"
 msgid "designers.themeLive"
 msgstr "تظهر التغييرات على اللوحة أثناء الكتابة."
 
-#. Description of the confirm dialog.
-#. js-lingui-explicit-id
-#: apps/web/src/features/security/security.messages.ts
-msgid "security.profileConfirm"
-msgstr "تغيير الملف يعيد ضبط التجاوزات في هذه البيئة. اكتب مفتاح البيئة للتأكيد."
-
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -2685,12 +2679,6 @@ msgstr "لا مشكلات في الترحيل: يمكن للأجهزة التح�
 msgid "notify.empty"
 msgstr "لا توجد إشعارات"
 
-#. Empty state.
-#. js-lingui-explicit-id
-#: apps/web/src/features/security/security.messages.ts
-msgid "security.noPins"
-msgstr "لا توجد مفاتيح تثبيت منشورة لهذه البيئة."
-
 #. Shown in the Problems tab when the validator found nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -4388,6 +4376,12 @@ msgstr "تعذّر استخدام مفتاح المرور."
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.refusedInvalid"
 msgstr "العناصر الملصقة لا تجتاز التحقق."
+
+#. Explains where the certificate pins live; shown instead of a list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.pinsNote"
+msgstr "التثبيتات جزء من بيانات الجذر الوصفية الموقعة الناتجة عن مراسم المفاتيح دون اتصال. ولا تُعرض هنا؛ اتبع دليل التشغيل لقراءتها من الجذر."
 
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id

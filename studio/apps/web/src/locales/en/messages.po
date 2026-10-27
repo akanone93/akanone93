@@ -901,12 +901,6 @@ msgstr "changed"
 msgid "designers.themeLive"
 msgstr "Changes show on the canvas as you type."
 
-#. Description of the confirm dialog.
-#. js-lingui-explicit-id
-#: apps/web/src/features/security/security.messages.ts
-msgid "security.profileConfirm"
-msgstr "Changing the profile resets the overrides of this environment. Type the environment key to confirm."
-
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -2685,12 +2679,6 @@ msgstr "No migration problems: devices can update without losing data."
 msgid "notify.empty"
 msgstr "No notifications"
 
-#. Empty state.
-#. js-lingui-explicit-id
-#: apps/web/src/features/security/security.messages.ts
-msgid "security.noPins"
-msgstr "No pin keys are published for this environment."
-
 #. Shown in the Problems tab when the validator found nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -4388,6 +4376,12 @@ msgstr "The passkey could not be used."
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.refusedInvalid"
 msgstr "The pasted elements do not pass validation."
+
+#. Explains where the certificate pins live; shown instead of a list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.pinsNote"
+msgstr "The pins are part of the signed root metadata from the offline key ceremony. They are not listed here; follow the runbook to read them from the root."
 
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id
