@@ -77,6 +77,8 @@ export interface ScreensControllerProps {
   readonly preview?: ReactNode;
   readonly canSend?: boolean | undefined;
   readonly canPublish?: boolean | undefined;
+  /** Opens the publish flow (A1). */
+  readonly onPublish: () => void;
 }
 
 /**
@@ -269,6 +271,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         preview={props.preview}
         canSend={props.canSend}
         canPublish={props.canPublish}
+        onPublish={props.onPublish}
       />
       {message !== null && (
         <p role="alert" className="absolute inset-x-0 bottom-20 text-center text-body">
