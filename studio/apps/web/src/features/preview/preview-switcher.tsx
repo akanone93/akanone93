@@ -18,12 +18,15 @@ export function PreviewSwitcher({
   dataSources,
   onChange,
   includePseudo,
+  part = "all",
 }: {
   readonly state: PreviewState;
   /** Data sources of the plugin whose mock state can be set; one select sets them all when several. */
   readonly dataSources: readonly string[];
   readonly onChange: (next: PreviewState) => void;
   readonly includePseudo: boolean;
+  /** `main` renders the frame, theme, locale and text scale (the action bar); `extra` the rest; `all` both. */
+  readonly part?: "all" | "main" | "extra";
 }): ReactElement {
   const m = previewMessages(useLingui().i18n);
   const [dialog, setDialog] = useState(false);
@@ -45,56 +48,69 @@ export function PreviewSwitcher({
     error: m.mockError,
   };
   return (
-    <div role="toolbar" aria-label={m.switcher} className="flex flex-wrap items-end gap-3">
-      <Field label={m.frame}>
-        <Select
-          value={state.deviceFrame}
-          options={frames}
-          onValueChange={(v) => (v === CUSTOM ? setDialog(true) : onChange({ ...state, deviceFrame: v }))}
-        />
-      </Field>
-      <Field label={m.theme}>
-        <Select
-          value={state.theme}
-          options={[
-            { value: "light", label: m.themeLight },
-            { value: "dark", label: m.themeDark },
-          ]}
-          onValueChange={(v) => onChange({ ...state, theme: v === "dark" ? "dark" : "light" })}
-        />
-      </Field>
-      <Field label={m.locale}>
-        <Select
-          value={state.locale}
-          options={availableLocales(includePseudo).map((l) => ({ value: l.tag, label: l.nativeName }))}
-          onValueChange={(v) => onChange({ ...state, locale: v })}
-        />
-      </Field>
-      <Field label={m.textScale}>
-        <Select
-          value={String(state.textScale)}
-          options={textScales.map((s) => ({ value: String(s), label: `${Math.round(s * 100)}%` }))}
-          onValueChange={(v) => onChange({ ...state, textScale: Number(v) })}
-        />
-      </Field>
-      <Field label={m.platform}>
-        <Select
-          value={state.platform === "" ? "frame" : state.platform}
-          options={[
-            { value: "frame", label: m.platformFrame },
-            { value: "material", label: m.material },
-            { value: "cupertino", label: m.cupertino },
-          ]}
-          onValueChange={(v) => onChange({ ...state, platform: v === "material" || v === "cupertino" ? v : "" })}
-        />
-      </Field>
-      <Field label={m.mock}>
-        <Select
-          value={mock}
-          options={mockStates.map((s) => ({ value: s, label: mockLabel[s] }))}
-          onValueChange={(v) => onChange(dataSources.reduce((acc, src) => withMock(acc, src, v as MockState), state))}
-        />
-      </Field>
+    <div
+      {...(part === "main" ? {} : { role: "toolbar", "aria-label": m.switcher })}
+      className="flex flex-wrap items-end gap-3"
+    >
+      {part !== "extra" && (
+        <>
+          <Field label={m.frame}>
+            <Select
+              value={state.deviceFrame}
+              options={frames}
+              onValueChange={(v) => (v === CUSTOM ? setDialog(true) : onChange({ ...state, deviceFrame: v }))}
+            />
+          </Field>
+          <Field label={m.theme}>
+            <Select
+              value={state.theme}
+              options={[
+                { value: "light", label: m.themeLight },
+                { value: "dark", label: m.themeDark },
+              ]}
+              onValueChange={(v) => onChange({ ...state, theme: v === "dark" ? "dark" : "light" })}
+            />
+          </Field>
+          <Field label={m.locale}>
+            <Select
+              value={state.locale}
+              options={availableLocales(includePseudo).map((l) => ({ value: l.tag, label: l.nativeName }))}
+              onValueChange={(v) => onChange({ ...state, locale: v })}
+            />
+          </Field>
+          <Field label={m.textScale}>
+            <Select
+              value={String(state.textScale)}
+              options={textScales.map((s) => ({ value: String(s), label: `${Math.round(s * 100)}%` }))}
+              onValueChange={(v) => onChange({ ...state, textScale: Number(v) })}
+            />
+          </Field>
+        </>
+      )}
+      {part !== "main" && (
+        <>
+          <Field label={m.platform}>
+            <Select
+              value={state.platform === "" ? "frame" : state.platform}
+              options={[
+                { value: "frame", label: m.platformFrame },
+                { value: "material", label: m.material },
+                { value: "cupertino", label: m.cupertino },
+              ]}
+              onValueChange={(v) => onChange({ ...state, platform: v === "material" || v === "cupertino" ? v : "" })}
+            />
+          </Field>
+          <Field label={m.mock}>
+            <Select
+              value={mock}
+              options={mockStates.map((s) => ({ value: s, label: mockLabel[s] }))}
+              onValueChange={(v) =>
+                onChange(dataSources.reduce((acc, src) => withMock(acc, src, v as MockState), state))
+              }
+            />
+          </Field>
+        </>
+      )}
       <CustomFrameDialog open={dialog} onClose={() => setDialog(false)} onUse={useFrame} />
     </div>
   );

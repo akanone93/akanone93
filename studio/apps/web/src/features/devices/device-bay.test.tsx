@@ -69,10 +69,11 @@ describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
     expect(screen.getByRole("button", { name: "Resume" })).toBeTruthy();
   });
 
-  test("pairing and send open from the toolbar", async () => {
+  test("pairing and send are not in the bay toolbar: the action bar runs their commands (STU-060)", async () => {
     renderBay({ devSession: { devices } });
-    fireEvent.click(await screen.findByRole("button", { name: "Pair a device" }));
-    expect(await screen.findByRole("dialog")).toBeTruthy();
+    await screen.findByRole("button", { name: "Devices" });
+    expect(screen.queryByRole("button", { name: "Pair a device" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Send to device" })).toBeNull();
   });
 
   test("selecting a node in Studio highlights it on the device (STU-131)", async () => {

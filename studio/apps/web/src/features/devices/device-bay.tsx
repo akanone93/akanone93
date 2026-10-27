@@ -36,7 +36,7 @@ export interface DeviceBayProps {
 
 type Dialog = "pair" | "send" | null;
 
-/** Pairing and send-to-device as toolbar buttons and palette commands (S6.5 moves them into the action bar). */
+/** Pairing and send-to-device as palette commands (the plugin canvas action bar runs them (STU-060)). */
 function useDeviceCommands(open: (d: Dialog) => void): void {
   const m = devicesMessages(useLingui().i18n);
   const list: readonly Command[] = [
@@ -104,12 +104,6 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" variant="secondary" aria-expanded={shown} onClick={() => setShown(!shown)}>
           {m.bayToggle}
-        </Button>
-        <Button size="sm" variant="ghost" onClick={() => setDialog("pair")}>
-          {m.pairAction}
-        </Button>
-        <Button size="sm" variant="ghost" onClick={() => setDialog("send")}>
-          {m.sendAction}
         </Button>
         {latency !== undefined && (
           <span role="status" className="text-caption text-secondary">
