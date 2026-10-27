@@ -2,10 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { create } from "@bufbuild/protobuf";
+import { timestampFromMs } from "@bufbuild/protobuf/wkt";
 import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import {
   type ApplyChangeSetRequest,
   AppService,
+  DevDeviceSchema,
+  type DevEvent,
+  DevSessionService,
+  type DevSessionServiceSendCommandRequest,
   DocumentSchema,
   DocumentService,
   FederationService,
@@ -34,6 +39,16 @@ export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
 
 export interface UpstreamData {
+  /** The dev session (DEV-002, DEV-011, DEV-020): paired devices, the pairing token, the event stream and what Studio sent. */
+  devSession?: {
+    devices: { id: string; name: string; connected: boolean }[];
+    pairing?: { uri: string; code: string; expiresInSeconds: number };
+    events?: DevEvent[];
+    /** Collects every SendCommand. */
+    commands?: DevSessionServiceSendCommandRequest[];
+    /** Collects the device filter of every ExportTrace. */
+    exported?: string[][];
+  };
   signedIn?: boolean;
   permissions?: string[];
   installationAdmin?: boolean;
@@ -337,10 +352,49 @@ export function createUpstream(state: UpstreamData) {
         ),
       }),
     });
+    if (state.devSession !== undefined) {
+      devSessionService(service, state.devSession);
+    }
     if (state.rust !== undefined) {
       rustServices(service, state.rust);
     }
     service(FederationService, { listSignInProviders: () => ({ providers: [] }) });
+  });
+}
+
+type DevSessionData = NonNullable<UpstreamData["devSession"]>;
+
+/** The dev session service in memory: pairing, devices, commands, a fixed event stream and the trace export. */
+function devSessionService(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  dev: DevSessionData,
+) {
+  service(DevSessionService, {
+    getPairing: () => ({
+      pairing: {
+        token: `token-${Date.now()}`,
+        uri: dev.pairing?.uri ?? "plux-dev://pair?server=https%3A%2F%2Fstudio.example&token=t",
+        code: dev.pairing?.code ?? "ABCD-2345",
+        expiresAt: timestampFromMs(Date.now() + (dev.pairing?.expiresInSeconds ?? 120) * 1000),
+      },
+    }),
+    listDevices: () => ({ devices: dev.devices.map((d) => create(DevDeviceSchema, d)) }),
+    sendCommand: (req) => {
+      dev.commands?.push(req);
+      return { commandId: "c1", deviceIds: req.deviceId === "" ? dev.devices.map((d) => d.id) : [req.deviceId] };
+    },
+    async *watchEvents(req, ctx) {
+      for (const event of dev.events ?? []) {
+        if (req.deviceIds.length === 0 || req.deviceIds.includes(event.deviceId)) {
+          yield { event };
+        }
+      }
+      await new Promise<void>((resolve) => ctx.signal.addEventListener("abort", () => resolve()));
+    },
+    exportTrace: (req) => {
+      dev.exported?.push([...req.deviceIds]);
+      return { trace: new Uint8Array([31, 139]), eventCount: 0n };
+    },
   });
 }
 
