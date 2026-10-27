@@ -97,7 +97,7 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 	}
 	o := function.Options{
 		DB: db, Audit: log, Objects: work.Objects, IDs: gen, Jobs: functionQueue{work.Queue},
-		Builder: work.Builder, Signer: signer, Linker: work.Linker, Retention: retention, Log: work.Log,
+		Builder: work.Builder, Editor: work.Editor, Signer: signer, Linker: work.Linker, Retention: retention, Log: work.Log,
 		Secrets: notifier, Notify: notifier, Approvals: gate,
 		DeviceFunctions: func(ctx context.Context, appID, environmentID string) (bool, error) {
 			values, _, err := configs.Effective(ctx, appID, environmentID)

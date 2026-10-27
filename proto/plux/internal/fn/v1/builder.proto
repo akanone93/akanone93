@@ -30,6 +30,24 @@ service BuilderService {
   // diagnostics and no module; only a failure of the builder itself is an RPC
   // error.
   rpc Link(LinkRequest) returns (LinkResponse) {}
+
+  // LanguageOpen starts one language-server sandbox for an editor session
+  // (FN-033, ADR-0099) and streams its messages until the session ends:
+  // the client cancels the call, the server process exits or the session
+  // time of `lsp.sessionMinutes` passes. The first event is Opened. The
+  // sandbox has no network, no build scripts and no procedural macros, and
+  // the role holds no credential (L-4).
+  rpc LanguageOpen(LanguageOpenRequest) returns (stream LanguageEvent) {}
+
+  // LanguageSend delivers one client message to the session's language
+  // server. Messages carry a sequence number that rises by one from 1; an
+  // out-of-order message is refused, so edits apply in the order typed.
+  rpc LanguageSend(LanguageSendRequest) returns (LanguageSendResponse) {}
+
+  // Test builds the source and runs its stored test cases in the build
+  // sandbox and the function host (FN-034). Nothing is stored and no module
+  // is returned.
+  rpc Test(TestRequest) returns (TestResponse) {}
 }
 
 message BuildRequest {
@@ -139,4 +157,74 @@ message LinkResponse {
 message LinkedFunction {
   string name = 1;
   uint32 index = 2;
+}
+
+// LanguageOpenRequest starts a language-server session on a source archive.
+message LanguageOpenRequest {
+  // source is the archive of the function crate, as for a build.
+  bytes source = 1;
+  // source_sha256 is the hex SHA-256 of source.
+  string source_sha256 = 2;
+  // name is the dotted function name.
+  string name = 3;
+  // placement is the placement asked for, or empty for the document's.
+  string placement = 4;
+  // session_minutes is the time the sandbox may run; the role uses the
+  // smaller of it and the registry maximum of `lsp.sessionMinutes`.
+  uint32 session_minutes = 5;
+  // memory_bytes is the address space the language server may map; the role
+  // uses the smaller of it and the registry maximum of
+  // `function.buildMemory`.
+  uint64 memory_bytes = 6;
+}
+
+// LanguageEvent is one event of a session's server stream.
+message LanguageEvent {
+  oneof event {
+    // opened is the first event.
+    LanguageOpened opened = 1;
+    // message is one JSON-RPC message from the language server, without the
+    // Content-Length framing.
+    bytes message = 2;
+    // closed is the last event.
+    LanguageClosed closed = 3;
+  }
+}
+
+// LanguageOpened announces a started session.
+message LanguageOpened {
+  // session_id names the session in LanguageSend.
+  string session_id = 1;
+  // root_uri is the workspace root a client addresses documents under; the
+  // role maps it to the sandbox's directory.
+  string root_uri = 2;
+}
+
+// LanguageClosed says why a session ended.
+message LanguageClosed {
+  // reason is one of "client", "time", "exited" and "failed".
+  string reason = 1;
+  // detail is a short diagnostic without host paths; empty for "client".
+  string detail = 2;
+}
+
+// LanguageSendRequest carries one client message.
+message LanguageSendRequest {
+  string session_id = 1;
+  // sequence starts at 1 and rises by one per message of a session.
+  uint64 sequence = 2;
+  // message is one JSON-RPC message without framing.
+  bytes message = 3;
+}
+
+message LanguageSendResponse {}
+
+// TestRequest is a BuildRequest whose result is only the test results.
+message TestRequest {
+  BuildRequest build = 1;
+}
+
+message TestResponse {
+  repeated BuildTestResult test_results = 1;
+  bytes diagnostics_json = 2;
 }

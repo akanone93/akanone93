@@ -54,6 +54,15 @@ type Options struct {
 	Limits limits.Set
 	// Concurrency is the number of builds at once; it must be positive.
 	Concurrency int
+	// LanguageServer is the language server executable of the Rust editor
+	// (rust-analyzer; FN-033), run in Tools.Sandbox. Empty refuses editor
+	// sessions. LanguageArgs and LanguageEnv are its arguments and added
+	// environment; LanguageSessions is how many sessions the role runs at
+	// once, on top of Concurrency.
+	LanguageServer   string
+	LanguageArgs     []string
+	LanguageEnv      []string
+	LanguageSessions int
 	// Clock and Random feed the function host.
 	Clock  func() time.Time
 	Random io.Reader
@@ -69,6 +78,7 @@ type Service struct {
 	engine *fnhost.Engine
 	loader *schema.Loader
 	slots  chan struct{}
+	lang   *languageSessions
 	log    *slog.Logger
 	http   *http.Server
 	tls    *tls.Config
@@ -102,7 +112,7 @@ func New(ctx context.Context, o Options) (*Service, error) {
 	}
 	s := &Service{
 		o: o, engine: engine, loader: schema.NewLoader(validator, schema.DefaultMigrator(), o.Limits),
-		slots: make(chan struct{}, o.Concurrency), log: o.Log,
+		slots: make(chan struct{}, o.Concurrency), log: o.Log, lang: newLanguageSessions(o.LanguageSessions),
 	}
 	s.tls = o.TLS.Clone()
 	s.tls.MinVersion = tls.VersionTLS13

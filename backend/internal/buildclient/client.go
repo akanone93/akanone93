@@ -48,7 +48,11 @@ type Options struct {
 
 // Client calls the builder role. It implements function.Builder.
 type Client struct {
-	rpc     fnpbconnect.BuilderServiceClient
+	rpc fnpbconnect.BuilderServiceClient
+	// stream is the same route without the HTTP client's overall timeout,
+	// which would cut a language session that lasts hours (FN-033); each
+	// session has its own limit.
+	stream  fnpbconnect.BuilderServiceClient
 	objects objects.Store
 }
 
@@ -57,8 +61,11 @@ func NewClient(o Options) (*Client, error) {
 	if o.HTTP == nil || o.URL == "" || o.Objects == nil || o.MaxResponseBytes <= 0 {
 		return nil, errors.New("buildclient.NewClient: HTTP, URL, Objects and MaxResponseBytes are required")
 	}
+	streaming := *o.HTTP
+	streaming.Timeout = 0
 	return &Client{
 		rpc:     fnpbconnect.NewBuilderServiceClient(o.HTTP, o.URL, connect.WithReadMaxBytes(o.MaxResponseBytes)),
+		stream:  fnpbconnect.NewBuilderServiceClient(&streaming, o.URL, connect.WithReadMaxBytes(o.MaxResponseBytes)),
 		objects: o.Objects,
 	}, nil
 }

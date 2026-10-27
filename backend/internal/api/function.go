@@ -5,6 +5,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"strconv"
@@ -394,4 +395,41 @@ func aliasProtos(as []function.Alias) []*pluxv1.Alias {
 		out = append(out, &pluxv1.Alias{Name: a.Name, Version: uint32(a.Version)}) //nolint:gosec // positive by the version column
 	}
 	return out
+}
+
+// RunTests builds an uploaded source in the build sandbox and streams the
+// outcome of each stored test case, then a summary (FN-034).
+func (s FunctionAdmin) RunTests(ctx context.Context, req *connect.Request[pluxv1.RunTestsRequest], stream *connect.ServerStream[pluxv1.RunTestsResponse]) error {
+	if s.h.Functions == nil {
+		return connect.NewError(connect.CodeUnimplemented, errors.New("this server runs no function service"))
+	}
+	p, err := s.h.principal(ctx, req.Header(), "")
+	if err != nil {
+		return err
+	}
+	run, err := s.h.Functions.RunEditorTests(ctx, p, req.Msg.GetSourceId())
+	if err != nil {
+		return editorFailure(err)
+	}
+	var passed, failed uint32
+	for _, r := range run.Results {
+		if r.Passed {
+			passed++
+		} else {
+			failed++
+		}
+		res := &pluxv1.FunctionTestResult{Name: r.Name, Passed: r.Passed, Message: r.Message}
+		if err := stream.Send(&pluxv1.RunTestsResponse{Event: &pluxv1.RunTestsResponse_Result{Result: res}}); err != nil {
+			return err //nolint:wrapcheck // the stream's own error
+		}
+	}
+	fin := &pluxv1.RunTestsFinished{Passed: passed, Failed: failed}
+	if run.Diagnostics.HasErrors() {
+		raw, err := json.Marshal(run.Diagnostics)
+		if err != nil {
+			return connect.NewError(connect.CodeInternal, err)
+		}
+		fin.Diagnostics = raw
+	}
+	return stream.Send(&pluxv1.RunTestsResponse{Event: &pluxv1.RunTestsResponse_Finished{Finished: fin}}) //nolint:wrapcheck // the stream's own error
 }
