@@ -3,15 +3,16 @@
 
 import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Input, Select } from "@plux/ui";
-import { useParams } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { objects } from "../designers/db-schema-overlay.tsx";
 import { designerMessages } from "../designers/designers.messages.ts";
-import { isObject, type Json } from "../designers/use-document.ts";
+import { isObject, type Json, useDocumentValue } from "../designers/use-document.ts";
 import { Table } from "../security/parts.tsx";
 import { type DataMessages, dataMessages } from "./data.messages.ts";
 import { Frame } from "./frame.tsx";
 import { CommitBar, JsonField } from "./parts.tsx";
+import { useDataContext } from "./scope.tsx";
 import { useCommit, usePluginJson, useSeededList } from "./use-draft.ts";
 
 const KINDS = ["rest", "graphql", "websocket", "sse", "function", "database", "static"] as const;
@@ -28,19 +29,29 @@ export function patched(source: Json, patch: Json): Json {
   return out;
 }
 
-/** The operations the configuration names: `config.operations` as a list of objects, or as an object keyed by name. */
+/** The operations the configuration names: `config.operations`, an object keyed by operation name (the compiler's `operationConfig`). */
 export function operationsOf(config: unknown): Json[] {
   const ops = isObject(config) ? config["operations"] : undefined;
-  if (Array.isArray(ops)) {
-    return ops.filter(isObject);
-  }
   return isObject(ops) ? Object.entries(ops).map(([name, op]) => ({ name, ...(isObject(op) ? op : {}) })) : [];
 }
 
-/** The per-environment URLs: `config.urls` as an object from environment to URL. */
-export function urlsOf(config: unknown): [string, string][] {
-  const urls = isObject(config) ? config["urls"] : undefined;
-  return isObject(urls) ? Object.entries(urls).map(([env, url]) => [env, String(url)]) : [];
+/** The app variable that holds the source's base URL: `config.baseUrl` names it. */
+export function baseUrlVariable(config: unknown): string {
+  const name = isObject(config) ? config["baseUrl"] : undefined;
+  return typeof name === "string" ? name : "";
+}
+
+/** The value of an app variable in each environment of the app document, as (environment key, value) pairs. */
+export function valuesPerEnvironment(app: Json | undefined, variable: string): [string, string][] {
+  const envs = Array.isArray(app?.["environments"]) ? (app["environments"] as unknown[]).filter(isObject) : [];
+  return envs.flatMap((e) => {
+    const values = isObject(e["values"]) ? e["values"] : {};
+    return variable in values ? [[String(e["key"]), String(values[variable])] as [string, string]] : [];
+  });
+}
+
+function text(v: unknown): string {
+  return v === undefined ? "" : String(v);
 }
 
 /** The types of the plugin that the source's type expression names. */
@@ -103,7 +114,10 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
   const { source, types, m } = props;
   const config = source["config"];
   const ops = operationsOf(config);
-  const urls = urlsOf(config);
+  const ctx = useDataContext();
+  const { value: app } = useDocumentValue(ctx.appDocuments, "app.json", ctx.appSession);
+  const variable = baseUrlVariable(config);
+  const envValues = valuesPerEnvironment(app, variable);
   const schemas = schemasOf(types, String(source["type"] ?? ""));
   return (
     <>
@@ -114,10 +128,16 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
         ) : (
           <Table
             caption={m.operations}
-            heads={[m.colOperation, m.colMethod, m.colPath]}
-            rows={ops.map((o, i) => ({
-              key: `${i}${String(o["name"])}`,
-              cells: [String(o["name"] ?? o["id"] ?? ""), String(o["method"] ?? ""), String(o["path"] ?? "")],
+            heads={[m.colOperation, m.colMethod, m.colPath, m.colInput, m.colOutput]}
+            rows={ops.map((o) => ({
+              key: String(o["name"]),
+              cells: [
+                String(o["name"]),
+                String(o["method"] ?? ""),
+                String(o["path"] ?? ""),
+                text(o["input"]),
+                text(o["output"]),
+              ],
             }))}
           />
         )}
@@ -136,17 +156,29 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
           </ul>
         )}
       </section>
-      <section aria-label={m.urls} className="flex flex-col gap-2">
-        <h2 className="text-label font-medium">{m.urls}</h2>
-        {urls.length === 0 ? (
-          <p className="text-body text-secondary">{m.noUrls}</p>
+      <section aria-label={m.baseUrl} className="flex flex-col gap-2">
+        <h2 className="text-label font-medium">{m.baseUrl}</h2>
+        {variable === "" ? (
+          <p className="text-body text-secondary">{m.noBaseUrl}</p>
         ) : (
-          <Table
-            caption={m.urls}
-            heads={[m.colEnvironment, m.colUrl]}
-            rows={urls.map(([env, url]) => ({ key: env, cells: [env, url] }))}
-          />
+          <>
+            <p className="text-body">
+              {m.baseUrlVariable} <code className="text-code">{variable}</code>
+            </p>
+            {envValues.length === 0 ? (
+              <p className="text-body text-secondary">{m.noUrls}</p>
+            ) : (
+              <Table
+                caption={m.baseUrl}
+                heads={[m.colEnvironment, m.colUrl]}
+                rows={envValues.map(([env, url]) => ({ key: env, cells: [env, url] }))}
+              />
+            )}
+          </>
         )}
+        <Link className="text-body" to="/o/$org/apps/$app" params={{ org: ctx.org, app: ctx.app }}>
+          {m.editVariables}
+        </Link>
       </section>
     </>
   );

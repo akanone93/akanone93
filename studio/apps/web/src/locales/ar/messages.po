@@ -1288,6 +1288,12 @@ msgstr "العودة إلى الأجهزة"
 msgid "library.back"
 msgstr "العودة إلى المكتبة"
 
+#. Heading of the base URL section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.baseUrl"
+msgstr "عنوان URL الأساسي"
+
 #. New-screen option without a template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -2734,6 +2740,12 @@ msgstr "تحرير النموذج التجريبي"
 msgid "approvals.editorCaption"
 msgstr "عدّل السياسة وجرّبها على تغيير نموذجي قبل الحفظ."
 
+#. Link to where app variables are edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.editVariables"
+msgstr "تحرير المتغيرات في مستند التطبيق"
+
 #. Hint under the build step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -3627,6 +3639,12 @@ msgstr "معلومة"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateDefault"
 msgstr "القيمة الأولية لـ {name}"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colInput"
+msgstr "الإدخال"
 
 #. Tab: add widgets to the screen.
 #. js-lingui-explicit-id
@@ -4830,6 +4848,12 @@ msgstr "لا يوجد فرق مرفق."
 msgid "releases.clearEnd"
 msgstr "بلا نهاية"
 
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noUrls"
+msgstr "لا توجد بيئة تحدد قيمة لهذا المتغير."
+
 #. Shown when no experiment matches.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -5364,6 +5388,12 @@ msgstr "تبقى المراجع الأخرى إلى حالة الصفحة كما
 msgid "links.otherPlugin"
 msgstr "إضافة أخرى"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colOutput"
+msgstr "المخرجات"
+
 #. Status word: the page has more nodes than the budget allows.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -5578,6 +5608,12 @@ msgstr "الإضافة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.pluginLabel"
+msgstr "الإضافة"
+
+#. Label of the plugin picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.pickPlugin"
 msgstr "الإضافة"
 
 #. Accessible name of the canvas that shows all screens of a plugin.
@@ -7752,6 +7788,12 @@ msgstr "تعذر تحميل الأصول."
 msgid "approvals.fieldDistinctFromAuthor"
 msgstr "لا تُحتسب موافقة صاحب التغيير"
 
+#. Label before the name of the variable that holds the base URL.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.baseUrlVariable"
+msgstr "عنوان URL الأساسي هو متغير التطبيق"
+
 #. Shown when saving fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -7827,14 +7869,14 @@ msgstr "يجب أن تكون الإعدادات كائن JSON."
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
-msgid "data.noOperations"
-msgstr "لا تذكر الإعدادات أي عمليات."
+msgid "data.noBaseUrl"
+msgstr "لا تذكر الإعدادات متغيرًا لعنوان URL الأساسي."
 
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
-msgid "data.noUrls"
-msgstr "لا تذكر الإعدادات عناوين URL لكل بيئة."
+msgid "data.noOperations"
+msgstr "لا تذكر الإعدادات أي عمليات."
 
 #. Status shown when the connection to the language server failed; {detail} is the reason.
 #. js-lingui-explicit-id
@@ -8952,12 +8994,6 @@ msgstr "فشل رفع {name}."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.colUrl"
 msgstr "عنوان URL"
-
-#. Heading of the URLs table.
-#. js-lingui-explicit-id
-#: apps/web/src/features/data/data.messages.ts
-msgid "data.urls"
-msgstr "عناوين URL لكل بيئة"
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id

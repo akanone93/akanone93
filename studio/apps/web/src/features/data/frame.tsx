@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Link } from "@tanstack/react-router";
+import { Select } from "@plux/ui";
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
 import { dataMessages } from "./data.messages.ts";
-import { DataScope, useDataContext } from "./scope.tsx";
+import { DataScope, useDataContext, usePluginIds } from "./scope.tsx";
 
 /** The heading, caption and a link back, around the content of a page of the area. */
 function Body(props: {
@@ -21,6 +22,8 @@ function Body(props: {
   const m = dataMessages(useLingui().i18n);
   const ctx = useDataContext();
   const search = { env: ctx.env, plugin: ctx.plugin };
+  const navigate = useNavigate();
+  const ids = usePluginIds(ctx.app).data ?? [ctx.plugin];
   return (
     <section className="flex flex-col gap-4" aria-labelledby={props.id}>
       <h1 id={props.id} className="text-screen">
@@ -40,6 +43,12 @@ function Body(props: {
           {m.collectionsLink}
         </Link>
       </nav>
+      <Select
+        label={m.pickPlugin}
+        options={ids.map((id) => ({ value: id, label: id }))}
+        value={ctx.plugin}
+        onValueChange={(plugin) => void navigate({ to: ".", search: (prev: object) => ({ ...prev, plugin }) })}
+      />
       {props.back !== undefined && (
         <Link className="text-body" to={props.back.to} params={{ org: ctx.org, app: ctx.app }} search={search}>
           {props.back.label}
