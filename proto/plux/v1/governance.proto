@@ -344,6 +344,12 @@ service ApprovalService {
   // ExportPolicies returns the policies in force as the files of the Git
   // layout, policies/<key>.policy.json.
   rpc ExportPolicies(ExportPoliciesRequest) returns (ExportPoliciesResponse) {}
+  // SimulatePolicy answers "who would need to approve this change?" for a
+  // draft policy and a sample change, without saving anything. The draft
+  // stands in for the policy of its key; the policies in force for the app
+  // that also match are listed beside it. It is read-only and needs
+  // policies.manage, like the editor it serves.
+  rpc SimulatePolicy(SimulatePolicyRequest) returns (SimulatePolicyResponse) {}
 
   rpc ListApprovals(ListApprovalsRequest) returns (ListApprovalsResponse) {}
   rpc GetApproval(GetApprovalRequest) returns (GetApprovalResponse) {}
@@ -412,6 +418,54 @@ message ExportPoliciesRequest {
 }
 message ExportPoliciesResponse {
   repeated PolicyFile files = 1;
+}
+
+// SimulatedChange is the sample change a draft policy is tried against.
+message SimulatedChange {
+  // resource is the kind of artifact, as in the policy schema.
+  string resource = 1;
+  // environment is the key of one of the app's environments; empty for a
+  // change outside any environment.
+  string environment = 2;
+  string action = 3;
+  // risk lists the risk attributes the change carries.
+  repeated string risk = 4;
+}
+
+message SimulatePolicyRequest {
+  string app_id = 1;
+  // document is the draft policy document as JSON; it is checked as
+  // PutPolicy checks it but not stored.
+  bytes document = 2;
+  SimulatedChange change = 3;
+}
+
+// SimulatedRequirement is what one matching policy asks of the approvers.
+message SimulatedRequirement {
+  string policy_key = 1;
+  // draft is set for the draft and unset for a policy in force.
+  bool draft = 2;
+  int32 approvers = 3;
+  repeated string roles = 4;
+  repeated string users = 5;
+  // stages is "", "sequential" or "parallel".
+  string stages = 6;
+  bool distinct_teams = 7;
+  bool distinct_from_author = 8;
+}
+
+message SimulatePolicyResponse {
+  // matches is whether the draft matches the sample change.
+  bool matches = 1;
+  // requirements are the matching policies, in key order, the draft
+  // included when it matches.
+  repeated SimulatedRequirement requirements = 2;
+  // approvals_required is the most approvals any matching policy asks for;
+  // zero when none matches and the change needs no approval.
+  int32 approvals_required = 3;
+  // requires_enterprise is set when the draft uses stages or distinct teams,
+  // which PutPolicy refuses without the enterprise edition.
+  bool requires_enterprise = 4;
 }
 
 // ApprovalDecision is one signed record of a decision (GOV-023).

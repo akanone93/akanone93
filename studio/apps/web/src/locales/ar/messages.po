@@ -37,6 +37,12 @@ msgstr "{app}، الشاشة {screen}"
 msgid "library.usage.app"
 msgstr "{app}: {n} نسخة"
 
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDescribe"
+msgstr "{approvers} موافقة"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -244,6 +250,12 @@ msgstr "{event} ينتقل الآن إلى {target}"
 msgid "appCanvas.bundle"
 msgstr "من {from} إلى {to}، {count, plural, zero {# روابط} one {رابط واحد} two {رابطان} few {# روابط} many {# رابطًا} other {# رابط}}"
 
+#. Approvals given of approvals needed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.approvalsOf"
+msgstr "{given} من {needed}"
+
 #. Read-only banner: someone else holds the plugin's editing lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -327,6 +339,18 @@ msgstr "{n, plural, zero {0 شاشة} one {شاشة واحدة} two {شاشتا�
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.versions"
 msgstr "{n, plural, zero {0 إصدار} one {إصدار واحد} two {إصداران} few {# إصدارات} many {# إصدارًا} other {# إصدار}}"
+
+#. The number of approvals a policy requires.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.requires"
+msgstr "{n} موافقات"
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simRequired"
+msgstr "المطلوب {n} موافقات في المجموع."
 
 #. Accessible name of the plain value field of a step input; name is the input's name.
 #. js-lingui-explicit-id
@@ -550,6 +574,18 @@ msgstr "الحساب"
 msgid "notify.kind.security"
 msgstr "الحساب والأمان"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colAction"
+msgstr "الإجراء"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.sampleAction"
+msgstr "الإجراء"
+
 #. Button in the right panel that opens the full-screen action graph editor for the selected widget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -579,6 +615,12 @@ msgstr "الإجراءات"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.catalogue"
 msgstr "الإجراءات"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldActions"
+msgstr "الإجراءات (مفصولة بفواصل)"
 
 #. State of a device that is not revoked.
 #. js-lingui-explicit-id
@@ -730,6 +772,18 @@ msgstr "المحاذاة"
 msgid "library.kind.all"
 msgstr "الكل"
 
+#. Option of the app filter that shows the whole organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.allApps"
+msgstr "كل التطبيقات"
+
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.stagesParallel"
+msgstr "جميعًا معًا"
+
 #. Option of the source picker: every paired device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -784,16 +838,40 @@ msgstr "شخص آخر يحتفظ بقفل المسودة، لذا الحالة �
 msgid "l10n.readOnly"
 msgstr "شخص آخر يحتفظ بقفل هذه اللغة، لذا الجدول للقراءة فقط."
 
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.productionAny"
+msgstr "أي"
+
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.stagesNone"
+msgstr "أي ترتيب"
+
 #. Filter option: every visibility.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.visibility.all"
 msgstr "أي مستوى رؤية"
 
+#. Label of the app filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.appFilter"
+msgstr "التطبيق"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colBuild"
+msgstr "إصدار التطبيق"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colBuild"
 msgstr "إصدار التطبيق"
 
 #. Accessible name of the canvas that shows the plugins of an app.
@@ -850,11 +928,71 @@ msgstr "تطبيق"
 msgid "designers.apply"
 msgstr "تطبيق"
 
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policiesTitle"
+msgstr "سياسات الموافقة"
+
+#. Heading of the request page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.requestTitle"
+msgstr "طلب موافقة"
+
 #. Heading of the approval notifications group.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.approvals"
 msgstr "الموافقات"
+
+#. Heading of the approvals inbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.inboxTitle"
+msgstr "الموافقات"
+
+#. Column heading: approvals given of those needed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colApprovals"
+msgstr "الموافقات"
+
+#. Checkbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldDistinctTeams"
+msgstr "يجب أن تأتي الموافقات من فرق مختلفة"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldApprovers"
+msgstr "عدد الموافقات المطلوبة"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.approve"
+msgstr "موافقة"
+
+#. Verb in a decision line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decisionApprove"
+msgstr "وافق"
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusApproved"
+msgstr "موافق عليه"
+
+#. Label of the baseline image.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.baseline"
+msgstr "الأساس المعتمد"
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -916,6 +1054,18 @@ msgstr "مستوى الضمان"
 msgid "security.provider"
 msgstr "مزود الإثبات"
 
+#. Label of a linked audit record.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.auditRecord"
+msgstr "سجل التدقيق {sequence}"
+
+#. Heading: the audit records linked to the decisions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.auditHeading"
+msgstr "سجلات التدقيق"
+
 #. Label of the field for the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -969,6 +1119,18 @@ msgstr "أسفل"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.justification.title"
 msgstr "مبرر الوصول الطارئ"
+
+#. Link to the break-glass reviews.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navBreakGlass"
+msgstr "مراجعات الطوارئ"
+
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.breakGlassTitle"
+msgstr "مراجعات الطوارئ"
 
 #. Heading of the compiler output shown when the source did not build.
 #. js-lingui-explicit-id
@@ -1120,6 +1282,12 @@ msgstr "الفئة"
 msgid "security.pinsTitle"
 msgstr "تثبيتات الشهادات"
 
+#. Column heading: what changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colSubject"
+msgstr "التغيير"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1150,11 +1318,41 @@ msgstr "تغيير الرؤية"
 msgid "history.changeChanged"
 msgstr "معدّل"
 
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.changelogHeading"
+msgstr "سجل التغييرات"
+
+#. Heading of the JSON diff.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.diffHeading"
+msgstr "التغييرات"
+
+#. Risk attribute.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskChangesFunctionUsedBy"
+msgstr "يغيّر دالة يستخدمها آخرون"
+
 #. Note that edits to the theme apply to the canvas at once.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeLive"
 msgstr "تظهر التغييرات على اللوحة أثناء الكتابة."
+
+#. Caption under the inbox heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.inboxCaption"
+msgstr "تغييرات تنتظر قرارًا."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colChannel"
+msgstr "القناة"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -1395,6 +1593,12 @@ msgstr "لوحة الأوامر"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.trigger"
 msgstr "الأوامر"
+
+#. Label of the comment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.comment"
+msgstr "تعليق"
 
 #. Density option.
 #. js-lingui-explicit-id
@@ -1660,6 +1864,18 @@ msgstr "مصمم مخطط قاعدة البيانات"
 msgid "devices.lineDebug"
 msgstr "تصحيح"
 
+#. Heading of the history page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.historyTitle"
+msgstr "الموافقات التي تم البتّ فيها"
+
+#. Confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decided"
+msgstr "تم تسجيل القرار."
+
 #. Result of explaining access; decision is the server's verdict.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1671,6 +1887,12 @@ msgstr "القرار: {decision}"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.decision"
 msgstr "القرار: {decision}"
+
+#. Heading of the decisions given so far.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decisionsHeading"
+msgstr "القرارات"
 
 #. D27: type of an affected item, a URL path that opens the screen.
 #. js-lingui-explicit-id
@@ -1870,11 +2092,23 @@ msgstr "الأجهزة"
 msgid "devices.bayToggle"
 msgstr "الأجهزة"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colDevices"
+msgstr "الأجهزة"
+
 #. Heading of the list of documents that differ between two snapshots.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.compareTitle"
 msgstr "الفروق بين اللقطتين"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDistinctTeams"
+msgstr "فرق مختلفة"
 
 #. D37 button: drop the unsaved changes.
 #. js-lingui-explicit-id
@@ -1911,6 +2145,12 @@ msgstr "المستند"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.docs"
 msgstr "التوثيق"
+
+#. Tag of the draft among the matching policies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDraft"
+msgstr "مسودة"
 
 #. Accessible name of the drawer below the canvas that holds tabs such as Problems.
 #. js-lingui-explicit-id
@@ -1972,6 +2212,12 @@ msgstr "تحرير {name} في محرر Rust"
 msgid "security.editGrants"
 msgstr "تحرير المنح"
 
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.editorCaption"
+msgstr "عدّل السياسة وجرّبها على تغيير نموذجي قبل الحفظ."
+
 #. Tooltip of the editor-session tag of a snapshot.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -1989,6 +2235,12 @@ msgstr "الإعدادات السارية"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.field.email"
 msgstr "البريد الإلكتروني"
+
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.breakGlassCaption"
+msgstr "إجراءات طارئة اتُّخذت دون موافقة مسبقة، ولكل منها مراجعة مستحقة."
 
 #. Mock data state option.
 #. js-lingui-explicit-id
@@ -2068,6 +2320,24 @@ msgstr "البداية"
 msgid "preview.frame.android-entry"
 msgstr "جهاز أندرويد اقتصادي"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colEnvironment"
+msgstr "البيئة"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.sampleEnvironment"
+msgstr "مفتاح البيئة"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldEnvironments"
+msgstr "البيئات (مفصولة بفواصل)"
+
 #. Level label of a console line.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -2145,6 +2415,18 @@ msgstr "العنصر الموجود المستخدم بدل {id}"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.expanded"
 msgstr "موسع"
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusExpired"
+msgstr "منتهي"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colExpires"
+msgstr "ينتهي"
 
 #. Countdown of the pairing token; time is minutes and seconds such as 1:59.
 #. js-lingui-explicit-id
@@ -2374,6 +2656,12 @@ msgstr "الانتقال إلى الصفحة الرئيسية"
 msgid "cmd.nav.profile"
 msgstr "الانتقال إلى الملف الشخصي"
 
+#. Heading of the golden-image comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.goldenHeading"
+msgstr "فروق الصور المرجعية"
+
 #. Accessible name of the group of zoom controls.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -2416,6 +2704,12 @@ msgstr "الارتفاع (بكسل منطقي)"
 msgid "help.menu"
 msgstr "المساعدة"
 
+#. Risk level.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskHigh"
+msgstr "عالية"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -2450,6 +2744,12 @@ msgstr "السجل"
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.title"
+msgstr "السجل"
+
+#. Link to the decided requests.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navHistory"
 msgstr "السجل"
 
 #. Name of the personal home page.
@@ -2493,6 +2793,18 @@ msgstr "تم استيراد {name}."
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.persistence.memory"
 msgstr "في الذاكرة"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simSequential"
+msgstr "بالترتيب"
+
+#. Link to the inbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navInbox"
+msgstr "الوارد"
 
 #. Accessible name of the point at which connections arrive at a step.
 #. js-lingui-explicit-id
@@ -2553,6 +2865,12 @@ msgstr "إدراج قالب"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.inspector"
 msgstr "المفتش"
+
+#. Heading: devices affected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.installBaseHeading"
+msgstr "قاعدة التثبيت"
 
 #. Heading of the list of component instances per app.
 #. js-lingui-explicit-id
@@ -2640,6 +2958,12 @@ msgstr "JSON الخاص بالمستند"
 msgid "panelTabs.jsonOf"
 msgstr "JSON للتحديد"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colJustification"
+msgstr "المبرّر"
+
 #. Label of the free-text reason field.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -2692,6 +3016,18 @@ msgstr "المفتاح"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbKey"
+msgstr "المفتاح"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colKey"
+msgstr "المفتاح"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldKey"
 msgstr "المفتاح"
 
 #. Field label for a plugin's key, its stable identifier.
@@ -2994,6 +3330,12 @@ msgstr "جارٍ تحميل الإصدار المنشور…"
 msgid "history.loading"
 msgstr "جارٍ تحميل اللقطات."
 
+#. Shown while a page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.loading"
+msgstr "جارٍ التحميل…"
+
 #. Label of the preview locale select.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -3047,6 +3389,12 @@ msgstr "مقفلة بواسطة {who}"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabLogs"
 msgstr "السجلات"
+
+#. Risk level.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskLow"
+msgstr "منخفضة"
 
 #. Button that makes a step the first step of the graph.
 #. js-lingui-explicit-id
@@ -3113,6 +3461,12 @@ msgstr "يمكن أن يكون فارغًا"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.medium"
 msgstr "متوسط"
+
+#. Risk level.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskMedium"
+msgstr "متوسطة"
 
 #. Heading of the list of migration plans of a collection.
 #. js-lingui-explicit-id
@@ -3210,6 +3564,18 @@ msgstr "الاسم"
 msgid "designers.name"
 msgstr "الاسم"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colName"
+msgstr "الاسم"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldName"
+msgstr "الاسم"
+
 #. Field label for a plugin's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -3227,6 +3593,18 @@ msgstr "اسم إدخال الحالة {name}"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateAddName"
 msgstr "اسم إدخال الحالة الجديد"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldUsers"
+msgstr "المُوافِقون المحدّدون (مفصولون بفواصل)"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simUsers"
+msgstr "محدّدون: {users}"
 
 #. Group of the Insert tab: widgets of the host app (native slots) and custom widgets.
 #. js-lingui-explicit-id
@@ -3288,6 +3666,12 @@ msgstr "الشبكة"
 msgid "security.networkDomains"
 msgstr "نطاقات الشبكة"
 
+#. Shown for a missing time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.never"
+msgstr "أبدًا"
+
 #. Shown when there is no date.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3311,6 +3695,12 @@ msgstr "مفتاح جديد"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.newPlugin"
 msgstr "إضافة جديدة"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.newPolicy"
+msgstr "سياسة جديدة"
 
 #. Diff label.
 #. js-lingui-explicit-id
@@ -3378,11 +3768,23 @@ msgstr "لا يوجد إجراء مطابق."
 msgid "library.usage.none"
 msgstr "لا يستخدم أي تطبيق هذا المكوّن بعد."
 
+#. Shown when the list is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.empty"
+msgstr "لا توجد طلبات موافقة مطابقة."
+
 #. Shown in the Assets tab when the app has no files.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.empty"
 msgstr "لا توجد أصول بعد."
+
+#. Shown when a golden case has no baseline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.noBaseline"
+msgstr "لا يوجد أساس بعد"
 
 #. Status when the edited JSON equals the document.
 #. js-lingui-explicit-id
@@ -3408,6 +3810,12 @@ msgstr "لم يتم إقران أي جهاز بعد."
 msgid "security.noDevices"
 msgstr "لا توجد أجهزة مطابقة."
 
+#. Shown when a request has no diff.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.noDiff"
+msgstr "لا يوجد فرق مرفق."
+
 #. Shown when a revised component has no instances.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -3431,6 +3839,12 @@ msgstr "لا مشكلات في الترحيل: يمكن للأجهزة التح�
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.empty"
 msgstr "لا توجد إشعارات"
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simNone"
+msgstr "لا تنطبق أي سياسة، لذا لا يحتاج التغيير إلى موافقة."
 
 #. Shown in the Problems tab when the validator found nothing.
 #. js-lingui-explicit-id
@@ -3492,6 +3906,12 @@ msgstr "لا توجد مفاتيح ترجمة للعرض."
 msgid "panels.noMatches"
 msgstr "لا يوجد عنصر مطابق."
 
+#. Shown when there are no decisions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.noDecisions"
+msgstr "لم يقرّر أحد بعد."
+
 #. Accessible name of the meter that shows the page's nodes against its budget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -3528,11 +3948,23 @@ msgstr "غير متاح"
 msgid "panels.notInteractive"
 msgstr "غير تفاعلي"
 
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.productionNever"
+msgstr "ليست إنتاجًا"
+
 #. Shown for an optional property that has no value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.unset"
 msgstr "غير محدد"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simDistinctFromAuthor"
+msgstr "ليس صاحب التغيير"
 
 #. Tag beside a string of the Localisation tab that is a literal and has no translation key.
 #. js-lingui-explicit-id
@@ -3648,11 +4080,29 @@ msgstr "غير متصل"
 msgid "history.diffLabel"
 msgstr "النسخة الأقدم والأحدث من المستند"
 
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.stagesSequential"
+msgstr "واحدًا بعد الآخر"
+
 #. Description of the dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.editGrantsDescription"
 msgstr "إدخال واحد في كل سطر. لا يُنشر الإصدار إلا إذا طلبت كل إضافة مجموعة جزئية."
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusOpen"
+msgstr "مفتوح"
+
+#. Review state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewOpen"
+msgstr "مفتوحة"
 
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
@@ -3726,6 +4176,12 @@ msgstr "OpenAPI"
 msgid "notify.kind.operations"
 msgstr "العمليات"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldStages"
+msgstr "الترتيب"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -3785,6 +4241,12 @@ msgstr "تجاوز الميزانية"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfWarning"
 msgstr "تجاوز حد التحذير"
+
+#. Flag on a review past its due time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.overdue"
+msgstr "متأخرة"
 
 #. Marks a property whose value differs from the base for the chosen size class.
 #. js-lingui-explicit-id
@@ -3978,6 +4440,30 @@ msgstr "استوديو Plux"
 msgid "unsupported.body"
 msgstr "يحتاج Plux Studio إلى WebGL2 لرسم اللوحة. استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari مع تفعيل تسريع الأجهزة."
 
+#. Link to the approval policies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.navPolicies"
+msgstr "السياسات"
+
+#. Heading: the policies that matched the request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policiesInForce"
+msgstr "السياسات المطبّقة"
+
+#. Heading of the policy editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.editorTitle"
+msgstr "السياسة"
+
+#. Confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.saved"
+msgstr "تم حفظ السياسة."
+
 #. Shown when the app-level lock is held by another person.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4067,6 +4553,18 @@ msgstr "المشكلات"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabFlow"
 msgstr "تدفق العملية"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldProduction"
+msgstr "بيئات الإنتاج"
+
+#. Option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.productionOnly"
+msgstr "الإنتاج فقط"
 
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
@@ -4284,6 +4782,30 @@ msgstr "تاريخ التسجيل"
 msgid "security.devicesCaption"
 msgstr "الأجهزة المسجلة في هذه البيئة."
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reject"
+msgstr "رفض"
+
+#. Verb in a decision line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decisionReject"
+msgstr "رفض"
+
+#. Status of a request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusRejected"
+msgstr "مرفوض"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colRelease"
+msgstr "الإصدار"
+
 #. Button that reloads the page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -4440,11 +4962,41 @@ msgstr "استبدال"
 msgid "rustEditor.useTemplate"
 msgstr "استبدال المصدر بالقالب"
 
+#. Heading of the validation and accessibility reports.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reportsHeading"
+msgstr "التقارير"
+
 #. Button: ask the person holding the lock to hand it over.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.request-edit"
 msgstr "طلب التحرير"
+
+#. Column heading: when the request was made.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colCreated"
+msgstr "تاريخ الطلب"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colRequester"
+msgstr "طلبه"
+
+#. Checkbox that limits the inbox to the requests the person made.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.mineOnly"
+msgstr "طلبتُها أنا"
+
+#. Caption of the history page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.historyCaption"
+msgstr "طلبات تمت الموافقة عليها أو رفضها أو استخدامها أو انتهت صلاحيتها."
 
 #. Marks a required property in the docs tab.
 #. js-lingui-explicit-id
@@ -4457,6 +5009,12 @@ msgstr "مطلوب"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.required"
 msgstr "مطلوب"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colRequires"
+msgstr "تشترط"
 
 #. Button: remove one override from a component instance.
 #. js-lingui-explicit-id
@@ -4481,6 +5039,24 @@ msgstr "إعادة تعيين الحقول (مفصولة بفواصل)"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.reset"
 msgstr "إعادة إلى الأساس"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colResource"
+msgstr "المورد"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.sampleResource"
+msgstr "مورد التغيير"
+
+#. Label of the resource checkboxes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldResources"
+msgstr "الموارد"
 
 #. Button that restores one snapshot.
 #. js-lingui-explicit-id
@@ -4548,6 +5124,36 @@ msgstr "استئناف"
 msgid "actionGraph.outputType"
 msgstr "يعيد {type}"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colReview"
+msgstr "المراجعة"
+
+#. Button that starts a review.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.review"
+msgstr "مراجعة"
+
+#. Label of the review comment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewComment"
+msgstr "تعليق المراجعة"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colDue"
+msgstr "موعد المراجعة"
+
+#. Review state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewReviewed"
+msgstr "تمت المراجعة"
+
 #. Button: choose a revised component document to save as a new version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -4578,6 +5184,18 @@ msgstr "ملغى"
 msgid "panels.right"
 msgstr "يمين"
 
+#. Heading of the risk summary.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskHeading"
+msgstr "المخاطر"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldRisk"
+msgstr "سمات المخاطر"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -4589,6 +5207,18 @@ msgstr "الدور"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.role"
 msgstr "الدور"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldRoles"
+msgstr "الأدوار (مفصولة بفواصل)"
+
+#. Short description of a requirement.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simRoles"
+msgstr "الأدوار: {roles}"
 
 #. Label of the rotation state.
 #. js-lingui-explicit-id
@@ -4673,6 +5303,12 @@ msgstr "حفظ كقالب"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.impact.confirm"
 msgstr "حفظ إصدار جديد"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.save"
+msgstr "حفظ السياسة"
 
 #. Button: stores the screenshot as an app asset.
 #. js-lingui-explicit-id
@@ -5022,6 +5658,18 @@ msgstr "جارٍ تسجيل الدخول"
 msgid "security.keysTitle"
 msgstr "مفاتيح التوقيع"
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulate"
+msgstr "محاكاة"
+
+#. Heading of the simulator panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulatorTitle"
+msgstr "المحاكي"
+
 #. Accessible name of the group of single sign-on buttons.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -5184,6 +5832,18 @@ msgstr "عناصر الحالة"
 msgid "panelTabs.stateList"
 msgstr "إدخالات الحالة"
 
+#. Label of the status filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusFilter"
+msgstr "الحالة"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colStatus"
+msgstr "الحالة"
+
 #. Button that keeps the person on the page.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -5243,6 +5903,18 @@ msgstr "تم تحديث Studio. أعد التحميل لاستخدام الإص�
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.mockSuccess"
 msgstr "نجاح"
+
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.summary"
+msgstr "الملخص"
+
+#. Status of a request whose content changed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusSuperseded"
+msgstr "مستبدل"
 
 #. Command title; name is an organisation.
 #. js-lingui-explicit-id
@@ -5310,6 +5982,18 @@ msgstr "احصل على قفل التحرير لتغيير هذا الرابط."
 msgid "editor.conflict.take-server"
 msgstr "اعتماد نسخة الخادم"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colInvokedAt"
+msgstr "وقت التنفيذ"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colInvokedBy"
+msgstr "نفّذه"
+
 #. Label of the choice of the plugin a screen moves to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -5363,6 +6047,12 @@ msgstr "حجم النص"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.loadFailed"
 msgstr "تعذر تحميل الأصول."
+
+#. Checkbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.fieldDistinctFromAuthor"
+msgstr "لا تُحتسب موافقة صاحب التغيير"
 
 #. Shown when saving fails.
 #. js-lingui-explicit-id
@@ -5430,6 +6120,12 @@ msgstr "الرمز غير صحيح أو منتهي الصلاحية."
 msgid "rustEditor.closedFailed"
 msgstr "انقطع الاتصال بخادم اللغة: {detail}"
 
+#. Shown when the step-up or the decision failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decideFailed"
+msgstr "لم يُسجَّل القرار."
+
 #. Error under the default field when the text is not JSON.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -5453,6 +6149,18 @@ msgstr "انتهى بث الجهاز."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.diffFailed"
 msgstr "تعذّر تحميل المستندات."
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simMatches"
+msgstr "المسودة تنطبق على هذا التغيير."
+
+#. Result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simNoMatch"
+msgstr "المسودة لا تنطبق على هذا التغيير."
 
 #. Status when the draft fails validation.
 #. js-lingui-explicit-id
@@ -5652,6 +6360,12 @@ msgstr "الإضافة مقفلة من قبل شخص آخر: المخطط للق
 msgid "history.confirmBody"
 msgstr "تعود مستندات الإضافة إلى حالتها في {when}. يمكنك التراجع عن الاستعادة بخطوة واحدة."
 
+#. Shown when the save failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.saveFailed"
+msgstr "لم تُحفظ السياسة."
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -5681,6 +6395,12 @@ msgstr "مسار الإصدار غير متاح بعد"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.failed"
 msgstr "فشل الطلب. حاول مرة أخرى."
+
+#. Shown when the review failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewFailed"
+msgstr "لم تُسجَّل المراجعة."
 
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
@@ -5741,6 +6461,12 @@ msgstr "لم يقبل الخادم التغيير."
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.failure.size-mismatch"
 msgstr "استلم الخادم عددًا من البايتات يختلف عن حجم الملف. ارفعه مرة أخرى."
+
+#. Shown when the simulation failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulateFailed"
+msgstr "فشلت المحاكاة."
 
 #. Shown when restoring a snapshot failed.
 #. js-lingui-explicit-id
@@ -5965,6 +6691,12 @@ msgstr "هذا المتصفح غير مدعوم"
 msgid "safety.blocked.title"
 msgstr "لا يمكن حذف هذا بعد"
 
+#. Label of the image the change produced.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.actual"
+msgstr "هذا التغيير"
+
 #. D27, STU-076: title of the warning listing deep links and generated APIs a key or route change breaks.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -5989,11 +6721,23 @@ msgstr "لا يعرض هذا المكوّن أي خصائص أو فتحات."
 msgid "security.loadFailed"
 msgstr "تعذّر التحميل."
 
+#. Shown when a read fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.loadFailed"
+msgstr "تعذّر التحميل."
+
 #. Shown instead of the comparison when the plugin has no published version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.noPublished"
 msgstr "لم يُنشر هذا المستند بعد، لذا لا يوجد ما يمكن مقارنته."
+
+#. Warning.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simEnterprise"
+msgstr "تستخدم هذه المسودة مراحل أو فرقًا مختلفة، ويتطلب حفظها إصدار المؤسسات."
 
 #. Notice that a state entry has a computed expression, which this designer does not edit.
 #. js-lingui-explicit-id
@@ -6138,6 +6882,18 @@ msgstr "الرمز"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.top"
 msgstr "أعلى"
+
+#. Risk attribute.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskTouchesMoneyFlow"
+msgstr "يمسّ مسار مدفوعات"
+
+#. Risk attribute.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.riskTouchesSecurePage"
+msgstr "يمسّ صفحة آمنة"
 
 #. Screenshot use: context shown to translators.
 #. js-lingui-explicit-id
@@ -6301,6 +7057,12 @@ msgstr "استخدم كلمات بأحرف صغيرة تفصل بينها نقا
 msgid "dialog.stepup.use"
 msgstr "استخدام مفتاح الأمان أو مفتاح المرور"
 
+#. Status of an approved request that the change has used.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.statusUsed"
+msgstr "مستخدم"
+
 #. Option: only the translation keys that the selected nodes use.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -6377,6 +7139,12 @@ msgstr "الإصدار"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbVersion"
+msgstr "الإصدار"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colVersion"
 msgstr "الإصدار"
 
 #. Head version of a library item.
@@ -6487,11 +7255,23 @@ msgstr "مكان الحفظ"
 msgid "editor.conflict.differences"
 msgstr "المواضع التي تختلف فيها نسختك عن نسخة الخادم"
 
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policiesCaption"
+msgstr "أي التغييرات تحتاج إلى موافقة، ومن يوافق عليها."
+
 #. Title of the dialog that asks which widget event should navigate after a link was dragged.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.picker.title"
 msgstr "أي حدث يبدأ الرابط؟"
+
+#. Caption of the simulator.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.simulatorCaption"
+msgstr "من الذي سيحتاج إلى الموافقة على هذا التغيير؟"
 
 #. Title of the dialog that explains an access decision.
 #. js-lingui-explicit-id
@@ -6607,6 +7387,18 @@ msgstr "لديك تغييرات غير محفوظة. إذا غادرت الآن 
 msgid "security.revokeNoPermission"
 msgstr "لا يحق لك إدارة هذا التطبيق."
 
+#. Shown beside disabled decision buttons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decideNeedsPermission"
+msgstr "تحتاج إلى صلاحية البتّ في الموافقات."
+
+#. Shown when the editor is read-only.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.editorNeedsPermission"
+msgstr "تحتاج إلى صلاحية إدارة السياسات."
+
 #. D37 title: the lock was taken over or expired.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -6624,6 +7416,12 @@ msgstr "مظهرك ولغتك، محفوظان لجميع الأجهزة."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.body"
 msgstr "تعذّر دمج تغييراتك مع النسخة الأحدث. الحفظ التلقائي متوقف حتى تختار."
+
+#. Heading of the decision form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.decideHeading"
+msgstr "قرارك"
 
 #. D37: the heartbeat failed until the lock expired.
 #. js-lingui-explicit-id

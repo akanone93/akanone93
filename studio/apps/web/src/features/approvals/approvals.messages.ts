@@ -1,0 +1,413 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: AGPL-3.0-only
+
+import type { I18n } from "@lingui/core";
+
+/** Messages of the Approvals area (STU-102, GOV-020 to GOV-024). */
+export function approvalsMessages(i18n: I18n) {
+  return {
+    loading: i18n._({ id: "approvals.loading", message: "Loading…", comment: "Shown while a page loads." }),
+    loadFailed: i18n._({
+      id: "approvals.loadFailed",
+      message: "This could not be loaded.",
+      comment: "Shown when a read fails.",
+    }),
+    allApps: i18n._({
+      id: "approvals.allApps",
+      message: "All apps",
+      comment: "Option of the app filter that shows the whole organisation.",
+    }),
+    appFilter: i18n._({ id: "approvals.appFilter", message: "App", comment: "Label of the app filter." }),
+    inboxTitle: i18n._({
+      id: "approvals.inboxTitle",
+      message: "Approvals",
+      comment: "Heading of the approvals inbox.",
+    }),
+    inboxCaption: i18n._({
+      id: "approvals.inboxCaption",
+      message: "Changes waiting for a decision.",
+      comment: "Caption under the inbox heading.",
+    }),
+    statusFilter: i18n._({ id: "approvals.statusFilter", message: "Status", comment: "Label of the status filter." }),
+    mineOnly: i18n._({
+      id: "approvals.mineOnly",
+      message: "Requested by me",
+      comment: "Checkbox that limits the inbox to the requests the person made.",
+    }),
+    empty: i18n._({
+      id: "approvals.empty",
+      message: "No approval requests match.",
+      comment: "Shown when the list is empty.",
+    }),
+    navInbox: i18n._({ id: "approvals.navInbox", message: "Inbox", comment: "Link to the inbox." }),
+    navHistory: i18n._({ id: "approvals.navHistory", message: "History", comment: "Link to the decided requests." }),
+    navBreakGlass: i18n._({
+      id: "approvals.navBreakGlass",
+      message: "Break-glass reviews",
+      comment: "Link to the break-glass reviews.",
+    }),
+    navPolicies: i18n._({
+      id: "approvals.navPolicies",
+      message: "Policies",
+      comment: "Link to the approval policies.",
+    }),
+    colSubject: i18n._({ id: "approvals.colSubject", message: "Change", comment: "Column heading: what changes." }),
+    colResource: i18n._({ id: "approvals.colResource", message: "Resource", comment: "Column heading." }),
+    colEnvironment: i18n._({ id: "approvals.colEnvironment", message: "Environment", comment: "Column heading." }),
+    colRequester: i18n._({ id: "approvals.colRequester", message: "Requested by", comment: "Column heading." }),
+    colStatus: i18n._({ id: "approvals.colStatus", message: "Status", comment: "Column heading." }),
+    colCreated: i18n._({
+      id: "approvals.colCreated",
+      message: "Requested",
+      comment: "Column heading: when the request was made.",
+    }),
+    colExpires: i18n._({ id: "approvals.colExpires", message: "Expires", comment: "Column heading." }),
+    colApprovals: i18n._({
+      id: "approvals.colApprovals",
+      message: "Approvals",
+      comment: "Column heading: approvals given of those needed.",
+    }),
+    approvalsOf: ({ given, needed }: { given: string; needed: string }) =>
+      i18n._({
+        id: "approvals.approvalsOf",
+        message: "{given} of {needed}",
+        values: { given, needed },
+        comment: "Approvals given of approvals needed.",
+      }),
+    historyTitle: i18n._({
+      id: "approvals.historyTitle",
+      message: "Decided approvals",
+      comment: "Heading of the history page.",
+    }),
+    historyCaption: i18n._({
+      id: "approvals.historyCaption",
+      message: "Requests that were approved, rejected, used or have lapsed.",
+      comment: "Caption of the history page.",
+    }),
+    statusOpen: i18n._({ id: "approvals.statusOpen", message: "Open", comment: "Status of a request." }),
+    statusApproved: i18n._({ id: "approvals.statusApproved", message: "Approved", comment: "Status of a request." }),
+    statusRejected: i18n._({ id: "approvals.statusRejected", message: "Rejected", comment: "Status of a request." }),
+    statusExpired: i18n._({ id: "approvals.statusExpired", message: "Expired", comment: "Status of a request." }),
+    statusSuperseded: i18n._({
+      id: "approvals.statusSuperseded",
+      message: "Superseded",
+      comment: "Status of a request whose content changed.",
+    }),
+    statusUsed: i18n._({
+      id: "approvals.statusUsed",
+      message: "Used",
+      comment: "Status of an approved request that the change has used.",
+    }),
+    requestTitle: i18n._({
+      id: "approvals.requestTitle",
+      message: "Approval request",
+      comment: "Heading of the request page.",
+    }),
+    summary: i18n._({ id: "approvals.summary", message: "Summary", comment: "Heading." }),
+    policiesInForce: i18n._({
+      id: "approvals.policiesInForce",
+      message: "Policies that apply",
+      comment: "Heading: the policies that matched the request.",
+    }),
+    riskHeading: i18n._({ id: "approvals.riskHeading", message: "Risk", comment: "Heading of the risk summary." }),
+    riskLow: i18n._({ id: "approvals.riskLow", message: "Low", comment: "Risk level." }),
+    riskMedium: i18n._({ id: "approvals.riskMedium", message: "Medium", comment: "Risk level." }),
+    riskHigh: i18n._({ id: "approvals.riskHigh", message: "High", comment: "Risk level." }),
+    diffHeading: i18n._({ id: "approvals.diffHeading", message: "Changes", comment: "Heading of the JSON diff." }),
+    noDiff: i18n._({
+      id: "approvals.noDiff",
+      message: "No diff is attached.",
+      comment: "Shown when a request has no diff.",
+    }),
+    reportsHeading: i18n._({
+      id: "approvals.reportsHeading",
+      message: "Reports",
+      comment: "Heading of the validation and accessibility reports.",
+    }),
+    goldenHeading: i18n._({
+      id: "approvals.goldenHeading",
+      message: "Golden-image differences",
+      comment: "Heading of the golden-image comparison.",
+    }),
+    baseline: i18n._({
+      id: "approvals.baseline",
+      message: "Approved baseline",
+      comment: "Label of the baseline image.",
+    }),
+    actual: i18n._({
+      id: "approvals.actual",
+      message: "This change",
+      comment: "Label of the image the change produced.",
+    }),
+    noBaseline: i18n._({
+      id: "approvals.noBaseline",
+      message: "No baseline yet",
+      comment: "Shown when a golden case has no baseline.",
+    }),
+    installBaseHeading: i18n._({
+      id: "approvals.installBaseHeading",
+      message: "Install base",
+      comment: "Heading: devices affected.",
+    }),
+    colChannel: i18n._({ id: "approvals.colChannel", message: "Channel", comment: "Column heading." }),
+    colRelease: i18n._({ id: "approvals.colRelease", message: "Release", comment: "Column heading." }),
+    colBuild: i18n._({ id: "approvals.colBuild", message: "App build", comment: "Column heading." }),
+    colDevices: i18n._({ id: "approvals.colDevices", message: "Devices", comment: "Column heading." }),
+    changelogHeading: i18n._({ id: "approvals.changelogHeading", message: "Changelog", comment: "Heading." }),
+    auditHeading: i18n._({
+      id: "approvals.auditHeading",
+      message: "Audit records",
+      comment: "Heading: the audit records linked to the decisions.",
+    }),
+    auditRecord: ({ sequence }: { sequence: string }) =>
+      i18n._({
+        id: "approvals.auditRecord",
+        message: "Audit record {sequence}",
+        values: { sequence },
+        comment: "Label of a linked audit record.",
+      }),
+    decisionsHeading: i18n._({
+      id: "approvals.decisionsHeading",
+      message: "Decisions",
+      comment: "Heading of the decisions given so far.",
+    }),
+    noDecisions: i18n._({
+      id: "approvals.noDecisions",
+      message: "Nobody has decided yet.",
+      comment: "Shown when there are no decisions.",
+    }),
+    decisionApprove: i18n._({
+      id: "approvals.decisionApprove",
+      message: "approved",
+      comment: "Verb in a decision line.",
+    }),
+    decisionReject: i18n._({
+      id: "approvals.decisionReject",
+      message: "rejected",
+      comment: "Verb in a decision line.",
+    }),
+    decideHeading: i18n._({
+      id: "approvals.decideHeading",
+      message: "Your decision",
+      comment: "Heading of the decision form.",
+    }),
+    comment: i18n._({ id: "approvals.comment", message: "Comment", comment: "Label of the comment field." }),
+    approve: i18n._({ id: "approvals.approve", message: "Approve", comment: "Button." }),
+    reject: i18n._({ id: "approvals.reject", message: "Reject", comment: "Button." }),
+    decideNeedsPermission: i18n._({
+      id: "approvals.decideNeedsPermission",
+      message: "You need the permission to decide approvals.",
+      comment: "Shown beside disabled decision buttons.",
+    }),
+    decideFailed: i18n._({
+      id: "approvals.decideFailed",
+      message: "The decision was not recorded.",
+      comment: "Shown when the step-up or the decision failed.",
+    }),
+    decided: i18n._({ id: "approvals.decided", message: "Decision recorded.", comment: "Confirmation." }),
+    breakGlassTitle: i18n._({ id: "approvals.breakGlassTitle", message: "Break-glass reviews", comment: "Heading." }),
+    breakGlassCaption: i18n._({
+      id: "approvals.breakGlassCaption",
+      message: "Emergency actions taken without prior approval, each due for review.",
+      comment: "Caption.",
+    }),
+    colAction: i18n._({ id: "approvals.colAction", message: "Action", comment: "Column heading." }),
+    colJustification: i18n._({
+      id: "approvals.colJustification",
+      message: "Justification",
+      comment: "Column heading.",
+    }),
+    colInvokedBy: i18n._({ id: "approvals.colInvokedBy", message: "Taken by", comment: "Column heading." }),
+    colInvokedAt: i18n._({ id: "approvals.colInvokedAt", message: "Taken", comment: "Column heading." }),
+    colDue: i18n._({ id: "approvals.colDue", message: "Review due", comment: "Column heading." }),
+    colReview: i18n._({ id: "approvals.colReview", message: "Review", comment: "Column heading." }),
+    reviewOpen: i18n._({ id: "approvals.reviewOpen", message: "Open", comment: "Review state." }),
+    reviewReviewed: i18n._({ id: "approvals.reviewReviewed", message: "Reviewed", comment: "Review state." }),
+    overdue: i18n._({ id: "approvals.overdue", message: "Overdue", comment: "Flag on a review past its due time." }),
+    review: i18n._({ id: "approvals.review", message: "Review", comment: "Button that starts a review." }),
+    reviewComment: i18n._({
+      id: "approvals.reviewComment",
+      message: "Review comment",
+      comment: "Label of the review comment field.",
+    }),
+    reviewFailed: i18n._({
+      id: "approvals.reviewFailed",
+      message: "The review was not recorded.",
+      comment: "Shown when the review failed.",
+    }),
+    policiesTitle: i18n._({ id: "approvals.policiesTitle", message: "Approval policies", comment: "Heading." }),
+    policiesCaption: i18n._({
+      id: "approvals.policiesCaption",
+      message: "Which changes need approval, and from whom.",
+      comment: "Caption.",
+    }),
+    newPolicy: i18n._({ id: "approvals.newPolicy", message: "New policy", comment: "Button." }),
+    colKey: i18n._({ id: "approvals.colKey", message: "Key", comment: "Column heading." }),
+    colName: i18n._({ id: "approvals.colName", message: "Name", comment: "Column heading." }),
+    colVersion: i18n._({ id: "approvals.colVersion", message: "Version", comment: "Column heading." }),
+    colRequires: i18n._({ id: "approvals.colRequires", message: "Requires", comment: "Column heading." }),
+    requires: ({ n }: { n: string }) =>
+      i18n._({
+        id: "approvals.requires",
+        message: "{n} approvals",
+        values: { n },
+        comment: "The number of approvals a policy requires.",
+      }),
+    editorTitle: i18n._({ id: "approvals.editorTitle", message: "Policy", comment: "Heading of the policy editor." }),
+    editorCaption: i18n._({
+      id: "approvals.editorCaption",
+      message: "Edit the policy and try it against a sample change before saving.",
+      comment: "Caption.",
+    }),
+    fieldKey: i18n._({ id: "approvals.fieldKey", message: "Key", comment: "Label." }),
+    fieldName: i18n._({ id: "approvals.fieldName", message: "Name", comment: "Label." }),
+    fieldResources: i18n._({
+      id: "approvals.fieldResources",
+      message: "Resources",
+      comment: "Label of the resource checkboxes.",
+    }),
+    fieldEnvironments: i18n._({
+      id: "approvals.fieldEnvironments",
+      message: "Environments (comma separated)",
+      comment: "Label.",
+    }),
+    fieldActions: i18n._({ id: "approvals.fieldActions", message: "Actions (comma separated)", comment: "Label." }),
+    fieldProduction: i18n._({ id: "approvals.fieldProduction", message: "Production environments", comment: "Label." }),
+    productionAny: i18n._({ id: "approvals.productionAny", message: "Any", comment: "Option." }),
+    productionOnly: i18n._({ id: "approvals.productionOnly", message: "Production only", comment: "Option." }),
+    productionNever: i18n._({ id: "approvals.productionNever", message: "Not production", comment: "Option." }),
+    fieldRisk: i18n._({ id: "approvals.fieldRisk", message: "Risk attributes", comment: "Label." }),
+    fieldApprovers: i18n._({ id: "approvals.fieldApprovers", message: "Approvals needed", comment: "Label." }),
+    fieldRoles: i18n._({ id: "approvals.fieldRoles", message: "Roles (comma separated)", comment: "Label." }),
+    fieldUsers: i18n._({ id: "approvals.fieldUsers", message: "Named approvers (comma separated)", comment: "Label." }),
+    fieldDistinctFromAuthor: i18n._({
+      id: "approvals.fieldDistinctFromAuthor",
+      message: "The author's approval does not count",
+      comment: "Checkbox.",
+    }),
+    fieldDistinctTeams: i18n._({
+      id: "approvals.fieldDistinctTeams",
+      message: "Approvals must come from different teams",
+      comment: "Checkbox.",
+    }),
+    fieldStages: i18n._({ id: "approvals.fieldStages", message: "Order", comment: "Label." }),
+    stagesNone: i18n._({ id: "approvals.stagesNone", message: "Any order", comment: "Option." }),
+    stagesSequential: i18n._({ id: "approvals.stagesSequential", message: "One after the other", comment: "Option." }),
+    stagesParallel: i18n._({ id: "approvals.stagesParallel", message: "All at once", comment: "Option." }),
+    save: i18n._({ id: "approvals.save", message: "Save policy", comment: "Button." }),
+    saved: i18n._({ id: "approvals.saved", message: "Policy saved.", comment: "Confirmation." }),
+    saveFailed: i18n._({
+      id: "approvals.saveFailed",
+      message: "The policy was not saved.",
+      comment: "Shown when the save failed.",
+    }),
+    editorNeedsPermission: i18n._({
+      id: "approvals.editorNeedsPermission",
+      message: "You need the permission to manage policies.",
+      comment: "Shown when the editor is read-only.",
+    }),
+    simulatorTitle: i18n._({
+      id: "approvals.simulatorTitle",
+      message: "Simulator",
+      comment: "Heading of the simulator panel.",
+    }),
+    simulatorCaption: i18n._({
+      id: "approvals.simulatorCaption",
+      message: "Who would need to approve this change?",
+      comment: "Caption of the simulator.",
+    }),
+    sampleResource: i18n._({ id: "approvals.sampleResource", message: "Resource of the change", comment: "Label." }),
+    sampleEnvironment: i18n._({ id: "approvals.sampleEnvironment", message: "Environment key", comment: "Label." }),
+    sampleAction: i18n._({ id: "approvals.sampleAction", message: "Action", comment: "Label." }),
+    simulate: i18n._({ id: "approvals.simulate", message: "Simulate", comment: "Button." }),
+    simulateFailed: i18n._({
+      id: "approvals.simulateFailed",
+      message: "The simulation failed.",
+      comment: "Shown when the simulation failed.",
+    }),
+    simMatches: i18n._({
+      id: "approvals.simMatches",
+      message: "The draft applies to this change.",
+      comment: "Result.",
+    }),
+    simNoMatch: i18n._({
+      id: "approvals.simNoMatch",
+      message: "The draft does not apply to this change.",
+      comment: "Result.",
+    }),
+    simRequired: ({ n }: { n: string }) =>
+      i18n._({
+        id: "approvals.simRequired",
+        message: "{n} approvals needed in all.",
+        values: { n },
+        comment: "Result.",
+      }),
+    simNone: i18n._({
+      id: "approvals.simNone",
+      message: "No policy applies, so the change needs no approval.",
+      comment: "Result.",
+    }),
+    simDraft: i18n._({
+      id: "approvals.simDraft",
+      message: "draft",
+      comment: "Tag of the draft among the matching policies.",
+    }),
+    simEnterprise: i18n._({
+      id: "approvals.simEnterprise",
+      message: "This draft uses stages or distinct teams, which need the enterprise edition to save.",
+      comment: "Warning.",
+    }),
+    simDescribe: ({ approvers }: { approvers: string }) =>
+      i18n._({
+        id: "approvals.simDescribe",
+        message: "{approvers} approval(s)",
+        values: { approvers },
+        comment: "Short description of a requirement.",
+      }),
+    simRoles: ({ roles }: { roles: string }) =>
+      i18n._({
+        id: "approvals.simRoles",
+        message: "roles: {roles}",
+        values: { roles },
+        comment: "Short description of a requirement.",
+      }),
+    simUsers: ({ users }: { users: string }) =>
+      i18n._({
+        id: "approvals.simUsers",
+        message: "named: {users}",
+        values: { users },
+        comment: "Short description of a requirement.",
+      }),
+    simSequential: i18n._({
+      id: "approvals.simSequential",
+      message: "in order",
+      comment: "Short description of a requirement.",
+    }),
+    simDistinctTeams: i18n._({
+      id: "approvals.simDistinctTeams",
+      message: "different teams",
+      comment: "Short description of a requirement.",
+    }),
+    simDistinctFromAuthor: i18n._({
+      id: "approvals.simDistinctFromAuthor",
+      message: "not the author",
+      comment: "Short description of a requirement.",
+    }),
+    riskTouchesSecurePage: i18n._({
+      id: "approvals.riskTouchesSecurePage",
+      message: "Touches a secure page",
+      comment: "Risk attribute.",
+    }),
+    riskTouchesMoneyFlow: i18n._({
+      id: "approvals.riskTouchesMoneyFlow",
+      message: "Touches a money flow",
+      comment: "Risk attribute.",
+    }),
+    riskChangesFunctionUsedBy: i18n._({
+      id: "approvals.riskChangesFunctionUsedBy",
+      message: "Changes a function that others use",
+      comment: "Risk attribute.",
+    }),
+    never: i18n._({ id: "approvals.never", message: "never", comment: "Shown for a missing time." }),
+  };
+}

@@ -6,7 +6,10 @@ import { timestampFromMs } from "@bufbuild/protobuf/wkt";
 import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import {
   type ApplyChangeSetRequest,
+  ApprovalRequestSchema,
+  ApprovalService,
   AppService,
+  BreakGlassService,
   ComponentService,
   DevDeviceSchema,
   type DevEvent,
@@ -63,6 +66,43 @@ export interface SecurityData {
   failing?: boolean;
 }
 
+/** The Approvals area (STU-102): requests with their evidence, break-glass reviews, policies and the simulator. */
+export interface ApprovalsData {
+  requests?: {
+    id: string;
+    appId: string;
+    status: string;
+    requestedBy: string;
+    summary: string;
+    subject?: string;
+    resource?: string;
+    approvalsRequired?: number;
+    diff?: string;
+    risk?: string;
+    decisions?: { id: string; decider: string; decision: string; comment: string; auditSequence?: number }[];
+  }[];
+  breakGlass?: {
+    id: string;
+    action: string;
+    subject: string;
+    invokedBy: string;
+    reviewStatus: string;
+    overdue?: boolean;
+  }[];
+  policies?: { key: string; name: string; approvers: number }[];
+  /** Collects every DecideApproval the upstream receives. */
+  decided?: { appId: string; id: string; decision: string; comment: string }[];
+  /** Collects every ReviewBreakGlass. */
+  reviewed?: { id: string; comment: string }[];
+  /** Collects every PutPolicy document. */
+  saved?: string[];
+  /** Collects the draft and the sample of every SimulatePolicy. */
+  simulated?: { document: string; resource: string; environment: string }[];
+  /** DecideApproval and ReviewBreakGlass refuse with this message (the author deciding their own request, PLX-8003). */
+  refusal?: string;
+  failing?: boolean;
+}
+
 /** The library: ListLibrary*, versions, visibility, export/import, usages and adoptions (STU-080 to STU-086). */
 export interface LibraryFixture {
   items: {
@@ -93,6 +133,7 @@ export interface LibraryFixture {
 
 export interface UpstreamData {
   security?: SecurityData;
+  approvals?: ApprovalsData;
   /** The dev session (DEV-002, DEV-011, DEV-020): paired devices, the pairing token, the event stream and what Studio sent. */
   devSession?: {
     devices: { id: string; name: string; connected: boolean }[];
@@ -533,6 +574,7 @@ export function createUpstream(state: UpstreamData) {
       rustServices(service, state.rust);
     }
     securityServices(service, state.security ?? {});
+    approvalsServices(service, state.approvals ?? {});
     service(FederationService, { listSignInProviders: () => ({ providers: [] }) });
   });
 }
@@ -692,6 +734,117 @@ function securityServices(
     getRootKeys: () => {
       fail();
       return { keys: data.keys ?? [], roots: Array.from({ length: data.roots ?? 0 }, () => new Uint8Array()) };
+    },
+  });
+}
+
+/** The approval and break-glass RPCs of the Approvals area, in memory. */
+function approvalsServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  data: ApprovalsData,
+) {
+  const fail = () => {
+    if (data.failing === true) {
+      throw new ConnectError("unavailable", Code.Unavailable);
+    }
+  };
+  const request = (r: NonNullable<ApprovalsData["requests"]>[number]) =>
+    create(ApprovalRequestSchema, {
+      id: r.id,
+      appId: r.appId,
+      status: r.status,
+      requestedBy: r.requestedBy,
+      summary: r.summary,
+      subject: r.subject ?? "release:12",
+      resource: r.resource ?? "release",
+      environment: "production",
+      approvalsRequired: r.approvalsRequired ?? 2,
+      policyKeys: ["default-standard-production-release"],
+      decisions: (r.decisions ?? []).map((d) => ({ ...d, auditSequence: BigInt(d.auditSequence ?? 0) })),
+    });
+  const refuse = () => {
+    if (data.refusal !== undefined) {
+      throw new ConnectError(data.refusal, Code.PermissionDenied);
+    }
+  };
+  service(ApprovalService, {
+    listApprovals: (req) => {
+      fail();
+      const all = (data.requests ?? []).filter((r) => req.appId === "" || r.appId === req.appId);
+      return { approvals: all.filter((r) => req.status === "" || r.status === req.status).map(request) };
+    },
+    getApprovalReview: (req) => {
+      fail();
+      const found = (data.requests ?? []).find((r) => r.id === req.id);
+      if (found === undefined) {
+        throw new ConnectError("not found", Code.NotFound);
+      }
+      return {
+        approval: request(found),
+        diff: new TextEncoder().encode(found.diff ?? ""),
+        risk: { level: found.risk ?? "low", reasons: [] },
+        changelog: ["Fix the checkout total"],
+        installBase: [{ channel: "stable", releaseSequence: 12n, hostBuild: "1.2.0", devices: 40n }],
+      };
+    },
+    decideApproval: (req) => {
+      refuse();
+      data.decided?.push({ appId: req.appId, id: req.id, decision: req.decision, comment: req.comment });
+      return {};
+    },
+    listPolicies: () => {
+      fail();
+      return {
+        policies: (data.policies ?? []).map((p) => ({
+          key: p.key,
+          version: 1,
+          document: new TextEncoder().encode(
+            JSON.stringify({
+              key: p.key,
+              name: p.name,
+              match: { resources: ["release"] },
+              require: { approvers: p.approvers },
+            }),
+          ),
+        })),
+      };
+    },
+    putPolicy: (req) => {
+      data.saved?.push(new TextDecoder().decode(req.document));
+      return {};
+    },
+    simulatePolicy: (req) => {
+      data.simulated?.push({
+        document: new TextDecoder().decode(req.document),
+        resource: req.change?.resource ?? "",
+        environment: req.change?.environment ?? "",
+      });
+      return {
+        matches: true,
+        approvalsRequired: 3,
+        requirements: [{ policyKey: "mine", draft: true, approvers: 3, roles: ["reviewer"] }],
+      };
+    },
+  });
+  service(BreakGlassService, {
+    listBreakGlass: () => {
+      fail();
+      return {
+        invocations: (data.breakGlass ?? []).map((b) => ({
+          id: b.id,
+          action: b.action,
+          subject: b.subject,
+          invokedBy: b.invokedBy,
+          reviewStatus: b.reviewStatus,
+          overdue: b.overdue ?? false,
+          environment: "production",
+        })),
+      };
+    },
+    reviewBreakGlass: (req) => {
+      refuse();
+      data.reviewed?.push({ id: req.id, comment: req.comment });
+      return {};
     },
   });
 }
