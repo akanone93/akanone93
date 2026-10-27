@@ -122,8 +122,8 @@ function useTestRun(open: boolean, client: TestsClient) {
   return { run, start };
 }
 
-/** The Rust editor V3 (FN-033): Monaco over the canvas, rust-analyzer through the bridge, tests and dependencies beside it. */
-export function RustEditorOverlay(props: RustEditorOverlayProps) {
+/** The state of the Rust editor V3 (FN-033), shared by the overlay and the full page. */
+function useRustEditor(props: RustEditorOverlayProps) {
   const { i18n } = useLingui();
   const m = useMemo(() => rustEditorMessages(i18n), [i18n]);
   const canEdit = useCanEdit();
@@ -148,6 +148,105 @@ export function RustEditorOverlay(props: RustEditorOverlayProps) {
     server.change(next);
   };
 
+  return {
+    open: props.open,
+    m,
+    canEdit,
+    sourceId,
+    setSourceId,
+    text,
+    manifest,
+    setManifest,
+    templateId,
+    setTemplateId,
+    server,
+    tests,
+    markers,
+    trimmed,
+    busy,
+    edit,
+  };
+}
+
+type RustEditor = ReturnType<typeof useRustEditor>;
+
+/** The editor itself: Monaco over the session, tests and dependencies beside it. */
+function RustEditorBody({ e }: { readonly e: RustEditor }) {
+  const { open, m, canEdit, sourceId, setSourceId, text, manifest, setManifest, templateId, setTemplateId } = e;
+  const { server, tests, markers, trimmed, busy, edit } = e;
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="flex flex-wrap items-end gap-3">
+        <Field label={m.source} description={m.sourceHint}>
+          <Input value={sourceId} onChange={(e) => setSourceId(e.target.value)} spellCheck={false} />
+        </Field>
+        <Button onClick={() => server.start(trimmed, text)} disabled={trimmed === "" || busy}>
+          <Icon name="play" />
+          {m.connect}
+        </Button>
+        {server.state.phase === "ready" && (
+          <Button variant="secondary" onClick={server.stop}>
+            {m.stop}
+          </Button>
+        )}
+        <Select
+          label={m.template}
+          options={starterTemplates.map((t) => ({ value: t.id, label: t.title }))}
+          value={templateId}
+          onValueChange={setTemplateId}
+        />
+        <Button
+          variant="secondary"
+          disabled={!canEdit}
+          onClick={() => edit(starterTemplates.find((t) => t.id === templateId)?.source ?? text)}
+        >
+          {m.useTemplate}
+        </Button>
+      </div>
+      <p role="status" aria-live="polite" className="text-body text-secondary">
+        {describeSession(server.state, m)}
+      </p>
+      {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+      <div className="grid min-h-0 flex-1 grid-cols-3 gap-3">
+        <div className="col-span-2 min-h-0">
+          {open && (
+            <Suspense fallback={<p className="text-body text-secondary">{m.starting}</p>}>
+              <RustMonacoView
+                value={text}
+                readOnly={!canEdit}
+                label={m.editorLabel}
+                language={server.language}
+                markers={markers}
+                onChange={edit}
+              />
+            </Suspense>
+          )}
+        </div>
+        <div className="min-h-0 overflow-y-auto">
+          <Tabs
+            defaultValue="tests"
+            tabs={[
+              {
+                value: "tests",
+                label: m.tabTests,
+                panel: <TestsPanel run={tests.run} canRun={trimmed !== ""} onRun={() => tests.start(trimmed)} m={m} />,
+              },
+              {
+                value: "dependencies",
+                label: m.tabDependencies,
+                panel: <DependenciesPanel manifest={manifest} canEdit={canEdit} onChange={setManifest} m={m} />,
+              },
+            ]}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The Rust editor V3 (FN-033): Monaco over the canvas, rust-analyzer through the bridge, tests and dependencies beside it. */
+export function RustEditorOverlay(props: RustEditorOverlayProps) {
+  const e = useRustEditor(props);
   return (
     <Dialog
       open={props.open}
@@ -157,77 +256,21 @@ export function RustEditorOverlay(props: RustEditorOverlayProps) {
         }
       }}
       size="full"
-      title={m.title}
-      labels={{ close: m.close }}
+      title={e.m.title}
+      labels={{ close: e.m.close }}
     >
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex flex-wrap items-end gap-3">
-          <Field label={m.source} description={m.sourceHint}>
-            <Input value={sourceId} onChange={(e) => setSourceId(e.target.value)} spellCheck={false} />
-          </Field>
-          <Button onClick={() => server.start(trimmed, text)} disabled={trimmed === "" || busy}>
-            <Icon name="play" />
-            {m.connect}
-          </Button>
-          {server.state.phase === "ready" && (
-            <Button variant="secondary" onClick={server.stop}>
-              {m.stop}
-            </Button>
-          )}
-          <Select
-            label={m.template}
-            options={starterTemplates.map((t) => ({ value: t.id, label: t.title }))}
-            value={templateId}
-            onValueChange={setTemplateId}
-          />
-          <Button
-            variant="secondary"
-            disabled={!canEdit}
-            onClick={() => edit(starterTemplates.find((t) => t.id === templateId)?.source ?? text)}
-          >
-            {m.useTemplate}
-          </Button>
-        </div>
-        <p role="status" aria-live="polite" className="text-body text-secondary">
-          {describeSession(server.state, m)}
-        </p>
-        {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
-        <div className="grid min-h-0 flex-1 grid-cols-3 gap-3">
-          <div className="col-span-2 min-h-0">
-            {props.open && (
-              <Suspense fallback={<p className="text-body text-secondary">{m.starting}</p>}>
-                <RustMonacoView
-                  value={text}
-                  readOnly={!canEdit}
-                  label={m.editorLabel}
-                  language={server.language}
-                  markers={markers}
-                  onChange={edit}
-                />
-              </Suspense>
-            )}
-          </div>
-          <div className="min-h-0 overflow-y-auto">
-            <Tabs
-              defaultValue="tests"
-              tabs={[
-                {
-                  value: "tests",
-                  label: m.tabTests,
-                  panel: (
-                    <TestsPanel run={tests.run} canRun={trimmed !== ""} onRun={() => tests.start(trimmed)} m={m} />
-                  ),
-                },
-                {
-                  value: "dependencies",
-                  label: m.tabDependencies,
-                  panel: <DependenciesPanel manifest={manifest} canEdit={canEdit} onChange={setManifest} m={m} />,
-                },
-              ]}
-            />
-          </div>
-        </div>
-      </div>
+      <RustEditorBody e={e} />
     </Dialog>
+  );
+}
+
+/** The same editor as a full page (A12): it is always open and ends with the page. */
+export function RustEditorPage(props: Omit<RustEditorOverlayProps, "open" | "onClose">) {
+  const e = useRustEditor({ ...props, open: true, onClose: () => undefined });
+  return (
+    <section className="flex h-full min-h-0 flex-col gap-3" aria-label={e.m.title}>
+      <h1 className="text-screen">{e.m.title}</h1>
+      <RustEditorBody e={e} />
+    </section>
   );
 }

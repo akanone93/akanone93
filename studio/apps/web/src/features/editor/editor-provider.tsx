@@ -91,7 +91,7 @@ export function flushed(edit: EditSession): Promise<void> {
   });
 }
 
-const CanEditContext = createContext(false);
+export const CanEditContext = createContext(false);
 
 const LOCK_OVERRIDE: PermissionName = "plugin.lock.override";
 
