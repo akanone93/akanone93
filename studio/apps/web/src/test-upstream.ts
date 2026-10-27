@@ -9,6 +9,8 @@ import {
   ApprovalRequestSchema,
   ApprovalService,
   AppService,
+  AssetSchema,
+  AssetService,
   BreakGlassService,
   ComponentService,
   ControlSchema,
@@ -203,6 +205,8 @@ export interface FunctionsFixture {
 }
 
 export interface UpstreamData {
+  /** Names of the app's uploaded assets (ListAssets), e.g. translation-context screenshots. */
+  assets?: string[];
   experiments?: ExperimentsFixture;
   release?: ReleaseFixture;
   releases?: ReleasesFixture;
@@ -546,6 +550,13 @@ export function createUpstream(state: UpstreamData) {
                 create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1" }),
                 create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0" }),
               ],
+      }),
+    });
+    service(AssetService, {
+      listAssets: () => ({
+        assets: (state.assets ?? []).map((name, i) =>
+          create(AssetSchema, { id: `asset-${i}`, name, mediaType: "image/png", size: 1n }),
+        ),
       }),
     });
     service(DocumentService, {
