@@ -10,6 +10,7 @@ import { actionGraphMessages } from "../action-graph/action-graph.messages.ts";
 import { designerMessages } from "../designers/designers.messages.ts";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
 import type { JsonValue } from "../editor/json-patch.ts";
+import { historyMessages } from "../history/history.messages.ts";
 import { jsonEditorMessages } from "../json-editor/json-editor.messages.ts";
 import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../localisation/index.ts";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
@@ -43,6 +44,8 @@ import {
 } from "./properties-model.ts";
 import type { PxlEditorSource } from "./pxl-editor.tsx";
 import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
+import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
+import { tabMessages } from "./tabs.messages.ts";
 
 /** Milliseconds a PXL field waits after the last keystroke before the validator worker checks it (F9). */
 export const PXL_DEBOUNCE_MS = 300;
@@ -442,6 +445,8 @@ interface DockProps {
   readonly onOpenOverlay?: ((id: "data" | "db" | "theme") => void) | undefined;
   /** Opens the full-screen action graph editor (STU-065); the button shows only when given. */
   readonly onOpenGraph?: (() => void) | undefined;
+  /** Opens the history overlay (STU-069); the button shows only when given. */
+  readonly onOpenHistory?: (() => void) | undefined;
 }
 
 /** The registry marks string props whose text the user sees (`translatable`, I18N-007). */
@@ -774,6 +779,17 @@ export function RightDock(props: DockProps) {
   const dm = designerMessages(i18n);
   const designerLabels = { data: dm.dataOpen, db: dm.dbOpen, theme: dm.themeOpen };
   const graphLabel = actionGraphMessages(i18n).open;
+  const tm = tabMessages(i18n);
+  const nodes = useLiveNodes(props);
+  const pageNodes = useMemo(() => {
+    const perScreen = new Map<string | undefined, number>();
+    for (const id of nodes.keys()) {
+      const screen = props.screenOf.get(id);
+      perScreen.set(screen, (perScreen.get(screen) ?? 0) + 1);
+    }
+    const own = ids[0] === undefined ? undefined : perScreen.get(props.screenOf.get(ids[0]));
+    return own ?? Math.max(0, ...perScreen.values());
+  }, [nodes, ids, props.screenOf]);
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
     ids.length === 0 ? <p className="text-body text-secondary">{m.nothing}</p> : panel(ids);
   return (
@@ -805,6 +821,12 @@ export function RightDock(props: DockProps) {
           ))}
         </div>
       )}
+      {props.onOpenHistory !== undefined && (
+        <Button variant="secondary" size="sm" onClick={props.onOpenHistory}>
+          <Icon name="clock" />
+          {historyMessages(i18n).open}
+        </Button>
+      )}
       {props.onOpenGraph !== undefined && (
         <Button variant="secondary" size="sm" onClick={props.onOpenGraph}>
           <Icon name="pencil-simple" />
@@ -821,9 +843,29 @@ export function RightDock(props: DockProps) {
           },
           { value: "actions", label: linkMessages(i18n).tab, panel: <ActionsPanel {...props} ids={ids} /> },
           {
+            value: "json",
+            label: tm.tabJson,
+            panel: body((i) => <JsonTab ids={i} nodes={nodes} onOpen={props.onOpenJson} />),
+          },
+          {
+            value: "code",
+            label: tm.tabCode,
+            panel: <CodeTab ids={ids} nodes={nodes} documents={props.documents} />,
+          },
+          {
+            value: "localisation",
+            label: tm.tabLocalisation,
+            panel: body((i) => <LocalisationTab ids={i} nodes={nodes} onOpen={props.onOpenLocalisation} />),
+          },
+          {
             value: "accessibility",
             label: m.tabAccessibility,
             panel: body((i) => <AccessibilityTab {...props} ids={i} m={m} />),
+          },
+          {
+            value: "performance",
+            label: tm.tabPerformance,
+            panel: <PerformanceTab ids={ids} nodes={nodes} pageNodes={pageNodes} />,
           },
           { value: "docs", label: m.tabDocs, panel: body((i) => <DocsTab ids={i} index={props.index} m={m} />) },
         ]}
