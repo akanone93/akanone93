@@ -164,3 +164,14 @@ describe("STU-060 action bar controls", () => {
     expect(document.activeElement).toBe(first);
   });
 });
+
+describe("action bar layout (S6.5)", () => {
+  test("the bar lane leaves the dock columns clear and does not catch pointer events", async () => {
+    mount([]);
+    const bar = await screen.findByRole("toolbar", { name: "Canvas actions" });
+    const lane = bar.parentElement as HTMLElement;
+    expect(lane.className).toContain("pointer-events-none");
+    expect(lane.className).toContain("inset-x-1/4");
+    expect(bar.className).toContain("pointer-events-auto");
+  });
+});

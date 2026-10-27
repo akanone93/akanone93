@@ -18,7 +18,7 @@ export function Popover({ trigger, title, children, ...root }: PopoverProps): Re
     <BasePopover.Root {...root}>
       <BasePopover.Trigger render={trigger} />
       <BasePopover.Portal>
-        <BasePopover.Positioner sideOffset={8}>
+        <BasePopover.Positioner sideOffset={8} className="z-20">
           <BasePopover.Popup className="flex flex-col gap-2 rounded-xl bg-glass p-4 shadow-e2">
             {title !== undefined && (
               <BasePopover.Title className="font-serif text-section text-primary">{title}</BasePopover.Title>
