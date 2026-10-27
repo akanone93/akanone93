@@ -772,6 +772,12 @@ msgstr "Importierte Datenquellen hinzufügen"
 msgid "designers.themeAddToken"
 msgstr "Token hinzufügen"
 
+#. Button that adds a variant.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.addVariant"
+msgstr "Variante hinzufügen"
+
 #. Tag of a document that exists only in the newer of two compared snapshots.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -856,6 +862,12 @@ msgstr "Alle Stufen"
 msgid "notify.inbox.all-types"
 msgstr "Alle Typen"
 
+#. Wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stepAllocation"
+msgstr "Aufteilung"
+
 #. Shown next to approval and security types that cannot be muted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -885,6 +897,12 @@ msgstr "Eine andere Person hält die Entwurfssperre, der Status ist daher schrei
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.readOnly"
 msgstr "Eine andere Person hält die Sperre dieser Sprache, die Tabelle ist daher schreibgeschützt."
+
+#. Filter option: every experiment state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.anyState"
+msgstr "Beliebiger Zustand"
 
 #. Filter option: every visibility.
 #. js-lingui-explicit-id
@@ -1030,6 +1048,12 @@ msgstr "Vertrauensstufe"
 msgid "security.provider"
 msgstr "Attestierungsanbieter"
 
+#. Label of the segment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentLabel"
+msgstr "Zielgruppen-Segment"
+
 #. Label of the field for the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -1060,6 +1084,12 @@ msgstr "Wartet auf Freigabe"
 msgid "library.canvas.back"
 msgstr "Zurück"
 
+#. Button: previous wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.back"
+msgstr "Zurück"
+
 #. Link.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1083,6 +1113,12 @@ msgstr "Leerer Bildschirm"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.holdBlocked"
 msgstr "Blockiert"
+
+#. Flag type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.typeBool"
+msgstr "Boolesch"
 
 #. Edge inset at the bottom.
 #. js-lingui-explicit-id
@@ -1672,6 +1708,12 @@ msgstr "Komponente bearbeiten: Instanzen, die sich ändern"
 msgid "library.canvas.overrides.heading"
 msgstr "Komponenten-Überschreibungen"
 
+#. Scope option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.scopeSubtree"
+msgstr "Komponenten-Teilbaum"
+
 #. Group of the Insert tab: ready-made components (Layer 2).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1689,6 +1731,12 @@ msgstr "Komponenten"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPreviewChecking"
 msgstr "Migration wird berechnet …"
+
+#. State of an experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stateConcluded"
+msgstr "Abgeschlossen"
 
 #. Button that confirms the action of a dialog.
 #. js-lingui-explicit-id
@@ -1744,6 +1792,12 @@ msgstr "Weiter"
 msgid "auth.provider.continue"
 msgstr "Weiter mit {name}"
 
+#. Marks the control variant.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.variantControl"
+msgstr "Kontrolle"
+
 #. Confirmation after copying your version as JSON.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -1791,6 +1845,18 @@ msgstr "Crate-Namen beginnen mit einem Buchstaben und bestehen aus Buchstaben, Z
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.create"
 msgstr "Erstellen"
+
+#. Button that creates the experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.create"
+msgstr "Experiment erstellen"
+
+#. Command that opens the experiment wizard with the selected canvas elements as the subject.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.command.experiment"
+msgstr "Experiment aus Auswahl erstellen"
 
 #. Button that creates the translation key and replaces the text with it.
 #. js-lingui-explicit-id
@@ -1930,6 +1996,12 @@ msgstr "DB-Schema-Designer"
 msgid "devices.lineDebug"
 msgstr "Debug"
 
+#. Heading of the decision section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.decision"
+msgstr "Entscheidung"
+
 #. Result of explaining access; decision is the server's verdict.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1942,17 +2014,41 @@ msgstr "Entscheidung: {decision}"
 msgid "dialog.explain.decision"
 msgstr "Entscheidung: {decision}"
 
+#. Direction option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.directionDecrease"
+msgstr "Rückgang"
+
 #. D27: type of an affected item, a URL path that opens the screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.rename.deep-link"
 msgstr "Deep Link"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colDefault"
+msgstr "Standard"
+
 #. Label of the field in which the entry's default value is typed as JSON.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.default"
 msgstr "Standardwert (JSON)"
+
+#. Label of the flag default field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagDefault"
+msgstr "Standardwert (JSON)"
+
+#. Heading of the definition section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.definition"
+msgstr "Definition"
 
 #. Button that confirms deleting a screen.
 #. js-lingui-explicit-id
@@ -1965,6 +2061,18 @@ msgstr "Löschen"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.confirm"
 msgstr "Löschen"
+
+#. Button that deletes a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.deleteFlag"
+msgstr "Löschen"
+
+#. Accessible name of a delete button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.deleteNamed"
+msgstr "{key} löschen"
 
 #. Accessible name of the button that deletes an asset; name is the asset's name.
 #. js-lingui-explicit-id
@@ -2036,6 +2144,12 @@ msgstr "veraltet"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.description"
+msgstr "Beschreibung"
+
+#. Label of the flag description field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagDescription"
 msgstr "Beschreibung"
 
 #. Field label for a plugin's description.
@@ -2140,6 +2254,12 @@ msgstr "Geräte"
 msgid "devices.bayToggle"
 msgstr "Geräte"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colDiff"
+msgstr "Differenz"
+
 #. Heading of the list of documents that differ between two snapshots.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -2181,6 +2301,12 @@ msgstr "Dokument"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.docs"
 msgstr "Dokumentation"
+
+#. State of an experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stateDraft"
+msgstr "Entwurf"
 
 #. Accessible name of the drawer below the canvas that holds tabs such as Problems.
 #. js-lingui-explicit-id
@@ -2230,6 +2356,18 @@ msgstr "Bearbeiten"
 msgid "history.reasonWrite"
 msgstr "Änderung"
 
+#. Button that loads a flag into the form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.editFlag"
+msgstr "Bearbeiten"
+
+#. Accessible name of an edit button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.editNamed"
+msgstr "{key} bearbeiten"
+
 #. Button in the Code tab that opens the Rust editor for the named function.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -2271,6 +2409,12 @@ msgstr "E-Mail"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.mockEmpty"
 msgstr "Leer"
+
+#. Label of the end date field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.endLabel"
+msgstr "Ende"
 
 #. Label of the end date field.
 #. js-lingui-explicit-id
@@ -2446,6 +2590,12 @@ msgstr "Alle Releases dieser Umgebung, neueste zuerst, mit den Rollouts, die sie
 msgid "publish.warningsBody"
 msgstr "Jede Warnung muss bestätigt werden, bevor das Release fortfahren kann."
 
+#. Error: not exactly one control.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.needControl"
+msgstr "Genau eine Variante muss die Kontrolle sein."
+
 #. Checkbox that hides the widget from screen readers.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2463,6 +2613,36 @@ msgstr "Vorhandenes Element für {id}"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.expanded"
 msgstr "Erweitert"
+
+#. Heading of the experiment page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.resultsTitle"
+msgstr "Experiment"
+
+#. Heading of one experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.forKey"
+msgstr "Experiment {key}"
+
+#. Label of the key field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.keyLabel"
+msgstr "Experiment-Schlüssel"
+
+#. Heading of the experiments list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.listTitle"
+msgstr "Experimente"
+
+#. Caption under the experiments heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.listCaption"
+msgstr "Experimente dieser Umgebung mit Zustand und Anteil der erreichten Nutzer."
 
 #. State of a request whose approval expired.
 #. js-lingui-explicit-id
@@ -2536,6 +2716,18 @@ msgstr "Fehlgeschlagen"
 msgid "publish.diffFailed"
 msgstr "Fehlgeschlagen. Fordere ihn erneut an."
 
+#. Link to and heading of the flags page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagsLink"
+msgstr "Feature-Flags"
+
+#. Heading of the flags page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagsTitle"
+msgstr "Feature-Flags"
+
 #. Accessible name of a nested field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2578,11 +2770,35 @@ msgstr "Einpassen"
 msgid "actionGraph.fitView"
 msgstr "Graph in die Ansicht einpassen"
 
+#. Error under the wizard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidForm"
+msgstr "Korrigieren Sie die markierten Felder, bevor Sie das Experiment erstellen."
+
 #. Status when the edited JSON has errors, so it cannot be applied.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.invalid"
 msgstr "Behebe die folgenden Probleme, um zu übernehmen."
+
+#. Label of the flag key field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagKey"
+msgstr "Flag-Schlüssel"
+
+#. Caption of the flags page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagsCaption"
+msgstr "Flags dieser Umgebung: ein typisierter Wert mit Standard und Werten je Segment."
+
+#. Scope option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.scopeFlow"
+msgstr "Ablauf"
 
 #. Heading of the group of the plugin's reusable action graphs in the action list.
 #. js-lingui-explicit-id
@@ -2752,6 +2968,24 @@ msgstr "GraphQL"
 msgid "designers.dataOperationsText"
 msgstr "GraphQL-Operationen"
 
+#. Label of the guardrail event field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.guardrailEvent"
+msgstr "Ereignis der Leitplanke"
+
+#. Verdict: a guardrail regressed beyond its limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.guardrailTripped"
+msgstr "Leitplanke ausgelöst"
+
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.guardrails"
+msgstr "Leitplanken"
+
 #. Button: release the lock to whoever asked.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -2818,6 +3052,12 @@ msgstr "Verlauf"
 msgid "history.title"
 msgstr "Verlauf"
 
+#. Label of the holdout field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.holdoutLabel"
+msgstr "Holdout in Prozent"
+
 #. Name of the personal home page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -2854,6 +3094,18 @@ msgstr "Vorlage importieren"
 msgid "library.imported"
 msgstr "{name} importiert."
 
+#. Verdict of a comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.improved"
+msgstr "Verbessert"
+
+#. Label of the metric direction select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.directionLabel"
+msgstr "Verbesserung"
+
 #. Option: lost when the plugin closes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -2865,6 +3117,18 @@ msgstr "Im Arbeitsspeicher"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.incoming"
 msgstr "Eingehende Verbindung"
+
+#. Verdict of a comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.inconclusive"
+msgstr "Nicht eindeutig"
+
+#. Direction option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.directionIncrease"
+msgstr "Anstieg"
 
 #. Level label of a console line.
 #. js-lingui-explicit-id
@@ -2932,6 +3196,12 @@ msgstr "Instanzen in allen Apps"
 msgid "panels.interactive"
 msgstr "Interaktiv"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colInterval"
+msgstr "Intervall"
+
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -2980,6 +3250,12 @@ msgstr "es verwendet eine Komponente, die privat für dieses Plugin ist."
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.tabJson"
+msgstr "JSON"
+
+#. Flag type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.typeJson"
 msgstr "JSON"
 
 #. Button in the right panel that opens the full-screen JSON editor for the selected document.
@@ -3058,6 +3334,12 @@ msgstr "Schlüssel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.key"
+msgstr "Schlüssel"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colKey"
 msgstr "Schlüssel"
 
 #. Label of the field that holds a collection's key.
@@ -3197,6 +3479,12 @@ msgstr "Ebenen des Plugins"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.unsaved.leave"
 msgstr "Verlassen"
+
+#. Help under the segment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentHelp"
+msgstr "Leer lassen, um alle zu erreichen."
 
 #. Title of the dialog shown when leaving a page with unsaved changes.
 #. js-lingui-explicit-id
@@ -3360,6 +3648,12 @@ msgstr "Wird geladen"
 msgid "preview.mockLoading"
 msgstr "Wird geladen"
 
+#. Shown while a page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.loading"
+msgstr "Wird geladen"
+
 #. Shown in the Assets tab while the list loads.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -3510,6 +3804,18 @@ msgstr "Maximal"
 msgid "state.nullable"
 msgstr "Darf leer sein"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colMean"
+msgstr "Mittelwert"
+
+#. Metric kind option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.kindMean"
+msgstr "Mittelwert einer Eigenschaft"
+
 #. Window size class from 600 to 839 dp.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3521,6 +3827,18 @@ msgstr "Mittel"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colMetric"
 msgstr "Messwert"
+
+#. Label of the metric kind select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.primaryKind"
+msgstr "Art der Metrik"
+
+#. Wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stepMetrics"
+msgstr "Metriken"
 
 #. Heading of the list of migration plans of a collection.
 #. js-lingui-explicit-id
@@ -3702,6 +4020,12 @@ msgstr "Netzwerkdomänen"
 msgid "releases.never"
 msgstr "nie"
 
+#. Shown for a missing date.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.never"
+msgstr "nie"
+
 #. Shown when there is no date.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3719,6 +4043,18 @@ msgstr "Neu"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.newCode"
 msgstr "Neuer Code"
+
+#. Link and heading of the experiment wizard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.newLink"
+msgstr "Neues Experiment"
+
+#. Heading of the experiment wizard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.wizardTitle"
+msgstr "Neues Experiment"
 
 #. Label of the field in which the name of a new translation key is typed.
 #. js-lingui-explicit-id
@@ -3778,6 +4114,12 @@ msgstr "Pfad des neuen Tokens, zum Beispiel color.accent"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.next"
+msgstr "Weiter"
+
+#. Button: next wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.next"
 msgstr "Weiter"
 
 #. Shown when the validator found no accessibility problem.
@@ -3840,11 +4182,23 @@ msgstr "Keine passenden Geräte."
 msgid "releases.clearEnd"
 msgstr "Kein Ende"
 
+#. Shown when no experiment matches.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.noExperiments"
+msgstr "Noch keine Experimente."
+
 #. Shown when a plugin has no errors or warnings.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reportOk"
 msgstr "Keine Befunde"
+
+#. Shown when the environment has no flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.noFlags"
+msgstr "Noch keine Flags."
 
 #. Shown while a rollout has no health figures.
 #. js-lingui-explicit-id
@@ -3923,6 +4277,12 @@ msgstr "Keine Probleme."
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.noReleases"
 msgstr "Noch keine Releases."
+
+#. Shown while the experiment has no results.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.noResults"
+msgstr "Noch keine Ergebnisse."
 
 #. Shown when a release has no rollout.
 #. js-lingui-explicit-id
@@ -4116,6 +4476,12 @@ msgstr "Benachrichtigungen konnten nicht geladen werden."
 msgid "actionGraph.nowhere"
 msgstr "Nirgendwohin"
 
+#. Flag type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.typeNumber"
+msgstr "Zahl"
+
 #. Status chip: the browser has no network.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -4302,6 +4668,18 @@ msgstr "Übersicht des Graphen"
 msgid "appCanvas.owner"
 msgstr "Verantwortliches Team"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colP"
+msgstr "p-Wert"
+
+#. Scope option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.scopePage"
+msgstr "Seite"
+
 #. Heading of the 404 page, also shown for an organisation the person is not in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -4464,6 +4842,12 @@ msgstr "Plugin-Schlüssel"
 msgid "appCanvas.settings"
 msgstr "Plugin-Einstellungen"
 
+#. Scope option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.scopePluginVersion"
+msgstr "Plugin-Version"
+
 #. Description of the cancel dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -4529,6 +4913,18 @@ msgstr "Vorheriges Release"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPrimaryKey"
 msgstr "Primärschlüssel (Feldnamen, durch Komma getrennt)"
+
+#. Heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.primaryMetric"
+msgstr "Primäre Metrik"
+
+#. Label of the primary event field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.primaryEvent"
+msgstr "Ereignis der primären Metrik"
 
 #. Visibility: only the author.
 #. js-lingui-explicit-id
@@ -4607,6 +5003,12 @@ msgstr "Profil"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.project"
 msgstr "Projekt"
+
+#. Scope option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.scopeProp"
+msgstr "Prop-Wert"
 
 #. Label of the right dock tab that edits the selected widget's properties.
 #. js-lingui-explicit-id
@@ -4860,6 +5262,12 @@ msgstr "Veröffentlichen"
 msgid "releases.detailTitle"
 msgstr "Release {sequence}"
 
+#. Label of the label field of a shipped variant.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.shipLabel"
+msgstr "Release-Bezeichnung"
+
 #. Label of the notes field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -4991,6 +5399,18 @@ msgstr "Schritt {id} entfernen"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeRemoveToken"
 msgstr "Token {token} entfernen"
+
+#. Button that removes a variant.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.removeVariant"
+msgstr "Variante entfernen"
+
+#. Accessible name of a remove button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.removeNamed"
+msgstr "Variante {name} entfernen"
 
 #. Tag of a document that exists only in the older of two compared snapshots.
 #. js-lingui-explicit-id
@@ -5160,6 +5580,12 @@ msgstr "Wiederhergestellt"
 msgid "panels.pxlResultType"
 msgstr "Ergebnistyp: {type}"
 
+#. Heading of the results section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.results"
+msgstr "Ergebnisse"
+
 #. Button: continue a paused rollout.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -5298,6 +5724,12 @@ msgstr "Führen Sie die Tests aus, um ihre Ergebnisse hier zu sehen."
 msgid "publish.buildRunning"
 msgstr "Läuft"
 
+#. State of an experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stateRunning"
+msgstr "Läuft"
+
 #. Status in the Code tab while the tests of a function run.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -5334,6 +5766,12 @@ msgstr "Rust-Editor"
 msgid "rustEditor.editorLabel"
 msgstr "Rust-Quellcode der Funktion"
 
+#. Warning shown on a sample ratio mismatch.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.mismatch"
+msgstr "Abweichung vom Stichprobenverhältnis: Die beobachtete Aufteilung weicht von der geplanten ab. Den Ergebnissen nicht vertrauen."
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -5351,6 +5789,12 @@ msgstr "Speichern"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.save.title"
 msgstr "Als Vorlage speichern"
+
+#. Button that saves a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.saveFlag"
+msgstr "Flag speichern"
 
 #. Button: save the revised component version.
 #. js-lingui-explicit-id
@@ -5400,11 +5844,23 @@ msgstr "Auf dem Gerät gespeichert"
 msgid "devices.pairHelp"
 msgstr "Scanne den Code mit der Plux-Dev-App oder gib den Kurzcode in der App ein."
 
+#. Wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stepSchedule"
+msgstr "Zeitplan"
+
 #. State of a rollout.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.stateScheduled"
 msgstr "Geplant"
+
+#. Label of the scope select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.scopeLabel"
+msgstr "Bereich"
 
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
@@ -5652,11 +6108,47 @@ msgstr "Einstellung"
 msgid "state.container"
 msgstr "Form"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colShare"
+msgstr "Anteil"
+
+#. Label of a variant weight field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.weightLabel"
+msgstr "Anteil in Prozent"
+
 #. Column heading: the share of devices offered the release.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colShare"
 msgstr "Anteil der Geräte"
+
+#. Metric kind option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.kindProportion"
+msgstr "Anteil der Nutzer"
+
+#. Accessible name of a ship button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.shipNamed"
+msgstr "{name} ausliefern"
+
+#. Button that ships a variant.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.ship"
+msgstr "Diese Variante ausliefern"
+
+#. Shown after a variant was shipped.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.shipped"
+msgstr "Als Veröffentlichungsauftrag ausgeliefert."
 
 #. Label of the short code a person can type on the device.
 #. js-lingui-explicit-id
@@ -5832,6 +6324,18 @@ msgstr "Stufe {index} von {total}"
 msgid "security.profileStandard"
 msgstr "Standard"
 
+#. Label of the start date field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.startLabel"
+msgstr "Start"
+
+#. Button that starts the experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.start"
+msgstr "Experiment starten"
+
 #. Label of the new-screen template picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -5849,6 +6353,12 @@ msgstr "Language-Server starten"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.problem.invalid"
 msgstr "Beginne mit einem Kleinbuchstaben und verwende nur Buchstaben und Ziffern, etwa loanAmount."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colStarted"
+msgstr "Gestartet"
 
 #. Label of the list of starter templates for a new function.
 #. js-lingui-explicit-id
@@ -5878,6 +6388,12 @@ msgstr "Status"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateTab"
+msgstr "Zustand"
+
+#. Label of the state filter and a column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.statusLabel"
 msgstr "Zustand"
 
 #. Drawer tab: state changes.
@@ -5934,17 +6450,35 @@ msgstr "Schritt 1 von 2: Details"
 msgid "library.canvas.save.step2"
 msgstr "Schritt 2 von 2: Parameter und Sichtbarkeit"
 
+#. Button that stops the experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stop"
+msgstr "Experiment stoppen"
+
 #. Button that ends the language-server session.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.stop"
 msgstr "Language-Server beenden"
 
+#. State of an experiment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stateStopped"
+msgstr "Gestoppt"
+
 #. Profile name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.profileStrict"
 msgstr "Streng"
+
+#. Flag type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.typeString"
+msgstr "Zeichenkette"
 
 #. Accessible name of the list of strings of the selection.
 #. js-lingui-explicit-id
@@ -5963,6 +6497,24 @@ msgstr "Studio-Navigation"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "banner.updated"
 msgstr "Studio wurde aktualisiert. Laden Sie neu, um die neue Version zu nutzen."
+
+#. Label of the field that names the varied nodes, page or prop.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.targetLabel"
+msgstr "Gegenstand des Experiments"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colSubjects"
+msgstr "Nutzer"
+
+#. Label of the minimum sample field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.minimumSample"
+msgstr "Nutzer pro Variante bis zum Ergebnis"
 
 #. Mock data state option.
 #. js-lingui-explicit-id
@@ -6066,6 +6618,12 @@ msgstr "Version des Servers übernehmen"
 msgid "publish.stepTarget"
 msgstr "Ziel"
 
+#. Wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stepTarget"
+msgstr "Ziel"
+
 #. Label of the choice of the plugin a screen moves to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -6077,6 +6635,12 @@ msgstr "Ziel-Plugin"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.target"
 msgstr "Zielbildschirm"
+
+#. Wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stepTargeting"
+msgstr "Zielgruppe"
 
 #. Label of the template picker.
 #. js-lingui-explicit-id
@@ -6119,6 +6683,12 @@ msgstr "Textgröße"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.actionFailed"
 msgstr "Die Aktion ist fehlgeschlagen. Es wurde nichts geändert."
+
+#. Shown when an action fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.actionFailed"
+msgstr "Die Aktion ist fehlgeschlagen. Nichts wurde geändert."
 
 #. Approval expired.
 #. js-lingui-explicit-id
@@ -6209,6 +6779,12 @@ msgstr "Die Verbindung zum Language-Server ist abgebrochen: {detail}"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.notJson"
 msgstr "Der Standardwert ist kein gültiges JSON."
+
+#. Error under the flag default field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.badJson"
+msgstr "Der Standardwert muss gültiges JSON sein."
 
 #. Description of the revoke dialog.
 #. js-lingui-explicit-id
@@ -6540,6 +7116,12 @@ msgstr "Der Server hat die Änderung nicht akzeptiert."
 msgid "assets.failure.size-mismatch"
 msgstr "Der Server hat eine andere Anzahl von Bytes erhalten, als die Datei hat. Lade sie erneut hoch."
 
+#. Error: variant shares do not sum to 100.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.weightsSum"
+msgstr "Die Anteile müssen zusammen 100 ergeben."
+
 #. Shown when restoring a snapshot failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -6817,6 +7399,12 @@ msgstr "Das konnte nicht geladen werden."
 msgid "releases.loadFailed"
 msgstr "Das konnte nicht geladen werden."
 
+#. Shown when a request fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.loadFailed"
+msgstr "Das konnte nicht geladen werden."
+
 #. Shown instead of the comparison when the plugin has no published version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -7019,6 +7607,18 @@ msgstr "Papierkorb"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.base"
+msgstr "Typ"
+
+#. Label of the flag type select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagType"
+msgstr "Typ"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colType"
 msgstr "Typ"
 
 #. STU-074 type-to-confirm: label of the field where the user types the name of what is affected.
@@ -7225,6 +7825,36 @@ msgstr "Wert des neuen Tokens"
 msgid "designers.dataType"
 msgstr "Werttyp"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colVariant"
+msgstr "Variante"
+
+#. Label of a variant name field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.variantName"
+msgstr "Name der Variante"
+
+#. Wizard step and heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.stepVariants"
+msgstr "Varianten"
+
+#. Caption of the wizard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.wizardCaption"
+msgstr "Variieren Sie eine Auswahl der Leinwand, teilen Sie die Zielgruppe auf und nennen Sie die entscheidenden Metriken."
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colVerdict"
+msgstr "Urteil"
+
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -7399,6 +8029,12 @@ msgstr "Breite (logische Pixel)"
 msgid "preview.frameTooLarge"
 msgstr "Breite und Höhe dürfen höchstens {max} logische Pixel betragen."
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colWinner"
+msgstr "Gewinner"
+
 #. Status word: the page is within its node budget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -7410,6 +8046,12 @@ msgstr "Im Budget"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.work"
 msgstr "Arbeit"
+
+#. Verdict of a comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.worsened"
+msgstr "Verschlechtert"
 
 #. Command that wraps the selected canvas elements in a new column.
 #. js-lingui-explicit-id

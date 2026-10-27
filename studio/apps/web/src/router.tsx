@@ -14,6 +14,7 @@ import {
 import { z } from "zod";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import type { EditSession } from "./features/editor/edit-session.ts";
+import { experimentsSearchSchema, newExperimentSearchSchema } from "./features/experiments/experiments.schema.ts";
 import { librarySearchSchema } from "./features/library/library.schema.ts";
 import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
@@ -201,6 +202,26 @@ const releasesTimelineRoute = releasesRoute("", "ReleasesPage", releasesSearchSc
 const killSwitchRoute = releasesRoute("/kill-switch", "KillSwitchPage", releaseEnvSearchSchema);
 const releaseRoute = releasesRoute("/$releaseId", "ReleasePage", releaseEnvSearchSchema);
 
+/** A6-A9: experiments, the wizard, one experiment and the flags (STU-103); actions are gated by experiments.manage and flags.manage. */
+function experimentsRoute(
+  path: string,
+  component: "ExperimentsPage" | "NewExperimentPage" | "ExperimentPage" | "FlagsPage",
+  search: typeof experimentsSearchSchema | typeof newExperimentSearchSchema | typeof releaseEnvSearchSchema,
+) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/experiments${path}`,
+    validateSearch: (raw) => search.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/experiments/index.ts"), component),
+  });
+}
+
+const experimentsListRoute = experimentsRoute("", "ExperimentsPage", experimentsSearchSchema);
+const newExperimentRoute = experimentsRoute("/new", "NewExperimentPage", newExperimentSearchSchema);
+const flagsRoute = experimentsRoute("/flags", "FlagsPage", releaseEnvSearchSchema);
+const experimentRoute = experimentsRoute("/$expId", "ExperimentPage", releaseEnvSearchSchema);
+
 const libraryRoute = createRoute({
   getParentRoute: () => orgRoute,
   path: "/library",
@@ -267,6 +288,10 @@ const routeTree = rootRoute.addChildren([
       releasesTimelineRoute,
       killSwitchRoute,
       releaseRoute,
+      experimentsListRoute,
+      newExperimentRoute,
+      flagsRoute,
+      experimentRoute,
       securityProfileRoute,
       publishStartRoute,
       publishRoute,

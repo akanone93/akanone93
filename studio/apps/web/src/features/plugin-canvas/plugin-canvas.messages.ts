@@ -52,6 +52,11 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Unwrap selection",
       comment: "Command that replaces the selected container on the canvas by its children.",
     }),
+    experimentCommand: i18n._({
+      id: "pluginCanvas.command.experiment",
+      message: "Create experiment from selection",
+      comment: "Command that opens the experiment wizard with the selected canvas elements as the subject.",
+    }),
     duplicateCommand: i18n._({
       id: "pluginCanvas.command.duplicate",
       message: "Duplicate selection",
