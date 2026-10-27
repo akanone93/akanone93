@@ -773,6 +773,15 @@ var matrix = map[string]entry{
 	"FunctionAdminService/ListVersions": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListVersionsRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn"}
 	})),
+	"FunctionAdminService/RunTests": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		return drain(f.w.functionAdmin.RunTests(context.Background(), req(c, &pluxv1.RunTestsRequest{SourceId: f.freshSource(t)})))
+	}},
+	// LanguageServerService: the sandbox runs at the organisation's cost on
+	// a source that Build accepts, so both calls need what Build needs.
+	"LanguageServerService/Open": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		return drain(f.w.languageServer.Open(context.Background(), req(c, &pluxv1.LanguageServerServiceOpenRequest{SourceId: f.freshSource(t)})))
+	}},
+	"LanguageServerService/Send": atPerm(auth.FunctionDeploy, anyone(&pluxv1.LanguageServerServiceSendRequest{SessionId: "no-such-session", Sequence: 1, Message: []byte("{}")})),
 	"FunctionAdminService/Deploy": atPerm(auth.FunctionDeploy, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.dev)}
 	}),

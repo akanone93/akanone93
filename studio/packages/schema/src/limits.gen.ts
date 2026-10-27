@@ -1424,6 +1424,16 @@ export const limits = [
     description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys.",
   },
   {
+    key: "lsp.messageBytes",
+    unit: "bytes",
+    default: 1048576,
+    warning: 0,
+    max: 8388608,
+    scopes: ["installation", "organization"],
+    phase: "P11",
+    description: "Size of one language-server message the Rust editor sends to its sandbox; a document the editor opens must fit.",
+  },
+  {
     key: "lsp.sessionMinutes",
     unit: "count",
     default: 60,

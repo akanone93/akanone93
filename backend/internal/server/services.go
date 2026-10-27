@@ -212,6 +212,10 @@ type WorkDeps struct {
 	// Linker links the device functions of a plugin into one module on the
 	// builder role (FN-051); set with Builder.
 	Linker function.Linker
+	// Editor runs the Rust editor's language-server sessions and test runs
+	// on the builder role (FN-033, FN-034); the api role is given one where
+	// builder.address is set. It never holds a signer.
+	Editor function.Editor
 	// FunctionKey is the key reference that signs the statements of
 	// function builds (signing.keys.functionArtifact).
 	FunctionKey string
@@ -1261,6 +1265,9 @@ func operationsRegistrations(svc *Services, h *api.Handlers, opts connect.Handle
 	if svc.Functions != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
+		})
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewLanguageServerServiceHandler(h.LanguageServer(), opts)
 		})
 	}
 	return registrations

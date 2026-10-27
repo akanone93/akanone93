@@ -9,10 +9,10 @@ package config
 // worker reaches it only over mutual TLS (FN-016).
 func (c *Config) validateBuilder(p *problems) {
 	b := c.Builder
-	if c.Has(RoleWorker) && b.Address != "" {
+	if (c.Has(RoleWorker) || c.Has(RoleAPI)) && b.Address != "" {
 		checkURL(p, "builder.address", b.Address)
 		if !c.Server.InternalTLS.Enabled() {
-			p.addf("builder.address", "the worker reaches the builder over mutual TLS; set server.internalTLS")
+			p.addf("builder.address", "the worker and the api role reach the builder over mutual TLS; set server.internalTLS")
 		}
 	}
 	if !c.Has(RoleBuilder) {
@@ -33,6 +33,15 @@ func (c *Config) validateBuilder(p *problems) {
 	}
 	if b.Concurrency < 1 {
 		p.addf("builder.concurrency", "must be at least 1")
+	}
+	if b.LanguageSessions < 0 {
+		p.addf("builder.languageSessions", "must not be negative")
+	}
+	if b.LanguageSessions > 0 && b.LanguageServer == "" {
+		p.addf("builder.languageServer", "must name the rust-analyzer executable when builder.languageSessions is set")
+	}
+	if b.LanguageServer != "" && b.LanguageSessions == 0 {
+		p.addf("builder.languageSessions", "must be at least 1 when builder.languageServer is set")
 	}
 }
 

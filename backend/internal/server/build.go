@@ -336,6 +336,15 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 	}
 	queue := &JobQueue{}
 	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, PushHTTP: o.pushHTTP, PushEndpoints: o.pushEnds, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, AnalyticsExporter: o.fileExporter, Identity: o.identity, Governance: o.governance}
+	if cfg.Has(config.RoleAPI) && cfg.Builder.Address != "" {
+		// The Rust editor's route to the builder (FN-033). It carries no
+		// signer: only the worker role is given one (SRV-052).
+		client, err := buildBuilderClient(cfg, store)
+		if err != nil {
+			return nil, nil, err
+		}
+		deps.Editor = client
+	}
 	if cfg.Has(config.RoleWorker) {
 		if err := addWorkerDeps(ctx, cfg, log, store, backend, o, &deps); err != nil {
 			return nil, nil, err
