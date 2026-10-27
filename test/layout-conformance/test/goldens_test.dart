@@ -95,8 +95,15 @@ void _collectTextIds(Map<String, Object?> node, List<String> into) {
   }
 }
 
+/// Types that draw text of their own from props, so their scenes are captured at both text scales.
+const Set<String> _labelledTypes = <String>{
+  'Autocomplete', 'CalendarDatePicker', 'DataTable', 'DropdownMenu', 'NavigationDrawer', 'PopupMenuButton',
+  'SegmentedButton', 'Stepper',
+};
+
 bool _hasText(Map<String, Object?> node) =>
     node['type'] == 'Text' ||
+    _labelledTypes.contains(node['type']) ||
     ((node['children'] as List<Object?>?) ?? <Object?>[]).any(
       (Object? child) => _hasText(child! as Map<String, Object?>),
     );
@@ -429,7 +436,7 @@ const Set<String> _materialTypes = <String>{
   'Chip', 'FilterChip', 'InputChip', 'ActionChip', 'ChoiceChip', 'Checkbox', 'Switch', 'Radio', 'Divider', 'VerticalDivider',
   'CircleAvatar', 'CircularProgressIndicator', 'LinearProgressIndicator', 'Card', 'Badge', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
   'BackButton', 'CloseButton', 'Slider', 'RangeSlider', 'CheckboxListTile', 'SwitchListTile', 'RadioListTile',
-  'SearchBar', 'SearchAnchor', 'BottomAppBar', 'BottomNavigationBar', 'ExpansionTile',
+  'SearchBar', 'SearchAnchor', 'BottomNavigationBar', 'ExpansionTile',
   ...materialCompositeTypes,
 };
 
@@ -816,8 +823,6 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
           suggestionsBuilder: (BuildContext context, SearchController controller) => const <Widget>[],
         ),
       );
-    case 'BottomAppBar':
-      return BottomAppBar(key: key, child: one('child'));
     case 'BottomNavigationBar':
       return BottomNavigationBar(
         key: key,

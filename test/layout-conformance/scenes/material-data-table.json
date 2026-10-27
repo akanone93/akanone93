@@ -1,0 +1,71 @@
+{
+  "name": "material-data-table",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "dt",
+            "type": "DataTable",
+            "props": {
+              "columns": [
+                {
+                  "label": "Name"
+                },
+                {
+                  "label": "Qty",
+                  "numeric": true
+                }
+              ],
+              "rows": [
+                [
+                  "Apple",
+                  "3"
+                ],
+                [
+                  "Banana split",
+                  "12"
+                ]
+              ]
+            }
+          },
+          {
+            "id": "dt2",
+            "type": "DataTable",
+            "props": {
+              "columns": [
+                {
+                  "label": "Item"
+                }
+              ],
+              "rows": [
+                [
+                  "One"
+                ]
+              ],
+              "horizontalMargin": 12,
+              "columnSpacing": 20,
+              "headingRowHeight": 40,
+              "dataRowMinHeight": 36,
+              "dataRowMaxHeight": 36
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

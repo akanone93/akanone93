@@ -1,0 +1,37 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "material-autocomplete",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "en",
+  "textScale": 2.0,
+  "rects": {
+    "ac": [
+      0.0,
+      0.0,
+      800.0,
+      64.0
+    ],
+    "ac2": [
+      0.0,
+      64.0,
+      800.0,
+      64.0
+    ],
+    "col": [
+      0.0,
+      0.0,
+      800.0,
+      128.0
+    ],
+    "frame": [
+      0.0,
+      0.0,
+      800.0,
+      1280.0
+    ]
+  }
+}

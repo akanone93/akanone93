@@ -1,0 +1,108 @@
+{
+  "name": "material-banner",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "mb",
+            "type": "MaterialBanner",
+            "props": {},
+            "children": [
+              {
+                "id": "mb-c",
+                "type": "Text",
+                "props": {
+                  "text": "Update available"
+                },
+                "slot": "content"
+              },
+              {
+                "id": "mb-a",
+                "type": "TextButton",
+                "props": {},
+                "slot": "actions",
+                "children": [
+                  {
+                    "id": "mb-at",
+                    "type": "Text",
+                    "props": {
+                      "text": "Dismiss"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "mb2",
+            "type": "MaterialBanner",
+            "props": {
+              "forceActionsBelow": true
+            },
+            "children": [
+              {
+                "id": "mb2-c",
+                "type": "Text",
+                "props": {
+                  "text": "Update available"
+                },
+                "slot": "content"
+              },
+              {
+                "id": "mb2-l",
+                "type": "Icon",
+                "props": {},
+                "slot": "leading"
+              },
+              {
+                "id": "mb2-a",
+                "type": "TextButton",
+                "props": {},
+                "slot": "actions",
+                "children": [
+                  {
+                    "id": "mb2-at",
+                    "type": "Text",
+                    "props": {
+                      "text": "Dismiss"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "mb2-b",
+                "type": "TextButton",
+                "props": {},
+                "slot": "actions",
+                "children": [
+                  {
+                    "id": "mb2-bt",
+                    "type": "Text",
+                    "props": {
+                      "text": "Update"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
