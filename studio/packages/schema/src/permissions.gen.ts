@@ -30,6 +30,8 @@ export type PermissionName =
   | "goldens.approve"
   | "keys.manage"
   | "killswitch.manage"
+  | "library.manage"
+  | "library.publish"
   | "license.manage"
   | "limits.manage"
   | "members.manage"
@@ -352,6 +354,28 @@ export const permissions = [
     risk: "high",
     stepUp: true,
     scope: "environment",
+    readOnly: false,
+  },
+  {
+    name: "library.manage",
+    description: "Edit the organisation's shared templates and components that someone else made.",
+    area: "library",
+    feature: "library",
+    action: "manage",
+    risk: "medium",
+    stepUp: false,
+    scope: "organization",
+    readOnly: false,
+  },
+  {
+    name: "library.publish",
+    description: "Make a template or component public to the whole installation.",
+    area: "library",
+    feature: "library",
+    action: "publish",
+    risk: "medium",
+    stepUp: false,
+    scope: "organization",
     readOnly: false,
   },
   {
@@ -704,6 +728,8 @@ export const roles = [
       "goldens.approve",
       "keys.manage",
       "killswitch.manage",
+      "library.manage",
+      "library.publish",
       "license.manage",
       "limits.manage",
       "members.manage",
@@ -748,6 +774,8 @@ export const roles = [
       "function.deploy.production",
       "function.read",
       "goldens.approve",
+      "library.manage",
+      "library.publish",
       "limits.manage",
       "organization.manage",
       "organization.read",

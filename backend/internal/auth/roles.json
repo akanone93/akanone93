@@ -22,6 +22,8 @@
         "function.deploy.production",
         "function.read",
         "goldens.approve",
+        "library.manage",
+        "library.publish",
         "limits.manage",
         "organization.manage",
         "organization.read",

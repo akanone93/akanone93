@@ -44,6 +44,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
+	"github.com/nightCode42/plux3/backend/internal/library"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
@@ -460,8 +461,12 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	libraryService, err := library.NewService(library.Options{DB: db, Audit: log, IDs: gen, Instances: docs})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
-		DevSessions: devSessions,
+		DevSessions: devSessions, Library: libraryService,
 		Emergencies: emergencies, Freezes: freezes, Reports: reports,
 		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
