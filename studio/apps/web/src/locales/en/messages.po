@@ -13,6 +13,12 @@ msgstr ""
 msgid "pluginCanvas.copySuffix"
 msgstr "(copy)"
 
+#. Says where an alias points.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.aliasAt"
+msgstr "{alias} points at version {version}"
+
 #. The version an app adopted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -868,6 +874,18 @@ msgstr "Advance to next stage"
 msgid "security.colAlgorithm"
 msgstr "Algorithm"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colAlias"
+msgstr "Alias"
+
+#. Label of the alias field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.aliasLabel"
+msgstr "Alias"
+
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -897,6 +915,12 @@ msgstr "All at once"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.allDevices"
 msgstr "All devices"
+
+#. Link back to the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.back"
+msgstr "All functions"
 
 #. Option: every translation key of the app.
 #. js-lingui-explicit-id
@@ -1180,6 +1204,12 @@ msgstr "Assets"
 msgid "security.colAssurance"
 msgstr "Assurance"
 
+#. Tab label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.tabAssurance"
+msgstr "Assurance"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1300,6 +1330,12 @@ msgstr "Break-glass reviews"
 msgid "rustEditor.buildDiagnostics"
 msgstr "Build output"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceBuilder"
+msgstr "Builder"
+
 #. State of a publish job.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -1341,6 +1377,12 @@ msgstr "Button"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.by"
 msgstr "by {author}"
+
+#. Metric label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.metricCache"
+msgstr "Cache hits"
 
 #. Button.
 #. js-lingui-explicit-id
@@ -1467,6 +1509,12 @@ msgstr "Canvas actions"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.toolbar"
 msgstr "Canvas actions"
+
+#. Tab label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.tabCapabilities"
+msgstr "Capabilities"
 
 #. Heading.
 #. js-lingui-explicit-id
@@ -2080,6 +2128,12 @@ msgstr "Create link"
 msgid "releases.colCreated"
 msgstr "Created"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colCreated"
+msgstr "Created"
+
 #. Explains the rollback button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -2350,6 +2404,12 @@ msgstr "Density"
 msgid "rustEditor.tabDependencies"
 msgstr "Dependencies"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceDeps"
+msgstr "Dependencies"
+
 #. Confirm button of the dialog that marks a published plugin deprecated (STU-073).
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -2464,12 +2524,6 @@ msgstr "Device frame"
 msgid "preview.matrix"
 msgstr "Device matrix"
 
-#. Column heading.
-#. js-lingui-explicit-id
-#: apps/web/src/features/approvals/approvals.messages.ts
-msgid "approvals.colDevices"
-msgstr "Devices"
-
 #. Heading of the devices list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2480,6 +2534,12 @@ msgstr "Devices"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.bayToggle"
+msgstr "Devices"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colDevices"
 msgstr "Devices"
 
 #. Column heading.
@@ -2619,6 +2679,12 @@ msgstr "Edit {name} in the Rust editor"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.editGrants"
 msgstr "Edit grants"
+
+#. Link to the full-page Rust editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.openEditor"
+msgstr "Edit in the Rust editor"
 
 #. Caption.
 #. js-lingui-explicit-id
@@ -2764,6 +2830,12 @@ msgstr "Entry-level Android"
 msgid "publish.environment"
 msgstr "Environment"
 
+#. Label of the environment filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.envLabel"
+msgstr "Environment"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -2805,6 +2877,12 @@ msgstr "Error"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.errors"
 msgstr "Errors"
+
+#. Metric label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.metricErrors"
+msgstr "Errors by kind"
 
 #. Option: only errors.
 #. js-lingui-explicit-id
@@ -2992,6 +3070,12 @@ msgstr "Failed"
 msgid "publish.buildFailed"
 msgstr "Failed"
 
+#. Shown when the tests of a version failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.testsPassedNo"
+msgstr "Failed"
+
 #. Visual diff failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -3148,6 +3232,18 @@ msgstr "Freeze and build"
 msgid "designers.dbPlanFrom"
 msgstr "From version"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colName"
+msgstr "Function"
+
+#. Heading of one function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.detailTitle"
+msgstr "Function {name}"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3164,6 +3260,12 @@ msgstr "Functions"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfFunctions"
+msgstr "Functions"
+
+#. Heading of the functions list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.listTitle"
 msgstr "Functions"
 
 #. Drawer tab: function calls.
@@ -3364,6 +3466,12 @@ msgstr "Holdout in percent"
 msgid "chrome.home"
 msgstr "Home"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capAbi"
+msgstr "Host ABI version"
+
 #. Heading of the group of custom actions registered by the host app in the action list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -3460,6 +3568,12 @@ msgstr "Information"
 msgid "panelTabs.stateDefault"
 msgstr "Initial value of {name}"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capInput"
+msgstr "Input schema"
+
 #. Tab: add widgets to the screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3519,6 +3633,12 @@ msgstr "Interactive"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colInterval"
 msgstr "Interval"
+
+#. Metric label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.metricInvocations"
+msgstr "Invocations"
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -3798,6 +3918,30 @@ msgstr "Last attestation"
 msgid "security.lastSeen"
 msgstr "Last seen"
 
+#. Metric label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.metricP50"
+msgstr "Latency p50 (microseconds)"
+
+#. Metric label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.metricP95"
+msgstr "Latency p95 (microseconds)"
+
+#. Metric label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.metricP99"
+msgstr "Latency p99 (microseconds)"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colVersion"
+msgstr "Latest version"
+
 #. Tab: the tree of the nodes of the screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3839,6 +3983,12 @@ msgstr "Left"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.dock"
 msgstr "Left panels"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colLevel"
+msgstr "Level"
 
 #. Label of the drawer's log level filter.
 #. js-lingui-explicit-id
@@ -3986,6 +4136,12 @@ msgstr "Loading"
 
 #. Shown while a page loads.
 #. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.loading"
+msgstr "Loading"
+
+#. Shown while a page loads.
+#. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.loading"
 msgstr "Loading"
@@ -4079,6 +4235,18 @@ msgstr "Lock taken over"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.lockedBy"
 msgstr "Locked by {who}"
+
+#. Caption of the log table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.logsTitle"
+msgstr "Log lines"
+
+#. Tab label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.tabLogs"
+msgstr "Logs"
 
 #. Drawer tab: device logs.
 #. js-lingui-explicit-id
@@ -4176,6 +4344,18 @@ msgstr "Medium"
 msgid "approvals.riskMedium"
 msgstr "Medium"
 
+#. Metric label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.metricMemory"
+msgstr "Memory peak (bytes)"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colMessage"
+msgstr "Message"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -4187,6 +4367,12 @@ msgstr "Metric"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.primaryKind"
 msgstr "Metric kind"
+
+#. Tab label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.tabMetrics"
+msgstr "Metrics"
 
 #. Wizard step.
 #. js-lingui-explicit-id
@@ -4223,6 +4409,12 @@ msgstr "Mixed"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataMock"
 msgstr "Mock value (JSON)"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceModule"
+msgstr "Module hash"
 
 #. Button that confirms moving a screen to the chosen plugin.
 #. js-lingui-explicit-id
@@ -4566,6 +4758,12 @@ msgstr "No changes."
 msgid "cmd.palette.empty"
 msgstr "No command matches."
 
+#. Shown when a build has none.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.noDeps"
+msgstr "No dependencies."
+
 #. Shown in the send dialog when no device is paired.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -4590,6 +4788,12 @@ msgstr "No diff is attached."
 msgid "releases.clearEnd"
 msgstr "No end"
 
+#. Shown when no error occurred.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.noErrors"
+msgstr "No errors."
+
 #. Shown when no experiment matches.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -4608,6 +4812,12 @@ msgstr "No findings"
 msgid "experiments.noFlags"
 msgstr "No flags yet."
 
+#. Shown when there is no function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.noFunctions"
+msgstr "No function is deployed in this environment."
+
 #. Shown while a rollout has no health figures.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -4625,6 +4835,12 @@ msgstr "No instance uses this component yet."
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.noKeys"
 msgstr "No keys are published for this environment."
+
+#. Shown when there are none.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.noLogs"
+msgstr "No log lines."
 
 #. Shown when the migration preview has no finding.
 #. js-lingui-explicit-id
@@ -4793,6 +5009,12 @@ msgstr "Not production"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.unset"
 msgstr "Not set"
+
+#. Says the version carries no signature.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceUnsigned"
+msgstr "Not signed"
 
 #. Short description of a requirement.
 #. js-lingui-explicit-id
@@ -5082,6 +5304,12 @@ msgstr "Other page-state references stay as they are; check them after inserting
 msgid "links.otherPlugin"
 msgstr "Other plugin"
 
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capOutput"
+msgstr "Output schema"
+
 #. Status word: the page has more nodes than the budget allows.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -5184,6 +5412,12 @@ msgstr "Parameters to ask when the template is inserted"
 msgid "rustEditor.testPass"
 msgstr "Passed"
 
+#. Shown when the tests of a version passed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.testsPassedYes"
+msgstr "Passed"
+
 #. Label of the password field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -5264,6 +5498,12 @@ msgstr "Pixel density must be between 1 and {max}."
 
 #. Column heading.
 #. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colPlacement"
+msgstr "Placement"
+
+#. Column heading.
+#. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colPlatform"
 msgstr "Platform"
@@ -5333,6 +5573,12 @@ msgstr "Plux Studio"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "unsupported.body"
 msgstr "Plux Studio needs WebGL2 to draw the canvas. Use a current version of Chrome, Edge, Firefox or Safari with hardware acceleration on."
+
+#. Button that points an alias at a version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.promoteAlias"
+msgstr "Point alias at this version"
 
 #. Link to the approval policies.
 #. js-lingui-explicit-id
@@ -6372,6 +6618,12 @@ msgstr "Running tests…"
 msgid "rustEditor.runningTests"
 msgstr "Running the tests…"
 
+#. Label of where the function runs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capPlacement"
+msgstr "Runs on"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -6388,6 +6640,12 @@ msgstr "Rust editor"
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.title"
+msgstr "Rust editor"
+
+#. Heading of the full-page editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.editTitle"
 msgstr "Rust editor"
 
 #. Accessible name of the text editor that holds the function's Rust source.
@@ -6846,6 +7104,12 @@ msgstr "Sign out"
 msgid "auth.error.failed"
 msgstr "Sign-in failed. Try again in a moment."
 
+#. Says the version carries a builder signature.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceSigned"
+msgstr "Signed by the builder"
+
 #. Button label while the sign-in request runs.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -6953,6 +7217,12 @@ msgstr "Source device"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImportFormat"
 msgstr "Source format"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceSource"
+msgstr "Source hash"
 
 #. Label of the text area that holds the text to import.
 #. js-lingui-explicit-id
@@ -7127,6 +7397,12 @@ msgstr "Stop the language server"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.stateStopped"
 msgstr "Stopped"
+
+#. Label of the stored tests state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceTests"
+msgstr "Stored tests"
 
 #. Profile name.
 #. js-lingui-explicit-id
@@ -7344,6 +7620,18 @@ msgstr "Templates"
 msgid "rustEditor.tabTests"
 msgstr "Tests"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colTests"
+msgstr "Tests"
+
+#. Tab label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.tabTests"
+msgstr "Tests"
+
 #. Label of the read-only field that shows the text being moved to a key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -7373,6 +7661,12 @@ msgstr "The action failed. Nothing was changed."
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.actionFailed"
 msgstr "The action failed. Nothing was changed."
+
+#. Shown when SetAlias fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.aliasFailed"
+msgstr "The alias could not be changed."
 
 #. Approval expired.
 #. js-lingui-explicit-id
@@ -7482,6 +7776,12 @@ msgstr "The default is not valid JSON."
 msgid "experiments.badJson"
 msgstr "The default value must be valid JSON."
 
+#. Placement value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.placementDevice"
+msgstr "the device"
+
 #. Description of the revoke dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -7559,6 +7859,12 @@ msgstr "The file was damaged on the way to the server. Upload it again."
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.noDependencies"
 msgstr "The function has no dependencies."
+
+#. Caption under the functions heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.listCaption"
+msgstr "The functions of this environment with their latest version."
 
 #. Help text under the field for the identifier of an uploaded function source.
 #. js-lingui-explicit-id
@@ -7823,6 +8129,12 @@ msgstr "The selection has no text to expose."
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.l10nNone"
 msgstr "The selection shows no translatable text."
+
+#. Placement value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.placementServer"
+msgstr "the server"
 
 #. Shown when a screen action failed.
 #. js-lingui-explicit-id
@@ -8133,6 +8445,12 @@ msgstr "This could not be loaded."
 
 #. Shown when a request fails.
 #. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.loadFailed"
+msgstr "This could not be loaded."
+
+#. Shown when a request fails.
+#. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.loadFailed"
 msgstr "This could not be loaded."
@@ -8299,6 +8617,12 @@ msgstr "This widget has no events."
 msgid "links.none"
 msgstr "This widget has no links yet."
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.colTime"
+msgstr "Time"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -8310,6 +8634,12 @@ msgstr "Toggle light and dark theme"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeToken"
 msgstr "Token"
+
+#. Label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceToolchain"
+msgstr "Toolchain"
 
 #. Edge inset at the top.
 #. js-lingui-explicit-id
@@ -8459,6 +8789,12 @@ msgstr "Upload file"
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.source"
+msgstr "Uploaded source"
+
+#. Label of the source id field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.sourceLabel"
 msgstr "Uploaded source"
 
 #. Accessible name of the progress meter of a file being uploaded; name is the file's name.
@@ -8665,6 +9001,12 @@ msgstr "Version {n} is adopted."
 msgid "publish.buildVersion"
 msgstr "Version {version}"
 
+#. Names a version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.versionN"
+msgstr "Version {version}"
+
 #. Label of the field for the version requirement of a crate, such as 1.0.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -8681,6 +9023,12 @@ msgstr "Versions"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.versions"
+msgstr "Versions"
+
+#. Tab label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.tabVersions"
 msgstr "Versions"
 
 #. Link from an approval or security notification to its audit record.
