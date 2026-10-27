@@ -1,12 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { budgetStatus, compactJson, functionsIn, nodeBudget, stringsIn, subtreeOf } from "./tab-model.ts";
+
+/** Monaco needs a real browser and leaves its globals behind; the Code tab test opens the editor on a stand-in. */
+mock.module("../rust-editor/rust-monaco-view.tsx", () => ({
+  default: (props: { label: string; value: string }) => (
+    <textarea aria-label={props.label} readOnly value={props.value} />
+  ),
+}));
 
 afterEach(cleanup);
 
@@ -165,5 +172,7 @@ describe("Code tab functions (FN-033, FN-034)", () => {
     fireEvent.click(within(used).getByRole("button", { name: "Edit bank.transferFee in the Rust editor" }));
     const dialog = await screen.findByRole("dialog");
     expect((within(dialog).getByLabelText("Uploaded source") as HTMLInputElement).value).toBe("bank.transferFee");
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 });
