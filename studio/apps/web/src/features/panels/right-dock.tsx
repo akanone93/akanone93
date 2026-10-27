@@ -12,6 +12,7 @@ import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
 import type { JsonValue } from "../editor/json-patch.ts";
 import { historyMessages } from "../history/history.messages.ts";
 import { jsonEditorMessages } from "../json-editor/json-editor.messages.ts";
+import { InstanceOverrides } from "../library/canvas/instance-overrides.tsx";
 import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../localisation/index.ts";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
@@ -545,6 +546,9 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
         value={bp}
         onValueChange={(v) => setBp(v as Breakpoint)}
       />
+      {ids.length === 1 && (
+        <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
+      )}
       {props.map((prop: PropDescriptor) => {
         const sv = sharedValue(selected, prop.name, bp);
         const mixed = sv.mixed;

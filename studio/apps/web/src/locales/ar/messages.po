@@ -25,6 +25,12 @@ msgstr "{app} اعتمد الإصدار {n}"
 msgid "library.notAdopted"
 msgstr "{app} لم يعتمد أي إصدار"
 
+#. One instance in the impact list: its app and screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.row"
+msgstr "{app}، الشاشة {screen}"
+
 #. Instances of a component in one app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -1419,6 +1425,18 @@ msgstr "مقارنة {when}"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.diff"
 msgstr "المقارنة مع آخر إصدار منشور"
+
+#. Title of the dialog that lists the instances a revised component version changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.title"
+msgstr "تعديل المكوّن: النسخ التي ستتغيّر"
+
+#. Heading of the Properties section that edits a component instance's overrides.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.heading"
+msgstr "تجاوزات المكوّن"
 
 #. Group of the Insert tab: ready-made components (Layer 2).
 #. js-lingui-explicit-id
@@ -3390,6 +3408,12 @@ msgstr "لم يتم إقران أي جهاز بعد."
 msgid "security.noDevices"
 msgstr "لا توجد أجهزة مطابقة."
 
+#. Shown when a revised component has no instances.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.none"
+msgstr "لا توجد نسخة تستخدم هذا المكوّن بعد."
+
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3767,6 +3791,12 @@ msgstr "تجاوز حد التحذير"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.overridden"
 msgstr "مُتجاوَز لفئة الحجم هذه"
+
+#. Flags an instance whose overrides may name props or slots the revision removes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.conflict"
+msgstr "قد تتعارض التجاوزات: أُزيل {names}"
 
 #. Heading of the flagged overrides after adoption.
 #. js-lingui-explicit-id
@@ -4422,6 +4452,12 @@ msgstr "مطلوب"
 msgid "actionGraph.required"
 msgstr "مطلوب"
 
+#. Button: remove one override from a component instance.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.reset"
+msgstr "إعادة تعيين {name}"
+
 #. Accessible name of the button that removes the override of one property.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -4505,6 +4541,12 @@ msgstr "استئناف"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.outputType"
 msgstr "يعيد {type}"
+
+#. Button: choose a revised component document to save as a new version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.revise"
+msgstr "مراجعة من ملف"
 
 #. Heading of the template revision list.
 #. js-lingui-explicit-id
@@ -4619,6 +4661,12 @@ msgstr "حفظ"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.save.title"
 msgstr "حفظ كقالب"
+
+#. Button: save the revised component version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.confirm"
+msgstr "حفظ إصدار جديد"
 
 #. Button: stores the screenshot as an app asset.
 #. js-lingui-explicit-id
@@ -4985,6 +5033,12 @@ msgstr "قيمة واحدة"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.breakpoint"
 msgstr "فئة الحجم"
+
+#. Shown when an instance replaces the content of a slot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.slot"
+msgstr "الفتحة {name} متجاوَزة"
 
 #. Heading of the list of slots in the docs tab.
 #. js-lingui-explicit-id
@@ -5803,6 +5857,12 @@ msgstr "المدقّق غير جاهز بعد، لذا لا يمكن تطبيق 
 msgid "library.adopt.failed"
 msgstr "تعذّر اعتماد الإصدار."
 
+#. Error after a failed save of a revised component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.impact.failed"
+msgstr "تعذّر حفظ الإصدار."
+
 #. Error after a failed visibility change.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -5904,6 +5964,12 @@ msgstr "هذا التغيير يؤثر في شيفرة خارج Studio"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.expired"
 msgstr "انتهت صلاحية هذا الرمز."
+
+#. Shown when a component instance has nothing to override.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.overrides.none"
+msgstr "لا يعرض هذا المكوّن أي خصائص أو فتحات."
 
 #. Shown when a request fails.
 #. js-lingui-explicit-id

@@ -143,5 +143,29 @@ export function canvasLibraryMessages(i18n: I18n) {
     private: i18n._({ id: "library.canvas.private", message: "Private", comment: "Visibility." }),
     organization: i18n._({ id: "library.canvas.organization", message: "Organisation", comment: "Visibility." }),
     visibility: i18n._({ id: "library.canvas.visibility", message: "Visibility", comment: "Field label." }),
+    overridesHeading: i18n._({
+      id: "library.canvas.overrides.heading",
+      message: "Component overrides",
+      comment: "Heading of the Properties section that edits a component instance's overrides.",
+    }),
+    overridesNone: i18n._({
+      id: "library.canvas.overrides.none",
+      message: "This component exposes no props or slots.",
+      comment: "Shown when a component instance has nothing to override.",
+    }),
+    overrideReset: (name: string) =>
+      i18n._({
+        id: "library.canvas.overrides.reset",
+        message: "Reset {name}",
+        comment: "Button: remove one override from a component instance.",
+        values: { name },
+      }),
+    overrideSlot: (name: string) =>
+      i18n._({
+        id: "library.canvas.overrides.slot",
+        message: "Slot {name} is overridden",
+        comment: "Shown when an instance replaces the content of a slot.",
+        values: { name },
+      }),
   };
 }

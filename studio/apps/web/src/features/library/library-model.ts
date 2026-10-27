@@ -149,3 +149,27 @@ export function interfaceDiff(from: Uint8Array | undefined, to: Uint8Array | und
   const slots = delta("slots");
   return { addedProps: props.added, removedProps: props.removed, addedSlots: slots.added, removedSlots: slots.removed };
 }
+
+/** The screen a use site is on: the page document's file name without its extension. */
+export function screenOfFile(file: string): string {
+  const name = file.slice(file.lastIndexOf("/") + 1);
+  return name.replace(/\.page\.json$|\.json$/, "");
+}
+
+/** The prop and slot names a component document exposes, with the declared prop types. */
+export function interfaceOf(content: Uint8Array | undefined): {
+  readonly props: ReadonlyMap<string, string>;
+  readonly slots: readonly string[];
+} {
+  const types = new Map<string, string>();
+  try {
+    const doc = JSON.parse(new TextDecoder().decode(content)) as { props?: unknown };
+    const part = doc.props;
+    for (const [k, v] of Object.entries(Array.isArray(part) ? {} : (part ?? {}))) {
+      types.set(k, typeof v === "object" && v !== null ? String((v as { type?: unknown }).type ?? "string") : "string");
+    }
+  } catch {
+    // an unreadable document exposes nothing
+  }
+  return { props: types, slots: [...namesOf(content, "slots")] };
+}
