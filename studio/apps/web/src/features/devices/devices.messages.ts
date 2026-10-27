@@ -242,5 +242,127 @@ export function devicesMessages(i18n: I18n) {
         values: { n },
         comment: "Shown while the drawer is paused: how many events arrived since.",
       }),
+    bayToggle: i18n._({
+      id: "devices.bayToggle",
+      message: "Devices",
+      comment: "Button that shows or hides the device drawer under the canvas.",
+    }),
+    pairAction: i18n._({
+      id: "devices.pairAction",
+      message: "Pair a device",
+      comment: "Toolbar button and palette command that open the pairing dialog.",
+    }),
+    sendAction: i18n._({
+      id: "devices.sendAction",
+      message: "Send to device",
+      comment: "Toolbar button and palette command that open the send-to-device dialog.",
+    }),
+    highlight: i18n._({
+      id: "devices.highlight",
+      message: "Highlight selection on device",
+      comment: "Switch: the node selected in Studio is highlighted on the paired device (inspect mode).",
+    }),
+    highlighted: i18n._({
+      id: "devices.highlighted",
+      message: "Highlighting on the device.",
+      comment: "Status shown while highlighting is on.",
+    }),
+    inspected: i18n._({
+      id: "devices.inspected",
+      message: "Selected from the device.",
+      comment: "Announced when a tap on the device selected a node in Studio.",
+    }),
+    controlsTitle: i18n._({
+      id: "devices.controlsTitle",
+      message: "Device controls",
+      comment: "Heading of the controls that change a paired device.",
+    }),
+    reload: i18n._({
+      id: "devices.reload",
+      message: "Reload screen",
+      comment: "Button: opens the current route on the device again.",
+    }),
+    apply: i18n._({
+      id: "devices.apply",
+      message: "Apply",
+      comment: "Button: applies the locale, theme, text scale and route to the device.",
+    }),
+    lineDebug: i18n._({
+      id: "devices.lineDebug",
+      message: "debug",
+      comment: "Level label of a console line.",
+    }),
+    lineInfo: i18n._({
+      id: "devices.lineInfo",
+      message: "info",
+      comment: "Level label of a console line.",
+    }),
+    lineWarning: i18n._({
+      id: "devices.lineWarning",
+      message: "warning",
+      comment: "Level label of a console line.",
+    }),
+    lineError: i18n._({
+      id: "devices.lineError",
+      message: "error",
+      comment: "Level label of a console line.",
+    }),
+    screenshotCapture: i18n._({
+      id: "devices.screenshotCapture",
+      message: "Capture screenshot",
+      comment: "Button: asks the paired device for a screenshot.",
+    }),
+    screenshotAlt: i18n._({
+      id: "devices.screenshotAlt",
+      message: "Screenshot of the paired device",
+      comment: "Alternative text of a captured device screenshot.",
+    }),
+    screenshotUse: i18n._({
+      id: "devices.screenshotUse",
+      message: "Keep it as",
+      comment: "Label of the choice of what a screenshot is kept as.",
+    }),
+    useThumbnail: i18n._({
+      id: "devices.useThumbnail",
+      message: "Screen thumbnail",
+      comment: "Screenshot use: the thumbnail of a screen.",
+    }),
+    useSlotPreview: i18n._({
+      id: "devices.useSlotPreview",
+      message: "Native slot preview",
+      comment: "Screenshot use: the preview of a native widget slot on the canvas.",
+    }),
+    useTranslationContext: i18n._({
+      id: "devices.useTranslationContext",
+      message: "Translation context",
+      comment: "Screenshot use: context shown to translators.",
+    }),
+    screenshotTarget: i18n._({
+      id: "devices.screenshotTarget",
+      message: "Screen or slot ID",
+      comment: "Label of the field naming the screen or slot a screenshot belongs to.",
+    }),
+    screenshotSave: i18n._({
+      id: "devices.screenshotSave",
+      message: "Save screenshot",
+      comment: "Button: stores the screenshot as an app asset.",
+    }),
+    screenshotSaved: i18n._({
+      id: "devices.screenshotSaved",
+      message: "Screenshot saved.",
+      comment: "Shown after a screenshot was stored.",
+    }),
+    platformViews: i18n._({
+      id: "devices.platformViews",
+      message: "Native views on the screen are not part of the capture.",
+      comment: "Warning on a screenshot taken while platform views were showing.",
+    }),
+    latency: (ms: number) =>
+      i18n._({
+        id: "devices.latency",
+        message: "Autosave to device: {ms} ms",
+        values: { ms },
+        comment: "Measured time from the server accepting an autosave to the device applying it (NFR-030).",
+      }),
   };
 }

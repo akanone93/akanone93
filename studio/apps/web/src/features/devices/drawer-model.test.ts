@@ -4,7 +4,20 @@
 import { describe, expect, test } from "bun:test";
 import { create } from "@bufbuild/protobuf";
 import { DevEventSchema, DevLogLevel } from "@plux/api";
-import { emptyBuffer, matches, pause, pending, push, resume, tabOf, visible } from "./drawer-model.ts";
+import { limitDefault } from "@plux/schema";
+import {
+  consoleSource,
+  emptyBuffer,
+  levelOf,
+  matches,
+  pause,
+  pending,
+  push,
+  resume,
+  tabOf,
+  viewWindow,
+  visible,
+} from "./drawer-model.ts";
 
 const ev = (sequence: bigint, deviceId: string, level: DevLogLevel, message: string) =>
   create(DevEventSchema, { sequence, deviceId, payload: { case: "log", value: { level, source: "app", message } } });
@@ -36,5 +49,26 @@ describe("S6.4 drawer model (STU-066)", () => {
       1,
     );
     expect(capped.events.map((x) => x.sequence)).toEqual([2n]);
+  });
+});
+
+describe("S6.4 view window (LIM-001, DEV-020)", () => {
+  test("the window is the registry default of studio.eventsStreamBufferEvents", () => {
+    expect(viewWindow()).toBe(limitDefault("studio.eventsStreamBufferEvents"));
+    let b = emptyBuffer;
+    for (let i = 0; i < viewWindow() + 5; i++) {
+      b = push(b, ev(BigInt(i), "d", DevLogLevel.INFO, "x"));
+    }
+    expect(b.events.length).toBe(viewWindow());
+    expect(b.events[0]?.sequence).toBe(5n);
+  });
+
+  test("console log lines go to the Console tab and carry their level (STU-133)", () => {
+    const line = create(DevEventSchema, {
+      payload: { case: "log", value: { level: DevLogLevel.WARNING, source: consoleSource, message: "1 + 1" } },
+    });
+    expect(tabOf(line)).toBe("console");
+    expect(levelOf(line)).toBe("warning");
+    expect(levelOf(create(DevEventSchema, {}))).toBe("");
   });
 });

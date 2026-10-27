@@ -742,6 +742,12 @@ msgstr "Applied to the document."
 msgid "jsonEditor.apply"
 msgstr "Apply"
 
+#. Button: applies the locale, theme, text scale and route to the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.apply"
+msgstr "Apply"
+
 #. Button that applies a designer's draft to the document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -807,6 +813,12 @@ msgstr "Assets"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.code"
 msgstr "Authentication code"
+
+#. Measured time from the server accepting an autosave to the device applying it (NFR-030).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.latency"
+msgstr "Autosave to device: {ms} ms"
 
 #. Edge inset at the bottom.
 #. js-lingui-explicit-id
@@ -921,6 +933,12 @@ msgstr "Canvas actions"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.toolbar"
 msgstr "Canvas actions"
+
+#. Button: asks the paired device for a screenshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotCapture"
+msgstr "Capture screenshot"
 
 #. Heading of the Cargo.toml text the dependencies are written to.
 #. js-lingui-explicit-id
@@ -1408,6 +1426,12 @@ msgstr "DB schema"
 msgid "designers.dbTitle"
 msgstr "DB schema designer"
 
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineDebug"
+msgstr "debug"
+
 #. Result of explaining access; decision is the server's verdict.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -1534,6 +1558,12 @@ msgstr "Desktop window"
 msgid "devices.device"
 msgstr "Device"
 
+#. Heading of the controls that change a paired device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.controlsTitle"
+msgstr "Device controls"
+
 #. Accessible name of the bottom drawer fed by paired devices.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -1551,6 +1581,12 @@ msgstr "Device frame"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.matrix"
 msgstr "Device matrix"
+
+#. Button that shows or hides the device drawer under the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.bayToggle"
+msgstr "Devices"
 
 #. Heading of the list of documents that differ between two snapshots.
 #. js-lingui-explicit-id
@@ -1737,6 +1773,12 @@ msgstr "Entry"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.frame.android-entry"
 msgstr "Entry-level Android"
+
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineError"
+msgstr "error"
 
 #. Accessible name of the icon of an error in the Problems tab.
 #. js-lingui-explicit-id
@@ -2056,6 +2098,18 @@ msgstr "Help"
 msgid "profile.theme.contrast"
 msgstr "High contrast"
 
+#. Switch: the node selected in Studio is highlighted on the paired device (inspect mode).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.highlight"
+msgstr "Highlight selection on device"
+
+#. Status shown while highlighting is on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.highlighted"
+msgstr "Highlighting on the device."
+
 #. Label of the field for the screen reader hint.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2103,6 +2157,12 @@ msgstr "In memory"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.incoming"
 msgstr "Incoming connection"
+
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineInfo"
+msgstr "info"
 
 #. Accessible name of the icon of an information item in the Problems tab.
 #. js-lingui-explicit-id
@@ -2225,6 +2285,12 @@ msgstr "Justification"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.requests.keep"
 msgstr "Keep editing"
+
+#. Label of the choice of what a screenshot is kept as.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotUse"
+msgstr "Keep it as"
 
 #. D35 button: apply your changes on top of the server's version where they fit.
 #. js-lingui-explicit-id
@@ -2718,6 +2784,18 @@ msgstr "Native and custom"
 msgid "appCanvas.native"
 msgstr "Native screen"
 
+#. Screenshot use: the preview of a native widget slot on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.useSlotPreview"
+msgstr "Native slot preview"
+
+#. Warning on a screenshot taken while platform views were showing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.platformViews"
+msgstr "Native views on the screen are not part of the capture."
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -3180,6 +3258,12 @@ msgstr "Page not found"
 msgid "devices.pairTitle"
 msgstr "Pair a device"
 
+#. Toolbar button and palette command that open the pairing dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.pairAction"
+msgstr "Pair a device"
+
 #. Label of the pairing link.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -3552,6 +3636,12 @@ msgstr "Redo (Ctrl+Y)"
 msgid "banner.reload"
 msgstr "Reload"
 
+#. Button: opens the current route on the device again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.reload"
+msgstr "Reload screen"
+
 #. Button that removes an entry from a list in a designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3846,6 +3936,12 @@ msgstr "Rust source of the function"
 msgid "appCanvas.save"
 msgstr "Save"
 
+#. Button: stores the screenshot as an app asset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotSave"
+msgstr "Save screenshot"
+
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -3876,11 +3972,23 @@ msgstr "Scan the code with the Plux Dev app, or type the short code in the app."
 msgid "pluginCanvas.screenMenu"
 msgstr "Screen menu"
 
+#. Label of the field naming the screen or slot a screenshot belongs to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotTarget"
+msgstr "Screen or slot ID"
+
 #. Label of the route to open on the device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.route"
 msgstr "Screen route"
+
+#. Screenshot use: the thumbnail of a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.useThumbnail"
+msgstr "Screen thumbnail"
 
 #. Label of the text field that names a screen.
 #. js-lingui-explicit-id
@@ -3917,6 +4025,18 @@ msgstr "Screens"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screens"
 msgstr "Screens in navigation order"
+
+#. Alternative text of a captured device screenshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotAlt"
+msgstr "Screenshot of the paired device"
+
+#. Shown after a screenshot was stored.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.screenshotSaved"
+msgstr "Screenshot saved."
 
 #. Label of the drawer's search field.
 #. js-lingui-explicit-id
@@ -3978,6 +4098,12 @@ msgstr "Select a widget on the canvas to edit the action graph of its events."
 msgid "links.nothing"
 msgstr "Select a widget to add a link."
 
+#. Announced when a tap on the device selected a node in Studio.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.inspected"
+msgstr "Selected from the device."
+
 #. Accessible name of the list of selected nodes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -4012,6 +4138,12 @@ msgstr "Send"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.sendTitle"
+msgstr "Send to device"
+
+#. Toolbar button and palette command that open the send-to-device dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.sendAction"
 msgstr "Send to device"
 
 #. Label of the checkbox that marks the entry as holding personal or secret data.
@@ -5035,6 +5167,12 @@ msgstr "Token"
 msgid "panels.top"
 msgstr "Top"
 
+#. Screenshot use: context shown to translators.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.useTranslationContext"
+msgstr "Translation context"
+
 #. Label of the picker that binds a text to a translation key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -5274,6 +5412,12 @@ msgstr "Versions"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.audit-record"
 msgstr "View audited record"
+
+#. Level label of a console line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.lineWarning"
+msgstr "warning"
 
 #. Accessible name of the icon of a warning in the Problems tab.
 #. js-lingui-explicit-id

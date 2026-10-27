@@ -3,18 +3,13 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { DevSessionService, DevThemeMode } from "@plux/api";
+import { DevSessionService } from "@plux/api";
 import { Button, Dialog, Field, Input, Select } from "@plux/ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useMemo, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { devicesMessages } from "./devices.messages.ts";
-
-const themes = {
-  light: DevThemeMode.LIGHT,
-  dark: DevThemeMode.DARK,
-  system: DevThemeMode.SYSTEM,
-} as const;
+import { themes } from "./use-dev-session.ts";
 
 /**
  * D38: sends a screen of the stored draft to a paired device (STU-060, STU-130, DEV-011). The session
