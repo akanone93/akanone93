@@ -51,6 +51,16 @@ export function commandMessages(i18n: I18n) {
       message: "Type a command",
       comment: "Label of the palette search box.",
     }),
+    paletteSearching: i18n._({
+      id: "cmd.palette.searching",
+      message: "Searching the organisation",
+      comment: "Shown below the local palette results while the server search runs.",
+    }),
+    paletteSearchFailed: i18n._({
+      id: "cmd.palette.search-failed",
+      message: "Organisation search is unavailable.",
+      comment: "Shown when the server search request fails.",
+    }),
     paletteEmpty: i18n._({
       id: "cmd.palette.empty",
       message: "No command matches.",

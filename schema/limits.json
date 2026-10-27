@@ -2680,6 +2680,44 @@
       "description": "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."
     },
     {
+      "key": "library.itemsPerOrganization",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-080",
+        "STU-084"
+      ],
+      "description": "Templates and components one organisation may keep in its library."
+    },
+    {
+      "key": "library.versionsPerItem",
+      "unit": "count",
+      "default": 100,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-080",
+        "STU-084"
+      ],
+      "description": "Versions one template or component may have; older versions an app adopted are kept."
+    },
+    {
       "key": "lsp.messageBytes",
       "unit": "bytes",
       "default": 1048576,
@@ -3647,6 +3685,42 @@
         "STU-067"
       ],
       "description": "Size of one Studio clipboard envelope; a larger copy is refused."
+    },
+    {
+      "key": "studio.customFrameMaxDensity",
+      "unit": "count",
+      "default": 4,
+      "max": 4,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-057"
+      ],
+      "description": "Largest pixel density of a custom device frame (D40); the smallest is 1."
+    },
+    {
+      "key": "studio.customFrameMaxPixels",
+      "unit": "count",
+      "default": 4096,
+      "max": 8192,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-057"
+      ],
+      "description": "Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused."
     },
     {
       "key": "studio.eventsStreamBufferEvents",

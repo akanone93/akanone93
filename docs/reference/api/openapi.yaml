@@ -2830,6 +2830,128 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListComplianceReportsResponse'
+  /plux.v1.ComponentService/AdoptComponentVersion:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: AdoptComponentVersion
+      description: |-
+        AdoptComponentVersion records the version of a component an app uses
+         and reports the instances whose overrides the version no longer fits
+         (STU-085). Adoption is explicit and per app.
+      operationId: plux.v1.ComponentService.AdoptComponentVersion
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.AdoptComponentVersionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.AdoptComponentVersionResponse'
+  /plux.v1.ComponentService/CreateComponent:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: CreateComponent
+      description: CreateComponent makes a private component with its first version (STU-080).
+      operationId: plux.v1.ComponentService.CreateComponent
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateComponentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateComponentResponse'
+  /plux.v1.ComponentService/ExportComponent:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: ExportComponent
+      description: |-
+        ExportComponent returns a version of a component as a library file, byte for
+         byte the same for the same version.
+      operationId: plux.v1.ComponentService.ExportComponent
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExportComponentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExportComponentResponse'
   /plux.v1.ComponentService/GetComponent:
     post:
       tags:
@@ -2868,6 +2990,125 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetComponentResponse'
+  /plux.v1.ComponentService/ImportComponent:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: ImportComponent
+      description: |-
+        ImportComponent makes a private component from a library file, which is
+         validated as untrusted input.
+      operationId: plux.v1.ComponentService.ImportComponent
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ImportComponentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ImportComponentResponse'
+  /plux.v1.ComponentService/ListComponentAdoptions:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: ListComponentAdoptions
+      description: ListComponentAdoptions lists the versions an app adopted.
+      operationId: plux.v1.ComponentService.ListComponentAdoptions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListComponentAdoptionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListComponentAdoptionsResponse'
+  /plux.v1.ComponentService/ListComponentVersions:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: ListComponentVersions
+      description: ListComponentVersions returns a component with all its versions, newest first.
+      operationId: plux.v1.ComponentService.ListComponentVersions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListComponentVersionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListComponentVersionsResponse'
   /plux.v1.ComponentService/ListComponents:
     post:
       tags:
@@ -2906,6 +3147,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListComponentsResponse'
+  /plux.v1.ComponentService/ListLibraryComponents:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: ListLibraryComponents
+      description: |-
+        ListLibraryComponents lists the components the caller may see: the organisation's
+         shared ones, the caller's own private ones and every public one (STU-086).
+      operationId: plux.v1.ComponentService.ListLibraryComponents
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListLibraryComponentsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListLibraryComponentsResponse'
   /plux.v1.ComponentService/ListUsages:
     post:
       tags:
@@ -2947,6 +3229,90 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListUsagesResponse'
+  /plux.v1.ComponentService/ReviseComponent:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: ReviseComponent
+      description: |-
+        ReviseComponent writes a new immutable version of a component, and may rename
+         it. The author may revise it; for another person's it needs
+         library.manage. expected_version guards against a lost update.
+      operationId: plux.v1.ComponentService.ReviseComponent
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ReviseComponentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ReviseComponentResponse'
+  /plux.v1.ComponentService/SetComponentVisibility:
+    post:
+      tags:
+        - plux.v1.ComponentService
+      summary: SetComponentVisibility
+      description: |-
+        SetComponentVisibility changes who can see a component. Making it public, or
+         taking it back from public, needs library.publish, and the public scan
+         of the newest version must pass first (STU-081).
+      operationId: plux.v1.ComponentService.SetComponentVisibility
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetComponentVisibilityRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetComponentVisibilityResponse'
   /plux.v1.ConfigService/GetLiveConfig:
     post:
       tags:
@@ -13353,6 +13719,86 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListEventsResponse'
+  /plux.v1.TemplateService/CreateTemplate:
+    post:
+      tags:
+        - plux.v1.TemplateService
+      summary: CreateTemplate
+      description: CreateTemplate makes a private template with its first version (STU-080).
+      operationId: plux.v1.TemplateService.CreateTemplate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateTemplateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateTemplateResponse'
+  /plux.v1.TemplateService/ExportTemplate:
+    post:
+      tags:
+        - plux.v1.TemplateService
+      summary: ExportTemplate
+      description: |-
+        ExportTemplate returns a version of a template as a library file, byte for
+         byte the same for the same version.
+      operationId: plux.v1.TemplateService.ExportTemplate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExportTemplateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExportTemplateResponse'
   /plux.v1.TemplateService/GetTemplate:
     post:
       tags:
@@ -13391,6 +13837,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetTemplateResponse'
+  /plux.v1.TemplateService/ImportTemplate:
+    post:
+      tags:
+        - plux.v1.TemplateService
+      summary: ImportTemplate
+      description: |-
+        ImportTemplate makes a private template from a library file, which is
+         validated as untrusted input.
+      operationId: plux.v1.TemplateService.ImportTemplate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ImportTemplateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ImportTemplateResponse'
   /plux.v1.TemplateService/Instantiate:
     post:
       tags:
@@ -13432,6 +13919,86 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.InstantiateResponse'
+  /plux.v1.TemplateService/ListLibraryTemplates:
+    post:
+      tags:
+        - plux.v1.TemplateService
+      summary: ListLibraryTemplates
+      description: |-
+        ListLibraryTemplates lists the templates the caller may see: the organisation's
+         shared ones, the caller's own private ones and every public one (STU-086).
+      operationId: plux.v1.TemplateService.ListLibraryTemplates
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListLibraryTemplatesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListLibraryTemplatesResponse'
+  /plux.v1.TemplateService/ListTemplateVersions:
+    post:
+      tags:
+        - plux.v1.TemplateService
+      summary: ListTemplateVersions
+      description: ListTemplateVersions returns a template with all its versions, newest first.
+      operationId: plux.v1.TemplateService.ListTemplateVersions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListTemplateVersionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListTemplateVersionsResponse'
   /plux.v1.TemplateService/ListTemplates:
     post:
       tags:
@@ -13470,6 +14037,90 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListTemplatesResponse'
+  /plux.v1.TemplateService/ReviseTemplate:
+    post:
+      tags:
+        - plux.v1.TemplateService
+      summary: ReviseTemplate
+      description: |-
+        ReviseTemplate writes a new immutable version of a template, and may rename
+         it. The author may revise it; for another person's it needs
+         library.manage. expected_version guards against a lost update.
+      operationId: plux.v1.TemplateService.ReviseTemplate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ReviseTemplateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ReviseTemplateResponse'
+  /plux.v1.TemplateService/SetTemplateVisibility:
+    post:
+      tags:
+        - plux.v1.TemplateService
+      summary: SetTemplateVisibility
+      description: |-
+        SetTemplateVisibility changes who can see a template. Making it public, or
+         taking it back from public, needs library.publish, and the public scan
+         of the newest version must pass first (STU-081).
+      operationId: plux.v1.TemplateService.SetTemplateVisibility
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetTemplateVisibilityRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetTemplateVisibilityResponse'
   /plux.v1.TokenService/ExchangeUserToken:
     post:
       tags:
@@ -14178,6 +14829,82 @@ components:
              exactly once and expires after seven days.
       title: AddMemberResponse
       additionalProperties: false
+    plux.v1.AdoptComponentVersionRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+        version:
+          type: integer
+          title: version
+          format: int32
+      title: AdoptComponentVersionRequest
+      additionalProperties: false
+    plux.v1.AdoptComponentVersionResponse:
+      type: object
+      properties:
+        adoption:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Adoption'
+          title: adoption
+        conflicts:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.AdoptionConflict'
+          title: conflicts
+      title: AdoptComponentVersionResponse
+      additionalProperties: false
+    plux.v1.Adoption:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        itemId:
+          type: string
+          title: item_id
+        version:
+          type: integer
+          title: version
+          format: int32
+        adoptedBy:
+          type: string
+          title: adopted_by
+        adoptedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: adopted_at
+      title: Adoption
+      additionalProperties: false
+      description: Adoption is the component version an app adopted.
+    plux.v1.AdoptionConflict:
+      type: object
+      properties:
+        file:
+          type: string
+          title: file
+        path:
+          type: string
+          title: path
+        removedProps:
+          type: array
+          items:
+            type: string
+          title: removed_props
+        removedSlots:
+          type: array
+          items:
+            type: string
+          title: removed_slots
+      title: AdoptionConflict
+      additionalProperties: false
+      description: |-
+        AdoptionConflict is an instance whose overrides name props or slots the
+         adopted version no longer has (STU-085).
     plux.v1.AdvanceReleaseRequestRequest:
       type: object
       anyOf:
@@ -16586,6 +17313,28 @@ components:
           title: report
       title: CreateComplianceReportResponse
       additionalProperties: false
+    plux.v1.CreateComponentRequest:
+      type: object
+      properties:
+        draft:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryDraft'
+          title: draft
+      title: CreateComponentRequest
+      additionalProperties: false
+    plux.v1.CreateComponentResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: version
+      title: CreateComponentResponse
+      additionalProperties: false
     plux.v1.CreateEnvironmentRequest:
       type: object
       properties:
@@ -17169,6 +17918,28 @@ components:
             - $ref: '#/components/schemas/plux.v1.Team'
           title: team
       title: CreateTeamResponse
+      additionalProperties: false
+    plux.v1.CreateTemplateRequest:
+      type: object
+      properties:
+        draft:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryDraft'
+          title: draft
+      title: CreateTemplateRequest
+      additionalProperties: false
+    plux.v1.CreateTemplateResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: version
+      title: CreateTemplateResponse
       additionalProperties: false
     plux.v1.CreateTransactionChallengeRequest:
       type: object
@@ -20067,6 +20838,31 @@ components:
       title: Export
       additionalProperties: false
       description: Export is the OTLP destination of an organisation.
+    plux.v1.ExportComponentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        version:
+          type: integer
+          title: version
+          format: int32
+          description: version is the version to export; zero is the newest.
+      title: ExportComponentRequest
+      additionalProperties: false
+    plux.v1.ExportComponentResponse:
+      type: object
+      properties:
+        file:
+          type: string
+          title: file
+          format: byte
+        fileName:
+          type: string
+          title: file_name
+      title: ExportComponentResponse
+      additionalProperties: false
     plux.v1.ExportDestination:
       type: object
       properties:
@@ -20237,6 +21033,31 @@ components:
           title: row_count
           format: int64
       title: ExportSubjectResponse
+      additionalProperties: false
+    plux.v1.ExportTemplateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        version:
+          type: integer
+          title: version
+          format: int32
+          description: version is the version to export; zero is the newest.
+      title: ExportTemplateRequest
+      additionalProperties: false
+    plux.v1.ExportTemplateResponse:
+      type: object
+      properties:
+        file:
+          type: string
+          title: file
+          format: byte
+        fileName:
+          type: string
+          title: file_name
+      title: ExportTemplateResponse
       additionalProperties: false
     plux.v1.ExportTranslationsRequest:
       type: object
@@ -23001,6 +23822,32 @@ components:
           title: updated_at
       title: IdentityProvider
       description: IdentityProvider is a configured provider.
+    plux.v1.ImportComponentRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          title: file
+          format: byte
+        key:
+          type: string
+          title: key
+          description: key replaces the file's key when the organisation already has it.
+      title: ImportComponentRequest
+      additionalProperties: false
+    plux.v1.ImportComponentResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: version
+      title: ImportComponentResponse
+      additionalProperties: false
     plux.v1.ImportDraftRequest:
       type: object
       properties:
@@ -23039,6 +23886,32 @@ components:
             $ref: '#/components/schemas/plux.v1.Diagnostic'
           title: diagnostics
       title: ImportDraftResponse
+      additionalProperties: false
+    plux.v1.ImportTemplateRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          title: file
+          format: byte
+        key:
+          type: string
+          title: key
+          description: key replaces the file's key when the organisation already has it.
+      title: ImportTemplateRequest
+      additionalProperties: false
+    plux.v1.ImportTemplateResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: version
+      title: ImportTemplateResponse
       additionalProperties: false
     plux.v1.ImportTranslationsRequest:
       type: object
@@ -23535,6 +24408,141 @@ components:
       type: object
       title: LanguageServerServiceSendResponse
       additionalProperties: false
+    plux.v1.LibraryDraft:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        templateKind:
+          type: string
+          title: template_kind
+          description: template_kind is "page" or "flow" for a template.
+        content:
+          type: string
+          title: content
+          format: byte
+          description: content is the template or component document, as JSON.
+        note:
+          type: string
+          title: note
+      title: LibraryDraft
+      additionalProperties: false
+      description: LibraryDraft is what a new item or a new version is made from.
+    plux.v1.LibraryFinding:
+      type: object
+      properties:
+        pointer:
+          type: string
+          title: pointer
+        category:
+          type: string
+          title: category
+          description: category is "secret", "sensitive" or "url".
+      title: LibraryFinding
+      additionalProperties: false
+      description: |-
+        LibraryFinding is one thing the public scan refused, located by JSON
+         pointer; it never carries the value (STU-081).
+    plux.v1.LibraryItem:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        kind:
+          type: string
+          title: kind
+          description: kind is "template" or "component".
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        templateKind:
+          type: string
+          title: template_kind
+          description: |-
+            template_kind is "page" or "flow" for a template and empty for a
+             component.
+        visibility:
+          type: string
+          title: visibility
+          description: visibility is "private", "organization" or "public" (STU-081).
+        headVersion:
+          type: integer
+          title: head_version
+          format: int32
+        documentId:
+          type: string
+          title: document_id
+          description: |-
+            document_id is the identifier the content documents carry, which
+             instances of a component refer to (SCH-030).
+        organizationId:
+          type: string
+          title: organization_id
+        createdBy:
+          type: string
+          title: created_by
+        createdByName:
+          type: string
+          title: created_by_name
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: LibraryItem
+      additionalProperties: false
+      description: |-
+        LibraryItem is a template or a component of the library. Its content is in
+         its versions; the item holds what may change without a new version.
+    plux.v1.LibraryVersion:
+      type: object
+      properties:
+        itemId:
+          type: string
+          title: item_id
+        version:
+          type: integer
+          title: version
+          format: int32
+        content:
+          type: string
+          title: content
+          format: byte
+          description: content is the canonical JSON of the template or component document.
+        contentSha256:
+          type: string
+          title: content_sha256
+          format: byte
+        note:
+          type: string
+          title: note
+        createdByName:
+          type: string
+          title: created_by_name
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: LibraryVersion
+      additionalProperties: false
+      description: LibraryVersion is one immutable version of an item.
     plux.v1.LifecycleCommand:
       type: object
       properties:
@@ -23920,6 +24928,46 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListComplianceReportsResponse
+      additionalProperties: false
+    plux.v1.ListComponentAdoptionsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ListComponentAdoptionsRequest
+      additionalProperties: false
+    plux.v1.ListComponentAdoptionsResponse:
+      type: object
+      properties:
+        adoptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Adoption'
+          title: adoptions
+      title: ListComponentAdoptionsResponse
+      additionalProperties: false
+    plux.v1.ListComponentVersionsRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: ListComponentVersionsRequest
+      additionalProperties: false
+    plux.v1.ListComponentVersionsResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: versions
+      title: ListComponentVersionsResponse
       additionalProperties: false
     plux.v1.ListComponentsRequest:
       type: object
@@ -24525,6 +25573,68 @@ components:
           title: unread
           format: int64
       title: ListInboxResponse
+      additionalProperties: false
+    plux.v1.ListLibraryComponentsRequest:
+      type: object
+      properties:
+        visibility:
+          type: string
+          title: visibility
+          description: visibility filters to one level; empty lists all the caller may see.
+        query:
+          type: string
+          title: query
+          description: query matches the key and name.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListLibraryComponentsRequest
+      additionalProperties: false
+    plux.v1.ListLibraryComponentsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: items
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListLibraryComponentsResponse
+      additionalProperties: false
+    plux.v1.ListLibraryTemplatesRequest:
+      type: object
+      properties:
+        visibility:
+          type: string
+          title: visibility
+          description: visibility filters to one level; empty lists all the caller may see.
+        query:
+          type: string
+          title: query
+          description: query matches the key and name.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListLibraryTemplatesRequest
+      additionalProperties: false
+    plux.v1.ListLibraryTemplatesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: items
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListLibraryTemplatesResponse
       additionalProperties: false
     plux.v1.ListLogsRequest:
       type: object
@@ -25183,6 +26293,28 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListTeamsResponse
+      additionalProperties: false
+    plux.v1.ListTemplateVersionsRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: ListTemplateVersionsRequest
+      additionalProperties: false
+    plux.v1.ListTemplateVersionsResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: versions
+      title: ListTemplateVersionsResponse
       additionalProperties: false
     plux.v1.ListTemplatesRequest:
       type: object
@@ -26734,6 +27866,14 @@ components:
         onboardingDismissed:
           type: boolean
           title: onboarding_dismissed
+        mutedNotificationTypes:
+          type: array
+          items:
+            type: string
+          title: muted_notification_types
+          description: |-
+            muted_notification_types lists the event types whose inbox items the user
+             mutes (F16, STU-013); approval and security types are refused.
       title: Preferences
       additionalProperties: false
     plux.v1.PreviewSwitches:
@@ -28274,6 +29414,66 @@ components:
       title: ReviewRisk
       additionalProperties: false
       description: ReviewRisk is the computed risk summary.
+    plux.v1.ReviseComponentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        expectedVersion:
+          type: integer
+          title: expected_version
+          format: int32
+          description: expected_version is the head version the caller revised from.
+        draft:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryDraft'
+          title: draft
+      title: ReviseComponentRequest
+      additionalProperties: false
+    plux.v1.ReviseComponentResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: version
+      title: ReviseComponentResponse
+      additionalProperties: false
+    plux.v1.ReviseTemplateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        expectedVersion:
+          type: integer
+          title: expected_version
+          format: int32
+          description: expected_version is the head version the caller revised from.
+        draft:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryDraft'
+          title: draft
+      title: ReviseTemplateRequest
+      additionalProperties: false
+    plux.v1.ReviseTemplateResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryVersion'
+          title: version
+      title: ReviseTemplateResponse
+      additionalProperties: false
     plux.v1.RevokeAccessRequest:
       type: object
       properties:
@@ -29246,6 +30446,26 @@ components:
           title: limit
       title: SetAppLimitResponse
       additionalProperties: false
+    plux.v1.SetComponentVisibilityRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        visibility:
+          type: string
+          title: visibility
+      title: SetComponentVisibilityRequest
+      additionalProperties: false
+    plux.v1.SetComponentVisibilityResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+      title: SetComponentVisibilityResponse
+      additionalProperties: false
     plux.v1.SetConfigValueRequest:
       type: object
       properties:
@@ -29712,6 +30932,26 @@ components:
             type: string
           title: changed_keys
       title: SetStatesResponse
+      additionalProperties: false
+    plux.v1.SetTemplateVisibilityRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        visibility:
+          type: string
+          title: visibility
+      title: SetTemplateVisibilityRequest
+      additionalProperties: false
+    plux.v1.SetTemplateVisibilityResponse:
+      type: object
+      properties:
+        item:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.LibraryItem'
+          title: item
+      title: SetTemplateVisibilityResponse
       additionalProperties: false
     plux.v1.SetUserIdentityProviderRequest:
       type: object

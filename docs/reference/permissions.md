@@ -175,6 +175,15 @@ The catalogue is grouped as area, feature, action (`GOV-002`). A restriction pol
 |---|---|---|---|---|---|---|
 | `killswitch.manage` | `manage` | Switch a plugin or an app off, or force a mandatory update. | high | yes | environment |  |
 
+### Area `library`
+
+#### Feature `library`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `library.manage` | `manage` | Edit the organisation's shared templates and components that someone else made. | medium |  | organization |  |
+| `library.publish` | `publish` | Make a template or component public to the whole installation. | medium |  | organization |  |
+
 ### Area `license`
 
 #### Feature `license`
@@ -399,6 +408,8 @@ A role holds exactly the permissions marked below; there is no inheritance.
 | `goldens.approve` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `keys.manage` | ✓ |  |  |  |  |  |  |  |  |  |
 | `killswitch.manage` | ✓ |  | ✓ |  |  |  |  |  |  |  |
+| `library.manage` | ✓ | ✓ |  |  |  |  |  |  |  |  |
+| `library.publish` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `license.manage` | ✓ |  |  |  |  |  |  |  |  |  |
 | `limits.manage` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `members.manage` | ✓ |  |  |  |  |  |  |  |  |  |

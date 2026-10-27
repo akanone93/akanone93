@@ -45,6 +45,33 @@ const (
 	// ComponentServiceListUsagesProcedure is the fully-qualified name of the ComponentService's
 	// ListUsages RPC.
 	ComponentServiceListUsagesProcedure = "/plux.v1.ComponentService/ListUsages"
+	// ComponentServiceCreateComponentProcedure is the fully-qualified name of the ComponentService's
+	// CreateComponent RPC.
+	ComponentServiceCreateComponentProcedure = "/plux.v1.ComponentService/CreateComponent"
+	// ComponentServiceReviseComponentProcedure is the fully-qualified name of the ComponentService's
+	// ReviseComponent RPC.
+	ComponentServiceReviseComponentProcedure = "/plux.v1.ComponentService/ReviseComponent"
+	// ComponentServiceListComponentVersionsProcedure is the fully-qualified name of the
+	// ComponentService's ListComponentVersions RPC.
+	ComponentServiceListComponentVersionsProcedure = "/plux.v1.ComponentService/ListComponentVersions"
+	// ComponentServiceListLibraryComponentsProcedure is the fully-qualified name of the
+	// ComponentService's ListLibraryComponents RPC.
+	ComponentServiceListLibraryComponentsProcedure = "/plux.v1.ComponentService/ListLibraryComponents"
+	// ComponentServiceSetComponentVisibilityProcedure is the fully-qualified name of the
+	// ComponentService's SetComponentVisibility RPC.
+	ComponentServiceSetComponentVisibilityProcedure = "/plux.v1.ComponentService/SetComponentVisibility"
+	// ComponentServiceExportComponentProcedure is the fully-qualified name of the ComponentService's
+	// ExportComponent RPC.
+	ComponentServiceExportComponentProcedure = "/plux.v1.ComponentService/ExportComponent"
+	// ComponentServiceImportComponentProcedure is the fully-qualified name of the ComponentService's
+	// ImportComponent RPC.
+	ComponentServiceImportComponentProcedure = "/plux.v1.ComponentService/ImportComponent"
+	// ComponentServiceAdoptComponentVersionProcedure is the fully-qualified name of the
+	// ComponentService's AdoptComponentVersion RPC.
+	ComponentServiceAdoptComponentVersionProcedure = "/plux.v1.ComponentService/AdoptComponentVersion"
+	// ComponentServiceListComponentAdoptionsProcedure is the fully-qualified name of the
+	// ComponentService's ListComponentAdoptions RPC.
+	ComponentServiceListComponentAdoptionsProcedure = "/plux.v1.ComponentService/ListComponentAdoptions"
 )
 
 // ComponentServiceClient is a client for the plux.v1.ComponentService service.
@@ -54,6 +81,33 @@ type ComponentServiceClient interface {
 	// ListUsages reports every node that instantiates a component, from the
 	// reference graph the compiler builds (SCH-041).
 	ListUsages(context.Context, *connect.Request[pluxv1.ListUsagesRequest]) (*connect.Response[pluxv1.ListUsagesResponse], error)
+	// CreateComponent makes a private component with its first version (STU-080).
+	CreateComponent(context.Context, *connect.Request[pluxv1.CreateComponentRequest]) (*connect.Response[pluxv1.CreateComponentResponse], error)
+	// ReviseComponent writes a new immutable version of a component, and may rename
+	// it. The author may revise it; for another person's it needs
+	// library.manage. expected_version guards against a lost update.
+	ReviseComponent(context.Context, *connect.Request[pluxv1.ReviseComponentRequest]) (*connect.Response[pluxv1.ReviseComponentResponse], error)
+	// ListComponentVersions returns a component with all its versions, newest first.
+	ListComponentVersions(context.Context, *connect.Request[pluxv1.ListComponentVersionsRequest]) (*connect.Response[pluxv1.ListComponentVersionsResponse], error)
+	// ListLibraryComponents lists the components the caller may see: the organisation's
+	// shared ones, the caller's own private ones and every public one (STU-086).
+	ListLibraryComponents(context.Context, *connect.Request[pluxv1.ListLibraryComponentsRequest]) (*connect.Response[pluxv1.ListLibraryComponentsResponse], error)
+	// SetComponentVisibility changes who can see a component. Making it public, or
+	// taking it back from public, needs library.publish, and the public scan
+	// of the newest version must pass first (STU-081).
+	SetComponentVisibility(context.Context, *connect.Request[pluxv1.SetComponentVisibilityRequest]) (*connect.Response[pluxv1.SetComponentVisibilityResponse], error)
+	// ExportComponent returns a version of a component as a library file, byte for
+	// byte the same for the same version.
+	ExportComponent(context.Context, *connect.Request[pluxv1.ExportComponentRequest]) (*connect.Response[pluxv1.ExportComponentResponse], error)
+	// ImportComponent makes a private component from a library file, which is
+	// validated as untrusted input.
+	ImportComponent(context.Context, *connect.Request[pluxv1.ImportComponentRequest]) (*connect.Response[pluxv1.ImportComponentResponse], error)
+	// AdoptComponentVersion records the version of a component an app uses
+	// and reports the instances whose overrides the version no longer fits
+	// (STU-085). Adoption is explicit and per app.
+	AdoptComponentVersion(context.Context, *connect.Request[pluxv1.AdoptComponentVersionRequest]) (*connect.Response[pluxv1.AdoptComponentVersionResponse], error)
+	// ListComponentAdoptions lists the versions an app adopted.
+	ListComponentAdoptions(context.Context, *connect.Request[pluxv1.ListComponentAdoptionsRequest]) (*connect.Response[pluxv1.ListComponentAdoptionsResponse], error)
 }
 
 // NewComponentServiceClient constructs a client for the plux.v1.ComponentService service. By
@@ -85,14 +139,77 @@ func NewComponentServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(componentServiceMethods.ByName("ListUsages")),
 			connect.WithClientOptions(opts...),
 		),
+		createComponent: connect.NewClient[pluxv1.CreateComponentRequest, pluxv1.CreateComponentResponse](
+			httpClient,
+			baseURL+ComponentServiceCreateComponentProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("CreateComponent")),
+			connect.WithClientOptions(opts...),
+		),
+		reviseComponent: connect.NewClient[pluxv1.ReviseComponentRequest, pluxv1.ReviseComponentResponse](
+			httpClient,
+			baseURL+ComponentServiceReviseComponentProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("ReviseComponent")),
+			connect.WithClientOptions(opts...),
+		),
+		listComponentVersions: connect.NewClient[pluxv1.ListComponentVersionsRequest, pluxv1.ListComponentVersionsResponse](
+			httpClient,
+			baseURL+ComponentServiceListComponentVersionsProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("ListComponentVersions")),
+			connect.WithClientOptions(opts...),
+		),
+		listLibraryComponents: connect.NewClient[pluxv1.ListLibraryComponentsRequest, pluxv1.ListLibraryComponentsResponse](
+			httpClient,
+			baseURL+ComponentServiceListLibraryComponentsProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("ListLibraryComponents")),
+			connect.WithClientOptions(opts...),
+		),
+		setComponentVisibility: connect.NewClient[pluxv1.SetComponentVisibilityRequest, pluxv1.SetComponentVisibilityResponse](
+			httpClient,
+			baseURL+ComponentServiceSetComponentVisibilityProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("SetComponentVisibility")),
+			connect.WithClientOptions(opts...),
+		),
+		exportComponent: connect.NewClient[pluxv1.ExportComponentRequest, pluxv1.ExportComponentResponse](
+			httpClient,
+			baseURL+ComponentServiceExportComponentProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("ExportComponent")),
+			connect.WithClientOptions(opts...),
+		),
+		importComponent: connect.NewClient[pluxv1.ImportComponentRequest, pluxv1.ImportComponentResponse](
+			httpClient,
+			baseURL+ComponentServiceImportComponentProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("ImportComponent")),
+			connect.WithClientOptions(opts...),
+		),
+		adoptComponentVersion: connect.NewClient[pluxv1.AdoptComponentVersionRequest, pluxv1.AdoptComponentVersionResponse](
+			httpClient,
+			baseURL+ComponentServiceAdoptComponentVersionProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("AdoptComponentVersion")),
+			connect.WithClientOptions(opts...),
+		),
+		listComponentAdoptions: connect.NewClient[pluxv1.ListComponentAdoptionsRequest, pluxv1.ListComponentAdoptionsResponse](
+			httpClient,
+			baseURL+ComponentServiceListComponentAdoptionsProcedure,
+			connect.WithSchema(componentServiceMethods.ByName("ListComponentAdoptions")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // componentServiceClient implements ComponentServiceClient.
 type componentServiceClient struct {
-	listComponents *connect.Client[pluxv1.ListComponentsRequest, pluxv1.ListComponentsResponse]
-	getComponent   *connect.Client[pluxv1.GetComponentRequest, pluxv1.GetComponentResponse]
-	listUsages     *connect.Client[pluxv1.ListUsagesRequest, pluxv1.ListUsagesResponse]
+	listComponents         *connect.Client[pluxv1.ListComponentsRequest, pluxv1.ListComponentsResponse]
+	getComponent           *connect.Client[pluxv1.GetComponentRequest, pluxv1.GetComponentResponse]
+	listUsages             *connect.Client[pluxv1.ListUsagesRequest, pluxv1.ListUsagesResponse]
+	createComponent        *connect.Client[pluxv1.CreateComponentRequest, pluxv1.CreateComponentResponse]
+	reviseComponent        *connect.Client[pluxv1.ReviseComponentRequest, pluxv1.ReviseComponentResponse]
+	listComponentVersions  *connect.Client[pluxv1.ListComponentVersionsRequest, pluxv1.ListComponentVersionsResponse]
+	listLibraryComponents  *connect.Client[pluxv1.ListLibraryComponentsRequest, pluxv1.ListLibraryComponentsResponse]
+	setComponentVisibility *connect.Client[pluxv1.SetComponentVisibilityRequest, pluxv1.SetComponentVisibilityResponse]
+	exportComponent        *connect.Client[pluxv1.ExportComponentRequest, pluxv1.ExportComponentResponse]
+	importComponent        *connect.Client[pluxv1.ImportComponentRequest, pluxv1.ImportComponentResponse]
+	adoptComponentVersion  *connect.Client[pluxv1.AdoptComponentVersionRequest, pluxv1.AdoptComponentVersionResponse]
+	listComponentAdoptions *connect.Client[pluxv1.ListComponentAdoptionsRequest, pluxv1.ListComponentAdoptionsResponse]
 }
 
 // ListComponents calls plux.v1.ComponentService.ListComponents.
@@ -110,6 +227,51 @@ func (c *componentServiceClient) ListUsages(ctx context.Context, req *connect.Re
 	return c.listUsages.CallUnary(ctx, req)
 }
 
+// CreateComponent calls plux.v1.ComponentService.CreateComponent.
+func (c *componentServiceClient) CreateComponent(ctx context.Context, req *connect.Request[pluxv1.CreateComponentRequest]) (*connect.Response[pluxv1.CreateComponentResponse], error) {
+	return c.createComponent.CallUnary(ctx, req)
+}
+
+// ReviseComponent calls plux.v1.ComponentService.ReviseComponent.
+func (c *componentServiceClient) ReviseComponent(ctx context.Context, req *connect.Request[pluxv1.ReviseComponentRequest]) (*connect.Response[pluxv1.ReviseComponentResponse], error) {
+	return c.reviseComponent.CallUnary(ctx, req)
+}
+
+// ListComponentVersions calls plux.v1.ComponentService.ListComponentVersions.
+func (c *componentServiceClient) ListComponentVersions(ctx context.Context, req *connect.Request[pluxv1.ListComponentVersionsRequest]) (*connect.Response[pluxv1.ListComponentVersionsResponse], error) {
+	return c.listComponentVersions.CallUnary(ctx, req)
+}
+
+// ListLibraryComponents calls plux.v1.ComponentService.ListLibraryComponents.
+func (c *componentServiceClient) ListLibraryComponents(ctx context.Context, req *connect.Request[pluxv1.ListLibraryComponentsRequest]) (*connect.Response[pluxv1.ListLibraryComponentsResponse], error) {
+	return c.listLibraryComponents.CallUnary(ctx, req)
+}
+
+// SetComponentVisibility calls plux.v1.ComponentService.SetComponentVisibility.
+func (c *componentServiceClient) SetComponentVisibility(ctx context.Context, req *connect.Request[pluxv1.SetComponentVisibilityRequest]) (*connect.Response[pluxv1.SetComponentVisibilityResponse], error) {
+	return c.setComponentVisibility.CallUnary(ctx, req)
+}
+
+// ExportComponent calls plux.v1.ComponentService.ExportComponent.
+func (c *componentServiceClient) ExportComponent(ctx context.Context, req *connect.Request[pluxv1.ExportComponentRequest]) (*connect.Response[pluxv1.ExportComponentResponse], error) {
+	return c.exportComponent.CallUnary(ctx, req)
+}
+
+// ImportComponent calls plux.v1.ComponentService.ImportComponent.
+func (c *componentServiceClient) ImportComponent(ctx context.Context, req *connect.Request[pluxv1.ImportComponentRequest]) (*connect.Response[pluxv1.ImportComponentResponse], error) {
+	return c.importComponent.CallUnary(ctx, req)
+}
+
+// AdoptComponentVersion calls plux.v1.ComponentService.AdoptComponentVersion.
+func (c *componentServiceClient) AdoptComponentVersion(ctx context.Context, req *connect.Request[pluxv1.AdoptComponentVersionRequest]) (*connect.Response[pluxv1.AdoptComponentVersionResponse], error) {
+	return c.adoptComponentVersion.CallUnary(ctx, req)
+}
+
+// ListComponentAdoptions calls plux.v1.ComponentService.ListComponentAdoptions.
+func (c *componentServiceClient) ListComponentAdoptions(ctx context.Context, req *connect.Request[pluxv1.ListComponentAdoptionsRequest]) (*connect.Response[pluxv1.ListComponentAdoptionsResponse], error) {
+	return c.listComponentAdoptions.CallUnary(ctx, req)
+}
+
 // ComponentServiceHandler is an implementation of the plux.v1.ComponentService service.
 type ComponentServiceHandler interface {
 	ListComponents(context.Context, *connect.Request[pluxv1.ListComponentsRequest]) (*connect.Response[pluxv1.ListComponentsResponse], error)
@@ -117,6 +279,33 @@ type ComponentServiceHandler interface {
 	// ListUsages reports every node that instantiates a component, from the
 	// reference graph the compiler builds (SCH-041).
 	ListUsages(context.Context, *connect.Request[pluxv1.ListUsagesRequest]) (*connect.Response[pluxv1.ListUsagesResponse], error)
+	// CreateComponent makes a private component with its first version (STU-080).
+	CreateComponent(context.Context, *connect.Request[pluxv1.CreateComponentRequest]) (*connect.Response[pluxv1.CreateComponentResponse], error)
+	// ReviseComponent writes a new immutable version of a component, and may rename
+	// it. The author may revise it; for another person's it needs
+	// library.manage. expected_version guards against a lost update.
+	ReviseComponent(context.Context, *connect.Request[pluxv1.ReviseComponentRequest]) (*connect.Response[pluxv1.ReviseComponentResponse], error)
+	// ListComponentVersions returns a component with all its versions, newest first.
+	ListComponentVersions(context.Context, *connect.Request[pluxv1.ListComponentVersionsRequest]) (*connect.Response[pluxv1.ListComponentVersionsResponse], error)
+	// ListLibraryComponents lists the components the caller may see: the organisation's
+	// shared ones, the caller's own private ones and every public one (STU-086).
+	ListLibraryComponents(context.Context, *connect.Request[pluxv1.ListLibraryComponentsRequest]) (*connect.Response[pluxv1.ListLibraryComponentsResponse], error)
+	// SetComponentVisibility changes who can see a component. Making it public, or
+	// taking it back from public, needs library.publish, and the public scan
+	// of the newest version must pass first (STU-081).
+	SetComponentVisibility(context.Context, *connect.Request[pluxv1.SetComponentVisibilityRequest]) (*connect.Response[pluxv1.SetComponentVisibilityResponse], error)
+	// ExportComponent returns a version of a component as a library file, byte for
+	// byte the same for the same version.
+	ExportComponent(context.Context, *connect.Request[pluxv1.ExportComponentRequest]) (*connect.Response[pluxv1.ExportComponentResponse], error)
+	// ImportComponent makes a private component from a library file, which is
+	// validated as untrusted input.
+	ImportComponent(context.Context, *connect.Request[pluxv1.ImportComponentRequest]) (*connect.Response[pluxv1.ImportComponentResponse], error)
+	// AdoptComponentVersion records the version of a component an app uses
+	// and reports the instances whose overrides the version no longer fits
+	// (STU-085). Adoption is explicit and per app.
+	AdoptComponentVersion(context.Context, *connect.Request[pluxv1.AdoptComponentVersionRequest]) (*connect.Response[pluxv1.AdoptComponentVersionResponse], error)
+	// ListComponentAdoptions lists the versions an app adopted.
+	ListComponentAdoptions(context.Context, *connect.Request[pluxv1.ListComponentAdoptionsRequest]) (*connect.Response[pluxv1.ListComponentAdoptionsResponse], error)
 }
 
 // NewComponentServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -144,6 +333,60 @@ func NewComponentServiceHandler(svc ComponentServiceHandler, opts ...connect.Han
 		connect.WithSchema(componentServiceMethods.ByName("ListUsages")),
 		connect.WithHandlerOptions(opts...),
 	)
+	componentServiceCreateComponentHandler := connect.NewUnaryHandler(
+		ComponentServiceCreateComponentProcedure,
+		svc.CreateComponent,
+		connect.WithSchema(componentServiceMethods.ByName("CreateComponent")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceReviseComponentHandler := connect.NewUnaryHandler(
+		ComponentServiceReviseComponentProcedure,
+		svc.ReviseComponent,
+		connect.WithSchema(componentServiceMethods.ByName("ReviseComponent")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceListComponentVersionsHandler := connect.NewUnaryHandler(
+		ComponentServiceListComponentVersionsProcedure,
+		svc.ListComponentVersions,
+		connect.WithSchema(componentServiceMethods.ByName("ListComponentVersions")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceListLibraryComponentsHandler := connect.NewUnaryHandler(
+		ComponentServiceListLibraryComponentsProcedure,
+		svc.ListLibraryComponents,
+		connect.WithSchema(componentServiceMethods.ByName("ListLibraryComponents")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceSetComponentVisibilityHandler := connect.NewUnaryHandler(
+		ComponentServiceSetComponentVisibilityProcedure,
+		svc.SetComponentVisibility,
+		connect.WithSchema(componentServiceMethods.ByName("SetComponentVisibility")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceExportComponentHandler := connect.NewUnaryHandler(
+		ComponentServiceExportComponentProcedure,
+		svc.ExportComponent,
+		connect.WithSchema(componentServiceMethods.ByName("ExportComponent")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceImportComponentHandler := connect.NewUnaryHandler(
+		ComponentServiceImportComponentProcedure,
+		svc.ImportComponent,
+		connect.WithSchema(componentServiceMethods.ByName("ImportComponent")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceAdoptComponentVersionHandler := connect.NewUnaryHandler(
+		ComponentServiceAdoptComponentVersionProcedure,
+		svc.AdoptComponentVersion,
+		connect.WithSchema(componentServiceMethods.ByName("AdoptComponentVersion")),
+		connect.WithHandlerOptions(opts...),
+	)
+	componentServiceListComponentAdoptionsHandler := connect.NewUnaryHandler(
+		ComponentServiceListComponentAdoptionsProcedure,
+		svc.ListComponentAdoptions,
+		connect.WithSchema(componentServiceMethods.ByName("ListComponentAdoptions")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.ComponentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ComponentServiceListComponentsProcedure:
@@ -152,6 +395,24 @@ func NewComponentServiceHandler(svc ComponentServiceHandler, opts ...connect.Han
 			componentServiceGetComponentHandler.ServeHTTP(w, r)
 		case ComponentServiceListUsagesProcedure:
 			componentServiceListUsagesHandler.ServeHTTP(w, r)
+		case ComponentServiceCreateComponentProcedure:
+			componentServiceCreateComponentHandler.ServeHTTP(w, r)
+		case ComponentServiceReviseComponentProcedure:
+			componentServiceReviseComponentHandler.ServeHTTP(w, r)
+		case ComponentServiceListComponentVersionsProcedure:
+			componentServiceListComponentVersionsHandler.ServeHTTP(w, r)
+		case ComponentServiceListLibraryComponentsProcedure:
+			componentServiceListLibraryComponentsHandler.ServeHTTP(w, r)
+		case ComponentServiceSetComponentVisibilityProcedure:
+			componentServiceSetComponentVisibilityHandler.ServeHTTP(w, r)
+		case ComponentServiceExportComponentProcedure:
+			componentServiceExportComponentHandler.ServeHTTP(w, r)
+		case ComponentServiceImportComponentProcedure:
+			componentServiceImportComponentHandler.ServeHTTP(w, r)
+		case ComponentServiceAdoptComponentVersionProcedure:
+			componentServiceAdoptComponentVersionHandler.ServeHTTP(w, r)
+		case ComponentServiceListComponentAdoptionsProcedure:
+			componentServiceListComponentAdoptionsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -171,4 +432,40 @@ func (UnimplementedComponentServiceHandler) GetComponent(context.Context, *conne
 
 func (UnimplementedComponentServiceHandler) ListUsages(context.Context, *connect.Request[pluxv1.ListUsagesRequest]) (*connect.Response[pluxv1.ListUsagesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.ListUsages is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) CreateComponent(context.Context, *connect.Request[pluxv1.CreateComponentRequest]) (*connect.Response[pluxv1.CreateComponentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.CreateComponent is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) ReviseComponent(context.Context, *connect.Request[pluxv1.ReviseComponentRequest]) (*connect.Response[pluxv1.ReviseComponentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.ReviseComponent is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) ListComponentVersions(context.Context, *connect.Request[pluxv1.ListComponentVersionsRequest]) (*connect.Response[pluxv1.ListComponentVersionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.ListComponentVersions is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) ListLibraryComponents(context.Context, *connect.Request[pluxv1.ListLibraryComponentsRequest]) (*connect.Response[pluxv1.ListLibraryComponentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.ListLibraryComponents is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) SetComponentVisibility(context.Context, *connect.Request[pluxv1.SetComponentVisibilityRequest]) (*connect.Response[pluxv1.SetComponentVisibilityResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.SetComponentVisibility is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) ExportComponent(context.Context, *connect.Request[pluxv1.ExportComponentRequest]) (*connect.Response[pluxv1.ExportComponentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.ExportComponent is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) ImportComponent(context.Context, *connect.Request[pluxv1.ImportComponentRequest]) (*connect.Response[pluxv1.ImportComponentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.ImportComponent is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) AdoptComponentVersion(context.Context, *connect.Request[pluxv1.AdoptComponentVersionRequest]) (*connect.Response[pluxv1.AdoptComponentVersionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.AdoptComponentVersion is not implemented"))
+}
+
+func (UnimplementedComponentServiceHandler) ListComponentAdoptions(context.Context, *connect.Request[pluxv1.ListComponentAdoptionsRequest]) (*connect.Response[pluxv1.ListComponentAdoptionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ComponentService.ListComponentAdoptions is not implemented"))
 }

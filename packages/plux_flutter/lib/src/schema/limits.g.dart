@@ -357,6 +357,11 @@ enum PluxLimit {
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
+  /// Templates and components one organisation may keep in its library.
+  libraryItemsPerOrganization('library.itemsPerOrganization', PluxLimitUnit.count, 500, 0, 10000),
+  /// Versions one template or component may have; older versions an app adopted
+  /// are kept.
+  libraryVersionsPerItem('library.versionsPerItem', PluxLimitUnit.count, 100, 0, 1000),
   /// Size of one language-server message the Rust editor sends to its sandbox;
   /// a document the editor opens must fit.
   lspMessageBytes('lsp.messageBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
@@ -480,6 +485,11 @@ enum PluxLimit {
   studioChangeSetDocuments('studio.changeSetDocuments', PluxLimitUnit.count, 500, 0, 5000),
   /// Size of one Studio clipboard envelope; a larger copy is refused.
   studioClipboardBytes('studio.clipboardBytes', PluxLimitUnit.bytes, 4194304, 0, 33554432),
+  /// Largest pixel density of a custom device frame (D40); the smallest is 1.
+  studioCustomFrameMaxDensity('studio.customFrameMaxDensity', PluxLimitUnit.count, 4, 0, 4),
+  /// Largest width or height, in logical pixels, of a custom device frame
+  /// (D40); a larger frame is refused.
+  studioCustomFrameMaxPixels('studio.customFrameMaxPixels', PluxLimitUnit.count, 4096, 0, 8192),
   /// Events the server keeps per Studio events stream for resumption before it
   /// drops the oldest and the tab reloads its state.
   studioEventsStreamBufferEvents('studio.eventsStreamBufferEvents', PluxLimitUnit.count, 1000, 0, 10000),

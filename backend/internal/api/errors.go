@@ -57,6 +57,7 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.ReleaseRequestState:          connect.CodeFailedPrecondition,
 	plxerr.ReleaseRequestEnded:          connect.CodeFailedPrecondition,
 	plxerr.VisualDiffRequired:           connect.CodeFailedPrecondition,
+	plxerr.LibraryPublicScanFailed:      connect.CodeFailedPrecondition,
 	plxerr.EditingLockHeld:              connect.CodeFailedPrecondition,
 	plxerr.TranslationStateForbidden:    connect.CodePermissionDenied,
 	plxerr.TranslationDocumentForbidden: connect.CodePermissionDenied,

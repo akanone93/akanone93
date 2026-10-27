@@ -31,6 +31,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
+	"github.com/nightCode42/plux3/backend/internal/library"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -82,6 +83,9 @@ type Handlers struct {
 	// ReleaseRequests serves ReleaseRequestService (STU-100); nil leaves it
 	// unmounted.
 	ReleaseRequests *releasereq.Service
+	// Library serves the authoring calls of TemplateService and
+	// ComponentService (STU-080); nil refuses them as unavailable.
+	Library *library.Service
 	// Searches serves SearchService (SRV-061); nil leaves it unmounted.
 	Searches *search.Service
 	// StudioStream serves StudioEventsService (STU-075); nil leaves it

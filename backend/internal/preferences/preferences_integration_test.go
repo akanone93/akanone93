@@ -6,6 +6,7 @@ package preferences_test
 import (
 	"context"
 	"crypto/rand"
+	"slices"
 	"testing"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/signing"
@@ -167,14 +169,18 @@ func TestPreferencesRefused_STU_014(t *testing.T) {
 		in   preferences.Preferences
 		mask []string
 	}{
-		"empty mask":    {preferences.Preferences{}, nil},
-		"unknown path":  {preferences.Preferences{}, []string{"nope"}},
-		"invalid theme": {preferences.Preferences{Theme: "neon"}, []string{"theme"}},
-		"bad language":  {preferences.Preferences{Language: "not a tag!"}, []string{"language"}},
-		"favourites":    {preferences.Preferences{FavouriteAppIDs: over}, []string{"favourite_app_ids"}},
-		"pinned":        {preferences.Preferences{Pinned: over}, []string{"pinned"}},
-		"text scale":    {preferences.Preferences{Preview: map[string]preferences.PreviewSwitches{f.app: {TextScale: -1}}}, []string{"preview"}},
-		"preview key":   {preferences.Preferences{Preview: map[string]preferences.PreviewSwitches{"x": {}}}, []string{"preview"}},
+		"empty mask":      {preferences.Preferences{}, nil},
+		"unknown path":    {preferences.Preferences{}, []string{"nope"}},
+		"invalid theme":   {preferences.Preferences{Theme: "neon"}, []string{"theme"}},
+		"bad language":    {preferences.Preferences{Language: "not a tag!"}, []string{"language"}},
+		"favourites":      {preferences.Preferences{FavouriteAppIDs: over}, []string{"favourite_app_ids"}},
+		"pinned":          {preferences.Preferences{Pinned: over}, []string{"pinned"}},
+		"text scale":      {preferences.Preferences{Preview: map[string]preferences.PreviewSwitches{f.app: {TextScale: -1}}}, []string{"preview"}},
+		"preview key":     {preferences.Preferences{Preview: map[string]preferences.PreviewSwitches{"x": {}}}, []string{"preview"}},
+		"mute approval":   {preferences.Preferences{MutedTypes: []string{"approval.requested"}}, []string{"muted_notification_types"}},
+		"mute breakglass": {preferences.Preferences{MutedTypes: []string{"breakglass.used"}}, []string{"muted_notification_types"}},
+		"mute unknown":    {preferences.Preferences{MutedTypes: []string{"nope.never"}}, []string{"muted_notification_types"}},
+		"mute too many":   {preferences.Preferences{MutedTypes: slices.Repeat([]string{"alert.fired"}, len(notify.Types())+1)}, []string{"muted_notification_types"}},
 	}
 	for name, c := range cases {
 		if _, err := f.svc.Update(ctx, f.owner, c.in, c.mask); err == nil {
@@ -215,6 +221,22 @@ func TestPreviewSwitchesRoundTrip_STU_058(t *testing.T) {
 	g := got.Preview[f.app]
 	if g.DeviceFrame != "pixel" || g.TextScale != 1.3 || g.Platform != "cupertino" || g.MockStates["cart"] != "empty" || g.Locale != "fr" {
 		t.Fatalf("preview = %+v", g)
+	}
+}
+
+func TestMutedNotificationTypes_STU_013(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	in := preferences.Preferences{Theme: preferences.ThemeDark, MutedTypes: []string{"alert.fired", "release.published"}}
+	if _, err := f.svc.Update(ctx, f.owner, in, []string{"muted_notification_types"}); err != nil {
+		t.Fatal(err)
+	}
+	got, err := f.svc.Get(ctx, f.owner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(got.MutedTypes, in.MutedTypes) || got.Theme != preferences.ThemeSystem {
+		t.Fatalf("muted = %v, theme = %q: the mask must name only its own path", got.MutedTypes, got.Theme)
 	}
 }
 

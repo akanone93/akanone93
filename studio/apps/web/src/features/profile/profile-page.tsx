@@ -11,6 +11,7 @@ import { Field, Select } from "@plux/ui";
 import { useState } from "react";
 import { asDensity, asTheme, type DensityPreference, type ThemePreference } from "../../lib/preferences.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { MuteSettings } from "../notifications/mute-settings.tsx";
 import { profileMessages } from "./profile.messages.ts";
 import { useAppliedPreferences } from "./use-applied-preferences.ts";
 
@@ -87,6 +88,7 @@ export function ProfilePage() {
           {m.saveFailed}
         </p>
       )}
+      <MuteSettings />
     </section>
   );
 }

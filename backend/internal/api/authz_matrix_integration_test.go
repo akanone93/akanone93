@@ -101,6 +101,9 @@ type matrixFixture struct {
 	device      string
 	job         string
 	count       int
+	// library holds the items the library entries act on, by kind.
+	library     map[string]string
+	libraryDocs map[string]string
 	// rule and group are the alert rule and error group the read and update
 	// entries share, made on first use to spare the rate limit.
 	rule  *pluxv1.AlertRule
