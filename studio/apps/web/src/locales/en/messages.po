@@ -898,6 +898,12 @@ msgstr "Alignment"
 msgid "library.kind.all"
 msgstr "All"
 
+#. Link back to the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.back"
+msgstr "All API definitions"
+
 #. Option of the app filter that shows the whole organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -909,6 +915,12 @@ msgstr "All apps"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.stagesParallel"
 msgstr "All at once"
+
+#. Link back to the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.collectionsBack"
+msgstr "All collections"
 
 #. Option of the source picker: every paired device.
 #. js-lingui-explicit-id
@@ -1000,6 +1012,18 @@ msgstr "Any state"
 msgid "library.visibility.all"
 msgstr "Any visibility"
 
+#. Heading of the data sources page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.listTitle"
+msgstr "API definitions"
+
+#. Link to the data sources page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.sourcesLink"
+msgstr "API definitions"
+
 #. Label of the app filter.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -1048,6 +1072,12 @@ msgstr "Applied to the document."
 msgid "designers.applied"
 msgstr "Applied to the document."
 
+#. Confirmation after applying.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.applied"
+msgstr "Applied to the document."
+
 #. Button: apply the chosen visibility.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -1070,6 +1100,12 @@ msgstr "Apply"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.apply"
+msgstr "Apply"
+
+#. Button that applies the draft to the document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.apply"
 msgstr "Apply"
 
 #. Name of the approval publish step.
@@ -1281,6 +1317,12 @@ msgstr "Back to devices"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.back"
 msgstr "Back to the library"
+
+#. Heading of the base URL section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.baseUrl"
+msgstr "Base URL"
 
 #. New-screen option without a template.
 #. js-lingui-explicit-id
@@ -1660,6 +1702,12 @@ msgstr "Channel"
 msgid "dialog.explain.loading"
 msgstr "Checking access"
 
+#. Validation status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.checking"
+msgstr "Checking the draft."
+
 #. Shown while the validator checks the chosen state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -1834,6 +1882,12 @@ msgstr "Close the DB schema designer"
 msgid "history.close"
 msgstr "Close the history"
 
+#. Label of the import dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.importClose"
+msgstr "Close the import dialog"
+
 #. Accessible name of the button that closes the full-screen JSON editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -1845,6 +1899,18 @@ msgstr "Close the JSON editor"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.close"
 msgstr "Close the localisation table"
+
+#. Label of the dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.previewClose"
+msgstr "Close the migration preview"
+
+#. Label of the mock dialog close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.mockClose"
+msgstr "Close the mock dialog"
 
 #. Accessible name of the button that closes the full-screen Rust editor.
 #. js-lingui-explicit-id
@@ -1875,6 +1941,24 @@ msgstr "Closing"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.tabCode"
 msgstr "Code"
+
+#. Heading of one collection page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.collectionTitle"
+msgstr "Collection"
+
+#. Link to the collections page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.collectionsLink"
+msgstr "Collections"
+
+#. Heading of the collections page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.collectionsTitle"
+msgstr "Collections"
 
 #. Accessible name of the list of collections.
 #. js-lingui-explicit-id
@@ -1989,6 +2073,12 @@ msgstr "Computing the migration…"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.stateConcluded"
 msgstr "Concluded"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.config"
+msgstr "Configuration (JSON)"
 
 #. Button that confirms the action of a dialog.
 #. js-lingui-explicit-id
@@ -2200,6 +2290,12 @@ msgstr "Dark value of {token}"
 msgid "panelTabs.dataTab"
 msgstr "Data"
 
+#. Heading of one data source page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.sourceTitle"
+msgstr "Data source"
+
 #. Title of the full-screen data source designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2313,6 +2409,12 @@ msgstr "Default"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.default"
 msgstr "Default (JSON)"
+
+#. Route option: absent means the gateway.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.routeDefault"
+msgstr "Default (Plux gateway)"
 
 #. Label of the flag default field.
 #. js-lingui-explicit-id
@@ -2686,11 +2788,29 @@ msgstr "Edit grants"
 msgid "functions.openEditor"
 msgstr "Edit in the Rust editor"
 
+#. Button that opens the mock dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.editMock"
+msgstr "Edit the mock"
+
+#. Title of the mock dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.mockTitle"
+msgstr "Edit the mock"
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.editorCaption"
 msgstr "Edit the policy and try it against a sample change before saving."
+
+#. Link to where app variables are edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.editVariables"
+msgstr "Edit the variables in the app document"
 
 #. Hint under the build step.
 #. js-lingui-explicit-id
@@ -2834,6 +2954,18 @@ msgstr "Environment"
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.envLabel"
+msgstr "Environment"
+
+#. Label of the environment the page shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.envLabel"
+msgstr "Environment"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colEnvironment"
 msgstr "Environment"
 
 #. Column heading.
@@ -3118,6 +3250,18 @@ msgstr "Field type"
 msgid "designers.dbFields"
 msgstr "Fields"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colFields"
+msgstr "Fields"
+
+#. Heading of the fields table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.fields"
+msgstr "Fields"
+
 #. Heading of the list of validator findings about the chosen state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -3231,6 +3375,12 @@ msgstr "Freeze and build"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanFrom"
 msgstr "From version"
+
+#. Describes one migration plan.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.planFrom"
+msgstr "From version {from}"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -3484,6 +3634,18 @@ msgstr "Host actions"
 msgid "designers.dataImportHeading"
 msgstr "Import a data source"
 
+#. Button that opens the import dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.importButton"
+msgstr "Import an API definition"
+
+#. Title of the import dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.importTitle"
+msgstr "Import an API definition"
+
 #. Button: upload a component library file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -3501,6 +3663,12 @@ msgstr "Import template"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.imported"
 msgstr "Imported {name}."
+
+#. Shown when an import is staged.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.importStaged"
+msgstr "Imported sources are ready to apply."
 
 #. Verdict of a comparison.
 #. js-lingui-explicit-id
@@ -3550,6 +3718,18 @@ msgstr "Inconclusive"
 msgid "experiments.directionIncrease"
 msgstr "Increase"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colIndexes"
+msgstr "Indexes"
+
+#. Field label: one index per line, fields separated by commas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.indexes"
+msgstr "Indexes"
+
 #. Level label of a console line.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -3567,6 +3747,12 @@ msgstr "Information"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateDefault"
 msgstr "Initial value of {name}"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colInput"
+msgstr "Input"
 
 #. Label.
 #. js-lingui-explicit-id
@@ -3720,6 +3906,12 @@ msgstr "JSON of the document"
 msgid "panelTabs.jsonOf"
 msgstr "JSON of the selection"
 
+#. Help text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.transactionHelp"
+msgstr "JSON Pointers to the amount, currency and payee; leave empty for none."
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -3790,6 +3982,12 @@ msgstr "Key"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbKey"
+msgstr "Key"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.key"
 msgstr "Key"
 
 #. Column heading.
@@ -3886,6 +4084,18 @@ msgstr "Kind"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataKind"
+msgstr "Kind"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colKind"
+msgstr "Kind"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.kind"
 msgstr "Kind"
 
 #. Label of the release label field.
@@ -4164,6 +4374,12 @@ msgstr "Loading screens"
 msgid "library.canvas.insert.loading"
 msgstr "Loading templates…"
 
+#. Status while the data area loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.loading"
+msgstr "Loading the data area."
+
 #. Shown while the library loads.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -4358,6 +4574,12 @@ msgstr "Message"
 
 #. Column heading.
 #. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colMethod"
+msgstr "Method"
+
+#. Column heading.
+#. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colMetric"
 msgstr "Metric"
@@ -4386,10 +4608,22 @@ msgstr "Metrics"
 msgid "designers.dbPlans"
 msgstr "Migration plans"
 
+#. Heading of the migration plans list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.plans"
+msgstr "Migration plans"
+
 #. Heading of the preview of what a change does to data on devices.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPreview"
+msgstr "Migration preview"
+
+#. Title of the migration preview dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.previewTitle"
 msgstr "Migration preview"
 
 #. Shown in a cell of the table whose locale has no message for the key yet.
@@ -4404,10 +4638,22 @@ msgstr "Missing"
 msgid "panels.mixed"
 msgstr "Mixed"
 
+#. Heading of the mock section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.mock"
+msgstr "Mock"
+
 #. Label of the text area that holds the design-time mock of a data source.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataMock"
+msgstr "Mock value (JSON)"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.mockLabel"
 msgstr "Mock value (JSON)"
 
 #. Label.
@@ -4480,6 +4726,18 @@ msgstr "Name"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.name"
+msgstr "Name"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colName"
+msgstr "Name"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.name"
 msgstr "Name"
 
 #. Column heading.
@@ -4788,6 +5046,12 @@ msgstr "No diff is attached."
 msgid "releases.clearEnd"
 msgstr "No end"
 
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noUrls"
+msgstr "No environment sets a value for this variable."
+
 #. Shown when no error occurred.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -4841,6 +5105,12 @@ msgstr "No keys are published for this environment."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.noLogs"
 msgstr "No log lines."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noPlans"
+msgstr "No migration plans."
 
 #. Shown when the migration preview has no finding.
 #. js-lingui-explicit-id
@@ -4949,6 +5219,12 @@ msgstr "No templates yet."
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.empty"
 msgstr "No translation keys to show."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noSchemas"
+msgstr "No type of the plugin is used by this source."
 
 #. Shown when the Insert search finds nothing.
 #. js-lingui-explicit-id
@@ -5160,6 +5436,18 @@ msgstr "One after the other"
 msgid "security.editGrantsDescription"
 msgstr "One entry per line. Releases are published only when every plugin requests a subset."
 
+#. Help text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.indexesHelp"
+msgstr "One index per line; separate the fields with commas."
+
+#. Link to one data source or collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.open"
+msgstr "Open"
+
 #. Status of a request.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -5244,11 +5532,29 @@ msgstr "OpenAPI"
 msgid "publish.starting"
 msgstr "Opening the release request"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colOperation"
+msgstr "Operation"
+
 #. Heading of the operations notifications group.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.operations"
 msgstr "Operations"
+
+#. Heading of the operations table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.operations"
+msgstr "Operations"
+
+#. Caption of one data source page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.sourceCaption"
+msgstr "Operations, schemas, per-environment URLs and the mock of this source."
 
 #. Label.
 #. js-lingui-explicit-id
@@ -5303,6 +5609,12 @@ msgstr "Other page-state references stay as they are; check them after inserting
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.otherPlugin"
 msgstr "Other plugin"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colOutput"
+msgstr "Output"
 
 #. Label.
 #. js-lingui-explicit-id
@@ -5442,6 +5754,12 @@ msgstr "Paste with these choices"
 msgid "clipboard.reportTitle"
 msgstr "Pasted elements need more than this plugin has"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colPath"
+msgstr "Path"
+
 #. Button: stop a rollout from advancing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -5524,6 +5842,18 @@ msgstr "Plugin"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfPlugin"
+msgstr "Plugin"
+
+#. Label of the plugin picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.pluginLabel"
+msgstr "Plugin"
+
+#. Label of the plugin picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.pickPlugin"
 msgstr "Plugin"
 
 #. Accessible name of the canvas that shows all screens of a plugin.
@@ -5634,11 +5964,23 @@ msgstr "Press Enter or Space to select the step. Use the lists in the step to co
 msgid "preview.switcher"
 msgstr "Preview switches"
 
+#. Button that opens the migration preview.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.previewButton"
+msgstr "Preview the migration"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colPrevious"
 msgstr "Previous release"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.primaryKey"
+msgstr "Primary key"
 
 #. Label of the field that holds the primary key of a collection.
 #. js-lingui-explicit-id
@@ -5698,6 +6040,12 @@ msgstr "Problems"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.problems"
+msgstr "Problems"
+
+#. Heading of the findings list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.problems"
 msgstr "Problems"
 
 #. Heading of the list of problems found in the graph.
@@ -5879,6 +6227,12 @@ msgstr "Read only: you do not hold the edit lock."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.readOnly"
 msgstr "Read-only: you cannot change this plugin now"
+
+#. Shown when the editing lock is not held.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.readOnly"
+msgstr "Read-only: you cannot edit these documents now."
 
 #. Status while the importer runs.
 #. js-lingui-explicit-id
@@ -6576,6 +6930,18 @@ msgstr "Rollout plan (JSON)"
 msgid "security.rootVersions"
 msgstr "Root versions served"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colRoute"
+msgstr "Route"
+
+#. Field label of the data source route.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.route"
+msgstr "Route"
+
 #. Button that builds the source and runs its stored test cases.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -6749,6 +7115,12 @@ msgstr "Schedule"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.stateScheduled"
 msgstr "Scheduled"
+
+#. Heading of the schemas list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.schemas"
+msgstr "Schemas"
 
 #. Label of the scope select.
 #. js-lingui-explicit-id
@@ -6959,6 +7331,12 @@ msgstr "Send to device"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.sendAction"
 msgstr "Send to device"
+
+#. Marks a sensitive field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.sensitive"
+msgstr "sensitive"
 
 #. Label of the checkbox that marks the entry as holding personal or secret data.
 #. js-lingui-explicit-id
@@ -7404,6 +7782,12 @@ msgstr "Stopped"
 msgid "functions.assuranceTests"
 msgstr "Stored tests"
 
+#. Route option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.routeDirect"
+msgstr "Straight to the origin"
+
 #. Profile name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -7668,6 +8052,12 @@ msgstr "The action failed. Nothing was changed."
 msgid "functions.aliasFailed"
 msgstr "The alias could not be changed."
 
+#. Shown when imported variables cannot be written.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.importLocked"
+msgstr "The app document cannot be edited now, so its variables cannot be added."
+
 #. Approval expired.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -7691,6 +8081,12 @@ msgstr "The assets could not be loaded."
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.fieldDistinctFromAuthor"
 msgstr "The author's approval does not count"
+
+#. Label before the name of the variable that holds the base URL.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.baseUrlVariable"
+msgstr "The base URL is the app variable"
 
 #. Shown when saving fails.
 #. js-lingui-explicit-id
@@ -7752,11 +8148,47 @@ msgstr "The clipboard was not pasted"
 msgid "auth.error.code-rejected"
 msgstr "The code is not correct or has expired."
 
+#. Caption of the collections page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.collectionsCaption"
+msgstr "The collections of the on-device database of this plugin."
+
+#. Field error.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.configInvalid"
+msgstr "The configuration must be a JSON object."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noBaseUrl"
+msgstr "The configuration names no base URL variable."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noOperations"
+msgstr "The configuration names no operations."
+
 #. Status shown when the connection to the language server failed; {detail} is the reason.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.closedFailed"
 msgstr "The connection to the language server broke: {detail}"
+
+#. Error when the plugin documents fail to load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.loadFailed"
+msgstr "The data area could not be loaded."
+
+#. Caption under the data sources heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.listCaption"
+msgstr "The data sources of this plugin, their kinds and their mocks."
 
 #. Shown when the step-up or the decision failed.
 #. js-lingui-explicit-id
@@ -7817,6 +8249,12 @@ msgstr "The draft does not apply to this change."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.invalid"
 msgstr "The draft has errors; fix them to apply it."
+
+#. Validation status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.valid"
+msgstr "The draft is valid."
 
 #. Shown when the server refuses the credentials.
 #. js-lingui-explicit-id
@@ -7968,6 +8406,12 @@ msgstr "The migration preview is not available."
 msgid "designers.dataMockInvalid"
 msgstr "The mock is not valid JSON."
 
+#. Field error.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.mockInvalid"
+msgstr "The mock is not valid JSON."
+
 #. Help text under the mock field of a data source.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -8075,6 +8519,12 @@ msgstr "The request was at another step. It has been reloaded."
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.reviewFailed"
 msgstr "The review was not recorded."
+
+#. Caption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.collectionCaption"
+msgstr "The schema of this collection and what a migration from the last release does."
 
 #. Reason a screen cannot be deleted: another screen navigates to it.
 #. js-lingui-explicit-id
@@ -8233,6 +8683,12 @@ msgstr "The text becomes the {locale} message of the key and the property refers
 msgid "safety.confirm.mismatch"
 msgstr "The text does not match yet"
 
+#. Field error.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.transactionInvalid"
+msgstr "The transaction must be empty or a JSON object."
+
 #. Shown in the trash dialog when nothing was deleted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -8273,6 +8729,12 @@ msgstr "The validator is not available, so the default is not checked."
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.unavailable"
+msgstr "The validator is not available."
+
+#. Validation status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.unavailable"
 msgstr "The validator is not available."
 
 #. Shown when the validator worker cannot check the graph.
@@ -8383,6 +8845,12 @@ msgstr "These changes of yours were not applied"
 msgid "dialog.stepup.body"
 msgstr "This action needs a fresh check with your security key or passkey."
 
+#. Shown when the app has no plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noPlugin"
+msgstr "This app has no plugin yet."
+
 #. Shown on the app canvas when the app has no plugins.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -8425,6 +8893,12 @@ msgstr "This change affects code outside Studio"
 msgid "devices.expired"
 msgstr "This code has expired."
 
+#. Shown for an unknown collection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.notFoundCollection"
+msgstr "This collection does not exist."
+
 #. Shown when a component instance has nothing to override.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -8460,6 +8934,12 @@ msgstr "This could not be loaded."
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.loadFailed"
 msgstr "This could not be loaded."
+
+#. Shown for an unknown source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.notFound"
+msgstr "This data source does not exist."
 
 #. Shown instead of the comparison when the plugin has no published version.
 #. js-lingui-explicit-id
@@ -8551,11 +9031,23 @@ msgstr "This plugin changed on the server"
 msgid "designers.dbNone"
 msgstr "This plugin has no collections yet."
 
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noCollections"
+msgstr "This plugin has no collections."
+
 #. Shown when the plugin declares no data source.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataNone"
 msgstr "This plugin has no data sources yet."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noSources"
+msgstr "This plugin has no data sources."
 
 #. Shown on the plugin canvas when the plugin has no screens.
 #. js-lingui-explicit-id
@@ -8617,6 +9109,12 @@ msgstr "This widget has no events."
 msgid "links.none"
 msgstr "This widget has no links yet."
 
+#. Route option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.routePlux"
+msgstr "Through the Plux gateway"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -8658,6 +9156,12 @@ msgstr "Touches a money flow"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.riskTouchesSecurePage"
 msgstr "Touches a secure page"
+
+#. Field label of the signed-transaction pointers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.transaction"
+msgstr "Transaction pointers (JSON)"
 
 #. Screenshot use: context shown to translators.
 #. js-lingui-explicit-id
@@ -8705,6 +9209,18 @@ msgstr "Type"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colType"
+msgstr "Type"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colType"
+msgstr "Type"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.type"
 msgstr "Type"
 
 #. STU-074 type-to-confirm: label of the field where the user types the name of what is affected.
@@ -8809,6 +9325,12 @@ msgstr "Uploading {name}"
 msgid "assets.failed"
 msgstr "Uploading {name} failed."
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colUrl"
+msgstr "URL"
+
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -8850,6 +9372,12 @@ msgstr "Use lower-case words joined by dots or hyphens, such as home.title."
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.use"
 msgstr "Use security key or passkey"
+
+#. Button that keeps the mock in the draft.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.mockSave"
+msgstr "Use this mock"
 
 #. Status of an approved request that the change has used.
 #. js-lingui-explicit-id
@@ -8969,6 +9497,18 @@ msgstr "Version"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbVersion"
+msgstr "Version"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colVersion"
+msgstr "Version"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.version"
 msgstr "Version"
 
 #. Column heading.
