@@ -1,0 +1,93 @@
+{
+  "name": "material-segmented-button",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "sb",
+            "type": "SegmentedButton",
+            "props": {
+              "segments": [
+                {
+                  "value": "d",
+                  "label": "Day"
+                },
+                {
+                  "value": "w",
+                  "label": "Week"
+                },
+                {
+                  "value": "m",
+                  "label": "Month"
+                }
+              ],
+              "selected": [
+                "w"
+              ]
+            }
+          },
+          {
+            "id": "sb2",
+            "type": "SegmentedButton",
+            "props": {
+              "segments": [
+                {
+                  "value": "d",
+                  "label": "Day"
+                },
+                {
+                  "value": "w",
+                  "label": "Week"
+                },
+                {
+                  "value": "m",
+                  "label": "Month"
+                }
+              ],
+              "selected": [
+                "d"
+              ],
+              "showSelectedIcon": false
+            }
+          },
+          {
+            "id": "sb3",
+            "type": "SegmentedButton",
+            "props": {
+              "segments": [
+                {
+                  "value": "a",
+                  "icon": "star"
+                },
+                {
+                  "value": "b",
+                  "icon": "star",
+                  "label": "Two"
+                }
+              ],
+              "selected": [
+                "a"
+              ],
+              "multiSelectionEnabled": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

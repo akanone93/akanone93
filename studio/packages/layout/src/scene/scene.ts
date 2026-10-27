@@ -283,6 +283,18 @@ export function renderFlexAvailable(): boolean {
 /** Node types laid out by `RenderParagraph`, which needs a [ParagraphEngine]. */
 export const textTypes: ReadonlySet<string> = new Set(["Text", ...layer2Types]);
 
+/** Composites that draw text of their own from props: their scenes are captured at both text scales, and their rects take the text tolerance. */
+export const labelledTypes: ReadonlySet<string> = new Set([
+  "Autocomplete",
+  "CalendarDatePicker",
+  "DataTable",
+  "DropdownMenu",
+  "NavigationDrawer",
+  "PopupMenuButton",
+  "SegmentedButton",
+  "Stepper",
+]);
+
 export function supportedTypes(): ReadonlySet<string> {
   return new Set([
     ...boxTypes,

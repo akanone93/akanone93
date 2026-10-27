@@ -508,18 +508,7 @@ function schemaWidgetTypes(): string[] {
  * The widget types still drawn as labelled placeholders (S4.6). A type leaves
  * this list when it gains a builder, and the test fails until it does.
  */
-const placeholderTypes: readonly string[] = [
-  "Autocomplete",
-  "BottomAppBar",
-  "CalendarDatePicker",
-  "DataTable",
-  "DropdownMenu",
-  "MaterialBanner",
-  "NavigationDrawer",
-  "PopupMenuButton",
-  "SegmentedButton",
-  "Stepper",
-];
+const placeholderTypes: readonly string[] = [];
 
 describe("builder coverage (STU-005)", () => {
   test("every widget type has a builder except the listed placeholders", () => {

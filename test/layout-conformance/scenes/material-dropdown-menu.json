@@ -1,0 +1,76 @@
+{
+  "name": "material-dropdown-menu",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "dd",
+            "type": "DropdownMenu",
+            "props": {
+              "dropdownMenuEntries": [
+                {
+                  "value": "a",
+                  "label": "Red"
+                },
+                {
+                  "value": "b",
+                  "label": "Green and blue"
+                }
+              ]
+            }
+          },
+          {
+            "id": "dd2",
+            "type": "DropdownMenu",
+            "props": {
+              "dropdownMenuEntries": [
+                {
+                  "value": "a",
+                  "label": "Red"
+                },
+                {
+                  "value": "b",
+                  "label": "Green and blue"
+                }
+              ],
+              "width": 200,
+              "hintText": "Pick"
+            }
+          },
+          {
+            "id": "dd3",
+            "type": "DropdownMenu",
+            "props": {
+              "dropdownMenuEntries": [
+                {
+                  "value": "a",
+                  "label": "Red"
+                },
+                {
+                  "value": "b",
+                  "label": "Green and blue"
+                }
+              ],
+              "showTrailingIcon": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
