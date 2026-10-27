@@ -211,3 +211,17 @@ describe("positions", () => {
     expect(readSavedPositions([{ kind: "canvas", content: new TextEncoder().encode("{") }])).toBeUndefined();
   });
 });
+
+describe("STU-058 an idle canvas under the preview switches", () => {
+  test("lays out again only for a change, never while idle", async () => {
+    const s = stub();
+    renderApp(path, { documents, surface: s.factory });
+    await waitFor(() => expect(s.patches.length).toBeGreaterThan(0));
+    // The editor's copies of the documents arrive once and may lay out the screens a second time.
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    const settled = s.patches.length;
+    expect(settled).toBeLessThanOrEqual(2);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    expect(s.patches.length).toBe(settled);
+  });
+});
