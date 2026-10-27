@@ -3296,6 +3296,30 @@
       "fix": "Ship a host build that registers the entry and upload its catalogue with plux native sync, or keep the release from using the entry; the publisher acknowledges the warning to publish anyway."
     },
     {
+      "code": "PLX-8060",
+      "reason": "RELEASE_REQUEST_STATE",
+      "severity": "error",
+      "title": "Release request is at another step",
+      "cause": "The call completes a step the release request is not at, or the step's exit condition does not hold yet: the request has not reached it, was moved back by a changed draft, or is held (STU-100, F11).",
+      "fix": "Read the request again to see its step and hold, and repeat the call for that step."
+    },
+    {
+      "code": "PLX-8061",
+      "reason": "RELEASE_REQUEST_ENDED",
+      "severity": "error",
+      "title": "Release request has ended",
+      "cause": "The release request was released, rejected, expired or cancelled, and an ended request takes no further step (STU-100).",
+      "fix": "Open a new release request for the app and channel."
+    },
+    {
+      "code": "PLX-8062",
+      "reason": "VISUAL_DIFF_REQUIRED",
+      "severity": "error",
+      "title": "Visual diff not finished",
+      "cause": "Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content.",
+      "fix": "Request the visual diff and wait for it to finish; request it again if it failed or the content changed."
+    },
+    {
       "code": "PLX-8090",
       "reason": "INTERNAL_SERVER_ERROR",
       "severity": "error",

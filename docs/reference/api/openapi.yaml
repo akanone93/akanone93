@@ -11581,6 +11581,383 @@ paths:
               schema:
                 $ref: '#/components/schemas/plux.v1.PublishResponse'
   /plux.v1.PublishService/WatchPublish: {}
+  /plux.v1.ReleaseRequestService/AdvanceReleaseRequest:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: AdvanceReleaseRequest
+      description: |-
+        AdvanceReleaseRequest completes the step the request is at (select,
+         build, reports, diffs, changelog, target or rollout) with that step's
+         payload and moves it to the next. It needs release.publish.
+      operationId: plux.v1.ReleaseRequestService.AdvanceReleaseRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.AdvanceReleaseRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.AdvanceReleaseRequestResponse'
+  /plux.v1.ReleaseRequestService/CancelReleaseRequest:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: CancelReleaseRequest
+      description: |-
+        CancelReleaseRequest ends an open request. Versions already built stay.
+         It needs release.publish.
+      operationId: plux.v1.ReleaseRequestService.CancelReleaseRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CancelReleaseRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CancelReleaseRequestResponse'
+  /plux.v1.ReleaseRequestService/CompleteReleaseRequest:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: CompleteReleaseRequest
+      description: |-
+        CompleteReleaseRequest is the release step: it creates the app release
+         from the built versions and promotes it to the channel. It needs
+         release.promote; production still needs the step-up of SEC-103.
+      operationId: plux.v1.ReleaseRequestService.CompleteReleaseRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CompleteReleaseRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CompleteReleaseRequestResponse'
+  /plux.v1.ReleaseRequestService/CreateReleaseRequest:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: CreateReleaseRequest
+      description: |-
+        CreateReleaseRequest opens a request at the select step. If the app,
+         environment and channel already have an open request, that one is
+         returned with existing set, so that Studio can show who is publishing.
+         It needs release.publish.
+      operationId: plux.v1.ReleaseRequestService.CreateReleaseRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateReleaseRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateReleaseRequestResponse'
+  /plux.v1.ReleaseRequestService/GetReleaseRequest:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: GetReleaseRequest
+      description: |-
+        GetReleaseRequest returns a request, its diff jobs and results. It needs
+         plugin.read.
+      operationId: plux.v1.ReleaseRequestService.GetReleaseRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetReleaseRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetReleaseRequestResponse'
+  /plux.v1.ReleaseRequestService/ListReleaseRequests:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: ListReleaseRequests
+      description: |-
+        ListReleaseRequests lists the requests of an app, newest first. It needs
+         plugin.read.
+      operationId: plux.v1.ReleaseRequestService.ListReleaseRequests
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListReleaseRequestsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListReleaseRequestsResponse'
+  /plux.v1.ReleaseRequestService/RefreezeReleaseRequest:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: RefreezeReleaseRequest
+      description: |-
+        RefreezeReleaseRequest returns a request to the build step after the
+         draft changed; builds, reports, diffs and any approval are void. It needs
+         release.publish.
+      operationId: plux.v1.ReleaseRequestService.RefreezeReleaseRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RefreezeReleaseRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RefreezeReleaseRequestResponse'
+  /plux.v1.ReleaseRequestService/RequestReleaseApproval:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: RequestReleaseApproval
+      description: |-
+        RequestReleaseApproval is the approval step: it asks the approval engine
+         whether the policies need approval of this content, opens a request there
+         if they do, and moves the release request on when they are satisfied. It
+         needs release.publish.
+      operationId: plux.v1.ReleaseRequestService.RequestReleaseApproval
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RequestReleaseApprovalRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RequestReleaseApprovalResponse'
+  /plux.v1.ReleaseRequestService/RequestVisualDiff:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: RequestVisualDiff
+      description: |-
+        RequestVisualDiff queues the render job of the exact content, rate-limited
+         per organisation. Asking again while a job is queued or running returns
+         that job. It needs release.publish.
+      operationId: plux.v1.ReleaseRequestService.RequestVisualDiff
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RequestVisualDiffRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RequestVisualDiffResponse'
   /plux.v1.ReleaseService/CreateRelease:
     post:
       tags:
@@ -13801,6 +14178,106 @@ components:
              exactly once and expires after seven days.
       title: AddMemberResponse
       additionalProperties: false
+    plux.v1.AdvanceReleaseRequestRequest:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            builds:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.BuildsStep'
+              title: builds
+          title: builds
+        - type: object
+          properties:
+            changelog:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ChangelogStep'
+              title: changelog
+          title: changelog
+        - type: object
+          properties:
+            reports:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ReportsStep'
+              title: reports
+          title: reports
+        - type: object
+          properties:
+            rollout:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.RolloutStep'
+              title: rollout
+          title: rollout
+        - type: object
+          properties:
+            selection:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.SelectionStep'
+              title: selection
+          title: selection
+        - type: object
+          properties:
+            target:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.TargetStep'
+              title: target
+          title: target
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - builds
+              - required:
+                  - changelog
+              - required:
+                  - reports
+              - required:
+                  - rollout
+              - required:
+                  - selection
+              - required:
+                  - target
+          - not:
+              oneOf:
+                - required:
+                    - builds
+                - required:
+                    - changelog
+                - required:
+                    - reports
+                - required:
+                    - rollout
+                - required:
+                    - selection
+                - required:
+                    - target
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+        expectedState:
+          type: string
+          title: expected_state
+      title: AdvanceReleaseRequestRequest
+      description: |-
+        AdvanceReleaseRequestRequest completes the step expected_state names. The
+         payload is that step's: selection at select, builds at build, reports at
+         reports, none at diffs, changelog at changelog, target at target and
+         rollout at rollout.
+    plux.v1.AdvanceReleaseRequestResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: request
+      title: AdvanceReleaseRequestResponse
+      additionalProperties: false
     plux.v1.AlertRule:
       type: object
       properties:
@@ -14692,6 +15169,52 @@ components:
       title: Build
       additionalProperties: false
       description: Build is one build of an uploaded source (FN-016).
+    plux.v1.BuildJobRef:
+      type: object
+      properties:
+        pluginKey:
+          type: string
+          title: plugin_key
+        jobId:
+          type: string
+          title: job_id
+      title: BuildJobRef
+      additionalProperties: false
+    plux.v1.BuildRef:
+      type: object
+      properties:
+        pluginKey:
+          type: string
+          title: plugin_key
+        jobId:
+          type: string
+          title: job_id
+        state:
+          type: string
+          title: state
+          description: state is the job's state when the request last looked.
+        version:
+          type: string
+          title: version
+          format: int64
+        bundleSha256:
+          type: string
+          title: bundle_sha256
+        errors:
+          type: integer
+          title: errors
+          format: int32
+        warnings:
+          type: array
+          items:
+            type: string
+          title: warnings
+          description: |-
+            warnings are the identifiers of the job's warnings, which the reports step
+             acknowledges.
+      title: BuildRef
+      additionalProperties: false
+      description: BuildRef is the publish job that froze and built one plugin.
     plux.v1.BuildRequest:
       type: object
       properties:
@@ -14719,6 +15242,19 @@ components:
         - BUILD_STATE_SUCCEEDED
         - BUILD_STATE_FAILED
       description: BuildState is the progress of a build (FN-016).
+    plux.v1.BuildsStep:
+      type: object
+      properties:
+        builds:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.BuildJobRef'
+          title: builds
+          description: |-
+            builds are the publish jobs, one per selected plugin; the server reads
+             their state, versions and diagnostics itself.
+      title: BuildsStep
+      additionalProperties: false
     plux.v1.BundleDescriptor:
       type: object
       properties:
@@ -14856,6 +15392,26 @@ components:
             - $ref: '#/components/schemas/plux.v1.PublishJob'
           title: job
       title: CancelPublishJobResponse
+      additionalProperties: false
+    plux.v1.CancelReleaseRequestRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: CancelReleaseRequestRequest
+      additionalProperties: false
+    plux.v1.CancelReleaseRequestResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: request
+      title: CancelReleaseRequestResponse
       additionalProperties: false
     plux.v1.CancelRetentionChangeRequest:
       type: object
@@ -15039,6 +15595,17 @@ components:
           type: string
           title: name
       title: ChangelogEntry
+      additionalProperties: false
+    plux.v1.ChangelogStep:
+      type: object
+      properties:
+        notes:
+          type: string
+          title: notes
+        label:
+          type: string
+          title: label
+      title: ChangelogStep
       additionalProperties: false
     plux.v1.Channel:
       type: object
@@ -15347,6 +15914,26 @@ components:
             - $ref: '#/components/schemas/plux.v1.MfaChallenge'
           title: challenge
       title: CompleteOidcLoginResponse
+      additionalProperties: false
+    plux.v1.CompleteReleaseRequestRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: CompleteReleaseRequestRequest
+      additionalProperties: false
+    plux.v1.CompleteReleaseRequestResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: request
+      title: CompleteReleaseRequestResponse
       additionalProperties: false
     plux.v1.CompleteSamlLoginRequest:
       type: object
@@ -16360,6 +16947,39 @@ components:
              confidentialBundles setting decides whether it may be asked for
              (optional) or is implied (required); under off it is refused.
       title: CreateReleaseRequest
+      additionalProperties: false
+    plux.v1.CreateReleaseRequestRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channel:
+          type: string
+          title: channel
+          description: channel defaults to production.
+        plugins:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SelectedPlugin'
+          title: plugins
+      title: CreateReleaseRequestRequest
+      additionalProperties: false
+    plux.v1.CreateReleaseRequestResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: request
+        existing:
+          type: boolean
+          title: existing
+          description: existing is true when the request was already open.
+      title: CreateReleaseRequestResponse
       additionalProperties: false
     plux.v1.CreateReleaseResponse:
       type: object
@@ -21534,6 +22154,31 @@ components:
           format: int64
       title: GetReleaseRequest
       additionalProperties: false
+    plux.v1.GetReleaseRequestRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: GetReleaseRequestRequest
+      additionalProperties: false
+    plux.v1.GetReleaseRequestResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: request
+        visualDiff:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.VisualDiffJob'
+          title: visual_diff
+          description: visual_diff is the newest job for the request's current content.
+      title: GetReleaseRequestResponse
+      additionalProperties: false
     plux.v1.GetReleaseResponse:
       type: object
       properties:
@@ -24181,6 +24826,35 @@ components:
           title: page
       title: ListReconstructionsResponse
       additionalProperties: false
+    plux.v1.ListReleaseRequestsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        openOnly:
+          type: boolean
+          title: open_only
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListReleaseRequestsRequest
+      additionalProperties: false
+    plux.v1.ListReleaseRequestsResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: requests
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListReleaseRequestsResponse
+      additionalProperties: false
     plux.v1.ListReleasesRequest:
       type: object
       properties:
@@ -26742,6 +27416,26 @@ components:
       title: ReconstructionSignature
       additionalProperties: false
       description: ReconstructionSignature is one signature over the manifest.
+    plux.v1.RefreezeReleaseRequestRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: RefreezeReleaseRequestRequest
+      additionalProperties: false
+    plux.v1.RefreezeReleaseRequestResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: request
+      title: RefreezeReleaseRequestResponse
+      additionalProperties: false
     plux.v1.RefreshDeviceTokenRequest:
       type: object
       anyOf:
@@ -27057,6 +27751,111 @@ components:
       type: object
       title: ReleaseLockResponse
       additionalProperties: false
+    plux.v1.ReleaseRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channel:
+          type: string
+          title: channel
+        state:
+          type: string
+          title: state
+          description: |-
+            state is the step the request is at (select, build, reports, diffs,
+             changelog, target, approval, rollout, release) or how it ended
+             (released, rejected, expired, cancelled).
+        hold:
+          type: string
+          title: hold
+          description: |-
+            hold says why the request waits at its step: failed, blocked or
+             awaiting_approval; empty when it does not.
+        holdReason:
+          type: string
+          title: hold_reason
+        revision:
+          type: string
+          title: revision
+          format: int64
+          description: revision rises with every change; a client can tell that it is stale.
+        plugins:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SelectedPlugin'
+          title: plugins
+        builds:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.BuildRef'
+          title: builds
+        acknowledged:
+          type: array
+          items:
+            type: string
+          title: acknowledged
+          description: acknowledged lists the warnings the user acknowledged.
+        contentHash:
+          type: string
+          title: content_hash
+          description: |-
+            content_hash is the SHA-256 of what the builds produced, in hex; empty
+             before the builds are done.
+        changelogNotes:
+          type: string
+          title: changelog_notes
+        label:
+          type: string
+          title: label
+        rolloutPlan:
+          type: string
+          title: rollout_plan
+          format: byte
+          description: rollout_plan is the plan as JSON; empty before the rollout step.
+        approvalRequestId:
+          type: string
+          title: approval_request_id
+          description: |-
+            approval_request_id names the request in ApprovalService, if one was
+             opened.
+        approvedHash:
+          type: string
+          title: approved_hash
+          description: approved_hash is the content hash the approval was given for.
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+          description: release_sequence is the app release the request made, once released.
+        createdBy:
+          type: string
+          title: created_by
+        createdByName:
+          type: string
+          title: created_by_name
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+        endedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: ended_at
+      title: ReleaseRequest
+      additionalProperties: false
+      description: ReleaseRequest is the server-side state of one publish flow.
     plux.v1.RemoveMemberRequest:
       type: object
       properties:
@@ -27154,6 +27953,19 @@ components:
         - REPORT_KIND_ACCESSIBILITY
         - REPORT_KIND_LOCALISATION
       description: ReportKind says which report of a release to return.
+    plux.v1.ReportsStep:
+      type: object
+      properties:
+        acknowledgedWarnings:
+          type: array
+          items:
+            type: string
+          title: acknowledged_warnings
+          description: |-
+            acknowledged_warnings are the warnings the user acknowledged; every
+             warning of the builds needs one (SRV-051).
+      title: ReportsStep
+      additionalProperties: false
     plux.v1.RequestLockRequest:
       type: object
       properties:
@@ -27177,6 +27989,46 @@ components:
             - $ref: '#/components/schemas/plux.v1.Lock'
           title: lock
       title: RequestLockResponse
+      additionalProperties: false
+    plux.v1.RequestReleaseApprovalRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: RequestReleaseApprovalRequest
+      additionalProperties: false
+    plux.v1.RequestReleaseApprovalResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
+          title: request
+      title: RequestReleaseApprovalResponse
+      additionalProperties: false
+    plux.v1.RequestVisualDiffRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: RequestVisualDiffRequest
+      additionalProperties: false
+    plux.v1.RequestVisualDiffResponse:
+      type: object
+      properties:
+        job:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.VisualDiffJob'
+          title: job
+      title: RequestVisualDiffResponse
       additionalProperties: false
     plux.v1.RestoreFromTrashRequest:
       type: object
@@ -27738,6 +28590,16 @@ components:
         - ROLLOUT_STATE_ABORTED
         - ROLLOUT_STATE_ROLLED_BACK
       description: RolloutState is where a rollout is in its life.
+    plux.v1.RolloutStep:
+      type: object
+      properties:
+        plan:
+          type: string
+          title: plan
+          format: byte
+          description: plan is the rollout plan as a JSON object.
+      title: RolloutStep
+      additionalProperties: false
     plux.v1.RollupGroup:
       type: object
       properties:
@@ -28222,6 +29084,31 @@ components:
       description: |-
         SecurityDetectionEvent reports a detection and what the runtime did
          about it.
+    plux.v1.SelectedPlugin:
+      type: object
+      properties:
+        pluginKey:
+          type: string
+          title: plugin_key
+        reason:
+          type: string
+          title: reason
+          description: |-
+            reason is "changed" for a plugin with unpublished changes and
+             "dependency" for one added because another needs it (REL-003).
+      title: SelectedPlugin
+      additionalProperties: false
+      description: SelectedPlugin is a plugin in the request and why it is there.
+    plux.v1.SelectionStep:
+      type: object
+      properties:
+        plugins:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SelectedPlugin'
+          title: plugins
+      title: SelectionStep
+      additionalProperties: false
     plux.v1.Session:
       type: object
       properties:
@@ -29405,6 +30292,17 @@ components:
       title: SyncStep
       additionalProperties: false
       description: SyncStep tells the device how to obtain one bundle (REL-032).
+    plux.v1.TargetStep:
+      type: object
+      properties:
+        environmentId:
+          type: string
+          title: environment_id
+        channel:
+          type: string
+          title: channel
+      title: TargetStep
+      additionalProperties: false
     plux.v1.Team:
       type: object
       properties:
@@ -30541,6 +31439,68 @@ components:
           title: session
       title: VerifySecondFactorResponse
       additionalProperties: false
+    plux.v1.VisualDiffJob:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        releaseRequestId:
+          type: string
+          title: release_request_id
+        contentHash:
+          type: string
+          title: content_hash
+        state:
+          type: string
+          title: state
+          description: state is queued, running, succeeded or failed.
+        error:
+          type: string
+          title: error
+        screens:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.VisualDiffScreen'
+          title: screens
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        finishedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: finished_at
+      title: VisualDiffJob
+      additionalProperties: false
+      description: VisualDiffJob is a render job of the visual-diff step (O-9).
+    plux.v1.VisualDiffScreen:
+      type: object
+      properties:
+        pluginKey:
+          type: string
+          title: plugin_key
+        screen:
+          type: string
+          title: screen
+        device:
+          type: string
+          title: device
+        beforeSha256:
+          type: string
+          title: before_sha256
+          description: |-
+            before_sha256 and after_sha256 are the hashes of the PNGs in object
+             storage; before is empty for a new screen.
+        afterSha256:
+          type: string
+          title: after_sha256
+        changed:
+          type: boolean
+          title: changed
+      title: VisualDiffScreen
+      additionalProperties: false
+      description: VisualDiffScreen is one changed screen rendered on one standard device.
     plux.v1.WatchPermissionsRequest:
       type: object
       properties:
@@ -30879,6 +31839,17 @@ tags:
     description: |-
       ReleaseService manages immutable plugin versions and app releases, their
        promotion between environments and their rollback (ADR-0020).
+  - name: plux.v1.ReleaseRequestService
+    description: |-
+      ReleaseRequestService holds the state of Studio's publish wizard on the
+       server (STU-100, ADR-0097): a release request moves through the nine steps
+       of the publish flow, and the wizard only displays it. Closing the tab loses
+       nothing, and there is at most one open request per app, environment and
+       channel. Every mutating call carries an idempotency key (SRV-005); a call
+       that completes a step the request has already passed returns the request
+       as it is. An approval is bound to the content hash of the builds
+       (GOV-022): if the content changes, the approval is void and the request
+       returns to the build step.
   - name: plux.v1.RolloutService
     description: |-
       RolloutService serves staged rollouts of a release to a share of a
