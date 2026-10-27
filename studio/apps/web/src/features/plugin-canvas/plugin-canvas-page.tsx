@@ -25,6 +25,7 @@ import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
 import { RightDock } from "../panels/right-dock.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
+import { usePreviewBar } from "../preview/preview-bar.tsx";
 import { ProblemsDrawer } from "../problems/problems-panel.tsx";
 import { useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -229,6 +230,7 @@ function PluginCanvasView({
     () => parsed.map((d) => (local[d.path] === undefined ? d : { ...d, parsed: local[d.path]?.content })),
     [parsed, local],
   );
+  const { look, bar } = usePreviewBar(params.app);
   const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -487,7 +489,14 @@ function PluginCanvasView({
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
-    <section className="relative h-full w-full overflow-hidden">
+    <section
+      className="relative h-full w-full overflow-hidden"
+      dir={look.direction}
+      data-preview-theme={look.theme}
+      data-preview-platform={look.platform}
+      style={{ fontSize: `${look.textScale}em` }}
+    >
+      {bar}
       {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
       <canvas
         role="application"
