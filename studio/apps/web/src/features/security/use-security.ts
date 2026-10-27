@@ -2,12 +2,20 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { createClient } from "@connectrpc/connect";
-import { AppService, DeviceService, DocumentService, ManifestService, SecurityAdminService } from "@plux/api";
+import {
+  AppService,
+  DeviceService,
+  DocumentService,
+  IdentityService,
+  ManifestService,
+  SecurityAdminService,
+} from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearch } from "@tanstack/react-router";
 import { loadUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { defaultEnvironment } from "./security.schema.ts";
+import { assertionFields, requestOptions } from "./step-up.ts";
 
 const appDocument = "app.json";
 
@@ -80,17 +88,39 @@ export function useEffectiveSecurity(app: string, environmentId: string | undefi
   });
 }
 
+/** Sends a profile change with the overrides the environment already has, so the change never resets them. */
 export function useSetProfile() {
   const { session } = useApp();
-  return async (app: string, environmentId: string, profile: string, expectedVersion: bigint) => {
+  return async (
+    app: string,
+    environmentId: string,
+    profile: string,
+    overridesJson: Uint8Array,
+    expectedVersion: bigint,
+  ) => {
     await createClient(SecurityAdminService, session.transport).setSecurityConfig({
       appId: app,
       environmentId,
       profile,
-      overridesJson: new TextEncoder().encode("{}"),
+      overridesJson,
       expectedVersion,
     });
     await session.queryClient.invalidateQueries({ queryKey: ["security-config"] });
+  };
+}
+
+/** The WebAuthn step-up of the signed-in session (SEC-103): begin returns the challenge, complete verifies the assertion. */
+export function useStepUp() {
+  const { session } = useApp();
+  const identity = createClient(IdentityService, session.transport);
+  return {
+    begin: async () => {
+      const { requestId, optionsJson } = await identity.beginStepUp({});
+      return { requestId, options: requestOptions(optionsJson) };
+    },
+    complete: async (requestId: string, credential: Credential) => {
+      await identity.completeStepUp({ requestId, ...assertionFields(credential) });
+    },
   };
 }
 

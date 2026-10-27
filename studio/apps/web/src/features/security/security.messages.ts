@@ -82,11 +82,6 @@ export function securityMessages(i18n: I18n) {
     colSetting: i18n._({ id: "security.colSetting", message: "Setting", comment: "Column heading." }),
     colValue: i18n._({ id: "security.colValue", message: "Value", comment: "Column heading." }),
     changeProfile: i18n._({ id: "security.changeProfile", message: "Change profile", comment: "Button." }),
-    profileConfirm: i18n._({
-      id: "security.profileConfirm",
-      message: "Changing the profile resets the overrides of this environment. Type the environment key to confirm.",
-      comment: "Description of the confirm dialog.",
-    }),
     profileStandard: i18n._({ id: "security.profileStandard", message: "Standard", comment: "Profile name." }),
     profileStrict: i18n._({ id: "security.profileStrict", message: "Strict", comment: "Profile name." }),
     profileMaximum: i18n._({ id: "security.profileMaximum", message: "Maximum", comment: "Profile name." }),
@@ -117,10 +112,11 @@ export function securityMessages(i18n: I18n) {
       message: "Pins live in the root metadata made by the offline ceremony and cannot be edited here.",
       comment: "Caption.",
     }),
-    noPins: i18n._({
-      id: "security.noPins",
-      message: "No pin keys are published for this environment.",
-      comment: "Empty state.",
+    pinsNote: i18n._({
+      id: "security.pinsNote",
+      message:
+        "The pins are part of the signed root metadata from the offline key ceremony. They are not listed here; follow the runbook to read them from the root.",
+      comment: "Explains where the certificate pins live; shown instead of a list.",
     }),
     capsTitle: i18n._({ id: "security.capsTitle", message: "Capability grants", comment: "Heading." }),
     capsCaption: i18n._({

@@ -46,7 +46,11 @@ export interface SecurityData {
   keys?: { keyId: string; role: string; algorithm: string; environmentType: string }[];
   roots?: number;
   revoked?: { deviceId: string; reason: string }[];
-  profiles?: { profile: string; environmentId: string; expectedVersion: bigint }[];
+  /** The overrides the environment stores, as the object the server returns. */
+  overrides?: Record<string, unknown>;
+  profiles?: { profile: string; environmentId: string; expectedVersion: bigint; overrides: string }[];
+  /** The step-up RPCs the Studio called, in order. */
+  stepUps?: string[];
   putDocuments?: { path: string; content: string; ifRevision: bigint }[];
   /** Every read fails. */
   failing?: boolean;
@@ -126,6 +130,14 @@ export function createUpstream(state: UpstreamData) {
   const stored = state.stored ?? { theme: "", language: "", density: "" };
   return createRouterTransport(({ service }) => {
     service(IdentityService, {
+      beginStepUp: () => {
+        state.security?.stepUps?.push("begin");
+        return { requestId: "su-1", optionsJson: JSON.stringify({ challenge: "AQ", userVerification: "required" }) };
+      },
+      completeStepUp: (req) => {
+        state.security?.stepUps?.push(`complete:${req.requestId}`);
+        return {};
+      },
       getCurrentUser: () => {
         if (state.signedIn === false) {
           throw new ConnectError("no session", Code.Unauthenticated);
@@ -480,6 +492,7 @@ function securityServices(
         profile: data.profile ?? "standard",
         version: BigInt(data.version ?? 1),
         effectiveJson: new TextEncoder().encode(JSON.stringify(data.settings ?? {})),
+        overridesJson: new TextEncoder().encode(JSON.stringify(data.overrides ?? {})),
       };
     },
     setSecurityConfig: (req) => {
@@ -487,6 +500,7 @@ function securityServices(
         profile: req.profile,
         environmentId: req.environmentId,
         expectedVersion: req.expectedVersion,
+        overrides: new TextDecoder().decode(req.overridesJson),
       });
       data.profile = req.profile;
       return { version: req.expectedVersion + 1n };

@@ -1,11 +1,38 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 
 afterEach(cleanup);
+
+interface ProfileCall {
+  profile: string;
+  environmentId: string;
+  expectedVersion: bigint;
+  overrides: string;
+}
+
+/** Stands in for the browser's WebAuthn API: a platform that parses the server's options and signs one assertion. */
+function stubAssertion() {
+  class StubResponse {
+    clientDataJSON = new Uint8Array([1]).buffer;
+    authenticatorData = new Uint8Array([2]).buffer;
+    signature = new Uint8Array([3]).buffer;
+  }
+  class StubCredential {
+    rawId = new Uint8Array([4]).buffer;
+    response = new StubResponse();
+    static parseRequestOptionsFromJSON(json: object) {
+      return { ...json, challenge: new Uint8Array([1]) };
+    }
+  }
+  const get = mock(async () => new StubCredential());
+  Object.assign(globalThis, { PublicKeyCredential: StubCredential, AuthenticatorAssertionResponse: StubResponse });
+  Object.defineProperty(navigator, "credentials", { value: { get }, configurable: true });
+  return { get };
+}
 
 const base = `/o/${orgA}/apps/app1`;
 const manage = ["app.read", "app.manage"];
@@ -48,24 +75,62 @@ describe("STU-115 devices", () => {
 });
 
 describe("SEC-180 security profile", () => {
-  test("A33 shows the effective configuration and changes the profile after a typed confirm (D66)", async () => {
-    const profiles: { profile: string; environmentId: string; expectedVersion: bigint }[] = [];
-    open("/security", {
-      security: { profile: "standard", version: 3, settings: { accessTokenLifetime: 900 }, profiles },
-    });
+  test("A33 shows the effective configuration", async () => {
+    open("/security", { security: { profile: "standard", version: 3, settings: { accessTokenLifetime: 900 } } });
     await screen.findByText("accessTokenLifetime");
     expect(screen.getByText("900")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Change profile" }).getAttribute("aria-disabled")).toBe("true");
+  });
+
+  test("A33 sends the profile change only after the step-up, with the stored overrides (D66, D3, SEC-103)", async () => {
+    const credential = stubAssertion();
+    const profiles: ProfileCall[] = [];
+    const stepUps: string[] = [];
+    open("/security", {
+      security: {
+        profile: "standard",
+        version: 3,
+        settings: { accessTokenLifetime: 900 },
+        overrides: { inactivityLockTimeout: 60 },
+        profiles,
+        stepUps,
+      },
+    });
+    await screen.findByText("accessTokenLifetime");
     fireEvent.click(screen.getByRole("button", { name: "Strict" }));
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Change profile" }).getAttribute("aria-disabled")).not.toBe("true"),
     );
     fireEvent.click(screen.getByRole("button", { name: "Change profile" }));
-    fireEvent.change(await screen.findByRole("textbox"), { target: { value: "development" } });
-    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
+    await waitFor(() => expect(profiles.length).toBe(1));
+    expect(credential.get).toHaveBeenCalledTimes(1);
+    expect(stepUps).toEqual(["begin", "complete:su-1"]);
+    expect(profiles[0]).toEqual({
+      profile: "strict",
+      environmentId: "env-dev",
+      expectedVersion: 3n,
+      overrides: '{"inactivityLockTimeout":60}',
+    });
+  });
+
+  test("A33 sends nothing before the step-up succeeds or when it is cancelled", async () => {
+    const credential = stubAssertion();
+    const profiles: ProfileCall[] = [];
+    const stepUps: string[] = [];
+    open("/security", { security: { profile: "standard", version: 3, profiles, stepUps } });
+    fireEvent.click(await screen.findByRole("button", { name: "Maximum" }));
     await waitFor(() =>
-      expect(profiles).toEqual([{ profile: "strict", environmentId: "env-dev", expectedVersion: 3n }]),
+      expect(screen.getByRole("button", { name: "Change profile" }).getAttribute("aria-disabled")).not.toBe("true"),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Change profile" }));
+    await screen.findByRole("button", { name: "Use security key or passkey" });
+    expect(profiles).toEqual([]);
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Use security key or passkey" })).toBeNull());
+    expect(profiles).toEqual([]);
+    expect(credential.get).not.toHaveBeenCalled();
+    expect(stepUps).toEqual(["begin"]);
   });
 
   test("A33 shows the error state", async () => {
@@ -80,10 +145,10 @@ describe("STU-115 keys, pins and grants", () => {
     { keyId: "p1", role: "pin", algorithm: "ed25519", environmentType: "production" },
   ];
 
-  test("A34 lists signing keys read-only with the rotation state and the runbook link", async () => {
+  test("A34 lists the keys of the root metadata read-only with the rotation state and the runbook link", async () => {
     open("/security/keys", { security: { keys, roots: 2 } });
     await screen.findByText("k1");
-    expect(screen.queryByText("p1")).toBeNull();
+    expect(screen.getByText("p1")).toBeTruthy();
     expect(screen.getByText("2")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Key ceremony runbook" }).getAttribute("href")).toContain(
       "key-ceremony.md",
@@ -91,12 +156,14 @@ describe("STU-115 keys, pins and grants", () => {
     expect(within(screen.getByRole("region", { name: "Signing keys" })).queryByRole("button")).toBeNull();
   });
 
-  test("A35 lists pins and shows the empty state", async () => {
+  test("A35 lists no pins and points to the signed root metadata and the runbook", async () => {
     open("/security/pins", { security: { keys, roots: 1 } });
-    await screen.findByText("p1");
-    cleanup();
-    open("/security/pins", { security: { keys: [], roots: 0 } });
-    await screen.findByText("No pin keys are published for this environment.");
+    await screen.findByText(/part of the signed root metadata/);
+    expect(screen.queryByText("p1")).toBeNull();
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(screen.getByRole("link", { name: "Key ceremony runbook" }).getAttribute("href")).toContain(
+      "key-ceremony.md",
+    );
   });
 
   test("A36 edits the grants through the app document (D65)", async () => {

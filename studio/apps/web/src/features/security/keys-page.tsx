@@ -9,19 +9,25 @@ import { useRootKeys, useScope } from "./use-security.ts";
 
 const runbook = "https://github.com/nightCode42/plux3/blob/main/docs/runbooks/key-ceremony.md";
 
-/** Public key ids, roles and the rotation state of the root metadata; key material is never shown. */
-function KeyList({ pins }: { readonly pins: boolean }): ReactElement {
+function Runbook({ label }: { readonly label: string }): ReactElement {
+  return (
+    <a href={runbook} className="text-body" rel="noreferrer" target="_blank">
+      {label}
+    </a>
+  );
+}
+
+/** A34: public key ids, roles and the rotation state of the root metadata, read-only (O-14); key material is never shown. */
+export function KeysPage(): ReactElement {
   const m = securityMessages(useLingui().i18n);
   const { app, env } = useScope();
   const result = useRootKeys(app, env);
-  const all = result.data?.keys ?? [];
-  const isPin = (role: string) => role.toLowerCase().includes("pin");
-  const keys = all.filter((k) => isPin(k.role) === pins);
+  const keys = result.data?.keys ?? [];
   return (
     <Frame
-      id={pins ? "pins-title" : "keys-title"}
-      title={pins ? m.pinsTitle : m.keysTitle}
-      caption={pins ? m.pinsCaption : m.keysCaption}
+      id="keys-title"
+      title={m.keysTitle}
+      caption={m.keysCaption}
       loading={result.isPending}
       failed={result.isError}
     >
@@ -29,10 +35,10 @@ function KeyList({ pins }: { readonly pins: boolean }): ReactElement {
         {m.rootVersions}: <span className="font-mono">{result.data?.roots.length ?? 0}</span>
       </p>
       {keys.length === 0 ? (
-        <p className="text-body text-secondary">{pins ? m.noPins : m.noKeys}</p>
+        <p className="text-body text-secondary">{m.noKeys}</p>
       ) : (
         <Table
-          caption={pins ? m.pinsTitle : m.keysTitle}
+          caption={m.keysTitle}
           heads={[m.colKeyId, m.colRole, m.colAlgorithm, m.colKind]}
           rows={keys.map((k) => ({
             key: k.keyId,
@@ -47,19 +53,18 @@ function KeyList({ pins }: { readonly pins: boolean }): ReactElement {
           }))}
         />
       )}
-      <a href={runbook} className="text-body" rel="noreferrer" target="_blank">
-        {m.ceremony}
-      </a>
+      <Runbook label={m.ceremony} />
     </Frame>
   );
 }
 
-/** A34: signing keys, read-only (O-14). */
-export function KeysPage(): ReactElement {
-  return <KeyList pins={false} />;
-}
-
-/** A35: certificate pins, read-only (O-14). */
+/** A35: the certificate pins live in the signed root metadata (O-14); no RPC lists them, so none is guessed from key roles. */
 export function PinsPage(): ReactElement {
-  return <KeyList pins />;
+  const m = securityMessages(useLingui().i18n);
+  return (
+    <Frame id="pins-title" title={m.pinsTitle} caption={m.pinsCaption} loading={false} failed={false}>
+      <p className="text-body text-secondary">{m.pinsNote}</p>
+      <Runbook label={m.ceremony} />
+    </Frame>
+  );
 }

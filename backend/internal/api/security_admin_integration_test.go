@@ -34,7 +34,7 @@ func TestSecurityAdminService(t *testing.T) {
 
 	got := must(w.secAdmin.GetEffectiveSecurityConfig(ctx, req(admin, &pluxv1.GetEffectiveSecurityConfigRequest{AppId: app, EnvironmentId: prod})))(t)
 	empty := sha256.Sum256([]byte(`{}`))
-	if got.GetProfile() != "standard" || got.GetVersion() != 0 || string(got.GetSha256()) != string(empty[:]) {
+	if got.GetProfile() != "standard" || got.GetVersion() != 0 || string(got.GetSha256()) != string(empty[:]) || string(got.GetOverridesJson()) != `{}` {
 		t.Fatalf("a new environment: %+v", got)
 	}
 	var effective map[string]any
@@ -52,6 +52,11 @@ func TestSecurityAdminService(t *testing.T) {
 	device := sha256.Sum256([]byte(`{"overrides":{"inactivityLockTimeout":60},"profile":"strict"}`))
 	if err := json.Unmarshal(got.GetEffectiveJson(), &effective); err != nil {
 		t.Fatal(err)
+	}
+	var overrides map[string]any
+	if err := json.Unmarshal(got.GetOverridesJson(), &overrides); err != nil || len(overrides) != 2 ||
+		overrides["inactivityLockTimeout"] != float64(60) || overrides["dpopIatWindow"] != float64(20) {
+		t.Errorf("overrides_json = %s, %v", got.GetOverridesJson(), err)
 	}
 	if got.GetProfile() != "strict" || got.GetVersion() != 1 || string(got.GetSha256()) != string(device[:]) ||
 		effective["inactivityLockTimeout"] != float64(60) || effective["dpopIatWindow"] != float64(20) || effective["inactivityLock"] != true {

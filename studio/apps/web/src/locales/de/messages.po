@@ -901,12 +901,6 @@ msgstr "geändert"
 msgid "designers.themeLive"
 msgstr "Änderungen erscheinen beim Tippen auf der Leinwand."
 
-#. Description of the confirm dialog.
-#. js-lingui-explicit-id
-#: apps/web/src/features/security/security.messages.ts
-msgid "security.profileConfirm"
-msgstr "Die Änderung des Profils setzt die Überschreibungen dieser Umgebung zurück. Geben Sie zur Bestätigung den Umgebungsschlüssel ein."
-
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -2685,12 +2679,6 @@ msgstr "Keine Migrationsprobleme: Geräte können ohne Datenverlust aktualisiere
 msgid "notify.empty"
 msgstr "Keine Benachrichtigungen"
 
-#. Empty state.
-#. js-lingui-explicit-id
-#: apps/web/src/features/security/security.messages.ts
-msgid "security.noPins"
-msgstr "Für diese Umgebung sind keine Pin-Schlüssel veröffentlicht."
-
 #. Shown in the Problems tab when the validator found nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -4388,6 +4376,12 @@ msgstr "Der Passkey konnte nicht verwendet werden."
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.refusedInvalid"
 msgstr "Die eingefügten Elemente bestehen die Prüfung nicht."
+
+#. Explains where the certificate pins live; shown instead of a list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.pinsNote"
+msgstr "Die Pins sind Teil der signierten Root-Metadaten aus der Offline-Schlüsselzeremonie. Sie werden hier nicht aufgelistet; folgen Sie dem Runbook, um sie aus dem Root zu lesen."
 
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id
