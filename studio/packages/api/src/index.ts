@@ -3,6 +3,7 @@
 
 export * from "./gen/plux/v1/app_pb.ts";
 export * from "./gen/plux/v1/asset_pb.ts";
+export * from "./gen/plux/v1/component_pb.ts";
 export * from "./gen/plux/v1/devevents_pb.ts";
 export * from "./gen/plux/v1/device_pb.ts";
 export * from "./gen/plux/v1/devsession_pb.ts";
@@ -12,6 +13,7 @@ export * from "./gen/plux/v1/function_pb.ts";
 export * from "./gen/plux/v1/governance_pb.ts";
 export * from "./gen/plux/v1/identity_pb.ts";
 export * from "./gen/plux/v1/language_server_pb.ts";
+export * from "./gen/plux/v1/library_pb.ts";
 export * from "./gen/plux/v1/license_pb.ts";
 export * from "./gen/plux/v1/manifest_pb.ts";
 export * from "./gen/plux/v1/native_catalogue_pb.ts";
@@ -23,4 +25,5 @@ export * from "./gen/plux/v1/release_pb.ts";
 export * from "./gen/plux/v1/search_pb.ts";
 export * from "./gen/plux/v1/security_admin_pb.ts";
 export * from "./gen/plux/v1/studio_events_pb.ts";
+export * from "./gen/plux/v1/template_pb.ts";
 export * from "./transport.ts";

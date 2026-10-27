@@ -13,6 +13,24 @@ msgstr ""
 msgid "pluginCanvas.copySuffix"
 msgstr "(نسخة)"
 
+#. The version an app adopted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopted"
+msgstr "{app} اعتمد الإصدار {n}"
+
+#. An app that did not adopt any version of the component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.notAdopted"
+msgstr "{app} لم يعتمد أي إصدار"
+
+#. Instances of a component in one app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.usage.app"
+msgstr "{app}: {n} نسخة"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -322,6 +340,18 @@ msgstr "{name} ({kind})"
 msgid "devices.deviceName"
 msgstr "{name} ({state, select, true {متصل} other {غير متصل}})"
 
+#. One optional template parameter with its type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameterRow"
+msgstr "{name} ({type})"
+
+#. One required template parameter with its type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameterRequired"
+msgstr "{name} ({type})، مطلوب"
+
 #. Explains why deleting a screen needs typing its name (STU-074).
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -399,6 +429,12 @@ msgstr "{passed, plural, other {نجح # من الاختبارات}}، {failed, 
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.codeResult"
 msgstr "{passed} ناجح، {failed} فاشل"
+
+#. One finding of the public scan: JSON pointer and category.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.scan.finding"
+msgstr "{pointer} ({category})"
 
 #. Accessible name of the point from which a step's port connects onwards; port is the port's name.
 #. js-lingui-explicit-id
@@ -652,6 +688,24 @@ msgstr "إضافة رمز"
 msgid "history.changeAdded"
 msgstr "مضاف"
 
+#. Button: adopt a component version in an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt"
+msgstr "اعتماد إصدار"
+
+#. Title of the adopt dialog; app is the app name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.title"
+msgstr "اعتماد إصدار في {app}"
+
+#. Button: adopt the chosen version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.confirm"
+msgstr "اعتماد الإصدار"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -663,6 +717,12 @@ msgstr "الخوارزمية"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.alignment"
 msgstr "المحاذاة"
+
+#. Filter option: components and templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind.all"
+msgstr "الكل"
 
 #. Option of the source picker: every paired device.
 #. js-lingui-explicit-id
@@ -718,6 +778,12 @@ msgstr "شخص آخر يحتفظ بقفل المسودة، لذا الحالة �
 msgid "l10n.readOnly"
 msgstr "شخص آخر يحتفظ بقفل هذه اللغة، لذا الجدول للقراءة فقط."
 
+#. Filter option: every visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.all"
+msgstr "أي مستوى رؤية"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -753,6 +819,12 @@ msgstr "تم التطبيق على المستند."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.applied"
 msgstr "تم التطبيق على المستند."
+
+#. Button: apply the chosen visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.apply"
+msgstr "تطبيق"
 
 #. Button that applies the edited JSON to the document. Enabled only when the JSON is valid.
 #. js-lingui-explicit-id
@@ -844,17 +916,41 @@ msgstr "مزود الإثبات"
 msgid "auth.factor.code"
 msgstr "رمز المصادقة"
 
+#. Label of the author filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.owner"
+msgstr "المؤلف"
+
 #. Measured time from the server accepting an autosave to the device applying it (NFR-030).
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.latency"
 msgstr "من الحفظ التلقائي إلى الجهاز: {ms} مللي ثانية"
 
+#. Button: previous step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.back"
+msgstr "رجوع"
+
 #. Link.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.back"
 msgstr "العودة إلى الأجهزة"
+
+#. Link from a detail page to the library.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.back"
+msgstr "العودة إلى المكتبة"
+
+#. New-screen option without a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.blank"
+msgstr "شاشة فارغة"
 
 #. Edge inset at the bottom.
 #. js-lingui-explicit-id
@@ -940,6 +1036,18 @@ msgstr "إلغاء"
 msgid "l10n.extract.cancel"
 msgstr "إلغاء"
 
+#. Cancel button of the library dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.cancel"
+msgstr "إلغاء"
+
+#. Button: cancel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.cancel"
+msgstr "إلغاء"
+
 #. Button that cancels the restore.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -994,6 +1102,12 @@ msgstr "التقاط لقطة شاشة"
 msgid "rustEditor.manifest"
 msgstr "ملف Cargo"
 
+#. Label of the template category filter (page or flow).
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.category"
+msgstr "الفئة"
+
 #. Heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1011,6 +1125,18 @@ msgstr "تغيير الملف"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneChangeTrigger"
 msgstr "تغيير المشغّل"
+
+#. Button: open the visibility dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.changeVisibility"
+msgstr "تغيير الرؤية"
+
+#. Title of the visibility dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.title"
+msgstr "تغيير الرؤية"
 
 #. Tag of a document that differs between two compared snapshots.
 #. js-lingui-explicit-id
@@ -1130,6 +1256,18 @@ msgstr "إغلاق"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.close"
+msgstr "إغلاق"
+
+#. Close button of the library dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.close"
+msgstr "إغلاق"
+
+#. Close button of the dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.close"
 msgstr "إغلاق"
 
 #. Accessible name of the D35 close button.
@@ -1287,6 +1425,12 @@ msgstr "المقارنة مع آخر إصدار منشور"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layer2"
 msgstr "المكونات"
+
+#. Filter option and kind name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind.component"
+msgstr "المكوّنات"
 
 #. Status while the migration preview is computed.
 #. js-lingui-explicit-id
@@ -1600,6 +1744,12 @@ msgstr "وسم الإضافة كمتقادمة"
 msgid "panels.docsDeprecated"
 msgstr "متقادم"
 
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.description"
+msgstr "الوصف"
+
 #. Field label for a plugin's description.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1617,6 +1767,24 @@ msgstr "رموز التصميم"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.frame.desktop"
 msgstr "نافذة سطح المكتب"
+
+#. Button: detach.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.confirm"
+msgstr "فصل"
+
+#. Command: turn an instance into plain nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.command"
+msgstr "فصل نسخة المكوّن"
+
+#. Title of the detach confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.title"
+msgstr "فصل هذه النسخة؟"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -1972,11 +2140,35 @@ msgstr "تنتهي الصلاحية خلال {time}"
 msgid "chrome.forbidden.explain"
 msgstr "اشرح سبب الوصول"
 
+#. Button: download a version as a library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.export"
+msgstr "تصدير"
+
 #. Button: download the session's redacted trace file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.exportTrace"
 msgstr "تصدير التتبع"
+
+#. Button: extract the component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.extract.confirm"
+msgstr "استخراج"
+
+#. Command: turn the selected nodes into a component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.extract.command"
+msgstr "استخراج التحديد إلى مكوّن"
+
+#. Title of the extract dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.extract.title"
+msgstr "استخراج إلى مكوّن"
 
 #. Result of one test case that failed.
 #. js-lingui-explicit-id
@@ -2260,6 +2452,24 @@ msgstr "إجراءات التطبيق المضيف"
 msgid "designers.dataImportHeading"
 msgstr "استيراد مصدر بيانات"
 
+#. Button: upload a component library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.importComponent"
+msgstr "استيراد مكوّن"
+
+#. Button: upload a template library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.importTemplate"
+msgstr "استيراد قالب"
+
+#. Confirmation after importing a library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.imported"
+msgstr "تم استيراد {name}."
+
 #. Option: lost when the plugin closes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -2296,17 +2506,41 @@ msgstr "القيمة الأولية لـ {name}"
 msgid "panels.insertTab"
 msgstr "إدراج"
 
+#. Button: insert the template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.confirm"
+msgstr "إدراج"
+
 #. Accessible name of a button that inserts a widget into the selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.insert"
 msgstr "إدراج {type}"
 
+#. Command: insert a template into the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.command"
+msgstr "إدراج قالب"
+
+#. Title of the insert-template dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.title"
+msgstr "إدراج قالب"
+
 #. Accessible name of the right dock that holds Properties, Accessibility and Docs.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.inspector"
 msgstr "المفتش"
+
+#. Heading of the list of component instances per app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.usage"
+msgstr "النسخ عبر التطبيقات"
 
 #. Shown when the widget can be operated.
 #. js-lingui-explicit-id
@@ -2430,6 +2664,12 @@ msgstr "المفتاح"
 msgid "l10n.column.key"
 msgstr "المفتاح"
 
+#. Field label for the unique key of a library item.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.key"
+msgstr "المفتاح"
+
 #. Label of the field that holds a collection's key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2494,6 +2734,12 @@ msgstr "المفاتيح المعروضة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colKind"
+msgstr "النوع"
+
+#. Label of the filter for components or templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind"
 msgstr "النوع"
 
 #. Label of the list that chooses the kind of a data source (REST, GraphQL, …).
@@ -2567,6 +2813,12 @@ msgstr "اللوحات اليسرى"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.level"
 msgstr "المستوى"
+
+#. Heading of the library of components and templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.title"
+msgstr "المكتبة"
 
 #. Theme option.
 #. js-lingui-explicit-id
@@ -2699,6 +2951,18 @@ msgstr "جارٍ تحميل الأصول…"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.loading"
 msgstr "جارٍ تحميل الشاشات"
+
+#. Shown while templates load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.loading"
+msgstr "جارٍ تحميل القوالب…"
+
+#. Shown while the library loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.loading"
+msgstr "جارٍ تحميل المكتبة…"
 
 #. Shown while the last published version of the document is fetched for the comparison.
 #. js-lingui-explicit-id
@@ -2916,6 +3180,12 @@ msgstr "كتم"
 msgid "state.name"
 msgstr "الاسم"
 
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.name"
+msgstr "الاسم"
+
 #. Label of a name field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3024,6 +3294,12 @@ msgstr "مفتاح جديد"
 msgid "appCanvas.newPlugin"
 msgstr "إضافة جديدة"
 
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.addedProps"
+msgstr "خصائص جديدة"
+
 #. Button and command that create a blank screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -3035,6 +3311,12 @@ msgstr "شاشة جديدة"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.untitled"
 msgstr "شاشة جديدة"
+
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.addedSlots"
+msgstr "فتحات جديدة"
 
 #. Label of the choice of the screen links are redirected to.
 #. js-lingui-explicit-id
@@ -3054,6 +3336,12 @@ msgstr "شاشة الهدف الجديدة"
 msgid "designers.themeNewPath"
 msgstr "مسار الرمز الجديد، مثل color.accent"
 
+#. Button: next step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.next"
+msgstr "التالي"
+
 #. Shown when the validator found no accessibility problem.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3065,6 +3353,12 @@ msgstr "لا توجد مشكلات إمكانية وصول لهذا العنصر
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.nothingFound"
 msgstr "لا يوجد إجراء مطابق."
+
+#. Shown when a component has no instances.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.usage.none"
+msgstr "لا يستخدم أي تطبيق هذا المكوّن بعد."
 
 #. Shown in the Assets tab when the app has no files.
 #. js-lingui-explicit-id
@@ -3156,6 +3450,12 @@ msgstr "لا توجد شاشات للربط بها."
 msgid "cmd.shortcuts.none"
 msgstr "لا يوجد اختصار"
 
+#. Shown when the library has no templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.none"
+msgstr "لا توجد قوالب بعد."
+
 #. Shown when the table has no key for the chosen scope.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -3233,6 +3533,12 @@ msgstr "لم يتغير شيء: الإضافة تطابق هذه اللقطة ب
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImportNothing"
 msgstr "تعذّر استيراد أي شيء من هذا المصدر."
+
+#. Shown when the library list is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.empty"
+msgstr "لا شيء في المكتبة يطابق. احفظ تحديدًا كقالب أو استخرج مكوّنًا لإضافة عنصر."
 
 #. Intro of the paste dependency report.
 #. js-lingui-explicit-id
@@ -3408,6 +3714,18 @@ msgstr "المؤسسة"
 msgid "chrome.org.switcher"
 msgstr "المؤسسة"
 
+#. Visibility: every member of the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.organization"
+msgstr "المؤسسة"
+
+#. Visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.organization"
+msgstr "المؤسسة"
+
 #. Shown when the server search request fails.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -3419,6 +3737,12 @@ msgstr "بحث المؤسسة غير متاح."
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.osVersion"
 msgstr "إصدار نظام التشغيل"
+
+#. Explains that non-exposed references are only flagged.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.flagged"
+msgstr "تبقى المراجع الأخرى إلى حالة الصفحة كما هي؛ تحقق منها بعد الإدراج."
 
 #. Marks screens of another plugin of the app in the list of navigation targets.
 #. js-lingui-explicit-id
@@ -3443,6 +3767,12 @@ msgstr "تجاوز حد التحذير"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.overridden"
 msgstr "مُتجاوَز لفئة الحجم هذه"
+
+#. Heading of the flagged overrides after adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.flagged"
+msgstr "تجاوزات لخصائص أو فتحات محذوفة، يجب إصلاحها في النسخ"
 
 #. Accessible name of the small overview map of the graph.
 #. js-lingui-explicit-id
@@ -3479,6 +3809,18 @@ msgstr "إقران جهاز"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.link"
 msgstr "رابط الإقران"
+
+#. Heading of a template's parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameters"
+msgstr "المعاملات"
+
+#. Heading of the exposable parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.expose"
+msgstr "المعاملات المطلوبة عند إدراج القالب"
 
 #. Result of one test case that passed.
 #. js-lingui-explicit-id
@@ -3642,6 +3984,18 @@ msgstr "مفاتيح المعاينة"
 msgid "designers.dbPrimaryKey"
 msgstr "المفتاح الأساسي (أسماء الحقول مفصولة بفواصل)"
 
+#. Visibility: only the author.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.private"
+msgstr "خاص"
+
+#. Visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.private"
+msgstr "خاص"
+
 #. Accessible name of the group in the action bar that shows how many errors and warnings there are.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -3719,6 +4073,24 @@ msgstr "الخصائص"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsProps"
 msgstr "الخصائص"
+
+#. Shown when the diff is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.noDiff"
+msgstr "تبقى الخصائص والفتحات كما هي."
+
+#. Visibility: the whole installation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.public"
+msgstr "عام"
+
+#. Explains the public visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.note"
+msgstr "العناصر العامة مرئية لكامل التثبيت ويتم فحصها بحثًا عن الأسرار أولًا."
 
 #. Caption.
 #. js-lingui-explicit-id
@@ -3954,6 +4326,12 @@ msgstr "إزالة الرابط"
 msgid "designers.dbRemovePlan"
 msgstr "إزالة خطة الترحيل"
 
+#. What to do about public scan findings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.scan.help"
+msgstr "أزل المحتوى أو استبدله في كل موضع، واحفظ إصدارًا جديدًا، ثم اجعل هذا الإصدار عامًا."
+
 #. STU-070 assisted fix: delete every navigation step that leaves this plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -3983,6 +4361,18 @@ msgstr "إزالة الرمز {token}"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.changeRemoved"
 msgstr "محذوف"
+
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.removedProps"
+msgstr "خصائص محذوفة"
+
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.removedSlots"
+msgstr "فتحات محذوفة"
 
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
@@ -4116,6 +4506,12 @@ msgstr "استئناف"
 msgid "actionGraph.outputType"
 msgstr "يعيد {type}"
 
+#. Heading of the template revision list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.revisions"
+msgstr "المراجعات"
+
 #. Button that revokes a device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -4218,11 +4614,29 @@ msgstr "حفظ"
 msgid "appCanvas.save"
 msgstr "حفظ"
 
+#. Title of the save-as-template dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.title"
+msgstr "حفظ كقالب"
+
 #. Button: stores the screenshot as an app asset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.screenshotSave"
 msgstr "حفظ لقطة الشاشة"
+
+#. Command: save the selected nodes as a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.command"
+msgstr "حفظ التحديد كقالب"
+
+#. Button: save the template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save"
+msgstr "حفظ القالب"
 
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
@@ -4319,6 +4733,12 @@ msgstr "لقطة شاشة للجهاز المقترن"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.screenshotSaved"
 msgstr "تم حفظ لقطة الشاشة."
+
+#. Label of the library search field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.search"
+msgstr "بحث"
 
 #. Label of the drawer's search field.
 #. js-lingui-explicit-id
@@ -4632,6 +5052,12 @@ msgstr "نص المصدر: مستند OpenAPI أو مخطط GraphQL"
 msgid "security.profileStandard"
 msgstr "قياسي"
 
+#. Label of the new-screen template picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.fromTemplate"
+msgstr "البدء من"
+
 #. Button that starts the language server for the uploaded source.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -4710,6 +5136,18 @@ msgstr "البقاء"
 msgid "pluginCanvas.ghostStay"
 msgstr "البقاء هنا"
 
+#. First step of saving a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.step1"
+msgstr "الخطوة 1 من 2: التفاصيل"
+
+#. Second step of saving a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.step2"
+msgstr "الخطوة 2 من 2: المعاملات والرؤية"
+
 #. Button that ends the language-server session.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -4770,6 +5208,12 @@ msgstr "المزامنة"
 msgid "devices.themeSystem"
 msgstr "النظام"
 
+#. Label of the tag filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.tag"
+msgstr "الوسم"
+
 #. Field label for a plugin's tags.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4817,6 +5261,18 @@ msgstr "الإضافة الهدف"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.target"
 msgstr "الشاشة المستهدفة"
+
+#. Label of the template picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.pick"
+msgstr "القالب"
+
+#. Filter option and kind name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind.template"
+msgstr "القوالب"
 
 #. Name of the tab that runs the function's tests.
 #. js-lingui-explicit-id
@@ -4956,6 +5412,18 @@ msgstr "البريد الإلكتروني أو كلمة المرور غير صح
 msgid "dialog.explain.failed"
 msgstr "تعذّر تحميل التفسير."
 
+#. Error after a failed export.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.exportFailed"
+msgstr "تعذّر تصدير الملف."
+
+#. Error after a failed import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.importFailed"
+msgstr "تعذّر استيراد الملف. تحقق من أنه ملف مكتبة من هذا النوع."
+
 #. Shown when the file is above the maximum asset size.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -4992,11 +5460,23 @@ msgstr "أداة الاستيراد غير متاحة."
 msgid "panelTabs.stateNotJson"
 msgstr "القيمة الأولية ليست JSON صالحًا."
 
+#. Detach confirmation text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.description"
+msgstr "تصبح النسخة عقدًا عادية بمعرّفات جديدة ولا تتبع المكوّن بعد ذلك. يمكنك التراجع عن ذلك بخطوة واحدة."
+
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.invite"
 msgstr "الدعوة غير صالحة أو منتهية الصلاحية."
+
+#. Error after a failed save.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.failed"
+msgstr "تعذّر حفظ العنصر. تحقق من أن المفتاح غير مستخدم."
 
 #. Error in the key extraction dialog when the server did not accept the new key or message.
 #. js-lingui-explicit-id
@@ -5039,6 +5519,12 @@ msgstr "تم إيقاف خادم اللغة."
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.closedTime"
 msgstr "بلغت جلسة خادم اللغة حدّها الزمني. شغّلها من جديد للمتابعة."
+
+#. Error when the library list fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.loadFailed"
+msgstr "تعذّر تحميل المكتبة. حاول مرة أخرى."
 
 #. Shown when the server refused a takeover.
 #. js-lingui-explicit-id
@@ -5112,6 +5598,12 @@ msgstr "تعود مستندات الإضافة إلى حالتها في {when}. 
 msgid "security.profileCaption"
 msgstr "الملف وكل إعداد ساري في هذه البيئة."
 
+#. Heading of the public scan result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.scan.title"
+msgstr "عثر فحص النشر العام على محتوى لا يمكن أن يكون عامًا"
+
 #. Shown when fetching the last published version for the comparison failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -5159,6 +5651,12 @@ msgstr "لا يستدعي التحديد أي دوال."
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.cannotHold"
 msgstr "لا يمكن للعنصر المحدد استقبال عقد إضافية."
+
+#. Shown when nothing can be exposed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.expose.none"
+msgstr "لا يحتوي التحديد على نص يمكن عرضه كمعامل."
 
 #. Shown in the Localisation tab when the selection has no translatable strings.
 #. js-lingui-explicit-id
@@ -5208,6 +5706,18 @@ msgstr "تمت قراءة المصدر. راجعه ثم أضفه إلى الإض
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.moveReasonKey"
 msgstr "الإضافة الهدف فيها شاشة بالمفتاح نفسه."
+
+#. Error loading the templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.failed"
+msgstr "تعذّر تحميل القالب."
+
+#. Explains that templates are copied, not linked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.note"
+msgstr "يتم نسخ القالب. لا تغيّر التعديلات اللاحقة عليه هذه الإضافة."
 
 #. Status in the Code tab when the tests of a function could not run.
 #. js-lingui-explicit-id
@@ -5286,6 +5796,18 @@ msgstr "المدقق غير متاح."
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.unavailable"
 msgstr "المدقّق غير جاهز بعد، لذا لا يمكن تطبيق JSON الآن."
+
+#. Error after a failed adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.failed"
+msgstr "تعذّر اعتماد الإصدار."
+
+#. Error after a failed visibility change.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.failed"
+msgstr "تعذّر تغيير الرؤية."
 
 #. Description of the trigger picker; target is the title of the screen the link was dropped on.
 #. js-lingui-explicit-id
@@ -5425,6 +5947,12 @@ msgstr "يشير هذا الحدث إلى مخطط إجراءات غير موج�
 msgid "pluginCanvas.blockedEntry"
 msgstr "هذه هي صفحة الدخول للإضافة. اختر صفحة دخول أخرى قبل حذفها."
 
+#. Error on a library detail page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.detailLoadFailed"
+msgstr "تعذّر تحميل هذا العنصر."
+
 #. Shown when a picked link cannot be redirected or removed from the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -5490,6 +6018,12 @@ msgstr "لا يمكن حذف هذه الشاشة"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.pendingSave"
 msgstr "لهذه الشاشة تغييرات غير محفوظة. انتظر حتى تُحفظ ثم حاول مرة أخرى."
+
+#. Shown when a template has no parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameters.none"
+msgstr "لا يطلب هذا القالب أي معاملات."
 
 #. Shown in the Actions tab when the selected widget type declares no events.
 #. js-lingui-explicit-id
@@ -5767,6 +6301,24 @@ msgstr "الإصدار"
 msgid "designers.dbVersion"
 msgstr "الإصدار"
 
+#. Head version of a library item.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.headVersion"
+msgstr "الإصدار {n}"
+
+#. One version in the version list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.versionRow"
+msgstr "الإصدار {n} بواسطة {who}"
+
+#. Confirmation after adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.done"
+msgstr "تم اعتماد الإصدار {n}."
+
 #. Label of the field for the version requirement of a crate, such as 1.0.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -5779,11 +6331,29 @@ msgstr "شرط الإصدار"
 msgid "panelTabs.perfVersions"
 msgstr "الإصدارات"
 
+#. Heading of the version list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.versions"
+msgstr "الإصدارات"
+
 #. Link from an approval or security notification to its audit record.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.audit-record"
 msgstr "عرض سجل التدقيق"
+
+#. Label of the visibility filter and field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility"
+msgstr "الرؤية"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.visibility"
+msgstr "الرؤية"
 
 #. Level label of a console line.
 #. js-lingui-explicit-id
@@ -5808,6 +6378,12 @@ msgstr "التحذيرات والأخطاء"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "مرحبًا بك في {name}"
+
+#. Heading of the props and slots diff.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.diff"
+msgstr "ما الذي يتغير"
 
 #. Caption.
 #. js-lingui-explicit-id
