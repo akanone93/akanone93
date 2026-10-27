@@ -74,10 +74,16 @@ function parse(d: Document | undefined): unknown {
 export function L10nSessionsProvider(props: {
   readonly appId: string;
   readonly documents: readonly Document[] | undefined;
+  /** Locales added in this session whose app document has not been read back yet. */
+  readonly addedLocales?: readonly string[];
   readonly children: ReactNode;
 }): ReactElement {
-  const { appId, documents } = props;
-  const app = useMemo(() => readLocales(parse(documents?.find((d) => d.path === "app.json"))), [documents]);
+  const { appId, documents, addedLocales } = props;
+  const app = useMemo(() => {
+    const read = readLocales(parse(documents?.find((d) => d.path === "app.json")));
+    const added = (addedLocales ?? []).filter((l) => read?.supported.includes(l) === false);
+    return read === undefined ? undefined : { ...read, supported: [...read.supported, ...added] };
+  }, [documents, addedLocales]);
   const [chosen, setLocale] = useState<string | undefined>(undefined);
   const locale = chosen !== undefined && app?.supported.includes(chosen) ? chosen : (app?.defaultLocale ?? "");
   const keyDocs = useMemo(

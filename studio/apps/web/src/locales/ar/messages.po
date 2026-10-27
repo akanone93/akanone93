@@ -226,6 +226,12 @@ msgstr "{count} من {limit} عقدة"
 msgid "dialog.justification.hint"
 msgstr "{count} من {max} حرفًا على الأكثر"
 
+#. Count of keys selected for a bulk action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.selected"
+msgstr "تم تحديد {count}"
+
 #. Number of unread notifications.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -315,6 +321,18 @@ msgstr "حزمة بحجم {kb} كيلوبايت"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.message"
 msgstr "{key} في {locale}"
+
+#. Summary of a parsed import file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importPreview"
+msgstr "سيُستورد {matched} من النصوص؛ و{unknown} من مفاتيح الملف ليست من مفاتيح هذا التطبيق وسيتم تخطيها."
+
+#. Text of one heatmap cell: how many of a plugin's keys a locale lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.heatCell"
+msgstr "{missing} من {total} ناقصة"
 
 #. Badge: validation errors in a plugin.
 #. js-lingui-explicit-id
@@ -724,6 +742,12 @@ msgstr "نشط"
 msgid "panelTabs.stateAdd"
 msgstr "إضافة"
 
+#. Button that adds the locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.addLocaleConfirm"
+msgstr "إضافة"
+
 #. Button that adds an entry to a list in a designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -741,6 +765,18 @@ msgstr "إضافة"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.addNamed"
 msgstr "إضافة {name} إلى المخطط"
+
+#. Button that opens the dialog that adds a locale to the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.addLocale"
+msgstr "إضافة لغة"
+
+#. Title of the dialog that adds a locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.addLocaleTitle"
+msgstr "إضافة لغة"
 
 #. Accessible name of the form that adds a state entry.
 #. js-lingui-explicit-id
@@ -934,6 +970,12 @@ msgstr "كل الأجهزة"
 msgid "functions.back"
 msgstr "كل الدوال"
 
+#. Option: show every translation key of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.allPlugins"
+msgstr "كل المفاتيح"
+
 #. Option: every translation key of the app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -1004,6 +1046,12 @@ msgstr "أي ترتيب"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.anyState"
+msgstr "أي حالة"
+
+#. Option: do not filter by status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusAll"
 msgstr "أي حالة"
 
 #. Filter option: every visibility.
@@ -1078,6 +1126,12 @@ msgstr "تم التطبيق على المستند."
 msgid "data.applied"
 msgstr "تم التطبيق على المستند."
 
+#. Button that confirms a bulk action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkConfirm"
+msgstr "تطبيق"
+
 #. Button: apply the chosen visibility.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -1107,6 +1161,12 @@ msgstr "تطبيق"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.apply"
 msgstr "تطبيق"
+
+#. Title of the confirmation dialog of a bulk action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkTitle"
+msgstr "تطبيق هذا على {count} نصوص؟"
 
 #. Name of the approval publish step.
 #. js-lingui-explicit-id
@@ -1156,6 +1216,12 @@ msgstr "يجب أن تأتي الموافقات من فرق مختلفة"
 msgid "approvals.fieldApprovers"
 msgstr "عدد الموافقات المطلوبة"
 
+#. Bulk action: approve the selected messages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkApprove"
+msgstr "اعتماد"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -1167,6 +1233,12 @@ msgstr "موافقة"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.decisionApprove"
 msgstr "وافق"
+
+#. Status: the message is approved for release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusApproved"
+msgstr "معتمدة"
 
 #. Status of a request.
 #. js-lingui-explicit-id
@@ -1185,6 +1257,12 @@ msgstr "الأساس المعتمد"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.approvalDone"
 msgstr "تمت الموافقة على المحتوى {hash}."
+
+#. Shown when the person may edit but not approve translations.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.noApprove"
+msgstr "يتطلب الاعتماد الإذن translations.approve."
 
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
@@ -1466,6 +1544,12 @@ msgstr "إلغاء"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.cancel"
+msgstr "إلغاء"
+
+#. Button that cancels a bulk action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkCancel"
 msgstr "إلغاء"
 
 #. Button that closes the key extraction dialog without changes.
@@ -1816,6 +1900,12 @@ msgstr "إغلاق"
 msgid "clipboard.close"
 msgstr "إغلاق"
 
+#. Button that closes a dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.close"
+msgstr "إغلاق"
+
 #. Close button of the library dialogs.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -2122,6 +2212,12 @@ msgstr "المحتوى"
 msgid "publish.hash"
 msgstr "المحتوى {hash}"
 
+#. Column heading: the screenshot context of a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.contextColumn"
+msgstr "السياق"
+
 #. Button that completes a publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -2151,6 +2247,12 @@ msgstr "نُسخت إلى الحافظة"
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.copy"
 msgstr "نسخ"
+
+#. Bulk action: copy the source text into the selected, untranslated messages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkCopy"
+msgstr "نسخ من المصدر"
 
 #. D35 button: copy your version of the document to the clipboard before choosing.
 #. js-lingui-explicit-id
@@ -2698,6 +2800,12 @@ msgstr "المستند"
 msgid "help.docs"
 msgstr "التوثيق"
 
+#. Button that downloads the export file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.exportDownload"
+msgstr "تنزيل"
+
 #. Tag of the draft among the matching policies.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -2877,6 +2985,12 @@ msgstr "ينهي الطرح ويعيد القناة إلى إصدارها الس
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.problem.empty"
 msgstr "أدخل اسم المفتاح."
+
+#. Error: the locale code is not valid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.localeInvalid"
+msgstr "أدخل رمز لغة مثل de أو pt-BR."
 
 #. Error under the name field when it is empty.
 #. js-lingui-explicit-id
@@ -3166,6 +3280,18 @@ msgstr "تصدير"
 msgid "devices.exportTrace"
 msgstr "تصدير التتبع"
 
+#. Button that opens the export dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.exportOpen"
+msgstr "تصدير الترجمات"
+
+#. Title of the export dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.exportTitle"
+msgstr "تصدير الترجمات"
+
 #. Button: extract the component.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -3262,6 +3388,12 @@ msgstr "الحقول"
 msgid "data.fields"
 msgstr "الحقول"
 
+#. Label of the file chooser of the import dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importFile"
+msgstr "الملف"
+
 #. Heading of the list of validator findings about the chosen state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -3328,11 +3460,23 @@ msgstr "جهاز قابل للطي"
 msgid "preview.platformFrame"
 msgstr "اتبع الإطار"
 
+#. Caption under the heading of the heatmap page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.heatCaption"
+msgstr "عدد مفاتيح الترجمة التي يستخدمها كل مكوّن إضافي وما زالت ناقصة في كل لغة."
+
 #. Option: kept until the app session ends.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.persistence.session"
 msgstr "للجلسة"
+
+#. Label of the list that chooses the format of an import or export.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importFormat"
+msgstr "الصيغة"
 
 #. Accessible name of a frame around plugin boxes.
 #. js-lingui-explicit-id
@@ -3508,6 +3652,12 @@ msgstr "GraphQL"
 msgid "designers.dataOperationsText"
 msgstr "عمليات GraphQL"
 
+#. Link from the heatmap back to the localisation grid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.gridLink"
+msgstr "الجدول"
+
 #. Label of the guardrail event field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -3543,6 +3693,12 @@ msgstr "عنوان"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.health"
 msgstr "الصحة مقارنة بالإصدار السابق"
+
+#. Link from the localisation grid to the heatmap of missing translations.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.heatmapLink"
+msgstr "الخريطة الحرارية"
 
 #. Label of the height field of the custom frame dialog.
 #. js-lingui-explicit-id
@@ -3628,6 +3784,12 @@ msgstr "إصدار واجهة المضيف الثنائية"
 msgid "actionGraph.groupCustom"
 msgstr "إجراءات التطبيق المضيف"
 
+#. Button that applies the import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importApply"
+msgstr "استيراد"
+
 #. Heading of the import section of the data source designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -3657,6 +3819,18 @@ msgstr "استيراد مكوّن"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.importTemplate"
 msgstr "استيراد قالب"
+
+#. Button that opens the import dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importOpen"
+msgstr "استيراد الترجمات"
+
+#. Title of the import dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importTitle"
+msgstr "استيراد الترجمات"
 
 #. Confirmation after importing a library file.
 #. js-lingui-explicit-id
@@ -4398,6 +4572,12 @@ msgstr "جارٍ تحميل الإصدار المنشور…"
 msgid "history.loading"
 msgstr "جارٍ تحميل اللقطات."
 
+#. Shown while the translations load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.loading"
+msgstr "جارٍ تحميل الترجمات"
+
 #. Shown while a page loads.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -4409,6 +4589,18 @@ msgstr "جارٍ التحميل…"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.locale"
 msgstr "اللغة"
+
+#. Label of the list that chooses the locale whose status and messages are edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.localeFilter"
+msgstr "اللغة"
+
+#. Label of the field for a locale code such as de or pt-BR.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.localeCode"
+msgstr "رمز اللغة"
 
 #. Label of the list that chooses the locale whose messages the table edits; each locale has its own lock.
 #. js-lingui-explicit-id
@@ -4422,11 +4614,23 @@ msgstr "اللغة المراد تحريرها"
 msgid "panelTabs.tabLocalisation"
 msgstr "التوطين"
 
+#. Heading of the page that lists translation keys by locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.gridTitle"
+msgstr "التوطين"
+
 #. Title of the full-screen overlay in which translation keys are edited for every locale.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.title"
 msgstr "الترجمة"
+
+#. Accessible name of the navigation between the grid and the heatmap.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.navLabel"
+msgstr "صفحات التوطين"
 
 #. Button in the right panel that opens the full-screen table of translation keys and locales.
 #. js-lingui-explicit-id
@@ -4505,6 +4709,12 @@ msgstr "خريطة بمفاتيح نصية"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.mark-all-read"
 msgstr "وضع علامة مقروء على الكل"
+
+#. Bulk action: mark the selected messages as waiting for review.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkReview"
+msgstr "وضع علامة تحتاج إلى مراجعة"
 
 #. Button that marks one notification read.
 #. js-lingui-explicit-id
@@ -4626,11 +4836,29 @@ msgstr "معاينة الترحيل"
 msgid "data.previewTitle"
 msgstr "معاينة الترحيل"
 
+#. Status: the locale has no message for the key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusMissing"
+msgstr "ناقصة"
+
 #. Shown in a cell of the table whose locale has no message for the key yet.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.missing"
 msgstr "مفقود"
+
+#. Heading of the heatmap page: translations missing per plugin and locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.heatTitle"
+msgstr "الترجمات الناقصة"
+
+#. Accessible name of the heatmap table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.heatTable"
+msgstr "الترجمات الناقصة حسب المكوّن الإضافي واللغة"
 
 #. Shown in a property field when the selected widgets have different values.
 #. js-lingui-explicit-id
@@ -4824,6 +5052,12 @@ msgstr "الانتقال"
 msgid "panels.minTarget"
 msgstr "يتطلب هدف لمس لا يقل عن 44 في 44 dp."
 
+#. Status: translated and waiting for a review.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusTranslated"
+msgstr "تحتاج إلى مراجعة"
+
 #. Why a command is disabled.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -4871,6 +5105,12 @@ msgstr "أبدًا"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffNew"
 msgstr "جديد"
+
+#. Status: the message was copied from the source and is not translated yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusNew"
+msgstr "جديدة"
 
 #. Button: request a new pairing token.
 #. js-lingui-explicit-id
@@ -5136,6 +5376,12 @@ msgstr "لا توجد إضافة بها تغييرات غير منشورة."
 msgid "releases.killNone"
 msgstr "لا توجد إضافة معطلة."
 
+#. Shown on the heatmap when no plugin references a translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.heatEmpty"
+msgstr "لا يستخدم أي مكوّن إضافي مفاتيح ترجمة بعد."
+
 #. Result.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -5202,6 +5448,12 @@ msgstr "لا توجد شاشة بالمسار {route}."
 msgid "links.noTarget"
 msgstr "لا توجد شاشات للربط بها."
 
+#. Text beside a key without a screenshot context.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.noContext"
+msgstr "لا توجد لقطة شاشة"
+
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -5213,6 +5465,12 @@ msgstr "لا يوجد اختصار"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.insert.none"
 msgstr "لا توجد قوالب بعد."
+
+#. Shown when the filters leave no translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.emptyGrid"
+msgstr "لا يوجد مفتاح ترجمة مطابق."
 
 #. Shown when the table has no key for the chosen scope.
 #. js-lingui-explicit-id
@@ -5844,6 +6102,18 @@ msgstr "الإضافة"
 msgid "panelTabs.perfPlugin"
 msgstr "الإضافة"
 
+#. Column heading: the plugin of a heatmap row.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.heatPlugin"
+msgstr "المكوّن الإضافي"
+
+#. Label of the list that limits the grid to the keys one plugin uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.pluginFilter"
+msgstr "المكوّن الإضافي"
+
 #. Label of the plugin picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -6209,6 +6479,12 @@ msgstr "قراءة ملف من هذا الحاسوب"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.inspectorReadOnly"
 msgstr "للقراءة فقط: لا تملك قفل التحرير."
+
+#. Button that reads the chosen file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importRead"
+msgstr "قراءة الملف"
 
 #. Button that runs the import on the text.
 #. js-lingui-explicit-id
@@ -6810,6 +7086,12 @@ msgstr "تعليق المراجعة"
 msgid "approvals.colDue"
 msgstr "موعد المراجعة"
 
+#. Status: a reviewer checked the message.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusReviewed"
+msgstr "تمت مراجعتها"
+
 #. Review state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -7200,6 +7482,12 @@ msgstr "لقطة شاشة للجهاز المقترن"
 msgid "devices.screenshotSaved"
 msgstr "تم حفظ لقطة الشاشة."
 
+#. Text beside a key that has a screenshot captured as translation context; lists the screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.context"
+msgstr "لقطة شاشة: {screens}"
+
 #. Label of the library search field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -7224,6 +7512,12 @@ msgstr "البحث في الإجراءات"
 msgid "security.search"
 msgstr "البحث في الأجهزة"
 
+#. Label of the search field of the localisation grid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.search"
+msgstr "ابحث في المفاتيح والنصوص"
+
 #. Label of the search field of the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -7247,6 +7541,12 @@ msgstr "العامل الثاني"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.profileTitle"
 msgstr "ملف الأمان"
+
+#. Accessible name of the checkbox that selects one key for a bulk action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.selectRow"
+msgstr "تحديد {key}"
 
 #. Shown when no collection is selected.
 #. js-lingui-explicit-id
@@ -7277,6 +7577,12 @@ msgstr "حدد عنصرًا على اللوحة لتحرير مخطط الإجر
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.nothing"
 msgstr "حدّد عنصرًا لإضافة رابط."
+
+#. Accessible name of the checkbox that selects every key the grid shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.selectAll"
+msgstr "تحديد كل المفاتيح المعروضة"
 
 #. Name of the first publish step.
 #. js-lingui-explicit-id
@@ -7584,6 +7890,12 @@ msgstr "شخص آخر يحرر هذه الإضافة، لذلك لا يمكن ا
 msgid "designers.readOnly"
 msgstr "شخص آخر يحرر الآن، لذا هذا المصمم للقراءة فقط."
 
+#. Column heading: the message of the default locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.sourceColumn"
+msgstr "المصدر"
+
 #. Label of the picker that chooses which device feeds the drawer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -7721,6 +8033,18 @@ msgstr "عناصر الحالة"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateList"
 msgstr "إدخالات الحالة"
+
+#. Label of the list that filters the grid by the status of the messages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusFilter"
+msgstr "الحالة"
+
+#. Column heading: the status of the message.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.statusColumn"
+msgstr "الحالة"
 
 #. Label of the status filter.
 #. js-lingui-explicit-id
@@ -8052,6 +8376,12 @@ msgstr "فشل الإجراء. لم يتغير شيء."
 msgid "functions.aliasFailed"
 msgstr "تعذّر تغيير الاسم المستعار."
 
+#. Error: the locale is already supported.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.localeTaken"
+msgstr "التطبيق يدعم هذه اللغة بالفعل."
+
 #. Shown when imported variables cannot be written.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -8280,11 +8610,29 @@ msgstr "تعذّر تصدير الملف."
 msgid "library.importFailed"
 msgstr "تعذّر استيراد الملف. تحقق من أنه ملف مكتبة من هذا النوع."
 
+#. Error: the import file has no entries.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importEmpty"
+msgstr "لا يحتوي الملف على ترجمات."
+
+#. Error: the import file is too large.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importTooLarge"
+msgstr "الملف أكبر من حد الاستيراد."
+
 #. Shown when the file is above the maximum asset size.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.failure.too-large"
 msgstr "الملف أكبر من الحد المسموح به لحجم الأصول. اختر ملفًا أصغر."
+
+#. Error: the import file cannot be parsed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importMalformed"
+msgstr "الملف ليس ملفًا صالحًا بهذه الصيغة."
 
 #. Shown when the SHA-256 of the received bytes differs from the file's.
 #. js-lingui-explicit-id
@@ -8393,6 +8741,12 @@ msgstr "تعذّر تحميل المكتبة. حاول مرة أخرى."
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.takeover.refused"
 msgstr "تعذّر استلام القفل: عاد صاحبه إلى التحرير، أو ليس لديك إذن باستلام الأقفال."
+
+#. Tells which locale an import changes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.importInto"
+msgstr "ستُستورد النصوص إلى {locale}."
 
 #. Shown when the migration planner in the validator module cannot be reached.
 #. js-lingui-explicit-id
@@ -8556,6 +8910,18 @@ msgstr "تعذر تحميل الشاشات."
 msgid "publish.stepUpFailed"
 msgstr "تعذّر بدء الفحص الأمني."
 
+#. Description in the confirmation of the needs-review action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkReviewText"
+msgstr "ستوضع علامة تحتاج إلى مراجعة على النصوص المحددة في {locale}."
+
+#. Description in the confirmation of the approve action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkApproveText"
+msgstr "ستُعتمد النصوص المحددة في {locale}."
+
 #. Shown in the Code tab when no selected node calls a function.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -8627,6 +8993,12 @@ msgstr "تعذّر تحميل اللقطات."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataVariablesNote"
 msgstr "يصف المصدر أيضًا متغيرات على مستوى التطبيق؛ يضيفها التطبيق عند التنفيذ تحت قفل التطبيق."
+
+#. Description in the confirmation of the copy-from-source action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.bulkCopyText"
+msgstr "سيحل نص المصدر محل النصوص الفارغة في {locale} وتصبح جديدة."
 
 #. Status after a successful import.
 #. js-lingui-explicit-id
@@ -9163,6 +9535,12 @@ msgstr "يمسّ صفحة آمنة"
 msgid "data.transaction"
 msgstr "مؤشرات المعاملة (JSON)"
 
+#. Column heading: the message of the locale being edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.targetColumn"
+msgstr "الترجمة ({locale})"
+
 #. Screenshot use: context shown to translators.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -9181,11 +9559,23 @@ msgstr "مفتاح الترجمة"
 msgid "clipboard.translations"
 msgstr "مفاتيح الترجمة"
 
+#. Accessible name of the localisation grid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.gridTable"
+msgstr "مفاتيح الترجمة حسب اللغة"
+
 #. Accessible name of the table of translation keys and their messages in every locale.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.table"
 msgstr "مفاتيح الترجمة حسب اللغة"
+
+#. Caption under the heading of the localisation grid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.gridCaption"
+msgstr "مفاتيح الترجمة حسب اللغة. صفِّ وابحث وغيّر حالة عدة نصوص دفعة واحدة."
 
 #. Button and dialog title: deleted plugins and screens that can still be restored (A44).
 #. js-lingui-explicit-id
@@ -9762,6 +10152,12 @@ msgstr "أنت غير متصل. لم يتغير شيء؛ حاول مرة أخر�
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.signedout.title"
 msgstr "لقد سجّلت الخروج"
+
+#. Shown when the person cannot edit the messages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/area.messages.ts
+msgid "l10n.area.readOnlyGrid"
+msgstr "يمكنك قراءة الترجمات. يتطلب تغييرها الإذن translations.edit وقفل اللغة."
 
 #. Shown when the person may not edit.
 #. js-lingui-explicit-id
