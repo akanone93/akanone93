@@ -735,11 +735,13 @@ var matrix = map[string]entry{
 	"RolloutService/CreateRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.CreateRolloutRequest{
 		AppId: unknownID, EnvironmentId: unknownID, CandidateSequence: 2, Stages: []*pluxv1.Stage{{BasisPoints: 10000}},
 	})),
-	"RolloutService/GetRollout":    atPerm(auth.RolloutManage, anyone(&pluxv1.GetRolloutRequest{Id: unknownID})),
-	"RolloutService/ListRollouts":  atPerm(auth.RolloutManage, anyone(&pluxv1.ListRolloutsRequest{AppId: unknownID})),
-	"RolloutService/PauseRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.PauseRolloutRequest{Id: unknownID})),
-	"RolloutService/ResumeRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.ResumeRolloutRequest{Id: unknownID})),
-	"RolloutService/AbortRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.AbortRolloutRequest{Id: unknownID})),
+	"RolloutService/GetRollout":        atPerm(auth.RolloutManage, anyone(&pluxv1.GetRolloutRequest{Id: unknownID})),
+	"RolloutService/ListRollouts":      atPerm(auth.RolloutManage, anyone(&pluxv1.ListRolloutsRequest{AppId: unknownID})),
+	"RolloutService/PauseRollout":      atPerm(auth.RolloutManage, anyone(&pluxv1.PauseRolloutRequest{Id: unknownID})),
+	"RolloutService/ResumeRollout":     atPerm(auth.RolloutManage, anyone(&pluxv1.ResumeRolloutRequest{Id: unknownID})),
+	"RolloutService/AbortRollout":      atPerm(auth.RolloutManage, anyone(&pluxv1.AbortRolloutRequest{Id: unknownID})),
+	"RolloutService/AdvanceRollout":    atPerm(auth.RolloutManage, anyone(&pluxv1.AdvanceRolloutRequest{Id: unknownID})),
+	"RolloutService/RescheduleRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.RescheduleRolloutRequest{Id: unknownID})),
 
 	"AuditService/Reconstruct": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ReconstructRequest{AppId: f.app, DeviceId: unknownID, At: timestamppb.Now()}

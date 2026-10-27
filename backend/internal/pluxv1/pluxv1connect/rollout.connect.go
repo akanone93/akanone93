@@ -54,6 +54,12 @@ const (
 	// RolloutServiceAbortRolloutProcedure is the fully-qualified name of the RolloutService's
 	// AbortRollout RPC.
 	RolloutServiceAbortRolloutProcedure = "/plux.v1.RolloutService/AbortRollout"
+	// RolloutServiceAdvanceRolloutProcedure is the fully-qualified name of the RolloutService's
+	// AdvanceRollout RPC.
+	RolloutServiceAdvanceRolloutProcedure = "/plux.v1.RolloutService/AdvanceRollout"
+	// RolloutServiceRescheduleRolloutProcedure is the fully-qualified name of the RolloutService's
+	// RescheduleRollout RPC.
+	RolloutServiceRescheduleRolloutProcedure = "/plux.v1.RolloutService/RescheduleRollout"
 )
 
 // RolloutServiceClient is a client for the plux.v1.RolloutService service.
@@ -76,6 +82,13 @@ type RolloutServiceClient interface {
 	// AbortRollout ends a rollout and returns the channel to the release it had
 	// before, as a new release (REL-006).
 	AbortRollout(context.Context, *connect.Request[pluxv1.AbortRolloutRequest]) (*connect.Response[pluxv1.AbortRolloutResponse], error)
+	// AdvanceRollout moves an active rollout to its next stage at once, without
+	// waiting for the stage's duration. PLX-1006 when it is on its last stage.
+	AdvanceRollout(context.Context, *connect.Request[pluxv1.AdvanceRolloutRequest]) (*connect.Response[pluxv1.AdvanceRolloutResponse], error)
+	// RescheduleRollout changes when a rollout starts and ends. A rollout that
+	// has started keeps its start; only its end may change. PLX-3153 when the
+	// new window overlaps another rollout of the channel.
+	RescheduleRollout(context.Context, *connect.Request[pluxv1.RescheduleRolloutRequest]) (*connect.Response[pluxv1.RescheduleRolloutResponse], error)
 }
 
 // NewRolloutServiceClient constructs a client for the plux.v1.RolloutService service. By default,
@@ -125,17 +138,31 @@ func NewRolloutServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(rolloutServiceMethods.ByName("AbortRollout")),
 			connect.WithClientOptions(opts...),
 		),
+		advanceRollout: connect.NewClient[pluxv1.AdvanceRolloutRequest, pluxv1.AdvanceRolloutResponse](
+			httpClient,
+			baseURL+RolloutServiceAdvanceRolloutProcedure,
+			connect.WithSchema(rolloutServiceMethods.ByName("AdvanceRollout")),
+			connect.WithClientOptions(opts...),
+		),
+		rescheduleRollout: connect.NewClient[pluxv1.RescheduleRolloutRequest, pluxv1.RescheduleRolloutResponse](
+			httpClient,
+			baseURL+RolloutServiceRescheduleRolloutProcedure,
+			connect.WithSchema(rolloutServiceMethods.ByName("RescheduleRollout")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // rolloutServiceClient implements RolloutServiceClient.
 type rolloutServiceClient struct {
-	createRollout *connect.Client[pluxv1.CreateRolloutRequest, pluxv1.CreateRolloutResponse]
-	getRollout    *connect.Client[pluxv1.GetRolloutRequest, pluxv1.GetRolloutResponse]
-	listRollouts  *connect.Client[pluxv1.ListRolloutsRequest, pluxv1.ListRolloutsResponse]
-	pauseRollout  *connect.Client[pluxv1.PauseRolloutRequest, pluxv1.PauseRolloutResponse]
-	resumeRollout *connect.Client[pluxv1.ResumeRolloutRequest, pluxv1.ResumeRolloutResponse]
-	abortRollout  *connect.Client[pluxv1.AbortRolloutRequest, pluxv1.AbortRolloutResponse]
+	createRollout     *connect.Client[pluxv1.CreateRolloutRequest, pluxv1.CreateRolloutResponse]
+	getRollout        *connect.Client[pluxv1.GetRolloutRequest, pluxv1.GetRolloutResponse]
+	listRollouts      *connect.Client[pluxv1.ListRolloutsRequest, pluxv1.ListRolloutsResponse]
+	pauseRollout      *connect.Client[pluxv1.PauseRolloutRequest, pluxv1.PauseRolloutResponse]
+	resumeRollout     *connect.Client[pluxv1.ResumeRolloutRequest, pluxv1.ResumeRolloutResponse]
+	abortRollout      *connect.Client[pluxv1.AbortRolloutRequest, pluxv1.AbortRolloutResponse]
+	advanceRollout    *connect.Client[pluxv1.AdvanceRolloutRequest, pluxv1.AdvanceRolloutResponse]
+	rescheduleRollout *connect.Client[pluxv1.RescheduleRolloutRequest, pluxv1.RescheduleRolloutResponse]
 }
 
 // CreateRollout calls plux.v1.RolloutService.CreateRollout.
@@ -168,6 +195,16 @@ func (c *rolloutServiceClient) AbortRollout(ctx context.Context, req *connect.Re
 	return c.abortRollout.CallUnary(ctx, req)
 }
 
+// AdvanceRollout calls plux.v1.RolloutService.AdvanceRollout.
+func (c *rolloutServiceClient) AdvanceRollout(ctx context.Context, req *connect.Request[pluxv1.AdvanceRolloutRequest]) (*connect.Response[pluxv1.AdvanceRolloutResponse], error) {
+	return c.advanceRollout.CallUnary(ctx, req)
+}
+
+// RescheduleRollout calls plux.v1.RolloutService.RescheduleRollout.
+func (c *rolloutServiceClient) RescheduleRollout(ctx context.Context, req *connect.Request[pluxv1.RescheduleRolloutRequest]) (*connect.Response[pluxv1.RescheduleRolloutResponse], error) {
+	return c.rescheduleRollout.CallUnary(ctx, req)
+}
+
 // RolloutServiceHandler is an implementation of the plux.v1.RolloutService service.
 type RolloutServiceHandler interface {
 	// CreateRollout schedules a rollout of a release on a channel. PLX-3153 when
@@ -188,6 +225,13 @@ type RolloutServiceHandler interface {
 	// AbortRollout ends a rollout and returns the channel to the release it had
 	// before, as a new release (REL-006).
 	AbortRollout(context.Context, *connect.Request[pluxv1.AbortRolloutRequest]) (*connect.Response[pluxv1.AbortRolloutResponse], error)
+	// AdvanceRollout moves an active rollout to its next stage at once, without
+	// waiting for the stage's duration. PLX-1006 when it is on its last stage.
+	AdvanceRollout(context.Context, *connect.Request[pluxv1.AdvanceRolloutRequest]) (*connect.Response[pluxv1.AdvanceRolloutResponse], error)
+	// RescheduleRollout changes when a rollout starts and ends. A rollout that
+	// has started keeps its start; only its end may change. PLX-3153 when the
+	// new window overlaps another rollout of the channel.
+	RescheduleRollout(context.Context, *connect.Request[pluxv1.RescheduleRolloutRequest]) (*connect.Response[pluxv1.RescheduleRolloutResponse], error)
 }
 
 // NewRolloutServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -233,6 +277,18 @@ func NewRolloutServiceHandler(svc RolloutServiceHandler, opts ...connect.Handler
 		connect.WithSchema(rolloutServiceMethods.ByName("AbortRollout")),
 		connect.WithHandlerOptions(opts...),
 	)
+	rolloutServiceAdvanceRolloutHandler := connect.NewUnaryHandler(
+		RolloutServiceAdvanceRolloutProcedure,
+		svc.AdvanceRollout,
+		connect.WithSchema(rolloutServiceMethods.ByName("AdvanceRollout")),
+		connect.WithHandlerOptions(opts...),
+	)
+	rolloutServiceRescheduleRolloutHandler := connect.NewUnaryHandler(
+		RolloutServiceRescheduleRolloutProcedure,
+		svc.RescheduleRollout,
+		connect.WithSchema(rolloutServiceMethods.ByName("RescheduleRollout")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.RolloutService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case RolloutServiceCreateRolloutProcedure:
@@ -247,6 +303,10 @@ func NewRolloutServiceHandler(svc RolloutServiceHandler, opts ...connect.Handler
 			rolloutServiceResumeRolloutHandler.ServeHTTP(w, r)
 		case RolloutServiceAbortRolloutProcedure:
 			rolloutServiceAbortRolloutHandler.ServeHTTP(w, r)
+		case RolloutServiceAdvanceRolloutProcedure:
+			rolloutServiceAdvanceRolloutHandler.ServeHTTP(w, r)
+		case RolloutServiceRescheduleRolloutProcedure:
+			rolloutServiceRescheduleRolloutHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -278,4 +338,12 @@ func (UnimplementedRolloutServiceHandler) ResumeRollout(context.Context, *connec
 
 func (UnimplementedRolloutServiceHandler) AbortRollout(context.Context, *connect.Request[pluxv1.AbortRolloutRequest]) (*connect.Response[pluxv1.AbortRolloutResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.RolloutService.AbortRollout is not implemented"))
+}
+
+func (UnimplementedRolloutServiceHandler) AdvanceRollout(context.Context, *connect.Request[pluxv1.AdvanceRolloutRequest]) (*connect.Response[pluxv1.AdvanceRolloutResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.RolloutService.AdvanceRollout is not implemented"))
+}
+
+func (UnimplementedRolloutServiceHandler) RescheduleRollout(context.Context, *connect.Request[pluxv1.RescheduleRolloutRequest]) (*connect.Response[pluxv1.RescheduleRolloutResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.RolloutService.RescheduleRollout is not implemented"))
 }

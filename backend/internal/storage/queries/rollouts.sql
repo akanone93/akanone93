@@ -102,3 +102,11 @@ SELECT * FROM manifests WHERE rollout_id = $1 ORDER BY issued_at DESC, id DESC L
 -- begin closing holds the row until it rolls back, and the winner that
 -- skipped would leave the rollout closing.
 SELECT * FROM rollouts WHERE id = $1 AND state = 'closing' FOR UPDATE;
+
+-- name: RescheduleRollout :one
+-- Changes the window of a rollout that has not finished. The start moves only
+-- while the rollout is scheduled; only one caller wins.
+UPDATE rollouts
+   SET start_at = sqlc.arg(start_at), end_at = sqlc.narg(end_at), updated_at = sqlc.arg(at)
+ WHERE id = sqlc.arg(id) AND state = ANY(sqlc.arg(from_states)::text[])
+RETURNING *;

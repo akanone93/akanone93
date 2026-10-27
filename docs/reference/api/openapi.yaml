@@ -12761,6 +12761,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.AbortRolloutResponse'
+  /plux.v1.RolloutService/AdvanceRollout:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: AdvanceRollout
+      description: |-
+        AdvanceRollout moves an active rollout to its next stage at once, without
+         waiting for the stage's duration. PLX-1006 when it is on its last stage.
+      operationId: plux.v1.RolloutService.AdvanceRollout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.AdvanceRolloutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.AdvanceRolloutResponse'
   /plux.v1.RolloutService/CreateRollout:
     post:
       tags:
@@ -12925,6 +12966,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.PauseRolloutResponse'
+  /plux.v1.RolloutService/RescheduleRollout:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: RescheduleRollout
+      description: |-
+        RescheduleRollout changes when a rollout starts and ends. A rollout that
+         has started keeps its start; only its end may change. PLX-3153 when the
+         new window overlaps another rollout of the channel.
+      operationId: plux.v1.RolloutService.RescheduleRollout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RescheduleRolloutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RescheduleRolloutResponse'
   /plux.v1.RolloutService/ResumeRollout:
     post:
       tags:
@@ -15004,6 +15087,23 @@ components:
             - $ref: '#/components/schemas/plux.v1.ReleaseRequest'
           title: request
       title: AdvanceReleaseRequestResponse
+      additionalProperties: false
+    plux.v1.AdvanceRolloutRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: AdvanceRolloutRequest
+      additionalProperties: false
+    plux.v1.AdvanceRolloutResponse:
+      type: object
+      properties:
+        rollout:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollout
+      title: AdvanceRolloutResponse
       additionalProperties: false
     plux.v1.AlertRule:
       type: object
@@ -29177,6 +29277,39 @@ components:
             - $ref: '#/components/schemas/plux.v1.VisualDiffJob'
           title: job
       title: RequestVisualDiffResponse
+      additionalProperties: false
+    plux.v1.RescheduleRolloutRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        startAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: start_at
+          description: |-
+            start_at is the new start; it may differ from the current one only while
+             the rollout is scheduled. Empty keeps it.
+        endAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: end_at
+          description: end_at is the new end; empty keeps it unless clear_end_at is set.
+        clearEndAt:
+          type: boolean
+          title: clear_end_at
+          description: clear_end_at removes the end, so the rollout lasts until it completes.
+      title: RescheduleRolloutRequest
+      additionalProperties: false
+    plux.v1.RescheduleRolloutResponse:
+      type: object
+      properties:
+        rollout:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollout
+      title: RescheduleRolloutResponse
       additionalProperties: false
     plux.v1.RestoreFromTrashRequest:
       type: object
