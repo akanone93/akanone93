@@ -7,7 +7,7 @@ import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import type { ValidatorClient } from "../problems/validator-client.ts";
 import { parseIndexes } from "./collections-page.tsx";
-import { operationsOf, patched, schemasOf, urlsOf } from "./source-page.tsx";
+import { baseUrlVariable, operationsOf, patched, schemasOf, valuesPerEnvironment } from "./source-page.tsx";
 
 setDefaultTimeout(30000);
 afterEach(cleanup);
@@ -28,8 +28,8 @@ const plugin = {
       type: "Rate",
       mock: 1.5,
       config: {
-        urls: { production: "https://api.example.com" },
-        operations: [{ name: "list", method: "GET", path: "/r" }],
+        baseUrl: "ratesUrl",
+        operations: { list: { method: "GET", path: "/r", output: "list<Rate>" } },
       },
     },
   ],
@@ -48,7 +48,16 @@ const plugin = {
   ],
 };
 const documents = [{ kind: "plugin", path: "plugin.json", json: plugin }];
-const appDocuments = [{ kind: "app", path: "app.json", json: { kind: "app" } }];
+const appDocuments = [
+  {
+    kind: "app",
+    path: "app.json",
+    json: {
+      kind: "app",
+      environments: [{ key: "production", name: "Production", values: { ratesUrl: "https://api.example.com" } }],
+    },
+  },
+];
 const base = `/o/${orgA}/apps/app1/data`;
 const disabled = (el: HTMLElement) => el.matches(":disabled, [aria-disabled=true]");
 const content = (edit: EditSession | undefined) =>
@@ -77,7 +86,11 @@ describe("pure helpers", () => {
   test("read the operations, URLs, schemas and indexes of a definition", () => {
     expect(operationsOf({ operations: { get: { method: "GET" } } })).toEqual([{ name: "get", method: "GET" }]);
     expect(operationsOf(null)).toEqual([]);
-    expect(urlsOf({ urls: { dev: "u" } })).toEqual([["dev", "u"]]);
+    expect(baseUrlVariable({ baseUrl: "api" })).toBe("api");
+    expect(baseUrlVariable(null)).toBe("");
+    expect(valuesPerEnvironment({ environments: [{ key: "dev", values: { api: "u" } }, { key: "x" }] }, "api")).toEqual(
+      [["dev", "u"]],
+    );
     expect(schemasOf([{ name: "Rate" }, { name: "Other" }], "list<Rate>")).toEqual([{ name: "Rate" }]);
     expect(parseIndexes("a, b\n\n c")).toEqual([["a", "b"], ["c"]]);
     expect(patched({ a: 1, b: 2 }, { b: undefined })).toEqual({ a: 1 });
@@ -117,7 +130,7 @@ describe("STU-113 A20 API definitions (DAT-002)", () => {
 });
 
 describe("STU-113 A21 data source (DAT-080)", () => {
-  test("shows operations and URLs, edits route, config and transaction, and the mock in a dialog", async () => {
+  test("shows operations and the base URL variable per environment, edits route, config and transaction, and the mock in a dialog", async () => {
     let edit: EditSession | undefined;
     renderApp(
       `${base}/sources/${SOURCE}`,
@@ -127,7 +140,7 @@ describe("STU-113 A21 data source (DAT-080)", () => {
     expect(screen.getByText("/r")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Configuration (JSON)"), { target: { value: "[" } });
     expect(screen.getByText("The configuration must be a JSON object.")).toBeTruthy();
-    fireEvent.change(screen.getByLabelText("Configuration (JSON)"), { target: { value: '{"urls":{}}' } });
+    fireEvent.change(screen.getByLabelText("Configuration (JSON)"), { target: { value: '{"baseUrl":"ratesUrl"}' } });
     fireEvent.change(screen.getByLabelText("Transaction pointers (JSON)"), {
       target: { value: '{"amount":"/a","currency":"/c","payee":"/p"}' },
     });
@@ -138,7 +151,7 @@ describe("STU-113 A21 data source (DAT-080)", () => {
     await waitFor(() => expect(disabled(apply)).toBe(false));
     fireEvent.click(apply);
     const source = (content(edit)["dataSources"] as Record<string, unknown>[])[0];
-    expect(source).toMatchObject({ mock: 3, config: { urls: {} }, transaction: { payee: "/p" } });
+    expect(source).toMatchObject({ mock: 3, config: { baseUrl: "ratesUrl" }, transaction: { payee: "/p" } });
   });
 });
 

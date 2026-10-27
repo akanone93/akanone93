@@ -66,7 +66,7 @@ export function useDataContext(): DataContext {
   return ctx;
 }
 
-function usePluginIds(app: string) {
+export function usePluginIds(app: string) {
   const { session } = useApp();
   return useQuery({
     queryKey: ["data-plugins", app],

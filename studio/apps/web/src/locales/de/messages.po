@@ -1288,6 +1288,12 @@ msgstr "Zurück zu den Geräten"
 msgid "library.back"
 msgstr "Zurück zur Bibliothek"
 
+#. Heading of the base URL section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.baseUrl"
+msgstr "Basis-URL"
+
 #. New-screen option without a template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -2734,6 +2740,12 @@ msgstr "Mock bearbeiten"
 msgid "approvals.editorCaption"
 msgstr "Bearbeiten Sie die Richtlinie und probieren Sie sie vor dem Speichern an einer Beispieländerung aus."
 
+#. Link to where app variables are edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.editVariables"
+msgstr "Variablen im App-Dokument bearbeiten"
+
 #. Hint under the build step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -3627,6 +3639,12 @@ msgstr "Information"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateDefault"
 msgstr "Anfangswert von {name}"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colInput"
+msgstr "Eingabe"
 
 #. Tab: add widgets to the screen.
 #. js-lingui-explicit-id
@@ -4830,6 +4848,12 @@ msgstr "Es ist kein Diff angehängt."
 msgid "releases.clearEnd"
 msgstr "Kein Ende"
 
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.noUrls"
+msgstr "Keine Umgebung setzt einen Wert für diese Variable."
+
 #. Shown when no experiment matches.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -5364,6 +5388,12 @@ msgstr "Andere Verweise auf Seitenzustand bleiben unverändert; prüfe sie nach 
 msgid "links.otherPlugin"
 msgstr "Anderes Plugin"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.colOutput"
+msgstr "Ausgabe"
+
 #. Status word: the page has more nodes than the budget allows.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -5578,6 +5608,12 @@ msgstr "Plugin"
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.pluginLabel"
+msgstr "Plugin"
+
+#. Label of the plugin picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.pickPlugin"
 msgstr "Plugin"
 
 #. Accessible name of the canvas that shows all screens of a plugin.
@@ -7752,6 +7788,12 @@ msgstr "Die Assets konnten nicht geladen werden."
 msgid "approvals.fieldDistinctFromAuthor"
 msgstr "Die Freigabe der Autorin oder des Autors zählt nicht"
 
+#. Label before the name of the variable that holds the base URL.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.baseUrlVariable"
+msgstr "Die Basis-URL ist die App-Variable"
+
 #. Shown when saving fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -7827,14 +7869,14 @@ msgstr "Die Konfiguration muss ein JSON-Objekt sein."
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
-msgid "data.noOperations"
-msgstr "Die Konfiguration nennt keine Operationen."
+msgid "data.noBaseUrl"
+msgstr "Die Konfiguration nennt keine Variable für die Basis-URL."
 
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
-msgid "data.noUrls"
-msgstr "Die Konfiguration nennt keine URLs je Umgebung."
+msgid "data.noOperations"
+msgstr "Die Konfiguration nennt keine Operationen."
 
 #. Status shown when the connection to the language server failed; {detail} is the reason.
 #. js-lingui-explicit-id
@@ -8952,12 +8994,6 @@ msgstr "Das Hochladen von {name} ist fehlgeschlagen."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.colUrl"
 msgstr "URL"
-
-#. Heading of the URLs table.
-#. js-lingui-explicit-id
-#: apps/web/src/features/data/data.messages.ts
-msgid "data.urls"
-msgstr "URLs je Umgebung"
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
