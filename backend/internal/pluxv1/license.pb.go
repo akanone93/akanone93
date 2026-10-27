@@ -25,6 +25,96 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type InstallLicenseRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// license is the licence file as the operator would place it.
+	License       []byte `protobuf:"bytes,1,opt,name=license,proto3" json:"license,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstallLicenseRequest) Reset() {
+	*x = InstallLicenseRequest{}
+	mi := &file_plux_v1_license_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallLicenseRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallLicenseRequest) ProtoMessage() {}
+
+func (x *InstallLicenseRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_license_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallLicenseRequest.ProtoReflect.Descriptor instead.
+func (*InstallLicenseRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_license_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *InstallLicenseRequest) GetLicense() []byte {
+	if x != nil {
+		return x.License
+	}
+	return nil
+}
+
+type InstallLicenseResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// state is the licence state after the installation.
+	State         *GetLicenseStateResponse `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstallLicenseResponse) Reset() {
+	*x = InstallLicenseResponse{}
+	mi := &file_plux_v1_license_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallLicenseResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallLicenseResponse) ProtoMessage() {}
+
+func (x *InstallLicenseResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_license_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallLicenseResponse.ProtoReflect.Descriptor instead.
+func (*InstallLicenseResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_license_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *InstallLicenseResponse) GetState() *GetLicenseStateResponse {
+	if x != nil {
+		return x.State
+	}
+	return nil
+}
+
 type GetLicenseStateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -33,7 +123,7 @@ type GetLicenseStateRequest struct {
 
 func (x *GetLicenseStateRequest) Reset() {
 	*x = GetLicenseStateRequest{}
-	mi := &file_plux_v1_license_proto_msgTypes[0]
+	mi := &file_plux_v1_license_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +135,7 @@ func (x *GetLicenseStateRequest) String() string {
 func (*GetLicenseStateRequest) ProtoMessage() {}
 
 func (x *GetLicenseStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_license_proto_msgTypes[0]
+	mi := &file_plux_v1_license_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +148,7 @@ func (x *GetLicenseStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLicenseStateRequest.ProtoReflect.Descriptor instead.
 func (*GetLicenseStateRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_license_proto_rawDescGZIP(), []int{0}
+	return file_plux_v1_license_proto_rawDescGZIP(), []int{2}
 }
 
 type GetLicenseStateResponse struct {
@@ -89,7 +179,7 @@ type GetLicenseStateResponse struct {
 
 func (x *GetLicenseStateResponse) Reset() {
 	*x = GetLicenseStateResponse{}
-	mi := &file_plux_v1_license_proto_msgTypes[1]
+	mi := &file_plux_v1_license_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -101,7 +191,7 @@ func (x *GetLicenseStateResponse) String() string {
 func (*GetLicenseStateResponse) ProtoMessage() {}
 
 func (x *GetLicenseStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_license_proto_msgTypes[1]
+	mi := &file_plux_v1_license_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -114,7 +204,7 @@ func (x *GetLicenseStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLicenseStateResponse.ProtoReflect.Descriptor instead.
 func (*GetLicenseStateResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_license_proto_rawDescGZIP(), []int{1}
+	return file_plux_v1_license_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetLicenseStateResponse) GetState() string {
@@ -184,7 +274,11 @@ var File_plux_v1_license_proto protoreflect.FileDescriptor
 
 const file_plux_v1_license_proto_rawDesc = "" +
 	"\n" +
-	"\x15plux/v1/license.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x18\n" +
+	"\x15plux/v1/license.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"1\n" +
+	"\x15InstallLicenseRequest\x12\x18\n" +
+	"\alicense\x18\x01 \x01(\fR\alicense\"P\n" +
+	"\x16InstallLicenseResponse\x126\n" +
+	"\x05state\x18\x01 \x01(\v2 .plux.v1.GetLicenseStateResponseR\x05state\"\x18\n" +
 	"\x16GetLicenseStateRequest\"\xcb\x03\n" +
 	"\x17GetLicenseStateResponse\x12\x14\n" +
 	"\x05state\x18\x01 \x01(\tR\x05state\x12\x1d\n" +
@@ -200,9 +294,10 @@ const file_plux_v1_license_proto_rawDesc = "" +
 	"\amessage\x18\t \x01(\tR\amessage\x1a9\n" +
 	"\vLimitsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x012h\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x012\xbd\x01\n" +
 	"\x0eLicenseService\x12V\n" +
-	"\x0fGetLicenseState\x12\x1f.plux.v1.GetLicenseStateRequest\x1a .plux.v1.GetLicenseStateResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\x0fGetLicenseState\x12\x1f.plux.v1.GetLicenseStateRequest\x1a .plux.v1.GetLicenseStateResponse\"\x00\x12S\n" +
+	"\x0eInstallLicense\x12\x1e.plux.v1.InstallLicenseRequest\x1a\x1f.plux.v1.InstallLicenseResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_license_proto_rawDescOnce sync.Once
@@ -216,24 +311,29 @@ func file_plux_v1_license_proto_rawDescGZIP() []byte {
 	return file_plux_v1_license_proto_rawDescData
 }
 
-var file_plux_v1_license_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_plux_v1_license_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_plux_v1_license_proto_goTypes = []any{
-	(*GetLicenseStateRequest)(nil),  // 0: plux.v1.GetLicenseStateRequest
-	(*GetLicenseStateResponse)(nil), // 1: plux.v1.GetLicenseStateResponse
-	nil,                             // 2: plux.v1.GetLicenseStateResponse.LimitsEntry
-	(*timestamppb.Timestamp)(nil),   // 3: google.protobuf.Timestamp
+	(*InstallLicenseRequest)(nil),   // 0: plux.v1.InstallLicenseRequest
+	(*InstallLicenseResponse)(nil),  // 1: plux.v1.InstallLicenseResponse
+	(*GetLicenseStateRequest)(nil),  // 2: plux.v1.GetLicenseStateRequest
+	(*GetLicenseStateResponse)(nil), // 3: plux.v1.GetLicenseStateResponse
+	nil,                             // 4: plux.v1.GetLicenseStateResponse.LimitsEntry
+	(*timestamppb.Timestamp)(nil),   // 5: google.protobuf.Timestamp
 }
 var file_plux_v1_license_proto_depIdxs = []int32{
-	3, // 0: plux.v1.GetLicenseStateResponse.expires_at:type_name -> google.protobuf.Timestamp
-	3, // 1: plux.v1.GetLicenseStateResponse.grace_ends_at:type_name -> google.protobuf.Timestamp
-	2, // 2: plux.v1.GetLicenseStateResponse.limits:type_name -> plux.v1.GetLicenseStateResponse.LimitsEntry
-	0, // 3: plux.v1.LicenseService.GetLicenseState:input_type -> plux.v1.GetLicenseStateRequest
-	1, // 4: plux.v1.LicenseService.GetLicenseState:output_type -> plux.v1.GetLicenseStateResponse
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	3, // 0: plux.v1.InstallLicenseResponse.state:type_name -> plux.v1.GetLicenseStateResponse
+	5, // 1: plux.v1.GetLicenseStateResponse.expires_at:type_name -> google.protobuf.Timestamp
+	5, // 2: plux.v1.GetLicenseStateResponse.grace_ends_at:type_name -> google.protobuf.Timestamp
+	4, // 3: plux.v1.GetLicenseStateResponse.limits:type_name -> plux.v1.GetLicenseStateResponse.LimitsEntry
+	2, // 4: plux.v1.LicenseService.GetLicenseState:input_type -> plux.v1.GetLicenseStateRequest
+	0, // 5: plux.v1.LicenseService.InstallLicense:input_type -> plux.v1.InstallLicenseRequest
+	3, // 6: plux.v1.LicenseService.GetLicenseState:output_type -> plux.v1.GetLicenseStateResponse
+	1, // 7: plux.v1.LicenseService.InstallLicense:output_type -> plux.v1.InstallLicenseResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_license_proto_init() }
@@ -247,7 +347,7 @@ func file_plux_v1_license_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_license_proto_rawDesc), len(file_plux_v1_license_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

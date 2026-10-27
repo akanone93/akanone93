@@ -1,0 +1,72 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// InstallationService reports the health of the installation to its
+// administrators (STU-116, P11 §4.3 #22). Every call needs an installation
+// administrator; none returns a secret, a connection string or a customer
+// name beyond what the organisation list shows.
+service InstallationService {
+  // GetInstallationHealth runs the readiness checks and reports each one.
+  rpc GetInstallationHealth(GetInstallationHealthRequest) returns (GetInstallationHealthResponse) {}
+  // GetInstallationStorage reports how much space each store uses.
+  rpc GetInstallationStorage(GetInstallationStorageRequest) returns (GetInstallationStorageResponse) {}
+  // ListInstallationJobs counts the background jobs by queue and state.
+  rpc ListInstallationJobs(ListInstallationJobsRequest) returns (ListInstallationJobsResponse) {}
+  // ListTrustedIssuers lists the CI identity providers the installation
+  // trusts (ADR-0026); it returns no credential.
+  rpc ListTrustedIssuers(ListTrustedIssuersRequest) returns (ListTrustedIssuersResponse) {}
+}
+
+message HealthCheck {
+  // name is the dependency, for example "database".
+  string name = 1;
+  bool healthy = 2;
+}
+
+message GetInstallationHealthRequest {}
+
+message GetInstallationHealthResponse {
+  repeated HealthCheck checks = 1;
+}
+
+message StorageArea {
+  // area is "database" or the name of an object store bucket.
+  string area = 1;
+  int64 bytes = 2;
+}
+
+message GetInstallationStorageRequest {}
+
+message GetInstallationStorageResponse {
+  repeated StorageArea areas = 1;
+}
+
+message JobCount {
+  string queue = 1;
+  string state = 2;
+  int64 count = 3;
+}
+
+message ListInstallationJobsRequest {}
+
+message ListInstallationJobsResponse {
+  repeated JobCount jobs = 1;
+}
+
+message TrustedIssuer {
+  string issuer = 1;
+  string audience = 2;
+  string subject_pattern = 3;
+}
+
+message ListTrustedIssuersRequest {}
+
+message ListTrustedIssuersResponse {
+  repeated TrustedIssuer issuers = 1;
+}

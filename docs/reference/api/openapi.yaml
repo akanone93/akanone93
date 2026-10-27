@@ -9641,6 +9641,164 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.VerifySecondFactorResponse'
+  /plux.v1.InstallationService/GetInstallationHealth:
+    post:
+      tags:
+        - plux.v1.InstallationService
+      summary: GetInstallationHealth
+      description: GetInstallationHealth runs the readiness checks and reports each one.
+      operationId: plux.v1.InstallationService.GetInstallationHealth
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetInstallationHealthRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetInstallationHealthResponse'
+  /plux.v1.InstallationService/GetInstallationStorage:
+    post:
+      tags:
+        - plux.v1.InstallationService
+      summary: GetInstallationStorage
+      description: GetInstallationStorage reports how much space each store uses.
+      operationId: plux.v1.InstallationService.GetInstallationStorage
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetInstallationStorageRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetInstallationStorageResponse'
+  /plux.v1.InstallationService/ListInstallationJobs:
+    post:
+      tags:
+        - plux.v1.InstallationService
+      summary: ListInstallationJobs
+      description: ListInstallationJobs counts the background jobs by queue and state.
+      operationId: plux.v1.InstallationService.ListInstallationJobs
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListInstallationJobsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListInstallationJobsResponse'
+  /plux.v1.InstallationService/ListTrustedIssuers:
+    post:
+      tags:
+        - plux.v1.InstallationService
+      summary: ListTrustedIssuers
+      description: |-
+        ListTrustedIssuers lists the CI identity providers the installation
+         trusts (ADR-0026); it returns no credential.
+      operationId: plux.v1.InstallationService.ListTrustedIssuers
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListTrustedIssuersRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListTrustedIssuersResponse'
   /plux.v1.LanguageServerService/Open: {}
   /plux.v1.LanguageServerService/Send:
     post:
@@ -9724,6 +9882,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetLicenseStateResponse'
+  /plux.v1.LicenseService/InstallLicense:
+    post:
+      tags:
+        - plux.v1.LicenseService
+      summary: InstallLicense
+      description: |-
+        InstallLicense verifies a licence file offline and, when it is valid,
+         makes it the installation's licence. It needs an installation
+         administrator, is audited, and never quotes a file that failed
+         verification. An edition that cannot hold a licence refuses it with
+         FAILED_PRECONDITION.
+      operationId: plux.v1.LicenseService.InstallLicense
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.InstallLicenseRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.InstallLicenseResponse'
   /plux.v1.LocalisationService/ExportTranslations:
     post:
       tags:
@@ -22503,6 +22705,34 @@ components:
           title: provider
       title: GetIdentityProviderResponse
       additionalProperties: false
+    plux.v1.GetInstallationHealthRequest:
+      type: object
+      title: GetInstallationHealthRequest
+      additionalProperties: false
+    plux.v1.GetInstallationHealthResponse:
+      type: object
+      properties:
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.HealthCheck'
+          title: checks
+      title: GetInstallationHealthResponse
+      additionalProperties: false
+    plux.v1.GetInstallationStorageRequest:
+      type: object
+      title: GetInstallationStorageRequest
+      additionalProperties: false
+    plux.v1.GetInstallationStorageResponse:
+      type: object
+      properties:
+        areas:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.StorageArea'
+          title: areas
+      title: GetInstallationStorageResponse
+      additionalProperties: false
     plux.v1.GetLicenseStateRequest:
       type: object
       title: GetLicenseStateRequest
@@ -23650,6 +23880,18 @@ components:
         - HEALTH_ACTION_PAUSE
         - HEALTH_ACTION_ROLLBACK
       description: HealthAction says what a failed health gate does.
+    plux.v1.HealthCheck:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          description: name is the dependency, for example "database".
+        healthy:
+          type: boolean
+          title: healthy
+      title: HealthCheck
+      additionalProperties: false
     plux.v1.HealthGate:
       type: object
       properties:
@@ -24157,6 +24399,26 @@ components:
       description: |-
         InstallBaseEntry counts the devices of the environment that hold one
          release on one host build.
+    plux.v1.InstallLicenseRequest:
+      type: object
+      properties:
+        license:
+          type: string
+          title: license
+          format: byte
+          description: license is the licence file as the operator would place it.
+      title: InstallLicenseRequest
+      additionalProperties: false
+    plux.v1.InstallLicenseResponse:
+      type: object
+      properties:
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GetLicenseStateResponse'
+          title: state
+          description: state is the licence state after the installation.
+      title: InstallLicenseResponse
+      additionalProperties: false
     plux.v1.InstalledBundle:
       type: object
       properties:
@@ -24271,6 +24533,21 @@ components:
             token_type is "DPoP": the token is bound to the device's key and is
              sent as `Authorization: DPoP <token>` with a proof (SEC-020).
       title: IssueDeviceTokenResponse
+      additionalProperties: false
+    plux.v1.JobCount:
+      type: object
+      properties:
+        queue:
+          type: string
+          title: queue
+        state:
+          type: string
+          title: state
+        count:
+          type: string
+          title: count
+          format: int64
+      title: JobCount
       additionalProperties: false
     plux.v1.KeyStorage:
       type: string
@@ -25582,6 +25859,20 @@ components:
           format: int64
       title: ListInboxResponse
       additionalProperties: false
+    plux.v1.ListInstallationJobsRequest:
+      type: object
+      title: ListInstallationJobsRequest
+      additionalProperties: false
+    plux.v1.ListInstallationJobsResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.JobCount'
+          title: jobs
+      title: ListInstallationJobsResponse
+      additionalProperties: false
     plux.v1.ListLibraryComponentsRequest:
       type: object
       properties:
@@ -26399,6 +26690,20 @@ components:
             $ref: '#/components/schemas/plux.v1.FunctionTrigger'
           title: triggers
       title: ListTriggersResponse
+      additionalProperties: false
+    plux.v1.ListTrustedIssuersRequest:
+      type: object
+      title: ListTrustedIssuersRequest
+      additionalProperties: false
+    plux.v1.ListTrustedIssuersResponse:
+      type: object
+      properties:
+        issuers:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.TrustedIssuer'
+          title: issuers
+      title: ListTrustedIssuersResponse
       additionalProperties: false
     plux.v1.ListUpstreamsRequest:
       type: object
@@ -31340,6 +31645,19 @@ components:
           title: experiment
       title: StopExperimentResponse
       additionalProperties: false
+    plux.v1.StorageArea:
+      type: object
+      properties:
+        area:
+          type: string
+          title: area
+          description: area is "database" or the name of an object store bucket.
+        bytes:
+          type: string
+          title: bytes
+          format: int64
+      title: StorageArea
+      additionalProperties: false
     plux.v1.StoreCount:
       type: object
       properties:
@@ -31719,6 +32037,20 @@ components:
       title: TrashItem
       additionalProperties: false
       description: TrashItem is a deleted app, plugin or page awaiting restore (GOV-031).
+    plux.v1.TrustedIssuer:
+      type: object
+      properties:
+        issuer:
+          type: string
+          title: issuer
+        audience:
+          type: string
+          title: audience
+        subjectPattern:
+          type: string
+          title: subject_pattern
+      title: TrustedIssuer
+      additionalProperties: false
     plux.v1.UnsubscribeRequest:
       type: object
       properties:
@@ -33013,6 +33345,12 @@ tags:
        enterprise feature (PLX-8600 without the licence): every production
        change of a period with author, approvers, timestamps, content hashes and
        evidence, as a DSSE envelope signed with the audit key, and as a PDF.
+  - name: plux.v1.InstallationService
+    description: |-
+      InstallationService reports the health of the installation to its
+       administrators (STU-116, P11 §4.3 #22). Every call needs an installation
+       administrator; none returns a secret, a connection string or a customer
+       name beyond what the organisation list shows.
   - name: plux.v1.LanguageServerService
     description: |-
       LanguageServerService carries the Language Server Protocol between the
@@ -33026,9 +33364,10 @@ tags:
     description: |-
       LicenseService reports the installation's enterprise licence (GOV-030,
        ADR-0084). The open-source core answers "absent": it has no enterprise
-       features to enable. The service only reads; the licence file is placed by
-       the operator and verified offline by the server, never uploaded through
-       the API.
+       features to enable. The licence file is verified offline by the server,
+       whether the operator places it or an installation administrator uploads it
+       with InstallLicense (P11 §4.3 #23, which supersedes ADR-0084's "never
+       uploaded through the API").
   - name: plux.v1.LocalisationService
     description: |-
       LocalisationService exchanges an app's translations with translation tools
