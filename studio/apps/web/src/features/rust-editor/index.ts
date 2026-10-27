@@ -3,4 +3,4 @@
 
 export { rustEditorMessages } from "./rust-editor.messages.ts";
 export { RustEditorHost, type RustEditorHostProps } from "./rust-editor-host.tsx";
-export { RustEditorOverlay, type RustEditorOverlayProps } from "./rust-editor-overlay.tsx";
+export { RustEditorOverlay, type RustEditorOverlayProps, RustEditorPage } from "./rust-editor-overlay.tsx";

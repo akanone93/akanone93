@@ -190,10 +190,23 @@ export interface ExperimentsFixture {
   failing?: boolean;
 }
 
+/** The functions of the Functions area (STU-110): versions, aliases, metrics, logs and stored-test results. */
+export interface FunctionsFixture {
+  functions: { name: string; version: number; placement?: string; testsPassed?: boolean; signed?: boolean }[];
+  aliases?: { name: string; version: number }[];
+  metrics?: { invocations: number; errorsByKind?: Record<string, number>; p95?: number };
+  logs?: { level: string; message: string; version?: number }[];
+  tests?: { results: { name: string; passed: boolean; message: string }[] };
+  /** Collects every SetAlias as `alias:version`. */
+  calls?: string[];
+  failing?: boolean;
+}
+
 export interface UpstreamData {
   experiments?: ExperimentsFixture;
   release?: ReleaseFixture;
   releases?: ReleasesFixture;
+  functions?: FunctionsFixture;
   security?: SecurityData;
   approvals?: ApprovalsData;
   /** The dev session (DEV-002, DEV-011, DEV-020): paired devices, the pairing token, the event stream and what Studio sent. */
@@ -651,6 +664,9 @@ export function createUpstream(state: UpstreamData) {
     securityServices(service, state.security ?? {});
     if (state.releases !== undefined) {
       releasesServices(service, state.releases);
+    }
+    if (state.functions !== undefined) {
+      functionsServices(service, state.functions);
     }
     if (state.experiments !== undefined) {
       experimentsServices(service, state.experiments);
@@ -1194,6 +1210,80 @@ function approvalsServices(
       refuse();
       data.reviewed?.push({ id: req.id, comment: req.comment });
       return {};
+    },
+  });
+}
+
+/** The FunctionAdminService RPCs of the Functions area, in memory. */
+function functionsServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  data: FunctionsFixture,
+) {
+  const version = (f: FunctionsFixture["functions"][number]) => ({
+    appId: "app1",
+    name: f.name,
+    version: f.version,
+    placement: f.placement ?? "server",
+    moduleSha256: `module-${f.name}`,
+    abiVersion: 1,
+    inputSchema: '{"type":"object"}',
+    outputSchema: '{"type":"number"}',
+    testsPassed: f.testsPassed ?? true,
+    signature: f.signed === false ? new Uint8Array() : new Uint8Array([1]),
+    provenance: {
+      sourceSha256: `source-${f.name}`,
+      toolchain: "rust-1.90",
+      builderIdentity: "builder-1",
+      dependencies: [{ name: "serde", version: "1.0.0", checksum: "x" }],
+    },
+  });
+  const fail = () => {
+    if (data.failing === true) {
+      throw new ConnectError("down", Code.Unavailable);
+    }
+  };
+  service(FunctionAdminService, {
+    listFunctions: () => {
+      fail();
+      return { functions: data.functions.map(version) };
+    },
+    getFunction: (req) => {
+      fail();
+      const found = data.functions.find((f) => f.name === req.name);
+      return { latest: found === undefined ? undefined : version(found), aliases: data.aliases ?? [] };
+    },
+    listVersions: (req) => ({
+      versions: data.functions.filter((f) => f.name === req.name).map(version),
+    }),
+    setAlias: (req) => {
+      data.calls?.push(`${req.alias?.name}:${req.alias?.version}`);
+      return { aliases: [req.alias ?? { name: "", version: 0 }] };
+    },
+    getMetrics: () => ({
+      invocations: BigInt(data.metrics?.invocations ?? 0),
+      errorsByKind: Object.fromEntries(
+        Object.entries(data.metrics?.errorsByKind ?? {}).map(([k, n]) => [k, BigInt(n)]),
+      ),
+      latencyP95Micros: BigInt(data.metrics?.p95 ?? 0),
+    }),
+    listLogs: () => ({
+      lines: (data.logs ?? []).map((l) => ({ time: { seconds: 1n, nanos: 0 }, version: l.version ?? 1, ...l })),
+    }),
+    async *runTests() {
+      const results = data.tests?.results ?? [];
+      for (const r of results) {
+        yield { event: { case: "result", value: r } };
+      }
+      yield {
+        event: {
+          case: "finished",
+          value: {
+            passed: results.filter((r) => r.passed).length,
+            failed: results.filter((r) => !r.passed).length,
+            diagnostics: new Uint8Array(),
+          },
+        },
+      };
     },
   });
 }

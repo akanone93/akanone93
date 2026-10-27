@@ -16,6 +16,7 @@ import { approvalsInboxSearchSchema, appSearchSchema } from "./features/approval
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import type { EditSession } from "./features/editor/edit-session.ts";
 import { experimentsSearchSchema, newExperimentSearchSchema } from "./features/experiments/experiments.schema.ts";
+import { functionSearchSchema, functionsEnvSearchSchema } from "./features/functions/functions.schema.ts";
 import { librarySearchSchema } from "./features/library/library.schema.ts";
 import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
@@ -203,6 +204,25 @@ const releasesTimelineRoute = releasesRoute("", "ReleasesPage", releasesSearchSc
 const killSwitchRoute = releasesRoute("/kill-switch", "KillSwitchPage", releaseEnvSearchSchema);
 const releaseRoute = releasesRoute("/$releaseId", "ReleasePage", releaseEnvSearchSchema);
 
+/** A10-A12: the Functions area of one app (STU-110); the pages need `app.read`, alias changes are gated by function.deploy. */
+function functionsRoute(
+  path: string,
+  component: "FunctionsPage" | "FunctionPage" | "FunctionEditPage",
+  search: typeof functionsEnvSearchSchema | typeof functionSearchSchema,
+) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/functions${path}`,
+    validateSearch: (raw) => search.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/functions/index.ts"), component),
+  });
+}
+
+const functionsListRoute = functionsRoute("", "FunctionsPage", functionsEnvSearchSchema);
+const functionRoute = functionsRoute("/$fnId", "FunctionPage", functionSearchSchema);
+const functionEditRoute = functionsRoute("/$fnId/edit", "FunctionEditPage", functionsEnvSearchSchema);
+
 /** A6-A9: experiments, the wizard, one experiment and the flags (STU-103); actions are gated by experiments.manage and flags.manage. */
 function experimentsRoute(
   path: string,
@@ -315,6 +335,9 @@ const routeTree = rootRoute.addChildren([
       devicesRoute,
       deviceRoute,
       releasesTimelineRoute,
+      functionsListRoute,
+      functionRoute,
+      functionEditRoute,
       killSwitchRoute,
       releaseRoute,
       experimentsListRoute,
