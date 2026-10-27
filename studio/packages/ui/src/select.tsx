@@ -59,7 +59,7 @@ export function Select({
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal>
-        <BaseSelect.Positioner sideOffset={4}>
+        <BaseSelect.Positioner sideOffset={4} className="z-20">
           <BaseSelect.Popup className="rounded-xl bg-glass p-1 shadow-e2">
             <BaseSelect.List>
               {items.map((o) => (

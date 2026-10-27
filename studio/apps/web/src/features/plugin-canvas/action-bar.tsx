@@ -73,8 +73,13 @@ export function ActionBar(props: ActionBarProps) {
       ? m.publishPending
       : undefined;
   return (
-    <div className="absolute inset-x-0 top-3 z-10 flex justify-center">
-      <GlassCapsule role="toolbar" label={m.actionBar} className="h-auto flex-wrap py-1 px-3" onKeyDown={rove}>
+    <div className="pointer-events-none absolute inset-x-1/4 top-3 z-10 flex justify-center">
+      <GlassCapsule
+        role="toolbar"
+        label={m.actionBar}
+        className="pointer-events-auto h-auto max-w-full flex-nowrap overflow-x-auto py-1 px-3"
+        onKeyDown={rove}
+      >
         <Button size="sm" variant="ghost" onClick={props.onNewScreen}>
           <Icon name="plus" size="capsule" />
           {m.newScreen}
