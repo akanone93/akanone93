@@ -19,6 +19,7 @@ import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor
 import { UndoManager } from "../editor/undo-stack.ts";
 import { JsonEditorHost } from "../json-editor/index.ts";
 import { useLibraryActions } from "../library/canvas/use-library-actions.tsx";
+import { useCan } from "../library/use-library.ts";
 import { L10nSessionsProvider } from "../localisation/index.ts";
 import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
@@ -234,7 +235,7 @@ function PluginCanvasView({
     [parsed, local],
   );
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
-  const { look, bar, matrix } = usePreviewBar(
+  const { look, bar, switcher, matrix } = usePreviewBar(
     params.app,
     sources.map((x) => x.id),
   );
@@ -251,6 +252,8 @@ function PluginCanvasView({
   const [focusNote, setFocusNote] = useState("");
   const session = useEditSession();
   const canEdit = useCanEdit();
+  const canSend = useCan("devsession.create");
+  const canPublish = useCan("release.publish");
   const store = useSelectionStore();
   const selection = useEditor((st) => st.selection);
   const pathOf = useMemo(() => {
@@ -721,7 +724,6 @@ function PluginCanvasView({
           setRustSource(name);
           overlays.show("rust");
         }}
-        onOpenHistory={() => overlays.show("history")}
       />
       <DesignersHost
         open={overlays.open}
@@ -769,6 +771,9 @@ function PluginCanvasView({
           onZoom={zoomBy}
           onFit={fit}
           onHistory={() => overlays.show("history")}
+          preview={switcher}
+          canSend={canSend}
+          canPublish={canPublish}
         />
       )}
     </section>

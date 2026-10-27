@@ -10,7 +10,6 @@ import { actionGraphMessages } from "../action-graph/action-graph.messages.ts";
 import { designerMessages } from "../designers/designers.messages.ts";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
 import type { JsonValue } from "../editor/json-patch.ts";
-import { historyMessages } from "../history/history.messages.ts";
 import { jsonEditorMessages } from "../json-editor/json-editor.messages.ts";
 import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../localisation/index.ts";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
@@ -452,8 +451,6 @@ interface DockProps {
   readonly onOpenFunction?: ((name: string) => void) | undefined;
   /** Runs a function's stored tests from the Code tab (FN-034). */
   readonly tests?: TestsClient | undefined;
-  /** Opens the history overlay (STU-069); the button shows only when given. */
-  readonly onOpenHistory?: (() => void) | undefined;
 }
 
 /** The registry marks string props whose text the user sees (`translatable`, I18N-007). */
@@ -827,12 +824,6 @@ export function RightDock(props: DockProps) {
             </Button>
           ))}
         </div>
-      )}
-      {props.onOpenHistory !== undefined && (
-        <Button variant="secondary" size="sm" onClick={props.onOpenHistory}>
-          <Icon name="clock" />
-          {historyMessages(i18n).open}
-        </Button>
       )}
       {props.onOpenGraph !== undefined && (
         <Button variant="secondary" size="sm" onClick={props.onOpenGraph}>

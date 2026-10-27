@@ -3,7 +3,10 @@
 
 import { useLingui } from "@lingui/react";
 import { Button, GlassCapsule, Icon, Menu, Select } from "@plux/ui";
+import type { KeyboardEvent, ReactNode } from "react";
+import { commandMessages } from "../../lib/commands/commands.messages.ts";
 import { useOptionalCommands } from "../../lib/commands/index.ts";
+import { devicesMessages } from "../devices/devices.messages.ts";
 import { historyMessages } from "../history/history.messages.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
 import type { Validation } from "../problems/use-validation.ts";
@@ -21,7 +24,34 @@ export interface ActionBarProps {
   /** The screen menu of the current screen (rename, move, delete); hidden when absent. */
   /** Opens the history overlay (STU-069); hidden when absent. */
   readonly onHistory?: (() => void) | undefined;
+  /** The preview controls: frame, theme, locale and text scale. */
+  readonly preview?: ReactNode;
+  readonly canSend?: boolean | undefined;
+  readonly canPublish?: boolean | undefined;
+  /** Opens the release flow; Publish stays disabled with a reason while absent. */
+  readonly onPublish?: (() => void) | undefined;
   readonly onScreenAction?: ((action: "rename" | "move" | "delete") => void) | undefined;
+}
+
+const focusable = "button:not([disabled]), [role=combobox]:not([disabled])";
+
+/** Arrow keys, Home and End move focus along the controls of the bar (roving focus). */
+function rove(event: KeyboardEvent<HTMLElement>): void {
+  const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+  if (!keys.includes(event.key) || (event.target as HTMLElement).closest("[role=listbox]") !== null) {
+    return;
+  }
+  const items = [...event.currentTarget.querySelectorAll<HTMLElement>(focusable)];
+  const at = items.indexOf(event.target as HTMLElement);
+  if (at < 0) {
+    return;
+  }
+  const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+  const step = (event.key === "ArrowRight") !== rtl ? 1 : -1;
+  const next =
+    event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : (at + step + items.length) % items.length;
+  event.preventDefault();
+  items[next]?.focus();
 }
 
 /** Undo and redo run the registered `edit.undo` and `edit.redo` commands and stay disabled while none is registered. */
@@ -33,9 +63,18 @@ export function ActionBar(props: ActionBarProps) {
   const command = (id: string) => states.find((s) => s.command.id === id);
   const undo = command("edit.undo");
   const redo = command("edit.redo");
+  const send = command("device.send");
+  const pair = command("device.pair");
+  const devices = devicesMessages(i18n);
+  const needs = commandMessages(i18n).missing;
+  const publishReason = !props.canPublish
+    ? needs("release.publish")
+    : props.onPublish === undefined
+      ? m.publishPending
+      : undefined;
   return (
-    <div className="absolute inset-x-0 bottom-4 flex justify-center">
-      <GlassCapsule label={m.actionBar} className="flex items-center gap-2 px-3">
+    <div className="absolute inset-x-0 top-3 z-10 flex justify-center">
+      <GlassCapsule role="toolbar" label={m.actionBar} className="h-auto flex-wrap py-1 px-3" onKeyDown={rove}>
         <Button size="sm" variant="ghost" onClick={props.onNewScreen}>
           <Icon name="plus" size="capsule" />
           {m.newScreen}
@@ -80,11 +119,6 @@ export function ActionBar(props: ActionBarProps) {
         >
           <Icon name="arrow-clockwise" size="capsule" />
         </Button>
-        {props.onHistory !== undefined && (
-          <Button size="sm" variant="ghost" aria-label={history} onClick={props.onHistory}>
-            <Icon name="clock" size="capsule" />
-          </Button>
-        )}
         <Button size="sm" variant="ghost" aria-label={m.zoomOut} onClick={() => props.onZoom(1 / 1.25)}>
           <Icon name="minus" size="capsule" />
         </Button>
@@ -98,6 +132,38 @@ export function ActionBar(props: ActionBarProps) {
           {m.zoomFit}
         </Button>
         <ProblemCounts validation={props.validation} />
+        {props.preview}
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={!props.canSend || send === undefined}
+          title={props.canSend ? undefined : needs("devsession.create")}
+          onClick={() => void send?.command.run()}
+        >
+          {devices.sendAction}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={!props.canSend || pair === undefined}
+          onClick={() => void pair?.command.run()}
+        >
+          {devices.pairAction}
+        </Button>
+        {props.onHistory !== undefined && (
+          <Button size="sm" variant="ghost" aria-label={history} onClick={props.onHistory}>
+            <Icon name="clock" size="capsule" />
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="primary"
+          disabled={!props.canPublish || props.onPublish === undefined}
+          title={publishReason}
+          onClick={props.onPublish}
+        >
+          {m.publish}
+        </Button>
       </GlassCapsule>
     </div>
   );
