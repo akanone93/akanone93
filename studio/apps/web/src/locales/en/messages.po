@@ -295,6 +295,12 @@ msgstr "{name} moved to {x}, {y}"
 msgid "pluginCanvas.selectionOne"
 msgstr "{name} selected"
 
+#. Accessible name of one device in the device matrix.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.matrixCell"
+msgstr "{name}, {width} by {height}"
+
 #. Accessible name of a plugin box.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -588,6 +594,12 @@ msgstr "All keys of the app"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.all-types"
 msgstr "All types"
+
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.android-tablet"
+msgstr "Android tablet"
 
 #. Error under the name field when the name is in use.
 #. js-lingui-explicit-id
@@ -907,6 +919,12 @@ msgstr "Close"
 msgid "safety.close"
 msgstr "Close"
 
+#. Accessible name of the close button of the custom frame dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.close"
+msgstr "Close"
+
 #. Accessible name of the close button of the trigger picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -1147,16 +1165,34 @@ msgstr "Create key"
 msgid "links.picker.confirm"
 msgstr "Create link"
 
+#. Platform style option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.cupertino"
+msgstr "Cupertino"
+
 #. Accessible name of the select that chooses the screen the screen actions apply to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.currentScreen"
 msgstr "Current screen"
 
+#. Entry of the device frame select that opens the custom frame dialog; also the dialog title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.customFrame"
+msgstr "Custom frame"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.dark"
+msgstr "Dark"
+
+#. Preview theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.themeDark"
 msgstr "Dark"
 
 #. Column heading and preview name of the dark mode.
@@ -1200,6 +1236,12 @@ msgstr "Data sources"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataList"
 msgstr "Data sources of the plugin"
+
+#. Label of the select that sets the mock state of the data sources.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.mock"
+msgstr "Data state"
 
 #. Button in the right panel that opens the DB schema designer.
 #. js-lingui-explicit-id
@@ -1327,6 +1369,24 @@ msgstr "Description"
 msgid "designers.themeTokens"
 msgstr "Design tokens"
 
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.desktop"
+msgstr "Desktop window"
+
+#. Label of the select that picks the device frame of the preview.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame"
+msgstr "Device frame"
+
+#. Label of the view that shows one screen in several device frames side by side.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.matrix"
+msgstr "Device matrix"
+
 #. Heading of the list of documents that differ between two snapshots.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -1429,6 +1489,12 @@ msgstr "Editor session that made this snapshot"
 msgid "auth.field.email"
 msgstr "Email"
 
+#. Mock data state option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.mockEmpty"
+msgstr "Empty"
+
 #. Error under the key name field when it is empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -1452,6 +1518,12 @@ msgstr "Enter a valid email address."
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.code"
 msgstr "Enter the 6-digit code."
+
+#. Error of the custom frame dialog when the size or density is not a positive number.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.invalidFrame"
+msgstr "Enter whole positive pixels for the size and a positive density."
 
 #. Validation error of the display-name field.
 #. js-lingui-explicit-id
@@ -1489,10 +1561,22 @@ msgstr "Entry"
 msgid "actionGraph.entry"
 msgstr "Entry"
 
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.android-entry"
+msgstr "Entry-level Android"
+
 #. Accessible name of the icon of an error in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.severity.error"
+msgstr "Error"
+
+#. Mock data state option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.mockError"
 msgstr "Error"
 
 #. Label of the share of the page's node budget the selection uses.
@@ -1609,6 +1693,18 @@ msgstr "Fix the problems below to apply."
 msgid "actionGraph.groupFlow"
 msgstr "Flows"
 
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.foldable"
+msgstr "Foldable"
+
+#. Platform style option that follows the device frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.platformFrame"
+msgstr "Follow frame"
+
 #. Option: kept until the app session ends.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -1662,6 +1758,12 @@ msgstr "Functions of the plugin"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.codeList"
 msgstr "Functions used by the selection"
+
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.galaxy-a"
+msgstr "Galaxy A-series"
 
 #. D27: type of an affected item, a member of the Dart API that plux codegen writes for host apps.
 #. js-lingui-explicit-id
@@ -1728,6 +1830,12 @@ msgstr "Hand over"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.semHeader"
 msgstr "Heading"
+
+#. Label of the height field of the custom frame dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.height"
+msgstr "Height (logical pixels)"
 
 #. Label of the help menu.
 #. js-lingui-explicit-id
@@ -1824,6 +1932,30 @@ msgstr "Inspector"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.interactive"
 msgstr "Interactive"
+
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.ipad"
+msgstr "iPad"
+
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.iphone"
+msgstr "iPhone"
+
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.iphone-pro-max"
+msgstr "iPhone Pro Max"
+
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.iphone-se"
+msgstr "iPhone SE"
 
 #. STU-071: the item is the app's or plugin's entry and cannot be deleted until another is chosen.
 #. js-lingui-explicit-id
@@ -2001,6 +2133,12 @@ msgstr "Left panels"
 msgid "profile.theme.light"
 msgstr "Light"
 
+#. Preview theme option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.themeLight"
+msgstr "Light"
+
 #. Column heading and preview name of the light mode.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2091,6 +2229,12 @@ msgstr "Load more"
 msgid "chrome.loading"
 msgstr "Loading"
 
+#. Mock data state option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.mockLoading"
+msgstr "Loading"
+
 #. Shown in the Assets tab while the list loads.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -2114,6 +2258,12 @@ msgstr "Loading the published version…"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.loading"
 msgstr "Loading the snapshots."
+
+#. Label of the preview locale select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.locale"
+msgstr "Locale"
 
 #. Label of the list that chooses the locale whose messages the table edits; each locale has its own lock.
 #. js-lingui-explicit-id
@@ -2186,6 +2336,12 @@ msgstr "Mark as read"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.system"
 msgstr "Match system"
+
+#. Platform style option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.material"
+msgstr "Material"
 
 #. Label of the checkbox that makes the entry's type nullable.
 #. js-lingui-explicit-id
@@ -2733,6 +2889,24 @@ msgstr "Password"
 msgid "panelTabs.tabPerformance"
 msgstr "Performance"
 
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.pixel"
+msgstr "Pixel"
+
+#. Label of the pixel density field of the custom frame dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.density"
+msgstr "Pixel density"
+
+#. Label of the select that picks Material or Cupertino for the preview.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.platform"
+msgstr "Platform style"
+
 #. Name of the top level of the layer tree.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2798,6 +2972,12 @@ msgstr "Press Enter or Space to select the step."
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.nodeHint"
 msgstr "Press Enter or Space to select the step. Use the lists in the step to connect it and Delete to remove it."
+
+#. Accessible name of the toolbar that changes how the canvas previews screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.switcher"
+msgstr "Preview switches"
 
 #. Label of the field that holds the primary key of a collection.
 #. js-lingui-explicit-id
@@ -3531,6 +3711,12 @@ msgstr "Size class"
 msgid "panels.docsSlots"
 msgstr "Slots"
 
+#. Name of a device frame preset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frame.android-small"
+msgstr "Small Android phone"
+
 #. Accessible name of the list of snapshots.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -3663,6 +3849,12 @@ msgstr "Studio navigation"
 msgid "banner.updated"
 msgstr "Studio was updated. Reload to use the new version."
 
+#. Mock data state option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.mockSuccess"
+msgstr "Success"
+
 #. Command title; name is an organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -3734,6 +3926,12 @@ msgstr "Tests"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.extract.text"
 msgstr "Text"
+
+#. Label of the preview text scale select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.textScale"
+msgstr "Text scale"
 
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
@@ -4126,6 +4324,12 @@ msgstr "The widget goes to {target} when the event you pick happens."
 msgid "profile.theme"
 msgstr "Theme"
 
+#. Label of the preview theme select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.theme"
+msgstr "Theme"
+
 #. Button in the right panel that opens the theme editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -4456,6 +4660,12 @@ msgstr "Use a version requirement such as 1.0 or ^0.8.2."
 msgid "auth.error.password-short"
 msgstr "Use at least 12 characters."
 
+#. Button of the custom frame dialog that applies the entered size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.customFrameAdd"
+msgstr "Use frame"
+
 #. Error under the key name field when the name does not follow the key pattern.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -4587,6 +4797,12 @@ msgstr "Why is this unavailable?"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layer1"
 msgstr "Widgets"
+
+#. Label of the width field of the custom frame dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.width"
+msgstr "Width (logical pixels)"
 
 #. Status word: the page is within its node budget.
 #. js-lingui-explicit-id
