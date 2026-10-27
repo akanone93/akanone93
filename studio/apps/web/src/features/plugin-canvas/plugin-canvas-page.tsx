@@ -503,7 +503,7 @@ function PluginCanvasView({
       style={{ fontSize: `${look.textScale}em` }}
     >
       {bar}
-      <MatrixOverlay show={matrix} render={look} />
+      <MatrixOverlay show={matrix} render={look} screen={shown[0]} style={styled} createSurface={createSurface} />
       {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
       <canvas
         role="application"
