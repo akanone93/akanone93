@@ -173,6 +173,6 @@ describe("Code tab functions (FN-033, FN-034)", () => {
     const dialog = await screen.findByRole("dialog");
     expect((within(dialog).getByLabelText("Uploaded source") as HTMLInputElement).value).toBe("bank.transferFee");
     fireEvent.keyDown(dialog, { key: "Escape" });
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("dialog") === null).toBe(true));
   });
 });
