@@ -77,7 +77,7 @@ SPDX-License-Identifier: Apache-2.0
 | Layout engine | Custom TypeScript port of Flutter's layout code | Flutter 3.47.5 | BSD-3-Clause (ported) |
 | Action graph editor | React Flow + dagre | @xyflow/react 12.12.0, @dagrejs/dagre 3.1.1 | MIT |
 | Code editors | Monaco (full-screen editors); CodeMirror 6 (inline PXL) | monaco-editor 0.57.0, @codemirror/view 6.43.14 | MIT |
-| LSP client | `monaco-languageclient` | 11.0.3 | MIT |
+| LSP client | Studio's own typed JSON-RPC client (`features/rust-editor/lsp-client.ts`; maintainer 2026-10-27) | — | — |
 | Drag and drop | Pragmatic drag and drop; Headless Tree (Layers tree) | 4.0.0; @headless-tree/react 1.8.0 | Apache-2.0; MIT |
 | Charts | Recharts 3 via shadcn Chart; uPlot for live streams | recharts 3.10.1, uplot 1.6.32 | MIT |
 | JSON Patch | `rfc6902` | 5.3.0 | MIT |
@@ -423,7 +423,9 @@ first.
 - LSP JSON-RPC over Connect: one server stream per editor session (`LanguageServer.Open`:
   diagnostics, progress, responses) and batched, sequence-numbered unary `Send` calls (ordered
   edits; HTTP/2 multiplexing keeps keystroke latency low).
-- Browser: `monaco-languageclient` with a small custom transport; Monaco speaks standard LSP.
+- Browser: Studio's own small typed LSP JSON-RPC client wires Monaco's providers to the bridge
+  (maintainer 2026-10-27: `monaco-languageclient` needs the codingame vscode-api stack, which
+  conflicts with the plain `monaco-editor` setup).
 - **Security first:** rust-analyzer runs build scripts and procedural macros (arbitrary user
   code). It runs inside the function build sandbox (`builder` isolation of ADR-0064, `L-4`: no
   credentials) with build scripts and proc macros off, no network, CPU/memory/time limits, one

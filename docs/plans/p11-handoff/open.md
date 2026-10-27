@@ -7,16 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## For the maintainer
 
-- **`monaco-languageclient` deviation (S5.4):** the decisions table pins `monaco-languageclient`
-  11.0.3, but it pulls the codingame vscode-api peers that conflict with the plain `monaco-editor`
-  setup. The WIP branch wires Monaco providers to the LSP bridge with a small typed JSON-RPC layer
-  instead. Needs an AGENTS §3 decision: update the decisions table/ADR-0099 (recommended) or adopt
-  the full codingame stack.
 - **Design-gate rules switched off** for approved tokens (decisions.md) — revisit with the tokens.
-- **S5.4 security defaults** to confirm when merging: build scripts, proc macros, check-on-save
-  forced off; `executeCommand`, `didChangeConfiguration`, `rust-analyzer/*` refused; editor off by
-  default (`builder.languageServer` empty, `builder.languageSessions` 0); `builder.address` needs
-  `server.internalTLS`; `RunTests` runs stored cases, not `cargo test`.
 
 ## Known gaps (fix before the phase exit)
 
