@@ -523,6 +523,35 @@ var matrix = map[string]entry{
 		return &pluxv1.GetRunStatusRequest{AppId: f.app}
 	})),
 
+	// ReleaseRequestService
+	"ReleaseRequestService/CreateReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateReleaseRequestRequest{AppId: f.app, EnvironmentId: f.dev, Plugins: []*pluxv1.SelectedPlugin{{PluginKey: "unknown", Reason: "changed"}}}
+	})),
+	"ReleaseRequestService/GetReleaseRequest": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/ListReleaseRequests": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListReleaseRequestsRequest{AppId: f.app}
+	})),
+	"ReleaseRequestService/AdvanceReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.AdvanceReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/RefreezeReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RefreezeReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/RequestVisualDiff": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RequestVisualDiffRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/RequestReleaseApproval": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RequestReleaseApprovalRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/CompleteReleaseRequest": atPerm(auth.ReleasePromote, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CompleteReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/CancelReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CancelReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+
 	// PublishService and ReleaseService
 	"PublishService/Publish": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.PublishRequest{AppId: f.app, PluginId: f.plugin, EnvironmentId: f.dev}
