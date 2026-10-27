@@ -74,12 +74,15 @@ export interface LibraryFixture {
     visibility: string;
     headVersion?: number;
     templateKind?: string;
+    documentId?: string;
     createdByName?: string;
   }[];
   versions?: Record<string, { version: number; content?: string; note?: string }[]>;
   parameters?: { name: string; type: string; required: boolean }[];
   /** Instances per app that ListUsages reports. */
   usages?: number;
+  /** Use sites that ListUsages reports, instead of \`usages\` anonymous ones. */
+  sites?: { file: string; path: string }[];
   /** Public scan refusal: the message SetVisibility fails with. */
   scanRefusal?: string;
   conflicts?: { file: string; path: string; removedProps: string[] }[];
@@ -297,6 +300,10 @@ export function createUpstream(state: UpstreamData) {
       getTemplate: (req) => ({
         template: { id: req.id, name: req.id, parameters: state.library?.parameters ?? [] },
       }),
+      createTemplate: (req) => {
+        state.library?.calls?.push(`createTemplate:${req.draft?.key ?? ""}`);
+        return { item: { id: "newt" }, version: { version: 1 } };
+      },
       instantiate: (req) => {
         state.library?.calls?.push(`instantiate:${req.templateId}:${req.key}:${req.session}`);
         return { created: [`plugins/p/pages/${req.key}.page.json`], diagnostics: [] };
@@ -324,8 +331,18 @@ export function createUpstream(state: UpstreamData) {
         return { item: { id: "imported", kind: "component", name: "Imported component" } };
       },
       listUsages: () => ({
-        usages: Array.from({ length: state.library?.usages ?? 0 }, () => ({ kind: "node", pluginKey: "p" })),
+        usages:
+          state.library?.sites?.map((l) => ({ kind: "node", pluginKey: "p", location: l })) ??
+          Array.from({ length: state.library?.usages ?? 0 }, () => ({ kind: "node", pluginKey: "p" })),
       }),
+      reviseComponent: (req) => {
+        state.library?.calls?.push(`revise:${req.id}:${req.expectedVersion}:${req.draft?.content.length ?? 0}`);
+        return { item: { id: req.id }, version: { version: req.expectedVersion + 1 } };
+      },
+      createComponent: (req) => {
+        state.library?.calls?.push(`createComponent:${req.draft?.key ?? ""}`);
+        return { item: { id: "newc" }, version: { version: 1 } };
+      },
       listComponentAdoptions: () => ({ adoptions: [] }),
       adoptComponentVersion: (req) => {
         state.library?.calls?.push(`adopt:${req.appId}:${req.version}`);

@@ -284,5 +284,44 @@ export function libraryMessages(i18n: I18n) {
       message: "Adopt a version",
       comment: "Button: adopt a component version in an app.",
     }),
+    reviseComponent: i18n._({
+      id: "library.revise",
+      message: "Revise from file",
+      comment: "Button: choose a revised component document to save as a new version.",
+    }),
+    impactTitle: i18n._({
+      id: "library.impact.title",
+      message: "Component edit: instances that will change",
+      comment: "Title of the dialog that lists the instances a revised component version changes.",
+    }),
+    impactNone: i18n._({
+      id: "library.impact.none",
+      message: "No instance uses this component yet.",
+      comment: "Shown when a revised component has no instances.",
+    }),
+    impactRow: (app: string, screen: string) =>
+      i18n._({
+        id: "library.impact.row",
+        message: "{app}, screen {screen}",
+        comment: "One instance in the impact list: its app and screen.",
+        values: { app, screen },
+      }),
+    impactConflict: (names: string) =>
+      i18n._({
+        id: "library.impact.conflict",
+        message: "Overrides may conflict: {names} removed",
+        comment: "Flags an instance whose overrides may name props or slots the revision removes.",
+        values: { names },
+      }),
+    impactConfirm: i18n._({
+      id: "library.impact.confirm",
+      message: "Save new version",
+      comment: "Button: save the revised component version.",
+    }),
+    impactFailed: i18n._({
+      id: "library.impact.failed",
+      message: "The version could not be saved.",
+      comment: "Error after a failed save of a revised component.",
+    }),
   };
 }
