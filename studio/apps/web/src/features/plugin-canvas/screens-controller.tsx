@@ -73,6 +73,10 @@ export interface ScreensControllerProps {
   readonly onFit: () => void;
   /** Opens the history overlay (STU-069); the action bar button shows only when given. */
   readonly onHistory?: (() => void) | undefined;
+  /** The frame, theme, locale and text scale controls of the preview (STU-058). */
+  readonly preview?: ReactNode;
+  readonly canSend?: boolean | undefined;
+  readonly canPublish?: boolean | undefined;
 }
 
 /**
@@ -262,6 +266,9 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         onNewScreen={() => open("new")}
         onScreenAction={open}
         onHistory={props.onHistory}
+        preview={props.preview}
+        canSend={props.canSend}
+        canPublish={props.canPublish}
       />
       {message !== null && (
         <p role="alert" className="absolute inset-x-0 bottom-20 text-center text-body">

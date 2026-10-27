@@ -27,7 +27,7 @@ export function PreviewBarView({
 }): ReactElement {
   const m = previewMessages(useLingui().i18n);
   return (
-    <div className="absolute start-3 top-3 z-10 flex flex-wrap items-end gap-3">
+    <div className="absolute start-3 top-16 z-10 flex flex-wrap items-end gap-3">
       {switcher}
       <Button variant="secondary" aria-pressed={matrix} onClick={() => onMatrix(!matrix)}>
         {m.matrix}
@@ -43,7 +43,7 @@ export function PreviewBarView({
 export function usePreviewBar(
   app: string | undefined,
   dataSources: readonly string[],
-): { look: PreviewRender; bar: ReactElement; matrix: boolean } {
+): { look: PreviewRender; bar: ReactElement; switcher: ReactElement; matrix: boolean } {
   const preview = usePreviewSwitches(app ?? "");
   const [matrix, setMatrix] = useState(false);
   const frame = decodeCustom(preview.state.deviceFrame) ?? resolveFrame(preview.state.deviceFrame);
@@ -56,12 +56,22 @@ export function usePreviewBar(
   return {
     look: cache.current.look,
     matrix,
+    switcher: (
+      <PreviewSwitcher
+        part="main"
+        state={preview.state}
+        dataSources={dataSources}
+        includePseudo={import.meta.env.DEV}
+        onChange={(next) => void preview.set(next)}
+      />
+    ),
     bar: (
       <PreviewBarView
         matrix={matrix}
         onMatrix={setMatrix}
         switcher={
           <PreviewSwitcher
+            part="extra"
             state={preview.state}
             dataSources={dataSources}
             includePseudo={import.meta.env.DEV}

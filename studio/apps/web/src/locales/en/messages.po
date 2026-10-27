@@ -4128,6 +4128,12 @@ msgstr "Public items are visible to the whole installation and are scanned for s
 msgid "security.keysCaption"
 msgstr "Public keys that may sign for this environment. Keys are rotated in the offline ceremony."
 
+#. Primary button of the canvas action bar that opens the release flow.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.publish"
+msgstr "Publish"
+
 #. Why a snapshot was made: the plugin was published.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -5663,6 +5669,12 @@ msgstr "The public scan found content that cannot be public"
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.publishedFailed"
 msgstr "The published version could not be loaded."
+
+#. Why the Publish button of the canvas action bar is disabled while no release flow exists.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.publishPending"
+msgstr "The release flow is not available yet"
 
 #. Shown when a device request fails.
 #. js-lingui-explicit-id
