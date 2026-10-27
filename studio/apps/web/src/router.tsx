@@ -14,6 +14,7 @@ import {
 import { z } from "zod";
 import { approvalsInboxSearchSchema, appSearchSchema } from "./features/approvals/approvals.schema.ts";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
+import { dataSearchSchema } from "./features/data/data.schema.ts";
 import type { EditSession } from "./features/editor/edit-session.ts";
 import { experimentsSearchSchema, newExperimentSearchSchema } from "./features/experiments/experiments.schema.ts";
 import { librarySearchSchema } from "./features/library/library.schema.ts";
@@ -203,6 +204,22 @@ const releasesTimelineRoute = releasesRoute("", "ReleasesPage", releasesSearchSc
 const killSwitchRoute = releasesRoute("/kill-switch", "KillSwitchPage", releaseEnvSearchSchema);
 const releaseRoute = releasesRoute("/$releaseId", "ReleasePage", releaseEnvSearchSchema);
 
+/** A20-A23: the Data area of one app (STU-113); the pages need `app.read`, and editing needs the plugin's editing lock. */
+function dataRoute(path: string, component: "DataPage" | "SourcePage" | "CollectionsPage" | "CollectionPage") {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/data${path}`,
+    validateSearch: (raw) => dataSearchSchema.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/data/index.ts"), component),
+  });
+}
+
+const dataSourcesRoute = dataRoute("", "DataPage");
+const dataSourceRoute = dataRoute("/sources/$sourceId", "SourcePage");
+const dataCollectionsRoute = dataRoute("/collections", "CollectionsPage");
+const dataCollectionRoute = dataRoute("/collections/$collectionId", "CollectionPage");
+
 /** A6-A9: experiments, the wizard, one experiment and the flags (STU-103); actions are gated by experiments.manage and flags.manage. */
 function experimentsRoute(
   path: string,
@@ -317,6 +334,10 @@ const routeTree = rootRoute.addChildren([
       releasesTimelineRoute,
       killSwitchRoute,
       releaseRoute,
+      dataSourcesRoute,
+      dataSourceRoute,
+      dataCollectionsRoute,
+      dataCollectionRoute,
       experimentsListRoute,
       newExperimentRoute,
       flagsRoute,
