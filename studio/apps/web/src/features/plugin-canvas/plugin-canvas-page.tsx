@@ -57,6 +57,7 @@ import { type SelectionStore, useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import { useGestures } from "./select/use-gestures.ts";
 import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
+import { useAssetsTab } from "./use-assets-tab.ts";
 import { useGhostLayer } from "./use-ghost-layer.ts";
 import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
@@ -203,6 +204,7 @@ function PluginCanvasView({
 }) {
   const m = pluginCanvasMessages(useLingui().i18n);
   const params = useParams({ strict: false }) as { org?: string; app?: string; plugin?: string };
+  const assets = useAssetsTab(editorSessionId);
   const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number; focus?: string };
   const navigate = useNavigate();
   const { createSurface = browserSurface, createValidator = browserValidator } = useRouteContext({
@@ -596,6 +598,10 @@ function PluginCanvasView({
         canEdit={canEdit}
         surface={() => surfaceRef.current}
         canvas={() => canvasRef.current}
+        documents={docs.data}
+        onOpenState={() => overlays.show("state")}
+        onOpenData={() => overlays.show("data")}
+        assets={assets}
       />
       <LinkLayer
         surface={() => surfaceRef.current}
@@ -644,6 +650,7 @@ function PluginCanvasView({
         schemaVersion={stateTarget.schemaVersion}
         onOpenOverlay={overlays.show}
         onOpenGraph={() => overlays.show("graph")}
+        onOpenHistory={() => overlays.show("history")}
       />
       <DesignersHost
         open={overlays.open}
@@ -689,6 +696,7 @@ function PluginCanvasView({
           percent={percent}
           onZoom={zoomBy}
           onFit={fit}
+          onHistory={() => overlays.show("history")}
         />
       )}
     </section>

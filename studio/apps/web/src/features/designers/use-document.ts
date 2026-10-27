@@ -3,7 +3,9 @@
 
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
+import { useStore } from "zustand";
+import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
+import type { EditSession } from "../editor/index.ts";
 import { mergeDeep } from "./merge-deep.ts";
 
 export interface DesignerDocument {
@@ -25,9 +27,20 @@ export function findDocument(documents: readonly DesignerDocument[] | undefined,
   return documents?.find((d) => d.path === name || d.path.endsWith(`/${name}`));
 }
 
-/** A document as the editor shows it: the session's unsaved content over the server's. */
-export function useDocumentValue(documents: readonly DesignerDocument[] | undefined, name: string) {
-  const local = useEditor((st) => st.docs);
+/** The session a designer edits through and whether it may: the app's own (it holds the app lock) for an app document, otherwise the plugin's. */
+export interface DesignerSession {
+  readonly session: EditSession;
+  readonly canEdit: boolean;
+}
+
+/** A document as the editor shows it: the session's unsaved content over the server's. `from` is the session that holds it; the plugin's by default. */
+export function useDocumentValue(
+  documents: readonly DesignerDocument[] | undefined,
+  name: string,
+  from?: DesignerSession | null,
+) {
+  const own = useEditSession();
+  const local = useStore((from?.session ?? own).store, (st) => st.docs);
   const doc = findDocument(documents, name);
   const path = doc?.path;
   return useMemo(() => {
@@ -87,9 +100,11 @@ export function useCheck(
 }
 
 /** Applies `next` to the document through the edit pipeline as a minimal JSON Patch (STU-063: overlays write only through it). */
-export function useApply(path: string | undefined, label: string) {
-  const session = useEditSession();
-  const canEdit = useCanEdit();
+export function useApply(path: string | undefined, label: string, from?: DesignerSession | null) {
+  const own = useEditSession();
+  const ownCanEdit = useCanEdit();
+  const session = from?.session ?? own;
+  const canEdit = from === undefined ? ownCanEdit : (from?.canEdit ?? false);
   const count = useRef(0);
   return {
     canEdit,
