@@ -2076,6 +2076,21 @@ var registry = []Definition{
 		"Ship a host build that registers the entry and upload its catalogue with plux native sync, or keep the release from using the entry; the publisher acknowledges the warning to publish anyway.", false,
 	},
 	{
+		ReleaseRequestState, "RELEASE_REQUEST_STATE", SeverityError, "Release request is at another step",
+		"The call completes a step the release request is not at, or the step's exit condition does not hold yet: the request has not reached it, was moved back by a changed draft, or is held (STU-100, F11).",
+		"Read the request again to see its step and hold, and repeat the call for that step.", false,
+	},
+	{
+		ReleaseRequestEnded, "RELEASE_REQUEST_ENDED", SeverityError, "Release request has ended",
+		"The release request was released, rejected, expired or cancelled, and an ended request takes no further step (STU-100).",
+		"Open a new release request for the app and channel.", false,
+	},
+	{
+		VisualDiffRequired, "VISUAL_DIFF_REQUIRED", SeverityError, "Visual diff not finished",
+		"Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content.",
+		"Request the visual diff and wait for it to finish; request it again if it failed or the content changed.", false,
+	},
+	{
 		InternalServerError, "INTERNAL_SERVER_ERROR", SeverityError, "Internal error",
 		"The server failed in a way it does not recognise. The incident identifier in the message appears in the server's logs; nothing else about the failure is returned.",
 		"Retry the call. If it keeps failing, give the incident identifier to the operator of the installation.", false,

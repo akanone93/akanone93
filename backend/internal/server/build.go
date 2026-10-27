@@ -315,6 +315,9 @@ func addWorkers(workers *jobs.Workers, services *Services, deps WorkDeps, log *s
 		jobs.AddWorker(workers, &pushWorker{svc: services})
 		jobs.AddWorker(workers, &deltaWorker{svc: services})
 	}
+	if services.ReleaseRequests != nil && deps.Renderer != nil {
+		jobs.AddWorker(workers, &renderWorker{runner: services.ReleaseRequests, log: log})
+	}
 	if services.GitExport != nil && services.Documents != nil {
 		jobs.AddWorker(workers, &gitExportWorker{svc: services})
 	}

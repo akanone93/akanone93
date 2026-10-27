@@ -3270,6 +3270,30 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Ship a host build that registers the entry and upload its catalogue with plux native sync, or keep the release from using the entry; the publisher acknowledges the warning to publish anyway.
 
+### PLX-8060
+
+`RELEASE_REQUEST_STATE` · error · Release request is at another step
+
+**Cause.** The call completes a step the release request is not at, or the step's exit condition does not hold yet: the request has not reached it, was moved back by a changed draft, or is held (STU-100, F11).
+
+**Fix.** Read the request again to see its step and hold, and repeat the call for that step.
+
+### PLX-8061
+
+`RELEASE_REQUEST_ENDED` · error · Release request has ended
+
+**Cause.** The release request was released, rejected, expired or cancelled, and an ended request takes no further step (STU-100).
+
+**Fix.** Open a new release request for the app and channel.
+
+### PLX-8062
+
+`VISUAL_DIFF_REQUIRED` · error · Visual diff not finished
+
+**Cause.** Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content.
+
+**Fix.** Request the visual diff and wait for it to finish; request it again if it failed or the content changed.
+
 ### PLX-8090
 
 `INTERNAL_SERVER_ERROR` · error · Internal error

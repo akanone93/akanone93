@@ -461,6 +461,9 @@ const (
 	PluginNotPublished           Code = 8052
 	AssetsNotReady               Code = 8053
 	HostBuildIncompatible        Code = 8054
+	ReleaseRequestState          Code = 8060
+	ReleaseRequestEnded          Code = 8061
+	VisualDiffRequired           Code = 8062
 	InternalServerError          Code = 8090
 	UpstreamUnavailable          Code = 8091
 	TranslationStateForbidden    Code = 8092

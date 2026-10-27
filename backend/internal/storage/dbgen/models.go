@@ -1452,6 +1452,33 @@ type ReleaseReport struct {
 	Content        []byte
 }
 
+type ReleaseRequest struct {
+	ID                pgtype.UUID
+	OrganizationID    pgtype.UUID
+	AppID             pgtype.UUID
+	EnvironmentID     pgtype.UUID
+	Channel           string
+	State             string
+	Hold              string
+	HoldReason        string
+	Revision          int64
+	Plugins           []byte
+	Builds            []byte
+	Acknowledged      []string
+	ContentHash       string
+	ChangelogNotes    string
+	Label             string
+	RolloutPlan       []byte
+	ApprovalRequestID string
+	ApprovedHash      string
+	ReleaseSequence   *int64
+	CreatedBy         string
+	CreatedByName     string
+	CreatedAt         pgtype.Timestamptz
+	UpdatedAt         pgtype.Timestamptz
+	EndedAt           pgtype.Timestamptz
+}
+
 type ReleaseVersion struct {
 	ReleaseID       pgtype.UUID
 	OrganizationID  pgtype.UUID
@@ -1775,6 +1802,21 @@ type UserPreference struct {
 	UserID         pgtype.UUID
 	Preferences    []byte
 	UpdatedAt      pgtype.Timestamptz
+}
+
+type VisualDiffJob struct {
+	ID               pgtype.UUID
+	OrganizationID   pgtype.UUID
+	ReleaseRequestID pgtype.UUID
+	ContentHash      string
+	State            string
+	Result           []byte
+	Error            string
+	Attempts         int32
+	CreatedBy        string
+	CreatedAt        pgtype.Timestamptz
+	StartedAt        pgtype.Timestamptz
+	FinishedAt       pgtype.Timestamptz
 }
 
 type WebhookEndpoint struct {
