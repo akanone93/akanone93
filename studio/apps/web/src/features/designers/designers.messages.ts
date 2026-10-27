@@ -203,8 +203,15 @@ export function designerMessages(i18n: I18n) {
     }),
     dataVariablesNote: i18n._({
       id: "designers.dataVariablesNote",
-      message: "The source also describes app-level variables; add them in the app document.",
-      comment: "Note shown after an import that produced variables, which belong to the app and are not added here.",
+      message: "The source also describes app-level variables; applying adds them to the app under the app lock.",
+      comment:
+        "Note shown after an import that produced variables, which belong to the app and are added to it when the draft is applied.",
+    }),
+    dataVariablesLocked: i18n._({
+      id: "designers.dataVariablesLocked",
+      message: "Someone else holds the app lock, so the imported variables cannot be added to the app now.",
+      comment:
+        "Note shown after an import that produced variables while the app is read-only because another editor holds its lock.",
     }),
     dbOpen: i18n._({
       id: "designers.dbOpen",

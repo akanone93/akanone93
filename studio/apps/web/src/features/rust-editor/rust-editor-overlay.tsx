@@ -29,6 +29,8 @@ export interface RustEditorOverlayProps {
   /** A new bridge for each language-server session. */
   readonly createBridge: () => SessionBridge;
   readonly tests: TestsClient;
+  /** The source the overlay opens on, when it was opened for a function (Code tab). */
+  readonly initialSourceId?: string | undefined;
 }
 
 /** The status line for a session state, in the person's language. */
@@ -129,6 +131,12 @@ export function RustEditorOverlay(props: RustEditorOverlayProps) {
   const [text, setText] = useState(starterTemplates[0]?.source ?? "");
   const [manifest, setManifest] = useState(initialManifest);
   const [templateId, setTemplateId] = useState<string>(starterTemplates[0]?.id ?? "");
+  const { open, initialSourceId } = props;
+  useEffect(() => {
+    if (open && initialSourceId !== undefined) {
+      setSourceId(initialSourceId);
+    }
+  }, [open, initialSourceId]);
   const server = useRustSession(props.open, props.createBridge);
   const tests = useTestRun(props.open, props.tests);
   const markers = useMemo(() => markersOfDiagnostics(server.diagnostics), [server.diagnostics]);

@@ -11,13 +11,22 @@ import { RustEditorOverlay } from "./rust-editor-overlay.tsx";
 export interface RustEditorHostProps {
   readonly open: boolean;
   readonly onClose: () => void;
+  readonly sourceId?: string | undefined;
 }
 
 /** The Rust editor of the plugin canvas, talking to the server through the session's transport. */
-export function RustEditorHost({ open, onClose }: RustEditorHostProps) {
+export function RustEditorHost({ open, onClose, sourceId }: RustEditorHostProps) {
   const { session } = useApp();
   const language = useMemo(() => createClient(LanguageServerService, session.transport), [session.transport]);
   const tests = useMemo(() => createClient(FunctionAdminService, session.transport), [session.transport]);
   const createBridge = useMemo(() => () => new LanguageBridge(language), [language]);
-  return <RustEditorOverlay open={open} onClose={onClose} createBridge={createBridge} tests={tests} />;
+  return (
+    <RustEditorOverlay
+      open={open}
+      onClose={onClose}
+      createBridge={createBridge}
+      tests={tests}
+      initialSourceId={sourceId}
+    />
+  );
 }

@@ -4,19 +4,12 @@
 import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Icon, Input, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
-import type { JsonValue } from "../editor/json-patch.ts";
+import { useMemo, useRef, useState } from "react";
+import { LockBanner } from "../editor/lock-ui.tsx";
+import type { AppSession } from "../localisation/l10n-sessions.tsx";
 import { type DesignerMessages, designerMessages } from "./designers.messages.ts";
 import { ProblemList } from "./parts.tsx";
-import {
-  type DesignerDocument,
-  findDocument,
-  isObject,
-  type Json,
-  useCheck,
-  useDocumentValue,
-} from "./use-document.ts";
+import { type DesignerDocument, isObject, type Json, useCheck, useDocumentValue } from "./use-document.ts";
 
 /** The key under which a token carries its dark-mode value (THM-001). */
 export const DARK_KEY = "dev.plux.dark";
@@ -26,6 +19,8 @@ export interface ThemeOverlayProps {
   readonly onClose: () => void;
   /** The app's documents: the theme is `theme.json`. */
   readonly documents: readonly DesignerDocument[] | undefined;
+  /** The app's session, which edits the theme under the app lock; none until it is ready. */
+  readonly app: AppSession | null;
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
 }
 
@@ -115,24 +110,9 @@ function Swatches({ rows, m }: { rows: readonly TokenRow[]; m: DesignerMessages 
 export function ThemeOverlay(props: ThemeOverlayProps) {
   const { i18n } = useLingui();
   const m = useMemo(() => designerMessages(i18n), [i18n]);
-  const session = useEditSession();
-  const { path, value } = useDocumentValue(props.documents, "theme.json");
-  const canEdit = useCanEdit();
-  // The theme is an app document, so the plugin canvas's session does not track it yet: the overlay opens it.
-  const stored = findDocument(props.documents, "theme.json");
-  useEffect(() => {
-    if (props.open && stored?.revision !== undefined) {
-      try {
-        session.open({
-          path: stored.path,
-          revision: stored.revision,
-          content: JSON.parse(new TextDecoder().decode(stored.content)) as JsonValue,
-        });
-      } catch {
-        // A theme that is not JSON stays unopened; the validator reports it.
-      }
-    }
-  }, [props.open, stored, session]);
+  const { path, value } = useDocumentValue(props.documents, "theme.json", props.app);
+  const session = props.app?.session;
+  const canEdit = props.app?.canEdit ?? false;
   const check = useCheck(props.open, path, value, props.validatePage);
   const rows = useMemo(() => flattenTokens(value?.["tokens"]), [value]);
   const [newPath, setNewPath] = useState("");
@@ -140,7 +120,7 @@ export function ThemeOverlay(props: ThemeOverlayProps) {
   const adds = useRef(0);
 
   const write = (group: string, recipe: (tokens: Json) => void) => {
-    if (path === undefined) {
+    if (path === undefined || session === undefined || !canEdit) {
       return;
     }
     session.edit(
@@ -224,6 +204,7 @@ export function ThemeOverlay(props: ThemeOverlayProps) {
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3">
         <p className="text-caption text-secondary">{value === undefined ? m.themeNone : m.themeLive}</p>
+        {props.app !== null && <LockBanner lock={props.app.lock} />}
         {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
         <div className="min-h-0 flex-1 overflow-y-auto">
           <table aria-label={m.themeTokens} className="w-full text-body">

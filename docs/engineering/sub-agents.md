@@ -53,8 +53,11 @@ The lead reads once and the agent reads nothing extra. Every brief has:
 
 - **One slice is one package or file group,** about 30 tool calls. Split anything bigger; a large
   brief means an agent that wanders.
-- **Haiku** for mechanical work (templates, registrations, docs). **Sonnet** by default. **Opus**
-  only for security, cryptography, migrations or concurrency-critical code.
+- **Haiku** for mechanical work (templates, registrations, docs, translations, pages copied from a
+  pattern). **Sonnet at low effort** by default; medium only when a low-effort brief failed or the
+  slice is large and novel. **Opus** only for security, cryptography, migrations,
+  concurrency-critical code and the phase's named core parts (P11: plan M-10). The lead's review
+  carries quality and security, which is what makes the cheaper tiers safe (maintainer, 2026-10-27).
 - **Run independent slices in parallel,** no more than you can review at once, and never two
   slices editing the same file.
 - **Don't resume a long agent.** Finish a small remainder yourself, or launch a short follow-up
