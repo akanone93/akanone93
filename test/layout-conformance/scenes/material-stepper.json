@@ -1,0 +1,63 @@
+{
+  "name": "material-stepper",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "st",
+            "type": "Stepper",
+            "props": {
+              "steps": [
+                {
+                  "title": "Account"
+                },
+                {
+                  "title": "Address",
+                  "subtitle": "Where to ship"
+                },
+                {
+                  "title": "Confirm"
+                }
+              ],
+              "currentStep": 1
+            }
+          },
+          {
+            "id": "st2",
+            "type": "Stepper",
+            "props": {
+              "steps": [
+                {
+                  "title": "Account"
+                },
+                {
+                  "title": "Address",
+                  "subtitle": "Where to ship"
+                },
+                {
+                  "title": "Confirm"
+                }
+              ],
+              "currentStep": 0
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

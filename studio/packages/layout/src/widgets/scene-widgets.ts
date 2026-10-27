@@ -96,10 +96,20 @@ const compositeTypes: readonly string[] = [
   "SearchAnchor",
   "BottomNavigationBar",
   "ExpansionTile",
+  "Autocomplete",
+  "BottomAppBar",
+  "CalendarDatePicker",
+  "DataTable",
+  "DropdownMenu",
+  "MaterialBanner",
+  "NavigationDrawer",
+  "PopupMenuButton",
+  "SegmentedButton",
+  "Stepper",
 ];
 
 /** The slot of a document node whose widgets are a list, and so arrive as `children`; scenes name the part the same. */
-const listSlots: Readonly<Record<string, string>> = { AppBar: "actions" };
+const listSlots: Readonly<Record<string, string>> = { AppBar: "actions", MaterialBanner: "actions" };
 
 /** Slots of the item templates of a list, grid or page view; the other states have no design-time view. */
 const templateSlots: ReadonlySet<string> = new Set(["item"]);
@@ -210,7 +220,7 @@ function destinations(node: WidgetNode): SceneNode[] {
 function slotChildren(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNode[] {
   const out: SceneNode[] = [];
   for (const [name, child] of Object.entries(node.slots ?? {})) {
-    if (unusedSlots.has(name)) {
+    if (unusedSlots.has(name) && node.type !== "NavigationDrawer") {
       continue;
     }
     const converted = convert(child, bridge, deep);
