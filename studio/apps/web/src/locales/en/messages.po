@@ -2991,6 +2991,12 @@ msgstr "Pixel"
 msgid "preview.density"
 msgstr "Pixel density"
 
+#. Error of the custom frame dialog when the pixel density is outside the configured range.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.densityOutOfRange"
+msgstr "Pixel density must be between 1 and {max}."
+
 #. Label of the select that picks Material or Cupertino for the preview.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -4935,6 +4941,12 @@ msgstr "Widgets"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.width"
 msgstr "Width (logical pixels)"
+
+#. Error of the custom frame dialog when the width or height is above the configured maximum.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.frameTooLarge"
+msgstr "Width and height must be at most {max} logical pixels."
 
 #. Status word: the page is within its node budget.
 #. js-lingui-explicit-id

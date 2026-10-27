@@ -480,6 +480,11 @@ enum PluxLimit {
   studioChangeSetDocuments('studio.changeSetDocuments', PluxLimitUnit.count, 500, 0, 5000),
   /// Size of one Studio clipboard envelope; a larger copy is refused.
   studioClipboardBytes('studio.clipboardBytes', PluxLimitUnit.bytes, 4194304, 0, 33554432),
+  /// Largest pixel density of a custom device frame (D40); the smallest is 1.
+  studioCustomFrameMaxDensity('studio.customFrameMaxDensity', PluxLimitUnit.count, 4, 0, 4),
+  /// Largest width or height, in logical pixels, of a custom device frame
+  /// (D40); a larger frame is refused.
+  studioCustomFrameMaxPixels('studio.customFrameMaxPixels', PluxLimitUnit.count, 4096, 0, 8192),
   /// Events the server keeps per Studio events stream for resumption before it
   /// drops the oldest and the tab reloads its state.
   studioEventsStreamBufferEvents('studio.eventsStreamBufferEvents', PluxLimitUnit.count, 1000, 0, 10000),

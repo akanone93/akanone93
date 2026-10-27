@@ -568,6 +568,12 @@ const (
 	// StudioClipboardBytes: Size of one Studio clipboard envelope; a larger copy
 	// is refused. (STU-067)
 	StudioClipboardBytes Key = "studio.clipboardBytes"
+	// StudioCustomFrameMaxDensity: Largest pixel density of a custom device
+	// frame (D40); the smallest is 1. (STU-057)
+	StudioCustomFrameMaxDensity Key = "studio.customFrameMaxDensity"
+	// StudioCustomFrameMaxPixels: Largest width or height, in logical pixels, of
+	// a custom device frame (D40); a larger frame is refused. (STU-057)
+	StudioCustomFrameMaxPixels Key = "studio.customFrameMaxPixels"
 	// StudioEventsStreamBufferEvents: Events the server keeps per Studio events
 	// stream for resumption before it drops the oldest and the tab reloads its
 	// state. (STU-075)
@@ -823,6 +829,8 @@ var registry = [...]Definition{
 	{Key: StudioAutosaveReplays, Unit: UnitCount, Default: 3, Warning: 0, Max: 10, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."},
 	{Key: StudioChangeSetDocuments, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links)."},
 	{Key: StudioClipboardBytes, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 33554432, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Size of one Studio clipboard envelope; a larger copy is refused."},
+	{Key: StudioCustomFrameMaxDensity, Unit: UnitCount, Default: 4, Warning: 0, Max: 4, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Largest pixel density of a custom device frame (D40); the smallest is 1."},
+	{Key: StudioCustomFrameMaxPixels, Unit: UnitCount, Default: 4096, Warning: 0, Max: 8192, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused."},
 	{Key: StudioEventsStreamBufferEvents, Unit: UnitCount, Default: 1000, Warning: 0, Max: 10000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state."},
 	{Key: StudioFavouriteApps, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one user may mark as favourites in an organisation's Studio preferences."},
 	{Key: StudioLockIdleReleaseMinutes, Unit: UnitCount, Default: 10, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Minutes without an edit after which Studio releases an editing lock it holds."},
