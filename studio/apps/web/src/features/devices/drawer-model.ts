@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { type DevEvent, DevLogLevel } from "@plux/api";
+import { limitDefault } from "@plux/schema";
 
 /** The nine tabs of the bottom drawer, in display order (STU-066). */
 export const drawerTabs = [
@@ -17,11 +18,11 @@ export const drawerTabs = [
 ] as const;
 export type DrawerTab = (typeof drawerTabs)[number];
 
-/**
- * Events the drawer keeps in view. The limits registry holds no limit for a viewer's window (the server
- * bounds retention), so this is the view's own cap, not a policy limit.
- */
-export const viewWindow = 1000;
+/** Events the drawer keeps in view: `studio.eventsStreamBufferEvents` of the limits registry (LIM-001). */
+export const viewWindow = (): number => limitDefault("studio.eventsStreamBufferEvents");
+
+/** The source a device log line carries when it comes from the PXL console (STU-133). */
+export const consoleSource = "console";
 
 const tabByCase: Readonly<Record<string, DrawerTab>> = {
   log: "logs",
@@ -40,7 +41,22 @@ const tabByCase: Readonly<Record<string, DrawerTab>> = {
 /** The tab an event belongs to; events no tab shows (screenshots, inspect, security) have none. */
 export function tabOf(event: DevEvent): DrawerTab | undefined {
   const kind = event.payload.case;
+  if (kind === "log" && event.payload.value.source === consoleSource) {
+    return "console";
+  }
   return kind === undefined ? undefined : tabByCase[kind];
+}
+
+const levelNames: Readonly<Record<number, string>> = {
+  [DevLogLevel.DEBUG]: "debug",
+  [DevLogLevel.INFO]: "info",
+  [DevLogLevel.WARNING]: "warning",
+  [DevLogLevel.ERROR]: "error",
+};
+
+/** The level of a log event as a lower-case word, or an empty string for other events (STU-133). */
+export function levelOf(event: DevEvent): string {
+  return event.payload.case === "log" ? (levelNames[event.payload.value.level] ?? "") : "";
 }
 
 type Summaries = { [K in NonNullable<DevEvent["payload"]["case"]>]?: (value: never) => string };
@@ -108,7 +124,7 @@ export interface Buffer {
 export const emptyBuffer: Buffer = { events: [], frozenAt: undefined };
 
 /** Appends an event, dropping the oldest beyond the window; a frozen view keeps showing what it showed. */
-export function push(buffer: Buffer, event: DevEvent, window = viewWindow): Buffer {
+export function push(buffer: Buffer, event: DevEvent, window = viewWindow()): Buffer {
   const events = [...buffer.events, event];
   const over = Math.max(0, events.length - window);
   const frozenAt = buffer.frozenAt === undefined ? undefined : Math.max(0, buffer.frozenAt - over);

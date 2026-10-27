@@ -3,7 +3,7 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { DevSessionService } from "@plux/api";
+import { type DevEvent, DevSessionService } from "@plux/api";
 import { Button, Field, Input, Select, Tabs } from "@plux/ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useMemo, useState } from "react";
@@ -14,6 +14,7 @@ import {
   type DrawerTab,
   drawerTabs,
   type LevelFilter,
+  levelOf,
   matches,
   pending,
   summarise,
@@ -42,10 +43,13 @@ function download(bytes: Uint8Array, name: string): void {
 export function DeviceDrawer({
   sessionId,
   problems,
+  onEvent,
 }: {
   readonly sessionId: string;
   /** The Problems tab's content: validation is not fed by a device. */
   readonly problems: ReactNode;
+  /** Sees every event as it arrives, before the filters (inspect, screenshots, hot apply). */
+  readonly onEvent?: (event: DevEvent) => void;
 }): ReactNode {
   const m = devicesMessages(useLingui().i18n);
   const { session } = useApp();
@@ -55,7 +59,7 @@ export function DeviceDrawer({
     queryKey: ["dev-devices", sessionId],
     queryFn: async () => (await client.listDevices({ sessionId })).devices,
   });
-  const stream = useDeviceEvents(sessionId, filter.deviceId === "" ? [] : [filter.deviceId]);
+  const stream = useDeviceEvents(sessionId, filter.deviceId === "" ? [] : [filter.deviceId], onEvent);
   const paused = stream.buffer.frozenAt !== undefined;
   const exportTrace = useMutation({
     mutationFn: async () => {
@@ -75,6 +79,8 @@ export function DeviceDrawer({
     performance: m.tabPerformance,
     console: m.tabConsole,
   };
+  const lineLevel = (level: string): string =>
+    ({ debug: m.lineDebug, info: m.lineInfo, warning: m.lineWarning, error: m.lineError })[level] ?? level;
   const panel = (tab: DrawerTab): ReactNode => {
     if (tab === "problems") {
       return problems;
@@ -85,7 +91,10 @@ export function DeviceDrawer({
     ) : (
       <ul aria-label={labels[tab]} className="flex flex-col gap-1 font-mono text-caption">
         {rows.map((e) => (
-          <li key={`${e.deviceId}-${e.sequence}`}>{summarise(e)}</li>
+          <li key={`${e.deviceId}-${e.sequence}`}>
+            {tab === "console" && levelOf(e) !== "" && <strong className="me-1">{lineLevel(levelOf(e))}</strong>}
+            {summarise(e)}
+          </li>
         ))}
       </ul>
     );

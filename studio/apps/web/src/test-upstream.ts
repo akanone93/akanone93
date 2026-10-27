@@ -44,6 +44,8 @@ export interface UpstreamData {
     devices: { id: string; name: string; connected: boolean }[];
     pairing?: { uri: string; code: string; expiresInSeconds: number };
     events?: DevEvent[];
+    /** When set, the stream yields its events only after this resolves (a test orders them against Studio's own steps). */
+    gate?: Promise<void>;
     /** Collects every SendCommand. */
     commands?: DevSessionServiceSendCommandRequest[];
     /** Collects the device filter of every ExportTrace. */
@@ -370,6 +372,7 @@ function devSessionService(
   dev: DevSessionData,
 ) {
   service(DevSessionService, {
+    createSession: () => ({ session: { id: "s1" } }),
     getPairing: () => ({
       pairing: {
         token: `token-${Date.now()}`,
@@ -384,6 +387,7 @@ function devSessionService(
       return { commandId: "c1", deviceIds: req.deviceId === "" ? dev.devices.map((d) => d.id) : [req.deviceId] };
     },
     async *watchEvents(req, ctx) {
+      await dev.gate;
       for (const event of dev.events ?? []) {
         if (req.deviceIds.length === 0 || req.deviceIds.includes(event.deviceId)) {
           yield { event };
