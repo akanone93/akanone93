@@ -11,6 +11,10 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Known gaps (fix before the phase exit)
 
+- Clipboard "copy over" (F7, D34) keeps the reference only: the envelope carries IDs, so no
+  dependency document is created in the target. Needs a decision on fetching the source content.
+- Preview mock states (DAT-080) are selectable, but the canvas scene has no data bindings yet.
+
 - History restore skips documents the plugin no longer has (use `RestoreSnapshot`); no State tab
   forms; editor-session tags (§4.3 #25) unused.
 - Localisation key extraction: one server undo step, but each document's local undo stack undoes
