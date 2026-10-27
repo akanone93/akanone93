@@ -78,6 +78,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
+	"github.com/nightCode42/plux3/backend/internal/testrun"
 )
 
 // Services are the domain services of this phase, built once per
@@ -153,6 +154,8 @@ type Services struct {
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
+	// TestRuns holds the Plux Test runs reported by the CLI and CI (TST-002).
+	TestRuns *testrun.Service
 	// Library holds the templates and components authored in Studio
 	// (STU-080).
 	Library *library.Service
@@ -665,6 +668,7 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 	if k.work.Objects != nil {
 		svc.Goldens = golden.New(golden.Options{DB: k.db, Audit: k.log, Objects: k.work.Objects, IDs: k.gen, Limits: k.set, Approvals: k.approvals})
 	}
+	svc.TestRuns = testrun.New(testrun.Options{DB: k.db, IDs: k.gen, Limits: k.set})
 	svc.Releases, err = buildReleases(k.cfg, k.db, k.set, k.work, releaseDeps{
 		approvals: k.approvals, breakGlass: svc.BreakGlass, freezes: svc.Freezes, goldens: svc.Goldens, published: svc.GitExport, push: svc.Push,
 		ids: k.gen, audit: k.log, tenancy: svc.Tenancy, documents: svc.Documents, devices: svc.Devices, configs: svc.SecurityConfig,
@@ -1234,6 +1238,12 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 		h.ReleaseRequests = svc.ReleaseRequests
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
+		})
+	}
+	if svc.TestRuns != nil {
+		h.TestRuns = svc.TestRuns
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewTestRunServiceHandler(h.TestRun(), opts)
 		})
 	}
 	if svc.Goldens != nil {

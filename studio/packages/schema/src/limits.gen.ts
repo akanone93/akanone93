@@ -2114,6 +2114,16 @@ export const limits = [
     description: "Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files.",
   },
   {
+    key: "test.stepsPerRun",
+    unit: "count",
+    default: 5000,
+    warning: 0,
+    max: 100000,
+    scopes: ["installation", "organization", "app"],
+    phase: "P11",
+    description: "Scenarios and steps one reported Plux Test run may contain.",
+  },
+  {
     key: "translation.importSize",
     unit: "bytes",
     default: 16777216,
