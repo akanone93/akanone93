@@ -15,7 +15,45 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/license.proto.
  */
 export const file_plux_v1_license: GenFile = /*@__PURE__*/
-  fileDesc("ChVwbHV4L3YxL2xpY2Vuc2UucHJvdG8SB3BsdXgudjEiGAoWR2V0TGljZW5zZVN0YXRlUmVxdWVzdCLdAgoXR2V0TGljZW5zZVN0YXRlUmVzcG9uc2USDQoFc3RhdGUYASABKAkSEgoKbGljZW5zZV9pZBgCIAEoCRIUCgxvcmdhbml6YXRpb24YAyABKAkSLgoKZXhwaXJlc19hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMQoNZ3JhY2VfZW5kc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFgoOZGF5c19yZW1haW5pbmcYBiABKAUSEAoIZmVhdHVyZXMYByADKAkSPAoGbGltaXRzGAggAygLMiwucGx1eC52MS5HZXRMaWNlbnNlU3RhdGVSZXNwb25zZS5MaW1pdHNFbnRyeRIPCgdtZXNzYWdlGAkgASgJGi0KC0xpbWl0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoAzoCOAEyZgoOTGljZW5zZVNlcnZpY2USVAoPR2V0TGljZW5zZVN0YXRlEh8ucGx1eC52MS5HZXRMaWNlbnNlU3RhdGVSZXF1ZXN0GiAucGx1eC52MS5HZXRMaWNlbnNlU3RhdGVSZXNwb25zZUI9WjtnaXRodWIuY29tL25pZ2h0Q29kZTQyL3BsdXgzL2JhY2tlbmQvaW50ZXJuYWwvcGx1eHYxO3BsdXh2MWIGcHJvdG8z", [file_google_protobuf_timestamp]);
+  fileDesc("ChVwbHV4L3YxL2xpY2Vuc2UucHJvdG8SB3BsdXgudjEiKAoVSW5zdGFsbExpY2Vuc2VSZXF1ZXN0Eg8KB2xpY2Vuc2UYASABKAwiSQoWSW5zdGFsbExpY2Vuc2VSZXNwb25zZRIvCgVzdGF0ZRgBIAEoCzIgLnBsdXgudjEuR2V0TGljZW5zZVN0YXRlUmVzcG9uc2UiGAoWR2V0TGljZW5zZVN0YXRlUmVxdWVzdCLdAgoXR2V0TGljZW5zZVN0YXRlUmVzcG9uc2USDQoFc3RhdGUYASABKAkSEgoKbGljZW5zZV9pZBgCIAEoCRIUCgxvcmdhbml6YXRpb24YAyABKAkSLgoKZXhwaXJlc19hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMQoNZ3JhY2VfZW5kc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFgoOZGF5c19yZW1haW5pbmcYBiABKAUSEAoIZmVhdHVyZXMYByADKAkSPAoGbGltaXRzGAggAygLMiwucGx1eC52MS5HZXRMaWNlbnNlU3RhdGVSZXNwb25zZS5MaW1pdHNFbnRyeRIPCgdtZXNzYWdlGAkgASgJGi0KC0xpbWl0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoAzoCOAEyuQEKDkxpY2Vuc2VTZXJ2aWNlElQKD0dldExpY2Vuc2VTdGF0ZRIfLnBsdXgudjEuR2V0TGljZW5zZVN0YXRlUmVxdWVzdBogLnBsdXgudjEuR2V0TGljZW5zZVN0YXRlUmVzcG9uc2USUQoOSW5zdGFsbExpY2Vuc2USHi5wbHV4LnYxLkluc3RhbGxMaWNlbnNlUmVxdWVzdBofLnBsdXgudjEuSW5zdGFsbExpY2Vuc2VSZXNwb25zZUI9WjtnaXRodWIuY29tL25pZ2h0Q29kZTQyL3BsdXgzL2JhY2tlbmQvaW50ZXJuYWwvcGx1eHYxO3BsdXh2MWIGcHJvdG8z", [file_google_protobuf_timestamp]);
+
+/**
+ * @generated from message plux.v1.InstallLicenseRequest
+ */
+export type InstallLicenseRequest = Message<"plux.v1.InstallLicenseRequest"> & {
+  /**
+   * license is the licence file as the operator would place it.
+   *
+   * @generated from field: bytes license = 1;
+   */
+  license: Uint8Array;
+};
+
+/**
+ * Describes the message plux.v1.InstallLicenseRequest.
+ * Use `create(InstallLicenseRequestSchema)` to create a new message.
+ */
+export const InstallLicenseRequestSchema: GenMessage<InstallLicenseRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_license, 0);
+
+/**
+ * @generated from message plux.v1.InstallLicenseResponse
+ */
+export type InstallLicenseResponse = Message<"plux.v1.InstallLicenseResponse"> & {
+  /**
+   * state is the licence state after the installation.
+   *
+   * @generated from field: plux.v1.GetLicenseStateResponse state = 1;
+   */
+  state?: GetLicenseStateResponse | undefined;
+};
+
+/**
+ * Describes the message plux.v1.InstallLicenseResponse.
+ * Use `create(InstallLicenseResponseSchema)` to create a new message.
+ */
+export const InstallLicenseResponseSchema: GenMessage<InstallLicenseResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_license, 1);
 
 /**
  * @generated from message plux.v1.GetLicenseStateRequest
@@ -28,7 +66,7 @@ export type GetLicenseStateRequest = Message<"plux.v1.GetLicenseStateRequest"> &
  * Use `create(GetLicenseStateRequestSchema)` to create a new message.
  */
 export const GetLicenseStateRequestSchema: GenMessage<GetLicenseStateRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_license, 0);
+  messageDesc(file_plux_v1_license, 2);
 
 /**
  * @generated from message plux.v1.GetLicenseStateResponse
@@ -103,14 +141,15 @@ export type GetLicenseStateResponse = Message<"plux.v1.GetLicenseStateResponse">
  * Use `create(GetLicenseStateResponseSchema)` to create a new message.
  */
 export const GetLicenseStateResponseSchema: GenMessage<GetLicenseStateResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_license, 1);
+  messageDesc(file_plux_v1_license, 3);
 
 /**
  * LicenseService reports the installation's enterprise licence (GOV-030,
  * ADR-0084). The open-source core answers "absent": it has no enterprise
- * features to enable. The service only reads; the licence file is placed by
- * the operator and verified offline by the server, never uploaded through
- * the API.
+ * features to enable. The licence file is verified offline by the server,
+ * whether the operator places it or an installation administrator uploads it
+ * with InstallLicense (P11 §4.3 #23, which supersedes ADR-0084's "never
+ * uploaded through the API").
  *
  * @generated from service plux.v1.LicenseService
  */
@@ -125,6 +164,20 @@ export const LicenseService: GenService<{
     methodKind: "unary";
     input: typeof GetLicenseStateRequestSchema;
     output: typeof GetLicenseStateResponseSchema;
+  },
+  /**
+   * InstallLicense verifies a licence file offline and, when it is valid,
+   * makes it the installation's licence. It needs an installation
+   * administrator, is audited, and never quotes a file that failed
+   * verification. An edition that cannot hold a licence refuses it with
+   * FAILED_PRECONDITION.
+   *
+   * @generated from rpc plux.v1.LicenseService.InstallLicense
+   */
+  installLicense: {
+    methodKind: "unary";
+    input: typeof InstallLicenseRequestSchema;
+    output: typeof InstallLicenseResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_plux_v1_license, 0);

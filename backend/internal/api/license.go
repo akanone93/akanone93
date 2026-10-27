@@ -10,9 +10,11 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
 // License serves LicenseService: the state of the installation's
@@ -45,6 +47,41 @@ func (s License) GetLicenseState(ctx context.Context, req *connect.Request[pluxv
 			provider = s.h.Edition
 		}
 		return licenseResponse(provider.Status()), nil
+	})
+}
+
+// maxLicenseBytes bounds an uploaded licence file; real ones are a few
+// kilobytes.
+const maxLicenseBytes = 64 << 10
+
+// InstallLicense installs a licence file for an installation administrator
+// (P11 §4.3 #23). The edition verifies it offline; an edition that cannot
+// hold a licence refuses, and a refused file is never quoted back.
+func (s License) InstallLicense(ctx context.Context, req *connect.Request[pluxv1.InstallLicenseRequest]) (*connect.Response[pluxv1.InstallLicenseResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.InstallLicenseResponse, error) {
+		id, err := identity(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if id.Kind != auth.KindUser || !id.InstallationAdmin {
+			return nil, plxerr.New(plxerr.PermissionDenied, "only an installation administrator may install a licence")
+		}
+		file := req.Msg.GetLicense()
+		if len(file) == 0 || len(file) > maxLicenseBytes {
+			return nil, plxerr.New(plxerr.InvalidFormat, "a licence file is between 1 byte and %d bytes", maxLicenseBytes)
+		}
+		installer, ok := s.h.Edition.(edition.Installer)
+		if !ok {
+			return nil, plxerr.New(plxerr.PreconditionFailed, "this edition cannot hold a licence")
+		}
+		status, err := installer.Install(ctx, file)
+		if err != nil {
+			return nil, plxerr.New(plxerr.InvalidFormat, "the licence file did not verify")
+		}
+		if err := s.h.Tenancy.RecordInstallation(ctx, id, audit.LicenseStateChanged, "license", status.LicenseID); err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.InstallLicenseResponse{State: licenseResponse(status)}, nil
 	})
 }
 

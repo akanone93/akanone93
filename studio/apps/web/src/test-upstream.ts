@@ -5,11 +5,14 @@ import { create } from "@bufbuild/protobuf";
 import { timestampFromMs } from "@bufbuild/protobuf/wkt";
 import { Code, ConnectError, createRouterTransport, type ServiceImpl } from "@connectrpc/connect";
 import {
+  AnalyticsService,
   type ApplyChangeSetRequest,
   ApprovalRequestSchema,
   ApprovalService,
   AppService,
+  AuditService,
   BreakGlassService,
+  ComplianceService,
   ComponentService,
   ControlSchema,
   ControlService,
@@ -29,7 +32,9 @@ import {
   GovernanceService,
   IdentityService,
   InboxItemSchema,
+  InstallationService,
   LanguageServerService,
+  LicenseService,
   LockSchema,
   ManifestService,
   MemberSchema,
@@ -52,6 +57,18 @@ import {
   UserSchema,
 } from "@plux/api";
 import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
+import {
+  type AdminData,
+  analyticsAdmin,
+  auditAdmin,
+  complianceAdmin,
+  federationAdmin,
+  governanceAdmin,
+  identityAdmin,
+  installationAdmin,
+  licenseAdmin,
+  orgAdmin,
+} from "./test-admin.ts";
 
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
@@ -209,6 +226,8 @@ export interface UpstreamData {
   functions?: FunctionsFixture;
   security?: SecurityData;
   approvals?: ApprovalsData;
+  /** The administration and installation areas (STU-116). */
+  admin?: AdminData;
   /** The dev session (DEV-002, DEV-011, DEV-020): paired devices, the pairing token, the event stream and what Studio sent. */
   devSession?: {
     devices: { id: string; name: string; connected: boolean }[];
@@ -331,7 +350,9 @@ export function createUpstream(state: UpstreamData) {
   const patched = new Map<string, { kind: string; path: string; json: unknown }>();
   const stored = state.stored ?? { theme: "", language: "", density: "" };
   return createRouterTransport(({ service }) => {
+    const admin = state.admin ?? {};
     service(IdentityService, {
+      ...identityAdmin(admin),
       beginStepUp: () => {
         state.security?.stepUps?.push("begin");
         return { requestId: "su-1", optionsJson: JSON.stringify({ challenge: "AQ", userVerification: "required" }) };
@@ -356,6 +377,7 @@ export function createUpstream(state: UpstreamData) {
       },
     });
     service(OrgService, {
+      ...orgAdmin(admin),
       listOrganizations: () => ({
         organizations: [
           create(OrganizationSchema, { id: orgA, key: "alpha", name: "Alpha Org" }),
@@ -372,9 +394,10 @@ export function createUpstream(state: UpstreamData) {
       },
     });
     service(GovernanceService, {
+      ...governanceAdmin(admin),
       explainAccess: (req) => {
         state.explained?.push({ permission: req.permission });
-        return { decision: "deny" };
+        return { decision: "deny", ...admin.explain };
       },
     });
     service(NotificationService, {
@@ -672,7 +695,12 @@ export function createUpstream(state: UpstreamData) {
       experimentsServices(service, state.experiments);
     }
     approvalsServices(service, state.approvals ?? {});
-    service(FederationService, { listSignInProviders: () => ({ providers: [] }) });
+    service(FederationService, { ...federationAdmin(admin), listSignInProviders: () => ({ providers: [] }) });
+    service(ComplianceService, complianceAdmin(admin));
+    service(AuditService, auditAdmin(admin));
+    service(AnalyticsService, analyticsAdmin(admin));
+    service(LicenseService, licenseAdmin(admin));
+    service(InstallationService, installationAdmin(admin));
   });
 }
 
