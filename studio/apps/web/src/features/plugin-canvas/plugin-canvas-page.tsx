@@ -1,12 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
+import { FunctionAdminService } from "@plux/api";
 import { frameId, overflowId } from "@plux/canvas";
 import { limitDefault } from "@plux/schema";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
+import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { ActionGraphHost } from "../action-graph/index.ts";
 import { DesignersHost } from "../designers/designers-host.tsx";
@@ -212,6 +215,8 @@ function PluginCanvasView({
     strict: false,
   }) as Pick<RouterContext, "createSurface" | "createValidator">;
   const appDocs = useAppDocuments(params.app ?? "");
+  const { session: app } = useApp();
+  const tests = useMemo(() => createClient(FunctionAdminService, app.transport), [app.transport]);
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
   const checked = validation.state === "done" ? validation : undefined;
@@ -636,6 +641,7 @@ function PluginCanvasView({
       )}
       <ProblemsDrawer validation={validation} />
       <RightDock
+        tests={tests}
         screens={screens}
         index={index}
         screenOf={screenOf}
