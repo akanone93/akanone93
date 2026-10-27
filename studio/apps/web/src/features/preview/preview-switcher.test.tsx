@@ -10,6 +10,7 @@ import { loadSourceCatalogue } from "../../test-harness.tsx";
 import { CustomFrameDialog } from "./custom-frame-dialog.tsx";
 import { DeviceMatrix } from "./device-matrix.tsx";
 import { resolveFrame } from "./frames.ts";
+import { PreviewBarView } from "./preview-bar.tsx";
 import { PreviewSwitcher } from "./preview-switcher.tsx";
 import { defaultPreview, previewRender } from "./switches.ts";
 
@@ -63,5 +64,16 @@ describe("STU-057 device matrix", () => {
     expect(items.length).toBe(2);
     expect(items[0]?.getAttribute("data-size-class")).toBe("compact");
     expect((items[1] as HTMLElement).style.fontSize).toBe("1.5em");
+  });
+});
+
+describe("STU-057 matrix toggle", () => {
+  test("the toggle switches between the single frame and the matrix", async () => {
+    const seen: boolean[] = [];
+    renderI18n(<PreviewBarView switcher={<span />} matrix={false} onMatrix={(on) => seen.push(on)} />);
+    const button = await screen.findByRole("button", { name: "Device matrix" });
+    expect(button.getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(button);
+    expect(seen).toEqual([true]);
   });
 });
