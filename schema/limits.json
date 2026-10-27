@@ -3649,6 +3649,42 @@
       "description": "Size of one Studio clipboard envelope; a larger copy is refused."
     },
     {
+      "key": "studio.customFrameMaxDensity",
+      "unit": "count",
+      "default": 4,
+      "max": 4,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-057"
+      ],
+      "description": "Largest pixel density of a custom device frame (D40); the smallest is 1."
+    },
+    {
+      "key": "studio.customFrameMaxPixels",
+      "unit": "count",
+      "default": 4096,
+      "max": 8192,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-057"
+      ],
+      "description": "Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused."
+    },
+    {
       "key": "studio.eventsStreamBufferEvents",
       "unit": "count",
       "default": 1000,

@@ -6,6 +6,8 @@ import { create } from "@bufbuild/protobuf";
 import { PreviewSwitchesSchema } from "@plux/api";
 import {
   customFrame,
+  customFrameLimits,
+  customFrameRefusal,
   decodeCustom,
   encodeCustom,
   frameCatalogue,
@@ -38,6 +40,24 @@ describe("STU-057 device frames", () => {
     expect(f).toMatchObject({ width: 500, height: 900, density: 2.5, kind: "phone" });
     expect(decodeCustom("custom:bad")).toBeUndefined();
     expect(resolveFrame("nope").id).toBe("android-small");
+  });
+  test("a custom frame above studio.customFrameMaxPixels is refused, at the limit is accepted [STU-057]", () => {
+    const { maxPixels } = customFrameLimits();
+    expect(maxPixels).toBe(4096);
+    expect(customFrameRefusal({ width: maxPixels + 1, height: 800, density: 2 })).toBe("size");
+    expect(customFrameRefusal({ width: 360, height: maxPixels + 1, density: 2 })).toBe("size");
+    expect(customFrame("x", { width: 360, height: maxPixels + 1, density: 2 })).toBe("invalid");
+    expect(customFrameRefusal({ width: 360, height: maxPixels, density: 2 })).toBeUndefined();
+    expect(decodeCustom("custom:360x9000@2")).toBeUndefined();
+  });
+  test("a custom frame density outside 1 to studio.customFrameMaxDensity is refused [STU-057]", () => {
+    const { maxDensity } = customFrameLimits();
+    expect(maxDensity).toBe(4);
+    expect(customFrameRefusal({ width: 360, height: 800, density: maxDensity + 0.5 })).toBe("density");
+    expect(customFrameRefusal({ width: 360, height: 800, density: 0.5 })).toBe("density");
+    expect(customFrame("x", { width: 360, height: 800, density: maxDensity + 0.5 })).toBe("invalid");
+    expect(customFrameRefusal({ width: 360, height: 800, density: maxDensity })).toBeUndefined();
+    expect(customFrameRefusal({ width: 360, height: 800, density: 1 })).toBeUndefined();
   });
   test("the matrix lays frames side by side in order", () => {
     const frames = [resolveFrame("android-small"), resolveFrame("ipad")];
