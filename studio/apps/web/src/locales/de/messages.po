@@ -13,6 +13,24 @@ msgstr ""
 msgid "pluginCanvas.copySuffix"
 msgstr "(Kopie)"
 
+#. The version an app adopted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopted"
+msgstr "{app} hat Version {n} übernommen"
+
+#. An app that did not adopt any version of the component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.notAdopted"
+msgstr "{app} hat keine Version übernommen"
+
+#. Instances of a component in one app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.usage.app"
+msgstr "{app}: {n} Instanzen"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -310,6 +328,18 @@ msgstr "{name}"
 msgid "appCanvas.trashItem"
 msgstr "{name} ({kind})"
 
+#. One optional template parameter with its type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameterRow"
+msgstr "{name} ({type})"
+
+#. One required template parameter with its type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameterRequired"
+msgstr "{name} ({type}), erforderlich"
+
 #. Explains why deleting a screen needs typing its name (STU-074).
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -387,6 +417,12 @@ msgstr "{passed, plural, one {# Test bestanden} other {# Tests bestanden}}, {fai
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.codeResult"
 msgstr "{passed} bestanden, {failed} fehlgeschlagen"
+
+#. One finding of the public scan: JSON pointer and category.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.scan.finding"
+msgstr "{pointer} ({category})"
 
 #. Accessible name of the point from which a step's port connects onwards; port is the port's name.
 #. js-lingui-explicit-id
@@ -634,11 +670,35 @@ msgstr "Token hinzufügen"
 msgid "history.changeAdded"
 msgstr "hinzugefügt"
 
+#. Button: adopt a component version in an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt"
+msgstr "Version übernehmen"
+
+#. Title of the adopt dialog; app is the app name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.title"
+msgstr "Version in {app} übernehmen"
+
+#. Button: adopt the chosen version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.confirm"
+msgstr "Version übernehmen"
+
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.alignment"
 msgstr "Ausrichtung"
+
+#. Filter option: components and templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind.all"
+msgstr "Alle"
 
 #. Option: every translation key of the app.
 #. js-lingui-explicit-id
@@ -682,6 +742,12 @@ msgstr "Eine andere Person hält die Entwurfssperre, der Status ist daher schrei
 msgid "l10n.readOnly"
 msgstr "Eine andere Person hält die Sperre dieser Sprache, die Tabelle ist daher schreibgeschützt."
 
+#. Filter option: every visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.all"
+msgstr "Jede Sichtbarkeit"
+
 #. Accessible name of the canvas that shows the plugins of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -711,6 +777,12 @@ msgstr "Auf das Dokument angewendet."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.applied"
 msgstr "Auf das Dokument angewendet."
+
+#. Button: apply the chosen visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.apply"
+msgstr "Anwenden"
 
 #. Button that applies the edited JSON to the document. Enabled only when the JSON is valid.
 #. js-lingui-explicit-id
@@ -783,6 +855,30 @@ msgstr "Assets"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.code"
 msgstr "Authentifizierungscode"
+
+#. Label of the author filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.owner"
+msgstr "Autor"
+
+#. Button: previous step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.back"
+msgstr "Zurück"
+
+#. Link from a detail page to the library.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.back"
+msgstr "Zurück zur Bibliothek"
+
+#. New-screen option without a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.blank"
+msgstr "Leerer Bildschirm"
 
 #. Edge inset at the bottom.
 #. js-lingui-explicit-id
@@ -862,6 +958,18 @@ msgstr "Abbrechen"
 msgid "l10n.extract.cancel"
 msgstr "Abbrechen"
 
+#. Cancel button of the library dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.cancel"
+msgstr "Abbrechen"
+
+#. Button: cancel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.cancel"
+msgstr "Abbrechen"
+
 #. Button that cancels the restore.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -904,11 +1012,29 @@ msgstr "Canvas-Aktionen"
 msgid "rustEditor.manifest"
 msgstr "Cargo-Manifest"
 
+#. Label of the template category filter (page or flow).
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.category"
+msgstr "Kategorie"
+
 #. Lane menu action: open the widget whose event starts the link, to change the event.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneChangeTrigger"
 msgstr "Auslöser ändern"
+
+#. Button: open the visibility dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.changeVisibility"
+msgstr "Sichtbarkeit ändern"
+
+#. Title of the visibility dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.title"
+msgstr "Sichtbarkeit ändern"
 
 #. Tag of a document that differs between two compared snapshots.
 #. js-lingui-explicit-id
@@ -1022,6 +1148,18 @@ msgstr "Schließen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.close"
+msgstr "Schließen"
+
+#. Close button of the library dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.close"
+msgstr "Schließen"
+
+#. Close button of the dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.close"
 msgstr "Schließen"
 
 #. Accessible name of the D35 close button.
@@ -1172,6 +1310,12 @@ msgstr "Mit der zuletzt veröffentlichten Version vergleichen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layer2"
+msgstr "Komponenten"
+
+#. Filter option and kind name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind.component"
 msgstr "Komponenten"
 
 #. Status while the migration preview is computed.
@@ -1468,6 +1612,12 @@ msgstr "Plugin als veraltet markieren"
 msgid "panels.docsDeprecated"
 msgstr "veraltet"
 
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.description"
+msgstr "Beschreibung"
+
 #. Field label for a plugin's description.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1485,6 +1635,24 @@ msgstr "Design-Tokens"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.frame.desktop"
 msgstr "Desktop-Fenster"
+
+#. Button: detach.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.confirm"
+msgstr "Lösen"
+
+#. Command: turn an instance into plain nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.command"
+msgstr "Komponenteninstanz lösen"
+
+#. Title of the detach confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.title"
+msgstr "Diese Instanz lösen?"
 
 #. Label of the select that picks the device frame of the preview.
 #. js-lingui-explicit-id
@@ -1756,6 +1924,30 @@ msgstr "Erweitert"
 msgid "chrome.forbidden.explain"
 msgstr "Zugriff erklären"
 
+#. Button: download a version as a library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.export"
+msgstr "Exportieren"
+
+#. Button: extract the component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.extract.confirm"
+msgstr "Extrahieren"
+
+#. Command: turn the selected nodes into a component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.extract.command"
+msgstr "Auswahl in Komponente extrahieren"
+
+#. Title of the extract dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.extract.title"
+msgstr "In Komponente extrahieren"
+
 #. Result of one test case that failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -2014,6 +2206,24 @@ msgstr "Host-Aktionen"
 msgid "designers.dataImportHeading"
 msgstr "Datenquelle importieren"
 
+#. Button: upload a component library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.importComponent"
+msgstr "Komponente importieren"
+
+#. Button: upload a template library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.importTemplate"
+msgstr "Vorlage importieren"
+
+#. Confirmation after importing a library file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.imported"
+msgstr "{name} importiert."
+
 #. Option: lost when the plugin closes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -2044,17 +2254,41 @@ msgstr "Anfangswert von {name}"
 msgid "panels.insertTab"
 msgstr "Einfügen"
 
+#. Button: insert the template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.confirm"
+msgstr "Einfügen"
+
 #. Accessible name of a button that inserts a widget into the selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.insert"
 msgstr "{type} einfügen"
 
+#. Command: insert a template into the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.command"
+msgstr "Vorlage einfügen"
+
+#. Title of the insert-template dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.title"
+msgstr "Vorlage einfügen"
+
 #. Accessible name of the right dock that holds Properties, Accessibility and Docs.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.inspector"
 msgstr "Inspektor"
+
+#. Heading of the list of component instances per app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.usage"
+msgstr "Instanzen in allen Apps"
 
 #. Shown when the widget can be operated.
 #. js-lingui-explicit-id
@@ -2166,6 +2400,12 @@ msgstr "Diese Änderungen lassen sich beim Behalten deiner Version nicht anwende
 msgid "l10n.column.key"
 msgstr "Schlüssel"
 
+#. Field label for the unique key of a library item.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.key"
+msgstr "Schlüssel"
+
 #. Label of the field that holds a collection's key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2207,6 +2447,12 @@ msgstr "Schlüssel können nicht hinzugefügt werden, solange eine andere Person
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.scope"
 msgstr "Angezeigte Schlüssel"
+
+#. Label of the filter for components or templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind"
+msgstr "Art"
 
 #. Label of the list that chooses the kind of a data source (REST, GraphQL, …).
 #. js-lingui-explicit-id
@@ -2255,6 +2501,12 @@ msgstr "Links"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.dock"
 msgstr "Linke Bedienfelder"
+
+#. Heading of the library of components and templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.title"
+msgstr "Bibliothek"
 
 #. Theme option.
 #. js-lingui-explicit-id
@@ -2375,6 +2627,18 @@ msgstr "Assets werden geladen…"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.loading"
 msgstr "Bildschirme werden geladen"
+
+#. Shown while templates load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.loading"
+msgstr "Vorlagen werden geladen …"
+
+#. Shown while the library loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.loading"
+msgstr "Bibliothek wird geladen …"
 
 #. Shown while the last published version of the document is fetched for the comparison.
 #. js-lingui-explicit-id
@@ -2580,6 +2844,12 @@ msgstr "Stummschalten"
 msgid "state.name"
 msgstr "Name"
 
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.name"
+msgstr "Name"
+
 #. Label of a name field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -2652,6 +2922,12 @@ msgstr "Neuer Schlüssel"
 msgid "appCanvas.newPlugin"
 msgstr "Neues Plugin"
 
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.addedProps"
+msgstr "Neue Props"
+
 #. Button and command that create a blank screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2663,6 +2939,12 @@ msgstr "Neuer Bildschirm"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.untitled"
 msgstr "Neuer Bildschirm"
+
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.addedSlots"
+msgstr "Neue Slots"
 
 #. Label of the choice of the screen links are redirected to.
 #. js-lingui-explicit-id
@@ -2682,6 +2964,12 @@ msgstr "Neuer Zielbildschirm"
 msgid "designers.themeNewPath"
 msgstr "Pfad des neuen Tokens, zum Beispiel color.accent"
 
+#. Button: next step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.next"
+msgstr "Weiter"
+
 #. Shown when the validator found no accessibility problem.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2693,6 +2981,12 @@ msgstr "Keine Barrierefreiheitsprobleme für dieses Widget."
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.nothingFound"
 msgstr "Keine Aktion passt."
+
+#. Shown when a component has no instances.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.usage.none"
+msgstr "Keine App verwendet diese Komponente bisher."
 
 #. Shown in the Assets tab when the app has no files.
 #. js-lingui-explicit-id
@@ -2766,6 +3060,12 @@ msgstr "Keine Bildschirme zum Verlinken."
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
 
+#. Shown when the library has no templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.none"
+msgstr "Noch keine Vorlagen."
+
 #. Shown when the table has no key for the chosen scope.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -2837,6 +3137,12 @@ msgstr "Nichts geändert: Das Plugin entspricht bereits diesem Snapshot."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImportNothing"
 msgstr "Aus dieser Quelle konnte nichts importiert werden."
+
+#. Shown when the library list is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.empty"
+msgstr "Nichts in der Bibliothek passt. Speichere eine Auswahl als Vorlage oder extrahiere eine Komponente, um etwas hinzuzufügen."
 
 #. Intro of the paste dependency report.
 #. js-lingui-explicit-id
@@ -3000,11 +3306,29 @@ msgstr "Organisation"
 msgid "chrome.org.switcher"
 msgstr "Organisation"
 
+#. Visibility: every member of the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.organization"
+msgstr "Organisation"
+
+#. Visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.organization"
+msgstr "Organisation"
+
 #. Shown when the server search request fails.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.search-failed"
 msgstr "Die Organisationssuche ist nicht verfügbar."
+
+#. Explains that non-exposed references are only flagged.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.flagged"
+msgstr "Andere Verweise auf Seitenzustand bleiben unverändert; prüfe sie nach dem Einfügen."
 
 #. Marks screens of another plugin of the app in the list of navigation targets.
 #. js-lingui-explicit-id
@@ -3030,6 +3354,12 @@ msgstr "Warnschwelle überschritten"
 msgid "panels.overridden"
 msgstr "Für diese Größenklasse überschrieben"
 
+#. Heading of the flagged overrides after adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.flagged"
+msgstr "Überschreibungen entfernter Props oder Slots, in den Instanzen zu korrigieren"
+
 #. Accessible name of the small overview map of the graph.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -3047,6 +3377,18 @@ msgstr "Verantwortliches Team"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.notfound.title"
 msgstr "Seite nicht gefunden"
+
+#. Heading of a template's parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameters"
+msgstr "Parameter"
+
+#. Heading of the exposable parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.expose"
+msgstr "Parameter, die beim Einfügen der Vorlage abgefragt werden"
 
 #. Result of one test case that passed.
 #. js-lingui-explicit-id
@@ -3186,6 +3528,18 @@ msgstr "Vorschau-Schalter"
 msgid "designers.dbPrimaryKey"
 msgstr "Primärschlüssel (Feldnamen, durch Komma getrennt)"
 
+#. Visibility: only the author.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.private"
+msgstr "Privat"
+
+#. Visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.private"
+msgstr "Privat"
+
 #. Accessible name of the group in the action bar that shows how many errors and warnings there are.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -3245,6 +3599,24 @@ msgstr "Eigenschaften"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsProps"
 msgstr "Eigenschaften"
+
+#. Shown when the diff is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.noDiff"
+msgstr "Props und Slots bleiben gleich."
+
+#. Visibility: the whole installation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.public"
+msgstr "Öffentlich"
+
+#. Explains the public visibility.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.note"
+msgstr "Öffentliche Elemente sind für die ganze Installation sichtbar und werden zuvor auf Geheimnisse geprüft."
 
 #. Why a snapshot was made: the plugin was published.
 #. js-lingui-explicit-id
@@ -3450,6 +3822,12 @@ msgstr "Verknüpfung entfernen"
 msgid "designers.dbRemovePlan"
 msgstr "Migrationsplan entfernen"
 
+#. What to do about public scan findings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.scan.help"
+msgstr "Entferne oder ersetze den Inhalt an jeder Stelle, speichere eine neue Version und veröffentliche diese Version."
+
 #. STU-070 assisted fix: delete every navigation step that leaves this plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -3479,6 +3857,18 @@ msgstr "Token {token} entfernen"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.changeRemoved"
 msgstr "entfernt"
+
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.removedProps"
+msgstr "Entfernte Props"
+
+#. Diff label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.removedSlots"
+msgstr "Entfernte Slots"
 
 #. Button that confirms renaming a screen.
 #. js-lingui-explicit-id
@@ -3606,6 +3996,12 @@ msgstr "Fortsetzen"
 msgid "actionGraph.outputType"
 msgstr "Liefert {type}"
 
+#. Heading of the template revision list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.revisions"
+msgstr "Revisionen"
+
 #. Edge inset on the right.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3672,6 +4068,24 @@ msgstr "Rust-Quellcode der Funktion"
 msgid "appCanvas.save"
 msgstr "Speichern"
 
+#. Title of the save-as-template dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.title"
+msgstr "Als Vorlage speichern"
+
+#. Command: save the selected nodes as a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.command"
+msgstr "Auswahl als Vorlage speichern"
+
+#. Button: save the template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save"
+msgstr "Vorlage speichern"
+
 #. Confirmation after a preference was stored.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -3731,6 +4145,12 @@ msgstr "Bildschirme"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screens"
 msgstr "Bildschirme in Navigationsreihenfolge"
+
+#. Label of the library search field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.search"
+msgstr "Suchen"
 
 #. Label of the field that filters the list of actions.
 #. js-lingui-explicit-id
@@ -3966,6 +4386,12 @@ msgstr "Quellformat"
 msgid "designers.dataSourceText"
 msgstr "Quelltext: ein OpenAPI-Dokument oder ein GraphQL-Schema"
 
+#. Label of the new-screen template picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.fromTemplate"
+msgstr "Beginnen mit"
+
 #. Button that starts the language server for the uploaded source.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -4032,6 +4458,18 @@ msgstr "Bleiben"
 msgid "pluginCanvas.ghostStay"
 msgstr "Hier bleiben"
 
+#. First step of saving a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.step1"
+msgstr "Schritt 1 von 2: Details"
+
+#. Second step of saving a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.step2"
+msgstr "Schritt 2 von 2: Parameter und Sichtbarkeit"
+
 #. Button that ends the language-server session.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -4073,6 +4511,12 @@ msgstr "Zu {name} wechseln"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.killed"
 msgstr "Abgeschaltet"
+
+#. Label of the tag filter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.tag"
+msgstr "Tag"
 
 #. Field label for a plugin's tags.
 #. js-lingui-explicit-id
@@ -4121,6 +4565,18 @@ msgstr "Ziel-Plugin"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.target"
 msgstr "Zielbildschirm"
+
+#. Label of the template picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.pick"
+msgstr "Vorlage"
+
+#. Filter option and kind name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.kind.template"
+msgstr "Vorlagen"
 
 #. Name of the tab that runs the function's tests.
 #. js-lingui-explicit-id
@@ -4236,6 +4692,18 @@ msgstr "E-Mail oder Passwort sind nicht korrekt."
 msgid "dialog.explain.failed"
 msgstr "Die Erklärung konnte nicht geladen werden."
 
+#. Error after a failed export.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.exportFailed"
+msgstr "Die Datei konnte nicht exportiert werden."
+
+#. Error after a failed import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.importFailed"
+msgstr "Die Datei konnte nicht importiert werden. Prüfe, ob es eine Bibliotheksdatei dieser Art ist."
+
 #. Shown when the file is above the maximum asset size.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -4272,11 +4740,23 @@ msgstr "Der Importer ist nicht verfügbar."
 msgid "panelTabs.stateNotJson"
 msgstr "Der Anfangswert ist kein gültiges JSON."
 
+#. Detach confirmation text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.detach.description"
+msgstr "Die Instanz wird zu einfachen Knoten mit neuen IDs und folgt der Komponente nicht mehr. Das lässt sich in einem Schritt rückgängig machen."
+
 #. Shown when the invitation is refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.invite"
 msgstr "Die Einladung ist ungültig oder abgelaufen."
+
+#. Error after a failed save.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.save.failed"
+msgstr "Das Element konnte nicht gespeichert werden. Prüfe, ob der Schlüssel frei ist."
 
 #. Error in the key extraction dialog when the server did not accept the new key or message.
 #. js-lingui-explicit-id
@@ -4319,6 +4799,12 @@ msgstr "Der Language-Server wurde beendet."
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.closedTime"
 msgstr "Die Language-Server-Sitzung hat ihr Zeitlimit erreicht. Starten Sie sie erneut, um fortzufahren."
+
+#. Error when the library list fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.loadFailed"
+msgstr "Die Bibliothek konnte nicht geladen werden. Versuche es erneut."
 
 #. Shown when the server refused a takeover.
 #. js-lingui-explicit-id
@@ -4380,6 +4866,12 @@ msgstr "Das Plugin ist von jemand anderem gesperrt: Der Graph ist schreibgeschü
 msgid "history.confirmBody"
 msgstr "Die Dokumente des Plugins kehren zum Stand von {when} zurück. Sie können die Wiederherstellung in einem Schritt rückgängig machen."
 
+#. Heading of the public scan result.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.scan.title"
+msgstr "Der Öffentlichkeits-Scan hat Inhalte gefunden, die nicht öffentlich sein dürfen"
+
 #. Shown when fetching the last published version for the comparison failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -4421,6 +4913,12 @@ msgstr "Die Auswahl ruft keine Funktionen auf."
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.cannotHold"
 msgstr "Die Auswahl kann keine weiteren Knoten aufnehmen."
+
+#. Shown when nothing can be exposed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.expose.none"
+msgstr "Die Auswahl enthält keinen Text zum Bereitstellen."
 
 #. Shown in the Localisation tab when the selection has no translatable strings.
 #. js-lingui-explicit-id
@@ -4470,6 +4968,18 @@ msgstr "Die Quelle wurde gelesen. Prüfe sie und füge sie dem Plugin hinzu."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.moveReasonKey"
 msgstr "das Ziel-Plugin hat bereits einen Bildschirm mit diesem Schlüssel."
+
+#. Error loading the templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.failed"
+msgstr "Die Vorlage konnte nicht geladen werden."
+
+#. Explains that templates are copied, not linked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.insert.note"
+msgstr "Die Vorlage wird kopiert. Spätere Änderungen daran ändern dieses Plugin nicht."
 
 #. Status in the Code tab when the tests of a function could not run.
 #. js-lingui-explicit-id
@@ -4548,6 +5058,18 @@ msgstr "Der Validator ist nicht verfügbar."
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.unavailable"
 msgstr "Der Validator ist noch nicht bereit, daher kann das JSON noch nicht übernommen werden."
+
+#. Error after a failed adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.failed"
+msgstr "Die Version konnte nicht übernommen werden."
+
+#. Error after a failed visibility change.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility.failed"
+msgstr "Die Sichtbarkeit konnte nicht geändert werden."
 
 #. Description of the trigger picker; target is the title of the screen the link was dropped on.
 #. js-lingui-explicit-id
@@ -4663,6 +5185,12 @@ msgstr "Dieses Ereignis verweist auf einen Aktionsgraphen, der nicht existiert."
 msgid "pluginCanvas.blockedEntry"
 msgstr "Dies ist die Einstiegsseite des Plugins. Wähle zuerst eine andere Einstiegsseite, bevor du sie löschst."
 
+#. Error on a library detail page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.detailLoadFailed"
+msgstr "Dieses Element konnte nicht geladen werden."
+
 #. Shown when a picked link cannot be redirected or removed from the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -4728,6 +5256,12 @@ msgstr "Dieser Bildschirm kann nicht gelöscht werden"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.pendingSave"
 msgstr "Dieser Bildschirm hat ungespeicherte Änderungen. Warte, bis sie gespeichert sind, und versuche es dann erneut."
+
+#. Shown when a template has no parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.parameters.none"
+msgstr "Diese Vorlage fragt keine Parameter ab."
 
 #. Shown in the Actions tab when the selected widget type declares no events.
 #. js-lingui-explicit-id
@@ -4987,6 +5521,24 @@ msgstr "Bestätigen"
 msgid "designers.dbVersion"
 msgstr "Version"
 
+#. Head version of a library item.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.headVersion"
+msgstr "Version {n}"
+
+#. One version in the version list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.versionRow"
+msgstr "Version {n} von {who}"
+
+#. Confirmation after adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.done"
+msgstr "Version {n} wurde übernommen."
+
 #. Label of the field for the version requirement of a crate, such as 1.0.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -4999,11 +5551,29 @@ msgstr "Versionsanforderung"
 msgid "panelTabs.perfVersions"
 msgstr "Versionen"
 
+#. Heading of the version list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.versions"
+msgstr "Versionen"
+
 #. Link from an approval or security notification to its audit record.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.audit-record"
 msgstr "Audit-Eintrag ansehen"
+
+#. Label of the visibility filter and field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.visibility"
+msgstr "Sichtbarkeit"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.visibility"
+msgstr "Sichtbarkeit"
 
 #. Accessible name of the icon of a warning in the Problems tab.
 #. js-lingui-explicit-id
@@ -5016,6 +5586,12 @@ msgstr "Warnung"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "Willkommen bei {name}"
+
+#. Heading of the props and slots diff.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.adopt.diff"
+msgstr "Was sich ändert"
 
 #. Accessible name of the select that chooses what happens to one missing item. {id} is its ID.
 #. js-lingui-explicit-id

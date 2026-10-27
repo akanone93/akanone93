@@ -6,6 +6,7 @@ import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import {
   type ApplyChangeSetRequest,
   AppService,
+  ComponentService,
   DocumentSchema,
   DocumentService,
   FederationService,
@@ -26,6 +27,7 @@ import {
   PreferencesSchema,
   PreferencesService,
   ReleaseService,
+  TemplateService,
   UserSchema,
 } from "@plux/api";
 import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
@@ -33,7 +35,33 @@ import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
 
+/** The library: ListLibrary*, versions, visibility, export/import, usages and adoptions (STU-080 to STU-086). */
+export interface LibraryFixture {
+  items: {
+    id: string;
+    kind: "component" | "template";
+    key: string;
+    name: string;
+    description?: string;
+    visibility: string;
+    headVersion?: number;
+    templateKind?: string;
+    createdByName?: string;
+  }[];
+  versions?: Record<string, { version: number; content?: string; note?: string }[]>;
+  parameters?: { name: string; type: string; required: boolean }[];
+  /** Instances per app that ListUsages reports. */
+  usages?: number;
+  /** Public scan refusal: the message SetVisibility fails with. */
+  scanRefusal?: string;
+  conflicts?: { file: string; path: string; removedProps: string[] }[];
+  /** Records \`rpc:detail\` strings. */
+  calls?: string[];
+  failList?: boolean;
+}
+
 export interface UpstreamData {
+  library?: LibraryFixture;
   signedIn?: boolean;
   permissions?: string[];
   installationAdmin?: boolean;
@@ -97,6 +125,43 @@ export interface UpstreamData {
     tests?: { results: { name: string; passed: boolean; message: string }[]; diagnostics?: string };
   };
   updates?: { paths: string[]; theme: string; language: string; density: string; mutedNotificationTypes?: string[] }[];
+}
+
+type LibraryItems = NonNullable<UpstreamData["library"]>;
+
+function libraryList(lib: LibraryItems | undefined, kind: string, visibility: string, query: string) {
+  if (lib?.failList === true) {
+    throw new ConnectError("down", Code.Unavailable);
+  }
+  const items = (lib?.items ?? []).filter(
+    (i) => i.kind === kind && (visibility === "" || i.visibility === visibility) && i.name.includes(query),
+  );
+  return { items: items.map((i) => ({ headVersion: 1, description: "", createdByName: "", ...i })) };
+}
+
+function libraryVersions(lib: LibraryItems | undefined, id: string) {
+  const item = lib?.items.find((i) => i.id === id);
+  if (item === undefined) {
+    throw new ConnectError("missing", Code.NotFound);
+  }
+  return {
+    item: { headVersion: 1, description: "", ...item },
+    versions: (lib?.versions?.[id] ?? [{ version: 1 }]).map((v) => ({
+      itemId: id,
+      createdByName: "Ada",
+      note: v.note ?? "",
+      version: v.version,
+      content: new TextEncoder().encode(v.content ?? "{}"),
+    })),
+  };
+}
+
+function libraryVisibility(lib: LibraryItems | undefined, kind: string, id: string, visibility: string) {
+  lib?.calls?.push(`visibility:${kind}:${id}:${visibility}`);
+  if (visibility === "public" && lib?.scanRefusal !== undefined) {
+    throw new ConnectError(lib.scanRefusal, Code.FailedPrecondition);
+  }
+  return {};
 }
 
 /** An in-memory upstream for the shell: the same RPCs the BFF forwards. */
@@ -165,10 +230,52 @@ export function createUpstream(state: UpstreamData) {
           },
         ],
       }),
+      listApps: () => ({ apps: [{ id: "app1", key: "shop", name: "Shop" }] }),
       listTrash: () => ({ items: state.trash ?? [] }),
       restoreFromTrash: (req) => {
         state.restored?.push(req.id);
         return {};
+      },
+    });
+    service(TemplateService, {
+      listLibraryTemplates: (req) => libraryList(state.library, "template", req.visibility, req.query),
+      listTemplateVersions: (req) => libraryVersions(state.library, req.id),
+      getTemplate: (req) => ({
+        template: { id: req.id, name: req.id, parameters: state.library?.parameters ?? [] },
+      }),
+      instantiate: (req) => {
+        state.library?.calls?.push(`instantiate:${req.templateId}:${req.key}:${req.session}`);
+        return { created: [`plugins/p/pages/${req.key}.page.json`], diagnostics: [] };
+      },
+      setTemplateVisibility: (req) => libraryVisibility(state.library, "template", req.id, req.visibility),
+      exportTemplate: (req) => {
+        state.library?.calls?.push(`exportTemplate:${req.id}:${req.version}`);
+        return { file: new TextEncoder().encode("{}"), fileName: `${req.id}.plux-template` };
+      },
+      importTemplate: (req) => {
+        state.library?.calls?.push(`importTemplate:${req.file.length}`);
+        return { item: { id: "imported", kind: "template", name: "Imported template" } };
+      },
+    });
+    service(ComponentService, {
+      listLibraryComponents: (req) => libraryList(state.library, "component", req.visibility, req.query),
+      listComponentVersions: (req) => libraryVersions(state.library, req.id),
+      setComponentVisibility: (req) => libraryVisibility(state.library, "component", req.id, req.visibility),
+      exportComponent: (req) => {
+        state.library?.calls?.push(`exportComponent:${req.id}:${req.version}`);
+        return { file: new TextEncoder().encode("{}"), fileName: `${req.id}.plux-component` };
+      },
+      importComponent: (req) => {
+        state.library?.calls?.push(`importComponent:${req.file.length}`);
+        return { item: { id: "imported", kind: "component", name: "Imported component" } };
+      },
+      listUsages: () => ({
+        usages: Array.from({ length: state.library?.usages ?? 0 }, () => ({ kind: "node", pluginKey: "p" })),
+      }),
+      listComponentAdoptions: () => ({ adoptions: [] }),
+      adoptComponentVersion: (req) => {
+        state.library?.calls?.push(`adopt:${req.appId}:${req.version}`);
+        return { conflicts: state.library?.conflicts ?? [] };
       },
     });
     service(PluginService, {

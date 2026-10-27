@@ -18,6 +18,7 @@ import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { UndoManager } from "../editor/undo-stack.ts";
 import { JsonEditorHost } from "../json-editor/index.ts";
+import { useLibraryActions } from "../library/canvas/use-library-actions.tsx";
 import { L10nSessionsProvider } from "../localisation/index.ts";
 import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
@@ -340,7 +341,7 @@ function PluginCanvasView({
     () => targetHas([...(docs.data ?? []), ...(appDocs.data ?? [])]),
     [docs.data, appDocs.data],
   );
-  const clipboardDialog = useClipboard({
+  const clipboardInput = {
     screens,
     screenOf,
     selected: () => store.get().ids,
@@ -349,7 +350,9 @@ function PluginCanvasView({
     source: clipboardSource,
     has: clipboardHas,
     validatePage: checked?.validatePage,
-  });
+  };
+  const clipboardDialog = useClipboard(clipboardInput);
+  const libraryDialog = useLibraryActions(clipboardInput);
   const gestures = useGestures({
     surface: () => surfaceRef.current,
     canvas: () => canvasRef.current,
@@ -679,6 +682,7 @@ function PluginCanvasView({
         />
       )}
       {clipboardDialog}
+      {libraryDialog}
       <ProblemsDrawer validation={validation} />
       <RightDock
         tests={tests}
