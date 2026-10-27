@@ -159,6 +159,21 @@ updates:
       studio-images:
         update-types: [minor, patch]
 
+  - package-ecosystem: docker
+    directory: "/deploy/render-worker"
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      render-worker-images:
+        update-types: [minor, patch]
+
   - package-ecosystem: docker-compose
     directory: "/deploy/compose"
     schedule:
