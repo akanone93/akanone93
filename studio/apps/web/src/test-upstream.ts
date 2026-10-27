@@ -6,6 +6,8 @@ import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import {
   type ApplyChangeSetRequest,
   AppService,
+  DeviceSchema,
+  DeviceService,
   DocumentSchema,
   DocumentService,
   FederationService,
@@ -16,6 +18,7 @@ import {
   InboxItemSchema,
   LanguageServerService,
   LockSchema,
+  ManifestService,
   MemberSchema,
   NotificationService,
   OrganizationSchema,
@@ -26,6 +29,7 @@ import {
   PreferencesSchema,
   PreferencesService,
   ReleaseService,
+  SecurityAdminService,
   UserSchema,
 } from "@plux/api";
 import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
@@ -33,7 +37,23 @@ import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
 
+/** The Devices and security area (STU-115): what the device, security and manifest RPCs return, and what they receive. */
+export interface SecurityData {
+  devices?: { id: string; platform: string; hostBuild: string; assuranceLevel: string; revoked?: boolean }[];
+  profile?: string;
+  version?: number;
+  settings?: Record<string, unknown>;
+  keys?: { keyId: string; role: string; algorithm: string; environmentType: string }[];
+  roots?: number;
+  revoked?: { deviceId: string; reason: string }[];
+  profiles?: { profile: string; environmentId: string; expectedVersion: bigint }[];
+  putDocuments?: { path: string; content: string; ifRevision: bigint }[];
+  /** Every read fails. */
+  failing?: boolean;
+}
+
 export interface UpstreamData {
+  security?: SecurityData;
   signedIn?: boolean;
   permissions?: string[];
   installationAdmin?: boolean;
@@ -154,7 +174,12 @@ export function createUpstream(state: UpstreamData) {
     });
     service(AppService, {
       getApp: () => ({ app: { id: "app1", name: "App", defaultPluginKey: "" } }),
-      listEnvironments: () => ({ environments: [{ id: "env-prod", key: "production", production: true }] }),
+      listEnvironments: () => ({
+        environments: [
+          { id: "env-prod", key: "production", production: true },
+          { id: "env-dev", key: "development", production: false },
+        ],
+      }),
       listChannels: () => ({
         channels: [
           {
@@ -309,8 +334,19 @@ export function createUpstream(state: UpstreamData) {
         return {};
       },
       // The document a restore brought back: found in the snapshots by path.
+      putDocument: (req) => {
+        state.security?.putDocuments?.push({
+          path: req.path,
+          content: new TextDecoder().decode(req.content),
+          ifRevision: req.ifRevision,
+        });
+        return {};
+      },
       getDocument: (req) => {
-        const found = (state.snapshots ?? []).flatMap((x) => x.documents).find((d) => d.path === req.path);
+        const found = [
+          ...(state.snapshots ?? []).flatMap((x) => x.documents),
+          ...(req.pluginId === "" ? (state.appDocuments ?? []) : []),
+        ].find((d) => d.path === req.path);
         return {
           document:
             found === undefined
@@ -340,6 +376,7 @@ export function createUpstream(state: UpstreamData) {
     if (state.rust !== undefined) {
       rustServices(service, state.rust);
     }
+    securityServices(service, state.security ?? {});
     service(FederationService, { listSignInProviders: () => ({ providers: [] }) });
   });
 }
@@ -395,6 +432,70 @@ function rustServices(service: Parameters<Parameters<typeof createRouterTranspor
           },
         },
       };
+    },
+  });
+}
+
+/** The device, security-admin and manifest RPCs of the Devices and security area, in memory. */
+function securityServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  data: SecurityData,
+) {
+  const fail = () => {
+    if (data.failing === true) {
+      throw new ConnectError("unavailable", Code.Unavailable);
+    }
+  };
+  const device = (d: NonNullable<SecurityData["devices"]>[number]) =>
+    create(DeviceSchema, {
+      id: d.id,
+      platform: d.platform,
+      hostBuild: d.hostBuild,
+      assuranceLevel: d.assuranceLevel,
+      ...(d.revoked === true && { revokedAt: { seconds: 1n, nanos: 0 } }),
+    });
+  service(DeviceService, {
+    listDevices: () => {
+      fail();
+      return { devices: (data.devices ?? []).map(device) };
+    },
+    getDevice: (req) => {
+      fail();
+      const found = (data.devices ?? []).find((d) => d.id === req.id);
+      return { device: found === undefined ? undefined : device(found) };
+    },
+    revokeDevice: (req) => {
+      data.revoked?.push({ deviceId: req.deviceId, reason: req.reason });
+      const found = (data.devices ?? []).find((d) => d.id === req.deviceId);
+      if (found !== undefined) {
+        found.revoked = true;
+      }
+      return { device: found === undefined ? undefined : device(found) };
+    },
+  });
+  service(SecurityAdminService, {
+    getEffectiveSecurityConfig: () => {
+      fail();
+      return {
+        profile: data.profile ?? "standard",
+        version: BigInt(data.version ?? 1),
+        effectiveJson: new TextEncoder().encode(JSON.stringify(data.settings ?? {})),
+      };
+    },
+    setSecurityConfig: (req) => {
+      data.profiles?.push({
+        profile: req.profile,
+        environmentId: req.environmentId,
+        expectedVersion: req.expectedVersion,
+      });
+      data.profile = req.profile;
+      return { version: req.expectedVersion + 1n };
+    },
+  });
+  service(ManifestService, {
+    getRootKeys: () => {
+      fail();
+      return { keys: data.keys ?? [], roots: Array.from({ length: data.roots ?? 0 }, () => new Uint8Array()) };
     },
   });
 }
