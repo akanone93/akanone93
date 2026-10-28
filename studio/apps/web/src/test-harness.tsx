@@ -16,7 +16,7 @@ import { configureZod } from "./lib/zod.ts";
 import { createAppRouter } from "./router.tsx";
 import { createUpstream, type UpstreamData } from "./test-upstream.ts";
 
-export { createUpstream, orgA, orgB } from "./test-upstream.ts";
+export { createUpstream, orgA, orgB, orgNew } from "./test-upstream.ts";
 
 export interface Upstream extends UpstreamData {
   surface?: SurfaceFactory;

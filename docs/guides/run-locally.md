@@ -92,11 +92,14 @@ running. Each step names the file the command comes from.
    <http://127.0.0.1:5173>. Vite forwards `/api`, `/auth`, `/version`, `/telemetry` and
    `/csp-report` to the BFF on `127.0.0.1:8081` (`PLUX_STUDIO_DEV_BFF` changes the target), so
    the dev app passes through the same session and CSRF rules as production.
-5. **Organisations, apps and plugins.** The seed made the organisation and the apps; Studio
-   has no screen that creates either (the API has `OrganizationService.CreateOrganization` and
-   `AppService.CreateApp`; on an empty database `plux-server seed -org <key> -app <key>
-   -starter <key>` makes new ones). In Studio, open the app's canvas and choose **New plugin**
-   ([canvas guide](../guides/studio/canvas.md)).
+5. **Organisations, apps and plugins.** The seed made the organisation and the apps, and you can
+   make more in Studio ([canvas guide](../guides/studio/canvas.md)). An installation
+   administrator (the seeded user is one) chooses **New organisation** in the top bar, or
+   **Create organisation** on the empty page of someone who belongs to none. Anyone with the
+   `app.manage` permission chooses **Create app** on the organisation home and lands on the new
+   app's canvas, where **New plugin** adds its first plugin. Without Studio, the API has
+   `OrganizationService.CreateOrganization` and `AppService.CreateApp`, and on an empty database
+   `plux-server seed -org <key> -app <key> -starter <key>` makes new ones.
 6. **Connect a device.** Two apps connect to the stack:
    - The **starter app** (`apps/starter`): `make dev-app` (or `make dev`) writes its defines,
      pulls the `staging` baseline and runs it with hot reload. On an Android emulator or a

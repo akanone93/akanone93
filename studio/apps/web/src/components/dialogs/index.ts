@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+export { CreateDialog, type CreateDialogProps } from "./create-dialog.tsx";
 export { ExplainAccessDialog, type ExplainAccessDialogProps } from "./explain-access-dialog.tsx";
 export { JustificationDialog, type JustificationDialogProps } from "./justification-dialog.tsx";
 export { openSignInPopup, SignedOutDialog } from "./signed-out-dialog.tsx";
