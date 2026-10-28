@@ -170,7 +170,7 @@ describe("STU-063 overlay host", () => {
     expect(canvas.isConnected).toBe(true);
     const before = s.calls.length;
     fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
-    await waitFor(() => expect(screen.queryByLabelText("JSON of the document")).toBeNull());
+    await waitFor(() => expect(screen.queryByLabelText("JSON of the document") === null).toBe(true));
     expect(s.calls.slice(before)).toEqual(["view 12,34,0.5", "resume"]);
     await waitFor(() => expect(document.activeElement).toBe(canvas));
     expect(screen.getByRole("application")).toBe(canvas);
