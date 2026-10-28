@@ -14,7 +14,7 @@ regulated environments that cannot use a managed cloud. The cloud modules in
 
 | Component | Runs as | Notes |
 |---|---|---|
-| Plux roles (api, worker, fnrunner, egress, builder) | Chart Deployments, at least two replicas each | Default-deny NetworkPolicies; Pod Security "restricted" |
+| Plux roles (api, worker, fnrunner, egress, builder, and the render worker of visual diffs when enabled) | Chart Deployments, at least two replicas each | Default-deny NetworkPolicies; Pod Security "restricted" |
 | PostgreSQL | CloudNativePG `Cluster`, three instances, synchronous replication | Requires the CloudNativePG operator (`postgresql.mode: cnpg`) |
 | Valkey | Chart-managed, three pods with a Sentinel each, TLS 1.3 | `valkey.mode: sentinel`; an external Valkey is also supported |
 | Object storage | SeaweedFS run by the chart, or any S3 API | SeaweedFS is for development and small sites; use an external S3 for production (`objectStorage.mode: external`) |

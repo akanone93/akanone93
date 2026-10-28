@@ -123,7 +123,7 @@ server:
   publicBaseURL: {{ required "server.publicBaseURL is required" .Values.server.publicBaseURL | quote }}
   production: {{ .Values.server.production }}
   shutdownGrace: {{ .Values.server.shutdownGrace | quote }}
-  {{- if and .Values.functions.enabled .Values.builder.enabled }}
+  {{- if or (and .Values.functions.enabled .Values.builder.enabled) .Values.renderWorker.enabled }}
   internalTLS:
     {{- include "plux.config.internalTLS" . | nindent 4 }}
   {{- end }}
@@ -132,6 +132,10 @@ server:
 {{- if and .Values.functions.enabled .Values.builder.enabled }}
 builder:
   address: {{ printf "https://%s-builder:8446" (include "plux.fullname" .) | quote }}
+{{- end }}
+{{- if .Values.renderWorker.enabled }}
+renderWorker:
+  address: {{ printf "https://%s-render-worker:8443" (include "plux.fullname" .) | quote }}
 {{- end }}
 {{- end -}}
 

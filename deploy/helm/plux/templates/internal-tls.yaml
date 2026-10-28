@@ -8,12 +8,17 @@
 # delete the Secrets, upgrade and restart the roles. The CA's key is stored in
 # its own Secret, which no pod mounts. Each identity serves and authenticates
 # (serverAuth and clientAuth), with its Service name as its name.
-{{- if and .Values.functions.enabled (eq .Values.internalTLS.mode "generate") }}
+{{- if and (or .Values.functions.enabled .Values.renderWorker.enabled) (eq .Values.internalTLS.mode "generate") }}
 {{- $fullname := include "plux.fullname" . }}
 {{- $caName := printf "%s-internal-ca" $fullname }}
 {{- $ca := include "plux.ca" (dict "root" . "name" $caName "cn" "plux-internal-ca") | fromJson }}
-{{- $roles := list "api" "worker" "fnrunner" "egress" }}
+{{- $roles := list }}
+{{- if .Values.functions.enabled }}
+{{- $roles = concat $roles (list "api" "worker" "fnrunner" "egress") }}
 {{- if .Values.builder.enabled }}{{ $roles = append $roles "builder" }}{{ end }}
+{{- end }}
+{{- /* The worker role calls the render worker over mutual TLS. */ -}}
+{{- if .Values.renderWorker.enabled }}{{ $roles = concat $roles (list "worker" "render-worker") | uniq }}{{ end }}
 ---
 apiVersion: v1
 kind: Secret

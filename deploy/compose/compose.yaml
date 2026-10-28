@@ -10,8 +10,10 @@
 # The function roles run as their own containers (FN-013, FN-016): fnrunner
 # and egress always, builder under the `functions` profile because its image
 # carries the Rust toolchain. None holds a database, storage or signing
-# credential (L-4); they talk over mutual TLS (SEC-043). Optional profiles
-# add Keycloak (an OpenID Connect provider) and Ollama. Studio
+# credential (L-4); they talk over mutual TLS (SEC-043). The render worker
+# (visual diffs of release requests, O-9) runs under the `visual-diff` profile
+# because its image carries the Flutter SDK. Optional profiles add Keycloak
+# (an OpenID Connect provider) and Ollama. Studio
 # (the BFF and the web app, DEP-002) runs beside the server. Images are pinned by digest. The API serves
 # TLS 1.3 with HSTS on https://localhost:8080 under a development
 # certificate that init-secrets.sh issues (README.md, "Development TLS").
@@ -44,6 +46,11 @@ networks:
   functions:
     internal: true
   outbound: {}
+  # The worker role reaches the render worker here, and nothing else is on it
+  # or can leave it: the render worker compiles and draws tenant projects and
+  # needs no route out (its Flutter packages are in the image).
+  render:
+    internal: true
 
 services:
   plux-server:
@@ -65,7 +72,7 @@ services:
       - ./.secrets/tls:/etc/plux/tls:ro
       - ./.secrets/internal/plux-server:/etc/plux/internal:ro
     tmpfs: [/tmp]
-    networks: [default, functions]
+    networks: [default, functions, render]
     ports: ["127.0.0.1:8080:8080"]
     restart: unless-stopped
 
@@ -162,6 +169,38 @@ services:
       # procedural macros) that run from here, so it is not noexec.
       - /var/lib/plux/build:exec,nosuid,nodev,uid=65532,gid=65532,mode=0700,size=2g
     networks: [functions]
+    restart: unless-stopped
+
+  # Renders the visual diffs of release requests (O-9, ADR-0097) with the
+  # Flutter toolchain, under the `visual-diff` profile:
+  # `COMPOSE_PROFILES=visual-diff make compose-up`. The image is large (the
+  # Flutter SDK) and its build downloads the pinned archive, checked against
+  # its SHA-256. No credential, no keys, no route out: it answers the worker
+  # role of plux-server on the `render` network over mutual TLS and holds only
+  # its own certificate. It is not read-only because the Flutter tool writes
+  # its lock and stamp files below the SDK (README.md, "Render worker").
+  plux-render-worker:
+    <<: *hardened
+    read_only: false
+    profiles: [visual-diff]
+    build:
+      context: ../..
+      dockerfile: deploy/render-worker/Dockerfile
+      args:
+        # The same pin as FLUTTER_VERSION in the Makefile and as release.yml,
+        # which also holds the digest of the archive; they change together.
+        FLUTTER_VERSION: 3.47.5
+        FLUTTER_SHA256: 2132e990f236f8d22e7c6314b29a191a95b10d7cbcfec9b4e2e303d996652cbb
+    image: plux-render-worker:local
+    user: "65532:65532"
+    volumes:
+      - ./.secrets/internal/plux-render-worker:/etc/plux/internal:ro
+    tmpfs:
+      - /tmp
+      # Scratch of the renders: each builds a Flutter test project, whose
+      # test executable runs from here, so it is not noexec.
+      - /var/lib/plux/render:exec,nosuid,nodev,uid=65532,gid=65532,mode=0700,size=4g
+    networks: [render]
     restart: unless-stopped
 
   postgres:

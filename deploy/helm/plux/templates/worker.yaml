@@ -7,7 +7,8 @@
 # minReadySeconds before it replaces the next pod.
 {{- $name := printf "%s-worker" (include "plux.fullname" .) }}
 {{- $ctx := dict "root" . "role" "worker" "v" .Values.worker }}
-{{- $builder := and .Values.functions.enabled .Values.builder.enabled }}
+{{- /* The builder and the render worker are called over mutual TLS. */ -}}
+{{- $builder := or (and .Values.functions.enabled .Values.builder.enabled) .Values.renderWorker.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
