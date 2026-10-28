@@ -4,16 +4,17 @@
 /**
  * Material composites whose size comes from their parts (STU-005, S4.6): the
  * bottom app bar, calendar date picker, data table, material banner,
- * navigation drawer, popup menu button, segmented button and vertical stepper.
- * Each is checked against Flutter's goldens in `material-bottom-app-bar`,
- * `material-calendar-date-picker`, `material-data-table`, `material-banner`,
+ * menu anchor, navigation drawer, popup menu button, segmented button and
+ * vertical stepper. Each is checked against Flutter's goldens in
+ * `material-bottom-app-bar`, `material-calendar-date-picker`,
+ * `material-data-table`, `material-banner`, `material-menu-anchor`,
  * `material-navigation-drawer`, `material-popup-menu-button`,
  * `material-segmented-button` and `material-stepper`.
  */
 
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { Axis, CrossAxisAlignment, FlexFit, FlexParentData, MainAxisSize, RenderFlex } from "../flutter/flex.ts";
-import { AlignmentDirectional, EdgeInsets, EdgeInsetsDirectional } from "../flutter/geometry.ts";
+import { Alignment, AlignmentDirectional, EdgeInsets, EdgeInsetsDirectional } from "../flutter/geometry.ts";
 import { m3TextStyle, type Steb, scaledPadding, type TextRole } from "../flutter/material/theme.ts";
 import { RenderOverflowBar } from "../flutter/overflow-bar.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
@@ -247,6 +248,27 @@ const navigationDrawer: Builder = (node, ctx) => {
   });
 };
 
+/**
+ * `MenuAnchor` with its menu closed, as the runtime builds the anchor: the `child`, or a more-vert icon, centred in a
+ * tap target of at least 48 by 48 and as wide as its content.
+ */
+const menuAnchor: Builder = (node, ctx) => {
+  const child = slotOf(node, "child")[0];
+  return new RenderConstrainedBox({
+    additionalConstraints: new BoxConstraints({ minWidth: 48, minHeight: 48 }),
+    child: new RenderPositionedBox({
+      alignment: Alignment.center,
+      textDirection: ctx.direction,
+      widthFactor: 1,
+      heightFactor: null,
+      child:
+        child === undefined
+          ? new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 24, height: 24 }) })
+          : ctx.build(child),
+    }),
+  });
+};
+
 /** `PopupMenuButton`: its child, or a 48-px icon button. */
 const popupMenuButton: Builder = (node, ctx) => {
   const child = slotOf(node, "child")[0];
@@ -343,6 +365,7 @@ export const moreBuilders: Readonly<Record<string, Builder>> = {
   CalendarDatePicker: calendarDatePicker,
   DataTable: dataTable,
   MaterialBanner: materialBanner,
+  MenuAnchor: menuAnchor,
   NavigationDrawer: navigationDrawer,
   PopupMenuButton: popupMenuButton,
   SegmentedButton: segmentedButton,

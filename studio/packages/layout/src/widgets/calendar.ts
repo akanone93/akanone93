@@ -15,7 +15,7 @@ import {
   umalquraMonthMasks,
   umalquraYearEnd,
   umalquraYearStart,
-} from "./calendar-tables.ts";
+} from "./calendar-tables.gen.ts";
 
 /** A date in some calendar. */
 export interface CalendarYmd {

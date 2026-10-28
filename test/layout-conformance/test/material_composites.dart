@@ -10,9 +10,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 const Set<String> materialCompositeTypes = <String>{
-  'TabBar', 'Tab', 'AlertDialog', 'BottomSheet', 'PopupMenu', 'PopupMenuItem', 'PopupMenuDivider',
-  'Autocomplete', 'BottomAppBar', 'CalendarDatePicker', 'DataTable', 'DropdownMenu', 'MaterialBanner',
-  'NavigationDrawer', 'PopupMenuButton', 'SegmentedButton', 'Stepper',
+  'TabBar',
+  'Tab',
+  'AlertDialog',
+  'BottomSheet',
+  'PopupMenu',
+  'PopupMenuItem',
+  'PopupMenuDivider',
+  'Autocomplete',
+  'BottomAppBar',
+  'CalendarDatePicker',
+  'DataTable',
+  'DropdownMenu',
+  'MaterialBanner',
+  'MenuAnchor',
+  'NavigationDrawer',
+  'PopupMenuButton',
+  'SegmentedButton',
+  'Stepper',
 };
 
 /// Builds one scene node (the golden writer's own builder).
@@ -20,17 +35,22 @@ typedef BuildScene = Widget Function(Map<String, Object?> node);
 
 double? _num(Object? value) => value == null ? null : (value as num).toDouble();
 
-Map<String, Object?> _props(Map<String, Object?> node) => (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+Map<String, Object?> _props(Map<String, Object?> node) =>
+    (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
 
-List<Map<String, Object?>> _children(Map<String, Object?> node) => <Map<String, Object?>>[
-  for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) raw! as Map<String, Object?>,
+List<Map<String, Object?>> _children(
+  Map<String, Object?> node,
+) => <Map<String, Object?>>[
+  for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+    raw! as Map<String, Object?>,
 ];
 
 /// The children of [node] filling [name].
-List<Map<String, Object?>> _slot(Map<String, Object?> node, String name) => <Map<String, Object?>>[
-  for (final Map<String, Object?> child in _children(node))
-    if (((child['slot'] as String?) ?? 'child') == name) child,
-];
+List<Map<String, Object?>> _slot(Map<String, Object?> node, String name) =>
+    <Map<String, Object?>>[
+      for (final Map<String, Object?> child in _children(node))
+        if (((child['slot'] as String?) ?? 'child') == name) child,
+    ];
 
 Widget? _one(Map<String, Object?> node, String name, BuildScene build) {
   final List<Map<String, Object?>> found = _slot(node, name);
@@ -62,14 +82,20 @@ Widget _tabBar(Map<String, Object?> node, Key key, BuildScene build) {
         'fill' => TabAlignment.fill,
         _ => null,
       },
-      indicatorSize: props['indicatorSize'] == 'label' ? TabBarIndicatorSize.label : TabBarIndicatorSize.tab,
-      tabs: <Widget>[for (final Map<String, Object?> tab in tabs) _tab(tab, build)],
+      indicatorSize: props['indicatorSize'] == 'label'
+          ? TabBarIndicatorSize.label
+          : TabBarIndicatorSize.tab,
+      tabs: <Widget>[
+        for (final Map<String, Object?> tab in tabs) _tab(tab, build),
+      ],
     ),
   );
 }
 
 Widget _alertDialog(Map<String, Object?> node, Key key, BuildScene build) {
-  final List<Widget> actions = <Widget>[for (final Map<String, Object?> a in _slot(node, 'actions')) build(a)];
+  final List<Widget> actions = <Widget>[
+    for (final Map<String, Object?> a in _slot(node, 'actions')) build(a),
+  ];
   return AlertDialog(
     key: key,
     title: _one(node, 'title', build),
@@ -85,17 +111,22 @@ class _ModalSheetLayout extends SingleChildLayoutDelegate {
   final bool scrollControlled;
 
   @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) => BoxConstraints(
-    minWidth: constraints.maxWidth,
-    maxWidth: constraints.maxWidth,
-    maxHeight: scrollControlled ? constraints.maxHeight : constraints.maxHeight * 9.0 / 16.0,
-  );
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints(
+        minWidth: constraints.maxWidth,
+        maxWidth: constraints.maxWidth,
+        maxHeight: scrollControlled
+            ? constraints.maxHeight
+            : constraints.maxHeight * 9.0 / 16.0,
+      );
 
   @override
-  Offset getPositionForChild(Size size, Size childSize) => Offset(0, size.height - childSize.height);
+  Offset getPositionForChild(Size size, Size childSize) =>
+      Offset(0, size.height - childSize.height);
 
   @override
-  bool shouldRelayout(_ModalSheetLayout oldDelegate) => oldDelegate.scrollControlled != scrollControlled;
+  bool shouldRelayout(_ModalSheetLayout oldDelegate) =>
+      oldDelegate.scrollControlled != scrollControlled;
 }
 
 class _SheetHost extends StatefulWidget {
@@ -107,8 +138,12 @@ class _SheetHost extends StatefulWidget {
   State<_SheetHost> createState() => _SheetHostState();
 }
 
-class _SheetHostState extends State<_SheetHost> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, value: 1);
+class _SheetHostState extends State<_SheetHost>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    value: 1,
+  );
 
   @override
   void dispose() {
@@ -140,7 +175,10 @@ Widget _popupMenu(Map<String, Object?> node, Key key, BuildScene build) {
   final List<Widget> items = <Widget>[
     for (final Map<String, Object?> entry in _children(node))
       if (entry['type'] == 'PopupMenuDivider')
-        PopupMenuDivider(key: ValueKey<String>(entry['id']! as String), height: _num(_props(entry)['height']) ?? 16)
+        PopupMenuDivider(
+          key: ValueKey<String>(entry['id']! as String),
+          height: _num(_props(entry)['height']) ?? 16,
+        )
       else
         PopupMenuItem<void>(
           key: ValueKey<String>(entry['id']! as String),
@@ -150,7 +188,9 @@ Widget _popupMenu(Map<String, Object?> node, Key key, BuildScene build) {
   ];
   return Material(
     key: key,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(4)),
+    ),
     type: MaterialType.card,
     elevation: 3,
     child: Align(
@@ -178,7 +218,8 @@ Widget _popupMenu(Map<String, Object?> node, Key key, BuildScene build) {
 }
 
 List<Map<String, Object?>> _list(Object? value) => <Map<String, Object?>>[
-  for (final Object? raw in (value as List<Object?>?) ?? <Object?>[]) raw! as Map<String, Object?>,
+  for (final Object? raw in (value as List<Object?>?) ?? <Object?>[])
+    raw! as Map<String, Object?>,
 ];
 
 Widget _autocomplete(Map<String, Object?> node, Key key) {
@@ -187,13 +228,17 @@ Widget _autocomplete(Map<String, Object?> node, Key key) {
     key: key,
     optionsBuilder: (TextEditingValue value) => const Iterable<String>.empty(),
     fieldViewBuilder:
-        (BuildContext context, TextEditingController controller, FocusNode focusNode, VoidCallback onSubmitted) =>
-            TextFormField(
-              controller: controller,
-              focusNode: focusNode,
-              decoration: InputDecoration(hintText: props['hintText'] as String?),
-              onFieldSubmitted: (String _) => onSubmitted(),
-            ),
+        (
+          BuildContext context,
+          TextEditingController controller,
+          FocusNode focusNode,
+          VoidCallback onSubmitted,
+        ) => TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(hintText: props['hintText'] as String?),
+          onFieldSubmitted: (String _) => onSubmitted(),
+        ),
   );
 }
 
@@ -205,7 +250,11 @@ Widget _bottomAppBar(Map<String, Object?> node, Key key, BuildScene build) {
     height: height,
     child: Scaffold(
       primary: false,
-      bottomNavigationBar: BottomAppBar(key: key, height: _num(props['height']), child: _one(node, 'child', build)),
+      bottomNavigationBar: BottomAppBar(
+        key: key,
+        height: _num(props['height']),
+        child: _one(node, 'child', build),
+      ),
     ),
   );
 }
@@ -216,11 +265,20 @@ Widget _dataTable(Map<String, Object?> node, Key key) {
     key: key,
     columns: <DataColumn>[
       for (final Map<String, Object?> column in _list(props['columns']))
-        DataColumn(label: Text(column['label']! as String), numeric: column['numeric'] == true),
+        DataColumn(
+          label: Text(column['label']! as String),
+          numeric: column['numeric'] == true,
+        ),
     ],
     rows: <DataRow>[
-      for (final Object? row in (props['rows'] as List<Object?>?) ?? <Object?>[])
-        DataRow(cells: <DataCell>[for (final Object? cell in row! as List<Object?>) DataCell(Text(cell! as String))]),
+      for (final Object? row
+          in (props['rows'] as List<Object?>?) ?? <Object?>[])
+        DataRow(
+          cells: <DataCell>[
+            for (final Object? cell in row! as List<Object?>)
+              DataCell(Text(cell! as String)),
+          ],
+        ),
     ],
     horizontalMargin: _num(props['horizontalMargin']),
     columnSpacing: _num(props['columnSpacing']),
@@ -243,8 +301,13 @@ Widget _dropdownMenu(Map<String, Object?> node, Key key, BuildScene build) {
     leadingIcon: _one(node, 'leadingIcon', build),
     label: _one(node, 'label', build),
     dropdownMenuEntries: <DropdownMenuEntry<String>>[
-      for (final Map<String, Object?> entry in _list(props['dropdownMenuEntries']))
-        DropdownMenuEntry<String>(value: entry['value']! as String, label: entry['label']! as String),
+      for (final Map<String, Object?> entry in _list(
+        props['dropdownMenuEntries'],
+      ))
+        DropdownMenuEntry<String>(
+          value: entry['value']! as String,
+          label: entry['label']! as String,
+        ),
     ],
   );
 }
@@ -257,7 +320,10 @@ Widget _materialBanner(Map<String, Object?> node, Key key, BuildScene build) {
     leading: _one(node, 'leading', build),
     forceActionsBelow: props['forceActionsBelow'] == true,
     minActionBarHeight: _num(props['minActionBarHeight']) ?? 52,
-    actions: <Widget>[for (final Map<String, Object?> action in _slot(node, 'actions')) build(action)],
+    actions: <Widget>[
+      for (final Map<String, Object?> action in _slot(node, 'actions'))
+        build(action),
+    ],
   );
 }
 
@@ -268,10 +334,14 @@ Widget _navigationDrawer(Map<String, Object?> node, Key key, BuildScene build) {
     selectedIndex: (props['selectedIndex'] as num?)?.toInt(),
     children: <Widget>[
       ?_one(node, 'header', build),
-      for (final Map<String, Object?> destination in _list(props['destinations']))
+      for (final Map<String, Object?> destination in _list(
+        props['destinations'],
+      ))
         NavigationDrawerDestination(
           icon: const Icon(Icons.star),
-          selectedIcon: destination['selectedIcon'] == null ? null : const Icon(Icons.star_border),
+          selectedIcon: destination['selectedIcon'] == null
+              ? null
+              : const Icon(Icons.star_border),
           label: Text(destination['label']! as String),
         ),
       ?_one(node, 'footer', build),
@@ -288,9 +358,40 @@ Widget _popupMenuButton(Map<String, Object?> node, Key key, BuildScene build) {
     enabled: props['enabled'] != false,
     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
       for (final Map<String, Object?> item in _list(props['items']))
-        PopupMenuItem<String>(value: item['value']! as String, child: Text(item['label']! as String)),
+        PopupMenuItem<String>(
+          value: item['value']! as String,
+          child: Text(item['label']! as String),
+        ),
     ],
     child: _one(node, 'child', build),
+  );
+}
+
+/// `MenuAnchor` as the runtime builds it (navigation.dart): the anchor in a 48-px tap target, or a more-vert icon.
+Widget _menuAnchor(Map<String, Object?> node, Key key, BuildScene build) {
+  final Map<String, Object?> props = _props(node);
+  final Widget? anchor = _one(node, 'child', build);
+  return MenuAnchor(
+    key: key,
+    menuChildren: <Widget>[
+      for (final Map<String, Object?> item in _list(props['items']))
+        MenuItemButton(
+          onPressed: item['enabled'] == false ? null : () {},
+          child: Text(item['label']! as String),
+        ),
+    ],
+    builder: (BuildContext context, MenuController controller, Widget? child) =>
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          child: InkWell(
+            onTap: () =>
+                controller.isOpen ? controller.close() : controller.open(),
+            child: Center(
+              widthFactor: 1,
+              child: anchor ?? const Icon(Icons.more_vert),
+            ),
+          ),
+        ),
   );
 }
 
@@ -305,11 +406,17 @@ Widget _segmentedButton(Map<String, Object?> node, Key key) {
       for (final Map<String, Object?> segment in _list(props['segments']))
         ButtonSegment<String>(
           value: segment['value']! as String,
-          label: segment['label'] == null ? null : Text(segment['label']! as String),
+          label: segment['label'] == null
+              ? null
+              : Text(segment['label']! as String),
           icon: segment['icon'] == null ? null : const Icon(Icons.star),
         ),
     ],
-    selected: <String>{for (final Object? value in (props['selected'] as List<Object?>?) ?? <Object?>[]) value! as String},
+    selected: <String>{
+      for (final Object? value
+          in (props['selected'] as List<Object?>?) ?? <Object?>[])
+        value! as String,
+    },
     onSelectionChanged: (Set<String> _) {},
   );
 }
@@ -318,17 +425,24 @@ Widget _stepper(Map<String, Object?> node, Key key) {
   final Map<String, Object?> props = _props(node);
   return Stepper(
     key: key,
-    type: props['type'] == 'horizontal' ? StepperType.horizontal : StepperType.vertical,
+    type: props['type'] == 'horizontal'
+        ? StepperType.horizontal
+        : StepperType.vertical,
     currentStep: (props['currentStep'] as num?)?.toInt() ?? 0,
     // The default controls (two text buttons in a 48-px row under 16 px of padding) overflow a phone at text
     // scale 2; a box of their size keeps the step's height, which `material-stepper` at scale 1 checks.
     controlsBuilder: (BuildContext context, ControlsDetails details) =>
-        const Padding(padding: EdgeInsets.only(top: 16), child: SizedBox(height: 48)),
+        const Padding(
+          padding: EdgeInsets.only(top: 16),
+          child: SizedBox(height: 48),
+        ),
     steps: <Step>[
       for (final Map<String, Object?> step in _list(props['steps']))
         Step(
           title: Text(step['title']! as String),
-          subtitle: step['subtitle'] == null ? null : Text(step['subtitle']! as String),
+          subtitle: step['subtitle'] == null
+              ? null
+              : Text(step['subtitle']! as String),
           content: const SizedBox.shrink(),
         ),
     ],
@@ -336,7 +450,11 @@ Widget _stepper(Map<String, Object?> node, Key key) {
 }
 
 /// Builds [node], one of [materialCompositeTypes].
-Widget buildMaterialComposite(Map<String, Object?> node, Key key, BuildScene build) {
+Widget buildMaterialComposite(
+  Map<String, Object?> node,
+  Key key,
+  BuildScene build,
+) {
   switch (node['type']) {
     case 'TabBar':
       return _tabBar(node, key, build);
@@ -364,6 +482,8 @@ Widget buildMaterialComposite(Map<String, Object?> node, Key key, BuildScene bui
       return _dropdownMenu(node, key, build);
     case 'MaterialBanner':
       return _materialBanner(node, key, build);
+    case 'MenuAnchor':
+      return _menuAnchor(node, key, build);
     case 'NavigationDrawer':
       return _navigationDrawer(node, key, build);
     case 'PopupMenuButton':

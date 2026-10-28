@@ -89,6 +89,8 @@ export interface WidgetContext {
   readonly textScale?: number;
   /** The ambient text direction (default left to right). */
   readonly textDirection?: TextDirection;
+  /** The height of the device frame the screen is drawn in (`MediaQuery` height); absent when none is known. */
+  readonly deviceHeight?: number | undefined;
   /** Records how the box with `id` is drawn. */
   mark(id: string, kind: PlacedKind, text?: string): void;
 }
@@ -405,6 +407,8 @@ export interface LayoutScreenOptions {
   readonly textScale?: number;
   /** The ambient text direction, right to left for `ar` and `he` (default left to right): I18N-010. */
   readonly textDirection?: TextDirection;
+  /** The height of the device frame the screen is drawn in; widgets sized by a share of it use it. */
+  readonly deviceHeight?: number | undefined;
 }
 
 /** Lays one screen out at the theme's device width, text by the paragraph engine. */
@@ -422,6 +426,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     theme,
     textScale,
     textDirection: options.textDirection ?? TextDirection.ltr,
+    deviceHeight: options.deviceHeight,
     build(node, width) {
       const builder = node.type === undefined ? undefined : builders.get(node.type);
       if (width !== undefined) {
