@@ -159,7 +159,7 @@ describe("STU-100 publish flow", () => {
     press("Release");
     const dialog = await screen.findByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("dialog") === null).toBe(true));
     expect(release.calls).toEqual([]);
     expect(stepUps).toEqual(["begin"]);
   });
