@@ -295,3 +295,29 @@ In addition to [workflow.md](workflow.md) §6:
 - [ ] Any new server work is bounded (§1.7) and any new dependency is on the allowlist.
 - [ ] The interface is built from catalogue components in the UI language; the design skill's checklist is complete.
 - [ ] No screenshot was used, or the maintainer's approval and its purpose are noted in the pull request.
+
+## 15. Maintainer checklists before 0.0.1 (S9.2, S9.3)
+
+Two reviews need a person and are not automated. Automated coverage for the same requirements: `studio/e2e/a11y-sweep.spec.ts` (axe over every area route in light, dark and `ar`), `studio/e2e/keyboard.spec.ts` (the main flow with the keyboard only) and `apps/web/src/lib/logical-properties.test.ts` (no physical-direction layout).
+
+15.1. **Screen-reader pass** (`STU-011`). Run once with NVDA and Firefox or Chrome on Windows, once with VoiceOver and Safari on macOS, in a signed-in session against a seeded organisation. Record the result per item in the pull request.
+
+- [ ] Landmarks: the rotor or element list shows one banner, one navigation, one main; the skip link, if shown, moves focus to main.
+- [ ] Every area route (releases, functions, data, localisation, design, analytics, tests, experiments, approvals, publish, devices, security, admin, installation, library) announces its page heading on arrival and the document title changes with it.
+- [ ] App canvas: the plugin list reads "Loans, plugin pl" style names and Enter opens the plugin.
+- [ ] Plugin canvas: the Screens list and the Layers tree announce level, position and selected state; selecting a tree item announces the widget; the Properties fields announce name, value, unit and read-only state; "Mixed" is announced for multi-selection.
+- [ ] Undo, redo, Publish and the Screen menu announce their name and, when disabled, the reason.
+- [ ] Dialogs (link picker, ghost dialog, publish confirmation) move focus in, announce their title, trap focus and return it on close; Escape closes them.
+- [ ] Toasts and inline errors are announced once (`role="status"` or `role="alert"`), not repeatedly.
+- [ ] Tables (members, audit, releases) announce column headers; sortable headers announce the sort state.
+- [ ] Charts and the replay player have a text equivalent that reads in a sensible order.
+- [ ] Form errors are tied to their field and announced on submit.
+- [ ] At 200 percent zoom and with forced colours (Windows contrast themes) nothing is cut off or invisible.
+
+15.2. **Native-speaker review of `de` and `ar`** (`L-11`). Agents drafted both catalogues; each is checked by a native speaker before 0.0.1. All strings are present (`lingui extract` reports 0 missing, `lingui compile --strict` passes), so the review is about wording.
+
+- [ ] Terminology is consistent with the glossary in the catalogue comments: plugin, screen, release, rollout, kill switch, funnel, replay, experiment, host font.
+- [ ] Newest areas read naturally: experiments and flags, funnels, replays, host fonts, the publish rollout form, app navigation.
+- [ ] Plural forms are right, in particular Arabic zero, one, two, few, many and other.
+- [ ] In `ar` the interface mirrors: icons that imply direction flip, numbers and Latin product names (Cupertino, GraphQL, JSON, OpenAPI, iPhone, Pixel) sit correctly inside right-to-left text, and mixed text has no stray punctuation.
+- [ ] No string is clipped in `de` (long compound words) at the smallest supported width.
