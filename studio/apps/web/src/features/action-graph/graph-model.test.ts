@@ -23,7 +23,9 @@ import {
   removeStepRecipe,
   resolveLocation,
   type Step,
+  savedPosition,
   setInputRecipe,
+  setPositionsRecipe,
   stepsAt,
   stepsPointer,
   targetOf,
@@ -221,5 +223,71 @@ describe("STU-065 action graph model", () => {
     const first = layoutSteps(steps, edges, () => 1);
     expect(layoutSteps(steps, edges, () => 1)).toEqual(first);
     expect((first.get("b")?.x ?? 0) > (first.get("a")?.x ?? 0)).toBe(true);
+  });
+});
+
+describe("STU-065 saved step positions (SCH-004 x- properties)", () => {
+  const doc = () => ({
+    kind: "page",
+    root: {
+      id: "root",
+      type: "Column",
+      children: [
+        {
+          id: "btn",
+          type: "ElevatedButton",
+          events: {
+            onPressed: {
+              steps: [
+                { id: "a", action: "pop" },
+                { id: "b", action: "pop" },
+              ],
+            },
+          },
+        },
+      ],
+    },
+  });
+  const read = (d: unknown) => stepsAt(d, inline);
+
+  test("positions are saved on the steps, rounded, for all dragged steps in one recipe", () => {
+    const d = doc();
+    setPositionsRecipe(
+      inline,
+      new Map([
+        ["a", { x: 10.4, y: -20.6 }],
+        ["b", { x: 300, y: 5 }],
+        ["gone", { x: 1, y: 1 }],
+      ]),
+    )(d);
+    expect(read(d).map((s) => savedPosition(s))).toEqual([
+      { x: 10, y: -21 },
+      { x: 300, y: 5 },
+    ]);
+  });
+
+  test("a position the document holds in another shape is ignored", () => {
+    expect(savedPosition({ id: "a", action: "pop", "x-position": { x: "1", y: 2 } })).toBeUndefined();
+    expect(savedPosition({ id: "a", action: "pop" })).toBeUndefined();
+  });
+
+  test("a step dropped from the catalogue is added at the drop point and joins no edge", () => {
+    const d = doc();
+    addStepRecipe(inline, entry("pop"), "pop1", catalogue, undefined, { x: 120.2, y: 64 })(d);
+    const added = read(d).find((s) => s.id === "pop1");
+    expect(added === undefined ? undefined : savedPosition(added)).toEqual({ x: 120, y: 64 });
+    expect(read(d).every((s) => s.next === undefined)).toBe(true);
+  });
+});
+
+describe("STU-065 positions that JSON cannot hold", () => {
+  test("a drop point that is not a number saves no position", () => {
+    const d = {
+      kind: "page",
+      root: { id: "root", type: "Column", children: [{ id: "btn", type: "ElevatedButton", events: {} }] },
+    };
+    addStepRecipe(inline, entry("pop"), "pop1", catalogue, undefined, { x: Number.NaN, y: 4 })(d);
+    expect(stepsAt(d, inline).map((s) => savedPosition(s))).toEqual([undefined]);
+    expect(Object.keys(stepsAt(d, inline)[0] ?? {})).not.toContain("x-position");
   });
 });

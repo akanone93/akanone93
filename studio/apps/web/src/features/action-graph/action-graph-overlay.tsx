@@ -19,11 +19,13 @@ import {
   buildCatalogue,
   type CatalogueEntry,
   type CatalogueGroup,
+  ENTRY_DRAG_TYPE,
   type Extras,
   findNodeIn,
   freshId,
   groupProblems,
   isObj,
+  type Point,
   type Recipe,
   resolveLocation,
   type Step,
@@ -86,7 +88,14 @@ function CataloguePanel(props: {
             <h4 className="text-caption text-secondary">{groupLabel(g, m)}</h4>
             <ul className="flex flex-col gap-1">
               {entries.map((e) => (
-                <li key={e.key}>
+                <li
+                  key={e.key}
+                  draggable={props.canEdit}
+                  onDragStart={(ev) => {
+                    ev.dataTransfer.setData(ENTRY_DRAG_TYPE, e.key);
+                    ev.dataTransfer.effectAllowed = "copy";
+                  }}
+                >
                   <Button
                     variant="ghost"
                     size="sm"
@@ -277,8 +286,16 @@ export function ActionGraphOverlay(props: ActionGraphOverlayProps) {
       apply(addStepRecipe(location, entry, freshId(steps, entry.action), catalogue, steps[steps.length - 1]?.id));
     }
   };
+  const dropEntry = (key: string, at: Point) => {
+    const entry = catalogue.find((c) => c.key === key);
+    if (location !== undefined && entry !== undefined) {
+      apply(addStepRecipe(location, entry, freshId(steps, entry.action), catalogue, undefined, at));
+    }
+  };
   const context: GraphContextValue | undefined =
-    location === undefined ? undefined : { steps, catalogue, canEdit, m, apply, problems: byStep, pxlSource, location };
+    location === undefined
+      ? undefined
+      : { steps, catalogue, canEdit, m, apply, problems: byStep, pxlSource, dropEntry, location };
   const notice = noticeOf(target, props, m);
 
   return (

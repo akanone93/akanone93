@@ -1186,6 +1186,12 @@ msgstr "Allowed"
 msgid "notify.mute.locked"
 msgstr "Always on"
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.analytics"
+msgstr "Analytics"
+
 #. Heading of the analytics overview.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -1275,6 +1281,12 @@ msgstr "App"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.appColumn"
 msgstr "App"
+
+#. Accessible name of the navigation between the areas of one app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.label"
+msgstr "App areas"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -1419,6 +1431,12 @@ msgstr "Approval policies"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.requestTitle"
 msgstr "Approval request"
+
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.approvals"
+msgstr "Approvals"
 
 #. Heading of the approval notifications group.
 #. js-lingui-explicit-id
@@ -2902,6 +2920,12 @@ msgstr "Dark"
 msgid "designers.themeDarkValue"
 msgstr "Dark value of {token}"
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.data"
+msgstr "Data"
+
 #. Tab of the left panel: the plugin's data sources and collections.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -3226,6 +3250,12 @@ msgstr "Description"
 msgid "admin.roleDescription"
 msgstr "Description"
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.design"
+msgstr "Design"
+
 #. Accessible name of the navigation between the pages of the Design system area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -3339,6 +3369,12 @@ msgstr "Device frame"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.matrix"
 msgstr "Device matrix"
+
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.devices"
+msgstr "Devices"
 
 #. Heading of the devices list.
 #. js-lingui-explicit-id
@@ -3724,12 +3760,6 @@ msgstr "Enter your password."
 msgid "chrome.licence.title"
 msgstr "Enterprise: requires a licence"
 
-#. Column: the name of a state entry.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.replayStateName"
-msgstr "Entry"
-
 #. Marks the screen the plugin opens first.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3740,6 +3770,12 @@ msgstr "Entry"
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.entryBadge"
+msgstr "Entry"
+
+#. Column: the name of a state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStateName"
 msgstr "Entry"
 
 #. Tag on the first step of a graph, where it starts.
@@ -3904,12 +3940,6 @@ msgstr "Event"
 msgid "notify.inbox.type"
 msgstr "Event type"
 
-#. Column: number of events in a replay.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.replayEvents"
-msgstr "Events"
-
 #. Accessible name of the list of events in the trigger picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -3920,6 +3950,12 @@ msgstr "Events"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsEvents"
+msgstr "Events"
+
+#. Column: number of events in a replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayEvents"
 msgstr "Events"
 
 #. Column heading: number of events.
@@ -4023,6 +4059,12 @@ msgstr "Experiment {key}"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.keyLabel"
 msgstr "Experiment key"
+
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.experiments"
+msgstr "Experiments"
 
 #. Heading of the experiments list.
 #. js-lingui-explicit-id
@@ -4450,6 +4492,12 @@ msgstr "Function"
 msgid "functions.detailTitle"
 msgstr "Function {name}"
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.functions"
+msgstr "Functions"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -4689,6 +4737,12 @@ msgstr "Healthy"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.heatmapLink"
 msgstr "Heatmap"
+
+#. Field label for the height of a frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameHeight"
+msgstr "Height"
 
 #. Label of the height field of the custom frame dialog.
 #. js-lingui-explicit-id
@@ -5904,6 +5958,12 @@ msgstr "Locale code"
 msgid "l10n.editLocale"
 msgstr "Locale to edit"
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.localisation"
+msgstr "Localisation"
+
 #. Tab of the right panel: the strings of the selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -6822,6 +6882,12 @@ msgstr "No migration problems: devices can update without losing data."
 msgid "notify.empty"
 msgstr "No notifications"
 
+#. Option in the owning-team picker: the plugin has no owning team.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.noOwner"
+msgstr "No owning team"
+
 #. Shown when there is nothing to publish.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -7650,12 +7716,6 @@ msgstr "Path"
 msgid "admin.colPatterns"
 msgstr "Patterns"
 
-#. Button that pauses a replay.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.replayPause"
-msgstr "Pause"
-
 #. Button: stop a rollout from advancing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -7666,6 +7726,12 @@ msgstr "Pause"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.pause"
+msgstr "Pause"
+
+#. Button that pauses a replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayPause"
 msgstr "Pause"
 
 #. State of a rollout.
@@ -8154,6 +8220,12 @@ msgstr "Public items are visible to the whole installation and are scanned for s
 msgid "security.keysCaption"
 msgstr "Public keys that may sign for this environment. Keys are rotated in the offline ceremony."
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.publish"
+msgstr "Publish"
+
 #. Heading of the publish flow.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -8454,6 +8526,12 @@ msgstr "Released"
 msgid "publish.releasedAs"
 msgstr "Released as release {sequence}."
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.releases"
+msgstr "Releases"
+
 #. Heading of the release timeline.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -8645,6 +8723,12 @@ msgstr "Rename"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanRename"
 msgstr "Rename (new=old, comma-separated)"
+
+#. Button: opens the dialog that renames or resizes a frame; label is the frame's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editFrame"
+msgstr "Rename or resize frame {label}"
 
 #. Command that renames the current screen.
 #. js-lingui-explicit-id
@@ -9648,6 +9732,12 @@ msgstr "Secret (shown once)"
 msgid "functions.capSecrets"
 msgstr "Secrets it may read"
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.security"
+msgstr "Security"
+
 #. Heading of the security page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -9821,6 +9911,12 @@ msgstr "Sessions"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colSetting"
 msgstr "Setting"
+
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.settings"
+msgstr "Settings"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -10050,6 +10146,12 @@ msgstr "Small Android phone"
 msgid "history.list"
 msgstr "Snapshots"
 
+#. Title of the dialog that lists the items a paste could not copy over.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedTitle"
+msgstr "Some items were not copied"
+
 #. Note shown after an import that produced variables while the app is read-only because another editor holds its lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -10170,16 +10272,16 @@ msgstr "Start the language server"
 msgid "state.problem.invalid"
 msgstr "Start with a lower-case letter and use only letters and digits, such as loanAmount."
 
-#. Column: when a replay started.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.replayStarted"
-msgstr "Started"
-
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colStarted"
+msgstr "Started"
+
+#. Column: when a replay started.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStarted"
 msgstr "Started"
 
 #. Label of the list of starter templates for a new function.
@@ -10692,6 +10794,12 @@ msgstr "Test ID"
 msgid "tests.runTitle"
 msgstr "Test run"
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.tests"
+msgstr "Tests"
+
 #. Name of the tab that runs the function's tests.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -10811,6 +10919,12 @@ msgstr "The change could not be saved."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.failed"
 msgstr "The change could not be saved."
+
+#. Why an item was not copied over: the change-set document limit was reached.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropLimit"
+msgstr "The change set is full."
 
 #. Shown when an atomic change across documents is refused by the server; nothing was written.
 #. js-lingui-explicit-id
@@ -11472,6 +11586,12 @@ msgstr "The server received a different number of bytes than the file has. Uploa
 msgid "installation.backupsNote"
 msgstr "The server records no backups yet. Take backups of the database and the object store with your own tooling and follow the runbook."
 
+#. Why an item was not copied over: the server rejected the new document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropRejected"
+msgstr "The server refused it."
+
 #. Error: variant shares do not sum to 100.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -11748,6 +11868,12 @@ msgstr "There are no snapshots yet."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.dropped"
 msgstr "These changes of yours were not applied"
+
+#. Explains the list of items that were not copied over by a paste.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedIntro"
+msgstr "These items were left out. Pasted elements no longer refer to them."
 
 #. Explains why the step-up dialog appears.
 #. js-lingui-explicit-id
@@ -12247,12 +12373,6 @@ msgstr "Trend"
 msgid "installation.issuersTitle"
 msgstr "Trusted CI issuers"
 
-#. Column: the type of a state entry.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.replayStateType"
-msgstr "Type"
-
 #. Label of the list that chooses the type of the entry's value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -12287,6 +12407,12 @@ msgstr "Type"
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.type"
+msgstr "Type"
+
+#. Column: the type of a state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStateType"
 msgstr "Type"
 
 #. STU-074 type-to-confirm: label of the field where the user types the name of what is affected.
@@ -12541,12 +12667,6 @@ msgstr "Validation"
 msgid "panelTabs.perfErrors"
 msgstr "Validation errors"
 
-#. Column: the value of a state entry; empty when it is not recorded.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.replayStateValue"
-msgstr "Value"
-
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -12557,6 +12677,12 @@ msgstr "Value"
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.newValue"
+msgstr "Value"
+
+#. Column: the value of a state entry; empty when it is not recorded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStateValue"
 msgstr "Value"
 
 #. Label of a step input written as a plain value.
@@ -12859,6 +12985,12 @@ msgstr "Why is this unavailable?"
 msgid "panels.layer1"
 msgstr "Widgets"
 
+#. Field label for the width of a frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameWidth"
+msgstr "Width"
+
 #. Label of the width field of the custom frame dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -12972,6 +13104,12 @@ msgstr "You can read this source but not change it."
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.readOnly"
 msgstr "You cannot edit this plugin now, so the JSON is read-only."
+
+#. Why an item was not copied over: the user has no read access to the source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropForbidden"
+msgstr "You cannot read it."
 
 #. Heading of the 403 page.
 #. js-lingui-explicit-id
@@ -13116,39 +13254,3 @@ msgstr "Zoom out"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.zoomToFit"
 msgstr "Zoom to fit"
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.droppedTitle"
-msgstr "Some items were not copied"
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.droppedIntro"
-msgstr "These items were left out. Pasted elements no longer refer to them."
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.dropForbidden"
-msgstr "You cannot read it."
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.dropLimit"
-msgstr "The change set is full."
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.dropRejected"
-msgstr "The server refused it."
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.editFrame"
-msgstr "Rename or resize frame {label}"
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.frameWidth"
-msgstr "Width"
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.frameHeight"
-msgstr "Height"
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.noOwner"
-msgstr "No owning team"
