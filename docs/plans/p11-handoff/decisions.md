@@ -41,3 +41,5 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-28 | Port Material MenuAnchor and the NavigationRail screen builder with goldens | S4.6 code |
 | 2026-10-28 | Lead: Scene C drop frame (117 ms) is inside the M-13 settle budget (≤ 300 ms); no separate target | p11.md M-13 |
 | 2026-10-26 | Sign-in page design is not changed now | — |
+| 2026-10-28 | Limits: `analytics.funnelScanEvents` 500000 (max 5000000, LimitExceeded asks to narrow the range); `experiments.segmentsPerTargeting` 10 (50), `experiments.attributesPerTargeting` 20 (100), `experiments.primaryMetrics` 3 (10), `experiments.guardrailMetrics` 5 (20), `flags.segmentValues` 20 (100) | schema/limits.json, spec §30.4 |
+| 2026-10-28 | Funnel session = one device's events from a `session_start` to the next (implicit leading session); window = the query range; no schema change | S8.6 code |
