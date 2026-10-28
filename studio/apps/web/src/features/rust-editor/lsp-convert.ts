@@ -37,6 +37,41 @@ export function hoverTexts(contents: MarkupContent | MarkupContent[]): string[] 
   return (Array.isArray(contents) ? contents : [contents]).map(markupText).filter((t) => t !== "");
 }
 
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+
+const isPosition = (v: unknown): boolean =>
+  isRecord(v) &&
+  Number.isSafeInteger(v["line"]) &&
+  Number.isSafeInteger(v["character"]) &&
+  (v["line"] as number) >= 0 &&
+  (v["character"] as number) >= 0;
+
+function isDiagnostic(v: unknown): v is Diagnostic {
+  if (!isRecord(v) || typeof v["message"] !== "string") {
+    return false;
+  }
+  const { range, severity, code } = v;
+  return (
+    isRecord(range) &&
+    isPosition(range["start"]) &&
+    isPosition(range["end"]) &&
+    (severity === undefined || severity === 1 || severity === 2 || severity === 3 || severity === 4) &&
+    (code === undefined || typeof code === "string" || typeof code === "number")
+  );
+}
+
+/**
+ * The diagnostics of a `textDocument/publishDiagnostics` notification for `uri`, or undefined when it is about another
+ * document or is not one. The language server works on the user's own code, so its output is untrusted: a malformed
+ * entry is dropped rather than handed to the editor.
+ */
+export function publishedDiagnostics(params: unknown, uri: string): Diagnostic[] | undefined {
+  if (!isRecord(params) || params["uri"] !== uri || !Array.isArray(params["diagnostics"])) {
+    return undefined;
+  }
+  return params["diagnostics"].filter(isDiagnostic);
+}
+
 /** Diagnostics as editor markers; hints and information are shown as warnings only when the server marks them so. */
 export function markersOfDiagnostics(diagnostics: readonly Diagnostic[]): EditorMarker[] {
   return diagnostics.flatMap((d) => {

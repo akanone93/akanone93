@@ -82,7 +82,11 @@ export interface RpcTransport {
 
 /** JSON-RPC error codes the client answers with. */
 const METHOD_NOT_FOUND = -32601;
+const INTERNAL_ERROR = -32603;
 const REQUEST_CANCELLED = -32800;
+
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+const isId = (v: unknown): v is number | string => typeof v === "number" || typeof v === "string";
 
 export class RpcError extends Error {
   readonly code: number;
@@ -104,7 +108,7 @@ type Message = {
   method?: string;
   params?: unknown;
   result?: unknown;
-  error?: { code: number; message: string };
+  error?: unknown;
 };
 
 /** Milliseconds a request waits for its answer before it fails; rust-analyzer's cold start is the slow case. */
@@ -157,23 +161,32 @@ export class LspClient {
     return this.#closed ? Promise.resolve() : this.#transport.send({ jsonrpc: "2.0", method, params });
   }
 
-  /** Takes one message from the server, as the bridge decoded it. Malformed messages are dropped. */
+  /**
+   * Takes one message from the server, as the bridge decoded it. The language server works on the user's own code,
+   * so its messages are untrusted: anything that is not a JSON-RPC object with a string method and a number or string
+   * id is dropped, and a malformed error still fails its request instead of throwing here.
+   */
   receive(raw: string): void {
-    let message: Message;
+    let parsed: unknown;
     try {
-      message = JSON.parse(raw) as Message;
+      parsed = JSON.parse(raw);
     } catch {
       return;
     }
-    if (typeof message !== "object" || message === null) {
+    if (!isRecord(parsed)) {
       return;
     }
-    if (message.method === undefined) {
+    const message = parsed as Message;
+    const { id, method } = message;
+    if ((method !== undefined && typeof method !== "string") || (id !== undefined && !isId(id))) {
+      return;
+    }
+    if (method === undefined) {
       this.#settle(message);
-    } else if (message.id === undefined) {
-      this.#handlers.get(message.method)?.(message.params);
+    } else if (id === undefined) {
+      this.#handlers.get(method)?.(message.params);
     } else {
-      this.#answer(message.id, message.method, message.params);
+      this.#answer(id, method, message.params);
     }
   }
 
@@ -187,8 +200,12 @@ export class LspClient {
     }
     this.#pending.delete(message.id);
     clearTimeout(pending.timer);
-    if (message.error !== undefined) {
-      pending.reject(new RpcError(message.error.code, message.error.message));
+    const error: unknown = message.error;
+    if (error !== undefined) {
+      const code = isRecord(error) && typeof error["code"] === "number" ? error["code"] : INTERNAL_ERROR;
+      const text =
+        isRecord(error) && typeof error["message"] === "string" ? error["message"] : "the language server failed";
+      pending.reject(new RpcError(code, text));
     } else {
       pending.resolve(message.result ?? null);
     }
@@ -198,8 +215,8 @@ export class LspClient {
     let reply: Record<string, unknown>;
     switch (method) {
       case "workspace/configuration": {
-        const items = (params as { items?: unknown[] } | undefined)?.items ?? [];
-        reply = { result: items.map(() => null) };
+        const items = isRecord(params) ? params["items"] : undefined;
+        reply = { result: Array.isArray(items) ? items.map(() => null) : [] };
         break;
       }
       case "window/workDoneProgress/create":

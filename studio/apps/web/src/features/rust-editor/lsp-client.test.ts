@@ -46,6 +46,33 @@ describe("FN-033 LSP client", () => {
     expect(t.sent[2]).toMatchObject({ id: 9, error: { code: -32601 } });
   });
 
+  test("malformed server messages are dropped or fail their request, never throw", async () => {
+    const t = transport();
+    const c = new LspClient(t);
+    const seen: unknown[] = [];
+    c.onNotification("n", (p) => seen.push(p));
+    const first = c.request("a", {});
+    const second = c.request("b", {});
+    const third = c.request("c", {});
+    for (const raw of [
+      JSON.stringify([{ jsonrpc: "2.0", id: 1, result: 1 }]),
+      JSON.stringify({ jsonrpc: "2.0", method: 5, params: {} }),
+      JSON.stringify({ jsonrpc: "2.0", id: { x: 1 }, method: "workspace/configuration", params: { items: [{}] } }),
+      JSON.stringify({ jsonrpc: "2.0", id: null, result: 1 }),
+      JSON.stringify({ jsonrpc: "2.0", id: 8, method: "workspace/configuration", params: { items: "x" } }),
+      JSON.stringify({ jsonrpc: "2.0", id: 1, error: null }),
+      JSON.stringify({ jsonrpc: "2.0", id: 2, error: { code: "x", message: 7 } }),
+      JSON.stringify({ jsonrpc: "2.0", id: 3, error: "broken" }),
+    ]) {
+      expect(() => c.receive(raw)).not.toThrow();
+    }
+    await expect(first).rejects.toMatchObject({ code: -32603, message: "the language server failed" });
+    await expect(second).rejects.toMatchObject({ code: -32603, message: "the language server failed" });
+    await expect(third).rejects.toBeInstanceOf(RpcError);
+    expect(seen).toEqual([]);
+    expect(t.sent.slice(3)).toEqual([{ jsonrpc: "2.0", id: 8, result: [] }]);
+  });
+
   test("a request times out, a failed send rejects, and closing fails what is open", async () => {
     const slow = new LspClient(transport(), 5);
     await expect(slow.request("slow", {})).rejects.toBeInstanceOf(RpcError);
@@ -184,6 +211,42 @@ describe("FN-033 Rust session", () => {
     s.change("ignored once over");
     s.close();
     expect(states.filter((x) => x.phase === "closed")).toHaveLength(1);
+  });
+
+  test("malformed diagnostics are dropped before they reach the editor", async () => {
+    const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } };
+    const uri = "file:///w/f/src/lib.rs";
+    const bad = (m: Record<string, unknown>): unknown[] =>
+      m["method"] === "textDocument/didOpen"
+        ? [
+            { jsonrpc: "2.0", method: "textDocument/publishDiagnostics", params: { uri, diagnostics: null } },
+            { jsonrpc: "2.0", method: "textDocument/publishDiagnostics", params: null },
+            {
+              jsonrpc: "2.0",
+              method: "textDocument/publishDiagnostics",
+              params: {
+                uri,
+                diagnostics: [
+                  { range, message: "kept", severity: 2, code: "E1" },
+                  { range, message: 1 },
+                  { message: "no range" },
+                  { range: { start: { line: -1, character: 0 }, end: range.end }, message: "negative" },
+                  { range: { start: { line: 0.5, character: 0 }, end: range.end }, message: "fraction" },
+                  { range, message: "severity", severity: 9 },
+                  { range, message: "code", code: {} },
+                  null,
+                ],
+              },
+            },
+          ]
+        : answers(m);
+    const f = fakeBridge(bad);
+    const got: (readonly unknown[])[] = [];
+    const s = new RustSession(f.bridge, { onState: () => undefined, onDiagnostics: (d) => got.push(d) });
+    await s.start("src", "");
+    await Promise.resolve();
+    expect(got).toEqual([[{ range, message: "kept", severity: 2, code: "E1" }]]);
+    s.close();
   });
 
   test("a sandbox that does not start fails the session; stopping reports the client", async () => {
