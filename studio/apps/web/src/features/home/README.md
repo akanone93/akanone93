@@ -9,4 +9,5 @@ Implements: STU-015 (O1 placeholder), STU-012.
 
 Exports: `HomePage`.
 
-- `home-page.tsx`: organisation home; cards arrive with their slices.
+- `home-page.tsx`: organisation home with the list of apps; other cards arrive with their slices.
+- `create-app-dialog.tsx`: creates an app (needs `app.manage`) and opens its canvas.

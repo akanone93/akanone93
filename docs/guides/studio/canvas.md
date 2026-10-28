@@ -9,6 +9,19 @@ Studio has two canvases. The **app canvas** shows the plugins of an app and how 
 **plugin canvas** shows the screens of one plugin and lets you edit them. Both draw with Plux
 Canvas, and you can drive both from the keyboard.
 
+## Create an organisation, an app and its first plugin
+
+1. An installation administrator chooses **New organisation** in the top bar (or **Create
+   organisation** on the page shown to a person who belongs to no organisation). Give it a name and
+   a key. The key is 1 to 64 lower-case letters, digits and hyphens, starting and ending with a
+   letter or digit; Studio suggests one from the name, and it cannot be changed later. Studio
+   switches to the new organisation. If the server refuses (for example a quota), the dialog says
+   why and nothing changes.
+2. On the organisation home, people who hold the `app.manage` permission see **Create app**, on the
+   list of apps and on the empty state. Give the app a name and a key as above. Studio opens the
+   new app's canvas. People without the permission see the apps, but no button.
+3. The new app has no plugins. Choose **New plugin** on its canvas to add the first one.
+
 ## Arrange the plugins of an app
 
 1. Open the app. The **App canvas** lists a card per plugin with its screens, versions, links in and
