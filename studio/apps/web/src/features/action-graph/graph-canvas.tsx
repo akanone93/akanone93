@@ -10,14 +10,25 @@ import {
   type NodeChange,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import "./graph-theme.css";
-import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type DragEvent, type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGraph } from "./graph-context.ts";
 import { estimatedHeight, layoutSteps, NODE_WIDTH, type Placed } from "./graph-layout.ts";
 import type { Step } from "./graph-model.ts";
-import { canConnect, connectRecipe, edgesOf, entryOf, portsOf, removeStepRecipe } from "./graph-model.ts";
+import {
+  canConnect,
+  connectRecipe,
+  ENTRY_DRAG_TYPE,
+  edgesOf,
+  entryOf,
+  portsOf,
+  removeStepRecipe,
+  savedPosition,
+  setPositionsRecipe,
+} from "./graph-model.ts";
 import { StepNode } from "./step-node.tsx";
 
 const nodeTypes = { step: StepNode };
@@ -42,8 +53,10 @@ function Canvas({ layoutToken }: { layoutToken: number }): ReactElement {
     [edges],
   );
 
-  // Steps that are new get a place from dagre; steps that were already there stay where the user put them.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the layout runs again for a new step set or a relayout request
+  // A step is drawn where the document says (`x-position`); steps without a saved place get one from dagre,
+  // and a request to arrange the graph again places every step and saves the result as one undo step.
+  const saved = g.steps.map((s) => JSON.stringify(savedPosition(s) ?? null)).join("|");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the layout runs again for a new step set, a saved position or a relayout request
   useEffect(() => {
     const rows = (s: Step) => {
       const entry = entryOf(s, g.catalogue);
@@ -52,21 +65,53 @@ function Canvas({ layoutToken }: { layoutToken: number }): ReactElement {
     const placed: ReadonlyMap<string, Placed> = layoutSteps(g.steps, edges, rows);
     const fresh = handled.current !== layoutToken;
     handled.current = layoutToken;
+    if (fresh) {
+      g.apply(setPositionsRecipe(g.location, placed));
+    }
     setNodes((prev) =>
       g.steps.map((s) => {
-        const old = fresh ? undefined : prev.find((n) => n.id === s.id);
+        const old = prev.find((n) => n.id === s.id);
         return {
           ...old,
           id: s.id,
           type: "step",
-          position: old?.position ?? placed.get(s.id) ?? { x: 0, y: 0 },
+          position: fresh
+            ? (placed.get(s.id) ?? { x: 0, y: 0 })
+            : (savedPosition(s) ?? old?.position ?? placed.get(s.id) ?? { x: 0, y: 0 }),
           data: {},
           initialWidth: NODE_WIDTH,
           initialHeight: estimatedHeight(rows(s)),
         };
       }),
     );
-  }, [g.steps.map((s) => s.id).join("|"), edges.map((e) => e.id + e.to).join("|"), layoutToken]);
+  }, [g.steps.map((s) => s.id).join("|"), edges.map((e) => e.id + e.to).join("|"), saved, layoutToken]);
+
+  const flow = useReactFlow();
+  const onNodeDragStop = useCallback(
+    (_: unknown, __: Node, dragged: Node[]) => {
+      g.apply(setPositionsRecipe(g.location, new Map(dragged.map((n) => [n.id, n.position]))));
+    },
+    [g],
+  );
+  const onDragOver = useCallback(
+    (e: DragEvent) => {
+      if (g.canEdit && e.dataTransfer.types.includes(ENTRY_DRAG_TYPE)) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+      }
+    },
+    [g.canEdit],
+  );
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      const key = e.dataTransfer.getData(ENTRY_DRAG_TYPE);
+      if (g.canEdit && key !== "") {
+        e.preventDefault();
+        g.dropEntry(key, flow.screenToFlowPosition({ x: e.clientX, y: e.clientY }));
+      }
+    },
+    [g, flow],
+  );
 
   const onNodesChange = useCallback((changes: NodeChange[]) => setNodes((ns) => applyNodeChanges(changes, ns)), []);
   const onConnect = useCallback(
@@ -136,6 +181,9 @@ function Canvas({ layoutToken }: { layoutToken: number }): ReactElement {
         onConnect={onConnect}
         onEdgesDelete={onEdgesDelete}
         onNodesDelete={onNodesDelete}
+        onNodeDragStop={onNodeDragStop}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         isValidConnection={isValidConnection}
         nodesConnectable={g.canEdit}
         deleteKeyCode={g.canEdit ? ["Backspace", "Delete"] : null}

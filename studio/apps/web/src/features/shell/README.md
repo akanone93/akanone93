@@ -11,4 +11,5 @@ Exports: layouts, error pages, `ShellLayout`.
 
 - `layouts.tsx`: public, canvas (empty), page (empty).
 - `shell-layout.tsx`: top bar, organisation switcher, profile menu.
+- `app-nav.tsx`: navigation between the areas of the app in the URL, filtered by the permissions the route guards need.
 - `error-pages.tsx`: 404, 403 with Explain access, licence page.

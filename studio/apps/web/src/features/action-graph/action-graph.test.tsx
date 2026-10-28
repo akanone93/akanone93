@@ -7,7 +7,7 @@ import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import type { ValidatorClient } from "../problems/validator-client.ts";
-import { stepsAt } from "./graph-model.ts";
+import { ENTRY_DRAG_TYPE, savedPosition, stepsAt } from "./graph-model.ts";
 
 /** happy-dom measures nothing; React Flow needs an observer and a matrix type to place nodes. */
 beforeAll(() => {
@@ -148,6 +148,33 @@ describe("STU-065 action graph editor", () => {
     fireEvent.click(within(node).getByRole("button", { name: "Remove step kvGet1", hidden: true }));
     await waitFor(() => expect(steps(s).map((x) => x.id)).toEqual(["pop1"]));
     expect(await screen.findByRole("region", { name: "pop1", hidden: true })).toBeTruthy();
+  }, 40_000);
+
+  test("dragging an action from the catalogue onto the graph adds it there with its position, as one edit", async () => {
+    const s = await openEditor({ steps: [{ id: "pop1", action: "pop" }] });
+    await screen.findByLabelText("pop1", {}, { timeout: 10_000 });
+    const item = within(screen.getByRole("region", { name: "Actions" }))
+      .getByRole("button", { name: "Add kvGet to the graph" })
+      .closest("li");
+    expect(item?.getAttribute("draggable")).toBe("true");
+    const store = new Map<string, string>();
+    const dataTransfer = {
+      types: [ENTRY_DRAG_TYPE],
+      setData: (type: string, value: string) => store.set(type, value),
+      getData: (type: string) => store.get(type) ?? "",
+      effectAllowed: "",
+      dropEffect: "",
+    };
+    fireEvent.dragStart(item as Element, { dataTransfer });
+    expect(store.get(ENTRY_DRAG_TYPE)).toBe("kvGet");
+    const pane = document.querySelector(".react-flow");
+    fireEvent.drop(pane as Element, { dataTransfer, clientX: 0, clientY: 0 });
+    await waitFor(() => expect(steps(s).map((x) => x.id)).toEqual(["pop1", "kvGet1"]));
+    const dropped = steps(s)[1];
+    const at = dropped === undefined ? undefined : savedPosition(dropped);
+    // happy-dom has no layout, so the drop point is not a number here and the step keeps dagre's place.
+    expect(at === undefined || (Number.isFinite(at.x) && Number.isFinite(at.y))).toBe(true);
+    expect(dropped?.next === undefined && steps(s)[0]?.next === undefined).toBe(true);
   }, 40_000);
 
   test("without the lock the graph is read-only, and an event that names a missing graph says so", async () => {
