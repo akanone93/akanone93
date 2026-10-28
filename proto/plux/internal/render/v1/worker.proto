@@ -48,6 +48,34 @@ message RenderRequest {
   // devices are the identifiers of the standard device frames to render.
   repeated string devices = 4;
   RenderLimits limits = 5;
+  // functions are the function declarations of the app and environment the
+  // request releases to, the catalogue the release build compiles against
+  // (FN-004, FN-006, FN-008), so that a page that calls a function compiles.
+  // The server bounds them by app.functions; the worker refuses more.
+  repeated FunctionDeclaration functions = 6;
+  // device_functions is the effective security setting deviceFunctions
+  // (FN-055).
+  bool device_functions = 7;
+}
+
+// FunctionDeclaration is what the compiler knows about one function name and
+// alias: one answer of the catalogue. An empty alias is the newest version.
+message FunctionDeclaration {
+  string name = 1;
+  string alias = 2;
+  // placement is "server" or "device".
+  string placement = 3;
+  uint32 version = 4;
+  // capabilities and limits are the JSON of the declaration's capabilities
+  // and limits objects; empty when the declaration has none.
+  bytes capabilities_json = 5;
+  bytes limits_json = 6;
+  // input_schema and output_schema are the JSON Schemas derived from the
+  // function's types (FN-004); empty means unknown.
+  bytes input_schema = 7;
+  bytes output_schema = 8;
+  bool requires_attestation = 9;
+  bool requires_sca = 10;
 }
 
 // RenderedScreen is one screen on one device. before_png is empty for a new

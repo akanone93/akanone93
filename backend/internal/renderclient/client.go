@@ -82,6 +82,12 @@ func (c *Client) Render(ctx context.Context, in releasereq.RenderInput) ([]relea
 		},
 	}
 	var err error
+	if in.Functions != nil {
+		req.DeviceFunctions = in.Functions.DeviceFunctionsEnabled()
+		if req.Functions, err = renderworker.EncodeCatalogue(in.Functions); err != nil {
+			return nil, fmt.Errorf("renderclient.Render: %w", err)
+		}
+	}
 	if req.After, err = renderworker.Pack(in.After, lim); err != nil {
 		return nil, fmt.Errorf("renderclient.Render: pack the new project: %w", err)
 	}

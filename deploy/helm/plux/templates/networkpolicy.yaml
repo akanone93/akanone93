@@ -8,10 +8,11 @@
 #                 │  ▲
 #                 ▼  │ modules, key-value store
 #             fnrunner ──► egress ──► the internet (443 and 80; no private ranges)
-#   worker ──► postgresql, valkey, object storage, builder, https
+#   worker ──► postgresql, valkey, object storage, builder, render worker, https
 #
-# fnrunner and builder reach no database, cache, store or Vault; builder reaches
-# nothing at all (no DNS either: it is only ever called). Enforcement needs a
+# fnrunner, builder and the render worker reach no database, cache, store or
+# Vault; builder and the render worker reach nothing at all (no DNS either:
+# they are only ever called). Enforcement needs a
 # CNI that implements NetworkPolicy.
 {{- define "plux.sel" -}}
 {{ include "plux.releaseSelector" .root }}
@@ -53,6 +54,7 @@ metadata:
 {{- $valkeyInside := eq .Values.valkey.mode "sentinel" }}
 {{- $functions := .Values.functions.enabled }}
 {{- $builder := and $functions .Values.builder.enabled }}
+{{- $render := .Values.renderWorker.enabled }}
 ---
 {{ include "plux.np.head" (dict "root" . "name" "default-deny") }}
 spec:
@@ -61,14 +63,15 @@ spec:
       {{- include "plux.releaseSelector" . | nindent 6 }}
   policyTypes: [Ingress, Egress]
 ---
-# Name resolution for every pod but the builder, which resolves nothing.
+# Name resolution for every pod but the builder and the render worker, which
+# resolve nothing.
 {{ include "plux.np.head" (dict "root" . "name" "allow-dns") }}
 spec:
   podSelector:
     matchLabels:
       {{- include "plux.releaseSelector" . | nindent 6 }}
     matchExpressions:
-      - {key: app.kubernetes.io/component, operator: NotIn, values: [builder]}
+      - {key: app.kubernetes.io/component, operator: NotIn, values: [builder, render-worker]}
   policyTypes: [Egress]
   egress:
     - to:
@@ -157,6 +160,11 @@ spec:
         {{- include "plux.peer" (dict "root" . "component" "builder") | nindent 8 }}
       ports: [{protocol: TCP, port: 8446}]
     {{- end }}
+    {{- if $render }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "render-worker") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8443}]
+    {{- end }}
     {{- include "plux.np.https" . | nindent 4 }}
     {{- with $np.extraEgress.worker }}
     {{- toYaml . | nindent 4 }}
@@ -237,6 +245,22 @@ spec:
     - from:
         {{- include "plux.peer" (dict "root" . "component" "worker") | nindent 8 }}
       ports: [{protocol: TCP, port: 8446}]
+  egress: []
+{{- end }}
+{{- if $render }}
+---
+# The render worker is called by the worker role and reaches nothing: the
+# projects arrive in the request and the images leave in the response.
+{{ include "plux.np.head" (dict "root" . "name" "render-worker") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "render-worker") | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- include "plux.peer" (dict "root" . "component" "worker") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8443}]
   egress: []
 {{- end }}
 {{- if $pgInside }}

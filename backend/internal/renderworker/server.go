@@ -109,7 +109,11 @@ func (h *Handler) Render(ctx context.Context, req *connect.Request[renderpb.Rend
 			return connect.NewError(connect.CodeInvalidArgument, err)
 		}
 	}
-	screens, err := h.diff(ctx, before, after, m.GetDevices(), lim)
+	cat, err := DecodeCatalogue(m.GetFunctions(), m.GetDeviceFunctions())
+	if err != nil {
+		return connect.NewError(connect.CodeInvalidArgument, err)
+	}
+	screens, err := h.diff(ctx, cat, before, after, m.GetDevices(), lim)
 	if err != nil {
 		return err
 	}
@@ -127,14 +131,14 @@ type shot struct{ plugin, screen, device string }
 // diff renders both projects and returns the screens whose image differs, in
 // order of plugin, screen and device. A screen only in one project is new or
 // removed and is returned with the other image empty.
-func (h *Handler) diff(ctx context.Context, before, after fs.FS, devices []string, lim Limits) ([]*renderpb.RenderedScreen, error) {
-	now, err := h.render(ctx, after, devices, lim)
+func (h *Handler) diff(ctx context.Context, cat compiler.FunctionCatalogue, before, after fs.FS, devices []string, lim Limits) ([]*renderpb.RenderedScreen, error) {
+	now, err := h.render(ctx, cat, after, devices, lim)
 	if err != nil {
 		return nil, err
 	}
 	var was map[shot][]byte
 	if before != nil {
-		if was, err = h.render(ctx, before, devices, lim); err != nil {
+		if was, err = h.render(ctx, cat, before, devices, lim); err != nil {
 			return nil, err
 		}
 	}
@@ -170,20 +174,13 @@ func cmpStrings(pairs ...string) int {
 	return 0
 }
 
-// noFunctions is the function catalogue of a render: the worker has no
-// deployed functions, and a page that calls one still renders its layout.
-type noFunctions struct{}
-
-func (noFunctions) Function(string, string) (compiler.FunctionInfo, bool) {
-	return compiler.FunctionInfo{}, false
-}
-func (noFunctions) DeviceFunctionsEnabled() bool { return true }
-
-// render compiles a project and draws its pages on the devices.
-func (h *Handler) render(ctx context.Context, files fs.FS, devices []string, lim Limits) (map[shot][]byte, error) {
+// render compiles a project against the function catalogue of the request, as
+// a release build does, and draws its pages on the devices.
+func (h *Handler) render(ctx context.Context, cat compiler.FunctionCatalogue, files fs.FS, devices []string, lim Limits) (map[shot][]byte, error) {
 	opts := compiler.DefaultOptions()
 	opts.Version = buildinfo.Get().Version
-	opts.Functions = noFunctions{}
+	opts.Functions = cat
+	opts.DeviceModules = deviceStubs{}
 	res := compiler.Compile(files, opts)
 	if res.Diagnostics.HasErrors() {
 		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("the project does not compile: %s", firstErrors(res)))

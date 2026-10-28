@@ -109,10 +109,18 @@ type RenderRequest struct {
 	// after is a ZIP of the project the request would release.
 	After []byte `protobuf:"bytes,3,opt,name=after,proto3" json:"after,omitempty"`
 	// devices are the identifiers of the standard device frames to render.
-	Devices       []string      `protobuf:"bytes,4,rep,name=devices,proto3" json:"devices,omitempty"`
-	Limits        *RenderLimits `protobuf:"bytes,5,opt,name=limits,proto3" json:"limits,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Devices []string      `protobuf:"bytes,4,rep,name=devices,proto3" json:"devices,omitempty"`
+	Limits  *RenderLimits `protobuf:"bytes,5,opt,name=limits,proto3" json:"limits,omitempty"`
+	// functions are the function declarations of the app and environment the
+	// request releases to, the catalogue the release build compiles against
+	// (FN-004, FN-006, FN-008), so that a page that calls a function compiles.
+	// The server bounds them by app.functions; the worker refuses more.
+	Functions []*FunctionDeclaration `protobuf:"bytes,6,rep,name=functions,proto3" json:"functions,omitempty"`
+	// device_functions is the effective security setting deviceFunctions
+	// (FN-055).
+	DeviceFunctions bool `protobuf:"varint,7,opt,name=device_functions,json=deviceFunctions,proto3" json:"device_functions,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *RenderRequest) Reset() {
@@ -180,6 +188,143 @@ func (x *RenderRequest) GetLimits() *RenderLimits {
 	return nil
 }
 
+func (x *RenderRequest) GetFunctions() []*FunctionDeclaration {
+	if x != nil {
+		return x.Functions
+	}
+	return nil
+}
+
+func (x *RenderRequest) GetDeviceFunctions() bool {
+	if x != nil {
+		return x.DeviceFunctions
+	}
+	return false
+}
+
+// FunctionDeclaration is what the compiler knows about one function name and
+// alias: one answer of the catalogue. An empty alias is the newest version.
+type FunctionDeclaration struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Alias string                 `protobuf:"bytes,2,opt,name=alias,proto3" json:"alias,omitempty"`
+	// placement is "server" or "device".
+	Placement string `protobuf:"bytes,3,opt,name=placement,proto3" json:"placement,omitempty"`
+	Version   uint32 `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
+	// capabilities and limits are the JSON of the declaration's capabilities
+	// and limits objects; empty when the declaration has none.
+	CapabilitiesJson []byte `protobuf:"bytes,5,opt,name=capabilities_json,json=capabilitiesJson,proto3" json:"capabilities_json,omitempty"`
+	LimitsJson       []byte `protobuf:"bytes,6,opt,name=limits_json,json=limitsJson,proto3" json:"limits_json,omitempty"`
+	// input_schema and output_schema are the JSON Schemas derived from the
+	// function's types (FN-004); empty means unknown.
+	InputSchema         []byte `protobuf:"bytes,7,opt,name=input_schema,json=inputSchema,proto3" json:"input_schema,omitempty"`
+	OutputSchema        []byte `protobuf:"bytes,8,opt,name=output_schema,json=outputSchema,proto3" json:"output_schema,omitempty"`
+	RequiresAttestation bool   `protobuf:"varint,9,opt,name=requires_attestation,json=requiresAttestation,proto3" json:"requires_attestation,omitempty"`
+	RequiresSca         bool   `protobuf:"varint,10,opt,name=requires_sca,json=requiresSca,proto3" json:"requires_sca,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *FunctionDeclaration) Reset() {
+	*x = FunctionDeclaration{}
+	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FunctionDeclaration) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FunctionDeclaration) ProtoMessage() {}
+
+func (x *FunctionDeclaration) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FunctionDeclaration.ProtoReflect.Descriptor instead.
+func (*FunctionDeclaration) Descriptor() ([]byte, []int) {
+	return file_plux_internal_render_v1_worker_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *FunctionDeclaration) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *FunctionDeclaration) GetAlias() string {
+	if x != nil {
+		return x.Alias
+	}
+	return ""
+}
+
+func (x *FunctionDeclaration) GetPlacement() string {
+	if x != nil {
+		return x.Placement
+	}
+	return ""
+}
+
+func (x *FunctionDeclaration) GetVersion() uint32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *FunctionDeclaration) GetCapabilitiesJson() []byte {
+	if x != nil {
+		return x.CapabilitiesJson
+	}
+	return nil
+}
+
+func (x *FunctionDeclaration) GetLimitsJson() []byte {
+	if x != nil {
+		return x.LimitsJson
+	}
+	return nil
+}
+
+func (x *FunctionDeclaration) GetInputSchema() []byte {
+	if x != nil {
+		return x.InputSchema
+	}
+	return nil
+}
+
+func (x *FunctionDeclaration) GetOutputSchema() []byte {
+	if x != nil {
+		return x.OutputSchema
+	}
+	return nil
+}
+
+func (x *FunctionDeclaration) GetRequiresAttestation() bool {
+	if x != nil {
+		return x.RequiresAttestation
+	}
+	return false
+}
+
+func (x *FunctionDeclaration) GetRequiresSca() bool {
+	if x != nil {
+		return x.RequiresSca
+	}
+	return false
+}
+
 // RenderedScreen is one screen on one device. before_png is empty for a new
 // screen and after_png for a removed one; both are PNG images.
 type RenderedScreen struct {
@@ -195,7 +340,7 @@ type RenderedScreen struct {
 
 func (x *RenderedScreen) Reset() {
 	*x = RenderedScreen{}
-	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[2]
+	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -207,7 +352,7 @@ func (x *RenderedScreen) String() string {
 func (*RenderedScreen) ProtoMessage() {}
 
 func (x *RenderedScreen) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[2]
+	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -220,7 +365,7 @@ func (x *RenderedScreen) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenderedScreen.ProtoReflect.Descriptor instead.
 func (*RenderedScreen) Descriptor() ([]byte, []int) {
-	return file_plux_internal_render_v1_worker_proto_rawDescGZIP(), []int{2}
+	return file_plux_internal_render_v1_worker_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RenderedScreen) GetPluginKey() string {
@@ -268,13 +413,28 @@ const file_plux_internal_render_v1_worker_proto_rawDesc = "" +
 	"\aentries\x18\x02 \x01(\rR\aentries\x12\x14\n" +
 	"\x05cases\x18\x03 \x01(\rR\x05cases\x12\x1f\n" +
 	"\vimage_bytes\x18\x04 \x01(\x04R\n" +
-	"imageBytes\"\xad\x01\n" +
+	"imageBytes\"\xa4\x02\n" +
 	"\rRenderRequest\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x16\n" +
 	"\x06before\x18\x02 \x01(\fR\x06before\x12\x14\n" +
 	"\x05after\x18\x03 \x01(\fR\x05after\x12\x18\n" +
 	"\adevices\x18\x04 \x03(\tR\adevices\x12=\n" +
-	"\x06limits\x18\x05 \x01(\v2%.plux.internal.render.v1.RenderLimitsR\x06limits\"\x9b\x01\n" +
+	"\x06limits\x18\x05 \x01(\v2%.plux.internal.render.v1.RenderLimitsR\x06limits\x12J\n" +
+	"\tfunctions\x18\x06 \x03(\v2,.plux.internal.render.v1.FunctionDeclarationR\tfunctions\x12)\n" +
+	"\x10device_functions\x18\a \x01(\bR\x0fdeviceFunctions\"\xe3\x02\n" +
+	"\x13FunctionDeclaration\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x1c\n" +
+	"\tplacement\x18\x03 \x01(\tR\tplacement\x12\x18\n" +
+	"\aversion\x18\x04 \x01(\rR\aversion\x12+\n" +
+	"\x11capabilities_json\x18\x05 \x01(\fR\x10capabilitiesJson\x12\x1f\n" +
+	"\vlimits_json\x18\x06 \x01(\fR\n" +
+	"limitsJson\x12!\n" +
+	"\finput_schema\x18\a \x01(\fR\vinputSchema\x12#\n" +
+	"\routput_schema\x18\b \x01(\fR\foutputSchema\x121\n" +
+	"\x14requires_attestation\x18\t \x01(\bR\x13requiresAttestation\x12!\n" +
+	"\frequires_sca\x18\n" +
+	" \x01(\bR\vrequiresSca\"\x9b\x01\n" +
 	"\x0eRenderedScreen\x12\x1d\n" +
 	"\n" +
 	"plugin_key\x18\x01 \x01(\tR\tpluginKey\x12\x16\n" +
@@ -298,21 +458,23 @@ func file_plux_internal_render_v1_worker_proto_rawDescGZIP() []byte {
 	return file_plux_internal_render_v1_worker_proto_rawDescData
 }
 
-var file_plux_internal_render_v1_worker_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_plux_internal_render_v1_worker_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_plux_internal_render_v1_worker_proto_goTypes = []any{
-	(*RenderLimits)(nil),   // 0: plux.internal.render.v1.RenderLimits
-	(*RenderRequest)(nil),  // 1: plux.internal.render.v1.RenderRequest
-	(*RenderedScreen)(nil), // 2: plux.internal.render.v1.RenderedScreen
+	(*RenderLimits)(nil),        // 0: plux.internal.render.v1.RenderLimits
+	(*RenderRequest)(nil),       // 1: plux.internal.render.v1.RenderRequest
+	(*FunctionDeclaration)(nil), // 2: plux.internal.render.v1.FunctionDeclaration
+	(*RenderedScreen)(nil),      // 3: plux.internal.render.v1.RenderedScreen
 }
 var file_plux_internal_render_v1_worker_proto_depIdxs = []int32{
 	0, // 0: plux.internal.render.v1.RenderRequest.limits:type_name -> plux.internal.render.v1.RenderLimits
-	1, // 1: plux.internal.render.v1.RenderWorkerService.Render:input_type -> plux.internal.render.v1.RenderRequest
-	2, // 2: plux.internal.render.v1.RenderWorkerService.Render:output_type -> plux.internal.render.v1.RenderedScreen
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 1: plux.internal.render.v1.RenderRequest.functions:type_name -> plux.internal.render.v1.FunctionDeclaration
+	1, // 2: plux.internal.render.v1.RenderWorkerService.Render:input_type -> plux.internal.render.v1.RenderRequest
+	3, // 3: plux.internal.render.v1.RenderWorkerService.Render:output_type -> plux.internal.render.v1.RenderedScreen
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_plux_internal_render_v1_worker_proto_init() }
@@ -326,7 +488,7 @@ func file_plux_internal_render_v1_worker_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_internal_render_v1_worker_proto_rawDesc), len(file_plux_internal_render_v1_worker_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
