@@ -154,3 +154,52 @@ describe("STU-112 A19 component library", () => {
     expect(screen.getByText("Not adopted")).toBeTruthy();
   });
 });
+
+describe("STU-006 host app fonts", () => {
+  const withFonts = (extra: Record<string, unknown>) => ({
+    ...state,
+    permissions: ["app.read", "app.manage"],
+    fontAssets: ["fonts/Brand.ttf", "fonts/Serif.ttf"],
+    ...extra,
+  });
+
+  test("the typography page lists the host fonts with their files", async () => {
+    renderApp(
+      `${base}/typography`,
+      withFonts({ hostFonts: [{ family: "Brand Sans", assetId: "font-0" }] }) as typeof state,
+    );
+    expect(await screen.findByText("Brand Sans", {}, { timeout: 10000 })).toBeTruthy();
+    expect(screen.getByText("fonts/Brand.ttf")).toBeTruthy();
+  });
+
+  test("a font asset is listed under a family and then removed", async () => {
+    const data = withFonts({}) as typeof state & { hostFonts?: { family: string; assetId: string }[] };
+    renderApp(`${base}/typography`, data);
+    expect(await screen.findByText("No host fonts are listed.", {}, { timeout: 10000 })).toBeTruthy();
+    fireEvent.change(await screen.findByLabelText("Font family"), { target: { value: "Brand Serif" } });
+    fireEvent.click(await screen.findByRole("combobox", { name: "Font file" }));
+    const opt = await screen.findByRole("option", { name: "fonts/Serif.ttf" });
+    // Base UI ignores a pick made at once after the popup opens: wait, then press and release as a pointer does.
+    await new Promise((r) => setTimeout(r, 400));
+    fireEvent.pointerDown(opt);
+    fireEvent.mouseDown(opt);
+    fireEvent.pointerUp(opt);
+    fireEvent.mouseUp(opt);
+    fireEvent.click(opt);
+    await waitFor(() => expect(screen.getAllByRole("combobox").at(-1)?.textContent).toBe("fonts/Serif.ttf"));
+    fireEvent.click(screen.getByRole("button", { name: "Add font" }));
+    expect(await screen.findByText("Brand Serif")).toBeTruthy();
+    expect(data.hostFonts).toEqual([{ family: "Brand Serif", assetId: "font-1" }]);
+    fireEvent.click(screen.getByRole("button", { name: "Remove Brand Serif" }));
+    await waitFor(() => expect(data.hostFonts).toEqual([]));
+    expect(await screen.findByText("No host fonts are listed.")).toBeTruthy();
+  });
+
+  test("without permission to manage the app the list is read-only", async () => {
+    renderApp(`${base}/typography`, withFonts({ permissions: ["app.read"] }) as typeof state);
+    expect(
+      await screen.findByText("You need permission to manage this app to change the list.", {}, { timeout: 10000 }),
+    ).toBeTruthy();
+    expect((await screen.findByRole("button", { name: "Add font" })).getAttribute("aria-disabled")).toBe("true");
+  });
+});

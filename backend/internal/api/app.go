@@ -114,6 +114,11 @@ func (s App) UpdateApp(ctx context.Context, req *connect.Request[pluxv1.UpdateAp
 				return nil, err //nolint:wrapcheck // a domain error
 			}
 		}
+		if req.Msg.GetSetHostFonts() {
+			if a, err = s.h.Tenancy.UpdateAppHostFonts(ctx, p, req.Msg.GetId(), hostFontsOf(req.Msg.GetHostFonts())); err != nil {
+				return nil, err //nolint:wrapcheck // a domain error
+			}
+		}
 		return &pluxv1.UpdateAppResponse{App: appProto(a)}, nil
 	})
 }
@@ -555,7 +560,26 @@ func appProto(a tenancy.App) *pluxv1.App {
 		Id: a.ID, OrganizationId: a.OrganizationID, Key: a.Key, Name: a.Name,
 		DefaultPluginKey: a.DefaultPluginKey, CreatedAt: ts(a.CreatedAt), UpdatedAt: ts(a.UpdatedAt),
 		Description: a.Description, IconAssetId: a.IconAssetID, OwningTeamId: a.OwningTeamID, Tags: a.Tags, Archived: a.Archived,
+		HostFonts: hostFontsProto(a.HostFonts),
 	}
+}
+
+// hostFontsProto converts the host fonts of an app.
+func hostFontsProto(fonts []tenancy.HostFont) []*pluxv1.HostFont {
+	out := make([]*pluxv1.HostFont, len(fonts))
+	for i, f := range fonts {
+		out[i] = &pluxv1.HostFont{Family: f.Family, AssetId: f.AssetID}
+	}
+	return out
+}
+
+// hostFontsOf converts the host fonts of a request.
+func hostFontsOf(fonts []*pluxv1.HostFont) []tenancy.HostFont {
+	out := make([]tenancy.HostFont, len(fonts))
+	for i, f := range fonts {
+		out[i] = tenancy.HostFont{Family: f.GetFamily(), AssetID: f.GetAssetId()}
+	}
+	return out
 }
 
 // environmentProto converts an environment.

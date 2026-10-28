@@ -70,6 +70,8 @@ enum PluxLimit {
   apiRequestsPerMinutePerDevice('api.requestsPerMinutePerDevice', PluxLimitUnit.count, 120, 0, 10000),
   /// Functions per app.
   appFunctions('app.functions', PluxLimitUnit.count, 100, 0, 1000),
+  /// Font files of the host app that one app lists for Studio's canvas.
+  appHostFonts('app.hostFonts', PluxLimitUnit.count, 32, 0, 256),
   /// Locales one app may declare.
   appLocales('app.locales', PluxLimitUnit.count, 50, 0, 300),
   /// Plugins per app.

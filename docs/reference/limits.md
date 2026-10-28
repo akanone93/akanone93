@@ -25,6 +25,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `api.requestsPerMinutePerAddress` | count | 300 | 80% | 100000 | installation | P2 | SRV-065 | API calls one client address may make per minute, whoever is calling. |
 | `api.requestsPerMinutePerDevice` | count | 120 | 80% | 10000 | installation, organization, app | P2 | SRV-065 | API calls one registered device may make per minute. |
 | `app.functions` | count | 100 | 80% | 1000 | installation, organization, app | P7 | LIM-001 | Functions per app. |
+| `app.hostFonts` | count | 32 | 80% | 256 | installation, organization | P11 | STU-006 | Font files of the host app that one app lists for Studio's canvas. |
 | `app.locales` | count | 50 | 80% | 300 | installation, organization, app | P8 | I18N-002 | Locales one app may declare. |
 | `app.plugins` | count | 200 | 80% | 1000 | installation, organization, app | P1 | SCH-005 | Plugins per app. |
 | `app.summariesPerCall` | count | 100 | 80% | 500 | installation | P11 | STU-022 | Apps one summary call returns; a longer list is paged. |

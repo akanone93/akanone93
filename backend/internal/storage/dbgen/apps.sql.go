@@ -14,7 +14,7 @@ import (
 const createApp = `-- name: CreateApp :one
 INSERT INTO apps (id, organization_id, key, name)
 VALUES ($1, $2, $3, $4)
-RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 type CreateAppParams struct {
@@ -46,6 +46,7 @@ func (q *Queries) CreateApp(ctx context.Context, arg CreateAppParams) (App, erro
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -284,7 +285,7 @@ func (q *Queries) FindAppAccess(ctx context.Context, arg FindAppAccessParams) (A
 }
 
 const getApp = `-- name: GetApp :one
-SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM apps WHERE id = $1 AND deleted_at IS NULL
+SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts FROM apps WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetApp(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -304,12 +305,13 @@ func (q *Queries) GetApp(ctx context.Context, id pgtype.UUID) (App, error) {
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
 
 const getAppIncludingDeleted = `-- name: GetAppIncludingDeleted :one
-SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM apps WHERE id = $1
+SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts FROM apps WHERE id = $1
 `
 
 func (q *Queries) GetAppIncludingDeleted(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -329,6 +331,7 @@ func (q *Queries) GetAppIncludingDeleted(ctx context.Context, id pgtype.UUID) (A
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -626,7 +629,7 @@ func (q *Queries) ListAppRolesForUser(ctx context.Context, arg ListAppRolesForUs
 }
 
 const listApps = `-- name: ListApps :many
-SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM apps
+SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts FROM apps
  WHERE apps.organization_id = $1 AND apps.deleted_at IS NULL
    AND ($2::uuid[] IS NULL OR apps.id = ANY ($2::uuid[]))
    AND NOT (apps.id = ANY ($3::uuid[]))
@@ -711,6 +714,7 @@ func (q *Queries) ListApps(ctx context.Context, arg ListAppsParams) ([]App, erro
 			&i.OwningTeamID,
 			&i.Tags,
 			&i.ArchivedAt,
+			&i.HostFonts,
 		); err != nil {
 			return nil, err
 		}
@@ -1094,7 +1098,7 @@ func (q *Queries) PurgeApp(ctx context.Context, id pgtype.UUID) (int64, error) {
 }
 
 const restoreApp = `-- name: RestoreApp :one
-UPDATE apps SET deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
+UPDATE apps SET deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 func (q *Queries) RestoreApp(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -1114,6 +1118,7 @@ func (q *Queries) RestoreApp(ctx context.Context, id pgtype.UUID) (App, error) {
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -1274,7 +1279,7 @@ func (q *Queries) SetVariable(ctx context.Context, arg SetVariableParams) (Envir
 }
 
 const softDeleteApp = `-- name: SoftDeleteApp :one
-UPDATE apps SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
+UPDATE apps SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 func (q *Queries) SoftDeleteApp(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -1294,12 +1299,13 @@ func (q *Queries) SoftDeleteApp(ctx context.Context, id pgtype.UUID) (App, error
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
 
 const summariseApps = `-- name: SummariseApps :many
-SELECT a.id, a.organization_id, a.key, a.name, a.default_plugin_key, a.created_at, a.updated_at, a.deleted_at, a.description, a.icon_asset_id, a.owning_team_id, a.tags, a.archived_at,
+SELECT a.id, a.organization_id, a.key, a.name, a.default_plugin_key, a.created_at, a.updated_at, a.deleted_at, a.description, a.icon_asset_id, a.owning_team_id, a.tags, a.archived_at, a.host_fonts,
        (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugin_count,
        (SELECT count(*) FROM devices d WHERE d.app_id = a.id AND d.last_seen_at > now() - interval '7 days')::bigint AS active_devices,
        (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
@@ -1338,6 +1344,7 @@ type SummariseAppsRow struct {
 	OwningTeamID         pgtype.UUID
 	Tags                 []string
 	ArchivedAt           pgtype.Timestamptz
+	HostFonts            []byte
 	PluginCount          int64
 	ActiveDevices        int64
 	CrashedDevices       int64
@@ -1378,6 +1385,7 @@ func (q *Queries) SummariseApps(ctx context.Context, arg SummariseAppsParams) ([
 			&i.OwningTeamID,
 			&i.Tags,
 			&i.ArchivedAt,
+			&i.HostFonts,
 			&i.PluginCount,
 			&i.ActiveDevices,
 			&i.CrashedDevices,
@@ -1398,7 +1406,7 @@ const updateApp = `-- name: UpdateApp :one
 UPDATE apps
    SET name = $2, default_plugin_key = $3, updated_at = now()
  WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 type UpdateAppParams struct {
@@ -1424,6 +1432,7 @@ func (q *Queries) UpdateApp(ctx context.Context, arg UpdateAppParams) (App, erro
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -1452,6 +1461,40 @@ func (q *Queries) UpdateAppAccess(ctx context.Context, arg UpdateAppAccessParams
 	return i, err
 }
 
+const updateAppHostFonts = `-- name: UpdateAppHostFonts :one
+UPDATE apps
+   SET host_fonts = $2::jsonb, updated_at = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
+`
+
+type UpdateAppHostFontsParams struct {
+	ID        pgtype.UUID
+	HostFonts []byte
+}
+
+func (q *Queries) UpdateAppHostFonts(ctx context.Context, arg UpdateAppHostFontsParams) (App, error) {
+	row := q.db.QueryRow(ctx, updateAppHostFonts, arg.ID, arg.HostFonts)
+	var i App
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.Key,
+		&i.Name,
+		&i.DefaultPluginKey,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
+	)
+	return i, err
+}
+
 const updateAppMetadata = `-- name: UpdateAppMetadata :one
 UPDATE apps
    SET description    = CASE WHEN $2::boolean THEN $3::text ELSE description END,
@@ -1461,7 +1504,7 @@ UPDATE apps
        archived_at    = CASE WHEN $10::boolean THEN (CASE WHEN $11::boolean THEN coalesce(archived_at, now()) END) ELSE archived_at END,
        updated_at     = now()
  WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 type UpdateAppMetadataParams struct {
@@ -1507,6 +1550,7 @@ func (q *Queries) UpdateAppMetadata(ctx context.Context, arg UpdateAppMetadataPa
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }

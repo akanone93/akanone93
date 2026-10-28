@@ -57,6 +57,8 @@ export interface SurfaceSize {
   readonly width: number;
   readonly height: number;
   readonly dpr: number;
+  /** The host app's font files (STU-006), read before the worker starts; absent when the page has none. */
+  readonly hostFonts?: () => Promise<readonly FontSource[]>;
 }
 
 /** Starts a surface on `canvas`. */
@@ -89,7 +91,11 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
   };
   // A canvas hands its control to a worker once. React's development double mount disposes the first
   // surface in the same task it was made, so the transfer waits for a microtask and skips a disposed surface.
-  queueMicrotask(() => {
+  const start = async (): Promise<void> => {
+    if (disposed) {
+      return;
+    }
+    const hostFonts = await (size.hostFonts?.() ?? Promise.resolve([])).catch((): readonly FontSource[] => []);
     if (disposed) {
       return;
     }
@@ -116,6 +122,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
       {
         request: {
           device: [],
+          host: hostFonts,
           roboto: toSource(FONT_FILES[0] as readonly [string, string]),
           noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
           sfPro: false,
@@ -134,7 +141,8 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
         }
       })
       .catch(() => undefined);
-  });
+  };
+  queueMicrotask(() => void start());
   return {
     layoutScreens: (screens, style) =>
       new Promise((resolve) => run((h) => void h.layoutScreens(screens, style).then(resolve))),
