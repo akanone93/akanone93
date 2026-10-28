@@ -7,12 +7,6 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: ar\n"
 
-#. Button that loads the next page of the apps list.
-#. js-lingui-explicit-id
-#: apps/web/src/features/home/home.messages.ts
-#~ msgid "home.apps.more"
-#~ msgstr "عرض المزيد من التطبيقات"
-
 #. Appended to the title of a duplicated screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
