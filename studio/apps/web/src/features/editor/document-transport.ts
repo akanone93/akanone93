@@ -76,11 +76,12 @@ export function documentTransport(
       confirmed(res.document);
       return toServerDocument(res.document);
     },
-    async put(path, content) {
+    async put(path, content, options) {
       const res = await client.putDocument({
         ...ids,
         path,
         ifRevision: 0n,
+        stepId: options?.step ?? "",
         content: encoder.encode(JSON.stringify(content)),
       });
       if (res.document === undefined) {

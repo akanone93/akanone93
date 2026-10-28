@@ -9,6 +9,8 @@ import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
 import { type DocumentTransport, EditSession } from "../editor/edit-session.ts";
 import type { JsonValue } from "../editor/json-patch.ts";
+import { UndoManager } from "../editor/undo-stack.ts";
+import { setPropRecipe } from "../panels/properties-model.ts";
 import { ExtractKeyDialog } from "./extract-key-dialog.tsx";
 import type { L10nSessions } from "./l10n-sessions.tsx";
 import { LocalisationOverlay } from "./localisation-overlay.tsx";
@@ -20,7 +22,10 @@ function renderI18n(node: ReactNode) {
   return render(<I18nProvider studio={studio}>{node}</I18nProvider>);
 }
 
-function session(docs: Record<string, JsonValue>): EditSession {
+function session(
+  docs: Record<string, JsonValue>,
+  undo?: { readonly manager: UndoManager; readonly stack: string },
+): EditSession {
   const transport: DocumentTransport = {
     patch: async () => {
       throw new Error("not saved in this test");
@@ -38,7 +43,16 @@ function session(docs: Record<string, JsonValue>): EditSession {
     maxReplays: 1,
     scheduler: { setTimeout: () => 0, clearTimeout: () => undefined },
     online: () => true,
+    // Wired as EditorProvider wires a pipeline to its undo stack.
+    ...(undo === undefined
+      ? {}
+      : {
+          stepFor: (_path: string, group: string | undefined) => undo.manager.stepFor(undo.stack, group),
+          onEdit: (r: Parameters<UndoManager["record"]>[1]) => undo.manager.record(undo.stack, r),
+          onCreated: (r: Parameters<UndoManager["recordCreated"]>[1]) => undo.manager.recordCreated(undo.stack, r),
+        }),
   });
+  undo?.manager.attach(undo.stack, s);
   for (const [path, content] of Object.entries(docs)) {
     s.open({ path, revision: 1n, content });
   }
@@ -132,9 +146,17 @@ describe("STU-063 localisation table V4", () => {
 });
 
 describe("I18N-007 extraction dialog", () => {
-  function dialog(canEditKeys: boolean) {
-    const keys = session({ "translations/keys.json": { kind: "translationKeys", keys: [] } });
-    const messages = session({ "translations/en.json": { kind: "translations", locale: "en", messages: {} } });
+  function dialog(canEditKeys: boolean, manager?: UndoManager) {
+    const on = (stack: string) => (manager === undefined ? undefined : { manager, stack });
+    const keys = session({ "translations/keys.json": { kind: "translationKeys", keys: [] } }, on(""));
+    const messages = session(
+      { "translations/en.json": { kind: "translations", locale: "en", messages: {} } },
+      on("translations/en"),
+    );
+    const plugin = session(
+      { "pages/home.page.json": { root: { id: "n1", type: "Button", props: { text: "Pay now" } } } },
+      on("pl"),
+    );
     const sessions: L10nSessions = {
       locales: ["en", "de"],
       defaultLocale: "en",
@@ -156,10 +178,15 @@ describe("I18N-007 extraction dialog", () => {
         prefix="Button"
         schemaVersion={1}
         newId={newId}
-        replaceProp={(ref, step) => replaced.push([ref, step])}
+        replaceProp={(ref, step) => {
+          replaced.push([ref, step]);
+          plugin.edit("pages/home.page.json", (d) => setPropRecipe("n1", "compact", "text", ref)(d["root"]), { step });
+        }}
       />,
     );
-    return { keys, messages, replaced, closed: () => closed };
+    const content = () =>
+      [keys, messages, plugin].map((x) => Object.values(x.store.getState().docs).map((d) => d.content));
+    return { keys, messages, replaced, closed: () => closed, content };
   }
 
   test("proposes a key from the text and replaces the prop on confirmation", async () => {
@@ -171,6 +198,21 @@ describe("I18N-007 extraction dialog", () => {
     expect(JSON.stringify(keys.store.getState().docs["translations/keys.json"]?.content)).toContain("button.pay.now");
     expect(JSON.stringify(messages.store.getState().docs["translations/en.json"]?.content)).toContain("Pay now");
     expect(replaced).toHaveLength(1);
+  });
+
+  test("STU-069 the extraction is one client undo step across the keys, the message and the page", async () => {
+    const manager = new UndoManager({ depth: 10 });
+    const { closed, content } = dialog(true, manager);
+    const before = content();
+    fireEvent.click(await screen.findByRole("button", { name: "Create key" }));
+    await waitFor(() => expect(closed()).toBe(1));
+    const after = content();
+    expect(after).not.toEqual(before);
+    expect(manager.undo("pl").kind).toBe("done");
+    expect(content()).toEqual(before);
+    expect(manager.canUndo("pl")).toBe(false);
+    expect(manager.redo("pl").kind).toBe("done");
+    expect(content()).toEqual(after);
   });
 
   test("an invalid name disables the action; a held lock explains itself", async () => {

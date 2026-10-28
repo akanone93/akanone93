@@ -299,6 +299,9 @@ export interface UpstreamData {
   }[];
   /** Collects the RestoreSnapshot calls. */
   restoredSnapshots?: { id: string; paths: string[] }[];
+  /** Collects the paths of DeleteDocument calls and of PutDocument calls that create (revision zero). */
+  deletedDocuments?: string[];
+  createdDocuments?: string[];
   /** Collects plugin RPCs the app canvas sends, as `delete:<id>` and `archive:<id>`. */
   pluginCalls?: string[];
   /** The app's trash, and the ids restored from it. */
@@ -661,6 +664,20 @@ export function createUpstream(state: UpstreamData) {
           content: new TextDecoder().decode(req.content),
           ifRevision: req.ifRevision,
         });
+        if (req.ifRevision === 0n) {
+          state.createdDocuments?.push(req.path);
+        }
+        return {
+          document: create(DocumentSchema, {
+            pluginId: req.pluginId,
+            path: req.path,
+            revision: req.ifRevision + 1n,
+            content: req.content,
+          }),
+        };
+      },
+      deleteDocument: (req) => {
+        state.deletedDocuments?.push(req.path);
         return {};
       },
       getDocument: (req) => {
