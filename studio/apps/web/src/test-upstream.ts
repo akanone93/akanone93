@@ -600,10 +600,6 @@ export function createUpstream(state: UpstreamData) {
         return {};
       },
     });
-    service(
-      AppProjectService,
-      projectsHandlers(state.projects ?? { calls: [] }, (app) => createdApps.push(app)),
-    );
     service(TemplateService, {
       listLibraryTemplates: (req) => libraryList(state.library, "template", req.visibility, req.query),
       listTemplateVersions: (req) => libraryVersions(state.library, req.id),
@@ -792,6 +788,7 @@ export function createUpstream(state: UpstreamData) {
       }),
     });
     service(AppProjectService, {
+      ...projectsHandlers(state.projects ?? { calls: [] }, (app) => createdApps.push(app)),
       listAppSummaries: (req) => summaries.listAppSummaries(req),
       exportApp: (req) => {
         state.appsGrid?.calls.push(`export:${req.appId}`);

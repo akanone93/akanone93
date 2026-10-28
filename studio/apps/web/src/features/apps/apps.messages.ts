@@ -416,6 +416,17 @@ export function appsMessages(i18n: I18n) {
     }),
     unitMicroseconds: i18n._({ id: "apps.unit.microseconds", message: "µs", comment: "Unit symbol for microseconds." }),
     unitMilliseconds: i18n._({ id: "apps.unit.milliseconds", message: "ms", comment: "Unit symbol for milliseconds." }),
+    shellTitle: i18n._({
+      id: "apps.settings.shell",
+      message: "Native shell",
+      comment: "Heading of the section that links to the native shell settings of the app.",
+    }),
+    shellCaption: i18n._({
+      id: "apps.settings.shell-caption",
+      message:
+        "Name, icons, identifiers, version, permissions and push of the installed app, and whether a new store build is needed.",
+      comment: "Caption of the section that links to the native shell settings.",
+    }),
     fontsTitle: i18n._({
       id: "apps.settings.fonts",
       message: "Host fonts",

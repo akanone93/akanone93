@@ -7644,6 +7644,12 @@ msgstr "Name of state entry {name}"
 msgid "panelTabs.stateAddName"
 msgstr "Name of the new state entry"
 
+#. Caption of the section that links to the native shell settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.shell-caption"
+msgstr "Name, icons, identifiers, version, permissions and push of the installed app, and whether a new store build is needed."
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -7672,6 +7678,12 @@ msgstr "Native screen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.title"
+msgstr "Native shell"
+
+#. Heading of the section that links to the native shell settings of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.shell"
 msgstr "Native shell"
 
 #. Label of the link from the app's settings to the native shell settings page.

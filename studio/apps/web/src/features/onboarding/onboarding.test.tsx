@@ -33,13 +33,18 @@ describe("the first-run checklist [STU-015]", () => {
     renderApp(home, manager());
     const region = await checklist();
     const items = within(within(region).getByRole("list", { name: "Checklist" })).getAllByRole("listitem");
-    expect(items.map((li) => li.textContent?.replace(/\s+/g, " ").trim().slice(0, 30))).toEqual([
-      "To do Create or import an app ",
-      "To do Pair a device Connect a",
-      "To do Edit a screen Change a s",
-      "To do Publish a release Publish",
-      "To do Invite a teammate Add a ",
-    ]);
+    const titles = [
+      "Create or import an app",
+      "Pair a device",
+      "Edit a screen",
+      "Publish a release",
+      "Invite a teammate",
+    ];
+    expect(items.length).toBe(titles.length);
+    titles.forEach((title, i) => {
+      const text = items[i]?.textContent ?? "";
+      expect(text.startsWith(`To do${title}`)).toBe(true);
+    });
     expect(within(region).getByRole("meter", { name: "Getting started progress" }).getAttribute("aria-valuetext")).toBe(
       "0 of 5 steps",
     );

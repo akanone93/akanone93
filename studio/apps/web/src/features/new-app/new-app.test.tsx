@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
+import { limit, limitDefault } from "@plux/schema";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import { packArchive } from "./plux-archive.ts";
@@ -261,6 +262,80 @@ describe("creating an app from a .plux archive [STU-024]", () => {
       target: { files: [new File([new TextEncoder().encode("just text, not a zip file at all")], "x.plux")] },
     });
     await within(dialog).findByText("The file is not a .plux archive.");
+    expect(state.projects?.calls).toEqual([]);
+  });
+
+  const filesOf = (count: number) =>
+    Array.from({ length: count }, (_, i) => ({ path: `f${String(i).padStart(6, "0")}`, content: new Uint8Array() }));
+  const shopApp = { key: "shop", name: "Shop", description: "", tags: [] };
+
+  test("the hint names the default size limit, which an organisation's own limit may replace", async () => {
+    renderApp(home, manager());
+    const dialog = await open();
+    radio(dialog, "From a .plux archive");
+    const mebibytes = limitDefault("archive.bytes") / 1048576;
+    expect(await within(dialog).findByText(new RegExp(`up to ${mebibytes}\\s?MB by default`))).toBeTruthy();
+  });
+
+  test("an archive with more files than any organisation may import is refused before it is sent", async () => {
+    const state = manager();
+    renderApp(home, state);
+    const dialog = await open();
+    const max = limit("archive.entries").max;
+    await choose(dialog, new File([await packArchive(shopApp, filesOf(max))], "big.plux"));
+    await within(dialog).findByText(`The archive holds ${max + 1} files; no organisation can import more than ${max}.`);
+    next(dialog);
+    expect(within(dialog).getByRole("heading", { name: "Step 1 of 3: Start from" })).toBeTruthy();
+    expect(state.projects?.calls).toEqual([]);
+  });
+
+  test("more files than the default but within the maximum are sent, and the server's limit refusal is shown", async () => {
+    const message = `PLX-1406 the archive holds ${limitDefault("archive.entries") + 1} files; the limit archive.entries is ${limitDefault("archive.entries")}`;
+    const state = manager({ projects: { calls: [], archives: [], samples, refuse: { import: message } } });
+    renderApp(home, state);
+    const dialog = await open();
+    await choose(
+      dialog,
+      new File([await packArchive(shopApp, filesOf(limitDefault("archive.entries") + 1))], "m.plux"),
+    );
+    await within(dialog).findByText(/^m\.plux \(/);
+    next(dialog);
+    create(dialog);
+    expect((await within(dialog).findByRole("alert")).textContent).toBe(message);
+    expect(state.projects?.calls.length).toBe(1);
+  });
+
+  test("an archive larger than the default size but within the maximum is sent, and the server's refusal is shown", async () => {
+    const message = `PLX-1407 the archive is larger than archive.bytes (${limitDefault("archive.bytes")} bytes)`;
+    const state = manager({ projects: { calls: [], archives: [], samples, refuse: { import: message } } });
+    renderApp(home, state);
+    const dialog = await open();
+    const real = await packArchive(shopApp, [
+      { path: "big.bin", content: new Uint8Array(limitDefault("archive.bytes")) },
+    ]);
+    await choose(dialog, new File([real], "large.plux"));
+    await within(dialog).findByText(/^large\.plux \(/);
+    next(dialog);
+    create(dialog);
+    expect((await within(dialog).findByRole("alert")).textContent).toBe(message);
+    expect(state.projects?.archives?.[0]?.length).toBe(real.length);
+    expect(real.length).toBeGreaterThan(limitDefault("archive.bytes"));
+  });
+
+  test("an archive that expands past the largest limit is refused before it is sent", async () => {
+    const state = manager();
+    renderApp(home, state);
+    const dialog = await open();
+    const small = new Uint8Array(await packArchive(shopApp, [{ path: "a", content: new Uint8Array([1]) }]));
+    const view = new DataView(small.buffer);
+    const centre = view.getUint32(small.length - 22 + 16, true);
+    const first = 46 + view.getUint16(centre + 28, true);
+    const max = limit("archive.expandedBytes").max;
+    view.setUint32(centre + first + 24, max + 1, true);
+    await choose(dialog, new File([small], "bomb.plux"));
+    expect(
+      (await within(dialog).findByText(/^The archive expands to .*; no organisation can import more than/)) !== null,
+    ).toBe(true);
     expect(state.projects?.calls).toEqual([]);
   });
 

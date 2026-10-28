@@ -12,6 +12,7 @@ import { type FormEvent, type ReactElement, useState } from "react";
 import { isName } from "../../lib/keys.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useCan } from "../admin/use-admin.ts";
+import { ShellSettingsLink } from "../shell-settings/index.ts";
 import { appsMessages } from "./apps.messages.ts";
 import { LimitsTable } from "./limits-usage.tsx";
 import { useRefreshApps } from "./use-apps.ts";
@@ -135,6 +136,13 @@ export function AppSettingsPage(): ReactElement {
           </p>
         )}
         {limits.isSuccess && <LimitsTable limits={limits.data} />}
+      </section>
+      <section aria-labelledby="app-settings-shell" className="flex flex-col gap-2">
+        <h2 id="app-settings-shell" className="text-section">
+          {m.shellTitle}
+        </h2>
+        <p className="text-body text-secondary">{m.shellCaption}</p>
+        <ShellSettingsLink org={org} appId={appId} />
       </section>
       <section aria-labelledby="app-settings-fonts" className="flex flex-col gap-2">
         <h2 id="app-settings-fonts" className="text-section">
