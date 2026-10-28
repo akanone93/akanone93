@@ -7,6 +7,7 @@
 set -u
 cd "$(git rev-parse --show-toplevel)"
 LOG_DIR=${LOG_DIR:-$(mktemp -d)}
+mkdir -p "$LOG_DIR"
 branch=$(git branch --show-current)
 make gen-check > "$LOG_DIR/gen.log" 2>&1; g=$?; echo "gen-check $g"
 make go-lint > "$LOG_DIR/lint.log" 2>&1; l=$?; echo "go-lint $l"
