@@ -43,7 +43,7 @@ const devices = [
 
 const open = (path: string, state: Upstream) => renderApp(`${base}${path}`, { permissions: manage, ...state });
 
-describe("STU-115 devices", () => {
+describe("[STU-115] devices", () => {
   test("A31 lists devices and filters by ?q", async () => {
     open("/devices?q=ios", { security: { devices } });
     await screen.findByRole("link", { name: "dev-2" });
@@ -74,7 +74,7 @@ describe("STU-115 devices", () => {
   });
 });
 
-describe("SEC-180 security profile", () => {
+describe("[SEC-180] security profile", () => {
   test("A33 shows the effective configuration", async () => {
     open("/security", { security: { profile: "standard", version: 3, settings: { accessTokenLifetime: 900 } } });
     await screen.findByText("accessTokenLifetime");
@@ -82,7 +82,7 @@ describe("SEC-180 security profile", () => {
     expect(screen.getByRole("button", { name: "Change profile" }).getAttribute("aria-disabled")).toBe("true");
   });
 
-  test("A33 sends the profile change only after the step-up, with the stored overrides (D66, D3, SEC-103)", async () => {
+  test("A33 sends the profile change only after the step-up, with the stored overrides (D66, D3, [SEC-103])", async () => {
     const credential = stubAssertion();
     const profiles: ProfileCall[] = [];
     const stepUps: string[] = [];
@@ -141,7 +141,7 @@ describe("SEC-180 security profile", () => {
   });
 });
 
-describe("STU-115 keys, pins and grants", () => {
+describe("[STU-115] keys, pins and grants", () => {
   const keys = [
     { keyId: "k1", role: "targets", algorithm: "ed25519", environmentType: "production" },
     { keyId: "p1", role: "pin", algorithm: "ed25519", environmentType: "production" },

@@ -74,7 +74,7 @@ function stub(tallHeight = 2000) {
 const frames = (sent: { docs: ScreenDocument[] } | undefined) => sent?.docs ?? [];
 const path = `/o/${orgA}/apps/app1/plugins/pl`;
 
-describe("STU-069 undo on the plugin canvas", () => {
+describe("[STU-069] undo on the plugin canvas", () => {
   test("an edit, then Ctrl+Z, sends the inverse patch through the pipeline", async () => {
     let edit: EditSession | undefined;
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
@@ -107,7 +107,7 @@ describe("STU-069 undo on the plugin canvas", () => {
   });
 });
 
-describe("STU-050 plugin canvas C2", () => {
+describe("[STU-050] plugin canvas C2", () => {
   test("draws every screen as a device frame, auto-laid-out in flow order", async () => {
     const s = stub();
     renderApp(path, { documents, surface: s.factory });
@@ -123,7 +123,7 @@ describe("STU-050 plugin canvas C2", () => {
     expect(await screen.findByLabelText("Screens in navigation order")).toBeTruthy();
   });
 
-  test("STU-121 an unsaved edit reaches the canvas at once; untouched screens keep their documents", async () => {
+  test("[STU-121] an unsaved edit reaches the canvas at once; untouched screens keep their documents", async () => {
     let edit: EditSession | undefined;
     const s = stub();
     renderApp(path, { documents, surface: s.factory, editor: (e) => (edit = e) });
@@ -149,7 +149,7 @@ describe("STU-050 plugin canvas C2", () => {
     expect(rootOf(after, "tall")).not.toBe(rootOf(before, "tall"));
   });
 
-  test("STU-056 a screen taller than the device, by the worker's layout, is announced as overflowing", async () => {
+  test("[STU-056] a screen taller than the device, by the worker's layout, is announced as overflowing", async () => {
     const s = stub();
     renderApp(path, { documents, surface: s.factory });
     await screen.findByText(/Tall: content beyond the screen/);
@@ -178,7 +178,7 @@ describe("STU-050 plugin canvas C2", () => {
   });
 });
 
-describe("ANL-040 open node", () => {
+describe("[ANL-040] open node", () => {
   test("the node search param selects that node once the canvas has loaded", async () => {
     const s = stub();
     renderApp(`${path}?node=b2`, { documents, surface: s.factory });
@@ -229,7 +229,7 @@ describe("positions", () => {
   });
 });
 
-describe("STU-058 an idle canvas under the preview switches", () => {
+describe("[STU-058] an idle canvas under the preview switches", () => {
   test("lays out again only for a change, never while idle", async () => {
     const s = stub();
     renderApp(path, { documents, surface: s.factory });

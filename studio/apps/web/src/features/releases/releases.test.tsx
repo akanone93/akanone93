@@ -50,7 +50,7 @@ const rollout = (state: number) => ({
 const open = (path: string, state: Upstream, permissions = all) =>
   renderApp(`${base}${path}`, { permissions, ...state });
 
-describe("STU-101 releases timeline (A3)", () => {
+describe("[STU-101] releases timeline (A3)", () => {
   test("lists releases with the share of their rollout", async () => {
     open("", { releases: { releases, rollouts: [rollout(ACTIVE)] } });
     await screen.findByRole("link", { name: "2" });
@@ -68,7 +68,7 @@ describe("STU-101 releases timeline (A3)", () => {
   });
 });
 
-describe("STU-101 release detail (A4) and rollout controls (D44)", () => {
+describe("[STU-101] release detail (A4) and rollout controls (D44)", () => {
   test("shows adoption, the health comparison and the regression", async () => {
     open("/2", { releases: { releases, rollouts: [rollout(ACTIVE)] } });
     await screen.findByRole("heading", { name: "Health against the previous release" });
@@ -124,7 +124,7 @@ describe("STU-101 release detail (A4) and rollout controls (D44)", () => {
   });
 });
 
-describe("REL-060 kill switch (A5, D46)", () => {
+describe("[REL-060] kill switch (A5, D46)", () => {
   test("lists the plugins switched off and switches one on again after the step-up", async () => {
     stubAssertion();
     const calls: string[] = [];

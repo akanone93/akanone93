@@ -63,7 +63,7 @@ function model(items: readonly ItemSpec[]) {
   return buildSceneModel(scene, new Viewport(800, 600));
 }
 
-describe("C1 scene items (STU-030)", () => {
+describe("C1 scene items [STU-030]", () => {
   test("a box is a labelled rectangle with title, key and every badge as a pill inside it", () => {
     const b = box("loans", 100, 40, summary({}));
     const nodes = model(boxItems(b)).nodes;
@@ -117,7 +117,7 @@ const docs: LoadedDoc[] = [
   page("cards", "terms", [nav("home")]),
 ];
 
-describe("badge pills (STU-030)", () => {
+describe("badge pills [STU-030]", () => {
   test("short badges share rows; too many end in a +N pill within three rows", () => {
     const few = layoutPills(
       [
@@ -140,10 +140,10 @@ describe("badge pills (STU-030)", () => {
   });
 });
 
-describe("C1 arrows (STU-040, STU-041)", () => {
+describe("C1 arrows [STU-040] [STU-041]", () => {
   const graph = appGraph(docs, ["camera"]);
 
-  test("links between plugins and to native routes are lanes; unknown routes are not", () => {
+  test("links between plugins and to native routes are lanes; unknown routes are not [STU-033]", () => {
     expect(graph.links.map((l) => l.edge.title)).toEqual(
       ["home → offers", "home → terms", "home → camera", "terms → home"].sort(
         (a, b) => graph.links.findIndex((l) => l.edge.title === a) - graph.links.findIndex((l) => l.edge.title === b),
@@ -184,7 +184,7 @@ describe("C1 arrows (STU-040, STU-041)", () => {
     expect(boxOfHits(ids)).toBeUndefined();
   });
 
-  test("redirect and remove edit exactly the one step of the lane (STU-046)", () => {
+  test("redirect and remove edit exactly the one step of the lane [STU-046]", () => {
     const link = graph.links.find((l) => l.route === "terms");
     expect(link).toBeDefined();
     if (link === undefined) {

@@ -36,7 +36,7 @@ afterAll(() => {
   upstream.stop(true);
 });
 
-describe("SEC-101 STU-002 sign-in completions are request-scoped", () => {
+describe("[SEC-101] [STU-002] sign-in completions are request-scoped", () => {
   test("overlapping completions each get their own session cookie", async () => {
     const login = createLoginClient(`http://127.0.0.1:${upstream.port}`);
     const slow = login.oidc("slow", "s1");

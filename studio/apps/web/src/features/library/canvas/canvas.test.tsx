@@ -43,7 +43,7 @@ const nodes = [
   },
 ];
 
-describe("STU-080 STU-083 template documents", () => {
+describe("[STU-080] [STU-083] template documents", () => {
   test("string props are offered as parameters by pointer", () => {
     expect(candidateParameters(nodes[0])).toEqual([
       { name: "Text.text", type: "string", path: "/children/0/props/text" },
@@ -69,7 +69,7 @@ describe("STU-080 STU-083 template documents", () => {
   });
 });
 
-describe("STU-084 components on the canvas", () => {
+describe("[STU-084] components on the canvas", () => {
   test("extraction yields a component document and an instance node that refers to it", () => {
     const doc = buildComponentDoc({ key: "card", name: "Card", description: "" }, nodes, source);
     const instance = instanceNode(String(doc["id"]), 1);
@@ -155,7 +155,7 @@ describe("D28 D29 D30 dialogs", () => {
   });
 });
 
-describe("STU-055 screens from templates", () => {
+describe("[STU-055] screens from templates", () => {
   test("instantiating sends the template, key and editor session to the server", async () => {
     const calls: string[] = [];
     const res = await instantiateScreen(createUpstream({ library: { items: [], calls } }), {

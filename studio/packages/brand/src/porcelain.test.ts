@@ -101,7 +101,7 @@ for (const theme of themeNames) {
   });
 }
 
-describe("Porcelain tokens [STU-010, STU-016]", () => {
+describe("Porcelain tokens [STU-010] [STU-016]", () => {
   test("every semantic token has a unique name and key", () => {
     expect(new Set(semanticColors.map((c) => c.name)).size).toBe(semanticColors.length);
     expect(new Set(semanticColors.map((c) => c.key)).size).toBe(semanticColors.length);

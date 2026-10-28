@@ -27,7 +27,7 @@ const items: LibraryFixture["items"] = [
   { id: "t2", kind: "template", key: "wizard", name: "Wizard flow", visibility: "public", templateKind: "flow" },
 ];
 
-describe("STU-086 library browser (O4)", () => {
+describe("[STU-086] library browser (O4)", () => {
   test("lists components and templates and narrows them by the URL filters", async () => {
     renderApp(`/o/${orgA}/library`, { library: { items } });
     await screen.findByRole("link", { name: "Card" });
@@ -66,7 +66,7 @@ describe("STU-086 library browser (O4)", () => {
   });
 });
 
-describe("STU-084 STU-085 component detail (O5)", () => {
+describe("[STU-084] [STU-085] component detail (O5)", () => {
   const library: LibraryFixture = {
     items,
     usages: 3,
@@ -143,7 +143,7 @@ describe("STU-084 STU-085 component detail (O5)", () => {
   });
 });
 
-describe("STU-080 STU-081 template detail (O6) and D14", () => {
+describe("[STU-080] [STU-081] template detail (O6) and D14", () => {
   const scan = "the content cannot be public: /a/b (secret), /c (url)";
 
   test("shows parameters and revisions", async () => {

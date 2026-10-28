@@ -99,7 +99,7 @@ function cfg(over: Partial<BffConfig> = {}): BffConfig {
 
 const mk = (over: Partial<BffConfig> = {}) => createBff({ staticDir: dir, config: cfg(over), stateKey: KEY });
 
-describe("SEC-101 configuration", () => {
+describe("[SEC-101] configuration", () => {
   const base = {
     PLUX_BFF_STATE_SECRET: SECRET,
     PLUX_BFF_PUBLIC_BASE_URL: "https://s.example.com",
@@ -151,7 +151,7 @@ describe("SEC-101 configuration", () => {
   });
 });
 
-describe("SEC-101 STU-002 security headers", () => {
+describe("[SEC-101] [STU-002] security headers", () => {
   test("every response carries the headers and a fresh nonce in index.html", async () => {
     const { app } = mk();
     const r1 = await app.request("/");
@@ -193,7 +193,7 @@ describe("SEC-101 STU-002 security headers", () => {
       expect(h.get("permissions-policy")).toContain("camera=()");
     }
   });
-  test("the CSP is exactly the documented policy, on every kind of response (SEC-109)", async () => {
+  test("the CSP is exactly the documented policy, on every kind of response [SEC-109]", async () => {
     const { app } = mk();
     const responses = [
       await app.request("/"),
@@ -263,7 +263,7 @@ describe("SEC-101 STU-002 security headers", () => {
   });
 });
 
-describe("STU-002 SRV-007 API proxy", () => {
+describe("[STU-002] [SRV-007] API proxy", () => {
   test("forwards only allowed headers both ways", async () => {
     const res = await mk().app.request("/api/plux.v1.X/Y?a=1", {
       method: "POST",
@@ -341,7 +341,7 @@ describe("STU-002 SRV-007 API proxy", () => {
   });
 });
 
-describe("SEC-101 limits", () => {
+describe("[SEC-101] limits", () => {
   test("requests over the per-minute limit answer 429 with Retry-After", async () => {
     const b = mk({ requestsPerMinute: 2 });
     const h = { Cookie: "__Host-plux_session=s1" };
@@ -379,7 +379,7 @@ describe("SEC-101 limits", () => {
   });
 });
 
-describe("SRV-007 health and drain", () => {
+describe("[SRV-007] health and drain", () => {
   test("/livez is ok; /readyz reflects the upstream", async () => {
     const { app } = mk();
     expect((await app.request("/livez")).status).toBe(200);
@@ -400,7 +400,7 @@ describe("SRV-007 health and drain", () => {
   });
 });
 
-describe("session cookie forwarding (SEC-101)", () => {
+describe("session cookie forwarding [SEC-101]", () => {
   test("only __Host-plux_session reaches the upstream", () => {
     const out = filterRequestHeaders(new Headers({ cookie: "theme=dark; __Host-plux_session=s1; other=x" }));
     expect(out.get("cookie")).toBe("__Host-plux_session=s1");

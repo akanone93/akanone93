@@ -96,7 +96,7 @@ function failuresOf(width: number, locale: (typeof locales)[number], scale: numb
   return failures;
 }
 
-describe("the full matrix (S4.6, STU-005)", () => {
+describe("the full matrix (S4.6, [STU-005])", () => {
   test("covers every descriptor of schema/widgets", () => {
     expect(descriptors.length).toBeGreaterThan(200);
   });

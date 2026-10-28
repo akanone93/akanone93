@@ -42,7 +42,7 @@ async function select(name: RegExp) {
   fireEvent.pointerDown(await screen.findByRole("button", { name }));
 }
 
-describe("STU-070 deleting a plugin runs the where-used check (D19)", () => {
+describe("[STU-070] deleting a plugin runs the where-used check (D19)", () => {
   test("links into it open the blocked-delete panel with the redirect fix", async () => {
     renderApp(path, { summaries, pluginDocuments });
     await select(/Cards/);
@@ -52,7 +52,7 @@ describe("STU-070 deleting a plugin runs the where-used check (D19)", () => {
   });
 });
 
-describe("STU-070 redirecting incoming links is one change set", () => {
+describe("[STU-070] redirecting incoming links is one change set", () => {
   test("choosing a new target sends a single ApplyChangeSet that rewrites the link", async () => {
     const changeSets: ApplyChangeSetRequest[] = [];
     renderApp(path, { summaries, pluginDocuments, changeSets });
@@ -67,7 +67,7 @@ describe("STU-070 redirecting incoming links is one change set", () => {
   });
 });
 
-describe("STU-073 STU-074 deleting a plugin that has links away from it, in production", () => {
+describe("[STU-073] [STU-074] deleting a plugin that has links away from it, in production", () => {
   test("an unpublished plugin without uses goes to the trash after typing its key", async () => {
     const pluginCalls: string[] = [];
     renderApp(path, {

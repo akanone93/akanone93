@@ -15,7 +15,7 @@ import {
   setFieldRecipe,
 } from "./state-model.ts";
 
-describe("STA-002 state entries", () => {
+describe("[STA-002] state entries", () => {
   test("entries are read with their defaults; malformed ones are skipped", () => {
     const plugin = {
       state: [
@@ -37,7 +37,7 @@ describe("STA-002 state entries", () => {
     expect(readState(undefined)).toEqual([]);
   });
 
-  test("type expressions round-trip through the pickers (SCH-010)", () => {
+  test("type expressions round-trip through the pickers [SCH-010]", () => {
     for (const expr of ["string", "int?", "list<Transaction>", "map<string,decimal>?"]) {
       const parts = parseType(expr);
       expect(parts && composeType(parts)).toBe(expr);

@@ -59,8 +59,8 @@ const screens: InspectScreen[] = [
   { id: "home", root: { id: "r", children: [{ id: "a" }, { id: "b", children: [{ id: "c" }] }] } },
 ];
 
-describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
-  test("the toolbar opens the drawer, which pauses (DEV-020)", async () => {
+describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () => {
+  test("the toolbar opens the drawer, which pauses [DEV-020]", async () => {
     renderBay({ devSession: { devices } });
     expect(screen.queryByRole("complementary")).toBeNull();
     fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
@@ -69,14 +69,14 @@ describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
     expect(screen.getByRole("button", { name: "Resume" })).toBeTruthy();
   });
 
-  test("pairing and send are not in the bay toolbar: the action bar runs their commands (STU-060)", async () => {
+  test("pairing and send are not in the bay toolbar: the action bar runs their commands [STU-060]", async () => {
     renderBay({ devSession: { devices } });
     await screen.findByRole("button", { name: "Devices" });
     expect(screen.queryByRole("button", { name: "Pair a device" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Send to device" })).toBeNull();
   });
 
-  test("selecting a node in Studio highlights it on the device (STU-131)", async () => {
+  test("selecting a node in Studio highlights it on the device [STU-131]", async () => {
     const commands: DevSessionServiceSendCommandRequest[] = [];
     const bay = renderBay({ devSession: { devices, commands } });
     fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
@@ -87,7 +87,7 @@ describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
     expect(sent?.command.value).toMatchObject({ nodePath: "/pages/home/1/0" });
   });
 
-  test("a tap on the device selects the node in Studio (STU-131)", async () => {
+  test("a tap on the device selects the node in Studio [STU-131]", async () => {
     const inspected: string[] = [];
     const tap = create(DevEventSchema, {
       sequence: 1n,
@@ -100,7 +100,7 @@ describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
     expect(resolveNodePath(screens, "/pages/home/1/0")).toEqual({ screen: "home", node: "c" });
   });
 
-  test("device controls send one OpenScreen with locale, theme and text scale (STU-132)", async () => {
+  test("device controls send one OpenScreen with locale, theme and text scale [STU-132]", async () => {
     const commands: DevSessionServiceSendCommandRequest[] = [];
     renderBay({ devSession: { devices, commands } });
     fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
@@ -111,7 +111,7 @@ describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
     expect(commands[0]?.command.value).toMatchObject({ route: "home", locale: "de", textScale: 1 });
   });
 
-  test("a screenshot is requested, shown and stored as the screen thumbnail (STU-134, WGT-031)", async () => {
+  test("a screenshot is requested, shown and stored as the screen thumbnail [STU-134] [WGT-031]", async () => {
     URL.createObjectURL = () => "blob:shot";
     URL.revokeObjectURL = () => undefined;
     const commands: DevSessionServiceSendCommandRequest[] = [];
@@ -140,7 +140,7 @@ describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
     await waitFor(() => expect(uploads).toEqual(["thumbnails/screen-home.png"]));
   });
 
-  test("the autosave-to-device time is measured and shown (NFR-030)", async () => {
+  test("the autosave-to-device time is measured and shown [NFR-030]", async () => {
     let release: () => void = () => undefined;
     const gate = new Promise<void>((resolve) => {
       release = resolve;
@@ -161,14 +161,14 @@ describe("S6.4 device bay (STU-131 to STU-134, WGT-031, NFR-030)", () => {
 });
 
 describe("S6.4 pure parts", () => {
-  test("a node path round-trips through the screens (DEV-030)", () => {
+  test("a node path round-trips through the screens [DEV-030]", () => {
     expect(nodePathOf(screens, "c")).toBe("/pages/home/1/0");
     expect(nodePathOf(screens, "missing")).toBeUndefined();
     expect(resolveNodePath(screens, "/pages/home/9")).toBeUndefined();
     expect(resolveNodePath(screens, "elsewhere")).toBeUndefined();
   });
 
-  test("the meter reports the time of the oldest unanswered autosave (NFR-030)", () => {
+  test("the meter reports the time of the oldest unanswered autosave [NFR-030]", () => {
     const clock = [10, 20, 100, 150];
     const meter = createLatencyMeter(() => clock.shift() ?? 0);
     meter.accepted();
@@ -178,7 +178,7 @@ describe("S6.4 pure parts", () => {
     expect(meter.applied()).toBeUndefined();
   });
 
-  test("screenshots are stored under per-use asset names (STU-134, WGT-031)", async () => {
+  test("screenshots are stored under per-use asset names [STU-134] [WGT-031]", async () => {
     expect(screenshotAssetName("slotPreview", "map")).toBe("previews/slot-map.png");
     expect(screenshotAssetName("translationContext", "home")).toBe("l10n-context/screen-home.png");
     const names: string[] = [];

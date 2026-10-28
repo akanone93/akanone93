@@ -24,7 +24,7 @@ const bound = {
   events: { onPressed: { steps: [{ action: "showToast", id: "t" }] } },
 };
 
-describe("trigger picker (E7, STU-047)", () => {
+describe("trigger picker (E7, [STU-047])", () => {
   test("offers exactly the events the widget type declares", async () => {
     render(
       withI18n(

@@ -103,7 +103,7 @@ const templateDoc = JSON.stringify({
   root: { id: "r", type: "Text", function: "fmt", props: { title: "x" } },
 });
 
-describe("STU-080 STU-083 STU-084 canvas library commands", () => {
+describe("[STU-080] [STU-083] [STU-084] canvas library commands", () => {
   test("save as template creates the template with the selection and the chosen visibility", async () => {
     const calls: string[] = [];
     mount({ items: [], calls }, N1);
@@ -177,7 +177,7 @@ describe("STU-080 STU-083 STU-084 canvas library commands", () => {
   });
 });
 
-describe("STU-084 instance overrides in the Properties panel", () => {
+describe("[STU-084] instance overrides in the Properties panel", () => {
   const library: LibraryFixture = {
     items: [{ id: "c1", kind: "component", key: "card", name: "Card", visibility: "private", documentId: "cdoc" }],
     versions: { c1: [{ version: 1, content: '{"props":{"text":{"type":"string"}},"slots":{"body":{}}}' }] },
@@ -231,7 +231,7 @@ describe("STU-084 instance overrides in the Properties panel", () => {
   });
 });
 
-describe("STU-055 start from template in the new-screen dialog", () => {
+describe("[STU-055] start from template in the new-screen dialog", () => {
   test("offers blank and the page templates and reports the choice", async () => {
     const library: LibraryFixture = {
       items: [

@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { WORKER_POLICY } from "../../lib/trusted-worker.ts";
 import { MONACO_POLICY_NAMES, monacoPolicy } from "./monaco-env.ts";
 
-describe("STU-063 Monaco under the CSP and Trusted Types", () => {
+describe("[STU-063] Monaco under the CSP and Trusted Types", () => {
   test("answers Monaco's rendering policies through the one allowed policy name, and no other", () => {
     const names: string[] = [];
     const factory = {

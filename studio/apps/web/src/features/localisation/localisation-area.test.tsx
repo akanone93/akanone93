@@ -28,7 +28,7 @@ const samples: Record<TranslationFormat, string> = {
     '<?xml version="1.0"?><xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="de"><file id="f"><unit id="home.title"><segment><source>Welcome</source><target>Willkommen</target></segment></unit><unit id="home.cta"><segment><source>Go</source><target>Los</target></segment></unit></file></xliff>',
 };
 
-describe("I18N-009 translation formats", () => {
+describe("[I18N-009] translation formats", () => {
   test.each([...FORMATS])("reads a %s file as data", (format) => {
     const r = parseTranslations(format, samples[format], BIG);
     expect(r.ok && r.entries).toEqual({ "home.title": "Willkommen", "home.cta": "Los" });
@@ -152,7 +152,7 @@ const state = (permissions: string[] = ["app.read", "translations.edit", "transl
 const off = (el: HTMLElement) => el.matches(":disabled, [aria-disabled=true]");
 const ready = () => screen.findByRole("table", { name: "Translation keys by locale" }, { timeout: 10000 });
 
-describe("STU-111 A13 localisation grid", () => {
+describe("[STU-111] A13 localisation grid", () => {
   test("lists keys with source, translation, status and screenshot context, and filters them", async () => {
     renderApp(`${base}?locale=de`, state());
     const table = await ready();
@@ -239,7 +239,7 @@ describe("STU-111 A13 localisation grid", () => {
   });
 });
 
-describe("STU-111 A14 heatmap", () => {
+describe("[STU-111] A14 heatmap", () => {
   test("shows how many keys each plugin lacks per locale", async () => {
     renderApp(`${base}/heatmap`, state());
     const table = await screen.findByRole(

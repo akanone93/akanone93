@@ -44,26 +44,26 @@ const root: Node = {
 const index = indexNodes([root]);
 const empty = sel.emptySelection;
 
-describe("selection rules (STU-067)", () => {
-  test("STU-067 click selects the direct child of the scope, deep click the innermost", () => {
+describe("selection rules [STU-067]", () => {
+  test("[STU-067] click selects the direct child of the scope, deep click the innermost", () => {
     expect(sel.click(index, empty, ["a1", "a", "root"]).ids).toEqual(["a"]);
     expect(sel.click(index, empty, ["a1", "a", "root"], { deep: true }).ids).toEqual(["a1"]);
   });
-  test("STU-067 shift-click toggles", () => {
+  test("[STU-067] shift-click toggles", () => {
     const one = sel.click(index, empty, ["a"]);
     const two = sel.click(index, one, ["b"], { toggle: true });
     expect(two.ids).toEqual(["a", "b"]);
     expect(sel.click(index, two, ["a"], { toggle: true }).ids).toEqual(["b"]);
   });
-  test("STU-067 click on nothing clears", () => {
+  test("[STU-067] click on nothing clears", () => {
     expect(sel.click(index, sel.click(index, empty, ["a"]), []).ids).toEqual([]);
   });
-  test("STU-067 marquee picks direct children of the scope only", () => {
+  test("[STU-067] marquee picks direct children of the scope only", () => {
     expect(sel.marquee(index, empty, ["a1", "a", "b", "root"]).ids).toEqual(["a", "b"]);
     const inside = sel.enter(index, sel.click(index, empty, ["a"]));
     expect(sel.marquee(index, inside, ["a1", "a2", "b1"]).ids).toEqual(["a1", "a2"]);
   });
-  test("STU-067 Esc goes to the parent, then clears; Enter goes to the first child", () => {
+  test("[STU-067] Esc goes to the parent, then clears; Enter goes to the first child", () => {
     const deep = sel.click(index, empty, ["a1"], { deep: true });
     const up = sel.toParent(index, deep);
     expect(up.ids).toEqual(["a"]);
@@ -72,7 +72,7 @@ describe("selection rules (STU-067)", () => {
     expect(into.ids).toEqual(["a1"]);
     expect(into.scope).toBe("a");
   });
-  test("STU-067 Tab walks siblings and deleted nodes drop out", () => {
+  test("[STU-067] Tab walks siblings and deleted nodes drop out", () => {
     const a = sel.click(index, empty, ["a"]);
     expect(sel.sibling(index, a, 1).ids).toEqual(["b"]);
     expect(sel.sibling(index, a, -1).ids).toEqual(["b"]);
@@ -80,14 +80,14 @@ describe("selection rules (STU-067)", () => {
   });
 });
 
-describe("live region and store (STU-067)", () => {
+describe("live region and store [STU-067]", () => {
   const a = { none: () => "none", one: (n: string) => `${n} selected`, many: (c: number) => `${c} selected` };
-  test("STU-067 announces none, one and many", () => {
+  test("[STU-067] announces none, one and many", () => {
     expect(announce(a, empty, (i) => i)).toBe("none");
     expect(announce(a, sel.click(index, empty, ["a"]), (i) => i.toUpperCase())).toBe("A selected");
     expect(announce(a, { ids: ["a", "b"], anchor: "b", scope: "root" }, (i) => i)).toBe("2 selected");
   });
-  test("STU-067 each area store holds its own selection", () => {
+  test("[STU-067] each area store holds its own selection", () => {
     const s1 = createSelectionStore();
     const s2 = createSelectionStore();
     s1.set(sel.click(index, empty, ["a"]));
@@ -96,8 +96,8 @@ describe("live region and store (STU-067)", () => {
   });
 });
 
-describe("keyboard, nudge, edits (STU-067)", () => {
-  test("STU-067 arrows nudge a Stack child's Positioned left/top 1 px, Shift 10 px", () => {
+describe("keyboard, nudge, edits [STU-067]", () => {
+  test("[STU-067] arrows nudge a Stack child's Positioned left/top 1 px, Shift 10 px", () => {
     expect(nudgeDelta("ArrowLeft", false)).toEqual({ x: -1, y: 0 });
     const d: T = {
       id: "s",
@@ -110,7 +110,7 @@ describe("keyboard, nudge, edits (STU-067)", () => {
     moveRecipe("t", 2.4, -3)(d);
     expect(d.children?.[0]?.props).toEqual({ left: 17, top: -2 });
   });
-  test("STU-067 arrows in a Column reorder one sibling; across the axis and elsewhere nothing changes", () => {
+  test("[STU-067] arrows in a Column reorder one sibling; across the axis and elsewhere nothing changes", () => {
     const d: T = { id: "c", type: "Column", children: [{ id: "a" }, { id: "b" }, { id: "c2" }] };
     nudgeRecipe("a", "ArrowDown", true)(d);
     expect((d.children ?? []).map((c) => c.id)).toEqual(["b", "a", "c2"]);
@@ -121,7 +121,7 @@ describe("keyboard, nudge, edits (STU-067)", () => {
     nudgeRecipe("x", "ArrowRight", false)(pad);
     expect(JSON.stringify(pad)).not.toContain("left");
   });
-  test("STU-067 resize writes width/height only where the descriptor has size props", () => {
+  test("[STU-067] resize writes width/height only where the descriptor has size props", () => {
     const d: T = {
       id: "r",
       children: [
@@ -134,7 +134,7 @@ describe("keyboard, nudge, edits (STU-067)", () => {
     expect(d.children?.[0]).toEqual({ id: "z", type: "SizedBox", props: { width: 40, height: 20 } });
     expect(d.children?.[1]).toEqual({ id: "t", type: "Text" });
   });
-  test("STU-067 arrow keys go through the injected edit, grouped", () => {
+  test("[STU-067] arrow keys go through the injected edit, grouped", () => {
     const store = createSelectionStore(sel.click(index, empty, ["a"]));
     const calls: [string, string | undefined][] = [];
     const ctx = {
@@ -150,12 +150,12 @@ describe("keyboard, nudge, edits (STU-067)", () => {
     expect(calls).toEqual([["doc", "nudge"]]);
     expect(handleKey(ctx, { key: "x", ...k })).toBe(false);
   });
-  test("STU-067 hit IDs map to document node IDs", () => {
+  test("[STU-067] hit IDs map to document node IDs", () => {
     expect(nodeIdOfHit("home/n-1")).toBe("n-1");
     expect(nodeIdOfHit(itemIdOf("home", "n-1"))).toBe("n-1");
     expect(sel.click(index, empty, ["a1", "a"].map((n) => itemIdOf("s", n)).map(nodeIdOfHit)).ids).toEqual(["a"]);
   });
-  test("STU-067 wrap, unwrap and reparent edit the draft", () => {
+  test("[STU-067] wrap, unwrap and reparent edit the draft", () => {
     interface D {
       id: string;
       type?: string;
@@ -172,7 +172,7 @@ describe("keyboard, nudge, edits (STU-067)", () => {
     reparentRecipe(["g"], "c", 0)(d);
     expect(d.children.map((c) => c.id)).toEqual(["g"]);
   });
-  test("STU-067 duplicate remaps every ID, including nested", () => {
+  test("[STU-067] duplicate remaps every ID, including nested", () => {
     const d = { id: "r", children: [{ id: "a", children: [{ id: "a1" }] }] };
     let n = 0;
     duplicateRecipe("a", (old) => `${old}-${++n}`)(d);
@@ -185,8 +185,8 @@ describe("keyboard, nudge, edits (STU-067)", () => {
   });
 });
 
-describe("guides, resize, reparent target (STU-067)", () => {
-  test("STU-067 snapping aligns to edges within the threshold and draws guides", () => {
+describe("guides, resize, reparent target [STU-067]", () => {
+  test("[STU-067] snapping aligns to edges within the threshold and draws guides", () => {
     const other = { l: 100, t: 0, r: 200, b: 50 };
     const r = snapBox({ l: 103, t: 80, r: 153, b: 130 }, [other], 1);
     expect(r.delta.x).toBe(-3);
@@ -194,14 +194,14 @@ describe("guides, resize, reparent target (STU-067)", () => {
     expect(snapBox({ l: 120, t: 80, r: 135, b: 130 }, [other], 1).delta).toEqual({ x: 0, y: 0 });
     expect(snapBox({ l: 103, t: 80, r: 153, b: 130 }, [other], 0.25).delta.x).toBe(-3);
   });
-  test("STU-067 resize keeps a minimum size and distances measure gaps", () => {
+  test("[STU-067] resize keeps a minimum size and distances measure gaps", () => {
     expect(resizeBox({ l: 0, t: 0, r: 10, b: 10 }, "se", { x: -50, y: 5 }, 2)).toEqual({ l: 0, t: 0, r: 2, b: 15 });
     expect(resizeBox({ l: 0, t: 0, r: 10, b: 10 }, "nw", { x: 3, y: 4 })).toEqual({ l: 3, t: 4, r: 10, b: 10 });
     expect(distances({ l: 0, t: 0, r: 10, b: 10 }, { l: 25, t: 0, r: 40, b: 10 })).toEqual([
       { axis: "x", from: 10, to: 25, across: 5, value: 15 },
     ]);
   });
-  test("STU-067 reparent resolves the smallest valid container and the insertion index", () => {
+  test("[STU-067] reparent resolves the smallest valid container and the insertion index", () => {
     const box = (l: number, t: number, r: number, b: number) => ({ l, t, r, b });
     const containers = [
       {

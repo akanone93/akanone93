@@ -19,7 +19,7 @@ import {
 
 const inf = Number.POSITIVE_INFINITY;
 
-describe("STU-005 geometry", () => {
+describe("[STU-005] geometry", () => {
   test("double comparisons", () => {
     expect(precisionErrorTolerance).toBe(1e-10);
     expect(nearEqual(1, 1 + 1e-11, precisionErrorTolerance)).toBe(true);

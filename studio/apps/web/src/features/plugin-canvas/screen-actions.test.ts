@@ -78,7 +78,7 @@ function setup(online = true) {
   return { session, puts, removed, patches, transport };
 }
 
-describe("STU-050 screens through the pipeline", () => {
+describe("[STU-050] screens through the pipeline", () => {
   test("create puts a blank page and lists it in the plugin", async () => {
     const t = setup();
     const r = await createScreen(t.session, ctx, "Settings");

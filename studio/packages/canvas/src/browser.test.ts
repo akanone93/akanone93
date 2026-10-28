@@ -38,7 +38,7 @@ function scope(renderer: string | null, caveat = false): BrowserScope {
 const probe = (s: BrowserScope) =>
   browserWorkerDeps(s, () => Promise.reject(new Error("unused")) as Promise<CanvasKit>).probeGl();
 
-describe("STU-120 software GL detection (M-12)", () => {
+describe("[STU-120] software GL detection (M-12)", () => {
   test("a SwiftShader or llvmpipe renderer string marks the GL as software", () => {
     expect(probe(scope("ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)), SwiftShader driver)"))).toEqual({
       available: true,

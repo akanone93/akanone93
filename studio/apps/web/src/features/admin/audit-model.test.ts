@@ -17,7 +17,7 @@ const entry = (action: string, display: string, ms: number) =>
     time: timestampFromMs(ms),
   }) as unknown as AuditEntry;
 
-describe("STU-116 audit export", () => {
+describe("[STU-116] audit export", () => {
   test("the server filter holds only equalities and never a quote from the input", () => {
     expect(serverFilter("role.create", 'a"b')).toBe('action = "role.create" AND target_id = "ab"');
     expect(serverFilter(undefined, "")).toBe("");

@@ -61,7 +61,7 @@ function paddedScene(direction: TextDirection): RenderView {
   );
 }
 
-describe("STU-005 padding, align and sized box layouts", () => {
+describe("[STU-005] padding, align and sized box layouts", () => {
   test("LTR rects", () => {
     expect(goldenRects(paddedScene(TextDirection.ltr))).toEqual({
       box: [340, 285, 100, 50],
@@ -152,7 +152,7 @@ function offsetOf(box: RenderBox): Offset {
   return data !== null && "offset" in data && data.offset instanceof Offset ? data.offset : Offset.zero;
 }
 
-describe("STU-005 Align widthFactor and heightFactor", () => {
+describe("[STU-005] Align widthFactor and heightFactor", () => {
   const child = () => new RenderTestBox({ size: new Size(50, 40) });
 
   test("factors under loose constraints", () => {
@@ -201,7 +201,7 @@ describe("STU-005 Align widthFactor and heightFactor", () => {
   });
 });
 
-describe("STU-005 constrained, sized and decorated boxes", () => {
+describe("[STU-005] constrained, sized and decorated boxes", () => {
   test("SizedBox and ConstrainedBox layouts", () => {
     const leaf = new RenderTestBox({ size: new Size(50, 40) });
     const box = new RenderConstrainedBox({
@@ -279,7 +279,7 @@ describe("STU-005 constrained, sized and decorated boxes", () => {
   });
 });
 
-describe("STU-005 baselines through proxy and shifted boxes", () => {
+describe("[STU-005] baselines through proxy and shifted boxes", () => {
   const leaf = () => new RenderTestBox({ size: new Size(50, 40), baseline: 15 });
 
   test("padding adds its top inset; align adds the child's offset", () => {

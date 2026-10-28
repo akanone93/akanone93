@@ -59,19 +59,19 @@ const box = (l: ScreenLayout, id: string) => {
   return found;
 };
 
-describe("the preview switches reach the canvas (STU-058)", () => {
-  test("A11Y-005: text scale 2 grows a Text box", () => {
+describe("the preview switches reach the canvas [STU-058]", () => {
+  test("[A11Y-005]: text scale 2 grows a Text box", () => {
     expect(box(laidOut({ textScale: 2 }), "a").h).toBeGreaterThan(box(laidOut({}), "a").h);
   });
 
-  test("I18N-010: RTL mirrors x", () => {
+  test("[I18N-010]: RTL mirrors x", () => {
     const ltr = laidOut({});
     const rtl = laidOut({ locale: "ar" });
     expect(box(ltr, "a").x).toBeLessThan(box(ltr, "b").x);
     expect(box(rtl, "a").x).toBeGreaterThan(box(rtl, "b").x);
   });
 
-  test("I18N-010: the locale translates, and the expanded pseudo-locale widens", () => {
+  test("[I18N-010]: the locale translates, and the expanded pseudo-locale widens", () => {
     const en = box(laidOut({}), "a").w;
     expect(box(laidOut({ locale: "de" }), "a").w).toBeGreaterThan(en);
     expect(box(laidOut({ locale: "en-XA" }), "a").w).toBeGreaterThan(en);
@@ -92,7 +92,7 @@ describe("the preview switches reach the canvas (STU-058)", () => {
     expect(resolveTheme(documents, previewRender(defaultPreview, "cupertino")).appBarHeight).toBe(44);
   });
 
-  test("DAT-080: the data sources of the plugin are listed with their mock", () => {
+  test("[DAT-080]: the data sources of the plugin are listed with their mock", () => {
     expect(dataSourcesOf(documents)).toEqual([{ id: "orders", name: "Orders", mock: [1] }]);
   });
 });

@@ -15,7 +15,7 @@ function values(c: BoxConstraints): number[] {
   return [c.minWidth, c.maxWidth, c.minHeight, c.maxHeight];
 }
 
-describe("STU-005 BoxConstraints constructors", () => {
+describe("[STU-005] BoxConstraints constructors", () => {
   test("defaults are unconstrained", () => {
     expect(values(new BoxConstraints())).toEqual([0, inf, 0, inf]);
   });
@@ -38,7 +38,7 @@ describe("STU-005 BoxConstraints constructors", () => {
   });
 });
 
-describe("STU-005 BoxConstraints algebra", () => {
+describe("[STU-005] BoxConstraints algebra", () => {
   test("operators (Flutter box_constraints_test)", () => {
     const c = bc(3, 7, 11, 17);
     const copy = c.multiply(2);
@@ -105,7 +105,7 @@ describe("STU-005 BoxConstraints algebra", () => {
   });
 });
 
-describe("STU-005 BoxConstraints predicates and equality", () => {
+describe("[STU-005] BoxConstraints predicates and equality", () => {
   test("tightness and boundedness", () => {
     const c = bc(10, 10, 0, inf);
     expect(c.hasTightWidth).toBe(true);

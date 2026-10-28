@@ -21,7 +21,7 @@ const ghost: GhostTarget = {
   links: 2,
 };
 
-describe("D21 leave and open ghost screen (STU-053)", () => {
+describe("D21 leave and open ghost screen [STU-053]", () => {
   const show = (
     g: GhostTarget | null,
     onCancel: () => void = () => undefined,

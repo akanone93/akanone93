@@ -80,7 +80,7 @@ function setup(validate?: (file: string, data: string) => Promise<readonly Probl
   return { state, closed: () => closed };
 }
 
-describe("STU-063 state designer V5", () => {
+describe("[STU-063] state designer V5", () => {
   test("lists the entries with their types and how often they are read", async () => {
     setup();
     const list = await screen.findByRole("navigation", { name: "State entries" });

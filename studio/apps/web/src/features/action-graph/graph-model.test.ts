@@ -56,8 +56,8 @@ const entry = (key: string) => {
   return e;
 };
 
-describe("STU-065 action graph model", () => {
-  test("the catalogue has every action of the registry (A4.5), then custom actions (ACT-060), functions and flows", () => {
+describe("[STU-065] action graph model", () => {
+  test("the catalogue has every action of the registry (A4.5), then custom actions [ACT-060], functions and flows", () => {
     const builtin = catalogue.filter((e) => e.group === "builtin");
     expect(builtin.map((e) => e.action)).toEqual(
       [...actions.map((a) => a.name)].sort((a, b) => a.localeCompare(b, "en")),
@@ -226,7 +226,7 @@ describe("STU-065 action graph model", () => {
   });
 });
 
-describe("STU-065 saved step positions (SCH-004 x- properties)", () => {
+describe("[STU-065] saved step positions ([SCH-004] x- properties)", () => {
   const doc = () => ({
     kind: "page",
     root: {
@@ -280,7 +280,7 @@ describe("STU-065 saved step positions (SCH-004 x- properties)", () => {
   });
 });
 
-describe("STU-065 positions that JSON cannot hold", () => {
+describe("[STU-065] positions that JSON cannot hold", () => {
   test("a drop point that is not a number saves no position", () => {
     const d = {
       kind: "page",

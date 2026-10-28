@@ -104,7 +104,7 @@ function applyAll(all: readonly LoadedDoc[], changeSet: ChangeSet): LoadedDoc[] 
   return out;
 }
 
-describe("SCH-041 the where-used index (F13)", () => {
+describe("[SCH-041] the where-used index (F13)", () => {
   test("indexes navigation within and across plugins, components, assets and entries", () => {
     const index = buildWhereUsed(docs());
     expect(index.usesOf("page", "p-offers").map((u) => u.fromId)).toEqual(["p-home", "p-cards"]);
@@ -118,7 +118,7 @@ describe("SCH-041 the where-used index (F13)", () => {
   });
 });
 
-describe("STU-070 STU-071 STU-072 blocked deletes (D19, D24, D26)", () => {
+describe("[STU-070] [STU-071] [STU-072] blocked deletes (D19, D24, D26)", () => {
   test("a screen with incoming links or that is an entry is blocked", () => {
     const index = buildWhereUsed(docs());
     const offers = checkScreenDelete(index, "p-offers");
@@ -178,7 +178,7 @@ describe("STU-070 STU-071 STU-072 blocked deletes (D19, D24, D26)", () => {
   });
 });
 
-describe("STU-076 rename warnings (D27)", () => {
+describe("[STU-076] rename warnings (D27)", () => {
   test("a route change lists the deep link and the generated route builder", () => {
     expect(routeChangeEffects("loan-offers", "offers")).toEqual([
       { kind: "deepLink", before: "/loan-offers", after: "/offers" },
@@ -192,7 +192,7 @@ describe("STU-076 rename warnings (D27)", () => {
   });
 });
 
-describe("STU-055 move a screen to another plugin (D23) and undo it as one step (F3)", () => {
+describe("[STU-055] move a screen to another plugin (D23) and undo it as one step (F3)", () => {
   test("the screen leaves one plugin and joins the other with its links intact", () => {
     const all = docs();
     const moved = moveScreen(all, buildWhereUsed(all), "p-offers", "C");
@@ -304,7 +304,7 @@ describe("STU-055 move a screen to another plugin (D23) and undo it as one step 
   });
 });
 
-describe("STU-063 state entries in the where-used index", () => {
+describe("[STU-063] state entries in the where-used index", () => {
   const docs: LoadedDoc[] = [
     {
       pluginId: "p1",

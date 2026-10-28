@@ -23,7 +23,7 @@ import { Tooltip, tooltipDelayMs } from "./tooltip.tsx";
 
 afterEach(cleanup);
 
-describe("STU-010 Icon component and generated set", () => {
+describe("[STU-010] Icon component and generated set", () => {
   test("every generated icon has a faded and a solid layer", () => {
     for (const name of iconNames) {
       const paths = iconPaths[name];
@@ -85,7 +85,7 @@ describe("STU-010 Icon component and generated set", () => {
   });
 });
 
-describe("STU-011 accessible components", () => {
+describe("[STU-011] accessible components", () => {
   test("every catalogue case renders", () => {
     for (const [name, list] of Object.entries(allCases)) {
       expect(list.length, name).toBeGreaterThan(0);

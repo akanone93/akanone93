@@ -78,7 +78,7 @@ function build(extra: Record<string, string> = {}, opts: Partial<Parameters<type
   return { bff, lines };
 }
 
-describe("STU-002 SEC-101 sign-in callbacks", () => {
+describe("[STU-002] [SEC-101] sign-in callbacks", () => {
   test("replicas built with the same state secret accept each other's state cookie; other secrets do not", async () => {
     const keyA = new TextEncoder().encode("A".repeat(32));
     const a = build({}, { stateKey: keyA }).bff;
@@ -143,7 +143,7 @@ describe("STU-002 SEC-101 sign-in callbacks", () => {
     expect(bad.status).toBe(400);
   });
 
-  test("the state endpoint refuses cross-site and non-JSON requests (login CSRF, SEC-101)", async () => {
+  test("the state endpoint refuses cross-site and non-JSON requests (login CSRF, [SEC-101])", async () => {
     const { bff } = build();
     const body = JSON.stringify({ state: "evil" });
     const crossSite = await bff.app.request("/auth/oidc/state", {
@@ -214,7 +214,7 @@ describe("STU-002 SEC-101 sign-in callbacks", () => {
   });
 });
 
-describe("OBS-001 telemetry endpoint", () => {
+describe("[OBS-001] telemetry endpoint", () => {
   const post = (bff: ReturnType<typeof build>["bff"], body: unknown, headers: Record<string, string> = {}) =>
     bff.app.request("/telemetry", {
       method: "POST",
@@ -279,7 +279,7 @@ describe("OBS-001 telemetry endpoint", () => {
   });
 });
 
-describe("STU-002 version reporting and readiness", () => {
+describe("[STU-002] version reporting and readiness", () => {
   test("GET /version reports Studio and the oldest supported server", async () => {
     const { bff } = build({ PLUX_BFF_MIN_SERVER: "1.2" });
     const res = await bff.app.request("/version");
@@ -317,7 +317,7 @@ describe("STU-002 version reporting and readiness", () => {
   });
 });
 
-describe("STU-002 Brotli static files", () => {
+describe("[STU-002] Brotli static files", () => {
   test("serves the precompressed sibling when the client accepts br", async () => {
     const { bff } = build();
     const res = await bff.app.request("/assets/a.js", { headers: { "accept-encoding": "gzip, br" } });
@@ -333,7 +333,7 @@ describe("STU-002 Brotli static files", () => {
   });
 });
 
-describe("SEC-101 client address and shared limits", () => {
+describe("[SEC-101] client address and shared limits", () => {
   test("X-Forwarded-For is ignored unless the peer is a trusted proxy", async () => {
     const seen: string[] = [];
     const limiter = {

@@ -198,8 +198,8 @@ function controller(
   });
 }
 
-describe("LockController (F1, SRV-040–SRV-042, STU-075)", () => {
-  test("STU-075: the first edit takes the lock, saves go under it, the heartbeat renews it", async () => {
+describe("LockController (F1, [SRV-040]–[SRV-042], [STU-075])", () => {
+  test("[STU-075]: the first edit takes the lock, saves go under it, the heartbeat renews it", async () => {
     const clock = fakeClock();
     const server = stubServer(clock);
     const lock = controller(clock, server.as("ana"), "tab-1");
@@ -264,7 +264,7 @@ describe("LockController (F1, SRV-040–SRV-042, STU-075)", () => {
     expect(three.store.getState().status).toBe("free");
   });
 
-  test("SRV-041: Take over is enabled only per L-1, mirroring the server", async () => {
+  test("[SRV-041]: Take over is enabled only per L-1, mirroring the server", async () => {
     const clock = fakeClock();
     const server = stubServer(clock);
     const ben = controller(clock, server.as("ben"), "b-1");

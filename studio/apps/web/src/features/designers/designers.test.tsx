@@ -99,7 +99,7 @@ const disabled = (el: HTMLElement) => el.matches(":disabled, [aria-disabled=true
 const content = (edit: EditSession | undefined, file: string) =>
   edit?.store.getState().docs[file]?.content as Record<string, unknown>;
 
-describe("STU-063 V6 data source designer (DAT-080)", () => {
+describe("[STU-063] V6 data source designer [DAT-080]", () => {
   test("edits a source and its mock, applies a valid draft as a minimal patch, and blocks an invalid one", async () => {
     let edit: EditSession | undefined;
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
@@ -198,7 +198,7 @@ describe("STU-063 V6 data source designer (DAT-080)", () => {
   });
 });
 
-describe("STU-063 V7 DB schema designer (DB-005)", () => {
+describe("[STU-063] V7 DB schema designer [DB-005]", () => {
   test("a removed field shows the migration the Go planner computed against the last release, and a plan is applied through the pipeline", async () => {
     toolCalls.length = 0;
     let edit: EditSession | undefined;
@@ -248,7 +248,7 @@ describe("STU-063 V7 DB schema designer (DB-005)", () => {
   });
 });
 
-describe("STU-063 V8 theme editor", () => {
+describe("[STU-063] V8 theme editor", () => {
   test("edits light and dark values and adds and removes tokens through the edit pipeline", async () => {
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
     renderApp(path, {
@@ -284,7 +284,7 @@ describe("STU-063 V8 theme editor", () => {
     expect(ops.some((o) => o.path.endsWith("/primary/$value") && o.value === "#112233")).toBe(true);
   });
 
-  test("the theme is edited and saved under the app lock, not the plugin's (ADR-0095, SRV-030)", async () => {
+  test("the theme is edited and saved under the app lock, not the plugin's (ADR-0095, [SRV-030])", async () => {
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
     const acquired: NonNullable<Parameters<typeof renderApp>[1]>["acquired"] = [];
     renderApp(path, {

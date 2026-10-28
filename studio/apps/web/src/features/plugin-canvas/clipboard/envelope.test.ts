@@ -29,7 +29,7 @@ const nodes = () => [
   },
 ];
 
-describe("STU-067 STU-055 the clipboard envelope", () => {
+describe("[STU-067] [STU-055] the clipboard envelope", () => {
   test("copy lists the referenced dependencies and never copies sensitive fields", () => {
     const env = buildEnvelope(source, nodes());
     expect(env.format).toBe(CLIPBOARD_MIME);
@@ -108,7 +108,7 @@ describe("STU-067 STU-055 the clipboard envelope", () => {
 const none: TargetHas = { functions: new Set(), translations: new Set(), assets: new Set(), dataSources: new Set() };
 const readable: TargetHas = { ...none, functions: new Set(["fn.mine"]), translations: new Set(["greet"]) };
 
-describe("STU-067 F7 report before paste", () => {
+describe("[STU-067] F7 report before paste", () => {
   test("another organisation keeps only readable references; everything else is a drop, never a copy", () => {
     const env = buildEnvelope({ organisation: "orgA", ...source }, nodes());
     const items = planReport(env, { organisation: "orgB", app: "app1", plugin: "p1" }, readable);

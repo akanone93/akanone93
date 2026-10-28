@@ -27,7 +27,7 @@ import {
 const schema = join(import.meta.dir, "../../../../../schema/l10n/calendars");
 const json = (file: string): Record<string, unknown> => JSON.parse(readFileSync(join(schema, file), "utf8"));
 
-describe("calendar systems of DualCalendarDatePicker (I18N-003, STU-005)", () => {
+describe("calendar systems of DualCalendarDatePicker [I18N-003] [STU-005]", () => {
   test("the tables equal the JSON the runtime's tables are generated from", () => {
     const umalqura = json("umalqura.json");
     expect(umalquraYearStart).toBe(umalqura["yearStart"] as number);

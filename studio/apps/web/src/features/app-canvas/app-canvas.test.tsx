@@ -58,7 +58,7 @@ const renderCard = (s: PluginSummary, entry = false, on: Partial<Parameters<type
     />,
   );
 
-describe("plugin box badges in the accessible layer (STU-030, STU-011)", () => {
+describe("plugin box badges in the accessible layer [STU-030] [STU-011]", () => {
   test("a clean plugin shows Valid and no warnings", () => {
     renderCard(summary({}));
     expect(screen.getByText(m.valid)).toBeTruthy();
@@ -165,7 +165,7 @@ function stub() {
 
 const canvas = () => document.querySelector("canvas") as HTMLCanvasElement;
 
-describe("C1 on Plux Canvas (STU-030, STU-040, ADR-0013)", () => {
+describe("C1 on Plux Canvas ([STU-030], [STU-040], ADR-0013)", () => {
   test("boxes, badges and the bundled arrow between plugins are scene items; zoom to fit sets the view", async () => {
     const s = stub();
     renderApp(path, state({ surface: s.factory }));
@@ -196,7 +196,7 @@ describe("C1 on Plux Canvas (STU-030, STU-040, ADR-0013)", () => {
     expect(s.guides.at(-1)).toBeNull();
   });
 
-  test("dragging a box re-routes its arrow and saves its position in canvas.json (STU-032, STU-045)", async () => {
+  test("dragging a box re-routes its arrow and saves its position in canvas.json [STU-032] [STU-045]", async () => {
     const s = stub();
     const sent: NonNullable<Upstream["sent"]> = [];
     renderApp(path, state({ surface: s.factory, sent }));
@@ -237,7 +237,7 @@ describe("C1 on Plux Canvas (STU-030, STU-040, ADR-0013)", () => {
     await waitFor(() => expect(JSON.stringify(sent)).toContain('"x":500'));
   });
 
-  test("a lane's menu removes the one link as a single change set (STU-046)", async () => {
+  test("a lane's menu removes the one link as a single change set [STU-046]", async () => {
     const s = stub();
     const changeSets: NonNullable<Upstream["changeSets"]> = [];
     renderApp(path, state({ surface: s.factory, changeSets }));

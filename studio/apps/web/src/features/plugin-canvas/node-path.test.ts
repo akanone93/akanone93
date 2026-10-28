@@ -15,7 +15,7 @@ const root: Node = {
 };
 const ids = new Set(["n-root", "n-a", "n-b", "n-c"]);
 
-describe("ANL-040 mapping a runtime node path to a document node ID", () => {
+describe("[ANL-040] mapping a runtime node path to a document node ID", () => {
   test("root names the root and each ordinal descends by child index", () => {
     expect(nodeIdAtPath(root, "root")).toBe("n-root");
     expect(nodeIdAtPath(root, "root/0")).toBe("n-a");
