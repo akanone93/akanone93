@@ -34,4 +34,4 @@ SQL query); restart it from [briefs/s81-usage.md](briefs/s81-usage.md).
 - Exit work: P11 statuses; apps grid, card actions and app settings (STU-020, STU-021, STU-023);
   plugin detail card (STU-031); template page-state parameters (STU-082).
 
-Migrations used up to **0065** (`0065_app_host_fonts.sql`). Next free: **0066**.
+Migrations used up to **0066** (`0066_project_job_patch.sql`). Next free: **0067**.

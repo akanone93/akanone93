@@ -724,6 +724,12 @@ msgstr "{title} ({scope})"
 msgid "apps.limits.usage-text"
 msgstr "{used} of {limit}"
 
+#. Size of an image in the icon picker, in pixels.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.size"
+msgstr "{width} × {height} pixels"
+
 #. Hint under the archive file input; size is the default limit such as 8 MB.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -765,6 +771,12 @@ msgstr "A part of the file was larger than the server accepts. Upload the file a
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reportsBlocked"
 msgstr "A report has errors. Open Problems, fix them and freeze again."
+
+#. Explains which images work as the app icon.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.hint"
+msgstr "A square PNG, 1024 to 4096 pixels a side, from the app's assets."
 
 #. Error when a stage share falls.
 #. js-lingui-explicit-id
@@ -1551,6 +1563,12 @@ msgstr "App build"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.title"
 msgstr "App canvas"
+
+#. Name of the setting for the launcher and store icon; also the legend of the icon picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.icon"
+msgstr "App icon"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -3664,6 +3682,12 @@ msgstr "Default (JSON)"
 msgid "data.routeDefault"
 msgstr "Default (Plux gateway)"
 
+#. Choice of the icon picker: the icon Plux draws when the app has none, and the value shown for it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.default"
+msgstr "Default icon"
+
 #. Label of the select that chooses the default language of a new app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -4119,6 +4143,12 @@ msgstr "Download"
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.project.download"
 msgstr "Download Flutter project"
+
+#. Button that downloads only the files that changed since the project was last generated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.patch"
+msgstr "Download patch"
 
 #. Shown after the project was downloaded; filename is the zip file.
 #. js-lingui-explicit-id
@@ -9612,6 +9642,12 @@ msgstr "Press Enter or Space to select the step."
 msgid "actionGraph.nodeHint"
 msgstr "Press Enter or Space to select the step. Use the lists in the step to connect it and Delete to remove it."
 
+#. Accessible name of the preview of an image in the icon picker; name is the image's file name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.preview"
+msgstr "Preview of {name}"
+
 #. Accessible name of the toolbar that changes how the canvas previews screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -12888,6 +12924,18 @@ msgstr "The app document cannot be edited now, so its variables cannot be added.
 msgid "apps.settings.plugin-usage-none"
 msgstr "The app has no plugins."
 
+#. Shown in the icon picker when the app has no PNG image to choose.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.no-assets"
+msgstr "The app has no PNG assets yet. Upload one in the Assets panel to use it as the icon."
+
+#. Shown when the list of images for the icon picker failed to load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.load-failed"
+msgstr "The app's images could not be loaded."
+
 #. Caption under the heading of the app settings page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -13505,6 +13553,12 @@ msgstr "The passkey could not be used."
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.refusedInvalid"
 msgstr "The pasted elements do not pass validation."
+
+#. Explains the patch download; plux-patch.json is a file name and stays as it is.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.patch-caption"
+msgstr "The patch holds the files that were added or changed since the last generation, and plux-patch.json, which lists the changed, added and deleted files. Unzip it over your project and delete the listed files."
 
 #. Shown when saving the pinned apps failed.
 #. js-lingui-explicit-id

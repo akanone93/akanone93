@@ -5,23 +5,25 @@ import { useLingui } from "@lingui/react";
 import { Button } from "@plux/ui";
 import type { ReactElement } from "react";
 import { shellSettingsMessages } from "./shell-settings.messages.ts";
-import { useProjectDownload } from "./use-project-download.ts";
+import { type ProjectFormat, useProjectDownload } from "./use-project-download.ts";
 
 /**
  * Generates the host project of an app and downloads it (GEN-001, F18): one button, the job's progress while it
- * queues and runs, and the server's explanation when it fails. `label` names the button for its context.
+ * queues and runs, and the server's explanation when it fails. `label` names the button for its context; `format` is the whole project or the patch since the last generation.
  */
 export function ProjectDownload({
   appId,
   label,
+  format = "zip",
   disabled = false,
 }: {
   readonly appId: string;
   readonly label: string;
+  readonly format?: ProjectFormat;
   readonly disabled?: boolean;
 }): ReactElement {
   const m = shellSettingsMessages(useLingui().i18n);
-  const { phase, start } = useProjectDownload(appId);
+  const { phase, start } = useProjectDownload(appId, format);
   const progress =
     phase.state === "working"
       ? { queued: m.projectQueued, running: m.projectRunning, downloading: m.projectDownloading }[phase.status]

@@ -25,6 +25,7 @@ function fieldName(m: Messages, field: string): string {
     bundleId: m.fieldBundleId,
     appVersion: m.fieldAppVersion,
     splashColor: m.fieldSplashColor,
+    icon: m.fieldIcon,
     router: m.fieldRouter,
     deviceApis: m.fieldDeviceApis,
     push: m.fieldPush,
@@ -40,6 +41,9 @@ function fieldName(m: Messages, field: string): string {
 function valueText(m: Messages, field: string, value: string): string {
   if (field === "push") {
     return value === "true" ? m.on : m.off;
+  }
+  if (field === "icon") {
+    return value === "default" ? m.iconDefault : value.slice(0, 12);
   }
   return value === "" ? m.none : value;
 }
@@ -130,7 +134,15 @@ export function ShellSettingsPage(): ReactElement {
               {m.projectTitle}
             </h2>
             <p className="text-body text-secondary">{m.projectCaption(limitDefault("project.jobsPerHour"))}</p>
-            <ProjectDownload appId={appId} label={m.projectRegenerate} disabled={!canManage} />
+            <div className="flex flex-wrap items-start gap-3">
+              <ProjectDownload appId={appId} label={m.projectRegenerate} disabled={!canManage} />
+              {data.generated !== undefined && data.updateRequired && (
+                <ProjectDownload appId={appId} label={m.projectPatch} format="patch" disabled={!canManage} />
+              )}
+            </div>
+            {data.generated !== undefined && data.updateRequired && (
+              <p className="text-caption text-secondary">{m.projectPatchCaption}</p>
+            )}
           </section>
         </>
       )}

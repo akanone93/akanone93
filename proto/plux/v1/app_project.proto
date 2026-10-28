@@ -173,6 +173,10 @@ message ShellSettings {
   repeated string deep_link_schemes = 11;
   repeated string packages = 12;
   string entry_route = 13;
+  // icon_asset_id is an asset of the app (image/png, square, 1024 to 4096
+  // pixels a side) used as the launcher and store icon; empty for the
+  // default icon.
+  string icon_asset_id = 14;
 }
 
 message ShellChange {
@@ -209,7 +213,7 @@ message ProjectJob {
   string app_id = 2;
   string environment_key = 3;
   string channel_key = 4;
-  // format is "zip".
+  // format is "zip" or "patch".
   string format = 5;
   // status is "queued", "running", "succeeded" or "failed".
   string status = 6;
@@ -226,7 +230,9 @@ message GenerateProjectRequest {
   string app_id = 1;
   string environment_key = 2;
   string channel_key = 3;
-  // format is "zip" (the default).
+  // format is "zip" (the default), or "patch": the files that changed since
+  // the last generation and plux-patch.json. A patch needs a previous
+  // generation (failed precondition otherwise).
   string format = 4;
 }
 message GenerateProjectResponse {

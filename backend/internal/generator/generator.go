@@ -54,6 +54,9 @@ type ShellSpec struct {
 	AppVersion string `json:"appVersion"`
 	// IconSHA256 identifies the icon's source PNG; empty for the default.
 	IconSHA256 string `json:"iconSha256"`
+	// IconAssetID is the app asset the icon comes from, on a server; it is
+	// a setting, never written into the project (Generate clears it).
+	IconAssetID string `json:"iconAssetId,omitempty"`
 	// SplashColor is the launch screen's background, #RRGGBB.
 	SplashColor string `json:"splashColor"`
 	// DeviceAPIs are the device APIs the app's plugins request, sorted.
@@ -263,7 +266,7 @@ type pubDependency struct {
 // Generate renders the project of in, sorted by path, after Derive has
 // checked its spec.
 func Generate(in Input) ([]File, error) {
-	in.Spec.IconSHA256 = ""
+	in.Spec.IconSHA256, in.Spec.IconAssetID = "", ""
 	if in.Icon != nil {
 		sum := sha256.Sum256(in.Icon)
 		in.Spec.IconSHA256 = hex.EncodeToString(sum[:])

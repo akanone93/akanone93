@@ -721,7 +721,7 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 		return fmt.Errorf("server: %w", err)
 	}
 	if svc.Shells, err = shellupdate.New(shellupdate.Options{
-		DB: k.db, Audit: k.log, IDs: k.gen, Limits: k.set, Queue: projectQueue{k.work.Queue}, Endpoint: k.cfg.Server.PublicBaseURL,
+		DB: k.db, Audit: k.log, IDs: k.gen, Limits: k.set, Queue: projectQueue{k.work.Queue}, Objects: k.work.Objects, Endpoint: k.cfg.Server.PublicBaseURL,
 		Keys: func(ctx context.Context, org, env string) ([]codegen.RootKey, error) {
 			return rootKeys(ctx, svc.Releases, org, env)
 		},

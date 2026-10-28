@@ -1028,8 +1028,12 @@ type ShellSettings struct {
 	DeepLinkSchemes []string               `protobuf:"bytes,11,rep,name=deep_link_schemes,json=deepLinkSchemes,proto3" json:"deep_link_schemes,omitempty"`
 	Packages        []string               `protobuf:"bytes,12,rep,name=packages,proto3" json:"packages,omitempty"`
 	EntryRoute      string                 `protobuf:"bytes,13,opt,name=entry_route,json=entryRoute,proto3" json:"entry_route,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// icon_asset_id is an asset of the app (image/png, square, 1024 to 4096
+	// pixels a side) used as the launcher and store icon; empty for the
+	// default icon.
+	IconAssetId   string `protobuf:"bytes,14,opt,name=icon_asset_id,json=iconAssetId,proto3" json:"icon_asset_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ShellSettings) Reset() {
@@ -1149,6 +1153,13 @@ func (x *ShellSettings) GetPackages() []string {
 func (x *ShellSettings) GetEntryRoute() string {
 	if x != nil {
 		return x.EntryRoute
+	}
+	return ""
+}
+
+func (x *ShellSettings) GetIconAssetId() string {
+	if x != nil {
+		return x.IconAssetId
 	}
 	return ""
 }
@@ -1446,7 +1457,7 @@ type ProjectJob struct {
 	AppId          string                 `protobuf:"bytes,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	EnvironmentKey string                 `protobuf:"bytes,3,opt,name=environment_key,json=environmentKey,proto3" json:"environment_key,omitempty"`
 	ChannelKey     string                 `protobuf:"bytes,4,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
-	// format is "zip".
+	// format is "zip" or "patch".
 	Format string `protobuf:"bytes,5,opt,name=format,proto3" json:"format,omitempty"`
 	// status is "queued", "running", "succeeded" or "failed".
 	Status string `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
@@ -1580,7 +1591,9 @@ type GenerateProjectRequest struct {
 	AppId          string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	EnvironmentKey string                 `protobuf:"bytes,2,opt,name=environment_key,json=environmentKey,proto3" json:"environment_key,omitempty"`
 	ChannelKey     string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
-	// format is "zip" (the default).
+	// format is "zip" (the default), or "patch": the files that changed since
+	// the last generation and plux-patch.json. A patch needs a previous
+	// generation (failed precondition otherwise).
 	Format        string `protobuf:"bytes,4,opt,name=format,proto3" json:"format,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1967,7 +1980,7 @@ const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\x04name\x18\x04 \x01(\tR\x04name\"W\n" +
 	"\x17ImportSampleAppResponse\x12\x1e\n" +
 	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\x12\x1c\n" +
-	"\tdocuments\x18\x02 \x01(\x05R\tdocuments\"\xa3\x03\n" +
+	"\tdocuments\x18\x02 \x01(\x05R\tdocuments\"\xc7\x03\n" +
 	"\rShellSettings\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\apackage\x18\x02 \x01(\tR\apackage\x12%\n" +
@@ -1985,7 +1998,8 @@ const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\x11deep_link_schemes\x18\v \x03(\tR\x0fdeepLinkSchemes\x12\x1a\n" +
 	"\bpackages\x18\f \x03(\tR\bpackages\x12\x1f\n" +
 	"\ventry_route\x18\r \x01(\tR\n" +
-	"entryRoute\"u\n" +
+	"entryRoute\x12\"\n" +
+	"\ricon_asset_id\x18\x0e \x01(\tR\viconAssetId\"u\n" +
 	"\vShellChange\x12\x14\n" +
 	"\x05field\x18\x01 \x01(\tR\x05field\x12\x1b\n" +
 	"\told_value\x18\x02 \x01(\tR\boldValue\x12\x1b\n" +

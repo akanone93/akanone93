@@ -23,6 +23,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
+	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 )
 
 // The states of a project job.
@@ -33,9 +34,13 @@ const (
 	StatusFailed    = "failed"
 )
 
-// FormatZip is the only project format (a Git push is not offered; see the
-// S8.1 hand-off note).
-const FormatZip = "zip"
+// The project formats: the whole project as a zip, or a patch holding what
+// changed since the last generation (a Git push is not offered; see the S8.1
+// hand-off note).
+const (
+	FormatZip   = "zip"
+	FormatPatch = "patch"
+)
 
 // IDs generates identifiers for the rows this package writes.
 type IDs interface{ New() (string, error) }
@@ -66,6 +71,9 @@ type Options struct {
 	// Queue enqueues jobs; nil makes GenerateProject refuse.
 	Queue Enqueuer
 	Keys  KeyReader
+	// Objects holds the asset files, so an icon can be checked and read; nil
+	// refuses an icon.
+	Objects objects.Store
 	// Endpoint is the server's public base URL, compiled into the project.
 	Endpoint string
 	// Limits are the installation's limits (LIM-001); zero means the defaults.
@@ -190,8 +198,13 @@ func (s *Service) Status(ctx context.Context, p auth.Principal, appID string) (S
 			return err
 		}
 		out = Status{Current: Normalise(cur), Generated: gen, GeneratedAt: at}
+		if cur.IconAssetID != "" {
+			if row, err := currentIcon(ctx, q, app, cur.IconAssetID); err == nil {
+				out.Current.IconSHA256 = hex.EncodeToString(row.Sha256)
+			}
+		}
 		if gen != nil {
-			out.Changes = Compare(*gen, cur)
+			out.Changes = Compare(*gen, out.Current)
 		}
 		return nil
 	})
@@ -217,12 +230,28 @@ func (s *Service) SetSettings(ctx context.Context, p auth.Principal, appID strin
 		if err != nil {
 			return failure(err, "app")
 		}
+		if spec.IconAssetID != "" {
+			if err := s.checkIcon(ctx, q, app, spec.IconAssetID); err != nil {
+				return err
+			}
+		}
 		if _, err := q.UpsertShellSettings(ctx, dbgen.UpsertShellSettingsParams{AppID: app.ID, OrganizationID: app.OrganizationID, Settings: data}); err != nil {
 			return failure(err, "shell settings")
 		}
 		return s.record(ctx, tx, p.OrganizationID, p.Actor(), audit.ShellSettingsSet, appID, "")
 	})
 	return spec, err
+}
+
+// checkFormat returns the format asked for, zip by default.
+func checkFormat(format string) (string, error) {
+	switch format {
+	case "", FormatZip:
+		return FormatZip, nil
+	case FormatPatch:
+		return FormatPatch, nil
+	}
+	return "", plxerr.New(plxerr.InvalidEnumValue, "a project is generated as zip or patch")
 }
 
 // Generate queues a project generation. At most one job per app is active:
@@ -235,11 +264,9 @@ func (s *Service) Generate(ctx context.Context, p auth.Principal, appID, environ
 	if s.o.Queue == nil {
 		return ProjectJob{}, plxerr.New(plxerr.PreconditionFailed, "project generation is not available on this server")
 	}
-	if format == "" {
-		format = FormatZip
-	}
-	if format != FormatZip {
-		return ProjectJob{}, plxerr.New(plxerr.InvalidEnumValue, "a project is generated as zip")
+	format, err := checkFormat(format)
+	if err != nil {
+		return ProjectJob{}, err
 	}
 	id, err := s.o.IDs.New()
 	if err != nil {
@@ -255,7 +282,10 @@ func (s *Service) Generate(ctx context.Context, p auth.Principal, appID, environ
 		if _, err := target(ctx, q, app, environment, channel); err != nil {
 			return err
 		}
-		if active, found, err := activeJob(ctx, q, app.ID); err != nil || found {
+		if err := patchPrecondition(ctx, q, app, format); err != nil {
+			return err
+		}
+		if active, found, err := activeJob(ctx, q, app.ID, format); err != nil || found {
 			out = active
 			return err
 		}
@@ -348,10 +378,30 @@ func target(ctx context.Context, q *dbgen.Queries, app dbgen.App, environment, c
 	return env, nil
 }
 
-// activeJob returns the job of an app that is queued or running.
-func activeJob(ctx context.Context, q *dbgen.Queries, app pgtype.UUID) (ProjectJob, bool, error) {
+// patchPrecondition refuses a patch before any project was generated: it is
+// the difference to that project.
+func patchPrecondition(ctx context.Context, q *dbgen.Queries, app dbgen.App, format string) error {
+	if format != FormatPatch {
+		return nil
+	}
+	_, gen, _, err := settings(ctx, q, app)
+	if err != nil {
+		return err
+	}
+	if gen == nil {
+		return plxerr.New(plxerr.PreconditionFailed, "a patch needs a project generated before; generate the project first")
+	}
+	return nil
+}
+
+// activeJob returns the job of an app that is queued or running, which a
+// new request of the same format is answered with; a request of the other
+// format waits for it.
+func activeJob(ctx context.Context, q *dbgen.Queries, app pgtype.UUID, format string) (ProjectJob, bool, error) {
 	row, err := q.GetActiveProjectJob(ctx, app)
 	switch {
+	case err == nil && row.Format != format:
+		return ProjectJob{}, false, plxerr.New(plxerr.PreconditionFailed, "a %s is being generated; ask for the %s when it is done", row.Format, format)
 	case err == nil:
 		return jobOf(row), true, nil
 	case errors.Is(err, pgx.ErrNoRows):
@@ -387,39 +437,56 @@ func (s *Service) record(ctx context.Context, tx pgx.Tx, org string, actor audit
 	return nil
 }
 
+// claim is what a job needs, read in one transaction.
+type claim struct {
+	row   dbgen.ProjectJob
+	app   dbgen.App
+	spec  generator.ShellSpec
+	gen   *generator.ShellSpec
+	envID string
+	// iconSHA is the content hash of the current icon asset; iconGone says
+	// the setting names an asset that no longer exists.
+	iconSHA  string
+	iconGone bool
+}
+
 // Work generates the project of one job. A generation that fails is recorded
 // on the job with its registered code and is not retried; only an
 // infrastructure error is returned, for the queue to retry.
 func (s *Service) Work(ctx context.Context, job Job) error {
 	tenant := storage.Tenant{OrganizationID: job.OrganizationID}
 	var (
-		row     dbgen.ProjectJob
-		app     dbgen.App
-		spec    generator.ShellSpec
-		envID   string
+		c       claim
 		started bool
 	)
 	err := s.o.DB.InTx(ctx, tenant, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		var err error
-		if row, err = q.GetProjectJobForUpdate(ctx, storage.MustUUID(job.JobID)); err != nil {
+		if c.row, err = q.GetProjectJobForUpdate(ctx, storage.MustUUID(job.JobID)); err != nil {
 			return failure(err, "project job")
 		}
-		if n, err := q.StartProjectJob(ctx, row.ID); err != nil || n == 0 {
+		if n, err := q.StartProjectJob(ctx, c.row.ID); err != nil || n == 0 {
 			return err //nolint:wrapcheck // wrapped below
 		}
 		started = true
-		if app, err = q.GetApp(ctx, row.AppID); err != nil {
+		if c.app, err = q.GetApp(ctx, c.row.AppID); err != nil {
 			return failure(err, "app")
 		}
-		if spec, _, _, err = settings(ctx, q, app); err != nil {
+		if c.spec, c.gen, _, err = settings(ctx, q, c.app); err != nil {
 			return err
 		}
-		env, err := q.GetEnvironmentByKey(ctx, dbgen.GetEnvironmentByKeyParams{AppID: app.ID, Key: row.EnvironmentKey})
+		if c.spec.IconAssetID != "" {
+			if icon, err := currentIcon(ctx, q, c.app, c.spec.IconAssetID); err == nil {
+				c.iconSHA = hex.EncodeToString(icon.Sha256)
+			} else {
+				c.iconGone = true
+			}
+		}
+		env, err := q.GetEnvironmentByKey(ctx, dbgen.GetEnvironmentByKeyParams{AppID: c.app.ID, Key: c.row.EnvironmentKey})
 		if err != nil {
 			return failure(err, "environment")
 		}
-		envID = storage.ID(env.ID)
+		c.envID = storage.ID(env.ID)
 		return nil
 	})
 	if err != nil {
@@ -428,16 +495,36 @@ func (s *Service) Work(ctx context.Context, job Job) error {
 	if !started {
 		return nil
 	}
-	data, genSpec, genErr := s.build(ctx, job, app, spec, envID, row)
-	return s.finish(ctx, tenant, row, spec, genSpec, data, genErr)
+	data, genSpec, genErr := s.build(ctx, job, c)
+	return s.finish(ctx, tenant, c.row, c.spec, genSpec, data, genErr)
 }
 
-// build generates the project's zip.
-func (s *Service) build(ctx context.Context, job Job, app dbgen.App, spec generator.ShellSpec, envID string, row dbgen.ProjectJob) ([]byte, generator.ShellSpec, error) {
+// render generates the files of one project from a spec and its icon.
+func render(spec generator.ShellSpec, icon []byte, keys []codegen.RootKey) ([]generator.File, generator.ShellSpec, error) {
+	derived, err := generator.Derive(spec)
+	if err != nil {
+		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the shell settings are not valid: %v", err)
+	}
+	files, err := generator.Generate(generator.Input{Spec: derived, Icon: icon, Keys: keys})
+	if err != nil {
+		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the project cannot be generated: %v", err)
+	}
+	if icon != nil {
+		sum := sha256.Sum256(icon)
+		derived.IconSHA256 = hex.EncodeToString(sum[:])
+	} else {
+		derived.IconSHA256 = ""
+	}
+	return files, derived, nil
+}
+
+// build generates the project's zip, or the patch from the last generation.
+func (s *Service) build(ctx context.Context, job Job, c claim) ([]byte, generator.ShellSpec, error) {
+	spec := c.spec
 	if s.o.Keys == nil {
 		return nil, spec, plxerr.New(plxerr.PreconditionFailed, "root keys are not available on this server")
 	}
-	keys, err := s.o.Keys(ctx, job.OrganizationID, envID)
+	keys, err := s.o.Keys(ctx, job.OrganizationID, c.envID)
 	if err != nil {
 		return nil, spec, fmt.Errorf("shellupdate: root keys: %w", err)
 	}
@@ -445,18 +532,29 @@ func (s *Service) build(ctx context.Context, job Job, app dbgen.App, spec genera
 		return nil, spec, plxerr.New(plxerr.InvalidFormat, "the environment has no root keys yet; publish a release first")
 	}
 	spec.Plux = generator.PluxSource{
-		AppKey: app.Key, AppID: storage.ID(app.ID), Endpoint: s.o.Endpoint, Environment: row.EnvironmentKey, Channel: row.ChannelKey,
+		AppKey: c.app.Key, AppID: storage.ID(c.app.ID), Endpoint: s.o.Endpoint, Environment: c.row.EnvironmentKey, Channel: c.row.ChannelKey,
 		EntryRoute: spec.Plux.EntryRoute,
 	}
-	derived, err := generator.Derive(spec)
-	if err != nil {
-		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the shell settings are not valid: %v", err)
+	var icon []byte
+	switch {
+	case c.iconGone:
+		return nil, spec, plxerr.New(plxerr.PreconditionFailed, "the icon asset no longer exists; choose another icon or the default")
+	case spec.IconAssetID != "":
+		if icon, err = s.loadIcon(ctx, c.iconSHA); err != nil {
+			return nil, spec, err
+		}
 	}
-	files, err := generator.Generate(generator.Input{Spec: derived, Keys: keys})
+	files, derived, err := render(spec, icon, keys)
 	if err != nil {
-		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the project cannot be generated: %v", err)
+		return nil, spec, err
 	}
-	zipped, err := generator.Zip(derived.Package, files)
+	root := derived.Package
+	if c.row.Format == FormatPatch {
+		if files, err = s.patch(ctx, c.gen, files, derived, keys); err != nil {
+			return nil, spec, err
+		}
+	}
+	zipped, err := generator.Zip(root, files)
 	if err != nil {
 		return nil, spec, fmt.Errorf("shellupdate: zip: %w", err)
 	}
@@ -464,6 +562,91 @@ func (s *Service) build(ctx context.Context, job Job, app dbgen.App, spec genera
 		return nil, spec, plxerr.New(plxerr.LimitExceeded, "the project has %d bytes; at most %d are kept", len(zipped), max)
 	}
 	return zipped, derived, nil
+}
+
+// patch diffs the project of the last generation against the new one. The
+// old project is generated again from the stored spec and the icon it
+// recorded, with the current root keys on both sides, so a key rotation is
+// not a difference.
+func (s *Service) patch(ctx context.Context, gen *generator.ShellSpec, updated []generator.File, to generator.ShellSpec, keys []codegen.RootKey) ([]generator.File, error) {
+	if gen == nil {
+		return nil, plxerr.New(plxerr.PreconditionFailed, "a patch needs a project generated before; generate the project first")
+	}
+	var icon []byte
+	if gen.IconSHA256 != "" {
+		var err error
+		if icon, err = s.loadIcon(ctx, gen.IconSHA256); err != nil {
+			return nil, err
+		}
+	}
+	old, from, err := render(*gen, icon, keys)
+	if err != nil {
+		return nil, err
+	}
+	out, err := generator.Patch(old, updated, from, to)
+	if err != nil {
+		return nil, fmt.Errorf("shellupdate: patch: %w", err)
+	}
+	return out, nil
+}
+
+// currentIcon reads the icon asset of an app, under the app's row-level
+// security: another app's or organisation's asset is not found.
+func currentIcon(ctx context.Context, q *dbgen.Queries, app dbgen.App, assetID string) (dbgen.Asset, error) {
+	id, err := storage.UUID(assetID)
+	if err != nil {
+		return dbgen.Asset{}, plxerr.New(plxerr.InvalidFormat, "the icon is not an asset of this app")
+	}
+	row, err := q.GetAppAssetByAssetID(ctx, dbgen.GetAppAssetByAssetIDParams{AppID: app.ID, AssetID: id})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return dbgen.Asset{}, plxerr.New(plxerr.InvalidFormat, "the icon is not an asset of this app")
+	}
+	if err != nil {
+		return dbgen.Asset{}, failure(err, "asset")
+	}
+	return row, nil
+}
+
+// checkIcon refuses an icon asset the generator cannot use (GEN-004): it
+// must belong to the app, be a PNG, and be square from 1024 to 4096 pixels.
+// Every failure to find it reads the same, so no other app's or
+// organisation's asset is confirmed to exist.
+func (s *Service) checkIcon(ctx context.Context, q *dbgen.Queries, app dbgen.App, assetID string) error {
+	row, err := currentIcon(ctx, q, app, assetID)
+	if err != nil {
+		return err
+	}
+	if row.MediaType != "image/png" {
+		return plxerr.New(plxerr.InvalidFormat, "the icon must be a PNG image")
+	}
+	data, err := s.loadIcon(ctx, hex.EncodeToString(row.Sha256))
+	if err != nil {
+		return err
+	}
+	if err := generator.CheckIcon(data); err != nil {
+		return plxerr.Wrap(plxerr.InvalidFormat, err, "the icon cannot be used: %v", err)
+	}
+	return nil
+}
+
+// loadIcon reads an asset object by its content hash. An object that is gone
+// fails the precondition; any other failure is the store's.
+func (s *Service) loadIcon(ctx context.Context, sha string) ([]byte, error) {
+	if s.o.Objects == nil {
+		return nil, plxerr.New(plxerr.PreconditionFailed, "asset storage is not available on this server")
+	}
+	key, err := objects.Key(objects.KindAsset, sha)
+	if err != nil {
+		return nil, plxerr.New(plxerr.PreconditionFailed, "the icon is not available")
+	}
+	data, _, err := s.o.Objects.Get(ctx, key)
+	if errors.Is(err, objects.ErrNotFound) {
+		return nil, plxerr.New(plxerr.PreconditionFailed, "the icon is no longer available; choose another icon or the default")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("shellupdate: read the icon: %w", err)
+	}
+	return data, nil
 }
 
 // finish records the outcome. A refusal (a plxerr) fails the job for good.

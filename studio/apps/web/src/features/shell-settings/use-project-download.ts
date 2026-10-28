@@ -16,6 +16,9 @@ export type ProjectPhase =
   | { readonly state: "done"; readonly filename: string }
   | { readonly state: "failed"; readonly code: string; readonly message: string };
 
+/** What a project job builds: the whole project, or the files that changed since the last generation (GEN-004). */
+export type ProjectFormat = "zip" | "patch";
+
 const idle: ProjectPhase = { state: "idle" };
 
 function sleep(ms: number): Promise<void> {
@@ -32,9 +35,13 @@ function refusal(error: unknown): { code: string; message: string } {
 /**
  * Generates the host project of an app as a queued server job (GEN-001, GEN-004, F18): asks for it, follows the job
  * until it succeeds or fails, then hands the zip to the browser. At most one job per app runs at a time and the
- * number per hour is limited by `project.jobsPerHour`; the server's refusal is returned as the failure.
+ * number per hour is limited by `project.jobsPerHour`; the server's refusal is returned as the failure. A patch needs
+ * a project generated before; once a job is done the shell status is read again.
  */
-export function useProjectDownload(appId: string): {
+export function useProjectDownload(
+  appId: string,
+  format: ProjectFormat = "zip",
+): {
   readonly phase: ProjectPhase;
   readonly start: () => Promise<void>;
 } {
@@ -56,7 +63,12 @@ export function useProjectDownload(appId: string): {
     };
     try {
       show({ state: "working", status: "queued" });
-      const queued = await client.generateProject({ appId, environmentKey: "production", channelKey: "production" });
+      const queued = await client.generateProject({
+        appId,
+        environmentKey: "production",
+        channelKey: "production",
+        format,
+      });
       const id = queued.job?.id ?? "";
       for (;;) {
         await sleep(pollMs);
@@ -77,9 +89,10 @@ export function useProjectDownload(appId: string): {
       const file = await client.downloadProject({ jobId: id, appId });
       download(file.filename, new Uint8Array(file.archive), "application/zip");
       show({ state: "done", filename: file.filename });
+      await session.queryClient.invalidateQueries({ queryKey: ["shell-status", appId] });
     } catch (error) {
       show({ state: "failed", ...refusal(error) });
     }
-  }, [appId, session]);
+  }, [appId, format, session]);
   return { phase, start };
 }

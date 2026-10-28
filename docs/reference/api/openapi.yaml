@@ -23469,7 +23469,10 @@ components:
         format:
           type: string
           title: format
-          description: format is "zip" (the default).
+          description: |-
+            format is "zip" (the default), or "patch": the files that changed since
+             the last generation and plux-patch.json. A patch needs a previous
+             generation (failed precondition otherwise).
       title: GenerateProjectRequest
       additionalProperties: false
     plux.v1.GenerateProjectResponse:
@@ -30247,7 +30250,7 @@ components:
         format:
           type: string
           title: format
-          description: format is "zip".
+          description: format is "zip" or "patch".
         status:
           type: string
           title: status
@@ -33679,6 +33682,13 @@ components:
         entryRoute:
           type: string
           title: entry_route
+        iconAssetId:
+          type: string
+          title: icon_asset_id
+          description: |-
+            icon_asset_id is an asset of the app (image/png, square, 1024 to 4096
+             pixels a side) used as the launcher and store icon; empty for the
+             default icon.
       title: ShellSettings
       additionalProperties: false
       description: |-

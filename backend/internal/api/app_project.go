@@ -142,7 +142,7 @@ func shellProto(s generator.ShellSpec) *pluxv1.ShellSettings {
 	return &pluxv1.ShellSettings{
 		Name: s.Name, Package: s.Package, ApplicationId: s.ApplicationID, BundleId: s.BundleID, AppVersion: s.AppVersion,
 		SplashColor: s.SplashColor, Router: s.Router, DeviceApis: s.DeviceAPIs, Push: s.Push,
-		DeepLinkHosts: s.DeepLinkHosts, DeepLinkSchemes: s.DeepLinkSchemes, Packages: s.Packages, EntryRoute: s.Plux.EntryRoute,
+		DeepLinkHosts: s.DeepLinkHosts, DeepLinkSchemes: s.DeepLinkSchemes, Packages: s.Packages, EntryRoute: s.Plux.EntryRoute, IconAssetId: s.IconAssetID,
 	}
 }
 
@@ -151,7 +151,7 @@ func shellSpec(m *pluxv1.ShellSettings) generator.ShellSpec {
 		Name: m.GetName(), Package: m.GetPackage(), ApplicationID: m.GetApplicationId(), BundleID: m.GetBundleId(), AppVersion: m.GetAppVersion(),
 		SplashColor: m.GetSplashColor(), Router: m.GetRouter(), DeviceAPIs: m.GetDeviceApis(), Push: m.GetPush(),
 		DeepLinkHosts: m.GetDeepLinkHosts(), DeepLinkSchemes: m.GetDeepLinkSchemes(), Packages: m.GetPackages(),
-		Plux: generator.PluxSource{EntryRoute: m.GetEntryRoute()},
+		Plux: generator.PluxSource{EntryRoute: m.GetEntryRoute()}, IconAssetID: m.GetIconAssetId(),
 	}
 }
 
@@ -241,6 +241,10 @@ func (s AppProject) DownloadProject(ctx context.Context, req *connect.Request[pl
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.DownloadProjectResponse{Filename: j.ID + ".zip", Archive: data, Sha256: j.SHA256}, nil
+		name := j.ID + ".zip"
+		if j.Format == shellupdate.FormatPatch {
+			name = j.ID + ".patch.zip"
+		}
+		return &pluxv1.DownloadProjectResponse{Filename: name, Archive: data, Sha256: j.SHA256}, nil
 	})
 }
