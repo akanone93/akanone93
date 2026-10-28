@@ -94,7 +94,7 @@ export function AnalyticsFunnelsPage(): ReactElement {
   );
 }
 
-/** A27: the events reaching each step of one funnel, and the share of the first step. */
+/** A27: the sessions that reached each step of one funnel in order, and the share of the first step. */
 export function AnalyticsFunnelPage(): ReactElement {
   const m = analyticsMessages(useLingui().i18n);
   const { org, app, range, search } = useAnalyticsScope();
@@ -109,14 +109,14 @@ export function AnalyticsFunnelPage(): ReactElement {
       </Link>
       <BarList
         label={m.funnelChart}
-        bars={steps.map((s, i) => ({ key: `${i}-${s.event}`, label: s.event, value: Number(s.events) }))}
+        bars={steps.map((s, i) => ({ key: `${i}-${s.event}`, label: s.event, value: Number(s.sessions) }))}
       />
       <Table
         caption={m.funnelChart}
-        heads={[m.stepColumn, m.eventsColumn, m.conversionColumn]}
+        heads={[m.stepColumn, m.sessionsColumn, m.conversionColumn]}
         rows={steps.map((s, i) => ({
           key: `${i}-${s.event}`,
-          cells: [s.event, s.events.toString(), `${Math.round(s.conversion * 100)}%`],
+          cells: [s.event, s.sessions.toString(), `${Math.round(s.conversion * 100)}%`],
         }))}
       />
     </Frame>

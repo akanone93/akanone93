@@ -123,6 +123,9 @@ func (s *Service) CreateExperiment(ctx context.Context, p auth.Principal, r Crea
 		if err != nil {
 			return err
 		}
+		if err := checkTargetingLimits(def, lim); err != nil {
+			return err
+		}
 		if size, max := len(src.Canonical), lim.Get(limits.DocumentFileSize); int64(size) > max {
 			return plxerr.New(plxerr.RequestTooLarge, "the experiment document is %d bytes; at most %d (document.fileSize)", size, max)
 		}

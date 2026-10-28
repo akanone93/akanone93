@@ -78,8 +78,11 @@ service AnalyticsService {
   // ListFunnels lists the funnels of an app, or of the organisation. It
   // needs analytics.read.
   rpc ListFunnels(ListFunnelsRequest) returns (ListFunnelsResponse) {}
-  // GetFunnelResult counts the events of each step of a funnel over a time
-  // range, from the rollups. It needs analytics.read on the app.
+  // GetFunnelResult counts the sessions that reached each step of a funnel
+  // over a time range: a session counts at step N only if it did steps 1 to N
+  // in order, read from the raw events. PLX-1320 when the range holds
+  // more events than analytics.funnelScanEvents. It needs analytics.read on
+  // the app.
   rpc GetFunnelResult(GetFunnelResultRequest) returns (GetFunnelResultResponse) {}
   // GetOverview summarises every app the caller may read analytics of over a
   // time range: sessions, screen views, errors and firing alerts. It needs
@@ -457,9 +460,13 @@ message ListFunnelsResponse {
 // FunnelStep is one step of a funnel result.
 message FunnelStep {
   string event = 1;
+  // events equals sessions; it is kept for clients that read the rollup-based
+  // result of earlier versions.
   int64 events = 2;
-  // conversion is the share of the first step's events, 0 to 1.
+  // conversion is the share of the first step's sessions, 0 to 1.
   double conversion = 3;
+  // sessions reached this step after reaching every step before it, in order.
+  int64 sessions = 4;
 }
 message GetFunnelResultRequest {
   string id = 1;

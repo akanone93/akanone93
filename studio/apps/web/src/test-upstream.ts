@@ -226,7 +226,13 @@ export interface ReleasesFixture {
 /** The Experiments and flags area (STU-103): experiments with results, flags, and every mutation received as \`rpc:detail\`. */
 export interface ExperimentsFixture {
   experiments: { id: string; key: string; state: number; definition?: unknown; winner?: string }[];
-  flags?: { key: string; type: number; defaultJson: string; description?: string }[];
+  flags?: {
+    key: string;
+    type: number;
+    defaultJson: string;
+    description?: string;
+    segments?: { segment: string; valueJson: string }[];
+  }[];
   calls?: string[];
   failing?: boolean;
 }
@@ -1195,6 +1201,11 @@ function experimentsServices(
     }
   };
   const mean = (variant: string, value: number) => ({ variant, subjects: 500n, mean: value });
+  const result = (event: string) => ({
+    event,
+    means: [mean("control", 0.1), mean("bold", 0.12)],
+    comparisons: [{ variant: "bold", diff: 0.02, lower: 0.01, upper: 0.03, pValue: 0.01, improved: true }],
+  });
   service(ExperimentService, {
     listExperiments: (req) => {
       guard();
@@ -1225,11 +1236,8 @@ function experimentsServices(
         { name: "control", control: true, subjects: 500n, share: 0.5 },
         { name: "bold", subjects: 500n, share: 0.5 },
       ],
-      primary: {
-        event: "purchase",
-        means: [mean("control", 0.1), mean("bold", 0.12)],
-        comparisons: [{ variant: "bold", diff: 0.02, lower: 0.01, upper: 0.03, pValue: 0.01, improved: true }],
-      },
+      primary: result("purchase"),
+      primaries: find(req.id)?.key === "multi" ? [result("purchase"), result("signup")] : [],
     }),
   });
   const flag = (f: NonNullable<ExperimentsFixture["flags"]>[number]) => ({
@@ -1238,21 +1246,30 @@ function experimentsServices(
     type: f.type,
     defaultJson: f.defaultJson,
     description: f.description ?? "",
+    segments: f.segments ?? [],
   });
   service(FlagService, {
     listFlags: () => ({ flags: (data.flags ?? []).map(flag) }),
     createFlag: (req) => {
       data.calls?.push(`createFlag:${req.key}:${req.spec?.defaultJson}`);
+      const segments = req.spec?.segments ?? [];
+      if (segments.length > 0) {
+        data.calls?.push(`segments:${req.key}:${segments.map((s) => `${s.segment}=${s.valueJson}`).join(",")}`);
+      }
       data.flags = [
         ...(data.flags ?? []),
-        { key: req.key, type: req.spec?.type ?? 1, defaultJson: req.spec?.defaultJson ?? "" },
+        { key: req.key, type: req.spec?.type ?? 1, defaultJson: req.spec?.defaultJson ?? "", segments },
       ];
       return {};
     },
     updateFlag: (req) => {
       data.calls?.push(`updateFlag:${req.key}:${req.spec?.defaultJson}`);
+      const segments = req.spec?.segments ?? [];
+      if (segments.length > 0) {
+        data.calls?.push(`segments:${req.key}:${segments.map((s) => `${s.segment}=${s.valueJson}`).join(",")}`);
+      }
       data.flags = (data.flags ?? []).map((f) =>
-        f.key === req.key ? { ...f, defaultJson: req.spec?.defaultJson ?? f.defaultJson } : f,
+        f.key === req.key ? { ...f, defaultJson: req.spec?.defaultJson ?? f.defaultJson, segments } : f,
       );
       return {};
     },
@@ -1624,6 +1641,7 @@ function analyticsAreaServices(
         steps: f.steps.map((event, i) => ({
           event,
           events: BigInt(counts[i] ?? 0),
+          sessions: BigInt(counts[i] ?? 0),
           conversion: (counts[0] ?? 0) === 0 ? 0 : (counts[i] ?? 0) / (counts[0] ?? 1),
         })),
       };

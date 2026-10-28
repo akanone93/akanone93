@@ -63,7 +63,7 @@ func (s AnalyticsHandler) ListFunnels(ctx context.Context, req *connect.Request[
 	})
 }
 
-// GetFunnelResult counts the events of each step of a funnel.
+// GetFunnelResult counts the sessions that reached each step of a funnel.
 func (s AnalyticsHandler) GetFunnelResult(ctx context.Context, req *connect.Request[pluxv1.GetFunnelResultRequest]) (*connect.Response[pluxv1.GetFunnelResultResponse], error) {
 	return read(ctx, func(ctx context.Context) (*pluxv1.GetFunnelResultResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -77,7 +77,7 @@ func (s AnalyticsHandler) GetFunnelResult(ctx context.Context, req *connect.Requ
 		}
 		out := &pluxv1.GetFunnelResultResponse{Funnel: funnelProto(f)}
 		for _, st := range steps {
-			out.Steps = append(out.Steps, &pluxv1.FunnelStep{Event: st.Event, Events: st.Events, Conversion: st.Conversion})
+			out.Steps = append(out.Steps, &pluxv1.FunnelStep{Event: st.Event, Events: st.Events, Sessions: st.Sessions, Conversion: st.Conversion})
 		}
 		return out, nil
 	})

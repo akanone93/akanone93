@@ -443,9 +443,12 @@ An experiment: a control and variants with their allocation, audience, schedule 
 | `variants` | list of [ExperimentVariant](#experimentvariant) | yes | The control and the variants. Exactly one is the control and the weights sum to 100 (PLX-1702, PLX-1703). |
 | `layer` | string |  | Identifier used in PXL and generated code: lowerCamelCase. |
 | `holdout` | number |  | The share of subjects, in percent, kept out of the experiment and shown the control. |
-| `segment` | string |  | Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. |
+| `segment` | string |  | A segment the experiment targets. With `segments` it is the first of them. |
+| `segments` | list of string |  | More segments to target. A device in any of them, this document's `segment` included, is eligible (limit `experiments.segmentsPerTargeting`). |
+| `attributes` | list of [SegmentRule](#segmentrule) |  | Conditions on device and user attributes. A device must meet every one of them, as well as be in one of the segments if any are named (limit `experiments.attributesPerTargeting`). |
 | `schedule` | [ExperimentSchedule](#experimentschedule) |  | When the experiment runs; both bounds are optional. |
-| `primaryMetric` | [ExperimentMetric](#experimentmetric) | yes |  |
+| `primaryMetric` | [ExperimentMetric](#experimentmetric) | yes | The lead primary metric; its sample sets the minimum sample size check. |
+| `primaryMetrics` | list of [ExperimentMetric](#experimentmetric) |  | More primary metrics, analysed like the lead one (limit `experiments.primaryMetrics`, the lead metric included). |
 | `guardrailMetrics` | list of [ExperimentMetric](#experimentmetric) |  |  |
 | `minimumSampleSize` | integer |  | Subjects per variant before a result may be read. |
 | `salt` | string |  | Mixed into the hash that assigns a subject to a variant, so two experiments split the same subjects differently (ABT-002). |
