@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
+import type { LibraryFixture } from "../../test-upstream.ts";
 import { flattenTokens, parseDtcg, putToken, scriptCoverage, setMode, validName } from "./design-model.ts";
 
 setDefaultTimeout(30000);
@@ -120,6 +121,46 @@ describe("STU-112 A16 to A18", () => {
     expect(await screen.findByText("acme: 1 overrides")).toBeTruthy();
   });
 
+  test("the brand overlay dialog asks for a name without dots, a token and a value before it creates anything", async () => {
+    renderApp(`${base}/themes`, state);
+    const open = await screen.findByRole("button", { name: "Create a brand overlay" }, { timeout: 10000 });
+    await waitFor(() => expect((open as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(open);
+    const dialog = await screen.findByRole("dialog");
+    const create = () => within(dialog).getByRole("button", { name: "Create overlay" }) as HTMLButtonElement;
+    const disabled = () => create().disabled || create().getAttribute("aria-disabled") === "true";
+    expect(disabled()).toBe(true);
+    fireEvent.change(within(dialog).getByLabelText("Value for the brand"), { target: { value: "#ff0000" } });
+    expect(disabled()).toBe(true);
+    fireEvent.change(within(dialog).getByLabelText("Brand name"), { target: { value: "ac.me" } });
+    expect(disabled()).toBe(true);
+    fireEvent.change(within(dialog).getByLabelText("Brand name"), { target: { value: "__proto__" } });
+    expect(disabled()).toBe(true);
+    fireEvent.change(within(dialog).getByLabelText("Brand name"), { target: { value: "acme" } });
+    expect(disabled()).toBe(false);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(screen.queryByRole("dialog") === null).toBe(true));
+    expect(screen.getByText("No brand overlays yet.")).toBeTruthy();
+  });
+
+  test("an icon is not added without a valid set and name and a source", async () => {
+    renderApp(`${base}/icons`, state);
+    await screen.findByText("home", {}, { timeout: 10000 });
+    const set = screen.getByLabelText("Icon set");
+    await waitFor(() => expect((set as HTMLInputElement).disabled).toBe(false));
+    const add = () => screen.getByRole("button", { name: "Add icon" }) as HTMLButtonElement;
+    const disabled = () => add().disabled || add().getAttribute("aria-disabled") === "true";
+    fireEvent.change(set, { target: { value: "core" } });
+    fireEvent.change(screen.getByLabelText("Icon name"), { target: { value: "bad name" } });
+    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
+    expect(disabled()).toBe(true);
+    fireEvent.change(screen.getByLabelText("Icon name"), { target: { value: "search" } });
+    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "" } });
+    expect(disabled()).toBe(true);
+    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
+    expect(disabled()).toBe(false);
+  });
+
   test("typography flags a script without a fallback (THM-004)", async () => {
     renderApp(`${base}/typography`, state);
     expect(await screen.findByText("Latin: 2 fonts", {}, { timeout: 10000 })).toBeTruthy();
@@ -152,5 +193,72 @@ describe("STU-112 A19 component library", () => {
     });
     expect(await screen.findByText("Card", {}, { timeout: 10000 })).toBeTruthy();
     expect(screen.getByText("Not adopted")).toBeTruthy();
+  });
+});
+
+describe("STU-112 STU-085 A19 adopt dialog (D32)", () => {
+  const library = (more: Partial<LibraryFixture> = {}): LibraryFixture => ({
+    items: [
+      { id: "c1", kind: "component", key: "card", name: "Card", visibility: "organization", createdByName: "Ada" },
+    ],
+    versions: {
+      c1: [
+        { version: 1, content: '{"props":{"a":{},"b":{}},"slots":{"icon":{}}}' },
+        { version: 2, content: '{"props":{"a":{},"c":{}}}' },
+      ],
+    },
+    adoptions: [{ itemId: "c1", version: 1 }],
+    conflicts: [{ file: "plugins/p/pages/home.json", path: "/root/0", removedProps: ["b"] }],
+    calls: [],
+    ...more,
+  });
+
+  const openDialog = async (lib: LibraryFixture, adopted = 1) => {
+    renderApp(`${base}/library`, { ...state, library: lib });
+    const open = await screen.findByRole("button", { name: "Adopt a version of Card" }, { timeout: 10000 });
+    await waitFor(() => expect((open as HTMLButtonElement).disabled).toBe(false));
+    expect(screen.getByText(`Version ${adopted}`)).toBeTruthy();
+    fireEvent.click(open);
+    return screen.findByRole("dialog");
+  };
+
+  test("adopts the newest version, shows what its interface changes and flags the overrides of removed props", async () => {
+    const lib = library();
+    const dialog = await openDialog(lib);
+    await within(dialog).findByText("c", { selector: "code" });
+    expect(within(dialog).getByText("b", { selector: "code" })).toBeTruthy();
+    expect(within(dialog).getByText("icon", { selector: "code" })).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Adopt version" }));
+    await within(dialog).findByText("Version 2 is adopted.");
+    expect(within(dialog).getByText("plugins/p/pages/home.json/root/0")).toBeTruthy();
+    expect(lib.calls).toEqual(["adopt:app1:2"]);
+    fireEvent.click(within(dialog).getAllByRole("button", { name: "Close" })[0] as HTMLElement);
+    await waitFor(() => expect(screen.queryByRole("dialog") === null).toBe(true));
+  });
+
+  test("the version this app already adopted cannot be adopted again", async () => {
+    const lib = library({ adoptions: [{ itemId: "c1", version: 2 }] });
+    const dialog = await openDialog(lib, 2);
+    const confirm = within(dialog).getByRole("button", { name: "Adopt version" }) as HTMLButtonElement;
+    expect(confirm.disabled || confirm.getAttribute("aria-disabled") === "true").toBe(true);
+    fireEvent.click(confirm);
+    expect(lib.calls).toEqual([]);
+  });
+
+  test("a refusal by the server is reported in the dialog and nothing is shown as adopted", async () => {
+    const lib = library({ adoptRefusal: "the component is no longer visible to this app" });
+    const dialog = await openDialog(lib);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Adopt version" }));
+    expect(await within(dialog).findByRole("alert")).toBeTruthy();
+    expect(within(dialog).queryByText("Version 2 is adopted.") === null).toBe(true);
+    expect(lib.calls).toEqual(["adopt:app1:2"]);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("dialog") === null).toBe(true));
+  });
+
+  test("a reader of the app cannot open the dialog", async () => {
+    renderApp(`${base}/library`, { ...state, permissions: ["app.read"], lockHeldElsewhere: true, library: library() });
+    const open = await screen.findByRole("button", { name: "Adopt a version of Card" }, { timeout: 10000 });
+    expect((open as HTMLButtonElement).disabled || open.getAttribute("aria-disabled") === "true").toBe(true);
   });
 });

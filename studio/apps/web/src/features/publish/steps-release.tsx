@@ -6,8 +6,13 @@ import { Button, Field, Input, StatusPill, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { StepUpDialog } from "../../components/dialogs/index.ts";
 import { useStepUp } from "../security/use-security.ts";
+import { evidenceMessages } from "./evidence.messages.ts";
+import { JsonDiff, ScreenTiles } from "./evidence.tsx";
 import type { PanelProps } from "./panel.ts";
 import { publishMessages } from "./publish.messages.ts";
+import { RolloutForm } from "./rollout-form.tsx";
+import { planFromJson, planToJson, validatePlan } from "./rollout-plan.ts";
+import { useEvidence } from "./use-evidence.ts";
 
 type Messages = ReturnType<typeof publishMessages>;
 
@@ -25,26 +30,39 @@ function diffLabel(m: Messages, state: string): string {
   return labels[state] ?? state;
 }
 
-/** Step 4: the server-side visual diff of the changed screens; approvers need it finished (GOV-023). */
-export function DiffsPanel({ request, diff, editable, busy, api, run }: PanelProps): ReactElement {
+/** Step 4: the server-side visual diff of the changed screens and the JSON diff of the changed documents; approvers need it finished (GOV-023). */
+export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
+  const e = evidenceMessages(useLingui().i18n);
+  const evidence = useEvidence(request, pluginIds);
   const current = diff !== undefined && diff.contentHash === request.contentHash;
   const finished = current && diff.state === "succeeded";
   const again = !current || diff.state === "failed";
+  const waiting = current && (diff.state === "queued" || diff.state === "running");
   return (
     <div className="flex flex-col gap-3">
       {diff === undefined && <p className="text-body text-secondary">{m.diffNone}</p>}
       {diff !== undefined && <StatusPill status={diffTone(diff.state)} label={diffLabel(m, diff.state)} />}
-      <ul className="flex flex-col gap-1">
+      {waiting && <p className="text-body text-secondary">{e.thumbQueued}</p>}
+      <ul className="flex flex-col gap-3">
         {diff?.screens.map((s) => (
-          <li key={`${s.pluginKey}/${s.screen}/${s.device}`} className="flex items-center gap-3 text-body">
-            <span>{m.diffScreen(s.pluginKey, s.screen, s.device)}</span>
-            <span className="text-secondary">
-              {s.beforeSha256 === "" ? m.diffNew : s.changed ? m.diffChanged : m.diffSame}
-            </span>
+          <li key={`${s.pluginKey}/${s.screen}/${s.device}`} className="flex flex-col gap-1">
+            <div className="flex items-center gap-3 text-body">
+              <span>{m.diffScreen(s.pluginKey, s.screen, s.device)}</span>
+              <span className="text-secondary">
+                {s.beforeSha256 === "" ? m.diffNew : s.changed ? m.diffChanged : m.diffSame}
+              </span>
+            </div>
+            <ScreenTiles screen={s} />
           </li>
         ))}
       </ul>
+      {evidence.data !== undefined && <JsonDiff evidence={evidence.data} />}
+      {evidence.isError && (
+        <p role="alert" className="text-body text-danger">
+          {e.failed}
+        </p>
+      )}
       {editable && (
         <div className="flex gap-2">
           {again && (
@@ -152,36 +170,19 @@ export function ApprovalPanel({ request, editable, busy, api, run }: PanelProps)
   );
 }
 
-function planText(bytes: Uint8Array): string {
-  return bytes.length === 0 ? "{}" : new TextDecoder().decode(bytes);
-}
-
-function parsePlan(text: string): Uint8Array | undefined {
-  try {
-    const value: unknown = JSON.parse(text);
-    return typeof value === "object" && value !== null && !Array.isArray(value)
-      ? new TextEncoder().encode(text)
-      : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-/** Step 8: stages, schedule, health gates and activation as the plan JSON the server validates (REL-050 to REL-053). */
+/** Step 8: stages, schedule and health gates as a typed form, checked against the bounds the rollout service enforces (REL-050 to REL-053). */
 export function RolloutPanel({ request, editable, busy, api, run }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
-  const [text, setText] = useState(planText(request.rolloutPlan));
-  const plan = parsePlan(text);
+  const [plan, setPlan] = useState(() => planFromJson(request.rolloutPlan));
+  const issues = validatePlan(plan);
   return (
     <div className="flex flex-col gap-3">
-      <Field label={m.rolloutPlan} error={plan === undefined ? m.rolloutInvalid : undefined}>
-        <Textarea value={text} readOnly={!editable} onChange={(e) => setText(e.target.value)} />
-      </Field>
+      <RolloutForm plan={plan} issues={issues} editable={editable} onChange={setPlan} />
       {editable && (
         <div>
           <Button
-            disabled={busy || plan === undefined}
-            onClick={() => plan && run(() => api.advance({ case: "rollout", value: { plan } }))}
+            disabled={busy || issues.length > 0}
+            onClick={() => run(() => api.advance({ case: "rollout", value: { plan: planToJson(plan) } }))}
           >
             {m.continue}
           </Button>

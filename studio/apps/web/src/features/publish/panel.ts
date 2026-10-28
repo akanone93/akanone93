@@ -11,5 +11,7 @@ export interface PanelProps {
   readonly api: ReleaseApi;
   readonly editable: boolean;
   readonly busy: boolean;
+  /** Plugin key to plugin id, for the calls that name a plugin. */
+  readonly pluginIds: ReadonlyMap<string, string>;
   readonly run: (fn: () => Promise<unknown>) => void;
 }
