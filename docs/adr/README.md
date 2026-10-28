@@ -110,5 +110,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0098](0098-library-templates-and-components.md) | Library: templates and components authored in Studio | P11 | Accepted |
 | [0099](0099-studio-language-services.md) | Studio language services: Wasm validator and the Rust editor bridge | P11 | Accepted |
 | [0100](0100-p11-scope-changes.md) | P11 changes to MUST requirements in specification 1.10.0 | P11 | Accepted |
+| [0101](0101-structural-session-replay.md) | Structural session replay: consent-gated, redacted, bounded, kept per app with retention | P11 | Proposed |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

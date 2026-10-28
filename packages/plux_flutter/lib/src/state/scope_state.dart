@@ -187,6 +187,7 @@ final class ScopeModel {
     this.runForm,
     this.formTexts = const FormTexts(),
     this.devTap,
+    this.replayTap,
     this.devScope = '',
   }) : decls = List.unmodifiable(decls),
        byName = {for (final d in decls) d.name: d};
@@ -234,6 +235,10 @@ final class ScopeModel {
   /// Called with every change of the scope's values, in debug and dev
   /// builds only (DEV-020); null when no dev session listens.
   final DevStateTap? devTap;
+
+  /// Receives every change of a scope's values for the session replay
+  /// recorder (ANL-050); it records nothing unless a replay is recording.
+  final DevStateTap? replayTap;
 
   /// The scope as the dev stream names it (`page:/home`); [root] when empty.
   final String devScope;
@@ -335,6 +340,12 @@ mixin ScopeValues on Notifier<Map<String, Object?>> {
     if (kPluxDevtools && tap != null) {
       listenSelf((previous, next) {
         if (previous != null) tap(m, previous, next);
+      });
+    }
+    final replayTap = m.replayTap;
+    if (replayTap != null) {
+      listenSelf((previous, next) {
+        if (previous != null) replayTap(m, previous, next);
       });
     }
     final values = <String, Object?>{};

@@ -32,6 +32,107 @@ export function analyticsMessages(i18n: I18n) {
       message: "Errors",
       comment: "Link to the errors page.",
     }),
+    navReplays: i18n._({
+      id: "analytics.navReplays",
+      message: "Replays",
+      comment: "Link to the session replays of the app.",
+    }),
+    replaysTitle: i18n._({
+      id: "analytics.replaysTitle",
+      message: "Session replays",
+      comment: "Heading of the list of session replays.",
+    }),
+    replaysCaption: i18n._({
+      id: "analytics.replaysCaption",
+      message:
+        "Structural recordings of sessions that users agreed to share. They hold screens, layout, taps and non-sensitive values, never text or images.",
+      comment: "Caption under the session replays heading.",
+    }),
+    noReplays: i18n._({
+      id: "analytics.noReplays",
+      message: "No replays were recorded in this environment.",
+      comment: "Shown when the list of replays is empty.",
+    }),
+    replayStarted: i18n._({
+      id: "analytics.replayStarted",
+      message: "Started",
+      comment: "Column: when a replay started.",
+    }),
+    replayRoute: i18n._({
+      id: "analytics.replayRoute",
+      message: "Screen",
+      comment: "Column: the first screen of a replay.",
+    }),
+    replayDuration: i18n._({
+      id: "analytics.replayDuration",
+      message: "Duration (ms)",
+      comment: "Column: how long a replay lasted.",
+    }),
+    replayEvents: i18n._({
+      id: "analytics.replayEvents",
+      message: "Events",
+      comment: "Column: number of events in a replay.",
+    }),
+    replayTruncated: i18n._({
+      id: "analytics.replayTruncated",
+      message: "Cut at a limit",
+      comment: "Column: whether the recording stopped at a limit.",
+    }),
+    backReplays: i18n._({
+      id: "analytics.backReplays",
+      message: "Back to replays",
+      comment: "Link back to the list of replays.",
+    }),
+    replayTitle: i18n._({
+      id: "analytics.replayTitle",
+      message: "Session replay",
+      comment: "Heading of one session replay.",
+    }),
+    replayTimeline: i18n._({
+      id: "analytics.replayTimeline",
+      message: "Timeline",
+      comment: "Label of the slider that moves through a replay.",
+    }),
+    replayPlay: i18n._({
+      id: "analytics.replayPlay",
+      message: "Play",
+      comment: "Button that plays a replay.",
+    }),
+    replayPause: i18n._({
+      id: "analytics.replayPause",
+      message: "Pause",
+      comment: "Button that pauses a replay.",
+    }),
+    replayCanvas: i18n._({
+      id: "analytics.replayCanvas",
+      message: "Replay canvas",
+      comment: "Label of the drawing that shows the recorded layout.",
+    }),
+    replayMasked: i18n._({
+      id: "analytics.replayMasked",
+      message: "Hidden",
+      comment: "Label on a node whose content is never recorded.",
+    }),
+    replayState: i18n._({
+      id: "analytics.replayState",
+      message: "State so far",
+      comment: "Heading of the table of state entries at the chosen moment.",
+    }),
+    replayStateName: i18n._({
+      id: "analytics.replayStateName",
+      message: "Entry",
+      comment: "Column: the name of a state entry.",
+    }),
+    replayStateType: i18n._({
+      id: "analytics.replayStateType",
+      message: "Type",
+      comment: "Column: the type of a state entry.",
+    }),
+    replayStateValue: i18n._({
+      id: "analytics.replayStateValue",
+      message: "Value",
+      comment: "Column: the value of a state entry; empty when it is not recorded.",
+    }),
     navPerformance: i18n._({
       id: "analytics.navPerformance",
       message: "Performance",

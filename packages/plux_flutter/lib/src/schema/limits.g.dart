@@ -461,6 +461,19 @@ enum PluxLimit {
   /// Visual-diff render jobs of one organisation running at once; further jobs
   /// wait in the queue.
   renderVisualDiffJobsPerOrganization('render.visualDiffJobsPerOrganization', PluxLimitUnit.count, 2, 0, 50),
+  /// The size of one structural session replay after encoding; the runtime
+  /// stops recording at it and the server refuses a larger replay (ANL-050).
+  replayBytesPerReplay('replay.bytesPerReplay', PluxLimitUnit.bytes, 262144, 0, 4194304),
+  /// Events (screens, layout snapshots, taps, inputs and state changes) in one
+  /// structural session replay; the runtime stops recording at it and the
+  /// server refuses more (ANL-050).
+  replayEventsPerReplay('replay.eventsPerReplay', PluxLimitUnit.count, 2000, 0, 20000),
+  /// Structural session replays one device may upload in a day; the runtime
+  /// records no more and the server refuses the surplus (ANL-050).
+  replayPerDevicePerDay('replay.perDevicePerDay', PluxLimitUnit.count, 5, 0, 100),
+  /// Days a structural session replay is kept; older replays are deleted by the
+  /// retention sweep (ANL-050).
+  replayRetentionDays('replay.retentionDays', PluxLimitUnit.count, 7, 0, 90),
   /// Staged rollouts that may be in progress at once in one app.
   rolloutsActivePerApp('rollouts.activePerApp', PluxLimitUnit.count, 10, 0, 100),
   /// Disk space the runtime's cache of remote images may use on one device.

@@ -3,7 +3,7 @@
 
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { createClient } from "@connectrpc/connect";
-import { AnalyticsService } from "@plux/api";
+import { AnalyticsService, ReplayService } from "@plux/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApp } from "../../lib/use-app.tsx";
 import type { AnalyticsSearch } from "./analytics.schema.ts";
@@ -109,5 +109,25 @@ export function useErrorGroup(id: string) {
     queryKey: ["error-group", id],
     enabled: id !== "",
     queryFn: async () => client.getErrorGroup({ id }),
+  });
+}
+
+/** The replays of an environment, newest first (ANL-050). */
+export function useReplays(app: string, env: string | undefined) {
+  const { session } = useApp();
+  const client = createClient(ReplayService, session.transport);
+  return useQuery({
+    queryKey: ["analytics-replays", app, env],
+    queryFn: async () => (await client.listReplays({ appId: app, environment: env ?? "production" })).replays,
+  });
+}
+
+/** One replay with its events (ANL-050). */
+export function useReplay(app: string, id: string) {
+  const { session } = useApp();
+  const client = createClient(ReplayService, session.transport);
+  return useQuery({
+    queryKey: ["analytics-replay", app, id],
+    queryFn: async () => await client.getReplay({ appId: app, id }),
   });
 }

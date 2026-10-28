@@ -34,6 +34,9 @@ enum SecuritySetting {
   /// Whether plugins may call data sources directly from the device instead of
   /// through the server.
   allowDirectDataSources('allowDirectDataSources', SecuritySettingType.boolean, true, true, false),
+  /// Whether the runtime may record a structural session replay when the user
+  /// has consented to the replay category; off under the maximum profile.
+  allowSessionReplay('allowSessionReplay', SecuritySettingType.boolean, true, true, false),
   /// Whether a device without a hardware-backed key may register with a
   /// software key.
   allowSoftwareKeys('allowSoftwareKeys', SecuritySettingType.boolean, true, false, false),

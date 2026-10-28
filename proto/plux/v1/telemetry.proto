@@ -39,6 +39,8 @@ message Event {
 message Consent {
   bool analytics = 1;
   bool experiments = 2;
+  // replay allows structural session replay (ANL-050, ADR-0101).
+  bool replay = 3;
 }
 
 message IngestEventsRequest {

@@ -91,6 +91,12 @@ func deviceStores() []Store {
 			Note: "Erased row-wise across every partition.",
 		},
 		{
+			Name: "session_replays", Description: "Structural session replays the device recorded with the replay consent (ANL-050, ADR-0101).",
+			DeviceKey: "device_id", Personal: []string{"device_id", "events"},
+			Retention: "replay.retentionDays, 7 days by default; the sweep deletes older replays.", Erase: EraseDelete,
+			Note: "Node paths, rectangles, tap positions and non-sensitive numeric state values only; never a text, an image or a sensitive field (SCH-012).",
+		},
+		{
 			Name: "device_push_tokens", Description: "The push token of a device, sealed with envelope encryption (SEC-106).",
 			DeviceKey: "device_id", Personal: []string{"ciphertext", "wrapped_key"},
 			Retention: retentionDevice, Erase: EraseDelete,
