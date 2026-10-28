@@ -1,0 +1,86 @@
+# ASVS 5.0 L2 — Plux Studio
+
+The Studio half of `SEC-109`, checked in P11 (S9.4); the server half is
+[asvs-server.md](asvs-server.md). Studio is the React application in `studio/apps/web` and the Bun
+backend-for-frontend in `studio/apps/bff` (ADR-0014). The server holds the sessions and decides
+every call, so a control that the server meets is cited here by its server evidence and not
+repeated. Each row names the control, how Studio meets it, and the evidence: a test, a CI check
+or a configuration file in this repository. Bun tests are named by file and title, Go tests by
+name. A control Studio does not meet, or meets without evidence, is in [Gaps](#gaps). The
+threats behind these controls are in the [threat model](threat-model.md#p11--plux-studio).
+
+## V3 Web frontend security — by section
+
+| Section | Control area | How Studio meets it | Evidence |
+|---|---|---|---|
+| V3.1 Documentation | Which browser features Studio relies on | Studio supports current evergreen browsers only and refuses others on an explanatory page; the policy, its directives and the reasons for each exception are in studio-development.md §11.2 and ADR-0014 | `e2e/csp.spec.ts` (`/unsupported`), [studio-development.md](../engineering/studio-development.md) §11 |
+| V3.2 Unintended content interpretation | Content types, sniffing, user content rendered as markup | Every response has an explicit `Content-Type` and `X-Content-Type-Options: nosniff`; user and device content (names, translations, replays, hovers, screenshots) is rendered as text through React, SVG elements or `<img>` from a `blob:` URL, never as HTML; HTML sinks are refused by the Biome plugin `studio/lint/no-inner-html.grit` and by Trusted Types | `bff.test.ts` "every response carries the headers and a fresh nonce in index.html"; `e2e/csp.spec.ts` "Trusted Types refuse strings at sinks and unknown policies"; `analytics.test.tsx` "a replay plays back with a timeline and hides masked nodes"; `make studio-lint` |
+| V3.3 Cookie setup | `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite` | The session is the server's `__Host-plux_session` cookie with `Secure`, `HttpOnly` and `SameSite=Strict`, cleared on sign-out. The BFF's only cookie is `__Host-plux_oidc`, the signed OIDC state: `HttpOnly`, `Path=/`, 10 minutes, `Secure` over https, and `SameSite=Lax` because the provider's redirect to the callback is a cross-site top-level navigation; it carries no credential. The BFF forwards only the session cookie upstream and back | `TestAuthenticationAtTheEdge`; `signin.test.ts` "the state endpoint sets a signed HttpOnly __Host- cookie"; `bff.test.ts` "only __Host-plux_session reaches the upstream", "forwards only allowed headers both ways" |
+| V3.4 Browser security mechanism headers | CSP, HSTS, framing, referrer, COOP/CORP, permissions, CSP reporting | A fresh nonce per response; `script-src 'nonce-…' 'strict-dynamic' 'wasm-unsafe-eval'` with no `'unsafe-inline'` or `'unsafe-eval'`; `default-src 'none'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'self'`, `frame-ancestors 'none'`, `connect-src 'self'`; `require-trusted-types-for 'script'` with the one policy `plux-worker`; reports to `/csp-report`, bounded and rate-limited. Two exceptions are documented: `'wasm-unsafe-eval'` for CanvasKit and the validator (WebAssembly), and `style-src-attr 'unsafe-inline'` for Monaco's style attributes (ADR-0014 Revision 2026-10-26). HSTS (two years, subdomains) whenever the public URL is https; `Referrer-Policy: no-referrer`; `Cross-Origin-Opener-Policy` and `Cross-Origin-Resource-Policy: same-origin`; a closed `Permissions-Policy`. The headers are set on every response, including proxied API answers, static files and the workers' scripts, whose policy the workers inherit | `bff.test.ts` "the CSP is exactly the documented policy, on every kind of response (SEC-109)", "every response carries the headers and a fresh nonce in index.html", "no HSTS over plain http; a missing index.html is 404", "CSP reports are counted, bounded and never echoed"; `e2e/csp.spec.ts` |
+| V3.5 Browser origin separation | CSRF, cross-origin requests, Fetch Metadata | State-changing RPCs need the session's CSRF token in `X-CSRF-Token`, checked by the server; the session cookie is `SameSite=Strict`; Connect accepts only its declared content types, so a cross-site form or simple request cannot form a call; the BFF answers no CORS; the OIDC state endpoint accepts only same-origin JSON (Fetch Metadata, else `Origin`) against login CSRF | `TestCredentialCsrfExemption_SEC_101_STU_002`, `TestAuthenticationAtTheEdge`; `signin.test.ts` "the state endpoint refuses cross-site and non-JSON requests (login CSRF, SEC-101)" |
+| V3.6 External resource integrity | Third-party scripts and styles | None: every script, style, font and WebAssembly module is a hashed asset served by the BFF from Studio's own build (`connect-src`, `font-src` and `manifest-src` are `'self'`; `worker-src` is `'self'` and `blob:`, see gap 1); dependencies are locked (`bun install --frozen-lockfile`) and allowlisted | `bff.test.ts` "the CSP is exactly the documented policy, on every kind of response (SEC-109)"; `bun.lock`, CI `studio` job |
+| V3.7 Other browser security considerations | Deprecated technology, open redirects, mixed content | No plugins (`object-src 'none'`); the sign-in callbacks redirect only to `/`; nothing is loaded over plain http when Studio is served over https (`'self'` only); unsupported browsers get an explanatory page | `signin.test.ts` "OIDC callback with a valid state passes only the session cookie and redirects"; `e2e/csp.spec.ts` (`/unsupported`) |
+
+## OWASP ASVS 5.0, level 2 — the other chapters
+
+| Chapter | Control area | How Studio meets it | Evidence |
+|---|---|---|---|
+| V1 Encoding and sanitisation | Output encoding, injection, code from strings | React escapes all text; no `innerHTML`, `insertAdjacentHTML`, `document.write` or `new Function` (Biome plugin); Zod runs `jitless`, so no code is generated at run time; Trusted Types enforce the same in the browser | `make studio-lint` (`studio/lint/no-inner-html.grit`); `apps/web/src/lib/zod-init.ts`; `e2e/csp.spec.ts` |
+| V2 Validation and business logic | Untrusted input in the browser, anti-automation | Every input Studio parses is treated as untrusted and bounded: the clipboard envelope (size `studio.clipboardBytes`, version, validator), worker messages (versioned protocol), language-server output (JSON-RPC shape, diagnostics), device node paths. The server validates every document again and is the authority (ADR-0099). The BFF limits requests per session and address, open streams, CSP reports and sign-in attempts | `envelope.test.ts` "an oversized paste is refused unread", "an unknown version is refused", "a malformed envelope is refused"; `protocol.test.ts` "other versions, unknown types and non-objects are rejected"; `lsp-client.test.ts` "malformed server messages are dropped or fail their request, never throw", "malformed diagnostics are dropped before they reach the editor"; `bff.test.ts` "requests over the per-minute limit answer 429 with Retry-After", "streams per session are capped"; `signin.test.ts` "sign-in endpoints are rate limited" |
+| V4 API and web service | Methods, content types, streams | The BFF proxies `/api/*` to ConnectRPC unchanged except for headers: requests and responses pass only through allowlists; streams are bounded per session and in total; upstream failures are a plain 502 | `bff.test.ts` "forwards only allowed headers both ways", "header filters are exact", "cancellation reaches the upstream and frees the stream slot", "an unreachable upstream answers 502" |
+| V5 File handling | Uploads, downloads, parsing | Uploads go in chunks with the file's SHA-256 to `AssetService`; the server sniffs types from bytes, strips metadata and refuses damaged fonts. Studio parses fonts and images only inside CanvasKit in the canvas worker, and only the verified asset files an app lists. Downloads are `blob:` URLs of bytes the server returned, with an explicit type | `assets-tab.test.tsx` "uploads in chunks with the file's SHA-256, then lists the new asset"; `host-fonts.test.ts` "each listed font is the verified file of its asset, in the app's order"; `TestSniff`, `TestStrip`, `TestSubsetRefusesDamagedFonts` |
+| V6 Authentication | Passwords, MFA, federation | Sign-in is the server's (password with TOTP or WebAuthn, OIDC and SAML); the BFF only hosts the OIDC callback and the SAML assertion consumer and calls the server's completion RPCs; fixed failure messages reflect nothing from the request; step-up dialogs for sensitive actions (`SEC-103`) | [asvs-server.md](asvs-server.md) V6; `signin.test.ts` "OIDC callback reports a server rejection as a plain error page", "SAML ACS passes the session cookie through and enforces the body limit"; `TestSessionStepUp_SEC_103` |
+| V7 Session management | Lifecycle, timeouts, termination | The BFF keeps no session state; the server's session has idle (`auth.sessionIdleTimeout`) and absolute expiry and ends on sign-out; open editor streams re-check the credential every 30 s and end with it; background calls do not extend the idle time; overlapping sign-ins on one replica never share a cookie | `TestSessionSecurity`, `TestQuietAuthenticationDoesNotRefreshLastUse_GOV_005`, `TestQuietAuthenticationRefusesARevokedSession_GOV_005`; `auth-concurrency.test.ts` "overlapping completions each get their own session cookie" |
+| V8 Authorisation | Access control | The server authorises every call (deny by default, RBAC per procedure, row-level security); Studio hides what the effective permissions never allow and explains what is denied, which is not a control; copy-over reads with the person's own access and drops what is refused | [asvs-server.md](asvs-server.md) V8; `copy-over.test.ts` "an item the user cannot read is dropped and listed, and its reference removed"; `envelope.test.ts` "another organisation keeps only readable references; everything else is a drop, never a copy" |
+| V9 Self-contained tokens | — | Studio handles none: the browser holds an opaque session cookie and CSRF token | — |
+| V10 OAuth and OIDC | Client flows | The authorization code flow is the server's (PKCE, nonce, one-time state); the BFF binds the browser to its state with a signed, expiring cookie that must equal the callback's `state`, shared by every replica through `PLUX_BFF_STATE_SECRET` | [asvs-server.md](asvs-server.md) V10; `signin.test.ts` "OIDC callback rejects a wrong, missing, forged or expired state without calling the server", "replicas built with the same state secret accept each other's state cookie; other secrets do not" |
+| V11 Cryptography | Randomness, MACs | CSP nonces are 128 bits from `crypto.getRandomValues`; the state cookie is HMAC-SHA-256 with a 32-byte key from configuration, compared in constant time; the state secret is required and refused when short | `bff.test.ts` "the state secret is required and must be 32 bytes of base64 (PLUX_BFF_STATE_SECRET)", "every response carries the headers and a fresh nonce in index.html" |
+| V12 Secure communication | TLS | The BFF reaches the server over TLS (Compose: the development CA); TLS to the browser is terminated in front of the BFF in production, and HSTS is sent whenever the public URL is https | `deploy/compose/compose.yaml`; `bff.test.ts` "no HSTS over plain http; a missing index.html is 404" |
+| V13 Configuration | Secrets, hardening, dependencies | Strict configuration that fails fast on invalid values and warns on unsafe ones; credentials in URLs are stripped; the state secret only from configuration (generated by `init-secrets.sh` for Compose, never committed); a non-root container with a read-only file system, no capabilities and `no-new-privileges`; locked, allowlisted dependencies; reproducible image | `bff.test.ts` "invalid values fail fast with a clear message", "unsafe values warn and credentials are stripped"; `deploy/compose/compose.yaml` (`studio`); CI `studio-image-repro` |
+| V14 Data protection | Sensitive data in the browser | No token in web storage; the CSRF token lives in memory only; web storage holds only conveniences (recent commands, the tab's editor-session ID); secret-like fields are never copied to the clipboard; `index.html` and the sign-in answers are `no-store` | `e2e/shell.spec.ts` "sign in lands on the organisation home, axe clean in light" (no web-storage entry holds the CSRF token); `envelope.test.ts` "copy lists the referenced dependencies and never copies sensitive fields" |
+| V15 Secure coding and architecture | Isolation, dependencies, sandboxing | Heavy and untrusted parsing runs in dedicated workers started only through the `plux-worker` policy at their hashed assets; rust-analyzer runs in the server's build sandbox with no network or credentials, macros and build scripts forced off and an LSP method allowlist (ADR-0099, L-4); Studio never talks to the database or object storage (L-7) | `trusted-worker.test.ts`; `monaco-env.test.ts`; `TestLanguageSessionForcesTheSettings_FN_033`, `TestLanguageSessionRefusesWhatTheEditorDoesNotNeed_FN_033`, `TestLanguageSessionRunsInTheNamespaceSandbox_FN_033`; `make studio-bounds` |
+| V16 Logging and error handling | Security events, errors | CSP violation reports are counted and never echoed; BFF telemetry logs event names only and refuses events outside its schema; errors shown to the person are fixed messages; security events are the server's audit chain | `bff.test.ts` "CSP reports are counted, bounded and never echoed"; `signin.test.ts` "accepts a valid batch, logs names only and forwards traceparent", "rejects events that do not match the schema" |
+| V17 WebRTC | — | Not used | — |
+
+## The OWASP ZAP baseline of Studio (`QA-008`)
+
+`make zap-studio` (in `mk/studio.mk`) scans the Studio of a running Compose stack
+(`make compose-up`, Studio on `http://localhost:8081`). It waits up to two minutes for the BFF's
+`/livez`, then runs `zap-baseline.py` from the official ZAP image pinned by digest (`ZAP_IMAGE` in
+`mk/stack.mk`, shared with `zap-api`) with `test/zap/studio-rules.tsv` as its rule file, and writes
+the HTML, JSON and Markdown reports to `build/zap/`. A rule not in that file is a warning, a
+warning makes `zap-baseline.py` exit non-zero, and so any alert fails the target; the file lists a
+rule only with the reason it is a false positive for Studio, and today it lists none.
+
+In CI the job *OWASP ZAP baseline (Studio)* (`zap-studio` in `.github/workflows/ci.yml`) runs on
+`ubuntu-latest` when `ci/affected.json` selects it (any change under `studio/`,
+`deploy/compose/`, `test/zap/`, `mk/studio.mk` or `mk/stack.mk`, Markdown excepted): it checks
+out without persisting credentials, runs `make compose-up` and `make zap-studio`, stops the stack
+and uploads `build/zap/zap-studio.*` as the `zap-studio-report` artifact, with read-only
+permissions; the `ci-ok` gate job needs it. Docker is needed, so the scan does not run on a machine
+without it.
+
+## Gaps
+
+1. **`worker-src` admits `blob:`.** No Studio code starts a worker from a `blob:` URL, and the
+   documented rule (studio-development.md §11.2) allows only Studio's own workers. Trusted Types
+   already refuse a `blob:` worker, so this is missing defence in depth, not an open path.
+   Proposal for the maintainer (a change to a security control, AGENTS §7): drop `blob:` from
+   `worker-src` in `studio/apps/bff/src/security.ts` and from the exact policy in `bff.test.ts`,
+   after the CSP end-to-end projects pass with it.
+2. **The Rust editor's end-to-end test runs in no Playwright project.** `e2e/rust-editor.spec.ts`
+   matches no `testMatch` in `e2e/playwright.config.ts`, so the Rust editor is not yet exercised
+   under the CSP in CI; its unit tests and the server's sandbox tests cover the controls.
+3. **The Studio ZAP scan has not had a green CI run yet.** The target and the job are wired
+   (above), but the scan needs Docker and has not been run for this checklist; its first run may
+   report informational alerts (the API needed one, rule 10049), each to be fixed or listed in
+   `test/zap/studio-rules.tsv` with its reason. Until then the Studio half of `QA-008` is not
+   evidenced.
+4. **Browser evidence not yet run.** The Trusted Types enforcement test in `e2e/csp.spec.ts` and
+   the web-storage check in `e2e/shell.spec.ts` were added in S9.4 and need the Playwright
+   browsers (`make studio-e2e`).
+5. **API responses are not checked end to end for credentials.** The BFF passes only the session
+   cookie and allowlisted headers, and the server never returns a session secret after creation,
+   but no test scans Studio's responses in the browser for one.
+
+`SEC-109` stays `WIP` until these gaps are closed or accepted by the maintainer.
