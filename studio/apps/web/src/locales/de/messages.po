@@ -1706,7 +1706,7 @@ msgstr "Zielgruppe"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
-msgstr "Zielgruppen-Segment"
+msgstr "Zielgruppen-Segmente"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -4784,7 +4784,7 @@ msgstr "Trichter"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelsCaption"
-msgstr "Trichter zählen, wie viele Ereignisse jeden Schritt in der Reihenfolge erreichen."
+msgstr "Trichter zählen die Sitzungen, die jeden Schritt erreichen und die Schritte in der Reihenfolge durchlaufen."
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -4910,7 +4910,7 @@ msgstr "Gruppen, die Berechtigungen und Einschränkungen gemeinsam erhalten."
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.guardrailEvent"
-msgstr "Ereignis der Leitplanke"
+msgstr "Ereignisse der Leitplanken, eines pro Zeile"
 
 #. Verdict: a guardrail regressed beyond its limit.
 #. js-lingui-explicit-id
@@ -7492,7 +7492,7 @@ msgstr "Nichts in der Bibliothek passt. Speichere eine Auswahl als Vorlage oder 
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.reportIntro"
-msgstr "Nichts wird stillschweigend hinzugefügt. Wähle für jeden fehlenden Eintrag, was geschieht; bis zur Bestätigung wird nichts eingefügt."
+msgstr "Nichts wird stillschweigend hinzugefügt. Wählen Sie, was mit jedem fehlenden Element geschieht; erst nach Ihrer Bestätigung wird eingefügt."
 
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
@@ -10144,7 +10144,7 @@ msgstr "Segmentschlüssel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentHelp"
-msgstr "Leer lassen, um alle zu erreichen."
+msgstr "Segmentschlüssel, durch Kommas getrennt; ein Gerät in einem davon ist berechtigt. Leer lassen, um alle zu erreichen."
 
 #. Accessible name of the checkbox that selects one key for a bulk action.
 #. js-lingui-explicit-id
@@ -10318,7 +10318,7 @@ msgstr "Sitzungen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelChart"
-msgstr "Ereignisse pro Trichterschritt"
+msgstr "Sitzungen pro Trichterschritt"
 
 #. Column heading.
 #. js-lingui-explicit-id
