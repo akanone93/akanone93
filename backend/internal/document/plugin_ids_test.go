@@ -60,3 +60,15 @@ func TestDuplicateRewritesEveryID(t *testing.T) {
 		t.Errorf("page id and its two references: %s", all)
 	}
 }
+
+// A short identifier is replaced as a whole string only, never inside text.
+func TestRewriteIDsLeavesTextWithShortIDs(t *testing.T) {
+	renamed := map[string]string{"c2": "x9"}
+	out, err := rewriteIDs([]byte(`{"id":"c2","text":"step c2 of 3"}`), renamed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(out) != `{"id":"x9","text":"step c2 of 3"}` {
+		t.Errorf("got %s", out)
+	}
+}

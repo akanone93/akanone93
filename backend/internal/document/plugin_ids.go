@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode"
 )
 
 // collectIDs maps every identifier found under an "id" member, at any depth
@@ -51,13 +52,17 @@ func gatherIDs(v any, key string, out map[string]string) {
 func deriveID(key, old string) string {
 	sum := sha256.Sum256([]byte(key + "\x00" + old))
 	h := hex.EncodeToString(sum[:])
-	if len(old) == 36 && old[8] == '-' && old[13] == '-' && old[18] == '-' && old[23] == '-' {
+	if isUUID(old) {
 		return h[0:8] + "-" + h[8:12] + "-7" + h[13:16] + "-8" + h[17:20] + "-" + h[20:32]
 	}
 	for len(h) < len(old) {
 		h += h
 	}
 	return h[:len(old)]
+}
+
+func isUUID(s string) bool {
+	return len(s) == 36 && s[8] == '-' && s[13] == '-' && s[18] == '-' && s[23] == '-'
 }
 
 func decodeJSON(b []byte) (any, error) {
@@ -72,7 +77,9 @@ func decodeJSON(b []byte) (any, error) {
 
 // rewriteIDs replaces every identifier of renamed in a document: object
 // keys and string values, whole or as a delimited token inside a longer
-// string such as a pointer or a template.
+// string such as a pointer. Inside a string with whitespace, which is text
+// rather than a reference, only a UUID is replaced, so that a short
+// identifier such as "c2" leaves the same word in text alone.
 func rewriteIDs(content []byte, renamed map[string]string) ([]byte, error) {
 	v, err := decodeJSON(content)
 	if err != nil {
@@ -116,11 +123,12 @@ func swapToken(s string, renamed map[string]string) string {
 	if fresh, ok := renamed[s]; ok {
 		return fresh
 	}
+	text := strings.ContainsFunc(s, unicode.IsSpace)
 	var b strings.Builder
 	start := -1
 	flush := func(end int) {
 		tok := s[start:end]
-		if fresh, ok := renamed[tok]; ok {
+		if fresh, ok := renamed[tok]; ok && (!text || isUUID(tok)) {
 			tok = fresh
 		}
 		b.WriteString(tok)
