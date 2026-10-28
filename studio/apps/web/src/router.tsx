@@ -13,6 +13,7 @@ import {
 } from "@tanstack/react-router";
 import { z } from "zod";
 import { accessSearchSchema, auditSearchSchema } from "./features/admin/admin.schema.ts";
+import { analyticsSearchSchema, usageSearchSchema } from "./features/analytics/analytics.schema.ts";
 import { approvalsInboxSearchSchema, appSearchSchema } from "./features/approvals/approvals.schema.ts";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import { dataSearchSchema } from "./features/data/data.schema.ts";
@@ -382,6 +383,48 @@ function testsRoute(
 const testsListRoute = testsRoute("", "TestsPage", testsSearchSchema);
 const testRunRoute = testsRoute("/$runId", "TestRunPage", testRunSearchSchema);
 
+/** A24-A30: analytics of the app (STU-114, ANL-020, ANL-040); every page needs analytics.read, enforced by the server. */
+type AnalyticsPage =
+  | "AnalyticsOverviewPage"
+  | "AnalyticsUsagePage"
+  | "AnalyticsFunnelsPage"
+  | "AnalyticsFunnelPage"
+  | "AnalyticsErrorsPage"
+  | "AnalyticsErrorPage"
+  | "AnalyticsPerformancePage";
+
+function analyticsRoute(path: string, component: AnalyticsPage, search: typeof usageSearchSchema) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/analytics${path}`,
+    validateSearch: (raw) => search.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/analytics/index.ts"), component),
+  });
+}
+
+const analyticsRoutes = [
+  analyticsRoute("", "AnalyticsOverviewPage", analyticsSearchSchema as unknown as typeof usageSearchSchema),
+  analyticsRoute("/usage", "AnalyticsUsagePage", usageSearchSchema),
+  analyticsRoute("/funnels", "AnalyticsFunnelsPage", analyticsSearchSchema as unknown as typeof usageSearchSchema),
+  analyticsRoute(
+    "/funnels/$funnelId",
+    "AnalyticsFunnelPage",
+    analyticsSearchSchema as unknown as typeof usageSearchSchema,
+  ),
+  analyticsRoute("/errors", "AnalyticsErrorsPage", analyticsSearchSchema as unknown as typeof usageSearchSchema),
+  analyticsRoute(
+    "/errors/$fingerprint",
+    "AnalyticsErrorPage",
+    analyticsSearchSchema as unknown as typeof usageSearchSchema,
+  ),
+  analyticsRoute(
+    "/performance",
+    "AnalyticsPerformancePage",
+    analyticsSearchSchema as unknown as typeof usageSearchSchema,
+  ),
+];
+
 const libraryRoute = createRoute({
   getParentRoute: () => orgRoute,
   path: "/library",
@@ -466,6 +509,7 @@ const routeTree = rootRoute.addChildren([
       localisationHeatmapRoute,
       experimentsListRoute,
       testsListRoute,
+      ...analyticsRoutes,
       testRunRoute,
       newExperimentRoute,
       flagsRoute,

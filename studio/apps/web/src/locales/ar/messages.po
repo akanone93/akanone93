@@ -1096,6 +1096,12 @@ msgstr "كل مفاتيح التطبيق"
 msgid "devices.levelAll"
 msgstr "كل المستويات"
 
+#. Link that clears the plugin drill-down.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.allPlugins"
+msgstr "كل الإضافات"
+
 #. Option that shows every event type.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -1119,6 +1125,12 @@ msgstr "مسموح"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.mute.locked"
 msgstr "مفعّل دائمًا"
+
+#. Heading of the analytics overview.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.overviewTitle"
+msgstr "التحليلات"
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -1191,6 +1203,12 @@ msgstr "تعريفات واجهات البرمجة"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.sourcesLink"
 msgstr "تعريفات واجهات البرمجة"
+
+#. Column heading: the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.appColumn"
+msgstr "التطبيق"
 
 #. Label of the app filter.
 #. js-lingui-explicit-id
@@ -1587,6 +1605,18 @@ msgstr "رجوع"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.back"
 msgstr "العودة إلى الأجهزة"
+
+#. Link back to the errors list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.backErrors"
+msgstr "العودة إلى الأخطاء"
+
+#. Link back to the funnels list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.backFunnels"
+msgstr "العودة إلى المسارات"
 
 #. Link back to the list.
 #. js-lingui-explicit-id
@@ -2290,6 +2320,12 @@ msgstr "إغلاق محرر السمة"
 msgid "releases.stateClosing"
 msgstr "قيد الإنهاء"
 
+#. Column heading: error code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.codeColumn"
+msgstr "الرمز"
+
 #. Tab of the right panel: the functions the selection uses.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -2584,6 +2620,12 @@ msgstr "إنشاء التجربة"
 msgid "pluginCanvas.command.experiment"
 msgstr "إنشاء تجربة من التحديد"
 
+#. Button that creates a funnel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.createFunnel"
+msgstr "إنشاء مسار"
+
 #. Button that creates the translation key and replaces the text with it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -2758,6 +2800,12 @@ msgstr "مصادر بيانات الإضافة"
 msgid "preview.mock"
 msgstr "حالة البيانات"
 
+#. Column heading: a calendar day.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.dayColumn"
+msgstr "اليوم"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -2877,6 +2925,12 @@ msgstr "القيمة الافتراضية (JSON)"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.definition"
 msgstr "التعريف"
+
+#. Button that deletes a funnel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.deleteFunnel"
+msgstr "حذف"
 
 #. Button that confirms deleting a screen.
 #. js-lingui-explicit-id
@@ -3100,6 +3154,12 @@ msgstr "إطار الجهاز"
 msgid "preview.matrix"
 msgstr "مصفوفة الأجهزة"
 
+#. Column heading: number of devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.devicesColumn"
+msgstr "الأجهزة"
+
 #. Heading of the devices list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3171,6 +3231,12 @@ msgstr "المستند"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.document"
 msgstr "المستند"
+
+#. Label of the JSON path.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.jsonPathLabel"
+msgstr "مسار المستند"
 
 #. Help menu entry that opens the documentation.
 #. js-lingui-explicit-id
@@ -3532,6 +3598,12 @@ msgstr "البيئات (مفصولة بفواصل)"
 msgid "devices.lineError"
 msgstr "خطأ"
 
+#. Heading of one error group.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.errorTitle"
+msgstr "خطأ"
+
 #. Accessible name of the icon of an error in the Problems tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -3544,17 +3616,41 @@ msgstr "خطأ"
 msgid "preview.mockError"
 msgstr "خطأ"
 
+#. Link to the errors page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.navErrors"
+msgstr "الأخطاء"
+
+#. Label: number of errors.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.errorsLabel"
+msgstr "الأخطاء"
+
 #. Metric name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.errors"
 msgstr "الأخطاء"
 
+#. Heading of the errors page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.errorsTitle"
+msgstr "الأخطاء والأعطال"
+
 #. Metric label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.metricErrors"
 msgstr "الأخطاء حسب النوع"
+
+#. Caption of the errors page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.errorsCaption"
+msgstr "الأخطاء مجمعة حسب البصمة، وأحدث نشاط أولًا."
 
 #. Option: only errors.
 #. js-lingui-explicit-id
@@ -3567,6 +3663,12 @@ msgstr "الأخطاء فقط"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfCost"
 msgstr "التكلفة التقديرية"
+
+#. Column heading: event identifier.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.eventColumn"
+msgstr "الحدث"
 
 #. Label of the choice of the widget event that starts the navigation, for example onPressed.
 #. js-lingui-explicit-id
@@ -3586,6 +3688,12 @@ msgstr "الحدث"
 msgid "notify.inbox.type"
 msgstr "نوع الحدث"
 
+#. Column heading: number of events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.eventsColumn"
+msgstr "الأحداث"
+
 #. Accessible name of the list of events in the trigger picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -3597,6 +3705,18 @@ msgstr "الأحداث"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsEvents"
 msgstr "الأحداث"
+
+#. Accessible name of a trend line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.trendLabel"
+msgstr "الأحداث يوميًا"
+
+#. Accessible name of the funnel bars.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.funnelChart"
+msgstr "الأحداث لكل خطوة من المسار"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -3850,6 +3970,12 @@ msgstr "فشل. اطلبه مرة أخرى."
 msgid "installation.unhealthy"
 msgstr "معطّل"
 
+#. Label of a crash.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.fatalLabel"
+msgstr "عطل"
+
 #. Link to and heading of the flags page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -3933,6 +4059,12 @@ msgstr "تصفية السيناريوهات"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.problems"
 msgstr "نتائج المدقق"
+
+#. Label: number of alerts that are firing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.firingAlerts"
+msgstr "التنبيهات النشطة"
 
 #. Button that fits all screens into the view.
 #. js-lingui-explicit-id
@@ -4030,6 +4162,12 @@ msgstr "تسمية الإطار"
 msgid "appCanvas.newFrame"
 msgstr "تأطير التحديد"
 
+#. Label of the stack frames.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.framesLabel"
+msgstr "الإطارات"
+
 #. Button that discards the failed builds and freezes the draft again.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -4047,6 +4185,12 @@ msgstr "التجميد والبناء"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.startBuild"
 msgstr "التجميد والبناء"
+
+#. Label of the first day of the range.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.rangeFrom"
+msgstr "من"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -4125,6 +4269,24 @@ msgstr "دوال الإضافة"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.codeList"
 msgstr "الدوال التي يستخدمها التحديد"
+
+#. Link to the funnels page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.navFunnels"
+msgstr "المسارات"
+
+#. Heading of the funnels page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.funnelsTitle"
+msgstr "المسارات"
+
+#. Caption of the funnels page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.funnelsCaption"
+msgstr "تحسب المسارات عدد الأحداث التي تبلغ كل خطوة بالترتيب."
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -5004,6 +5166,12 @@ msgstr "اللغة"
 msgid "security.colAttested"
 msgstr "آخر إثبات"
 
+#. Column heading: when last seen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.lastSeenColumn"
+msgstr "آخر ظهور"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -5766,6 +5934,12 @@ msgstr "تم نقل الخطوة المحددة {direction}. الموضع الج
 msgid "notify.mute.label"
 msgstr "كتم"
 
+#. Label of the funnel name field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.funnelName"
+msgstr "الاسم"
+
 #. Label: the scenario name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -6156,6 +6330,12 @@ msgstr "لا توجد تغييرات."
 msgid "cmd.palette.empty"
 msgstr "لا يوجد أمر مطابق."
 
+#. Shown when the range holds no events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.noData"
+msgstr "لا توجد بيانات في هذا النطاق."
+
 #. Shown when a build has none.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -6191,6 +6371,12 @@ msgstr "بلا نهاية"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.noUrls"
 msgstr "لا توجد بيئة تحدد قيمة لهذا المتغير."
+
+#. Shown when there are no error groups.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.noErrors"
+msgstr "لا توجد أخطاء في هذا النطاق."
 
 #. Shown when no error occurred.
 #. js-lingui-explicit-id
@@ -6372,6 +6558,12 @@ msgstr "لا توجد لقطة شاشة"
 msgid "cmd.shortcuts.none"
 msgstr "لا يوجد اختصار"
 
+#. Shown when the fingerprint is unknown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.errorNotFound"
+msgstr "لا توجد مجموعة أخطاء كهذه."
+
 #. Shown when the library has no templates.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -6407,6 +6599,12 @@ msgstr "لا يوجد عنصر مطابق."
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.noDecisions"
 msgstr "لم يقرّر أحد بعد."
+
+#. Label of the node path.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.nodePathLabel"
+msgstr "العقدة"
 
 #. Accessible name of the meter that shows the page's nodes against its budget.
 #. js-lingui-explicit-id
@@ -6600,6 +6798,18 @@ msgstr "لا مكان"
 msgid "experiments.typeNumber"
 msgstr "رقم"
 
+#. Heading of the occurrences table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.occurrences"
+msgstr "الحالات"
+
+#. Column heading: share of the first step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.conversionColumn"
+msgstr "من الخطوة الأولى"
+
 #. Status chip: the browser has no network.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -6677,6 +6887,12 @@ msgstr "فتح لوحة الأوامر"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.openJson"
 msgstr "فتح في محرر JSON"
+
+#. Link that opens the plugin canvas at the failing node.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.openNode"
+msgstr "فتح العقدة"
 
 #. Button that leaves this plugin's canvas and opens the ghost screen on its own plugin's canvas.
 #. js-lingui-explicit-id
@@ -6888,6 +7104,12 @@ msgstr "قد تتعارض التجاوزات: أُزيل {names}"
 msgid "library.adopt.flagged"
 msgstr "تجاوزات لخصائص أو فتحات محذوفة، يجب إصلاحها في النسخ"
 
+#. Link back to the analytics overview.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.navOverview"
+msgstr "نظرة عامة"
+
 #. Accessible name of the small overview map of the graph.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -6905,6 +7127,12 @@ msgstr "الفريق المالك"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colP"
 msgstr "قيمة p"
+
+#. Column heading: the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.pageColumn"
+msgstr "الصفحة"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -7044,6 +7272,18 @@ msgstr "متوقف مؤقتاً"
 msgid "admin.membersCaption"
 msgstr "الأشخاص في هذه المؤسسة وأدوارهم."
 
+#. Link to the performance page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.navPerformance"
+msgstr "الأداء"
+
+#. Heading of the performance page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.performanceTitle"
+msgstr "الأداء"
+
 #. Tab of the right panel: node count, cost and budget of the selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -7145,6 +7385,12 @@ msgstr "المنصة"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.platform"
 msgstr "نمط المنصة"
+
+#. Column heading: the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.pluginColumn"
+msgstr "الإضافة"
 
 #. Name of the top level of the layer tree.
 #. js-lingui-explicit-id
@@ -7974,6 +8220,18 @@ msgstr "إعادة تسمية الشاشة"
 msgid "admin.settingsCaption"
 msgstr "أعد تسمية المؤسسة وافتح كل صفحات الإدارة."
 
+#. Accessible name of the percentile chart.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.performanceChart"
+msgstr "نسب مئوية لزمن العرض يوميًا"
+
+#. Caption of the performance page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.performanceCaption"
+msgstr "نسب مئوية لزمن العرض يوميًا بالميلي ثانية."
+
 #. Button that queues the visual diff.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -8460,6 +8718,12 @@ msgstr "إصدارات الجذر المقدَّمة"
 msgid "admin.rotate"
 msgstr "تدوير"
 
+#. Column heading: route.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.routeColumn"
+msgstr "المسار"
+
 #. Label of a route in an expectation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -8772,6 +9036,42 @@ msgstr "صورة مصغرة للشاشة"
 msgid "pluginCanvas.screenTitle"
 msgstr "عنوان الشاشة"
 
+#. Label: number of screen views.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.screenViews"
+msgstr "مشاهدات الشاشة"
+
+#. Accessible name of the page bars.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.pagesChart"
+msgstr "مشاهدات الشاشة حسب الصفحة"
+
+#. Accessible name of the plugin bars.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.pluginsChart"
+msgstr "مشاهدات الشاشة حسب الإضافة"
+
+#. Caption of the usage page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.usageCaption"
+msgstr "مشاهدات الشاشة حسب الإضافة والصفحة. اختر إضافة ثم صفحة للتعمق."
+
+#. Accessible name of the chart of one page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.dailyChart"
+msgstr "مشاهدات الصفحة يوميًا"
+
+#. Accessible name of the daily screen views chart.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.screenViewsChart"
+msgstr "مشاهدات الشاشة يوميًا"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -9011,6 +9311,12 @@ msgstr "تم الإرسال إلى الجهاز."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.sessionTag"
 msgstr "الجلسة {tag}"
+
+#. Label: number of sessions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.sessions"
+msgstr "الجلسات"
 
 #. Metric name.
 #. js-lingui-explicit-id
@@ -9300,6 +9606,12 @@ msgstr "المصدر"
 msgid "devices.source"
 msgstr "الجهاز المصدر"
 
+#. Label of the source file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.sourceFileLabel"
+msgstr "ملف المصدر"
+
 #. Label of the list that chooses OpenAPI or GraphQL for an import.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -9504,6 +9816,12 @@ msgstr "البقاء"
 msgid "pluginCanvas.ghostStay"
 msgstr "البقاء هنا"
 
+#. Column heading: a funnel step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.stepColumn"
+msgstr "الخطوة"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -9522,6 +9840,12 @@ msgstr "الخطوة 1 من 2: التفاصيل"
 msgid "library.canvas.save.step2"
 msgstr "الخطوة 2 من 2: المعاملات والرؤية"
 
+#. Column heading: number of steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.stepsColumn"
+msgstr "الخطوات"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -9533,6 +9857,12 @@ msgstr "الخطوات"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.stepsHeading"
 msgstr "الخطوات"
+
+#. Label of the funnel steps field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.funnelSteps"
+msgstr "الخطوات، اسم حدث واحد في كل سطر"
 
 #. Button that stops the experiment.
 #. js-lingui-explicit-id
@@ -9689,6 +10019,12 @@ msgstr "الإضافات المعطلة"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.killed"
 msgstr "مُطفأة"
+
+#. Heading of the symbolicated path.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.symbolicated"
+msgstr "المسار المفكوك"
 
 #. Drawer tab: sync and hot apply.
 #. js-lingui-explicit-id
@@ -10825,6 +11161,12 @@ msgstr "لم تُطبَّق هذه التغييرات من نسختك"
 msgid "dialog.stepup.body"
 msgstr "يتطلب هذا الإجراء تحققًا جديدًا بمفتاح الأمان أو مفتاح المرور."
 
+#. Shown when the app has no funnel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.noFunnels"
+msgstr "لا توجد مسارات لهذا التطبيق بعد."
+
 #. Shown when the app has no plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -11119,6 +11461,12 @@ msgstr "لا توجد روابط لهذا العنصر بعد."
 msgid "data.routePlux"
 msgstr "عبر بوابة Plux"
 
+#. Column heading: time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.timeColumn"
+msgstr "الوقت"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -11136,6 +11484,12 @@ msgstr "الوقت"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colTime"
 msgstr "الوقت"
+
+#. Label of the last day of the range.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.rangeTo"
+msgstr "إلى"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -11250,6 +11604,12 @@ msgstr "مفاتيح الترجمة حسب اللغة. صفِّ وابحث وغ�
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.trash"
 msgstr "سلة المحذوفات"
+
+#. Column heading: trend by day.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.trendColumn"
+msgstr "الاتجاه"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -11400,6 +11760,18 @@ msgstr "فشل رفع {name}."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.colUrl"
 msgstr "عنوان URL"
+
+#. Link to the usage page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.navUsage"
+msgstr "الاستخدام"
+
+#. Heading of the usage page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.usageTitle"
+msgstr "الاستخدام"
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id
@@ -11659,6 +12031,12 @@ msgstr "الإصدارات"
 msgid "notify.audit-record"
 msgstr "عرض سجل التدقيق"
 
+#. Column heading: number of views.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.viewsColumn"
+msgstr "المشاهدات"
+
 #. Label of the visibility filter and field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -11718,6 +12096,12 @@ msgstr "مرحبًا بك في {name}"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.adopt.diff"
 msgstr "ما الذي يتغير"
+
+#. Caption under the analytics heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.overviewCaption"
+msgstr "ما حدث في تطبيقاتك خلال الأيام المحددة. تُحجب البيانات الشخصية قبل وصولها إلى هذه الصفحة."
 
 #. Caption.
 #. js-lingui-explicit-id

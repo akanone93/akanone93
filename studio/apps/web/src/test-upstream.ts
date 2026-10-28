@@ -223,6 +223,8 @@ export interface FunctionsFixture {
 }
 
 export interface UpstreamData {
+  /** The analytics area's data (A24-A30): rollups per event name, funnels and error groups. */
+  analytics?: AnalyticsFixture;
   /** The Plux Test runs reported for the app (TST-002). */
   testRuns?: TestRunsFixture;
   /** Names of the app's uploaded assets (ListAssets), e.g. translation-context screenshots. */
@@ -699,7 +701,9 @@ export function createUpstream(state: UpstreamData) {
     service(FederationService, { ...federationAdmin(admin), listSignInProviders: () => ({ providers: [] }) });
     service(ComplianceService, complianceAdmin(admin));
     service(AuditService, auditAdmin(admin));
-    service(AnalyticsService, analyticsAdmin(admin));
+    if (state.analytics === undefined) {
+      service(AnalyticsService, analyticsAdmin(admin));
+    }
     service(LicenseService, licenseAdmin(admin));
     service(InstallationService, installationAdmin(admin));
   });
@@ -1000,6 +1004,9 @@ function optionalServices(
   service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
   state: UpstreamData,
 ) {
+  if (state.analytics !== undefined) {
+    analyticsAreaServices(service, state.analytics);
+  }
   if (state.devSession !== undefined) {
     devSessionService(service, state.devSession);
   }
@@ -1399,6 +1406,125 @@ function testRunsServices(
         throw new ConnectError("not found", Code.NotFound);
       }
       return { run: view(found, true) };
+    },
+  });
+}
+
+/** The analytics area's fixture (STU-114, ANL-020, ANL-040). */
+export interface AnalyticsFixture {
+  /** Daily rollup points by event name. */
+  rollups?: Record<
+    string,
+    { day: string; events: number; plugin?: string; page?: string; p50?: number; p90?: number; p99?: number }[]
+  >;
+  funnels?: { id: string; name: string; steps: string[]; counts?: number[] }[];
+  errors?: {
+    id: string;
+    fingerprint: string;
+    code: string;
+    pluginKey: string;
+    route: string;
+    nodePath: string;
+    events: number;
+  }[];
+  overview?: { appId: string; sessions: number; screenViews: number; errors: number; firingAlerts: number }[];
+  /** Calls the test can assert on. */
+  calls?: { method: string; request: unknown }[];
+}
+
+function analyticsAreaServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  data: AnalyticsFixture,
+) {
+  const calls = data.calls ?? [];
+  const funnels = data.funnels ?? [];
+  const view = (f: (typeof funnels)[number]) => ({
+    id: f.id,
+    appId: "app1",
+    name: f.name,
+    steps: f.steps,
+    revision: 1n,
+  });
+  service(AnalyticsService, {
+    ...analyticsAdmin({}),
+    queryRollups: (req) => ({
+      points: (data.rollups?.[req.metric] ?? []).map((r) => ({
+        bucket: timestampFromMs(Date.parse(`${r.day}T00:00:00Z`)),
+        group: { pluginKey: r.plugin ?? "", page: r.page ?? "" },
+        events: BigInt(r.events),
+        p50: r.p50 ?? 0,
+        p90: r.p90 ?? 0,
+        p99: r.p99 ?? 0,
+      })),
+    }),
+    getOverview: () => ({
+      apps: (data.overview ?? []).map((a) => ({
+        ...a,
+        sessions: BigInt(a.sessions),
+        screenViews: BigInt(a.screenViews),
+        errors: BigInt(a.errors),
+      })),
+    }),
+    listFunnels: () => ({ funnels: funnels.map(view) }),
+    createFunnel: (req) => {
+      calls.push({ method: "createFunnel", request: { name: req.funnel?.name, steps: req.funnel?.steps } });
+      const f = { id: `f${funnels.length + 1}`, name: req.funnel?.name ?? "", steps: req.funnel?.steps ?? [] };
+      funnels.push(f);
+      return { funnel: view(f) };
+    },
+    deleteFunnel: (req) => {
+      calls.push({ method: "deleteFunnel", request: { id: req.id } });
+      funnels.splice(
+        funnels.findIndex((f) => f.id === req.id),
+        1,
+      );
+      return {};
+    },
+    getFunnelResult: (req) => {
+      const f = funnels.find((x) => x.id === req.id);
+      if (f === undefined) {
+        throw new ConnectError("no such funnel", Code.NotFound);
+      }
+      const counts = f.counts ?? f.steps.map(() => 0);
+      return {
+        funnel: view(f),
+        steps: f.steps.map((event, i) => ({
+          event,
+          events: BigInt(counts[i] ?? 0),
+          conversion: (counts[0] ?? 0) === 0 ? 0 : (counts[i] ?? 0) / (counts[0] ?? 1),
+        })),
+      };
+    },
+    listErrorGroups: () => ({
+      groups: (data.errors ?? []).map((e) => ({
+        ...e,
+        appId: "app1",
+        events: BigInt(e.events),
+        devices: 1n,
+        frames: [],
+        trend: [],
+      })),
+    }),
+    getErrorGroup: (req) => {
+      const e = (data.errors ?? []).find((x) => x.id === req.id);
+      if (e === undefined) {
+        throw new ConnectError("no such group", Code.NotFound);
+      }
+      return {
+        group: {
+          ...e,
+          appId: "app1",
+          events: BigInt(e.events),
+          devices: 1n,
+          frames: ["root", "root/0"],
+          trend: [],
+          jsonPath: "$.root",
+          sourceFile: "pages/home.json",
+        },
+        samples: [
+          { eventId: "ev1", occurredAt: timestampFromMs(Date.parse("2026-10-20T10:00:00Z")), fieldsJson: "{}" },
+        ],
+      };
     },
   });
 }

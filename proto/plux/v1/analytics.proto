@@ -69,6 +69,22 @@ service AnalyticsService {
   // read symbolicates it through the release's retained source map
   // (CMP-041). It needs analytics.read.
   rpc GetErrorGroup(GetErrorGroupRequest) returns (GetErrorGroupResponse) {}
+  // CreateFunnel defines a funnel of an app: an ordered list of event names
+  // (ANL-020, STU-114). It needs alerts.manage on the app and is audited.
+  rpc CreateFunnel(CreateFunnelRequest) returns (CreateFunnelResponse) {}
+  // DeleteFunnel removes a funnel. It needs alerts.manage on the app and is
+  // audited.
+  rpc DeleteFunnel(DeleteFunnelRequest) returns (DeleteFunnelResponse) {}
+  // ListFunnels lists the funnels of an app, or of the organisation. It
+  // needs analytics.read.
+  rpc ListFunnels(ListFunnelsRequest) returns (ListFunnelsResponse) {}
+  // GetFunnelResult counts the events of each step of a funnel over a time
+  // range, from the rollups. It needs analytics.read on the app.
+  rpc GetFunnelResult(GetFunnelResultRequest) returns (GetFunnelResultResponse) {}
+  // GetOverview summarises every app the caller may read analytics of over a
+  // time range: sessions, screen views, errors and firing alerts. It needs
+  // analytics.read.
+  rpc GetOverview(GetOverviewRequest) returns (GetOverviewResponse) {}
 }
 
 // RollupGroup is the dimension values of a point; a dimension not grouped by
@@ -405,4 +421,68 @@ message GetErrorGroupRequest {
 message GetErrorGroupResponse {
   ErrorGroup group = 1;
   repeated ErrorSample samples = 2;
+}
+
+// Funnel is an ordered list of event names of an app.
+message Funnel {
+  string id = 1;
+  string app_id = 2;
+  string name = 3;
+  // steps are event names, two to ten, in order.
+  repeated string steps = 4;
+  // environment narrows the funnel to one environment key; empty for all.
+  string environment = 5;
+  int64 revision = 6;
+  string updated_by = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+message CreateFunnelRequest {
+  Funnel funnel = 1;
+}
+message CreateFunnelResponse {
+  Funnel funnel = 1;
+}
+message DeleteFunnelRequest {
+  string id = 1;
+}
+message DeleteFunnelResponse {}
+message ListFunnelsRequest {
+  // app_id narrows the list to one app; empty for the organisation.
+  string app_id = 1;
+}
+message ListFunnelsResponse {
+  repeated Funnel funnels = 1;
+}
+
+// FunnelStep is one step of a funnel result.
+message FunnelStep {
+  string event = 1;
+  int64 events = 2;
+  // conversion is the share of the first step's events, 0 to 1.
+  double conversion = 3;
+}
+message GetFunnelResultRequest {
+  string id = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+message GetFunnelResultResponse {
+  Funnel funnel = 1;
+  repeated FunnelStep steps = 2;
+}
+
+// OverviewApp is the headline numbers of one app.
+message OverviewApp {
+  string app_id = 1;
+  int64 sessions = 2;
+  int64 screen_views = 3;
+  int64 errors = 4;
+  int32 firing_alerts = 5;
+}
+message GetOverviewRequest {
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+message GetOverviewResponse {
+  repeated OverviewApp apps = 1;
 }
