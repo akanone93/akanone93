@@ -29,4 +29,5 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-27 | Licence upload through `LicenseService.InstallLicense` (installation admin, 64 KiB, audited) allowed | ADR-0084 revision |
 | 2026-10-27 | Installation organisation list: one installation-admin RPC, names/IDs/counts only, the only tenant-wall crossing | S8.8 code |
 | 2026-10-27 | Limit `test.stepsPerRun` 5000 (max 100000) per reported Plux Test run | schema/limits.json |
+| 2026-10-28 | New permission `analytics.manage` for funnel definitions (Owner, Admin, Release manager); limit `analytics.funnelSteps` 10 (max 20) | permissions catalogue, schema/limits.json |
 | 2026-10-26 | Sign-in page design is not changed now | — |

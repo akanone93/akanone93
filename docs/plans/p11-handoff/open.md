@@ -35,4 +35,6 @@ SPDX-License-Identifier: Apache-2.0
 - S7.2: rollout plan is a JSON textarea; diffs step has no thumbnails/JSON diff; no per-plugin a11y/size reports.
 - S8.10: `plux test` does not call `ReportRun`; steps are not prefilled from the device loop.
 - S8.4: the A19 adopt dialog and A16–A18 dialogs lack tests.
+- Session replay A47 (O-8, ANL-050): ADR-0101 was never written; recorder, redacted ingestion and the canvas viewer are not built.
+- Analytics funnel results count steps from daily rollups, not per-session ordered conversion.
 - Visual-diff renderer client (S7.1) not implemented; requested diffs stay queued (S9.5).
