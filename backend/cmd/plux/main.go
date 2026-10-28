@@ -101,7 +101,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		case "codegen":
 			return codegenCmd(args[1:], stdout, stderr)
 		case "test":
-			return testCmd(args[1:], stdout, stderr)
+			return newEnv(stdout, stderr).testCmd(args[1:])
 		}
 		e := newEnv(stdout, stderr)
 		if cmd, ok := e.commands()[args[0]]; ok {

@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { Link, useParams } from "@tanstack/react-router";
-import { createContext, type ReactElement, type ReactNode, useContext, useMemo, useRef } from "react";
+import { createContext, type ReactElement, type ReactNode, useContext, useMemo, useRef, useState } from "react";
 import { isObject, type Json, useDocumentValue } from "../designers/use-document.ts";
 import { EditorProvider } from "../editor/editor-provider.tsx";
 import { LockBanner } from "../editor/lock-ui.tsx";
@@ -72,7 +72,13 @@ function Inner({ children }: { readonly children: ReactNode }): ReactElement {
   return <Ctx.Provider value={ctx}>{children}</Ctx.Provider>;
 }
 
-function Body(props: { id: string; title: string; caption: string; children: ReactNode }): ReactElement {
+function Body(props: {
+  id: string;
+  title: string;
+  caption: string;
+  refused: boolean;
+  children: ReactNode;
+}): ReactElement {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
   return (
@@ -100,6 +106,11 @@ function Body(props: { id: string; title: string; caption: string; children: Rea
       </nav>
       {ctx.session !== null && <LockBanner lock={ctx.session.lock} />}
       {!ctx.canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+      {props.refused && (
+        <p role="alert" className="text-body text-danger">
+          {m.saveRefused}
+        </p>
+      )}
       {ctx.path === undefined && <p className="text-body text-secondary">{m.noTheme}</p>}
       {props.children}
     </section>
@@ -115,11 +126,18 @@ export function Frame(props: {
 }): ReactElement {
   const app = (useParams({ strict: false }) as { app?: string }).app ?? "";
   const docs = useAppDocuments(app);
+  // A save the server refuses undoes its edit; say so, or the change would just vanish.
+  const [refused, setRefused] = useState(false);
   return (
-    <L10nSessionsProvider appId={app} documents={docs.data}>
+    <L10nSessionsProvider
+      appId={app}
+      documents={docs.data}
+      onEdit={() => setRefused(false)}
+      onRejected={() => setRefused(true)}
+    >
       <EditorProvider appId={app} pluginId="" documents={[]} hideBanner>
         <Inner>
-          <Body {...props} />
+          <Body {...props} refused={refused} />
         </Inner>
       </EditorProvider>
     </L10nSessionsProvider>

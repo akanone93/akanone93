@@ -184,6 +184,12 @@ msgstr "{count, plural, zero {لا عملية إطلاق أوقفتها بواب
 msgid "panelTabs.stateSummary"
 msgstr "{count, plural, zero {لا إدخالات حالة} one {إدخال حالة واحد} two {إدخالا حالة} few {# إدخالات حالة} many {# إدخال حالة} other {# إدخال حالة}}"
 
+#. How many tap steps the device-loop session has recorded so far.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.fromSessionSteps"
+msgstr "{count, plural, zero {لا نقرات مسجلة في جلسة الجهاز} one {نقرة واحدة مسجلة في جلسة الجهاز} two {نقرتان مسجلتان في جلسة الجهاز} few {# نقرات مسجلة في جلسة الجهاز} many {# نقرة مسجلة في جلسة الجهاز} other {# نقرة مسجلة في جلسة الجهاز}}"
+
 #. STU-070, STU-072: heading of the list of uses of, or links into, the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -2937,6 +2943,12 @@ msgstr "إنشاء رمز SCIM"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.createTeam"
 msgstr "إنشاء فريق"
+
+#. Button that fills the new scenario form with the taps recorded in the device-loop session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.fromSession"
+msgstr "إنشاء اختبار من جلسة الجهاز"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -12059,6 +12071,12 @@ msgstr "لا يسجّل الخادم نسخًا احتياطية بعد. انس�
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.dropRejected"
 msgstr "رفضه الخادم."
+
+#. Shown when autosave of a theme edit is refused by the server and the edit is rolled back.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.saveRefused"
+msgstr "رفض الخادم هذا التغيير وتم التراجع عنه."
 
 #. Error: variant shares do not sum to 100.
 #. js-lingui-explicit-id

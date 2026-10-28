@@ -100,6 +100,7 @@ SETTING                          VALUE                   SOURCE
 accessTokenLifetime              300                     profile
 accessibilityBlocksPublish       true                    profile
 allowDirectDataSources           true                    profile
+allowSessionReplay               true                    profile
 allowSoftwareKeys                false                   profile
 androidDeviceVerdictAL2          MEETS_DEVICE_INTEGRITY  profile
 androidRefreshRequiresIntegrity  false                   profile
