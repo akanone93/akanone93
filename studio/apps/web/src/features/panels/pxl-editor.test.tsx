@@ -99,7 +99,7 @@ describe("the inline PXL editor", () => {
   test("marks the range of an error from the language service and reports the result type", async () => {
     const { view, types } = mount({ value: "page.nope" });
     view.dispatch({ changes: { from: 9, insert: " " }, userEvent: "input.type" });
-    await waitFor(() => expect(document.querySelector(".cm-lintRange-error")).not.toBeNull(), { timeout: 2000 });
+    await waitFor(() => expect(document.querySelector(".cm-lintRange-error") !== null).toBe(true), { timeout: 2000 });
     expect(document.querySelector(".cm-lintRange-error")?.textContent).toBe("nope");
     expect(types.at(-1)).toBe("");
   });

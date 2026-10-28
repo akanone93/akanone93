@@ -66,7 +66,7 @@ describe("STU-116 organisation administration", () => {
     await screen.findByText("invite-secret-1");
     expect(calls(state)).toEqual(['addMember:{"email":"new@example.org","role":"editor"}']);
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
-    await waitFor(() => expect(screen.queryByText("invite-secret-1")).toBeNull());
+    await waitFor(() => expect(screen.queryByText("invite-secret-1") === null).toBe(true));
   });
 
   test("O16 removes a member only after the person types the confirmation", async () => {
@@ -238,7 +238,7 @@ describe("STU-116 organisation administration", () => {
     fireEvent.click(screen.getByRole("button", { name: "Create SCIM token" }));
     await screen.findByText("scim-secret-1");
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
-    await waitFor(() => expect(screen.queryByText("scim-secret-1")).toBeNull());
+    await waitFor(() => expect(screen.queryByText("scim-secret-1") === null).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: "Rotate" }));
     await screen.findByText("scim-secret-1");
     expect(calls(state)).toEqual(['createScimToken:{"name":"hr"}', 'rotateScimToken:{"id":"s1"}']);
@@ -260,7 +260,7 @@ describe("STU-116 organisation administration", () => {
       'createAccessToken:{"name":"deploy","scopes":["release.publish"],"ttlSeconds":"2592000"}',
     ]);
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
-    await waitFor(() => expect(screen.queryByText("plx_secret_value")).toBeNull());
+    await waitFor(() => expect(screen.queryByText("plx_secret_value") === null).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: "Revoke" }));
     await waitFor(() => expect(calls(state)).toContain('revokeAccessToken:{"id":"k1"}'));
     expect(document.body.textContent).not.toContain("plx_secret_value");

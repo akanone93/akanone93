@@ -160,7 +160,7 @@ describe("S6.4 device drawer (STU-066, DEV-020)", () => {
     fireEvent.click(await screen.findByRole("tab", { name: "Logs" }));
     await screen.findByText("app boot ready");
     fireEvent.click(screen.getByRole("button", { name: "Errors only" }));
-    await waitFor(() => expect(screen.queryByText("app boot ready")).toBeNull());
+    await waitFor(() => expect(screen.queryByText("app boot ready") === null).toBe(true));
     expect(screen.getByText("app crash on d2")).toBeTruthy();
     expect(screen.queryByText("app slow frame")).toBeNull();
   });

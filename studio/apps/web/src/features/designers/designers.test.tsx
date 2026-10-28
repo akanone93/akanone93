@@ -277,7 +277,7 @@ describe("STU-063 V8 theme editor", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add token" }));
     expect(await screen.findByLabelText("Light value of color.accent")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Remove token color.accent" }));
-    await waitFor(() => expect(screen.queryByLabelText("Light value of color.accent")).toBeNull());
+    await waitFor(() => expect(screen.queryByLabelText("Light value of color.accent") === null).toBe(true));
     await waitFor(() => expect(sent.length).toBeGreaterThan(0), { timeout: 5000 });
     expect(sent[0]?.path).toBe("theme.json");
     const ops = sent.flatMap((p) => p.ops);

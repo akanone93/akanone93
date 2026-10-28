@@ -119,7 +119,9 @@ describe("STU-102 request and decision", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reject" }));
     await screen.findByRole("button", { name: "Use security key or passkey" });
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Use security key or passkey" })).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Use security key or passkey" }) === null).toBe(true),
+    );
     expect(decided).toEqual([]);
     expect(credential.get).not.toHaveBeenCalled();
   });
