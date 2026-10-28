@@ -193,6 +193,46 @@ describe("SEC-101 STU-002 security headers", () => {
       expect(h.get("permissions-policy")).toContain("camera=()");
     }
   });
+  test("the CSP is exactly the documented policy, on every kind of response (SEC-109)", async () => {
+    const { app } = mk();
+    const responses = [
+      await app.request("/"),
+      await app.request("/hello.txt"),
+      await app.request("/assets/none.js"),
+      await app.request("/api/plux.v1.X/Y", { method: "POST", body: "{}" }),
+      await app.request("/csp-report", { method: "POST", body: "{}" }),
+      await app.request("/auth/oidc/state", { method: "POST", body: "{}" }),
+      await app.request("/version"),
+    ];
+    for (const r of responses) {
+      const csp = r.headers.get("content-security-policy") ?? "";
+      const nonce = /'nonce-([A-Za-z0-9+/]{22}==)'/.exec(csp)?.[1] ?? "";
+      expect(nonce).not.toBe("");
+      // Any change to the policy is a change to a security control: it is made here and in
+      // studio-development.md §11.2 and docs/security/asvs-studio.md together.
+      expect(csp.split("; ")).toEqual([
+        "default-src 'none'",
+        `script-src 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'`,
+        `style-src 'self' 'nonce-${nonce}'`,
+        "style-src-attr 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "worker-src 'self' blob:",
+        "manifest-src 'self'",
+        "object-src 'none'",
+        "base-uri 'none'",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+        "require-trusted-types-for 'script'",
+        "trusted-types plux-worker 'allow-duplicates'",
+        "report-uri /csp-report",
+      ]);
+      for (const unsafe of ["'unsafe-eval'", "'unsafe-hashes'", "*", "http:", "https:", "'default'"]) {
+        expect(csp.split(/[ ;]+/)).not.toContain(unsafe);
+      }
+    }
+  });
   test("no HSTS over plain http; a missing index.html is 404", async () => {
     const res = await createBff({
       staticDir: join(dir, "none"),
