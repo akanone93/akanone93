@@ -60,7 +60,7 @@ function dock(canEdit: boolean, selection: Selection, set: (s: Selection) => voi
   );
 }
 
-describe("STU-061 left panels", () => {
+describe("[STU-061] left panels", () => {
   test("Layers tree selects into the shared selection and shows the shared selection", async () => {
     const set = mock((_: Selection) => undefined);
     dock(true, { ids: ["t1"], anchor: "t1", scope: "row" }, set, mock());

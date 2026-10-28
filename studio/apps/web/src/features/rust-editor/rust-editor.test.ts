@@ -61,7 +61,7 @@ function fakeServer() {
   };
 }
 
-describe("FN-033 the language-server bridge", () => {
+describe("[FN-033] the language-server bridge", () => {
   test("opens a session, delivers the server's messages and numbers client messages from 1 in order", async () => {
     const server = fakeServer();
     const messages: string[] = [];
@@ -104,7 +104,7 @@ describe("FN-033 the language-server bridge", () => {
   });
 });
 
-describe("FN-033 dependency management", () => {
+describe("[FN-033] dependency management", () => {
   const manifest = `[package]\nname = "fee"\n\n[dependencies]\nplux-fn = "0.1"\nserde = { version = "1", features = ["derive"] }\n\n[dev-dependencies]\nfoo = "1"\n`;
 
   test("lists, adds, updates and removes entries of [dependencies] only", () => {
@@ -130,7 +130,7 @@ describe("FN-033 dependency management", () => {
   });
 });
 
-describe("FN-034 the test runner", () => {
+describe("[FN-034] the test runner", () => {
   test("reports each stored case as it arrives and the summary last", async () => {
     const client: TestsClient = {
       runTests: () => ({
@@ -169,7 +169,7 @@ describe("FN-034 the test runner", () => {
   });
 });
 
-describe("FN-033 starter templates", () => {
+describe("[FN-033] starter templates", () => {
   test("offers the four starters, each a function with its types and registration", () => {
     expect(starterTemplates.map((t) => t.id)).toEqual([
       "loan.schedule",

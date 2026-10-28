@@ -115,7 +115,7 @@ describe("the PXL conformance vectors through the worker", () => {
   }
 });
 
-describe("the PXL language service", () => {
+describe("the PXL language service [PXL-008]", () => {
   test("diagnostics carry UTF-16 ranges, also after astral characters", async () => {
     const src = '"😀" + page.nope';
     const got = await service.check(loanScope, src);
@@ -168,7 +168,7 @@ describe("the PXL language service", () => {
   });
 });
 
-describe("the providers for Monaco", () => {
+describe("the providers for Monaco [PXL-008]", () => {
   const providers = createPxlProviders(service, () => loanScope);
   test("markers use 1-based line and column", async () => {
     const [marker] = await providers.markers("1 +\npage.nope");

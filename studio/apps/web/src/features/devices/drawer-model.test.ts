@@ -22,7 +22,7 @@ import {
 const ev = (sequence: bigint, deviceId: string, level: DevLogLevel, message: string) =>
   create(DevEventSchema, { sequence, deviceId, payload: { case: "log", value: { level, source: "app", message } } });
 
-describe("S6.4 drawer model (STU-066)", () => {
+describe("S6.4 drawer model [STU-066]", () => {
   test("routes events to their tab", () => {
     expect(tabOf(ev(1n, "d", DevLogLevel.INFO, "x"))).toBe("logs");
     expect(tabOf(create(DevEventSchema, { payload: { case: "networkCall", value: {} } }))).toBe("network");
@@ -52,7 +52,7 @@ describe("S6.4 drawer model (STU-066)", () => {
   });
 });
 
-describe("S6.4 view window (LIM-001, DEV-020)", () => {
+describe("S6.4 view window [LIM-001] [DEV-020]", () => {
   test("the window is the registry default of studio.eventsStreamBufferEvents", () => {
     expect(viewWindow()).toBe(limitDefault("studio.eventsStreamBufferEvents"));
     let b = emptyBuffer;
@@ -63,7 +63,7 @@ describe("S6.4 view window (LIM-001, DEV-020)", () => {
     expect(b.events[0]?.sequence).toBe(5n);
   });
 
-  test("console log lines go to the Console tab and carry their level (STU-133)", () => {
+  test("console log lines go to the Console tab and carry their level [STU-133]", () => {
     const line = create(DevEventSchema, {
       payload: { case: "log", value: { level: DevLogLevel.WARNING, source: consoleSource, message: "1 + 1" } },
     });

@@ -89,7 +89,7 @@ function setup(options: Partial<ConstructorParameters<typeof UndoManager>[0]> = 
   };
 }
 
-describe("STU-069 undo stacks", () => {
+describe("[STU-069] undo stacks", () => {
   test("undo applies the inverse and redo the forward, through the pipeline", () => {
     const { undo } = setup();
     const s = pipeline(undo, "p1", { title: "A" });
@@ -258,7 +258,7 @@ describe("STU-069 undo stacks", () => {
   });
 });
 
-describe("STU-069 steps survive a reload", () => {
+describe("[STU-069] steps survive a reload", () => {
   const r = (step: string, title: string) => ({
     path,
     step,
@@ -339,7 +339,7 @@ describe("STU-069 steps survive a reload", () => {
   });
 });
 
-describe("STU-069 undo commands", () => {
+describe("[STU-069] undo commands", () => {
   test("mod+z, shift+mod+z and mod+y reach the focused editor", () => {
     const calls: string[] = [];
     const focus = createUndoFocus();

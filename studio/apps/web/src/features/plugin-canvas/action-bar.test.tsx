@@ -39,7 +39,7 @@ function mount(
   );
 }
 
-describe("STU-050 action bar", () => {
+describe("[STU-050] action bar", () => {
   test("undo and redo are disabled while no edit.undo or edit.redo command is registered", async () => {
     mount([]);
     expect(
@@ -109,7 +109,7 @@ const off = (b: HTMLElement) => b.hasAttribute("disabled") || b.getAttribute("ar
 
 const idle = { send: () => undefined, pair: () => undefined, history: () => undefined };
 
-describe("STU-060 action bar controls", () => {
+describe("[STU-060] action bar controls", () => {
   test("the toolbar holds frame, theme, locale, text scale, send, history and Publish in that order", async () => {
     mountFull({ canSend: true, canPublish: true, onPublish: () => undefined }, idle);
     const bar = await screen.findByRole("toolbar", { name: "Canvas actions" });

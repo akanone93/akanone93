@@ -10,7 +10,7 @@ afterEach(cleanup);
 const open = (path: string, state: Upstream = {}) =>
   renderApp(`/installation${path}`, { installationAdmin: true, ...state });
 
-describe("STU-116 installation administration", () => {
+describe("[STU-116] installation administration", () => {
   test("I1 shows each health check and its result", async () => {
     open("", {
       admin: {

@@ -12,7 +12,7 @@ function transport() {
   return { sent, send: async (m: unknown) => void sent.push(m as Record<string, unknown>) };
 }
 
-describe("FN-033 LSP client", () => {
+describe("[FN-033] LSP client", () => {
   test("correlates answers with requests and rejects server errors", async () => {
     const t = transport();
     const c = new LspClient(t);
@@ -87,7 +87,7 @@ describe("FN-033 LSP client", () => {
   });
 });
 
-describe("FN-033 LSP conversion", () => {
+describe("[FN-033] LSP conversion", () => {
   test("positions, ranges, markup and markers", () => {
     expect(toLspPosition(3, 5)).toEqual({ line: 2, character: 4 });
     expect(toMonacoRange({ start: { line: 0, character: 0 }, end: { line: 1, character: 2 } })).toEqual({
@@ -141,7 +141,7 @@ function fakeBridge(reply: (m: Record<string, unknown>) => unknown[], opened = t
   return { bridge, sent, closed: (reason: string, detail = "") => handlers?.onClosed(reason, detail) };
 }
 
-describe("FN-033 Rust session", () => {
+describe("[FN-033] Rust session", () => {
   const answers = (m: Record<string, unknown>): unknown[] => {
     const id = m["id"];
     switch (m["method"]) {

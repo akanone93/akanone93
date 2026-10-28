@@ -59,7 +59,7 @@ function offsetOf(child: RenderBox): Offset {
   return (child.parentData as BoxParentData).offset;
 }
 
-describe("STU-005 applyBoxFit and FittedBox", () => {
+describe("[STU-005] applyBoxFit and FittedBox", () => {
   const input = new Size(80, 40);
   const output = new Size(100, 100);
 
@@ -138,7 +138,7 @@ describe("STU-005 applyBoxFit and FittedBox", () => {
   });
 });
 
-describe("STU-005 table column widths", () => {
+describe("[STU-005] table column widths", () => {
   function table(columns: Array<TableColumnWidth | null>, cells: RenderBox[], rows = 1): RenderTable {
     const widths = new Map<number, TableColumnWidth>();
     columns.forEach((spec, index) => {
@@ -281,7 +281,7 @@ describe("STU-005 table column widths", () => {
   });
 });
 
-describe("STU-005 the other box widgets", () => {
+describe("[STU-005] the other box widgets", () => {
   test("LimitedBox limits only unbounded axes", () => {
     const child = new RenderTestBox({ size: new Size(inf, inf) });
     const limited = new RenderLimitedBox({ maxWidth: 50, maxHeight: 30, child });
@@ -469,7 +469,7 @@ describe("STU-005 the other box widgets", () => {
   });
 });
 
-describe("STU-068 layout at an animation value", () => {
+describe("[STU-068] layout at an animation value", () => {
   test("implicit animation values interpolate like Flutter's tweens", () => {
     const a = BoxConstraints.tightFor({ width: 100, height: 50 });
     const b = BoxConstraints.tightFor({ width: 200, height: 150 });

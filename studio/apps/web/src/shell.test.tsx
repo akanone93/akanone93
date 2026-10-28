@@ -23,7 +23,7 @@ afterEach(() => {
 
 const path = (r: { router: { state: { location: { pathname: string } } } }) => r.router.state.location.pathname;
 
-describe("STU-013 guards", () => {
+describe("[STU-013] guards", () => {
   test("a signed-out visit goes to sign-in with the return path", async () => {
     const r = renderApp(`/o/${orgA}`, { signedIn: false });
     await screen.findByRole("heading", { name: "Sign in" });
@@ -57,7 +57,7 @@ describe("STU-013 guards", () => {
     expect(explained).toEqual([{ permission: "installation.admin" }]);
   });
 
-  test("a reload fetches the CSRF token from GetCurrentUser (SEC-101, STU-002)", async () => {
+  test("a reload fetches the CSRF token from GetCurrentUser [SEC-101] [STU-002]", async () => {
     const session = createSession("/api", createUpstream({ csrfToken: "plux_csrf_fresh" }));
     const held: (string | undefined)[] = [];
     const user = await requireUser({ ...session, setCsrfToken: (t) => held.push(t) }, "/");
@@ -65,7 +65,7 @@ describe("STU-013 guards", () => {
     expect(held).toEqual(["plux_csrf_fresh"]);
   });
 
-  test("after a reload a mutating call carries X-CSRF-Token from GetCurrentUser (SEC-101, STU-002)", async () => {
+  test("after a reload a mutating call carries X-CSRF-Token from GetCurrentUser [SEC-101] [STU-002]", async () => {
     const seen: { url: string; csrf: string | null }[] = [];
     const realFetch = globalThis.fetch;
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -114,7 +114,7 @@ describe("STU-013 guards", () => {
   });
 });
 
-describe("STU-013 organisation switcher", () => {
+describe("[STU-013] organisation switcher", () => {
   test("changing the organisation changes the header and the page", async () => {
     const r = renderApp(`/o/${orgA}`, {});
     const banner = await screen.findByRole("banner");
@@ -125,7 +125,7 @@ describe("STU-013 organisation switcher", () => {
   });
 });
 
-describe("STU-014 preferences", () => {
+describe("[STU-014] preferences", () => {
   test("stored preferences are applied to the document", async () => {
     renderApp("/me", { stored: { theme: "dark", language: "ar", density: "compact" } });
     await waitFor(() => expect(document.documentElement.getAttribute("data-theme")).toBe("dark"));
@@ -143,7 +143,7 @@ describe("STU-014 preferences", () => {
   });
 });
 
-describe("STU-013 sign-in form", () => {
+describe("[STU-013] sign-in form", () => {
   test("invalid input shows the catalogue messages (Zod, jitless)", async () => {
     renderApp("/signin", { signedIn: false });
     const email = await screen.findByLabelText("Email");
@@ -157,7 +157,7 @@ describe("STU-013 sign-in form", () => {
   });
 });
 
-describe("STU-012 catalogue", () => {
+describe("[STU-012] catalogue", () => {
   test("the shell has no literal strings: every heading comes from a message", async () => {
     renderApp("/signin", { signedIn: false });
     await screen.findByRole("heading", { name: "Sign in" });

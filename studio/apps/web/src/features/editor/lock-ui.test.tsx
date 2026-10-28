@@ -65,7 +65,7 @@ function controller(transport: LockTransport, now: number) {
   });
 }
 
-describe("STU-075 lock banner, D36 and D37 (F1, L-1)", () => {
+describe("[STU-075] lock banner, D36 and D37 (F1, L-1)", () => {
   test("without plugin.lock.override only Request edit is offered", async () => {
     const now = Date.now();
     const lock = controller(stub(lockOf(now, -1), []), now);

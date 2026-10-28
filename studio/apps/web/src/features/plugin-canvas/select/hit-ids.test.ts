@@ -23,8 +23,8 @@ const root: Node = {
   ],
 };
 
-describe("STU-067 hit IDs of the real worker layout", () => {
-  test("STU-067 every placed item maps back to a document node ID", async () => {
+describe("[STU-067] hit IDs of the real worker layout", () => {
+  test("[STU-067] every placed item maps back to a document node ID", async () => {
     const env = new TestEnvironment(ck);
     const posted: WorkerMessage[] = [];
     const core = new CanvasWorkerCore((m) => posted.push(m), env.deps());

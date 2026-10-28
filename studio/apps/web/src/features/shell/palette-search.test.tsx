@@ -23,7 +23,7 @@ afterEach(cleanup);
 const sleep = (ms: number) => act(() => new Promise<void>((r) => setTimeout(r, ms)));
 const hit = (name: string): OrgHit => ({ kind: "app", id: name, name });
 
-describe("STU-013 F15 palette scope and recents", () => {
+describe("[STU-013] F15 palette scope and recents", () => {
   test("prefixes narrow the scope", () => {
     expect(parseScope("> publish")).toEqual({ scope: "commands", text: "publish" });
     expect(parseScope("#home")).toEqual({ scope: "screens", text: "home" });
@@ -35,7 +35,7 @@ describe("STU-013 F15 palette scope and recents", () => {
   });
 });
 
-describe("STU-013 F15 organisation search", () => {
+describe("[STU-013] F15 organisation search", () => {
   test("debounces: one request for a burst of typing, after the delay", async () => {
     const calls: string[] = [];
     const search: OrgSearchFn = async (q) => {
@@ -79,7 +79,7 @@ describe("STU-013 F15 organisation search", () => {
     expect(n).toBe(0);
   });
 
-  test("an app hit opens its canvas; other kinds have no route (STU-013)", () => {
+  test("an app hit opens its canvas; other kinds have no route [STU-013]", () => {
     expect(hitPath("acme", hit("a1"))).toBe("/o/acme/apps/a1");
     expect(hitPath("acme", { kind: "plugin", id: "p", name: "p" })).toBeUndefined();
   });

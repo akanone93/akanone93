@@ -4,7 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { defaultArrowStyle, ProvisionalArrow } from "./arrow-layer.ts";
 
-describe("provisional arrow (STU-047)", () => {
+describe("provisional arrow [STU-047]", () => {
   test("draws a shaft and two head strokes, then moves them", () => {
     const arrow = new ProvisionalArrow();
     const first = arrow.update({ x: 0, y: 0 }, { x: 100, y: 0 });

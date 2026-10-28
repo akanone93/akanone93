@@ -15,7 +15,7 @@ import {
   snap,
 } from "./app-canvas.model.ts";
 
-describe("app canvas model (STU-030, STU-032)", () => {
+describe("app canvas model [STU-030] [STU-032]", () => {
   test("auto layout ranks linked plugins left to right and is deterministic", () => {
     const links = [
       { from: "a", to: "b" },

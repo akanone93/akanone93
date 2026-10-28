@@ -75,7 +75,7 @@ describe("pure helpers", () => {
   });
 });
 
-describe("STU-112 A15 tokens and D57, D58", () => {
+describe("[STU-112] A15 tokens and D57, D58", () => {
   test("lists the tokens, edits one in every mode and imports DTCG tokens", async () => {
     renderApp(base, state);
     expect(await screen.findByText("colors.primary", {}, { timeout: 10000 })).toBeTruthy();
@@ -102,7 +102,7 @@ describe("STU-112 A15 tokens and D57, D58", () => {
   });
 });
 
-describe("STU-112 A16 to A18", () => {
+describe("[STU-112] A16 to A18", () => {
   test("themes count the colours of each mode", async () => {
     renderApp(`${base}/themes`, state);
     expect(await screen.findByText("Light: 2 colours", {}, { timeout: 10000 })).toBeTruthy();
@@ -177,7 +177,7 @@ describe("STU-112 A16 to A18", () => {
     expect(screen.getByText("No brand overlays yet.")).toBeTruthy();
   });
 
-  test("typography flags a script without a fallback (THM-004)", async () => {
+  test("typography flags a script without a fallback [THM-004]", async () => {
     renderApp(`${base}/typography`, state);
     expect(await screen.findByText("Latin: 2 fonts", {}, { timeout: 10000 })).toBeTruthy();
     expect(screen.getByText("Arabic has no fallback font.")).toBeTruthy();
@@ -197,7 +197,7 @@ describe("STU-112 A16 to A18", () => {
   });
 });
 
-describe("STU-112 A18 icon form: server refusal", () => {
+describe("[STU-112] A18 icon form: server refusal", () => {
   test("the server refusing the autosave of an icon is reported and the icon is undone", async () => {
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
     renderApp(`${base}/icons`, { ...state, sent, patchRefusal: { message: "not allowed" } });
@@ -216,7 +216,7 @@ describe("STU-112 A18 icon form: server refusal", () => {
   });
 });
 
-describe("STU-112 A19 component library", () => {
+describe("[STU-112] A19 component library", () => {
   test("lists the library components with the version this app adopted", async () => {
     renderApp(`${base}/library`, {
       ...state,
@@ -231,7 +231,7 @@ describe("STU-112 A19 component library", () => {
   });
 });
 
-describe("STU-112 STU-085 A19 adopt dialog (D32)", () => {
+describe("[STU-112] [STU-085] A19 adopt dialog (D32)", () => {
   const library = (more: Partial<LibraryFixture> = {}): LibraryFixture => ({
     items: [
       { id: "c1", kind: "component", key: "card", name: "Card", visibility: "organization", createdByName: "Ada" },
@@ -298,7 +298,7 @@ describe("STU-112 STU-085 A19 adopt dialog (D32)", () => {
   });
 });
 
-describe("STU-006 host app fonts", () => {
+describe("[STU-006] host app fonts", () => {
   const withFonts = (extra: Record<string, unknown>) => ({
     ...state,
     permissions: ["app.read", "app.manage"],

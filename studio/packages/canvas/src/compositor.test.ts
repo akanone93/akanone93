@@ -70,7 +70,7 @@ async function start(env: TestEnvironment, layer: CanvasElementLike | null = nul
   return { host, base, frames };
 }
 
-describe("STU-120 STU-045 compositor arithmetic (M-12)", () => {
+describe("[STU-120] [STU-045] compositor arithmetic (M-12)", () => {
   test("a centred base sits one margin above and left of the view, snapped to device pixels", () => {
     const view = { x: 10.3, y: -4, zoom: 0.6, width: 1280, height: 800 };
     const origin = centredOrigin(view, MARGIN, 2);
@@ -110,7 +110,7 @@ describe("STU-120 STU-045 compositor arithmetic (M-12)", () => {
   });
 });
 
-describe("STU-120 STU-045 compositor-assisted pan and interaction layer (M-12)", () => {
+describe("[STU-120] [STU-045] compositor-assisted pan and interaction layer (M-12)", () => {
   test("the host moves the base with a CSS transform and the worker re-renders only at the margin", async () => {
     const env = new TestEnvironment(ck);
     const { host, base, frames } = await start(env);

@@ -10,7 +10,7 @@ const screens: ScreenDocument[] = [
 ];
 const style = {} as ScreenStyle;
 
-describe("STU-121 property change to canvas frame measurement", () => {
+describe("[STU-121] property change to canvas frame measurement", () => {
   test("times each edit from hand-over to the frame after the layout answer, after the warm-up", async () => {
     const calls: string[] = [];
     let clock = 0;

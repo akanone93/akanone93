@@ -39,7 +39,7 @@ const fake = () => {
   return { state, board };
 };
 
-describe("STU-067 the clipboard format", () => {
+describe("[STU-067] the clipboard format", () => {
   test("writes a ClipboardItem under the web custom type plus the text/plain fallback", async () => {
     g.ClipboardItem = FakeItem;
     const { state, board } = fake();

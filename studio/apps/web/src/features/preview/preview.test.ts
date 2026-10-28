@@ -18,7 +18,7 @@ import {
 } from "./frames.ts";
 import { defaultPreview, mockStateOf, previewRender, readPreview, withMock, writePreview } from "./switches.ts";
 
-describe("STU-057 device frames", () => {
+describe("[STU-057] device frames", () => {
   test("the catalogue has the named presets with unique IDs", () => {
     const ids = frameCatalogue.map((f) => f.id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -67,7 +67,7 @@ describe("STU-057 device frames", () => {
   });
 });
 
-describe("STU-058 preview switches", () => {
+describe("[STU-058] preview switches", () => {
   test("unset or unknown stored values read as the defaults", () => {
     expect(readPreview(undefined)).toEqual(defaultPreview);
     const odd = create(PreviewSwitchesSchema, { textScale: 99, platform: "x", theme: "x" });

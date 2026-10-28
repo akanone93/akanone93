@@ -26,7 +26,7 @@ const renderI18n = (node: ReactNode) =>
     </I18nProvider>,
   );
 
-describe("STU-058 switcher UI", () => {
+describe("[STU-058] switcher UI", () => {
   test("the toolbar offers every switch", async () => {
     renderI18n(<PreviewSwitcher state={defaultPreview} dataSources={["orders"]} onChange={() => {}} includePseudo />);
     expect(await screen.findByRole("toolbar", { name: "Preview switches" })).toBeTruthy();
@@ -36,7 +36,7 @@ describe("STU-058 switcher UI", () => {
   });
 });
 
-describe("STU-057 custom frame dialog D40", () => {
+describe("[STU-057] custom frame dialog D40", () => {
   test("a valid size is handed over, an invalid one shows the error", async () => {
     const used: unknown[] = [];
     renderI18n(<CustomFrameDialog open onClose={() => {}} onUse={(f) => used.push(f)} />);
@@ -50,7 +50,7 @@ describe("STU-057 custom frame dialog D40", () => {
   });
 });
 
-describe("STU-057 device matrix", () => {
+describe("[STU-057] device matrix", () => {
   test("one cell per frame, sized and mirrored by the switches", async () => {
     const render1 = previewRender({ ...defaultPreview, locale: "ar", textScale: 1.5 }, "material");
     renderI18n(
@@ -70,7 +70,7 @@ describe("STU-057 device matrix", () => {
   });
 });
 
-describe("STU-057 matrix cells render the screen", () => {
+describe("[STU-057] matrix cells render the screen", () => {
   test("each cell lays the screen out at its frame size through the surface", async () => {
     const laid: { w: number | undefined; h: number | undefined; id: string | undefined }[] = [];
     const createSurface: SurfaceFactory = () => ({
@@ -109,7 +109,7 @@ describe("STU-057 matrix cells render the screen", () => {
   });
 });
 
-describe("STU-057 matrix toggle", () => {
+describe("[STU-057] matrix toggle", () => {
   test("the toggle switches between the single frame and the matrix", async () => {
     const seen: boolean[] = [];
     renderI18n(<PreviewBarView switcher={<span />} matrix={false} onMatrix={(on) => seen.push(on)} />);

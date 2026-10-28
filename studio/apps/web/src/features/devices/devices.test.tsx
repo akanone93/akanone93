@@ -52,7 +52,7 @@ function log(sequence: bigint, deviceId: string, level: DevLogLevel, message: st
   });
 }
 
-describe("S6.4 pairing dialog (D39, DEV-002)", () => {
+describe("S6.4 pairing dialog (D39, [DEV-002])", () => {
   test("shows the QR as SVG rects, the link, the short code and a countdown under two minutes", async () => {
     renderHost(
       {
@@ -91,7 +91,7 @@ describe("S6.4 pairing dialog (D39, DEV-002)", () => {
   });
 });
 
-describe("S6.4 send to device (D38, STU-130)", () => {
+describe("S6.4 send to device (D38, [STU-130])", () => {
   test("sends the chosen route and parameters to the picked device", async () => {
     const commands: NonNullable<UpstreamData["devSession"]>["commands"] = [];
     renderHost(
@@ -120,7 +120,7 @@ describe("S6.4 send to device (D38, STU-130)", () => {
   });
 });
 
-describe("S6.4 device drawer (STU-066, DEV-020)", () => {
+describe("S6.4 device drawer [STU-066] [DEV-020]", () => {
   const events = [
     log(1n, "d1", DevLogLevel.INFO, "boot ready"),
     log(2n, "d2", DevLogLevel.ERROR, "crash on d2"),

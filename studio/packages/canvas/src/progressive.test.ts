@@ -51,7 +51,7 @@ function jobs(frames: Frames, count: number, cost: number) {
 const view = makeRect(0, 0, 100, 100);
 const at = (x: number, y: number): Rect => makeRect(x, y, x + 50, y + 50);
 
-describe("STU-120 STU-045 progressive base jobs (M-12)", () => {
+describe("[STU-120] [STU-045] progressive base jobs (M-12)", () => {
   test("jobs in the view come first, then the margin the pan heads into, then the rest, nearest first", () => {
     const rects = [at(-200, 0), at(150, 0), at(25, 25), at(110, 0), at(-60, 0), at(60, 60)];
     expect(rects.map((r) => jobBand(r, view, { x: 1, y: 0 }))).toEqual([2, 1, 0, 1, 2, 0]);
@@ -145,7 +145,7 @@ describe("STU-120 STU-045 progressive base jobs (M-12)", () => {
   });
 });
 
-describe("STU-120 STU-045 progressive base re-render in the renderer (M-12)", () => {
+describe("[STU-120] [STU-045] progressive base re-render in the renderer (M-12)", () => {
   let ck: CanvasKit;
   beforeAll(async () => {
     ck = await loadCanvasKit();

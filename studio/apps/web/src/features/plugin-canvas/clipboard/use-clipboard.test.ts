@@ -12,7 +12,7 @@ const tree = () => ({
   ],
 });
 
-describe("STU-067 paste and cut edit the document", () => {
+describe("[STU-067] paste and cut edit the document", () => {
   test("paste inserts after the anchor, or at the end of the root", () => {
     const t = tree();
     pasteRecipe("a", [{ id: "n" }])(t);

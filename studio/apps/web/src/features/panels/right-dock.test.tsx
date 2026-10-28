@@ -48,7 +48,7 @@ function pick(canvas: HTMLElement, shift: boolean) {
 }
 
 describe("S2.6 right dock on the plugin canvas", () => {
-  test("STU-121 the selected node's property is generated from its descriptor and edits through the pipeline", async () => {
+  test("[STU-121] the selected node's property is generated from its descriptor and edits through the pipeline", async () => {
     const hits = { current: ["t1"] };
     renderApp(path, { documents, surface: surface(hits) });
     const canvas = await screen.findByLabelText("Plugin canvas");

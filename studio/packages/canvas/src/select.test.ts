@@ -13,7 +13,7 @@ const hardware: GlProbe = {
 };
 const none: GlProbe = { available: false, software: true, renderer: "", majorPerformanceCaveat: false };
 
-describe("STU-120 renderer selection by GL probe (M-12)", () => {
+describe("[STU-120] renderer selection by GL probe (M-12)", () => {
   test("software GL renderer strings are recognised", () => {
     expect(isSoftwareGl(softwareProbe.renderer)).toBe(true);
     expect(isSoftwareGl("llvmpipe (LLVM 17.0.6, 256 bits)")).toBe(true);

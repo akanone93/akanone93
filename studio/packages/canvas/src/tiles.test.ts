@@ -30,7 +30,7 @@ function render(tiles: TileCache<FakeImage>, images: FakeImage[], list: Tile<Fak
   }
 }
 
-describe("STU-120 tile cache (M-12)", () => {
+describe("[STU-120] tile cache (M-12)", () => {
   test("tiles cover the view at the current scale", () => {
     const { tiles } = cache();
     expect(tiles.setScale(1)).toBe(true);

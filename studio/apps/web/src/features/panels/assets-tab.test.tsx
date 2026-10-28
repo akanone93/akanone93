@@ -82,7 +82,7 @@ const fresh = (): Server => ({
   deleted: [],
 });
 
-describe("S2.6 the Assets tab (SRV-060)", () => {
+describe("S2.6 the Assets tab [SRV-060]", () => {
   test("lists the app's assets", async () => {
     renderTab(fresh());
     expect(await screen.findByText("images/old.png")).toBeDefined();

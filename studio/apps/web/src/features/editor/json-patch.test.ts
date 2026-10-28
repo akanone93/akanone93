@@ -23,7 +23,7 @@ function convert(base: JsonValue, recipe: (d: Record<string, unknown>) => void) 
   return { next: next as JsonValue, ops: toJsonPatch(base, patches) };
 }
 
-describe("SRV-030 Immer patches to JSON Patch with test guards", () => {
+describe("[SRV-030] Immer patches to JSON Patch with test guards", () => {
   const base: JsonValue = { kind: "page", props: { padding: 8, title: "Login" }, children: ["a", "b", "c"] };
 
   test("replace is guarded by a test of the old value", () => {

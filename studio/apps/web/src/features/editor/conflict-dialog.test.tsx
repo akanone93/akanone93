@@ -33,7 +33,7 @@ function renderI18n(node: ReactNode) {
 
 const path = "screens/login.page.json";
 
-describe("SRV-030 D35 conflict dialog and the waiting chip (F2, F4)", () => {
+describe("[SRV-030] D35 conflict dialog and the waiting chip (F2, F4)", () => {
   test("the chip counts edits waiting, online and offline", async () => {
     const view = renderI18n(<StatusChips online stream="live" waiting={2} />);
     expect(await screen.findByText("2 changes waiting")).toBeDefined();

@@ -71,8 +71,8 @@ function setup(selected: string) {
 const at = (x: number, y: number) => ({ clientX: x, clientY: y });
 void itemIdOf;
 
-describe("STU-067 drag gestures", () => {
-  test("STU-067 dragging a Stack child shows guides, then moves its Positioned left/top", () => {
+describe("[STU-067] drag gestures", () => {
+  test("[STU-067] dragging a Stack child shows guides, then moves its Positioned left/top", () => {
     const { g, guides, edits, draft } = setup("t");
     expect(g.down(at(20, 20))).toBe(true);
     expect(g.move(at(30, 35))).toBe(true);
@@ -84,7 +84,7 @@ describe("STU-067 drag gestures", () => {
     expect(p?.props as unknown).toEqual({ left: 10, top: 15 });
   });
 
-  test("STU-067 dragging a Column child into a Row reparents it at the insertion indicator", () => {
+  test("[STU-067] dragging a Column child into a Row reparents it at the insertion indicator", () => {
     const { g, guides, edits, draft } = setup("a");
     g.down(at(50, 220));
     g.move(at(250, 250));
@@ -96,7 +96,7 @@ describe("STU-067 drag gestures", () => {
     expect((draft.children[1]?.children ?? []).map((n) => n.id)).toEqual(["b"]);
   });
 
-  test("STU-067 dragging within a Column does not change the document", () => {
+  test("[STU-067] dragging within a Column does not change the document", () => {
     const { g, edits, draft } = setup("b");
     g.down(at(50, 270));
     g.move(at(50, 215));
@@ -105,7 +105,7 @@ describe("STU-067 drag gestures", () => {
     expect(edits.length).toBeLessThanOrEqual(1);
   });
 
-  test("STU-067 the south-east handle resizes only a node with size props", () => {
+  test("[STU-067] the south-east handle resizes only a node with size props", () => {
     const sized = setup("z");
     expect(sized.g.down(at(440, 40))).toBe(true);
     sized.g.up(at(460, 50));
@@ -116,7 +116,7 @@ describe("STU-067 drag gestures", () => {
     expect(text.draft.children[0]?.children?.[0]?.slots?.["child"]?.props).toBeUndefined();
   });
 
-  test("STU-067 a press without movement is a click: nothing is edited", () => {
+  test("[STU-067] a press without movement is a click: nothing is edited", () => {
     const { g, edits } = setup("t");
     g.down(at(20, 20));
     expect(g.up(at(20, 20))).toBe(false);

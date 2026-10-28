@@ -11,7 +11,7 @@ const at = (pointer: string) => {
   return span === undefined ? undefined : text.slice(span.start, span.end);
 };
 
-describe("STU-064 locating a validator pointer in the editor text", () => {
+describe("[STU-064] locating a validator pointer in the editor text", () => {
   test("finds the value a pointer names, through objects and arrays and escapes", () => {
     expect(at("/a/0")).toBe("1");
     expect(at("/a/1/b~0c")).toBe('"x"');
@@ -37,7 +37,7 @@ describe("STU-064 locating a validator pointer in the editor text", () => {
   });
 });
 
-describe("STU-064 applying edited JSON as a minimal change", () => {
+describe("[STU-064] applying edited JSON as a minimal change", () => {
   test("keeps equal members, changes, adds and removes the rest", () => {
     const draft: Record<string, unknown> = { keep: { deep: [1, 2], gone: 1 }, list: [1], drop: true, same: "s" };
     const keep = draft["keep"];
