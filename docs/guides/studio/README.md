@@ -12,6 +12,7 @@ machine first, follow [Run it locally](../run-locally.md) §4.
 
 | Guide | Use it to |
 |---|---|
+| [Apps](apps.md) | Find your apps in the grid or list, read a card, pin, duplicate, export and archive an app, and read its limits usage |
 | [Canvas and editing](canvas.md) | Arrange plugins on the app canvas, edit screens on the plugin canvas, link screens, undo, recover from conflicts and restore snapshots |
 | [Publishing and releases](publishing.md) | Publish plugins, read the build reports, roll out, pause, roll back and switch a plugin off |
 | [Functions](functions.md) | Inspect deployed functions, see their capabilities and metrics, and edit Rust source |

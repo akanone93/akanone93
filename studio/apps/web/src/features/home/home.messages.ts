@@ -38,11 +38,6 @@ export function homeMessages(i18n: I18n) {
       message: "The apps could not be loaded.",
       comment: "Shown when listing the organisation's apps failed.",
     }),
-    appsMore: i18n._({
-      id: "home.apps.more",
-      message: "Show more apps",
-      comment: "Button that loads the next page of the apps list.",
-    }),
     openApp: (name: string) =>
       i18n._({
         id: "home.apps.open",
