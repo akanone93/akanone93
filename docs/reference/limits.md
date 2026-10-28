@@ -14,6 +14,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `action.stepsPerRun` | count | 10000 | 80% | 100000 | installation, organization, app, plugin | P4 | ACT-005 | Steps one action run may execute. |
 | `action.traceRuns` | count | 50 | 80% | 1000 | installation, organization, app | P5 | ACT-030 | Action run traces the runtime keeps for diagnostics; the oldest are dropped first. |
 | `action.traceSteps` | count | 200 | 80% | 10000 | installation, organization, app | P5 | ACT-030 | Steps one action run trace records; later steps are counted but not recorded. |
+| `analytics.funnelScanEvents` | count | 500000 | 80% | 5000000 | installation, organization | P11 | ANL-020 | Raw events one funnel result may scan; a result that would scan more fails and asks for a narrower range. |
 | `analytics.funnelSteps` | count | 10 | 80% | 20 | installation, organization | P11 | ANL-020 | Steps one funnel may have. |
 | `anim.compositedSubtree` | count | 40 | 80% | 1000 | installation, organization, app, plugin | P5 | ANI-008 | Nodes below an animated opacity or layout prop before the compiler warns of an expensive animation. |
 | `anim.keyframesPerTrack` | count | 64 | 80% | 1000 | installation, organization, app, plugin | P5 | ANI-002 | Keyframes of one track of a timeline. |
@@ -116,7 +117,12 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `dpop.replayCacheEntries` | count | 1000000 | 80% | 100000000 | installation | P6 | SEC-023, LIM-004 | Proof identifiers the DPoP replay cache holds. |
 | `dsr.exportBytes` | bytes | 268435456 | 80% | 4294967296 | installation, organization, app | P9 | SEC-162 | Size of one data subject export archive. |
 | `experiments.activePerApp` | count | 20 | 80% | 500 | installation, organization, app | P9 | ABT-001 | Experiments that may be running at once in one app. |
+| `experiments.attributesPerTargeting` | count | 20 | 80% | 100 | installation, organization, app | P11 | ABT-001 | Attribute conditions one experiment may add to its targeting; all must hold. |
+| `experiments.guardrailMetrics` | count | 5 | 80% | 20 | installation, organization, app | P11 | ABT-003 | Guardrail metrics one experiment may have. |
+| `experiments.primaryMetrics` | count | 3 | 80% | 10 | installation, organization, app | P11 | ABT-003 | Primary metrics one experiment may have, the lead metric included. |
+| `experiments.segmentsPerTargeting` | count | 10 | 80% | 50 | installation, organization, app | P11 | ABT-001 | Segments one experiment may target; a device in any of them is eligible. |
 | `flags.perApp` | count | 500 | 80% | 10000 | installation, organization, app | P9 | ABT-001 | Feature flags one app may define. |
+| `flags.segmentValues` | count | 20 | 80% | 100 | installation, organization, app | P11 | ABT-006 | Per-segment values one flag may have. |
 | `function.buildMemory` | bytes | 4294967296 | 80% | 17179869184 | installation, organization, app | P7 | FN-016 | Memory one function build may use. |
 | `function.buildTimeout` | milliseconds | 600000 | 80% | 3600000 | installation, organization, app | P7 | FN-016 | Wall-clock time one function build may run. |
 | `function.callDepth` | count | 3 | 80% | 3 | installation, organization, app | P7 | FN-011 | Depth of nested function-to-function calls within one invocation. |

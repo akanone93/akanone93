@@ -115,6 +115,35 @@ function DecisionPanel({ m, id, state, variants, allowed, actions, guard, onShip
   );
 }
 
+type Results = ReturnType<typeof useResults>["data"];
+
+/** The sample split and the comparison of every primary metric and guardrail. */
+function ResultsPanel({ m, r }: { readonly m: ExperimentsMessages; readonly r: Results }): ReactElement {
+  if (r === undefined) {
+    return <p className="text-body text-secondary">{m.noResults}</p>;
+  }
+  return (
+    <>
+      {r.sampleRatioMismatch && (
+        <p role="alert" className="text-body text-danger">
+          {m.mismatch}
+        </p>
+      )}
+      <Table
+        caption={m.results}
+        heads={[m.colVariant, m.colSubjects, m.colShare]}
+        rows={r.variants.map((v) => ({ key: v.name, cells: [v.name, String(v.subjects), `${fixed(v.share)}`] }))}
+      />
+      {(r.primaries.length > 0 ? r.primaries : [r.primary]).map((p) => (
+        <MetricTable key={p?.event ?? ""} m={m} title={m.primaryMetric} metric={p} />
+      ))}
+      {r.guardrails.map((g) => (
+        <MetricTable key={g.event} m={m} title={m.guardrails} metric={g} />
+      ))}
+    </>
+  );
+}
+
 /** A8: definition, live results and the decision (stop or ship, D48) of one experiment. */
 export function ExperimentPage(): ReactElement {
   const m = experimentsMessages(useLingui().i18n);
@@ -149,26 +178,7 @@ export function ExperimentPage(): ReactElement {
         }))}
       />
       <h2 className="text-heading">{m.results}</h2>
-      {r === undefined ? (
-        <p className="text-body text-secondary">{m.noResults}</p>
-      ) : (
-        <>
-          {r.sampleRatioMismatch && (
-            <p role="alert" className="text-body text-danger">
-              {m.mismatch}
-            </p>
-          )}
-          <Table
-            caption={m.results}
-            heads={[m.colVariant, m.colSubjects, m.colShare]}
-            rows={r.variants.map((v) => ({ key: v.name, cells: [v.name, String(v.subjects), `${fixed(v.share)}`] }))}
-          />
-          <MetricTable m={m} title={m.primaryMetric} metric={r.primary} />
-          {r.guardrails.map((g) => (
-            <MetricTable key={g.event} m={m} title={m.guardrails} metric={g} />
-          ))}
-        </>
-      )}
+      <ResultsPanel m={m} r={r} />
       <DecisionPanel
         m={m}
         id={id}

@@ -1006,6 +1006,12 @@ msgstr "Add or update the dependency"
 msgid "admin.addRestriction"
 msgstr "Add restriction"
 
+#. Button that adds a per-segment value to a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.addSegmentValue"
+msgstr "Add segment value"
+
 #. Button that adds a rollout stage.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/rollout.messages.ts
@@ -1666,6 +1672,12 @@ msgstr "Assurance"
 msgid "security.provider"
 msgstr "Attestation provider"
 
+#. Label of the field with the attribute conditions of an experiment's audience.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.attributesLabel"
+msgstr "Attribute conditions"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -1678,7 +1690,7 @@ msgstr "Audience"
 msgid "admin.audience"
 msgstr "Audience"
 
-#. Label of the segment field.
+#. Label of the field that lists the segments an experiment targets.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
@@ -2253,6 +2265,12 @@ msgstr "Channel"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.colCheck"
 msgstr "Check"
+
+#. Error shown when the audience of a draft is malformed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidTargeting"
+msgstr "Check the segments (lower-case keys, each once) and the attribute conditions (attribute, operator, value)."
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -3652,6 +3670,12 @@ msgstr "Duration (minutes)"
 msgid "analytics.replayDuration"
 msgstr "Duration (ms)"
 
+#. Error under the per-segment values of a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.badSegmentValue"
+msgstr "Each segment needs a key, and its value must be valid JSON."
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -4113,12 +4137,6 @@ msgstr "Events"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.trendLabel"
 msgstr "Events per day"
-
-#. Accessible name of the funnel bars.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.funnelChart"
-msgstr "Events per funnel step"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -4852,7 +4870,7 @@ msgstr "Grid"
 msgid "admin.teamsCaption"
 msgstr "Groups of people that receive grants and restrictions together."
 
-#. Label of the guardrail event field.
+#. Label of the field that lists the guardrail metric events.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.guardrailEvent"
@@ -5814,12 +5832,6 @@ msgstr "Layers of the plugin"
 msgid "dialog.unsaved.leave"
 msgstr "Leave"
 
-#. Help under the segment field.
-#. js-lingui-explicit-id
-#: apps/web/src/features/experiments/experiments.messages.ts
-msgid "experiments.segmentHelp"
-msgstr "Leave empty to reach every subject."
-
 #. Title of the dialog shown when leaving a page with unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -6402,6 +6414,12 @@ msgstr "Method"
 msgid "releases.colMetric"
 msgstr "Metric"
 
+#. Error shown when a metric event name is malformed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidMetrics"
+msgstr "Metric events are names such as purchase or add_to_cart, one per line."
+
 #. Label of the metric kind select.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -6503,6 +6521,12 @@ msgstr "Modes"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceModule"
 msgstr "Module hash"
+
+#. Label of the field that lists further primary metrics.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.primariesLabel"
+msgstr "More primary metric events"
 
 #. JSON Patch operation that moves a value.
 #. js-lingui-explicit-id
@@ -7542,6 +7566,12 @@ msgstr "One after the other"
 msgid "security.editGrantsDescription"
 msgstr "One entry per line. Releases are published only when every plugin requests a subset."
 
+#. Help under the further primary metrics field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.primariesHelp"
+msgstr "One event per line, analysed like the primary metric."
+
 #. Caption under the typography heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -7553,6 +7583,12 @@ msgstr "One font family list per script, with fallbacks, so no text shows missin
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.indexesHelp"
 msgstr "One index per line; separate the fields with commas."
+
+#. Help under the attribute conditions field. Keep the attribute names and operators as written.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.attributesHelp"
+msgstr "One per line: attribute, operator, value, for example os eq ios. A device must meet every condition. Lists use commas: locale in de,de-AT."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -8814,6 +8850,12 @@ msgstr "remove"
 msgid "tests.remove"
 msgstr "Remove"
 
+#. Button that removes a per-segment value of a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.removeSegmentValue"
+msgstr "Remove"
+
 #. Button that removes an entry from a list in a designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -8921,6 +8963,12 @@ msgstr "Remove or replace the content at each location, save a new version and m
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.fix.remove-outgoing"
 msgstr "Remove outgoing links"
+
+#. Accessible name of the remove button of one per-segment flag value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.removeSegmentNamed"
+msgstr "Remove segment value {position}"
 
 #. Button that removes one rollout stage.
 #. js-lingui-explicit-id
@@ -10032,6 +10080,18 @@ msgstr "Security"
 msgid "security.profileTitle"
 msgstr "Security profile"
 
+#. Label of the segment field of one per-segment flag value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentNameLabel"
+msgstr "Segment key"
+
+#. Help under the segment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentHelp"
+msgstr "Leave empty to reach every subject."
+
 #. Accessible name of the checkbox that selects one key for a bulk action.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -10182,6 +10242,12 @@ msgstr "Sessions"
 msgid "analytics.sessions"
 msgstr "Sessions"
 
+#. Column heading: number of sessions that reached a funnel step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.sessionsColumn"
+msgstr "Sessions"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -10193,6 +10259,12 @@ msgstr "Sessions"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.sessionsHeading"
 msgstr "Sessions"
+
+#. Accessible name of the funnel bars.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.funnelChart"
+msgstr "Events per funnel step"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -11418,6 +11490,12 @@ msgstr "The draft does not apply to this change."
 msgid "designers.invalid"
 msgstr "The draft has errors; fix them to apply it."
 
+#. Error shown when the audience or the metrics of a draft exceed the limits.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.limitsExceeded"
+msgstr "The draft has more segments, conditions or metrics than the limits allow."
+
 #. Validation status.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -11519,6 +11597,12 @@ msgstr "The file name needs lowercase letters, digits and hyphens."
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.failure.hash-mismatch"
 msgstr "The file was damaged on the way to the server. Upload it again."
+
+#. Help under the per-segment values of a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentValuesHelp"
+msgstr "The first segment a device belongs to decides; devices in none get the default."
 
 #. Shown when the manifest declares no dependencies.
 #. js-lingui-explicit-id
@@ -13045,6 +13129,12 @@ msgstr "Value"
 msgid "design.brandValue"
 msgstr "Value for the brand"
 
+#. Label of the value field of one per-segment flag value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentValueLabel"
+msgstr "Value for the segment (JSON)"
+
 #. Label of the field that holds the value of a token to add.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -13056,6 +13146,18 @@ msgstr "Value of the new token"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataType"
 msgstr "Value type"
+
+#. Column heading: the segments a flag has its own value for.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colSegments"
+msgstr "Values per segment"
+
+#. Heading of the flag form's list of per-segment values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentValuesHeading"
+msgstr "Values per segment"
 
 #. Column heading.
 #. js-lingui-explicit-id

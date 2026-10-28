@@ -125,6 +125,9 @@ func checkSpec(spec FlagSpec, rules []controldoc.Rule, lim limits.Set) (checkedF
 	if err != nil {
 		return checkedFlag{}, err
 	}
+	if max := lim.Get(limits.FlagsSegmentValues); int64(len(spec.Segments)) > max {
+		return checkedFlag{}, plxerr.New(plxerr.LimitExceeded, "a flag has at most %d per-segment values (flags.segmentValues), not %d", max, len(spec.Segments))
+	}
 	out := checkedFlag{spec: spec}
 	if out.def, err = checker.canonical(spec.Default, "the default"); err != nil {
 		return checkedFlag{}, err

@@ -170,8 +170,11 @@ type AnalyticsServiceClient interface {
 	// ListFunnels lists the funnels of an app, or of the organisation. It
 	// needs analytics.read.
 	ListFunnels(context.Context, *connect.Request[pluxv1.ListFunnelsRequest]) (*connect.Response[pluxv1.ListFunnelsResponse], error)
-	// GetFunnelResult counts the events of each step of a funnel over a time
-	// range, from the rollups. It needs analytics.read on the app.
+	// GetFunnelResult counts the sessions that reached each step of a funnel
+	// over a time range: a session counts at step N only if it did steps 1 to N
+	// in order, read from the raw events. PLX-1320 when the range holds
+	// more events than analytics.funnelScanEvents. It needs analytics.read on
+	// the app.
 	GetFunnelResult(context.Context, *connect.Request[pluxv1.GetFunnelResultRequest]) (*connect.Response[pluxv1.GetFunnelResultResponse], error)
 	// GetOverview summarises every app the caller may read analytics of over a
 	// time range: sessions, screen views, errors and firing alerts. It needs
@@ -527,8 +530,11 @@ type AnalyticsServiceHandler interface {
 	// ListFunnels lists the funnels of an app, or of the organisation. It
 	// needs analytics.read.
 	ListFunnels(context.Context, *connect.Request[pluxv1.ListFunnelsRequest]) (*connect.Response[pluxv1.ListFunnelsResponse], error)
-	// GetFunnelResult counts the events of each step of a funnel over a time
-	// range, from the rollups. It needs analytics.read on the app.
+	// GetFunnelResult counts the sessions that reached each step of a funnel
+	// over a time range: a session counts at step N only if it did steps 1 to N
+	// in order, read from the raw events. PLX-1320 when the range holds
+	// more events than analytics.funnelScanEvents. It needs analytics.read on
+	// the app.
 	GetFunnelResult(context.Context, *connect.Request[pluxv1.GetFunnelResultRequest]) (*connect.Response[pluxv1.GetFunnelResultResponse], error)
 	// GetOverview summarises every app the caller may read analytics of over a
 	// time range: sessions, screen views, errors and firing alerts. It needs

@@ -1375,7 +1375,7 @@ final class EventHandler {
 /// `experiment.<key>` and the `experiment` of a `Variant` node. File:
 /// `experiments/<key>.experiment.json`.
 final class ExperimentDocument {
-  const ExperimentDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, this.name, this.description, required this.scope, this.props, required this.variants, this.layer, this.holdout, this.segment, this.schedule, required this.primaryMetric, this.guardrailMetrics, this.minimumSampleSize, this.salt});
+  const ExperimentDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, this.name, this.description, required this.scope, this.props, required this.variants, this.layer, this.holdout, this.segment, this.segments, this.attributes, this.schedule, required this.primaryMetric, this.primaryMetrics, this.guardrailMetrics, this.minimumSampleSize, this.salt});
 
   /// Decodes a JSON object.
   factory ExperimentDocument.fromJson(Object json) {
@@ -1393,8 +1393,11 @@ final class ExperimentDocument {
       layer: m['layer'] == null ? null : m['layer']! as String,
       holdout: m['holdout'] == null ? null : (m['holdout']! as num).toDouble(),
       segment: m['segment'] == null ? null : m['segment']! as String,
+      segments: m['segments'] == null ? null : [for (final e in m['segments']! as List<Object?>) e! as String],
+      attributes: m['attributes'] == null ? null : [for (final e in m['attributes']! as List<Object?>) SegmentRule.fromJson(e!)],
       schedule: m['schedule'] == null ? null : ExperimentSchedule.fromJson(m['schedule']!),
       primaryMetric: ExperimentMetric.fromJson(m['primaryMetric']!),
+      primaryMetrics: m['primaryMetrics'] == null ? null : [for (final e in m['primaryMetrics']! as List<Object?>) ExperimentMetric.fromJson(e!)],
       guardrailMetrics: m['guardrailMetrics'] == null ? null : [for (final e in m['guardrailMetrics']! as List<Object?>) ExperimentMetric.fromJson(e!)],
       minimumSampleSize: m['minimumSampleSize'] == null ? null : (m['minimumSampleSize']! as num).toInt(),
       salt: m['salt'] == null ? null : m['salt']! as String,
@@ -1426,12 +1429,23 @@ final class ExperimentDocument {
   /// The share of subjects, in percent, kept out of the experiment and shown
   /// the control.
   final double? holdout;
-  /// Human-readable lower-kebab slug, unique within its parent (SCH-002). Files
-  /// in the Git layout are named after it.
+  /// A segment the experiment targets. With `segments` it is the first of them.
   final String? segment;
+  /// More segments to target. A device in any of them, this document's
+  /// `segment` included, is eligible (limit
+  /// `experiments.segmentsPerTargeting`).
+  final List<String>? segments;
+  /// Conditions on device and user attributes. A device must meet every one of
+  /// them, as well as be in one of the segments if any are named (limit
+  /// `experiments.attributesPerTargeting`).
+  final List<SegmentRule>? attributes;
   /// When the experiment runs; both bounds are optional.
   final ExperimentSchedule? schedule;
+  /// The lead primary metric; its sample sets the minimum sample size check.
   final ExperimentMetric primaryMetric;
+  /// More primary metrics, analysed like the lead one (limit
+  /// `experiments.primaryMetrics`, the lead metric included).
+  final List<ExperimentMetric>? primaryMetrics;
   final List<ExperimentMetric>? guardrailMetrics;
   /// Subjects per variant before a result may be read.
   final int? minimumSampleSize;
@@ -1453,8 +1467,11 @@ final class ExperimentDocument {
         if (layer != null) 'layer': layer!,
         if (holdout != null) 'holdout': holdout!,
         if (segment != null) 'segment': segment!,
+        if (segments != null) 'segments': [for (final e in segments!) e],
+        if (attributes != null) 'attributes': [for (final e in attributes!) e.toJson()],
         if (schedule != null) 'schedule': schedule!.toJson(),
         'primaryMetric': primaryMetric.toJson(),
+        if (primaryMetrics != null) 'primaryMetrics': [for (final e in primaryMetrics!) e.toJson()],
         if (guardrailMetrics != null) 'guardrailMetrics': [for (final e in guardrailMetrics!) e.toJson()],
         if (minimumSampleSize != null) 'minimumSampleSize': minimumSampleSize!,
         if (salt != null) 'salt': salt!,

@@ -160,6 +160,62 @@ func (q *Queries) ListActiveAppIDs(ctx context.Context, arg ListActiveAppIDsPara
 	return items, nil
 }
 
+const listFunnelEvents = `-- name: ListFunnelEvents :many
+SELECT device_id, name FROM analytics_events
+ WHERE organization_id = $1 AND app_id = $2
+   AND ($3::uuid IS NULL OR environment_id = $3::uuid)
+   AND time >= $4::timestamptz AND time < $5::timestamptz
+   AND name = ANY($6::text[])
+ ORDER BY time, id
+ LIMIT $7
+`
+
+type ListFunnelEventsParams struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	FromTime       pgtype.Timestamptz
+	ToTime         pgtype.Timestamptz
+	Names          []string
+	RowLimit       int32
+}
+
+type ListFunnelEventsRow struct {
+	DeviceID pgtype.UUID
+	Name     string
+}
+
+// The events a funnel result reads (ANL-020): those of the funnel's steps and
+// the session starts that bound sessions, of one app and optionally one
+// environment, in a half-open time range, in the order they happened.
+func (q *Queries) ListFunnelEvents(ctx context.Context, arg ListFunnelEventsParams) ([]ListFunnelEventsRow, error) {
+	rows, err := q.db.Query(ctx, listFunnelEvents,
+		arg.OrganizationID,
+		arg.AppID,
+		arg.EnvironmentID,
+		arg.FromTime,
+		arg.ToTime,
+		arg.Names,
+		arg.RowLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListFunnelEventsRow{}
+	for rows.Next() {
+		var i ListFunnelEventsRow
+		if err := rows.Scan(&i.DeviceID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listFunnels = `-- name: ListFunnels :many
 SELECT id, organization_id, app_id, name, steps, environment_id, revision, created_by, created_at, updated_by, updated_at FROM funnels
  WHERE organization_id = $1 AND ($2::uuid IS NULL OR app_id = $2::uuid)
