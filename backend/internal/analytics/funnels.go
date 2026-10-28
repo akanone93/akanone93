@@ -17,15 +17,14 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
 
-// The shape of a funnel: two to ten steps, each an event name.
-const (
-	minFunnelSteps = 2
-	maxFunnelSteps = 10
-)
+// minFunnelSteps is the fewest steps a funnel has; the most come from the
+// analytics.funnelSteps limit.
+const minFunnelSteps = 2
 
 // Funnel is an ordered list of event names of an app (ANL-020).
 type Funnel struct {
@@ -47,13 +46,14 @@ type FunnelStep struct {
 	Conversion float64
 }
 
-// Validate checks the name and the steps.
-func (f Funnel) Validate() error {
+// Validate checks the name and the steps; maxSteps is the analytics.funnelSteps
+// limit.
+func (f Funnel) Validate(maxSteps int64) error {
 	if f.Name == "" || len(f.Name) > maxNameBytes {
 		return plxerr.New(plxerr.InvalidFormat, "the funnel name is 1 to %d bytes", maxNameBytes)
 	}
-	if len(f.Steps) < minFunnelSteps || len(f.Steps) > maxFunnelSteps {
-		return plxerr.New(plxerr.OutOfRange, "a funnel has %d to %d steps", minFunnelSteps, maxFunnelSteps)
+	if len(f.Steps) < minFunnelSteps || int64(len(f.Steps)) > maxSteps {
+		return plxerr.New(plxerr.OutOfRange, "a funnel has %d to %d steps, the limit analytics.funnelSteps", minFunnelSteps, maxSteps)
 	}
 	for _, st := range f.Steps {
 		if st == "" || len(st) > maxMetricBytes {
@@ -63,13 +63,13 @@ func (f Funnel) Validate() error {
 	return nil
 }
 
-// CreateFunnel defines a funnel. It needs alerts.manage on the app and is
+// CreateFunnel defines a funnel. It needs analytics.manage on the app and is
 // audited.
 func (s *Service) CreateFunnel(ctx context.Context, p auth.Principal, f Funnel) (Funnel, error) {
-	if err := p.AuthorizeApp(auth.AlertsManage, f.AppID); err != nil {
+	if err := p.AuthorizeApp(auth.AnalyticsManage, f.AppID); err != nil {
 		return Funnel{}, fmt.Errorf("analytics: %w", err)
 	}
-	if err := f.Validate(); err != nil {
+	if err := f.Validate(s.o.Limits.Get(limits.AnalyticsFunnelSteps)); err != nil {
 		return Funnel{}, err
 	}
 	steps, err := json.Marshal(f.Steps)
@@ -125,7 +125,7 @@ func (*Service) funnelEnvironment(ctx context.Context, q *dbgen.Queries, f Funne
 	return env.ID, nil
 }
 
-// DeleteFunnel removes a funnel. It needs alerts.manage on its app.
+// DeleteFunnel removes a funnel. It needs analytics.manage on its app.
 func (s *Service) DeleteFunnel(ctx context.Context, p auth.Principal, funnelID string) error {
 	id, err := storage.UUID(funnelID)
 	if err != nil {
@@ -133,7 +133,7 @@ func (s *Service) DeleteFunnel(ctx context.Context, p auth.Principal, funnelID s
 	}
 	return s.inOrg(ctx, p.OrganizationID, p.UserID, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		cur, err := s.ownedFunnel(ctx, q, p, id, auth.AlertsManage)
+		cur, err := s.ownedFunnel(ctx, q, p, id, auth.AnalyticsManage)
 		if err != nil {
 			return err
 		}

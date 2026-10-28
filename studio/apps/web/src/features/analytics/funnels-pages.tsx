@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
+import { limitDefault } from "@plux/schema";
 import { Button, Field, Input, Textarea } from "@plux/ui";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
@@ -25,10 +26,11 @@ export function AnalyticsFunnelsPage(): ReactElement {
   const { org, app, search } = useAnalyticsScope();
   const funnels = useFunnels(app);
   const { create, remove } = useFunnelMutations(app);
-  const canManage = usePermissions().has("alerts.manage");
+  const canManage = usePermissions().has("analytics.manage");
   const [name, setName] = useState("");
   const [steps, setSteps] = useState("");
   const parsed = stepsOf(steps);
+  const maxSteps = limitDefault("analytics.funnelSteps");
   return (
     <Frame
       id="funnels-title"
@@ -81,7 +83,10 @@ export function AnalyticsFunnelsPage(): ReactElement {
         <Field label={m.funnelSteps}>
           <Textarea rows={4} value={steps} onChange={(e) => setSteps(e.target.value)} />
         </Field>
-        <Button type="submit" disabled={!canManage || name === "" || parsed.length < 2 || create.isPending}>
+        <Button
+          type="submit"
+          disabled={!canManage || name === "" || parsed.length < 2 || parsed.length > maxSteps || create.isPending}
+        >
           {m.createFunnel}
         </Button>
       </form>

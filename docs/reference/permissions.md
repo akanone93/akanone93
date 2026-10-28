@@ -32,6 +32,7 @@ The catalogue is grouped as area, feature, action (`GOV-002`). A restriction pol
 
 | Permission | Action | Description | Risk | Step-up | Scope | Read-only |
 |---|---|---|---|---|---|---|
+| `analytics.manage` | `manage` | Create, change and delete funnel definitions. | low |  | app |  |
 | `analytics.read` | `read` | Read analytics, rollups and experiment results. | low |  | app | yes |
 
 ### Area `app`
@@ -385,6 +386,7 @@ A role holds exactly the permissions marked below; there is no inheritance.
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | `a11y.waive` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `alerts.manage` | ✓ |  |  |  |  |  |  |  |  |  |
+| `analytics.manage` | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |
 | `analytics.read` | ✓ |  | ✓ |  |  |  |  | ✓ | ✓ |  |
 | `app.manage` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `app.read` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

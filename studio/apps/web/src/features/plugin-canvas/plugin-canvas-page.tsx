@@ -214,7 +214,7 @@ function PluginCanvasView({
   const m = pluginCanvasMessages(useLingui().i18n);
   const params = useParams({ strict: false }) as { org?: string; app?: string; plugin?: string };
   const assets = useAssetsTab(editorSessionId);
-  const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number; focus?: string };
+  const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number; focus?: string; node?: string };
   const navigate = useNavigate();
   const { createSurface = browserSurface, createValidator = browserValidator } = useRouteContext({
     strict: false,
@@ -433,6 +433,16 @@ function PluginCanvasView({
       focusRef.current = search.focus;
     }
   }, [search.focus]);
+  /** Selects the node the URL names once the screens are loaded (ANL-040), once. */
+  const selectedFromUrl = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    const node = search.node;
+    if (node === undefined || selectedFromUrl.current === node || !index.parent.has(node)) {
+      return;
+    }
+    selectedFromUrl.current = node;
+    store.set({ ids: [node], anchor: node, scope: index.parent.get(node) ?? null });
+  }, [search.node, index, store]);
   const pulses = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(
     () => () => {

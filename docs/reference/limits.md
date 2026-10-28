@@ -14,6 +14,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `action.stepsPerRun` | count | 10000 | 80% | 100000 | installation, organization, app, plugin | P4 | ACT-005 | Steps one action run may execute. |
 | `action.traceRuns` | count | 50 | 80% | 1000 | installation, organization, app | P5 | ACT-030 | Action run traces the runtime keeps for diagnostics; the oldest are dropped first. |
 | `action.traceSteps` | count | 200 | 80% | 10000 | installation, organization, app | P5 | ACT-030 | Steps one action run trace records; later steps are counted but not recorded. |
+| `analytics.funnelSteps` | count | 10 | 80% | 20 | installation, organization | P11 | ANL-020 | Steps one funnel may have. |
 | `anim.compositedSubtree` | count | 40 | 80% | 1000 | installation, organization, app, plugin | P5 | ANI-008 | Nodes below an animated opacity or layout prop before the compiler warns of an expensive animation. |
 | `anim.keyframesPerTrack` | count | 64 | 80% | 1000 | installation, organization, app, plugin | P5 | ANI-002 | Keyframes of one track of a timeline. |
 | `anim.simultaneousTimelines` | count | 6 | 80% | 100 | installation, organization, app, plugin | P5 | ANI-008 | Timelines of one page that autoplay or follow a driver before the compiler warns. |

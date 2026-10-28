@@ -372,10 +372,10 @@ var matrix = map[string]entry{
 	"AnalyticsService/DeleteAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteAlertRuleRequest{Id: f.freshAlertRule(t).GetId()}
 	}),
-	"AnalyticsService/CreateFunnel": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"AnalyticsService/CreateFunnel": atPerm(auth.AnalyticsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.CreateFunnelRequest{Funnel: &pluxv1.Funnel{AppId: f.app, Name: f.name(), Steps: []string{"screen_view", "action_run"}}}
 	}),
-	"AnalyticsService/DeleteFunnel": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"AnalyticsService/DeleteFunnel": atPerm(auth.AnalyticsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteFunnelRequest{Id: f.freshFunnel(t).GetId()}
 	}),
 	"AnalyticsService/ListFunnels": atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListFunnelsRequest{})),

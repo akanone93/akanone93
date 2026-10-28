@@ -43,6 +43,8 @@ enum PluxLimit {
   /// Steps one action run trace records; later steps are counted but not
   /// recorded.
   actionTraceSteps('action.traceSteps', PluxLimitUnit.count, 200, 0, 10000),
+  /// Steps one funnel may have.
+  analyticsFunnelSteps('analytics.funnelSteps', PluxLimitUnit.count, 10, 0, 20),
   /// Nodes below an animated opacity or layout prop before the compiler warns
   /// of an expensive animation.
   animCompositedSubtree('anim.compositedSubtree', PluxLimitUnit.count, 40, 0, 1000),

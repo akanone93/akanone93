@@ -70,9 +70,9 @@ service AnalyticsService {
   // (CMP-041). It needs analytics.read.
   rpc GetErrorGroup(GetErrorGroupRequest) returns (GetErrorGroupResponse) {}
   // CreateFunnel defines a funnel of an app: an ordered list of event names
-  // (ANL-020, STU-114). It needs alerts.manage on the app and is audited.
+  // (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
   rpc CreateFunnel(CreateFunnelRequest) returns (CreateFunnelResponse) {}
-  // DeleteFunnel removes a funnel. It needs alerts.manage on the app and is
+  // DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
   // audited.
   rpc DeleteFunnel(DeleteFunnelRequest) returns (DeleteFunnelResponse) {}
   // ListFunnels lists the funnels of an app, or of the organisation. It
