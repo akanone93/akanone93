@@ -130,3 +130,42 @@ SPDX-License-Identifier: Apache-2.0
   widgets by relevance or similarity search (the server guesses for the model and narrows the
   design); fine-tuning a model on the schema (cost, and ties Plux to one model, against
   `AI-001`).
+
+### D-6. What each configured model can do (capability profile)
+
+- **Decision:** when an administrator submits a model (base URL, model ID, credential), Studio
+  shows a loading state with a message while the server sends a few small **test calls** to it:
+  strict JSON Schema output, a recursive schema, JSON mode, one image input, prompt-cache
+  reporting. The administrator then moves to the next settings screen with every **detected**
+  capability filled in and every **undetected** setting (for example the context window)
+  **left empty** until the administrator fills it. Plux keeps no built-in table of known models
+  and never pre-fills a guess. The result is the model's **capability profile**; the test can be
+  re-run from Admin at any time.
+- **Use of the profile:** strict or JSON mode for D-5; whether the first request fits the
+  context window; Studio hides features the model cannot do (no screenshot input without
+  image support, `AI-011`).
+- **Also decided:**
+  - **Task routing:** an organisation may assign a different configured model per task, for
+    example generation on one model and translations and mock data on a cheaper one.
+  - **Fallback:** a second configured provider may take over when the first is down or rate
+    limited; the switch is recorded in the audit record of the request (`AI-040`).
+- **Rejected:** a capability form filled in by hand (often wrong); a built-in table of common
+  models (goes stale, and a guess is never shown as a fact).
+
+### D-7. Evaluation suite and the 1.0 gate
+
+- **Decision:** two tiers.
+  1. **Every pull request: replayed model answers.** Real responses are recorded once and
+     replayed, so the whole pipeline (protocol, `need` rounds, validation, repair, proposals) is
+     tested hermetically and deterministically. Requirement IDs get their tests here
+     (`QA-070`).
+  2. **Nightly, live:** `make ai-eval` runs the 100+ prompts (`AI-050`) against **DeepSeek V4
+     Flash**, the only model run in CI, through its OpenAI-compatible API. The API key is a CI
+     secret; the exact model ID is pinned. "Publishable" means the output passes the publish
+     pipeline checks short of signing and storing. Results per prompt (pass, repair attempts,
+     tokens, time, prompt template version, `AI-051`) are kept as a workflow artifact and
+     appended to a history file on a dedicated `ai-eval-history` branch, not on `main`.
+- **Manual tests, documented with the other manual tests:** a local deployment (Ollama or a
+  self-hosted open-weight model) and Claude. Neither is a CI gate; local is lowest priority.
+- **Pending maintainer confirmation:** whether DeepSeek V4 Flash satisfies "free provider" in
+  `AI-050` and `AI-007` (see the open question at the end of this file).
