@@ -36,7 +36,7 @@ export default defineConfig({
     {
       // The built app behind the BFF and its strict CSP.
       name: "csp",
-      testMatch: ["csp.spec.ts", "json-editor.spec.ts", "action-graph.spec.ts"],
+      testMatch: ["csp.spec.ts", "json-editor.spec.ts", "action-graph.spec.ts", "rust-editor.spec.ts"],
       use: { ...devices["Desktop Chrome"], baseURL: `http://127.0.0.1:${bffPort}` },
     },
   ],
