@@ -45,3 +45,6 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-28 | Funnel session = one device's events from a `session_start` to the next (implicit leading session); window = the query range; no schema change | S8.6 code |
 | 2026-10-28 | Session replay viewer draws the recorded structural layout in SVG (boxes and masks, not rendered widgets), so it stays outside the CanvasKit worker (lead) | ADR-0101, A47 |
 | 2026-10-28 | Limit `app.hostFonts` 32 (max 256), count, installation/organization, server (lead, delegated) | schema/limits.json, spec §30.4 |
+| 2026-10-28 | Canvas mock bindings evaluate plain data paths only; full PXL with mock states runs on a device through the device loop (lead) | DAT-080, S6.4 |
+| 2026-10-28 | Rollout plan form bounds stages by the server's own validation (basis points ≤ 10000); no stage-count limit is added (lead) | S7.2 |
+| 2026-10-28 | Visual-diff thumbnails come with the S9.5 renderer client, which adds fetching stored images by hash (lead) | S7.2, S9.5 |
