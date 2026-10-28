@@ -2250,14 +2250,16 @@ jobs:
           if-no-files-found: ignore
 
 
-  # The canvas benchmark in software rendering; a regression over 10 % fails
-  # (QA-007, STU-045, STU-120).
+  # Every Studio performance budget in software rendering (QA-007): the canvas
+  # frame, settle and property-change budgets (STU-045, STU-120, STU-121), the
+  # overlay open (STU-123) and the built app's Largest Contentful Paint
+  # (STU-122). The initial JavaScript size (STU-122) is held by the studio job.
   studio-bench:
-    name: Studio canvas benchmark
+    name: Studio benchmarks
     needs: changes
     if: fromJSON(needs.changes.outputs.jobs)['studio-bench']
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     permissions:
       contents: read
     steps:
@@ -2267,9 +2269,17 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
       - run: make studio-install
       - name: Run the canvas benchmark
         run: make studio-bench-canvas
+      - name: Run the overlay benchmark
+        run: make studio-bench-overlay
+      - name: Build the app and measure its Largest Contentful Paint
+        run: make studio-bench-lcp
 
 
   # The OWASP ZAP baseline scan of Studio against the Compose stack (QA-008).

@@ -343,3 +343,86 @@ Requirement: STU-123 — opening a full-screen overlay takes at most 150 ms afte
 The budget is met: p95 is 54.2 ms and even the slowest open of the median run, 143.3 ms, is inside 150 ms. An earlier
 run on a machine that was building at the same time gave p95 117.4 ms and a maximum of 191.6 ms, so the number is
 sensitive to load; the budget is judged on p95 on an otherwise idle machine.
+
+## Every Studio budget in CI (S9.1, QA-007)
+
+Requirements: STU-045, STU-120, STU-121, STU-122, STU-123, NFR-031, NFR-032, QA-007; ADR-0013 M-12 and M-13.
+
+### Where each budget is enforced
+
+| Budget | Requirement | Harness | CI job | Fails when |
+|---|---|---|---|---|
+| Pan and drag frame, p95 of the animation-frame interval ≤ 16.7 ms (60 fps) | `STU-045`, `STU-120`, `NFR-031` | `make studio-bench-canvas`, scenes A, B, C | `studio-bench` | median of 3 runs over the limit (`bench/budgets.ts`) |
+| Longest gap between frames ≤ 50 ms (pan and drag) | M-13 | same | `studio-bench` | same |
+| Settle ≤ 300 ms: visible tiles after a pan, after a drag starts (scene C) and after a drop (scenes A, C) | M-13 | same | `studio-bench` | same |
+| Property change to canvas frame ≤ 50 ms p95 | `STU-121`, `NFR-032` | same, `propertyToCanvas` | `studio-bench` | same |
+| Overlay open ≤ 150 ms p95 after its code is loaded | `STU-123` | `make studio-bench-overlay` | `studio-bench` | median p95 over 150 ms |
+| Largest Contentful Paint ≤ 2.5 s | `STU-122` | `make studio-bench-lcp` | `studio-bench` | median of 5 cold loads over `budgets.json` `largestContentfulPaintMs` |
+| Initial JavaScript < 1.5 MiB gzip | `STU-122` | `make studio-size` (part of `make studio-check`) | `studio` | over `budgets.json` `initialJsGzipBytes` |
+
+Before S9.1 the canvas benchmark printed its numbers and never failed, the overlay benchmark was not in
+CI, and no LCP measurement existed. The `studio-bench` job now runs all three benchmarks on every
+change under `studio/` (it was the canvas package only). Scene C's drop frame (117 ms in the worker) has
+no budget of its own: it is inside the 300 ms settle of M-13 (decision of 2026-10-28, `p11.md`).
+
+### LCP method (`studio/scripts/bench-lcp.ts`)
+
+- The built app (`make studio-build`, with its Brotli files) is served by a Bun static server that answers
+  as the BFF does: Brotli when accepted, the app shell for unknown paths, 401 for `/api/` (the signed-out
+  page, the same stub as the Playwright smoke test). No cache: a new browser context per run.
+- "Typical broadband" is emulated through the Chrome DevTools protocol as 10 Mbit/s down, 5 Mbit/s up
+  and 40 ms round trip (`CONNECTION` in the script). No CPU throttling. Chromium headless, software GL.
+- LCP is the last `largest-contentful-paint` entry after the network is idle plus 500 ms. Five runs; the
+  median is compared with the budget.
+
+### Results on the development machine (2026-10-28, not the reference laptop)
+
+Firecracker VM, 4 vCPU, no GPU; Chromium headless shell with SwiftShader; the machine was shared with
+other builds and test runs of other sessions (load average 2.4 at the start of the canvas run, 2.8 at the
+end, up to 10 at other times). Runs beside such load are not comparable with the idle-machine tables
+above (see S3.2d); they are recorded as measured.
+
+| Metric | Result | Budget | Met |
+|---|---|---|---|
+| Initial JavaScript, gzip | 371,460 B (23.6 % of 1,572,864 B) | < 1.5 MiB | yes |
+| LCP, median of 5 (samples 792, 824, 776, 816, 844 ms) | 816 ms | 2,500 ms | yes |
+| Overlay open, median of 3 runs: p50 / p95 / max | 37.2 / 58.4 / 251.9 ms | p95 ≤ 150 ms | yes |
+| Property change, p50 / p95 / max | 16.65 / 18.66 / 46.38 ms | p95 ≤ 50 ms | yes |
+| Pan p95, scenes A / B / C | 16.67 / 16.67 / 16.67 ms | 16.7 ms | yes |
+| Pan longest gap, A / B / C | 16.67 / 16.67 / 33.33 ms | 50 ms | yes |
+| Pan settle (visible), A / B / C | 31.5 / 45.2 / 33.3 ms | 300 ms | yes |
+| Drag p95, A / C | 49.99 / 33.33 ms | 16.7 ms | **no (loaded machine)** |
+| Drag longest gap, A / C | 66.67 / 66.66 ms | 50 ms | **no (loaded machine)** |
+| Drag start settle, C | 172.57 ms | 300 ms | yes |
+| Drop settle, A / C | 312.28 / 415.95 ms | 300 ms | **no (loaded machine)** |
+| Drop frame in the worker, scene C | 220.78 ms | none (inside the 300 ms settle) | — |
+
+An earlier run of the same code (load average 3–5) gave scene A drag 33.34 / 116.65 ms (p95 / longest
+gap), scene C drag 33.33 / 50 ms, drop settle 594.84 ms (A) and 1,325.32 ms (C); one at load 10 missed
+every drag budget by a wide margin. The drag and drop numbers move with the load of the machine (the
+interaction layer and the tile refreshes share a single software-GL thread with the compositor); the
+idle-machine runs of S3.2d (scene A drop settle 266.70 ms, scene C 244.53 ms, drag p95 16.67 ms) met
+them. Whether the drag budgets hold on a GitHub-hosted runner is not known until the first dispatched CI
+run of `studio-bench`; a miss there is a finding to report, not a limit to loosen.
+
+### Reference laptop (M-4, STU-120) — maintainer's run, not recorded yet
+
+`STU-120` is stated for the reference laptop (spec §30), and `NFR-031` stays `WIP` until the numbers
+below are filled in from that machine. Nothing in this section was measured by an agent.
+
+- Machine: _(model, CPU, RAM, GPU or none, OS, browser and version)_
+- Date and commit: _(date, `git rev-parse HEAD`)_
+- Commands: `make studio-bench-canvas`, `make studio-bench-overlay`, `make studio-bench-lcp` on an
+  otherwise idle machine, plus the 100-screen plugin canvas and 200-plugin app canvas panned and zoomed
+  by hand with the browser's frame-rate overlay (DevTools Performance monitor).
+
+| Metric | Result | Budget | Met |
+|---|---|---|---|
+| Plugin canvas, 100 screens: pan / zoom frame rate | _(fps, dropped frames)_ | 60 fps | _ |
+| App canvas, 200 plugins: pan / zoom frame rate | _(fps, dropped frames)_ | 60 fps | _ |
+| Scene A / B / C pan p95 and longest gap | _ | 16.7 / 50 ms | _ |
+| Scene A / C drag p95 and longest gap | _ | 16.7 / 50 ms | _ |
+| Settle after pan, drag start, drop | _ | 300 ms | _ |
+| Property change p95 | _ | 50 ms | _ |
+| Overlay open p95 | _ | 150 ms | _ |
+| LCP, median | _ | 2.5 s | _ |
