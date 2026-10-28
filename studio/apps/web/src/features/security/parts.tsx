@@ -53,7 +53,7 @@ export function Table({
   readonly rows: readonly { readonly key: string; readonly cells: readonly ReactNode[] }[];
 }): ReactElement {
   return (
-    <table className="w-full text-left text-body">
+    <table className="w-full text-start text-body">
       <caption className="sr-only">{caption}</caption>
       <thead>
         <tr>

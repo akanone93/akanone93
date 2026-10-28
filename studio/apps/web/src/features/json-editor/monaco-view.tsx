@@ -6,6 +6,7 @@
 import * as monaco from "monaco-editor/editor/editor.api.js";
 import "monaco-editor/language/json/monaco.contribution.js";
 import { useEffect, useRef } from "react";
+import { isDark } from "../../lib/color-scheme.ts";
 import type { MonacoViewProps } from "./monaco-view.types.ts";
 
 const MARKER_OWNER = "plux-validator";
@@ -27,7 +28,7 @@ const options: monaco.editor.IStandaloneEditorConstructionOptions & monaco.edito
   fontFamily: "var(--font-mono)",
 };
 
-const dark = (): boolean => globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches === true;
+const dark = isDark;
 
 /** Monaco's JSON editor, or its diff editor against `baseline` (S5.1). Loaded lazily; the one place Monaco is used. */
 export default function MonacoView(props: MonacoViewProps) {
