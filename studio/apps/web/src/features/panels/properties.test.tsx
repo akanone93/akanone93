@@ -180,7 +180,7 @@ describe("STU-121 panels: editors", () => {
         pxl: { service: new PxlService(backend), scope: async () => "{}" },
       },
     });
-    await waitFor(() => expect(document.querySelector(".cm-content")).not.toBeNull(), { timeout: 3000 });
+    await waitFor(() => expect(document.querySelector(".cm-content") !== null).toBe(true), { timeout: 3000 });
     const content = screen.getByLabelText("data: PXL expression");
     expect(content.textContent).toBe("page.months");
     const view = EditorView.findFromDOM(content.closest(".cm-editor") as HTMLElement) as EditorView;

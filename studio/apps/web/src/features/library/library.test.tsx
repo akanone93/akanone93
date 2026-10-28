@@ -133,7 +133,7 @@ describe("STU-084 STU-085 component detail (O5)", () => {
     await screen.findByText("Shop: 1 instances");
     fireEvent.change(input, { target: { files: [new File(["{}"], "c.json")] } });
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Cancel" }));
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("dialog") === null).toBe(true));
     expect(calls).toEqual([]);
   });
 

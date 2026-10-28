@@ -112,6 +112,6 @@ describe("F4 D6 signed out", () => {
 describe("F4 D7 unsaved changes", () => {
   test("renders closed while nothing is being left", async () => {
     renderWith(<UnsavedChangesDialog dirty />);
-    await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("alertdialog") === null).toBe(true));
   });
 });

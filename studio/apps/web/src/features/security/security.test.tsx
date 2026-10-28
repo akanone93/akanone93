@@ -127,7 +127,9 @@ describe("SEC-180 security profile", () => {
     await screen.findByRole("button", { name: "Use security key or passkey" });
     expect(profiles).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Use security key or passkey" })).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Use security key or passkey" }) === null).toBe(true),
+    );
     expect(profiles).toEqual([]);
     expect(credential.get).not.toHaveBeenCalled();
     expect(stepUps).toEqual(["begin"]);
