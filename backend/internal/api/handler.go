@@ -48,6 +48,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
+	"github.com/nightCode42/plux3/backend/internal/testrun"
 )
 
 // Handlers are the ConnectRPC services of this phase. They authenticate
@@ -80,6 +81,8 @@ type Handlers struct {
 	Reports *compliance.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
 	Goldens *golden.Service
+	// TestRuns serves TestRunService (TST-002); nil leaves it unmounted.
+	TestRuns *testrun.Service
 	// ReleaseRequests serves ReleaseRequestService (STU-100); nil leaves it
 	// unmounted.
 	ReleaseRequests *releasereq.Service

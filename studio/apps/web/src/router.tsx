@@ -30,6 +30,7 @@ import { devicesSearchSchema, envSearchSchema } from "./features/security/securi
 import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
 import { ShellLayout } from "./features/shell/shell-layout.tsx";
+import { testRunSearchSchema, testsSearchSchema } from "./features/tests/tests.schema.ts";
 import {
   AccessError,
   loadUser,
@@ -348,6 +349,24 @@ const installationRoutes = [
   installationRoute("/audit", "InstallationAuditPage"),
 ];
 
+/** A45-A46: Plux Test scenarios and the runs reported for the app (TST-001, TST-002). */
+function testsRoute(
+  path: string,
+  component: "TestsPage" | "TestRunPage",
+  search: typeof testsSearchSchema | typeof testRunSearchSchema,
+) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/tests${path}`,
+    validateSearch: (raw) => search.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/tests/index.ts"), component),
+  });
+}
+
+const testsListRoute = testsRoute("", "TestsPage", testsSearchSchema);
+const testRunRoute = testsRoute("/$runId", "TestRunPage", testRunSearchSchema);
+
 const libraryRoute = createRoute({
   getParentRoute: () => orgRoute,
   path: "/library",
@@ -429,6 +448,8 @@ const routeTree = rootRoute.addChildren([
       dataCollectionsRoute,
       dataCollectionRoute,
       experimentsListRoute,
+      testsListRoute,
+      testRunRoute,
       newExperimentRoute,
       flagsRoute,
       experimentRoute,

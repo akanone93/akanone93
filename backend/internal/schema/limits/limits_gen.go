@@ -632,6 +632,9 @@ const (
 	// TelemetryExportFileRows: Rows one Parquet file of the enterprise analytics
 	// export holds; a longer window is written as several files. (ANL-011)
 	TelemetryExportFileRows Key = "telemetry.exportFileRows"
+	// TestStepsPerRun: Scenarios and steps one reported Plux Test run may
+	// contain. (TST-002)
+	TestStepsPerRun Key = "test.stepsPerRun"
 	// TranslationImportSize: Size of one translation import file. (I18N-009)
 	TranslationImportSize Key = "translation.importSize"
 	// TranslationMessageSize: Size of one translation message. (I18N-001)
@@ -855,6 +858,7 @@ var registry = [...]Definition{
 	{Key: TelemetryEventsPerRequest, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Runtime events one telemetry request may carry."},
 	{Key: TelemetryExportBatchEvents, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Events one signed-webhook message of the enterprise analytics export carries."},
 	{Key: TelemetryExportFileRows, Unit: UnitCount, Default: 100000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files."},
+	{Key: TestStepsPerRun, Unit: UnitCount, Default: 5000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Scenarios and steps one reported Plux Test run may contain."},
 	{Key: TranslationImportSize, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 134217728, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one translation import file."},
 	{Key: TranslationMessageSize, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Size of one translation message."},
 	{Key: UpdateMetadataBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 4194304, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P6", Description: "Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves."},

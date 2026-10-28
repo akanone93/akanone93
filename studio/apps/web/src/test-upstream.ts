@@ -54,6 +54,7 @@ import {
   RolloutService,
   SecurityAdminService,
   TemplateService,
+  TestRunService,
   UserSchema,
 } from "@plux/api";
 import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/json-patch.ts";
@@ -220,6 +221,8 @@ export interface FunctionsFixture {
 }
 
 export interface UpstreamData {
+  /** The Plux Test runs reported for the app (TST-002). */
+  testRuns?: TestRunsFixture;
   experiments?: ExperimentsFixture;
   release?: ReleaseFixture;
   releases?: ReleasesFixture;
@@ -678,22 +681,9 @@ export function createUpstream(state: UpstreamData) {
         ),
       }),
     });
-    if (state.devSession !== undefined) {
-      devSessionService(service, state.devSession);
-    }
-    if (state.rust !== undefined) {
-      rustServices(service, state.rust);
-    }
     securityServices(service, state.security ?? {});
-    if (state.releases !== undefined) {
-      releasesServices(service, state.releases);
-    }
-    if (state.functions !== undefined) {
-      functionsServices(service, state.functions);
-    }
-    if (state.experiments !== undefined) {
-      experimentsServices(service, state.experiments);
-    }
+    optionalServices(service, state);
+    testRunsServices(service, state.testRuns ?? { runs: [] });
     approvalsServices(service, state.approvals ?? {});
     service(FederationService, { ...federationAdmin(admin), listSignInProviders: () => ({ providers: [] }) });
     service(ComplianceService, complianceAdmin(admin));
@@ -992,6 +982,28 @@ function releaseHandlers(data: ReleasesFixture | undefined) {
       return {};
     },
   };
+}
+
+/** The services a test registers only when it gives their fixture. */
+function optionalServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  state: UpstreamData,
+) {
+  if (state.devSession !== undefined) {
+    devSessionService(service, state.devSession);
+  }
+  if (state.rust !== undefined) {
+    rustServices(service, state.rust);
+  }
+  if (state.releases !== undefined) {
+    releasesServices(service, state.releases);
+  }
+  if (state.functions !== undefined) {
+    functionsServices(service, state.functions);
+  }
+  if (state.experiments !== undefined) {
+    experimentsServices(service, state.experiments);
+  }
 }
 
 /** The rollout and control RPCs of the Releases area, in memory. */
@@ -1312,6 +1324,70 @@ function functionsServices(
           },
         },
       };
+    },
+  });
+}
+
+/** The Plux Test runs of an app (TST-002): runs with their results; \`failing\` makes the calls fail. */
+export interface TestRunsFixture {
+  runs: {
+    id: string;
+    label?: string;
+    source?: string;
+    scenarios: {
+      id: string;
+      name: string;
+      status: string;
+      durationMs?: number;
+      steps?: { description: string; status: string; message?: string }[];
+    }[];
+  }[];
+  failing?: boolean;
+}
+
+/** ListRuns and GetRun of TestRunService, in memory. */
+function testRunsServices(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  data: TestRunsFixture,
+) {
+  const view = (r: TestRunsFixture["runs"][number], withResults: boolean) => {
+    const count = (status: string) => r.scenarios.filter((s) => s.status === status).length;
+    return {
+      id: r.id,
+      reportKey: r.id,
+      label: r.label ?? "",
+      source: r.source ?? "ci",
+      passed: count("passed"),
+      failed: count("failed"),
+      skipped: count("skipped"),
+      scenarios: withResults
+        ? r.scenarios.map((s) => ({
+            id: s.id,
+            name: s.name,
+            status: s.status,
+            durationMs: BigInt(s.durationMs ?? 0),
+            steps: (s.steps ?? []).map((st, index) => ({ index, message: "", ...st })),
+          }))
+        : [],
+    };
+  };
+  const fail = () => {
+    if (data.failing === true) {
+      throw new ConnectError("unavailable", Code.Unavailable);
+    }
+  };
+  service(TestRunService, {
+    listRuns: () => {
+      fail();
+      return { runs: data.runs.map((r) => view(r, false)) };
+    },
+    getRun: (req) => {
+      fail();
+      const found = data.runs.find((r) => r.id === req.runId);
+      if (found === undefined) {
+        throw new ConnectError("not found", Code.NotFound);
+      }
+      return { run: view(found, true) };
     },
   });
 }

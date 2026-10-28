@@ -68,6 +68,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
+	"github.com/nightCode42/plux3/backend/internal/testrun"
 )
 
 type uuids struct{ g *uuid7.Generator }
@@ -479,7 +480,8 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
 		StudioStream: studioEventsService, Searches: searchService, GitExports: gitService, UserPreferences: preferencesService,
-		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
+		Goldens:  golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
+		TestRuns: testrun.New(testrun.Options{DB: db, IDs: gen, Limits: set}),
 		ReleaseRequests: releasereq.New(releasereq.Options{
 			DB: db, IDs: gen, Builds: releasereq.ReleaseBuilds{Releases: releases}, Releaser: releasereq.ReleaseMaker{Releases: releases}, Approvals: approvals,
 		}),
@@ -508,6 +510,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	for _, r := range []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewTestRunServiceHandler(h.TestRun(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
 		},

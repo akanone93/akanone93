@@ -14493,6 +14493,126 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.SetTemplateVisibilityResponse'
+  /plux.v1.TestRunService/GetRun:
+    post:
+      tags:
+        - plux.v1.TestRunService
+      summary: GetRun
+      description: GetRun returns one run with all its results. It needs app.read.
+      operationId: plux.v1.TestRunService.GetRun
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetRunRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetRunResponse'
+  /plux.v1.TestRunService/ListRuns:
+    post:
+      tags:
+        - plux.v1.TestRunService
+      summary: ListRuns
+      description: ListRuns lists the runs of an app, newest first. It needs app.read.
+      operationId: plux.v1.TestRunService.ListRuns
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListRunsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListRunsResponse'
+  /plux.v1.TestRunService/ReportRun:
+    post:
+      tags:
+        - plux.v1.TestRunService
+      summary: ReportRun
+      description: |-
+        ReportRun records a run with its results. The report is idempotent per
+         app and report key: reporting the same key again returns the first run.
+         It needs plugin.edit.
+      operationId: plux.v1.TestRunService.ReportRun
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ReportRunRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ReportRunResponse'
   /plux.v1.TokenService/ExchangeUserToken:
     post:
       tags:
@@ -23639,6 +23759,26 @@ components:
              embeds.
       title: GetRootKeysResponse
       additionalProperties: false
+    plux.v1.GetRunRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        runId:
+          type: string
+          title: run_id
+      title: GetRunRequest
+      additionalProperties: false
+    plux.v1.GetRunResponse:
+      type: object
+      properties:
+        run:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.TestRun'
+          title: run
+      title: GetRunResponse
+      additionalProperties: false
     plux.v1.GetRunStatusRequest:
       type: object
       properties:
@@ -26646,6 +26786,32 @@ components:
           title: page
       title: ListRolloutsResponse
       additionalProperties: false
+    plux.v1.ListRunsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListRunsRequest
+      additionalProperties: false
+    plux.v1.ListRunsResponse:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.TestRun'
+          title: runs
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListRunsResponse
+      additionalProperties: false
     plux.v1.ListScimTokensRequest:
       type: object
       properties:
@@ -29631,6 +29797,38 @@ components:
         - REPORT_KIND_ACCESSIBILITY
         - REPORT_KIND_LOCALISATION
       description: ReportKind says which report of a release to return.
+    plux.v1.ReportRunRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        reportKey:
+          type: string
+          title: report_key
+          description: ReportKey makes the report idempotent; 1 to 128 bytes.
+        source:
+          type: string
+          title: source
+        label:
+          type: string
+          title: label
+        scenarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.TestScenarioResult'
+          title: scenarios
+      title: ReportRunRequest
+      additionalProperties: false
+    plux.v1.ReportRunResponse:
+      type: object
+      properties:
+        run:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.TestRun'
+          title: run
+      title: ReportRunResponse
+      additionalProperties: false
     plux.v1.ReportsStep:
       type: object
       properties:
@@ -32324,6 +32522,107 @@ components:
       type: object
       title: TestNotificationChannelResponse
       additionalProperties: false
+    plux.v1.TestRun:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        reportKey:
+          type: string
+          title: report_key
+        source:
+          type: string
+          title: source
+          description: Source says where the run came from, e.g. "ci" or "cli".
+        label:
+          type: string
+          title: label
+          description: Label names what was tested, e.g. a branch or a commit.
+        passed:
+          type: integer
+          title: passed
+          format: int32
+        failed:
+          type: integer
+          title: failed
+          format: int32
+        skipped:
+          type: integer
+          title: skipped
+          format: int32
+        durationMs:
+          type: string
+          title: duration_ms
+          format: int64
+        createdBy:
+          type: string
+          title: created_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        scenarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.TestScenarioResult'
+          title: scenarios
+          description: Scenarios are set by GetRun and ReportRun, not by ListRuns.
+      title: TestRun
+      additionalProperties: false
+      description: TestRun is a recorded run.
+    plux.v1.TestScenarioResult:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          description: Id is the scenario's identifier in its document.
+        name:
+          type: string
+          title: name
+        status:
+          type: string
+          title: status
+          description: Status is "passed", "failed" or "skipped".
+        durationMs:
+          type: string
+          title: duration_ms
+          format: int64
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.TestStepResult'
+          title: steps
+      title: TestScenarioResult
+      additionalProperties: false
+      description: TestScenarioResult is the outcome of one scenario.
+    plux.v1.TestStepResult:
+      type: object
+      properties:
+        index:
+          type: integer
+          title: index
+          format: int32
+          description: Index is the position of the step in the scenario, from 0.
+        description:
+          type: string
+          title: description
+          description: Description says what the step does, e.g. "tap checkout.pay".
+        status:
+          type: string
+          title: status
+          description: Status is "passed", "failed" or "skipped".
+        message:
+          type: string
+          title: message
+          description: Message explains a failure; empty otherwise.
+      title: TestStepResult
+      additionalProperties: false
+      description: TestStepResult is the outcome of one step or expectation of a scenario.
     plux.v1.ToggleOverlayCommand:
       type: object
       properties:
@@ -33831,6 +34130,11 @@ tags:
     description: |-
       TemplateService lists page and flow templates and instantiates them into
        a draft with fresh identifiers (SCH-031).
+  - name: plux.v1.TestRunService
+    description: |-
+      TestRunService holds the runs of Plux Test scenarios that `plux test` and
+       CI report, so Studio lists them per app and shows the result of every
+       scenario and step (TST-001, TST-002).
   - name: plux.v1.TokenService
     description: |-
       TokenService issues the short-lived access tokens devices use. In P2 a

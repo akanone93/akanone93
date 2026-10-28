@@ -316,6 +316,11 @@ func operationalStores() []Store {
 			Note: "Kept as compliance evidence (GOV-026). The signed statement names people by identifier and display name only, and is never rewritten, because the signature covers it.",
 		},
 		{
+			Name: "test_runs", Description: "Plux Test runs reported for an app, with their scenario results (TST-002).",
+			Personal: []string{"created_by"}, Retention: "Until the app is deleted.", Erase: EraseNone,
+			Note: "created_by is the identifier of the token or person that reported the run; the results describe scenarios, not people.",
+		},
+		{
 			Name: "golden_cases", Description: "Golden-test cases of an app.",
 			Retention: "Until the case is deleted.", Erase: EraseNone,
 			Note: "locale is the language the case renders in, not a person's locale.",
