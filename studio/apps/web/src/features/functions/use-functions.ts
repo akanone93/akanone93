@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { createClient } from "@connectrpc/connect";
-import { FunctionAdminService } from "@plux/api";
+import { AppService, FunctionAdminService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useApp } from "../../lib/use-app.tsx";
 import { metricsWindowSeconds } from "./functions.schema.ts";
@@ -66,4 +66,13 @@ export function useSetAlias(app: string, environmentId: string | undefined, name
     await admin.setAlias({ appId: app, environmentId: environmentId ?? "", name, alias: { name: alias, version } });
     await session.queryClient.invalidateQueries({ queryKey: ["function", app] });
   };
+}
+
+/** The environments of the app: what the logs tab offers to look at. */
+export function useEnvironments(app: string) {
+  const { session } = useApp();
+  return useQuery({
+    queryKey: ["environments", app],
+    queryFn: () => createClient(AppService, session.transport).listEnvironments({ appId: app }),
+  });
 }

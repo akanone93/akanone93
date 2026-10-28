@@ -212,13 +212,30 @@ export interface ExperimentsFixture {
 
 /** The functions of the Functions area (STU-110): versions, aliases, metrics, logs and stored-test results. */
 export interface FunctionsFixture {
-  functions: { name: string; version: number; placement?: string; testsPassed?: boolean; signed?: boolean }[];
+  functions: {
+    name: string;
+    version: number;
+    placement?: string;
+    testsPassed?: boolean;
+    signed?: boolean;
+    /** The assurance level the build declared; empty means the environment's default. */
+    assurance?: string;
+    /** What the build declared; absent for a version whose build recorded no declaration. */
+    capabilities?: { http?: string[]; kv?: boolean; secrets?: string[]; functions?: string[]; claims?: boolean };
+    /** The source the version was built from; defaults to \`src-<name>\`. */
+    sourceId?: string;
+  }[];
   aliases?: { name: string; version: number }[];
   metrics?: { invocations: number; errorsByKind?: Record<string, number>; p95?: number };
-  logs?: { level: string; message: string; version?: number }[];
+  /** A line with an environmentId is returned only for that environment. */
+  logs?: { level: string; message: string; version?: number; environmentId?: string }[];
   tests?: { results: { name: string; passed: boolean; message: string }[] };
   /** Collects every SetAlias as `alias:version`. */
   calls?: string[];
+  /** Collects the environment of every ListLogs. */
+  logEnvironments?: string[];
+  /** Collects the source of every RunTests. */
+  testSources?: string[];
   failing?: boolean;
 }
 
@@ -1287,6 +1304,9 @@ function functionsServices(
     inputSchema: '{"type":"object"}',
     outputSchema: '{"type":"number"}',
     testsPassed: f.testsPassed ?? true,
+    assurance: f.assurance ?? "",
+    sourceId: f.sourceId ?? `src-${f.name}`,
+    ...(f.capabilities !== undefined && { capabilities: f.capabilities }),
     signature: f.signed === false ? new Uint8Array() : new Uint8Array([1]),
     provenance: {
       sourceSha256: `source-${f.name}`,
@@ -1324,10 +1344,16 @@ function functionsServices(
       ),
       latencyP95Micros: BigInt(data.metrics?.p95 ?? 0),
     }),
-    listLogs: () => ({
-      lines: (data.logs ?? []).map((l) => ({ time: { seconds: 1n, nanos: 0 }, version: l.version ?? 1, ...l })),
-    }),
-    async *runTests() {
+    listLogs: (req) => {
+      data.logEnvironments?.push(req.environmentId);
+      return {
+        lines: (data.logs ?? [])
+          .filter((l) => l.environmentId === undefined || l.environmentId === req.environmentId)
+          .map(({ environmentId: _, ...l }) => ({ time: { seconds: 1n, nanos: 0 }, version: l.version ?? 1, ...l })),
+      };
+    },
+    async *runTests(req) {
+      data.testSources?.push(req.sourceId);
       const results = data.tests?.results ?? [];
       for (const r of results) {
         yield { event: { case: "result", value: r } };

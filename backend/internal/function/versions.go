@@ -112,7 +112,7 @@ func (s *Service) insertVersion(ctx context.Context, tx pgx.Tx, p auth.Principal
 	if err := s.record(ctx, tx, p, audit.FunctionDeployed, "function", target, detail); err != nil {
 		return Version{}, err
 	}
-	return versionOf(v)
+	return versionWithBuild(ctx, q, v)
 }
 
 // lockScope names a lock that serialises the work of one kind on one
@@ -237,7 +237,7 @@ func (s *Service) copyVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 			return Version{}, plxerr.New(plxerr.PreconditionFailed, "the target environment holds version %d of function %s with a different module", src.Version, src.Name)
 		}
 		if alias == "" {
-			return versionOf(v)
+			return versionWithBuild(ctx, q, v)
 		}
 	case errors.Is(err, pgx.ErrNoRows):
 		v, err = q.InsertFunctionVersion(ctx, dbgen.InsertFunctionVersionParams{
@@ -271,7 +271,7 @@ func (s *Service) copyVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 			}
 		}
 	}
-	return versionOf(v)
+	return versionWithBuild(ctx, q, v)
 }
 
 // SetAlias points an alias at an existing version and returns the
@@ -358,7 +358,7 @@ func (s *Service) GetFunction(ctx context.Context, p auth.Principal, appID, envi
 		if err != nil {
 			return fmt.Errorf("function: read a function: %w", err)
 		}
-		if out.Latest, err = versionOf(row); err != nil {
+		if out.Latest, err = versionWithBuild(ctx, q, row); err != nil {
 			return err
 		}
 		out.Aliases, err = aliasesOf(ctx, q, env.ID, name)
@@ -384,7 +384,7 @@ func (s *Service) ListFunctions(ctx context.Context, p auth.Principal, appID, en
 		if err != nil {
 			return fmt.Errorf("function: list functions: %w", err)
 		}
-		return appendVersions(&out, rows)
+		return appendVersions(ctx, q, &out, rows)
 	})
 	return out, err
 }
@@ -406,19 +406,83 @@ func (s *Service) ListVersions(ctx context.Context, p auth.Principal, appID, env
 		if err != nil {
 			return fmt.Errorf("function: list versions: %w", err)
 		}
-		return appendVersions(&out, rows)
+		return appendVersions(ctx, q, &out, rows)
 	})
 	return out, err
 }
 
-// appendVersions converts rows onto a list.
-func appendVersions(out *[]Version, rows []dbgen.FunctionVersion) error {
+// appendVersions converts rows onto a list, with the source and the
+// declaration of their builds.
+func appendVersions(ctx context.Context, q *dbgen.Queries, out *[]Version, rows []dbgen.FunctionVersion) error {
+	page := make([]Version, 0, len(rows))
 	for _, r := range rows {
 		v, err := versionOf(r)
 		if err != nil {
 			return err
 		}
-		*out = append(*out, v)
+		page = append(page, v)
+	}
+	if err := attachBuilds(ctx, q, page); err != nil {
+		return err
+	}
+	*out = append(*out, page...)
+	return nil
+}
+
+// versionWithBuild converts a row like versionOf and adds the source and
+// the declaration of its build.
+func versionWithBuild(ctx context.Context, q *dbgen.Queries, row dbgen.FunctionVersion) (Version, error) {
+	v, err := versionOf(row)
+	if err != nil {
+		return Version{}, err
+	}
+	one := []Version{v}
+	if err := attachBuilds(ctx, q, one); err != nil {
+		return Version{}, err
+	}
+	return one[0], nil
+}
+
+// attachBuilds sets SourceID and Declared on each version from its build,
+// in one query. A promoted version keeps the build of the version it was
+// copied from, so it reports that build's source and declaration; nothing
+// is stored on the version, which stays as immutable as its module
+// (FN-006, FN-012). A build that recorded no declaration leaves Declared
+// nil.
+func attachBuilds(ctx context.Context, q *dbgen.Queries, vs []Version) error {
+	if len(vs) == 0 {
+		return nil
+	}
+	ids := make([]pgtype.UUID, 0, len(vs))
+	for _, v := range vs {
+		id, err := storage.UUID(v.BuildID)
+		if err != nil {
+			return fmt.Errorf("function: the build of version %d of %s has no valid identifier: %w", v.Version, v.Name, err)
+		}
+		ids = append(ids, id)
+	}
+	rows, err := q.ListFunctionBuildLinks(ctx, ids)
+	if err != nil {
+		return fmt.Errorf("function: read the builds of versions: %w", err)
+	}
+	links := make(map[string]dbgen.ListFunctionBuildLinksRow, len(rows))
+	for _, r := range rows {
+		links[storage.ID(r.BuildID)] = r
+	}
+	for i := range vs {
+		link, ok := links[vs[i].BuildID]
+		if !ok {
+			return fmt.Errorf("function: the build of version %d of %s is missing", vs[i].Version, vs[i].Name)
+		}
+		vs[i].SourceID = storage.ID(link.SourceID)
+		if link.Declaration == nil {
+			continue
+		}
+		var d Declaration
+		if err := json.Unmarshal(link.Declaration, &d); err != nil {
+			return fmt.Errorf("function: read the declaration of version %d of %s: %w", vs[i].Version, vs[i].Name, err)
+		}
+		vs[i].Declared = &d
 	}
 	return nil
 }
