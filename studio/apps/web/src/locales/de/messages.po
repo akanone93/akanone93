@@ -184,6 +184,12 @@ msgstr "{count, plural, one {# Rollout durch Health-Gate pausiert} other {# Roll
 msgid "panelTabs.stateSummary"
 msgstr "{count, plural, one {# Zustandseintrag} other {# Zustandseinträge}}"
 
+#. How many tap steps the device-loop session has recorded so far.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.fromSessionSteps"
+msgstr "{count, plural, one {# Tippen in der Gerätesitzung aufgezeichnet} other {# Tippen in der Gerätesitzung aufgezeichnet}}"
+
 #. STU-070, STU-072: heading of the list of uses of, or links into, the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -2937,6 +2943,12 @@ msgstr "SCIM-Token erstellen"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.createTeam"
 msgstr "Team erstellen"
+
+#. Button that fills the new scenario form with the taps recorded in the device-loop session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/tests/tests.messages.ts
+msgid "tests.fromSession"
+msgstr "Test aus Gerätesitzung erstellen"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -12059,6 +12071,12 @@ msgstr "Der Server erfasst noch keine Backups. Sichere Datenbank und Objektspeic
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.dropRejected"
 msgstr "Der Server hat es abgelehnt."
+
+#. Shown when autosave of a theme edit is refused by the server and the edit is rolled back.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.saveRefused"
+msgstr "Der Server hat diese Änderung abgelehnt. Sie wurde rückgängig gemacht."
 
 #. Error: variant shares do not sum to 100.
 #. js-lingui-explicit-id

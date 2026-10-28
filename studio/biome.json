@@ -70,6 +70,10 @@
     {
       "includes": ["apps/web/src/**", "packages/ui/src/**", "!**/*.test.tsx", "!**/*.cases.tsx"],
       "plugins": ["./lint/no-raw-values.grit", "./lint/logical-properties.grit", "./lint/no-literal-ui-strings.grit"]
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "plugins": ["./lint/no-waitfor-tobenull.grit"]
     }
   ]
 }

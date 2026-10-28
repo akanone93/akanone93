@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
+import { create } from "@bufbuild/protobuf";
+import { DevEventSchema } from "@plux/api";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/index.ts";
@@ -88,6 +90,42 @@ describe("TST-001 Plux Test scenarios (A45)", () => {
     open("", {}, ["app.read"]);
     await screen.findByText("You may read scenarios but not change them.", {}, wait);
     expect(screen.queryByRole("form")).toBeNull();
+  });
+});
+
+const homePage = {
+  kind: "page",
+  path: "pages/home.page.json",
+  json: { id: "home", route: "/home", root: { id: "r", children: [{ id: "a", testId: "pay" }, { id: "b" }] } },
+};
+const trace = (sequence: bigint, runId: string, nodePath: string, trigger = "onTap") =>
+  create(DevEventSchema, {
+    sequence,
+    deviceId: "d1",
+    payload: { case: "actionTrace", value: { runId, graph: "g", trigger, nodePath } },
+  });
+
+describe("TST-001 scenario steps from the device session (A45)", () => {
+  test("prefills the new scenario from the taps the held session recorded", async () => {
+    const events = [
+      trace(1n, "r1", "/pages/home/0"),
+      trace(2n, "r2", "/pages/home/1"),
+      trace(3n, "r3", "/pages/home/0", "lifecycle"),
+      trace(4n, "r1", "/pages/home/0"),
+    ];
+    const view = open("", { pluginDocuments: { p1: [homePage] }, devSession: { devices: [], events } });
+    view.session.queryClient.setQueryData(["studio-dev-session", "app1"], "s1");
+    await screen.findByText("1 tap recorded in the device session", {}, wait);
+    fireEvent.click(screen.getByRole("button", { name: "Create test from device session" }));
+    await waitFor(() => expect((screen.getByLabelText("Page route") as HTMLInputElement).value).toBe("home"));
+    expect((screen.getByLabelText("Steps 1 · Test ID") as HTMLInputElement).value).toBe("pay");
+    expect(screen.queryByLabelText("Steps 2 · Test ID")).toBeNull();
+  });
+
+  test("offers nothing when the device loop was not opened for the app", async () => {
+    open("", { pluginDocuments: { p1: [homePage] } });
+    await screen.findByText("Pays", {}, wait);
+    expect(screen.queryByRole("button", { name: "Create test from device session" })).toBeNull();
   });
 });
 

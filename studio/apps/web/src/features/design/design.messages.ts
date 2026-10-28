@@ -29,6 +29,11 @@ export function designMessages(i18n: I18n) {
       message: "Read-only: you cannot edit the theme now.",
       comment: "Shown when the app lock is not held.",
     }),
+    saveRefused: i18n._({
+      id: "design.saveRefused",
+      message: "The server refused this change. It was undone.",
+      comment: "Shown when autosave of a theme edit is refused by the server and the edit is rolled back.",
+    }),
     noTheme: i18n._({
       id: "design.noTheme",
       message: "This app has no theme document yet.",
