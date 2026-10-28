@@ -145,13 +145,51 @@ export function experimentsMessages(i18n: I18n) {
     }),
     segmentLabel: i18n._({
       id: "experiments.segmentLabel",
-      message: "Audience segment",
-      comment: "Label of the segment field.",
+      message: "Audience segments",
+      comment: "Label of the field that lists the segments an experiment targets.",
     }),
     segmentHelp: i18n._({
       id: "experiments.segmentHelp",
-      message: "Leave empty to reach every subject.",
+      message:
+        "Segment keys separated by commas; a device in any of them is eligible. Leave empty to reach every subject.",
       comment: "Help under the segment field.",
+    }),
+    attributesLabel: i18n._({
+      id: "experiments.attributesLabel",
+      message: "Attribute conditions",
+      comment: "Label of the field with the attribute conditions of an experiment's audience.",
+    }),
+    attributesHelp: i18n._({
+      id: "experiments.attributesHelp",
+      message:
+        "One per line: attribute, operator, value, for example os eq ios. A device must meet every condition. Lists use commas: locale in de,de-AT.",
+      comment: "Help under the attribute conditions field. Keep the attribute names and operators as written.",
+    }),
+    primariesLabel: i18n._({
+      id: "experiments.primariesLabel",
+      message: "More primary metric events",
+      comment: "Label of the field that lists further primary metrics.",
+    }),
+    primariesHelp: i18n._({
+      id: "experiments.primariesHelp",
+      message: "One event per line, analysed like the primary metric.",
+      comment: "Help under the further primary metrics field.",
+    }),
+    invalidTargeting: i18n._({
+      id: "experiments.invalidTargeting",
+      message:
+        "Check the segments (lower-case keys, each once) and the attribute conditions (attribute, operator, value).",
+      comment: "Error shown when the audience of a draft is malformed.",
+    }),
+    invalidMetrics: i18n._({
+      id: "experiments.invalidMetrics",
+      message: "Metric events are names such as purchase or add_to_cart, one per line.",
+      comment: "Error shown when a metric event name is malformed.",
+    }),
+    limitsExceeded: i18n._({
+      id: "experiments.limitsExceeded",
+      message: "The draft has more segments, conditions or metrics than the limits allow.",
+      comment: "Error shown when the audience or the metrics of a draft exceed the limits.",
     }),
     primaryEvent: i18n._({
       id: "experiments.primaryEvent",
@@ -186,8 +224,8 @@ export function experimentsMessages(i18n: I18n) {
     }),
     guardrailEvent: i18n._({
       id: "experiments.guardrailEvent",
-      message: "Guardrail event",
-      comment: "Label of the guardrail event field.",
+      message: "Guardrail events, one per line",
+      comment: "Label of the field that lists the guardrail metric events.",
     }),
     minimumSample: i18n._({
       id: "experiments.minimumSample",
@@ -289,6 +327,46 @@ export function experimentsMessages(i18n: I18n) {
       comment: "Label of the flag default field.",
     }),
     colDefault: i18n._({ id: "experiments.colDefault", message: "Default", comment: "Column heading." }),
+    colSegments: i18n._({
+      id: "experiments.colSegments",
+      message: "Values per segment",
+      comment: "Column heading: the segments a flag has its own value for.",
+    }),
+    segmentValuesHeading: i18n._({
+      id: "experiments.segmentValuesHeading",
+      message: "Values per segment",
+      comment: "Heading of the flag form's list of per-segment values.",
+    }),
+    segmentValuesHelp: i18n._({
+      id: "experiments.segmentValuesHelp",
+      message: "The first segment a device belongs to decides; devices in none get the default.",
+      comment: "Help under the per-segment values of a flag.",
+    }),
+    segmentNameLabel: i18n._({
+      id: "experiments.segmentNameLabel",
+      message: "Segment key",
+      comment: "Label of the segment field of one per-segment flag value.",
+    }),
+    segmentValueLabel: i18n._({
+      id: "experiments.segmentValueLabel",
+      message: "Value for the segment (JSON)",
+      comment: "Label of the value field of one per-segment flag value.",
+    }),
+    addSegmentValue: i18n._({
+      id: "experiments.addSegmentValue",
+      message: "Add segment value",
+      comment: "Button that adds a per-segment value to a flag.",
+    }),
+    removeSegmentValue: i18n._({
+      id: "experiments.removeSegmentValue",
+      message: "Remove",
+      comment: "Button that removes a per-segment value of a flag.",
+    }),
+    badSegmentValue: i18n._({
+      id: "experiments.badSegmentValue",
+      message: "Each segment needs a key, and its value must be valid JSON.",
+      comment: "Error under the per-segment values of a flag.",
+    }),
     colType: i18n._({ id: "experiments.colType", message: "Type", comment: "Column heading." }),
     saveFlag: i18n._({ id: "experiments.saveFlag", message: "Save flag", comment: "Button that saves a flag." }),
     editFlag: i18n._({
@@ -334,6 +412,13 @@ export function experimentsMessages(i18n: I18n) {
         message: "Delete {key}",
         comment: "Accessible name of a delete button.",
         values: { key },
+      }),
+    removeSegmentNamed: (position: number) =>
+      i18n._({
+        id: "experiments.removeSegmentNamed",
+        message: "Remove segment value {position}",
+        comment: "Accessible name of the remove button of one per-segment flag value.",
+        values: { position },
       }),
     shipNamed: (name: string) =>
       i18n._({

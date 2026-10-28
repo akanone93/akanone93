@@ -382,8 +382,11 @@ paths:
         - plux.v1.AnalyticsService
       summary: GetFunnelResult
       description: |-
-        GetFunnelResult counts the events of each step of a funnel over a time
-         range, from the rollups. It needs analytics.read on the app.
+        GetFunnelResult counts the sessions that reached each step of a funnel
+         over a time range: a session counts at step N only if it did steps 1 to N
+         in order, read from the raw events. PLX-1320 when the range holds
+         more events than analytics.funnelScanEvents. It needs analytics.read on
+         the app.
       operationId: plux.v1.AnalyticsService.GetFunnelResult
       parameters:
         - name: Connect-Protocol-Version
@@ -23246,11 +23249,19 @@ components:
           type: string
           title: events
           format: int64
+          description: |-
+            events equals sessions; it is kept for clients that read the rollup-based
+             result of earlier versions.
         conversion:
           type: number
           title: conversion
           format: double
-          description: conversion is the share of the first step's events, 0 to 1.
+          description: conversion is the share of the first step's sessions, 0 to 1.
+        sessions:
+          type: string
+          title: sessions
+          format: int64
+          description: sessions reached this step after reaching every step before it, in order.
       title: FunnelStep
       additionalProperties: false
       description: FunnelStep is one step of a funnel result.
@@ -24716,6 +24727,12 @@ components:
           items:
             $ref: '#/components/schemas/plux.v1.MetricResult'
           title: guardrails
+        primaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.MetricResult'
+          title: primaries
+          description: primaries are every primary metric, the lead one (primary) first.
       title: GetResultsResponse
       additionalProperties: false
     plux.v1.GetRetentionRequest:

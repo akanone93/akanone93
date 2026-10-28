@@ -162,6 +162,24 @@
       "description": "Steps one action run trace records; later steps are counted but not recorded."
     },
     {
+      "key": "analytics.funnelScanEvents",
+      "unit": "count",
+      "default": 500000,
+      "max": 5000000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-020"
+      ],
+      "description": "Raw events one funnel result may scan; a result that would scan more fails and asks for a narrower range."
+    },
+    {
       "key": "analytics.funnelSteps",
       "unit": "count",
       "default": 10,
@@ -2104,6 +2122,82 @@
       "description": "Experiments that may be running at once in one app."
     },
     {
+      "key": "experiments.attributesPerTargeting",
+      "unit": "count",
+      "default": 20,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Attribute conditions one experiment may add to its targeting; all must hold."
+    },
+    {
+      "key": "experiments.guardrailMetrics",
+      "unit": "count",
+      "default": 5,
+      "max": 20,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-003"
+      ],
+      "description": "Guardrail metrics one experiment may have."
+    },
+    {
+      "key": "experiments.primaryMetrics",
+      "unit": "count",
+      "default": 3,
+      "max": 10,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-003"
+      ],
+      "description": "Primary metrics one experiment may have, the lead metric included."
+    },
+    {
+      "key": "experiments.segmentsPerTargeting",
+      "unit": "count",
+      "default": 10,
+      "max": 50,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Segments one experiment may target; a device in any of them is eligible."
+    },
+    {
       "key": "flags.perApp",
       "unit": "count",
       "default": 500,
@@ -2121,6 +2215,25 @@
         "ABT-001"
       ],
       "description": "Feature flags one app may define."
+    },
+    {
+      "key": "flags.segmentValues",
+      "unit": "count",
+      "default": 20,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-006"
+      ],
+      "description": "Per-segment values one flag may have."
     },
     {
       "key": "function.buildMemory",

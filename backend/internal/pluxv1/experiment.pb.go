@@ -2310,8 +2310,10 @@ type GetResultsResponse struct {
 	SampleRatioCode     int32           `protobuf:"varint,8,opt,name=sample_ratio_code,json=sampleRatioCode,proto3" json:"sample_ratio_code,omitempty"`
 	Primary             *MetricResult   `protobuf:"bytes,9,opt,name=primary,proto3" json:"primary,omitempty"`
 	Guardrails          []*MetricResult `protobuf:"bytes,10,rep,name=guardrails,proto3" json:"guardrails,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// primaries are every primary metric, the lead one (primary) first.
+	Primaries     []*MetricResult `protobuf:"bytes,11,rep,name=primaries,proto3" json:"primaries,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetResultsResponse) Reset() {
@@ -2410,6 +2412,13 @@ func (x *GetResultsResponse) GetPrimary() *MetricResult {
 func (x *GetResultsResponse) GetGuardrails() []*MetricResult {
 	if x != nil {
 		return x.Guardrails
+	}
+	return nil
+}
+
+func (x *GetResultsResponse) GetPrimaries() []*MetricResult {
+	if x != nil {
+		return x.Primaries
 	}
 	return nil
 }
@@ -2718,7 +2727,7 @@ const file_plux_v1_experiment_proto_rawDesc = "" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x1c\n" +
 	"\tdirection\x18\x04 \x01(\tR\tdirection\x12*\n" +
 	"\x05means\x18\x05 \x03(\v2\x14.plux.v1.VariantMeanR\x05means\x125\n" +
-	"\vcomparisons\x18\x06 \x03(\v2\x13.plux.v1.ComparisonR\vcomparisons\"\xd3\x03\n" +
+	"\vcomparisons\x18\x06 \x03(\v2\x13.plux.v1.ComparisonR\vcomparisons\"\x88\x04\n" +
 	"\x12GetResultsResponse\x12#\n" +
 	"\rexperiment_id\x18\x01 \x01(\tR\fexperimentId\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12.\n" +
@@ -2732,7 +2741,8 @@ const file_plux_v1_experiment_proto_rawDesc = "" +
 	"\n" +
 	"guardrails\x18\n" +
 	" \x03(\v2\x15.plux.v1.MetricResultR\n" +
-	"guardrails\"\x97\x01\n" +
+	"guardrails\x123\n" +
+	"\tprimaries\x18\v \x03(\v2\x15.plux.v1.MetricResultR\tprimaries\"\x97\x01\n" +
 	"\x18PromoteExperimentRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\avariant\x18\x02 \x01(\tR\avariant\x12%\n" +
@@ -2872,42 +2882,43 @@ var file_plux_v1_experiment_proto_depIdxs = []int32{
 	33, // 30: plux.v1.GetResultsResponse.variants:type_name -> plux.v1.VariantCount
 	36, // 31: plux.v1.GetResultsResponse.primary:type_name -> plux.v1.MetricResult
 	36, // 32: plux.v1.GetResultsResponse.guardrails:type_name -> plux.v1.MetricResult
-	15, // 33: plux.v1.PromoteExperimentResponse.experiment:type_name -> plux.v1.Experiment
-	5,  // 34: plux.v1.FlagService.CreateFlag:input_type -> plux.v1.CreateFlagRequest
-	6,  // 35: plux.v1.FlagService.UpdateFlag:input_type -> plux.v1.UpdateFlagRequest
-	10, // 36: plux.v1.FlagService.DeleteFlag:input_type -> plux.v1.DeleteFlagRequest
-	12, // 37: plux.v1.FlagService.GetFlag:input_type -> plux.v1.GetFlagRequest
-	13, // 38: plux.v1.FlagService.ListFlags:input_type -> plux.v1.ListFlagsRequest
-	16, // 39: plux.v1.ExperimentService.CreateExperiment:input_type -> plux.v1.CreateExperimentRequest
-	21, // 40: plux.v1.ExperimentService.GetExperiment:input_type -> plux.v1.GetExperimentRequest
-	22, // 41: plux.v1.ExperimentService.ListExperiments:input_type -> plux.v1.ListExperimentsRequest
-	24, // 42: plux.v1.ExperimentService.DeleteExperiment:input_type -> plux.v1.DeleteExperimentRequest
-	26, // 43: plux.v1.ExperimentService.StartExperiment:input_type -> plux.v1.StartExperimentRequest
-	27, // 44: plux.v1.ExperimentService.StopExperiment:input_type -> plux.v1.StopExperimentRequest
-	28, // 45: plux.v1.ExperimentService.SetHoldout:input_type -> plux.v1.SetHoldoutRequest
-	29, // 46: plux.v1.ExperimentService.GetHoldout:input_type -> plux.v1.GetHoldoutRequest
-	32, // 47: plux.v1.ExperimentService.GetResults:input_type -> plux.v1.GetResultsRequest
-	38, // 48: plux.v1.ExperimentService.PromoteExperiment:input_type -> plux.v1.PromoteExperimentRequest
-	7,  // 49: plux.v1.FlagService.CreateFlag:output_type -> plux.v1.CreateFlagResponse
-	8,  // 50: plux.v1.FlagService.UpdateFlag:output_type -> plux.v1.UpdateFlagResponse
-	11, // 51: plux.v1.FlagService.DeleteFlag:output_type -> plux.v1.DeleteFlagResponse
-	9,  // 52: plux.v1.FlagService.GetFlag:output_type -> plux.v1.GetFlagResponse
-	14, // 53: plux.v1.FlagService.ListFlags:output_type -> plux.v1.ListFlagsResponse
-	17, // 54: plux.v1.ExperimentService.CreateExperiment:output_type -> plux.v1.CreateExperimentResponse
-	18, // 55: plux.v1.ExperimentService.GetExperiment:output_type -> plux.v1.GetExperimentResponse
-	23, // 56: plux.v1.ExperimentService.ListExperiments:output_type -> plux.v1.ListExperimentsResponse
-	25, // 57: plux.v1.ExperimentService.DeleteExperiment:output_type -> plux.v1.DeleteExperimentResponse
-	19, // 58: plux.v1.ExperimentService.StartExperiment:output_type -> plux.v1.StartExperimentResponse
-	20, // 59: plux.v1.ExperimentService.StopExperiment:output_type -> plux.v1.StopExperimentResponse
-	30, // 60: plux.v1.ExperimentService.SetHoldout:output_type -> plux.v1.SetHoldoutResponse
-	31, // 61: plux.v1.ExperimentService.GetHoldout:output_type -> plux.v1.GetHoldoutResponse
-	37, // 62: plux.v1.ExperimentService.GetResults:output_type -> plux.v1.GetResultsResponse
-	39, // 63: plux.v1.ExperimentService.PromoteExperiment:output_type -> plux.v1.PromoteExperimentResponse
-	49, // [49:64] is the sub-list for method output_type
-	34, // [34:49] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	36, // 33: plux.v1.GetResultsResponse.primaries:type_name -> plux.v1.MetricResult
+	15, // 34: plux.v1.PromoteExperimentResponse.experiment:type_name -> plux.v1.Experiment
+	5,  // 35: plux.v1.FlagService.CreateFlag:input_type -> plux.v1.CreateFlagRequest
+	6,  // 36: plux.v1.FlagService.UpdateFlag:input_type -> plux.v1.UpdateFlagRequest
+	10, // 37: plux.v1.FlagService.DeleteFlag:input_type -> plux.v1.DeleteFlagRequest
+	12, // 38: plux.v1.FlagService.GetFlag:input_type -> plux.v1.GetFlagRequest
+	13, // 39: plux.v1.FlagService.ListFlags:input_type -> plux.v1.ListFlagsRequest
+	16, // 40: plux.v1.ExperimentService.CreateExperiment:input_type -> plux.v1.CreateExperimentRequest
+	21, // 41: plux.v1.ExperimentService.GetExperiment:input_type -> plux.v1.GetExperimentRequest
+	22, // 42: plux.v1.ExperimentService.ListExperiments:input_type -> plux.v1.ListExperimentsRequest
+	24, // 43: plux.v1.ExperimentService.DeleteExperiment:input_type -> plux.v1.DeleteExperimentRequest
+	26, // 44: plux.v1.ExperimentService.StartExperiment:input_type -> plux.v1.StartExperimentRequest
+	27, // 45: plux.v1.ExperimentService.StopExperiment:input_type -> plux.v1.StopExperimentRequest
+	28, // 46: plux.v1.ExperimentService.SetHoldout:input_type -> plux.v1.SetHoldoutRequest
+	29, // 47: plux.v1.ExperimentService.GetHoldout:input_type -> plux.v1.GetHoldoutRequest
+	32, // 48: plux.v1.ExperimentService.GetResults:input_type -> plux.v1.GetResultsRequest
+	38, // 49: plux.v1.ExperimentService.PromoteExperiment:input_type -> plux.v1.PromoteExperimentRequest
+	7,  // 50: plux.v1.FlagService.CreateFlag:output_type -> plux.v1.CreateFlagResponse
+	8,  // 51: plux.v1.FlagService.UpdateFlag:output_type -> plux.v1.UpdateFlagResponse
+	11, // 52: plux.v1.FlagService.DeleteFlag:output_type -> plux.v1.DeleteFlagResponse
+	9,  // 53: plux.v1.FlagService.GetFlag:output_type -> plux.v1.GetFlagResponse
+	14, // 54: plux.v1.FlagService.ListFlags:output_type -> plux.v1.ListFlagsResponse
+	17, // 55: plux.v1.ExperimentService.CreateExperiment:output_type -> plux.v1.CreateExperimentResponse
+	18, // 56: plux.v1.ExperimentService.GetExperiment:output_type -> plux.v1.GetExperimentResponse
+	23, // 57: plux.v1.ExperimentService.ListExperiments:output_type -> plux.v1.ListExperimentsResponse
+	25, // 58: plux.v1.ExperimentService.DeleteExperiment:output_type -> plux.v1.DeleteExperimentResponse
+	19, // 59: plux.v1.ExperimentService.StartExperiment:output_type -> plux.v1.StartExperimentResponse
+	20, // 60: plux.v1.ExperimentService.StopExperiment:output_type -> plux.v1.StopExperimentResponse
+	30, // 61: plux.v1.ExperimentService.SetHoldout:output_type -> plux.v1.SetHoldoutResponse
+	31, // 62: plux.v1.ExperimentService.GetHoldout:output_type -> plux.v1.GetHoldoutResponse
+	37, // 63: plux.v1.ExperimentService.GetResults:output_type -> plux.v1.GetResultsResponse
+	39, // 64: plux.v1.ExperimentService.PromoteExperiment:output_type -> plux.v1.PromoteExperimentResponse
+	50, // [50:65] is the sub-list for method output_type
+	35, // [35:50] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_experiment_proto_init() }

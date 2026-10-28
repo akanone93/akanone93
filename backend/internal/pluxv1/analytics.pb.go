@@ -3265,11 +3265,15 @@ func (x *ListFunnelsResponse) GetFunnels() []*Funnel {
 
 // FunnelStep is one step of a funnel result.
 type FunnelStep struct {
-	state  protoimpl.MessageState `protogen:"open.v1"`
-	Event  string                 `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
-	Events int64                  `protobuf:"varint,2,opt,name=events,proto3" json:"events,omitempty"`
-	// conversion is the share of the first step's events, 0 to 1.
-	Conversion    float64 `protobuf:"fixed64,3,opt,name=conversion,proto3" json:"conversion,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Event string                 `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+	// events equals sessions; it is kept for clients that read the rollup-based
+	// result of earlier versions.
+	Events int64 `protobuf:"varint,2,opt,name=events,proto3" json:"events,omitempty"`
+	// conversion is the share of the first step's sessions, 0 to 1.
+	Conversion float64 `protobuf:"fixed64,3,opt,name=conversion,proto3" json:"conversion,omitempty"`
+	// sessions reached this step after reaching every step before it, in order.
+	Sessions      int64 `protobuf:"varint,4,opt,name=sessions,proto3" json:"sessions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3321,6 +3325,13 @@ func (x *FunnelStep) GetEvents() int64 {
 func (x *FunnelStep) GetConversion() float64 {
 	if x != nil {
 		return x.Conversion
+	}
+	return 0
+}
+
+func (x *FunnelStep) GetSessions() int64 {
+	if x != nil {
+		return x.Sessions
 	}
 	return 0
 }
@@ -3860,14 +3871,15 @@ const file_plux_v1_analytics_proto_rawDesc = "" +
 	"\x12ListFunnelsRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\"@\n" +
 	"\x13ListFunnelsResponse\x12)\n" +
-	"\afunnels\x18\x01 \x03(\v2\x0f.plux.v1.FunnelR\afunnels\"Z\n" +
+	"\afunnels\x18\x01 \x03(\v2\x0f.plux.v1.FunnelR\afunnels\"v\n" +
 	"\n" +
 	"FunnelStep\x12\x14\n" +
 	"\x05event\x18\x01 \x01(\tR\x05event\x12\x16\n" +
 	"\x06events\x18\x02 \x01(\x03R\x06events\x12\x1e\n" +
 	"\n" +
 	"conversion\x18\x03 \x01(\x01R\n" +
-	"conversion\"\x84\x01\n" +
+	"conversion\x12\x1a\n" +
+	"\bsessions\x18\x04 \x01(\x03R\bsessions\"\x84\x01\n" +
 	"\x16GetFunnelResultRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
 	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +

@@ -310,6 +310,8 @@ message GetResultsResponse {
   int32 sample_ratio_code = 8;
   MetricResult primary = 9;
   repeated MetricResult guardrails = 10;
+  // primaries are every primary metric, the lead one (primary) first.
+  repeated MetricResult primaries = 11;
 }
 
 message PromoteExperimentRequest {

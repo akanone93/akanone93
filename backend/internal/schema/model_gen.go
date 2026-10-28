@@ -783,13 +783,26 @@ type ExperimentDocument struct {
 	// Holdout: The share of subjects, in percent, kept out of the experiment and
 	// shown the control.
 	Holdout *float64 `json:"holdout,omitempty"`
-	// Segment: Human-readable lower-kebab slug, unique within its parent
-	// (SCH-002). Files in the Git layout are named after it.
+	// Segment: A segment the experiment targets. With `segments` it is the first
+	// of them.
 	Segment string `json:"segment,omitempty"`
+	// Segments: More segments to target. A device in any of them, this
+	// document's `segment` included, is eligible (limit
+	// `experiments.segmentsPerTargeting`).
+	Segments []string `json:"segments,omitempty"`
+	// Attributes: Conditions on device and user attributes. A device must meet
+	// every one of them, as well as be in one of the segments if any are named
+	// (limit `experiments.attributesPerTargeting`).
+	Attributes []SegmentRule `json:"attributes,omitempty"`
 	// Schedule: When the experiment runs; both bounds are optional.
-	Schedule         *ExperimentSchedule `json:"schedule,omitempty"`
-	PrimaryMetric    ExperimentMetric    `json:"primaryMetric"`
-	GuardrailMetrics []ExperimentMetric  `json:"guardrailMetrics,omitempty"`
+	Schedule *ExperimentSchedule `json:"schedule,omitempty"`
+	// PrimaryMetric: The lead primary metric; its sample sets the minimum sample
+	// size check.
+	PrimaryMetric ExperimentMetric `json:"primaryMetric"`
+	// PrimaryMetrics: More primary metrics, analysed like the lead one (limit
+	// `experiments.primaryMetrics`, the lead metric included).
+	PrimaryMetrics   []ExperimentMetric `json:"primaryMetrics,omitempty"`
+	GuardrailMetrics []ExperimentMetric `json:"guardrailMetrics,omitempty"`
 	// MinimumSampleSize: Subjects per variant before a result may be read.
 	MinimumSampleSize *int64 `json:"minimumSampleSize,omitempty"`
 	// Salt: Mixed into the hash that assigns a subject to a variant, so two

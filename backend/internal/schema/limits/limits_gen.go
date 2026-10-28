@@ -28,6 +28,9 @@ const (
 	// ActionTraceSteps: Steps one action run trace records; later steps are
 	// counted but not recorded. (ACT-030)
 	ActionTraceSteps Key = "action.traceSteps"
+	// AnalyticsFunnelScanEvents: Raw events one funnel result may scan; a result
+	// that would scan more fails and asks for a narrower range. (ANL-020)
+	AnalyticsFunnelScanEvents Key = "analytics.funnelScanEvents"
 	// AnalyticsFunnelSteps: Steps one funnel may have. (ANL-020)
 	AnalyticsFunnelSteps Key = "analytics.funnelSteps"
 	// AnimCompositedSubtree: Nodes below an animated opacity or layout prop
@@ -336,8 +339,22 @@ const (
 	// ExperimentsActivePerApp: Experiments that may be running at once in one
 	// app. (ABT-001)
 	ExperimentsActivePerApp Key = "experiments.activePerApp"
+	// ExperimentsAttributesPerTargeting: Attribute conditions one experiment may
+	// add to its targeting; all must hold. (ABT-001)
+	ExperimentsAttributesPerTargeting Key = "experiments.attributesPerTargeting"
+	// ExperimentsGuardrailMetrics: Guardrail metrics one experiment may have.
+	// (ABT-003)
+	ExperimentsGuardrailMetrics Key = "experiments.guardrailMetrics"
+	// ExperimentsPrimaryMetrics: Primary metrics one experiment may have, the
+	// lead metric included. (ABT-003)
+	ExperimentsPrimaryMetrics Key = "experiments.primaryMetrics"
+	// ExperimentsSegmentsPerTargeting: Segments one experiment may target; a
+	// device in any of them is eligible. (ABT-001)
+	ExperimentsSegmentsPerTargeting Key = "experiments.segmentsPerTargeting"
 	// FlagsPerApp: Feature flags one app may define. (ABT-001)
 	FlagsPerApp Key = "flags.perApp"
+	// FlagsSegmentValues: Per-segment values one flag may have. (ABT-006)
+	FlagsSegmentValues Key = "flags.segmentValues"
 	// FunctionBuildMemory: Memory one function build may use. (FN-016)
 	FunctionBuildMemory Key = "function.buildMemory"
 	// FunctionBuildTimeout: Wall-clock time one function build may run. (FN-016)
@@ -675,6 +692,7 @@ var registry = [...]Definition{
 	{Key: ActionStepsPerRun, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P4", Description: "Steps one action run may execute."},
 	{Key: ActionTraceRuns, Unit: UnitCount, Default: 50, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Action run traces the runtime keeps for diagnostics; the oldest are dropped first."},
 	{Key: ActionTraceSteps, Unit: UnitCount, Default: 200, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Steps one action run trace records; later steps are counted but not recorded."},
+	{Key: AnalyticsFunnelScanEvents, Unit: UnitCount, Default: 500000, Warning: 0, Max: 5000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Raw events one funnel result may scan; a result that would scan more fails and asks for a narrower range."},
 	{Key: AnalyticsFunnelSteps, Unit: UnitCount, Default: 10, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Steps one funnel may have."},
 	{Key: AnimCompositedSubtree, Unit: UnitCount, Default: 40, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Nodes below an animated opacity or layout prop before the compiler warns of an expensive animation."},
 	{Key: AnimKeyframesPerTrack, Unit: UnitCount, Default: 64, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Keyframes of one track of a timeline."},
@@ -777,7 +795,12 @@ var registry = [...]Definition{
 	{Key: DPOPReplayCacheEntries, Unit: UnitCount, Default: 1000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Proof identifiers the DPoP replay cache holds."},
 	{Key: DsrExportBytes, Unit: UnitBytes, Default: 268435456, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Size of one data subject export archive."},
 	{Key: ExperimentsActivePerApp, Unit: UnitCount, Default: 20, Warning: 0, Max: 500, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Experiments that may be running at once in one app."},
+	{Key: ExperimentsAttributesPerTargeting, Unit: UnitCount, Default: 20, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Attribute conditions one experiment may add to its targeting; all must hold."},
+	{Key: ExperimentsGuardrailMetrics, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Guardrail metrics one experiment may have."},
+	{Key: ExperimentsPrimaryMetrics, Unit: UnitCount, Default: 3, Warning: 0, Max: 10, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Primary metrics one experiment may have, the lead metric included."},
+	{Key: ExperimentsSegmentsPerTargeting, Unit: UnitCount, Default: 10, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Segments one experiment may target; a device in any of them is eligible."},
 	{Key: FlagsPerApp, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Feature flags one app may define."},
+	{Key: FlagsSegmentValues, Unit: UnitCount, Default: 20, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Per-segment values one flag may have."},
 	{Key: FunctionBuildMemory, Unit: UnitBytes, Default: 4294967296, Warning: 0, Max: 17179869184, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Memory one function build may use."},
 	{Key: FunctionBuildTimeout, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one function build may run."},
 	{Key: FunctionCallDepth, Unit: UnitCount, Default: 3, Warning: 0, Max: 3, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Depth of nested function-to-function calls within one invocation."},
