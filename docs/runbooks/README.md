@@ -22,6 +22,7 @@ One runbook per alert and per failure mode introduced in a phase (DoD-9, `OBS-00
 | [Golden runs](golden-runs.md) | Golden runs are non-canonical or differ without a change: fonts, frames, Linux renderer (`TST-003`) | P8 |
 | [Wrong calendar day](calendar-wrong-day.md) | A date shows the wrong day: Umm al-Qura table range, `PLX-1615` (`I18N-003`) | P8 |
 | [Backup and restore](backup-and-restore.md) | PostgreSQL WAL archive and base backups, object-store versioning, the consistency marker, restoring to a point in time, the restore drill (`DEP-010`) | P9 |
+| [Studio BFF](../operations/studio-bff.md) | Studio's backend for frontend: configuration, health, sessions, logs and common failures (`STU-002`) | P11 |
 | [Alert runbooks](alerts/README.md) | One page per alert of the Prometheus rules: service level objectives with burn-rate alerts, and the infrastructure and security alerts (`OBS-004`) | P9 |
 | [Approval deadlock and break-glass](approval-deadlock-and-break-glass.md) | A guarded change waits for approvals that cannot arrive, or an emergency action needs break-glass and its review: `PLX-8001`–`PLX-8006` (`GOV-020`–`GOV-024`) | P9 |
 | [Stuck rollout](stuck-rollout.md) | A staged rollout does not advance, does not end or leaves a channel on an unexpected release: `PLX-3153`, closing rollouts, the scheduler (`REL-050`–`REL-053`) | P9 |
