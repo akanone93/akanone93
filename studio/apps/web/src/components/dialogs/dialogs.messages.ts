@@ -12,6 +12,41 @@ export function dialogMessages(i18n: I18n) {
       message: "Cancel",
       comment: "Button that dismisses a dialog without acting.",
     }),
+    createName: i18n._({
+      id: "dialog.create.name",
+      message: "Name",
+      comment: "Label of the display-name field in the dialogs that create an organisation or an app.",
+    }),
+    createKey: i18n._({
+      id: "dialog.create.key",
+      message: "Key",
+      comment: "Label of the key field (the short identifier in URLs and the CLI) in the create dialogs.",
+    }),
+    createKeyHint: i18n._({
+      id: "dialog.create.key-hint",
+      message: "Lower-case letters, digits and hyphens, up to 64 characters. It cannot be changed later.",
+      comment: "Help text under the key field of the create dialogs.",
+    }),
+    createNameInvalid: i18n._({
+      id: "dialog.create.name-invalid",
+      message: "Enter a name of 1 to 200 characters.",
+      comment: "Error under the name field of the create dialogs.",
+    }),
+    createKeyInvalid: i18n._({
+      id: "dialog.create.key-invalid",
+      message: "Use 1 to 64 lower-case letters, digits and hyphens, starting and ending with a letter or digit.",
+      comment: "Error under the key field of the create dialogs.",
+    }),
+    createFailed: i18n._({
+      id: "dialog.create.failed",
+      message: "It could not be created. Try again.",
+      comment: "Shown in a create dialog when the server refused without giving a reason.",
+    }),
+    createWorking: i18n._({
+      id: "dialog.create.working",
+      message: "Creating",
+      comment: "Announced by the submit button of a create dialog while the request is running.",
+    }),
     confirm: i18n._({
       id: "dialog.confirm",
       message: "Confirm",

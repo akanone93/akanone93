@@ -1606,6 +1606,12 @@ msgstr "يتطلب الاعتماد الإذن translations.approve."
 msgid "installation.colApps"
 msgstr "التطبيقات"
 
+#. Heading of the list of the organisation's apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.title"
+msgstr "التطبيقات"
+
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -1647,6 +1653,12 @@ msgstr "ترتيب"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.autoLayout"
 msgstr "ترتيب"
+
+#. Second sentence of the empty apps state for a person who may not create apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.empty-ask"
+msgstr "اطلب من مسؤول إنشاء تطبيق."
 
 #. Body shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
@@ -2890,6 +2902,12 @@ msgstr "إنشاء طبقة علامة"
 msgid "design.createBrandTitle"
 msgstr "إنشاء طبقة علامة"
 
+#. Button, dialog title and submit label for creating an app; shown only with the app-manage permission.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.create"
+msgstr "إنشاء تطبيق"
+
 #. Button that creates the experiment.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -2920,6 +2938,12 @@ msgstr "إنشاء المفتاح"
 msgid "links.picker.confirm"
 msgstr "إنشاء الرابط"
 
+#. Title and submit button of the create-organisation dialog, and the button on the empty page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.org.create"
+msgstr "إنشاء مؤسسة"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -2949,6 +2973,12 @@ msgstr "إنشاء فريق"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.fromSession"
 msgstr "إنشاء اختبار من جلسة الجهاز"
+
+#. Body shown to a signed-in installation administrator who has no organisation yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.noorg.admin-body"
+msgstr "أنشئ أول مؤسسة لتبدأ في بناء التطبيقات."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -2985,6 +3015,12 @@ msgstr "تاريخ الإنشاء"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.rollbackHint"
 msgstr "ينشئ إصداراً جديداً بهذا المحتوى على القناة. يلزم تحقق أمني."
+
+#. Announced by the submit button of a create dialog while the request is running.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.working"
+msgstr "جارٍ الإنشاء"
 
 #. Platform style option.
 #. js-lingui-explicit-id
@@ -3873,6 +3909,12 @@ msgstr "أدخل اسم المفتاح."
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.localeInvalid"
 msgstr "أدخل رمز لغة مثل de أو pt-BR."
+
+#. Error under the name field of the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.name-invalid"
+msgstr "أدخل اسمًا من 1 إلى 200 حرف."
 
 #. Error under the name field when it is empty.
 #. js-lingui-explicit-id
@@ -5440,6 +5482,12 @@ msgstr "الجهة المُصدِرة"
 msgid "admin.issuer"
 msgstr "الجهة المُصدِرة"
 
+#. Shown in a create dialog when the server refused without giving a reason.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.failed"
+msgstr "تعذّر الإنشاء. حاول مرة أخرى."
+
 #. STU-071: the item is the app's or plugin's entry and cannot be deleted until another is chosen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -5626,6 +5674,12 @@ msgstr "المفتاح"
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colKey"
+msgstr "المفتاح"
+
+#. Label of the key field (the short identifier in URLs and the CLI) in the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.key"
 msgstr "المفتاح"
 
 #. Link text.
@@ -6306,6 +6360,12 @@ msgstr "السجلات"
 msgid "approvals.riskLow"
 msgstr "منخفضة"
 
+#. Help text under the key field of the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.key-hint"
+msgstr "أحرف صغيرة وأرقام وواصلات، بحد أقصى 64 حرفًا. لا يمكن تغيير المفتاح لاحقًا."
+
 #. Button that makes a step the first step of the graph.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -6696,6 +6756,12 @@ msgstr "الاسم"
 msgid "admin.colName"
 msgstr "الاسم"
 
+#. Label of the display-name field in the dialogs that create an organisation or an app.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.name"
+msgstr "الاسم"
+
 #. Error when a custom gate has no valid event name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/rollout.messages.ts
@@ -6887,6 +6953,12 @@ msgstr "تجربة جديدة"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.newKey"
 msgstr "مفتاح جديد"
+
+#. Top bar button that opens the create-organisation dialog; shown only to installation administrators.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.org.new"
+msgstr "مؤسسة جديدة"
 
 #. Button and dialog title: add a plugin to the app.
 #. js-lingui-explicit-id
@@ -7661,6 +7733,12 @@ msgstr "مفتوح"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.reviewOpen"
 msgstr "مفتوحة"
+
+#. Accessible name of an app's link in the apps list; name is the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.open"
+msgstr "فتح {name}"
 
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
@@ -10404,6 +10482,12 @@ msgstr "الرمز القصير"
 msgid "cmd.nav.shortcuts"
 msgstr "عرض اختصارات لوحة المفاتيح"
 
+#. Button that loads the next page of the apps list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.more"
+msgstr "عرض المزيد من التطبيقات"
+
 #. Announced to screen readers when the canvas pans to a screen and highlights it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -11339,6 +11423,12 @@ msgstr "انتهت صلاحية الموافقة."
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.approvalRejected"
 msgstr "رُفضت الموافقة."
+
+#. Shown when listing the organisation's apps failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.load-failed"
+msgstr "تعذّر تحميل التطبيقات."
 
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
@@ -12547,6 +12637,12 @@ msgstr "تعذّر تحميل هذا العنصر."
 msgid "pluginCanvas.laneUnavailable"
 msgstr "هذا الرابط غير مرتبط مباشرة بحدث ودجت، لذا لا يمكن تغييره هنا."
 
+#. Shown on the organisation home when it has no apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.empty"
+msgstr "لا توجد تطبيقات في هذه المؤسسة بعد."
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -13050,6 +13146,12 @@ msgstr "الاستخدام"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.usageTitle"
 msgstr "الاستخدام"
+
+#. Error under the key field of the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.key-invalid"
+msgstr "استخدم من 1 إلى 64 حرفًا صغيرًا أو رقمًا أو واصلة، على أن يبدأ المفتاح وينتهي بحرف أو رقم."
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id

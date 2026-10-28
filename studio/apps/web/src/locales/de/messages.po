@@ -1606,6 +1606,12 @@ msgstr "Zum Freigeben ist die Berechtigung translations.approve nötig."
 msgid "installation.colApps"
 msgstr "Apps"
 
+#. Heading of the list of the organisation's apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.title"
+msgstr "Apps"
+
 #. Caption on the organisation home.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -1647,6 +1653,12 @@ msgstr "Anordnen"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.autoLayout"
 msgstr "Anordnen"
+
+#. Second sentence of the empty apps state for a person who may not create apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.empty-ask"
+msgstr "Bitten Sie eine Administratorin oder einen Administrator, eine App anzulegen."
 
 #. Body shown to a signed-in person with no organisation.
 #. js-lingui-explicit-id
@@ -2890,6 +2902,12 @@ msgstr "Marken-Overlay anlegen"
 msgid "design.createBrandTitle"
 msgstr "Marken-Overlay anlegen"
 
+#. Button, dialog title and submit label for creating an app; shown only with the app-manage permission.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.create"
+msgstr "App anlegen"
+
 #. Button that creates the experiment.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -2920,6 +2938,12 @@ msgstr "Schlüssel anlegen"
 msgid "links.picker.confirm"
 msgstr "Link erstellen"
 
+#. Title and submit button of the create-organisation dialog, and the button on the empty page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.org.create"
+msgstr "Organisation anlegen"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -2949,6 +2973,12 @@ msgstr "Team erstellen"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.fromSession"
 msgstr "Test aus Gerätesitzung erstellen"
+
+#. Body shown to a signed-in installation administrator who has no organisation yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.noorg.admin-body"
+msgstr "Legen Sie die erste Organisation an, um Apps zu entwickeln."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -2985,6 +3015,12 @@ msgstr "Erstellt"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.rollbackHint"
 msgstr "Erstellt ein neues Release mit diesem Inhalt auf dem Kanal. Eine Sicherheitsprüfung ist erforderlich."
+
+#. Announced by the submit button of a create dialog while the request is running.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.working"
+msgstr "Wird angelegt"
 
 #. Platform style option.
 #. js-lingui-explicit-id
@@ -3873,6 +3909,12 @@ msgstr "Gib einen Schlüsselnamen ein."
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.localeInvalid"
 msgstr "Geben Sie einen Sprachcode wie de oder pt-BR ein."
+
+#. Error under the name field of the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.name-invalid"
+msgstr "Geben Sie einen Namen mit 1 bis 200 Zeichen ein."
 
 #. Error under the name field when it is empty.
 #. js-lingui-explicit-id
@@ -5440,6 +5482,12 @@ msgstr "Aussteller"
 msgid "admin.issuer"
 msgstr "Aussteller"
 
+#. Shown in a create dialog when the server refused without giving a reason.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.failed"
+msgstr "Das Anlegen ist fehlgeschlagen. Versuchen Sie es erneut."
+
 #. STU-071: the item is the app's or plugin's entry and cannot be deleted until another is chosen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -5626,6 +5674,12 @@ msgstr "Schlüssel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colKey"
+msgstr "Schlüssel"
+
+#. Label of the key field (the short identifier in URLs and the CLI) in the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.key"
 msgstr "Schlüssel"
 
 #. Link text.
@@ -6306,6 +6360,12 @@ msgstr "Protokolle"
 msgid "approvals.riskLow"
 msgstr "Niedrig"
 
+#. Help text under the key field of the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.key-hint"
+msgstr "Kleinbuchstaben, Ziffern und Bindestriche, höchstens 64 Zeichen. Der Schlüssel lässt sich später nicht ändern."
+
 #. Button that makes a step the first step of the graph.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -6696,6 +6756,12 @@ msgstr "Name"
 msgid "admin.colName"
 msgstr "Name"
 
+#. Label of the display-name field in the dialogs that create an organisation or an app.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.name"
+msgstr "Name"
+
 #. Error when a custom gate has no valid event name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/rollout.messages.ts
@@ -6887,6 +6953,12 @@ msgstr "Neues Experiment"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.newKey"
 msgstr "Neuer Schlüssel"
+
+#. Top bar button that opens the create-organisation dialog; shown only to installation administrators.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.org.new"
+msgstr "Neue Organisation"
 
 #. Button and dialog title: add a plugin to the app.
 #. js-lingui-explicit-id
@@ -7661,6 +7733,12 @@ msgstr "Offen"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.reviewOpen"
 msgstr "Offen"
+
+#. Accessible name of an app's link in the apps list; name is the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.open"
+msgstr "{name} öffnen"
 
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
@@ -10404,6 +10482,12 @@ msgstr "Kurzcode"
 msgid "cmd.nav.shortcuts"
 msgstr "Tastaturkürzel anzeigen"
 
+#. Button that loads the next page of the apps list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.more"
+msgstr "Weitere Apps anzeigen"
+
 #. Announced to screen readers when the canvas pans to a screen and highlights it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -11339,6 +11423,12 @@ msgstr "Die Freigabe ist abgelaufen."
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.approvalRejected"
 msgstr "Die Freigabe wurde abgelehnt."
+
+#. Shown when listing the organisation's apps failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.load-failed"
+msgstr "Die Apps konnten nicht geladen werden."
 
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
@@ -12547,6 +12637,12 @@ msgstr "Dieses Element konnte nicht geladen werden."
 msgid "pluginCanvas.laneUnavailable"
 msgstr "Dieser Link hängt nicht direkt an einem Widget-Ereignis und kann hier nicht geändert werden."
 
+#. Shown on the organisation home when it has no apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.apps.empty"
+msgstr "Diese Organisation hat noch keine Apps."
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -13050,6 +13146,12 @@ msgstr "Nutzung"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.usageTitle"
 msgstr "Nutzung"
+
+#. Error under the key field of the create dialogs.
+#. js-lingui-explicit-id
+#: apps/web/src/components/dialogs/dialogs.messages.ts
+msgid "dialog.create.key-invalid"
+msgstr "Verwenden Sie 1 bis 64 Kleinbuchstaben, Ziffern und Bindestriche; am Anfang und Ende steht ein Buchstabe oder eine Ziffer."
 
 #. Button that answers the second factor with a passkey.
 #. js-lingui-explicit-id

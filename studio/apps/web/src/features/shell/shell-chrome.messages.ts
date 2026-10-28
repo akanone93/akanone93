@@ -86,6 +86,21 @@ export function chromeMessages(i18n: I18n) {
       message: "Ask an administrator to invite you to an organisation.",
       comment: "Body shown to a signed-in person with no organisation.",
     }),
+    noOrgAdminBody: i18n._({
+      id: "chrome.noorg.admin-body",
+      message: "Create the first organisation to start building apps.",
+      comment: "Body shown to a signed-in installation administrator who has no organisation yet.",
+    }),
+    newOrganisation: i18n._({
+      id: "chrome.org.new",
+      message: "New organisation",
+      comment: "Top bar button that opens the create-organisation dialog; shown only to installation administrators.",
+    }),
+    createOrganisation: i18n._({
+      id: "chrome.org.create",
+      message: "Create organisation",
+      comment: "Title and submit button of the create-organisation dialog, and the button on the empty page.",
+    }),
     signedOut: i18n._({
       id: "chrome.signedout.title",
       message: "You are signed out",

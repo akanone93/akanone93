@@ -5,7 +5,7 @@ import { createClient } from "@connectrpc/connect";
 import { useQuery } from "@connectrpc/connect-query";
 import { useLingui } from "@lingui/react";
 import { OrgService, PreferencesService, SearchService } from "@plux/api";
-import { GlassCapsule, Icon, Menu, Select } from "@plux/ui";
+import { Button, GlassCapsule, Icon, Menu, Select } from "@plux/ui";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { Link, Outlet, useParams, useRouter } from "@tanstack/react-router";
 import { type ReactElement, useMemo, useState } from "react";
@@ -20,6 +20,7 @@ import { createPendingCounter, PendingChangesProvider, usePendingTotal } from ".
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 import { AppNav } from "./app-nav.tsx";
 import { CommandPalette } from "./command-palette.tsx";
+import { CreateOrganisationDialog } from "./create-organisation-dialog.tsx";
 import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
 import { hitPath, type OrgSearchFn } from "./palette-search.ts";
@@ -75,6 +76,7 @@ export function ShellLayout() {
   const currentId = org === undefined ? undefined : organizationIdOf(org);
 
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [creatingOrganisation, setCreatingOrganisation] = useState(false);
   const [pending] = useState(createPendingCounter);
   const waiting = usePendingTotal(pending);
   const orgSearch = useMemo<OrgSearchFn>(
@@ -129,6 +131,14 @@ export function ShellLayout() {
                   options={organisations.map((o) => ({ value: o.id, label: o.name }))}
                   onValueChange={(id) => router.history.push(`/o/${id}`)}
                 />
+              )}
+              {organisations.length > 0 && user.data?.installationAdmin === true && (
+                <>
+                  <Button size="sm" variant="secondary" onClick={() => setCreatingOrganisation(true)}>
+                    {m.newOrganisation}
+                  </Button>
+                  <CreateOrganisationDialog open={creatingOrganisation} onOpenChange={setCreatingOrganisation} />
+                </>
               )}
               <AdminLink organisationId={currentId} permissions={permissions} label={m.admin} />
               <span className="flex-1" />
