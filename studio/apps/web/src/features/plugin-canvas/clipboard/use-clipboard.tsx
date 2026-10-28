@@ -10,6 +10,7 @@ import type { EditFn } from "../select/edits.ts";
 import { findNode } from "../select/edits.ts";
 import { type Board, readEnvelopeText, writeEnvelope } from "./board.ts";
 import { clipboardMessages } from "./clipboard.messages.ts";
+import { type CopyOverIO, copyItems, copyOver, type Dropped, resolveCopies } from "./copy-over.ts";
 import {
   applyResolutions,
   buildEnvelope,
@@ -106,6 +107,15 @@ export interface ClipboardInput {
   readonly has: TargetHas;
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   readonly clipboard?: Board;
+  /** Where "copy over" reads its sources and writes its copies; without it a copy keeps the reference only. */
+  readonly copyOver?:
+    | {
+        readonly io: (source: ClipboardSource) => CopyOverIO;
+        readonly prefix: string;
+        /** How many documents the change set may still take. */
+        readonly room: () => number;
+      }
+    | undefined;
 }
 
 /** Registers edit.copy, edit.cut and edit.paste on the plugin canvas; returns the dialog to render. */
@@ -114,6 +124,7 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
   const m = clipboardMessages(i18n);
   const [pending, setPending] = useState<Pending | undefined>();
   const [refusal, setRefusal] = useState<RefusalReason | undefined>();
+  const [dropped, setDropped] = useState<readonly Dropped[] | undefined>();
   const { screens, screenOf, selected, edit, source, has, validatePage } = input;
   const board = input.clipboard ?? navigator.clipboard;
 
@@ -150,14 +161,26 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
   }, [copy, selected, screenOf, edit]);
 
   const apply = useCallback(
-    (envelope: Envelope, choices: ReadonlyMap<string, Resolution> = new Map()) => {
+    async (envelope: Envelope, items: readonly ReportItem[], choices: ReadonlyMap<string, Resolution> = new Map()) => {
       const anchor = selected()[0];
       const doc = (anchor === undefined ? undefined : screenOf.get(anchor)) ?? screens[0]?.id;
-      if (doc !== undefined) {
-        edit(doc, pasteRecipe(anchor, applyResolutions(freshNodes(envelope), choices)), { step: "paste" });
+      if (doc === undefined) {
+        return;
       }
+      let resolved = choices;
+      const wanted = copyItems(items, choices);
+      if (input.copyOver !== undefined && wanted.length > 0) {
+        // The sources are created first; the paste that refers to them is the one undo step (F7).
+        const { io, prefix, room } = input.copyOver;
+        const result = await copyOver(wanted, io(envelope.source), { prefix, room: room() });
+        resolved = resolveCopies(choices, items, result);
+        if (result.dropped.length > 0) {
+          setDropped(result.dropped);
+        }
+      }
+      edit(doc, pasteRecipe(anchor, applyResolutions(freshNodes(envelope), resolved)), { step: "paste" });
     },
-    [selected, screenOf, screens, edit],
+    [selected, screenOf, screens, edit, input.copyOver],
   );
 
   const validate = useCallback(
@@ -180,7 +203,7 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
       if (items.length > 0) {
         setPending({ envelope: result.envelope, items });
       } else {
-        apply(result.envelope);
+        await apply(result.envelope, items);
       }
     }
   }, [board, validate, source, has, apply]);
@@ -204,23 +227,28 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
   }, [input.canEdit, m.copy, m.cut, m.paste, copy, cut, paste]);
   useScopedCommands("plugin-clipboard", commands);
 
-  if (pending === undefined && refusal === undefined) {
+  if (pending === undefined && refusal === undefined && dropped === undefined) {
     return null;
   }
   const close = () => {
     setPending(undefined);
     setRefusal(undefined);
+    setDropped(undefined);
   };
   return (
     <ClipboardReportDialog
       items={pending?.items}
       candidates={has}
       refusal={refusal}
+      {...(dropped === undefined ? {} : { dropped })}
       onConfirm={(choices) => {
         if (pending !== undefined) {
-          apply(pending.envelope, choices);
+          const { envelope, items } = pending;
+          setPending(undefined);
+          void apply(envelope, items, choices);
+        } else {
+          close();
         }
-        close();
       }}
       onClose={close}
     />

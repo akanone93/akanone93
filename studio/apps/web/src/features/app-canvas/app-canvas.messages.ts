@@ -26,6 +26,28 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Frame selection",
       comment: "Button: group the selected plugins in a labelled frame.",
     }),
+    editFrame: (label: string) =>
+      i18n._({
+        id: "appCanvas.editFrame",
+        message: "Rename or resize frame {label}",
+        values: { label },
+        comment: "Button: opens the dialog that renames or resizes a frame; label is the frame's name.",
+      }),
+    frameWidth: i18n._({
+      id: "appCanvas.frameWidth",
+      message: "Width",
+      comment: "Field label for the width of a frame.",
+    }),
+    frameHeight: i18n._({
+      id: "appCanvas.frameHeight",
+      message: "Height",
+      comment: "Field label for the height of a frame.",
+    }),
+    noOwner: i18n._({
+      id: "appCanvas.noOwner",
+      message: "No owning team",
+      comment: "Option in the owning-team picker: the plugin has no owning team.",
+    }),
     frameLabel: i18n._({
       id: "appCanvas.frameLabel",
       message: "Frame label",

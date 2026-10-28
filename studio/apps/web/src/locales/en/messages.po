@@ -12924,3 +12924,39 @@ msgstr "Zoom out"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.zoomToFit"
 msgstr "Zoom to fit"
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedTitle"
+msgstr "Some items were not copied"
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedIntro"
+msgstr "These items were left out. Pasted elements no longer refer to them."
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropForbidden"
+msgstr "You cannot read it."
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropLimit"
+msgstr "The change set is full."
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropRejected"
+msgstr "The server refused it."
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editFrame"
+msgstr "Rename or resize frame {label}"
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameWidth"
+msgstr "Width"
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameHeight"
+msgstr "Height"
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.noOwner"
+msgstr "No owning team"

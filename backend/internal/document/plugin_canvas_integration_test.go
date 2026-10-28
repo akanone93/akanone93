@@ -5,6 +5,8 @@ package document_test
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
@@ -43,6 +45,22 @@ func TestPluginMetadataDuplicateAndSummaries(t *testing.T) {
 	copied, err := f.docs.DuplicatePlugin(ctx, f.owner, plugin, "loans-copy", "Loans copy", "dup-1")
 	if err != nil || copied.Key != "loans-copy" || copied.DraftRevision == 0 {
 		t.Fatalf("DuplicatePlugin: %+v %v", copied, err)
+	}
+	srcDocs, _ := f.docs.ListDocuments(ctx, f.owner, f.app, plugin, "", 200, true)
+	dupDocs, _ := f.docs.ListDocuments(ctx, f.owner, f.app, copied.ID, "", 200, true)
+	if len(dupDocs) == 0 || len(dupDocs) != len(srcDocs) {
+		t.Fatalf("copied documents: %d of %d", len(dupDocs), len(srcDocs))
+	}
+	for _, sd := range srcDocs {
+		var head struct {
+			ID string `json:"id"`
+		}
+		_ = json.Unmarshal(sd.Content, &head)
+		for _, dd := range dupDocs {
+			if head.ID != "" && strings.Contains(string(dd.Content), head.ID) {
+				t.Errorf("source id %s survived in %s", head.ID, dd.Path)
+			}
+		}
 	}
 	if _, err := f.docs.DuplicatePlugin(ctx, f.owner, plugin, "loans-copy", "Again", "dup-2"); code(err) != plxerr.ResourceExists {
 		t.Errorf("a duplicate key: %v", err)
@@ -122,5 +140,33 @@ func TestPluginMetadataReferences(t *testing.T) {
 	}
 	if _, err := f.docs.UpdatePluginMetadata(ctx, f.owner, plugin, "", tenancy.Metadata{IconAssetID: &missing}); code(err) != plxerr.ResourceNotFound {
 		t.Errorf("an unknown asset as icon: %v", err)
+	}
+}
+
+// Verifies: STU-067, SEC-001.
+// A clipboard copy over reads its sources with the caller's own access: a
+// plugin of another organisation is refused by the server, exactly like a
+// missing one, so nothing of it can be pasted.
+func TestCopyOverSourceFromAnotherOrganisationIsRefused(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	admin := person(f.owner.UserID, true)
+	other, err := f.tenancy.CreateOrganization(ctx, admin, "elsewhere", "Elsewhere")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stranger, err := f.auth.Resolve(ctx, admin, other.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, errForeign := f.docs.ListDocuments(ctx, stranger, f.app, plugin, "", 200, true)
+	if errForeign == nil {
+		t.Fatal("a plugin of another organisation was listed")
+	}
+	_, errMissing := f.docs.ListDocuments(ctx, stranger, f.app, "0190b3a0-0000-7000-8000-0000000000ff", "", 200, true)
+	if code(errForeign) != plxerr.ResourceNotFound || code(errMissing) != plxerr.ResourceNotFound {
+		t.Errorf("must read as missing: %v | %v", errForeign, errMissing)
 	}
 }

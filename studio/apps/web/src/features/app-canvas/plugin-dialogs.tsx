@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { PluginSummary } from "@plux/api";
-import { Button, Dialog, Field, Input, Textarea } from "@plux/ui";
+import { Button, Dialog, Field, Input, Select, Textarea } from "@plux/ui";
 import { type ReactNode, useEffect, useState } from "react";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
 import { type PlacedBox, pluginKeyFrom } from "./app-canvas.model.ts";
+import type { TeamOption } from "./use-teams.ts";
+
+const NO_OWNER = "none";
 
 export type Dialogue = { kind: "new" | "settings" | "duplicate" | "entry" | "frame" } | null;
 
@@ -15,9 +18,10 @@ export interface DialogsProps {
   readonly summary: PluginSummary | undefined;
   readonly taken: ReadonlySet<string>;
   readonly selectedBoxes: readonly PlacedBox[];
+  readonly teams: readonly TeamOption[];
   readonly close: () => void;
   readonly onCreate: (name: string, key: string) => void;
-  readonly onSettings: (id: string, name: string, description: string, tags: string[]) => void;
+  readonly onSettings: (id: string, name: string, description: string, tags: string[], owningTeamId: string) => void;
   readonly onDuplicate: (id: string, name: string, key: string) => void;
   readonly onEntry: (key: string) => void;
   readonly onFrame: (label: string) => void;
@@ -35,6 +39,7 @@ interface Fields {
   readonly name: string;
   readonly description: string;
   readonly tags: string[];
+  readonly owner: string;
 }
 
 const splitTags = (text: string): string[] =>
@@ -72,7 +77,7 @@ function submitDialogue(
   } else if (kind === "frame") {
     on.onFrame(f.name);
   } else if (p !== undefined && kind === "settings") {
-    on.onSettings(p.id, f.name, f.description, f.tags);
+    on.onSettings(p.id, f.name, f.description, f.tags, f.owner);
   } else if (p !== undefined) {
     on.onDuplicate(p.id, f.name, pluginKeyFrom(f.name, on.taken));
   }
@@ -84,6 +89,7 @@ export function PluginDialogs(props: DialogsProps): ReactNode {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
+  const [owner, setOwner] = useState("");
   useEffect(() => {
     if (dialogue === null) {
       return;
@@ -92,12 +98,13 @@ export function PluginDialogs(props: DialogsProps): ReactNode {
     setName(initialName(dialogue.kind, p?.name ?? ""));
     setDescription(p?.description ?? "");
     setTags((p?.tags ?? []).join(", "));
+    setOwner(p?.owningTeamId ?? "");
   }, [dialogue, s]);
   if (dialogue === null) {
     return null;
   }
   const submit = () =>
-    submitDialogue(dialogue.kind, { name: name.trim(), description, tags: splitTags(tags) }, s?.plugin, props);
+    submitDialogue(dialogue.kind, { name: name.trim(), description, tags: splitTags(tags), owner }, s?.plugin, props);
   const title = dialogTitle(dialogue.kind, m);
   return (
     <Dialog
@@ -125,6 +132,17 @@ export function PluginDialogs(props: DialogsProps): ReactNode {
           </Field>
           <Field label={m.tags}>
             <Input value={tags} onChange={(e) => setTags(e.target.value)} />
+          </Field>
+          <Field label={m.owner}>
+            <Select
+              label={m.owner}
+              value={owner === "" ? NO_OWNER : owner}
+              options={[
+                { value: NO_OWNER, label: m.noOwner },
+                ...props.teams.map((t) => ({ value: t.id, label: t.name })),
+              ]}
+              onValueChange={(v) => setOwner(v === NO_OWNER ? "" : v)}
+            />
           </Field>
         </>
       ) : null}
