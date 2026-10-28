@@ -25,9 +25,9 @@ repos:
       # (ADR-0030, ADR-0032, ADR-0011), as they are.
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-        exclude: '(_generated\.dart|^studio/packages/api/src/gen/.*|^packages/plux_flutter/native/zstd/.*|^packages/plux_functions/native/wamr/.*|^packages/plux_scanner/third_party/.*|^backend/internal/icons/fonts/LICENSE-.*)$'
+        exclude: '(_generated\.dart|^studio/packages/api/src/gen/.*|^packages/plux_flutter/native/zstd/.*|^packages/plux_functions/native/wamr/.*|^packages/plux_scanner/third_party/.*|^backend/internal/icons/fonts/LICENSE-.*|^studio/apps/web/src/features/plugin-canvas/fonts/.*-OFL\.txt)$'
       - id: end-of-file-fixer
-        exclude: '(_generated\.dart|^studio/packages/api/src/gen/.*|^packages/plux_flutter/native/zstd/.*|^packages/plux_functions/native/wamr/.*|^packages/plux_scanner/third_party/.*|^backend/internal/icons/fonts/LICENSE-.*)$'
+        exclude: '(_generated\.dart|^studio/packages/api/src/gen/.*|^packages/plux_flutter/native/zstd/.*|^packages/plux_functions/native/wamr/.*|^packages/plux_scanner/third_party/.*|^backend/internal/icons/fonts/LICENSE-.*|^studio/apps/web/src/features/plugin-canvas/fonts/.*-OFL\.txt)$'
       - id: mixed-line-ending
         args: [--fix=lf]
       - id: check-yaml

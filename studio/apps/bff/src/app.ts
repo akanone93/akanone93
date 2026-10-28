@@ -24,6 +24,8 @@ export type AppOptions = {
   /** Client address of a request; the server supplies it. */
   clientIp?: (req: Request) => string;
   limiter?: RateLimiter;
+  /** Limiter for telemetry events, counted apart from requests at their own registry limit. */
+  telemetryLimiter?: RateLimiter;
   readyTimeoutMs?: number;
   /** Version of Studio reported by /version. */
   studioVersion?: string;
@@ -68,7 +70,7 @@ export function createBff(options: AppOptions): BffApp {
   const streams = new StreamCounter(config.streamsPerSession, config.maxStreamConnections);
   const ip = makeClientIp(config.trustedProxies, options.clientIp ?? (() => "unknown"));
   const stateKey = options.stateKey;
-  const telemetryLimiter = options.limiter ?? new MemoryRateLimiter(config.telemetryEventsPerMinute);
+  const telemetryLimiter = options.telemetryLimiter ?? new MemoryRateLimiter(config.telemetryEventsPerMinute);
   let reports = 0;
   let draining = false;
 
