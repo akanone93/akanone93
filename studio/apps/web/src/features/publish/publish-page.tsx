@@ -63,20 +63,12 @@ function holdText(m: Messages, hold: string): string {
   return texts[hold] ?? hold;
 }
 
-function Panel({
-  step,
-  props,
-  pluginIds,
-}: {
-  readonly step: Step;
-  readonly props: PanelProps;
-  readonly pluginIds: ReadonlyMap<string, string>;
-}): ReactElement {
+function Panel({ step, props }: { readonly step: Step; readonly props: PanelProps }): ReactElement {
   switch (step) {
     case "select":
       return <SelectPanel {...props} />;
     case "build":
-      return <BuildPanel {...props} pluginIds={pluginIds} />;
+      return <BuildPanel {...props} />;
     case "reports":
       return <ReportsPanel {...props} />;
     case "diffs":
@@ -144,7 +136,7 @@ export function PublishPage(): ReactElement {
       });
   };
   const pluginIds = new Map((summaries.data?.summaries ?? []).map((s) => [s.plugin?.key ?? "", s.plugin?.id ?? ""]));
-  const props: PanelProps = { request, diff: query.data?.visualDiff, api, editable, busy, run };
+  const props: PanelProps = { request, diff: query.data?.visualDiff, api, editable, busy, run, pluginIds };
   return (
     <section className="flex flex-col gap-4" aria-labelledby="publish-title">
       <h1 id="publish-title" className="text-screen">
@@ -179,7 +171,7 @@ export function PublishPage(): ReactElement {
           {error}
         </p>
       )}
-      <Panel step={viewed} props={props} pluginIds={pluginIds} />
+      <Panel step={viewed} props={props} />
       {can && own && !ended && (
         <div>
           <Button variant="secondary" disabled={busy} onClick={() => setCancelling(true)}>

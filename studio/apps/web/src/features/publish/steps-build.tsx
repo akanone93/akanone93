@@ -5,8 +5,11 @@ import { useLingui } from "@lingui/react";
 import type { BuildRef, PublishJob } from "@plux/api";
 import { Button, StatusPill } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { evidenceMessages } from "./evidence.messages.ts";
+import { PluginReport } from "./evidence.tsx";
 import type { PanelProps } from "./panel.ts";
 import { publishMessages } from "./publish.messages.ts";
+import { useEvidence } from "./use-evidence.ts";
 import { useJobs } from "./use-publish.ts";
 import { WarningsDialog } from "./warnings-dialog.tsx";
 
@@ -74,14 +77,7 @@ function JobRow({
 }
 
 /** Step 2: starts one publish job per plugin (idempotent, so a reload re-attaches) and shows their progress (SRV-050). */
-export function BuildPanel({
-  request,
-  editable,
-  busy,
-  api,
-  run,
-  pluginIds,
-}: PanelProps & { readonly pluginIds: ReadonlyMap<string, string> }): ReactElement {
+export function BuildPanel({ request, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const [refs, setRefs] = useState<readonly { pluginKey: string; jobId: string }[]>([]);
   const jobs = useJobs(refs.map((r) => r.jobId));
@@ -142,8 +138,10 @@ function buildAsJob(b: BuildRef | undefined): PublishJob | undefined {
 }
 
 /** Step 3: the validation, size and accessibility findings of each build; errors block, warnings are acknowledged (D42, SRV-051). */
-export function ReportsPanel({ request, editable, busy, api, run }: PanelProps): ReactElement {
+export function ReportsPanel({ request, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
+  const e = evidenceMessages(useLingui().i18n);
+  const evidence = useEvidence(request, pluginIds);
   const [open, setOpen] = useState(false);
   const warnings = [...new Set(request.builds.flatMap((b) => b.warnings))];
   const blocked = request.hold === "blocked" || request.builds.some((b) => b.errors > 0);
@@ -168,6 +166,23 @@ export function ReportsPanel({ request, editable, busy, api, run }: PanelProps):
           </li>
         ))}
       </ul>
+      {evidence.isPending && request.builds.length > 0 && pluginIds.size > 0 && (
+        <p role="status" className="text-body text-secondary">
+          {e.loading}
+        </p>
+      )}
+      {evidence.isError && (
+        <p role="alert" className="text-body text-danger">
+          {e.failed}
+        </p>
+      )}
+      {evidence.data !== undefined && (
+        <ul className="flex flex-col gap-2">
+          {evidence.data.map((x) => (
+            <PluginReport key={x.pluginKey} evidence={x} />
+          ))}
+        </ul>
+      )}
       {blocked && (
         <p role="alert" className="text-body text-danger">
           {m.reportsBlocked}
