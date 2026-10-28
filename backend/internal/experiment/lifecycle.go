@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	"github.com/jackc/pgx/v5"
 
@@ -81,17 +82,55 @@ func (s *Service) StartExperiment(ctx context.Context, p auth.Principal, id stri
 	return out, err
 }
 
-// segmentRule resolves the segment an experiment targets, before any
-// transaction is open; nil when it targets everyone.
+// segmentRule resolves who an experiment targets, before any transaction is
+// open: a device in any of its segments, and meeting every attribute
+// condition. It is nil when the experiment targets everyone. One segment and
+// no condition is that segment's rule as it is.
 func (s *Service) segmentRule(ctx context.Context, p auth.Principal, e Experiment) (*controldoc.Rule, error) {
-	if e.Definition.Segment == "" {
+	var parts, segs []controldoc.Rule
+	for _, key := range targetSegments(e.Definition) {
+		rule, err := s.segments.Rule(ctx, p, e.AppID, key)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		segs = append(segs, rule)
+	}
+	switch len(segs) {
+	case 0:
+	case 1:
+		parts = segs
+	default:
+		parts = []controldoc.Rule{{Any: segs}}
+	}
+	for _, a := range e.Definition.Attributes {
+		rule, err := RuleOf(a)
+		if err != nil {
+			return nil, err
+		}
+		parts = append(parts, rule)
+	}
+	var out controldoc.Rule
+	switch len(parts) {
+	case 0:
 		return nil, nil
+	case 1:
+		out = parts[0]
+	default:
+		out = controldoc.Rule{All: parts}
 	}
-	rule, err := s.segments.Rule(ctx, p, e.AppID, e.Definition.Segment)
-	if err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+	if d := ruleDepth(out); d > controldoc.MaxRuleDepth {
+		return nil, plxerr.New(plxerr.SegmentRuleInvalid, "the targeting of experiment %q nests %d groups deep; at most %d", e.Key, d, controldoc.MaxRuleDepth)
 	}
-	return &rule, nil
+	return &out, nil
+}
+
+// ruleDepth is how many groups the deepest condition of a rule is inside.
+func ruleDepth(r controldoc.Rule) int {
+	deepest := 0
+	for _, g := range slices.Concat(r.All, r.Any) {
+		deepest = max(deepest, 1+ruleDepth(g))
+	}
+	return deepest
 }
 
 // lockExperiment takes the lock of an experiment's environment, which makes

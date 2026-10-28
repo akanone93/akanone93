@@ -488,11 +488,18 @@ export interface ExperimentDocument {
   readonly layer?: string;
   /** The share of subjects, in percent, kept out of the experiment and shown the control. */
   readonly holdout?: number;
-  /** Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. */
+  /** A segment the experiment targets. With `segments` it is the first of them. */
   readonly segment?: string;
+  /** More segments to target. A device in any of them, this document's `segment` included, is eligible (limit `experiments.segmentsPerTargeting`). */
+  readonly segments?: readonly string[];
+  /** Conditions on device and user attributes. A device must meet every one of them, as well as be in one of the segments if any are named (limit `experiments.attributesPerTargeting`). */
+  readonly attributes?: readonly SegmentRule[];
   /** When the experiment runs; both bounds are optional. */
   readonly schedule?: ExperimentSchedule;
+  /** The lead primary metric; its sample sets the minimum sample size check. */
   readonly primaryMetric: ExperimentMetric;
+  /** More primary metrics, analysed like the lead one (limit `experiments.primaryMetrics`, the lead metric included). */
+  readonly primaryMetrics?: readonly ExperimentMetric[];
   readonly guardrailMetrics?: readonly ExperimentMetric[];
   /** Subjects per variant before a result may be read. */
   readonly minimumSampleSize?: number;

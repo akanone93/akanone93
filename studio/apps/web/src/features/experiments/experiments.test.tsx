@@ -4,6 +4,7 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
+import { buildDocument, initialDraft, parseAttributes, problems } from "./experiments.schema.ts";
 
 afterEach(cleanup);
 
@@ -104,6 +105,81 @@ describe("ABT-001 new experiment wizard (A7)", () => {
   });
 });
 
+describe("ABT-001 targeting and metrics of a draft", () => {
+  test("reads attribute conditions and keeps versions as text", () => {
+    expect(
+      parseAttributes("os eq ios\nlocale in de, de-AT\nbuild gte 42\nosVersion gte 17.10\nuser.vip eq true"),
+    ).toEqual([
+      { attribute: "os", operator: "eq", value: "ios" },
+      { attribute: "locale", operator: "in", value: ["de", "de-AT"] },
+      { attribute: "build", operator: "gte", value: 42 },
+      { attribute: "osVersion", operator: "gte", value: "17.10" },
+      { attribute: "user.vip", operator: "eq", value: true },
+    ]);
+    expect(parseAttributes("os ios")).toBeUndefined();
+    expect(parseAttributes("os like ios")).toBeUndefined();
+    expect(parseAttributes("locale in de,")).toBeUndefined();
+  });
+
+  test("writes several segments, attributes, primary metrics and guardrails", () => {
+    const draft = {
+      ...initialDraft(undefined),
+      key: "cta",
+      event: "purchase",
+      segments: "beta-testers, germans",
+      attributes: "os eq ios",
+      primaries: "signup",
+      guardrails: "refund\ncrash",
+    };
+    expect(problems(draft)).toEqual([]);
+    const doc = JSON.parse(new TextDecoder().decode(buildDocument(draft, "id1")));
+    expect(doc.segment).toBe("beta-testers");
+    expect(doc.segments).toEqual(["germans"]);
+    expect(doc.attributes).toEqual([{ attribute: "os", operator: "eq", value: "ios" }]);
+    expect(doc.primaryMetric.event).toBe("purchase");
+    expect(doc.primaryMetrics.map((x: { event: string }) => x.event)).toEqual(["signup"]);
+    expect(doc.guardrailMetrics.map((x: { event: string }) => x.event)).toEqual(["refund", "crash"]);
+  });
+
+  test("refuses a draft past the limits, a repeated segment and a malformed condition", () => {
+    const draft = { ...initialDraft(undefined), key: "cta", event: "purchase" };
+    const many = Array.from({ length: 11 }, (_, i) => `seg-${i}`).join(",");
+    expect(problems({ ...draft, segments: many })).toContain("limits");
+    expect(problems({ ...draft, segments: "a,a" })).toContain("targeting");
+    expect(problems({ ...draft, attributes: "nonsense" })).toContain("targeting");
+    expect(problems({ ...draft, primaries: "a\nb\nc" })).toContain("limits");
+    expect(problems({ ...draft, guardrails: "Bad Name" })).toContain("metrics");
+  });
+
+  test("the wizard sends them in the document", async () => {
+    const calls: string[] = [];
+    open("/new", { experiments: { experiments: [], calls } });
+    type(await screen.findByLabelText("Experiment key").then(() => "Experiment key"), "ctaLabel");
+    click("Next");
+    await screen.findByRole("heading", { name: "Variants" });
+    click("Next");
+    await screen.findByRole("heading", { name: "Allocation" });
+    click("Next");
+    await screen.findByRole("heading", { name: "Targeting" });
+    type("Audience segments", "beta-testers, germans");
+    type("Attribute conditions", "os eq ios");
+    click("Next");
+    await screen.findByRole("heading", { name: "Metrics" });
+    type("Primary metric event", "purchase");
+    type("More primary metric events", "signup");
+    type("Guardrail events, one per line", "refund");
+    click("Next");
+    await screen.findByLabelText("Start");
+    click("Create experiment");
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toContain('"segment":"beta-testers"');
+    expect(calls[0]).toContain('"segments":["germans"]');
+    expect(calls[0]).toContain('"attributes":[{"attribute":"os","operator":"eq","value":"ios"}]');
+    expect(calls[0]).toContain('"primaryMetrics":[{"event":"signup"');
+    expect(calls[0]).toContain('"guardrailMetrics":[{"event":"refund"');
+  });
+});
+
 describe("ABT-003 experiment results and decision (A8, D48)", () => {
   test("shows the definition, the comparison and the verdict", async () => {
     open("/e1", { experiments: { experiments } });
@@ -111,6 +187,12 @@ describe("ABT-003 experiment results and decision (A8, D48)", () => {
     await screen.findByText("Improved");
     expect(screen.getByText("control (Control)")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Primary metric: purchase" })).toBeTruthy();
+  });
+
+  test("shows every primary metric", async () => {
+    open("/e4", { experiments: { experiments: [{ id: "e4", key: "multi", state: RUNNING, definition }] } });
+    await screen.findByRole("heading", { name: "Primary metric: purchase" });
+    expect(screen.getByRole("heading", { name: "Primary metric: signup" })).toBeTruthy();
   });
 
   test("warns on a sample ratio mismatch", async () => {
@@ -172,6 +254,42 @@ describe("STU-103 feature flags (A9, D49)", () => {
     type("Default value (JSON)", "true");
     click("Save flag");
     await waitFor(() => expect(calls).toEqual(["createFlag:dark:true"]));
+  });
+
+  test("keeps the values per segment of a flag and adds one", async () => {
+    const calls: string[] = [];
+    const withSegments = [
+      { key: "newCheckout", type: 1, defaultJson: "false", segments: [{ segment: "germans", valueJson: "true" }] },
+    ];
+    open("/flags", { experiments: { experiments: [], flags: withSegments, calls } });
+    await screen.findByText("germans: true");
+    click("Edit newCheckout");
+    expect((screen.getByLabelText("Segment key") as HTMLInputElement).value).toBe("germans");
+    click("Add segment value");
+    const keys = screen.getAllByLabelText("Segment key");
+    fireEvent.change(keys[1] as HTMLElement, { target: { value: "beta-testers" } });
+    fireEvent.change(screen.getAllByLabelText("Value for the segment (JSON)")[1] as HTMLElement, {
+      target: { value: "false" },
+    });
+    click("Save flag");
+    await waitFor(() =>
+      expect(calls).toEqual(["updateFlag:newCheckout:false", "segments:newCheckout:germans=true,beta-testers=false"]),
+    );
+  });
+
+  test("creates a flag with a value for a segment and blocks an invalid one", async () => {
+    const calls: string[] = [];
+    open("/flags", { experiments: { experiments: [], flags: [], calls } });
+    await screen.findByText("No flags yet.");
+    type("Flag key", "dark");
+    click("Add segment value");
+    expect(screen.getByRole("button", { name: "Save flag" }).getAttribute("aria-disabled")).toBe("true");
+    type("Segment key", "germans");
+    type("Value for the segment (JSON)", "{");
+    expect(screen.getByRole("button", { name: "Save flag" }).getAttribute("aria-disabled")).toBe("true");
+    type("Value for the segment (JSON)", "true");
+    click("Save flag");
+    await waitFor(() => expect(calls).toEqual(["createFlag:dark:false", "segments:dark:germans=true"]));
   });
 
   test("deletes a flag", async () => {

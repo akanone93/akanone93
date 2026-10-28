@@ -958,6 +958,12 @@ msgstr "إضافة الاعتمادية أو تحديثها"
 msgid "admin.addRestriction"
 msgstr "إضافة قيد"
 
+#. Button that adds a per-segment value to a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.addSegmentValue"
+msgstr "إضافة قيمة لشريحة"
+
 #. Button that adds a new state entry to the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -1582,6 +1588,12 @@ msgstr "الضمان"
 msgid "security.provider"
 msgstr "مزود الإثبات"
 
+#. Label of the field with the attribute conditions of an experiment's audience.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.attributesLabel"
+msgstr "شروط السمات"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -1594,11 +1606,11 @@ msgstr "الجمهور"
 msgid "admin.audience"
 msgstr "الجمهور"
 
-#. Label of the segment field.
+#. Label of the field that lists the segments an experiment targets.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
-msgstr "شريحة الجمهور"
+msgstr "شرائح الجمهور"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -2139,6 +2151,12 @@ msgstr "القناة"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.colCheck"
 msgstr "الفحص"
+
+#. Error shown when the audience of a draft is malformed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidTargeting"
+msgstr "تحقق من الشرائح (مفاتيح بأحرف صغيرة، كل مفتاح مرة واحدة) ومن شروط السمات (السمة، العامل، القيمة)."
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -3484,6 +3502,12 @@ msgstr "تكرار التحديد"
 msgid "tests.colDuration"
 msgstr "المدة"
 
+#. Error under the per-segment values of a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.badSegmentValue"
+msgstr "تحتاج كل شريحة إلى مفتاح، ويجب أن تكون قيمتها JSON صالحًا."
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -3903,12 +3927,6 @@ msgstr "الأحداث"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.trendLabel"
 msgstr "الأحداث يوميًا"
-
-#. Accessible name of the funnel bars.
-#. js-lingui-explicit-id
-#: apps/web/src/features/analytics/analytics.messages.ts
-msgid "analytics.funnelChart"
-msgstr "الأحداث لكل خطوة من المسار"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -4490,7 +4508,7 @@ msgstr "المسارات"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelsCaption"
-msgstr "تحسب المسارات عدد الأحداث التي تبلغ كل خطوة بالترتيب."
+msgstr "تحسب المسارات الجلسات التي تبلغ كل خطوة وتؤدي الخطوات بالترتيب."
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -4606,11 +4624,11 @@ msgstr "الجدول"
 msgid "admin.teamsCaption"
 msgstr "مجموعات تتلقى المنح والقيود معًا."
 
-#. Label of the guardrail event field.
+#. Label of the field that lists the guardrail metric events.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.guardrailEvent"
-msgstr "حدث حاجز الأمان"
+msgstr "أحداث حواجز الأمان، حدث في كل سطر"
 
 #. Verdict: a guardrail regressed beyond its limit.
 #. js-lingui-explicit-id
@@ -4659,6 +4677,12 @@ msgstr "سليم"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.heatmapLink"
 msgstr "الخريطة الحرارية"
+
+#. Field label for the height of a frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameHeight"
+msgstr "الارتفاع"
 
 #. Label of the height field of the custom frame dialog.
 #. js-lingui-explicit-id
@@ -5514,12 +5538,6 @@ msgstr "طبقات الإضافة"
 msgid "dialog.unsaved.leave"
 msgstr "مغادرة"
 
-#. Help under the segment field.
-#. js-lingui-explicit-id
-#: apps/web/src/features/experiments/experiments.messages.ts
-msgid "experiments.segmentHelp"
-msgstr "اتركه فارغًا للوصول إلى الجميع."
-
 #. Title of the dialog shown when leaving a page with unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -6090,6 +6108,12 @@ msgstr "الطريقة"
 msgid "releases.colMetric"
 msgstr "المقياس"
 
+#. Error shown when a metric event name is malformed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidMetrics"
+msgstr "أحداث المقاييس أسماء مثل purchase أو add_to_cart، واحد في كل سطر."
+
 #. Label of the metric kind select.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -6191,6 +6215,12 @@ msgstr "الأوضاع"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceModule"
 msgstr "بصمة الوحدة"
+
+#. Label of the field that lists further primary metrics.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.primariesLabel"
+msgstr "أحداث مقاييس أساسية أخرى"
 
 #. Button that confirms moving a screen to the chosen plugin.
 #. js-lingui-explicit-id
@@ -6786,6 +6816,12 @@ msgstr "لا مشكلات في الترحيل: يمكن للأجهزة التح�
 msgid "notify.empty"
 msgstr "لا توجد إشعارات"
 
+#. Option in the owning-team picker: the plugin has no owning team.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.noOwner"
+msgstr "لا يوجد فريق مالك"
+
 #. Shown when there is nothing to publish.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -7188,6 +7224,12 @@ msgstr "واحدًا بعد الآخر"
 msgid "security.editGrantsDescription"
 msgstr "إدخال واحد في كل سطر. لا يُنشر الإصدار إلا إذا طلبت كل إضافة مجموعة جزئية."
 
+#. Help under the further primary metrics field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.primariesHelp"
+msgstr "حدث واحد في كل سطر، يُحلَّل مثل المقياس الأساسي."
+
 #. Caption under the typography heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -7199,6 +7241,12 @@ msgstr "قائمة خطوط لكل نظام كتابة مع بدائل حتى ل
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.indexesHelp"
 msgstr "فهرس واحد في كل سطر؛ افصل الحقول بفواصل."
+
+#. Help under the attribute conditions field. Keep the attribute names and operators as written.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.attributesHelp"
+msgstr "شرط واحد في كل سطر: السمة ثم العامل ثم القيمة، مثل os eq ios. يجب أن يستوفي الجهاز كل الشروط. تُكتب القوائم مفصولة بفواصل: locale in de,de-AT."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -8424,6 +8472,12 @@ msgstr "إعادة تحميل الشاشة"
 msgid "tests.remove"
 msgstr "إزالة"
 
+#. Button that removes a per-segment value of a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.removeSegmentValue"
+msgstr "إزالة"
+
 #. Button that removes an entry from a list in a designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -8526,6 +8580,12 @@ msgstr "أزل المحتوى أو استبدله في كل موضع، واحف�
 msgid "safety.fix.remove-outgoing"
 msgstr "إزالة الروابط الصادرة"
 
+#. Accessible name of the remove button of one per-segment flag value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.removeSegmentNamed"
+msgstr "إزالة قيمة الشريحة {position}"
+
 #. Button that removes a step and the edges that lead to it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -8591,6 +8651,12 @@ msgstr "إعادة تسمية"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanRename"
 msgstr "إعادة التسمية (جديد=قديم، مفصولة بفواصل)"
+
+#. Button: opens the dialog that renames or resizes a frame; label is the frame's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editFrame"
+msgstr "إعادة تسمية الإطار {label} أو تغيير حجمه"
 
 #. Command that renames the current screen.
 #. js-lingui-explicit-id
@@ -9582,6 +9648,18 @@ msgstr "الأسرار التي يمكنها قراءتها"
 msgid "security.profileTitle"
 msgstr "ملف الأمان"
 
+#. Label of the segment field of one per-segment flag value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentNameLabel"
+msgstr "مفتاح الشريحة"
+
+#. Help under the segment field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentHelp"
+msgstr "مفاتيح الشرائح مفصولة بفواصل؛ يكون الجهاز مؤهلًا إذا كان في أي منها. اتركه فارغًا للوصول إلى الجميع."
+
 #. Accessible name of the checkbox that selects one key for a bulk action.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -9720,6 +9798,12 @@ msgstr "الجلسات"
 msgid "analytics.sessions"
 msgstr "الجلسات"
 
+#. Column heading: number of sessions that reached a funnel step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.sessionsColumn"
+msgstr "الجلسات"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -9731,6 +9815,12 @@ msgstr "الجلسات"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.sessionsHeading"
 msgstr "الجلسات"
+
+#. Accessible name of the funnel bars.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.funnelChart"
+msgstr "الجلسات لكل خطوة من المسار"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -9965,6 +10055,12 @@ msgstr "هاتف أندرويد صغير"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.list"
 msgstr "اللقطات"
+
+#. Title of the dialog that lists the items a paste could not copy over.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedTitle"
+msgstr "لم يتم نسخ بعض العناصر"
 
 #. Note shown after an import that produced variables while the app is read-only because another editor holds its lock.
 #. js-lingui-explicit-id
@@ -10710,6 +10806,12 @@ msgstr "تعذّر حفظ التغيير."
 msgid "appCanvas.failed"
 msgstr "تعذّر حفظ التغيير."
 
+#. Why an item was not copied over: the change-set document limit was reached.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropLimit"
+msgstr "مجموعة التغييرات ممتلئة."
+
 #. Shown when an atomic change across documents is refused by the server; nothing was written.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -10872,6 +10974,12 @@ msgstr "المسودة لا تنطبق على هذا التغيير."
 msgid "designers.invalid"
 msgstr "المسودة تحتوي على أخطاء؛ أصلحها لتطبيقها."
 
+#. Error shown when the audience or the metrics of a draft exceed the limits.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.limitsExceeded"
+msgstr "تتجاوز المسودة عدد الشرائح أو الشروط أو المقاييس المسموح به."
+
 #. Validation status.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -10967,6 +11075,12 @@ msgstr "يحتاج اسم الملف إلى أحرف صغيرة وأرقام و�
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.failure.hash-mismatch"
 msgstr "تضرر الملف أثناء إرساله إلى الخادم. ارفعه مرة أخرى."
+
+#. Help under the per-segment values of a flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentValuesHelp"
+msgstr "تحسم الشريحة الأولى التي ينتمي إليها الجهاز؛ وتحصل الأجهزة خارج كل الشرائح على القيمة الافتراضية."
 
 #. Shown when the manifest declares no dependencies.
 #. js-lingui-explicit-id
@@ -11370,6 +11484,12 @@ msgstr "استلم الخادم عددًا من البايتات يختلف عن
 msgid "installation.backupsNote"
 msgstr "لا يسجّل الخادم نسخًا احتياطية بعد. انسخ قاعدة البيانات ومخزن الكائنات بأدواتك واتبع دليل التشغيل."
 
+#. Why an item was not copied over: the server rejected the new document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropRejected"
+msgstr "رفض الخادم ذلك."
+
 #. Error: variant shares do not sum to 100.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -11646,6 +11766,12 @@ msgstr "لا توجد لقطات بعد."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.dropped"
 msgstr "لم تُطبَّق هذه التغييرات من نسختك"
+
+#. Explains the list of items that were not copied over by a paste.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedIntro"
+msgstr "تم استبعاد هذه العناصر. لم تعد العناصر الملصقة تشير إليها."
 
 #. Explains why the step-up dialog appears.
 #. js-lingui-explicit-id
@@ -12451,6 +12577,12 @@ msgstr "قيمة"
 msgid "design.brandValue"
 msgstr "القيمة للعلامة"
 
+#. Label of the value field of one per-segment flag value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentValueLabel"
+msgstr "قيمة الشريحة (JSON)"
+
 #. Label of the field that holds the value of a token to add.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -12462,6 +12594,18 @@ msgstr "قيمة الرمز الجديد"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataType"
 msgstr "نوع القيمة"
+
+#. Column heading: the segments a flag has its own value for.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.colSegments"
+msgstr "القيم لكل شريحة"
+
+#. Heading of the flag form's list of per-segment values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentValuesHeading"
+msgstr "القيم لكل شريحة"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -12739,6 +12883,12 @@ msgstr "لماذا هذا غير متاح؟"
 msgid "panels.layer1"
 msgstr "عناصر الواجهة"
 
+#. Field label for the width of a frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameWidth"
+msgstr "العرض"
+
 #. Label of the width field of the custom frame dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -12852,6 +13002,12 @@ msgstr "يمكنك قراءة هذا المصدر لكن لا يمكنك تغي�
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.readOnly"
 msgstr "لا يمكنك تعديل هذه الإضافة الآن، لذا فإن JSON للقراءة فقط."
+
+#. Why an item was not copied over: the user has no read access to the source.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropForbidden"
+msgstr "لا يمكنك قراءته."
 
 #. Heading of the 403 page.
 #. js-lingui-explicit-id
@@ -12996,39 +13152,3 @@ msgstr "تصغير"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.zoomToFit"
 msgstr "ملاءمة العرض"
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.droppedTitle"
-msgstr "لم يتم نسخ بعض العناصر"
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.droppedIntro"
-msgstr "تم استبعاد هذه العناصر. لم تعد العناصر الملصقة تشير إليها."
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.dropForbidden"
-msgstr "لا يمكنك قراءته."
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.dropLimit"
-msgstr "مجموعة التغييرات ممتلئة."
-
-#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
-msgid "clipboard.dropRejected"
-msgstr "رفض الخادم ذلك."
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.editFrame"
-msgstr "إعادة تسمية الإطار {label} أو تغيير حجمه"
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.frameWidth"
-msgstr "العرض"
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.frameHeight"
-msgstr "الارتفاع"
-
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.noOwner"
-msgstr "لا يوجد فريق مالك"

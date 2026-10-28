@@ -228,6 +228,9 @@ func resultsProto(r experiment.Result) *pluxv1.GetResultsResponse {
 	for _, v := range r.Variants {
 		out.Variants = append(out.Variants, &pluxv1.VariantCount{Name: v.Name, Control: v.Control, Subjects: v.Subjects, Share: v.Share})
 	}
+	for _, m := range r.Primaries {
+		out.Primaries = append(out.Primaries, metricProto(m))
+	}
 	for _, g := range r.Guardrails {
 		out.Guardrails = append(out.Guardrails, metricProto(g))
 	}

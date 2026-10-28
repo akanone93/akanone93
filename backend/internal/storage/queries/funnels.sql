@@ -28,3 +28,15 @@ SELECT id FROM apps
  WHERE organization_id = $1 AND deleted_at IS NULL AND archived_at IS NULL
  ORDER BY key, id
  LIMIT sqlc.arg(row_limit);
+
+-- The events a funnel result reads (ANL-020): those of the funnel's steps and
+-- the session starts that bound sessions, of one app and optionally one
+-- environment, in a half-open time range, in the order they happened.
+-- name: ListFunnelEvents :many
+SELECT device_id, name FROM analytics_events
+ WHERE organization_id = $1 AND app_id = $2
+   AND (sqlc.narg(environment_id)::uuid IS NULL OR environment_id = sqlc.narg(environment_id)::uuid)
+   AND time >= sqlc.arg(from_time)::timestamptz AND time < sqlc.arg(to_time)::timestamptz
+   AND name = ANY(sqlc.arg(names)::text[])
+ ORDER BY time, id
+ LIMIT sqlc.arg(row_limit);

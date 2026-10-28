@@ -43,6 +43,9 @@ enum PluxLimit {
   /// Steps one action run trace records; later steps are counted but not
   /// recorded.
   actionTraceSteps('action.traceSteps', PluxLimitUnit.count, 200, 0, 10000),
+  /// Raw events one funnel result may scan; a result that would scan more fails
+  /// and asks for a narrower range.
+  analyticsFunnelScanEvents('analytics.funnelScanEvents', PluxLimitUnit.count, 500000, 0, 5000000),
   /// Steps one funnel may have.
   analyticsFunnelSteps('analytics.funnelSteps', PluxLimitUnit.count, 10, 0, 20),
   /// Nodes below an animated opacity or layout prop before the compiler warns
@@ -293,8 +296,19 @@ enum PluxLimit {
   dsrExportBytes('dsr.exportBytes', PluxLimitUnit.bytes, 268435456, 0, 4294967296),
   /// Experiments that may be running at once in one app.
   experimentsActivePerApp('experiments.activePerApp', PluxLimitUnit.count, 20, 0, 500),
+  /// Attribute conditions one experiment may add to its targeting; all must
+  /// hold.
+  experimentsAttributesPerTargeting('experiments.attributesPerTargeting', PluxLimitUnit.count, 20, 0, 100),
+  /// Guardrail metrics one experiment may have.
+  experimentsGuardrailMetrics('experiments.guardrailMetrics', PluxLimitUnit.count, 5, 0, 20),
+  /// Primary metrics one experiment may have, the lead metric included.
+  experimentsPrimaryMetrics('experiments.primaryMetrics', PluxLimitUnit.count, 3, 0, 10),
+  /// Segments one experiment may target; a device in any of them is eligible.
+  experimentsSegmentsPerTargeting('experiments.segmentsPerTargeting', PluxLimitUnit.count, 10, 0, 50),
   /// Feature flags one app may define.
   flagsPerApp('flags.perApp', PluxLimitUnit.count, 500, 0, 10000),
+  /// Per-segment values one flag may have.
+  flagsSegmentValues('flags.segmentValues', PluxLimitUnit.count, 20, 0, 100),
   /// Memory one function build may use.
   functionBuildMemory('function.buildMemory', PluxLimitUnit.bytes, 4294967296, 0, 17179869184),
   /// Wall-clock time one function build may run.

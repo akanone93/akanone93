@@ -12,6 +12,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/controldoc"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
 
 // weightEpsilon is how far a weight in percent may be from a whole number
@@ -45,13 +46,63 @@ func checkDefinition(d schema.ExperimentDocument) error {
 	if d.Layer != "" && len(d.Layer) > maxName {
 		return plxerr.New(plxerr.InvalidFormat, "the layer name is at most %d characters", maxName)
 	}
-	for _, m := range append([]schema.ExperimentMetric{d.PrimaryMetric}, d.GuardrailMetrics...) {
+	for _, m := range append(primaryMetrics(d), d.GuardrailMetrics...) {
 		if m.Kind == schema.MetricKindMean && m.Property == "" {
 			return plxerr.New(plxerr.MissingProperty, "metric %q is a mean and needs the event property to average", m.Event)
 		}
 	}
 	if _, _, err := window(d); err != nil {
 		return err
+	}
+	return nil
+}
+
+// primaryMetrics are the primary metrics of a definition: the lead one first,
+// then the others it names.
+func primaryMetrics(d schema.ExperimentDocument) []schema.ExperimentMetric {
+	return append([]schema.ExperimentMetric{d.PrimaryMetric}, d.PrimaryMetrics...)
+}
+
+// targetSegments are the keys of the segments a definition targets, in the
+// order it names them: the single `segment` first.
+func targetSegments(d schema.ExperimentDocument) []string {
+	if d.Segment == "" {
+		return d.Segments
+	}
+	return append([]string{d.Segment}, d.Segments...)
+}
+
+// checkTargetingLimits holds a definition to the limits on how many metrics,
+// segments and attribute conditions an experiment may have
+// (experiments.primaryMetrics, experiments.guardrailMetrics,
+// experiments.segmentsPerTargeting, experiments.attributesPerTargeting), and
+// refuses a segment named twice.
+func checkTargetingLimits(d schema.ExperimentDocument, lim limits.Set) error {
+	for _, c := range []struct {
+		key  limits.Key
+		have int
+		what string
+	}{
+		{limits.ExperimentsPrimaryMetrics, len(primaryMetrics(d)), "primary metrics"},
+		{limits.ExperimentsGuardrailMetrics, len(d.GuardrailMetrics), "guardrail metrics"},
+		{limits.ExperimentsSegmentsPerTargeting, len(targetSegments(d)), "segments"},
+		{limits.ExperimentsAttributesPerTargeting, len(d.Attributes), "attribute conditions"},
+	} {
+		if max := lim.Get(c.key); int64(c.have) > max {
+			return plxerr.New(plxerr.LimitExceeded, "experiment %q has %d %s; at most %d (%s)", d.Key, c.have, c.what, max, c.key)
+		}
+	}
+	seen := map[string]bool{}
+	for _, key := range targetSegments(d) {
+		if seen[key] {
+			return plxerr.New(plxerr.DuplicateKey, "experiment %q targets segment %q twice", d.Key, key)
+		}
+		seen[key] = true
+	}
+	for _, a := range d.Attributes {
+		if _, err := RuleOf(a); err != nil {
+			return err
+		}
 	}
 	return nil
 }

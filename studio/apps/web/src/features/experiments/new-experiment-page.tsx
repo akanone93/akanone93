@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Field, Input, Select } from "@plux/ui";
+import { Button, Field, Input, Select, Textarea } from "@plux/ui";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { Frame } from "../releases/frame.tsx";
@@ -176,8 +176,12 @@ function MetricsPanel({ m, draft, set }: PanelProps): ReactElement {
           onValueChange={(v) => set({ direction: v as Draft["direction"] })}
         />
       </Field>
+      <Field label={m.primariesLabel}>
+        <Textarea rows={2} value={draft.primaries} onChange={(e) => set({ primaries: e.target.value })} />
+        <span className="text-caption text-secondary">{m.primariesHelp}</span>
+      </Field>
       <Field label={m.guardrailEvent}>
-        <Input value={draft.guardrail} onChange={(e) => set({ guardrail: e.target.value })} />
+        <Textarea rows={2} value={draft.guardrails} onChange={(e) => set({ guardrails: e.target.value })} />
       </Field>
       <Field label={m.minimumSample}>
         <Input
@@ -200,10 +204,16 @@ function Panel({ step, ...p }: PanelProps & { readonly step: WizardStep }): Reac
       return <VariantsPanel {...p} weight />;
     case "targeting":
       return (
-        <Field label={p.m.segmentLabel}>
-          <Input value={p.draft.segment} onChange={(e) => p.set({ segment: e.target.value })} />
-          <span className="text-caption text-secondary">{p.m.segmentHelp}</span>
-        </Field>
+        <>
+          <Field label={p.m.segmentLabel}>
+            <Input value={p.draft.segments} onChange={(e) => p.set({ segments: e.target.value })} />
+            <span className="text-caption text-secondary">{p.m.segmentHelp}</span>
+          </Field>
+          <Field label={p.m.attributesLabel}>
+            <Textarea rows={3} value={p.draft.attributes} onChange={(e) => p.set({ attributes: e.target.value })} />
+            <span className="text-caption text-secondary">{p.m.attributesHelp}</span>
+          </Field>
+        </>
       );
     case "metrics":
       return <MetricsPanel {...p} />;
@@ -227,6 +237,9 @@ function problemText(m: ExperimentsMessages, found: readonly string[]): string[]
     control: m.needControl,
     key: m.invalidForm,
     event: m.invalidForm,
+    targeting: m.invalidTargeting,
+    metrics: m.invalidMetrics,
+    limits: m.limitsExceeded,
   };
   return [...new Set(found.map((p) => text[p] ?? ""))];
 }

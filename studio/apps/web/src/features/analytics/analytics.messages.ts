@@ -144,7 +144,7 @@ export function analyticsMessages(i18n: I18n) {
     }),
     funnelsCaption: i18n._({
       id: "analytics.funnelsCaption",
-      message: "Funnels count how many events reach each step, in order.",
+      message: "Funnels count the sessions that reach each step, doing the steps in order.",
       comment: "Caption of the funnels page.",
     }),
     noFunnels: i18n._({
@@ -187,6 +187,11 @@ export function analyticsMessages(i18n: I18n) {
       message: "Events",
       comment: "Column heading: number of events.",
     }),
+    sessionsColumn: i18n._({
+      id: "analytics.sessionsColumn",
+      message: "Sessions",
+      comment: "Column heading: number of sessions that reached a funnel step.",
+    }),
     conversionColumn: i18n._({
       id: "analytics.conversionColumn",
       message: "Of first step",
@@ -194,7 +199,7 @@ export function analyticsMessages(i18n: I18n) {
     }),
     funnelChart: i18n._({
       id: "analytics.funnelChart",
-      message: "Events per funnel step",
+      message: "Sessions per funnel step",
       comment: "Accessible name of the funnel bars.",
     }),
     backFunnels: i18n._({

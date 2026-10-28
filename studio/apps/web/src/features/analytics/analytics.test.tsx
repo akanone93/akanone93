@@ -117,8 +117,9 @@ describe("ANL-020 funnels (A26, A27)", () => {
 
   test("A27 shows the conversion of each step", async () => {
     open("/funnels/f1");
-    await screen.findByRole("list", { name: "Events per funnel step" }, wait);
+    await screen.findByRole("list", { name: "Sessions per funnel step" }, wait);
     expect(screen.getByText("40%")).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Sessions" })).toBeTruthy();
   });
 });
 

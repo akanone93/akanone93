@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -38,11 +39,17 @@ type Funnel struct {
 	UpdatedAt                  time.Time
 }
 
-// FunnelStep is the events of one step over a range.
+// sessionStartEvent opens a session; the events between two of a device's
+// session starts are one session.
+const sessionStartEvent = "session_start"
+
+// FunnelStep is the sessions that reached one step over a range.
 type FunnelStep struct {
-	Event  string
-	Events int64
-	// Conversion is the share of the first step's events, 0 to 1.
+	Event string
+	// Sessions did this step after doing every step before it, in order.
+	// Events repeats it for clients of the rollup-based result.
+	Sessions, Events int64
+	// Conversion is the share of the first step's sessions, 0 to 1.
 	Conversion float64
 }
 
@@ -208,44 +215,97 @@ func (*Service) funnelWithEnvironment(ctx context.Context, q *dbgen.Queries, row
 	return f, nil
 }
 
-// FunnelResult counts the events of every step of a funnel over a range,
-// from the daily rollups. It needs analytics.read on the funnel's app.
+// FunnelResult counts the sessions that reached every step of a funnel over
+// the range [from, to) (ANL-020). A session counts at step N only if it did
+// steps 1 to N in order, read from the raw events: a session is one device's
+// events from a session_start to the next (the events before a device's first
+// session_start are a session of their own), so steps done in different
+// sessions, or out of order, do not convert. The scan reads at most
+// analytics.funnelScanEvents events and fails with PLX-1320 beyond them. It
+// needs analytics.read on the funnel's app.
 func (s *Service) FunnelResult(ctx context.Context, p auth.Principal, funnelID string, from, to time.Time) (Funnel, []FunnelStep, error) {
 	id, err := storage.UUID(funnelID)
 	if err != nil {
 		return Funnel{}, nil, plxerr.New(plxerr.InvalidFormat, "the funnel identifier is not valid")
 	}
+	maxScan := s.o.Limits.Get(limits.AnalyticsFunnelScanEvents)
 	var f Funnel
+	var events []funnelEvent
 	err = s.inOrg(ctx, p.OrganizationID, p.UserID, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		row, err := s.ownedFunnel(ctx, q, p, id, auth.AnalyticsRead)
 		if err != nil {
 			return err
 		}
-		f, err = s.funnelWithEnvironment(ctx, q, row)
-		return err
+		if f, err = s.funnelWithEnvironment(ctx, q, row); err != nil {
+			return err
+		}
+		var env pgtype.UUID
+		if f.EnvironmentID != "" {
+			env = storage.MustUUID(f.EnvironmentID)
+		}
+		rows, err := q.ListFunnelEvents(ctx, dbgen.ListFunnelEventsParams{
+			OrganizationID: storage.MustUUID(p.OrganizationID), AppID: storage.MustUUID(f.AppID), EnvironmentID: env,
+			FromTime: storage.Timestamp(from), ToTime: storage.Timestamp(to),
+			Names: append([]string{sessionStartEvent}, f.Steps...), RowLimit: int32(min(maxScan+1, math.MaxInt32)), //nolint:gosec // bounded above.
+		})
+		if err != nil {
+			return fmt.Errorf("analytics: read the funnel events: %w", err)
+		}
+		if int64(len(rows)) > maxScan {
+			return plxerr.New(plxerr.LimitExceeded, "the range holds more than %d events of the funnel (analytics.funnelScanEvents); choose a shorter range", maxScan)
+		}
+		events = make([]funnelEvent, len(rows))
+		for i, r := range rows {
+			events[i] = funnelEvent{device: r.DeviceID.Bytes, name: r.Name}
+		}
+		return nil
 	})
 	if err != nil {
 		return Funnel{}, nil, err
 	}
-	steps := make([]FunnelStep, 0, len(f.Steps))
-	for _, ev := range f.Steps {
-		series, err := s.Query(ctx, p, Query{AppID: f.AppID, EnvironmentID: f.EnvironmentID, Metric: ev, Granularity: Day, From: from, To: to})
-		if err != nil {
-			return Funnel{}, nil, err
-		}
-		var n int64
-		for _, pt := range series.Points {
-			n += pt.Events
-		}
-		steps = append(steps, FunnelStep{Event: ev, Events: n})
-	}
-	for i := range steps {
-		if steps[0].Events > 0 {
-			steps[i].Conversion = float64(steps[i].Events) / float64(steps[0].Events)
+	reached := countSessions(f.Steps, events)
+	steps := make([]FunnelStep, len(f.Steps))
+	for i, ev := range f.Steps {
+		steps[i] = FunnelStep{Event: ev, Sessions: reached[i], Events: reached[i]}
+		if reached[0] > 0 {
+			steps[i].Conversion = float64(reached[i]) / float64(reached[0])
 		}
 	}
 	return f, steps, nil
+}
+
+// funnelEvent is one event a funnel result reads: the device it came from
+// and its name.
+type funnelEvent struct {
+	device [16]byte
+	name   string
+}
+
+// countSessions counts, for every step, the sessions that did it after doing
+// all the steps before it, in order. events are in the order they happened.
+// An event advances a session by one step at most.
+func countSessions(steps []string, events []funnelEvent) []int64 {
+	reached := make([]int64, len(steps))
+	progress := map[[16]byte]int{}
+	end := func(n int) {
+		for i := range n {
+			reached[i]++
+		}
+	}
+	for _, e := range events {
+		if e.name == sessionStartEvent {
+			end(progress[e.device])
+			progress[e.device] = 0
+		}
+		if n := progress[e.device]; n < len(steps) && e.name == steps[n] {
+			progress[e.device] = n + 1
+		}
+	}
+	for _, n := range progress {
+		end(n)
+	}
+	return reached
 }
 
 // OverviewApp is the headline numbers of one app.
