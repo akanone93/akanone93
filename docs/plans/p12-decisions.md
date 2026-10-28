@@ -169,3 +169,13 @@ SPDX-License-Identifier: Apache-2.0
   self-hosted open-weight model) and Claude. Neither is a CI gate; local is lowest priority.
 - **Pending maintainer confirmation:** whether DeepSeek V4 Flash satisfies "free provider" in
   `AI-050` and `AI-007` (see the open question at the end of this file).
+
+---
+
+## Open questions
+
+- **OQ-1. Does DeepSeek V4 Flash count as a "free provider" (`AI-050`, `AI-007`)?** Its hosted
+  API is paid (low per-token price); its weights are published, so it can be self-hosted at no
+  licence cost. Option A: read "free" as "open-weight and self-hostable" and reword `AI-050` and
+  `AI-007` to say so. Option B: keep the wording and add a free hosted or local model as the
+  gating provider. Awaiting the maintainer.
