@@ -157,6 +157,10 @@ export interface LibraryFixture {
   /** Public scan refusal: the message SetVisibility fails with. */
   scanRefusal?: string;
   conflicts?: { file: string; path: string; removedProps: string[] }[];
+  /** The versions the app has adopted (ListComponentAdoptions). */
+  adoptions?: { itemId: string; version: number }[];
+  /** AdoptComponentVersion fails with this message. */
+  adoptRefusal?: string;
   /** Records \`rpc:detail\` strings. */
   calls?: string[];
   failList?: boolean;
@@ -174,7 +178,11 @@ export interface ReleaseFixture {
     warnings?: string[];
     acknowledged?: string[];
     errors?: number;
+    /** The plan the rollout step already holds. */
+    rolloutPlan?: unknown;
   };
+  /** The plan the rollout step sent, parsed. */
+  plan?: unknown;
   /** The visual diff job, when one was requested. */
   diff?: { state: string };
   /** The RPCs received, in order, with the step they completed. */
@@ -183,6 +191,17 @@ export interface ReleaseFixture {
   keys?: string[];
   /** The approval ends rejected instead of moving on. */
   rejectApproval?: boolean;
+  /** What the build evidence reads: the plugin versions per plugin id, the accessibility diagnostics and the document changes. */
+  evidence?: {
+    versions: Record<string, { version: number; size: number; snapshot: string }[]>;
+    /** Per publish job id. */
+    diagnostics?: Record<string, { code: string; message: string; severity: number }[]>;
+    changes?: { path: string; change: string; patch: { op: string; path: string; value?: unknown }[] }[];
+    /** The screens of the visual diff, with the hashes of their images. */
+    screens?: { screen: string; before: string; after: string }[];
+    /** CompareSnapshots fails. */
+    failing?: boolean;
+  };
 }
 
 const releaseOrder = ["select", "build", "reports", "diffs", "changelog", "target", "approval", "rollout", "release"];
@@ -514,9 +533,12 @@ export function createUpstream(state: UpstreamData) {
         state.library?.calls?.push(`createComponent:${req.draft?.key ?? ""}`);
         return { item: { id: "newc" }, version: { version: 1 } };
       },
-      listComponentAdoptions: () => ({ adoptions: [] }),
+      listComponentAdoptions: () => ({ adoptions: state.library?.adoptions ?? [] }),
       adoptComponentVersion: (req) => {
         state.library?.calls?.push(`adopt:${req.appId}:${req.version}`);
+        if (state.library?.adoptRefusal !== undefined) {
+          throw new ConnectError(state.library.adoptRefusal, Code.FailedPrecondition);
+        }
         return { conflicts: state.library?.conflicts ?? [] };
       },
     });
@@ -587,19 +609,36 @@ export function createUpstream(state: UpstreamData) {
           state.release?.keys?.push(ctx.requestHeader.get("Idempotency-Key") ?? "");
           return { job: { id: `job-${req.pluginId}`, state: "running", percent: 40 } };
         },
-        getPublishJob: (req) => ({ job: { id: req.jobId, state: "succeeded", percent: 100, version: 1n } }),
+        getPublishJob: (req) => ({
+          job: {
+            id: req.jobId,
+            state: "succeeded",
+            percent: 100,
+            version: 1n,
+            diagnostics: state.release?.evidence?.diagnostics?.[req.jobId] ?? [],
+          },
+        }),
       });
     }
     service(ReleaseService, {
       ...releaseHandlers(state.releases),
-      listPluginVersions: () => ({
+      listPluginVersions: (req) => ({
         versions:
-          state.published === undefined
-            ? []
-            : [
-                create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1" }),
-                create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0" }),
-              ],
+          state.release?.evidence !== undefined
+            ? (state.release.evidence.versions[req.pluginId] ?? []).map((v) =>
+                create(PluginVersionSchema, {
+                  id: `v${v.version}`,
+                  version: BigInt(v.version),
+                  bundleSize: BigInt(v.size),
+                  sourceSnapshotId: v.snapshot,
+                }),
+              )
+            : state.published === undefined
+              ? []
+              : [
+                  create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1" }),
+                  create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0" }),
+                ],
       }),
     });
     service(AssetService, {
@@ -621,6 +660,23 @@ export function createUpstream(state: UpstreamData) {
         })),
       }),
       compareSnapshots: (req) => {
+        const evidence = state.release?.evidence;
+        if (evidence !== undefined) {
+          if (evidence.failing === true) {
+            throw new ConnectError("unavailable", Code.Unavailable);
+          }
+          return {
+            changes: (evidence.changes ?? []).map((c) => ({
+              path: c.path,
+              change: c.change,
+              patch: c.patch.map((o) => ({
+                op: o.op,
+                path: o.path,
+                value: o.value === undefined ? new Uint8Array() : new TextEncoder().encode(JSON.stringify(o.value)),
+              })),
+            })),
+          };
+        }
         const find = (id: string) => (state.snapshots ?? []).find((x) => x.id === id)?.documents ?? [];
         const [a, b] = [find(req.fromId), find(req.toId)];
         const paths = [...new Set([...a, ...b].map((d) => d.path))].sort();
@@ -936,6 +992,7 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
           }))
         : [],
       acknowledged: r.acknowledged ?? [],
+      rolloutPlan: new TextEncoder().encode(r.rolloutPlan === undefined ? "" : JSON.stringify(r.rolloutPlan)),
       contentHash: built ? releaseHash : "",
       createdBy: r.createdBy ?? "u1",
       createdByName: r.createdByName ?? "Ada",
@@ -959,7 +1016,14 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
         id: "vd1",
         state: fx.diff.state,
         contentHash: releaseHash,
-        screens: [{ pluginKey: "home", screen: "main", device: "phone", afterSha256: "aa", changed: true }],
+        screens: (fx.evidence?.screens ?? [{ screen: "main", before: "", after: "aa" }]).map((x) => ({
+          pluginKey: "home",
+          screen: x.screen,
+          device: "phone",
+          beforeSha256: x.before,
+          afterSha256: x.after,
+          changed: true,
+        })),
       },
     }),
     advanceReleaseRequest: (req) => {
@@ -969,6 +1033,9 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
       fx.calls.push(`advance:${r.state}`);
       if (req.step.case === "reports") {
         r.acknowledged = req.step.value.acknowledgedWarnings;
+      }
+      if (req.step.case === "rollout") {
+        fx.plan = JSON.parse(new TextDecoder().decode(req.step.value.plan));
       }
       if (r.state === "diffs" && fx.diff?.state !== "succeeded") {
         refused("PLX-8062");

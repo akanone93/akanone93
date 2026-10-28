@@ -208,6 +208,12 @@ msgstr "{count, plural, zero {غير متصل} one {غير متصل — تغيي
 msgid "history.restored"
 msgstr "{count, plural, zero {لم تُستعد أي مستندات.} one {تمت استعادة مستند واحد.} two {تمت استعادة مستندين.} few {تمت استعادة # مستندات.} many {تمت استعادة # مستندًا.} other {تمت استعادة # مستند.}}"
 
+#. Count of accessibility diagnostics of a build.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.a11yFindings"
+msgstr "{count} ملاحظات على إمكانية الوصول"
+
 #. Announced to screen readers when several elements are selected on the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -261,6 +267,12 @@ msgstr "تم الإقرار بـ {count} تحذيرات"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.multi"
 msgstr "تم تحديد {count} عناصر؛ تُعرض الخصائص المشتركة."
+
+#. Change of the bundle size against the previous version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.sizeDelta"
+msgstr "{delta} كيبي بايت مقارنةً بالإصدار السابق"
 
 #. Shown when the chosen event already has steps; event is the event name.
 #. js-lingui-explicit-id
@@ -333,6 +345,12 @@ msgstr "حزمة بحجم {kb} كيلوبايت"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.message"
 msgstr "{key} في {locale}"
+
+#. Size of a bundle in kibibytes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.sizeKib"
+msgstr "{kib} كيبي بايت"
 
 #. Summary of a parsed import file.
 #. js-lingui-explicit-id
@@ -544,6 +562,12 @@ msgstr "{percent}% {stage}"
 msgid "publish.diffScreen"
 msgstr "{plugin} / {screen} على {device}"
 
+#. Summary of the JSON diff of one plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.jsonDiffSummary"
+msgstr "{plugin}: {count} مستندات متغيّرة"
+
 #. One finding of the public scan: JSON pointer and category.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -627,6 +651,12 @@ msgstr "كان جزء من الملف أكبر مما يقبله الخادم. �
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reportsBlocked"
 msgstr "يحتوي تقرير على أخطاء. افتح المشكلات وأصلحها ثم جمّد مرة أخرى."
+
+#. Error when a stage share falls.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.percentFalls"
+msgstr "لا يجوز أن تخفض المرحلة نسبة المرحلة السابقة."
 
 #. Button: end a rollout and revert.
 #. js-lingui-explicit-id
@@ -826,6 +856,12 @@ msgstr "الفاعل"
 msgid "admin.colActor"
 msgstr "الفاعل"
 
+#. JSON Patch operation that adds a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.opAdd"
+msgstr "إضافة"
+
 #. Button that adds a state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -886,11 +922,23 @@ msgstr "إضافة بعدها"
 msgid "tests.problemExpect"
 msgstr "أضف توقعًا واحدًا مكتملًا على الأقل."
 
+#. Error when the rollout plan has no stage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.noStages"
+msgstr "أضف مرحلة واحدة على الأقل."
+
 #. Button that adds a collection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbAdd"
 msgstr "إضافة مجموعة"
+
+#. Button that adds a custom health gate.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.addCustom"
+msgstr "إضافة فحص مخصص"
 
 #. Button that adds an empty data source.
 #. js-lingui-explicit-id
@@ -958,6 +1006,12 @@ msgstr "إضافة الاعتمادية أو تحديثها"
 msgid "admin.addRestriction"
 msgstr "إضافة قيد"
 
+#. Button that adds a rollout stage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.addStage"
+msgstr "إضافة مرحلة"
+
 #. Button that adds a new state entry to the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -1010,6 +1064,12 @@ msgstr "إضافة هوية حمل عمل"
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.changeAdded"
+msgstr "مضاف"
+
+#. A document that is new.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.changeAdded"
 msgstr "مضاف"
 
 #. Text in the organisation administration area.
@@ -1071,6 +1131,12 @@ msgstr "نسبة الاعتماد"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.advance"
 msgstr "الانتقال إلى المرحلة التالية"
+
+#. Label of the screen as it will be released.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbAfter"
+msgstr "بعد"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -1750,6 +1816,12 @@ msgstr "النسخ الاحتياطية"
 msgid "data.baseUrl"
 msgstr "عنوان URL الأساسي"
 
+#. Label of the screen as it is released now.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbBefore"
+msgstr "قبل"
+
 #. New-screen option without a template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -1839,6 +1911,12 @@ msgstr "الحزمة {sha}"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.bundle"
 msgstr "SHA-256 للحزمة"
+
+#. Label of the bundle size of a build.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.size"
+msgstr "حجم الحزمة"
 
 #. Label of the plugin's compiled bundle size.
 #. js-lingui-explicit-id
@@ -2080,11 +2158,23 @@ msgstr "تغيير الرؤية"
 msgid "history.changeChanged"
 msgstr "معدّل"
 
+#. A document that changed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.changeChanged"
+msgstr "متغيّر"
+
 #. A screen that changed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffChanged"
 msgstr "تغيّر"
+
+#. Heading of the JSON diff of a plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.jsonDiff"
+msgstr "المستندات المتغيّرة"
 
 #. Heading of the changes of a release.
 #. js-lingui-explicit-id
@@ -2530,6 +2620,12 @@ msgstr "مقارنة {when}"
 msgid "jsonEditor.diff"
 msgstr "المقارنة مع آخر إصدار منشور"
 
+#. Label of the health gate window.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.windowMinutes"
+msgstr "نافذة المقارنة (بالدقائق، 0: ست ساعات)"
+
 #. State of a rollout.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -2691,6 +2787,12 @@ msgstr "الضابط"
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.copied"
 msgstr "نُسخت إلى الحافظة"
+
+#. JSON Patch operation that copies a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.opCopy"
+msgstr "نسخ"
 
 #. Command that copies the selected elements to the clipboard.
 #. js-lingui-explicit-id
@@ -2865,6 +2967,12 @@ msgstr "الشاشة الحالية"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.customFrame"
 msgstr "إطار مخصص"
+
+#. Legend of the custom health gates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.customLegend"
+msgstr "فحوصات المقاييس المخصصة"
 
 #. Command that copies the selected elements to the clipboard and removes them.
 #. js-lingui-explicit-id
@@ -3532,6 +3640,12 @@ msgstr "تكرار التحديد"
 msgid "tests.colDuration"
 msgstr "المدة"
 
+#. Label of how long a rollout stage lasts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.stageMinutes"
+msgstr "المدة (بالدقائق)"
+
 #. Column: how long a replay lasted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -3682,6 +3796,12 @@ msgstr "مفعّل"
 msgid "experiments.endLabel"
 msgstr "النهاية"
 
+#. Label of the rollout end time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.endAt"
+msgstr "الانتهاء (فارغ: عند الاكتمال)"
+
 #. Label of the end date field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -3717,6 +3837,24 @@ msgstr "أدخل رمز لغة مثل de أو pt-BR."
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.problem.empty"
 msgstr "أدخل اسمًا."
+
+#. Error when a health gate number is negative or missing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.negative"
+msgstr "أدخل رقماً صفراً أو أكبر."
+
+#. Error when a custom gate threshold is not positive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.customThreshold"
+msgstr "أدخل حداً أكبر من الصفر."
+
+#. Error when a rollout time is not a date.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.dateInvalid"
+msgstr "أدخل تاريخاً ووقتاً صالحين."
 
 #. Validation error of the email field.
 #. js-lingui-explicit-id
@@ -3933,6 +4071,12 @@ msgstr "الحدث"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.event"
 msgstr "الحدث"
+
+#. Label of the event a custom gate counts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.customEvent"
+msgstr "اسم الحدث"
 
 #. Label of the event type filter.
 #. js-lingui-explicit-id
@@ -4258,6 +4402,12 @@ msgstr "أعلام الميزات"
 msgid "admin.licenseFeatures"
 msgstr "الميزات"
 
+#. Label of the health gate sample size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.minSample"
+msgstr "الحد الأدنى من الجلسات قبل إصدار الحكم"
+
 #. Accessible name of a nested field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -4329,6 +4479,18 @@ msgstr "نتائج المدقق"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.firingAlerts"
 msgstr "التنبيهات النشطة"
+
+#. Shown when a plugin has no earlier version to compare the size with.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.sizeFirst"
+msgstr "الإصدار الأول"
+
+#. Shown when a plugin has no earlier version to diff against.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.jsonDiffFirst"
+msgstr "الإصدار الأول: كل مستند جديد."
 
 #. Button that fits all screens into the view.
 #. js-lingui-explicit-id
@@ -4600,6 +4762,12 @@ msgstr "مُنشأة من أوامر هذه النافذة."
 msgid "help.onboarding"
 msgstr "البدء"
 
+#. Error when a stage has no valid duration.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.durationMissing"
+msgstr "امنح كل مرحلة عدا الأخيرة مدة دقيقة واحدة على الأقل."
+
 #. Accessible name of the button that navigates to one use of the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -4725,6 +4893,12 @@ msgstr "الصحة"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.health"
 msgstr "الصحة مقارنة بالإصدار السابق"
+
+#. Legend of the rollout health gate.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.healthLegend"
+msgstr "فحص السلامة"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -4893,6 +5067,12 @@ msgstr "مزوّدو الهوية"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.ssoCaption"
 msgstr "مزوّدو الهوية لهذه المؤسسة والرموز التي تتيح للدليل توفير الأشخاص."
+
+#. Shown for a rendered screen image with its short hash; the image itself is not served to Studio.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbStored"
+msgstr "الصورة محفوظة ({sha})"
 
 #. Button that applies the import.
 #. js-lingui-explicit-id
@@ -5526,6 +5706,36 @@ msgstr "اللغة"
 msgid "devices.locale"
 msgstr "اللغة"
 
+#. Label of the crash-free threshold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.crashFreeDrop"
+msgstr "أكبر انخفاض في الجلسات الخالية من الأعطال (نقاط أساس، 0: معطّل)"
+
+#. Label of the action error rate threshold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.actionErrorRateIncrease"
+msgstr "أكبر ارتفاع في معدل أخطاء الإجراءات (نقاط أساس، 0: معطّل)"
+
+#. Label of the error rate threshold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.errorRateIncrease"
+msgstr "أكبر ارتفاع في معدل الأخطاء (نقاط أساس، 0: معطّل)"
+
+#. Label of the function error rate threshold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.functionErrorRateIncrease"
+msgstr "أكبر ارتفاع في معدل أخطاء الدوال (نقاط أساس، 0: معطّل)"
+
+#. Label of the custom gate threshold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.customMax"
+msgstr "أكبر ارتفاع لكل جلسة (نقاط أساس)"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -5891,6 +6101,12 @@ msgstr "جارٍ تحميل الشاشات"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.insert.loading"
 msgstr "جارٍ تحميل القوالب…"
+
+#. Status while the size, accessibility and document changes load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.loading"
+msgstr "جارٍ تحميل تفاصيل البناء"
 
 #. Status while the data area loads.
 #. js-lingui-explicit-id
@@ -6288,6 +6504,12 @@ msgstr "الأوضاع"
 msgid "functions.assuranceModule"
 msgstr "بصمة الوحدة"
 
+#. JSON Patch operation that moves a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.opMove"
+msgstr "نقل"
+
 #. Button that confirms moving a screen to the chosen plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -6407,6 +6629,12 @@ msgstr "الاسم"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colName"
 msgstr "الاسم"
+
+#. Error when a custom gate has no valid event name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.customEventInvalid"
+msgstr "سمِّ حدثاً لا يتجاوز 64 بايت."
 
 #. Accessible name of the field that renames a state entry; the placeholder is its current name.
 #. js-lingui-explicit-id
@@ -6690,6 +6918,12 @@ msgstr "لا"
 msgid "admin.no"
 msgstr "لا"
 
+#. Shown when a build has no accessibility diagnostics.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.a11yNone"
+msgstr "لا ملاحظات على إمكانية الوصول"
+
 #. Shown when the validator found no accessibility problem.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -6786,6 +7020,12 @@ msgstr "لا توجد أجهزة مطابقة."
 msgid "approvals.noDiff"
 msgstr "لا يوجد فرق مرفق."
 
+#. Shown when a plugin has no changed document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.jsonDiffNone"
+msgstr "لم يتغيّر أي مستند."
+
 #. Button: remove the end of a rollout.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -6845,6 +7085,12 @@ msgstr "لم يُجرَ أي فحص للصحة بعد."
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.noIcons"
 msgstr "لا توجد مجموعات أيقونات بعد."
+
+#. Shown when a screen has no image on this side.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbNone"
+msgstr "لا صورة"
 
 #. Shown when a revised component has no instances.
 #. js-lingui-explicit-id
@@ -7734,6 +7980,12 @@ msgstr "إيقاف مؤقت"
 msgid "analytics.replayPause"
 msgstr "إيقاف مؤقت"
 
+#. Health gate action that pauses the rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.actionPause"
+msgstr "إيقاف الطرح مؤقتاً"
+
 #. State of a rollout.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -8550,6 +8802,12 @@ msgstr "إعادة التحميل"
 msgid "devices.reload"
 msgstr "إعادة تحميل الشاشة"
 
+#. JSON Patch operation that removes a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.opRemove"
+msgstr "إزالة"
+
 #. Button: remove one scenario.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -8585,6 +8843,12 @@ msgstr "إزالة {token}"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbRemove"
 msgstr "إزالة المجموعة"
+
+#. Button that removes one custom health gate.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.removeCustom"
+msgstr "إزالة الفحص المخصص {n}"
 
 #. Button that removes the selected data source.
 #. js-lingui-explicit-id
@@ -8658,6 +8922,12 @@ msgstr "أزل المحتوى أو استبدله في كل موضع، واحف�
 msgid "safety.fix.remove-outgoing"
 msgstr "إزالة الروابط الصادرة"
 
+#. Button that removes one rollout stage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.removeStage"
+msgstr "إزالة المرحلة {n}"
+
 #. Button that removes a step and the edges that lead to it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -8692,6 +8962,12 @@ msgstr "إزالة المتغير {name}"
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.changeRemoved"
+msgstr "محذوف"
+
+#. A document that was removed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.changeRemoved"
 msgstr "محذوف"
 
 #. Text in the organisation administration area.
@@ -8771,6 +9047,12 @@ msgstr "تم الإنشاء"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffRunning"
 msgstr "جارٍ الإنشاء"
+
+#. JSON Patch operation that replaces a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.opReplace"
+msgstr "استبدال"
 
 #. Choice that replaces the steps of an event that already has some with the navigation.
 #. js-lingui-explicit-id
@@ -9204,6 +9486,12 @@ msgstr "الأدوار (مفصولة بفواصل)"
 msgid "approvals.simRoles"
 msgstr "الأدوار: {roles}"
 
+#. Health gate action that reverts the rollout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.actionRollback"
+msgstr "التراجع عن الإصدار"
+
 #. Button: make a new release that reproduces this one.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -9239,12 +9527,6 @@ msgstr "التحكم في الطرح"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.stepRollout"
 msgstr "خطة الطرح"
-
-#. Label of the rollout plan field.
-#. js-lingui-explicit-id
-#: apps/web/src/features/publish/publish.messages.ts
-msgid "publish.rolloutPlan"
-msgstr "خطة الطرح (JSON)"
 
 #. Label of the rotation state.
 #. js-lingui-explicit-id
@@ -9497,6 +9779,12 @@ msgstr "حُفظ السيناريو."
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.scenariosHeading"
 msgstr "السيناريوهات"
+
+#. Legend of the rollout start and end.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.scheduleLegend"
+msgstr "الجدول الزمني"
 
 #. Wizard step.
 #. js-lingui-explicit-id
@@ -9948,6 +10236,12 @@ msgstr "النسبة المئوية"
 msgid "releases.colShare"
 msgstr "نسبة الأجهزة"
 
+#. Label of the share of devices a rollout stage reaches.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.stagePercent"
+msgstr "نسبة الأجهزة (%)"
+
 #. Metric kind option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -10110,6 +10404,12 @@ msgstr "الحجم"
 msgid "panels.breakpoint"
 msgstr "فئة الحجم"
 
+#. Shown when the build reports no size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.sizeUnknown"
+msgstr "الحجم غير مُبلَّغ عنه"
+
 #. Status.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -10236,6 +10536,18 @@ msgstr "SSO وSCIM"
 msgid "releases.stage"
 msgstr "المرحلة {index} من {total}"
 
+#. Heading of one rollout stage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.stage"
+msgstr "المرحلة {n}"
+
+#. Legend of the rollout stages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.stagesLegend"
+msgstr "المراحل"
+
 #. Profile name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -10247,6 +10559,12 @@ msgstr "قياسي"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.startLabel"
 msgstr "البداية"
+
+#. Label of the rollout start time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.startAt"
+msgstr "البدء (فارغ: فوراً)"
 
 #. Button that starts the experiment.
 #. js-lingui-explicit-id
@@ -10782,6 +11100,12 @@ msgstr "القالب"
 msgid "library.kind.template"
 msgstr "القوالب"
 
+#. JSON Patch operation that tests a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.opTest"
+msgstr "اختبار"
+
 #. Label of a node test ID.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -10907,6 +11231,12 @@ msgstr "لا تُحتسب موافقة صاحب التغيير"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.baseUrlVariable"
 msgstr "عنوان URL الأساسي هو متغير التطبيق"
+
+#. Error when the build evidence cannot be read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.failed"
+msgstr "تعذّر تحميل تفاصيل البناء."
 
 #. Shown when saving fails.
 #. js-lingui-explicit-id
@@ -11100,6 +11430,12 @@ msgstr "المسودة صالحة."
 msgid "auth.error.rejected"
 msgstr "البريد الإلكتروني أو كلمة المرور غير صحيحة."
 
+#. Error when the rollout ends before it starts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.endBeforeStart"
+msgstr "يجب أن يكون الانتهاء بعد البدء."
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -11292,6 +11628,12 @@ msgstr "بلغت جلسة خادم اللغة حدّها الزمني. شغّل�
 msgid "admin.lockoutNote"
 msgstr "لا يمكن أن يفقد المالك الأخير قدرته على إدارة الأعضاء والسياسات."
 
+#. Error when the last stage below 100 percent has a duration.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.lastStageDuration"
+msgstr "تستمر المرحلة الأخيرة حتى انتهاء الطرح ما لم تبلغ 100 %. لا تمنحها مدة."
+
 #. Error.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -11393,12 +11735,6 @@ msgstr "العناصر الملصقة لا تجتاز التحقق."
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.pinsNote"
 msgstr "التثبيتات جزء من بيانات الجذر الوصفية الموقعة الناتجة عن مراسم المفاتيح دون اتصال. ولا تُعرض هنا؛ اتبع دليل التشغيل لقراءتها من الجذر."
-
-#. Error when the rollout plan is not valid.
-#. js-lingui-explicit-id
-#: apps/web/src/features/publish/publish.messages.ts
-msgid "publish.rolloutInvalid"
-msgstr "الخطة ليست كائن JSON."
 
 #. Shown in the Data tab when the plugin declares neither.
 #. js-lingui-explicit-id
@@ -12193,6 +12529,12 @@ msgstr "لا توجد روابط لهذا العنصر بعد."
 msgid "data.routePlux"
 msgstr "عبر بوابة Plux"
 
+#. Shown while the visual diff has no images.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbQueued"
+msgstr "ستظهر الصور المصغّرة عند انتهاء العرض."
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -12558,6 +12900,12 @@ msgstr "الاستخدام"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.passkey"
 msgstr "استخدم مفتاح المرور"
+
+#. Error when a stage share is out of range.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.percentRange"
+msgstr "استخدم نسبة من 0.01 إلى 100."
 
 #. Shown beside a state entry name that is empty, malformed or already taken.
 #. js-lingui-explicit-id
@@ -12930,6 +13278,12 @@ msgstr "ما يُسمح لإضافات هذا التطبيق بفعله (SEC-080
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.actionFor"
 msgstr "ما سيُفعل بـ {id}"
+
+#. Label of what a failed health gate does.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/rollout.messages.ts
+msgid "publish.rollout.action"
+msgstr "عند فشل الفحص"
 
 #. Label of the list that chooses how long the entry's value is kept.
 #. js-lingui-explicit-id
