@@ -4,12 +4,14 @@
 package compiler
 
 import (
+	"cmp"
 	"crypto/sha256"
 	"encoding/json"
 	"math"
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 
@@ -59,6 +61,62 @@ type FunctionCatalogue interface {
 	// deviceFunctions (FN-055).
 	DeviceFunctionsEnabled() bool
 }
+
+// FunctionEntry is one answer of a FunctionCatalogue: what Function returns
+// for a name and an alias. An empty alias selects the newest version.
+type FunctionEntry struct {
+	Name, Alias string
+	Info        FunctionInfo
+}
+
+// FunctionLister is implemented by a catalogue that can list its answers, so
+// that they can be handed to a process that has no access to the catalogue's
+// source, such as the render worker (O-9). The list is sorted by name and
+// alias.
+type FunctionLister interface {
+	FunctionEntries() []FunctionEntry
+}
+
+// FunctionSet is a FunctionCatalogue over a fixed list of entries. It is
+// immutable and safe for concurrent use.
+type FunctionSet struct {
+	deviceFunctions bool
+	byKey           map[[2]string]FunctionInfo
+	entries         []FunctionEntry
+}
+
+var (
+	_ FunctionCatalogue = (*FunctionSet)(nil)
+	_ FunctionLister    = (*FunctionSet)(nil)
+)
+
+// NewFunctionSet returns the catalogue that answers with entries. A later
+// entry for the same name and alias replaces an earlier one.
+func NewFunctionSet(entries []FunctionEntry, deviceFunctions bool) *FunctionSet {
+	set := &FunctionSet{deviceFunctions: deviceFunctions, byKey: make(map[[2]string]FunctionInfo, len(entries))}
+	for _, e := range entries {
+		set.byKey[[2]string{e.Name, e.Alias}] = e.Info
+	}
+	for k, info := range set.byKey {
+		set.entries = append(set.entries, FunctionEntry{Name: k[0], Alias: k[1], Info: info})
+	}
+	slices.SortFunc(set.entries, func(a, b FunctionEntry) int {
+		return cmp.Or(strings.Compare(a.Name, b.Name), strings.Compare(a.Alias, b.Alias))
+	})
+	return set
+}
+
+// Function implements FunctionCatalogue.
+func (s *FunctionSet) Function(name, alias string) (FunctionInfo, bool) {
+	info, ok := s.byKey[[2]string{name, alias}]
+	return info, ok
+}
+
+// DeviceFunctionsEnabled implements FunctionCatalogue.
+func (s *FunctionSet) DeviceFunctionsEnabled() bool { return s.deviceFunctions }
+
+// FunctionEntries implements FunctionLister.
+func (s *FunctionSet) FunctionEntries() []FunctionEntry { return slices.Clone(s.entries) }
 
 // DeviceFunctionRef names a device-placed function a module must export.
 type DeviceFunctionRef struct {

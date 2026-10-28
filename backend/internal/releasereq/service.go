@@ -19,6 +19,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -67,6 +68,13 @@ type Sources interface {
 	Projects(ctx context.Context, tx pgx.Tx, appID, environmentID, channel string, built map[string]int64) (before, after fs.FS, err error)
 }
 
+// Functions supplies the catalogue of the functions deployed in an
+// environment, the one a release build compiles against (FN-006). *function.Service
+// is one.
+type Functions interface {
+	Catalogue(ctx context.Context, organizationID, appID, environmentID string) (compiler.FunctionCatalogue, error)
+}
+
 // Options are what the service needs. Approvals, Releaser and Jobs may be nil
 // where an installation lacks them: no policy is asked, a request cannot be
 // completed, and no diff can be queued.
@@ -84,6 +92,9 @@ type Options struct {
 	// Sources reads the projects a visual diff compares; nil leaves them out
 	// of the renderer's input, for tests with a fake renderer.
 	Sources Sources
+	// Functions supplies the function catalogue of a visual diff's
+	// environment; nil renders with no functions deployed.
+	Functions Functions
 	// Renderer renders the visual diffs. It is held only by the worker role
 	// that runs render jobs, in the render worker's isolation (L-4).
 	Renderer Renderer

@@ -32,6 +32,14 @@ builderImage:
   digest: ""
   pullPolicy: IfNotPresent
 
+# The render worker renders the visual diffs of release requests with the
+# Flutter toolchain, in its own image (deploy/render-worker/Dockerfile).
+renderWorkerImage:
+  repository: ghcr.io/nightcode42/plux-render-worker
+  tag: ""
+  digest: ""
+  pullPolicy: IfNotPresent
+
 imagePullSecrets: []
 
 serviceAccount:
@@ -129,6 +137,7 @@ internalTLS:
     fnrunner: ""
     egress: ""
     builder: ""
+    renderWorker: ""
 
 # ── Server functions (FN-020) ──────────────────────────────────────────────
 functions:
@@ -430,6 +439,34 @@ builder:
   podAnnotations: {}
   extraEnv: []
   config: {}
+
+renderWorker:
+  # Renders the visual diffs of release requests (O-9, ADR-0097) for the worker
+  # role, over mutual TLS. It holds no database, object-store or signing
+  # credential and may reach nothing (L-4). Independent of functions.enabled;
+  # the chart makes the internal certificates for it.
+  enabled: false
+  replicas: 1
+  resources:
+    requests: {cpu: "1", memory: 2Gi}
+    limits: {memory: 4Gi}
+  # Renders one request at a time per replica: a render saturates a machine,
+  # and a further request is queued again by the server.
+  concurrency: 1
+  # The Flutter tool writes below its SDK, so the root file system stays
+  # read-only and an init container copies the SDK and the package cache of
+  # the image into a volume of this size.
+  sdkSize: 6Gi
+  # The scratch directory of renders (Flutter test projects and images).
+  scratchSize: 4Gi
+  autoscaling: {enabled: false, minReplicas: 1, maxReplicas: 4, targetCPUUtilizationPercentage: 70}
+  podDisruptionBudget: {maxUnavailable: 1}
+  topologySpreadConstraints: []
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  extraEnv: []
 
 # ── Network isolation ──────────────────────────────────────────────────────
 networkPolicy:

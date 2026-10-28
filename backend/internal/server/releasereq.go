@@ -74,8 +74,13 @@ func (k *serviceKit) buildReleaseRequests(svc *Services) *releasereq.Service {
 	if svc.Releases == nil {
 		return nil
 	}
+	var functions releasereq.Functions
+	if svc.Functions != nil {
+		functions = svc.Functions
+	}
 	return releasereq.New(releasereq.Options{
-		DB: k.db, IDs: k.gen, Builds: releasereq.ReleaseBuilds{Releases: svc.Releases}, Jobs: renderQueue{k.work.Queue},
+		Functions: functions,
+		DB:        k.db, IDs: k.gen, Builds: releasereq.ReleaseBuilds{Releases: svc.Releases}, Jobs: renderQueue{k.work.Queue},
 		Objects: k.work.Objects, Sources: releasereq.ReleaseSources{Releases: svc.Releases}, Releaser: releasereq.ReleaseMaker{Releases: svc.Releases}, Approvals: k.approvals, Renderer: k.work.Renderer,
 		Limits: func(ctx context.Context, tx pgx.Tx, organizationID string) (limits.Set, error) {
 			return svc.Tenancy.Effective(ctx, tx, organizationID, "", "") //nolint:wrapcheck // a domain error
