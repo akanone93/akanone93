@@ -51,3 +51,5 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-28 | Experiments: extra primary metrics take the lead metric's kind and direction; guardrails are proportions that must not rise (lead) | S7.5 |
 | 2026-10-28 | `plux test --report` is opt-in; one step per scenario (the Flutter harness reports scenarios); Studio prefill takes taps on nodes with a `testId` from the held device session (lead) | S8.10 |
 | 2026-10-28 | CSP `worker-src` tightened to `'self'` (no `blob:`): no Studio worker uses it; e2e under the CSP pass (lead, delegated; a tightening) | S9.4 |
+| 2026-10-28 | Studio benchmarks gate CI on the spec budgets (S9.1 plan); "typical broadband" for LCP = 10/5 Mbit/s, 40 ms RTT, no CPU throttling (lead, delegated) | S9.1, ci.md |
+| 2026-10-28 | devsession tests (~2 min, a fresh migrated schema per test) stay as they are; a template-database speed-up needs CREATEDB for the test role and is test infrastructure for every package, left for the audit phase (lead) | S9.1 |
