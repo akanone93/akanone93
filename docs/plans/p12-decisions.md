@@ -91,3 +91,42 @@ SPDX-License-Identifier: Apache-2.0
   models damage untouched parts, per-change review needs a diff after the fact); a compact
   authoring format expanded by the server (a second format to keep in step with the schema;
   revisit only if the evaluation suite shows free models need it).
+
+### D-5. How the model gets the context it needs (progressive disclosure)
+
+- **Decision:** every generation is a short conversation with the model, built up in rounds:
+  1. **First request, complete frame.** It carries everything the model needs to do the job
+     except the full item details:
+     - the **response format**: the reply envelope (`kind`: `need` or `final`), the edit
+       operations of D-4, and the **recursive structure** of a node, an action graph and every
+       other shape the answer may contain, with the rules for IDs, bindings and references;
+     - the **index of everything**: every widget and every action in one line each;
+     - the organisation's components, templates, design tokens, data sources, state schemas,
+       translation keys and functions (`AI-004`), with secrets and `sensitive` fields removed
+       (`AI-040`);
+     - the user's prompt and, for an edit, the current selection.
+  2. **The model asks.** It replies `need` with the items it wants in full: widgets, actions,
+     types, components and so on.
+  3. **The server answers** with the full details of exactly those items, including the types
+     and enums they reference. The model replies either `need` again or `final` with the edit
+     operations carrying the whole result: layout, properties, actions, state and content.
+  4. **Validation and repair.** The final answer goes through the full validators; on failure,
+     the repair loop (`AI-003`) sends the diagnostics back together with the details of every
+     item they mention. A valid answer becomes a proposal (D-3).
+- **Rules:**
+  - The envelope is plain JSON with a `kind` discriminator, so the same loop works with strict
+    structured output and with JSON mode (`AI-002`); it does not depend on native tool calling.
+  - Strict output for the `final` reply is checked against a schema the server builds from the
+    items the model requested, so properties are checked precisely and the model, not the
+    server, chooses the widgets.
+  - The number of `need` rounds is capped by a registry limit (`LIM-001`).
+  - The conversation only grows by appending; the first request is identical for the same
+    runtime version and organisation context, so provider prompt caching makes later rounds and
+    later jobs cheap.
+- **Measured (2026-10-28):** index of all 207 widgets ~4.7k tokens; full details of all
+  widgets ~58k, types and enums ~12k, all 58 actions ~6k. Sending everything in full is about
+  76k tokens plus organisation context, which excludes 32k-context local models.
+- **Rejected:** everything in full in every request (size and cost); the server picking
+  widgets by relevance or similarity search (the server guesses for the model and narrows the
+  design); fine-tuning a model on the schema (cost, and ties Plux to one model, against
+  `AI-001`).
