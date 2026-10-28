@@ -218,7 +218,7 @@ describe("SEC-101 STU-002 security headers", () => {
         "img-src 'self' data: blob:",
         "font-src 'self'",
         "connect-src 'self'",
-        "worker-src 'self' blob:",
+        "worker-src 'self'",
         "manifest-src 'self'",
         "object-src 'none'",
         "base-uri 'none'",

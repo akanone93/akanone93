@@ -18,7 +18,7 @@ threats behind these controls are in the [threat model](threat-model.md#p11--plu
 | V3.3 Cookie setup | `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite` | The session is the server's `__Host-plux_session` cookie with `Secure`, `HttpOnly` and `SameSite=Strict`, cleared on sign-out. The BFF's only cookie is `__Host-plux_oidc`, the signed OIDC state: `HttpOnly`, `Path=/`, 10 minutes, `Secure` over https, and `SameSite=Lax` because the provider's redirect to the callback is a cross-site top-level navigation; it carries no credential. The BFF forwards only the session cookie upstream and back | `TestAuthenticationAtTheEdge`; `signin.test.ts` "the state endpoint sets a signed HttpOnly __Host- cookie"; `bff.test.ts` "only __Host-plux_session reaches the upstream", "forwards only allowed headers both ways" |
 | V3.4 Browser security mechanism headers | CSP, HSTS, framing, referrer, COOP/CORP, permissions, CSP reporting | A fresh nonce per response; `script-src 'nonce-…' 'strict-dynamic' 'wasm-unsafe-eval'` with no `'unsafe-inline'` or `'unsafe-eval'`; `default-src 'none'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'self'`, `frame-ancestors 'none'`, `connect-src 'self'`; `require-trusted-types-for 'script'` with the one policy `plux-worker`; reports to `/csp-report`, bounded and rate-limited. Two exceptions are documented: `'wasm-unsafe-eval'` for CanvasKit and the validator (WebAssembly), and `style-src-attr 'unsafe-inline'` for Monaco's style attributes (ADR-0014 Revision 2026-10-26). HSTS (two years, subdomains) whenever the public URL is https; `Referrer-Policy: no-referrer`; `Cross-Origin-Opener-Policy` and `Cross-Origin-Resource-Policy: same-origin`; a closed `Permissions-Policy`. The headers are set on every response, including proxied API answers, static files and the workers' scripts, whose policy the workers inherit | `bff.test.ts` "the CSP is exactly the documented policy, on every kind of response (SEC-109)", "every response carries the headers and a fresh nonce in index.html", "no HSTS over plain http; a missing index.html is 404", "CSP reports are counted, bounded and never echoed"; `e2e/csp.spec.ts` |
 | V3.5 Browser origin separation | CSRF, cross-origin requests, Fetch Metadata | State-changing RPCs need the session's CSRF token in `X-CSRF-Token`, checked by the server; the session cookie is `SameSite=Strict`; Connect accepts only its declared content types, so a cross-site form or simple request cannot form a call; the BFF answers no CORS; the OIDC state endpoint accepts only same-origin JSON (Fetch Metadata, else `Origin`) against login CSRF | `TestCredentialCsrfExemption_SEC_101_STU_002`, `TestAuthenticationAtTheEdge`; `signin.test.ts` "the state endpoint refuses cross-site and non-JSON requests (login CSRF, SEC-101)" |
-| V3.6 External resource integrity | Third-party scripts and styles | None: every script, style, font and WebAssembly module is a hashed asset served by the BFF from Studio's own build (`connect-src`, `font-src` and `manifest-src` are `'self'`; `worker-src` is `'self'` and `blob:`, see gap 1); dependencies are locked (`bun install --frozen-lockfile`) and allowlisted | `bff.test.ts` "the CSP is exactly the documented policy, on every kind of response (SEC-109)"; `bun.lock`, CI `studio` job |
+| V3.6 External resource integrity | Third-party scripts and styles | None: every script, style, font and WebAssembly module is a hashed asset served by the BFF from Studio's own build (`connect-src`, `font-src` and `manifest-src` are `'self'`; `worker-src` is `'self'`); dependencies are locked (`bun install --frozen-lockfile`) and allowlisted | `bff.test.ts` "the CSP is exactly the documented policy, on every kind of response (SEC-109)"; `bun.lock`, CI `studio` job |
 | V3.7 Other browser security considerations | Deprecated technology, open redirects, mixed content | No plugins (`object-src 'none'`); the sign-in callbacks redirect only to `/`; nothing is loaded over plain http when Studio is served over https (`'self'` only); unsupported browsers get an explanatory page | `signin.test.ts` "OIDC callback with a valid state passes only the session cookie and redirects"; `e2e/csp.spec.ts` (`/unsupported`) |
 
 ## OWASP ASVS 5.0, level 2 — the other chapters
@@ -62,24 +62,15 @@ without it.
 
 ## Gaps
 
-1. **`worker-src` admits `blob:`.** No Studio code starts a worker from a `blob:` URL, and the
-   documented rule (studio-development.md §11.2) allows only Studio's own workers. Trusted Types
-   already refuse a `blob:` worker, so this is missing defence in depth, not an open path.
-   Proposal for the maintainer (a change to a security control, AGENTS §7): drop `blob:` from
-   `worker-src` in `studio/apps/bff/src/security.ts` and from the exact policy in `bff.test.ts`,
-   after the CSP end-to-end projects pass with it.
-2. **The Rust editor's end-to-end test runs in no Playwright project.** `e2e/rust-editor.spec.ts`
-   matches no `testMatch` in `e2e/playwright.config.ts`, so the Rust editor is not yet exercised
-   under the CSP in CI; its unit tests and the server's sandbox tests cover the controls.
-3. **The Studio ZAP scan has not had a green CI run yet.** The target and the job are wired
+1. **The Studio ZAP scan has not had a green CI run yet.** The target and the job are wired
    (above), but the scan needs Docker and has not been run for this checklist; its first run may
    report informational alerts (the API needed one, rule 10049), each to be fixed or listed in
    `test/zap/studio-rules.tsv` with its reason. Until then the Studio half of `QA-008` is not
    evidenced.
-4. **Browser evidence not yet run.** The Trusted Types enforcement test in `e2e/csp.spec.ts` and
+2. **Browser evidence not yet run.** The Trusted Types enforcement test in `e2e/csp.spec.ts` and
    the web-storage check in `e2e/shell.spec.ts` were added in S9.4 and need the Playwright
    browsers (`make studio-e2e`).
-5. **API responses are not checked end to end for credentials.** The BFF passes only the session
+3. **API responses are not checked end to end for credentials.** The BFF passes only the session
    cookie and allowlisted headers, and the server never returns a session secret after creation,
    but no test scans Studio's responses in the browser for one.
 

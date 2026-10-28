@@ -50,3 +50,4 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-28 | Visual-diff thumbnails come with the S9.5 renderer client, which adds fetching stored images by hash (lead) | S7.2, S9.5 |
 | 2026-10-28 | Experiments: extra primary metrics take the lead metric's kind and direction; guardrails are proportions that must not rise (lead) | S7.5 |
 | 2026-10-28 | `plux test --report` is opt-in; one step per scenario (the Flutter harness reports scenarios); Studio prefill takes taps on nodes with a `testId` from the held device session (lead) | S8.10 |
+| 2026-10-28 | CSP `worker-src` tightened to `'self'` (no `blob:`): no Studio worker uses it; e2e under the CSP pass (lead, delegated; a tightening) | S9.4 |

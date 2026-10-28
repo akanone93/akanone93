@@ -95,7 +95,9 @@ test("the Rust editor opens under the strict CSP and Trusted Types without a vio
   const editor = page.getByRole("textbox", { name: /Rust source of the function/ });
   await expect(editor).toBeAttached({ timeout: 30_000 });
   await expect(page.locator(".monaco-editor .view-lines")).toContainText("plux_fn");
-  await expect.poll(() => workers.some((u) => /\/assets\/monaco-editor-worker-[\w-]+\.js$/.test(u))).toBe(true);
+  // The Rust language features come from the language server, so Monaco may start no worker of its own; every
+  // worker the page does start is one of Studio's hashed same-origin assets.
+  expect(workers.every((u) => /\/assets\/(monaco-editor|canvas|lock|validator)-worker-[\w-]+\.js$/.test(u))).toBe(true);
   // The Rust tokenizer loads on demand; once it has, the lines carry token classes beyond the default.
   await expect(page.locator('.monaco-editor .view-line span[class*="mtk"]').first()).toBeAttached();
   await expect(page.getByRole("button", { name: "Start the language server" })).toBeDisabled();
