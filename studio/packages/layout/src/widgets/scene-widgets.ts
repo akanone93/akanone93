@@ -11,7 +11,10 @@
  * `sceneChildren` are the only places that translate.
  */
 
+import { BoxConstraints } from "../flutter/constraints.ts";
 import { TextDirection } from "../flutter/geometry.ts";
+import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
+import { RenderIntrinsicWidth } from "../flutter/proxy-boxes.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { TextScaler, type TextStyle } from "../flutter/text-style.ts";
 import { buildNode, hostType, type SceneNode, type SceneText, supportedTypes } from "../scene/scene.ts";
@@ -102,6 +105,7 @@ const compositeTypes: readonly string[] = [
   "DataTable",
   "DropdownMenu",
   "MaterialBanner",
+  "MenuAnchor",
   "NavigationDrawer",
   "PopupMenuButton",
   "SegmentedButton",
@@ -313,6 +317,22 @@ function sceneBuilder(root: (node: WidgetNode) => WidgetNode): WidgetBuilder {
   };
 }
 
+/**
+ * `NavigationRail`: a rail is as high as its parent, which a screen does not give, and as wide as its destinations
+ * wherever its parent is bounded; it is drawn at the theme's viewport height (as a `Drawer` is) and at its intrinsic
+ * width. The rail itself is built by the scene, so its destinations are the ones the conformance goldens verify.
+ */
+const navigationRail: WidgetBuilder = (node, ctx) => {
+  const rail = sceneBuilder((n) => n)(node, ctx);
+  rail.debugId = `${node.id}.rail`;
+  const box = new RenderConstrainedBox({
+    additionalConstraints: BoxConstraints.tightFor({ height: ctx.theme.viewportHeight }),
+    child: new RenderIntrinsicWidth({ child: rail }),
+  });
+  box.debugId = node.id;
+  return box;
+};
+
 /** A sliver on its own lies in a viewport that shrinks to it. */
 function inViewport(node: WidgetNode): WidgetNode {
   return { id: node.id, type: "CustomScrollView", children: [{ ...node, id: `${node.id}.sliver` }] };
@@ -325,4 +345,5 @@ export const sceneWidgetBuilders: ReadonlyArray<readonly [string, WidgetBuilder]
     sceneBuilder((node) => node),
   ]),
   ...sliverTypes.map((type): readonly [string, WidgetBuilder] => [type, sceneBuilder(inViewport)]),
+  ["NavigationRail", navigationRail],
 ];

@@ -17,7 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/l10n"
 )
 
-//go:generate go run ./internal/gen ../../../../schema/l10n/calendars tables_gen.go ../../../../packages/plux_flutter/lib/src/l10n/calendar/tables.g.dart
+//go:generate go run ./internal/gen ../../../../schema/l10n/calendars tables_gen.go ../../../../packages/plux_flutter/lib/src/l10n/calendar/tables.g.dart ../../../../studio/packages/layout/src/widgets/calendar-tables.gen.ts
 
 // ErrInvalidDate is a month or day outside its calendar's range.
 var ErrInvalidDate = errors.New("calendar: invalid date")

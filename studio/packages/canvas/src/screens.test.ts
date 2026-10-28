@@ -89,6 +89,51 @@ describe("ADR-0013 screens laid out in the canvas worker (STU-005, STU-056)", ()
     await core.receive({ v, type: "dispose" });
   });
 
+  test("a terms viewer takes 0.6 of the device height of the frame the screen is drawn in", async () => {
+    const env = new TestEnvironment(ck);
+    const posted: WorkerMessage[] = [];
+    const core = new CanvasWorkerCore((m) => posted.push(m), env.deps());
+    await core.receive({
+      v,
+      type: "init",
+      canvas: { width: 0, height: 0 },
+      width: 320,
+      height: 200,
+      dpr: 1,
+      options: {
+        renderer: "raster",
+        tileSize: 256,
+        background: 0xffffffff,
+        fonts: [fontBytes()],
+        fontFamilies: ["Noto Sans"],
+        fontFamily: "Noto Sans",
+        measureFrames: false,
+      },
+    });
+    const terms: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [{ id: "terms", type: "TermsViewer", props: { source: "# Terms" } }],
+    };
+    const heightAt = async (requestId: number, deviceHeight: number): Promise<number> => {
+      await core.receive({
+        v,
+        type: "screens",
+        requestId,
+        style: { ...style, deviceHeight },
+        screens: [{ id: "terms", title: "Terms", x: 0, y: 0, root: terms }],
+      });
+      const reply = posted.find(
+        (m): m is Extract<WorkerMessage, { type: "screens" }> => m.type === "screens" && m.requestId === requestId,
+      );
+      return reply?.heights.find((h) => h.id === "terms")?.contentHeight ?? 0;
+    };
+    const phone = await heightAt(1, 844);
+    const tall = await heightAt(2, 1000);
+    expect(tall - phone).toBeCloseTo(0.6 * (1000 - 844), 5);
+    await core.receive({ v, type: "dispose" });
+  });
+
   test("STU-121 a screensUpdate lays out only the changed screen and touches only its changed items", async () => {
     const env = new TestEnvironment(ck);
     const posted: WorkerMessage[] = [];

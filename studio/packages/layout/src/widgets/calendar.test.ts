@@ -22,7 +22,7 @@ import {
   umalquraMonthMasks,
   umalquraYearEnd,
   umalquraYearStart,
-} from "./calendar-tables.ts";
+} from "./calendar-tables.gen.ts";
 
 const schema = join(import.meta.dir, "../../../../../schema/l10n/calendars");
 const json = (file: string): Record<string, unknown> => JSON.parse(readFileSync(join(schema, file), "utf8"));
