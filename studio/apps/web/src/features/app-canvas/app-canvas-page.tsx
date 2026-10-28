@@ -25,7 +25,9 @@ import {
   type BoxLink,
   canvasDocument,
   canvasRecipe,
+  changeFrame,
   type Frame,
+  type FrameChange,
   fitViewport,
   type Point,
   placeBoxes,
@@ -43,12 +45,14 @@ import {
   type SceneBox,
 } from "./app-canvas.scene.ts";
 import { BoxList, DetailCard, MoveToDialog } from "./box-list.tsx";
+import { FrameTools } from "./frame-tools.tsx";
 import { LaneMenu } from "./lane-menu.tsx";
 import { type Dialogue, PluginDialogs } from "./plugin-dialogs.tsx";
 import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
 import { TrashDialog } from "./trash-dialog.tsx";
 import { useAppScene } from "./use-app-scene.ts";
 import { useCanvasGestures } from "./use-canvas-gestures.ts";
+import { useTeams } from "./use-teams.ts";
 
 export { PluginBoxCard } from "./box-list.tsx";
 export { PluginDialogs } from "./plugin-dialogs.tsx";
@@ -189,10 +193,10 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const scene = useAppScene({ surface, generation, boxes, frames, selected, focused, graph });
 
   const persist = useCallback(
-    (next: SavedCanvas) => {
+    (next: SavedCanvas, group = "canvas") => {
       const exists = documents?.some((d) => d.path === APP_CANVAS_PATH) === true;
       if (exists) {
-        edit.edit(APP_CANVAS_PATH, canvasRecipe(next), { group: "canvas" });
+        edit.edit(APP_CANVAS_PATH, canvasRecipe(next), { group });
       } else {
         void edit.create(APP_CANVAS_PATH, canvasDocument(uuidv7(), next)).then((r) => {
           if (!r.ok) {
@@ -204,13 +208,19 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     [documents, edit, m.failed],
   );
   const commit = useCallback(
-    (nextPositions: ReadonlyMap<string, Point>, nextFrames: readonly Frame[]) => {
+    (nextPositions: ReadonlyMap<string, Point>, nextFrames: readonly Frame[], group?: string) => {
       setPositions(nextPositions);
       setFrames(nextFrames);
-      persist({ positions: nextPositions, frames: nextFrames });
+      persist({ positions: nextPositions, frames: nextFrames }, group);
     },
     [persist],
   );
+  // A frame rename or resize is its own undo step through the editing core (D20, STU-035).
+  const changeFrameOf = useCallback(
+    (id: string, change: FrameChange) => commit(positions, changeFrame(frames, id, change), `frame-${uuidv7()}`),
+    [commit, positions, frames],
+  );
+  const teams = useTeams();
 
   const fit = useCallback(() => {
     const canvas = canvasRef.current;
@@ -330,6 +340,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         <Button disabled={selected.size === 0} onClick={() => setDialogue({ kind: "frame" })}>
           {m.newFrame}
         </Button>
+        <FrameTools frames={frames} messages={m} onChange={changeFrameOf} />
         <Button onClick={arrange}>{m.autoLayout}</Button>
         <Button onClick={fit}>{m.zoomToFit}</Button>
         <Button disabled={one === undefined} onClick={() => setDialogue({ kind: "settings" })}>
@@ -433,10 +444,13 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         summary={one}
         taken={new Set(list.map((s) => s.plugin?.key ?? ""))}
         selectedBoxes={boxes.filter((b) => selected.has(b.id))}
+        teams={teams}
         close={() => setDialogue(null)}
         onCreate={(name, key) => mutation.mutate(() => plugins.createPlugin({ appId, key, name }))}
-        onSettings={(id, name, description, tags) =>
-          mutation.mutate(() => plugins.updatePlugin({ id, name, metadata: { description, setTags: true, tags } }))
+        onSettings={(id, name, description, tags, owningTeamId) =>
+          mutation.mutate(() =>
+            plugins.updatePlugin({ id, name, metadata: { description, setTags: true, tags, owningTeamId } }),
+          )
         }
         onDuplicate={(id, name, key) =>
           mutation.mutate(() => plugins.duplicatePlugin({ id, name, key, session: uuidv7() }))

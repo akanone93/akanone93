@@ -40,6 +40,30 @@ export interface Frame {
   readonly height: number;
 }
 
+/** The smallest side of a frame, in world units. */
+export const MIN_FRAME = 80;
+
+export interface FrameChange {
+  readonly label: string;
+  readonly width: number;
+  readonly height: number;
+}
+
+/** The frames with frame `id` renamed and resized; a side never goes below MIN_FRAME, a blank label keeps the old. */
+export function changeFrame(frames: readonly Frame[], id: string, change: FrameChange): readonly Frame[] {
+  const side = (n: number, was: number) => (Number.isFinite(n) ? Math.max(MIN_FRAME, Math.round(n)) : was);
+  return frames.map((f) =>
+    f.id === id
+      ? {
+          ...f,
+          label: change.label.trim() === "" ? f.label : change.label.trim(),
+          width: side(change.width, f.width),
+          height: side(change.height, f.height),
+        }
+      : f,
+  );
+}
+
 export interface SavedCanvas {
   readonly positions: ReadonlyMap<string, Point>;
   readonly frames: readonly Frame[];
