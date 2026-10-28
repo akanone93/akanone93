@@ -22,6 +22,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/approval"
+	"github.com/nightCode42/plux3/backend/internal/archive"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
@@ -59,6 +60,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
+	"github.com/nightCode42/plux3/backend/internal/shellupdate"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -470,7 +472,16 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	archives, err := archive.New(archive.Options{DB: db, Audit: log, Tenancy: tenancyService, Documents: docs, IDs: gen, Limits: set})
+	if err != nil {
+		t.Fatal(err)
+	}
+	shells, err := shellupdate.New(shellupdate.Options{DB: db, Audit: log, IDs: gen, Limits: set, Queue: discardProjects{}})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
+		Archives: archives, Shells: shells,
 		Edition:     cfg.Edition,
 		DevSessions: devSessions, Library: libraryService,
 		Emergencies: emergencies, Freezes: freezes, Reports: reports,
@@ -511,6 +522,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewTestRunServiceHandler(h.TestRun(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewAppProjectServiceHandler(h.AppProject(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
 		},
@@ -1093,3 +1105,8 @@ func licensed() api.Around {
 		return next(edition.WithProvider(ctx, fullLicence{}))
 	}
 }
+
+// discardProjects accepts project generation jobs and never runs them.
+type discardProjects struct{}
+
+func (discardProjects) Enqueue(context.Context, pgx.Tx, shellupdate.Job) error { return nil }

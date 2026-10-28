@@ -321,6 +321,19 @@ func operationalStores() []Store {
 			Note: "created_by is the identifier of the token or person that reported the run; the results describe scenarios, not people.",
 		},
 		{
+			Name: "project_jobs", Description: "Host-project generation jobs of an app (GEN-001, GEN-004).",
+			Personal: []string{"created_by"}, Retention: "Until the app is deleted.", Erase: EraseNone,
+			Note: "created_by is the identifier of the person or token that queued the job.",
+		},
+		{
+			Name: "project_job_results", Description: "The generated host projects (zip) of those jobs.",
+			Retention: "Until the app is deleted.", Erase: EraseNone,
+		},
+		{
+			Name: "app_shell_settings", Description: "An app's shell settings and the settings its project was last generated from (GEN-004).",
+			Retention: "Until the app is deleted.", Erase: EraseNone,
+		},
+		{
 			Name: "golden_cases", Description: "Golden-test cases of an app.",
 			Retention: "Until the case is deleted.", Erase: EraseNone,
 			Note: "locale is the language the case renders in, not a person's locale.",

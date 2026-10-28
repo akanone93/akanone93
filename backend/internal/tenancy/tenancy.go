@@ -230,6 +230,12 @@ type AppFilter struct {
 	Tags            []string
 	OwningTeamID    string
 	IncludeArchived bool
+	// Status is "" or "active" (archived apps left out), "archived" (only
+	// them) or "all".
+	Status string
+	// Mine keeps the apps the caller holds a grant on or that a team of the
+	// caller owns.
+	Mine bool
 	// Sort is "key" (default), "name" or "updated" (newest first).
 	Sort string
 }

@@ -79,7 +79,7 @@ func (s App) ListApps(ctx context.Context, req *connect.Request[pluxv1.ListAppsR
 		m := req.Msg
 		filter := tenancy.AppFilter{
 			Query: strings.ToLower(strings.TrimSpace(m.GetQuery())), Tags: m.GetTags(), OwningTeamID: m.GetOwningTeamId(),
-			IncludeArchived: m.GetIncludeArchived(), Sort: m.GetSort(),
+			IncludeArchived: m.GetIncludeArchived(), Status: m.GetStatus(), Mine: m.GetMine(), Sort: m.GetSort(),
 		}
 		apps, err := s.h.Tenancy.ListApps(ctx, p, tenancy.Page{After: after, Size: size, Filter: filter})
 		if err != nil {

@@ -627,22 +627,28 @@ func (q *Queries) ListAppRolesForUser(ctx context.Context, arg ListAppRolesForUs
 
 const listApps = `-- name: ListApps :many
 SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM apps
- WHERE organization_id = $1 AND deleted_at IS NULL
-   AND ($2::uuid[] IS NULL OR id = ANY ($2::uuid[]))
-   AND NOT (id = ANY ($3::uuid[]))
+ WHERE apps.organization_id = $1 AND apps.deleted_at IS NULL
+   AND ($2::uuid[] IS NULL OR apps.id = ANY ($2::uuid[]))
+   AND NOT (apps.id = ANY ($3::uuid[]))
    AND ($4::boolean OR archived_at IS NULL)
-   AND ($5::text = '' OR position(lower($5::text) IN lower(key || ' ' || name || ' ' || description || ' ' || array_to_string(tags, ' '))) > 0)
-   AND (cardinality($6::text[]) = 0 OR tags @> $6::text[])
-   AND ($7::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR owning_team_id = $7::uuid)
-   AND (CASE $8::text
+   AND (NOT $5::boolean OR archived_at IS NOT NULL)
+   AND ($6::uuid = '00000000-0000-0000-0000-000000000000'::uuid
+        OR EXISTS (SELECT 1 FROM app_access a WHERE a.app_id = apps.id
+                    AND (a.user_id = $6::uuid
+                         OR a.team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = $6::uuid AND m.team_id IS NOT NULL)))
+        OR apps.owning_team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = $6::uuid AND m.team_id IS NOT NULL))
+   AND ($7::text = '' OR position(lower($7::text) IN lower(key || ' ' || name || ' ' || description || ' ' || array_to_string(tags, ' '))) > 0)
+   AND (cardinality($8::text[]) = 0 OR tags @> $8::text[])
+   AND ($9::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR owning_team_id = $9::uuid)
+   AND (CASE $10::text
           WHEN 'name' THEN lower(name)
           WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
-          ELSE key END, id) > ($9::text, $10::uuid)
- ORDER BY (CASE $8::text
+          ELSE key END, id) > ($11::text, $12::uuid)
+ ORDER BY (CASE $10::text
           WHEN 'name' THEN lower(name)
           WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
           ELSE key END), id
- LIMIT $11
+ LIMIT $13
 `
 
 type ListAppsParams struct {
@@ -650,6 +656,8 @@ type ListAppsParams struct {
 	OnlyIds         []pgtype.UUID
 	ExceptIds       []pgtype.UUID
 	IncludeArchived bool
+	OnlyArchived    bool
+	MineUser        pgtype.UUID
 	Query           string
 	Tags            []string
 	OwningTeamID    pgtype.UUID
@@ -663,13 +671,17 @@ type ListAppsParams struct {
 // granted one by one (GOV-001); except_ids leaves out the apps a restriction
 // takes app.read away from (GOV-006). sort_key is the cursor column of the
 // chosen order (key, name, or newest-first updated); the Go mirror is
-// tenancy.sortKey. Archived apps are left out unless include_archived.
+// tenancy.sortKey. Archived apps are left out unless include_archived; only_archived keeps
+// just them; mine_user, when not the zero UUID, keeps the apps that user holds
+// a grant on (directly or through a team) or that one of their teams owns.
 func (q *Queries) ListApps(ctx context.Context, arg ListAppsParams) ([]App, error) {
 	rows, err := q.db.Query(ctx, listApps,
 		arg.OrganizationID,
 		arg.OnlyIds,
 		arg.ExceptIds,
 		arg.IncludeArchived,
+		arg.OnlyArchived,
+		arg.MineUser,
 		arg.Query,
 		arg.Tags,
 		arg.OwningTeamID,
@@ -1013,6 +1025,50 @@ func (q *Queries) ListVariables(ctx context.Context, arg ListVariablesParams) ([
 	return items, nil
 }
 
+const liveReleases = `-- name: LiveReleases :many
+SELECT e.app_id, e.key AS environment_key, max(c.release_sequence)::bigint AS release_sequence,
+       max(r.created_at)::timestamptz AS published_at
+  FROM environments e
+  JOIN channels c ON c.environment_id = e.id
+  LEFT JOIN releases r ON r.environment_id = e.id AND r.sequence = c.release_sequence
+ WHERE e.app_id = ANY ($1::uuid[])
+ GROUP BY e.app_id, e.key
+ ORDER BY e.app_id, e.key
+`
+
+type LiveReleasesRow struct {
+	AppID           pgtype.UUID
+	EnvironmentKey  string
+	ReleaseSequence int64
+	PublishedAt     pgtype.Timestamptz
+}
+
+// The newest release any channel of each environment serves, for a set of apps.
+func (q *Queries) LiveReleases(ctx context.Context, appIds []pgtype.UUID) ([]LiveReleasesRow, error) {
+	rows, err := q.db.Query(ctx, liveReleases, appIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LiveReleasesRow{}
+	for rows.Next() {
+		var i LiveReleasesRow
+		if err := rows.Scan(
+			&i.AppID,
+			&i.EnvironmentKey,
+			&i.ReleaseSequence,
+			&i.PublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const markTrashRestored = `-- name: MarkTrashRestored :execrows
 UPDATE trash SET restored_at = now() WHERE id = $1 AND restored_at IS NULL
 `
@@ -1240,6 +1296,102 @@ func (q *Queries) SoftDeleteApp(ctx context.Context, id pgtype.UUID) (App, error
 		&i.ArchivedAt,
 	)
 	return i, err
+}
+
+const summariseApps = `-- name: SummariseApps :many
+SELECT a.id, a.organization_id, a.key, a.name, a.default_plugin_key, a.created_at, a.updated_at, a.deleted_at, a.description, a.icon_asset_id, a.owning_team_id, a.tags, a.archived_at,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugin_count,
+       (SELECT count(*) FROM devices d WHERE d.app_id = a.id AND d.last_seen_at > now() - interval '7 days')::bigint AS active_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '7 days')::bigint AS crashed_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '14 days' AND g.last_seen <= now() - interval '7 days')::bigint AS crashed_devices_before,
+       (SELECT max(r.created_at) FROM releases r WHERE r.app_id = a.id)::timestamptz AS last_published_at
+  FROM apps a
+ WHERE a.organization_id = $1 AND a.deleted_at IS NULL AND a.archived_at IS NULL
+   AND ($2::uuid[] IS NULL OR a.id = ANY ($2::uuid[]))
+   AND NOT (a.id = ANY ($3::uuid[]))
+   AND a.key > $4::text
+ ORDER BY a.key
+ LIMIT $5
+`
+
+type SummariseAppsParams struct {
+	OrganizationID pgtype.UUID
+	OnlyIds        []pgtype.UUID
+	ExceptIds      []pgtype.UUID
+	AfterKey       string
+	PageSize       int32
+}
+
+type SummariseAppsRow struct {
+	ID                   pgtype.UUID
+	OrganizationID       pgtype.UUID
+	Key                  string
+	Name                 string
+	DefaultPluginKey     string
+	CreatedAt            pgtype.Timestamptz
+	UpdatedAt            pgtype.Timestamptz
+	DeletedAt            pgtype.Timestamptz
+	Description          string
+	IconAssetID          string
+	OwningTeamID         pgtype.UUID
+	Tags                 []string
+	ArchivedAt           pgtype.Timestamptz
+	PluginCount          int64
+	ActiveDevices        int64
+	CrashedDevices       int64
+	CrashedDevicesBefore int64
+	LastPublishedAt      pgtype.Timestamptz
+}
+
+// One row per app for the apps grid (plan §4.3 #14), in key order after
+// after_key, bounded by page_size. Active devices were seen in the last
+// seven days; crash-free counts those that a fatal error group of the same
+// period names, for this period and the one before it.
+func (q *Queries) SummariseApps(ctx context.Context, arg SummariseAppsParams) ([]SummariseAppsRow, error) {
+	rows, err := q.db.Query(ctx, summariseApps,
+		arg.OrganizationID,
+		arg.OnlyIds,
+		arg.ExceptIds,
+		arg.AfterKey,
+		arg.PageSize,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SummariseAppsRow{}
+	for rows.Next() {
+		var i SummariseAppsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.Key,
+			&i.Name,
+			&i.DefaultPluginKey,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Description,
+			&i.IconAssetID,
+			&i.OwningTeamID,
+			&i.Tags,
+			&i.ArchivedAt,
+			&i.PluginCount,
+			&i.ActiveDevices,
+			&i.CrashedDevices,
+			&i.CrashedDevicesBefore,
+			&i.LastPublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateApp = `-- name: UpdateApp :one

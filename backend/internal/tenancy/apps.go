@@ -242,6 +242,24 @@ func (s *Service) ListApps(ctx context.Context, p auth.Principal, page Page) ([]
 	default:
 		return nil, plxerr.New(plxerr.InvalidEnumValue, "an app listing sorts by key, name or updated")
 	}
+	includeArchived, onlyArchived := f.IncludeArchived, false
+	switch f.Status {
+	case "", "active":
+	case "all":
+		includeArchived = true
+	case "archived":
+		includeArchived, onlyArchived = true, true
+	default:
+		return nil, plxerr.New(plxerr.InvalidEnumValue, "an app listing filters by status active, archived or all")
+	}
+	mine := pgtype.UUID{Valid: true}
+	if f.Mine {
+		id, err := storage.UUID(p.UserID)
+		if err != nil {
+			return nil, plxerr.New(plxerr.InvalidFormat, "mine needs a signed-in person")
+		}
+		mine = id
+	}
 	team := pgtype.UUID{Valid: true}
 	if f.OwningTeamID != "" {
 		id, err := storage.UUID(f.OwningTeamID)
@@ -258,7 +276,7 @@ func (s *Service) ListApps(ctx context.Context, p auth.Principal, page Page) ([]
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		rows, err := dbgen.New(tx).ListApps(ctx, dbgen.ListAppsParams{
 			OrganizationID: storage.MustUUID(p.OrganizationID), OnlyIds: only, ExceptIds: excludedApps(p),
-			IncludeArchived: f.IncludeArchived, Query: f.Query, Tags: tags, OwningTeamID: team, Sort: f.Sort,
+			IncludeArchived: includeArchived, OnlyArchived: onlyArchived, MineUser: mine, Query: f.Query, Tags: tags, OwningTeamID: team, Sort: f.Sort,
 			AfterKey: page.After.Key, AfterID: page.After.AfterID(), PageSize: page.Size,
 		})
 		if err != nil {
@@ -341,6 +359,11 @@ func (s *Service) UpdateAppMetadata(ctx context.Context, p auth.Principal, appID
 			return failure(err, "app")
 		}
 		out = appOf(updated)
+		if args.SetArchived && out.Archived != row.ArchivedAt.Valid {
+			if err := s.record(ctx, tx, p, audit.AppArchived, "app", appID); err != nil {
+				return err
+			}
+		}
 		return s.record(ctx, tx, p, audit.AppUpdated, "app", appID)
 	})
 	return out, err
