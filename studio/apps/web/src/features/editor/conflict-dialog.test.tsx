@@ -68,7 +68,7 @@ describe("SRV-030 D35 conflict dialog and the waiting chip (F2, F4)", () => {
     expect(await screen.findByText("This plugin changed on the server")).toBeDefined();
     expect(screen.getAllByText("/props/padding").length).toBeGreaterThan(0);
     fireEvent.click(screen.getByText("Take the server's"));
-    await waitFor(() => expect(session.store.getState().conflict).toBeNull());
+    await waitFor(() => expect(session.store.getState().conflict === null).toBe(true));
     expect(session.store.getState().docs[path]?.content).toEqual(server.content);
   });
 });

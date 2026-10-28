@@ -1,0 +1,11 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: AGPL-3.0-only
+
+language js(typescript, jsx)
+
+// Bun formats the received DOM element when `.toBeNull()` fails inside a
+// retrying `waitFor`, which stalls a failing test for about 25 seconds.
+`$subject.toBeNull()` as $n where {
+  $n <: within `waitFor($...)`,
+  register_diagnostic(span=$n, message="No .toBeNull() inside waitFor: a failing run stalls while Bun formats the DOM element. Use expect(x === null).toBe(true).", severity="error")
+}

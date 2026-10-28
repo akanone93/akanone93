@@ -66,8 +66,10 @@ plux test -C path/to/project --junit build/plux-test.xml
 discarded after it, and runs each scenario as one Flutter widget test with the real
 runtime, from a baseline, with no server. Network requests are not made: every data source
 answers from its mock. The exit code is 0 when every scenario passed, 1 when one failed
-or a file has errors, and 2 for a usage error. The JUnit XML is what CI reads; reporting to
-Studio arrives with Studio (`P11`).
+or a file has errors, and 2 for a usage error. The JUnit XML is what CI reads. With
+`--report --app <id>` the run is also recorded on the server with your credential (like
+the other server commands: `plux login` or `PLUX_TOKEN`; exit 3 when you are not signed
+in or refused, 4 when the server is unreachable), and Studio lists it under Plux Test.
 
 `--flutter` names the Flutter executable when it is not on the path.
 
