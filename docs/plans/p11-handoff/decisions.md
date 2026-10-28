@@ -30,4 +30,5 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-27 | Installation organisation list: one installation-admin RPC, names/IDs/counts only, the only tenant-wall crossing | S8.8 code |
 | 2026-10-27 | Limit `test.stepsPerRun` 5000 (max 100000) per reported Plux Test run | schema/limits.json |
 | 2026-10-28 | New permission `analytics.manage` for funnel definitions (Owner, Admin, Release manager); limit `analytics.funnelSteps` 10 (max 20) | permissions catalogue, schema/limits.json |
+| 2026-10-28 | S8.1 limits: `app.summariesPerCall` 100/500, `archive.bytes` 8/256 MiB, `archive.entries` 2000/20000, `archive.expandedBytes` 64 MiB/1 GiB, `project.bytes` 64/512 MiB, `project.jobsPerHour` 10/1000; ADR-0102 accepted as written | schema/limits.json, ADR-0102 |
 | 2026-10-26 | Sign-in page design is not changed now | — |
