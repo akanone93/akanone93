@@ -574,6 +574,37 @@ var matrix = map[string]entry{
 		return &pluxv1.GetRunStatusRequest{AppId: f.app}
 	})),
 
+	// AppProjectService
+	"AppProjectService/ListAppSummaries": atPerm(auth.AppRead, anyone(&pluxv1.ListAppSummariesRequest{})),
+	"AppProjectService/ExportApp": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ExportAppRequest{AppId: f.app}
+	})),
+	"AppProjectService/ImportApp": atPerm(auth.AppManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.ImportAppRequest{Archive: []byte("not an archive")}
+	})),
+	"AppProjectService/DuplicateApp": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DuplicateAppRequest{AppId: f.freshApp(t), Key: f.name()}
+	}),
+	"AppProjectService/ListSampleApps": atPerm(auth.AppRead, anyone(&pluxv1.ListSampleAppsRequest{})),
+	"AppProjectService/ImportSampleApp": atPerm(auth.AppManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.ImportSampleAppRequest{SampleId: "no-such-sample"}
+	})),
+	"AppProjectService/GetShellStatus": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetShellStatusRequest{AppId: f.app}
+	})),
+	"AppProjectService/SetShellSettings": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetShellSettingsRequest{AppId: f.app, Settings: &pluxv1.ShellSettings{}}
+	})),
+	"AppProjectService/GenerateProject": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GenerateProjectRequest{AppId: f.app, EnvironmentKey: "development", ChannelKey: "production"}
+	})),
+	"AppProjectService/GetProjectJob": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetProjectJobRequest{AppId: f.app, JobId: unknownID}
+	})),
+	"AppProjectService/DownloadProject": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DownloadProjectRequest{AppId: f.app, JobId: unknownID}
+	})),
+
 	// TestRunService
 	"TestRunService/ReportRun": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ReportRunRequest{AppId: f.app}

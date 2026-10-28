@@ -390,6 +390,23 @@
       "description": "Plugins per app."
     },
     {
+      "key": "app.summariesPerCall",
+      "unit": "count",
+      "default": 100,
+      "max": 500,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-022"
+      ],
+      "description": "Apps one summary call returns; a longer list is paged."
+    },
+    {
       "key": "app.translationKeys",
       "unit": "count",
       "default": 10000,
@@ -408,6 +425,63 @@
         "I18N-007"
       ],
       "description": "Translation keys one app may declare."
+    },
+    {
+      "key": "archive.bytes",
+      "unit": "bytes",
+      "default": 8388608,
+      "max": 268435456,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-023",
+        "STU-024"
+      ],
+      "description": "Size of a .plux archive the server accepts for import."
+    },
+    {
+      "key": "archive.entries",
+      "unit": "count",
+      "default": 2000,
+      "max": 20000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-023",
+        "STU-024"
+      ],
+      "description": "Files in one .plux archive."
+    },
+    {
+      "key": "archive.expandedBytes",
+      "unit": "bytes",
+      "default": 67108864,
+      "max": 1073741824,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-023",
+        "STU-024"
+      ],
+      "description": "Total size of the files in one .plux archive after unzipping."
     },
     {
       "key": "asset.fileSize",
@@ -3086,6 +3160,43 @@
         "SCH-005"
       ],
       "description": "Pages per plugin."
+    },
+    {
+      "key": "project.bytes",
+      "unit": "bytes",
+      "default": 67108864,
+      "max": 536870912,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "GEN-001",
+        "GEN-004"
+      ],
+      "description": "Size of a generated host project (zip)."
+    },
+    {
+      "key": "project.jobsPerHour",
+      "unit": "count",
+      "default": 10,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "GEN-001",
+        "GEN-004"
+      ],
+      "description": "Project generation jobs one app may queue per hour."
     },
     {
       "key": "publish.assetWait",

@@ -72,8 +72,16 @@ enum PluxLimit {
   appLocales('app.locales', PluxLimitUnit.count, 50, 0, 300),
   /// Plugins per app.
   appPlugins('app.plugins', PluxLimitUnit.count, 200, 0, 1000),
+  /// Apps one summary call returns; a longer list is paged.
+  appSummariesPerCall('app.summariesPerCall', PluxLimitUnit.count, 100, 0, 500),
   /// Translation keys one app may declare.
   appTranslationKeys('app.translationKeys', PluxLimitUnit.count, 10000, 0, 100000),
+  /// Size of a .plux archive the server accepts for import.
+  archiveBytes('archive.bytes', PluxLimitUnit.bytes, 8388608, 0, 268435456),
+  /// Files in one .plux archive.
+  archiveEntries('archive.entries', PluxLimitUnit.count, 2000, 0, 20000),
+  /// Total size of the files in one .plux archive after unzipping.
+  archiveExpandedBytes('archive.expandedBytes', PluxLimitUnit.bytes, 67108864, 0, 1073741824),
   /// Size of one asset file, checked at upload and again at publish.
   assetFileSize('asset.fileSize', PluxLimitUnit.bytes, 10485760, 0, 104857600),
   /// Pixels of one image asset, width times height, checked before it is
@@ -410,6 +418,10 @@ enum PluxLimit {
   pluginAssetBytes('plugin.assetBytes', PluxLimitUnit.bytes, 20971520, 0, 268435456),
   /// Pages per plugin.
   pluginPages('plugin.pages', PluxLimitUnit.count, 500, 0, 2000),
+  /// Size of a generated host project (zip).
+  projectBytes('project.bytes', PluxLimitUnit.bytes, 67108864, 0, 536870912),
+  /// Project generation jobs one app may queue per hour.
+  projectJobsPerHour('project.jobsPerHour', PluxLimitUnit.count, 10, 0, 1000),
   /// Time a publish waits, from when it was queued, for the app's image assets
   /// to finish processing before it fails.
   publishAssetWait('publish.assetWait', PluxLimitUnit.milliseconds, 600000, 0, 3600000),

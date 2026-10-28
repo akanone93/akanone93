@@ -321,6 +321,9 @@ func addWorkers(workers *jobs.Workers, services *Services, deps WorkDeps, log *s
 	if services.GitExport != nil && services.Documents != nil {
 		jobs.AddWorker(workers, &gitExportWorker{svc: services})
 	}
+	if services.Shells != nil {
+		jobs.AddWorker(workers, &projectWorker{svc: services})
+	}
 	if services.Functions != nil && deps.Builder != nil && deps.Signer != nil {
 		jobs.AddWorker(workers, &functionBuildWorker{runner: services.Functions, log: log})
 	}
