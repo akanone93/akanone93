@@ -308,7 +308,7 @@ func TestListAppsFiltersAndSummaries_STU_022(t *testing.T) {
 	if err != nil || len(sums) != 1 || sums[0].App.Key != "alpha" || next != "alpha" {
 		t.Fatalf("summaries page one: %+v %q %v", sums, next, err)
 	}
-	if len(sums[0].Releases) != 3 || sums[0].CrashFreeRate != 1 || len(sums[0].Limits) != 1 || sums[0].Limits[0].Limit == 0 {
+	if len(sums[0].Releases) != 3 || sums[0].CrashFreeRate != 1 || len(sums[0].Limits) != 9 || sums[0].Limits[0].Key != string(limits.AppPlugins) || sums[0].Limits[0].Limit == 0 || sums[0].LastPublisher != nil {
 		t.Errorf("summary content: %+v", sums[0])
 	}
 	sums, next, err = f.tenancy.ListAppSummaries(ctx, f.owner, "alpha", 50)
@@ -385,5 +385,60 @@ func TestShellUpdateAndProjectJobs_GEN_004(t *testing.T) {
 	}
 	if !slices.Contains(actions(t, f, f.owner), audit.ProjectGenerated) {
 		t.Error("generation is not audited")
+	}
+}
+
+// TestAppUsageInSummariesAndLimits_STU_025 measures an imported sample app's
+// usage once in the summaries and once in ListAppLimits, and proves the two
+// agree, that a batch of apps costs no more queries than one, and that another
+// organisation neither sees the usage nor reads the limits (LIM-005).
+func TestAppUsageInSummariesAndLimits_STU_025(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	imp, err := f.archives.ImportSample(ctx, f.owner, "loans", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.tenancy.CreateApp(ctx, f.owner, "empty", "Empty"); err != nil {
+		t.Fatal(err)
+	}
+	sums, _, err := f.tenancy.ListAppSummaries(ctx, f.owner, "", 50)
+	if err != nil || len(sums) != 2 {
+		t.Fatalf("summaries: %d %v", len(sums), err)
+	}
+	var loans, empty tenancy.AppSummary
+	for _, s := range sums {
+		if s.App.ID == imp.App.ID {
+			loans = s
+		} else {
+			empty = s
+		}
+	}
+	listed, err := f.tenancy.ListAppLimits(ctx, f.owner, imp.App.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	byKey := map[string]int64{}
+	for _, l := range listed {
+		byKey[string(l.Key)] = l.Value
+	}
+	if len(loans.Limits) == 0 {
+		t.Fatal("no usage in the summary")
+	}
+	for _, u := range loans.Limits {
+		if byKey[u.Key] != u.Used {
+			t.Errorf("%s: the summary says %d, ListAppLimits %d", u.Key, u.Used, byKey[u.Key])
+		}
+	}
+	if byKey[string(limits.AppPlugins)] < 1 || byKey[string(limits.PluginPages)] < 1 || byKey[string(limits.AppLocales)] < 1 {
+		t.Errorf("the sample's usage is not measured: %v", byKey)
+	}
+	for _, u := range empty.Limits {
+		if u.Used != 0 {
+			t.Errorf("an empty app uses %d of %s", u.Used, u.Key)
+		}
+	}
+	if _, err := f.tenancy.ListAppLimits(ctx, f.other, imp.App.ID); code(err) != plxerr.ResourceNotFound {
+		t.Errorf("another organisation reads the limits: %v", err)
 	}
 }

@@ -3,6 +3,7 @@
 
 import { create } from "@bufbuild/protobuf";
 import { timestampFromMs } from "@bufbuild/protobuf/wkt";
+import { Code, ConnectError } from "@connectrpc/connect";
 import {
   type App,
   AppLimitUsageSchema,
@@ -29,6 +30,8 @@ export interface AppsGridApp {
   iconAssetId?: string;
   /** Epoch seconds of the newest release; absent means never published. */
   lastPublishedAt?: number;
+  /** Who created the newest release. */
+  lastPublisher?: { kind: string; id: string; display: string };
   releases?: { environmentKey: string; liveSequence: number }[];
   activeDevices?: number;
   pluginCount?: number;
@@ -46,6 +49,9 @@ export interface AppsGridFixture {
   perCall?: number;
   /** The limits `ListAppLimits` returns. */
   limits?: { key: string; unit: string; value: number; effective: number; hardMax?: number; warning?: boolean }[];
+  /** The plugins `ListPlugins` returns, and the limits `ListPluginLimits` returns per plugin ID; a plugin without an entry is not found. */
+  plugins?: { id: string; key: string; name: string }[];
+  pluginLimits?: Record<string, { key: string; unit: string; value: number; effective: number; warning?: boolean }[]>;
   /** The assets `ListAssets` returns per app ID: name, ID, media type and URL. */
   assets?: Record<string, { id: string; name: string; mediaType: string; url: string }[]>;
   /** Every call received: `summaries:<limit>:<afterKey>`, `archive:<id>:<on|off>`, `update:<id>:<name>:<description>`, `export:<id>`, `duplicate:<id>:<key>:<name>`, `listApps:<status>:<mine>`. */
@@ -75,6 +81,7 @@ function summaryOf(a: AppsGridApp): AppSummary {
       create(EnvironmentReleaseSchema, { environmentKey: r.environmentKey, liveSequence: BigInt(r.liveSequence) }),
     ),
     ...(a.lastPublishedAt === undefined ? {} : { lastPublishedAt: timestampFromMs(a.lastPublishedAt * 1000) }),
+    ...(a.lastPublisher === undefined ? {} : { lastPublisher: a.lastPublisher }),
     activeDevices: BigInt(a.activeDevices ?? 0),
     pluginCount: BigInt(a.pluginCount ?? 0),
     crashFreeRate: a.crashFreeRate ?? 1,
@@ -129,6 +136,26 @@ export function createAppsGrid(fixture: AppsGridFixture) {
       }
       found.name = req.name;
       return { app: gridApp(found) };
+    },
+    listPluginLimits(pluginId: string) {
+      const rows = fixture.pluginLimits?.[pluginId];
+      if (rows === undefined) {
+        throw new ConnectError("plugin not found", Code.NotFound);
+      }
+      fixture.calls.push(`pluginLimits:${pluginId}`);
+      return {
+        limits: rows.map(
+          (l): LimitUsage =>
+            create(LimitUsageSchema, {
+              key: l.key,
+              unit: l.unit,
+              scope: "plugin",
+              value: BigInt(l.value),
+              effective: BigInt(l.effective),
+              warning: l.warning === true,
+            }),
+        ),
+      };
     },
     listAppLimits() {
       return {

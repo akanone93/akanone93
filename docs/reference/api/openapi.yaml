@@ -16604,6 +16604,17 @@ components:
           items:
             $ref: '#/components/schemas/plux.v1.AppLimitUsage'
           title: limits
+          description: |-
+            limits is the app's current usage against every app-scope limit the
+             server can measure (STU-025, LIM-005); the rest are in ListAppLimits'
+             registry listing with a value of zero.
+        lastPublisher:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: last_publisher
+          description: |-
+            last_publisher is who created the newest release of any environment;
+             unset when the app was never published (STU-022).
       title: AppSummary
       additionalProperties: false
     plux.v1.ApplyChangeSetRequest:

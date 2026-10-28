@@ -154,6 +154,12 @@ UPDATE snapshots s SET keep = false
 -- name: LatestReleaseSize :one
 SELECT COALESCE((SELECT size FROM releases WHERE app_id = $1 ORDER BY sequence DESC LIMIT 1), 0)::bigint;
 
+-- name: PluginGoldenBytes :one
+-- Bytes of the approved golden images of one plugin (golden.baselineBytesPerPlugin).
+SELECT COALESCE(sum(g.image_bytes), 0)::bigint
+  FROM golden_baselines g JOIN plugins p ON p.app_id = g.app_id AND p.key = g.plugin_key
+ WHERE p.app_id = $1 AND p.id = $2;
+
 -- name: CountPages :one
 SELECT count(*) FROM documents d JOIN drafts dr ON dr.id = d.draft_id
  WHERE dr.app_id = $1 AND dr.plugin_id = $2 AND d.kind = 'page' AND d.deleted_at IS NULL;

@@ -1672,10 +1672,10 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
 |---|---|---|---|---|
 | `STU-020` | P11 | MUST | Apps **MUST** be shown as a responsive grid of cards (reflowing from one column on narrow screens to many on wide screens), with a list view alternative. | DONE |
 | `STU-021` | P11 | MUST | Each card's visual **MUST** be, in order of preference: a live screenshot of the app's plugin canvas, an uploaded image, or a monogram of the app name's first character on a colour derived from the app. | DONE |
-| `STU-022` | P11 | MUST | Each card **MUST** show the app's name, description, owning team, environment badges with live release per environment, last publish (who, when), active devices, number of plugins, and a health indicator (crash-free rate and error trend). | WIP |
+| `STU-022` | P11 | MUST | Each card **MUST** show the app's name, description, owning team, environment badges with live release per environment, last publish (who, when), active devices, number of plugins, and a health indicator (crash-free rate and error trend). | DONE |
 | `STU-023` | P11 | MUST | The grid **MUST** support search, filters (team, tag, status, my apps), sort (name, last activity, health), pinning favourites, and card actions (open, settings, duplicate, export `.plux` archive, archive). | DONE |
 | `STU-024` | P11 | MUST | Creating an app **MUST** offer: blank, from template, from `.plux` import, or from an AI prompt (`AI-010`, arriving with P12); then locales, theme, security profile and environments. Every new app **MUST** start with a default plugin and entry screen, and offer the **generated Flutter project** for download (`GEN-001`). | DONE |
-| `STU-025` | P11 | MUST | Each app card and app settings **MUST** show the app's limits usage (release size, plugins, pages, assets, functions) against its configured limits (§30.4). | WIP |
+| `STU-025` | P11 | MUST | Each app card and app settings **MUST** show the app's limits usage (release size, plugins, pages, assets, functions) against its configured limits (§30.4). | DONE |
 
 ### 21.4 App canvas — the plugin graph
 

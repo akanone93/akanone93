@@ -1166,6 +1166,25 @@ func (q *Queries) NextVersion(ctx context.Context, arg NextVersionParams) (int64
 	return column_1, err
 }
 
+const pluginGoldenBytes = `-- name: PluginGoldenBytes :one
+SELECT COALESCE(sum(g.image_bytes), 0)::bigint
+  FROM golden_baselines g JOIN plugins p ON p.app_id = g.app_id AND p.key = g.plugin_key
+ WHERE p.app_id = $1 AND p.id = $2
+`
+
+type PluginGoldenBytesParams struct {
+	AppID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+// Bytes of the approved golden images of one plugin (golden.baselineBytesPerPlugin).
+func (q *Queries) PluginGoldenBytes(ctx context.Context, arg PluginGoldenBytesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, pluginGoldenBytes, arg.AppID, arg.ID)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const pointChannel = `-- name: PointChannel :one
 UPDATE channels SET release_sequence = $2, updated_at = now() WHERE id = $1 RETURNING id, organization_id, environment_id, key, release_sequence, updated_at
 `

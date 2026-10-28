@@ -160,10 +160,16 @@ type AppSummary struct {
 	CrashFreeRate float64 `protobuf:"fixed64,6,opt,name=crash_free_rate,json=crashFreeRate,proto3" json:"crash_free_rate,omitempty"`
 	// crash_free_trend is crash_free_rate minus the same rate for the seven
 	// days before; positive is better.
-	CrashFreeTrend float64          `protobuf:"fixed64,7,opt,name=crash_free_trend,json=crashFreeTrend,proto3" json:"crash_free_trend,omitempty"`
-	Limits         []*AppLimitUsage `protobuf:"bytes,8,rep,name=limits,proto3" json:"limits,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	CrashFreeTrend float64 `protobuf:"fixed64,7,opt,name=crash_free_trend,json=crashFreeTrend,proto3" json:"crash_free_trend,omitempty"`
+	// limits is the app's current usage against every app-scope limit the
+	// server can measure (STU-025, LIM-005); the rest are in ListAppLimits'
+	// registry listing with a value of zero.
+	Limits []*AppLimitUsage `protobuf:"bytes,8,rep,name=limits,proto3" json:"limits,omitempty"`
+	// last_publisher is who created the newest release of any environment;
+	// unset when the app was never published (STU-022).
+	LastPublisher *Actor `protobuf:"bytes,9,opt,name=last_publisher,json=lastPublisher,proto3" json:"last_publisher,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AppSummary) Reset() {
@@ -248,6 +254,13 @@ func (x *AppSummary) GetCrashFreeTrend() float64 {
 func (x *AppSummary) GetLimits() []*AppLimitUsage {
 	if x != nil {
 		return x.Limits
+	}
+	return nil
+}
+
+func (x *AppSummary) GetLastPublisher() *Actor {
+	if x != nil {
+		return x.LastPublisher
 	}
 	return nil
 }
@@ -1888,7 +1901,7 @@ var File_plux_v1_app_project_proto protoreflect.FileDescriptor
 
 const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\n" +
-	"\x19plux/v1/app_project.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11plux/v1/app.proto\"\xa1\x01\n" +
+	"\x19plux/v1/app_project.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11plux/v1/app.proto\x1a\x14plux/v1/common.proto\"\xa1\x01\n" +
 	"\x12EnvironmentRelease\x12'\n" +
 	"\x0fenvironment_key\x18\x01 \x01(\tR\x0eenvironmentKey\x12#\n" +
 	"\rlive_sequence\x18\x02 \x01(\x03R\fliveSequence\x12=\n" +
@@ -1896,7 +1909,7 @@ const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\rAppLimitUsage\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x12\n" +
 	"\x04used\x18\x02 \x01(\x03R\x04used\x12\x14\n" +
-	"\x05limit\x18\x03 \x01(\x03R\x05limit\"\xf9\x02\n" +
+	"\x05limit\x18\x03 \x01(\x03R\x05limit\"\xb0\x03\n" +
 	"\n" +
 	"AppSummary\x12\x1e\n" +
 	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\x127\n" +
@@ -1906,7 +1919,8 @@ const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\fplugin_count\x18\x05 \x01(\x03R\vpluginCount\x12&\n" +
 	"\x0fcrash_free_rate\x18\x06 \x01(\x01R\rcrashFreeRate\x12(\n" +
 	"\x10crash_free_trend\x18\a \x01(\x01R\x0ecrashFreeTrend\x12.\n" +
-	"\x06limits\x18\b \x03(\v2\x16.plux.v1.AppLimitUsageR\x06limits\"u\n" +
+	"\x06limits\x18\b \x03(\v2\x16.plux.v1.AppLimitUsageR\x06limits\x125\n" +
+	"\x0elast_publisher\x18\t \x01(\v2\x0e.plux.v1.ActorR\rlastPublisher\"u\n" +
 	"\x17ListAppSummariesRequest\x12'\n" +
 	"\x0forganization_id\x18\x01 \x01(\tR\x0eorganizationId\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x1b\n" +
@@ -2087,6 +2101,7 @@ var file_plux_v1_app_project_proto_goTypes = []any{
 	(*DownloadProjectResponse)(nil),  // 28: plux.v1.DownloadProjectResponse
 	(*timestamppb.Timestamp)(nil),    // 29: google.protobuf.Timestamp
 	(*App)(nil),                      // 30: plux.v1.App
+	(*Actor)(nil),                    // 31: plux.v1.Actor
 }
 var file_plux_v1_app_project_proto_depIdxs = []int32{
 	29, // 0: plux.v1.EnvironmentRelease.published_at:type_name -> google.protobuf.Timestamp
@@ -2094,48 +2109,49 @@ var file_plux_v1_app_project_proto_depIdxs = []int32{
 	0,  // 2: plux.v1.AppSummary.releases:type_name -> plux.v1.EnvironmentRelease
 	29, // 3: plux.v1.AppSummary.last_published_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: plux.v1.AppSummary.limits:type_name -> plux.v1.AppLimitUsage
-	2,  // 5: plux.v1.ListAppSummariesResponse.summaries:type_name -> plux.v1.AppSummary
-	30, // 6: plux.v1.ImportAppResponse.app:type_name -> plux.v1.App
-	30, // 7: plux.v1.DuplicateAppResponse.app:type_name -> plux.v1.App
-	11, // 8: plux.v1.ListSampleAppsResponse.samples:type_name -> plux.v1.SampleApp
-	30, // 9: plux.v1.ImportSampleAppResponse.app:type_name -> plux.v1.App
-	16, // 10: plux.v1.GetShellStatusResponse.current:type_name -> plux.v1.ShellSettings
-	16, // 11: plux.v1.GetShellStatusResponse.generated:type_name -> plux.v1.ShellSettings
-	29, // 12: plux.v1.GetShellStatusResponse.generated_at:type_name -> google.protobuf.Timestamp
-	17, // 13: plux.v1.GetShellStatusResponse.changes:type_name -> plux.v1.ShellChange
-	16, // 14: plux.v1.SetShellSettingsRequest.settings:type_name -> plux.v1.ShellSettings
-	16, // 15: plux.v1.SetShellSettingsResponse.settings:type_name -> plux.v1.ShellSettings
-	29, // 16: plux.v1.ProjectJob.created_at:type_name -> google.protobuf.Timestamp
-	29, // 17: plux.v1.ProjectJob.finished_at:type_name -> google.protobuf.Timestamp
-	22, // 18: plux.v1.GenerateProjectResponse.job:type_name -> plux.v1.ProjectJob
-	22, // 19: plux.v1.GetProjectJobResponse.job:type_name -> plux.v1.ProjectJob
-	3,  // 20: plux.v1.AppProjectService.ListAppSummaries:input_type -> plux.v1.ListAppSummariesRequest
-	5,  // 21: plux.v1.AppProjectService.ExportApp:input_type -> plux.v1.ExportAppRequest
-	7,  // 22: plux.v1.AppProjectService.ImportApp:input_type -> plux.v1.ImportAppRequest
-	9,  // 23: plux.v1.AppProjectService.DuplicateApp:input_type -> plux.v1.DuplicateAppRequest
-	12, // 24: plux.v1.AppProjectService.ListSampleApps:input_type -> plux.v1.ListSampleAppsRequest
-	14, // 25: plux.v1.AppProjectService.ImportSampleApp:input_type -> plux.v1.ImportSampleAppRequest
-	18, // 26: plux.v1.AppProjectService.GetShellStatus:input_type -> plux.v1.GetShellStatusRequest
-	20, // 27: plux.v1.AppProjectService.SetShellSettings:input_type -> plux.v1.SetShellSettingsRequest
-	23, // 28: plux.v1.AppProjectService.GenerateProject:input_type -> plux.v1.GenerateProjectRequest
-	25, // 29: plux.v1.AppProjectService.GetProjectJob:input_type -> plux.v1.GetProjectJobRequest
-	27, // 30: plux.v1.AppProjectService.DownloadProject:input_type -> plux.v1.DownloadProjectRequest
-	4,  // 31: plux.v1.AppProjectService.ListAppSummaries:output_type -> plux.v1.ListAppSummariesResponse
-	6,  // 32: plux.v1.AppProjectService.ExportApp:output_type -> plux.v1.ExportAppResponse
-	8,  // 33: plux.v1.AppProjectService.ImportApp:output_type -> plux.v1.ImportAppResponse
-	10, // 34: plux.v1.AppProjectService.DuplicateApp:output_type -> plux.v1.DuplicateAppResponse
-	13, // 35: plux.v1.AppProjectService.ListSampleApps:output_type -> plux.v1.ListSampleAppsResponse
-	15, // 36: plux.v1.AppProjectService.ImportSampleApp:output_type -> plux.v1.ImportSampleAppResponse
-	19, // 37: plux.v1.AppProjectService.GetShellStatus:output_type -> plux.v1.GetShellStatusResponse
-	21, // 38: plux.v1.AppProjectService.SetShellSettings:output_type -> plux.v1.SetShellSettingsResponse
-	24, // 39: plux.v1.AppProjectService.GenerateProject:output_type -> plux.v1.GenerateProjectResponse
-	26, // 40: plux.v1.AppProjectService.GetProjectJob:output_type -> plux.v1.GetProjectJobResponse
-	28, // 41: plux.v1.AppProjectService.DownloadProject:output_type -> plux.v1.DownloadProjectResponse
-	31, // [31:42] is the sub-list for method output_type
-	20, // [20:31] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	31, // 5: plux.v1.AppSummary.last_publisher:type_name -> plux.v1.Actor
+	2,  // 6: plux.v1.ListAppSummariesResponse.summaries:type_name -> plux.v1.AppSummary
+	30, // 7: plux.v1.ImportAppResponse.app:type_name -> plux.v1.App
+	30, // 8: plux.v1.DuplicateAppResponse.app:type_name -> plux.v1.App
+	11, // 9: plux.v1.ListSampleAppsResponse.samples:type_name -> plux.v1.SampleApp
+	30, // 10: plux.v1.ImportSampleAppResponse.app:type_name -> plux.v1.App
+	16, // 11: plux.v1.GetShellStatusResponse.current:type_name -> plux.v1.ShellSettings
+	16, // 12: plux.v1.GetShellStatusResponse.generated:type_name -> plux.v1.ShellSettings
+	29, // 13: plux.v1.GetShellStatusResponse.generated_at:type_name -> google.protobuf.Timestamp
+	17, // 14: plux.v1.GetShellStatusResponse.changes:type_name -> plux.v1.ShellChange
+	16, // 15: plux.v1.SetShellSettingsRequest.settings:type_name -> plux.v1.ShellSettings
+	16, // 16: plux.v1.SetShellSettingsResponse.settings:type_name -> plux.v1.ShellSettings
+	29, // 17: plux.v1.ProjectJob.created_at:type_name -> google.protobuf.Timestamp
+	29, // 18: plux.v1.ProjectJob.finished_at:type_name -> google.protobuf.Timestamp
+	22, // 19: plux.v1.GenerateProjectResponse.job:type_name -> plux.v1.ProjectJob
+	22, // 20: plux.v1.GetProjectJobResponse.job:type_name -> plux.v1.ProjectJob
+	3,  // 21: plux.v1.AppProjectService.ListAppSummaries:input_type -> plux.v1.ListAppSummariesRequest
+	5,  // 22: plux.v1.AppProjectService.ExportApp:input_type -> plux.v1.ExportAppRequest
+	7,  // 23: plux.v1.AppProjectService.ImportApp:input_type -> plux.v1.ImportAppRequest
+	9,  // 24: plux.v1.AppProjectService.DuplicateApp:input_type -> plux.v1.DuplicateAppRequest
+	12, // 25: plux.v1.AppProjectService.ListSampleApps:input_type -> plux.v1.ListSampleAppsRequest
+	14, // 26: plux.v1.AppProjectService.ImportSampleApp:input_type -> plux.v1.ImportSampleAppRequest
+	18, // 27: plux.v1.AppProjectService.GetShellStatus:input_type -> plux.v1.GetShellStatusRequest
+	20, // 28: plux.v1.AppProjectService.SetShellSettings:input_type -> plux.v1.SetShellSettingsRequest
+	23, // 29: plux.v1.AppProjectService.GenerateProject:input_type -> plux.v1.GenerateProjectRequest
+	25, // 30: plux.v1.AppProjectService.GetProjectJob:input_type -> plux.v1.GetProjectJobRequest
+	27, // 31: plux.v1.AppProjectService.DownloadProject:input_type -> plux.v1.DownloadProjectRequest
+	4,  // 32: plux.v1.AppProjectService.ListAppSummaries:output_type -> plux.v1.ListAppSummariesResponse
+	6,  // 33: plux.v1.AppProjectService.ExportApp:output_type -> plux.v1.ExportAppResponse
+	8,  // 34: plux.v1.AppProjectService.ImportApp:output_type -> plux.v1.ImportAppResponse
+	10, // 35: plux.v1.AppProjectService.DuplicateApp:output_type -> plux.v1.DuplicateAppResponse
+	13, // 36: plux.v1.AppProjectService.ListSampleApps:output_type -> plux.v1.ListSampleAppsResponse
+	15, // 37: plux.v1.AppProjectService.ImportSampleApp:output_type -> plux.v1.ImportSampleAppResponse
+	19, // 38: plux.v1.AppProjectService.GetShellStatus:output_type -> plux.v1.GetShellStatusResponse
+	21, // 39: plux.v1.AppProjectService.SetShellSettings:output_type -> plux.v1.SetShellSettingsResponse
+	24, // 40: plux.v1.AppProjectService.GenerateProject:output_type -> plux.v1.GenerateProjectResponse
+	26, // 41: plux.v1.AppProjectService.GetProjectJob:output_type -> plux.v1.GetProjectJobResponse
+	28, // 42: plux.v1.AppProjectService.DownloadProject:output_type -> plux.v1.DownloadProjectResponse
+	32, // [32:43] is the sub-list for method output_type
+	21, // [21:32] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_app_project_proto_init() }
@@ -2144,6 +2160,7 @@ func file_plux_v1_app_project_proto_init() {
 		return
 	}
 	file_plux_v1_app_proto_init()
+	file_plux_v1_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

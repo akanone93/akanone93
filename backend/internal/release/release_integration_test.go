@@ -625,6 +625,13 @@ func TestReleases(t *testing.T) {
 	if err != nil || usageOf(appUsage, "app.plugins") != 1 || usageOf(appUsage, "release.appSize") == 0 {
 		t.Errorf("app usage: %+v %v", appUsage, err)
 	}
+	sums, _, err := f.tenancy.ListAppSummaries(ctx, f.owner, "", 10)
+	if err != nil || len(sums) != 1 || sums[0].LastPublisher == nil || sums[0].LastPublisher.ID != f.owner.UserID || sums[0].LastPublisher.Kind != "user" {
+		t.Fatalf("the last publisher: %+v %v", sums, err)
+	}
+	if sums[0].LastPublishedAt.IsZero() || sums[0].Limits[1].Key != "release.appSize" || sums[0].Limits[1].Used != usageOf(appUsage, "release.appSize") {
+		t.Errorf("the summary usage: %+v", sums[0].Limits)
+	}
 	pluginUsage, err := f.tenancy.ListPluginLimits(ctx, f.viewer, f.app, f.loans)
 	if err != nil || usageOf(pluginUsage, "plugin.pages") != 2 || usageOf(pluginUsage, "bundle.pluginSize") == 0 {
 		t.Errorf("plugin usage: %+v %v", pluginUsage, err)

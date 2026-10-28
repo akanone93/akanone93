@@ -35,8 +35,11 @@ type AppSummary struct {
 	App             App
 	Releases        []EnvironmentRelease
 	LastPublishedAt time.Time
-	ActiveDevices   int64
-	PluginCount     int64
+	// LastPublisher is who created the newest release; nil when the app was
+	// never published.
+	LastPublisher *Publisher
+	ActiveDevices int64
+	PluginCount   int64
 	// CrashFreeRate is the share of active devices without a fatal error in
 	// the last seven days; CrashFreeTrend its change against the seven days
 	// before.
@@ -88,7 +91,8 @@ func (s *Service) ListAppSummaries(ctx context.Context, p auth.Principal, afterK
 	return out, next, err
 }
 
-// summaries adds the live releases and the effective limits to the rows.
+// summaries adds the live releases, the last publisher, the measured usage and the
+// effective limits to the rows, each in one query for the whole page.
 func (s *Service) summaries(ctx context.Context, tx pgx.Tx, p auth.Principal, q *dbgen.Queries, rows []dbgen.SummariseAppsRow) ([]AppSummary, error) {
 	ids := make([]pgtype.UUID, len(rows))
 	for i, r := range rows {
@@ -103,6 +107,14 @@ func (s *Service) summaries(ctx context.Context, tx pgx.Tx, p auth.Principal, q 
 		id := storage.ID(l.AppID)
 		byApp[id] = append(byApp[id], EnvironmentRelease{Environment: l.EnvironmentKey, Sequence: l.ReleaseSequence, PublishedAt: timeOf(l.PublishedAt)})
 	}
+	used, err := measureApps(ctx, tx, ids)
+	if err != nil {
+		return nil, err
+	}
+	who, err := lastPublishers(ctx, q, ids)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]AppSummary, 0, len(rows))
 	for _, r := range rows {
 		id := storage.ID(r.ID)
@@ -111,10 +123,18 @@ func (s *Service) summaries(ctx context.Context, tx pgx.Tx, p auth.Principal, q 
 			return nil, err
 		}
 		rate, trend := crashFree(r.ActiveDevices, r.CrashedDevices, r.CrashedDevicesBefore)
+		var usage []Usage
+		for _, k := range appUsageKeys {
+			usage = append(usage, Usage{Key: string(k), Used: used[id][k], Limit: set.Get(k)})
+		}
+		var publisher *Publisher
+		if w, ok := who[id]; ok {
+			publisher = &w
+		}
 		out = append(out, AppSummary{
 			App: appOf(appRow(r)), Releases: byApp[id], LastPublishedAt: timeOf(r.LastPublishedAt),
 			ActiveDevices: r.ActiveDevices, PluginCount: r.PluginCount, CrashFreeRate: rate, CrashFreeTrend: trend,
-			Limits: []Usage{{Key: string(limits.AppPlugins), Used: r.PluginCount, Limit: set.Get(limits.AppPlugins)}},
+			LastPublisher: publisher, Limits: usage,
 		})
 	}
 	return out, nil

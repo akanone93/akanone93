@@ -262,3 +262,34 @@ UPDATE apps
    SET host_fonts = sqlc.arg(host_fonts)::jsonb, updated_at = now()
  WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;
+
+-- name: LastReleasePublishers :many
+-- Who created the newest release of each app in a set, and when (STU-022).
+SELECT DISTINCT ON (r.app_id) r.app_id, r.created_by_kind, r.created_by_id, r.created_by, r.created_at
+  FROM releases r
+ WHERE r.app_id = ANY (sqlc.arg(app_ids)::uuid[])
+ ORDER BY r.app_id, r.sequence DESC;
+
+-- name: AppUsage :many
+-- What each app of a set uses of its app-scope limits, in one pass for the
+-- whole set (STU-025, LIM-005). The per-plugin limits are reported as the
+-- largest value any plugin of the app has, which is what the limit bounds.
+SELECT a.id AS app_id,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugins,
+       COALESCE((SELECT r.size FROM releases r WHERE r.app_id = a.id ORDER BY r.sequence DESC LIMIT 1), 0)::bigint AS release_size,
+       COALESCE((SELECT max(n) FROM (
+           SELECT count(*) AS n FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+            WHERE dr.app_id = a.id AND dr.plugin_id IS NOT NULL AND d.kind = 'page' AND d.deleted_at IS NULL
+            GROUP BY dr.plugin_id) pages), 0)::bigint AS max_pages,
+       COALESCE((SELECT sum(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS asset_bytes,
+       COALESCE((SELECT max(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS max_asset_file,
+       COALESCE((SELECT max(v.bundle_size) FROM (
+           SELECT DISTINCT ON (pv.plugin_id) pv.bundle_size FROM plugin_versions pv
+            WHERE pv.app_id = a.id AND pv.plugin_id IS NOT NULL
+            ORDER BY pv.plugin_id, pv.version DESC) v), 0)::bigint AS max_bundle_size,
+       (SELECT count(DISTINCT f.name) FROM function_versions f WHERE f.app_id = a.id)::bigint AS functions,
+       (SELECT count(*) FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+         WHERE dr.app_id = a.id AND dr.plugin_id IS NULL AND d.kind = 'translations' AND d.deleted_at IS NULL)::bigint AS locales,
+       (SELECT count(DISTINCT ff.key) FROM feature_flags ff WHERE ff.app_id = a.id)::bigint AS flags
+  FROM apps a
+ WHERE a.id = ANY (sqlc.arg(app_ids)::uuid[]);

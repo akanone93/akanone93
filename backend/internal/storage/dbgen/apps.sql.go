@@ -11,6 +11,75 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const appUsage = `-- name: AppUsage :many
+SELECT a.id AS app_id,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugins,
+       COALESCE((SELECT r.size FROM releases r WHERE r.app_id = a.id ORDER BY r.sequence DESC LIMIT 1), 0)::bigint AS release_size,
+       COALESCE((SELECT max(n) FROM (
+           SELECT count(*) AS n FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+            WHERE dr.app_id = a.id AND dr.plugin_id IS NOT NULL AND d.kind = 'page' AND d.deleted_at IS NULL
+            GROUP BY dr.plugin_id) pages), 0)::bigint AS max_pages,
+       COALESCE((SELECT sum(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS asset_bytes,
+       COALESCE((SELECT max(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS max_asset_file,
+       COALESCE((SELECT max(v.bundle_size) FROM (
+           SELECT DISTINCT ON (pv.plugin_id) pv.bundle_size FROM plugin_versions pv
+            WHERE pv.app_id = a.id AND pv.plugin_id IS NOT NULL
+            ORDER BY pv.plugin_id, pv.version DESC) v), 0)::bigint AS max_bundle_size,
+       (SELECT count(DISTINCT f.name) FROM function_versions f WHERE f.app_id = a.id)::bigint AS functions,
+       (SELECT count(*) FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+         WHERE dr.app_id = a.id AND dr.plugin_id IS NULL AND d.kind = 'translations' AND d.deleted_at IS NULL)::bigint AS locales,
+       (SELECT count(DISTINCT ff.key) FROM feature_flags ff WHERE ff.app_id = a.id)::bigint AS flags
+  FROM apps a
+ WHERE a.id = ANY ($1::uuid[])
+`
+
+type AppUsageRow struct {
+	AppID         pgtype.UUID
+	Plugins       int64
+	ReleaseSize   int64
+	MaxPages      int64
+	AssetBytes    int64
+	MaxAssetFile  int64
+	MaxBundleSize int64
+	Functions     int64
+	Locales       int64
+	Flags         int64
+}
+
+// What each app of a set uses of its app-scope limits, in one pass for the
+// whole set (STU-025, LIM-005). The per-plugin limits are reported as the
+// largest value any plugin of the app has, which is what the limit bounds.
+func (q *Queries) AppUsage(ctx context.Context, appIds []pgtype.UUID) ([]AppUsageRow, error) {
+	rows, err := q.db.Query(ctx, appUsage, appIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AppUsageRow{}
+	for rows.Next() {
+		var i AppUsageRow
+		if err := rows.Scan(
+			&i.AppID,
+			&i.Plugins,
+			&i.ReleaseSize,
+			&i.MaxPages,
+			&i.AssetBytes,
+			&i.MaxAssetFile,
+			&i.MaxBundleSize,
+			&i.Functions,
+			&i.Locales,
+			&i.Flags,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const createApp = `-- name: CreateApp :one
 INSERT INTO apps (id, organization_id, key, name)
 VALUES ($1, $2, $3, $4)
@@ -547,6 +616,48 @@ func (q *Queries) GrantAppAccess(ctx context.Context, arg GrantAppAccessParams) 
 		&i.GrantedAt,
 	)
 	return i, err
+}
+
+const lastReleasePublishers = `-- name: LastReleasePublishers :many
+SELECT DISTINCT ON (r.app_id) r.app_id, r.created_by_kind, r.created_by_id, r.created_by, r.created_at
+  FROM releases r
+ WHERE r.app_id = ANY ($1::uuid[])
+ ORDER BY r.app_id, r.sequence DESC
+`
+
+type LastReleasePublishersRow struct {
+	AppID         pgtype.UUID
+	CreatedByKind string
+	CreatedByID   string
+	CreatedBy     string
+	CreatedAt     pgtype.Timestamptz
+}
+
+// Who created the newest release of each app in a set, and when (STU-022).
+func (q *Queries) LastReleasePublishers(ctx context.Context, appIds []pgtype.UUID) ([]LastReleasePublishersRow, error) {
+	rows, err := q.db.Query(ctx, lastReleasePublishers, appIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LastReleasePublishersRow{}
+	for rows.Next() {
+		var i LastReleasePublishersRow
+		if err := rows.Scan(
+			&i.AppID,
+			&i.CreatedByKind,
+			&i.CreatedByID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listAppAccess = `-- name: ListAppAccess :many

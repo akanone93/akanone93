@@ -60,6 +60,58 @@ describe("the limits usage table of the app settings [STU-025] [LIM-005]", () =>
   });
 });
 
+describe("the usage of one plugin in the app settings [LIM-005] [STU-025]", () => {
+  const pluginSetup = (permissions: string[]): { grid: AppsGridFixture; state: Upstream } => {
+    const grid: AppsGridFixture = {
+      apps: [{ id: "a-bank", key: "bank", name: "Bank" }],
+      limits,
+      plugins: [
+        { id: "p-loans", key: "loans", name: "Loans" },
+        { id: "p-cards", key: "cards", name: "Cards" },
+        { id: "p-gone", key: "gone", name: "Elsewhere" },
+      ],
+      pluginLimits: {
+        "p-loans": [
+          { key: "plugin.pages", unit: "count", value: 12, effective: 200 },
+          { key: "bundle.pluginSize", unit: "bytes", value: 1_048_576, effective: 4_194_304 },
+        ],
+        "p-cards": [{ key: "plugin.pages", unit: "count", value: 3, effective: 200 }],
+      },
+      calls: [],
+    };
+    return { grid, state: { permissions, appsGrid: grid } };
+  };
+
+  test("the first plugin's usage shows, and choosing another plugin shows its own", async () => {
+    const { grid, state } = pluginSetup(["app.read", "plugin.read"]);
+    renderApp(path, state);
+    const group = await screen.findByRole("group", { name: "Plugins" }, wait);
+    const tables = async () => await screen.findAllByRole("table", { name: "Limits usage" }, wait);
+    await waitFor(async () => expect((await tables()).length).toBe(2), wait);
+    expect(within((await tables())[1] as HTMLElement).getByText("Largest plugin bundle")).toBeTruthy();
+    fireEvent.click(within(group).getByRole("button", { name: "Cards" }));
+    await waitFor(() => expect(grid.calls).toContain("pluginLimits:p-cards"), wait);
+    await waitFor(
+      async () => expect(within((await tables())[1] as HTMLElement).queryAllByRole("row").length).toBe(2),
+      wait,
+    );
+  });
+
+  test("a plugin the server does not find shows a failure instead of a table", async () => {
+    const { state } = pluginSetup(["app.read", "plugin.read"]);
+    renderApp(path, state);
+    const group = await screen.findByRole("group", { name: "Plugins" }, wait);
+    fireEvent.click(within(group).getByRole("button", { name: "Elsewhere" }));
+    expect((await screen.findByText("The plugin's limits could not be loaded.", {}, wait)) !== null).toBe(true);
+  });
+
+  test("without plugin.read the section is not offered", async () => {
+    renderApp(path, pluginSetup(["app.read"]).state);
+    await screen.findByRole("table", { name: "Limits usage" }, wait);
+    expect(screen.queryByRole("group", { name: "Plugins" }) === null).toBe(true);
+  });
+});
+
 describe("the app settings page [STU-023]", () => {
   test("the Settings entry of the app navigation opens it", async () => {
     const { state } = setup(["app.read"]);
