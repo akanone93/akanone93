@@ -104,6 +104,7 @@ function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine):
     engine,
     theme: style.theme,
     title: s.title,
+    deviceHeight: style.deviceHeight,
     ...(style.textScale === undefined ? {} : { textScale: style.textScale }),
     ...(style.textDirection === undefined ? {} : { textDirection: style.textDirection }),
   });
