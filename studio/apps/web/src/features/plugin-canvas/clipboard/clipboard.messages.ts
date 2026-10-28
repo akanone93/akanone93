@@ -121,5 +121,30 @@ export function clipboardMessages(i18n: I18n) {
       message: "The pasted elements do not pass validation.",
       comment: "Why a paste was refused: the validator rejected the elements.",
     }),
+    droppedTitle: i18n._({
+      id: "clipboard.droppedTitle",
+      message: "Some items were not copied",
+      comment: "Title of the dialog that lists the items a paste could not copy over.",
+    }),
+    droppedIntro: i18n._({
+      id: "clipboard.droppedIntro",
+      message: "These items were left out. Pasted elements no longer refer to them.",
+      comment: "Explains the list of items that were not copied over by a paste.",
+    }),
+    dropForbidden: i18n._({
+      id: "clipboard.dropForbidden",
+      message: "You cannot read it.",
+      comment: "Why an item was not copied over: the user has no read access to the source.",
+    }),
+    dropLimit: i18n._({
+      id: "clipboard.dropLimit",
+      message: "The change set is full.",
+      comment: "Why an item was not copied over: the change-set document limit was reached.",
+    }),
+    dropRejected: i18n._({
+      id: "clipboard.dropRejected",
+      message: "The server refused it.",
+      comment: "Why an item was not copied over: the server rejected the new document.",
+    }),
   };
 }

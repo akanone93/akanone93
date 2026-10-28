@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Dialog } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { clipboardMessages } from "./clipboard.messages.ts";
+import type { Dropped } from "./copy-over.ts";
 import {
   choiceKey,
   type DependencyKind,
@@ -82,12 +83,15 @@ export function ClipboardReportDialog({
   items,
   candidates,
   refusal,
+  dropped,
   onConfirm,
   onClose,
 }: {
   readonly items: readonly ReportItem[] | undefined;
   readonly candidates: TargetHas;
   readonly refusal: RefusalReason | undefined;
+  /** Items the copy over could not bring along; shown after the paste, never silently. */
+  readonly dropped?: readonly Dropped[];
   readonly onConfirm: (choices: Choices) => void;
   readonly onClose: () => void;
 }): ReactElement {
@@ -105,17 +109,30 @@ export function ClipboardReportDialog({
     malformed: m.refusedMalformed,
     invalid: m.refusedInvalid,
   };
+  const reason = { forbidden: m.dropForbidden, limit: m.dropLimit, rejected: m.dropRejected };
   const change = (item: ReportItem, next: Resolution) =>
     setChoices((c) => new Map(c).set(choiceKey(item.kind, item.id), next));
   return (
     <Dialog
       open
       onOpenChange={(o) => !o && onClose()}
-      title={refusal === undefined ? m.reportTitle : m.refusedTitle}
+      title={dropped !== undefined ? m.droppedTitle : refusal === undefined ? m.reportTitle : m.refusedTitle}
       labels={{ close: m.close }}
     >
+      {dropped !== undefined && (
+        <>
+          <p className="text-body text-secondary">{m.droppedIntro}</p>
+          <ul className="text-body">
+            {dropped.map((x) => (
+              <li key={`${x.kind}:${x.id}`} className="py-1">
+                <code>{x.id}</code> {reason[x.reason]}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       {refusal !== undefined && <p className="text-body text-secondary">{why[refusal]}</p>}
-      {refusal === undefined && items !== undefined && (
+      {dropped === undefined && refusal === undefined && items !== undefined && (
         <>
           <p className="text-body text-secondary">{m.reportIntro}</p>
           {KINDS.filter((k) => items.some((i) => i.kind === k)).map((k) => (
@@ -141,9 +158,11 @@ export function ClipboardReportDialog({
       )}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
         <Button variant="secondary" onClick={onClose}>
-          {refusal === undefined ? m.cancel : m.close}
+          {refusal === undefined && dropped === undefined ? m.cancel : m.close}
         </Button>
-        {refusal === undefined && <Button onClick={() => onConfirm(choices)}>{m.pasteWithChoices}</Button>}
+        {refusal === undefined && dropped === undefined && (
+          <Button onClick={() => onConfirm(choices)}>{m.pasteWithChoices}</Button>
+        )}
       </div>
     </Dialog>
   );

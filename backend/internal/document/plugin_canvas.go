@@ -4,7 +4,6 @@
 package document
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -69,7 +68,7 @@ func (s *Service) UpdatePluginMetadata(ctx context.Context, p auth.Principal, pl
 
 // DuplicatePlugin copies a plugin's draft documents under a new key. Every
 // document keeps its content except for its path and the identifiers of the
-// documents themselves, which are new so that the copy refers to its own
+// documents and of everything inside them, which are new so that the copy refers to its own
 // pages. The new plugin's lock is taken by session while the copy is
 // written and released after (STU-034).
 func (s *Service) DuplicatePlugin(ctx context.Context, p auth.Principal, sourceID, key, name, session string) (Plugin, error) {
@@ -123,18 +122,15 @@ func (s *Service) allDocuments(ctx context.Context, p auth.Principal, src Plugin
 // copyDocuments writes the source's documents into the new plugin under its
 // key, with new document identifiers and the plugin document renamed.
 func (s *Service) copyDocuments(ctx context.Context, p auth.Principal, src, created Plugin, key, session string, docs []Document) error {
-	renamed, err := s.freshIDs(docs)
-	if err != nil {
-		return err
-	}
+	renamed := collectIDs(docs, key)
 	from, to := "plugins/"+src.Key+"/", "plugins/"+key+"/"
 	for _, d := range docs {
 		if !strings.HasPrefix(d.Path, from) {
 			continue
 		}
-		content := d.Content
-		for old, fresh := range renamed {
-			content = bytes.ReplaceAll(content, []byte(old), []byte(fresh))
+		content, err := rewriteIDs(d.Content, renamed)
+		if err != nil {
+			return fmt.Errorf("document: rewrite ids of %s: %w", d.Path, err)
 		}
 		rel := strings.TrimPrefix(d.Path, from)
 		if rel == "plugin.json" {
@@ -160,28 +156,6 @@ func renamePluginDocument(content []byte, key, name string) ([]byte, error) {
 	out, err := json.Marshal(doc)
 	if err != nil {
 		return nil, fmt.Errorf("document: write the plugin document: %w", err)
-	}
-	return out, nil
-}
-
-// freshIDs maps the top-level "id" of every document to a new identifier.
-func (s *Service) freshIDs(docs []Document) (map[string]string, error) {
-	out := map[string]string{}
-	for _, d := range docs {
-		var head struct {
-			ID string `json:"id"`
-		}
-		if json.Unmarshal(d.Content, &head) != nil || head.ID == "" {
-			continue
-		}
-		if _, ok := out[head.ID]; ok {
-			continue
-		}
-		id, err := s.newID()
-		if err != nil {
-			return nil, err
-		}
-		out[head.ID] = id
 	}
 	return out, nil
 }
