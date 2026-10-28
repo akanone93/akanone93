@@ -11,6 +11,7 @@ import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useCan } from "../admin/use-admin.ts";
 import { AppsArea } from "../apps/index.ts";
+import { OnboardingChecklist } from "../onboarding/index.ts";
 import { CreateAppDialog } from "./create-app-dialog.tsx";
 import { homeMessages } from "./home.messages.ts";
 
@@ -35,6 +36,7 @@ export function HomePage() {
         </h1>
         <p className="text-body text-secondary">{m.caption}</p>
       </div>
+      <OnboardingChecklist org={org} canCreate={canCreate} onCreate={() => setCreating(true)} />
       <AppsArea org={org} organizationId={id} onCreate={canCreate ? () => setCreating(true) : undefined} />
       {canCreate && <CreateAppDialog open={creating} onOpenChange={setCreating} organizationId={id} org={org} />}
     </section>

@@ -159,6 +159,22 @@ const orgHomeRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/home/index.ts"), "HomePage"),
 });
 
+/** O3: the new-app wizard as a route of its own (STU-024); creating an app needs `app.manage`. */
+const newAppRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/apps/new",
+  beforeLoad: ({ context }) => requirePermission(context.user, "app.manage"),
+  component: lazyRouteComponent(() => import("./features/new-app/index.ts"), "NewAppPage"),
+});
+
+/** A38: the native shell settings of one app and its "shell update required" comparison (GEN-004); reading needs `app.read`, saving `app.manage` (F14). */
+const shellSettingsRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/apps/$app/settings/shell",
+  beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+  component: lazyRouteComponent(() => import("./features/shell-settings/index.ts"), "ShellSettingsPage"),
+});
+
 /** A37 and A42: the settings of one app (STU-023, STU-025, LIM-005): name, description, limits usage, host fonts; changing them needs `app.manage`. */
 const appSettingsRoute = createRoute({
   getParentRoute: () => orgRoute,
@@ -524,6 +540,8 @@ const routeTree = rootRoute.addChildren([
     ...installationRoutes,
     orgRoute.addChildren([
       orgHomeRoute,
+      newAppRoute,
+      shellSettingsRoute,
       appSettingsRoute,
       notificationsRoute,
       approvalsInboxRoute,

@@ -76,6 +76,7 @@ import {
   orgAdmin,
 } from "./test-admin.ts";
 import { type AppsGridFixture, createAppsGrid } from "./test-apps.ts";
+import { type ProjectsData, projectsHandlers } from "./test-projects.ts";
 
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
@@ -277,6 +278,8 @@ export interface FunctionsFixture {
 }
 
 export interface UpstreamData {
+  /** Project import and export, the sample apps, the shell settings and onboarding (STU-024, STU-015, GEN-004). */
+  projects?: ProjectsData;
   /** The analytics area's data (A24-A30): rollups per event name, funnels and error groups. */
   analytics?: AnalyticsFixture;
   /** The Plux Test runs reported for the app (TST-002). */
@@ -318,6 +321,7 @@ export interface UpstreamData {
     language: string;
     density: string;
     mutedNotificationTypes?: string[];
+    onboardingDismissed?: boolean;
     favouriteAppIds?: string[];
   };
   explained?: { permission: string }[];
@@ -409,6 +413,7 @@ export interface UpstreamData {
     language: string;
     density: string;
     mutedNotificationTypes?: string[];
+    onboardingDismissed?: boolean;
     favouriteAppIds?: string[];
   }[];
 }
@@ -516,6 +521,15 @@ export function createUpstream(state: UpstreamData) {
     });
     service(PreferencesService, {
       getPreferences: () => ({ preferences: create(PreferencesSchema, stored) }),
+      getOnboarding: () => ({
+        steps: state.projects?.onboarding ?? [
+          { key: "create_app", done: true },
+          { key: "edit_screen", done: true },
+          { key: "pair_device", done: true },
+          { key: "publish_release", done: true },
+          { key: "invite_member", done: true },
+        ],
+      }),
       updatePreferences: (req) => {
         Object.assign(stored, { ...req.preferences });
         state.updates?.push({ paths: req.updateMask?.paths ?? [], ...stored });
@@ -774,6 +788,7 @@ export function createUpstream(state: UpstreamData) {
       }),
     });
     service(AppProjectService, {
+      ...projectsHandlers(state.projects ?? { calls: [] }, (app) => createdApps.push(app)),
       listAppSummaries: (req) => summaries.listAppSummaries(req),
       exportApp: (req) => {
         state.appsGrid?.calls.push(`export:${req.appId}`);
