@@ -32,6 +32,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/approval"
+	"github.com/nightCode42/plux3/backend/internal/archive"
 	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
@@ -39,6 +40,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/codegen"
 	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
@@ -72,6 +74,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
+	"github.com/nightCode42/plux3/backend/internal/shellupdate"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
@@ -154,6 +157,10 @@ type Services struct {
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
+	// Archives and Shells hold the .plux archive and the shell-update jobs
+	// of AppProjectService (STU-023, GEN-004).
+	Archives *archive.Service
+	Shells   *shellupdate.Service
 	// TestRuns holds the Plux Test runs reported by the CLI and CI (TST-002).
 	TestRuns *testrun.Service
 	// Library holds the templates and components authored in Studio
@@ -340,6 +347,38 @@ type gitQueue struct{ q *JobQueue }
 
 func (g gitQueue) Enqueue(ctx context.Context, tx pgx.Tx, job gitsync.ExportJob) error {
 	return g.q.insert(ctx, tx, job, jobs.QueueExport)
+}
+
+// projectQueue enqueues host-project generation jobs (GEN-001); they share
+// the lane of the Git pushes, which also run long and apart from publishing.
+type projectQueue struct{ q *JobQueue }
+
+func (p projectQueue) Enqueue(ctx context.Context, tx pgx.Tx, job shellupdate.Job) error {
+	return p.q.insert(ctx, tx, job, jobs.QueueExport)
+}
+
+// projectWorker generates host projects (GEN-001).
+type projectWorker struct {
+	river.WorkerDefaults[shellupdate.Job]
+	svc *Services
+}
+
+// Work generates one project.
+func (w *projectWorker) Work(ctx context.Context, job *river.Job[shellupdate.Job]) error {
+	return w.svc.Shells.Work(ctx, job.Args) //nolint:wrapcheck // a domain error
+}
+
+// rootKeys reads an environment's root public keys for a generated project.
+func rootKeys(ctx context.Context, releases *release.Service, org, env string) ([]codegen.RootKey, error) {
+	keys, err := releases.RootKeys(ctx, org, env)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	out := make([]codegen.RootKey, len(keys))
+	for i, k := range keys {
+		out[i] = codegen.RootKey{KeyID: k.KeyID, Algorithm: k.Algorithm, Role: k.Role, PublicKey: k.PublicKey}
+	}
+	return out, nil
 }
 
 // publishQueue enqueues publish jobs (SRV-050).
@@ -669,6 +708,19 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 		svc.Goldens = golden.New(golden.Options{DB: k.db, Audit: k.log, Objects: k.work.Objects, IDs: k.gen, Limits: k.set, Approvals: k.approvals})
 	}
 	svc.TestRuns = testrun.New(testrun.Options{DB: k.db, IDs: k.gen, Limits: k.set})
+	if svc.Archives, err = archive.New(archive.Options{
+		DB: k.db, Audit: k.log, Tenancy: svc.Tenancy, Documents: svc.Documents, IDs: k.gen, Limits: k.set,
+	}); err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
+	if svc.Shells, err = shellupdate.New(shellupdate.Options{
+		DB: k.db, Audit: k.log, IDs: k.gen, Limits: k.set, Queue: projectQueue{k.work.Queue}, Endpoint: k.cfg.Server.PublicBaseURL,
+		Keys: func(ctx context.Context, org, env string) ([]codegen.RootKey, error) {
+			return rootKeys(ctx, svc.Releases, org, env)
+		},
+	}); err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
 	svc.Releases, err = buildReleases(k.cfg, k.db, k.set, k.work, releaseDeps{
 		approvals: k.approvals, breakGlass: svc.BreakGlass, freezes: svc.Freezes, goldens: svc.Goldens, published: svc.GitExport, push: svc.Push,
 		ids: k.gen, audit: k.log, tenancy: svc.Tenancy, documents: svc.Documents, devices: svc.Devices, configs: svc.SecurityConfig,
@@ -1239,6 +1291,12 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 		h.ReleaseRequests = svc.ReleaseRequests
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
+		})
+	}
+	if svc.Archives != nil && svc.Shells != nil {
+		h.Archives, h.Shells = svc.Archives, svc.Shells
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewAppProjectServiceHandler(h.AppProject(), opts)
 		})
 	}
 	if svc.TestRuns != nil {

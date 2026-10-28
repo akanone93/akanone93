@@ -675,7 +675,13 @@ type ListAppsRequest struct {
 	OwningTeamId    string   `protobuf:"bytes,5,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"`
 	IncludeArchived bool     `protobuf:"varint,6,opt,name=include_archived,json=includeArchived,proto3" json:"include_archived,omitempty"`
 	// sort is "key" (default), "name" or "updated" (newest first).
-	Sort          string `protobuf:"bytes,7,opt,name=sort,proto3" json:"sort,omitempty"`
+	Sort string `protobuf:"bytes,7,opt,name=sort,proto3" json:"sort,omitempty"`
+	// status is "active" (the default), "archived" or "all"; include_archived
+	// is the older spelling of "all".
+	Status string `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
+	// mine keeps the apps the caller holds a grant on, directly or through a
+	// team, or that a team of the caller owns.
+	Mine          bool `protobuf:"varint,9,opt,name=mine,proto3" json:"mine,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -757,6 +763,20 @@ func (x *ListAppsRequest) GetSort() string {
 		return x.Sort
 	}
 	return ""
+}
+
+func (x *ListAppsRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListAppsRequest) GetMine() bool {
+	if x != nil {
+		return x.Mine
+	}
+	return false
 }
 
 type ListAppsResponse struct {
@@ -3092,7 +3112,7 @@ const file_plux_v1_app_proto_rawDesc = "" +
 	"\rGetAppRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"0\n" +
 	"\x0eGetAppResponse\x12\x1e\n" +
-	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"\xec\x01\n" +
+	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"\x98\x02\n" +
 	"\x0fListAppsRequest\x12'\n" +
 	"\x0forganization_id\x18\x01 \x01(\tR\x0eorganizationId\x12!\n" +
 	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\x12\x14\n" +
@@ -3100,7 +3120,9 @@ const file_plux_v1_app_proto_rawDesc = "" +
 	"\x04tags\x18\x04 \x03(\tR\x04tags\x12$\n" +
 	"\x0eowning_team_id\x18\x05 \x01(\tR\fowningTeamId\x12)\n" +
 	"\x10include_archived\x18\x06 \x01(\bR\x0fincludeArchived\x12\x12\n" +
-	"\x04sort\x18\a \x01(\tR\x04sort\"]\n" +
+	"\x04sort\x18\a \x01(\tR\x04sort\x12\x16\n" +
+	"\x06status\x18\b \x01(\tR\x06status\x12\x12\n" +
+	"\x04mine\x18\t \x01(\bR\x04mine\"]\n" +
 	"\x10ListAppsResponse\x12 \n" +
 	"\x04apps\x18\x01 \x03(\v2\f.plux.v1.AppR\x04apps\x12'\n" +
 	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\x99\x01\n" +

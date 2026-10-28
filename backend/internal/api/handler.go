@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/approval"
+	"github.com/nightCode42/plux3/backend/internal/archive"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/breakglass"
@@ -44,6 +45,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
+	"github.com/nightCode42/plux3/backend/internal/shellupdate"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
@@ -81,6 +83,10 @@ type Handlers struct {
 	Reports *compliance.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
 	Goldens *golden.Service
+	// Archives and Shells serve AppProjectService (STU-022 to STU-024,
+	// GEN-004); nil leaves it unmounted.
+	Archives *archive.Service
+	Shells   *shellupdate.Service
 	// TestRuns serves TestRunService (TST-002); nil leaves it unmounted.
 	TestRuns *testrun.Service
 	// ReleaseRequests serves ReleaseRequestService (STU-100); nil leaves it

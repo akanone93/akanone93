@@ -158,6 +158,15 @@ type AppAccess struct {
 	GrantedAt      pgtype.Timestamptz
 }
 
+type AppShellSetting struct {
+	AppID          pgtype.UUID
+	OrganizationID pgtype.UUID
+	Settings       []byte
+	Generated      []byte
+	GeneratedAt    pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
 type ApprovalDecision struct {
 	ID             pgtype.UUID
 	RequestID      pgtype.UUID
@@ -1390,6 +1399,30 @@ type ProductionChange struct {
 	ChangedAt      pgtype.Timestamptz
 	RequestID      pgtype.UUID
 	BreakGlassID   pgtype.UUID
+}
+
+type ProjectJob struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentKey string
+	ChannelKey     string
+	Format         string
+	Status         string
+	ErrorCode      string
+	ErrorMessage   string
+	Size           int64
+	Sha256         string
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+	FinishedAt     pgtype.Timestamptz
+}
+
+type ProjectJobResult struct {
+	JobID          pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Data           []byte
 }
 
 type PublishJob struct {

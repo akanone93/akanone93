@@ -708,6 +708,452 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UpdateAlertRuleResponse'
+  /plux.v1.AppProjectService/DownloadProject:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: DownloadProject
+      description: DownloadProject returns the zip of a succeeded job. It needs app.manage.
+      operationId: plux.v1.AppProjectService.DownloadProject
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DownloadProjectRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DownloadProjectResponse'
+  /plux.v1.AppProjectService/DuplicateApp:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: DuplicateApp
+      description: |-
+        DuplicateApp creates an app from an export of another. It needs
+         plugin.read on the source and app.manage; it is idempotent and audited.
+      operationId: plux.v1.AppProjectService.DuplicateApp
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DuplicateAppRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DuplicateAppResponse'
+  /plux.v1.AppProjectService/ExportApp:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: ExportApp
+      description: |-
+        ExportApp returns the app's drafts as a deterministic .plux archive.
+         It needs plugin.read on the app and is audited.
+      operationId: plux.v1.AppProjectService.ExportApp
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExportAppRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExportAppResponse'
+  /plux.v1.AppProjectService/GenerateProject:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: GenerateProject
+      description: |-
+        GenerateProject queues the generation of the host project as a zip. At
+         most one job per app runs at a time, and the number per hour is limited
+         by project.jobsPerHour. It needs app.manage and is idempotent.
+      operationId: plux.v1.AppProjectService.GenerateProject
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GenerateProjectRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GenerateProjectResponse'
+  /plux.v1.AppProjectService/GetProjectJob:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: GetProjectJob
+      description: GetProjectJob returns a generation job's status. It needs app.read.
+      operationId: plux.v1.AppProjectService.GetProjectJob
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetProjectJobRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetProjectJobResponse'
+  /plux.v1.AppProjectService/GetShellStatus:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: GetShellStatus
+      description: |-
+        GetShellStatus compares the app's shell settings with those its host
+         project was last generated from (GEN-004). It needs app.read.
+      operationId: plux.v1.AppProjectService.GetShellStatus
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetShellStatusRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetShellStatusResponse'
+  /plux.v1.AppProjectService/ImportApp:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: ImportApp
+      description: |-
+        ImportApp creates an app from a .plux archive, an untrusted input. It
+         needs app.manage on the organisation, is idempotent per
+         Idempotency-Key and is audited.
+      operationId: plux.v1.AppProjectService.ImportApp
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ImportAppRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ImportAppResponse'
+  /plux.v1.AppProjectService/ImportSampleApp:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: ImportSampleApp
+      description: ImportSampleApp imports a sample app as an ordinary import.
+      operationId: plux.v1.AppProjectService.ImportSampleApp
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ImportSampleAppRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ImportSampleAppResponse'
+  /plux.v1.AppProjectService/ListAppSummaries:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: ListAppSummaries
+      description: |-
+        ListAppSummaries returns one summary per app the caller may read, in
+         key order, in one call. It needs app.read and is bounded by the limit
+         app.summariesPerCall.
+      operationId: plux.v1.AppProjectService.ListAppSummaries
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListAppSummariesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListAppSummariesResponse'
+  /plux.v1.AppProjectService/ListSampleApps:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: ListSampleApps
+      description: ListSampleApps lists the sample apps embedded in the server image.
+      operationId: plux.v1.AppProjectService.ListSampleApps
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListSampleAppsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListSampleAppsResponse'
+  /plux.v1.AppProjectService/SetShellSettings:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: SetShellSettings
+      description: |-
+        SetShellSettings stores the app's shell settings. It needs app.manage
+         and is idempotent.
+      operationId: plux.v1.AppProjectService.SetShellSettings
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetShellSettingsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetShellSettingsResponse'
   /plux.v1.AppService/CreateApp:
     post:
       tags:
@@ -15714,6 +16160,69 @@ components:
           description: archived apps are left out of ListApps unless include_archived is set.
       title: App
       additionalProperties: false
+    plux.v1.AppLimitUsage:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+        used:
+          type: string
+          title: used
+          format: int64
+        limit:
+          type: string
+          title: limit
+          format: int64
+      title: AppLimitUsage
+      additionalProperties: false
+    plux.v1.AppSummary:
+      type: object
+      properties:
+        app:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.App'
+          title: app
+        releases:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.EnvironmentRelease'
+          title: releases
+        lastPublishedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_published_at
+          description: last_published_at is the newest release of any environment.
+        activeDevices:
+          type: string
+          title: active_devices
+          format: int64
+          description: active_devices counts devices seen in the last seven days.
+        pluginCount:
+          type: string
+          title: plugin_count
+          format: int64
+        crashFreeRate:
+          type: number
+          title: crash_free_rate
+          format: double
+          description: |-
+            crash_free_rate is the share of active devices without a fatal error
+             in the last seven days, 0 to 1; 1 when there are no active devices.
+        crashFreeTrend:
+          type: number
+          title: crash_free_trend
+          format: double
+          description: |-
+            crash_free_trend is crash_free_rate minus the same rate for the seven
+             days before; positive is better.
+        limits:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.AppLimitUsage'
+          title: limits
+      title: AppSummary
+      additionalProperties: false
     plux.v1.ApplyChangeSetRequest:
       type: object
       properties:
@@ -20671,6 +21180,32 @@ components:
           title: actor
       title: DocumentChanged
       additionalProperties: false
+    plux.v1.DownloadProjectRequest:
+      type: object
+      properties:
+        jobId:
+          type: string
+          title: job_id
+        appId:
+          type: string
+          title: app_id
+      title: DownloadProjectRequest
+      additionalProperties: false
+    plux.v1.DownloadProjectResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+          title: filename
+        archive:
+          type: string
+          title: archive
+          format: byte
+        sha256:
+          type: string
+          title: sha256
+      title: DownloadProjectResponse
+      additionalProperties: false
     plux.v1.DropEvent:
       type: object
       properties:
@@ -20687,6 +21222,33 @@ components:
       description: |-
         DropEvent says how many events were dropped before this point of the
          stream, so a watcher knows the gap is not a fault (DEV-021).
+    plux.v1.DuplicateAppRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+      title: DuplicateAppRequest
+      additionalProperties: false
+    plux.v1.DuplicateAppResponse:
+      type: object
+      properties:
+        app:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.App'
+          title: app
+        documents:
+          type: integer
+          title: documents
+          format: int32
+      title: DuplicateAppResponse
+      additionalProperties: false
     plux.v1.DuplicatePluginRequest:
       type: object
       properties:
@@ -20842,6 +21404,23 @@ components:
       description: |-
         Environment isolates variables, secrets, data-source URLs, signing keys
          and device registrations (GOV-010).
+    plux.v1.EnvironmentRelease:
+      type: object
+      properties:
+        environmentKey:
+          type: string
+          title: environment_key
+        liveSequence:
+          type: string
+          title: live_sequence
+          format: int64
+          description: live_sequence is the release the environment's default channel serves, 0 for none.
+        publishedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: published_at
+      title: EnvironmentRelease
+      additionalProperties: false
     plux.v1.EraseSubjectRequest:
       type: object
       properties:
@@ -21347,6 +21926,29 @@ components:
       title: Export
       additionalProperties: false
       description: Export is the OTLP destination of an organisation.
+    plux.v1.ExportAppRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ExportAppRequest
+      additionalProperties: false
+    plux.v1.ExportAppResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+          title: filename
+        archive:
+          type: string
+          title: archive
+          format: byte
+        sha256:
+          type: string
+          title: sha256
+      title: ExportAppResponse
+      additionalProperties: false
     plux.v1.ExportComponentRequest:
       type: object
       properties:
@@ -22304,6 +22906,33 @@ components:
       title: FunctionVersion
       additionalProperties: false
       description: FunctionVersion is one immutable version of a function (FN-006).
+    plux.v1.GenerateProjectRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentKey:
+          type: string
+          title: environment_key
+        channelKey:
+          type: string
+          title: channel_key
+        format:
+          type: string
+          title: format
+          description: format is "zip" (the default).
+      title: GenerateProjectRequest
+      additionalProperties: false
+    plux.v1.GenerateProjectResponse:
+      type: object
+      properties:
+        job:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ProjectJob'
+          title: job
+      title: GenerateProjectResponse
+      additionalProperties: false
     plux.v1.GetAppRequest:
       type: object
       properties:
@@ -23455,6 +24084,27 @@ components:
           title: preferences
       title: GetPreferencesResponse
       additionalProperties: false
+    plux.v1.GetProjectJobRequest:
+      type: object
+      properties:
+        jobId:
+          type: string
+          title: job_id
+        appId:
+          type: string
+          title: app_id
+          description: app_id is the app the job belongs to; permissions are checked on it.
+      title: GetProjectJobRequest
+      additionalProperties: false
+    plux.v1.GetProjectJobResponse:
+      type: object
+      properties:
+        job:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ProjectJob'
+          title: job
+      title: GetProjectJobResponse
+      additionalProperties: false
     plux.v1.GetPublishJobRequest:
       type: object
       properties:
@@ -23852,6 +24502,41 @@ components:
             - $ref: '#/components/schemas/plux.v1.GitSettings'
           title: settings
       title: GetSettingsResponse
+      additionalProperties: false
+    plux.v1.GetShellStatusRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: GetShellStatusRequest
+      additionalProperties: false
+    plux.v1.GetShellStatusResponse:
+      type: object
+      properties:
+        current:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ShellSettings'
+          title: current
+        generated:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ShellSettings'
+          title: generated
+          description: generated is what the project was last generated from; unset when never generated.
+        generatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: generated_at
+        updateRequired:
+          type: boolean
+          title: update_required
+          description: update_required is true when changes is not empty.
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ShellChange'
+          title: changes
+      title: GetShellStatusResponse
       additionalProperties: false
     plux.v1.GetSignedControlRequest:
       type: object
@@ -24399,6 +25084,44 @@ components:
           title: updated_at
       title: IdentityProvider
       description: IdentityProvider is a configured provider.
+    plux.v1.ImportAppRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+        archive:
+          type: string
+          title: archive
+          format: byte
+        key:
+          type: string
+          title: key
+          description: key and name override the archive's; empty keeps them.
+        name:
+          type: string
+          title: name
+      title: ImportAppRequest
+      additionalProperties: false
+    plux.v1.ImportAppResponse:
+      type: object
+      properties:
+        app:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.App'
+          title: app
+        documents:
+          type: integer
+          title: documents
+          format: int32
+          description: documents is the number of documents written.
+        errorDiagnostics:
+          type: integer
+          title: error_diagnostics
+          format: int32
+          description: error_diagnostics counts validation errors the imported project still has.
+      title: ImportAppResponse
+      additionalProperties: false
     plux.v1.ImportComponentRequest:
       type: object
       properties:
@@ -24463,6 +25186,36 @@ components:
             $ref: '#/components/schemas/plux.v1.Diagnostic'
           title: diagnostics
       title: ImportDraftResponse
+      additionalProperties: false
+    plux.v1.ImportSampleAppRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+        sampleId:
+          type: string
+          title: sample_id
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+      title: ImportSampleAppRequest
+      additionalProperties: false
+    plux.v1.ImportSampleAppResponse:
+      type: object
+      properties:
+        app:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.App'
+          title: app
+        documents:
+          type: integer
+          title: documents
+          format: int32
+      title: ImportSampleAppResponse
       additionalProperties: false
     plux.v1.ImportTemplateRequest:
       type: object
@@ -25335,6 +26088,37 @@ components:
           title: limits
       title: ListAppLimitsResponse
       additionalProperties: false
+    plux.v1.ListAppSummariesRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+        limit:
+          type: integer
+          title: limit
+          format: int32
+          description: limit is the number of apps to return, up to app.summariesPerCall.
+        afterKey:
+          type: string
+          title: after_key
+          description: after_key returns the apps after this app key.
+      title: ListAppSummariesRequest
+      additionalProperties: false
+    plux.v1.ListAppSummariesResponse:
+      type: object
+      properties:
+        summaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.AppSummary'
+          title: summaries
+        nextAfterKey:
+          type: string
+          title: next_after_key
+          description: next_after_key is set when more apps follow.
+      title: ListAppSummariesResponse
+      additionalProperties: false
     plux.v1.ListApprovalsRequest:
       type: object
       properties:
@@ -25395,6 +26179,18 @@ components:
           type: string
           title: sort
           description: sort is "key" (default), "name" or "updated" (newest first).
+        status:
+          type: string
+          title: status
+          description: |-
+            status is "active" (the default), "archived" or "all"; include_archived
+             is the older spelling of "all".
+        mine:
+          type: boolean
+          title: mine
+          description: |-
+            mine keeps the apps the caller holds a grant on, directly or through a
+             team, or that a team of the caller owns.
       title: ListAppsRequest
       additionalProperties: false
     plux.v1.ListAppsResponse:
@@ -26811,6 +27607,20 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListRunsResponse
+      additionalProperties: false
+    plux.v1.ListSampleAppsRequest:
+      type: object
+      title: ListSampleAppsRequest
+      additionalProperties: false
+    plux.v1.ListSampleAppsResponse:
+      type: object
+      properties:
+        samples:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SampleApp'
+          title: samples
+      title: ListSampleAppsResponse
       additionalProperties: false
     plux.v1.ListScimTokensRequest:
       type: object
@@ -28613,6 +29423,53 @@ components:
       title: PreviewSwitches
       additionalProperties: false
       description: PreviewSwitches are the switches of an app's live preview (STU-058).
+    plux.v1.ProjectJob:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentKey:
+          type: string
+          title: environment_key
+        channelKey:
+          type: string
+          title: channel_key
+        format:
+          type: string
+          title: format
+          description: format is "zip".
+        status:
+          type: string
+          title: status
+          description: status is "queued", "running", "succeeded" or "failed".
+        errorCode:
+          type: string
+          title: error_code
+          description: error_code is the registered code of a failure.
+        errorMessage:
+          type: string
+          title: error_message
+        size:
+          type: string
+          title: size
+          format: int64
+        sha256:
+          type: string
+          title: sha256
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        finishedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: finished_at
+      title: ProjectJob
+      additionalProperties: false
     plux.v1.PromoteExperimentRequest:
       type: object
       properties:
@@ -30848,6 +31705,30 @@ components:
       title: SamlProviderConfig
       additionalProperties: false
       description: SamlProviderConfig configures a SAML provider.
+    plux.v1.SampleApp:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        size:
+          type: string
+          title: size
+          format: int64
+        sha256:
+          type: string
+          title: sha256
+      title: SampleApp
+      additionalProperties: false
     plux.v1.ScimToken:
       type: object
       properties:
@@ -31652,6 +32533,27 @@ components:
           description: version is the new configuration version.
       title: SetSecurityConfigResponse
       additionalProperties: false
+    plux.v1.SetShellSettingsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ShellSettings'
+          title: settings
+      title: SetShellSettingsRequest
+      additionalProperties: false
+    plux.v1.SetShellSettingsResponse:
+      type: object
+      properties:
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ShellSettings'
+          title: settings
+      title: SetShellSettingsResponse
+      additionalProperties: false
     plux.v1.SetStateCommand:
       type: object
       properties:
@@ -31767,6 +32669,79 @@ components:
         - SEVERITY_WARNING
         - SEVERITY_ERROR
       description: Severity of a diagnostic (ADR-0018).
+    plux.v1.ShellChange:
+      type: object
+      properties:
+        field:
+          type: string
+          title: field
+        oldValue:
+          type: string
+          title: old_value
+        newValue:
+          type: string
+          title: new_value
+        reason:
+          type: string
+          title: reason
+          description: reason says why the change needs a store build.
+      title: ShellChange
+      additionalProperties: false
+    plux.v1.ShellSettings:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+        package:
+          type: string
+          title: package
+        applicationId:
+          type: string
+          title: application_id
+        bundleId:
+          type: string
+          title: bundle_id
+        appVersion:
+          type: string
+          title: app_version
+        splashColor:
+          type: string
+          title: splash_color
+        router:
+          type: string
+          title: router
+        deviceApis:
+          type: array
+          items:
+            type: string
+          title: device_apis
+        push:
+          type: boolean
+          title: push
+        deepLinkHosts:
+          type: array
+          items:
+            type: string
+          title: deep_link_hosts
+        deepLinkSchemes:
+          type: array
+          items:
+            type: string
+          title: deep_link_schemes
+        packages:
+          type: array
+          items:
+            type: string
+          title: packages
+        entryRoute:
+          type: string
+          title: entry_route
+      title: ShellSettings
+      additionalProperties: false
+      description: |-
+        ShellSettings is everything about an app that needs a new store build
+         when it changes (GEN-004, ADR-0024).
     plux.v1.SignInProvider:
       type: object
       properties:
@@ -33841,6 +34816,11 @@ tags:
     description: |-
       AppService manages apps, their environments and channels (GOV-010), and
        the trash that deleted apps, plugins and pages go to (GOV-031).
+  - name: plux.v1.AppProjectService
+    description: |-
+      AppProjectService serves the apps grid and an app's project: bounded
+       summaries, the .plux archive (ADR-0102), the sample apps (F17) and the
+       host project with shell-update detection (GEN-004, F18).
   - name: plux.v1.AssetService
     description: |-
       AssetService stores the images, animations, fonts and other files a draft

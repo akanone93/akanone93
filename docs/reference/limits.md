@@ -26,7 +26,11 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `app.functions` | count | 100 | 80% | 1000 | installation, organization, app | P7 | LIM-001 | Functions per app. |
 | `app.locales` | count | 50 | 80% | 300 | installation, organization, app | P8 | I18N-002 | Locales one app may declare. |
 | `app.plugins` | count | 200 | 80% | 1000 | installation, organization, app | P1 | SCH-005 | Plugins per app. |
+| `app.summariesPerCall` | count | 100 | 80% | 500 | installation | P11 | STU-022 | Apps one summary call returns; a longer list is paged. |
 | `app.translationKeys` | count | 10000 | 80% | 100000 | installation, organization, app | P8 | I18N-007 | Translation keys one app may declare. |
+| `archive.bytes` | bytes | 8388608 | 80% | 268435456 | installation, organization | P11 | STU-023, STU-024 | Size of a .plux archive the server accepts for import. |
+| `archive.entries` | count | 2000 | 80% | 20000 | installation, organization | P11 | STU-023, STU-024 | Files in one .plux archive. |
+| `archive.expandedBytes` | bytes | 67108864 | 80% | 1073741824 | installation, organization | P11 | STU-023, STU-024 | Total size of the files in one .plux archive after unzipping. |
 | `asset.fileSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P2 | SRV-060, AST-003 | Size of one asset file, checked at upload and again at publish. |
 | `asset.imagePixels` | count | 40000000 | 80% | 100000000 | installation | P2 | SRV-060, CMP-030 | Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image. |
 | `asset.uploadChunkBytes` | bytes | 1048576 | 80% | 8388608 | installation | P11 | SRV-060 | Bytes in one chunk of a chunked asset upload; a larger chunk is refused. |
@@ -167,6 +171,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `page.nodes` | count | 5000 | 1000 | 50000 | installation, organization, app, plugin | P1 | SCH-005, CMP-040 | Nodes in one page document. Above the warning threshold the compiler reports the page. |
 | `plugin.assetBytes` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P2 | AST-003 | Bytes of the asset files one plugin's pages and icon use, checked at publish. |
 | `plugin.pages` | count | 500 | 80% | 2000 | installation, organization, app, plugin | P1 | SCH-005 | Pages per plugin. |
+| `project.bytes` | bytes | 67108864 | 80% | 536870912 | installation | P11 | GEN-001, GEN-004 | Size of a generated host project (zip). |
+| `project.jobsPerHour` | count | 10 | 80% | 1000 | installation, organization | P11 | GEN-001, GEN-004 | Project generation jobs one app may queue per hour. |
 | `publish.assetWait` | milliseconds | 600000 | 80% | 3600000 | installation | P3 | CMP-030, REL-003 | Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails. |
 | `push.batchSize` | count | 200 | 80% | 5000 | installation | P9 | SYN-060 | Devices one silent-push job sends to before it hands the rest to a follow-up job. |
 | `push.tokenBytes` | bytes | 1024 | 80% | 4096 | installation | P9 | SYN-060 | Length of the push token a device may register for silent push. |
