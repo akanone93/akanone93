@@ -20,12 +20,13 @@ import (
 )
 
 // MaxRequestBytes is the largest request the worker reads: both projects at
-// the default expanded size of a project, and room for the framing. An
+// the default expanded size of a project, the function catalogue
+// (CatalogueAllowance) and room for the framing. An
 // organisation that raised archive.expandedBytes above the default has its
 // render refused with a clear error rather than held in this process's memory.
 func MaxRequestBytes() int {
 	def, _ := limits.Lookup(limits.ArchiveExpandedBytes)
-	return int(min(2*def.Default+1<<20, 1<<31-1))
+	return int(min(2*def.Default+1<<20+CatalogueAllowance, 1<<31-1))
 }
 
 // drainTimeout is how long a stopping worker lets a running render finish.

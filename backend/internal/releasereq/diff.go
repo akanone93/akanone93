@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/plxgolden"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -65,6 +66,10 @@ type RenderInput struct {
 	Before, After fs.FS
 	// Limits are the limits of the request's organisation.
 	Limits limits.Set
+	// Functions is the catalogue of the functions deployed in the
+	// environment, as a release build sees it; nil where the service has no
+	// Functions.
+	Functions compiler.FunctionCatalogue
 }
 
 // RenderPlugin is a built plugin version to render.
@@ -332,10 +337,20 @@ func (s *Service) loadSources(ctx context.Context, job RenderJob, in *RenderInpu
 	for _, p := range in.Plugins {
 		built[p.PluginKey] = p.Version
 	}
-	return s.system(ctx, job.OrganizationID, func(ctx context.Context, tx pgx.Tx) (err error) {
+	err := s.system(ctx, job.OrganizationID, func(ctx context.Context, tx pgx.Tx) (err error) {
 		in.Before, in.After, err = s.o.Sources.Projects(ctx, tx, in.AppID, in.EnvironmentID, in.Channel, built)
 		return err //nolint:wrapcheck // a domain error
 	})
+	if err != nil || s.o.Functions == nil {
+		return err
+	}
+	// The catalogue is a snapshot of the environment's deployed functions, the
+	// one a release build compiles against; without it a page that calls a
+	// function does not compile.
+	if in.Functions, err = s.o.Functions.Catalogue(ctx, job.OrganizationID, in.AppID, in.EnvironmentID); err != nil {
+		return fmt.Errorf("releasereq: read the function catalogue: %w", err)
+	}
+	return nil
 }
 
 func requeue(ctx context.Context, tx pgx.Tx, jobID, reason string) error {

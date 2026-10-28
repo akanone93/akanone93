@@ -20,8 +20,10 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -94,6 +96,24 @@ func (s *fakeSources) Projects(_ context.Context, _ pgx.Tx, _, _, _ string, buil
 	return fstest.MapFS{"app.json": {Data: []byte(`{"v":1}`)}}, fstest.MapFS{"app.json": {Data: []byte(`{"v":2}`)}}, nil
 }
 
+// fakeFunctions hands out a function catalogue, or fails, and records what it
+// was asked for.
+type fakeFunctions struct {
+	mu    sync.Mutex
+	err   error
+	asked [][3]string
+}
+
+func (f *fakeFunctions) Catalogue(_ context.Context, organizationID, appID, environmentID string) (compiler.FunctionCatalogue, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.asked = append(f.asked, [3]string{organizationID, appID, environmentID})
+	if f.err != nil {
+		return nil, f.err
+	}
+	return compiler.NewFunctionSet([]compiler.FunctionEntry{{Name: "loans.quote", Info: compiler.FunctionInfo{Placement: schema.PlacementServer, Version: 3}}}, true), nil
+}
+
 // fakeReleaser records the releases it makes.
 type fakeReleaser struct {
 	created, promoted int
@@ -135,6 +155,8 @@ type reqKit struct {
 	releaser *fakeReleaser
 	gate     *stubGate
 	sources  *fakeSources
+	// functions is the catalogue source of the render input.
+	functions *fakeFunctions
 }
 
 func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
@@ -144,13 +166,13 @@ func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
 	if err != nil {
 		t.Fatal(err)
 	}
-	k := &reqKit{builds: fakeBuilds{}, queue: &fakeQueue{}, renderer: &fakeRenderer{}, releaser: &fakeReleaser{}, gate: &stubGate{request: approvalID}, sources: &fakeSources{}}
+	k := &reqKit{builds: fakeBuilds{}, queue: &fakeQueue{}, renderer: &fakeRenderer{}, releaser: &fakeReleaser{}, gate: &stubGate{request: approvalID}, sources: &fakeSources{}, functions: &fakeFunctions{}}
 	set, err := limits.Defaults().Tighten(limits.RenderVisualDiffJobsPerOrganization, limits.ScopeInstallation, limit)
 	if err != nil {
 		t.Fatal(err)
 	}
 	k.svc = releasereq.New(releasereq.Options{
-		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: k.gate, Renderer: k.renderer, Sources: k.sources,
+		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: k.gate, Renderer: k.renderer, Sources: k.sources, Functions: k.functions,
 		Limits: func(context.Context, pgx.Tx, string) (limits.Set, error) { return set, nil },
 	})
 	return k
@@ -549,7 +571,14 @@ func TestRenderJobGetsTheProjects_STU_100(t *testing.T) {
 		t.Fatalf("after the failed read the job is %+v (found %v, %v); want queued", d, found, err)
 	}
 
+	// The catalogue of the environment is part of the input, as the release
+	// build sees it; one that cannot be read is retried like the sources.
 	k.sources.err = nil
+	k.functions.err = errors.New("database unavailable")
+	if err := k.svc.RunRender(ctx, job); err == nil || len(k.renderer.inputs) != 0 {
+		t.Fatalf("RunRender with no catalogue = %v (renderer inputs %d)", err, len(k.renderer.inputs))
+	}
+	k.functions.err = nil
 	if err := k.svc.RunRender(ctx, job); err != nil {
 		t.Fatalf("the second attempt: %v", err)
 	}
@@ -559,6 +588,12 @@ func TestRenderJobGetsTheProjects_STU_100(t *testing.T) {
 	in := k.renderer.inputs[0]
 	if in.Before == nil || in.After == nil || in.AppID != f.app || in.Channel != "production" || in.Limits.IsZero() {
 		t.Errorf("render input = %+v", in)
+	}
+	if info, ok := in.Functions.Function("loans.quote", ""); !ok || info.Version != 3 || !in.Functions.DeviceFunctionsEnabled() {
+		t.Errorf("the render input has no function catalogue: %+v", in.Functions)
+	}
+	if got := k.functions.asked[len(k.functions.asked)-1]; got[1] != f.app || got[0] == "" || got[2] == "" {
+		t.Errorf("the catalogue was asked for %v; want the app and environment of the request", got)
 	}
 	if got := k.sources.calls[len(k.sources.calls)-1]; len(got) != 1 || got["loans"] != 3 {
 		t.Errorf("the sources were asked for %v; want the built version of loans", got)

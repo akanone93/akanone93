@@ -17,7 +17,7 @@ DEV_CA      := $(abspath $(COMPOSE_DIR))/.secrets/tls/ca.crt
 compose-secrets: ## Generate the stack's credentials into deploy/compose/.secrets on first run
 	@$(COMPOSE_DIR)/init-secrets.sh
 
-compose-up: compose-secrets studio-image-inputs ## Start the single-node stack: server, function runner and egress, PostgreSQL, SeaweedFS, Valkey, OTel, Prometheus, Grafana; COMPOSE_PROFILES=functions adds the builder (DEP-002)
+compose-up: compose-secrets studio-image-inputs ## Start the single-node stack: server, function runner and egress, PostgreSQL, SeaweedFS, Valkey, OTel, Prometheus, Grafana; COMPOSE_PROFILES=functions adds the builder and visual-diff the render worker (DEP-002)
 	$(COMPOSE) up -d --build --wait
 	@echo "Plux Server: https://localhost:8080  Grafana: http://localhost:3000  Prometheus: http://localhost:9090"
 

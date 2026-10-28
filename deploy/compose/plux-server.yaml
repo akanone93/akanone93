@@ -58,3 +58,9 @@ functions:
   runnerURL: "https://plux-fnrunner:8445"
 builder:
   address: "https://plux-builder:8446"
+# Visual diffs of release requests (O-9): the worker role sends both projects
+# to plux-render-worker over mutual TLS (server.internalTLS above), which runs
+# under the `visual-diff` profile. Without it a requested diff fails after its
+# attempts and every other feature works.
+renderWorker:
+  address: "https://plux-render-worker:8443"

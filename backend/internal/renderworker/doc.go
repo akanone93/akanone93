@@ -11,6 +11,10 @@
 // (renderpb.RenderWorkerService) with both projects in the request. The
 // process therefore needs no database, object-store or signing credential
 // (L-4): it gets its input and returns images, and the server stores them.
+// The request also carries the function declarations of the environment (the
+// catalogue a release build compiles against), so that a page that calls a
+// function compiles; the device modules are stubs, because a render draws
+// pages and never calls a function.
 // Everything in a request is untrusted until the worker has bounded it: the
 // archives by the limits of the registry, the compilation by the compiler's
 // own limits, and Flutter by a work directory it alone writes.

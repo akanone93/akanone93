@@ -6,6 +6,7 @@ package renderclient_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -14,11 +15,13 @@ import (
 
 	"connectrpc.com/connect"
 
+	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/releasereq"
 	"github.com/nightCode42/plux3/backend/internal/renderclient"
 	"github.com/nightCode42/plux3/backend/internal/renderpb"
 	"github.com/nightCode42/plux3/backend/internal/renderpb/renderpbconnect"
 	"github.com/nightCode42/plux3/backend/internal/renderworker"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
 
@@ -91,6 +94,44 @@ func TestRenderSendsProjectsAndReturnsScreens_STU_100(t *testing.T) {
 	first.Before = nil
 	if _, err := start(t, &fakeWorker{}).Render(context.Background(), first); err != nil {
 		t.Errorf("a first release: %v", err)
+	}
+}
+
+// Verifies: STU-100, FN-006.
+// The function catalogue of the environment goes to the worker with the
+// request, with the deviceFunctions setting; a catalogue over the bound of
+// app.functions is refused before any call.
+func TestRenderSendsTheFunctionCatalogue_STU_100(t *testing.T) {
+	t.Parallel()
+	w := &fakeWorker{}
+	in := input()
+	in.Functions = compiler.NewFunctionSet([]compiler.FunctionEntry{
+		{Name: "loans.quote", Info: compiler.FunctionInfo{Placement: schema.PlacementServer, Version: 3, InputSchema: []byte(`{"type":"object"}`)}},
+		{Name: "loans.quote", Alias: "stable", Info: compiler.FunctionInfo{Placement: schema.PlacementServer, Version: 2}},
+	}, true)
+	if _, err := start(t, w).Render(context.Background(), in); err != nil {
+		t.Fatal(err)
+	}
+	if !w.got.GetDeviceFunctions() || len(w.got.GetFunctions()) != 2 {
+		t.Fatalf("request = %+v", w.got)
+	}
+	got, err := renderworker.DecodeCatalogue(w.got.GetFunctions(), w.got.GetDeviceFunctions())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info, ok := got.Function("loans.quote", "stable"); !ok || info.Version != 2 {
+		t.Errorf("the alias came back as %+v, %v", info, ok)
+	}
+
+	def, _ := limits.Lookup(limits.AppFunctions)
+	var many []compiler.FunctionEntry
+	for i := range def.Max + 1 {
+		many = append(many, compiler.FunctionEntry{Name: fmt.Sprintf("f.f%d", i), Info: compiler.FunctionInfo{Placement: schema.PlacementServer}})
+	}
+	in.Functions = compiler.NewFunctionSet(many, false)
+	untouched := &fakeWorker{}
+	if _, err := start(t, untouched).Render(context.Background(), in); !errors.Is(err, renderworker.ErrCatalogue) || untouched.got != nil {
+		t.Errorf("an oversized catalogue: %v (sent %v)", err, untouched.got != nil)
 	}
 }
 

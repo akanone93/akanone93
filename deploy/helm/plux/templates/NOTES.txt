@@ -1,7 +1,7 @@
 Plux {{ .Chart.AppVersion }} is installed as release "{{ .Release.Name }}" in {{ .Release.Namespace }}.
 
   API         {{ include "plux.fullname" . }}-api:{{ .Values.api.service.port }}  (public base URL: {{ .Values.server.publicBaseURL }})
-  Roles       api x{{ .Values.api.replicas }}, worker x{{ .Values.worker.replicas }}{{ if .Values.functions.enabled }}, fnrunner x{{ .Values.fnrunner.replicas }}, egress x{{ .Values.egress.replicas }}{{ if .Values.builder.enabled }}, builder x{{ .Values.builder.replicas }}{{ end }}{{ end }}
+  Roles       api x{{ .Values.api.replicas }}, worker x{{ .Values.worker.replicas }}{{ if .Values.functions.enabled }}, fnrunner x{{ .Values.fnrunner.replicas }}, egress x{{ .Values.egress.replicas }}{{ if .Values.builder.enabled }}, builder x{{ .Values.builder.replicas }}{{ end }}{{ end }}{{ if .Values.renderWorker.enabled }}, render-worker x{{ .Values.renderWorker.replicas }}{{ end }}
   PostgreSQL  {{ .Values.postgresql.mode }}    Valkey  {{ .Values.valkey.mode }}    Object storage  {{ .Values.objectStorage.mode }}
 
 Check it:    helm test {{ .Release.Name }} --namespace {{ .Release.Namespace }}
