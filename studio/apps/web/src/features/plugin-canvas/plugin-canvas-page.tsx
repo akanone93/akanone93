@@ -42,6 +42,7 @@ import { LaneDialog, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
 import { dataSourcesOf } from "./look.ts";
+import { resolveNodeParam } from "./node-path.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { parseDocument, readPlugin } from "./plugin-model.ts";
@@ -439,13 +440,20 @@ function PluginCanvasView({
   /** Selects the node the URL names once the screens are loaded (ANL-040), once. */
   const selectedFromUrl = useRef<string | undefined>(undefined);
   useEffect(() => {
-    const node = search.node;
-    if (node === undefined || selectedFromUrl.current === node || !index.parent.has(node)) {
+    const param = search.node;
+    if (param === undefined || selectedFromUrl.current === param || screens.length === 0) {
       return;
     }
-    selectedFromUrl.current = node;
-    store.set({ ids: [node], anchor: node, scope: index.parent.get(node) ?? null });
-  }, [search.node, index, store]);
+    // A node ID, or the `root/0` path an analytics error reports, read in the screen `focus` names.
+    const focusScreen =
+      screens.find((x) => x.id === search.focus) ??
+      screens.find((x) => x.id === own.find((o) => o.route === search.focus)?.id);
+    const node = resolveNodeParam(param, new Set(index.parent.keys()), focusScreen);
+    selectedFromUrl.current = param;
+    if (node !== undefined) {
+      store.set({ ids: [node], anchor: node, scope: index.parent.get(node) ?? null });
+    }
+  }, [search.node, search.focus, index, screens, own, store]);
   const pulses = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(
     () => () => {
