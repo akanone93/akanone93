@@ -34,7 +34,7 @@ SPDX-License-Identifier: Apache-2.0
 - S7.2: rollout plan is a JSON textarea; diffs step has no thumbnails/JSON diff; no per-plugin a11y/size reports.
 - S8.10: `plux test` does not call `ReportRun`; steps are not prefilled from the device loop.
 - S8.4: the A19 adopt dialog and A16–A18 dialogs lack tests.
-- Session replay A47 (O-8, ANL-050): ADR-0101 was never written; recorder, redacted ingestion and the canvas viewer are not built.
+- Session replay A47 (O-8, ANL-050): built (ADR-0101): recorder, redacted ingestion, retention, list and viewer. The viewer draws the recorded layout in SVG, not through the CanvasKit worker; moving it onto the canvas worker is open.
 - Analytics funnel results count steps from daily rollups, not per-session ordered conversion.
 - No app-area navigation: releases, functions, data, localisation, design, analytics, tests, experiments, approvals, publish, devices/security and settings are reached only by URL or in-page links.
 - Analytics "Open node" passes the error's `nodePath` ("root/0" form) as the canvas `node` param; unverified that it maps to a document node id.

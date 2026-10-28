@@ -1690,6 +1690,12 @@ msgstr "العودة إلى المسارات"
 msgid "tests.back"
 msgstr "العودة إلى اختبار Plux"
 
+#. Link back to the list of replays.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.backReplays"
+msgstr "العودة إلى إعادة التشغيل"
+
 #. Link from a detail page to the library.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -2848,6 +2854,12 @@ msgstr "إطار مخصص"
 msgid "clipboard.cut"
 msgstr "قص"
 
+#. Column: whether the recording stopped at a limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayTruncated"
+msgstr "توقفت عند حد"
+
 #. Name of a script.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -3484,6 +3496,12 @@ msgstr "تكرار التحديد"
 msgid "tests.colDuration"
 msgstr "المدة"
 
+#. Column: how long a replay lasted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayDuration"
+msgstr "المدة (مللي ثانية)"
+
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -3706,6 +3724,12 @@ msgstr "أدخل كلمة المرور."
 msgid "chrome.licence.title"
 msgstr "النسخة المؤسسية: تتطلب ترخيصًا"
 
+#. Column: the name of a state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStateName"
+msgstr "الإدخال"
+
 #. Marks the screen the plugin opens first.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3879,6 +3903,12 @@ msgstr "الحدث"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.type"
 msgstr "نوع الحدث"
+
+#. Column: number of events in a replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayEvents"
+msgstr "الأحداث"
 
 #. Accessible name of the list of events in the trigger picker.
 #. js-lingui-explicit-id
@@ -4653,6 +4683,12 @@ msgstr "الارتفاع (بكسل منطقي)"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.menu"
 msgstr "المساعدة"
+
+#. Label on a node whose content is never recorded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayMasked"
+msgstr "مخفي"
 
 #. Risk level.
 #. js-lingui-explicit-id
@@ -6816,6 +6852,12 @@ msgstr "لا مشكلات."
 msgid "releases.noReleases"
 msgstr "لا توجد إصدارات بعد."
 
+#. Shown when the list of replays is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.noReplays"
+msgstr "لم تُسجَّل أي إعادة تشغيل في هذه البيئة."
+
 #. Shown while the experiment has no results.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -7566,6 +7608,12 @@ msgstr "المسار"
 msgid "admin.colPatterns"
 msgstr "الأنماط"
 
+#. Button that pauses a replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayPause"
+msgstr "إيقاف مؤقت"
+
 #. Button: stop a rollout from advancing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -7703,6 +7751,12 @@ msgstr "المنصة"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.platform"
 msgstr "نمط المنصة"
+
+#. Button that plays a replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayPlay"
+msgstr "تشغيل"
 
 #. Name of the top level of the layer tree.
 #. js-lingui-explicit-id
@@ -8604,6 +8658,18 @@ msgstr "استبدال"
 msgid "rustEditor.useTemplate"
 msgstr "استبدال المصدر بالقالب"
 
+#. Label of the drawing that shows the recorded layout.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayCanvas"
+msgstr "لوحة إعادة التشغيل"
+
+#. Link to the session replays of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.navReplays"
+msgstr "إعادة التشغيل"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -9348,6 +9414,12 @@ msgstr "النطاق"
 msgid "admin.tokenScopes"
 msgstr "النطاقات (مفصولة بفواصل)"
 
+#. Column: the first screen of a replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayRoute"
+msgstr "الشاشة"
+
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -9653,6 +9725,18 @@ msgstr "تم الإرسال إلى الجهاز."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.sessionTag"
 msgstr "الجلسة {tag}"
+
+#. Heading of one session replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayTitle"
+msgstr "إعادة تشغيل الجلسة"
+
+#. Heading of the list of session replays.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replaysTitle"
+msgstr "إعادة تشغيل الجلسات"
 
 #. Metric name.
 #. js-lingui-explicit-id
@@ -10032,6 +10116,12 @@ msgstr "تشغيل خادم اللغة"
 msgid "state.problem.invalid"
 msgstr "ابدأ بحرف صغير واستخدم الحروف والأرقام فقط، مثل loanAmount."
 
+#. Column: when a replay started.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStarted"
+msgstr "بدأت"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -10121,6 +10211,12 @@ msgstr "عناصر الحالة"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateList"
 msgstr "إدخالات الحالة"
+
+#. Heading of the table of state entries at the chosen moment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayState"
+msgstr "الحالة حتى الآن"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -10271,6 +10367,12 @@ msgstr "نص"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.l10nList"
 msgstr "نصوص التحديد"
+
+#. Caption under the session replays heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replaysCaption"
+msgstr "تسجيلات بنيوية لجلسات وافق المستخدمون على مشاركتها. تتضمن الشاشات والتخطيط والنقرات والقيم غير الحساسة، ولا تتضمن نصوصًا أو صورًا أبدًا."
 
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id
@@ -11923,6 +12025,12 @@ msgstr "الوقت"
 msgid "admin.colTime"
 msgstr "الوقت"
 
+#. Label of the slider that moves through a replay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayTimeline"
+msgstr "الخط الزمني"
+
 #. Label of the last day of the range.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -12072,6 +12180,12 @@ msgstr "الاتجاه"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.issuersTitle"
 msgstr "جهات CI الموثوقة"
+
+#. Column: the type of a state entry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStateType"
+msgstr "النوع"
 
 #. Label of the list that chooses the type of the entry's value.
 #. js-lingui-explicit-id
@@ -12354,6 +12468,12 @@ msgstr "التحقق"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfErrors"
 msgstr "أخطاء التحقق"
+
+#. Column: the value of a state entry; empty when it is not recorded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.replayStateValue"
+msgstr "القيمة"
 
 #. Column heading.
 #. js-lingui-explicit-id

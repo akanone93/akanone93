@@ -83,6 +83,7 @@ import 'package:plux_flutter/src/reconstruction/server_only_client.dart';
 import 'package:plux_flutter/src/render/owner_actions.dart';
 import 'package:plux_flutter/src/render/page_renderer.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
+import 'package:plux_flutter/src/replay/replay_recorder.dart';
 import 'package:plux_flutter/src/runtime_info.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
@@ -101,7 +102,8 @@ import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
-import 'package:plux_flutter/src/state/scope_state.dart' show ScopeModel;
+import 'package:plux_flutter/src/state/scope_state.dart'
+    show ScopeModel, sameValue;
 import 'package:plux_flutter/src/store/baseline.dart';
 import 'package:plux_flutter/src/store/control_store.dart';
 import 'package:plux_flutter/src/store/kv_store.dart';
@@ -516,6 +518,48 @@ final class PluxRuntime with WidgetsBindingObserver {
     clock: _clock,
   );
 
+  /// Records structural session replays (ANL-050, ADR-0101): off unless the
+  /// host consented to `replay` and the security profile allows it. A
+  /// reconstruction records nothing (SEC-142).
+  late final ReplayRecorder replay = ReplayRecorder(
+    post: reconstructing
+        ? (_) {}
+        : (r) =>
+              _worker.recordReplay(r, limit(PluxLimit.replayPerDevicePerDay)),
+    withdraw: reconstructing ? () {} : _worker.purgeReplays,
+    enabled: () =>
+        !reconstructing &&
+        settings.value.flag(SecuritySetting.allowSessionReplay),
+    bounds: () => ReplayBounds(
+      events: limit(PluxLimit.replayEventsPerReplay),
+      bytes: limit(PluxLimit.replayBytesPerReplay),
+      perDay: limit(PluxLimit.replayPerDevicePerDay),
+    ),
+    sampling: () {
+      final host = config.telemetrySampling['replay'];
+      final app = telemetry.appSampling['replay'];
+      if (host == null && app == null) return null;
+      return math.min(host ?? 1, app ?? 1).clamp(0, 1).toDouble();
+    },
+    consent: config.consent,
+    random: overrides.random,
+    clock: _clock,
+  );
+
+  /// Receives the changes of a scope's values for the replay recorder: the
+  /// entries that changed, by name, without those tagged `sensitive`.
+  void _replayState(
+    ScopeModel model,
+    Map<String, Object?> previous,
+    Map<String, Object?> next,
+  ) {
+    if (!replay.recording) return;
+    for (final k in next.keys) {
+      if (sameValue(previous[k], next[k])) continue;
+      replay.state(k, next[k], sensitive: model.byName[k]?.sensitive ?? false);
+    }
+  }
+
   /// How often buffered telemetry is sent while the app is in the
   /// foreground (ADR-0034).
   static const flushInterval = Duration(minutes: 15);
@@ -551,6 +595,8 @@ final class PluxRuntime with WidgetsBindingObserver {
   }
 
   void _startSession() {
+    replay.releaseSequence = active.value?.sequence ?? 0;
+    replay.start();
     final now = _clock();
     _foregroundSince = now;
     _backgroundSince = null;
@@ -576,6 +622,7 @@ final class PluxRuntime with WidgetsBindingObserver {
   void _endStretch() {
     final since = _foregroundSince;
     if (since == null) return;
+    replay.finish();
     _foregroundSince = null;
     telemetry.record(
       'session_end',
@@ -1024,6 +1071,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     data: reconstructing ? null : _dataServices,
     secureUi: secureUi,
     devStateTap: kPluxDevtools ? _devState : null,
+    replayStateTap: _replayState,
     pinnedMedia: () => settings.value.flag(SecuritySetting.pinnedMediaOnly),
     actions: ActionServices(
       router: router,

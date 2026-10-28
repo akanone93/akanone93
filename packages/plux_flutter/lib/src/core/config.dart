@@ -75,9 +75,13 @@ enum PluxThemeSource {
 /// What the user has consented to (SEC-161, ANL-003).
 final class PluxConsent {
   /// Creates a consent record.
-  const PluxConsent({this.analytics = false, this.experiments = false});
+  const PluxConsent({
+    this.analytics = false,
+    this.experiments = false,
+    this.replay = false,
+  });
 
-  /// Only what is strictly necessary: no analytics, no experiments.
+  /// Only what is strictly necessary: no analytics, no experiments, no replay.
   static const necessaryOnly = PluxConsent();
 
   /// Whether analytics telemetry may be sent.
@@ -85,6 +89,10 @@ final class PluxConsent {
 
   /// Whether experiment assignments may be used.
   final bool experiments;
+
+  /// Whether a structural session replay may be recorded and sent
+  /// (ANL-050, ADR-0101).
+  final bool replay;
 }
 
 /// The signed-in user as rollouts and experiments see them (HST-011): a

@@ -146,6 +146,10 @@ const (
 	// AllowDirectDataSources: Whether plugins may call data sources directly
 	// from the device instead of through the server. (SEC-030)
 	AllowDirectDataSources Key = "allowDirectDataSources"
+	// AllowSessionReplay: Whether the runtime may record a structural session
+	// replay when the user has consented to the replay category; off under the
+	// maximum profile. (ANL-050, SEC-161)
+	AllowSessionReplay Key = "allowSessionReplay"
 	// AllowSoftwareKeys: Whether a device without a hardware-backed key may
 	// register with a software key. (SEC-001)
 	AllowSoftwareKeys Key = "allowSoftwareKeys"
@@ -275,6 +279,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: BoolValue(true), Strict: BoolValue(true), Maximum: BoolValue(false)},
 			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-030"},
 			Description: "Whether plugins may call data sources directly from the device instead of through the server.",
+		},
+		{
+			Key: AllowSessionReplay, Type: TypeBool, Tighter: TighterFalse,
+			Defaults:        Defaults{Standard: BoolValue(true), Strict: BoolValue(true), Maximum: BoolValue(false)},
+			TravelsToDevice: true, Phase: "P11", Requirements: []string{"ANL-050", "SEC-161"},
+			Description: "Whether the runtime may record a structural session replay when the user has consented to the replay category; off under the maximum profile.",
 		},
 		{
 			Key: AllowSoftwareKeys, Type: TypeBool, Tighter: TighterFalse,

@@ -25,6 +25,7 @@ const routes = [
   ["/o/$org/apps/$app/analytics/funnels", "navFunnels"],
   ["/o/$org/apps/$app/analytics/errors", "navErrors"],
   ["/o/$org/apps/$app/analytics/performance", "navPerformance"],
+  ["/o/$org/apps/$app/analytics/replays", "navReplays"],
 ] as const;
 
 /** Links between the pages of the area and the range, kept in the address. */
