@@ -215,6 +215,44 @@ export function appCanvasMessages(i18n: I18n) {
         comment: "Count of functions a plugin uses.",
         values: { n },
       }),
+    noScreens: i18n._({
+      id: "appCanvas.detail.noScreens",
+      message: "No screens yet",
+      comment: "Detail card of a plugin: the plugin has no screens, so the mini-map is empty.",
+    }),
+    miniMap: (screens: string) =>
+      i18n._({
+        id: "appCanvas.detail.miniMap",
+        message: "Screens: {screens}",
+        comment: "Accessible name of the mini-map of a plugin's screens; the value lists the screen titles.",
+        values: { screens },
+      }),
+    functionsUsed: (names: string) =>
+      i18n._({
+        id: "appCanvas.detail.functionsUsed",
+        message: "Uses {names}",
+        comment: "Detail card of a plugin: the names of the Plux Functions it uses.",
+        values: { names },
+      }),
+    publishedBy: (name: string, when: string) =>
+      i18n._({
+        id: "appCanvas.detail.publishedBy",
+        message: "Last published by {name}, {when}",
+        comment: "Detail card of a plugin: who published the newest version, and when.",
+        values: { name, when },
+      }),
+    publishedAt: (when: string) =>
+      i18n._({
+        id: "appCanvas.detail.publishedAt",
+        message: "Last published {when}",
+        comment: "Detail card of a plugin: when the newest version was published, the publisher being unknown.",
+        values: { when },
+      }),
+    neverPublished: i18n._({
+      id: "appCanvas.detail.neverPublished",
+      message: "Not published yet",
+      comment: "Detail card of a plugin: it has no published version.",
+    }),
     frame: (label: string) =>
       i18n._({
         id: "appCanvas.frame",

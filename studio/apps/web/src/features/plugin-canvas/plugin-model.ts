@@ -61,6 +61,32 @@ function json(doc: DocLike): Doc | undefined {
   return v !== null && typeof v === "object" ? (v as Doc) : undefined;
 }
 
+/** The page state each page declares, by page ID: name, type and default of every entry (STA-002, STU-082). */
+export function pageStates(
+  documents: readonly DocLike[],
+): ReadonlyMap<string, readonly { name: string; type: string; default?: unknown }[]> {
+  const out = new Map<string, { name: string; type: string; default?: unknown }[]>();
+  for (const doc of documents) {
+    const page = json(doc) as (Doc & { readonly state?: unknown }) | undefined;
+    if (page?.kind !== "page" || typeof page.id !== "string" || !Array.isArray(page.state)) {
+      continue;
+    }
+    const entries: { name: string; type: string; default?: unknown }[] = [];
+    for (const e of page.state as unknown[]) {
+      const entry = e as { name?: unknown; type?: unknown; default?: unknown } | null;
+      if (typeof entry?.name === "string" && typeof entry.type === "string") {
+        entries.push({
+          name: entry.name,
+          type: entry.type,
+          ...(entry.default === undefined ? {} : { default: entry.default }),
+        });
+      }
+    }
+    out.set(page.id, entries);
+  }
+  return out;
+}
+
 /** Every `navigate` step's route below `value`, in document order. */
 function navigations(value: unknown, out: string[]): void {
   if (Array.isArray(value)) {

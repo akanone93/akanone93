@@ -47,7 +47,7 @@ import { dataSourcesOf } from "./look.ts";
 import { resolveNodeParam } from "./node-path.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
-import { parseDocument, readPlugin } from "./plugin-model.ts";
+import { pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
 import {
   contentBounds,
@@ -380,8 +380,10 @@ function PluginCanvasView({
     [docs.data, appDocs.data],
   );
   const copyOverInput = useCopyOver(docs.data, session);
+  const statesOfPages = useMemo(() => pageStates(live), [live]);
   const clipboardInput = {
     copyOver: copyOverInput,
+    pageState: (screenId: string) => statesOfPages.get(screenId) ?? [],
     screens,
     screenOf,
     selected: () => store.get().ids,

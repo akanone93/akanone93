@@ -15,6 +15,7 @@ import { z } from "zod";
 import { accessSearchSchema, auditSearchSchema } from "./features/admin/admin.schema.ts";
 import { analyticsSearchSchema, usageSearchSchema } from "./features/analytics/analytics.schema.ts";
 import { approvalsInboxSearchSchema, appSearchSchema } from "./features/approvals/approvals.schema.ts";
+import { appsSearchSchema } from "./features/apps/apps.schema.ts";
 import { signInSearchSchema } from "./features/auth/auth.schema.ts";
 import { dataSearchSchema } from "./features/data/data.schema.ts";
 import type { EditSession } from "./features/editor/edit-session.ts";
@@ -154,6 +155,7 @@ const orgRoute = createRoute({
 const orgHomeRoute = createRoute({
   getParentRoute: () => orgRoute,
   path: "/",
+  validateSearch: (search) => appsSearchSchema.parse(search),
   component: lazyRouteComponent(() => import("./features/home/index.ts"), "HomePage"),
 });
 
@@ -171,6 +173,14 @@ const shellSettingsRoute = createRoute({
   path: "/apps/$app/settings/shell",
   beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
   component: lazyRouteComponent(() => import("./features/shell-settings/index.ts"), "ShellSettingsPage"),
+});
+
+/** A37 and A42: the settings of one app (STU-023, STU-025, LIM-005): name, description, limits usage, host fonts; changing them needs `app.manage`. */
+const appSettingsRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/apps/$app/settings",
+  beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+  component: lazyRouteComponent(() => import("./features/apps/index.ts"), "AppSettingsPage"),
 });
 
 const notificationsRoute = createRoute({
@@ -532,6 +542,7 @@ const routeTree = rootRoute.addChildren([
       orgHomeRoute,
       newAppRoute,
       shellSettingsRoute,
+      appSettingsRoute,
       notificationsRoute,
       approvalsInboxRoute,
       approvalsHistoryRoute,

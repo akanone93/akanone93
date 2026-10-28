@@ -106,6 +106,8 @@ export interface ClipboardInput {
   readonly source: ClipboardSource;
   readonly has: TargetHas;
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
+  /** The page state a screen declares, for "save as template" to turn references to it into parameters (STU-082). */
+  readonly pageState?: (screenId: string) => readonly { name: string; type: string; default?: unknown }[];
   readonly clipboard?: Board;
   /** Where "copy over" reads its sources and writes its copies; without it a copy keeps the reference only. */
   readonly copyOver?:

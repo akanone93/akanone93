@@ -3,48 +3,35 @@ SPDX-FileCopyrightText: 2026 Plux contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# State at hand-off (2026-10-27)
+# State at hand-off (2026-10-28, end of session 2)
 
 ## Branches
 
 | Branch | State |
 |---|---|
-| `feat/phase-11` @ `daa1d1c8` | All merged work, pushed. Gates green on this head (see [verification.md](verification.md)). |
-| `handoff/p11-session2` | `feat/phase-11` + this package + the work-log note + the model-tier revision (M-10, sub-agents.md). Merge it into `feat/phase-11` first. |
-| `p11/s55c-app-lock` @ `3f0ec5aa` | **Finished, reviewed by its agent, not merged.** App documents (`theme.json`, `app.json`) edit under the app lock; importer `variables` merge into `app.json`; Postgres test `TestAppDocumentPatchNeedsTheAppLock` (the server already refused plugin-lock writes — the feature was broken, not a bypass). Its merge into `feat/phase-11` conflicts only in the three `.po` catalogues — use the recipe in [lead.md](lead.md). |
-| `p11/s54b-rust-editor` @ `ae06cf5d` (WIP) | **Agent stopped mid-way; not reviewed, not verified.** 27 files: Rust editor overlay (`features/rust-editor/`), `OverlayId` "rust", LSP providers wired to the bridge, per-organisation LSP session cap moved to the shared cache (`internal/function`, `internal/server`), API integration tests, e2e `studio/e2e/rust-editor.spec.ts`, catalogues. Review, finish, run its gates. |
-| `p11/s46c-rest` @ `bd549f9d` (WIP) | **Agent stopped mid-way; not reviewed, not verified.** 98 files: scenes and Flutter goldens for Autocomplete, MaterialBanner, BottomAppBar, CalendarDatePicker, DataTable, DropdownMenu, NavigationDrawer, PopupMenuButton, SegmentedButton, Stepper (`src/scene/material-more.ts`, `test/layout-conformance/test/material_composites.dart`). Unknown whether the TS ports match their goldens; the golden-level matrix was not started. Regenerate goldens and run `make studio-conformance` before trusting it. |
-| `p11/s13-gap`, `p11/s13-tiles` | Old canvas experiments, deliberately not merged (superseded by the CPU raster backend). Leave them. |
+| `feat/phase-11` | All merged work, pushed with this package. The last commits were **not** through the full gate (stopped at the hand-off); run it first ([verification.md](verification.md)). |
+| `p11/g-wizard` | **Work in progress, pushed, not merged, not reviewed.** S8.1 web part 2: new-app wizard (`studio/apps/web/src/features/new-app/`: blank, template, `.plux` import, locales, theme, profile), onboarding checklist and sample apps (`features/onboarding/`), shell settings (`features/shell-settings/`), route and fixture changes (`router.tsx`, `test-upstream.ts`, `test-projects.ts`), catalogues. Its agent was stopped by the maintainer: shell settings has no tests, no done-check ran. Based on `feat/phase-11` before the apps grid merge: expect conflicts in `features/home/` and the `.po` catalogues. Finish with [briefs/s81-wizard-finish.md](briefs/s81-wizard-finish.md). |
+| `p11/s13-gap`, `p11/s13-tiles` (remote) | Old canvas experiments, deliberately not merged. Leave them. |
+| `handoff/p11-session2` (remote) | The session 1 package; already merged. |
 
-Worktrees of the three open branches are under `.claude/worktrees/` in the old container only; a
-new session recreates them from the pushed branches.
+The usage slice (STU-022 publisher, STU-025 usage, LIM-005 per-plugin) was started and dropped (one
+SQL query); restart it from [briefs/s81-usage.md](briefs/s81-usage.md).
 
-## Done in session 1 (merged on `feat/phase-11`)
+## Done in session 2 (merged on `feat/phase-11`)
 
-- **S0–S2** (waves 1–5): foundations, canvas go/no-go and CPU raster on software GL, layout core and
-  conformance, BFF (CSP nonce, Trusted Types `plux-worker`, `__Host-` session, shared OIDC state
-  secret), shell, delivery, dev sessions on the shared stream layer, editing core (JSON Patch
-  autosave, locks L-1, undo with editor sessions, uploads), selection, panels, screens.
-- **S3** (wave 6): app canvas C1 on Plux Canvas (migration 0057 metadata, org-scoped team/icon
-  checks, `ListPluginSummaries`), bundled arrows (drag p95 16.67 ms, lift 5 ms, drop settle ≤ 267 ms
-  at 200 boxes/1,000 links), ghost screens, link creation, safety rules and `ApplyChangeSet`
-  (multi-document, one undo step), trash/deprecation, S3 exit gate (gating design gate,
-  `e2e/s3-flow.spec.ts`).
-- **S4**: slivers, boxes, all Material and Cupertino composites, all 58 Layer 2 components with
-  goldens written by the real runtime (`packages/plux_flutter/test/render/layout_goldens_test.dart`),
-  canvas builders for 196 of 207 widget types (10 left: see `p11/s46c-rest`), smoke matrix
-  (`widgets/matrix.test.ts`), host-font loading in `canvas/src/fonts.ts` (not wired: no server field).
-- **S5** (wave 7): overlay host and Monaco JSON editor (STU-123 p95 54 ms of 150), PXL language
-  service in the validator WebAssembly with CodeMirror inline fields, action graph editor
-  (`@xyflow/react` 12.12.0), localisation table and key extraction (I18N-007), state designer, data
-  source designer with OpenAPI/GraphQL import in WebAssembly, DB schema designer with migration
-  preview, theme editor, history overlay V9, remaining panel tabs, LSP bridge (rust-analyzer in the
-  builder sandbox) and test runner (FN-034) on the server.
-- Tooling fixed on the way: TS registry emits `translatable`; tool tests updated for the canvas
-  document kind and the Studio CI jobs; Dependabot covers `studio/` (docker) and
-  `test/layout-conformance` (pub); Monaco loads the editor core and JSON only (TypeScript/CSS/HTML
-  workers gone) and its `<style>` elements get the page nonce through a pinned Vite transform;
-  zero spacing token so `inset-0` exists; React StrictMode double mount no longer kills the canvas
-  host.
+- Waves 7–10 (S4.5–S8.10) and the S5 exit gate: Rust editor and LSP client, last canvas ports and
+  the golden matrix, clipboard, library, devices and frames, device loop, action bar, release
+  requests and the render worker, publish, releases, approvals, experiments, the S8 areas.
+- Gap-fix wave (every gap of `open.md`): function version fields, session replay (ADR-0101),
+  clipboard copy-over, deep plugin duplicate, undo for restore and key extraction, full experiments,
+  ordered funnels, host and uploaded fonts, MenuAnchor and NavigationRail, app navigation, mock
+  bindings, publish rollout form and evidence, `plux test --report`, the `no-waitfor-tobenull` lint
+  rule, create organisation and app dialogs.
+- Wave 11: S9.1 performance gates in CI, S9.2 axe sweep (75 routes × light, dark, `ar`) and keyboard
+  flow, S9.3 catalogues complete, S9.4 threat model and ASVS L2 evidence for Studio
+  (`worker-src 'self'`), S9.5 reproducible build, release jobs, render worker client, Compose and
+  Helm, S9.6 guides, BFF runbook, run-locally guide.
+- Exit work: P11 statuses; apps grid, card actions and app settings (STU-020, STU-021, STU-023);
+  plugin detail card (STU-031); template page-state parameters (STU-082).
 
-Migrations used: 0054–0057. Next free migration: **0058**.
+Migrations used up to **0065** (`0065_app_host_fonts.sql`). Next free: **0066**.

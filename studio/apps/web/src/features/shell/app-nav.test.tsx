@@ -32,19 +32,19 @@ describe("[STU-100] to [STU-116] navigation between the areas of an app", () => 
       Approvals: `/o/${orgA}/approvals?app=app1`,
       Devices: `${base}/devices`,
       Security: `${base}/security`,
+      Settings: `${base}/settings`,
     });
   }, 40_000);
 
   test("entries the person's permissions do not allow are not shown", async () => {
-    renderApp(`${base}/releases`, { permissions: [...reader, "release.publish", "organization.manage"] });
+    renderApp(`${base}/releases`, { permissions: [...reader, "release.publish"] });
     const nav = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
     expect(within(nav).getByRole("link", { name: "Publish" }).getAttribute("href")).toBe(`${base}/publish`);
-    expect(within(nav).getByRole("link", { name: "Settings" }).getAttribute("href")).toBe(`/o/${orgA}/admin`);
+    expect(within(nav).getByRole("link", { name: "Settings" }).getAttribute("href")).toBe(`${base}/settings`);
     cleanup();
     renderApp(`${base}/releases`, { permissions: reader });
     const plain = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
     expect(within(plain).queryByRole("link", { name: "Publish" }) === null).toBe(true);
-    expect(within(plain).queryByRole("link", { name: "Settings" }) === null).toBe(true);
   }, 40_000);
 
   test("the links take the keyboard focus and open their area", async () => {

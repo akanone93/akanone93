@@ -75,6 +75,7 @@ import {
   licenseAdmin,
   orgAdmin,
 } from "./test-admin.ts";
+import { type AppsGridFixture, createAppsGrid } from "./test-apps.ts";
 import { type ProjectsData, projectsHandlers } from "./test-projects.ts";
 
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
@@ -153,6 +154,8 @@ export interface LibraryFixture {
     createdByName?: string;
   }[];
   versions?: Record<string, { version: number; content?: string; note?: string }[]>;
+  /** Collects the key and document of every CreateTemplate the upstream receives. */
+  created?: { key: string; content: string }[];
   parameters?: { name: string; type: string; required: boolean }[];
   /** Instances per app that ListUsages reports. */
   usages?: number;
@@ -319,6 +322,7 @@ export interface UpstreamData {
     density: string;
     mutedNotificationTypes?: string[];
     onboardingDismissed?: boolean;
+    favouriteAppIds?: string[];
   };
   explained?: { permission: string }[];
   inbox?: { id: string; eventType: string; title?: string; link?: string; read: boolean }[];
@@ -353,7 +357,14 @@ export interface UpstreamData {
     validationErrors?: number;
     functionsUsed?: string[];
     unpublishedChanges?: boolean;
+    description?: string;
+    linksOut?: string[];
+    linksIn?: string[];
+    /** Seconds since the epoch of the newest version's publication. */
+    publishedAt?: number;
   }[];
+  /** The published versions per plugin ID, for ListPluginVersions on the app canvas (STU-031). */
+  pluginVersions?: Record<string, { version: number; by: string; at: number }[]>;
   /** The plugin's history: ListSnapshots, GetSnapshot, CompareSnapshots and RestoreSnapshot (STU-069). */
   snapshots?: {
     id: string;
@@ -363,6 +374,8 @@ export interface UpstreamData {
     editorSession?: string;
     documents: { path: string; json: unknown }[];
   }[];
+  /** The apps grid and the app settings (STU-020 to STU-025): replaces the apps that `creation` lists. */
+  appsGrid?: AppsGridFixture;
   /** Collects the RestoreSnapshot calls. */
   restoredSnapshots?: { id: string; paths: string[] }[];
   /** Collects the paths of DeleteDocument calls and of PutDocument calls that create (revision zero). */
@@ -401,6 +414,7 @@ export interface UpstreamData {
     density: string;
     mutedNotificationTypes?: string[];
     onboardingDismissed?: boolean;
+    favouriteAppIds?: string[];
   }[];
 }
 
@@ -450,6 +464,8 @@ export function createUpstream(state: UpstreamData) {
   const createdOrganisations: { id: string; key: string; name: string }[] = [];
   const createdApps = [...(state.creation?.apps ?? [{ id: "app1", key: "shop", name: "Shop" }])];
   const createdPlugins: NonNullable<UpstreamData["summaries"]> = [];
+  const grid = state.appsGrid === undefined ? undefined : createAppsGrid(state.appsGrid);
+  const summaries = grid ?? createAppsGrid({ apps: createdApps, calls: [] });
   const refuse = (kind: "organisation" | "app" | "plugin") => {
     const message = state.creation?.refuse?.[kind];
     if (message !== undefined) {
@@ -537,8 +553,16 @@ export function createUpstream(state: UpstreamData) {
       },
     });
     service(AppService, {
-      getApp: () => ({ app: { id: "app1", name: "App", defaultPluginKey: "", hostFonts: state.hostFonts ?? [] } }),
+      getApp: (req) =>
+        grid?.getApp(req.id) ?? {
+          app: { id: "app1", name: "App", defaultPluginKey: "", hostFonts: state.hostFonts ?? [] },
+        },
+      listAppLimits: () => grid?.listAppLimits() ?? { limits: [] },
       updateApp: (req) => {
+        const changed = grid?.updateApp(req);
+        if (changed !== undefined) {
+          return changed;
+        }
         if (req.setHostFonts) {
           state.hostFonts = req.hostFonts.map((f) => ({ family: f.family, assetId: f.assetId }));
         }
@@ -569,7 +593,7 @@ export function createUpstream(state: UpstreamData) {
         createdApps.push(app);
         return { app: { ...app, organizationId: req.organizationId, defaultPluginKey: "", hostFonts: [] } };
       },
-      listApps: () => ({ apps: createdApps }),
+      listApps: (req) => (grid === undefined ? { apps: createdApps } : grid.listApps(req)),
       listTrash: () => ({ items: state.trash ?? [] }),
       restoreFromTrash: (req) => {
         state.restored?.push(req.id);
@@ -588,6 +612,10 @@ export function createUpstream(state: UpstreamData) {
       }),
       createTemplate: (req) => {
         state.library?.calls?.push(`createTemplate:${req.draft?.key ?? ""}`);
+        state.library?.created?.push({
+          key: req.draft?.key ?? "",
+          content: new TextDecoder().decode(req.draft?.content ?? new Uint8Array()),
+        });
         return { item: { id: "newt" }, version: { version: 1 } };
       },
       instantiate: (req) => {
@@ -648,7 +676,16 @@ export function createUpstream(state: UpstreamData) {
       },
       listPluginSummaries: () => ({
         summaries: [...(state.summaries ?? []), ...createdPlugins].map((p) => ({
-          plugin: { id: p.id, key: p.key, name: p.name, latestVersion: BigInt(p.latestVersion ?? 0) },
+          plugin: {
+            id: p.id,
+            key: p.key,
+            name: p.name,
+            latestVersion: BigInt(p.latestVersion ?? 0),
+            description: p.description ?? "",
+          },
+          linksOut: p.linksOut ?? [],
+          linksIn: p.linksIn ?? [],
+          ...(p.publishedAt === undefined ? {} : { publishedAt: { seconds: BigInt(p.publishedAt), nanos: 0 } }),
           bundleSize: BigInt(p.bundleSize ?? 0),
           screens: BigInt(p.screens ?? 0),
           versions: BigInt(p.versions ?? 0),
@@ -727,26 +764,56 @@ export function createUpstream(state: UpstreamData) {
       ...releaseHandlers(state.releases),
       listPluginVersions: (req) => ({
         versions:
-          state.release?.evidence !== undefined
-            ? (state.release.evidence.versions[req.pluginId] ?? []).map((v) =>
+          state.pluginVersions?.[req.pluginId] !== undefined
+            ? (state.pluginVersions[req.pluginId] ?? []).map((v) =>
                 create(PluginVersionSchema, {
                   id: `v${v.version}`,
+                  pluginId: req.pluginId,
                   version: BigInt(v.version),
-                  bundleSize: BigInt(v.size),
-                  sourceSnapshotId: v.snapshot,
+                  publishedBy: { kind: "user", id: "u", display: v.by },
+                  createdAt: { seconds: BigInt(v.at), nanos: 0 },
                 }),
               )
-            : state.published === undefined
-              ? []
-              : [
-                  create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1" }),
-                  create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0" }),
-                ],
+            : state.release?.evidence !== undefined
+              ? (state.release.evidence.versions[req.pluginId] ?? []).map((v) =>
+                  create(PluginVersionSchema, {
+                    id: `v${v.version}`,
+                    version: BigInt(v.version),
+                    bundleSize: BigInt(v.size),
+                    sourceSnapshotId: v.snapshot,
+                  }),
+                )
+              : state.published === undefined
+                ? []
+                : [
+                    create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1" }),
+                    create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0" }),
+                  ],
       }),
     });
+    service(AppProjectService, {
+      listAppSummaries: (req) => summaries.listAppSummaries(req),
+      exportApp: (req) => {
+        state.appsGrid?.calls.push(`export:${req.appId}`);
+        return { filename: "app.plux", archive: new Uint8Array([80, 75]), sha256: "" };
+      },
+      duplicateApp: (req) => {
+        state.appsGrid?.calls.push(`duplicate:${req.appId}:${req.key}:${req.name}`);
+        return { app: { id: `app-${req.key}`, key: req.key, name: req.name }, documents: 1 };
+      },
+    });
     service(AssetService, {
-      listAssets: () => ({
+      listAssets: (req) => ({
         assets: [
+          ...(state.appsGrid?.assets?.[req.appId] ?? []).map((a) =>
+            create(AssetSchema, {
+              id: a.id,
+              name: a.name,
+              mediaType: a.mediaType,
+              size: 1n,
+              variants: [{ kind: "original", artifact: { urls: [a.url] } }],
+            }),
+          ),
           ...(state.assets ?? []).map((name, i) =>
             create(AssetSchema, { id: `asset-${i}`, name, mediaType: "image/png", size: 1n }),
           ),

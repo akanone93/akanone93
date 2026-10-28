@@ -63,6 +63,49 @@ export function canvasLibraryMessages(i18n: I18n) {
       message: "Other page-state references stay as they are; check them after inserting.",
       comment: "Explains that non-exposed references are only flagged.",
     }),
+    convertedHeading: i18n._({
+      id: "library.canvas.converted.heading",
+      message: "Page state turned into parameters",
+      comment: "Heading of the list of page-state references that became template parameters.",
+    }),
+    convertedItem: (reference: string, parameter: string) =>
+      i18n._({
+        id: "library.canvas.converted.item",
+        message: "{reference} becomes the parameter {parameter}",
+        comment: "One page-state reference converted to a template parameter; both values are identifiers.",
+        values: { reference, parameter },
+      }),
+    flaggedHeading: i18n._({
+      id: "library.canvas.flagged.heading",
+      message: "Page state that cannot become a parameter",
+      comment: "Heading of the list of page-state references that stay in the template and are flagged.",
+    }),
+    flaggedItem: (expression: string, reason: "expression" | "undeclared" | "action") => {
+      const values = { expression };
+      switch (reason) {
+        case "action":
+          return i18n._({
+            id: "library.canvas.flagged.action",
+            message: "Action state path {expression}",
+            comment: "A page-state path in an action step; it cannot become a template parameter.",
+            values,
+          });
+        case "undeclared":
+          return i18n._({
+            id: "library.canvas.flagged.undeclared",
+            message: "{expression} names state the page does not declare",
+            comment: "A page-state reference to an entry the page does not declare; it cannot become a parameter.",
+            values,
+          });
+        default:
+          return i18n._({
+            id: "library.canvas.flagged.expression",
+            message: "{expression} is part of a larger expression",
+            comment: "A page-state reference inside a larger expression; it cannot become a template parameter.",
+            values,
+          });
+      }
+    },
     next: i18n._({ id: "library.canvas.next", message: "Next", comment: "Button: next step." }),
     back: i18n._({ id: "library.canvas.back", message: "Back", comment: "Button: previous step." }),
     save: i18n._({ id: "library.canvas.save", message: "Save template", comment: "Button: save the template." }),
