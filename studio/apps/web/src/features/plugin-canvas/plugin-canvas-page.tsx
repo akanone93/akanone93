@@ -33,6 +33,7 @@ import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
+import { useCopyOver } from "./clipboard/use-copy-over.ts";
 import { DeviceBayHost } from "./device-bay-host.tsx";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
@@ -373,7 +374,9 @@ function PluginCanvasView({
     () => targetHas([...(docs.data ?? []), ...(appDocs.data ?? [])]),
     [docs.data, appDocs.data],
   );
+  const copyOverInput = useCopyOver(docs.data, session);
   const clipboardInput = {
+    copyOver: copyOverInput,
     screens,
     screenOf,
     selected: () => store.get().ids,

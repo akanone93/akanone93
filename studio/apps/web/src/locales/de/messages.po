@@ -12924,3 +12924,39 @@ msgstr "Verkleinern"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.zoomToFit"
 msgstr "Einpassen"
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedTitle"
+msgstr "Einige Elemente wurden nicht kopiert"
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.droppedIntro"
+msgstr "Diese Elemente wurden ausgelassen. Eingefügte Elemente verweisen nicht mehr darauf."
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropForbidden"
+msgstr "Sie dürfen es nicht lesen."
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropLimit"
+msgstr "Das Änderungsset ist voll."
+
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.dropRejected"
+msgstr "Der Server hat es abgelehnt."
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editFrame"
+msgstr "Rahmen {label} umbenennen oder skalieren"
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameWidth"
+msgstr "Breite"
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.frameHeight"
+msgstr "Höhe"
+
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.noOwner"
+msgstr "Kein verantwortliches Team"
