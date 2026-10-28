@@ -320,16 +320,6 @@ export function publishMessages(i18n: I18n) {
       message: "The approval expired.",
       comment: "Approval expired.",
     }),
-    rolloutPlan: i18n._({
-      id: "publish.rolloutPlan",
-      message: "Rollout plan (JSON)",
-      comment: "Label of the rollout plan field.",
-    }),
-    rolloutInvalid: i18n._({
-      id: "publish.rolloutInvalid",
-      message: "The plan is not a JSON object.",
-      comment: "Error when the rollout plan is not valid.",
-    }),
     release: i18n._({ id: "publish.release", message: "Release", comment: "Button that releases after the step-up." }),
     releasedAs: (sequence: string) =>
       i18n._({
