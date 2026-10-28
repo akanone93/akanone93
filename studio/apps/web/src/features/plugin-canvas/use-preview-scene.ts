@@ -4,7 +4,8 @@
 import type { ScreenStyle } from "@plux/canvas";
 import { useMemo, useRef } from "react";
 import type { PreviewRender } from "../preview/switches.ts";
-import { localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
+import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
+import { bindMocks } from "./mock-bindings.ts";
 import type { Node } from "./plugin-model.ts";
 import type { PlacedScreen } from "./scene.ts";
 import { screenStyle } from "./scene.ts";
@@ -20,7 +21,7 @@ interface LocalizedRoots {
   readonly byRoot: WeakMap<Node, Node | undefined>;
 }
 
-/** What the preview switches draw (STU-058): the screens with translated texts and the style with theme, scale and direction. */
+/** What the preview switches draw (STU-058, DAT-080): the screens with translated texts, data bound to the selected mock states, and the style with theme, scale and direction. */
 export function usePreviewScene(
   screens: readonly PlacedScreen[],
   appDocs: readonly DocLike[] | undefined,
@@ -38,12 +39,13 @@ export function usePreviewScene(
         : new WeakMap<Node, Node | undefined>();
     cache.current = { everything, look, byRoot };
     const messages = messagesFor(everything, look);
+    const mocks = new Map(dataSourcesOf(everything).map((src) => [src.id, src.mock]));
     return screens.map((s) => {
       if (s.root === undefined) {
         return s;
       }
       if (!byRoot.has(s.root)) {
-        byRoot.set(s.root, localizeTree(s.root, messages, look.localize));
+        byRoot.set(s.root, bindMocks(localizeTree(s.root, messages, look.localize), mocks, look.mockStates));
       }
       return { ...s, root: byRoot.get(s.root) };
     });

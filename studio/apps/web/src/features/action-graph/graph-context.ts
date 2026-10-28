@@ -19,6 +19,8 @@ export interface GraphContextValue {
   readonly problems: ReadonlyMap<string, readonly Problem[]>;
   /** The PXL language service source for one input of a step; undefined when the service is not ready. */
   readonly pxlSource: (step: Step, field: StepField) => PxlEditorSource | undefined;
+  /** Adds the catalogue entry with this key where the pointer was dropped; one undo step. */
+  readonly dropEntry: (key: string, at: import("./graph-model.ts").Point) => void;
   readonly location: import("./graph-model.ts").GraphLocation;
 }
 

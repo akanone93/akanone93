@@ -28,6 +28,25 @@ export interface Step {
   readonly onSuccess?: string;
   readonly onError?: string;
   readonly branches?: Readonly<Record<string, string>>;
+  /** Where the editor drew the step (SCH-004: `x-` properties are kept and ignored by the compiler). */
+  readonly "x-position"?: Obj;
+}
+
+/** The drag type of a catalogue entry; its value is the entry's key. */
+export const ENTRY_DRAG_TYPE = "application/x-plux-action";
+
+/** A point of the graph canvas, in flow units. */
+export interface Point {
+  readonly x: number;
+  readonly y: number;
+}
+
+/** The position saved with a step, or undefined when it has none or the document holds something else. */
+export function savedPosition(step: Step): Point | undefined {
+  const p = step["x-position"];
+  return p !== undefined && Number.isFinite(p["x"]) && Number.isFinite(p["y"])
+    ? { x: p["x"] as number, y: p["y"] as number }
+    : undefined;
 }
 
 /** An editable value of a step: a path below `input`, its type and what it means. */
@@ -326,27 +345,40 @@ export function freshId(steps: readonly Step[], action: string): string {
   }
 }
 
-/** Appends a step for `entry` and, when `after` names a step with a free first port, continues from it. */
+/** The document form of a position; JSON cannot hold a coordinate that is not a finite number, so there is none then. */
+const positionValue = (p: Point): Obj | undefined =>
+  Number.isFinite(p.x) && Number.isFinite(p.y) ? { x: Math.round(p.x), y: Math.round(p.y) } : undefined;
+
+function place(step: Obj, p: Point): void {
+  const value = positionValue(p);
+  if (value !== undefined) {
+    step["x-position"] = value;
+  }
+}
+
+/** Saves where steps were drawn, all in one recipe so a drag of several steps is one undo step. */
+export function setPositionsRecipe(loc: GraphLocation, positions: ReadonlyMap<string, Point>): Recipe {
+  return withSteps(loc, (steps) => {
+    for (const step of steps) {
+      const at = positions.get(String(step["id"]));
+      if (at !== undefined) {
+        place(step, at);
+      }
+    }
+  });
+}
+
+/** Appends a step for `entry` and, when `after` names a step with a free first port, continues from it. A step added at `at` is drawn there. */
 export function addStepRecipe(
   loc: GraphLocation,
   entry: CatalogueEntry,
   id: string,
   catalogue: readonly CatalogueEntry[],
   after?: string,
+  at?: Point,
 ): Recipe {
   return withSteps(loc, (steps) => {
-    const step: Obj = { id, action: entry.action };
-    const required = entry.fields.filter((f) => f.required && f.path.length === 1);
-    const input: Obj = { ...entry.preset };
-    for (const f of required) {
-      const name = f.path[0];
-      if (name !== undefined && !(name in input)) {
-        input[name] = defaultFor(f.type);
-      }
-    }
-    if (Object.keys(input).length > 0) {
-      step["input"] = input;
-    }
+    const step = newStep(entry, id, at);
     const prev = after === undefined ? undefined : steps.find((s) => s["id"] === after);
     steps.push(step);
     if (prev !== undefined) {
@@ -356,6 +388,25 @@ export function addStepRecipe(
       }
     }
   });
+}
+
+/** The document form of a new step: the entry's fixed inputs, a neutral value for each required one, and where it is drawn. */
+function newStep(entry: CatalogueEntry, id: string, at: Point | undefined): Obj {
+  const step: Obj = { id, action: entry.action };
+  const input: Obj = { ...entry.preset };
+  for (const f of entry.fields.filter((x) => x.required && x.path.length === 1)) {
+    const name = f.path[0];
+    if (name !== undefined && !(name in input)) {
+      input[name] = defaultFor(f.type);
+    }
+  }
+  if (Object.keys(input).length > 0) {
+    step["input"] = input;
+  }
+  if (at !== undefined) {
+    place(step, at);
+  }
+  return step;
 }
 
 function firstFreePort(prev: Obj, catalogue: readonly CatalogueEntry[]): Port | undefined {

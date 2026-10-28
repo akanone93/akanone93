@@ -18,6 +18,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import { shellMessages } from "../../shell.messages.ts";
 import { createPendingCounter, PendingChangesProvider, usePendingTotal } from "../editor/pending-changes.tsx";
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
+import { AppNav } from "./app-nav.tsx";
 import { CommandPalette } from "./command-palette.tsx";
 import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
@@ -60,7 +61,7 @@ export function ShellLayout() {
   const m = chromeMessages(i18n);
   const { session } = useApp();
   const router = useRouter();
-  const org = (useParams({ strict: false }) as { org?: string }).org;
+  const { org, app } = useParams({ strict: false }) as { org?: string; app?: string };
   const online = useOnline();
   const events = useStudioEvents();
   const version = useServerVersion(events.state);
@@ -155,6 +156,7 @@ export function ShellLayout() {
                 ]}
               />
             </GlassCapsule>
+            {org !== undefined && app !== undefined && <AppNav org={org} app={app} permissions={permissions} />}
           </header>
           <main className="flex-1 p-6">
             <Outlet />

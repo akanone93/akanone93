@@ -74,6 +74,8 @@ export interface PreviewRender {
   readonly platform: FramePlatform;
   readonly locale: string;
   readonly brandOverlay: string;
+  /** The mock state selected for each data source (DAT-080). */
+  readonly mockStates: Readonly<Record<string, MockState>>;
   /** Transforms a catalogue string for the pseudo-locales (I18N-010); other locales leave it unchanged. */
   readonly localize: (text: string) => string;
 }
@@ -88,6 +90,7 @@ export function previewRender(state: PreviewState, framePlatform: FramePlatform)
     platform: state.platform === "" ? framePlatform : state.platform,
     locale: state.locale,
     brandOverlay: state.brandOverlay,
+    mockStates: state.mockStates,
     localize,
   };
 }
