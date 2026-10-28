@@ -6,9 +6,14 @@ package release_test
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"io/fs"
+	"strings"
 	"sync"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -72,6 +77,23 @@ func (r *fakeRenderer) Render(_ context.Context, in releasereq.RenderInput) ([]r
 	return []releasereq.Screen{{PluginKey: "loans", Screen: "home", Device: in.Devices[0], Before: []byte("old"), After: []byte("new")}}, nil
 }
 
+// fakeSources hands out two projects, or fails.
+type fakeSources struct {
+	mu    sync.Mutex
+	err   error
+	calls []map[string]int64
+}
+
+func (s *fakeSources) Projects(_ context.Context, _ pgx.Tx, _, _, _ string, built map[string]int64) (before, after fs.FS, err error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.calls = append(s.calls, built)
+	if s.err != nil {
+		return nil, nil, s.err
+	}
+	return fstest.MapFS{"app.json": {Data: []byte(`{"v":1}`)}}, fstest.MapFS{"app.json": {Data: []byte(`{"v":2}`)}}, nil
+}
+
 // fakeReleaser records the releases it makes.
 type fakeReleaser struct {
 	created, promoted int
@@ -112,6 +134,7 @@ type reqKit struct {
 	renderer *fakeRenderer
 	releaser *fakeReleaser
 	gate     *stubGate
+	sources  *fakeSources
 }
 
 func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
@@ -121,13 +144,13 @@ func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
 	if err != nil {
 		t.Fatal(err)
 	}
-	k := &reqKit{builds: fakeBuilds{}, queue: &fakeQueue{}, renderer: &fakeRenderer{}, releaser: &fakeReleaser{}, gate: &stubGate{request: approvalID}}
+	k := &reqKit{builds: fakeBuilds{}, queue: &fakeQueue{}, renderer: &fakeRenderer{}, releaser: &fakeReleaser{}, gate: &stubGate{request: approvalID}, sources: &fakeSources{}}
 	set, err := limits.Defaults().Tighten(limits.RenderVisualDiffJobsPerOrganization, limits.ScopeInstallation, limit)
 	if err != nil {
 		t.Fatal(err)
 	}
 	k.svc = releasereq.New(releasereq.Options{
-		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: k.gate, Renderer: k.renderer,
+		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: k.gate, Renderer: k.renderer, Sources: k.sources,
 		Limits: func(context.Context, pgx.Tx, string) (limits.Set, error) { return set, nil },
 	})
 	return k
@@ -472,5 +495,140 @@ func TestVisualDiffRateLimit_STU_100(t *testing.T) {
 	}
 	if len(k.renderer.inputs) != 2 || len(k.renderer.inputs[0].Devices) == 0 {
 		t.Errorf("renderer inputs = %+v", k.renderer.inputs)
+	}
+}
+
+// toDiffsStep opens a request on a channel and walks it to the diffs step with
+// one built version of the loans plugin, and returns it.
+func toDiffsStep(t *testing.T, f *fixture, k *reqKit, channel string, version int64) releasereq.Request {
+	t.Helper()
+	ctx := context.Background()
+	sel := []releasereq.Selected{{PluginKey: "loans", Reason: "changed"}}
+	r, _, err := k.svc.Create(ctx, f.owner, releasereq.CreateInput{AppID: f.app, EnvironmentID: f.envs["development"].ID, Channel: channel, Plugins: sel})
+	if err != nil {
+		t.Fatal(err)
+	}
+	job := "job-" + channel
+	k.builds[job] = releasereq.Build{State: "succeeded", PluginKey: "loans", Version: version, BundleSHA256: "aa"}
+	for _, step := range []releasereq.Step{
+		{Kind: releasereq.StateSelect, Selection: sel},
+		{Kind: releasereq.StateBuild, Builds: []releasereq.BuildRef{{PluginKey: "loans", JobID: job}}},
+		{Kind: releasereq.StateReports},
+	} {
+		if r, err = k.svc.Advance(ctx, f.owner, f.app, r.ID, step); err != nil {
+			t.Fatalf("%s: %v", step.Kind, err)
+		}
+	}
+	return r
+}
+
+// Verifies: STU-100, SRV-052.
+// The render job is given the projects before and after the request, read in
+// a transaction of their own, and the limits of its organisation; a project
+// that cannot be read puts the job back in the queue instead of failing it,
+// and the next attempt renders it.
+func TestRenderJobGetsTheProjects_STU_100(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	k := f.requests(t, 2)
+	ctx := context.Background()
+	r := toDiffsStep(t, f, k, "production", 3)
+	if _, err := k.svc.RequestDiff(ctx, f.owner, f.app, r.ID); err != nil {
+		t.Fatal(err)
+	}
+	job := k.queue.jobs[0]
+
+	k.sources.err = errors.New("blob store unavailable")
+	if err := k.svc.RunRender(ctx, job); err == nil {
+		t.Fatal("RunRender succeeded although the sources could not be read")
+	}
+	if len(k.renderer.inputs) != 0 {
+		t.Fatalf("the renderer ran without sources: %+v", k.renderer.inputs)
+	}
+	if d, found, err := k.svc.Diff(ctx, f.owner, f.app, r.ID); err != nil || !found || d.State != releasereq.DiffQueued {
+		t.Fatalf("after the failed read the job is %+v (found %v, %v); want queued", d, found, err)
+	}
+
+	k.sources.err = nil
+	if err := k.svc.RunRender(ctx, job); err != nil {
+		t.Fatalf("the second attempt: %v", err)
+	}
+	if len(k.renderer.inputs) != 1 {
+		t.Fatalf("renderer inputs = %d", len(k.renderer.inputs))
+	}
+	in := k.renderer.inputs[0]
+	if in.Before == nil || in.After == nil || in.AppID != f.app || in.Channel != "production" || in.Limits.IsZero() {
+		t.Errorf("render input = %+v", in)
+	}
+	if got := k.sources.calls[len(k.sources.calls)-1]; len(got) != 1 || got["loans"] != 3 {
+		t.Errorf("the sources were asked for %v; want the built version of loans", got)
+	}
+	if d, _, err := k.svc.Diff(ctx, f.owner, f.app, r.ID); err != nil || d.State != releasereq.DiffSucceeded {
+		t.Errorf("the job did not finish: %+v, %v", d, err)
+	}
+}
+
+// Verifies: STU-100, SRV-022.
+// A rendered image is read by its hash with plugin.read on the app: the hash
+// must belong to the request's current diff, and another organisation, another
+// request's image or an unknown or malformed hash is not found.
+func TestVisualDiffImageRead_STU_100(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	k := f.requests(t, 2)
+	ctx := context.Background()
+	sha := func(b string) string { sum := sha256.Sum256([]byte(b)); return hex.EncodeToString(sum[:]) }
+
+	r := toDiffsStep(t, f, k, "production", 1)
+	if _, err := k.svc.Image(ctx, f.owner, f.app, r.ID, sha("new")); !codeIs(err, plxerr.ResourceNotFound) {
+		t.Errorf("an image before any diff: %v", err)
+	}
+	if _, err := k.svc.RequestDiff(ctx, f.owner, f.app, r.ID); err != nil {
+		t.Fatal(err)
+	}
+	if err := k.svc.RunRender(ctx, k.queue.jobs[0]); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, want := range []string{"old", "new"} {
+		got, err := k.svc.Image(ctx, f.owner, f.app, r.ID, sha(want))
+		if err != nil || string(got) != want {
+			t.Errorf("Image(%s) = %q, %v", want, got, err)
+		}
+	}
+	if got, err := k.svc.Image(ctx, f.viewer, f.app, r.ID, sha("new")); err != nil || string(got) != "new" {
+		t.Errorf("a viewer reads the image: %q, %v; plugin.read is enough", got, err)
+	}
+	for name, hash := range map[string]string{"an image the diff does not name": sha("other"), "upper case": strings.ToUpper(sha("new"))} {
+		if _, err := k.svc.Image(ctx, f.owner, f.app, r.ID, hash); err == nil {
+			t.Errorf("%s was served", name)
+		}
+	}
+	if _, err := k.svc.Image(ctx, f.owner, f.app, r.ID, "not-a-hash"); !codeIs(err, plxerr.InvalidFormat) {
+		t.Errorf("a malformed hash: %v", err)
+	}
+
+	// Another request of the same app cannot read this request's images: its
+	// diff names no such hash.
+	beta := toDiffsStep(t, f, k, "beta", 2)
+	if _, err := k.svc.RequestDiff(ctx, f.owner, f.app, beta.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := k.svc.Image(ctx, f.owner, f.app, beta.ID, sha("new")); !codeIs(err, plxerr.ResourceNotFound) {
+		t.Errorf("an image through a request whose diff has not run: %v", err)
+	}
+
+	// Another organisation finds neither the request nor the image.
+	admin := auth.Identity{Kind: auth.KindUser, ID: f.owner.UserID, UserID: f.owner.UserID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
+	other, err := f.tenancy.CreateOrganization(ctx, admin, "other-img", "Other")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stranger, err := f.auth.Resolve(ctx, admin, other.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := k.svc.Image(ctx, stranger, f.app, r.ID, sha("new")); err == nil {
+		t.Error("another organisation read an image")
 	}
 }

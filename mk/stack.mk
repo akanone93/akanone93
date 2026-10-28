@@ -17,7 +17,7 @@ DEV_CA      := $(abspath $(COMPOSE_DIR))/.secrets/tls/ca.crt
 compose-secrets: ## Generate the stack's credentials into deploy/compose/.secrets on first run
 	@$(COMPOSE_DIR)/init-secrets.sh
 
-compose-up: compose-secrets ## Start the single-node stack: server, function runner and egress, PostgreSQL, SeaweedFS, Valkey, OTel, Prometheus, Grafana; COMPOSE_PROFILES=functions adds the builder (DEP-002)
+compose-up: compose-secrets studio-image-inputs ## Start the single-node stack: server, function runner and egress, PostgreSQL, SeaweedFS, Valkey, OTel, Prometheus, Grafana; COMPOSE_PROFILES=functions adds the builder (DEP-002)
 	$(COMPOSE) up -d --build --wait
 	@echo "Plux Server: https://localhost:8080  Grafana: http://localhost:3000  Prometheus: http://localhost:9090"
 
@@ -69,7 +69,7 @@ dev-app: ## Run the starter app against the dev stack with Flutter hot reload: r
 # COMPOSE_OVERLAY adds a Compose file for compose-seed (dev or load).
 COMPOSE_OVERLAY ?=
 
-compose-seed: compose-secrets ## Start the stack and, on first run, seed an administrator, the loan calculator and the starter app promoted to staging
+compose-seed: compose-secrets studio-image-inputs ## Start the stack and, on first run, seed an administrator, the loan calculator and the starter app promoted to staging
 	$(COMPOSE) $(if $(COMPOSE_OVERLAY),-f $(COMPOSE_OVERLAY)) up -d --build --wait
 	@if [ ! -s $(COMPOSE_DIR)/.secrets/dev.env ]; then \
 		umask 077; \

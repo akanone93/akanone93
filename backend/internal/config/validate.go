@@ -76,6 +76,7 @@ func (c *Config) Validate() error {
 	c.validateFnRunner(&p)
 	c.validateFunctions(&p)
 	c.validateBuilder(&p)
+	c.validateRenderWorker(&p)
 	c.validateLicense(&p)
 	c.validateNotifications(&p)
 	c.validateFederation(&p)

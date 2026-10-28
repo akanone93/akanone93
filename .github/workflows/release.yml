@@ -8,7 +8,14 @@
 #     SHA256SUMS signed keylessly with cosign, a Homebrew formula and a Scoop
 #     manifest, and SLSA v1.0 Build Level 3 provenance for every archive;
 #   - multi-arch distroless images of plux-server and plux on GHCR, signed
-#     with cosign, with a CycloneDX SBOM attestation and SLSA provenance.
+#     with cosign, with a CycloneDX SBOM attestation and SLSA provenance;
+#   - the render worker image (O-9), which holds the plux CLI and the Flutter
+#     toolchain for the visual diffs, signed and attested the same way.
+# A studio release ships the multi-arch Studio image (DEP-001, CI-006), built
+# reproducibly (every timestamp is the commit date) and signed and attested
+# the same way. The legal reviews of P11 O-7 are conditions of releasing
+# either: the maintainer pushes no studio tag and no backend tag with the
+# render worker before they are closed.
 # The SLSA generators are referenced by tag, not commit: they verify their
 # own ref to produce Build Level 3 provenance and refuse a commit reference.
 
@@ -51,6 +58,7 @@ jobs:
     outputs:
       hashes: ${{ steps.hashes.outputs.hashes }}
       backend: ${{ steps.component.outputs.backend }}
+      studio: ${{ steps.component.outputs.studio }}
       version: ${{ steps.component.outputs.version }}
       package: ${{ steps.component.outputs.package }}
     steps:
@@ -89,6 +97,7 @@ jobs:
         run: |
           echo "version=${TAG#*/v}" >> "$GITHUB_OUTPUT"
           if [ "${TAG%%/v*}" = backend ]; then echo "backend=true" >> "$GITHUB_OUTPUT"; fi
+          if [ "${TAG%%/v*}" = studio ]; then echo "studio=true" >> "$GITHUB_OUTPUT"; fi
           case "${TAG%%/v*}" in plux_flutter | plux_devtools) echo "package=${TAG%%/v*}" >> "$GITHUB_OUTPUT" ;; esac
       - run: pipx install "git-cliff==${GIT_CLIFF_VERSION}"
       # Verifies: DEP-030.
@@ -231,6 +240,73 @@ jobs:
     with:
       image: ${{ needs.image-cli.outputs.name }}
       digest: ${{ needs.image-cli.outputs.digest }}
+      registry-username: ${{ github.actor }}
+    secrets:
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  image-studio:
+    name: Image plux-studio
+    needs: release
+    if: needs.release.outputs.studio == 'true'
+    permissions:
+      contents: read
+      packages: write # push to GHCR
+      id-token: write # keyless cosign signatures
+    uses: ./.github/workflows/image.yml # zizmor: ignore[self-repository] — actionlint 1.7.12 does not accept the $/ form yet
+    with:
+      image: plux-studio
+      dockerfile: studio/Dockerfile
+      version: ${{ needs.release.outputs.version }}
+      stage-canvaskit: true
+      rewrite-timestamp: true
+
+  provenance-studio:
+    name: Image provenance plux-studio
+    needs: image-studio
+    permissions:
+      actions: read # the generator reads the workflow run
+      id-token: write # sign the provenance
+      packages: write # push it next to the image
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0 # zizmor: ignore[unpinned-uses] — must be a tag, see the header
+    with:
+      image: ${{ needs.image-studio.outputs.name }}
+      digest: ${{ needs.image-studio.outputs.digest }}
+      registry-username: ${{ github.actor }}
+    secrets:
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  image-render-worker:
+    name: Image plux-render-worker
+    needs: release
+    if: needs.release.outputs.backend == 'true'
+    permissions:
+      contents: read
+      packages: write # push to GHCR
+      id-token: write # keyless cosign signatures
+    uses: ./.github/workflows/image.yml # zizmor: ignore[self-repository] — actionlint 1.7.12 does not accept the $/ form yet
+    with:
+      image: plux-render-worker
+      dockerfile: deploy/render-worker/Dockerfile
+      version: ${{ needs.release.outputs.version }}
+      # The version and the SHA-256 of its linux archive (Flutter's
+      # releases_linux.json); the image refuses an archive that differs. A
+      # reusable workflow's inputs cannot read env, so they change together
+      # with FLUTTER_VERSION above and the Makefile (ci.md).
+      build-args: |
+        FLUTTER_VERSION=3.47.5
+        FLUTTER_SHA256=2132e990f236f8d22e7c6314b29a191a95b10d7cbcfec9b4e2e303d996652cbb
+
+  provenance-render-worker:
+    name: Image provenance plux-render-worker
+    needs: image-render-worker
+    permissions:
+      actions: read # the generator reads the workflow run
+      id-token: write # sign the provenance
+      packages: write # push it next to the image
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0 # zizmor: ignore[unpinned-uses] — must be a tag, see the header
+    with:
+      image: ${{ needs.image-render-worker.outputs.name }}
+      digest: ${{ needs.image-render-worker.outputs.digest }}
       registry-username: ${{ github.actor }}
     secrets:
       registry-password: ${{ secrets.GITHUB_TOKEN }}

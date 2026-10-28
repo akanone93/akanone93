@@ -5128,7 +5128,13 @@ msgstr "مزوّدو الهوية"
 msgid "admin.ssoCaption"
 msgstr "مزوّدو الهوية لهذه المؤسسة والرموز التي تتيح للدليل توفير الأشخاص."
 
-#. Shown for a rendered screen image with its short hash; the image itself is not served to Studio.
+#. Shown instead of a thumbnail when the stored image could not be fetched; the short hash names it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbFailed"
+msgstr "تعذّر تحميل الصورة {sha}"
+
+#. Caption under a rendered screen image: its short hash, which names the stored image.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.thumbStored"
@@ -9143,6 +9149,12 @@ msgstr "إنشاء الفرق المرئي"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffSucceeded"
 msgstr "تم الإنشاء"
+
+#. Alternative text of a rendered screen thumbnail; side is Before or After.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbAlt"
+msgstr "الشاشة المعروضة: {side}"
 
 #. Visual diff running.
 #. js-lingui-explicit-id

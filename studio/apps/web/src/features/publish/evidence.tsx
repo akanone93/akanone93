@@ -7,6 +7,7 @@ import { StatusPill } from "@plux/ui";
 import type { ReactElement } from "react";
 import { evidenceMessages } from "./evidence.messages.ts";
 import type { PluginEvidence } from "./use-evidence.ts";
+import { useDiffImage } from "./use-publish.ts";
 
 type Messages = ReturnType<typeof evidenceMessages>;
 
@@ -153,26 +154,48 @@ function shortHash(sha: string): string {
   return sha.slice(0, 8);
 }
 
-function Tile({ label, sha }: { readonly label: string; readonly sha: string }): ReactElement {
+function Tile({
+  label,
+  sha,
+  appId,
+  requestId,
+}: {
+  readonly label: string;
+  readonly sha: string;
+  readonly appId: string;
+  readonly requestId: string;
+}): ReactElement {
   const m = evidenceMessages(useLingui().i18n);
+  const image = useDiffImage(appId, requestId, sha);
   return (
     <figure className="flex min-w-32 flex-col gap-1 rounded-sm border border-hairline bg-raised p-2">
       <figcaption className="text-caption text-secondary">{label}</figcaption>
-      <span className="font-mono text-tag">{sha === "" ? m.thumbNone : m.thumbStored(shortHash(sha))}</span>
+      {image.url !== undefined && <img src={image.url} alt={m.thumbAlt(label)} className="w-40 rounded-sm" />}
+      <span className="font-mono text-tag">
+        {sha === "" ? m.thumbNone : image.failed ? m.thumbFailed(shortHash(sha)) : m.thumbStored(shortHash(sha))}
+      </span>
     </figure>
   );
 }
 
 /**
- * Before and after of one rendered screen. The diff job returns the hashes of the PNGs in object storage and no way
- * to fetch them, so a tile names the stored image instead of drawing it.
+ * Before and after of one rendered screen: the thumbnails are fetched by hash from the server's store with the
+ * caller's read access, and the short hash stays beneath each as its name.
  */
-export function ScreenTiles({ screen }: { readonly screen: VisualDiffScreen }): ReactElement {
+export function ScreenTiles({
+  screen,
+  appId,
+  requestId,
+}: {
+  readonly screen: VisualDiffScreen;
+  readonly appId: string;
+  readonly requestId: string;
+}): ReactElement {
   const m = evidenceMessages(useLingui().i18n);
   return (
     <div className="flex flex-wrap gap-2">
-      <Tile label={m.thumbBefore} sha={screen.beforeSha256} />
-      <Tile label={m.thumbAfter} sha={screen.afterSha256} />
+      <Tile label={m.thumbBefore} sha={screen.beforeSha256} appId={appId} requestId={requestId} />
+      <Tile label={m.thumbAfter} sha={screen.afterSha256} appId={appId} requestId={requestId} />
     </div>
   );
 }

@@ -293,6 +293,9 @@ func addWorkerDeps(ctx context.Context, cfg *config.Config, log *slog.Logger, st
 	if err := attachBuilder(cfg, store, deps); err != nil {
 		return err
 	}
+	if err := attachRenderer(cfg, deps); err != nil {
+		return err
+	}
 	if o.builder != nil {
 		deps.Builder, deps.Linker, deps.FunctionKey = o.builder, o.linker, cfg.Signing.Keys.FunctionArtifact
 	}

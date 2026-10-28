@@ -29,6 +29,7 @@ plugins:
     exclude_types:
       - plux.internal.pkcs11.v1
       - plux.internal.fn.v1
+      - plux.internal.render.v1
   - local: ["../studio/node_modules/.bin/protoc-gen-es"]
     out: ../studio/packages/api/src/gen
     opt:
@@ -38,3 +39,4 @@ plugins:
     exclude_types:
       - plux.internal.pkcs11.v1
       - plux.internal.fn.v1
+      - plux.internal.render.v1

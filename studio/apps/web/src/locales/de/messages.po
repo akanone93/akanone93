@@ -5128,7 +5128,13 @@ msgstr "Identitätsanbieter"
 msgid "admin.ssoCaption"
 msgstr "Identitätsanbieter dieser Organisation und die Token, mit denen ein Verzeichnis Personen bereitstellt."
 
-#. Shown for a rendered screen image with its short hash; the image itself is not served to Studio.
+#. Shown instead of a thumbnail when the stored image could not be fetched; the short hash names it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbFailed"
+msgstr "Bild {sha} konnte nicht geladen werden"
+
+#. Caption under a rendered screen image: its short hash, which names the stored image.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.thumbStored"
@@ -9143,6 +9149,12 @@ msgstr "Visuellen Vergleich rendern"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffSucceeded"
 msgstr "Gerendert"
+
+#. Alternative text of a rendered screen thumbnail; side is Before or After.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.thumbAlt"
+msgstr "Gerendeter Bildschirm: {side}"
 
 #. Visual diff running.
 #. js-lingui-explicit-id

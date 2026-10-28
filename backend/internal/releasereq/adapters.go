@@ -6,6 +6,9 @@ package releasereq
 import (
 	"context"
 	"fmt"
+	"io/fs"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -67,4 +70,15 @@ func (m ReleaseMaker) Create(ctx context.Context, p auth.Principal, appID, envir
 func (m ReleaseMaker) Promote(ctx context.Context, p auth.Principal, appID string, sequence int64, environmentID, channel string) error {
 	_, err := m.Releases.PromoteRelease(ctx, p, appID, sequence, environmentID, channel)
 	return err //nolint:wrapcheck // a domain error
+}
+
+// ReleaseSources reads the projects of a visual diff from the release
+// service (O-9).
+type ReleaseSources struct{ Releases *release.Service }
+
+var _ Sources = ReleaseSources{}
+
+// Projects implements Sources.
+func (r ReleaseSources) Projects(ctx context.Context, tx pgx.Tx, appID, environmentID, channel string, built map[string]int64) (before, after fs.FS, err error) {
+	return r.Releases.ProjectFiles(ctx, tx, appID, environmentID, channel, built) //nolint:wrapcheck // a domain error
 }

@@ -7,9 +7,9 @@
 // Vite then emits both as hashed assets. The staged files are not committed.
 
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 /** Flutter 3.47.5's CanvasKit; changes together with the Flutter pin (ci.md). */
 export const PINNED: Readonly<Record<string, string>> = {
@@ -29,10 +29,28 @@ export function stage(source: string, target: string): void {
   }
 }
 
+const WEB_SDK = "bin/cache/flutter_web_sdk/canvaskit";
+
+/**
+ * Where the pinned CanvasKit is: PLUX_CANVASKIT_DIR, else the SDK that `make setup` installs, else the
+ * SDK of the `flutter` on the PATH (CI installs it there, with `flutter precache --web`). Each file is
+ * checked against its pinned SHA-256 either way, so a SDK of another version is refused.
+ */
+export function defaultSource(): string {
+  const fromEnv = process.env["PLUX_CANVASKIT_DIR"];
+  if (fromEnv) {
+    return fromEnv;
+  }
+  const installed = join(homedir(), ".cache/plux/flutter-3.47.5", WEB_SDK);
+  if (existsSync(installed)) {
+    return installed;
+  }
+  const flutter = Bun.which("flutter");
+  return flutter ? join(dirname(dirname(realpathSync(flutter))), WEB_SDK) : installed;
+}
+
 if (import.meta.main) {
-  const source =
-    process.env["PLUX_CANVASKIT_DIR"] ??
-    join(homedir(), ".cache/plux/flutter-3.47.5/bin/cache/flutter_web_sdk/canvaskit");
+  const source = defaultSource();
   // `--to <dir>` stages for the image build context instead of the web app (mk/studio.mk).
   const to = process.argv[2] === "--to" ? process.argv[3] : undefined;
   stage(source, to ?? new URL("../apps/web/src/features/plugin-canvas/canvaskit", import.meta.url).pathname);
