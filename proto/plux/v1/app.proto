@@ -67,6 +67,19 @@ message App {
   repeated string tags = 11;
   // archived apps are left out of ListApps unless include_archived is set.
   bool archived = 12;
+  // host_fonts lists the font files the host app bundles and the plugins
+  // use by name; Studio's canvas loads them from the app's assets so its
+  // text is laid out with the device's fonts (STU-006).
+  repeated HostFont host_fonts = 13;
+}
+
+// HostFont names one font file of the host app: the family the device
+// uses it by and the app asset that holds the same file.
+message HostFont {
+  // family is the font family name, at most 200 characters.
+  string family = 1;
+  // asset_id names a live font asset (TrueType or OpenType) of the app.
+  string asset_id = 2;
 }
 
 // Environment isolates variables, secrets, data-source URLs, signing keys
@@ -159,6 +172,10 @@ message UpdateAppRequest {
   string name = 2;
   string default_plugin_key = 3;
   MetadataUpdate metadata = 4;
+  // set_host_fonts replaces the app's host_fonts with the list below, which
+  // may be empty; at most app.hostFonts entries.
+  bool set_host_fonts = 5;
+  repeated HostFont host_fonts = 6;
 }
 message UpdateAppResponse {
   App app = 1;

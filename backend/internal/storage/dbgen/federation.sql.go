@@ -610,7 +610,7 @@ func (q *Queries) ExpireScimToken(ctx context.Context, arg ExpireScimTokenParams
 }
 
 const getAppByKey = `-- name: GetAppByKey :one
-SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at FROM apps WHERE key = $1 AND deleted_at IS NULL
+SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts FROM apps WHERE key = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetAppByKey(ctx context.Context, key string) (App, error) {
@@ -630,6 +630,7 @@ func (q *Queries) GetAppByKey(ctx context.Context, key string) (App, error) {
 		&i.OwningTeamID,
 		&i.Tags,
 		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }

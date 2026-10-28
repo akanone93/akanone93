@@ -273,6 +273,10 @@ export interface UpstreamData {
   testRuns?: TestRunsFixture;
   /** Names of the app's uploaded assets (ListAssets), e.g. translation-context screenshots. */
   assets?: string[];
+  /** TrueType font assets of the app (`font-<n>`), listed after `assets`. */
+  fontAssets?: string[];
+  /** The font files of the host app the app lists; `updateApp` replaces them when it sets them. */
+  hostFonts?: { family: string; assetId: string }[];
   experiments?: ExperimentsFixture;
   release?: ReleaseFixture;
   releases?: ReleasesFixture;
@@ -466,7 +470,15 @@ export function createUpstream(state: UpstreamData) {
       },
     });
     service(AppService, {
-      getApp: () => ({ app: { id: "app1", name: "App", defaultPluginKey: "" } }),
+      getApp: () => ({ app: { id: "app1", name: "App", defaultPluginKey: "", hostFonts: state.hostFonts ?? [] } }),
+      updateApp: (req) => {
+        if (req.setHostFonts) {
+          state.hostFonts = req.hostFonts.map((f) => ({ family: f.family, assetId: f.assetId }));
+        }
+        return {
+          app: { id: req.id, name: req.name, defaultPluginKey: req.defaultPluginKey, hostFonts: state.hostFonts ?? [] },
+        };
+      },
       listEnvironments: () => ({
         environments: [
           { id: "env-prod", key: "production", production: true },
@@ -649,9 +661,14 @@ export function createUpstream(state: UpstreamData) {
     });
     service(AssetService, {
       listAssets: () => ({
-        assets: (state.assets ?? []).map((name, i) =>
-          create(AssetSchema, { id: `asset-${i}`, name, mediaType: "image/png", size: 1n }),
-        ),
+        assets: [
+          ...(state.assets ?? []).map((name, i) =>
+            create(AssetSchema, { id: `asset-${i}`, name, mediaType: "image/png", size: 1n }),
+          ),
+          ...(state.fontAssets ?? []).map((name, i) =>
+            create(AssetSchema, { id: `font-${i}`, name, mediaType: "font/ttf", size: 1n }),
+          ),
+        ],
       }),
     });
     service(DocumentService, {
