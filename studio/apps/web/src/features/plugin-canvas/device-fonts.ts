@@ -53,10 +53,11 @@ export async function deviceFontSources(
 export function useDeviceFonts(appId: string | undefined): () => Promise<readonly FontSource[]> {
   const { session } = useApp();
   const assets = useMemo(() => createClient(AssetService, session.transport), [session.transport]);
-  const ref = useRef(appId ?? "");
-  ref.current = appId ?? "";
+  const ref = useRef({ id: appId ?? "", assets });
+  ref.current = { id: appId ?? "", assets };
+  // Stable for the same reason as useHostFonts: a new identity would remake the canvas surface.
   return useCallback(async () => {
-    const id = ref.current;
+    const { id, assets } = ref.current;
     if (id === "") {
       return [];
     }
@@ -72,5 +73,5 @@ export function useDeviceFonts(appId: string | undefined): () => Promise<readonl
     } catch {
       return [];
     }
-  }, [assets]);
+  }, []);
 }

@@ -119,7 +119,8 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     }
     CanvasHost.create(
       canvas,
-      size,
+      // Only the dimensions go to the worker: the font loaders are functions, which a message cannot carry.
+      { width: size.width, height: size.height, dpr: size.dpr },
       {
         renderer: "auto",
         tileSize: 512,
