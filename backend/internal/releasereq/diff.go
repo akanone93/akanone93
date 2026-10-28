@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
+	"slices"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -55,6 +57,14 @@ type RenderInput struct {
 	Plugins     []RenderPlugin
 	// Devices are the standard device frames of ADR-0070.
 	Devices []string
+	// AppID, EnvironmentID and Channel name where the request releases to.
+	AppID, EnvironmentID, Channel string
+	// After is the project a release of the built versions would hold, and
+	// Before the project the channel serves now, nil when it serves none, so
+	// that every screen is new. Both are nil where the service has no Sources.
+	Before, After fs.FS
+	// Limits are the limits of the request's organisation.
+	Limits limits.Set
 }
 
 // RenderPlugin is a built plugin version to render.
@@ -253,13 +263,22 @@ func (s *Service) system(ctx context.Context, org string, f func(context.Context
 	return s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: org}, f) //nolint:wrapcheck // InTx wraps its own failures
 }
 
-func (s *Service) concurrency(ctx context.Context, tx pgx.Tx, org string) (int64, error) {
+// limitSet is the effective limits of an organisation.
+func (s *Service) limitSet(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
 	set := limits.Defaults()
 	if s.o.Limits != nil {
 		var err error
 		if set, err = s.o.Limits(ctx, tx, org); err != nil {
-			return 0, fmt.Errorf("releasereq: %w", err)
+			return limits.Set{}, fmt.Errorf("releasereq: %w", err)
 		}
+	}
+	return set, nil
+}
+
+func (s *Service) concurrency(ctx context.Context, tx pgx.Tx, org string) (int64, error) {
+	set, err := s.limitSet(ctx, tx, org)
+	if err != nil {
+		return 0, err
 	}
 	return set.Get(limits.RenderVisualDiffJobsPerOrganization), nil
 }
@@ -276,14 +295,12 @@ func (s *Service) RunRender(ctx context.Context, job RenderJob) error {
 	if err != nil || !started {
 		return err
 	}
+	if err := s.loadSources(ctx, job, &in); err != nil {
+		return s.requeueAfter(ctx, job, "the sources could not be read", err)
+	}
 	screens, err := s.o.Renderer.Render(ctx, in)
 	if err != nil {
-		if requeueErr := s.system(ctx, job.OrganizationID, func(ctx context.Context, tx pgx.Tx) error {
-			return requeue(ctx, tx, job.JobID, "the renderer failed")
-		}); requeueErr != nil {
-			return errors.Join(err, requeueErr)
-		}
-		return fmt.Errorf("releasereq: render: %w", err)
+		return s.requeueAfter(ctx, job, "the renderer failed", fmt.Errorf("releasereq: render: %w", err))
 	}
 	results, err := s.storeScreens(ctx, job.OrganizationID, screens)
 	if err != nil {
@@ -291,6 +308,33 @@ func (s *Service) RunRender(ctx context.Context, job RenderJob) error {
 	}
 	return s.system(ctx, job.OrganizationID, func(ctx context.Context, tx pgx.Tx) error {
 		return finishRender(ctx, tx, job.JobID, DiffSucceeded, results, "")
+	})
+}
+
+// requeueAfter puts a started job back in the queue after it failed with
+// cause, and returns the cause, so that the queue retries it later.
+func (s *Service) requeueAfter(ctx context.Context, job RenderJob, reason string, cause error) error {
+	if err := s.system(ctx, job.OrganizationID, func(ctx context.Context, tx pgx.Tx) error {
+		return requeue(ctx, tx, job.JobID, reason)
+	}); err != nil {
+		return errors.Join(cause, err)
+	}
+	return cause
+}
+
+// loadSources reads the two projects of the job from the service's Sources,
+// in a transaction of their own so that the claim of the job stays short.
+func (s *Service) loadSources(ctx context.Context, job RenderJob, in *RenderInput) error {
+	if s.o.Sources == nil {
+		return nil
+	}
+	built := make(map[string]int64, len(in.Plugins))
+	for _, p := range in.Plugins {
+		built[p.PluginKey] = p.Version
+	}
+	return s.system(ctx, job.OrganizationID, func(ctx context.Context, tx pgx.Tx) (err error) {
+		in.Before, in.After, err = s.o.Sources.Projects(ctx, tx, in.AppID, in.EnvironmentID, in.Channel, built)
+		return err //nolint:wrapcheck // a domain error
 	})
 }
 
@@ -328,7 +372,11 @@ func (s *Service) startRender(ctx context.Context, job RenderJob) (in RenderInpu
 		if err := s.withinLimit(ctx, tx, row); err != nil {
 			return err
 		}
-		if in, err = renderInput(ctx, q, row); err != nil {
+		set, err := s.limitSet(ctx, tx, job.OrganizationID)
+		if err != nil {
+			return err
+		}
+		if in, err = renderInput(ctx, q, row, set); err != nil {
 			return err
 		}
 		if err := q.StartVisualDiffJob(ctx, id); err != nil {
@@ -359,7 +407,7 @@ func (s *Service) withinLimit(ctx context.Context, tx pgx.Tx, row dbgen.VisualDi
 
 // renderInput is what the renderer gets for a job: the versions the request
 // built and the standard devices.
-func renderInput(ctx context.Context, q *dbgen.Queries, row dbgen.VisualDiffJob) (RenderInput, error) {
+func renderInput(ctx context.Context, q *dbgen.Queries, row dbgen.VisualDiffJob, set limits.Set) (RenderInput, error) {
 	req, err := q.GetReleaseRequestByID(ctx, row.ReleaseRequestID)
 	if err != nil {
 		return RenderInput{}, failure(err, "release request")
@@ -372,7 +420,10 @@ func renderInput(ctx context.Context, q *dbgen.Queries, row dbgen.VisualDiffJob)
 	if err != nil {
 		return RenderInput{}, fmt.Errorf("releasereq: %w", err)
 	}
-	in := RenderInput{JobID: storage.ID(row.ID), ContentHash: row.ContentHash}
+	in := RenderInput{
+		JobID: storage.ID(row.ID), ContentHash: row.ContentHash, Limits: set,
+		AppID: r.AppID, EnvironmentID: r.EnvironmentID, Channel: r.Channel,
+	}
 	for _, b := range r.Builds {
 		in.Plugins = append(in.Plugins, RenderPlugin{PluginKey: b.PluginKey, Version: b.Version, BundleSHA256: b.BundleSHA256})
 	}
@@ -487,4 +538,50 @@ func (s *Service) FailRender(ctx context.Context, job RenderJob, attempts int) e
 	return s.system(ctx, job.OrganizationID, func(ctx context.Context, tx pgx.Tx) error {
 		return finishRender(ctx, tx, job.JobID, DiffFailed, nil, fmt.Sprintf("the renderer failed after %d attempts", attempts))
 	})
+}
+
+// Image returns one PNG of the request's current visual diff by its SHA-256,
+// for the thumbnails of the diffs step. The hash must be one the newest diff
+// of the request's content names, so that a hash of another request, app or
+// organisation is not found: the request is read under row-level security,
+// and the image's key is derived from the caller's organisation. It needs
+// plugin.read, like the diff itself.
+func (s *Service) Image(ctx context.Context, p auth.Principal, appID, id, sha256Hex string) ([]byte, error) {
+	if err := authorize(p, auth.PluginRead, appID); err != nil {
+		return nil, err
+	}
+	sum, err := hex.DecodeString(sha256Hex)
+	if err != nil || len(sum) != sha256.Size || sha256Hex != hex.EncodeToString(sum) {
+		return nil, plxerr.New(plxerr.InvalidFormat, "the image hash is not a lower-case SHA-256 in hex")
+	}
+	diff, found, err := s.Diff(ctx, p, appID, id)
+	if err != nil {
+		return nil, err
+	}
+	if !found || !diff.names(sha256Hex) {
+		return nil, plxerr.New(plxerr.ResourceNotFound, "no such image in this visual diff")
+	}
+	if s.o.Objects == nil {
+		return nil, plxerr.New(plxerr.ResourceNotFound, "no such image in this visual diff")
+	}
+	key, err := imageKey(p.OrganizationID, sum)
+	if err != nil {
+		return nil, err
+	}
+	png, _, err := s.o.Objects.Get(ctx, key)
+	if errors.Is(err, objects.ErrNotFound) {
+		return nil, plxerr.New(plxerr.ResourceNotFound, "no such image in this visual diff")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("releasereq: read image: %w", err)
+	}
+	if def, ok := limits.Lookup(limits.GoldenImageBytes); ok && int64(len(png)) > def.Max {
+		return nil, fmt.Errorf("releasereq: the stored image has %d bytes; golden.imageBytes allows at most %d", len(png), def.Max)
+	}
+	return png, nil
+}
+
+// names reports whether the diff has a screen with the image of that hash.
+func (d VisualDiff) names(sha256Hex string) bool {
+	return slices.ContainsFunc(d.Screens, func(s ScreenResult) bool { return s.BeforeSHA256 == sha256Hex || s.AfterSHA256 == sha256Hex })
 }

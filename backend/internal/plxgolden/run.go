@@ -39,6 +39,10 @@ type Options struct {
 	Runtime plxtest.Dependency
 	// Limits are the limits cases and images are held to.
 	Limits limits.Set
+	// Narrow, when set, reduces the matrix the app derived before the cases
+	// are listed: a visual diff renders one locale, one theme and one text
+	// scale on the standard devices instead of the whole matrix.
+	Narrow func(Matrix) Matrix
 }
 
 // Plan is a prepared run: the Flutter project and the cases it renders.
@@ -82,6 +86,9 @@ func Prepare(o Options, out string) (*Plan, error) {
 	matrix, err := BuildMatrix(app, o.Frames)
 	if err != nil {
 		return nil, err
+	}
+	if o.Narrow != nil {
+		matrix = o.Narrow(matrix)
 	}
 	pages, dataSources := renderablePages(res.Project, app, o.Plugin)
 	if len(pages) == 0 {

@@ -217,6 +217,22 @@ func (s ReleaseRequest) RequestVisualDiff(ctx context.Context, req *connect.Requ
 	})
 }
 
+// GetVisualDiffImage returns one rendered image of the request's current
+// visual diff.
+func (s ReleaseRequest) GetVisualDiffImage(ctx context.Context, req *connect.Request[pluxv1.GetVisualDiffImageRequest]) (*connect.Response[pluxv1.GetVisualDiffImageResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetVisualDiffImageResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		png, err := s.h.ReleaseRequests.Image(ctx, p, req.Msg.GetAppId(), req.Msg.GetId(), req.Msg.GetSha256())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.GetVisualDiffImageResponse{Png: png}, nil
+	})
+}
+
 // RequestReleaseApproval is the approval step.
 func (s ReleaseRequest) RequestReleaseApproval(ctx context.Context, req *connect.Request[pluxv1.RequestReleaseApprovalRequest]) (*connect.Response[pluxv1.RequestReleaseApprovalResponse], error) {
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.RequestReleaseApprovalResponse, error) {

@@ -139,7 +139,21 @@ export function evidenceMessages(i18n: I18n) {
         id: "publish.evidence.thumbStored",
         message: "Image stored ({sha})",
         values: { sha },
-        comment: "Shown for a rendered screen image with its short hash; the image itself is not served to Studio.",
+        comment: "Caption under a rendered screen image: its short hash, which names the stored image.",
+      }),
+    thumbFailed: (sha: string) =>
+      i18n._({
+        id: "publish.evidence.thumbFailed",
+        message: "Image {sha} could not be loaded",
+        values: { sha },
+        comment: "Shown instead of a thumbnail when the stored image could not be fetched; the short hash names it.",
+      }),
+    thumbAlt: (side: string) =>
+      i18n._({
+        id: "publish.evidence.thumbAlt",
+        message: "Rendered screen: {side}",
+        values: { side },
+        comment: "Alternative text of a rendered screen thumbnail; side is Before or After.",
       }),
     thumbNone: i18n._({
       id: "publish.evidence.thumbNone",

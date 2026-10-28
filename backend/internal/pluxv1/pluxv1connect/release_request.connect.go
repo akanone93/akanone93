@@ -54,6 +54,9 @@ const (
 	// ReleaseRequestServiceRequestVisualDiffProcedure is the fully-qualified name of the
 	// ReleaseRequestService's RequestVisualDiff RPC.
 	ReleaseRequestServiceRequestVisualDiffProcedure = "/plux.v1.ReleaseRequestService/RequestVisualDiff"
+	// ReleaseRequestServiceGetVisualDiffImageProcedure is the fully-qualified name of the
+	// ReleaseRequestService's GetVisualDiffImage RPC.
+	ReleaseRequestServiceGetVisualDiffImageProcedure = "/plux.v1.ReleaseRequestService/GetVisualDiffImage"
 	// ReleaseRequestServiceRequestReleaseApprovalProcedure is the fully-qualified name of the
 	// ReleaseRequestService's RequestReleaseApproval RPC.
 	ReleaseRequestServiceRequestReleaseApprovalProcedure = "/plux.v1.ReleaseRequestService/RequestReleaseApproval"
@@ -90,6 +93,11 @@ type ReleaseRequestServiceClient interface {
 	// per organisation. Asking again while a job is queued or running returns
 	// that job. It needs release.publish.
 	RequestVisualDiff(context.Context, *connect.Request[pluxv1.RequestVisualDiffRequest]) (*connect.Response[pluxv1.RequestVisualDiffResponse], error)
+	// GetVisualDiffImage returns one rendered PNG of the request's current
+	// visual diff by its SHA-256, for the thumbnails of the diffs step. The
+	// image must be part of that diff, so a hash of another request, app or
+	// organisation is not found. It needs plugin.read.
+	GetVisualDiffImage(context.Context, *connect.Request[pluxv1.GetVisualDiffImageRequest]) (*connect.Response[pluxv1.GetVisualDiffImageResponse], error)
 	// RequestReleaseApproval is the approval step: it asks the approval engine
 	// whether the policies need approval of this content, opens a request there
 	// if they do, and moves the release request on when they are satisfied. It
@@ -151,6 +159,12 @@ func NewReleaseRequestServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithSchema(releaseRequestServiceMethods.ByName("RequestVisualDiff")),
 			connect.WithClientOptions(opts...),
 		),
+		getVisualDiffImage: connect.NewClient[pluxv1.GetVisualDiffImageRequest, pluxv1.GetVisualDiffImageResponse](
+			httpClient,
+			baseURL+ReleaseRequestServiceGetVisualDiffImageProcedure,
+			connect.WithSchema(releaseRequestServiceMethods.ByName("GetVisualDiffImage")),
+			connect.WithClientOptions(opts...),
+		),
 		requestReleaseApproval: connect.NewClient[pluxv1.RequestReleaseApprovalRequest, pluxv1.RequestReleaseApprovalResponse](
 			httpClient,
 			baseURL+ReleaseRequestServiceRequestReleaseApprovalProcedure,
@@ -180,6 +194,7 @@ type releaseRequestServiceClient struct {
 	advanceReleaseRequest  *connect.Client[pluxv1.AdvanceReleaseRequestRequest, pluxv1.AdvanceReleaseRequestResponse]
 	refreezeReleaseRequest *connect.Client[pluxv1.RefreezeReleaseRequestRequest, pluxv1.RefreezeReleaseRequestResponse]
 	requestVisualDiff      *connect.Client[pluxv1.RequestVisualDiffRequest, pluxv1.RequestVisualDiffResponse]
+	getVisualDiffImage     *connect.Client[pluxv1.GetVisualDiffImageRequest, pluxv1.GetVisualDiffImageResponse]
 	requestReleaseApproval *connect.Client[pluxv1.RequestReleaseApprovalRequest, pluxv1.RequestReleaseApprovalResponse]
 	completeReleaseRequest *connect.Client[pluxv1.CompleteReleaseRequestRequest, pluxv1.CompleteReleaseRequestResponse]
 	cancelReleaseRequest   *connect.Client[pluxv1.CancelReleaseRequestRequest, pluxv1.CancelReleaseRequestResponse]
@@ -213,6 +228,11 @@ func (c *releaseRequestServiceClient) RefreezeReleaseRequest(ctx context.Context
 // RequestVisualDiff calls plux.v1.ReleaseRequestService.RequestVisualDiff.
 func (c *releaseRequestServiceClient) RequestVisualDiff(ctx context.Context, req *connect.Request[pluxv1.RequestVisualDiffRequest]) (*connect.Response[pluxv1.RequestVisualDiffResponse], error) {
 	return c.requestVisualDiff.CallUnary(ctx, req)
+}
+
+// GetVisualDiffImage calls plux.v1.ReleaseRequestService.GetVisualDiffImage.
+func (c *releaseRequestServiceClient) GetVisualDiffImage(ctx context.Context, req *connect.Request[pluxv1.GetVisualDiffImageRequest]) (*connect.Response[pluxv1.GetVisualDiffImageResponse], error) {
+	return c.getVisualDiffImage.CallUnary(ctx, req)
 }
 
 // RequestReleaseApproval calls plux.v1.ReleaseRequestService.RequestReleaseApproval.
@@ -255,6 +275,11 @@ type ReleaseRequestServiceHandler interface {
 	// per organisation. Asking again while a job is queued or running returns
 	// that job. It needs release.publish.
 	RequestVisualDiff(context.Context, *connect.Request[pluxv1.RequestVisualDiffRequest]) (*connect.Response[pluxv1.RequestVisualDiffResponse], error)
+	// GetVisualDiffImage returns one rendered PNG of the request's current
+	// visual diff by its SHA-256, for the thumbnails of the diffs step. The
+	// image must be part of that diff, so a hash of another request, app or
+	// organisation is not found. It needs plugin.read.
+	GetVisualDiffImage(context.Context, *connect.Request[pluxv1.GetVisualDiffImageRequest]) (*connect.Response[pluxv1.GetVisualDiffImageResponse], error)
 	// RequestReleaseApproval is the approval step: it asks the approval engine
 	// whether the policies need approval of this content, opens a request there
 	// if they do, and moves the release request on when they are satisfied. It
@@ -312,6 +337,12 @@ func NewReleaseRequestServiceHandler(svc ReleaseRequestServiceHandler, opts ...c
 		connect.WithSchema(releaseRequestServiceMethods.ByName("RequestVisualDiff")),
 		connect.WithHandlerOptions(opts...),
 	)
+	releaseRequestServiceGetVisualDiffImageHandler := connect.NewUnaryHandler(
+		ReleaseRequestServiceGetVisualDiffImageProcedure,
+		svc.GetVisualDiffImage,
+		connect.WithSchema(releaseRequestServiceMethods.ByName("GetVisualDiffImage")),
+		connect.WithHandlerOptions(opts...),
+	)
 	releaseRequestServiceRequestReleaseApprovalHandler := connect.NewUnaryHandler(
 		ReleaseRequestServiceRequestReleaseApprovalProcedure,
 		svc.RequestReleaseApproval,
@@ -344,6 +375,8 @@ func NewReleaseRequestServiceHandler(svc ReleaseRequestServiceHandler, opts ...c
 			releaseRequestServiceRefreezeReleaseRequestHandler.ServeHTTP(w, r)
 		case ReleaseRequestServiceRequestVisualDiffProcedure:
 			releaseRequestServiceRequestVisualDiffHandler.ServeHTTP(w, r)
+		case ReleaseRequestServiceGetVisualDiffImageProcedure:
+			releaseRequestServiceGetVisualDiffImageHandler.ServeHTTP(w, r)
 		case ReleaseRequestServiceRequestReleaseApprovalProcedure:
 			releaseRequestServiceRequestReleaseApprovalHandler.ServeHTTP(w, r)
 		case ReleaseRequestServiceCompleteReleaseRequestProcedure:
@@ -381,6 +414,10 @@ func (UnimplementedReleaseRequestServiceHandler) RefreezeReleaseRequest(context.
 
 func (UnimplementedReleaseRequestServiceHandler) RequestVisualDiff(context.Context, *connect.Request[pluxv1.RequestVisualDiffRequest]) (*connect.Response[pluxv1.RequestVisualDiffResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ReleaseRequestService.RequestVisualDiff is not implemented"))
+}
+
+func (UnimplementedReleaseRequestServiceHandler) GetVisualDiffImage(context.Context, *connect.Request[pluxv1.GetVisualDiffImageRequest]) (*connect.Response[pluxv1.GetVisualDiffImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ReleaseRequestService.GetVisualDiffImage is not implemented"))
 }
 
 func (UnimplementedReleaseRequestServiceHandler) RequestReleaseApproval(context.Context, *connect.Request[pluxv1.RequestReleaseApprovalRequest]) (*connect.Response[pluxv1.RequestReleaseApprovalResponse], error) {

@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"io"
+	"strings"
 	"testing"
 	"time"
 
@@ -649,6 +650,9 @@ var matrix = map[string]entry{
 	})),
 	"ReleaseRequestService/RequestVisualDiff": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.RequestVisualDiffRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/GetVisualDiffImage": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetVisualDiffImageRequest{AppId: f.app, Id: unknownID, Sha256: strings.Repeat("0", 64)}
 	})),
 	"ReleaseRequestService/RequestReleaseApproval": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.RequestReleaseApprovalRequest{AppId: f.app, Id: unknownID}

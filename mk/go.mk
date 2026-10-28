@@ -20,7 +20,7 @@ GO_MODULES    := backend tools test/refapi ee/backend
 GEN_PATHS     := backend tools docs/reference packages studio/packages schema
 PROTO_DIR     := proto
 PROTO_GO_DIR  := backend/internal/pluxv1
-PROTO_INTERNAL_GO_DIR := backend/internal/pkcs11pb backend/internal/fnpb
+PROTO_INTERNAL_GO_DIR := backend/internal/pkcs11pb backend/internal/fnpb backend/internal/renderpb
 PROTO_API_DIR := docs/reference/api
 PROTO_TS_DIR  := studio/packages/api/src/gen
 # The base of `buf breaking`: the last tagged release of the contract

@@ -1,0 +1,100 @@
+Plux Studio: third-party notices
+
+This directory (/usr/share/doc/plux-studio) holds the notices of the software
+the Studio image ships beyond Plux's own code (DEP-001). Plux Studio is
+licensed AGPL-3.0-only. The legal review of this list is a condition of
+release (P11 plan O-7) and is not closed by shipping it.
+
+1. CanvasKit and Skia
+   Studio draws the canvas with CanvasKit (canvaskit.js and canvaskit.wasm),
+   the WebAssembly build of Skia that the Flutter engine ships, at the version
+   pinned by studio/scripts/stage-canvaskit.ts (Flutter 3.47.5, each file
+   checked against its SHA-256 before it enters the image). Skia is licensed
+   under the BSD 3-Clause licence below. The build also contains further
+   components that the Flutter engine lists in its own licence file (among
+   them, for example, FreeType, HarfBuzz and ICU);
+   their notices travel with the Flutter SDK of the same version, and the
+   complete enumeration for this binary is part of the open review.
+
+--------------------------------------------------------------------------
+Skia
+--------------------------------------------------------------------------
+Copyright (c) 2011 Google Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following disclaimer
+      in the documentation and/or other materials provided with the
+      distribution.
+    * Neither the name of Google Inc. nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+2. Flutter
+   The layout engine of @plux/layout ports Flutter's rendering code
+   (studio/packages/layout/src/flutter, one source revision recorded per
+   file), and CanvasKit is built from the Flutter engine. Flutter is licensed
+   under the BSD 3-Clause licence below.
+
+--------------------------------------------------------------------------
+Flutter
+--------------------------------------------------------------------------
+Copyright 2014 The Flutter Authors. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+    * Neither the name of Google Inc. nor the names of its
+      contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+3. Fonts
+   - The canvas draws device text with Roboto and Noto Sans: their SIL Open
+     Font License 1.1 texts are in the fonts/ folder of this directory.
+   - The interface fonts (Instrument Sans, Instrument Serif, Sora, DM Mono,
+     Noto Sans Arabic, Noto Naskh Arabic) come from the @fontsource packages;
+     their licence files, SIL Open Font License 1.1, are in the folders of
+     those packages below.
+   - SF Pro is not part of the image: Studio reads the copy installed on a
+     Mac through the browser's Local Font Access.
+
+4. Monaco, Phosphor and every other package
+   The licence and notice files of each production dependency of the Studio
+   workspace, among them monaco-editor (MIT), @phosphor-icons/core (MIT),
+   React, CodeMirror, TanStack and Lingui, are copied unmodified into one
+   folder per package, below this directory (scripts/release/js-notices.sh).
+   The same list is the SBOM that the release attaches to the image.
