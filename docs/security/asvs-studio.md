@@ -67,10 +67,7 @@ without it.
    report informational alerts (the API needed one, rule 10049), each to be fixed or listed in
    `test/zap/studio-rules.tsv` with its reason. Until then the Studio half of `QA-008` is not
    evidenced.
-2. **Browser evidence not yet run.** The Trusted Types enforcement test in `e2e/csp.spec.ts` and
-   the web-storage check in `e2e/shell.spec.ts` were added in S9.4 and need the Playwright
-   browsers (`make studio-e2e`).
-3. **API responses are not checked end to end for credentials.** The BFF passes only the session
+2. **API responses are not checked end to end for credentials.** The BFF passes only the session
    cookie and allowlisted headers, and the server never returns a session secret after creation,
    but no test scans Studio's responses in the browser for one.
 
