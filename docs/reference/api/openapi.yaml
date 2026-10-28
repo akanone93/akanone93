@@ -22855,6 +22855,42 @@ components:
       title: FunctionCallEvent
       additionalProperties: false
       description: FunctionCallEvent is one invocation of a Plux Function (FN-036).
+    plux.v1.FunctionCapabilities:
+      type: object
+      properties:
+        http:
+          type: array
+          items:
+            type: string
+          title: http
+          description: http are the domains the function may reach through egress.
+        kv:
+          type: boolean
+          title: kv
+          description: kv says whether the function may use its key-value namespace.
+        secrets:
+          type: array
+          items:
+            type: string
+          title: secrets
+          description: |-
+            secrets are the names of the secrets the function may read, never their
+             values.
+        functions:
+          type: array
+          items:
+            type: string
+          title: functions
+          description: functions are the names of the functions it may call.
+        claims:
+          type: boolean
+          title: claims
+          description: claims says whether it may read the verified user claims.
+      title: FunctionCapabilities
+      additionalProperties: false
+      description: |-
+        FunctionCapabilities are the host capabilities a function version is
+         granted; everything not listed is denied (FN-012).
     plux.v1.FunctionHook:
       type: object
       properties:
@@ -23139,6 +23175,28 @@ components:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created_at
+        capabilities:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FunctionCapabilities'
+          title: capabilities
+          description: |-
+            capabilities are the host capabilities the deploy granted the version:
+             the ones its build declared, as immutable as its module (FN-012). Unset
+             when the build recorded no declaration, in which case the version is
+             granted nothing and cannot be invoked.
+        assurance:
+          type: string
+          title: assurance
+          description: |-
+            assurance is the assurance level a device must hold to invoke the
+             version, as its build declared it; empty means the environment's
+             defaultFunctionAssurance applies (SEC-007).
+        sourceId:
+          type: string
+          title: source_id
+          description: |-
+            source_id identifies the uploaded source the version was built from. It
+             is an identifier only: reading the source needs its own permission.
       title: FunctionVersion
       additionalProperties: false
       description: FunctionVersion is one immutable version of a function (FN-006).

@@ -184,6 +184,11 @@ func TestFunctionAdminService_FN_006(t *testing.T) {
 	if v.GetVersion() != 1 || v.GetPlacement() != "server" || len(v.GetModuleSha256()) != 64 || !v.GetTestsPassed() || v.GetProvenance().GetBuilderIdentity() != "builder-test" {
 		t.Errorf("version = %v", v)
 	}
+	// FN-012: the version names its source and reports what its build
+	// declared, on every read; the server's test build declares nothing.
+	if v.GetSourceId() == "" || v.GetCapabilities() != nil || v.GetAssurance() != "" {
+		t.Errorf("version source, capabilities and assurance = %q, %v, %q", v.GetSourceId(), v.GetCapabilities(), v.GetAssurance())
+	}
 	again := must(w.functionAdmin.Deploy(ctx, req(dev, &pluxv1.DeployRequest{BuildId: id})))(t).GetVersion()
 	if again.GetVersion() != 2 {
 		t.Errorf("the second deploy is version %d", again.GetVersion())
@@ -195,17 +200,17 @@ func TestFunctionAdminService_FN_006(t *testing.T) {
 		t.Errorf("aliases = %v", aliases)
 	}
 	got := must(w.functionAdmin.GetFunction(ctx, req(viewer, &pluxv1.GetFunctionRequest{AppId: f.app, EnvironmentId: f.dev, Name: apiFunction})))(t)
-	if got.GetLatest().GetVersion() != 2 || len(got.GetAliases()) != 2 {
+	if got.GetLatest().GetVersion() != 2 || len(got.GetAliases()) != 2 || got.GetLatest().GetSourceId() != v.GetSourceId() {
 		t.Errorf("GetFunction = %v", got)
 	}
 	list := must(w.functionAdmin.ListFunctions(ctx, req(viewer, &pluxv1.ListFunctionsRequest{AppId: f.app, EnvironmentId: f.dev})))(t)
-	if len(list.GetFunctions()) != 1 || list.GetFunctions()[0].GetVersion() != 2 {
+	if len(list.GetFunctions()) != 1 || list.GetFunctions()[0].GetVersion() != 2 || list.GetFunctions()[0].GetSourceId() != v.GetSourceId() {
 		t.Errorf("ListFunctions = %v", list)
 	}
 	first := must(w.functionAdmin.ListVersions(ctx, req(viewer, &pluxv1.ListVersionsRequest{
 		AppId: f.app, EnvironmentId: f.dev, Name: apiFunction, Page: &pluxv1.Page{PageSize: 1},
 	})))(t)
-	if len(first.GetVersions()) != 1 || first.GetVersions()[0].GetVersion() != 2 || first.GetPage().GetNextPageToken() == "" {
+	if len(first.GetVersions()) != 1 || first.GetVersions()[0].GetVersion() != 2 || first.GetVersions()[0].GetSourceId() != v.GetSourceId() || first.GetPage().GetNextPageToken() == "" {
 		t.Fatalf("first page = %v", first)
 	}
 	next := must(w.functionAdmin.ListVersions(ctx, req(viewer, &pluxv1.ListVersionsRequest{

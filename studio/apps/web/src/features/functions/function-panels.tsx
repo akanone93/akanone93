@@ -3,15 +3,15 @@
 
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
-import type { FunctionVersion } from "@plux/api";
-import { Button, Field, Input } from "@plux/ui";
-import { type ReactElement, useEffect, useRef, useState } from "react";
+import type { FunctionCapabilities, FunctionLogLine, FunctionVersion } from "@plux/api";
+import { Button, Field, Input, Select } from "@plux/ui";
+import { Fragment, type ReactElement, useEffect, useRef, useState } from "react";
 import { rustEditorMessages } from "../rust-editor/index.ts";
 import { TestsPanel } from "../rust-editor/rust-panels.tsx";
 import { idleRun, runStoredTests, type TestRunState, type TestsClient } from "../rust-editor/test-runner.ts";
 import { Table } from "../security/parts.tsx";
 import type { FunctionsMessages } from "./functions.messages.ts";
-import { useLogs, useMetrics, useVersions } from "./use-functions.ts";
+import { useEnvironments, useLogs, useMetrics, useVersions } from "./use-functions.ts";
 
 type Scope = { readonly app: string; readonly environmentId: string; readonly name: string };
 
@@ -76,7 +76,7 @@ export function VersionsPanel({
   );
 }
 
-/** What was verified about the latest version: signature, tests and provenance (FN-009, FN-019). */
+/** What was verified about the latest version: signature, tests, provenance and the assurance it requires (FN-009, FN-019, SEC-007). */
 export function AssurancePanel({ v, m }: { readonly v: FunctionVersion; readonly m: FunctionsMessages }): ReactElement {
   const p = v.provenance;
   const deps = p?.dependencies ?? [];
@@ -87,6 +87,10 @@ export function AssurancePanel({ v, m }: { readonly v: FunctionVersion; readonly
         <dd>{v.signature.length > 0 ? m.assuranceSigned : m.assuranceUnsigned}</dd>
         <dt className="text-secondary">{m.assuranceTests}</dt>
         <dd>{v.testsPassed ? m.testsPassedYes : m.testsPassedNo}</dd>
+        <dt className="text-secondary">{m.assuranceRequired}</dt>
+        <dd>{v.assurance === "" ? m.assuranceDefault : v.assurance}</dd>
+        <dt className="text-secondary">{m.sourceLabel}</dt>
+        <dd className="break-all">{v.sourceId}</dd>
         <dt className="text-secondary">{m.assuranceModule}</dt>
         <dd className="break-all">{v.moduleSha256}</dd>
         <dt className="text-secondary">{m.assuranceSource}</dt>
@@ -109,7 +113,7 @@ export function AssurancePanel({ v, m }: { readonly v: FunctionVersion; readonly
   );
 }
 
-/** Where the version runs and the contract of its input and output. */
+/** Where the version runs, what its build declared it may use (FN-012) and the contract of its input and output. */
 export function CapabilitiesPanel({
   v,
   m,
@@ -118,19 +122,50 @@ export function CapabilitiesPanel({
   readonly m: FunctionsMessages;
 }): ReactElement {
   return (
+    <div className="flex flex-col gap-4">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-body">
+        <dt className="text-secondary">{m.capPlacement}</dt>
+        <dd>{v.placement === "device" ? m.placementDevice : m.placementServer}</dd>
+        <dt className="text-secondary">{m.capAbi}</dt>
+        <dd>{String(v.abiVersion)}</dd>
+        <dt className="text-secondary">{m.capInput}</dt>
+        <dd>
+          <pre className="whitespace-pre-wrap font-mono text-caption">{v.inputSchema}</pre>
+        </dd>
+        <dt className="text-secondary">{m.capOutput}</dt>
+        <dd>
+          <pre className="whitespace-pre-wrap font-mono text-caption">{v.outputSchema}</pre>
+        </dd>
+      </dl>
+      <h3 className="text-body font-medium">{m.capGranted}</h3>
+      {v.capabilities === undefined ? (
+        <p className="text-body text-secondary">{m.noDeclaration}</p>
+      ) : (
+        <GrantedList c={v.capabilities} m={m} />
+      )}
+    </div>
+  );
+}
+
+/** The host capabilities a version was granted; everything not listed is denied (FN-012). */
+function GrantedList({ c, m }: { readonly c: FunctionCapabilities; readonly m: FunctionsMessages }): ReactElement {
+  const names = (list: readonly string[]) => (list.length === 0 ? m.capNone : list.join(", "));
+  const flag = (on: boolean) => (on ? m.capGrantedYes : m.capGrantedNo);
+  const rows: readonly (readonly [string, string])[] = [
+    [m.capHttp, names(c.http)],
+    [m.capKv, flag(c.kv)],
+    [m.capSecrets, names(c.secrets)],
+    [m.capFunctions, names(c.functions)],
+    [m.capClaims, flag(c.claims)],
+  ];
+  return (
     <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-body">
-      <dt className="text-secondary">{m.capPlacement}</dt>
-      <dd>{v.placement === "device" ? m.placementDevice : m.placementServer}</dd>
-      <dt className="text-secondary">{m.capAbi}</dt>
-      <dd>{String(v.abiVersion)}</dd>
-      <dt className="text-secondary">{m.capInput}</dt>
-      <dd>
-        <pre className="whitespace-pre-wrap font-mono text-caption">{v.inputSchema}</pre>
-      </dd>
-      <dt className="text-secondary">{m.capOutput}</dt>
-      <dd>
-        <pre className="whitespace-pre-wrap font-mono text-caption">{v.outputSchema}</pre>
-      </dd>
+      {rows.map(([label, value]) => (
+        <Fragment key={label}>
+          <dt className="text-secondary">{label}</dt>
+          <dd className="break-all">{value}</dd>
+        </Fragment>
+      ))}
     </dl>
   );
 }
@@ -172,13 +207,32 @@ export function MetricsPanel({ scope, m }: { readonly scope: Scope; readonly m: 
   );
 }
 
-/** FN-035: the retained log lines of the function. */
+/** FN-035: the retained log lines of the function, in the environment chosen from the app's own. */
 export function LogsPanel({ scope, m }: { readonly scope: Scope; readonly m: FunctionsMessages }): ReactElement {
-  const logs = useLogs(scope.app, scope.environmentId, scope.name);
+  const [chosen, setChosen] = useState<string | undefined>(undefined);
+  const environmentId = chosen ?? scope.environmentId;
+  const environments = useEnvironments(scope.app);
+  const logs = useLogs(scope.app, environmentId, scope.name);
   const lines = logs.data?.lines ?? [];
-  if (logs.isError) {
-    return <p className="text-body text-secondary">{m.loadFailed}</p>;
-  }
+  const options = (environments.data?.environments ?? []).map((e) => ({ value: e.id, label: e.key }));
+  return (
+    <div className="flex flex-col gap-3">
+      <Field label={m.envLabel}>
+        <Select label={m.envLabel} options={options} value={environmentId} onValueChange={setChosen} />
+      </Field>
+      {logs.isError ? <p className="text-body text-secondary">{m.loadFailed}</p> : <LogTable lines={lines} m={m} />}
+    </div>
+  );
+}
+
+/** The log lines as a table, or the empty state. */
+function LogTable({
+  lines,
+  m,
+}: {
+  readonly lines: readonly FunctionLogLine[];
+  readonly m: FunctionsMessages;
+}): ReactElement {
   return lines.length === 0 ? (
     <p className="text-body text-secondary">{m.noLogs}</p>
   ) : (
@@ -198,31 +252,35 @@ export function LogsPanel({ scope, m }: { readonly scope: Scope; readonly m: Fun
   );
 }
 
-/** FN-034: runs the stored test cases of an uploaded source in the build sandbox, one result per case. */
+/** FN-034: runs the stored test cases of the version's own source in the build sandbox, one result per case. */
 export function StoredTestsPanel({
   client,
+  sourceId,
   m,
 }: {
   readonly client: TestsClient;
+  /** The source the latest version was built from; undefined while no version is loaded. */
+  readonly sourceId: string | undefined;
   readonly m: FunctionsMessages;
 }): ReactElement {
   const editor = rustEditorMessages(useLingui().i18n);
-  const [sourceId, setSourceId] = useState("");
   const [run, setRun] = useState<TestRunState>(idleRun);
   const abort = useRef<AbortController | null>(null);
   useEffect(() => () => abort.current?.abort(), []);
+  const source = sourceId ?? "";
   const start = () => {
     abort.current?.abort();
     const controller = new AbortController();
     abort.current = controller;
-    void runStoredTests(client, sourceId.trim(), setRun, controller.signal);
+    void runStoredTests(client, source, setRun, controller.signal);
   };
   return (
     <div className="flex flex-col gap-3">
-      <Field label={m.sourceLabel}>
-        <Input value={sourceId} onChange={(e) => setSourceId(e.target.value)} spellCheck={false} />
-      </Field>
-      <TestsPanel run={run} canRun={sourceId.trim() !== ""} onRun={start} m={editor} />
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-body">
+        <dt className="text-secondary">{m.sourceLabel}</dt>
+        <dd className="break-all">{source}</dd>
+      </dl>
+      <TestsPanel run={run} canRun={source !== ""} onRun={start} m={editor} />
     </div>
   );
 }
