@@ -83,7 +83,7 @@ func (s *Service) SimulatePolicy(ctx context.Context, p auth.Principal, appID st
 
 // sampleChange completes a sample with the organisation, the app and the
 // environment it names, so that it is matched as a real change would be.
-func (s *Service) sampleChange(ctx context.Context, q *dbgen.Queries, p auth.Principal, appID string, sample Artifact) (Artifact, error) {
+func (*Service) sampleChange(ctx context.Context, q *dbgen.Queries, p auth.Principal, appID string, sample Artifact) (Artifact, error) {
 	sample.OrganizationID = p.OrganizationID
 	sample.AppID = appID
 	key := sample.Environment.Key
