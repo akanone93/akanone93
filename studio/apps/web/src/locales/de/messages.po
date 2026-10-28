@@ -111,6 +111,12 @@ msgstr "{count, plural, one {# berechneter Wert} other {# berechnete Werte}}"
 msgid "panelTabs.dataSources"
 msgstr "{count, plural, one {# Datenquelle} other {# Datenquellen}}"
 
+#. How many documents the new app holds.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.done.documents"
+msgstr ""
+
 #. Accessible name of the error count in the action bar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -196,6 +202,12 @@ msgstr "{count, plural, one {# Tippen in der Gerätesitzung aufgezeichnet} other
 msgid "safety.blocked.incoming"
 msgstr "{count, plural, one {# Verwendung oder Link hierher} other {# Verwendungen oder Links hierher}}"
 
+#. How many validation errors the imported project still has.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.done.errors"
+msgstr ""
+
 #. Accessible name of the warning count in the action bar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -279,6 +291,12 @@ msgstr "{count} Widgets ausgewählt; gemeinsame Eigenschaften werden angezeigt."
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.sizeDelta"
 msgstr "{delta} KiB gegenüber der Vorversion"
+
+#. Reading of the checklist meter: steps done of all steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.progress-text"
+msgstr ""
 
 #. Shown when the chosen event already has steps; event is the event name.
 #. js-lingui-explicit-id
@@ -448,11 +466,23 @@ msgstr "Insgesamt {n} Freigaben nötig."
 msgid "actionGraph.valueNamed"
 msgstr "{name}"
 
+#. A language in the list: its name in the reader's language and its BCP 47 code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.language"
+msgstr ""
+
 #. A deleted item in the trash list; kind is app, plugin or page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.trashItem"
 msgstr "{name} ({kind})"
+
+#. The archive file that was chosen: its name and size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.chosen"
+msgstr ""
 
 #. A paired device in a picker; state says whether its socket is open.
 #. js-lingui-explicit-id
@@ -514,6 +544,12 @@ msgstr "{name} verschoben nach {x}, {y}"
 msgid "pluginCanvas.selectionOne"
 msgstr "{name} ausgewählt"
 
+#. Heading of the last wizard step; name is the new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.done.title"
+msgstr ""
+
 #. Accessible name of one device in the device matrix.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -525,6 +561,12 @@ msgstr "{name}, {width} mal {height}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.plugin"
 msgstr "{name}, Plugin {key}"
+
+#. Accessible description of a theme choice: its name and primary colour.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.swatch"
+msgstr ""
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -621,6 +663,12 @@ msgstr "{script}: {n} Schriften"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.targetOption"
 msgstr "{title} ({scope})"
+
+#. Hint under the archive file input; size is the default limit such as 8 MB.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.hint"
+msgstr ""
 
 #. Note under the dependency list: the builder works from vendored sources only.
 #. js-lingui-explicit-id
@@ -909,6 +957,12 @@ msgstr "Sprache hinzufügen"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.addLocaleTitle"
 msgstr "Sprache hinzufügen"
+
+#. Explains the invite-a-teammate onboarding step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.invite-hint"
+msgstr ""
 
 #. Accessible name of the form that adds a state entry.
 #. js-lingui-explicit-id
@@ -1282,6 +1336,12 @@ msgstr "Analytics"
 msgid "analytics.overviewTitle"
 msgstr "Analysen"
 
+#. Label: the Android application ID such as com.example.app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.application-id"
+msgstr ""
+
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -1401,6 +1461,12 @@ msgstr "App-ID"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.grantApp"
 msgstr "App-ID (leer für die Organisation)"
+
+#. Label: the name shown under the launcher icon and in the stores.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.name"
+msgstr ""
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -1624,6 +1690,12 @@ msgstr "Apps, Plugins und Freigaben erscheinen hier, sobald sie verfügbar sind.
 msgid "design.scriptArabic"
 msgstr "Arabisch"
 
+#. Label of the file input for a .plux archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.label"
+msgstr ""
+
 #. Button: archive the selected plugin without deleting it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1653,6 +1725,12 @@ msgstr "Anordnen"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.autoLayout"
 msgstr "Anordnen"
+
+#. Explains why the AI prompt choice is disabled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.ai-hint"
+msgstr ""
 
 #. Second sentence of the empty apps state for a person who may not create apps.
 #. js-lingui-explicit-id
@@ -1689,6 +1767,12 @@ msgstr "Vertrauensstufe"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.tabAssurance"
 msgstr "Absicherung"
+
+#. Explains the maximum security profile.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.maximum-hint"
+msgstr ""
 
 #. Label.
 #. js-lingui-explicit-id
@@ -1774,6 +1858,12 @@ msgstr "Autosave bis Gerät: {ms} ms"
 msgid "publish.holdAwaiting"
 msgstr "Wartet auf Freigabe"
 
+#. Button that returns to the previous wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.back"
+msgstr ""
+
 #. Button: previous step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -1858,6 +1948,18 @@ msgstr "Basis-URL"
 msgid "publish.evidence.thumbBefore"
 msgstr "Vorher"
 
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.biometrics"
+msgstr ""
+
+#. Choice: start from nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.blank"
+msgstr ""
+
 #. New-screen option without a template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -1869,6 +1971,12 @@ msgstr "Leerer Bildschirm"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.holdBlocked"
 msgstr "Blockiert"
+
+#. Name of a ready-made theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.blue"
+msgstr ""
 
 #. Flag type.
 #. js-lingui-explicit-id
@@ -1977,6 +2085,12 @@ msgstr "von {author}"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.metricCache"
 msgstr "Cache-Treffer"
+
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.camera"
+msgstr ""
 
 #. Button.
 #. js-lingui-explicit-id
@@ -2158,6 +2272,12 @@ msgstr "Zertifikat-Pins"
 msgid "approvals.colSubject"
 msgstr "Änderung"
 
+#. Explains the edit-a-screen onboarding step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.edit-hint"
+msgstr ""
+
 #. Button: change when a rollout ends.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -2266,6 +2386,12 @@ msgstr "Änderungen erscheinen beim Tippen auf der Leinwand."
 msgid "approvals.inboxCaption"
 msgstr "Änderungen, die auf eine Entscheidung warten."
 
+#. Explains why the form is read-only for a person without the app-manage permission.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.needs-manage"
+msgstr ""
+
 #. Label of the channel filter.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -2344,11 +2470,41 @@ msgstr "Wird geprüft …"
 msgid "designers.checking"
 msgstr "Wird geprüft …"
 
+#. Accessible name of the list of onboarding steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.steps"
+msgstr ""
+
+#. Error when Next is pressed without choosing an archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.required"
+msgstr ""
+
 #. Label of the new-password field on the invitation page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.invite.password"
 msgstr "Passwort wählen"
+
+#. Error when Next is pressed without choosing a sample app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.template.required"
+msgstr ""
+
+#. Error when no language is chosen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.required"
+msgstr ""
+
+#. Error when more languages are chosen than an app may support.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.too-many"
+msgstr ""
 
 #. Label prefix of the checkbox that picks a snapshot for comparison.
 #. js-lingui-explicit-id
@@ -2361,6 +2517,12 @@ msgstr "Für den Vergleich auswählen"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.compareHint"
 msgstr "Wählen Sie zwei Snapshots zum Vergleichen aus."
+
+#. Hint on the languages step; max is the largest number of languages an app may support.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.hint"
+msgstr ""
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -2379,6 +2541,12 @@ msgstr "{name} entfernen"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colClient"
 msgstr "Client"
+
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.clipboard"
+msgstr ""
 
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
@@ -2427,6 +2595,12 @@ msgstr "Schließen"
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.close"
 msgstr "Schließen"
+
+#. Button that closes the wizard after the app was created.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.done.close"
+msgstr ""
 
 #. Button that closes a dialog.
 #. js-lingui-explicit-id
@@ -2776,6 +2950,12 @@ msgstr "Zerstörerische Aktion bestätigen"
 msgid "dialog.stepup.title"
 msgstr "Bestätigen Sie, dass Sie es sind"
 
+#. Explains the pair-a-device onboarding step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.pair-hint"
+msgstr ""
+
 #. Accessible name of a connection point of a step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -2787,6 +2967,12 @@ msgstr "Verbindungspunkt"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.tabConsole"
 msgstr "Konsole"
+
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.contacts"
+msgstr ""
 
 #. Heading of the plugin versions of a release.
 #. js-lingui-explicit-id
@@ -2811,6 +2997,12 @@ msgstr "Kontext"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.continue"
 msgstr "Weiter"
+
+#. Link on a checklist step to the organisation's first app; name is the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.continue-in"
+msgstr ""
 
 #. Button that starts single sign-on; name is the identity provider.
 #. js-lingui-explicit-id
@@ -2860,6 +3052,12 @@ msgstr "Kopiere es jetzt. Es wird nicht noch einmal angezeigt."
 msgid "editor.conflict.copy-mine"
 msgstr "Meine als JSON kopieren"
 
+#. Explains the template choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.template-hint"
+msgstr ""
+
 #. Choice for a missing item in the paste report: copy the item into the target.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -2902,6 +3100,12 @@ msgstr "Marken-Overlay anlegen"
 msgid "design.createBrandTitle"
 msgstr "Marken-Overlay anlegen"
 
+#. Title of the wizard that creates an app, and the label of its final button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.title"
+msgstr ""
+
 #. Button, dialog title and submit label for creating an app; shown only with the app-manage permission.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -2937,6 +3141,12 @@ msgstr "Schlüssel anlegen"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.picker.confirm"
 msgstr "Link erstellen"
+
+#. Onboarding step: the organisation needs its first app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.create"
+msgstr ""
 
 #. Title and submit button of the create-organisation dialog, and the button on the empty page.
 #. js-lingui-explicit-id
@@ -3016,6 +3226,12 @@ msgstr "Erstellt"
 msgid "releases.rollbackHint"
 msgstr "Erstellt ein neues Release mit diesem Inhalt auf dem Kanal. Eine Sicherheitsprüfung ist erforderlich."
 
+#. Label of the final button of the new-app wizard while the app is being created.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.creating"
+msgstr ""
+
 #. Announced by the submit button of a create dialog while the request is running.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -3033,6 +3249,12 @@ msgstr "Cupertino"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.currentScreen"
 msgstr "Aktueller Bildschirm"
+
+#. Choice: enter a primary colour instead of a ready-made theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.custom"
+msgstr ""
 
 #. Entry of the device frame select that opens the custom frame dialog; also the dialog title.
 #. js-lingui-explicit-id
@@ -3099,6 +3321,12 @@ msgstr "Dunkel"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeDarkValue"
 msgstr "Dunkler Wert von {token}"
+
+#. Label: the project's Dart package name, lower_snake_case.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.package"
+msgstr ""
 
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
@@ -3250,6 +3478,18 @@ msgstr "Rückgang"
 msgid "safety.rename.deep-link"
 msgstr "Deep Link"
 
+#. Label: host names the app opens links for, separated by commas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.deep-link-hosts"
+msgstr ""
+
+#. Label: URL schemes the app opens links for, separated by commas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.deep-link-schemes"
+msgstr ""
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -3273,6 +3513,12 @@ msgstr "Standardwert (JSON)"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.routeDefault"
 msgstr "Standard (Plux-Gateway)"
+
+#. Label of the select that chooses the default language of a new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.default"
+msgstr ""
 
 #. Label of the flag default field.
 #. js-lingui-explicit-id
@@ -3406,6 +3652,12 @@ msgstr "Plugin als veraltet markieren"
 msgid "panels.docsDeprecated"
 msgstr "veraltet"
 
+#. Label of the optional description of a new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.details.description"
+msgstr ""
+
 #. Field label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -3490,11 +3742,23 @@ msgstr "Komponenteninstanz lösen"
 msgid "library.canvas.detach.title"
 msgstr "Diese Instanz lösen?"
 
+#. Name of the wizard step that asks for the app's name and key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step.details"
+msgstr ""
+
 #. Name of a script.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.scriptDevanagari"
 msgstr "Devanagari"
+
+#. Name of the development environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.environments.development"
+msgstr ""
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -3549,6 +3813,12 @@ msgstr "Gerätrahmen"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.matrix"
 msgstr "Gerätematrix"
+
+#. Legend of the checkboxes for the device APIs whose permissions the native project declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.device-apis"
+msgstr ""
 
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
@@ -3616,6 +3886,12 @@ msgstr "Verwerfen"
 msgid "admin.dismiss"
 msgstr "Schließen"
 
+#. Button that hides the first-run checklist.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.dismiss"
+msgstr ""
+
 #. Label of the right dock tab that documents the selected widget.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3646,6 +3922,18 @@ msgstr "Dokumentpfad"
 msgid "help.docs"
 msgstr "Dokumentation"
 
+#. Status word: the step is done.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.status.done"
+msgstr ""
+
+#. Name of the last wizard step, shown once the app exists.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step.done"
+msgstr ""
+
 #. Button that downloads the export file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -3657,6 +3945,24 @@ msgstr "Herunterladen"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.download"
 msgstr "Herunterladen"
+
+#. Button that generates and downloads the host project.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.project.download"
+msgstr ""
+
+#. Shown after the project was downloaded; filename is the zip file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.done"
+msgstr ""
+
+#. Progress: the generated project is being downloaded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.downloading"
+msgstr ""
 
 #. Tag of the draft among the matching policies.
 #. js-lingui-explicit-id
@@ -3724,6 +4030,12 @@ msgstr "Dauer (Minuten)"
 msgid "analytics.replayDuration"
 msgstr "Dauer (ms)"
 
+#. Explains environments on the last step of the wizard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.environments.hint"
+msgstr ""
+
 #. Error under the per-segment values of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -3765,6 +4077,12 @@ msgstr "{name} im Rust-Editor bearbeiten"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.editToken"
 msgstr "{token} bearbeiten"
+
+#. Onboarding step: change a screen on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.edit"
+msgstr ""
 
 #. Button.
 #. js-lingui-explicit-id
@@ -3898,6 +4216,12 @@ msgstr "Beendet"
 msgid "releases.abortHint"
 msgstr "Beendet den Rollout und stellt das vorherige Release des Kanals wieder her. Eine Sicherheitsprüfung ist erforderlich."
 
+#. Error for a custom colour that is not six hexadecimal digits after a hash sign.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.invalid"
+msgstr ""
+
 #. Error under the key name field when it is empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -4006,6 +4330,12 @@ msgstr "Eintrag"
 msgid "actionGraph.entry"
 msgstr "Einstieg"
 
+#. Label: the route the app opens first.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.entry-route"
+msgstr ""
+
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -4053,6 +4383,18 @@ msgstr "Umgebung"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.sampleEnvironment"
 msgstr "Umgebungsschlüssel"
+
+#. Name of the wizard step that asks which environments the app has.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step.environments"
+msgstr ""
+
+#. Legend of the checkboxes that choose the environments of a new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.environments.legend"
+msgstr ""
 
 #. Label.
 #. js-lingui-explicit-id
@@ -4540,6 +4882,12 @@ msgstr "Datei"
 msgid "l10n.area.importFile"
 msgstr "Datei"
 
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.files"
+msgstr ""
+
 #. Label of the scenario filter box.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -4617,6 +4965,12 @@ msgstr "Ablauf"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupFlow"
 msgstr "Abläufe"
+
+#. Heading of the offer to download the generated host project.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.project.title"
+msgstr ""
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -4725,6 +5079,30 @@ msgstr "Von"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.filterFrom"
 msgstr "Von (Datum)"
+
+#. Choice: import an app archive; .plux is the file extension and stays as it is.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.import"
+msgstr ""
+
+#. Choice: copy a sample app the server provides.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.template"
+msgstr ""
+
+#. Choice that is not available yet: describe the app and let an assistant draft it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.ai"
+msgstr ""
+
+#. Caption of the first-run checklist; its steps are ticked by real events, never by hand.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.caption"
+msgstr ""
 
 #. Label of the field that holds the version a migration plan starts from.
 #. js-lingui-explicit-id
@@ -4852,11 +5230,35 @@ msgstr "Generierte API"
 msgid "cmd.shortcuts.caption"
 msgstr "Aus den Befehlen dieses Fensters erzeugt."
 
+#. Explains project generation; perHour is the default limit of generation jobs per hour.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.caption"
+msgstr ""
+
+#. Progress: the project is being generated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.running"
+msgstr ""
+
+#. Heading of the first-run checklist on the organisation home.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.title"
+msgstr ""
+
 #. Help menu entry that opens the onboarding guide.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "help.onboarding"
 msgstr "Erste Schritte"
+
+#. Accessible name of the meter that shows how many checklist steps are done.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.progress"
+msgstr ""
 
 #. Error when a stage has no valid duration.
 #. js-lingui-explicit-id
@@ -4936,6 +5338,12 @@ msgstr "GraphQL"
 msgid "designers.dataOperationsText"
 msgstr "GraphQL-Operationen"
 
+#. Name of a ready-made theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.green"
+msgstr ""
+
 #. Link from the heatmap back to the localisation grid.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -4971,6 +5379,12 @@ msgstr "Leitplanken"
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.requests.release"
 msgstr "Übergeben"
+
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.haptics"
+msgstr ""
 
 #. Checkbox that marks the widget as a heading.
 #. js-lingui-explicit-id
@@ -5116,6 +5530,18 @@ msgstr "Host-Aktionen"
 msgid "design.hostFontsTitle"
 msgstr "Schriften der Host-App"
 
+#. Heading of the section that regenerates and downloads the Flutter host project.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.title"
+msgstr ""
+
+#. Legend of the choice between a blank app, a template and an archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.legend"
+msgstr ""
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -5188,11 +5614,23 @@ msgstr "Bild gespeichert ({sha})"
 msgid "l10n.area.importApply"
 msgstr "Importieren"
 
+#. Button that imports a sample app; name is the sample.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.samples.import"
+msgstr ""
+
 #. Heading of the import section of the data source designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImportHeading"
 msgstr "Datenquelle importieren"
+
+#. Explains importing a sample app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.samples.caption"
+msgstr ""
 
 #. Button that opens the import dialog.
 #. js-lingui-explicit-id
@@ -5205,6 +5643,12 @@ msgstr "API-Definition importieren"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.importTitle"
 msgstr "API-Definition importieren"
+
+#. Explains the archive choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.import-hint"
+msgstr ""
 
 #. Button: upload a component library file.
 #. js-lingui-explicit-id
@@ -5254,6 +5698,12 @@ msgstr "{name} importiert."
 msgid "data.importStaged"
 msgstr "Importierte Quellen sind zum Anwenden bereit."
 
+#. Announced while a sample app is imported.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.samples.importing"
+msgstr ""
+
 #. Verdict of a comparison.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -5277,6 +5727,12 @@ msgstr "Im Arbeitsspeicher"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.simSequential"
 msgstr "der Reihe nach"
+
+#. Column head: the value the project was generated from.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.col.generated"
+msgstr ""
 
 #. Link to the inbox.
 #. js-lingui-explicit-id
@@ -5434,11 +5890,23 @@ msgstr "Einladung (wird einmal angezeigt)"
 msgid "admin.invite"
 msgstr "Einladen"
 
+#. Onboarding step: add a second member to the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.invite"
+msgstr ""
+
 #. Metric label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.metricInvocations"
 msgstr "Aufrufe"
+
+#. Label: the iOS bundle identifier such as com.example.app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.bundle-id"
+msgstr ""
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -5826,6 +6294,12 @@ msgstr "Sprache"
 msgid "devices.locale"
 msgstr "Sprache"
 
+#. Name of the wizard step that asks for the app's languages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step.locales"
+msgstr ""
+
 #. Label of the crash-free threshold.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/rollout.messages.ts
@@ -5933,6 +6407,12 @@ msgstr "Ebenen des Plugins"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.unsaved.leave"
 msgstr "Verlassen"
+
+#. Hint on the details step when importing an archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.details.import-hint"
+msgstr ""
 
 #. Title of the dialog shown when leaving a page with unsaved changes.
 #. js-lingui-explicit-id
@@ -6246,11 +6726,23 @@ msgstr "Bibliothek wird geladen …"
 msgid "jsonEditor.loadingPublished"
 msgstr "Veröffentlichte Version wird geladen …"
 
+#. Shown while the shell settings load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.loading"
+msgstr ""
+
 #. Shown while the snapshots load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.loading"
 msgstr "Snapshots werden geladen."
+
+#. Shown while the list of sample apps loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.template.loading"
+msgstr ""
 
 #. Shown while the translations load.
 #. js-lingui-explicit-id
@@ -6323,6 +6815,12 @@ msgstr "Seiten der Lokalisierung"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.open"
 msgstr "Lokalisierungstabelle"
+
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.location"
+msgstr ""
 
 #. Accessible name of the button that locks the view in place.
 #. js-lingui-explicit-id
@@ -6431,6 +6929,12 @@ msgstr "Material"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.profileMaximum"
 msgstr "Maximal"
+
+#. Name of the maximum security profile (MASVS level 2 with resilience).
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.maximum"
+msgstr ""
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -6810,6 +7314,18 @@ msgstr "Nativ und benutzerdefiniert"
 msgid "appCanvas.native"
 msgstr "Nativer Bildschirm"
 
+#. Heading of the page with the settings that live in the app's native shell project.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.title"
+msgstr ""
+
+#. Label of the link from the app's settings to the native shell settings page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.link"
+msgstr ""
+
 #. Screenshot use: the preview of a native widget slot on the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -7037,6 +7553,12 @@ msgstr "Pfad des neuen Tokens"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeNewPath"
 msgstr "Pfad des neuen Tokens, zum Beispiel color.accent"
+
+#. Button that moves to the next wizard step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.next"
+msgstr ""
 
 #. Button: next step.
 #. js-lingui-explicit-id
@@ -7338,6 +7860,12 @@ msgstr "Keine Probleme gefunden."
 msgid "designers.noProblems"
 msgstr "Keine Probleme."
 
+#. Status word: no host project was ever generated for this app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.status.never"
+msgstr ""
+
 #. Shown when the environment has no release.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -7463,6 +7991,18 @@ msgstr "Knoten"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfPage"
 msgstr "Knoten auf der Seite"
+
+#. Shown for a setting that has no value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.none"
+msgstr ""
+
+#. Option: no router adapter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.router.none"
+msgstr ""
 
 #. Shown for an empty list.
 #. js-lingui-explicit-id
@@ -7614,6 +8154,12 @@ msgstr "Nichts anzuzeigen."
 msgid "devices.empty"
 msgstr "Noch nichts."
 
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.notifications"
+msgstr ""
+
 #. Accessible name of the notifications button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -7644,6 +8190,12 @@ msgstr "Benachrichtigungen werden {days} Tage aufbewahrt. Das Audit-Log ist der 
 msgid "notify.inbox.failed"
 msgstr "Benachrichtigungen konnten nicht geladen werden."
 
+#. Column head: the setting's current value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.col.current"
+msgstr ""
+
 #. Option of the list of target steps that leaves the port unconnected.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -7668,6 +8220,12 @@ msgstr "Vorkommen"
 msgid "analytics.conversionColumn"
 msgstr "Vom ersten Schritt"
 
+#. A switch setting that is off.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.off"
+msgstr ""
+
 #. Status chip: the browser has no network.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -7679,6 +8237,12 @@ msgstr "Offline"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.diffLabel"
 msgstr "Ältere und neuere Version des Dokuments"
+
+#. A switch setting that is on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.on"
+msgstr ""
 
 #. Option.
 #. js-lingui-explicit-id
@@ -7715,6 +8279,12 @@ msgstr "Ein Index pro Zeile; Felder durch Kommas trennen."
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.attributesHelp"
 msgstr "Eine pro Zeile: Attribut, Operator, Wert, zum Beispiel os eq ios. Ein Gerät muss jede Bedingung erfüllen. Listen werden mit Kommas geschrieben: locale in de,de-AT."
+
+#. Explains the blank app choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.source.blank-hint"
+msgstr ""
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -7794,6 +8364,12 @@ msgstr "Ausgangsbildschirm öffnen"
 msgid "appCanvas.laneOpenTarget"
 msgstr "Zielbildschirm öffnen"
 
+#. Button that opens the new app's canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.done.open"
+msgstr ""
+
 #. Button of the Data tab that opens the full-screen data source designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -7847,6 +8423,18 @@ msgstr "Operationen"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.sourceCaption"
 msgstr "Operationen, Schemas, URLs je Umgebung und der Mock dieser Quelle."
+
+#. Label: optional packages added to the shell, separated by commas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.packages"
+msgstr ""
+
+#. Hint under the description of a new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.details.description-hint"
+msgstr ""
 
 #. Label.
 #. js-lingui-explicit-id
@@ -8040,6 +8628,12 @@ msgstr "Seite oder Ablauf"
 msgid "tests.pageLabel"
 msgstr "Seitenroute"
 
+#. Onboarding step: connect a phone or an emulator.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.pair"
+msgstr ""
+
 #. Title of the dialog that shows the QR code for pairing a device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -8231,6 +8825,12 @@ msgstr "Berechtigungen"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.kindUser"
 msgstr "Person"
+
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.photos"
+msgstr ""
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -8442,6 +9042,12 @@ msgstr "Vordefinierte Rollen können nicht geändert werden."
 msgid "admin.colPrefix"
 msgstr "Präfix"
 
+#. Progress stage: Studio is building or reading the files to send.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.progress.preparing"
+msgstr ""
+
 #. Description read by screen readers for each connection in the graph.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -8477,6 +9083,12 @@ msgstr "Migration in der Vorschau anzeigen"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colPrevious"
 msgstr "Vorheriges Release"
+
+#. Label of the field for a custom primary colour.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.custom-label"
+msgstr ""
 
 #. Field label.
 #. js-lingui-explicit-id
@@ -8562,6 +9174,12 @@ msgstr "Probleme"
 msgid "devices.tabFlow"
 msgstr "Prozessfluss"
 
+#. Name of the production environment, which every app has.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.environments.production"
+msgstr ""
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -8591,6 +9209,18 @@ msgstr "Profil"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.title"
 msgstr "Profil"
+
+#. Accessible name of the progress bar shown while the app is created.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.progress.label"
+msgstr ""
+
+#. Accessible name of the progress bar shown while the project is generated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.progress"
+msgstr ""
 
 #. Heading of the problems that belong to the whole project rather than to one file.
 #. js-lingui-explicit-id
@@ -8658,17 +9288,35 @@ msgstr "Veröffentlichen"
 msgid "pluginCanvas.publish"
 msgstr "Veröffentlichen"
 
+#. Onboarding step: publish the app to an environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.publish"
+msgstr ""
+
 #. Accessible name of the list of publish steps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.stepsLabel"
 msgstr "Schritte der Veröffentlichung"
 
+#. Explains the publish-a-release onboarding step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.publish-hint"
+msgstr ""
+
 #. Why a snapshot was made: the plugin was published.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.reasonPublish"
 msgstr "Veröffentlicht"
+
+#. Label of the switch that adds push notification support to the native project.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.push"
+msgstr ""
 
 #. Label of the field for a PXL expression.
 #. js-lingui-explicit-id
@@ -8849,6 +9497,12 @@ msgstr "Wiederholen"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.redo.alt"
 msgstr "Wiederholen (Strg+Y)"
+
+#. Button that generates the host project again from the current settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.regenerate"
+msgstr ""
 
 #. Label.
 #. js-lingui-explicit-id
@@ -9318,6 +9972,12 @@ msgstr "Angefordert von"
 msgid "approvals.mineOnly"
 msgstr "Von mir angefordert"
 
+#. Explains the standard security profile.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.standard-hint"
+msgstr ""
+
 #. Caption of the history page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -9756,6 +10416,12 @@ msgstr "Route"
 msgid "analytics.routeColumn"
 msgstr "Route"
 
+#. Label: the router adapter the app's navigation runs on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.router"
+msgstr ""
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -9846,6 +10512,18 @@ msgstr "Rust-Editor"
 msgid "rustEditor.editorLabel"
 msgstr "Rust-Quellcode der Funktion"
 
+#. Heading of the list of sample apps on the checklist.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.samples.title"
+msgstr ""
+
+#. Accessible name of the list of sample apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.samples.label"
+msgstr ""
+
 #. Warning shown on a sample ratio mismatch.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -9912,6 +10590,12 @@ msgstr "Screenshot speichern"
 msgid "library.canvas.save.command"
 msgstr "Auswahl als Vorlage speichern"
 
+#. Button that stores the shell settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.save"
+msgstr ""
+
 #. Button: save the template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -9941,6 +10625,12 @@ msgstr "Auf dem Gerät gespeichert"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.saved"
 msgstr "Gespeichert."
+
+#. Label of the save button while it works.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.saving"
+msgstr ""
 
 #. Instruction in the pairing dialog.
 #. js-lingui-explicit-id
@@ -10218,11 +10908,23 @@ msgstr "Lesbare Geheimnisse"
 msgid "appnav.security"
 msgstr "Sicherheit"
 
+#. Name of the wizard step that asks for the app's security profile.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step.security"
+msgstr ""
+
 #. Heading of the security page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.profileTitle"
 msgstr "Sicherheitsprofil"
+
+#. Legend of the choice of a security profile.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.legend"
+msgstr ""
 
 #. Label of the segment field of one per-segment flag value.
 #. js-lingui-explicit-id
@@ -10356,6 +11058,12 @@ msgstr "Sensibel"
 msgid "devices.sent"
 msgstr "An das Gerät gesendet."
 
+#. Hint under a field that takes a comma-separated list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.list-hint"
+msgstr ""
+
 #. Tag on a snapshot: the short id of the editor session that made it; the placeholder is that id.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -10410,11 +11118,23 @@ msgstr "Sitzungen"
 msgid "analytics.funnelChart"
 msgstr "Sitzungen pro Trichterschritt"
 
+#. Column head: the setting's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.col.setting"
+msgstr ""
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colSetting"
 msgstr "Einstellung"
+
+#. Heading of the form that edits the shell settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.form.title"
+msgstr ""
 
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
@@ -10428,11 +11148,23 @@ msgstr "Einstellungen"
 msgid "admin.navSettings"
 msgstr "Einstellungen"
 
+#. Accessible caption of the table of changed settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.changes.table"
+msgstr ""
+
 #. Label of the list that chooses whether a state entry is a single value, a list or a map.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.container"
 msgstr "Form"
+
+#. A device API.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.api.share"
+msgstr ""
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -10464,6 +11196,18 @@ msgstr "Anteil der Geräte (%)"
 msgid "experiments.kindProportion"
 msgstr "Anteil der Nutzer"
 
+#. Status word: the project matches the settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.status.current"
+msgstr ""
+
+#. Status word: the settings differ from those the project was generated from.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.status.required"
+msgstr ""
+
 #. Accessible name of a ship button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -10487,6 +11231,12 @@ msgstr "Als Veröffentlichungsauftrag ausgeliefert."
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.code"
 msgstr "Kurzcode"
+
+#. Button that shows the dismissed first-run checklist again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.reopen"
+msgstr ""
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -10608,6 +11358,12 @@ msgstr "Einmalanmeldung"
 msgid "state.single"
 msgstr "Einzelwert"
 
+#. Hint under the custom primary colour; example is a colour such as the violet of the first theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.custom-hint"
+msgstr ""
+
 #. Name of the size report.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -10643,6 +11399,12 @@ msgstr "Übersprungen"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.skippedHeading"
 msgstr "Übersprungen"
+
+#. Name of a ready-made theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.slate"
+msgstr ""
 
 #. Shown when an instance replaces the content of a slot.
 #. js-lingui-explicit-id
@@ -10740,6 +11502,12 @@ msgstr "Quell-Hash"
 msgid "designers.dataSourceText"
 msgstr "Quelltext: ein OpenAPI-Dokument oder ein GraphQL-Schema"
 
+#. Label: the background colour of the launch screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.splash-color"
+msgstr ""
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -10770,11 +11538,23 @@ msgstr "Stufe {n}"
 msgid "publish.rollout.stagesLegend"
 msgstr "Stufen"
 
+#. Name of the staging environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.environments.staging"
+msgstr ""
+
 #. Profile name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.profileStandard"
 msgstr "Standard"
+
+#. Name of the standard security profile (MASVS level 1).
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.standard"
+msgstr ""
 
 #. Label of the start date field.
 #. js-lingui-explicit-id
@@ -10788,17 +11568,35 @@ msgstr "Start"
 msgid "publish.rollout.startAt"
 msgstr "Start (leer: sofort)"
 
+#. Button on the checklist that opens the new-app wizard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.new-app"
+msgstr ""
+
 #. Button that starts the experiment.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.start"
 msgstr "Experiment starten"
 
+#. Name of the wizard step where a person chooses blank, template or archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step.source"
+msgstr ""
+
 #. Label of the new-screen template picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.fromTemplate"
 msgstr "Beginnen mit"
+
+#. Explains the first onboarding step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.step.create-hint"
+msgstr ""
 
 #. Button that starts the language server for the uploaded source.
 #. js-lingui-explicit-id
@@ -10968,6 +11766,12 @@ msgstr "Schritt"
 msgid "analytics.stepColumn"
 msgstr "Schritt"
 
+#. Heading of the current step of the new-app wizard; name is the step's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step-of"
+msgstr ""
+
 #. First step of saving a template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -10991,6 +11795,12 @@ msgstr "Schritte"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.stepsHeading"
 msgstr "Schritte"
+
+#. Accessible name of the list of steps of the new-app wizard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.steps"
+msgstr ""
 
 #. Column heading: number of steps.
 #. js-lingui-explicit-id
@@ -11052,6 +11862,12 @@ msgstr "Direkt zum Ursprung"
 msgid "security.profileStrict"
 msgstr "Streng"
 
+#. Name of the strict security profile (MASVS level 2).
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.strict"
+msgstr ""
+
 #. Flag type.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -11063,6 +11879,12 @@ msgstr "Zeichenkette"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.l10nList"
 msgstr "Zeichenfolgen der Auswahl"
+
+#. Explains the strict security profile.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.strict-hint"
+msgstr ""
 
 #. Caption under the session replays heading.
 #. js-lingui-explicit-id
@@ -11129,6 +11951,12 @@ msgstr "Zusammenfassung"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.statusSuperseded"
 msgstr "Ersetzt"
+
+#. Legend of the checkboxes that choose the languages of a new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.legend"
+msgstr ""
 
 #. Caption of the kill-switch panel.
 #. js-lingui-explicit-id
@@ -11310,6 +12138,12 @@ msgstr "Teams"
 msgid "admin.teamsTitle"
 msgstr "Teams"
 
+#. Legend of the list of sample apps to copy.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.template.legend"
+msgstr ""
+
 #. Label of the template picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -11441,6 +12275,18 @@ msgstr "Die Freigabe wurde abgelehnt."
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.apps.load-failed"
 msgstr "Die Apps konnten nicht geladen werden."
+
+#. Error when the unzipped archive is larger than any limit allows; both values are sizes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.too-large"
+msgstr ""
+
+#. Error when the archive has more files than any limit allows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.too-many-files"
+msgstr ""
 
 #. Shown in the Assets tab when the list request failed.
 #. js-lingui-explicit-id
@@ -11712,6 +12558,12 @@ msgstr "Die Datei enthält keinen Token-Baum."
 msgid "l10n.area.importEmpty"
 msgstr "Die Datei enthält keine Übersetzungen."
 
+#. Error when the chosen file is larger than any limit allows; both values are sizes such as 12 MB.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.too-big"
+msgstr ""
+
 #. Error when the DTCG text is too large.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -11730,6 +12582,12 @@ msgstr "Die Datei überschreitet das Importlimit."
 msgid "assets.failure.too-large"
 msgstr "Die Datei überschreitet die Größenbeschränkung für Assets. Wähle eine kleinere Datei."
 
+#. Error when the chosen file cannot be read as a ZIP archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.unreadable"
+msgstr ""
+
 #. Error: the import file cannot be parsed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -11741,6 +12599,12 @@ msgstr "Die Datei ist keine gültige Datei dieses Formats."
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.importNotJson"
 msgstr "Die Datei ist kein gültiges JSON."
+
+#. Error when the chosen file is not a .plux file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.archive.extension"
+msgstr ""
 
 #. Validation.
 #. js-lingui-explicit-id
@@ -11777,6 +12641,12 @@ msgstr "Die Funktion hat keine Abhängigkeiten."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.listCaption"
 msgstr "Die Funktionen dieser Umgebung mit ihrer neuesten Version."
+
+#. Explains the generated Flutter project that can be downloaded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.project.caption"
+msgstr ""
 
 #. Caption under the icon sets heading.
 #. js-lingui-explicit-id
@@ -12018,6 +12888,24 @@ msgstr "Die Richtlinie wurde nicht gespeichert."
 msgid "security.profileCaption"
 msgstr "Das Profil und jede geltende Einstellung dieser Umgebung."
 
+#. Shown when project generation failed; reason is the server's explanation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.failed"
+msgstr ""
+
+#. Shown when project generation failed without an explanation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.failed-plain"
+msgstr ""
+
+#. Says when the host project was last generated; when is a date and time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.generated-at"
+msgstr ""
+
 #. Heading of the public scan result.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -12059,6 +12947,12 @@ msgstr "Die Anfrage war bei einem anderen Schritt. Sie wurde neu geladen."
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.reviewFailed"
 msgstr "Die Prüfung wurde nicht erfasst."
+
+#. Shown when importing a sample app failed without a reason from the server.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.samples.failed"
+msgstr ""
 
 #. Error after a refused save.
 #. js-lingui-explicit-id
@@ -12156,6 +13050,12 @@ msgstr "dem Server"
 msgid "pluginCanvas.writeFailed"
 msgstr "Der Server hat die Änderung nicht akzeptiert."
 
+#. Progress stage: the server is validating the archive and creating the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.progress.creating"
+msgstr ""
+
 #. Shown when the received size differs from the declared size of the file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -12180,11 +13080,29 @@ msgstr "Der Server hat es abgelehnt."
 msgid "design.saveRefused"
 msgstr "Der Server hat diese Änderung abgelehnt. Sie wurde rückgängig gemacht."
 
+#. Shown when saving the shell settings failed without a reason from the server.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.save-failed"
+msgstr ""
+
 #. Error: variant shares do not sum to 100.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.weightsSum"
 msgstr "Die Anteile müssen zusammen 100 ergeben."
+
+#. Shown when the shell settings failed to load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.load-failed"
+msgstr ""
+
+#. Confirmation after the shell settings were stored.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.saved"
+msgstr ""
 
 #. Shown when the simulation failed.
 #. js-lingui-explicit-id
@@ -12246,6 +13164,12 @@ msgstr "Die Vorlage konnte nicht geladen werden."
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.insert.note"
 msgstr "Die Vorlage wird kopiert. Spätere Änderungen daran ändern dieses Plugin nicht."
+
+#. Shown when the list of sample apps failed to load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.template.failed"
+msgstr ""
 
 #. Status in the Code tab when the tests of a function could not run.
 #. js-lingui-explicit-id
@@ -12409,6 +13333,18 @@ msgstr "Design"
 msgid "preview.theme"
 msgstr "Design"
 
+#. Name of the wizard step that asks for the app's theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.step.theme"
+msgstr ""
+
+#. Legend of the choice of a theme for a new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.legend"
+msgstr ""
+
 #. Label of the theme picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -12451,6 +13387,12 @@ msgstr "Themes und Marken-Overlays"
 msgid "history.empty"
 msgstr "Es gibt noch keine Snapshots."
 
+#. Explains what a required shell update means.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.required-caption"
+msgstr ""
+
 #. Shown after keep mine: the changes that did not fit and were left out.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -12462,6 +13404,12 @@ msgstr "Diese Änderungen von dir wurden nicht angewendet"
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.droppedIntro"
 msgstr "Diese Elemente wurden ausgelassen. Eingefügte Elemente verweisen nicht mehr auf sie."
+
+#. Caption under the heading of the native shell settings page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.caption"
+msgstr ""
 
 #. Explains why the step-up dialog appears.
 #. js-lingui-explicit-id
@@ -12751,6 +13699,12 @@ msgstr "Dieser Bildschirm kann nicht gelöscht werden"
 msgid "pluginCanvas.pendingSave"
 msgstr "Dieser Bildschirm hat ungespeicherte Änderungen. Warte, bis sie gespeichert sind, und versuche es dann erneut."
 
+#. Shown when the server embeds no sample apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.template.empty"
+msgstr ""
+
 #. Shown when a template has no parameters.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -12834,6 +13788,12 @@ msgstr "Bis"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.filterTo"
 msgstr "Bis (Datum)"
+
+#. Status word: the step is not done yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.status.todo"
+msgstr ""
 
 #. Command title.
 #. js-lingui-explicit-id
@@ -13381,6 +14341,12 @@ msgstr "Urteil"
 msgid "auth.factor.verify"
 msgstr "Bestätigen"
 
+#. Label: the app version such as 1.0.0+1 (version, then build number).
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.app-version"
+msgstr ""
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -13489,6 +14455,12 @@ msgstr "Audit-Eintrag ansehen"
 msgid "analytics.viewsColumn"
 msgstr "Aufrufe"
 
+#. Name of a ready-made theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.violet"
+msgstr ""
+
 #. Label of the visibility filter and field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -13519,6 +14491,12 @@ msgstr "Warten auf"
 msgid "publish.approvalWaiting"
 msgstr "Wartet auf die Freigebenden. Du kannst Studio schließen; eine Benachrichtigung holt dich zurück."
 
+#. Progress: the project job is queued.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.project.queued"
+msgstr ""
+
 #. Level label of a console line.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -13542,6 +14520,12 @@ msgstr "Warnungen und Fehler"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.title"
 msgstr "Willkommen bei {name}"
+
+#. Heading of the table of settings that differ from the generated project.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.changes.title"
+msgstr ""
 
 #. Heading of the props and slots diff.
 #. js-lingui-explicit-id
@@ -13620,6 +14604,12 @@ msgstr "Warum eine Person eine Berechtigung hat oder nicht, mit Nennung der Verg
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.explain.title"
 msgstr "Warum ist das nicht verfügbar?"
+
+#. Column head: the reason the change needs a new store build.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.col.reason"
+msgstr ""
 
 #. Group of the Insert tab: the basic widgets (Layer 1).
 #. js-lingui-explicit-id
@@ -13729,6 +14719,12 @@ msgstr "Du bist offline. Es wurde nichts geändert; versuche es erneut, sobald d
 msgid "chrome.signedout.title"
 msgstr "Sie sind abgemeldet"
 
+#. Note under the security profiles.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.security.later"
+msgstr ""
+
 #. Shown when the person cannot edit the messages.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -13830,6 +14826,12 @@ msgstr "Ihr Erscheinungsbild und Ihre Sprache, für alle Geräte gespeichert."
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.body"
 msgstr "Deine Änderungen ließen sich nicht mit der neueren Version zusammenführen. Automatisches Speichern pausiert, bis du entscheidest."
+
+#. Shown when dismissing or reopening the checklist failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.save-failed"
+msgstr ""
 
 #. Heading of the decision form.
 #. js-lingui-explicit-id

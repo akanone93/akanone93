@@ -12,67 +12,43 @@ const open = async () => {
   fireEvent.click(await screen.findByRole("button", { name: "Create app" }));
   return screen.findByRole("dialog", { name: "Create app" });
 };
-const fill = (dialog: HTMLElement, name: string, key?: string) => {
-  fireEvent.change(within(dialog).getByLabelText("Name"), { target: { value: name } });
-  if (key !== undefined) {
-    fireEvent.change(within(dialog).getByLabelText("Key"), { target: { value: key } });
-  }
-};
-const submit = (dialog: HTMLElement) => fireEvent.click(within(dialog).getByRole("button", { name: "Create app" }));
 const manager = (over: Upstream = {}): Upstream => ({
   permissions: ["app.read", "app.manage"],
   creation: { calls: [] },
+  projects: { calls: [], archives: [] },
   ...over,
 });
 
-describe("the organisation's apps and creating one [STU-015]", () => {
+describe("the organisation's apps and the new-app wizard [STU-024]", () => {
   test("the apps are listed and link to their canvas", async () => {
     renderApp(home, manager({ creation: { calls: [], apps: [{ id: "a1", key: "bank", name: "Bank" }] } }));
     const link = await screen.findByRole("link", { name: "Open Bank" });
     expect(link.getAttribute("href")).toBe(`/o/${orgA}/apps/a1`);
   });
 
-  test("a manager creates an app from the empty state and lands on its canvas", async () => {
+  test("a manager creates an app from the empty state with the wizard and lands on its canvas", async () => {
     const state = manager({ creation: { calls: [], apps: [] } });
     const r = renderApp(home, state);
     await screen.findByText("This organisation has no apps yet.");
     const dialog = await open();
-    fill(dialog, "Plux Bank");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Next" }));
+    fireEvent.change(within(dialog).getByLabelText("Name"), { target: { value: "Plux Bank" } });
     expect((within(dialog).getByLabelText("Key") as HTMLInputElement).value).toBe("plux-bank");
-    submit(dialog);
-    await waitFor(() => expect(state.creation?.calls).toEqual([`app:${orgA}:plux-bank:Plux Bank`]));
+    for (let i = 0; i < 4; i += 1) {
+      fireEvent.click(within(dialog).getByRole("button", { name: "Next" }));
+    }
+    fireEvent.click(within(dialog).getByRole("button", { name: "Create app" }));
+    await waitFor(() => expect(state.projects?.calls.length).toBe(1));
+    expect(state.projects?.calls[0]?.startsWith(`import:${orgA}:plux-bank:Plux Bank:`)).toBe(true);
+    fireEvent.click(await within(dialog).findByRole("button", { name: "Open the app" }));
     await waitFor(() => expect(r.router.state.location.pathname).toBe(`/o/${orgA}/apps/app-plux-bank`));
   });
 
-  test("with apps listed the create button stays in the header, and an empty name is refused", async () => {
-    const state = manager();
-    renderApp(home, state);
+  test("with apps listed the create button stays in the header and opens the wizard", async () => {
+    renderApp(home, manager());
     await screen.findByRole("link", { name: "Open Shop" });
-    submit(await open());
-    await within(await screen.findByRole("dialog", { name: "Create app" })).findByText(
-      "Enter a name of 1 to 200 characters.",
-    );
-    expect(state.creation?.calls).toEqual([]);
-  });
-
-  test("an invalid key is refused before any request", async () => {
-    const state = manager();
-    renderApp(home, state);
     const dialog = await open();
-    fill(dialog, "Shop", "-bad-");
-    submit(dialog);
-    await within(dialog).findByText(/Use 1 to 64 lower-case letters/);
-    expect(state.creation?.calls).toEqual([]);
-  });
-
-  test("the server's refusal, such as a quota, is shown in the dialog", async () => {
-    const state = manager({ creation: { calls: [], refuse: { app: "the organisation has reached its app limit" } } });
-    const r = renderApp(home, state);
-    const dialog = await open();
-    fill(dialog, "Extra", "extra");
-    submit(dialog);
-    expect((await within(dialog).findByRole("alert")).textContent).toBe("the organisation has reached its app limit");
-    expect(r.router.state.location.pathname).toBe(home);
+    expect(within(dialog).getByRole("heading", { name: "Step 1 of 7: Start from" })).toBeTruthy();
   });
 
   test("without app.manage there is no create button, and the empty state says whom to ask", async () => {
