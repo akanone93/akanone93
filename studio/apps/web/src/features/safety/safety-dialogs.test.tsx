@@ -28,7 +28,7 @@ const link: Use = {
   target: { kind: "page", id: "p-offers" },
 };
 
-describe("STU-074 type-to-confirm for production", () => {
+describe("[STU-074] type-to-confirm for production", () => {
   test("the action stays disabled until the exact name is typed", async () => {
     let confirmed = 0;
     renderI18n(
@@ -56,7 +56,7 @@ describe("STU-074 type-to-confirm for production", () => {
   });
 });
 
-describe("STU-070 STU-071 STU-076 blocked delete panel and rename warning", () => {
+describe("[STU-070] [STU-071] [STU-076] blocked delete panel and rename warning", () => {
   test("lists each use with navigation and offers the fixes that apply", async () => {
     const visited: string[] = [];
     let redirected = 0;

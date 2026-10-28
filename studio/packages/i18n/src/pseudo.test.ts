@@ -4,7 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { pseudoCatalogue, pseudoCompiled } from "./pseudo.ts";
 
-describe("pseudo-locales of compiled messages (I18N-010, STU-012)", () => {
+describe("pseudo-locales of compiled messages [I18N-010] [STU-012]", () => {
   test("en-XA accents the literal parts around a placeholder and keeps the placeholder", () => {
     const out = pseudoCompiled("en-XA", ["Hello ", ["name"], "!"]);
     expect(Array.isArray(out)).toBe(true);

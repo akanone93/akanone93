@@ -7,7 +7,7 @@ import { orgA, renderApp } from "../../test-harness.tsx";
 
 afterEach(cleanup);
 
-describe("STU-116 administration link in the shell", () => {
+describe("[STU-116] administration link in the shell", () => {
   test("a person who holds the permission the admin area needs sees the link to it", async () => {
     renderApp(`/o/${orgA}`, { permissions: ["organization.manage"] });
     const banner = await screen.findByRole("banner");

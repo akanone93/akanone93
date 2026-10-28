@@ -17,7 +17,7 @@ async function run(csrf: string | undefined, org: string | undefined): Promise<H
   return seen[0] as Headers;
 }
 
-describe("STU-001 API clients", () => {
+describe("[STU-001] API clients", () => {
   test("interceptor adds the CSRF and organisation headers when present", async () => {
     const h = await run("tok", "org-1");
     expect(h.get("X-CSRF-Token")).toBe("tok");

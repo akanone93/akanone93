@@ -68,6 +68,7 @@ studio-validator: ## Build the validator WebAssembly module and stage Go's wasm_
 studio-build: studio-install studio-gen-theme studio-gen-icons studio-validator ## Build the Studio web app into studio/apps/web/dist
 	cd studio && bun scripts/stage-canvaskit.ts && bun run build && bun scripts/precompress.ts apps/web/dist
 
+# Verifies: STU-122.
 studio-size: studio-build ## Check the initial JavaScript against the budget (STU-122)
 	cd studio && bun run size
 
@@ -84,14 +85,17 @@ studio-design-gate: studio-build ## Run the design gate: the Impeccable detector
 
 # Software rendering only (SwiftShader, no GPU): the canvas budgets hold on
 # machines without a GPU (ADR-0013 M-12). Not part of studio-check.
+# Verifies: STU-045, STU-121, NFR-032.
 studio-bench-canvas: studio-install ## Canvas benchmark in software rendering (STU-045, STU-120, M-12)
 	cd studio && bun packages/canvas/bench/run.ts
 
+# Verifies: STU-123.
 studio-bench-overlay: studio-install ## Overlay open benchmark in software rendering, p95 at most 150 ms (STU-123)
 	cd studio/apps/web && bun bench/run.ts
 
 # STU-122: the built app's Largest Contentful Paint over emulated broadband (10 Mbit/s, 40 ms round trip);
 # the median of five cold loads must stay within budgets.json. Not part of studio-check.
+# Verifies: STU-122.
 studio-bench-lcp: studio-build ## LCP benchmark of the built app, median at most 2.5 s (STU-122)
 	cd studio && bun scripts/bench-lcp.ts
 

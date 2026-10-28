@@ -45,7 +45,7 @@ const open = (path: string, release: ReleaseFixture, more: Upstream = {}) =>
 const step = (name: string) => screen.findByRole("heading", { name }, { timeout: 5000 });
 const press = (name: string) => fireEvent.click(screen.getByRole("button", { name }));
 
-describe("STU-100 publish flow", () => {
+describe("[STU-100] publish flow", () => {
   test("A2 walks the request from selection to release, with a step-up before the release", async () => {
     const credential = stubAssertion();
     const release = fixture("select");
@@ -209,7 +209,7 @@ const typeInto = (label: string, index: number, value: string) =>
 const continueButton = () => screen.getByRole("button", { name: "Continue" }) as HTMLButtonElement;
 const isDisabled = (button: HTMLButtonElement) => button.disabled || button.getAttribute("aria-disabled") === "true";
 
-describe("STU-100 rollout plan form (REL-050 to REL-053)", () => {
+describe("[STU-100] rollout plan form ([REL-050] to [REL-053])", () => {
   test("the default plan is one stage at 100 % and goes to the server as typed stages", async () => {
     const release = fixture("rollout");
     open("/publish/r1", release);
@@ -311,7 +311,7 @@ describe("STU-100 rollout plan form (REL-050 to REL-053)", () => {
   });
 });
 
-describe("STU-100 build evidence and diffs", () => {
+describe("[STU-100] build evidence and diffs", () => {
   const evidence: NonNullable<ReleaseFixture["evidence"]> = {
     versions: {
       p1: [

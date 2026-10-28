@@ -52,7 +52,7 @@ const requests = [
 
 const open = (path: string, state: Upstream) => renderApp(`${base}${path}`, { permissions: decide, ...state });
 
-describe("STU-102 inbox and history", () => {
+describe("[STU-102] inbox and history", () => {
   test("O7 lists the open requests and O9 the decided ones", async () => {
     open("", { approvals: { requests } });
     await screen.findByRole("link", { name: "Promote release 12" });
@@ -83,7 +83,7 @@ describe("STU-102 inbox and history", () => {
   });
 });
 
-describe("STU-102 request and decision", () => {
+describe("[STU-102] request and decision", () => {
   test("O8 shows the evidence, the decisions and the audit record", async () => {
     open("/r3?app=app1", { approvals: { requests } });
     await screen.findByText("Looks right");
@@ -94,7 +94,7 @@ describe("STU-102 request and decision", () => {
     await screen.findByText('{"op":"add"}');
   });
 
-  test("D47 sends the decision with its comment only after the step-up (SEC-103)", async () => {
+  test("D47 sends the decision with its comment only after the step-up [SEC-103]", async () => {
     const credential = stubAssertion();
     const decided: { appId: string; id: string; decision: string; comment: string }[] = [];
     const stepUps: string[] = [];
@@ -145,7 +145,7 @@ describe("STU-102 request and decision", () => {
   });
 });
 
-describe("GOV-024 break-glass reviews", () => {
+describe("[GOV-024] break-glass reviews", () => {
   const breakGlass = [
     {
       id: "b1",
@@ -185,7 +185,7 @@ describe("GOV-024 break-glass reviews", () => {
   });
 });
 
-describe("GOV-020 policies and the simulator", () => {
+describe("[GOV-020] policies and the simulator", () => {
   const policies = [{ key: "mine", name: "My policy", approvers: 2 }];
 
   test("O11 lists the policies in force", async () => {

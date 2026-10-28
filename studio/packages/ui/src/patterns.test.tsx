@@ -17,7 +17,7 @@ import { cases as tableCases } from "./virtual-table.cases.tsx";
 
 afterEach(cleanup);
 
-describe("STU-010 STU-011 information patterns (U10)", () => {
+describe("[STU-010] [STU-011] information patterns (U10)", () => {
   test("every case renders", () => {
     for (const list of [
       pillCases,
@@ -84,7 +84,7 @@ describe("STU-010 STU-011 information patterns (U10)", () => {
   });
 });
 
-describe("STU-120 STU-011 VirtualTable", () => {
+describe("[STU-120] [STU-011] VirtualTable", () => {
   test("10,000 rows render only the visible ones", () => {
     const { container } = render(tableCases[0]?.element ?? <div />);
     expect(screen.getByRole("table", { name: "Pages" }).getAttribute("aria-rowcount")).toBe("10001");
@@ -96,7 +96,7 @@ describe("STU-120 STU-011 VirtualTable", () => {
   });
 });
 
-describe("STU-011 Tree keyboard", () => {
+describe("[STU-011] Tree keyboard", () => {
   function setup(index: number) {
     render(treeCases[index]?.element ?? <div />);
     const tree = screen.getByRole("tree");

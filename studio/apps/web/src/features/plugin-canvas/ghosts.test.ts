@@ -28,7 +28,7 @@ const page = (id: string, route: string, title: string) =>
     }),
   );
 
-describe("STU-052 ghost screens", () => {
+describe("[STU-052] ghost screens", () => {
   const app = readAppScreens([
     { pluginId: "loans", kind: "page", content: page("s1", "/loan", "Loan form") },
     { pluginId: "cards", kind: "page", content: page("s2", "/card", "Card") },
@@ -56,7 +56,7 @@ describe("STU-052 ghost screens", () => {
     ]);
   });
 
-  test("native routes are native nodes (STU-054); unknown routes get no box", () => {
+  test("native routes are native nodes [STU-054]; unknown routes get no box", () => {
     expect(graph.edges.map((e) => e.target)).toEqual(["ghost:s1", "ghost:s1", "native:/pay", "a", "a"]);
   });
 
@@ -120,7 +120,7 @@ describe("scene sync", () => {
   });
 });
 
-describe("STU-053 pulse", () => {
+describe("[STU-053] pulse", () => {
   test("the ring appears, blinks and is gone after 2 s", () => {
     const steps = pulseSteps("p", { l: 0, t: 0, r: 10, b: 10 }, 1);
     expect(steps[0]?.ops[0]?.op).toBe("add");

@@ -98,7 +98,7 @@ const workerMessages: WorkerMessage[] = [
   { v, type: "error", message: "boom" },
 ];
 
-describe("STU-003 canvas worker protocol", () => {
+describe("[STU-003] canvas worker protocol", () => {
   test("every host message survives structured clone and is read back", () => {
     for (const message of hostMessages) {
       const copy = structuredClone(message);
@@ -117,7 +117,7 @@ describe("STU-003 canvas worker protocol", () => {
     }
   });
 
-  test("STU-121 a screensUpdate message (changed screens, removed ids) survives structured clone", () => {
+  test("[STU-121] a screensUpdate message (changed screens, removed ids) survives structured clone", () => {
     const full = hostMessages.find((m): m is Extract<HostMessage, { type: "screens" }> => m.type === "screens");
     if (full === undefined) {
       throw new Error("no screens message");

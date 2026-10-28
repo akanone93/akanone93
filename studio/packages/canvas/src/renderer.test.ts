@@ -52,7 +52,7 @@ const screen: FrameSpec = {
   z: 0,
 };
 
-describe("STU-120 batching (M-12)", () => {
+describe("[STU-120] batching (M-12)", () => {
   test("one path per stroke style for links and one per fill or stroke style for boxes", () => {
     const { scene, renderer } = setup();
     const colors = [0x888888ff, 0x3366ccff, 0xcc3333ff];
@@ -74,7 +74,7 @@ describe("STU-120 batching (M-12)", () => {
   });
 });
 
-describe("STU-120 level of detail in the renderer (M-12)", () => {
+describe("[STU-120] level of detail in the renderer (M-12)", () => {
   test("text is drawn as paragraphs at full zoom and as one bar batch when small", () => {
     const { scene, viewport, renderer } = setup();
     scene.apply(Array.from({ length: 5 }, (_, i) => ({ op: "add" as const, item: text(`t${i}`, 10, i * 30) })));
@@ -101,7 +101,7 @@ describe("STU-120 level of detail in the renderer (M-12)", () => {
   });
 });
 
-describe("STU-120 tile cache, dirty regions and idle rendering (M-12)", () => {
+describe("[STU-120] tile cache, dirty regions and idle rendering (M-12)", () => {
   test("tiles render when idle, are blitted while panning, and changes redraw only dirty regions", () => {
     const { scene, viewport, renderer } = setup({ tiles: true });
     scene.apply([
@@ -185,7 +185,7 @@ describe("STU-120 tile cache, dirty regions and idle rendering (M-12)", () => {
   });
 });
 
-describe("STU-121 CanvasKit objects are owned and never leaked", () => {
+describe("[STU-121] CanvasKit objects are owned and never leaked", () => {
   test("steady frames allocate no lasting objects; dispose deletes every one", () => {
     const { scene, viewport, renderer } = setup({ tiles: true });
     scene.apply([
@@ -220,7 +220,7 @@ describe("STU-121 CanvasKit objects are owned and never leaked", () => {
   });
 });
 
-describe("STU-121 damage-rect redraw", () => {
+describe("[STU-121] damage-rect redraw", () => {
   function pixels(s: Surface): Uint8Array {
     const image = s.makeImageSnapshot();
     const read = image.readPixels(0, 0, {
@@ -329,7 +329,7 @@ describe("STU-121 damage-rect redraw", () => {
   });
 });
 
-describe("STU-045 interaction layer damage (M-12)", () => {
+describe("[STU-045] interaction layer damage (M-12)", () => {
   function read(s: Surface): Uint8Array<ArrayBuffer> {
     const image = s.makeImageSnapshot();
     const out = image.readPixels(0, 0, {

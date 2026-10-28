@@ -6,7 +6,7 @@ import { loadGhostImages, sha256Hex, syncThumbnails, thumbnailName } from "./thu
 
 const png = (n: number) => new Uint8Array([137, 80, 78, 71, n]);
 
-describe("STU-052 thumbnails upload only when changed (A5.6)", () => {
+describe("[STU-052] thumbnails upload only when changed (A5.6)", () => {
   const make = (stored: { name: string; sha256: string }[]) => {
     const uploads: string[] = [];
     let captures = 0;

@@ -33,7 +33,7 @@ function renderWith(node: React.ReactNode) {
   );
 }
 
-describe("STU-074 D4 type-to-confirm", () => {
+describe("[STU-074] D4 type-to-confirm", () => {
   test("the button is disabled until the text matches exactly", async () => {
     const onConfirm = mock(() => undefined);
     renderWith(
@@ -59,7 +59,7 @@ describe("STU-074 D4 type-to-confirm", () => {
   });
 });
 
-describe("GOV-024 D5 justification", () => {
+describe("[GOV-024] D5 justification", () => {
   test("submit needs a non-empty trimmed justification", async () => {
     const onSubmit = mock((_text: string) => undefined);
     renderWith(<JustificationDialog open onOpenChange={() => undefined} description="Why" onSubmit={onSubmit} />);
@@ -74,7 +74,7 @@ describe("GOV-024 D5 justification", () => {
   });
 });
 
-describe("SEC-103 D3 step-up", () => {
+describe("[SEC-103] D3 step-up", () => {
   test("asks the authenticator with the given options and hands the assertion on", async () => {
     const credential = { id: "c1" } as Credential;
     const get = mock(async (_o?: CredentialRequestOptions) => credential);

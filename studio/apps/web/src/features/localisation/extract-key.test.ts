@@ -90,7 +90,7 @@ const page: JsonValue = { root: { id: "n1", type: "Text", props: { text: "Pay no
 let counter = 0;
 const newId = () => `id-${++counter}`;
 
-describe("I18N-007 automatic key extraction", () => {
+describe("[I18N-007] automatic key extraction", () => {
   test("the key, the source message and the prop change under one step", async () => {
     const steps: { path: string; step: string | undefined }[] = [];
     const keys = session({ "translations/keys.json": { kind: "translationKeys", keys: [] } }, steps);
@@ -153,7 +153,7 @@ describe("I18N-007 automatic key extraction", () => {
     expect(replaced).toBeDefined();
   });
 
-  test("STU-069 undo reverts the key, the message and the prop as one step; redo re-applies all three", async () => {
+  test("[STU-069] undo reverts the key, the message and the prop as one step; redo re-applies all three", async () => {
     const c = canvas({
       keys: { kind: "translationKeys", keys: [] },
       messages: { kind: "translations", locale: "en", messages: {} },
@@ -171,7 +171,7 @@ describe("I18N-007 automatic key extraction", () => {
     expect(c.content()).toEqual(after);
   });
 
-  test("STU-069 undo deletes the documents an extraction created; redo creates them again", async () => {
+  test("[STU-069] undo deletes the documents an extraction created; redo creates them again", async () => {
     const c = canvas({});
     expect((await c.extract()).ok).toBe(true);
     const after = c.content();

@@ -72,7 +72,7 @@ function grid(n: number, m: number, seed = 7): { boxes: ArrowBox[]; edges: Navig
   return { boxes, edges };
 }
 
-describe("STU-040 STU-041 derivation and bundling", () => {
+describe("[STU-040] [STU-041] derivation and bundling", () => {
   test("every navigate edge becomes a link; same-direction links share one bundle", () => {
     const bundles = deriveBundles([
       edge("n2", "A", "B"),
@@ -104,7 +104,7 @@ describe("STU-040 STU-041 derivation and bundling", () => {
     expect(bundles.map((b) => `${b.id}:${b.links.length}`)).toEqual(["p1→p2:2", "p2→native:camera:1"]);
   });
 
-  test("STU-051 plugin canvas bundles screen-to-screen links leaving its own screens", () => {
+  test("[STU-051] plugin canvas bundles screen-to-screen links leaving its own screens", () => {
     const pluginOf = new Map([
       ["home", "p1"],
       ["offers", "p1"],
@@ -130,7 +130,7 @@ describe("STU-040 STU-041 derivation and bundling", () => {
   });
 });
 
-describe("STU-042 side choice, hysteresis and anchor spread", () => {
+describe("[STU-042] side choice, hysteresis and anchor spread", () => {
   test("the shortest side pair connects facing sides", () => {
     expect(chooseSides(box("a", 0, 0), box("b", 300, 0), undefined)).toEqual([1, 3]);
     expect(chooseSides(box("a", 0, 0), box("b", 0, 300), undefined)).toEqual([2, 0]);
@@ -184,7 +184,7 @@ describe("STU-042 side choice, hysteresis and anchor spread", () => {
   });
 });
 
-describe("STU-043 perpendicular Béziers routed around boxes", () => {
+describe("[STU-043] perpendicular Béziers routed around boxes", () => {
   test("leaves and enters perpendicular to the sides", () => {
     const router = new ArrowRouter([box("a", 0, 0), box("b", 400, 100)], deriveBundles([edge("x", "a", "b")]));
     const route = router.routes.get("a→b") as Route;
@@ -219,7 +219,7 @@ describe("STU-043 perpendicular Béziers routed around boxes", () => {
   });
 });
 
-describe("STU-045 determinism and incremental re-routing", () => {
+describe("[STU-045] determinism and incremental re-routing", () => {
   test("same input gives identical routes", () => {
     const { boxes, edges } = grid(30, 120);
     const one = new ArrowRouter(boxes, deriveBundles(edges));
@@ -264,7 +264,7 @@ describe("STU-045 determinism and incremental re-routing", () => {
   });
 });
 
-describe("STU-044 STU-046 STU-048 lanes, picking and level of detail", () => {
+describe("[STU-044] [STU-046] [STU-048] lanes, picking and level of detail", () => {
   const boxes = [box("a", 0, 0), box("b", 500, 0)];
   const bundles: Bundle[] = deriveBundles([edge("n1", "a", "b"), edge("n2", "a", "b"), edge("n3", "a", "b")]);
 

@@ -95,7 +95,7 @@ function overlay(over: Partial<Parameters<typeof LocalisationOverlay>[0]> = {}) 
   return { keys, messages };
 }
 
-describe("STU-063 localisation table V4", () => {
+describe("[STU-063] localisation table V4", () => {
   test("lists the plugin's keys with every locale; the others are read-only", async () => {
     overlay();
     expect(await screen.findByRole("table", { name: "Translation keys by locale" })).toBeDefined();
@@ -145,7 +145,7 @@ describe("STU-063 localisation table V4", () => {
   });
 });
 
-describe("I18N-007 extraction dialog", () => {
+describe("[I18N-007] extraction dialog", () => {
   function dialog(canEditKeys: boolean, manager?: UndoManager) {
     const on = (stack: string) => (manager === undefined ? undefined : { manager, stack });
     const keys = session({ "translations/keys.json": { kind: "translationKeys", keys: [] } }, on(""));
@@ -200,7 +200,7 @@ describe("I18N-007 extraction dialog", () => {
     expect(replaced).toHaveLength(1);
   });
 
-  test("STU-069 the extraction is one client undo step across the keys, the message and the page", async () => {
+  test("[STU-069] the extraction is one client undo step across the keys, the message and the page", async () => {
     const manager = new UndoManager({ depth: 10 });
     const { closed, content } = dialog(true, manager);
     const before = content();

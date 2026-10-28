@@ -34,7 +34,7 @@ function at(child: RenderBox): Offset {
 
 const tight200 = BoxConstraints.tight(new Size(200, 100));
 
-describe("STU-005 StackParentData (stack_test.dart)", () => {
+describe("[STU-005] StackParentData (stack_test.dart)", () => {
   test("StackParentData basic test", () => {
     const parentData = new StackParentData();
     const stackSize = new Size(800, 600);
@@ -75,7 +75,7 @@ describe("STU-005 StackParentData (stack_test.dart)", () => {
   });
 });
 
-describe("STU-005 RenderStack (stack_test.dart)", () => {
+describe("[STU-005] RenderStack (stack_test.dart)", () => {
   test("Stack can layout with top, right, bottom, left 0.0", () => {
     const size = new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tight(new Size(100, 100)) });
     const red = new RenderDecoratedBox({ decoration: { color: "#f00" }, child: size });
@@ -277,7 +277,7 @@ describe("STU-005 RenderStack (stack_test.dart)", () => {
   });
 });
 
-describe("STU-005 RenderIndexedStack", () => {
+describe("[STU-005] RenderIndexedStack", () => {
   test("every child sizes the stack; index selects the displayed child", () => {
     const a = box(50, 40, 10);
     const b = box(30, 70, 20);

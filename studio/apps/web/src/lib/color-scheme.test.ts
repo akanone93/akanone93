@@ -6,7 +6,7 @@ import { isDark } from "./color-scheme.ts";
 
 afterEach(() => document.documentElement.removeAttribute("data-theme"));
 
-describe("STU-011 third-party widgets follow the applied theme", () => {
+describe("[STU-011] third-party widgets follow the applied theme", () => {
   test("the theme on the document wins", () => {
     document.documentElement.setAttribute("data-theme", "dark");
     expect(isDark()).toBe(true);

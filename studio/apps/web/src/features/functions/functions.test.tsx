@@ -50,7 +50,7 @@ const functions = [
 const open = (path: string, state: Upstream, permissions = all) =>
   renderApp(`${base}${path}`, { permissions, ...state });
 
-describe("STU-110 functions list (A10)", () => {
+describe("[STU-110] functions list (A10)", () => {
   test("lists the functions with placement and test state", async () => {
     open("", { functions: { functions } });
     await screen.findByRole("link", { name: "convert" });
@@ -67,7 +67,7 @@ describe("STU-110 functions list (A10)", () => {
   });
 });
 
-describe("STU-110 function detail (A11)", () => {
+describe("[STU-110] function detail (A11)", () => {
   test("shows versions and aliases, and points an alias only after the step-up", async () => {
     stubAssertion();
     const calls: string[] = [];
@@ -124,13 +124,13 @@ describe("STU-110 function detail (A11)", () => {
     expect(screen.queryByText("Key-value store")).toBeNull();
   });
 
-  test("the metrics tab shows counts and errors by kind", async () => {
+  test("the metrics tab shows counts and errors by kind [FN-035]", async () => {
     open("/convert?tab=metrics", { functions: { functions, metrics: { invocations: 42, errorsByKind: { trap: 3 } } } });
     await screen.findByText("42");
     expect(screen.getByText("trap")).toBeTruthy();
   });
 
-  test("the logs tab shows the retained lines", async () => {
+  test("the logs tab shows the retained lines [FN-035]", async () => {
     open("/convert?tab=logs", { functions: { functions, logs: [{ level: "info", message: "converted" }] } });
     await screen.findByText("converted");
   });
@@ -180,7 +180,7 @@ describe("STU-110 function detail (A11)", () => {
   });
 });
 
-describe("FN-033 editor page (A12)", () => {
+describe("[FN-033] editor page (A12)", () => {
   test("opens the Rust editor as a page", async () => {
     open("/convert/edit", { functions: { functions }, rust: { reply: () => [] } });
     const area = (await screen.findByLabelText(

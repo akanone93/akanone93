@@ -11,7 +11,7 @@ const pinned = readFileSync(new URL("VERSION", dir), "utf-8")
   .filter((line) => line.startsWith("file "))
   .map((line) => line.split(" ").slice(1) as [string, string]);
 
-describe("STU-006 canvas fonts", () => {
+describe("[STU-006] canvas fonts", () => {
   test("four fonts are pinned", () => {
     expect(pinned.map(([name]) => name).sort()).toEqual([
       "NotoSans_400Regular.ttf",

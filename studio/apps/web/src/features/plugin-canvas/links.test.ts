@@ -29,7 +29,7 @@ const page = () => ({
 });
 const node = (root: ReturnType<typeof page>, id: string) => root.children.find((c) => c.id === id);
 
-describe("link creation (STU-040, STU-047)", () => {
+describe("link creation [STU-040] [STU-047]", () => {
   test("events come from the widget descriptor", () => {
     expect(eventsOf("ElevatedButton")).toContain("onPressed");
     expect(eventsOf("NoSuchWidget")).toEqual([]);
@@ -75,7 +75,7 @@ describe("link creation (STU-040, STU-047)", () => {
   });
 });
 
-describe("assisted fixes (F6, STU-046)", () => {
+describe("assisted fixes (F6, [STU-046])", () => {
   const routes = routeOptions([{ route: "home", title: "Home" }], [{ route: "other", title: "Other" }]);
 
   test("route options list own screens first and add other plugins once", () => {

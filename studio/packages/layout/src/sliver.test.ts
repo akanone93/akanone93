@@ -90,7 +90,7 @@ function liveIndices(sliver: RenderSliverMultiBoxAdaptor): number[] {
   return result;
 }
 
-describe("STU-068 axis directions", () => {
+describe("[STU-068] axis directions", () => {
   test("axis, reversal and flipping", () => {
     expect(axisDirectionToAxis(AxisDirection.up)).toBe(Axis.vertical);
     expect(axisDirectionToAxis(AxisDirection.left)).toBe(Axis.horizontal);
@@ -121,7 +121,7 @@ describe("STU-068 axis directions", () => {
   });
 });
 
-describe("STU-068 SliverConstraints", () => {
+describe("[STU-068] SliverConstraints", () => {
   test("asBoxConstraints is tight across and ranges along the scroll axis", () => {
     const vertical = constraints().asBoxConstraints({ minExtent: 20, maxExtent: 90 });
     expect([vertical.minWidth, vertical.maxWidth, vertical.minHeight, vertical.maxHeight]).toEqual([300, 300, 20, 90]);
@@ -155,7 +155,7 @@ describe("STU-068 SliverConstraints", () => {
   });
 });
 
-describe("STU-068 SliverGeometry", () => {
+describe("[STU-068] SliverGeometry", () => {
   test("layout, hit test and cache extents default from the paint extent", () => {
     const geometry = new SliverGeometry({ paintExtent: 80, scrollExtent: 200 });
     expect([geometry.layoutExtent, geometry.hitTestExtent, geometry.cacheExtent, geometry.visible]).toEqual([
@@ -171,7 +171,7 @@ describe("STU-068 SliverGeometry", () => {
   });
 });
 
-describe("STU-068 paint and cache offsets", () => {
+describe("[STU-068] paint and cache offsets", () => {
   const sliver = new RenderSliverToBoxAdapter();
   const scrolled = constraints({
     scrollOffset: 100,
@@ -193,7 +193,7 @@ describe("STU-068 paint and cache offsets", () => {
   });
 });
 
-describe("STU-068 viewport offsets", () => {
+describe("[STU-068] viewport offsets", () => {
   test("a fixed offset stays and is corrected by the amount asked", () => {
     const offset = new FixedViewportOffset(40, ScrollDirection.forward);
     expect(offset.applyViewportDimension(400)).toBe(true);
@@ -222,7 +222,7 @@ describe("STU-068 viewport offsets", () => {
   });
 });
 
-describe("STU-068 viewports", () => {
+describe("[STU-068] viewports", () => {
   test("a viewport fills its constraints and reports the scrollable range", () => {
     const list = new RenderSliverList({
       childManager: new PrebuiltChildManager([
@@ -294,7 +294,7 @@ describe("STU-068 viewports", () => {
   });
 });
 
-describe("STU-068 sliver lists", () => {
+describe("[STU-068] sliver lists", () => {
   function listViewport(sliver: RenderSliver, offset: number, cache = 0): RenderViewport {
     return new RenderViewport({
       crossAxisDirection: AxisDirection.right,
@@ -347,7 +347,7 @@ describe("STU-068 sliver lists", () => {
   });
 });
 
-describe("STU-068 sliver grids", () => {
+describe("[STU-068] sliver grids", () => {
   test("a regular tile layout places tiles by stride and mirrors the cross axis when reversed", () => {
     const init = {
       crossAxisCount: 3,
@@ -413,7 +413,7 @@ describe("STU-068 sliver grids", () => {
   });
 });
 
-describe("STU-068 persistent headers", () => {
+describe("[STU-068] persistent headers", () => {
   function header(kind: "scrolling" | "pinned", offset: number) {
     const expanding = new RenderConstrainedBox({
       additionalConstraints: BoxConstraints.tightFor({

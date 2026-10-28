@@ -69,7 +69,7 @@ const area = async () => (await screen.findByLabelText("JSON of the document")) 
 const apply = () => screen.getByRole("button", { name: "Apply" });
 const disabled = (el: HTMLElement) => el.matches(":disabled, [aria-disabled=true]");
 
-describe("STU-064 JSON editor V1", () => {
+describe("[STU-064] JSON editor V1", () => {
   test("validates as you type, blocks Apply while invalid, and applies only a valid change as a minimal patch", async () => {
     let edit: EditSession | undefined;
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
@@ -156,7 +156,7 @@ describe("STU-064 JSON editor V1", () => {
   });
 });
 
-describe("STU-063 overlay host", () => {
+describe("[STU-063] overlay host", () => {
   test("opening pauses the canvas without unmounting it; closing restores viewport, focus and selection", async () => {
     const s = surface();
     renderApp(path, { documents, surface: s.factory });

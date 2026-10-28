@@ -97,7 +97,7 @@ describe("pure helpers", () => {
   });
 });
 
-describe("STU-113 A20 API definitions (DAT-002)", () => {
+describe("[STU-113] A20 API definitions [DAT-002]", () => {
   test("lists the sources and imports an OpenAPI definition through the importer", async () => {
     let edit: EditSession | undefined;
     renderApp(
@@ -129,7 +129,7 @@ describe("STU-113 A20 API definitions (DAT-002)", () => {
   });
 });
 
-describe("STU-113 A21 data source (DAT-080)", () => {
+describe("[STU-113] A21 data source [DAT-080]", () => {
   test("shows operations and the base URL variable per environment, edits route, config and transaction, and the mock in a dialog", async () => {
     let edit: EditSession | undefined;
     renderApp(
@@ -155,7 +155,7 @@ describe("STU-113 A21 data source (DAT-080)", () => {
   });
 });
 
-describe("STU-113 A22 and A23 collections (DB-004, DB-005)", () => {
+describe("[STU-113] A22 and A23 collections [DB-004] [DB-005]", () => {
   test("lists collections, edits indexes and previews the migration", async () => {
     let edit: EditSession | undefined;
     const published = [{ path: "plugin.json", json: plugin }];

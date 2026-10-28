@@ -32,7 +32,7 @@ const draft: Draft = {
   ],
 };
 
-describe("TST-001 scenario authoring model", () => {
+describe("[TST-001] scenario authoring model", () => {
   test("builds a scenario that follows scenario.schema.json", () => {
     expect(scenarioOf(draft)).toEqual({
       name: "Pays",

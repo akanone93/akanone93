@@ -84,7 +84,7 @@ if (awaiting.length > 0) {
   process.stdout.write(`layout conformance: awaiting RenderFlex: ${awaiting.join(", ")}\n`);
 }
 
-describe("STU-005 layout conformance with Flutter goldens", () => {
+describe("[STU-005] [RT-016] layout conformance with Flutter goldens", () => {
   test("the suite has scenes and four goldens per scene and text scale", () => {
     expect(scenes.size).toBeGreaterThanOrEqual(12);
     const textScenes = [...scenes.values()].filter(hasText).length;

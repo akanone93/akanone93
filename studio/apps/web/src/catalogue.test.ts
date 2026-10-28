@@ -4,7 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { build } from "vite";
 
-describe("STU-011 development-only catalogue page", () => {
+describe("[STU-011] development-only catalogue page", () => {
   test("the production bundle has no catalogue code", async () => {
     // bun test sets NODE_ENV=test, which Vite would treat as a development build.
     const previous = process.env.NODE_ENV;

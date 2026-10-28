@@ -160,7 +160,7 @@ function flowBox(gridCount: number, baselinePlacer: (height: number) => number |
   return box;
 }
 
-describe("STU-005 RenderFlex: ported from Flutter flex_test.dart", () => {
+describe("[STU-005] RenderFlex: ported from Flutter flex_test.dart", () => {
   test("Overconstrained flex", () => {
     const flex = new RenderFlex({ textDirection: TextDirection.ltr, children: [empty()] });
     layout(flex, new BoxConstraints({ minWidth: 200, maxWidth: 200, minHeight: 200, maxHeight: 200 }));
@@ -731,7 +731,7 @@ describe("STU-005 RenderFlex: ported from Flutter flex_test.dart", () => {
   });
 });
 
-describe("STU-005 RenderFlex: ported from Flutter flex_overflow_test.dart", () => {
+describe("[STU-005] RenderFlex: ported from Flutter flex_overflow_test.dart", () => {
   test("Flex overflow indicator: overflow amount", () => {
     const column = (height: number | null): RenderFlex => {
       const flex = new RenderFlex({
@@ -756,7 +756,7 @@ describe("STU-005 RenderFlex: ported from Flutter flex_overflow_test.dart", () =
   });
 });
 
-describe("STU-005 RenderFlex: alignment, direction and fit", () => {
+describe("[STU-005] RenderFlex: alignment, direction and fit", () => {
   // Three 100×100 boxes in a 500×500 flex: free space 200.
   const ltr: Record<MainAxisAlignment, number[]> = {
     [MainAxisAlignment.start]: [0, 100, 200],
@@ -863,7 +863,7 @@ describe("STU-005 RenderFlex: alignment, direction and fit", () => {
   });
 });
 
-describe("STU-005 RenderFlex: baselines, overflow, dry layout", () => {
+describe("[STU-005] RenderFlex: baselines, overflow, dry layout", () => {
   test("baseline alignment with RenderTestBox baselines", () => {
     const a = new RenderTestBox({ size: new Size(100, 50), baseline: 40 });
     const b = new RenderTestBox({ size: new Size(100, 100), baseline: 20 });

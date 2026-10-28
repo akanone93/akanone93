@@ -4,7 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { INTERACTION_RESOLUTION, lodForZoom, resolutionFor, SHADOWS_BELOW, STRAIGHT_LINKS_BELOW } from "./lod.ts";
 
-describe("STU-120 level of detail by zoom (M-12)", () => {
+describe("[STU-120] level of detail by zoom (M-12)", () => {
   test("full detail at and above the link and text threshold", () => {
     expect(lodForZoom(1)).toEqual({ straightLinks: false, textBars: false, shadows: true });
     expect(lodForZoom(STRAIGHT_LINKS_BELOW)).toEqual({ straightLinks: false, textBars: false, shadows: true });

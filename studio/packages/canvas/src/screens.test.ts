@@ -30,7 +30,7 @@ const style: ScreenStyle = {
 
 const text = (id: string, data: string): WidgetNode => ({ id, type: "Text", props: { data } });
 
-describe("ADR-0013 screens laid out in the canvas worker (STU-005, STU-056)", () => {
+describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", () => {
   test("a screens message lays documents out with SkParagraph and answers with ops and heights", async () => {
     const env = new TestEnvironment(ck);
     const posted: WorkerMessage[] = [];
@@ -134,7 +134,7 @@ describe("ADR-0013 screens laid out in the canvas worker (STU-005, STU-056)", ()
     await core.receive({ v, type: "dispose" });
   });
 
-  test("STU-121 a screensUpdate lays out only the changed screen and touches only its changed items", async () => {
+  test("[STU-121] a screensUpdate lays out only the changed screen and touches only its changed items", async () => {
     const env = new TestEnvironment(ck);
     const posted: WorkerMessage[] = [];
     let paragraphs = 0;
