@@ -52,6 +52,7 @@ import {
   ReleaseRequestService,
   ReleaseSchema,
   ReleaseService,
+  ReplayService,
   RolloutSchema,
   RolloutService,
   SecurityAdminService,
@@ -1471,6 +1472,8 @@ export interface AnalyticsFixture {
     events: number;
   }[];
   overview?: { appId: string; sessions: number; screenViews: number; errors: number; firingAlerts: number }[];
+  /** Session replays of the environment (ANL-050), each with its events. */
+  replays?: { id: string; route: string; durationMs: number; events: Record<string, unknown>[] }[];
   /** Calls the test can assert on. */
   calls?: { method: string; request: unknown }[];
 }
@@ -1481,6 +1484,25 @@ function analyticsAreaServices(
 ) {
   const calls = data.calls ?? [];
   const funnels = data.funnels ?? [];
+  const replays = data.replays ?? [];
+  const summary = (r: (typeof replays)[number]) => ({
+    id: r.id,
+    appId: "app1",
+    route: r.route,
+    durationMs: r.durationMs,
+    eventCount: r.events.length,
+    startedAt: timestampFromMs(Date.parse("2026-10-28T10:00:00Z")),
+  });
+  service(ReplayService, {
+    listReplays: () => ({ replays: replays.map(summary) }),
+    getReplay: (req) => {
+      const r = replays.find((x) => x.id === req.id);
+      if (r === undefined) {
+        throw new ConnectError("no such replay", Code.NotFound);
+      }
+      return { replay: summary(r), events: r.events as never };
+    },
+  } as never);
   const view = (f: (typeof funnels)[number]) => ({
     id: f.id,
     appId: "app1",

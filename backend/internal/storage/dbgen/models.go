@@ -1723,6 +1723,24 @@ type Session struct {
 	IdleTimeoutMs *int64
 }
 
+type SessionReplay struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	EnvironmentID   pgtype.UUID
+	DeviceID        pgtype.UUID
+	StartedAt       pgtype.Timestamptz
+	DurationMs      int32
+	EventCount      int32
+	Bytes           int32
+	ReleaseSequence int64
+	Truncated       bool
+	Route           string
+	Events          []byte
+	CreatedAt       pgtype.Timestamptz
+	ExpiresAt       pgtype.Timestamptz
+}
+
 type Snapshot struct {
 	ID              pgtype.UUID
 	OrganizationID  pgtype.UUID

@@ -118,6 +118,12 @@ func buildScheduler(svc *Services, log *slog.Logger, db *storage.DB) (*scheduler
 				return err //nolint:wrapcheck // a domain error
 			}})
 	}
+	if svc.Replays != nil {
+		jobs = append(jobs, scheduler.JobFunc{Label: "session replay retention", F: func(ctx context.Context, org string) error {
+			_, err := svc.Replays.Purge(ctx, org)
+			return err //nolint:wrapcheck // a domain error
+		}})
+	}
 	if svc.Rollouts != nil {
 		jobs = append(jobs, scheduler.JobFunc{Label: "rollouts", F: svc.Rollouts.Job()})
 	}

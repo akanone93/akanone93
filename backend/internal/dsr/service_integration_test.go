@@ -126,6 +126,8 @@ func (w *world) seedDevice(x tenant) string {
 		storage.MustUUID(w.id()), o, session, d)
 	w.exec(x.org, `INSERT INTO device_sca_keys (device_id, organization_id, public_key, jkt, key_storage, attestation_provider) VALUES ($1, $2, '\x02', 'jkt', 'hardware', 'none')`, dev, o)
 	w.exec(x.org, `INSERT INTO device_push_tokens (device_id, organization_id, app_id, environment_id, provider, ciphertext, wrapped_key, key_id) VALUES ($1, $2, $3, $4, 'fcm', '\x03', '\x04', 'k1')`, dev, o, a, e)
+	w.exec(x.org, `INSERT INTO session_replays (id, organization_id, app_id, environment_id, device_id, started_at, duration_ms, event_count, bytes, events, created_at, expires_at)
+		VALUES ($1, $2, $3, $4, $5, now(), 1, 1, 2, '[]', now(), now() + interval '1 day')`, storage.MustUUID(w.id()), o, a, e, dev)
 	w.exec(x.org, `INSERT INTO telemetry_events (id, organization_id, app_id, environment_id, device_id, name, time) VALUES ($1, $2, $3, $4, $5, 'open', now())`,
 		storage.MustUUID(w.id()), o, a, e, dev)
 	w.exec(x.org, `INSERT INTO analytics_events (id, organization_id, app_id, environment_id, device_id, name, time) VALUES ($1, $2, $3, $4, $5, 'open', now())`,
@@ -163,7 +165,7 @@ func (w *world) count(x tenant, table, column, id string) int {
 
 // deviceTables are the stores a device is erased from, with their key column.
 var deviceTables = map[string]string{
-	"telemetry_events": "device_id", "analytics_events": "device_id", "device_push_tokens": "device_id",
+	"telemetry_events": "device_id", "analytics_events": "device_id", "session_replays": "device_id", "device_push_tokens": "device_id",
 	"device_sca_keys": "device_id", "device_tokens": "device_id", "device_bundles": "device_id", "error_group_devices": "device_id", "dev_session_devices": "device_id", "devices": "id",
 }
 

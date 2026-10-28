@@ -403,7 +403,7 @@ function testsRoute(
 const testsListRoute = testsRoute("", "TestsPage", testsSearchSchema);
 const testRunRoute = testsRoute("/$runId", "TestRunPage", testRunSearchSchema);
 
-/** A24-A30: analytics of the app (STU-114, ANL-020, ANL-040); every page needs analytics.read, enforced by the server. */
+/** A24-A30 and A47: analytics of the app (STU-114, ANL-020, ANL-040); every page needs analytics.read, enforced by the server. */
 type AnalyticsPage =
   | "AnalyticsOverviewPage"
   | "AnalyticsUsagePage"
@@ -411,7 +411,9 @@ type AnalyticsPage =
   | "AnalyticsFunnelPage"
   | "AnalyticsErrorsPage"
   | "AnalyticsErrorPage"
-  | "AnalyticsPerformancePage";
+  | "AnalyticsPerformancePage"
+  | "AnalyticsReplaysPage"
+  | "AnalyticsReplayPage";
 
 function analyticsRoute(path: string, component: AnalyticsPage, search: typeof usageSearchSchema) {
   return createRoute({
@@ -441,6 +443,12 @@ const analyticsRoutes = [
   analyticsRoute(
     "/performance",
     "AnalyticsPerformancePage",
+    analyticsSearchSchema as unknown as typeof usageSearchSchema,
+  ),
+  analyticsRoute("/replays", "AnalyticsReplaysPage", analyticsSearchSchema as unknown as typeof usageSearchSchema),
+  analyticsRoute(
+    "/replays/$replayId",
+    "AnalyticsReplayPage",
     analyticsSearchSchema as unknown as typeof usageSearchSchema,
   ),
 ];

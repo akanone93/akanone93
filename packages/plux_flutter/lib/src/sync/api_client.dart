@@ -910,6 +910,21 @@ final class PluxApiClient {
     return (accepted: _int(r['accepted']), rejected: _int(r['rejected']));
   }
 
+  /// Sends one structural session replay (ANL-050, ADR-0101), compressed with
+  /// gzip; whether the server stored it and how many events it removed.
+  Future<({bool stored, int dropped})> ingestReplay(
+    DeviceToken token,
+    Map<String, Object?> replay,
+  ) async {
+    final r = await _call(
+      'plux.v1.ReplayService/IngestReplay',
+      replay,
+      token: token,
+      compress: true,
+    );
+    return (stored: r['stored'] == true, dropped: _int(r['dropped']));
+  }
+
   /// Forwards one request to an upstream through the gateway (SEC-030,
   /// `GatewayService.Call`): authenticated by [token] and a DPoP proof. A
   /// [userToken] — the Plux user token of the token exchange — travels in

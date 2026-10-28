@@ -53,6 +53,7 @@ import 'package:plux_flutter/src/render/scope.dart';
 import 'package:plux_flutter/src/render/sections.dart';
 import 'package:plux_flutter/src/render/semantics_wrap.dart';
 import 'package:plux_flutter/src/render/values.dart';
+import 'package:plux_flutter/src/replay/replay_capture.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
@@ -92,6 +93,11 @@ final Set<int> _slivers = {
       d.id,
 };
 
+/// Widget type names by descriptor identifier, for session replays.
+final Map<int, String> _widgetNames = {
+  for (final d in widgetDescriptors) d.id: d.type,
+};
+
 /// The node at [index] of the section in scope.
 final class PluxNode extends ConsumerWidget {
   /// Creates the node widget.
@@ -102,7 +108,7 @@ final class PluxNode extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final built = _buildPlain(context, ref);
+    final built = _replayMarked(context, _buildPlain(context, ref));
     if (!kPluxDevtools) return built;
     final host = DevNodeScope.maybeOf(context);
     if (host == null) return built;
@@ -125,6 +131,22 @@ final class PluxNode extends ConsumerWidget {
             '',
         interactive: minTargetWidgets.contains(node.widget),
       ),
+      child: built,
+    );
+  }
+
+  /// Marks the node for the layout snapshot of a recorded session replay
+  /// (ANL-050); nothing is added to a page that is not recorded.
+  Widget _replayMarked(BuildContext context, Widget built) {
+    final host = ReplayScope.maybeOf(context);
+    if (host == null) return built;
+    final scope = RenderScope.of(context);
+    final node = scope.section.node(index);
+    if (node.widget == 0 || _unwrapped.contains(node.widget)) return built;
+    return ReplayNodeMarker(
+      host: host,
+      path: nodePath(scope, index),
+      widget: _widgetNames[node.widget] ?? '',
       child: built,
     );
   }

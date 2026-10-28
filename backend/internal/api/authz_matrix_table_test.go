@@ -951,6 +951,12 @@ var matrix = map[string]entry{
 	"DeviceService/RevokeDevice": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.RevokeDeviceRequest{DeviceId: f.device, Reason: "test"}
 	})),
+	"ReplayService/ListReplays": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListReplaysRequest{AppId: f.app, Environment: "development"}
+	})),
+	"ReplayService/GetReplay": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetReplayRequest{AppId: f.app, Id: "00000000-0000-4000-8000-000000000001"}
+	})),
 	"TelemetryService/ListEvents": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListEventsRequest{AppId: f.app, Environment: "development"}
 	})),
@@ -1033,6 +1039,7 @@ var matrix = map[string]entry{
 	"DeviceService/RegisterAttestedDevice":      {kind: deviceRPC, build: anyone(&pluxv1.RegisterAttestedDeviceRequest{})},
 	"DeviceService/ReattestDevice":              {kind: deviceRPC, build: anyone(&pluxv1.ReattestDeviceRequest{})},
 	"TelemetryService/IngestEvents":             {kind: deviceRPC, build: anyone(&pluxv1.IngestEventsRequest{})},
+	"ReplayService/IngestReplay":                {kind: deviceRPC, build: anyone(&pluxv1.IngestReplayRequest{})},
 	"TokenService/IssueDeviceToken":             {kind: deviceRPC, build: anyone(&pluxv1.IssueDeviceTokenRequest{})},
 	"TokenService/RefreshDeviceToken":           {kind: deviceRPC, build: anyone(&pluxv1.RefreshDeviceTokenRequest{})},
 	"TokenService/ExchangeUserToken":            {kind: deviceRPC, build: anyone(&pluxv1.ExchangeUserTokenRequest{})},

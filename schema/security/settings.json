@@ -61,6 +61,23 @@
       "description": "Whether plugins may call data sources directly from the device instead of through the server."
     },
     {
+      "key": "allowSessionReplay",
+      "type": "bool",
+      "tighter": "false",
+      "defaults": {
+        "standard": true,
+        "strict": true,
+        "maximum": false
+      },
+      "travelsToDevice": true,
+      "phase": "P11",
+      "requirements": [
+        "ANL-050",
+        "SEC-161"
+      ],
+      "description": "Whether the runtime may record a structural session replay when the user has consented to the replay category; off under the maximum profile."
+    },
+    {
       "key": "allowSoftwareKeys",
       "type": "bool",
       "tighter": "false",

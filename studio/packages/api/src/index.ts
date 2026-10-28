@@ -30,6 +30,7 @@ export * from "./gen/plux/v1/preferences_pb.ts";
 export * from "./gen/plux/v1/publish_pb.ts";
 export * from "./gen/plux/v1/release_pb.ts";
 export * from "./gen/plux/v1/release_request_pb.ts";
+export * from "./gen/plux/v1/replay_pb.ts";
 export * from "./gen/plux/v1/rollout_pb.ts";
 export * from "./gen/plux/v1/search_pb.ts";
 export * from "./gen/plux/v1/security_admin_pb.ts";

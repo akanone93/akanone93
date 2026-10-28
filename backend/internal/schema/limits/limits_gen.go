@@ -545,6 +545,21 @@ const (
 	// RenderVisualDiffJobsPerOrganization: Visual-diff render jobs of one
 	// organisation running at once; further jobs wait in the queue. (STU-100)
 	RenderVisualDiffJobsPerOrganization Key = "render.visualDiffJobsPerOrganization"
+	// ReplayBytesPerReplay: The size of one structural session replay after
+	// encoding; the runtime stops recording at it and the server refuses a
+	// larger replay (ANL-050). (ANL-050)
+	ReplayBytesPerReplay Key = "replay.bytesPerReplay"
+	// ReplayEventsPerReplay: Events (screens, layout snapshots, taps, inputs and
+	// state changes) in one structural session replay; the runtime stops
+	// recording at it and the server refuses more (ANL-050). (ANL-050)
+	ReplayEventsPerReplay Key = "replay.eventsPerReplay"
+	// ReplayPerDevicePerDay: Structural session replays one device may upload in
+	// a day; the runtime records no more and the server refuses the surplus
+	// (ANL-050). (ANL-050)
+	ReplayPerDevicePerDay Key = "replay.perDevicePerDay"
+	// ReplayRetentionDays: Days a structural session replay is kept; older
+	// replays are deleted by the retention sweep (ANL-050). (ANL-050)
+	ReplayRetentionDays Key = "replay.retentionDays"
 	// RolloutsActivePerApp: Staged rollouts that may be in progress at once in
 	// one app. (REL-050)
 	RolloutsActivePerApp Key = "rollouts.activePerApp"
@@ -850,6 +865,10 @@ var registry = [...]Definition{
 	{Key: ReconstructionRetentionDays, Unit: UnitCount, Default: 365, Warning: 0, Max: 3650, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable."},
 	{Key: ReleaseAppSize, Unit: UnitBytes, Default: 104857600, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Total size of one app release: the app bundle and every plugin bundle."},
 	{Key: RenderVisualDiffJobsPerOrganization, Unit: UnitCount, Default: 2, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Visual-diff render jobs of one organisation running at once; further jobs wait in the queue."},
+	{Key: ReplayBytesPerReplay, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P11", Description: "The size of one structural session replay after encoding; the runtime stops recording at it and the server refuses a larger replay (ANL-050)."},
+	{Key: ReplayEventsPerReplay, Unit: UnitCount, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P11", Description: "Events (screens, layout snapshots, taps, inputs and state changes) in one structural session replay; the runtime stops recording at it and the server refuses more (ANL-050)."},
+	{Key: ReplayPerDevicePerDay, Unit: UnitCount, Default: 5, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P11", Description: "Structural session replays one device may upload in a day; the runtime records no more and the server refuses the surplus (ANL-050)."},
+	{Key: ReplayRetentionDays, Unit: UnitCount, Default: 7, Warning: 0, Max: 90, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Days a structural session replay is kept; older replays are deleted by the retention sweep (ANL-050)."},
 	{Key: RolloutsActivePerApp, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Staged rollouts that may be in progress at once in one app."},
 	{Key: RuntimeImageDiskCacheBytes, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Disk space the runtime's cache of remote images may use on one device."},
 	{Key: RuntimeImageSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Size of one remote image the runtime downloads; a larger one is refused."},

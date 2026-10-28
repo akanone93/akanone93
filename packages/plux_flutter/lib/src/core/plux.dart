@@ -331,6 +331,7 @@ abstract final class Plux {
     // Telemetry follows at once; withdrawing a category deletes its
     // buffered events (ADR-0034).
     _rt.telemetry.consent = consent;
+    _rt.replay.consent = consent;
     _environment(
       (e) => PluxEnvironment(
         locale: e.locale,

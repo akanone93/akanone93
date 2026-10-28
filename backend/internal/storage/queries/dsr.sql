@@ -188,3 +188,16 @@ SELECT jsonb_build_object('id', id, 'moment', moment, 'releaseSequence', release
 
 -- name: DsrEraseReconstructions :execrows
 DELETE FROM reconstructions WHERE organization_id = $1 AND device_id = $2;
+
+-- name: DsrExportSessionReplays :many
+SELECT jsonb_build_object('id', id, 'appId', app_id, 'environmentId', environment_id, 'startedAt', started_at,
+                          'durationMs', duration_ms, 'eventCount', event_count, 'bytes', bytes,
+                          'releaseSequence', release_sequence, 'truncated', truncated, 'route', route,
+                          'events', events, 'expiresAt', expires_at)::jsonb AS document
+  FROM session_replays
+ WHERE organization_id = $1 AND device_id = $2
+ ORDER BY started_at, id
+ LIMIT sqlc.arg(row_limit);
+
+-- name: DsrEraseSessionReplays :execrows
+DELETE FROM session_replays WHERE organization_id = $1 AND device_id = $2;
