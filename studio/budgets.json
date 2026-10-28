@@ -1,4 +1,5 @@
 {
-  "$comment": "Performance budgets (STU-122). initialJsGzipBytes is the gzip size of the entry chunk and its static imports, 1.5 MiB.",
-  "initialJsGzipBytes": 1572864
+  "$comment": "Performance budgets (STU-122). initialJsGzipBytes is the gzip size of the entry chunk and its static imports, 1.5 MiB. largestContentfulPaintMs is the median LCP of the built app over 10 Mbit/s and 40 ms round trip (scripts/bench-lcp.ts).",
+  "initialJsGzipBytes": 1572864,
+  "largestContentfulPaintMs": 2500
 }
