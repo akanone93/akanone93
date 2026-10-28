@@ -13661,6 +13661,128 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.RollbackReleaseResponse'
+  /plux.v1.ReplayService/GetReplay:
+    post:
+      tags:
+        - plux.v1.ReplayService
+      summary: GetReplay
+      description: GetReplay returns one replay with its events. It needs analytics.read.
+      operationId: plux.v1.ReplayService.GetReplay
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetReplayRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetReplayResponse'
+  /plux.v1.ReplayService/IngestReplay:
+    post:
+      tags:
+        - plux.v1.ReplayService
+      summary: IngestReplay
+      description: |-
+        IngestReplay stores one replay a device recorded. It is a device RPC:
+         the device must have declared the replay consent, and the server drops
+         what a replay may not hold and refuses one above a replay.* limit.
+      operationId: plux.v1.ReplayService.IngestReplay
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.IngestReplayRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.IngestReplayResponse'
+  /plux.v1.ReplayService/ListReplays:
+    post:
+      tags:
+        - plux.v1.ReplayService
+      summary: ListReplays
+      description: |-
+        ListReplays lists an environment's replays, newest first. It needs
+         analytics.read.
+      operationId: plux.v1.ReplayService.ListReplays
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListReplaysRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListReplaysResponse'
   /plux.v1.RolloutService/AbortRollout:
     post:
       tags:
@@ -18254,6 +18376,10 @@ components:
         experiments:
           type: boolean
           title: experiments
+        replay:
+          type: boolean
+          title: replay
+          description: replay allows structural session replay (ANL-050, ADR-0101).
       title: Consent
       additionalProperties: false
       description: |-
@@ -24610,6 +24736,31 @@ components:
           title: versions
       title: GetReleaseResponse
       additionalProperties: false
+    plux.v1.GetReplayRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+      title: GetReplayRequest
+      additionalProperties: false
+    plux.v1.GetReplayResponse:
+      type: object
+      properties:
+        replay:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Replay'
+          title: replay
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ReplayEvent'
+          title: events
+      title: GetReplayResponse
+      additionalProperties: false
     plux.v1.GetReportRequest:
       type: object
       properties:
@@ -25831,6 +25982,66 @@ components:
             $ref: '#/components/schemas/plux.v1.Diagnostic'
           title: diagnostics
       title: IngestEventsResponse
+      additionalProperties: false
+    plux.v1.IngestReplayRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environment:
+          type: string
+          title: environment
+        id:
+          type: string
+          title: id
+          description: |-
+            id is a random UUID the device made, so that a retried upload is
+             stored once.
+        startedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: started_at
+        durationMs:
+          type: integer
+          title: duration_ms
+          format: int32
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+        truncated:
+          type: boolean
+          title: truncated
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ReplayEvent'
+          title: events
+        consent:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Consent'
+          title: consent
+          description: |-
+            consent is what the runtime had when it recorded the replay; the
+             replay is refused unless consent.replay is set.
+      title: IngestReplayRequest
+      additionalProperties: false
+    plux.v1.IngestReplayResponse:
+      type: object
+      properties:
+        stored:
+          type: boolean
+          title: stored
+          description: stored is false when a replay with the same id was already stored.
+        dropped:
+          type: integer
+          title: dropped
+          format: int32
+          description: |-
+            dropped counts the events the server removed because a replay may not
+             hold them.
+      title: IngestReplayResponse
       additionalProperties: false
     plux.v1.InspectEvent:
       type: object
@@ -27873,6 +28084,35 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListReleasesResponse
+      additionalProperties: false
+    plux.v1.ListReplaysRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environment:
+          type: string
+          title: environment
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListReplaysRequest
+      additionalProperties: false
+    plux.v1.ListReplaysResponse:
+      type: object
+      properties:
+        replays:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Replay'
+          title: replays
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListReplaysResponse
       additionalProperties: false
     plux.v1.ListRequestsRequest:
       type: object
@@ -31047,6 +31287,142 @@ components:
           title: lock
       title: RenewLockResponse
       additionalProperties: false
+    plux.v1.Replay:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        deviceId:
+          type: string
+          title: device_id
+        startedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: started_at
+        durationMs:
+          type: integer
+          title: duration_ms
+          format: int32
+        eventCount:
+          type: integer
+          title: event_count
+          format: int32
+        bytes:
+          type: integer
+          title: bytes
+          format: int32
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+        truncated:
+          type: boolean
+          title: truncated
+          description: truncated is set when the runtime stopped at a limit.
+        route:
+          type: string
+          title: route
+          description: route is the first screen of the replay.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: Replay
+      additionalProperties: false
+      description: Replay is the summary of a stored replay.
+    plux.v1.ReplayEvent:
+      type: object
+      properties:
+        atMs:
+          type: integer
+          title: at_ms
+          format: int32
+          description: at_ms is the offset from the replay's start.
+        kind:
+          type: string
+          title: kind
+          description: kind is screen, layout, tap, input or state.
+        route:
+          type: string
+          title: route
+          description: route and plugin_key identify the screen of a screen event.
+        pluginKey:
+          type: string
+          title: plugin_key
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ReplayNode'
+          title: nodes
+          description: nodes is the layout of a layout event.
+        nodePath:
+          type: string
+          title: node_path
+          description: node_path is the node a tap or input touched.
+        fx:
+          type: number
+          title: fx
+          format: double
+          description: fx and fy are the tap position inside the node, 0 to 1.
+        fy:
+          type: number
+          title: fy
+          format: double
+        name:
+          type: string
+          title: name
+          description: name is the state entry of a state event.
+        valueType:
+          type: string
+          title: value_type
+          description: |-
+            value_type is the type of the entry; value is set only for bool, int
+             and double entries.
+        value:
+          type: string
+          title: value
+      title: ReplayEvent
+      additionalProperties: false
+      description: ReplayEvent is one step of a replay.
+    plux.v1.ReplayNode:
+      type: object
+      properties:
+        path:
+          type: string
+          title: path
+          description: path is the node's path in the page, as errors report it.
+        widget:
+          type: string
+          title: widget
+          description: widget is the widget type name.
+        x:
+          type: number
+          title: x
+          format: double
+          description: x, y, width and height are the rectangle in logical pixels.
+        y:
+          type: number
+          title: y
+          format: double
+        width:
+          type: number
+          title: width
+          format: double
+        height:
+          type: number
+          title: height
+          format: double
+        masked:
+          type: boolean
+          title: masked
+          description: 'masked marks an input or a secure widget: only its rectangle is kept.'
+      title: ReplayNode
+      additionalProperties: false
+      description: ReplayNode is a node of a layout snapshot.
     plux.v1.ReportFormat:
       type: string
       title: ReportFormat
@@ -35530,6 +35906,19 @@ tags:
        as it is. An approval is bound to the content hash of the builds
        (GOV-022): if the content changes, the approval is void and the request
        returns to the build step.
+  - name: plux.v1.TelemetryService
+    description: |-
+      TelemetryService ingests the runtime's batched events (Appendix G.2).
+       P2 provides the endpoint, validation and bounded storage; dashboards,
+       rollups and export arrive with the analytics requirements in P9. Events
+       never carry payloads, and fields tagged sensitive are refused rather
+       than stored (SCH-012, ANL-003).
+  - name: plux.v1.ReplayService
+    description: |-
+      ReplayService stores and serves structural session replays (ANL-050,
+       ADR-0101): the screens a user opened, the layout of their nodes, which
+       node they touched and which non-sensitive state entries changed. A replay
+       never holds a pixel, a text or a sensitive value (SCH-012).
   - name: plux.v1.RolloutService
     description: |-
       RolloutService serves staged rollouts of a release to a share of a
@@ -35544,13 +35933,6 @@ tags:
        lock changes, document revision changes and the inbox unread count
        (STU-075, SRV-062, ADR-0096). Anyone signed in may watch; events about
        apps the caller cannot read are left out.
-  - name: plux.v1.TelemetryService
-    description: |-
-      TelemetryService ingests the runtime's batched events (Appendix G.2).
-       P2 provides the endpoint, validation and bounded storage; dashboards,
-       rollups and export arrive with the analytics requirements in P9. Events
-       never carry payloads, and fields tagged sensitive are refused rather
-       than stored (SCH-012, ANL-003).
   - name: plux.v1.TemplateService
     description: |-
       TemplateService lists page and flow templates and instantiates them into

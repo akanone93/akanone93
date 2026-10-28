@@ -4,3 +4,4 @@
 export { AnalyticsErrorPage, AnalyticsErrorsPage } from "./errors-pages.tsx";
 export { AnalyticsFunnelPage, AnalyticsFunnelsPage } from "./funnels-pages.tsx";
 export { AnalyticsOverviewPage, AnalyticsPerformancePage, AnalyticsUsagePage } from "./pages.tsx";
+export { AnalyticsReplayPage, AnalyticsReplaysPage } from "./replay-pages.tsx";

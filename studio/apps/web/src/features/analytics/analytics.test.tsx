@@ -7,6 +7,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/re
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import { dailyEvents, percentilesByDay, totalsBy } from "./analytics.model.ts";
 import { linePoints } from "./charts.tsx";
+import { extentOf, frameAt } from "./replay-model.ts";
 import { rangeOf } from "./use-analytics.ts";
 
 afterEach(cleanup);
@@ -24,6 +25,28 @@ const analytics = {
   },
   overview: [{ appId: "app1", sessions: 12, screenViews: 12, errors: 1, firingAlerts: 2 }],
   funnels: [{ id: "f1", name: "Checkout", steps: ["screen_view", "action_run"], counts: [10, 4] }],
+  replays: [
+    {
+      id: "r1",
+      route: "/loans",
+      durationMs: 3000,
+      events: [
+        { atMs: 0, kind: "screen", route: "/loans", pluginKey: "loans" },
+        {
+          atMs: 100,
+          kind: "layout",
+          nodes: [
+            { path: "0/1", widget: "Column", x: 0, y: 0, width: 300, height: 600 },
+            { path: "0/2", widget: "TextField", x: 20, y: 40, width: 260, height: 48, masked: true },
+          ],
+        },
+        { atMs: 1000, kind: "tap", nodePath: "0/2", fx: 0.5, fy: 0.5 },
+        { atMs: 1000, kind: "input", nodePath: "0/2" },
+        { atMs: 2000, kind: "state", name: "count", valueType: "int", value: "3" },
+        { atMs: 2500, kind: "state", name: "label", valueType: "string", value: "" },
+      ],
+    },
+  ],
   errors: [
     { id: "g1", fingerprint: "fp1", code: "PLX-4101", pluginKey: "shop", route: "cart", nodePath: "root/0", events: 5 },
   ],
@@ -134,6 +157,50 @@ describe("ANL-040 errors (A28, A29)", () => {
 
   test("A29 reports an unknown fingerprint", async () => {
     open("/errors/nope");
+    await waitFor(() => expect(screen.getByRole("alert")).toBeTruthy());
+  });
+});
+
+describe("ANL-050 session replay (A47)", () => {
+  const events = analytics.replays[0]?.events as never as Parameters<typeof frameAt>[0];
+
+  test("the frame at a moment holds the layout, recent taps and the state so far", () => {
+    const early = frameAt(events, 500);
+    expect(early.route).toBe("/loans");
+    expect(early.nodes.length).toBe(2);
+    expect(early.taps.length).toBe(0);
+    const tapped = frameAt(events, 1200);
+    expect(tapped.taps.map((t) => t.nodePath)).toEqual(["0/2"]);
+    expect(tapped.inputs).toEqual(["0/2"]);
+    expect(frameAt(events, 3000).taps.length).toBe(0);
+    expect([...frameAt(events, 3000).state.keys()]).toEqual(["count", "label"]);
+    expect(extentOf(early.nodes)).toEqual({ width: 300, height: 600 });
+  });
+
+  test("the list links to each replay", async () => {
+    open("/replays", {}, ["app.read", "analytics.read"]);
+    const link = await screen.findByRole("link", { name: "2026-10-28T10:00:00.000Z" }, wait);
+    expect(link.getAttribute("href")).toContain("/analytics/replays/r1");
+    expect(screen.getByText("/loans")).toBeTruthy();
+  }, 30_000);
+
+  test("a replay plays back with a timeline and hides masked nodes", async () => {
+    open("/replays/r1", {}, ["app.read", "analytics.read"]);
+    const canvas = await screen.findByRole("img", { name: "Replay canvas" }, wait);
+    expect(canvas.querySelectorAll("[data-node]").length).toBe(0);
+    const slider = screen.getByLabelText("Timeline");
+    fireEvent.change(slider, { target: { value: "1000" } });
+    await waitFor(() => expect(canvas.querySelectorAll("[data-node]").length).toBe(2));
+    expect(canvas.querySelector('[data-node="0/2"]')?.getAttribute("data-masked")).toBe("true");
+    expect(canvas.querySelector('[data-tap="0/2"]')).not.toBeNull();
+    expect(within(canvas as unknown as HTMLElement).getByText("Hidden")).toBeTruthy();
+    fireEvent.change(slider, { target: { value: "2500" } });
+    await screen.findByText("count", {}, wait);
+    expect(screen.getByText("3")).toBeTruthy();
+  }, 30_000);
+
+  test("an unknown replay is reported", async () => {
+    open("/replays/nope", {}, ["app.read", "analytics.read"]);
     await waitFor(() => expect(screen.getByRole("alert")).toBeTruthy());
   });
 });

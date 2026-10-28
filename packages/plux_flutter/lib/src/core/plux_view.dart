@@ -22,6 +22,7 @@ import 'package:plux_flutter/src/core/runtime.dart';
 import 'package:plux_flutter/src/core/update_screen.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/navigation/guards.dart';
+import 'package:plux_flutter/src/replay/replay_capture.dart';
 import 'package:plux_flutter/src/state/providers.dart';
 
 /// An event a [PluxView] passes to its host (ADR-0023): an inline page's
@@ -466,6 +467,7 @@ final class _PluxPageHostState extends State<PluxPageHost> {
   PluxException? _failure;
   final Stopwatch _sinceMount = Stopwatch()..start();
   bool _reportedFrame = false;
+  bool _captured = false;
 
   /// True while large sections are checked off the UI isolate.
   bool _preparing = false;
@@ -492,6 +494,13 @@ final class _PluxPageHostState extends State<PluxPageHost> {
     super.initState();
     _source = widget.runtime.lastRoute;
     if (!widget._component) widget.runtime.lastRoute = widget.page.route;
+    // Whether this page is part of a session replay is decided once, so
+    // that the page's subtree is never rebuilt under another parent
+    // (ANL-050).
+    _captured = !widget._component && widget.runtime.replay.recording;
+    if (_captured) {
+      widget.runtime.replay.screen(widget.page.route, widget.page.plugin);
+    }
     SchedulerBinding.instance.addTimingsCallback(_onTimings);
     final release = _release = widget.runtime.mount();
     if (release == null) return;
@@ -644,6 +653,9 @@ final class _PluxPageHostState extends State<PluxPageHost> {
         );
         widget.runtime.firstFrame();
       });
+    }
+    if (_captured) {
+      return ReplayCapture(recorder: widget.runtime.replay, child: child);
     }
     return child;
   }

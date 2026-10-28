@@ -67,6 +67,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/replay"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
 	"github.com/nightCode42/plux3/backend/internal/schema"
@@ -96,6 +97,8 @@ type Services struct {
 	Releases  *release.Service
 	Devices   *device.Service
 	Events    *telemetry.Service
+	// Replays stores structural session replays (ANL-050).
+	Replays *replay.Service
 	// Analytics queries rollups, manages retention and the OTLP export, and
 	// does the worker's analytics duties (ANL-010, ANL-011).
 	Analytics *analytics.Service
@@ -634,6 +637,10 @@ func (k *serviceKit) buildSupport(ctx context.Context, svc *Services) error {
 	}
 	svc.BreakGlass, svc.Freezes, svc.Reports = governed.breakGlass, governed.freezes, governed.reports
 	svc.Events, svc.Analytics, svc.EventConsumer, err = buildAnalytics(k.cfg, k.db, k.shared, k.set, k.gen, k.log, svc.Tenancy, svc.Notify, k.backend, k.work)
+	if err != nil {
+		return err
+	}
+	svc.Replays, err = buildReplays(k.db, k.set, svc.SecurityConfig)
 	return err
 }
 
@@ -1182,7 +1189,7 @@ func (s *Server) registerStepUp(svc *Services, proofs api.ProofChecker, limiter 
 // leaving out what the build did not provide.
 func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handlers {
 	h := &api.Handlers{
-		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
+		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events, Replays: svc.Replays,
 		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
 		Limiter: limiter, Limits: s.limits, Edition: s.edition,
 		InstallationState: installationReader{health: s.health, db: s.db, jobs: s.jobs, issuers: s.cfg.Auth.CI.Issuers}, Push: svc.Push, Approvals: svc.Approvals,
@@ -1235,6 +1242,7 @@ func coreRegistrations(h *api.Handlers, opts connect.HandlerOption) []func() (st
 		func() (string, http.Handler) { return pluxv1connect.NewDeviceServiceHandler(h.Device(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewTokenServiceHandler(h.Token(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewReplayServiceHandler(h.Replay(), opts) },
 	}
 }
 

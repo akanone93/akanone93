@@ -23,7 +23,9 @@ var DeviceProcedures = map[string]bool{
 	pluxv1connect.ManifestServiceGetManifestProcedure:   true,
 	pluxv1connect.DeviceServiceReportInstalledProcedure: true,
 	pluxv1connect.TelemetryServiceIngestEventsProcedure: true,
-	pluxv1connect.ManifestServiceGetRootKeysProcedure:   true,
+	// A consented structural session replay (ANL-050, ADR-0101).
+	pluxv1connect.ReplayServiceIngestReplayProcedure:  true,
+	pluxv1connect.ManifestServiceGetRootKeysProcedure: true,
 	// The signed control document and the push token (SYN-060).
 	pluxv1connect.ManifestServiceGetSignedControlProcedure: true,
 	pluxv1connect.DeviceServiceRegisterPushTokenProcedure:  true,

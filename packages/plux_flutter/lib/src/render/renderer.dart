@@ -109,6 +109,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     StatePersistence? statePersistence,
     VerifiedAssets? verified,
     this.devStateTap,
+    this.replayStateTap,
     int? cacheEntries,
     int? cacheBytes,
   }) : builders = {
@@ -268,6 +269,10 @@ final class PluxRenderer implements PageRenderer, RenderServices {
   /// listens (DEV-020); null otherwise.
   final DevStateTap? devStateTap;
 
+  /// Receives the changes of every scope's values for the session replay
+  /// recorder (ANL-050).
+  final DevStateTap? replayStateTap;
+
   final VerifiedAssets _verified;
   ImageDiskCache? _imageCache;
   http.Client? _client;
@@ -415,6 +420,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       ).evaluate(program),
       persistence: statePersistence,
       devTap: devStateTap,
+      replayTap: replayStateTap,
       report: report,
       parents: parents,
       extraRoots: extraRoots,

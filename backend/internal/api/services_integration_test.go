@@ -54,6 +54,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/replay"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
@@ -330,6 +331,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	replays, err := replay.NewService(replay.Options{DB: db})
+	if err != nil {
+		t.Fatal(err)
+	}
 	window, err := analytics.ParseWindow("02:00", "04:00", "UTC")
 	if err != nil {
 		t.Fatal(err)
@@ -487,7 +492,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Emergencies: emergencies, Freezes: freezes, Reports: reports,
 		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
-		Auth: authService, Authenticator: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
+		Auth: authService, Authenticator: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Replays: replays, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
 		StudioStream: studioEventsService, Searches: searchService, GitExports: gitService, UserPreferences: preferencesService,
@@ -564,6 +569,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewReplayServiceHandler(h.Replay(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewAnalyticsServiceHandler(h.AnalyticsService(), opts)
 		},

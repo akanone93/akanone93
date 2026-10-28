@@ -41,6 +41,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/replay"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/search"
@@ -109,6 +110,8 @@ type Handlers struct {
 	Releases   *release.Service
 	Devices    *device.Service
 	Events     *telemetry.Service
+	// Replays serves ReplayService (ANL-050); nil leaves it unmounted.
+	Replays *replay.Service
 	// Analytics serves AnalyticsService (ANL-010, ANL-011); nil leaves it
 	// unmounted.
 	Analytics *analytics.Service

@@ -60,6 +60,15 @@ func deviceEventExecutors() []executor {
 			},
 		},
 		{
+			store: "session_replays",
+			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
+				return q.DsrExportSessionReplays(ctx, dbgen.DsrExportSessionReplaysParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
+			},
+			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
+				return q.DsrEraseSessionReplays(ctx, dbgen.DsrEraseSessionReplaysParams{OrganizationID: s.org, DeviceID: s.id})
+			},
+		},
+		{
 			store: "device_push_tokens",
 			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
 				return q.DsrExportDevicePushTokens(ctx, dbgen.DsrExportDevicePushTokensParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
