@@ -5,6 +5,7 @@ package tenancy
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -38,6 +39,14 @@ type App struct {
 	OwningTeamID     string
 	Tags             []string
 	Archived         bool
+	HostFonts        []HostFont
+}
+
+// HostFont is a font file the host app bundles, by the family the device
+// uses it by, with the app asset that holds the same file (STU-006).
+type HostFont struct {
+	Family  string `json:"family"`
+	AssetID string `json:"assetId"`
 }
 
 // Environment isolates variables, secrets, signing keys and device
@@ -367,6 +376,76 @@ func (s *Service) UpdateAppMetadata(ctx context.Context, p auth.Principal, appID
 		return s.record(ctx, tx, p, audit.AppUpdated, "app", appID)
 	})
 	return out, err
+}
+
+// UpdateAppHostFonts replaces the font files of the host app that the app
+// lists for Studio's canvas (STU-006). It needs app.manage. The list is
+// bounded by app.hostFonts (LIM-001), and each entry names a live font asset
+// (TrueType or OpenType) of the same app; a reference that does not resolve
+// is reported as not found.
+func (s *Service) UpdateAppHostFonts(ctx context.Context, p auth.Principal, appID string, fonts []HostFont) (App, error) {
+	if max := s.o.Limits.Get(limits.AppHostFonts); int64(len(fonts)) > max {
+		return App{}, plxerr.New(plxerr.LimitExceeded, "an app lists at most %d host fonts", max)
+	}
+	seen := map[HostFont]bool{}
+	for i, f := range fonts {
+		f.Family = strings.TrimSpace(f.Family)
+		if f.Family == "" || utf8.RuneCountInString(f.Family) > hostFontFamilyLength {
+			return App{}, plxerr.New(plxerr.InvalidFormat, "a font family is 1 to %d characters", hostFontFamilyLength)
+		}
+		if seen[f] {
+			return App{}, plxerr.New(plxerr.InvalidFormat, "the host font %q is listed twice", f.Family)
+		}
+		seen[f], fonts[i] = true, f
+	}
+	if fonts == nil {
+		fonts = []HostFont{}
+	}
+	raw, err := json.Marshal(fonts)
+	if err != nil {
+		return App{}, failure(err, "app")
+	}
+	var out App
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		row, err := s.app(ctx, q, p, auth.AppManage, appID)
+		if err != nil {
+			return err
+		}
+		for _, f := range fonts {
+			if err := checkFontAsset(ctx, q, row.ID, f.AssetID); err != nil {
+				return err
+			}
+		}
+		updated, err := q.UpdateAppHostFonts(ctx, dbgen.UpdateAppHostFontsParams{ID: row.ID, HostFonts: raw})
+		if err != nil {
+			return failure(err, "app")
+		}
+		out = appOf(updated)
+		return s.record(ctx, tx, p, audit.AppUpdated, "app", appID)
+	})
+	return out, err
+}
+
+// hostFontFamilyLength is the longest font family name, in characters; it
+// is a field width, not a governed limit.
+const hostFontFamilyLength = 200
+
+// checkFontAsset verifies that assetID is a live TrueType or OpenType asset
+// of the app.
+func checkFontAsset(ctx context.Context, q *dbgen.Queries, appID pgtype.UUID, assetID string) error {
+	id, err := storage.UUID(assetID)
+	if err != nil {
+		return plxerr.New(plxerr.ResourceNotFound, "no such asset")
+	}
+	asset, err := q.GetAppAssetByAssetID(ctx, dbgen.GetAppAssetByAssetIDParams{AppID: appID, AssetID: id})
+	if err != nil {
+		return failure(err, "asset")
+	}
+	if asset.MediaType != "font/ttf" && asset.MediaType != "font/otf" {
+		return plxerr.New(plxerr.InvalidFormat, "a host font is a TrueType or OpenType asset")
+	}
+	return nil
 }
 
 // MetadataArgs are a Metadata update in the shape the queries take; the
@@ -992,8 +1071,17 @@ func appOf(row dbgen.App) App {
 		ID: storage.ID(row.ID), OrganizationID: storage.ID(row.OrganizationID), Key: row.Key, Name: row.Name,
 		DefaultPluginKey: row.DefaultPluginKey, CreatedAt: storage.Time(row.CreatedAt), UpdatedAt: storage.Time(row.UpdatedAt),
 		Description: row.Description, IconAssetID: row.IconAssetID, OwningTeamID: storage.ID(row.OwningTeamID),
-		Tags: row.Tags, Archived: row.ArchivedAt.Valid,
+		Tags: row.Tags, Archived: row.ArchivedAt.Valid, HostFonts: hostFontsOf(row.HostFonts),
 	}
+}
+
+// hostFontsOf reads the stored list; what cannot be read is an empty list.
+func hostFontsOf(raw []byte) []HostFont {
+	var fonts []HostFont
+	if err := json.Unmarshal(raw, &fonts); err != nil {
+		return []HostFont{}
+	}
+	return fonts
 }
 
 // environmentOf converts a stored environment.

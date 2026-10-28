@@ -16486,6 +16486,15 @@ components:
           type: boolean
           title: archived
           description: archived apps are left out of ListApps unless include_archived is set.
+        hostFonts:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.HostFont'
+          title: host_fonts
+          description: |-
+            host_fonts lists the font files the host app bundles and the plugins
+             use by name; Studio's canvas loads them from the app's assets so its
+             text is laid out with the device's fonts (STU-006).
       title: App
       additionalProperties: false
     plux.v1.AppLimitUsage:
@@ -25535,6 +25544,22 @@ components:
       title: HostBuild
       additionalProperties: false
       description: HostBuild is one build of the host app with its native catalogue.
+    plux.v1.HostFont:
+      type: object
+      properties:
+        family:
+          type: string
+          title: family
+          description: family is the font family name, at most 200 characters.
+        assetId:
+          type: string
+          title: asset_id
+          description: asset_id names a live font asset (TrueType or OpenType) of the app.
+      title: HostFont
+      additionalProperties: false
+      description: |-
+        HostFont names one font file of the host app: the family the device
+         uses it by and the app asset that holds the same file.
     plux.v1.HotApplyEvent:
       type: object
       properties:
@@ -34562,6 +34587,17 @@ components:
           allOf:
             - $ref: '#/components/schemas/plux.v1.MetadataUpdate'
           title: metadata
+        setHostFonts:
+          type: boolean
+          title: set_host_fonts
+          description: |-
+            set_host_fonts replaces the app's host_fonts with the list below, which
+             may be empty; at most app.hostFonts entries.
+        hostFonts:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.HostFont'
+          title: host_fonts
       title: UpdateAppRequest
       additionalProperties: false
     plux.v1.UpdateAppResponse:

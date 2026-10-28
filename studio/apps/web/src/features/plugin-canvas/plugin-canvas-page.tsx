@@ -38,6 +38,7 @@ import { DeviceBayHost } from "./device-bay-host.tsx";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
+import { useHostFonts } from "./host-fonts.ts";
 import { LaneDialog, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
@@ -223,6 +224,7 @@ function PluginCanvasView({
   }) as Pick<RouterContext, "createSurface" | "createValidator">;
   const appDocs = useAppDocuments(params.app ?? "");
   const { session: app } = useApp();
+  const hostFonts = useHostFonts(params.app);
   const tests = useMemo(() => createClient(FunctionAdminService, app.transport), [app.transport]);
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
@@ -423,13 +425,13 @@ function PluginCanvasView({
     }
     const width = canvas.clientWidth || window.innerWidth;
     const height = canvas.clientHeight || window.innerHeight;
-    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1 });
+    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1, hostFonts });
     surfaceRef.current = surface;
     return () => {
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface]);
+  }, [createSurface, hostFonts]);
 
   const focusRef = useRef<string | undefined>(undefined);
   useEffect(() => {

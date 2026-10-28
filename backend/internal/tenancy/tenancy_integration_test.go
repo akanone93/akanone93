@@ -729,11 +729,17 @@ func TestAppMetadataAndListing(t *testing.T) {
 // seedAsset inserts a live asset of an app, as the asset pipeline would.
 func (f *fixture) seedAsset(t *testing.T, appID, assetID string) {
 	t.Helper()
+	f.seedFile(t, appID, assetID, "0190b3a0-0000-7000-8000-000000000001", "images/icon.png", "image/png")
+}
+
+// seedFile inserts a live asset of an app with the given row, file and media type.
+func (f *fixture) seedFile(t *testing.T, appID, assetID, rowID, file, mediaType string) {
+	t.Helper()
 	err := f.db.InTx(context.Background(), storage.Tenant{OrganizationID: f.org, UserID: f.owner.UserID}, func(ctx context.Context, tx pgx.Tx) error {
 		_, err := dbgen.New(tx).InsertAsset(ctx, dbgen.InsertAssetParams{
-			ID: storage.MustUUID("0190b3a0-0000-7000-8000-000000000001"), AssetID: storage.MustUUID(assetID),
-			OrganizationID: storage.MustUUID(f.org), AppID: storage.MustUUID(appID), File: "images/icon.png",
-			MediaType: "image/png", Sha256: make([]byte, 32), Size: 1, Processing: "ready",
+			ID: storage.MustUUID(rowID), AssetID: storage.MustUUID(assetID),
+			OrganizationID: storage.MustUUID(f.org), AppID: storage.MustUUID(appID), File: file,
+			MediaType: mediaType, Sha256: make([]byte, 32), Size: 1, Processing: "ready",
 			UploadedByKind: "user", UploadedByID: f.owner.UserID, UploadedBy: "owner",
 		})
 		return err
@@ -811,6 +817,84 @@ func TestAppMetadataReferences(t *testing.T) {
 	}
 	if _, err := tenancy.CheckMetadata(tenancy.Metadata{SetTags: true, Tags: []string{"a", "b"}}, lim); code(err) != plxerr.LimitExceeded {
 		t.Errorf("tags beyond the registry limit: %v", err)
+	}
+}
+
+// Verifies: STU-006, LIM-001.
+// An app lists the font files of its host app by family and font asset: each
+// entry must be a live TrueType or OpenType asset of the same app, a family
+// is named and listed once, the list is bounded by the registry and replaced
+// whole, and the app keeps it.
+func TestAppHostFonts(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	app, err := f.svc.CreateApp(ctx, f.owner, "alpha", "Alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sibling, err := f.svc.CreateApp(ctx, f.owner, "bravo", "Bravo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	const (
+		ttf   = "0190b3a0-0000-7000-8000-0000000000b1"
+		otf   = "0190b3a0-0000-7000-8000-0000000000b2"
+		image = "0190b3a0-0000-7000-8000-0000000000b3"
+		other = "0190b3a0-0000-7000-8000-0000000000b4"
+	)
+	f.seedFile(t, app.ID, ttf, "0190b3a0-0000-7000-8000-000000000011", "fonts/a.ttf", "font/ttf")
+	f.seedFile(t, app.ID, otf, "0190b3a0-0000-7000-8000-000000000012", "fonts/b.otf", "font/otf")
+	f.seedFile(t, app.ID, image, "0190b3a0-0000-7000-8000-000000000013", "images/c.png", "image/png")
+	f.seedFile(t, sibling.ID, other, "0190b3a0-0000-7000-8000-000000000014", "fonts/d.ttf", "font/ttf")
+
+	fonts := []tenancy.HostFont{{Family: " Brand Sans ", AssetID: ttf}, {Family: "Brand Serif", AssetID: otf}}
+	got, err := f.svc.UpdateAppHostFonts(ctx, f.owner, app.ID, fonts)
+	if err != nil || len(got.HostFonts) != 2 || got.HostFonts[0].Family != "Brand Sans" || got.HostFonts[1].AssetID != otf {
+		t.Fatalf("UpdateAppHostFonts: %+v %v", got.HostFonts, err)
+	}
+	if read, err := f.svc.GetApp(ctx, f.owner, app.ID); err != nil || len(read.HostFonts) != 2 {
+		t.Errorf("the list is kept: %+v %v", read.HostFonts, err)
+	}
+	for name, bad := range map[string][]tenancy.HostFont{
+		"an image":              {{Family: "X", AssetID: image}},
+		"another app's font":    {{Family: "X", AssetID: other}},
+		"a missing asset":       {{Family: "X", AssetID: "0190b3a0-0000-7000-8000-0000000000ff"}},
+		"an asset that is none": {{Family: "X", AssetID: "not-a-uuid"}},
+	} {
+		if _, err := f.svc.UpdateAppHostFonts(ctx, f.owner, app.ID, bad); err == nil {
+			t.Errorf("%s was accepted", name)
+		}
+	}
+	if _, err := f.svc.UpdateAppHostFonts(ctx, f.owner, app.ID, []tenancy.HostFont{{Family: "X", AssetID: image}}); code(err) != plxerr.InvalidFormat {
+		t.Errorf("an image as a host font: %v", err)
+	}
+	if _, err := f.svc.UpdateAppHostFonts(ctx, f.owner, app.ID, []tenancy.HostFont{{Family: "  ", AssetID: ttf}}); code(err) != plxerr.InvalidFormat {
+		t.Errorf("an empty family: %v", err)
+	}
+	if _, err := f.svc.UpdateAppHostFonts(ctx, f.owner, app.ID, []tenancy.HostFont{{Family: "A", AssetID: ttf}, {Family: "A ", AssetID: ttf}}); code(err) != plxerr.InvalidFormat {
+		t.Errorf("a font listed twice: %v", err)
+	}
+	if _, err := f.svc.UpdateAppHostFonts(ctx, f.owner, app.ID, nil); err != nil {
+		t.Fatal(err)
+	}
+	if read, _ := f.svc.GetApp(ctx, f.owner, app.ID); len(read.HostFonts) != 0 {
+		t.Errorf("an empty list replaces the list: %+v", read.HostFonts)
+	}
+
+	lim, err := limits.Defaults().Tighten(limits.AppHostFonts, limits.ScopeInstallation, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	limited, err := tenancy.NewService(tenancy.Options{
+		DB: f.db, Audit: f.log, Auth: f.auth, Crypter: f.crypto, IDs: f.ids,
+		SigningKeyPrefix: "targets", Now: func() time.Time { return f.now }, Limits: lim,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := limited.UpdateAppHostFonts(ctx, f.owner, app.ID, fonts); code(err) != plxerr.LimitExceeded {
+		t.Errorf("fonts beyond the registry limit: %v", err)
 	}
 }
 

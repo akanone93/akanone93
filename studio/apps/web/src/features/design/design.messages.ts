@@ -242,6 +242,55 @@ export function designMessages(i18n: I18n) {
     scriptCyrillic: i18n._({ id: "design.scriptCyrillic", message: "Cyrillic", comment: "Name of a script." }),
     scriptArabic: i18n._({ id: "design.scriptArabic", message: "Arabic", comment: "Name of a script." }),
     scriptDevanagari: i18n._({ id: "design.scriptDevanagari", message: "Devanagari", comment: "Name of a script." }),
+    hostFontsTitle: i18n._({
+      id: "design.hostFontsTitle",
+      message: "Host app fonts",
+      comment: "Heading of the list of font files the host app bundles.",
+    }),
+    hostFontsCaption: i18n._({
+      id: "design.hostFontsCaption",
+      message:
+        "Font files your host app bundles and plugins use by name. Upload each file as an asset, then list it here so the canvas lays text out with the same file.",
+      comment: "Caption under the host fonts heading.",
+    }),
+    hostFontFamily: i18n._({
+      id: "design.hostFontFamily",
+      message: "Font family",
+      comment: "Label of the family name a host font is used by.",
+    }),
+    hostFontAsset: i18n._({
+      id: "design.hostFontAsset",
+      message: "Font file",
+      comment: "Label of the uploaded font asset a host font is read from.",
+    }),
+    hostFontAdd: i18n._({ id: "design.hostFontAdd", message: "Add font", comment: "Button that lists a host font." }),
+    hostFontRemove: (family: string) =>
+      i18n._({
+        id: "design.hostFontRemove",
+        message: "Remove {family}",
+        values: { family },
+        comment: "Accessible name of the button that removes a host font from the list.",
+      }),
+    hostFontsNone: i18n._({
+      id: "design.hostFontsNone",
+      message: "No host fonts are listed.",
+      comment: "Shown when the app lists no host fonts.",
+    }),
+    hostFontsNoAssets: i18n._({
+      id: "design.hostFontsNoAssets",
+      message: "Upload a TrueType or OpenType file in the Assets tab to list it here.",
+      comment: "Shown when the app has no font asset to list.",
+    }),
+    hostFontsSaveFailed: i18n._({
+      id: "design.hostFontsSaveFailed",
+      message: "The font list could not be saved.",
+      comment: "Error shown when saving the host fonts fails.",
+    }),
+    hostFontsNoPermission: i18n._({
+      id: "design.hostFontsNoPermission",
+      message: "You need permission to manage this app to change the list.",
+      comment: "Why the host font controls are disabled.",
+    }),
     scriptEthiopic: i18n._({ id: "design.scriptEthiopic", message: "Ethiopic", comment: "Name of a script." }),
     familiesLabel: (script: string) =>
       i18n._({

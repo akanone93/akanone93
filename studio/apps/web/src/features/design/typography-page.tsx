@@ -6,6 +6,7 @@ import { Field, Input } from "@plux/ui";
 import type { ReactElement } from "react";
 import { type DesignMessages, designMessages } from "./design.messages.ts";
 import { families, groupRows, putToken, SCRIPTS } from "./design-model.ts";
+import { HostFonts } from "./host-fonts.tsx";
 import { Frame, useDesign } from "./scope.tsx";
 
 const scriptName = (m: DesignMessages, s: (typeof SCRIPTS)[number]): string =>
@@ -61,6 +62,7 @@ export function TypographyPage(): ReactElement {
           <Script key={s} script={s} />
         ))}
       </ul>
+      <HostFonts />
     </Frame>
   );
 }

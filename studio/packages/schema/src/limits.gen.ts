@@ -214,6 +214,16 @@ export const limits = [
     description: "Functions per app.",
   },
   {
+    key: "app.hostFonts",
+    unit: "count",
+    default: 32,
+    warning: 0,
+    max: 256,
+    scopes: ["installation", "organization"],
+    phase: "P11",
+    description: "Font files of the host app that one app lists for Studio's canvas.",
+  },
+  {
     key: "app.locales",
     unit: "count",
     default: 50,

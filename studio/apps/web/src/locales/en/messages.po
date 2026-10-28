@@ -910,6 +910,12 @@ msgstr "Add expectation"
 msgid "designers.dbAddField"
 msgstr "Add field"
 
+#. Button that lists a host font.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontAdd"
+msgstr "Add font"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -4396,6 +4402,24 @@ msgstr "Follow frame"
 msgid "design.familiesLabel"
 msgstr "Font families for {script}, first choice first, separated by commas"
 
+#. Label of the family name a host font is used by.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontFamily"
+msgstr "Font family"
+
+#. Label of the uploaded font asset a host font is read from.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontAsset"
+msgstr "Font file"
+
+#. Caption under the host fonts heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsCaption"
+msgstr "Font files your host app bundles and plugins use by name. Upload each file as an asset, then list it here so the canvas lays text out with the same file."
+
 #. Caption under the heading of the heatmap page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -4839,6 +4863,12 @@ msgstr "Host ABI version"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupCustom"
 msgstr "Host actions"
+
+#. Heading of the list of font files the host app bundles.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsTitle"
+msgstr "Host app fonts"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -6840,6 +6870,12 @@ msgstr "No function is deployed in this environment."
 msgid "releases.noHealth"
 msgstr "No health check has run yet."
 
+#. Shown when the app lists no host fonts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsNone"
+msgstr "No host fonts are listed."
+
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -8567,6 +8603,12 @@ msgstr "Remove"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.remove"
 msgstr "Remove"
+
+#. Accessible name of the button that removes a host font from the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontRemove"
+msgstr "Remove {family}"
 
 #. Accessible name of the button that removes the crate {name} from the dependencies.
 #. js-lingui-explicit-id
@@ -11184,6 +11226,12 @@ msgstr "The file name needs lowercase letters, digits and hyphens."
 msgid "assets.failure.hash-mismatch"
 msgstr "The file was damaged on the way to the server. Upload it again."
 
+#. Error shown when saving the host fonts fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsSaveFailed"
+msgstr "The font list could not be saved."
+
 #. Shown when the manifest declares no dependencies.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -12505,6 +12553,12 @@ msgstr "Unwrap selection"
 msgid "admin.licenseUpload"
 msgstr "Upload a licence"
 
+#. Shown when the app has no font asset to list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsNoAssets"
+msgstr "Upload a TrueType or OpenType file in the Assets tab to list it here."
+
 #. Button that opens the file picker to upload an asset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -13146,6 +13200,12 @@ msgstr "You may not manage this app."
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.readOnly"
 msgstr "You may read scenarios but not change them."
+
+#. Why the host font controls are disabled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsNoPermission"
+msgstr "You need permission to manage this app to change the list."
 
 #. Banner when the person cannot change the request.
 #. js-lingui-explicit-id

@@ -256,3 +256,9 @@ SELECT e.app_id, e.key AS environment_key, max(c.release_sequence)::bigint AS re
  WHERE e.app_id = ANY (sqlc.arg(app_ids)::uuid[])
  GROUP BY e.app_id, e.key
  ORDER BY e.app_id, e.key;
+
+-- name: UpdateAppHostFonts :one
+UPDATE apps
+   SET host_fonts = sqlc.arg(host_fonts)::jsonb, updated_at = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;

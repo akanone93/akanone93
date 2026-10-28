@@ -57,6 +57,9 @@ const (
 	APIRequestsPerMinutePerDevice Key = "api.requestsPerMinutePerDevice"
 	// AppFunctions: Functions per app. (LIM-001)
 	AppFunctions Key = "app.functions"
+	// AppHostFonts: Font files of the host app that one app lists for Studio's
+	// canvas. (STU-006)
+	AppHostFonts Key = "app.hostFonts"
 	// AppLocales: Locales one app may declare. (I18N-002)
 	AppLocales Key = "app.locales"
 	// AppPlugins: Plugins per app. (SCH-005)
@@ -701,6 +704,7 @@ var registry = [...]Definition{
 	{Key: APIRequestsPerMinutePerAddress, Unit: UnitCount, Default: 300, Warning: 0, Max: 100000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one client address may make per minute, whoever is calling."},
 	{Key: APIRequestsPerMinutePerDevice, Unit: UnitCount, Default: 120, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one registered device may make per minute."},
 	{Key: AppFunctions, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Functions per app."},
+	{Key: AppHostFonts, Unit: UnitCount, Default: 32, Warning: 0, Max: 256, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Font files of the host app that one app lists for Studio's canvas."},
 	{Key: AppLocales, Unit: UnitCount, Default: 50, Warning: 0, Max: 300, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Locales one app may declare."},
 	{Key: AppPlugins, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Plugins per app."},
 	{Key: AppSummariesPerCall, Unit: UnitCount, Default: 100, Warning: 0, Max: 500, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one summary call returns; a longer list is paged."},
