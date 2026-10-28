@@ -50,3 +50,38 @@ func (q *Queries) InsertFunctionDeclaration(ctx context.Context, arg InsertFunct
 	)
 	return i, err
 }
+
+const listFunctionBuildLinks = `-- name: ListFunctionBuildLinks :many
+SELECT b.id AS build_id, b.source_id, d.declaration
+  FROM function_builds b
+  LEFT JOIN function_declarations d ON d.build_id = b.id
+ WHERE b.id = ANY($1::uuid[])
+`
+
+type ListFunctionBuildLinksRow struct {
+	BuildID     pgtype.UUID
+	SourceID    pgtype.UUID
+	Declaration []byte
+}
+
+// The source and the declaration of each build, for the versions made from
+// them. A build without a declaration yields a NULL declaration.
+func (q *Queries) ListFunctionBuildLinks(ctx context.Context, buildIds []pgtype.UUID) ([]ListFunctionBuildLinksRow, error) {
+	rows, err := q.db.Query(ctx, listFunctionBuildLinks, buildIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListFunctionBuildLinksRow{}
+	for rows.Next() {
+		var i ListFunctionBuildLinksRow
+		if err := rows.Scan(&i.BuildID, &i.SourceID, &i.Declaration); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

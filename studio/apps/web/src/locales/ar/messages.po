@@ -4456,6 +4456,12 @@ msgstr "الدوال"
 msgid "actionGraph.groupFunction"
 msgstr "الدوال"
 
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capFunctions"
+msgstr "الدوال التي يمكنها استدعاؤها"
+
 #. Heading in the Code tab: the functions the plugin may call.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -4540,11 +4546,23 @@ msgstr "الانتقال إلى الملف الشخصي"
 msgid "approvals.goldenHeading"
 msgstr "فروق الصور المرجعية"
 
+#. Capability is granted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capGrantedYes"
+msgstr "ممنوحة"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.allowedBy"
 msgstr "مُنحت بواسطة"
+
+#. Heading of the host capabilities the version was granted; everything else is denied.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capGranted"
+msgstr "القدرات الممنوحة"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -5297,6 +5315,12 @@ msgstr "تخزين المفتاح"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.keyId"
 msgstr "بصمة المفتاح"
+
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capKv"
+msgstr "مخزن المفتاح والقيمة"
 
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
@@ -6402,6 +6426,12 @@ msgstr "الشبكة"
 msgid "security.networkDomains"
 msgstr "نطاقات الشبكة"
 
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capHttp"
+msgstr "نطاقات الشبكة"
+
 #. Shown for a missing date.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -6936,6 +6966,12 @@ msgstr "العقد في الصفحة"
 msgid "security.none"
 msgstr "لا شيء"
 
+#. Shown when a list of grants is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capNone"
+msgstr "لا شيء"
+
 #. Cell value when the app has no version of the component.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -6947,6 +6983,12 @@ msgstr "غير معتمد"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfUnknown"
 msgstr "غير متاح"
+
+#. Capability is denied.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capGrantedNo"
+msgstr "غير ممنوحة"
 
 #. Shown when the widget cannot be operated.
 #. js-lingui-explicit-id
@@ -8670,6 +8712,12 @@ msgstr "مطلوب"
 msgid "actionGraph.required"
 msgstr "مطلوب"
 
+#. Label of the assurance level a device must hold to invoke the version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceRequired"
+msgstr "مستوى الضمان المطلوب"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -9521,6 +9569,12 @@ msgstr "العامل الثاني"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.secretHeading"
 msgstr "السر (يُعرض مرة واحدة)"
+
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capSecrets"
+msgstr "الأسرار التي يمكنها قراءتها"
 
 #. Heading of the security page.
 #. js-lingui-explicit-id
@@ -10836,6 +10890,12 @@ msgstr "البريد الإلكتروني أو كلمة المرور غير صح
 msgid "admin.licenseCaption"
 msgstr "ترخيص المؤسسة لهذا التثبيت، يُتحقق منه دون اتصال."
 
+#. Shown when the function declares no assurance level of its own.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceDefault"
+msgstr "الافتراضي للبيئة"
+
 #. Shown when explain-access fails.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -11875,6 +11935,12 @@ msgstr "لهذه الشاشة تغييرات غير محفوظة. انتظر ح�
 msgid "library.parameters.none"
 msgstr "لا يطلب هذا القالب أي معاملات."
 
+#. Shown when the build of a version declared no capabilities.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.noDeclaration"
+msgstr "لم تُسجَّل لهذا الإصدار أي إعلانات، لذا لا يُمنح أي قدرة."
+
 #. Shown in the Actions tab when the selected widget type declares no events.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -12211,7 +12277,7 @@ msgstr "رفع ملف"
 msgid "rustEditor.source"
 msgstr "المصدر المرفوع"
 
-#. Label of the source id field.
+#. Label of the source a version was built from.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.sourceLabel"
@@ -12318,6 +12384,12 @@ msgstr "المستخدمة في هذه الإضافة"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colUser"
 msgstr "المستخدم"
+
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capClaims"
+msgstr "مطالبات المستخدم"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id

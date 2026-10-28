@@ -172,6 +172,34 @@ message FunctionVersion {
   bool tests_passed = 12;
   Actor created_by = 13;
   google.protobuf.Timestamp created_at = 14;
+  // capabilities are the host capabilities the deploy granted the version:
+  // the ones its build declared, as immutable as its module (FN-012). Unset
+  // when the build recorded no declaration, in which case the version is
+  // granted nothing and cannot be invoked.
+  FunctionCapabilities capabilities = 15;
+  // assurance is the assurance level a device must hold to invoke the
+  // version, as its build declared it; empty means the environment's
+  // defaultFunctionAssurance applies (SEC-007).
+  string assurance = 16;
+  // source_id identifies the uploaded source the version was built from. It
+  // is an identifier only: reading the source needs its own permission.
+  string source_id = 17;
+}
+
+// FunctionCapabilities are the host capabilities a function version is
+// granted; everything not listed is denied (FN-012).
+message FunctionCapabilities {
+  // http are the domains the function may reach through egress.
+  repeated string http = 1;
+  // kv says whether the function may use its key-value namespace.
+  bool kv = 2;
+  // secrets are the names of the secrets the function may read, never their
+  // values.
+  repeated string secrets = 3;
+  // functions are the names of the functions it may call.
+  repeated string functions = 4;
+  // claims says whether it may read the verified user claims.
+  bool claims = 5;
 }
 
 // Provenance is the build record signed with the artifact (FN-005).

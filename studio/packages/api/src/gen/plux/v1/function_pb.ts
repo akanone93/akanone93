@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/function.proto.
  */
 export const file_plux_v1_function: GenFile = /*@__PURE__*/
-  fileDesc("ChZwbHV4L3YxL2Z1bmN0aW9uLnByb3RvEgdwbHV4LnYxIuYBChxGdW5jdGlvblNlcnZpY2VJbnZva2VSZXF1ZXN0EhAKCGZ1bmN0aW9uGAEgASgJEg8KB3ZlcnNpb24YAiABKA0SDQoFaW5wdXQYAyABKAwSFwoPaWRlbXBvdGVuY3lfa2V5GAQgASgJEiAKGHRyYW5zYWN0aW9uX2NoYWxsZW5nZV9pZBgFIAEoCRIdChV0cmFuc2FjdGlvbl9zaWduYXR1cmUYBiABKAwSHAoUYXBwX2F0dGVzdF9hc3NlcnRpb24YByABKAwSHAoUcGxheV9pbnRlZ3JpdHlfdG9rZW4YCCABKAkimAEKHUZ1bmN0aW9uU2VydmljZUludm9rZVJlc3BvbnNlEhAKBm91dHB1dBgBIAEoDEgAEjgKDmJ1c2luZXNzX2Vycm9yGAIgASgLMh4ucGx1eC52MS5GdW5jdGlvbkJ1c2luZXNzRXJyb3JIABIPCgd2ZXJzaW9uGAMgASgNEhAKCHJlcGxheWVkGAQgASgIQggKBnJlc3VsdCJKChVGdW5jdGlvbkJ1c2luZXNzRXJyb3ISDAoEY29kZRgBIAEoCRITCgttZXNzYWdlX2tleRgCIAEoCRIOCgZwYXJhbXMYAyABKAwiJAoPUnVuVGVzdHNSZXF1ZXN0EhEKCXNvdXJjZV9pZBgBIAEoCSJ5ChBSdW5UZXN0c1Jlc3BvbnNlEi0KBnJlc3VsdBgBIAEoCzIbLnBsdXgudjEuRnVuY3Rpb25UZXN0UmVzdWx0SAASLQoIZmluaXNoZWQYAiABKAsyGS5wbHV4LnYxLlJ1blRlc3RzRmluaXNoZWRIAEIHCgVldmVudCJHChBSdW5UZXN0c0ZpbmlzaGVkEg4KBnBhc3NlZBgBIAEoDRIOCgZmYWlsZWQYAiABKA0SEwoLZGlhZ25vc3RpY3MYAyABKAwi6gIKD0Z1bmN0aW9uVmVyc2lvbhIOCgZhcHBfaWQYASABKAkSFgoOZW52aXJvbm1lbnRfaWQYAiABKAkSDAoEbmFtZRgDIAEoCRIPCgd2ZXJzaW9uGAQgASgNEhEKCXBsYWNlbWVudBgFIAEoCRIVCg1tb2R1bGVfc2hhMjU2GAYgASgJEhMKC2FiaV92ZXJzaW9uGAcgASgNEhQKDGlucHV0X3NjaGVtYRgIIAEoCRIVCg1vdXRwdXRfc2NoZW1hGAkgASgJEicKCnByb3ZlbmFuY2UYCiABKAsyEy5wbHV4LnYxLlByb3ZlbmFuY2USEQoJc2lnbmF0dXJlGAsgASgMEhQKDHRlc3RzX3Bhc3NlZBgMIAEoCBIiCgpjcmVhdGVkX2J5GA0gASgLMg4ucGx1eC52MS5BY3RvchIuCgpjcmVhdGVkX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLZAQoKUHJvdmVuYW5jZRIVCg1zb3VyY2Vfc2hhMjU2GAEgASgJEikKDGRlcGVuZGVuY2llcxgCIAMoCzITLnBsdXgudjEuRGVwZW5kZW5jeRIRCgl0b29sY2hhaW4YAyABKAkSGAoQd2FzbV9vcHRfdmVyc2lvbhgEIAEoCRIuCgpidWlsZF90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChBidWlsZGVyX2lkZW50aXR5GAYgASgJEhIKCnNka19zaGEyNTYYByABKAkiPQoKRGVwZW5kZW5jeRIMCgRuYW1lGAEgASgJEg8KB3ZlcnNpb24YAiABKAkSEAoIY2hlY2tzdW0YAyABKAkiJgoFQWxpYXMSDAoEbmFtZRgBIAEoCRIPCgd2ZXJzaW9uGAIgASgNIkMKEkZ1bmN0aW9uVGVzdFJlc3VsdBIMCgRuYW1lGAEgASgJEg4KBnBhc3NlZBgCIAEoCBIPCgdtZXNzYWdlGAMgASgJIpQBCgVCdWlsZBIKCgJpZBgBIAEoCRIiCgVzdGF0ZRgCIAEoDjITLnBsdXgudjEuQnVpbGRTdGF0ZRIoCgtkaWFnbm9zdGljcxgDIAMoCzITLnBsdXgudjEuRGlhZ25vc3RpYxIxCgx0ZXN0X3Jlc3VsdHMYBCADKAsyGy5wbHV4LnYxLkZ1bmN0aW9uVGVzdFJlc3VsdCJrChNVcGxvYWRTb3VyY2VSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIWCg5lbnZpcm9ubWVudF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEg8KB3Nlc3Npb24YBCABKAkSDQoFY2h1bmsYBSABKAwiQAoUVXBsb2FkU291cmNlUmVzcG9uc2USEQoJc291cmNlX2lkGAEgASgJEhUKDXNvdXJjZV9zaGEyNTYYAiABKAkiIQoMQnVpbGRSZXF1ZXN0EhEKCXNvdXJjZV9pZBgBIAEoCSIuCg1CdWlsZFJlc3BvbnNlEh0KBWJ1aWxkGAEgASgLMg4ucGx1eC52MS5CdWlsZCIjCg9HZXRCdWlsZFJlcXVlc3QSEAoIYnVpbGRfaWQYASABKAkiMQoQR2V0QnVpbGRSZXNwb25zZRIdCgVidWlsZBgBIAEoCzIOLnBsdXgudjEuQnVpbGQiSgoSR2V0RnVuY3Rpb25SZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIWCg5lbnZpcm9ubWVudF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJImAKE0dldEZ1bmN0aW9uUmVzcG9uc2USKAoGbGF0ZXN0GAEgASgLMhgucGx1eC52MS5GdW5jdGlvblZlcnNpb24SHwoHYWxpYXNlcxgCIAMoCzIOLnBsdXgudjEuQWxpYXMiWwoUTGlzdEZ1bmN0aW9uc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhYKDmVudmlyb25tZW50X2lkGAIgASgJEhsKBHBhZ2UYAyABKAsyDS5wbHV4LnYxLlBhZ2UiZwoVTGlzdEZ1bmN0aW9uc1Jlc3BvbnNlEisKCWZ1bmN0aW9ucxgBIAMoCzIYLnBsdXgudjEuRnVuY3Rpb25WZXJzaW9uEiEKBHBhZ2UYAiABKAsyEy5wbHV4LnYxLlBhZ2VSZXN1bHQiaAoTTGlzdFZlcnNpb25zUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSFgoOZW52aXJvbm1lbnRfaWQYAiABKAkSDAoEbmFtZRgDIAEoCRIbCgRwYWdlGAQgASgLMg0ucGx1eC52MS5QYWdlImUKFExpc3RWZXJzaW9uc1Jlc3BvbnNlEioKCHZlcnNpb25zGAEgAygLMhgucGx1eC52MS5GdW5jdGlvblZlcnNpb24SIQoEcGFnZRgCIAEoCzITLnBsdXgudjEuUGFnZVJlc3VsdCJBCg1EZXBsb3lSZXF1ZXN0EhAKCGJ1aWxkX2lkGAEgASgJEg0KBWFsaWFzGAIgASgJEg8KB3Nlc3Npb24YAyABKAkiOwoORGVwbG95UmVzcG9uc2USKQoHdmVyc2lvbhgBIAEoCzIYLnBsdXgudjEuRnVuY3Rpb25WZXJzaW9uIp8BChZQcm9tb3RlRnVuY3Rpb25SZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIbChNmcm9tX2Vudmlyb25tZW50X2lkGAIgASgJEhkKEXRvX2Vudmlyb25tZW50X2lkGAMgASgJEgwKBG5hbWUYBCABKAkSDwoHdmVyc2lvbhgFIAEoDRINCgVhbGlhcxgGIAEoCRIPCgdzZXNzaW9uGAcgASgJIkQKF1Byb21vdGVGdW5jdGlvblJlc3BvbnNlEikKB3ZlcnNpb24YASABKAsyGC5wbHV4LnYxLkZ1bmN0aW9uVmVyc2lvbiJ3Cg9TZXRBbGlhc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhYKDmVudmlyb25tZW50X2lkGAIgASgJEgwKBG5hbWUYAyABKAkSHQoFYWxpYXMYBCABKAsyDi5wbHV4LnYxLkFsaWFzEg8KB3Nlc3Npb24YBSABKAkiMwoQU2V0QWxpYXNSZXNwb25zZRIfCgdhbGlhc2VzGAEgAygLMg4ucGx1eC52MS5BbGlhcyKgAQoPTGlzdExvZ3NSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIWCg5lbnZpcm9ubWVudF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEg8KB3ZlcnNpb24YBCABKA0SGwoEcGFnZRgFIAEoCzINLnBsdXgudjEuUGFnZRIpCgVzaW5jZRgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiXgoQTGlzdExvZ3NSZXNwb25zZRInCgVsaW5lcxgBIAMoCzIYLnBsdXgudjEuRnVuY3Rpb25Mb2dMaW5lEiEKBHBhZ2UYAiABKAsyEy5wbHV4LnYxLlBhZ2VSZXN1bHQifgoPRnVuY3Rpb25Mb2dMaW5lEigKBHRpbWUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB3ZlcnNpb24YAiABKA0SDQoFbGV2ZWwYAyABKAkSDwoHbWVzc2FnZRgEIAEoCRIQCgh0cmFjZV9pZBgFIAEoCSJhChFHZXRNZXRyaWNzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSFgoOZW52aXJvbm1lbnRfaWQYAiABKAkSDAoEbmFtZRgDIAEoCRIWCg53aW5kb3dfc2Vjb25kcxgEIAEoDSKoAgoSR2V0TWV0cmljc1Jlc3BvbnNlEhMKC2ludm9jYXRpb25zGAEgASgEEkUKDmVycm9yc19ieV9raW5kGAIgAygLMi0ucGx1eC52MS5HZXRNZXRyaWNzUmVzcG9uc2UuRXJyb3JzQnlLaW5kRW50cnkSGgoSbGF0ZW5jeV9wNTBfbWljcm9zGAMgASgEEhoKEmxhdGVuY3lfcDk1X21pY3JvcxgEIAEoBBIaChJsYXRlbmN5X3A5OV9taWNyb3MYBSABKAQSGQoRbWVtb3J5X3BlYWtfYnl0ZXMYBiABKAQSEgoKY2FjaGVfaGl0cxgHIAEoBBozChFFcnJvcnNCeUtpbmRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAQ6AjgBKo0BCgpCdWlsZFN0YXRlEhsKF0JVSUxEX1NUQVRFX1VOU1BFQ0lGSUVEEAASFgoSQlVJTERfU1RBVEVfUVVFVUVEEAESFwoTQlVJTERfU1RBVEVfUlVOTklORxACEhkKFUJVSUxEX1NUQVRFX1NVQ0NFRURFRBADEhYKEkJVSUxEX1NUQVRFX0ZBSUxFRBAEMmoKD0Z1bmN0aW9uU2VydmljZRJXCgZJbnZva2USJS5wbHV4LnYxLkZ1bmN0aW9uU2VydmljZUludm9rZVJlcXVlc3QaJi5wbHV4LnYxLkZ1bmN0aW9uU2VydmljZUludm9rZVJlc3BvbnNlMuIGChRGdW5jdGlvbkFkbWluU2VydmljZRJNCgxVcGxvYWRTb3VyY2USHC5wbHV4LnYxLlVwbG9hZFNvdXJjZVJlcXVlc3QaHS5wbHV4LnYxLlVwbG9hZFNvdXJjZVJlc3BvbnNlKAESNgoFQnVpbGQSFS5wbHV4LnYxLkJ1aWxkUmVxdWVzdBoWLnBsdXgudjEuQnVpbGRSZXNwb25zZRI/CghHZXRCdWlsZBIYLnBsdXgudjEuR2V0QnVpbGRSZXF1ZXN0GhkucGx1eC52MS5HZXRCdWlsZFJlc3BvbnNlEkgKC0dldEZ1bmN0aW9uEhsucGx1eC52MS5HZXRGdW5jdGlvblJlcXVlc3QaHC5wbHV4LnYxLkdldEZ1bmN0aW9uUmVzcG9uc2USTgoNTGlzdEZ1bmN0aW9ucxIdLnBsdXgudjEuTGlzdEZ1bmN0aW9uc1JlcXVlc3QaHi5wbHV4LnYxLkxpc3RGdW5jdGlvbnNSZXNwb25zZRJLCgxMaXN0VmVyc2lvbnMSHC5wbHV4LnYxLkxpc3RWZXJzaW9uc1JlcXVlc3QaHS5wbHV4LnYxLkxpc3RWZXJzaW9uc1Jlc3BvbnNlEjkKBkRlcGxveRIWLnBsdXgudjEuRGVwbG95UmVxdWVzdBoXLnBsdXgudjEuRGVwbG95UmVzcG9uc2USVAoPUHJvbW90ZUZ1bmN0aW9uEh8ucGx1eC52MS5Qcm9tb3RlRnVuY3Rpb25SZXF1ZXN0GiAucGx1eC52MS5Qcm9tb3RlRnVuY3Rpb25SZXNwb25zZRI/CghTZXRBbGlhcxIYLnBsdXgudjEuU2V0QWxpYXNSZXF1ZXN0GhkucGx1eC52MS5TZXRBbGlhc1Jlc3BvbnNlEj8KCExpc3RMb2dzEhgucGx1eC52MS5MaXN0TG9nc1JlcXVlc3QaGS5wbHV4LnYxLkxpc3RMb2dzUmVzcG9uc2USRQoKR2V0TWV0cmljcxIaLnBsdXgudjEuR2V0TWV0cmljc1JlcXVlc3QaGy5wbHV4LnYxLkdldE1ldHJpY3NSZXNwb25zZRJBCghSdW5UZXN0cxIYLnBsdXgudjEuUnVuVGVzdHNSZXF1ZXN0GhkucGx1eC52MS5SdW5UZXN0c1Jlc3BvbnNlMAFCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_common]);
+  fileDesc("ChZwbHV4L3YxL2Z1bmN0aW9uLnByb3RvEgdwbHV4LnYxIuYBChxGdW5jdGlvblNlcnZpY2VJbnZva2VSZXF1ZXN0EhAKCGZ1bmN0aW9uGAEgASgJEg8KB3ZlcnNpb24YAiABKA0SDQoFaW5wdXQYAyABKAwSFwoPaWRlbXBvdGVuY3lfa2V5GAQgASgJEiAKGHRyYW5zYWN0aW9uX2NoYWxsZW5nZV9pZBgFIAEoCRIdChV0cmFuc2FjdGlvbl9zaWduYXR1cmUYBiABKAwSHAoUYXBwX2F0dGVzdF9hc3NlcnRpb24YByABKAwSHAoUcGxheV9pbnRlZ3JpdHlfdG9rZW4YCCABKAkimAEKHUZ1bmN0aW9uU2VydmljZUludm9rZVJlc3BvbnNlEhAKBm91dHB1dBgBIAEoDEgAEjgKDmJ1c2luZXNzX2Vycm9yGAIgASgLMh4ucGx1eC52MS5GdW5jdGlvbkJ1c2luZXNzRXJyb3JIABIPCgd2ZXJzaW9uGAMgASgNEhAKCHJlcGxheWVkGAQgASgIQggKBnJlc3VsdCJKChVGdW5jdGlvbkJ1c2luZXNzRXJyb3ISDAoEY29kZRgBIAEoCRITCgttZXNzYWdlX2tleRgCIAEoCRIOCgZwYXJhbXMYAyABKAwiJAoPUnVuVGVzdHNSZXF1ZXN0EhEKCXNvdXJjZV9pZBgBIAEoCSJ5ChBSdW5UZXN0c1Jlc3BvbnNlEi0KBnJlc3VsdBgBIAEoCzIbLnBsdXgudjEuRnVuY3Rpb25UZXN0UmVzdWx0SAASLQoIZmluaXNoZWQYAiABKAsyGS5wbHV4LnYxLlJ1blRlc3RzRmluaXNoZWRIAEIHCgVldmVudCJHChBSdW5UZXN0c0ZpbmlzaGVkEg4KBnBhc3NlZBgBIAEoDRIOCgZmYWlsZWQYAiABKA0SEwoLZGlhZ25vc3RpY3MYAyABKAwixQMKD0Z1bmN0aW9uVmVyc2lvbhIOCgZhcHBfaWQYASABKAkSFgoOZW52aXJvbm1lbnRfaWQYAiABKAkSDAoEbmFtZRgDIAEoCRIPCgd2ZXJzaW9uGAQgASgNEhEKCXBsYWNlbWVudBgFIAEoCRIVCg1tb2R1bGVfc2hhMjU2GAYgASgJEhMKC2FiaV92ZXJzaW9uGAcgASgNEhQKDGlucHV0X3NjaGVtYRgIIAEoCRIVCg1vdXRwdXRfc2NoZW1hGAkgASgJEicKCnByb3ZlbmFuY2UYCiABKAsyEy5wbHV4LnYxLlByb3ZlbmFuY2USEQoJc2lnbmF0dXJlGAsgASgMEhQKDHRlc3RzX3Bhc3NlZBgMIAEoCBIiCgpjcmVhdGVkX2J5GA0gASgLMg4ucGx1eC52MS5BY3RvchIuCgpjcmVhdGVkX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCgxjYXBhYmlsaXRpZXMYDyABKAsyHS5wbHV4LnYxLkZ1bmN0aW9uQ2FwYWJpbGl0aWVzEhEKCWFzc3VyYW5jZRgQIAEoCRIRCglzb3VyY2VfaWQYESABKAkiZAoURnVuY3Rpb25DYXBhYmlsaXRpZXMSDAoEaHR0cBgBIAMoCRIKCgJrdhgCIAEoCBIPCgdzZWNyZXRzGAMgAygJEhEKCWZ1bmN0aW9ucxgEIAMoCRIOCgZjbGFpbXMYBSABKAgi2QEKClByb3ZlbmFuY2USFQoNc291cmNlX3NoYTI1NhgBIAEoCRIpCgxkZXBlbmRlbmNpZXMYAiADKAsyEy5wbHV4LnYxLkRlcGVuZGVuY3kSEQoJdG9vbGNoYWluGAMgASgJEhgKEHdhc21fb3B0X3ZlcnNpb24YBCABKAkSLgoKYnVpbGRfdGltZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGAoQYnVpbGRlcl9pZGVudGl0eRgGIAEoCRISCgpzZGtfc2hhMjU2GAcgASgJIj0KCkRlcGVuZGVuY3kSDAoEbmFtZRgBIAEoCRIPCgd2ZXJzaW9uGAIgASgJEhAKCGNoZWNrc3VtGAMgASgJIiYKBUFsaWFzEgwKBG5hbWUYASABKAkSDwoHdmVyc2lvbhgCIAEoDSJDChJGdW5jdGlvblRlc3RSZXN1bHQSDAoEbmFtZRgBIAEoCRIOCgZwYXNzZWQYAiABKAgSDwoHbWVzc2FnZRgDIAEoCSKUAQoFQnVpbGQSCgoCaWQYASABKAkSIgoFc3RhdGUYAiABKA4yEy5wbHV4LnYxLkJ1aWxkU3RhdGUSKAoLZGlhZ25vc3RpY3MYAyADKAsyEy5wbHV4LnYxLkRpYWdub3N0aWMSMQoMdGVzdF9yZXN1bHRzGAQgAygLMhsucGx1eC52MS5GdW5jdGlvblRlc3RSZXN1bHQiawoTVXBsb2FkU291cmNlUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSFgoOZW52aXJvbm1lbnRfaWQYAiABKAkSDAoEbmFtZRgDIAEoCRIPCgdzZXNzaW9uGAQgASgJEg0KBWNodW5rGAUgASgMIkAKFFVwbG9hZFNvdXJjZVJlc3BvbnNlEhEKCXNvdXJjZV9pZBgBIAEoCRIVCg1zb3VyY2Vfc2hhMjU2GAIgASgJIiEKDEJ1aWxkUmVxdWVzdBIRCglzb3VyY2VfaWQYASABKAkiLgoNQnVpbGRSZXNwb25zZRIdCgVidWlsZBgBIAEoCzIOLnBsdXgudjEuQnVpbGQiIwoPR2V0QnVpbGRSZXF1ZXN0EhAKCGJ1aWxkX2lkGAEgASgJIjEKEEdldEJ1aWxkUmVzcG9uc2USHQoFYnVpbGQYASABKAsyDi5wbHV4LnYxLkJ1aWxkIkoKEkdldEZ1bmN0aW9uUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSFgoOZW52aXJvbm1lbnRfaWQYAiABKAkSDAoEbmFtZRgDIAEoCSJgChNHZXRGdW5jdGlvblJlc3BvbnNlEigKBmxhdGVzdBgBIAEoCzIYLnBsdXgudjEuRnVuY3Rpb25WZXJzaW9uEh8KB2FsaWFzZXMYAiADKAsyDi5wbHV4LnYxLkFsaWFzIlsKFExpc3RGdW5jdGlvbnNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIWCg5lbnZpcm9ubWVudF9pZBgCIAEoCRIbCgRwYWdlGAMgASgLMg0ucGx1eC52MS5QYWdlImcKFUxpc3RGdW5jdGlvbnNSZXNwb25zZRIrCglmdW5jdGlvbnMYASADKAsyGC5wbHV4LnYxLkZ1bmN0aW9uVmVyc2lvbhIhCgRwYWdlGAIgASgLMhMucGx1eC52MS5QYWdlUmVzdWx0ImgKE0xpc3RWZXJzaW9uc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhYKDmVudmlyb25tZW50X2lkGAIgASgJEgwKBG5hbWUYAyABKAkSGwoEcGFnZRgEIAEoCzINLnBsdXgudjEuUGFnZSJlChRMaXN0VmVyc2lvbnNSZXNwb25zZRIqCgh2ZXJzaW9ucxgBIAMoCzIYLnBsdXgudjEuRnVuY3Rpb25WZXJzaW9uEiEKBHBhZ2UYAiABKAsyEy5wbHV4LnYxLlBhZ2VSZXN1bHQiQQoNRGVwbG95UmVxdWVzdBIQCghidWlsZF9pZBgBIAEoCRINCgVhbGlhcxgCIAEoCRIPCgdzZXNzaW9uGAMgASgJIjsKDkRlcGxveVJlc3BvbnNlEikKB3ZlcnNpb24YASABKAsyGC5wbHV4LnYxLkZ1bmN0aW9uVmVyc2lvbiKfAQoWUHJvbW90ZUZ1bmN0aW9uUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSGwoTZnJvbV9lbnZpcm9ubWVudF9pZBgCIAEoCRIZChF0b19lbnZpcm9ubWVudF9pZBgDIAEoCRIMCgRuYW1lGAQgASgJEg8KB3ZlcnNpb24YBSABKA0SDQoFYWxpYXMYBiABKAkSDwoHc2Vzc2lvbhgHIAEoCSJEChdQcm9tb3RlRnVuY3Rpb25SZXNwb25zZRIpCgd2ZXJzaW9uGAEgASgLMhgucGx1eC52MS5GdW5jdGlvblZlcnNpb24idwoPU2V0QWxpYXNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIWCg5lbnZpcm9ubWVudF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEh0KBWFsaWFzGAQgASgLMg4ucGx1eC52MS5BbGlhcxIPCgdzZXNzaW9uGAUgASgJIjMKEFNldEFsaWFzUmVzcG9uc2USHwoHYWxpYXNlcxgBIAMoCzIOLnBsdXgudjEuQWxpYXMioAEKD0xpc3RMb2dzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSFgoOZW52aXJvbm1lbnRfaWQYAiABKAkSDAoEbmFtZRgDIAEoCRIPCgd2ZXJzaW9uGAQgASgNEhsKBHBhZ2UYBSABKAsyDS5wbHV4LnYxLlBhZ2USKQoFc2luY2UYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIl4KEExpc3RMb2dzUmVzcG9uc2USJwoFbGluZXMYASADKAsyGC5wbHV4LnYxLkZ1bmN0aW9uTG9nTGluZRIhCgRwYWdlGAIgASgLMhMucGx1eC52MS5QYWdlUmVzdWx0In4KD0Z1bmN0aW9uTG9nTGluZRIoCgR0aW1lGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgd2ZXJzaW9uGAIgASgNEg0KBWxldmVsGAMgASgJEg8KB21lc3NhZ2UYBCABKAkSEAoIdHJhY2VfaWQYBSABKAkiYQoRR2V0TWV0cmljc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhYKDmVudmlyb25tZW50X2lkGAIgASgJEgwKBG5hbWUYAyABKAkSFgoOd2luZG93X3NlY29uZHMYBCABKA0iqAIKEkdldE1ldHJpY3NSZXNwb25zZRITCgtpbnZvY2F0aW9ucxgBIAEoBBJFCg5lcnJvcnNfYnlfa2luZBgCIAMoCzItLnBsdXgudjEuR2V0TWV0cmljc1Jlc3BvbnNlLkVycm9yc0J5S2luZEVudHJ5EhoKEmxhdGVuY3lfcDUwX21pY3JvcxgDIAEoBBIaChJsYXRlbmN5X3A5NV9taWNyb3MYBCABKAQSGgoSbGF0ZW5jeV9wOTlfbWljcm9zGAUgASgEEhkKEW1lbW9yeV9wZWFrX2J5dGVzGAYgASgEEhIKCmNhY2hlX2hpdHMYByABKAQaMwoRRXJyb3JzQnlLaW5kRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgEOgI4ASqNAQoKQnVpbGRTdGF0ZRIbChdCVUlMRF9TVEFURV9VTlNQRUNJRklFRBAAEhYKEkJVSUxEX1NUQVRFX1FVRVVFRBABEhcKE0JVSUxEX1NUQVRFX1JVTk5JTkcQAhIZChVCVUlMRF9TVEFURV9TVUNDRUVERUQQAxIWChJCVUlMRF9TVEFURV9GQUlMRUQQBDJqCg9GdW5jdGlvblNlcnZpY2USVwoGSW52b2tlEiUucGx1eC52MS5GdW5jdGlvblNlcnZpY2VJbnZva2VSZXF1ZXN0GiYucGx1eC52MS5GdW5jdGlvblNlcnZpY2VJbnZva2VSZXNwb25zZTLiBgoURnVuY3Rpb25BZG1pblNlcnZpY2USTQoMVXBsb2FkU291cmNlEhwucGx1eC52MS5VcGxvYWRTb3VyY2VSZXF1ZXN0Gh0ucGx1eC52MS5VcGxvYWRTb3VyY2VSZXNwb25zZSgBEjYKBUJ1aWxkEhUucGx1eC52MS5CdWlsZFJlcXVlc3QaFi5wbHV4LnYxLkJ1aWxkUmVzcG9uc2USPwoIR2V0QnVpbGQSGC5wbHV4LnYxLkdldEJ1aWxkUmVxdWVzdBoZLnBsdXgudjEuR2V0QnVpbGRSZXNwb25zZRJICgtHZXRGdW5jdGlvbhIbLnBsdXgudjEuR2V0RnVuY3Rpb25SZXF1ZXN0GhwucGx1eC52MS5HZXRGdW5jdGlvblJlc3BvbnNlEk4KDUxpc3RGdW5jdGlvbnMSHS5wbHV4LnYxLkxpc3RGdW5jdGlvbnNSZXF1ZXN0Gh4ucGx1eC52MS5MaXN0RnVuY3Rpb25zUmVzcG9uc2USSwoMTGlzdFZlcnNpb25zEhwucGx1eC52MS5MaXN0VmVyc2lvbnNSZXF1ZXN0Gh0ucGx1eC52MS5MaXN0VmVyc2lvbnNSZXNwb25zZRI5CgZEZXBsb3kSFi5wbHV4LnYxLkRlcGxveVJlcXVlc3QaFy5wbHV4LnYxLkRlcGxveVJlc3BvbnNlElQKD1Byb21vdGVGdW5jdGlvbhIfLnBsdXgudjEuUHJvbW90ZUZ1bmN0aW9uUmVxdWVzdBogLnBsdXgudjEuUHJvbW90ZUZ1bmN0aW9uUmVzcG9uc2USPwoIU2V0QWxpYXMSGC5wbHV4LnYxLlNldEFsaWFzUmVxdWVzdBoZLnBsdXgudjEuU2V0QWxpYXNSZXNwb25zZRI/CghMaXN0TG9ncxIYLnBsdXgudjEuTGlzdExvZ3NSZXF1ZXN0GhkucGx1eC52MS5MaXN0TG9nc1Jlc3BvbnNlEkUKCkdldE1ldHJpY3MSGi5wbHV4LnYxLkdldE1ldHJpY3NSZXF1ZXN0GhsucGx1eC52MS5HZXRNZXRyaWNzUmVzcG9uc2USQQoIUnVuVGVzdHMSGC5wbHV4LnYxLlJ1blRlc3RzUmVxdWVzdBoZLnBsdXgudjEuUnVuVGVzdHNSZXNwb25zZTABQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM", [file_google_protobuf_timestamp, file_plux_v1_common]);
 
 /**
  * @generated from message plux.v1.FunctionServiceInvokeRequest
@@ -359,6 +359,33 @@ export type FunctionVersion = Message<"plux.v1.FunctionVersion"> & {
    * @generated from field: google.protobuf.Timestamp created_at = 14;
    */
   createdAt?: Timestamp | undefined;
+
+  /**
+   * capabilities are the host capabilities the deploy granted the version:
+   * the ones its build declared, as immutable as its module (FN-012). Unset
+   * when the build recorded no declaration, in which case the version is
+   * granted nothing and cannot be invoked.
+   *
+   * @generated from field: plux.v1.FunctionCapabilities capabilities = 15;
+   */
+  capabilities?: FunctionCapabilities | undefined;
+
+  /**
+   * assurance is the assurance level a device must hold to invoke the
+   * version, as its build declared it; empty means the environment's
+   * defaultFunctionAssurance applies (SEC-007).
+   *
+   * @generated from field: string assurance = 16;
+   */
+  assurance: string;
+
+  /**
+   * source_id identifies the uploaded source the version was built from. It
+   * is an identifier only: reading the source needs its own permission.
+   *
+   * @generated from field: string source_id = 17;
+   */
+  sourceId: string;
 };
 
 /**
@@ -367,6 +394,57 @@ export type FunctionVersion = Message<"plux.v1.FunctionVersion"> & {
  */
 export const FunctionVersionSchema: GenMessage<FunctionVersion> = /*@__PURE__*/
   messageDesc(file_plux_v1_function, 6);
+
+/**
+ * FunctionCapabilities are the host capabilities a function version is
+ * granted; everything not listed is denied (FN-012).
+ *
+ * @generated from message plux.v1.FunctionCapabilities
+ */
+export type FunctionCapabilities = Message<"plux.v1.FunctionCapabilities"> & {
+  /**
+   * http are the domains the function may reach through egress.
+   *
+   * @generated from field: repeated string http = 1;
+   */
+  http: string[];
+
+  /**
+   * kv says whether the function may use its key-value namespace.
+   *
+   * @generated from field: bool kv = 2;
+   */
+  kv: boolean;
+
+  /**
+   * secrets are the names of the secrets the function may read, never their
+   * values.
+   *
+   * @generated from field: repeated string secrets = 3;
+   */
+  secrets: string[];
+
+  /**
+   * functions are the names of the functions it may call.
+   *
+   * @generated from field: repeated string functions = 4;
+   */
+  functions: string[];
+
+  /**
+   * claims says whether it may read the verified user claims.
+   *
+   * @generated from field: bool claims = 5;
+   */
+  claims: boolean;
+};
+
+/**
+ * Describes the message plux.v1.FunctionCapabilities.
+ * Use `create(FunctionCapabilitiesSchema)` to create a new message.
+ */
+export const FunctionCapabilitiesSchema: GenMessage<FunctionCapabilities> = /*@__PURE__*/
+  messageDesc(file_plux_v1_function, 7);
 
 /**
  * Provenance is the build record signed with the artifact (FN-005).
@@ -432,7 +510,7 @@ export type Provenance = Message<"plux.v1.Provenance"> & {
  * Use `create(ProvenanceSchema)` to create a new message.
  */
 export const ProvenanceSchema: GenMessage<Provenance> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 7);
+  messageDesc(file_plux_v1_function, 8);
 
 /**
  * Dependency is one vendored crate of a build (FN-005).
@@ -463,7 +541,7 @@ export type Dependency = Message<"plux.v1.Dependency"> & {
  * Use `create(DependencySchema)` to create a new message.
  */
 export const DependencySchema: GenMessage<Dependency> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 8);
+  messageDesc(file_plux_v1_function, 9);
 
 /**
  * Alias points a name at a version of a function (FN-006).
@@ -489,7 +567,7 @@ export type Alias = Message<"plux.v1.Alias"> & {
  * Use `create(AliasSchema)` to create a new message.
  */
 export const AliasSchema: GenMessage<Alias> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 9);
+  messageDesc(file_plux_v1_function, 10);
 
 /**
  * FunctionTestResult is the outcome of one stored test case (FN-031).
@@ -520,7 +598,7 @@ export type FunctionTestResult = Message<"plux.v1.FunctionTestResult"> & {
  * Use `create(FunctionTestResultSchema)` to create a new message.
  */
 export const FunctionTestResultSchema: GenMessage<FunctionTestResult> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 10);
+  messageDesc(file_plux_v1_function, 11);
 
 /**
  * Build is one build of an uploaded source (FN-016).
@@ -561,7 +639,7 @@ export type Build = Message<"plux.v1.Build"> & {
  * Use `create(BuildSchema)` to create a new message.
  */
 export const BuildSchema: GenMessage<Build> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 11);
+  messageDesc(file_plux_v1_function, 12);
 
 /**
  * @generated from message plux.v1.UploadSourceRequest
@@ -603,7 +681,7 @@ export type UploadSourceRequest = Message<"plux.v1.UploadSourceRequest"> & {
  * Use `create(UploadSourceRequestSchema)` to create a new message.
  */
 export const UploadSourceRequestSchema: GenMessage<UploadSourceRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 12);
+  messageDesc(file_plux_v1_function, 13);
 
 /**
  * @generated from message plux.v1.UploadSourceResponse
@@ -629,7 +707,7 @@ export type UploadSourceResponse = Message<"plux.v1.UploadSourceResponse"> & {
  * Use `create(UploadSourceResponseSchema)` to create a new message.
  */
 export const UploadSourceResponseSchema: GenMessage<UploadSourceResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 13);
+  messageDesc(file_plux_v1_function, 14);
 
 /**
  * @generated from message plux.v1.BuildRequest
@@ -646,7 +724,7 @@ export type BuildRequest = Message<"plux.v1.BuildRequest"> & {
  * Use `create(BuildRequestSchema)` to create a new message.
  */
 export const BuildRequestSchema: GenMessage<BuildRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 14);
+  messageDesc(file_plux_v1_function, 15);
 
 /**
  * @generated from message plux.v1.BuildResponse
@@ -663,7 +741,7 @@ export type BuildResponse = Message<"plux.v1.BuildResponse"> & {
  * Use `create(BuildResponseSchema)` to create a new message.
  */
 export const BuildResponseSchema: GenMessage<BuildResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 15);
+  messageDesc(file_plux_v1_function, 16);
 
 /**
  * @generated from message plux.v1.GetBuildRequest
@@ -680,7 +758,7 @@ export type GetBuildRequest = Message<"plux.v1.GetBuildRequest"> & {
  * Use `create(GetBuildRequestSchema)` to create a new message.
  */
 export const GetBuildRequestSchema: GenMessage<GetBuildRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 16);
+  messageDesc(file_plux_v1_function, 17);
 
 /**
  * @generated from message plux.v1.GetBuildResponse
@@ -697,7 +775,7 @@ export type GetBuildResponse = Message<"plux.v1.GetBuildResponse"> & {
  * Use `create(GetBuildResponseSchema)` to create a new message.
  */
 export const GetBuildResponseSchema: GenMessage<GetBuildResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 17);
+  messageDesc(file_plux_v1_function, 18);
 
 /**
  * @generated from message plux.v1.GetFunctionRequest
@@ -724,7 +802,7 @@ export type GetFunctionRequest = Message<"plux.v1.GetFunctionRequest"> & {
  * Use `create(GetFunctionRequestSchema)` to create a new message.
  */
 export const GetFunctionRequestSchema: GenMessage<GetFunctionRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 18);
+  messageDesc(file_plux_v1_function, 19);
 
 /**
  * @generated from message plux.v1.GetFunctionResponse
@@ -748,7 +826,7 @@ export type GetFunctionResponse = Message<"plux.v1.GetFunctionResponse"> & {
  * Use `create(GetFunctionResponseSchema)` to create a new message.
  */
 export const GetFunctionResponseSchema: GenMessage<GetFunctionResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 19);
+  messageDesc(file_plux_v1_function, 20);
 
 /**
  * @generated from message plux.v1.ListFunctionsRequest
@@ -775,7 +853,7 @@ export type ListFunctionsRequest = Message<"plux.v1.ListFunctionsRequest"> & {
  * Use `create(ListFunctionsRequestSchema)` to create a new message.
  */
 export const ListFunctionsRequestSchema: GenMessage<ListFunctionsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 20);
+  messageDesc(file_plux_v1_function, 21);
 
 /**
  * @generated from message plux.v1.ListFunctionsResponse
@@ -799,7 +877,7 @@ export type ListFunctionsResponse = Message<"plux.v1.ListFunctionsResponse"> & {
  * Use `create(ListFunctionsResponseSchema)` to create a new message.
  */
 export const ListFunctionsResponseSchema: GenMessage<ListFunctionsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 21);
+  messageDesc(file_plux_v1_function, 22);
 
 /**
  * @generated from message plux.v1.ListVersionsRequest
@@ -831,7 +909,7 @@ export type ListVersionsRequest = Message<"plux.v1.ListVersionsRequest"> & {
  * Use `create(ListVersionsRequestSchema)` to create a new message.
  */
 export const ListVersionsRequestSchema: GenMessage<ListVersionsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 22);
+  messageDesc(file_plux_v1_function, 23);
 
 /**
  * @generated from message plux.v1.ListVersionsResponse
@@ -853,7 +931,7 @@ export type ListVersionsResponse = Message<"plux.v1.ListVersionsResponse"> & {
  * Use `create(ListVersionsResponseSchema)` to create a new message.
  */
 export const ListVersionsResponseSchema: GenMessage<ListVersionsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 23);
+  messageDesc(file_plux_v1_function, 24);
 
 /**
  * @generated from message plux.v1.DeployRequest
@@ -882,7 +960,7 @@ export type DeployRequest = Message<"plux.v1.DeployRequest"> & {
  * Use `create(DeployRequestSchema)` to create a new message.
  */
 export const DeployRequestSchema: GenMessage<DeployRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 24);
+  messageDesc(file_plux_v1_function, 25);
 
 /**
  * @generated from message plux.v1.DeployResponse
@@ -899,7 +977,7 @@ export type DeployResponse = Message<"plux.v1.DeployResponse"> & {
  * Use `create(DeployResponseSchema)` to create a new message.
  */
 export const DeployResponseSchema: GenMessage<DeployResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 25);
+  messageDesc(file_plux_v1_function, 26);
 
 /**
  * @generated from message plux.v1.PromoteFunctionRequest
@@ -952,7 +1030,7 @@ export type PromoteFunctionRequest = Message<"plux.v1.PromoteFunctionRequest"> &
  * Use `create(PromoteFunctionRequestSchema)` to create a new message.
  */
 export const PromoteFunctionRequestSchema: GenMessage<PromoteFunctionRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 26);
+  messageDesc(file_plux_v1_function, 27);
 
 /**
  * @generated from message plux.v1.PromoteFunctionResponse
@@ -971,7 +1049,7 @@ export type PromoteFunctionResponse = Message<"plux.v1.PromoteFunctionResponse">
  * Use `create(PromoteFunctionResponseSchema)` to create a new message.
  */
 export const PromoteFunctionResponseSchema: GenMessage<PromoteFunctionResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 27);
+  messageDesc(file_plux_v1_function, 28);
 
 /**
  * @generated from message plux.v1.SetAliasRequest
@@ -1008,7 +1086,7 @@ export type SetAliasRequest = Message<"plux.v1.SetAliasRequest"> & {
  * Use `create(SetAliasRequestSchema)` to create a new message.
  */
 export const SetAliasRequestSchema: GenMessage<SetAliasRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 28);
+  messageDesc(file_plux_v1_function, 29);
 
 /**
  * @generated from message plux.v1.SetAliasResponse
@@ -1025,7 +1103,7 @@ export type SetAliasResponse = Message<"plux.v1.SetAliasResponse"> & {
  * Use `create(SetAliasResponseSchema)` to create a new message.
  */
 export const SetAliasResponseSchema: GenMessage<SetAliasResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 29);
+  messageDesc(file_plux_v1_function, 30);
 
 /**
  * @generated from message plux.v1.ListLogsRequest
@@ -1071,7 +1149,7 @@ export type ListLogsRequest = Message<"plux.v1.ListLogsRequest"> & {
  * Use `create(ListLogsRequestSchema)` to create a new message.
  */
 export const ListLogsRequestSchema: GenMessage<ListLogsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 30);
+  messageDesc(file_plux_v1_function, 31);
 
 /**
  * @generated from message plux.v1.ListLogsResponse
@@ -1093,7 +1171,7 @@ export type ListLogsResponse = Message<"plux.v1.ListLogsResponse"> & {
  * Use `create(ListLogsResponseSchema)` to create a new message.
  */
 export const ListLogsResponseSchema: GenMessage<ListLogsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 31);
+  messageDesc(file_plux_v1_function, 32);
 
 /**
  * FunctionLogLine is one retained log line of an invocation (FN-032).
@@ -1136,7 +1214,7 @@ export type FunctionLogLine = Message<"plux.v1.FunctionLogLine"> & {
  * Use `create(FunctionLogLineSchema)` to create a new message.
  */
 export const FunctionLogLineSchema: GenMessage<FunctionLogLine> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 32);
+  messageDesc(file_plux_v1_function, 33);
 
 /**
  * @generated from message plux.v1.GetMetricsRequest
@@ -1170,7 +1248,7 @@ export type GetMetricsRequest = Message<"plux.v1.GetMetricsRequest"> & {
  * Use `create(GetMetricsRequestSchema)` to create a new message.
  */
 export const GetMetricsRequestSchema: GenMessage<GetMetricsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 33);
+  messageDesc(file_plux_v1_function, 34);
 
 /**
  * @generated from message plux.v1.GetMetricsResponse
@@ -1227,7 +1305,7 @@ export type GetMetricsResponse = Message<"plux.v1.GetMetricsResponse"> & {
  * Use `create(GetMetricsResponseSchema)` to create a new message.
  */
 export const GetMetricsResponseSchema: GenMessage<GetMetricsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_function, 34);
+  messageDesc(file_plux_v1_function, 35);
 
 /**
  * BuildState is the progress of a build (FN-016).

@@ -259,7 +259,14 @@ type Version struct {
 	KeyID         string
 	TestsPassed   bool
 	BuildID       string
-	CreatedAt     time.Time
+	// SourceID is the uploaded source the version's build was made from.
+	// It is set by the service's read and write paths, not by versionOf.
+	SourceID string
+	// Declared is the declaration of the version's build: what it was
+	// granted (FN-012). It is nil when the build recorded none, and set
+	// with SourceID.
+	Declared  *Declaration
+	CreatedAt time.Time
 }
 
 // Alias points a name at a version (FN-006).

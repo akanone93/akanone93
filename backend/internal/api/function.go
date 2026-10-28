@@ -380,12 +380,17 @@ func functionVersionProto(v function.Version) *pluxv1.FunctionVersion {
 	for _, d := range v.Provenance.Dependencies {
 		prov.Dependencies = append(prov.Dependencies, &pluxv1.Dependency{Name: d.Name, Version: d.Version, Checksum: d.Checksum})
 	}
-	return &pluxv1.FunctionVersion{
+	out := &pluxv1.FunctionVersion{
 		AppId: v.AppID, EnvironmentId: v.EnvironmentID, Name: v.Name, Version: uint32(v.Version), //nolint:gosec // positive by the version column
 		Placement: string(v.Placement), ModuleSha256: hexOf(v.ModuleSHA256), AbiVersion: uint32(v.ABIVersion), //nolint:gosec // positive
 		InputSchema: v.InputSchema, OutputSchema: v.OutputSchema, Provenance: prov, Signature: v.Signature,
-		TestsPassed: v.TestsPassed, CreatedAt: ts(v.CreatedAt),
+		TestsPassed: v.TestsPassed, CreatedAt: ts(v.CreatedAt), SourceId: v.SourceID,
 	}
+	if d := v.Declared; d != nil {
+		out.Capabilities = &pluxv1.FunctionCapabilities{Http: d.Capabilities.HTTP, Kv: d.Capabilities.KV, Secrets: d.Capabilities.Secrets, Functions: d.Capabilities.Functions, Claims: d.Capabilities.Claims}
+		out.Assurance = d.Assurance
+	}
+	return out
 }
 
 // aliasProtos converts aliases for the wire.
