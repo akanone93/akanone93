@@ -3,7 +3,7 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { createStudioI18n } from "@plux/i18n";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { ShortcutsPage } from "../../features/profile/shortcuts-page.tsx";
 import { CommandPalette } from "../../features/shell/command-palette.tsx";
@@ -98,6 +98,12 @@ describe("STU-013 global shortcuts", () => {
     const hits: string[] = [];
     render(wrap([cmd("t", "T", { shortcut: "alt+t", run: () => void hits.push("t") })], [], <input aria-label="x" />));
     const input = await screen.findByLabelText("x");
+    // The shortcut listener is installed by an effect: wait until a press outside an input reaches it.
+    await waitFor(() => {
+      fireEvent.keyDown(document.body, { key: "t", code: "KeyT", altKey: true });
+      expect(hits.length > 0).toBe(true);
+    });
+    hits.length = 0;
     fireEvent.keyDown(document.body, { key: "t", code: "KeyT", altKey: true });
     fireEvent.keyDown(input, { key: "t", code: "KeyT", altKey: true });
     expect(hits).toEqual(["t"]);
