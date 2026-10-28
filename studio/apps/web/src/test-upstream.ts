@@ -31,6 +31,7 @@ import {
   FlagService,
   FunctionAdminService,
   GetCurrentUserResponseSchema,
+  type GetReplayRequest,
   GovernanceService,
   IdentityService,
   InboxItemSchema,
@@ -1495,7 +1496,7 @@ function analyticsAreaServices(
   });
   service(ReplayService, {
     listReplays: () => ({ replays: replays.map(summary) }),
-    getReplay: (req) => {
+    getReplay: (req: GetReplayRequest) => {
       const r = replays.find((x) => x.id === req.id);
       if (r === undefined) {
         throw new ConnectError("no such replay", Code.NotFound);
