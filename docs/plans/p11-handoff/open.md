@@ -15,10 +15,6 @@ SPDX-License-Identifier: Apache-2.0
 
 - Preview mock states (DAT-080) are selectable, but the canvas scene has no data bindings yet.
 
-- History restore through `RestoreSnapshot` brings deleted documents back outside the client's
-  undo step (the server writes them).
-- Localisation key extraction: one server undo step, but each document's local undo stack undoes
-  only its part.
 - Action graph: node positions not saved; no drag from the catalogue.
 - Host-bundled fonts (§4.3 #11) loaded by the canvas but not wired: the server field does not exist.
 - `TermsViewer` uses a fixed 480 px design-time height (no device height in the screen theme);
