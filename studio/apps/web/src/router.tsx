@@ -250,6 +250,26 @@ const dataSourceRoute = dataRoute("/sources/$sourceId", "SourcePage");
 const dataCollectionsRoute = dataRoute("/collections", "CollectionsPage");
 const dataCollectionRoute = dataRoute("/collections/$collectionId", "CollectionPage");
 
+/** A15-A19: the Design system area of one app (STU-112); the pages need `app.read`, and editing needs the app's editing lock. */
+function designRoute(
+  path: string,
+  component: "TokensPage" | "ThemesPage" | "TypographyPage" | "IconsPage" | "LibraryPage",
+) {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/design${path}`,
+    validateSearch: () => ({}),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/design/index.ts"), component),
+  });
+}
+
+const designTokensRoute = designRoute("", "TokensPage");
+const designThemesRoute = designRoute("/themes", "ThemesPage");
+const designTypographyRoute = designRoute("/typography", "TypographyPage");
+const designIconsRoute = designRoute("/icons", "IconsPage");
+const designLibraryRoute = designRoute("/library", "LibraryPage");
+
 /** A13-A14: the localisation grid and the heatmap of one app (STU-111); the pages need `app.read`, editing needs `translations.edit` and the locale's lock. */
 function localisationRoute(path: string, component: "LocalisationPage" | "HeatmapPage") {
   return createRoute({
@@ -462,6 +482,11 @@ const routeTree = rootRoute.addChildren([
       dataSourceRoute,
       dataCollectionsRoute,
       dataCollectionRoute,
+      designTokensRoute,
+      designThemesRoute,
+      designTypographyRoute,
+      designIconsRoute,
+      designLibraryRoute,
       localisationGridRoute,
       localisationHeatmapRoute,
       experimentsListRoute,
