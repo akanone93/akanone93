@@ -11,12 +11,20 @@ SELECT * FROM apps WHERE id = $1 AND deleted_at IS NULL;
 -- granted one by one (GOV-001); except_ids leaves out the apps a restriction
 -- takes app.read away from (GOV-006). sort_key is the cursor column of the
 -- chosen order (key, name, or newest-first updated); the Go mirror is
--- tenancy.sortKey. Archived apps are left out unless include_archived.
+-- tenancy.sortKey. Archived apps are left out unless include_archived; only_archived keeps
+-- just them; mine_user, when not the zero UUID, keeps the apps that user holds
+-- a grant on (directly or through a team) or that one of their teams owns.
 SELECT * FROM apps
- WHERE organization_id = $1 AND deleted_at IS NULL
-   AND (sqlc.narg(only_ids)::uuid[] IS NULL OR id = ANY (sqlc.narg(only_ids)::uuid[]))
-   AND NOT (id = ANY (sqlc.arg(except_ids)::uuid[]))
+ WHERE apps.organization_id = $1 AND apps.deleted_at IS NULL
+   AND (sqlc.narg(only_ids)::uuid[] IS NULL OR apps.id = ANY (sqlc.narg(only_ids)::uuid[]))
+   AND NOT (apps.id = ANY (sqlc.arg(except_ids)::uuid[]))
    AND (sqlc.arg(include_archived)::boolean OR archived_at IS NULL)
+   AND (NOT sqlc.arg(only_archived)::boolean OR archived_at IS NOT NULL)
+   AND (sqlc.arg(mine_user)::uuid = '00000000-0000-0000-0000-000000000000'::uuid
+        OR EXISTS (SELECT 1 FROM app_access a WHERE a.app_id = apps.id
+                    AND (a.user_id = sqlc.arg(mine_user)::uuid
+                         OR a.team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = sqlc.arg(mine_user)::uuid AND m.team_id IS NOT NULL)))
+        OR apps.owning_team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = sqlc.arg(mine_user)::uuid AND m.team_id IS NOT NULL))
    AND (sqlc.arg(query)::text = '' OR position(lower(sqlc.arg(query)::text) IN lower(key || ' ' || name || ' ' || description || ' ' || array_to_string(tags, ' '))) > 0)
    AND (cardinality(sqlc.arg(tags)::text[]) = 0 OR tags @> sqlc.arg(tags)::text[])
    AND (sqlc.arg(owning_team_id)::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR owning_team_id = sqlc.arg(owning_team_id)::uuid)
@@ -216,3 +224,35 @@ SELECT * FROM trash WHERE restored_at IS NULL AND purge_after < now() ORDER BY p
 
 -- name: GetTrashItemForUpdate :one
 SELECT * FROM trash WHERE id = $1 AND restored_at IS NULL FOR UPDATE;
+
+-- name: SummariseApps :many
+-- One row per app for the apps grid (plan §4.3 #14), in key order after
+-- after_key, bounded by page_size. Active devices were seen in the last
+-- seven days; crash-free counts those that a fatal error group of the same
+-- period names, for this period and the one before it.
+SELECT a.*,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugin_count,
+       (SELECT count(*) FROM devices d WHERE d.app_id = a.id AND d.last_seen_at > now() - interval '7 days')::bigint AS active_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '7 days')::bigint AS crashed_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '14 days' AND g.last_seen <= now() - interval '7 days')::bigint AS crashed_devices_before,
+       (SELECT max(r.created_at) FROM releases r WHERE r.app_id = a.id)::timestamptz AS last_published_at
+  FROM apps a
+ WHERE a.organization_id = $1 AND a.deleted_at IS NULL AND a.archived_at IS NULL
+   AND (sqlc.narg(only_ids)::uuid[] IS NULL OR a.id = ANY (sqlc.narg(only_ids)::uuid[]))
+   AND NOT (a.id = ANY (sqlc.arg(except_ids)::uuid[]))
+   AND a.key > sqlc.arg(after_key)::text
+ ORDER BY a.key
+ LIMIT sqlc.arg(page_size);
+
+-- name: LiveReleases :many
+-- The newest release any channel of each environment serves, for a set of apps.
+SELECT e.app_id, e.key AS environment_key, max(c.release_sequence)::bigint AS release_sequence,
+       max(r.created_at)::timestamptz AS published_at
+  FROM environments e
+  JOIN channels c ON c.environment_id = e.id
+  LEFT JOIN releases r ON r.environment_id = e.id AND r.sequence = c.release_sequence
+ WHERE e.app_id = ANY (sqlc.arg(app_ids)::uuid[])
+ GROUP BY e.app_id, e.key
+ ORDER BY e.app_id, e.key;

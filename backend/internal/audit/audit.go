@@ -198,6 +198,18 @@ const (
 	GitExportConfigured Action = "git.export_configured"
 	// GitExported: a publish was pushed to the app's Git remote (GOV-011).
 	GitExported Action = "git.exported"
+	// AppExported: an app was exported as a .plux archive (STU-023).
+	AppExported Action = "app.exported"
+	// AppImported: an app was created from a .plux archive or a sample app (STU-023, STU-015).
+	AppImported Action = "app.imported"
+	// AppDuplicated: an app was duplicated through an export and an import (STU-024).
+	AppDuplicated Action = "app.duplicated"
+	// AppArchived: an app was archived or unarchived (STU-022).
+	AppArchived Action = "app.archived"
+	// ShellSettingsSet: an app's shell settings were stored (GEN-004).
+	ShellSettingsSet Action = "shell.settings_set"
+	// ProjectGenerated: a host project was generated for an app (GEN-001).
+	ProjectGenerated Action = "project.generated"
 )
 
 // The actions of the audit export (SEC-143, ADR-0082).
@@ -490,6 +502,7 @@ var actions = sorted(
 	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
 	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionCommandSent, DevSessionPatched,
 	LibraryItemCreated, LibraryVersionAdded, LibraryVisibilitySet, LibraryVersionAdopted,
+	AppExported, AppImported, AppDuplicated, AppArchived, ShellSettingsSet, ProjectGenerated,
 )
 
 // sorted returns its arguments in order.

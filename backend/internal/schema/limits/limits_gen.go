@@ -59,8 +59,19 @@ const (
 	AppLocales Key = "app.locales"
 	// AppPlugins: Plugins per app. (SCH-005)
 	AppPlugins Key = "app.plugins"
+	// AppSummariesPerCall: Apps one summary call returns; a longer list is
+	// paged. (STU-022)
+	AppSummariesPerCall Key = "app.summariesPerCall"
 	// AppTranslationKeys: Translation keys one app may declare. (I18N-007)
 	AppTranslationKeys Key = "app.translationKeys"
+	// ArchiveBytes: Size of a .plux archive the server accepts for import.
+	// (STU-023, STU-024)
+	ArchiveBytes Key = "archive.bytes"
+	// ArchiveEntries: Files in one .plux archive. (STU-023, STU-024)
+	ArchiveEntries Key = "archive.entries"
+	// ArchiveExpandedBytes: Total size of the files in one .plux archive after
+	// unzipping. (STU-023, STU-024)
+	ArchiveExpandedBytes Key = "archive.expandedBytes"
 	// AssetFileSize: Size of one asset file, checked at upload and again at
 	// publish. (SRV-060, AST-003)
 	AssetFileSize Key = "asset.fileSize"
@@ -481,6 +492,11 @@ const (
 	PluginAssetBytes Key = "plugin.assetBytes"
 	// PluginPages: Pages per plugin. (SCH-005)
 	PluginPages Key = "plugin.pages"
+	// ProjectBytes: Size of a generated host project (zip). (GEN-001, GEN-004)
+	ProjectBytes Key = "project.bytes"
+	// ProjectJobsPerHour: Project generation jobs one app may queue per hour.
+	// (GEN-001, GEN-004)
+	ProjectJobsPerHour Key = "project.jobsPerHour"
 	// PublishAssetWait: Time a publish waits, from when it was queued, for the
 	// app's image assets to finish processing before it fails. (CMP-030,
 	// REL-003)
@@ -669,7 +685,11 @@ var registry = [...]Definition{
 	{Key: AppFunctions, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Functions per app."},
 	{Key: AppLocales, Unit: UnitCount, Default: 50, Warning: 0, Max: 300, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Locales one app may declare."},
 	{Key: AppPlugins, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Plugins per app."},
+	{Key: AppSummariesPerCall, Unit: UnitCount, Default: 100, Warning: 0, Max: 500, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one summary call returns; a longer list is paged."},
 	{Key: AppTranslationKeys, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Translation keys one app may declare."},
+	{Key: ArchiveBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of a .plux archive the server accepts for import."},
+	{Key: ArchiveEntries, Unit: UnitCount, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Files in one .plux archive."},
+	{Key: ArchiveExpandedBytes, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Total size of the files in one .plux archive after unzipping."},
 	{Key: AssetFileSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Size of one asset file, checked at upload and again at publish."},
 	{Key: AssetImagePixels, Unit: UnitCount, Default: 40000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image."},
 	{Key: AssetUploadChunkBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes in one chunk of a chunked asset upload; a larger chunk is refused."},
@@ -810,6 +830,8 @@ var registry = [...]Definition{
 	{Key: PageNodes, Unit: UnitCount, Default: 5000, Warning: 1000, Max: 50000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Nodes in one page document. Above the warning threshold the compiler reports the page."},
 	{Key: PluginAssetBytes, Unit: UnitBytes, Default: 20971520, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Bytes of the asset files one plugin's pages and icon use, checked at publish."},
 	{Key: PluginPages, Unit: UnitCount, Default: 500, Warning: 0, Max: 2000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Pages per plugin."},
+	{Key: ProjectBytes, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 536870912, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of a generated host project (zip)."},
+	{Key: ProjectJobsPerHour, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Project generation jobs one app may queue per hour."},
 	{Key: PublishAssetWait, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P3", Description: "Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails."},
 	{Key: PushBatchSize, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Devices one silent-push job sends to before it hands the rest to a follow-up job."},
 	{Key: PushTokenBytes, Unit: UnitBytes, Default: 1024, Warning: 0, Max: 4096, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the push token a device may register for silent push."},
