@@ -1706,7 +1706,7 @@ msgstr "الجمهور"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
-msgstr "شريحة الجمهور"
+msgstr "شرائح الجمهور"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -4784,7 +4784,7 @@ msgstr "المسارات"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelsCaption"
-msgstr "تحسب المسارات عدد الأحداث التي تبلغ كل خطوة بالترتيب."
+msgstr "تحسب المسارات الجلسات التي تبلغ كل خطوة وتؤدي الخطوات بالترتيب."
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -4910,7 +4910,7 @@ msgstr "مجموعات تتلقى المنح والقيود معًا."
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.guardrailEvent"
-msgstr "حدث حاجز الأمان"
+msgstr "أحداث حواجز الأمان، حدث في كل سطر"
 
 #. Verdict: a guardrail regressed beyond its limit.
 #. js-lingui-explicit-id
@@ -7492,7 +7492,7 @@ msgstr "لا شيء في المكتبة يطابق. احفظ تحديدًا كق
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.reportIntro"
-msgstr "لا يُضاف شيء بصمت. اختر ما سيحدث لكل عنصر ناقص؛ لن يُلصق شيء قبل التأكيد."
+msgstr "لا يُضاف شيء دون علمك. اختر ما يحدث لكل عنصر مفقود؛ لا يُلصق شيء حتى تؤكد."
 
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
@@ -10144,7 +10144,7 @@ msgstr "مفتاح الشريحة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentHelp"
-msgstr "اتركه فارغًا للوصول إلى الجميع."
+msgstr "مفاتيح الشرائح مفصولة بفواصل؛ يكون الجهاز مؤهلًا إذا كان في أي منها. اتركه فارغًا للوصول إلى الجميع."
 
 #. Accessible name of the checkbox that selects one key for a bulk action.
 #. js-lingui-explicit-id
@@ -10318,7 +10318,7 @@ msgstr "الجلسات"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelChart"
-msgstr "الأحداث لكل خطوة من المسار"
+msgstr "الجلسات لكل خطوة من المسار"
 
 #. Column heading.
 #. js-lingui-explicit-id

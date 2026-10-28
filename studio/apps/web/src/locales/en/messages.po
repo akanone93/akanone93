@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-24 17:06+0000\n"
+"POT-Creation-Date: 2026-10-28 09:51+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1706,7 +1706,7 @@ msgstr "Audience"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
-msgstr "Audience segment"
+msgstr "Audience segments"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -4784,7 +4784,7 @@ msgstr "Funnels"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelsCaption"
-msgstr "Funnels count how many events reach each step, in order."
+msgstr "Funnels count the sessions that reach each step, doing the steps in order."
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -4910,7 +4910,7 @@ msgstr "Groups of people that receive grants and restrictions together."
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.guardrailEvent"
-msgstr "Guardrail event"
+msgstr "Guardrail events, one per line"
 
 #. Verdict: a guardrail regressed beyond its limit.
 #. js-lingui-explicit-id
@@ -7492,7 +7492,7 @@ msgstr "Nothing in the library matches. Save a selection as a template or extrac
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.reportIntro"
-msgstr "Nothing is added silently. Here is what Studio does for each missing item."
+msgstr "Nothing is added silently. Choose what happens to each missing item; nothing is pasted until you confirm."
 
 #. Announced to screen readers when the canvas selection becomes empty.
 #. js-lingui-explicit-id
@@ -8662,7 +8662,7 @@ msgstr "Read the source"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.readOnly"
-msgstr "Read only: you do not hold the edit lock."
+msgstr "Read-only: editing is blocked."
 
 #. Why undo and redo are disabled: the editor is read-only or lost its lock.
 #. js-lingui-explicit-id
@@ -10144,7 +10144,7 @@ msgstr "Segment key"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentHelp"
-msgstr "Leave empty to reach every subject."
+msgstr "Segment keys separated by commas; a device in any of them is eligible. Leave empty to reach every subject."
 
 #. Accessible name of the checkbox that selects one key for a bulk action.
 #. js-lingui-explicit-id
@@ -10318,7 +10318,7 @@ msgstr "Sessions"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelChart"
-msgstr "Events per funnel step"
+msgstr "Sessions per funnel step"
 
 #. Column heading.
 #. js-lingui-explicit-id
