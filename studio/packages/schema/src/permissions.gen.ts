@@ -7,6 +7,7 @@
 export type PermissionName =
   | "a11y.waive"
   | "alerts.manage"
+  | "analytics.manage"
   | "analytics.read"
   | "app.manage"
   | "app.read"
@@ -101,6 +102,17 @@ export const permissions = [
     risk: "medium",
     stepUp: false,
     scope: "organization",
+    readOnly: false,
+  },
+  {
+    name: "analytics.manage",
+    description: "Create, change and delete funnel definitions.",
+    area: "analytics",
+    feature: "analytics",
+    action: "manage",
+    risk: "low",
+    stepUp: false,
+    scope: "app",
     readOnly: false,
   },
   {
@@ -705,6 +717,7 @@ export const roles = [
     permissions: [
       "a11y.waive",
       "alerts.manage",
+      "analytics.manage",
       "analytics.read",
       "app.manage",
       "app.read",
@@ -764,6 +777,7 @@ export const roles = [
     description: "May do everything except manage members and keys.",
     permissions: [
       "a11y.waive",
+      "analytics.manage",
       "app.manage",
       "app.read",
       "audit.read",
@@ -796,6 +810,7 @@ export const roles = [
     name: "release-manager",
     description: "May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code.",
     permissions: [
+      "analytics.manage",
       "analytics.read",
       "app.read",
       "approvals.decide",

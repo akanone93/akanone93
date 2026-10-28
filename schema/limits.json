@@ -162,6 +162,24 @@
       "description": "Steps one action run trace records; later steps are counted but not recorded."
     },
     {
+      "key": "analytics.funnelSteps",
+      "unit": "count",
+      "default": 10,
+      "max": 20,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-020"
+      ],
+      "description": "Steps one funnel may have."
+    },
+    {
       "key": "anim.compositedSubtree",
       "unit": "count",
       "default": 40,

@@ -28,6 +28,8 @@ const (
 	// ActionTraceSteps: Steps one action run trace records; later steps are
 	// counted but not recorded. (ACT-030)
 	ActionTraceSteps Key = "action.traceSteps"
+	// AnalyticsFunnelSteps: Steps one funnel may have. (ANL-020)
+	AnalyticsFunnelSteps Key = "analytics.funnelSteps"
 	// AnimCompositedSubtree: Nodes below an animated opacity or layout prop
 	// before the compiler warns of an expensive animation. (ANI-008)
 	AnimCompositedSubtree Key = "anim.compositedSubtree"
@@ -673,6 +675,7 @@ var registry = [...]Definition{
 	{Key: ActionStepsPerRun, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P4", Description: "Steps one action run may execute."},
 	{Key: ActionTraceRuns, Unit: UnitCount, Default: 50, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Action run traces the runtime keeps for diagnostics; the oldest are dropped first."},
 	{Key: ActionTraceSteps, Unit: UnitCount, Default: 200, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Steps one action run trace records; later steps are counted but not recorded."},
+	{Key: AnalyticsFunnelSteps, Unit: UnitCount, Default: 10, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Steps one funnel may have."},
 	{Key: AnimCompositedSubtree, Unit: UnitCount, Default: 40, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Nodes below an animated opacity or layout prop before the compiler warns of an expensive animation."},
 	{Key: AnimKeyframesPerTrack, Unit: UnitCount, Default: 64, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Keyframes of one track of a timeline."},
 	{Key: AnimSimultaneousTimelines, Unit: UnitCount, Default: 6, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Timelines of one page that autoplay or follow a driver before the compiler warns."},

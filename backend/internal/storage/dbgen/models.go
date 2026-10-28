@@ -1000,6 +1000,20 @@ type FunctionVersion struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type Funnel struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Name           string
+	Steps          []byte
+	EnvironmentID  pgtype.UUID
+	Revision       int64
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedBy      string
+	UpdatedAt      pgtype.Timestamptz
+}
+
 type GatewayUpstream struct {
 	ID                    pgtype.UUID
 	OrganizationID        pgtype.UUID

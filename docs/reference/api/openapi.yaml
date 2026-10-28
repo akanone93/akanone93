@@ -90,6 +90,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CreateAlertRuleResponse'
+  /plux.v1.AnalyticsService/CreateFunnel:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: CreateFunnel
+      description: |-
+        CreateFunnel defines a funnel of an app: an ordered list of event names
+         (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
+      operationId: plux.v1.AnalyticsService.CreateFunnel
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateFunnelRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateFunnelResponse'
   /plux.v1.AnalyticsService/DeleteAlertRule:
     post:
       tags:
@@ -172,6 +213,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteExportResponse'
+  /plux.v1.AnalyticsService/DeleteFunnel:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: DeleteFunnel
+      description: |-
+        DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
+         audited.
+      operationId: plux.v1.AnalyticsService.DeleteFunnel
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteFunnelRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteFunnelResponse'
   /plux.v1.AnalyticsService/GetErrorGroup:
     post:
       tags:
@@ -294,6 +376,89 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetFileExportResponse'
+  /plux.v1.AnalyticsService/GetFunnelResult:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: GetFunnelResult
+      description: |-
+        GetFunnelResult counts the events of each step of a funnel over a time
+         range, from the rollups. It needs analytics.read on the app.
+      operationId: plux.v1.AnalyticsService.GetFunnelResult
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetFunnelResultRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetFunnelResultResponse'
+  /plux.v1.AnalyticsService/GetOverview:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: GetOverview
+      description: |-
+        GetOverview summarises every app the caller may read analytics of over a
+         time range: sessions, screen views, errors and firing alerts. It needs
+         analytics.read.
+      operationId: plux.v1.AnalyticsService.GetOverview
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetOverviewRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetOverviewResponse'
   /plux.v1.AnalyticsService/GetRetention:
     post:
       tags:
@@ -458,6 +623,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListErrorGroupsResponse'
+  /plux.v1.AnalyticsService/ListFunnels:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: ListFunnels
+      description: |-
+        ListFunnels lists the funnels of an app, or of the organisation. It
+         needs analytics.read.
+      operationId: plux.v1.AnalyticsService.ListFunnels
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListFunnelsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListFunnelsResponse'
   /plux.v1.AnalyticsService/ListRetentionChanges:
     post:
       tags:
@@ -18485,6 +18691,24 @@ components:
           title: flag
       title: CreateFlagResponse
       additionalProperties: false
+    plux.v1.CreateFunnelRequest:
+      type: object
+      properties:
+        funnel:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Funnel'
+          title: funnel
+      title: CreateFunnelRequest
+      additionalProperties: false
+    plux.v1.CreateFunnelResponse:
+      type: object
+      properties:
+        funnel:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Funnel'
+          title: funnel
+      title: CreateFunnelResponse
+      additionalProperties: false
     plux.v1.CreateGrantRequest:
       type: object
       properties:
@@ -19435,6 +19659,18 @@ components:
     plux.v1.DeleteFreezeResponse:
       type: object
       title: DeleteFreezeResponse
+      additionalProperties: false
+    plux.v1.DeleteFunnelRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteFunnelRequest
+      additionalProperties: false
+    plux.v1.DeleteFunnelResponse:
+      type: object
+      title: DeleteFunnelResponse
       additionalProperties: false
     plux.v1.DeleteGrantRequest:
       type: object
@@ -22906,6 +23142,60 @@ components:
       title: FunctionVersion
       additionalProperties: false
       description: FunctionVersion is one immutable version of a function (FN-006).
+    plux.v1.Funnel:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        name:
+          type: string
+          title: name
+        steps:
+          type: array
+          items:
+            type: string
+          title: steps
+          description: steps are event names, two to ten, in order.
+        environment:
+          type: string
+          title: environment
+          description: environment narrows the funnel to one environment key; empty for all.
+        revision:
+          type: string
+          title: revision
+          format: int64
+        updatedBy:
+          type: string
+          title: updated_by
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: Funnel
+      additionalProperties: false
+      description: Funnel is an ordered list of event names of an app.
+    plux.v1.FunnelStep:
+      type: object
+      properties:
+        event:
+          type: string
+          title: event
+        events:
+          type: string
+          title: events
+          format: int64
+        conversion:
+          type: number
+          title: conversion
+          format: double
+          description: conversion is the share of the first step's events, 0 to 1.
+      title: FunnelStep
+      additionalProperties: false
+      description: FunnelStep is one step of a funnel result.
     plux.v1.GenerateProjectRequest:
       type: object
       properties:
@@ -23581,6 +23871,36 @@ components:
           title: aliases
       title: GetFunctionResponse
       additionalProperties: false
+    plux.v1.GetFunnelResultRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        from:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: from
+        to:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: to
+      title: GetFunnelResultRequest
+      additionalProperties: false
+    plux.v1.GetFunnelResultResponse:
+      type: object
+      properties:
+        funnel:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Funnel'
+          title: funnel
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FunnelStep'
+          title: steps
+      title: GetFunnelResultResponse
+      additionalProperties: false
     plux.v1.GetGroupMappingRequest:
       type: object
       properties:
@@ -23998,6 +24318,29 @@ components:
             - $ref: '#/components/schemas/plux.v1.Organization'
           title: organization
       title: GetOrganizationResponse
+      additionalProperties: false
+    plux.v1.GetOverviewRequest:
+      type: object
+      properties:
+        from:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: from
+        to:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: to
+      title: GetOverviewRequest
+      additionalProperties: false
+    plux.v1.GetOverviewResponse:
+      type: object
+      properties:
+        apps:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.OverviewApp'
+          title: apps
+      title: GetOverviewResponse
       additionalProperties: false
     plux.v1.GetPersonalDataMapRequest:
       type: object
@@ -26873,6 +27216,25 @@ components:
           title: page
       title: ListFunctionsResponse
       additionalProperties: false
+    plux.v1.ListFunnelsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+          description: app_id narrows the list to one app; empty for the organisation.
+      title: ListFunnelsRequest
+      additionalProperties: false
+    plux.v1.ListFunnelsResponse:
+      type: object
+      properties:
+        funnels:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Funnel'
+          title: funnels
+      title: ListFunnelsResponse
+      additionalProperties: false
     plux.v1.ListGrantsRequest:
       type: object
       properties:
@@ -28844,6 +29206,31 @@ components:
       title: OutboundWebhook
       additionalProperties: false
       description: OutboundWebhook is an endpoint that receives events.
+    plux.v1.OverviewApp:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        sessions:
+          type: string
+          title: sessions
+          format: int64
+        screenViews:
+          type: string
+          title: screen_views
+          format: int64
+        errors:
+          type: string
+          title: errors
+          format: int64
+        firingAlerts:
+          type: integer
+          title: firing_alerts
+          format: int32
+      title: OverviewApp
+      additionalProperties: false
+      description: OverviewApp is the headline numbers of one app.
     plux.v1.Page:
       type: object
       properties:
