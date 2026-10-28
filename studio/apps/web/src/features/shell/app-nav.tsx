@@ -29,7 +29,7 @@ export const appNavEntries: readonly AppNavEntry[] = [
   { id: "publish", to: "/o/$org/apps/$app/publish", permission: "release.publish", orgWide: false },
   { id: "devices", to: "/o/$org/apps/$app/devices", permission: "app.read", orgWide: false },
   { id: "security", to: "/o/$org/apps/$app/security", permission: "app.read", orgWide: false },
-  { id: "settings", to: "/o/$org/admin", permission: "organization.manage", orgWide: true },
+  { id: "settings", to: "/o/$org/apps/$app/settings", permission: "app.read", orgWide: false },
 ];
 
 /** The entries a person with `permissions` may open: the same checks the route guards make. */

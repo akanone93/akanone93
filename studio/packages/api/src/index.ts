@@ -3,6 +3,7 @@
 
 export * from "./gen/plux/v1/analytics_pb.ts";
 export * from "./gen/plux/v1/app_pb.ts";
+export * from "./gen/plux/v1/app_project_pb.ts";
 export * from "./gen/plux/v1/asset_pb.ts";
 export * from "./gen/plux/v1/audit_pb.ts";
 export * from "./gen/plux/v1/common_pb.ts";

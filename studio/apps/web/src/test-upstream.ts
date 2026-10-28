@@ -7,6 +7,7 @@ import { Code, ConnectError, createRouterTransport, type ServiceImpl } from "@co
 import {
   AnalyticsService,
   type ApplyChangeSetRequest,
+  AppProjectService,
   ApprovalRequestSchema,
   ApprovalService,
   AppService,
@@ -74,6 +75,7 @@ import {
   licenseAdmin,
   orgAdmin,
 } from "./test-admin.ts";
+import { type AppsGridFixture, createAppsGrid } from "./test-apps.ts";
 
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
@@ -309,7 +311,13 @@ export interface UpstreamData {
   installationAdmin?: boolean;
   csrfToken?: string;
   memberships?: string[];
-  stored?: { theme: string; language: string; density: string; mutedNotificationTypes?: string[] };
+  stored?: {
+    theme: string;
+    language: string;
+    density: string;
+    mutedNotificationTypes?: string[];
+    favouriteAppIds?: string[];
+  };
   explained?: { permission: string }[];
   inbox?: { id: string; eventType: string; title?: string; link?: string; read: boolean }[];
   documents?: { kind: string; path: string; json: unknown }[];
@@ -353,6 +361,8 @@ export interface UpstreamData {
     editorSession?: string;
     documents: { path: string; json: unknown }[];
   }[];
+  /** The apps grid and the app settings (STU-020 to STU-025): replaces the apps that `creation` lists. */
+  appsGrid?: AppsGridFixture;
   /** Collects the RestoreSnapshot calls. */
   restoredSnapshots?: { id: string; paths: string[] }[];
   /** Collects the paths of DeleteDocument calls and of PutDocument calls that create (revision zero). */
@@ -384,7 +394,14 @@ export interface UpstreamData {
     /** The test cases the runner reports, and the summary. */
     tests?: { results: { name: string; passed: boolean; message: string }[]; diagnostics?: string };
   };
-  updates?: { paths: string[]; theme: string; language: string; density: string; mutedNotificationTypes?: string[] }[];
+  updates?: {
+    paths: string[];
+    theme: string;
+    language: string;
+    density: string;
+    mutedNotificationTypes?: string[];
+    favouriteAppIds?: string[];
+  }[];
 }
 
 type LibraryItems = NonNullable<UpstreamData["library"]>;
@@ -433,6 +450,8 @@ export function createUpstream(state: UpstreamData) {
   const createdOrganisations: { id: string; key: string; name: string }[] = [];
   const createdApps = [...(state.creation?.apps ?? [{ id: "app1", key: "shop", name: "Shop" }])];
   const createdPlugins: NonNullable<UpstreamData["summaries"]> = [];
+  const grid = state.appsGrid === undefined ? undefined : createAppsGrid(state.appsGrid);
+  const summaries = grid ?? createAppsGrid({ apps: createdApps, calls: [] });
   const refuse = (kind: "organisation" | "app" | "plugin") => {
     const message = state.creation?.refuse?.[kind];
     if (message !== undefined) {
@@ -511,8 +530,16 @@ export function createUpstream(state: UpstreamData) {
       },
     });
     service(AppService, {
-      getApp: () => ({ app: { id: "app1", name: "App", defaultPluginKey: "", hostFonts: state.hostFonts ?? [] } }),
+      getApp: (req) =>
+        grid?.getApp(req.id) ?? {
+          app: { id: "app1", name: "App", defaultPluginKey: "", hostFonts: state.hostFonts ?? [] },
+        },
+      listAppLimits: () => grid?.listAppLimits() ?? { limits: [] },
       updateApp: (req) => {
+        const changed = grid?.updateApp(req);
+        if (changed !== undefined) {
+          return changed;
+        }
         if (req.setHostFonts) {
           state.hostFonts = req.hostFonts.map((f) => ({ family: f.family, assetId: f.assetId }));
         }
@@ -543,7 +570,7 @@ export function createUpstream(state: UpstreamData) {
         createdApps.push(app);
         return { app: { ...app, organizationId: req.organizationId, defaultPluginKey: "", hostFonts: [] } };
       },
-      listApps: () => ({ apps: createdApps }),
+      listApps: (req) => (grid === undefined ? { apps: createdApps } : grid.listApps(req)),
       listTrash: () => ({ items: state.trash ?? [] }),
       restoreFromTrash: (req) => {
         state.restored?.push(req.id);
@@ -714,9 +741,29 @@ export function createUpstream(state: UpstreamData) {
                 ],
       }),
     });
+    service(AppProjectService, {
+      listAppSummaries: (req) => summaries.listAppSummaries(req),
+      exportApp: (req) => {
+        state.appsGrid?.calls.push(`export:${req.appId}`);
+        return { filename: "app.plux", archive: new Uint8Array([80, 75]), sha256: "" };
+      },
+      duplicateApp: (req) => {
+        state.appsGrid?.calls.push(`duplicate:${req.appId}:${req.key}:${req.name}`);
+        return { app: { id: `app-${req.key}`, key: req.key, name: req.name }, documents: 1 };
+      },
+    });
     service(AssetService, {
-      listAssets: () => ({
+      listAssets: (req) => ({
         assets: [
+          ...(state.appsGrid?.assets?.[req.appId] ?? []).map((a) =>
+            create(AssetSchema, {
+              id: a.id,
+              name: a.name,
+              mediaType: a.mediaType,
+              size: 1n,
+              variants: [{ kind: "original", artifact: { urls: [a.url] } }],
+            }),
+          ),
           ...(state.assets ?? []).map((name, i) =>
             create(AssetSchema, { id: `asset-${i}`, name, mediaType: "image/png", size: 1n }),
           ),
