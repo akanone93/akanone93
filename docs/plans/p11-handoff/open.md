@@ -11,6 +11,17 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Known gaps (fix before the phase exit)
 
+- S8.1 web part 2 (STU-015, STU-024, GEN-004): new-app wizard, onboarding checklist and sample
+  apps, shell settings. Work in progress on `p11/g-wizard`; finish with
+  [briefs/s81-wizard-finish.md](briefs/s81-wizard-finish.md).
+- App usage and the last publisher (STU-022, STU-025, LIM-005): the summary reports only
+  `app.plugins` usage and no publisher; no per-plugin usage view. Build with
+  [briefs/s81-usage.md](briefs/s81-usage.md).
+- Maintainer-only (stay `WIP` until done): the screen-reader pass (STU-011; checklist in
+  `docs/engineering/studio-development.md` §15), the native review of `de` and `ar` (STU-012, L-11),
+  the reference-laptop benchmark (STU-120, NFR-031, M-4; section waiting in
+  `docs/benchmarks/studio.md`).
+
 - Nothing that needs Docker has run here (no daemon): the Studio image build (`studio/Dockerfile`, now with the validator WebAssembly stage, `studio/Dockerfile.dockerignore` and the notices), `make studio-image-repro`, `make compose-up` with Studio, and the render worker image (`deploy/render-worker/Dockerfile`, whose pub cache and SDK ownership were fixed without a build) are for a machine with Docker or the phase-exit CI run. The render worker's deployment is written but unrun: the Compose service `plux-render-worker` (profile `visual-diff`, not `read_only` because the Flutter tool writes below its SDK; try a read-only root with a writable cache once the image runs) and the Helm role (`renderWorker.enabled`; an init container copies the SDK into an `emptyDir` so the root stays read-only, with `--flutter` and `PUB_CACHE` pointing at the copy) need `COMPOSE_PROFILES=visual-diff make compose-up` and a kind install to confirm the container starts, answers mutual TLS and renders. `make helm-lint` and `init-secrets.sh` (the internal CA now names `plux-render-worker`) are checked here. The CI jobs that build the Studio image now install Bun and Flutter and stage the CanvasKit (`make studio-image-inputs`); their first run is the check.
 - The release workflow's Studio and render worker image jobs (`release.yml`, `image.yml`: SBOM attestation, cosign, SLSA provenance, reproducible timestamps) are checked by `actionlint` only; they run on the first `studio/v*` and `backend/v*` tags.
 - A request larger than the default `archive.expandedBytes` (twice, both projects) plus the function catalogue allowance (`renderworker.CatalogueAllowance`, 8 MiB: at most `app.functions` names and their schemas) is refused by the worker (`renderworker.MaxRequestBytes`), and `golden.casesPerRun` / `golden.imageBytes` above their defaults are not honoured by the worker (it only tightens); a visual diff renders one locale, the light theme and text scale 1 on the standard devices.

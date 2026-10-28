@@ -3,31 +3,32 @@ SPDX-FileCopyrightText: 2026 Plux contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# Next steps, in order
+# Next steps, in order (session 3)
 
-Models per [agent-rules.md](agent-rules.md). Each brief uses the template there.
+Models per [agent-rules.md](agent-rules.md); at most three agents at once. Briefs are in
+[briefs/](briefs/) and can be launched unchanged (create the worktree first, as each brief says).
 
-1. **Lead: merge `handoff/p11-session2` into `feat/phase-11`**, push.
-2. **Lead: merge `p11/s55c-app-lock`** (only `.po` conflicts), run `make studio-check` and
-   `go test -race ./internal/document/... ./internal/api/...`, push.
-3. **Lead: review `p11/s54b-rust-editor` (WIP).** Read the diff (security: the LSP session cap in the
-   shared cache, method allowlist untouched, CSP of the overlay). Then one **Sonnet low** follow-up
-   in its worktree to finish what is missing and run: `go test -race` on `internal/function`,
-   `internal/server`, `internal/api`; `make go-lint gen-check studio-check studio-e2e`. Then merge.
-   Afterwards wire the S5.6 Code tab to open the Rust editor and the test runner.
-4. **Lead: review `p11/s46c-rest` (WIP).** One **Sonnet low** follow-up: make the 10 ports match their
-   goldens (`make studio-conformance-update`, then `make studio-conformance` 0 fail), shrink the
-   missing list in `widgets/screen.test.ts` to zero, then the golden-level matrix (S4.6 row:
-   descriptors × frames × locales incl. `ar` and the complex scripts × text scales; where the canvas
-   cannot match a script, the authoritative-device notice). Then `make dart-analyze reuse-lint`.
-5. **S5.6 gaps — Haiku or Sonnet low:** restore through the `RestoreSnapshot` RPC (proto
-   `document.proto:51`) so documents the plugin no longer has come back; State tab forms; editor
-   session tags (§4.3 #25) in the history list.
-6. **S5 exit gate (lead):** touched packages' tests, `make studio-e2e`, `make studio-design-gate`, the
-   slice's end-to-end flow (open each overlay V1–V9 under the CSP), open items fixed or put to the
-   maintainer ([open.md](open.md)).
-7. **Wave 8** (plan §6.1): S6.1–S6.5 (library, clipboard, preview, device loop) and S7.1 (release
-   request server work starts early). Read the rows in [p11.md](../p11.md) §6, write briefs, Haiku/Sonnet
-   low by default.
-8. Waves 9–11 as in the plan, then the phase exit (S9.7): statuses in `docs/requirements.md`,
-   `make trace`, `make check`, benchmarks, one CI run on the PR (M-6).
+1. **Finish the S8.1 wizard (Sonnet).** Launch [briefs/s81-wizard-finish.md](briefs/s81-wizard-finish.md)
+   on the pushed work-in-progress branch `p11/g-wizard`. STU-015, STU-024, GEN-004.
+2. **App usage and publisher (Sonnet), in parallel.** Launch [briefs/s81-usage.md](briefs/s81-usage.md)
+   from `feat/phase-11`. STU-022, STU-025, LIM-005 (server measurement, an additive proto field, the
+   per-plugin view).
+3. **Lead: review and merge both** (security, tenancy, limits; `.po` recipe in [lead.md](lead.md)),
+   then the full gate and one push: `docs/plans/p11-handoff/scripts/gate.sh` on an idle machine.
+4. **Lead: `make check`** (whole repository) once, in the background; fix what it finds.
+5. **Ask the maintainer** to open the pull request `feat/phase-11` → `main` for the one CI run of
+   M-6 (an outward-facing action: always ask first). The jobs that only CI can run: the Studio and
+   render-worker images (`studio-image-repro`, DEP-001, DEP-002, STU-100), `zap-studio` (QA-008),
+   `studio-bench` (QA-007, STU-045 drag budgets on a hosted runner), and the stack jobs. Drive the
+   PR to green per the PR rules of the environment; a failure that CI alone shows is fixed on the
+   branch.
+6. **Lead: the S9.7 exit.** Update statuses from the CI evidence (`make spec-lint trace`), the work
+   log, the exit report to the maintainer (format of `AGENTS.md` §9), including what stays with the
+   maintainer: the screen-reader pass (STU-011), the native review of `de`/`ar` (STU-012, L-11),
+   the reference-laptop benchmark (STU-120, NFR-031, M-4), the six legal reviews (O-7; list in
+   [open.md](open.md)).
+7. **Stop and wait.** After the exit report, do not start, analyse or plan the cross-phase audit
+   phase until the maintainer gives the go-ahead with notes (maintainer, 2026-10-28). The audit
+   covers the requirements of every phase, P0–P11 (about 75 earlier rows are `WIP`), aims at
+   everything working and secure with acceptable performance, and is not to be made so deep that
+   it takes days; it gets its own plan and milestones.
