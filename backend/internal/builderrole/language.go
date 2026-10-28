@@ -77,7 +77,7 @@ func (l *languageSessions) release(id string) {
 // messages until the session ends (FN-033, ADR-0099). The session ends when
 // the caller cancels the stream, the language server exits or the session time
 // of lsp.sessionMinutes passes; the sandbox is killed then.
-func (s *Service) LanguageOpen(ctx context.Context, req *connect.Request[fnpb.LanguageOpenRequest], stream *connect.ServerStream[fnpb.LanguageEvent]) error {
+func (s *Service) LanguageOpen(ctx context.Context, req *connect.Request[fnpb.LanguageOpenRequest], stream *connect.ServerStream[fnpb.LanguageOpenResponse]) error {
 	if s.o.LanguageServer == "" || s.o.LanguageSessions < 1 {
 		return connect.NewError(connect.CodeFailedPrecondition, errors.New("this builder runs no language server (builder.languageServer)"))
 	}
@@ -107,11 +107,11 @@ func (s *Service) LanguageOpen(ctx context.Context, req *connect.Request[fnpb.La
 	s.lang.add(id, sess)
 	log.InfoContext(ctx, "language session started")
 	start := time.Now()
-	if err := stream.Send(&fnpb.LanguageEvent{Event: &fnpb.LanguageEvent_Opened{Opened: &fnpb.LanguageOpened{SessionId: id, RootUri: root}}}); err != nil {
+	if err := stream.Send(&fnpb.LanguageOpenResponse{Event: &fnpb.LanguageOpenResponse_Opened{Opened: &fnpb.LanguageOpened{SessionId: id, RootUri: root}}}); err != nil {
 		return fmt.Errorf("builderrole.LanguageOpen: %w", err)
 	}
 	for msg := range sess.Messages() {
-		if err := stream.Send(&fnpb.LanguageEvent{Event: &fnpb.LanguageEvent_Message{Message: msg}}); err != nil {
+		if err := stream.Send(&fnpb.LanguageOpenResponse{Event: &fnpb.LanguageOpenResponse_Message{Message: msg}}); err != nil {
 			sess.Close()
 			end := sess.Wait()
 			log.InfoContext(ctx, "language session stopped", slog.String("reason", end.Reason), slog.Duration("took", time.Since(start)))
@@ -120,7 +120,7 @@ func (s *Service) LanguageOpen(ctx context.Context, req *connect.Request[fnpb.La
 	}
 	end := sess.Wait()
 	log.InfoContext(ctx, "language session stopped", slog.String("reason", end.Reason), slog.Duration("took", time.Since(start)))
-	if err := stream.Send(&fnpb.LanguageEvent{Event: &fnpb.LanguageEvent_Closed{Closed: &fnpb.LanguageClosed{Reason: end.Reason, Detail: end.Detail}}}); err != nil {
+	if err := stream.Send(&fnpb.LanguageOpenResponse{Event: &fnpb.LanguageOpenResponse_Closed{Closed: &fnpb.LanguageClosed{Reason: end.Reason, Detail: end.Detail}}}); err != nil {
 		return fmt.Errorf("builderrole.LanguageOpen: %w", err)
 	}
 	return nil

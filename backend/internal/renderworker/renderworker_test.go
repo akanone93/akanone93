@@ -208,7 +208,7 @@ func serve(t *testing.T, h *renderworker.Handler) renderpbconnect.RenderWorkerSe
 	return renderpbconnect.NewRenderWorkerServiceClient(srv.Client(), srv.URL)
 }
 
-func render(t *testing.T, c renderpbconnect.RenderWorkerServiceClient, before, after fs.FS, devices ...string) ([]*renderpb.RenderedScreen, error) {
+func render(t *testing.T, c renderpbconnect.RenderWorkerServiceClient, before, after fs.FS, devices ...string) ([]*renderpb.RenderResponse, error) {
 	t.Helper()
 	req := &renderpb.RenderRequest{JobId: "j1", Devices: devices}
 	var err error
@@ -226,7 +226,7 @@ func render(t *testing.T, c renderpbconnect.RenderWorkerServiceClient, before, a
 	if err != nil {
 		return nil, err
 	}
-	var out []*renderpb.RenderedScreen
+	var out []*renderpb.RenderResponse
 	for stream.Receive() {
 		out = append(out, stream.Msg())
 	}

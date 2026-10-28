@@ -325,9 +325,9 @@ func (x *FunctionDeclaration) GetRequiresSca() bool {
 	return false
 }
 
-// RenderedScreen is one screen on one device. before_png is empty for a new
+// RenderResponse is one screen on one device. before_png is empty for a new
 // screen and after_png for a removed one; both are PNG images.
-type RenderedScreen struct {
+type RenderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PluginKey     string                 `protobuf:"bytes,1,opt,name=plugin_key,json=pluginKey,proto3" json:"plugin_key,omitempty"`
 	Screen        string                 `protobuf:"bytes,2,opt,name=screen,proto3" json:"screen,omitempty"`
@@ -338,20 +338,20 @@ type RenderedScreen struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RenderedScreen) Reset() {
-	*x = RenderedScreen{}
+func (x *RenderResponse) Reset() {
+	*x = RenderResponse{}
 	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RenderedScreen) String() string {
+func (x *RenderResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RenderedScreen) ProtoMessage() {}
+func (*RenderResponse) ProtoMessage() {}
 
-func (x *RenderedScreen) ProtoReflect() protoreflect.Message {
+func (x *RenderResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_internal_render_v1_worker_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -363,40 +363,40 @@ func (x *RenderedScreen) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RenderedScreen.ProtoReflect.Descriptor instead.
-func (*RenderedScreen) Descriptor() ([]byte, []int) {
+// Deprecated: Use RenderResponse.ProtoReflect.Descriptor instead.
+func (*RenderResponse) Descriptor() ([]byte, []int) {
 	return file_plux_internal_render_v1_worker_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *RenderedScreen) GetPluginKey() string {
+func (x *RenderResponse) GetPluginKey() string {
 	if x != nil {
 		return x.PluginKey
 	}
 	return ""
 }
 
-func (x *RenderedScreen) GetScreen() string {
+func (x *RenderResponse) GetScreen() string {
 	if x != nil {
 		return x.Screen
 	}
 	return ""
 }
 
-func (x *RenderedScreen) GetDevice() string {
+func (x *RenderResponse) GetDevice() string {
 	if x != nil {
 		return x.Device
 	}
 	return ""
 }
 
-func (x *RenderedScreen) GetBeforePng() []byte {
+func (x *RenderResponse) GetBeforePng() []byte {
 	if x != nil {
 		return x.BeforePng
 	}
 	return nil
 }
 
-func (x *RenderedScreen) GetAfterPng() []byte {
+func (x *RenderResponse) GetAfterPng() []byte {
 	if x != nil {
 		return x.AfterPng
 	}
@@ -435,7 +435,7 @@ const file_plux_internal_render_v1_worker_proto_rawDesc = "" +
 	"\x14requires_attestation\x18\t \x01(\bR\x13requiresAttestation\x12!\n" +
 	"\frequires_sca\x18\n" +
 	" \x01(\bR\vrequiresSca\"\x9b\x01\n" +
-	"\x0eRenderedScreen\x12\x1d\n" +
+	"\x0eRenderResponse\x12\x1d\n" +
 	"\n" +
 	"plugin_key\x18\x01 \x01(\tR\tpluginKey\x12\x16\n" +
 	"\x06screen\x18\x02 \x01(\tR\x06screen\x12\x16\n" +
@@ -444,7 +444,7 @@ const file_plux_internal_render_v1_worker_proto_rawDesc = "" +
 	"before_png\x18\x04 \x01(\fR\tbeforePng\x12\x1b\n" +
 	"\tafter_png\x18\x05 \x01(\fR\bafterPng2t\n" +
 	"\x13RenderWorkerService\x12]\n" +
-	"\x06Render\x12&.plux.internal.render.v1.RenderRequest\x1a'.plux.internal.render.v1.RenderedScreen\"\x000\x01BAZ?github.com/nightCode42/plux3/backend/internal/renderpb;renderpbb\x06proto3"
+	"\x06Render\x12&.plux.internal.render.v1.RenderRequest\x1a'.plux.internal.render.v1.RenderResponse\"\x000\x01BAZ?github.com/nightCode42/plux3/backend/internal/renderpb;renderpbb\x06proto3"
 
 var (
 	file_plux_internal_render_v1_worker_proto_rawDescOnce sync.Once
@@ -463,13 +463,13 @@ var file_plux_internal_render_v1_worker_proto_goTypes = []any{
 	(*RenderLimits)(nil),        // 0: plux.internal.render.v1.RenderLimits
 	(*RenderRequest)(nil),       // 1: plux.internal.render.v1.RenderRequest
 	(*FunctionDeclaration)(nil), // 2: plux.internal.render.v1.FunctionDeclaration
-	(*RenderedScreen)(nil),      // 3: plux.internal.render.v1.RenderedScreen
+	(*RenderResponse)(nil),      // 3: plux.internal.render.v1.RenderResponse
 }
 var file_plux_internal_render_v1_worker_proto_depIdxs = []int32{
 	0, // 0: plux.internal.render.v1.RenderRequest.limits:type_name -> plux.internal.render.v1.RenderLimits
 	2, // 1: plux.internal.render.v1.RenderRequest.functions:type_name -> plux.internal.render.v1.FunctionDeclaration
 	1, // 2: plux.internal.render.v1.RenderWorkerService.Render:input_type -> plux.internal.render.v1.RenderRequest
-	3, // 3: plux.internal.render.v1.RenderWorkerService.Render:output_type -> plux.internal.render.v1.RenderedScreen
+	3, // 3: plux.internal.render.v1.RenderWorkerService.Render:output_type -> plux.internal.render.v1.RenderResponse
 	3, // [3:4] is the sub-list for method output_type
 	2, // [2:3] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

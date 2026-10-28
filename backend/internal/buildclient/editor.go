@@ -50,11 +50,11 @@ func (c *Client) OpenLanguage(ctx context.Context, in function.EditorInput, send
 	for stream.Receive() {
 		var ev function.EditorEvent
 		switch e := stream.Msg().GetEvent().(type) {
-		case *fnpb.LanguageEvent_Opened:
+		case *fnpb.LanguageOpenResponse_Opened:
 			ev.Opened = &function.EditorOpened{SessionID: e.Opened.GetSessionId(), RootURI: e.Opened.GetRootUri(), Seconds: in.SessionMinutes * 60}
-		case *fnpb.LanguageEvent_Message:
+		case *fnpb.LanguageOpenResponse_Message:
 			ev.Message = e.Message
-		case *fnpb.LanguageEvent_Closed:
+		case *fnpb.LanguageOpenResponse_Closed:
 			ev.Closed = &function.EditorClosed{Reason: e.Closed.GetReason(), Detail: e.Closed.GetDetail()}
 		default:
 			continue

@@ -905,33 +905,33 @@ func (x *LanguageOpenRequest) GetMemoryBytes() uint64 {
 	return 0
 }
 
-// LanguageEvent is one event of a session's server stream.
-type LanguageEvent struct {
+// LanguageOpenResponse is one event of a session's server stream.
+type LanguageOpenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Event:
 	//
-	//	*LanguageEvent_Opened
-	//	*LanguageEvent_Message
-	//	*LanguageEvent_Closed
-	Event         isLanguageEvent_Event `protobuf_oneof:"event"`
+	//	*LanguageOpenResponse_Opened
+	//	*LanguageOpenResponse_Message
+	//	*LanguageOpenResponse_Closed
+	Event         isLanguageOpenResponse_Event `protobuf_oneof:"event"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *LanguageEvent) Reset() {
-	*x = LanguageEvent{}
+func (x *LanguageOpenResponse) Reset() {
+	*x = LanguageOpenResponse{}
 	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *LanguageEvent) String() string {
+func (x *LanguageOpenResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LanguageEvent) ProtoMessage() {}
+func (*LanguageOpenResponse) ProtoMessage() {}
 
-func (x *LanguageEvent) ProtoReflect() protoreflect.Message {
+func (x *LanguageOpenResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -943,70 +943,70 @@ func (x *LanguageEvent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LanguageEvent.ProtoReflect.Descriptor instead.
-func (*LanguageEvent) Descriptor() ([]byte, []int) {
+// Deprecated: Use LanguageOpenResponse.ProtoReflect.Descriptor instead.
+func (*LanguageOpenResponse) Descriptor() ([]byte, []int) {
 	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *LanguageEvent) GetEvent() isLanguageEvent_Event {
+func (x *LanguageOpenResponse) GetEvent() isLanguageOpenResponse_Event {
 	if x != nil {
 		return x.Event
 	}
 	return nil
 }
 
-func (x *LanguageEvent) GetOpened() *LanguageOpened {
+func (x *LanguageOpenResponse) GetOpened() *LanguageOpened {
 	if x != nil {
-		if x, ok := x.Event.(*LanguageEvent_Opened); ok {
+		if x, ok := x.Event.(*LanguageOpenResponse_Opened); ok {
 			return x.Opened
 		}
 	}
 	return nil
 }
 
-func (x *LanguageEvent) GetMessage() []byte {
+func (x *LanguageOpenResponse) GetMessage() []byte {
 	if x != nil {
-		if x, ok := x.Event.(*LanguageEvent_Message); ok {
+		if x, ok := x.Event.(*LanguageOpenResponse_Message); ok {
 			return x.Message
 		}
 	}
 	return nil
 }
 
-func (x *LanguageEvent) GetClosed() *LanguageClosed {
+func (x *LanguageOpenResponse) GetClosed() *LanguageClosed {
 	if x != nil {
-		if x, ok := x.Event.(*LanguageEvent_Closed); ok {
+		if x, ok := x.Event.(*LanguageOpenResponse_Closed); ok {
 			return x.Closed
 		}
 	}
 	return nil
 }
 
-type isLanguageEvent_Event interface {
-	isLanguageEvent_Event()
+type isLanguageOpenResponse_Event interface {
+	isLanguageOpenResponse_Event()
 }
 
-type LanguageEvent_Opened struct {
+type LanguageOpenResponse_Opened struct {
 	// opened is the first event.
 	Opened *LanguageOpened `protobuf:"bytes,1,opt,name=opened,proto3,oneof"`
 }
 
-type LanguageEvent_Message struct {
+type LanguageOpenResponse_Message struct {
 	// message is one JSON-RPC message from the language server, without the
 	// Content-Length framing.
 	Message []byte `protobuf:"bytes,2,opt,name=message,proto3,oneof"`
 }
 
-type LanguageEvent_Closed struct {
+type LanguageOpenResponse_Closed struct {
 	// closed is the last event.
 	Closed *LanguageClosed `protobuf:"bytes,3,opt,name=closed,proto3,oneof"`
 }
 
-func (*LanguageEvent_Opened) isLanguageEvent_Event() {}
+func (*LanguageOpenResponse_Opened) isLanguageOpenResponse_Event() {}
 
-func (*LanguageEvent_Message) isLanguageEvent_Event() {}
+func (*LanguageOpenResponse_Message) isLanguageOpenResponse_Event() {}
 
-func (*LanguageEvent_Closed) isLanguageEvent_Event() {}
+func (*LanguageOpenResponse_Closed) isLanguageOpenResponse_Event() {}
 
 // LanguageOpened announces a started session.
 type LanguageOpened struct {
@@ -1392,8 +1392,8 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1c\n" +
 	"\tplacement\x18\x04 \x01(\tR\tplacement\x12'\n" +
 	"\x0fsession_minutes\x18\x05 \x01(\rR\x0esessionMinutes\x12!\n" +
-	"\fmemory_bytes\x18\x06 \x01(\x04R\vmemoryBytes\"\xb2\x01\n" +
-	"\rLanguageEvent\x12=\n" +
+	"\fmemory_bytes\x18\x06 \x01(\x04R\vmemoryBytes\"\xb9\x01\n" +
+	"\x14LanguageOpenResponse\x12=\n" +
 	"\x06opened\x18\x01 \x01(\v2#.plux.internal.fn.v1.LanguageOpenedH\x00R\x06opened\x12\x1a\n" +
 	"\amessage\x18\x02 \x01(\fH\x00R\amessage\x12=\n" +
 	"\x06closed\x18\x03 \x01(\v2#.plux.internal.fn.v1.LanguageClosedH\x00R\x06closedB\a\n" +
@@ -1415,11 +1415,11 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x05build\x18\x01 \x01(\v2!.plux.internal.fn.v1.BuildRequestR\x05build\"\x82\x01\n" +
 	"\fTestResponse\x12G\n" +
 	"\ftest_results\x18\x01 \x03(\v2$.plux.internal.fn.v1.BuildTestResultR\vtestResults\x12)\n" +
-	"\x10diagnostics_json\x18\x02 \x01(\fR\x0fdiagnosticsJson2\xc9\x03\n" +
+	"\x10diagnostics_json\x18\x02 \x01(\fR\x0fdiagnosticsJson2\xd0\x03\n" +
 	"\x0eBuilderService\x12P\n" +
 	"\x05Build\x12!.plux.internal.fn.v1.BuildRequest\x1a\".plux.internal.fn.v1.BuildResponse\"\x00\x12M\n" +
-	"\x04Link\x12 .plux.internal.fn.v1.LinkRequest\x1a!.plux.internal.fn.v1.LinkResponse\"\x00\x12`\n" +
-	"\fLanguageOpen\x12(.plux.internal.fn.v1.LanguageOpenRequest\x1a\".plux.internal.fn.v1.LanguageEvent\"\x000\x01\x12e\n" +
+	"\x04Link\x12 .plux.internal.fn.v1.LinkRequest\x1a!.plux.internal.fn.v1.LinkResponse\"\x00\x12g\n" +
+	"\fLanguageOpen\x12(.plux.internal.fn.v1.LanguageOpenRequest\x1a).plux.internal.fn.v1.LanguageOpenResponse\"\x000\x01\x12e\n" +
 	"\fLanguageSend\x12(.plux.internal.fn.v1.LanguageSendRequest\x1a).plux.internal.fn.v1.LanguageSendResponse\"\x00\x12M\n" +
 	"\x04Test\x12 .plux.internal.fn.v1.TestRequest\x1a!.plux.internal.fn.v1.TestResponse\"\x00B9Z7github.com/nightCode42/plux3/backend/internal/fnpb;fnpbb\x06proto3"
 
@@ -1449,7 +1449,7 @@ var file_plux_internal_fn_v1_builder_proto_goTypes = []any{
 	(*LinkResponse)(nil),         // 9: plux.internal.fn.v1.LinkResponse
 	(*LinkedFunction)(nil),       // 10: plux.internal.fn.v1.LinkedFunction
 	(*LanguageOpenRequest)(nil),  // 11: plux.internal.fn.v1.LanguageOpenRequest
-	(*LanguageEvent)(nil),        // 12: plux.internal.fn.v1.LanguageEvent
+	(*LanguageOpenResponse)(nil), // 12: plux.internal.fn.v1.LanguageOpenResponse
 	(*LanguageOpened)(nil),       // 13: plux.internal.fn.v1.LanguageOpened
 	(*LanguageClosed)(nil),       // 14: plux.internal.fn.v1.LanguageClosed
 	(*LanguageSendRequest)(nil),  // 15: plux.internal.fn.v1.LanguageSendRequest
@@ -1467,8 +1467,8 @@ var file_plux_internal_fn_v1_builder_proto_depIdxs = []int32{
 	1,  // 6: plux.internal.fn.v1.LinkRequest.limits:type_name -> plux.internal.fn.v1.BuildLimits
 	10, // 7: plux.internal.fn.v1.LinkResponse.functions:type_name -> plux.internal.fn.v1.LinkedFunction
 	4,  // 8: plux.internal.fn.v1.LinkResponse.provenance:type_name -> plux.internal.fn.v1.BuildProvenance
-	13, // 9: plux.internal.fn.v1.LanguageEvent.opened:type_name -> plux.internal.fn.v1.LanguageOpened
-	14, // 10: plux.internal.fn.v1.LanguageEvent.closed:type_name -> plux.internal.fn.v1.LanguageClosed
+	13, // 9: plux.internal.fn.v1.LanguageOpenResponse.opened:type_name -> plux.internal.fn.v1.LanguageOpened
+	14, // 10: plux.internal.fn.v1.LanguageOpenResponse.closed:type_name -> plux.internal.fn.v1.LanguageClosed
 	0,  // 11: plux.internal.fn.v1.TestRequest.build:type_name -> plux.internal.fn.v1.BuildRequest
 	6,  // 12: plux.internal.fn.v1.TestResponse.test_results:type_name -> plux.internal.fn.v1.BuildTestResult
 	0,  // 13: plux.internal.fn.v1.BuilderService.Build:input_type -> plux.internal.fn.v1.BuildRequest
@@ -1478,7 +1478,7 @@ var file_plux_internal_fn_v1_builder_proto_depIdxs = []int32{
 	17, // 17: plux.internal.fn.v1.BuilderService.Test:input_type -> plux.internal.fn.v1.TestRequest
 	2,  // 18: plux.internal.fn.v1.BuilderService.Build:output_type -> plux.internal.fn.v1.BuildResponse
 	9,  // 19: plux.internal.fn.v1.BuilderService.Link:output_type -> plux.internal.fn.v1.LinkResponse
-	12, // 20: plux.internal.fn.v1.BuilderService.LanguageOpen:output_type -> plux.internal.fn.v1.LanguageEvent
+	12, // 20: plux.internal.fn.v1.BuilderService.LanguageOpen:output_type -> plux.internal.fn.v1.LanguageOpenResponse
 	16, // 21: plux.internal.fn.v1.BuilderService.LanguageSend:output_type -> plux.internal.fn.v1.LanguageSendResponse
 	18, // 22: plux.internal.fn.v1.BuilderService.Test:output_type -> plux.internal.fn.v1.TestResponse
 	18, // [18:23] is the sub-list for method output_type
@@ -1494,9 +1494,9 @@ func file_plux_internal_fn_v1_builder_proto_init() {
 		return
 	}
 	file_plux_internal_fn_v1_builder_proto_msgTypes[12].OneofWrappers = []any{
-		(*LanguageEvent_Opened)(nil),
-		(*LanguageEvent_Message)(nil),
-		(*LanguageEvent_Closed)(nil),
+		(*LanguageOpenResponse_Opened)(nil),
+		(*LanguageOpenResponse_Message)(nil),
+		(*LanguageOpenResponse_Closed)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

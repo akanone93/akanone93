@@ -121,7 +121,7 @@ func (c *Client) Render(ctx context.Context, in releasereq.RenderInput) ([]relea
 }
 
 // screenOf checks one screen of a response.
-func screenOf(m *renderpb.RenderedScreen, maxImage int64) (releasereq.Screen, error) {
+func screenOf(m *renderpb.RenderResponse, maxImage int64) (releasereq.Screen, error) {
 	for _, img := range [][]byte{m.GetBeforePng(), m.GetAfterPng()} {
 		if int64(len(img)) > maxImage {
 			return releasereq.Screen{}, fmt.Errorf("renderclient.Render: an image of %s has %d bytes; golden.imageBytes allows %d", m.GetScreen(), len(img), maxImage)

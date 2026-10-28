@@ -84,7 +84,7 @@ func New(o Options) (*Handler, error) {
 }
 
 // Render implements renderpbconnect.RenderWorkerServiceHandler.
-func (h *Handler) Render(ctx context.Context, req *connect.Request[renderpb.RenderRequest], stream *connect.ServerStream[renderpb.RenderedScreen]) error {
+func (h *Handler) Render(ctx context.Context, req *connect.Request[renderpb.RenderRequest], stream *connect.ServerStream[renderpb.RenderResponse]) error {
 	select {
 	case h.slot <- struct{}{}:
 		defer func() { <-h.slot }()
@@ -131,7 +131,7 @@ type shot struct{ plugin, screen, device string }
 // diff renders both projects and returns the screens whose image differs, in
 // order of plugin, screen and device. A screen only in one project is new or
 // removed and is returned with the other image empty.
-func (h *Handler) diff(ctx context.Context, cat compiler.FunctionCatalogue, before, after fs.FS, devices []string, lim Limits) ([]*renderpb.RenderedScreen, error) {
+func (h *Handler) diff(ctx context.Context, cat compiler.FunctionCatalogue, before, after fs.FS, devices []string, lim Limits) ([]*renderpb.RenderResponse, error) {
 	now, err := h.render(ctx, cat, after, devices, lim)
 	if err != nil {
 		return nil, err
@@ -154,13 +154,13 @@ func (h *Handler) diff(ctx context.Context, cat compiler.FunctionCatalogue, befo
 	slices.SortFunc(keys, func(a, b shot) int {
 		return cmpStrings(a.plugin, b.plugin, a.screen, b.screen, a.device, b.device)
 	})
-	var out []*renderpb.RenderedScreen
+	var out []*renderpb.RenderResponse
 	for _, k := range keys {
 		b, a := was[k], now[k]
 		if bytes.Equal(b, a) {
 			continue
 		}
-		out = append(out, &renderpb.RenderedScreen{PluginKey: k.plugin, Screen: k.screen, Device: k.device, BeforePng: b, AfterPng: a})
+		out = append(out, &renderpb.RenderResponse{PluginKey: k.plugin, Screen: k.screen, Device: k.device, BeforePng: b, AfterPng: a})
 	}
 	return out, nil
 }

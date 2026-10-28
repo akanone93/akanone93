@@ -16,11 +16,11 @@ option go_package = "github.com/nightCode42/plux3/backend/internal/renderpb;rend
 service RenderWorkerService {
   // Render compiles the project before and after a release request, renders
   // the pages of both on the standard devices with the golden harness
-  // (ADR-0070) and streams one RenderedScreen for each screen whose image
+  // (ADR-0070) and streams one RenderResponse for each screen whose image
   // changed, in order of plugin, screen and device. A project that does not
   // compile, or a limit that is exceeded, ends the call with an error; the
   // server then queues the job again.
-  rpc Render(RenderRequest) returns (stream RenderedScreen) {}
+  rpc Render(RenderRequest) returns (stream RenderResponse) {}
 }
 
 // RenderLimits are the limits the server resolved for the organisation. The
@@ -78,9 +78,9 @@ message FunctionDeclaration {
   bool requires_sca = 10;
 }
 
-// RenderedScreen is one screen on one device. before_png is empty for a new
+// RenderResponse is one screen on one device. before_png is empty for a new
 // screen and after_png for a removed one; both are PNG images.
-message RenderedScreen {
+message RenderResponse {
   string plugin_key = 1;
   string screen = 2;
   string device = 3;

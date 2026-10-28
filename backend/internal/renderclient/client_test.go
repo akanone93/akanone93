@@ -31,12 +31,12 @@ const png = "\x89PNG\r\n\x1a\nbody"
 // them, and keeps the request it received.
 type fakeWorker struct {
 	renderpbconnect.UnimplementedRenderWorkerServiceHandler
-	screens []*renderpb.RenderedScreen
+	screens []*renderpb.RenderResponse
 	fail    error
 	got     *renderpb.RenderRequest
 }
 
-func (w *fakeWorker) Render(_ context.Context, req *connect.Request[renderpb.RenderRequest], stream *connect.ServerStream[renderpb.RenderedScreen]) error {
+func (w *fakeWorker) Render(_ context.Context, req *connect.Request[renderpb.RenderRequest], stream *connect.ServerStream[renderpb.RenderResponse]) error {
 	w.got = req.Msg
 	for _, s := range w.screens {
 		if err := stream.Send(s); err != nil {
@@ -71,7 +71,7 @@ func input() releasereq.RenderInput {
 // organisation, and returns the screens the worker streamed.
 func TestRenderSendsProjectsAndReturnsScreens_STU_100(t *testing.T) {
 	t.Parallel()
-	w := &fakeWorker{screens: []*renderpb.RenderedScreen{
+	w := &fakeWorker{screens: []*renderpb.RenderResponse{
 		{PluginKey: "loans", Screen: "home", Device: "small-360x640", BeforePng: []byte(png), AfterPng: []byte(png + "2")},
 		{Screen: "new", Device: "small-360x640", AfterPng: []byte(png)},
 	}}
@@ -142,16 +142,16 @@ func TestRenderSendsTheFunctionCatalogue_STU_100(t *testing.T) {
 func TestRenderRejectsWhatTheWorkerGetsWrong_STU_100(t *testing.T) {
 	t.Parallel()
 	lim := renderworker.LimitsOf(limits.Defaults())
-	many := make([]*renderpb.RenderedScreen, lim.Cases+1)
+	many := make([]*renderpb.RenderResponse, lim.Cases+1)
 	for i := range many {
-		many[i] = &renderpb.RenderedScreen{Screen: "s", Device: "d", AfterPng: []byte(png)}
+		many[i] = &renderpb.RenderResponse{Screen: "s", Device: "d", AfterPng: []byte(png)}
 	}
 	for name, w := range map[string]*fakeWorker{
 		"worker failure": {fail: connect.NewError(connect.CodeFailedPrecondition, errors.New("the project does not compile"))},
-		"not a png":      {screens: []*renderpb.RenderedScreen{{Screen: "s", Device: "d", AfterPng: []byte("GIF89a")}}},
-		"too large":      {screens: []*renderpb.RenderedScreen{{Screen: "s", Device: "d", AfterPng: append([]byte(png), make([]byte, lim.ImageBytes)...)}}},
-		"unnamed":        {screens: []*renderpb.RenderedScreen{{AfterPng: []byte(png)}}},
-		"no image":       {screens: []*renderpb.RenderedScreen{{Screen: "s", Device: "d"}}},
+		"not a png":      {screens: []*renderpb.RenderResponse{{Screen: "s", Device: "d", AfterPng: []byte("GIF89a")}}},
+		"too large":      {screens: []*renderpb.RenderResponse{{Screen: "s", Device: "d", AfterPng: append([]byte(png), make([]byte, lim.ImageBytes)...)}}},
+		"unnamed":        {screens: []*renderpb.RenderResponse{{AfterPng: []byte(png)}}},
+		"no image":       {screens: []*renderpb.RenderResponse{{Screen: "s", Device: "d"}}},
 		"too many":       {screens: many},
 	} {
 		if _, err := start(t, w).Render(context.Background(), input()); err == nil {

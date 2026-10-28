@@ -73,7 +73,7 @@ type BuilderServiceClient interface {
 	// time of `lsp.sessionMinutes` passes. The first event is Opened. The
 	// sandbox has no network, no build scripts and no procedural macros, and
 	// the role holds no credential (L-4).
-	LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest]) (*connect.ServerStreamForClient[fnpb.LanguageEvent], error)
+	LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest]) (*connect.ServerStreamForClient[fnpb.LanguageOpenResponse], error)
 	// LanguageSend delivers one client message to the session's language
 	// server. Messages carry a sequence number that rises by one from 1; an
 	// out-of-order message is refused, so edits apply in the order typed.
@@ -107,7 +107,7 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("Link")),
 			connect.WithClientOptions(opts...),
 		),
-		languageOpen: connect.NewClient[fnpb.LanguageOpenRequest, fnpb.LanguageEvent](
+		languageOpen: connect.NewClient[fnpb.LanguageOpenRequest, fnpb.LanguageOpenResponse](
 			httpClient,
 			baseURL+BuilderServiceLanguageOpenProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("LanguageOpen")),
@@ -132,7 +132,7 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 type builderServiceClient struct {
 	build        *connect.Client[fnpb.BuildRequest, fnpb.BuildResponse]
 	link         *connect.Client[fnpb.LinkRequest, fnpb.LinkResponse]
-	languageOpen *connect.Client[fnpb.LanguageOpenRequest, fnpb.LanguageEvent]
+	languageOpen *connect.Client[fnpb.LanguageOpenRequest, fnpb.LanguageOpenResponse]
 	languageSend *connect.Client[fnpb.LanguageSendRequest, fnpb.LanguageSendResponse]
 	test         *connect.Client[fnpb.TestRequest, fnpb.TestResponse]
 }
@@ -148,7 +148,7 @@ func (c *builderServiceClient) Link(ctx context.Context, req *connect.Request[fn
 }
 
 // LanguageOpen calls plux.internal.fn.v1.BuilderService.LanguageOpen.
-func (c *builderServiceClient) LanguageOpen(ctx context.Context, req *connect.Request[fnpb.LanguageOpenRequest]) (*connect.ServerStreamForClient[fnpb.LanguageEvent], error) {
+func (c *builderServiceClient) LanguageOpen(ctx context.Context, req *connect.Request[fnpb.LanguageOpenRequest]) (*connect.ServerStreamForClient[fnpb.LanguageOpenResponse], error) {
 	return c.languageOpen.CallServerStream(ctx, req)
 }
 
@@ -185,7 +185,7 @@ type BuilderServiceHandler interface {
 	// time of `lsp.sessionMinutes` passes. The first event is Opened. The
 	// sandbox has no network, no build scripts and no procedural macros, and
 	// the role holds no credential (L-4).
-	LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest], *connect.ServerStream[fnpb.LanguageEvent]) error
+	LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest], *connect.ServerStream[fnpb.LanguageOpenResponse]) error
 	// LanguageSend delivers one client message to the session's language
 	// server. Messages carry a sequence number that rises by one from 1; an
 	// out-of-order message is refused, so edits apply in the order typed.
@@ -262,7 +262,7 @@ func (UnimplementedBuilderServiceHandler) Link(context.Context, *connect.Request
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.Link is not implemented"))
 }
 
-func (UnimplementedBuilderServiceHandler) LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest], *connect.ServerStream[fnpb.LanguageEvent]) error {
+func (UnimplementedBuilderServiceHandler) LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest], *connect.ServerStream[fnpb.LanguageOpenResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.LanguageOpen is not implemented"))
 }
 

@@ -60,7 +60,7 @@ func demoCatalogue() *compiler.FunctionSet {
 	}, true)
 }
 
-func renderRequest(t *testing.T, c renderpbconnect.RenderWorkerServiceClient, req *renderpb.RenderRequest, after fstest.MapFS) ([]*renderpb.RenderedScreen, error) {
+func renderRequest(t *testing.T, c renderpbconnect.RenderWorkerServiceClient, req *renderpb.RenderRequest, after fstest.MapFS) ([]*renderpb.RenderResponse, error) {
 	t.Helper()
 	var err error
 	if req.After, err = renderworker.Pack(after, testLimits()); err != nil {
@@ -71,7 +71,7 @@ func renderRequest(t *testing.T, c renderpbconnect.RenderWorkerServiceClient, re
 	if err != nil {
 		return nil, err
 	}
-	var out []*renderpb.RenderedScreen
+	var out []*renderpb.RenderResponse
 	for stream.Receive() {
 		out = append(out, stream.Msg())
 	}

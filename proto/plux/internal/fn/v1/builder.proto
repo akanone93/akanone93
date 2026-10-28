@@ -37,7 +37,7 @@ service BuilderService {
   // time of `lsp.sessionMinutes` passes. The first event is Opened. The
   // sandbox has no network, no build scripts and no procedural macros, and
   // the role holds no credential (L-4).
-  rpc LanguageOpen(LanguageOpenRequest) returns (stream LanguageEvent) {}
+  rpc LanguageOpen(LanguageOpenRequest) returns (stream LanguageOpenResponse) {}
 
   // LanguageSend delivers one client message to the session's language
   // server. Messages carry a sequence number that rises by one from 1; an
@@ -178,8 +178,8 @@ message LanguageOpenRequest {
   uint64 memory_bytes = 6;
 }
 
-// LanguageEvent is one event of a session's server stream.
-message LanguageEvent {
+// LanguageOpenResponse is one event of a session's server stream.
+message LanguageOpenResponse {
   oneof event {
     // opened is the first event.
     LanguageOpened opened = 1;

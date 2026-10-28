@@ -46,11 +46,11 @@ const (
 type RenderWorkerServiceClient interface {
 	// Render compiles the project before and after a release request, renders
 	// the pages of both on the standard devices with the golden harness
-	// (ADR-0070) and streams one RenderedScreen for each screen whose image
+	// (ADR-0070) and streams one RenderResponse for each screen whose image
 	// changed, in order of plugin, screen and device. A project that does not
 	// compile, or a limit that is exceeded, ends the call with an error; the
 	// server then queues the job again.
-	Render(context.Context, *connect.Request[renderpb.RenderRequest]) (*connect.ServerStreamForClient[renderpb.RenderedScreen], error)
+	Render(context.Context, *connect.Request[renderpb.RenderRequest]) (*connect.ServerStreamForClient[renderpb.RenderResponse], error)
 }
 
 // NewRenderWorkerServiceClient constructs a client for the
@@ -65,7 +65,7 @@ func NewRenderWorkerServiceClient(httpClient connect.HTTPClient, baseURL string,
 	baseURL = strings.TrimRight(baseURL, "/")
 	renderWorkerServiceMethods := renderpb.File_plux_internal_render_v1_worker_proto.Services().ByName("RenderWorkerService").Methods()
 	return &renderWorkerServiceClient{
-		render: connect.NewClient[renderpb.RenderRequest, renderpb.RenderedScreen](
+		render: connect.NewClient[renderpb.RenderRequest, renderpb.RenderResponse](
 			httpClient,
 			baseURL+RenderWorkerServiceRenderProcedure,
 			connect.WithSchema(renderWorkerServiceMethods.ByName("Render")),
@@ -76,11 +76,11 @@ func NewRenderWorkerServiceClient(httpClient connect.HTTPClient, baseURL string,
 
 // renderWorkerServiceClient implements RenderWorkerServiceClient.
 type renderWorkerServiceClient struct {
-	render *connect.Client[renderpb.RenderRequest, renderpb.RenderedScreen]
+	render *connect.Client[renderpb.RenderRequest, renderpb.RenderResponse]
 }
 
 // Render calls plux.internal.render.v1.RenderWorkerService.Render.
-func (c *renderWorkerServiceClient) Render(ctx context.Context, req *connect.Request[renderpb.RenderRequest]) (*connect.ServerStreamForClient[renderpb.RenderedScreen], error) {
+func (c *renderWorkerServiceClient) Render(ctx context.Context, req *connect.Request[renderpb.RenderRequest]) (*connect.ServerStreamForClient[renderpb.RenderResponse], error) {
 	return c.render.CallServerStream(ctx, req)
 }
 
@@ -89,11 +89,11 @@ func (c *renderWorkerServiceClient) Render(ctx context.Context, req *connect.Req
 type RenderWorkerServiceHandler interface {
 	// Render compiles the project before and after a release request, renders
 	// the pages of both on the standard devices with the golden harness
-	// (ADR-0070) and streams one RenderedScreen for each screen whose image
+	// (ADR-0070) and streams one RenderResponse for each screen whose image
 	// changed, in order of plugin, screen and device. A project that does not
 	// compile, or a limit that is exceeded, ends the call with an error; the
 	// server then queues the job again.
-	Render(context.Context, *connect.Request[renderpb.RenderRequest], *connect.ServerStream[renderpb.RenderedScreen]) error
+	Render(context.Context, *connect.Request[renderpb.RenderRequest], *connect.ServerStream[renderpb.RenderResponse]) error
 }
 
 // NewRenderWorkerServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -122,6 +122,6 @@ func NewRenderWorkerServiceHandler(svc RenderWorkerServiceHandler, opts ...conne
 // UnimplementedRenderWorkerServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedRenderWorkerServiceHandler struct{}
 
-func (UnimplementedRenderWorkerServiceHandler) Render(context.Context, *connect.Request[renderpb.RenderRequest], *connect.ServerStream[renderpb.RenderedScreen]) error {
+func (UnimplementedRenderWorkerServiceHandler) Render(context.Context, *connect.Request[renderpb.RenderRequest], *connect.ServerStream[renderpb.RenderResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.render.v1.RenderWorkerService.Render is not implemented"))
 }
