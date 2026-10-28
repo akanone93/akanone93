@@ -52,6 +52,7 @@ const documents = [
 
 /** A surface that records the documents sent to the worker; the worker's layout is tested in @plux/canvas. */
 function stub(tallHeight = 2000) {
+  const selected: (readonly string[])[] = [];
   const patches: { docs: ScreenDocument[]; style: ScreenStyle }[] = [];
   const views: number[][] = [];
   const zooms: number[][] = [];
@@ -64,9 +65,10 @@ function stub(tallHeight = 2000) {
     pan: () => undefined,
     zoomAbout: (factor, x, y) => zooms.push([factor, x, y]),
     viewport: { x: 0, y: 0, zoom: 1 },
+    setSelection: (ids) => selected.push(ids),
     dispose: () => undefined,
   };
-  return { patches, views, zooms, factory: () => surface };
+  return { patches, views, zooms, selected, factory: () => surface };
 }
 
 const frames = (sent: { docs: ScreenDocument[] } | undefined) => sent?.docs ?? [];
@@ -173,6 +175,21 @@ describe("STU-050 plugin canvas C2", () => {
     expect(canvasSearchSchema.parse({ z: 9000 }).z).toBe(400);
     expect(canvasSearchSchema.parse({ z: 1 }).z).toBe(10);
     expect(canvasSearchSchema.parse({ x: "bad" }).x).toBeUndefined();
+  });
+});
+
+describe("ANL-040 open node", () => {
+  test("the node search param selects that node once the canvas has loaded", async () => {
+    const s = stub();
+    renderApp(`${path}?node=b2`, { documents, surface: s.factory });
+    await waitFor(() => expect(s.selected.some((ids) => ids.includes("detail/b2"))).toBe(true));
+  });
+
+  test("an unknown node selects nothing", async () => {
+    const s = stub();
+    renderApp(`${path}?node=nope`, { documents, surface: s.factory });
+    await waitFor(() => expect(s.patches.length).toBeGreaterThan(0));
+    expect(s.selected.some((ids) => ids.length > 0)).toBe(false);
   });
 });
 

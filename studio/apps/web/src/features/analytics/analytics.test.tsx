@@ -28,7 +28,7 @@ const analytics = {
     { id: "g1", fingerprint: "fp1", code: "PLX-4101", pluginKey: "shop", route: "cart", nodePath: "root/0", events: 5 },
   ],
 };
-const open = (path: string, state: Upstream = {}, permissions = ["app.read", "alerts.manage"]) =>
+const open = (path: string, state: Upstream = {}, permissions = ["app.read", "analytics.manage"]) =>
   renderApp(`${base}${path}`, { permissions, analytics: structuredClone(analytics), ...state });
 
 describe("STU-114 analytics model", () => {
@@ -109,7 +109,7 @@ describe("ANL-020 funnels (A26, A27)", () => {
     await waitFor(() => expect(screen.queryByRole("link", { name: "Signup" })).toBeNull());
   }, 30_000);
 
-  test("A26 disables the form without alerts.manage", async () => {
+  test("A26 disables the form without analytics.manage", async () => {
     open("/funnels", {}, ["app.read"]);
     await screen.findByRole("link", { name: "Checkout" }, wait);
     expect(screen.getByRole("button", { name: "Create funnel" }).matches(":disabled, [aria-disabled=true]")).toBe(true);

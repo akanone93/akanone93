@@ -1948,7 +1948,7 @@ export const AnalyticsService: GenService<{
   },
   /**
    * CreateFunnel defines a funnel of an app: an ordered list of event names
-   * (ANL-020, STU-114). It needs alerts.manage on the app and is audited.
+   * (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
    *
    * @generated from rpc plux.v1.AnalyticsService.CreateFunnel
    */
@@ -1958,7 +1958,7 @@ export const AnalyticsService: GenService<{
     output: typeof CreateFunnelResponseSchema;
   },
   /**
-   * DeleteFunnel removes a funnel. It needs alerts.manage on the app and is
+   * DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
    * audited.
    *
    * @generated from rpc plux.v1.AnalyticsService.DeleteFunnel

@@ -97,7 +97,7 @@ paths:
       summary: CreateFunnel
       description: |-
         CreateFunnel defines a funnel of an app: an ordered list of event names
-         (ANL-020, STU-114). It needs alerts.manage on the app and is audited.
+         (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
       operationId: plux.v1.AnalyticsService.CreateFunnel
       parameters:
         - name: Connect-Protocol-Version
@@ -219,7 +219,7 @@ paths:
         - plux.v1.AnalyticsService
       summary: DeleteFunnel
       description: |-
-        DeleteFunnel removes a funnel. It needs alerts.manage on the app and is
+        DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
          audited.
       operationId: plux.v1.AnalyticsService.DeleteFunnel
       parameters:

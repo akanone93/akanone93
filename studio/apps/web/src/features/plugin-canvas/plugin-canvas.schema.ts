@@ -18,6 +18,8 @@ export const canvasSearchSchema = z.object({
   y: finite.optional().catch(undefined),
   /** A screen to pan to and pulse once the canvas opens (STU-053). */
   focus: z.string().optional().catch(undefined),
+  /** A node to select once the canvas opens, by its document ID (ANL-040). */
+  node: z.string().optional().catch(undefined),
   z: finite
     .transform((v) => Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, v)))
     .optional()

@@ -23,6 +23,17 @@
       "readOnly": false
     },
     {
+      "name": "analytics.manage",
+      "description": "Create, change and delete funnel definitions.",
+      "area": "analytics",
+      "feature": "analytics",
+      "action": "manage",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
       "name": "analytics.read",
       "description": "Read analytics, rollups and experiment results.",
       "area": "analytics",

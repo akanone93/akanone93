@@ -64,6 +64,9 @@ const (
 	// LibraryPublish makes a template or component public to the whole
 	// installation (ADR-0098, STU-081).
 	LibraryPublish Permission = "library.publish"
+	// AnalyticsManage creates, changes and deletes funnel definitions
+	// (ANL-020).
+	AnalyticsManage Permission = "analytics.manage"
 )
 
 // allPermissions is every permission of the catalogue, sorted.

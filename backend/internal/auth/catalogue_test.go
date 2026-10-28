@@ -75,8 +75,8 @@ func TestCatalogueEqualsTheConstants_GOV_002(t *testing.T) {
 func TestCatalogueEntries_GOV_002(t *testing.T) {
 	t.Parallel()
 	cat := auth.Catalogue()
-	if len(cat) != 54 {
-		t.Errorf("the catalogue has %d permissions, want 54 (24 existing, 26 of P9, 2 of P10, 2 of P11)", len(cat))
+	if len(cat) != 55 {
+		t.Errorf("the catalogue has %d permissions, want 55 (24 existing, 26 of P9, 2 of P10, 3 of P11)", len(cat))
 	}
 	for i, e := range cat {
 		if e.Description == "" || !strings.HasSuffix(e.Description, ".") {
@@ -152,7 +152,8 @@ func TestStepUpOfExistingPermissionsIsUnchanged_GOV_002(t *testing.T) {
 // is restrictions.manage, which Admins hold beside the Owner (GOV-006).
 // P10 adds the two dev-session permissions: the Admin and the Developer hold
 // both, and the Viewer may observe (DEV-020, ADR-0087).
-// P11 adds the two library permissions, which the Admin holds (ADR-0098).
+// P11 adds the two library permissions, which the Admin holds (ADR-0098),
+// and analytics.manage, which the Admin holds (ANL-020).
 func TestExistingRolesKeepTheirGrants_GOV_002(t *testing.T) {
 	t.Parallel()
 	held := map[auth.Role][]auth.Permission{
@@ -163,7 +164,7 @@ func TestExistingRolesKeepTheirGrants_GOV_002(t *testing.T) {
 			auth.PluginRead, auth.ReleasePromote, auth.ReleasePublish, auth.SecretsManage, auth.TokensManage,
 			auth.TrashManage, auth.A11yWaive, auth.GoldensApprove, auth.TranslationsApprove, auth.TranslationsEdit,
 			auth.RestrictionsManage, auth.DevSessionCreate, auth.DevSessionObserve,
-			auth.LibraryManage, auth.LibraryPublish,
+			auth.LibraryManage, auth.LibraryPublish, auth.AnalyticsManage,
 		},
 		auth.RoleDeveloper: {
 			auth.AppRead, auth.FunctionDeploy, auth.FunctionRead, auth.OrganizationRead, auth.PluginEdit,

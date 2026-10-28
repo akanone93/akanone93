@@ -162,9 +162,9 @@ type AnalyticsServiceClient interface {
 	// (CMP-041). It needs analytics.read.
 	GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error)
 	// CreateFunnel defines a funnel of an app: an ordered list of event names
-	// (ANL-020, STU-114). It needs alerts.manage on the app and is audited.
+	// (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
 	CreateFunnel(context.Context, *connect.Request[pluxv1.CreateFunnelRequest]) (*connect.Response[pluxv1.CreateFunnelResponse], error)
-	// DeleteFunnel removes a funnel. It needs alerts.manage on the app and is
+	// DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
 	// audited.
 	DeleteFunnel(context.Context, *connect.Request[pluxv1.DeleteFunnelRequest]) (*connect.Response[pluxv1.DeleteFunnelResponse], error)
 	// ListFunnels lists the funnels of an app, or of the organisation. It
@@ -519,9 +519,9 @@ type AnalyticsServiceHandler interface {
 	// (CMP-041). It needs analytics.read.
 	GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error)
 	// CreateFunnel defines a funnel of an app: an ordered list of event names
-	// (ANL-020, STU-114). It needs alerts.manage on the app and is audited.
+	// (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
 	CreateFunnel(context.Context, *connect.Request[pluxv1.CreateFunnelRequest]) (*connect.Response[pluxv1.CreateFunnelResponse], error)
-	// DeleteFunnel removes a funnel. It needs alerts.manage on the app and is
+	// DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
 	// audited.
 	DeleteFunnel(context.Context, *connect.Request[pluxv1.DeleteFunnelRequest]) (*connect.Response[pluxv1.DeleteFunnelResponse], error)
 	// ListFunnels lists the funnels of an app, or of the organisation. It

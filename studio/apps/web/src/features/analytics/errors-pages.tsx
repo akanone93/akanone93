@@ -102,7 +102,7 @@ export function AnalyticsErrorPage(): ReactElement {
           <Link
             to="/o/$org/apps/$app/plugins/$plugin"
             params={{ org, app, plugin: group.pluginKey }}
-            search={{ focus: group.route }}
+            search={{ focus: group.route, node: group.nodePath }}
           >
             {m.openNode}
           </Link>
