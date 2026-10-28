@@ -6,14 +6,18 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/riverqueue/river"
 
+	"github.com/nightCode42/plux3/backend/internal/config"
+	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/renderclient"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
 
@@ -72,9 +76,30 @@ func (k *serviceKit) buildReleaseRequests(svc *Services) *releasereq.Service {
 	}
 	return releasereq.New(releasereq.Options{
 		DB: k.db, IDs: k.gen, Builds: releasereq.ReleaseBuilds{Releases: svc.Releases}, Jobs: renderQueue{k.work.Queue},
-		Objects: k.work.Objects, Releaser: releasereq.ReleaseMaker{Releases: svc.Releases}, Approvals: k.approvals, Renderer: k.work.Renderer,
+		Objects: k.work.Objects, Sources: releasereq.ReleaseSources{Releases: svc.Releases}, Releaser: releasereq.ReleaseMaker{Releases: svc.Releases}, Approvals: k.approvals, Renderer: k.work.Renderer,
 		Limits: func(ctx context.Context, tx pgx.Tx, organizationID string) (limits.Set, error) {
 			return svc.Tenancy.Effective(ctx, tx, organizationID, "", "") //nolint:wrapcheck // a domain error
 		},
 	})
+}
+
+// attachRenderer gives the worker role its route to the render worker over the
+// mutual TLS of server.internalTLS, where renderWorker.address is set (O-9,
+// SEC-043). Without it the process runs no render jobs, and a requested
+// visual diff stays queued.
+func attachRenderer(cfg *config.Config, deps *WorkDeps) error {
+	if cfg.RenderWorker.Address == "" || deps.Renderer != nil {
+		return nil
+	}
+	t := cfg.Server.InternalTLS
+	httpClient, err := httpx.NewInternalClient(httpx.InternalTLSOptions{CAFile: t.CAFile, CertFile: t.CertFile, KeyFile: t.KeyFile}, renderclient.Timeout+time.Minute)
+	if err != nil {
+		return fmt.Errorf("server: render worker client: %w", err)
+	}
+	client, err := renderclient.New(renderclient.Options{HTTP: httpClient, URL: cfg.RenderWorker.Address})
+	if err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
+	deps.Renderer = client
+	return nil
 }

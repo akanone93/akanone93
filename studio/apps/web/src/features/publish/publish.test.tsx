@@ -351,16 +351,40 @@ describe("STU-100 build evidence and diffs", () => {
   });
 
   test("the diffs step shows the before and after of each screen and the JSON diff of the changed documents", async () => {
-    open("/publish/r1", fixture("diffs", {}, { evidence, diff: { state: "succeeded" } }), { summaries });
+    const urls: Blob[] = [];
+    URL.createObjectURL = (b: Blob | MediaSource) => {
+      urls.push(b as Blob);
+      return `blob:shot-${urls.length}`;
+    };
+    URL.revokeObjectURL = () => undefined;
+    const release = fixture("diffs", {}, { evidence, diff: { state: "succeeded" } });
+    open("/publish/r1", release, { summaries });
     await step("Visual diffs");
     await screen.findByText("Image stored (bbbbbbbb)");
     expect(screen.getByText("Image stored (cccccccc)")).toBeTruthy();
+    const images = await screen.findAllByRole("img", { name: /Rendered screen: / });
+    expect(images.map((i) => i.getAttribute("alt"))).toEqual(["Rendered screen: Before", "Rendered screen: After"]);
+    expect(release.fetched?.slice().sort()).toEqual(["bb".repeat(32), "cc".repeat(32)]);
+    expect(urls.length).toBe(2);
+    expect(urls[0]?.type).toBe("image/png");
     await screen.findByText("home: 2 changed documents");
     expect(screen.getByText("pages/home.page.json")).toBeTruthy();
     expect(screen.getByText("/root/title")).toBeTruthy();
     expect(screen.getByText('"Welcome"')).toBeTruthy();
     expect(screen.getByText("Added")).toBeTruthy();
     expect(screen.getByText(/First version: every document is new\./)).toBeTruthy();
+  });
+
+  test("an image the server does not serve says so and keeps the hash", async () => {
+    URL.createObjectURL = () => "blob:shot";
+    URL.revokeObjectURL = () => undefined;
+    open("/publish/r1", fixture("diffs", {}, { evidence: { ...evidence, images: [] }, diff: { state: "succeeded" } }), {
+      summaries,
+    });
+    await step("Visual diffs");
+    await screen.findByText("Image bbbbbbbb could not be loaded");
+    expect(screen.getByText("Image cccccccc could not be loaded")).toBeTruthy();
+    expect(screen.queryByRole("img", { name: /Rendered screen: / })).toBeNull();
   });
 
   test("a render that is still queued says that the thumbnails follow", async () => {

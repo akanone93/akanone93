@@ -189,6 +189,8 @@ export interface ReleaseFixture {
   calls: string[];
   /** The idempotency keys of the publish jobs. */
   keys?: string[];
+  /** The hashes of the images GetVisualDiffImage was asked for. */
+  fetched?: string[];
   /** The approval ends rejected instead of moving on. */
   rejectApproval?: boolean;
   /** What the build evidence reads: the plugin versions per plugin id, the accessibility diagnostics and the document changes. */
@@ -201,6 +203,8 @@ export interface ReleaseFixture {
     screens?: { screen: string; before: string; after: string }[];
     /** CompareSnapshots fails. */
     failing?: boolean;
+    /** The image hashes GetVisualDiffImage serves; others are not found. Every hash of the screens when absent. */
+    images?: string[];
   };
 }
 
@@ -1059,6 +1063,14 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
         })),
       },
     }),
+    getVisualDiffImage: (req) => {
+      fx.fetched = [...(fx.fetched ?? []), req.sha256];
+      const served = fx.evidence?.images ?? (fx.evidence?.screens ?? []).flatMap((x) => [x.before, x.after]);
+      if (!served.includes(req.sha256)) {
+        throw new ConnectError("no such image in this visual diff", Code.NotFound);
+      }
+      return { png: new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]) };
+    },
     advanceReleaseRequest: (req) => {
       if (req.expectedState !== r.state) {
         refused("PLX-8060");

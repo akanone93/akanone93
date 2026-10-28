@@ -13,6 +13,7 @@ import {
   type SelectedPluginSchema,
 } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { loadUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
 
@@ -122,4 +123,37 @@ export function codeOf(err: unknown): string {
     return "";
   }
   return /PLX-806[0-2]/.exec(err.rawMessage)?.[0] ?? "";
+}
+
+/**
+ * One rendered image of the request's visual diff as an object URL, fetched by its SHA-256 with the caller's read
+ * access. The hash names the content, so the bytes are kept for the session; the URL is revoked when the tile goes.
+ */
+export function useDiffImage(appId: string, requestId: string, sha256: string) {
+  const { session } = useApp();
+  const png = useQuery({
+    queryKey: ["visual-diff-image", appId, requestId, sha256],
+    enabled: sha256 !== "",
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
+    queryFn: async () =>
+      (
+        await createClient(ReleaseRequestService, session.transport).getVisualDiffImage({
+          appId,
+          id: requestId,
+          sha256,
+        })
+      ).png,
+  });
+  const [url, setUrl] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (png.data === undefined) {
+      setUrl(undefined);
+      return;
+    }
+    const made = URL.createObjectURL(new Blob([png.data as BlobPart], { type: "image/png" }));
+    setUrl(made);
+    return () => URL.revokeObjectURL(made);
+  }, [png.data]);
+  return { url, failed: png.isError };
 }

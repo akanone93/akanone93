@@ -68,6 +68,9 @@ type Config struct {
 	// Builder configures the builder role, and the worker's route to it
 	// (FN-016, ADR-0063).
 	Builder Builder `json:"builder"`
+	// RenderWorker configures the worker role's route to the render worker
+	// of the visual diffs (O-9, ADR-0097).
+	RenderWorker RenderWorker `json:"renderWorker"`
 	// License names the enterprise licence file (GOV-030, ADR-0084).
 	License License `json:"license"`
 	// Notifications configures notification and webhook delivery (SRV-062,
@@ -88,6 +91,18 @@ type License struct {
 	// none. A missing or invalid file never stops the server; enterprise
 	// features stay off.
 	File string `json:"file"`
+}
+
+// RenderWorker is the worker role's route to the render worker, the process
+// of deploy/render-worker that renders the visual diffs of release requests.
+// The render worker holds no credential of the server; this process sends it
+// the projects and stores the images it returns (L-4).
+type RenderWorker struct {
+	// Address is the base URL of the render worker, such as
+	// "https://render-worker:8443". The worker role renders through it with
+	// the identity of server.internalTLS; empty means this installation
+	// renders no visual diffs, and a requested diff stays queued.
+	Address string `json:"address"`
 }
 
 // Builder configures the builder role. The role's fields are read only when

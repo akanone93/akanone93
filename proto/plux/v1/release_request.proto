@@ -43,6 +43,11 @@ service ReleaseRequestService {
   // per organisation. Asking again while a job is queued or running returns
   // that job. It needs release.publish.
   rpc RequestVisualDiff(RequestVisualDiffRequest) returns (RequestVisualDiffResponse) {}
+  // GetVisualDiffImage returns one rendered PNG of the request's current
+  // visual diff by its SHA-256, for the thumbnails of the diffs step. The
+  // image must be part of that diff, so a hash of another request, app or
+  // organisation is not found. It needs plugin.read.
+  rpc GetVisualDiffImage(GetVisualDiffImageRequest) returns (GetVisualDiffImageResponse) {}
   // RequestReleaseApproval is the approval step: it asks the approval engine
   // whether the policies need approval of this content, opens a request there
   // if they do, and moves the release request on when they are satisfied. It
@@ -242,6 +247,17 @@ message RequestVisualDiffRequest {
 }
 message RequestVisualDiffResponse {
   VisualDiffJob job = 1;
+}
+
+message GetVisualDiffImageRequest {
+  string app_id = 1;
+  string id = 2;
+  // sha256 is the hash of the image in hex, as a VisualDiffScreen names it.
+  string sha256 = 3;
+}
+message GetVisualDiffImageResponse {
+  // png is the image, at most golden.imageBytes.
+  bytes png = 1;
 }
 
 message RequestReleaseApprovalRequest {
