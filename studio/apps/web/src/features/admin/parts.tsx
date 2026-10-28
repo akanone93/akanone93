@@ -105,7 +105,7 @@ export function Table({
     return <p className="text-body text-secondary">{empty}</p>;
   }
   return (
-    <table className="w-full text-left text-body">
+    <table className="w-full text-start text-body">
       <caption className="sr-only">{caption}</caption>
       <thead>
         <tr>

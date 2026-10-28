@@ -6,6 +6,7 @@
 import * as monaco from "monaco-editor/editor/editor.api.js";
 import "monaco-editor/languages/definitions/rust/register.js";
 import { useEffect, useRef } from "react";
+import { isDark } from "../../lib/color-scheme.ts";
 import type { EditorMarker } from "../json-editor/monaco-view.types.ts";
 import type { CompletionItem, MarkupContent } from "./lsp-client.ts";
 import { hoverTexts, markupText, toLspPosition, toMonacoRange } from "./lsp-convert.ts";
@@ -56,7 +57,7 @@ const kinds = (() => {
   ];
 })();
 
-const dark = (): boolean => globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches === true;
+const dark = isDark;
 
 /** `{ documentation }` for a present markup, nothing otherwise (the property may not be set to undefined). */
 const documentation = (content: MarkupContent | undefined) =>
