@@ -77,6 +77,8 @@ import {
 
 export const orgA = "0192f000-0000-7000-8000-00000000000a";
 export const orgB = "0192f000-0000-7000-8000-00000000000b";
+/** The ID CreateOrganization gives the organisation it creates. */
+export const orgNew = "0192f000-0000-7000-8000-0000000000c0";
 
 /** The Devices and security area (STU-115): what the device, security and manifest RPCs return, and what they receive. */
 export interface SecurityData {
@@ -356,6 +358,18 @@ export interface UpstreamData {
   /** Collects the paths of DeleteDocument calls and of PutDocument calls that create (revision zero). */
   deletedDocuments?: string[];
   createdDocuments?: string[];
+  /**
+   * Creating organisations, apps and plugins (STU-015). The created ones are listed afterwards and, for an
+   * organisation, join the user's memberships. With this set, ListOrganizations returns only the user's memberships.
+   */
+  creation?: {
+    /** Every create the upstream received: `organisation:<key>:<name>`, `app:<organizationId>:<key>:<name>`, `plugin:<appId>:<key>:<name>`. */
+    calls: string[];
+    /** The apps ListApps returns before any is created. */
+    apps?: { id: string; key: string; name: string }[];
+    /** A create is refused with PermissionDenied and this message, by kind. */
+    refuse?: { organisation?: string; app?: string; plugin?: string };
+  };
   /** Collects plugin RPCs the app canvas sends, as `delete:<id>` and `archive:<id>`. */
   pluginCalls?: string[];
   /** The app's trash, and the ids restored from it. */
@@ -415,6 +429,16 @@ export function createUpstream(state: UpstreamData) {
   // Documents autosave changed, by path; the fixtures themselves stay as given.
   const patched = new Map<string, { kind: string; path: string; json: unknown }>();
   const stored = state.stored ?? { theme: "", language: "", density: "" };
+  // What the creation RPCs made, so the lists and the memberships show it afterwards.
+  const createdOrganisations: { id: string; key: string; name: string }[] = [];
+  const createdApps = [...(state.creation?.apps ?? [{ id: "app1", key: "shop", name: "Shop" }])];
+  const createdPlugins: NonNullable<UpstreamData["summaries"]> = [];
+  const refuse = (kind: "organisation" | "app" | "plugin") => {
+    const message = state.creation?.refuse?.[kind];
+    if (message !== undefined) {
+      throw new ConnectError(message, Code.PermissionDenied);
+    }
+  };
   return createRouterTransport(({ service }) => {
     const admin = state.admin ?? {};
     service(IdentityService, {
@@ -433,7 +457,7 @@ export function createUpstream(state: UpstreamData) {
         }
         return create(GetCurrentUserResponseSchema, {
           user: create(UserSchema, { id: "u1", displayName: "Ada", email: "ada@example.org" }),
-          memberships: (state.memberships ?? [orgA, orgB]).map((id) =>
+          memberships: [...(state.memberships ?? [orgA, orgB]), ...createdOrganisations.map((o) => o.id)].map((id) =>
             create(MemberSchema, { organizationId: id, userId: "u1" }),
           ),
           permissions: state.permissions ?? [],
@@ -444,12 +468,23 @@ export function createUpstream(state: UpstreamData) {
     });
     service(OrgService, {
       ...orgAdmin(admin),
-      listOrganizations: () => ({
-        organizations: [
-          create(OrganizationSchema, { id: orgA, key: "alpha", name: "Alpha Org" }),
-          create(OrganizationSchema, { id: orgB, key: "beta", name: "Beta Org" }),
-        ],
-      }),
+      createOrganization: (req) => {
+        state.creation?.calls.push(`organisation:${req.key}:${req.name}`);
+        refuse("organisation");
+        const organization = { id: orgNew, key: req.key, name: req.name };
+        createdOrganisations.push(organization);
+        return { organization };
+      },
+      listOrganizations: () => {
+        const member = new Set([...(state.memberships ?? [orgA, orgB]), ...createdOrganisations.map((o) => o.id)]);
+        return {
+          organizations: [
+            create(OrganizationSchema, { id: orgA, key: "alpha", name: "Alpha Org" }),
+            create(OrganizationSchema, { id: orgB, key: "beta", name: "Beta Org" }),
+            ...createdOrganisations.map((o) => create(OrganizationSchema, o)),
+          ].filter((o) => state.creation === undefined || member.has(o.id)),
+        };
+      },
     });
     service(PreferencesService, {
       getPreferences: () => ({ preferences: create(PreferencesSchema, stored) }),
@@ -501,7 +536,14 @@ export function createUpstream(state: UpstreamData) {
           },
         ],
       }),
-      listApps: () => ({ apps: [{ id: "app1", key: "shop", name: "Shop" }] }),
+      createApp: (req) => {
+        state.creation?.calls.push(`app:${req.organizationId}:${req.key}:${req.name}`);
+        refuse("app");
+        const app = { id: `app-${req.key}`, key: req.key, name: req.name };
+        createdApps.push(app);
+        return { app: { ...app, organizationId: req.organizationId, defaultPluginKey: "", hostFonts: [] } };
+      },
+      listApps: () => ({ apps: createdApps }),
       listTrash: () => ({ items: state.trash ?? [] }),
       restoreFromTrash: (req) => {
         state.restored?.push(req.id);
@@ -567,8 +609,15 @@ export function createUpstream(state: UpstreamData) {
       },
     });
     service(PluginService, {
+      createPlugin: (req) => {
+        state.creation?.calls.push(`plugin:${req.appId}:${req.key}:${req.name}`);
+        refuse("plugin");
+        const plugin = { id: `plugin-${req.key}`, key: req.key, name: req.name };
+        createdPlugins.push(plugin);
+        return { plugin: create(PluginSchema, plugin) };
+      },
       listPluginSummaries: () => ({
-        summaries: (state.summaries ?? []).map((p) => ({
+        summaries: [...(state.summaries ?? []), ...createdPlugins].map((p) => ({
           plugin: { id: p.id, key: p.key, name: p.name, latestVersion: BigInt(p.latestVersion ?? 0) },
           bundleSize: BigInt(p.bundleSize ?? 0),
           screens: BigInt(p.screens ?? 0),
