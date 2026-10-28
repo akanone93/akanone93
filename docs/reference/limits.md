@@ -215,6 +215,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `telemetry.eventsPerRequest` | count | 500 | 80% | 5000 | installation, organization, app | P2 | SEC-104 | Runtime events one telemetry request may carry. |
 | `telemetry.exportBatchEvents` | count | 500 | 80% | 5000 | installation, organization | P9 | ANL-011 | Events one signed-webhook message of the enterprise analytics export carries. |
 | `telemetry.exportFileRows` | count | 100000 | 80% | 1000000 | installation, organization | P9 | ANL-011 | Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files. |
+| `test.stepsPerRun` | count | 5000 | 80% | 100000 | installation, organization, app | P11 | TST-002 | Scenarios and steps one reported Plux Test run may contain. |
 | `translation.importSize` | bytes | 16777216 | 80% | 134217728 | installation, organization, app | P8 | I18N-009 | Size of one translation import file. |
 | `translation.messageSize` | bytes | 4096 | 80% | 65536 | installation, organization, app | P8 | I18N-001 | Size of one translation message. |
 | `updateMetadata.bytes` | bytes | 1048576 | 80% | 4194304 | installation | P6 | SEC-050 | Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves. |

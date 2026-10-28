@@ -534,6 +534,8 @@ enum PluxLimit {
   /// Rows one Parquet file of the enterprise analytics export holds; a longer
   /// window is written as several files.
   telemetryExportFileRows('telemetry.exportFileRows', PluxLimitUnit.count, 100000, 0, 1000000),
+  /// Scenarios and steps one reported Plux Test run may contain.
+  testStepsPerRun('test.stepsPerRun', PluxLimitUnit.count, 5000, 0, 100000),
   /// Size of one translation import file.
   translationImportSize('translation.importSize', PluxLimitUnit.bytes, 16777216, 0, 134217728),
   /// Size of one translation message.

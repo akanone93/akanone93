@@ -574,6 +574,17 @@ var matrix = map[string]entry{
 		return &pluxv1.GetRunStatusRequest{AppId: f.app}
 	})),
 
+	// TestRunService
+	"TestRunService/ReportRun": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ReportRunRequest{AppId: f.app}
+	})),
+	"TestRunService/ListRuns": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListRunsRequest{AppId: f.app}
+	})),
+	"TestRunService/GetRun": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetRunRequest{AppId: f.app, RunId: unknownID}
+	})),
+
 	// ReleaseRequestService
 	"ReleaseRequestService/CreateReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.CreateReleaseRequestRequest{AppId: f.app, EnvironmentId: f.dev, Plugins: []*pluxv1.SelectedPlugin{{PluginKey: "unknown", Reason: "changed"}}}
