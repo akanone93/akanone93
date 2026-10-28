@@ -87,6 +87,21 @@ const (
 	// AnalyticsServiceGetErrorGroupProcedure is the fully-qualified name of the AnalyticsService's
 	// GetErrorGroup RPC.
 	AnalyticsServiceGetErrorGroupProcedure = "/plux.v1.AnalyticsService/GetErrorGroup"
+	// AnalyticsServiceCreateFunnelProcedure is the fully-qualified name of the AnalyticsService's
+	// CreateFunnel RPC.
+	AnalyticsServiceCreateFunnelProcedure = "/plux.v1.AnalyticsService/CreateFunnel"
+	// AnalyticsServiceDeleteFunnelProcedure is the fully-qualified name of the AnalyticsService's
+	// DeleteFunnel RPC.
+	AnalyticsServiceDeleteFunnelProcedure = "/plux.v1.AnalyticsService/DeleteFunnel"
+	// AnalyticsServiceListFunnelsProcedure is the fully-qualified name of the AnalyticsService's
+	// ListFunnels RPC.
+	AnalyticsServiceListFunnelsProcedure = "/plux.v1.AnalyticsService/ListFunnels"
+	// AnalyticsServiceGetFunnelResultProcedure is the fully-qualified name of the AnalyticsService's
+	// GetFunnelResult RPC.
+	AnalyticsServiceGetFunnelResultProcedure = "/plux.v1.AnalyticsService/GetFunnelResult"
+	// AnalyticsServiceGetOverviewProcedure is the fully-qualified name of the AnalyticsService's
+	// GetOverview RPC.
+	AnalyticsServiceGetOverviewProcedure = "/plux.v1.AnalyticsService/GetOverview"
 )
 
 // AnalyticsServiceClient is a client for the plux.v1.AnalyticsService service.
@@ -146,6 +161,22 @@ type AnalyticsServiceClient interface {
 	// read symbolicates it through the release's retained source map
 	// (CMP-041). It needs analytics.read.
 	GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error)
+	// CreateFunnel defines a funnel of an app: an ordered list of event names
+	// (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
+	CreateFunnel(context.Context, *connect.Request[pluxv1.CreateFunnelRequest]) (*connect.Response[pluxv1.CreateFunnelResponse], error)
+	// DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
+	// audited.
+	DeleteFunnel(context.Context, *connect.Request[pluxv1.DeleteFunnelRequest]) (*connect.Response[pluxv1.DeleteFunnelResponse], error)
+	// ListFunnels lists the funnels of an app, or of the organisation. It
+	// needs analytics.read.
+	ListFunnels(context.Context, *connect.Request[pluxv1.ListFunnelsRequest]) (*connect.Response[pluxv1.ListFunnelsResponse], error)
+	// GetFunnelResult counts the events of each step of a funnel over a time
+	// range, from the rollups. It needs analytics.read on the app.
+	GetFunnelResult(context.Context, *connect.Request[pluxv1.GetFunnelResultRequest]) (*connect.Response[pluxv1.GetFunnelResultResponse], error)
+	// GetOverview summarises every app the caller may read analytics of over a
+	// time range: sessions, screen views, errors and firing alerts. It needs
+	// analytics.read.
+	GetOverview(context.Context, *connect.Request[pluxv1.GetOverviewRequest]) (*connect.Response[pluxv1.GetOverviewResponse], error)
 }
 
 // NewAnalyticsServiceClient constructs a client for the plux.v1.AnalyticsService service. By
@@ -261,6 +292,36 @@ func NewAnalyticsServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(analyticsServiceMethods.ByName("GetErrorGroup")),
 			connect.WithClientOptions(opts...),
 		),
+		createFunnel: connect.NewClient[pluxv1.CreateFunnelRequest, pluxv1.CreateFunnelResponse](
+			httpClient,
+			baseURL+AnalyticsServiceCreateFunnelProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("CreateFunnel")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteFunnel: connect.NewClient[pluxv1.DeleteFunnelRequest, pluxv1.DeleteFunnelResponse](
+			httpClient,
+			baseURL+AnalyticsServiceDeleteFunnelProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("DeleteFunnel")),
+			connect.WithClientOptions(opts...),
+		),
+		listFunnels: connect.NewClient[pluxv1.ListFunnelsRequest, pluxv1.ListFunnelsResponse](
+			httpClient,
+			baseURL+AnalyticsServiceListFunnelsProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("ListFunnels")),
+			connect.WithClientOptions(opts...),
+		),
+		getFunnelResult: connect.NewClient[pluxv1.GetFunnelResultRequest, pluxv1.GetFunnelResultResponse](
+			httpClient,
+			baseURL+AnalyticsServiceGetFunnelResultProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("GetFunnelResult")),
+			connect.WithClientOptions(opts...),
+		),
+		getOverview: connect.NewClient[pluxv1.GetOverviewRequest, pluxv1.GetOverviewResponse](
+			httpClient,
+			baseURL+AnalyticsServiceGetOverviewProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("GetOverview")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -283,6 +344,11 @@ type analyticsServiceClient struct {
 	listAlertStates       *connect.Client[pluxv1.ListAlertStatesRequest, pluxv1.ListAlertStatesResponse]
 	listErrorGroups       *connect.Client[pluxv1.ListErrorGroupsRequest, pluxv1.ListErrorGroupsResponse]
 	getErrorGroup         *connect.Client[pluxv1.GetErrorGroupRequest, pluxv1.GetErrorGroupResponse]
+	createFunnel          *connect.Client[pluxv1.CreateFunnelRequest, pluxv1.CreateFunnelResponse]
+	deleteFunnel          *connect.Client[pluxv1.DeleteFunnelRequest, pluxv1.DeleteFunnelResponse]
+	listFunnels           *connect.Client[pluxv1.ListFunnelsRequest, pluxv1.ListFunnelsResponse]
+	getFunnelResult       *connect.Client[pluxv1.GetFunnelResultRequest, pluxv1.GetFunnelResultResponse]
+	getOverview           *connect.Client[pluxv1.GetOverviewRequest, pluxv1.GetOverviewResponse]
 }
 
 // QueryRollups calls plux.v1.AnalyticsService.QueryRollups.
@@ -370,6 +436,31 @@ func (c *analyticsServiceClient) GetErrorGroup(ctx context.Context, req *connect
 	return c.getErrorGroup.CallUnary(ctx, req)
 }
 
+// CreateFunnel calls plux.v1.AnalyticsService.CreateFunnel.
+func (c *analyticsServiceClient) CreateFunnel(ctx context.Context, req *connect.Request[pluxv1.CreateFunnelRequest]) (*connect.Response[pluxv1.CreateFunnelResponse], error) {
+	return c.createFunnel.CallUnary(ctx, req)
+}
+
+// DeleteFunnel calls plux.v1.AnalyticsService.DeleteFunnel.
+func (c *analyticsServiceClient) DeleteFunnel(ctx context.Context, req *connect.Request[pluxv1.DeleteFunnelRequest]) (*connect.Response[pluxv1.DeleteFunnelResponse], error) {
+	return c.deleteFunnel.CallUnary(ctx, req)
+}
+
+// ListFunnels calls plux.v1.AnalyticsService.ListFunnels.
+func (c *analyticsServiceClient) ListFunnels(ctx context.Context, req *connect.Request[pluxv1.ListFunnelsRequest]) (*connect.Response[pluxv1.ListFunnelsResponse], error) {
+	return c.listFunnels.CallUnary(ctx, req)
+}
+
+// GetFunnelResult calls plux.v1.AnalyticsService.GetFunnelResult.
+func (c *analyticsServiceClient) GetFunnelResult(ctx context.Context, req *connect.Request[pluxv1.GetFunnelResultRequest]) (*connect.Response[pluxv1.GetFunnelResultResponse], error) {
+	return c.getFunnelResult.CallUnary(ctx, req)
+}
+
+// GetOverview calls plux.v1.AnalyticsService.GetOverview.
+func (c *analyticsServiceClient) GetOverview(ctx context.Context, req *connect.Request[pluxv1.GetOverviewRequest]) (*connect.Response[pluxv1.GetOverviewResponse], error) {
+	return c.getOverview.CallUnary(ctx, req)
+}
+
 // AnalyticsServiceHandler is an implementation of the plux.v1.AnalyticsService service.
 type AnalyticsServiceHandler interface {
 	// QueryRollups reads one event name's rollups of an app over a time range,
@@ -427,6 +518,22 @@ type AnalyticsServiceHandler interface {
 	// read symbolicates it through the release's retained source map
 	// (CMP-041). It needs analytics.read.
 	GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error)
+	// CreateFunnel defines a funnel of an app: an ordered list of event names
+	// (ANL-020, STU-114). It needs analytics.manage on the app and is audited.
+	CreateFunnel(context.Context, *connect.Request[pluxv1.CreateFunnelRequest]) (*connect.Response[pluxv1.CreateFunnelResponse], error)
+	// DeleteFunnel removes a funnel. It needs analytics.manage on the app and is
+	// audited.
+	DeleteFunnel(context.Context, *connect.Request[pluxv1.DeleteFunnelRequest]) (*connect.Response[pluxv1.DeleteFunnelResponse], error)
+	// ListFunnels lists the funnels of an app, or of the organisation. It
+	// needs analytics.read.
+	ListFunnels(context.Context, *connect.Request[pluxv1.ListFunnelsRequest]) (*connect.Response[pluxv1.ListFunnelsResponse], error)
+	// GetFunnelResult counts the events of each step of a funnel over a time
+	// range, from the rollups. It needs analytics.read on the app.
+	GetFunnelResult(context.Context, *connect.Request[pluxv1.GetFunnelResultRequest]) (*connect.Response[pluxv1.GetFunnelResultResponse], error)
+	// GetOverview summarises every app the caller may read analytics of over a
+	// time range: sessions, screen views, errors and firing alerts. It needs
+	// analytics.read.
+	GetOverview(context.Context, *connect.Request[pluxv1.GetOverviewRequest]) (*connect.Response[pluxv1.GetOverviewResponse], error)
 }
 
 // NewAnalyticsServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -538,6 +645,36 @@ func NewAnalyticsServiceHandler(svc AnalyticsServiceHandler, opts ...connect.Han
 		connect.WithSchema(analyticsServiceMethods.ByName("GetErrorGroup")),
 		connect.WithHandlerOptions(opts...),
 	)
+	analyticsServiceCreateFunnelHandler := connect.NewUnaryHandler(
+		AnalyticsServiceCreateFunnelProcedure,
+		svc.CreateFunnel,
+		connect.WithSchema(analyticsServiceMethods.ByName("CreateFunnel")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceDeleteFunnelHandler := connect.NewUnaryHandler(
+		AnalyticsServiceDeleteFunnelProcedure,
+		svc.DeleteFunnel,
+		connect.WithSchema(analyticsServiceMethods.ByName("DeleteFunnel")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceListFunnelsHandler := connect.NewUnaryHandler(
+		AnalyticsServiceListFunnelsProcedure,
+		svc.ListFunnels,
+		connect.WithSchema(analyticsServiceMethods.ByName("ListFunnels")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceGetFunnelResultHandler := connect.NewUnaryHandler(
+		AnalyticsServiceGetFunnelResultProcedure,
+		svc.GetFunnelResult,
+		connect.WithSchema(analyticsServiceMethods.ByName("GetFunnelResult")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceGetOverviewHandler := connect.NewUnaryHandler(
+		AnalyticsServiceGetOverviewProcedure,
+		svc.GetOverview,
+		connect.WithSchema(analyticsServiceMethods.ByName("GetOverview")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.AnalyticsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AnalyticsServiceQueryRollupsProcedure:
@@ -574,6 +711,16 @@ func NewAnalyticsServiceHandler(svc AnalyticsServiceHandler, opts ...connect.Han
 			analyticsServiceListErrorGroupsHandler.ServeHTTP(w, r)
 		case AnalyticsServiceGetErrorGroupProcedure:
 			analyticsServiceGetErrorGroupHandler.ServeHTTP(w, r)
+		case AnalyticsServiceCreateFunnelProcedure:
+			analyticsServiceCreateFunnelHandler.ServeHTTP(w, r)
+		case AnalyticsServiceDeleteFunnelProcedure:
+			analyticsServiceDeleteFunnelHandler.ServeHTTP(w, r)
+		case AnalyticsServiceListFunnelsProcedure:
+			analyticsServiceListFunnelsHandler.ServeHTTP(w, r)
+		case AnalyticsServiceGetFunnelResultProcedure:
+			analyticsServiceGetFunnelResultHandler.ServeHTTP(w, r)
+		case AnalyticsServiceGetOverviewProcedure:
+			analyticsServiceGetOverviewHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -649,4 +796,24 @@ func (UnimplementedAnalyticsServiceHandler) ListErrorGroups(context.Context, *co
 
 func (UnimplementedAnalyticsServiceHandler) GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.GetErrorGroup is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) CreateFunnel(context.Context, *connect.Request[pluxv1.CreateFunnelRequest]) (*connect.Response[pluxv1.CreateFunnelResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.CreateFunnel is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) DeleteFunnel(context.Context, *connect.Request[pluxv1.DeleteFunnelRequest]) (*connect.Response[pluxv1.DeleteFunnelResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.DeleteFunnel is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) ListFunnels(context.Context, *connect.Request[pluxv1.ListFunnelsRequest]) (*connect.Response[pluxv1.ListFunnelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.ListFunnels is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) GetFunnelResult(context.Context, *connect.Request[pluxv1.GetFunnelResultRequest]) (*connect.Response[pluxv1.GetFunnelResultResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.GetFunnelResult is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) GetOverview(context.Context, *connect.Request[pluxv1.GetOverviewRequest]) (*connect.Response[pluxv1.GetOverviewResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.GetOverview is not implemented"))
 }

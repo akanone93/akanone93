@@ -281,6 +281,12 @@ func (f *matrixFixture) freshAlertRule(t *testing.T) *pluxv1.AlertRule {
 	return must(f.w.analytics.CreateAlertRule(context.Background(), req(f.owner(), &pluxv1.CreateAlertRuleRequest{Rule: rule})))(t).GetRule()
 }
 
+func (f *matrixFixture) freshFunnel(t *testing.T) *pluxv1.Funnel {
+	t.Helper()
+	fn := &pluxv1.Funnel{AppId: f.app, Name: f.name(), Steps: []string{"screen_view", "action_run"}}
+	return must(f.w.analytics.CreateFunnel(context.Background(), req(f.owner(), &pluxv1.CreateFunnelRequest{Funnel: fn})))(t).GetFunnel()
+}
+
 // errorGroup records one error event, which is delivered once however often
 // this runs, and returns the group it falls into.
 func (f *matrixFixture) errorGroup(t *testing.T) string {

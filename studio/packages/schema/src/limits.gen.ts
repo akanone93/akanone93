@@ -104,6 +104,16 @@ export const limits = [
     description: "Steps one action run trace records; later steps are counted but not recorded.",
   },
   {
+    key: "analytics.funnelSteps",
+    unit: "count",
+    default: 10,
+    warning: 0,
+    max: 20,
+    scopes: ["installation", "organization"],
+    phase: "P11",
+    description: "Steps one funnel may have.",
+  },
+  {
     key: "anim.compositedSubtree",
     unit: "count",
     default: 40,

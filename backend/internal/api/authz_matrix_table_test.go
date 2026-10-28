@@ -372,6 +372,21 @@ var matrix = map[string]entry{
 	"AnalyticsService/DeleteAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteAlertRuleRequest{Id: f.freshAlertRule(t).GetId()}
 	}),
+	"AnalyticsService/CreateFunnel": atPerm(auth.AnalyticsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateFunnelRequest{Funnel: &pluxv1.Funnel{AppId: f.app, Name: f.name(), Steps: []string{"screen_view", "action_run"}}}
+	}),
+	"AnalyticsService/DeleteFunnel": atPerm(auth.AnalyticsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteFunnelRequest{Id: f.freshFunnel(t).GetId()}
+	}),
+	"AnalyticsService/ListFunnels": atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListFunnelsRequest{})),
+	"AnalyticsService/GetFunnelResult": atPerm(auth.AnalyticsRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		now := timestamppb.Now()
+		return &pluxv1.GetFunnelResultRequest{Id: f.freshFunnel(t).GetId(), From: timestamppb.New(now.AsTime().Add(-48 * time.Hour)), To: now}
+	}),
+	"AnalyticsService/GetOverview": atPerm(auth.AnalyticsRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		now := timestamppb.Now()
+		return &pluxv1.GetOverviewRequest{From: timestamppb.New(now.AsTime().Add(-48 * time.Hour)), To: now}
+	}),
 	"AnalyticsService/ListAlertRules":  atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertRulesRequest{})),
 	"AnalyticsService/ListAlertStates": atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertStatesRequest{})),
 	"AnalyticsService/ListErrorGroups": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
