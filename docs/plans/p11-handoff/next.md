@@ -8,6 +8,9 @@ SPDX-License-Identifier: Apache-2.0
 Models per [agent-rules.md](agent-rules.md); at most three agents at once. Briefs are in
 [briefs/](briefs/) and can be launched unchanged (create the worktree first, as each brief says).
 
+0. **Lead: run the full gate first** (`docs/plans/p11-handoff/scripts/gate.sh`, background, idle
+   machine): the last commits of session 2 were not gated ([verification.md](verification.md)).
+   Fix what it finds before launching agents.
 1. **Finish the S8.1 wizard (Sonnet).** Launch [briefs/s81-wizard-finish.md](briefs/s81-wizard-finish.md)
    on the pushed work-in-progress branch `p11/g-wizard`. STU-015, STU-024, GEN-004.
 2. **App usage and publisher (Sonnet), in parallel.** Launch [briefs/s81-usage.md](briefs/s81-usage.md)

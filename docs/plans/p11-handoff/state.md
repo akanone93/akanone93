@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
 
 | Branch | State |
 |---|---|
-| `feat/phase-11` | All merged work, pushed with this package. The full gate passed on it before the push (see [verification.md](verification.md)). |
+| `feat/phase-11` | All merged work, pushed with this package. The last commits were **not** through the full gate (stopped at the hand-off); run it first ([verification.md](verification.md)). |
 | `p11/g-wizard` | **Work in progress, pushed, not merged, not reviewed.** S8.1 web part 2: new-app wizard (`studio/apps/web/src/features/new-app/`: blank, template, `.plux` import, locales, theme, profile), onboarding checklist and sample apps (`features/onboarding/`), shell settings (`features/shell-settings/`), route and fixture changes (`router.tsx`, `test-upstream.ts`, `test-projects.ts`), catalogues. Its agent was stopped by the maintainer: shell settings has no tests, no done-check ran. Based on `feat/phase-11` before the apps grid merge: expect conflicts in `features/home/` and the `.po` catalogues. Finish with [briefs/s81-wizard-finish.md](briefs/s81-wizard-finish.md). |
 | `p11/s13-gap`, `p11/s13-tiles` (remote) | Old canvas experiments, deliberately not merged. Leave them. |
 | `handoff/p11-session2` (remote) | The session 1 package; already merged. |
