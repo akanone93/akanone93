@@ -161,7 +161,7 @@ describe("STU-111 A13 localisation grid", () => {
     expect(within(table).getAllByText("Screenshot: home").length).toBe(2);
     expect(within(table).getByText("Missing")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Search keys and texts"), { target: { value: "willkommen" } });
-    await waitFor(() => expect(within(table).queryByText("home.cta")).toBeNull());
+    await waitFor(() => expect(within(table).queryByText("home.cta") === null).toBe(true));
     expect(within(table).getByText("home.title")).toBeTruthy();
   });
 
