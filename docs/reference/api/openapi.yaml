@@ -13100,6 +13100,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetReleaseRequestResponse'
+  /plux.v1.ReleaseRequestService/GetVisualDiffImage:
+    post:
+      tags:
+        - plux.v1.ReleaseRequestService
+      summary: GetVisualDiffImage
+      description: |-
+        GetVisualDiffImage returns one rendered PNG of the request's current
+         visual diff by its SHA-256, for the thumbnails of the diffs step. The
+         image must be part of that diff, so a hash of another request, app or
+         organisation is not found. It needs plugin.read.
+      operationId: plux.v1.ReleaseRequestService.GetVisualDiffImage
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetVisualDiffImageRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetVisualDiffImageResponse'
   /plux.v1.ReleaseRequestService/ListReleaseRequests:
     post:
       tags:
@@ -25256,6 +25299,31 @@ components:
             - $ref: '#/components/schemas/plux.v1.UserIdentityProvider'
           title: provider
       title: GetUserIdentityProviderResponse
+      additionalProperties: false
+    plux.v1.GetVisualDiffImageRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        id:
+          type: string
+          title: id
+        sha256:
+          type: string
+          title: sha256
+          description: sha256 is the hash of the image in hex, as a VisualDiffScreen names it.
+      title: GetVisualDiffImageRequest
+      additionalProperties: false
+    plux.v1.GetVisualDiffImageResponse:
+      type: object
+      properties:
+        png:
+          type: string
+          title: png
+          format: byte
+          description: png is the image, at most golden.imageBytes.
+      title: GetVisualDiffImageResponse
       additionalProperties: false
     plux.v1.GitExport:
       type: object

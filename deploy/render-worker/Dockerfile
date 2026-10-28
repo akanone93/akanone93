@@ -12,6 +12,12 @@
 # unprivileged user, and the Flutter SDK and every package are fetched at
 # build time, so a render needs no network.
 #
+# The process is `plux render-worker serve`: it answers the server's worker
+# role over mutual TLS (renderWorker.address) with the projects before and
+# after a release request in the call, and returns the screens whose image
+# changed. The internal CA, certificate and key are mounted under
+# /etc/plux/internal (ca.crt, tls.crt, tls.key).
+#
 # Build from the repository root, with the SDK archive's digest from the
 # release pipeline (the Makefile's FLUTTER_VERSION is the pin):
 #
@@ -39,7 +45,8 @@ RUN curl --fail --silent --show-error --location --output /tmp/flutter.tar.xz \
       "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" \
  && echo "${FLUTTER_SHA256}  /tmp/flutter.tar.xz" | sha256sum --check --strict - \
  && mkdir -p /opt && tar -xJf /tmp/flutter.tar.xz -C /opt && rm /tmp/flutter.tar.xz
-ENV PATH=/opt/flutter/bin:$PATH
+ENV PATH=/opt/flutter/bin:$PATH \
+    PUB_CACHE=/opt/pub-cache
 RUN git config --global --add safe.directory /opt/flutter \
  && flutter config --no-analytics --no-cli-animations \
  && flutter precache --no-android --no-ios --no-web --no-macos --no-windows --no-fuchsia --linux
@@ -58,11 +65,15 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && useradd --uid 65532 --user-group --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin nonroot \
  && install -d -o 65532 -g 65532 -m 0700 /var/lib/plux/render
-COPY --from=flutter /opt/flutter /opt/flutter
+# The SDK is owned by the unprivileged user: the Flutter tool writes its own
+# lock and stamp files below it.
+COPY --from=flutter --chown=65532:65532 /opt/flutter /opt/flutter
+COPY --from=flutter --chown=65532:65532 /opt/pub-cache /opt/pub-cache
 COPY --from=flutter /opt/plux/packages /opt/plux/packages
 COPY --from=plux /out/plux /usr/local/bin/plux
 COPY schema/goldens/ /opt/plux/schema/goldens/
 ENV PATH=/opt/flutter/bin:$PATH \
+    PUB_CACHE=/opt/pub-cache \
     FLUTTER_SUPPRESS_ANALYTICS=true \
     PUB_OFFLINE=true \
     HOME=/var/lib/plux/render
@@ -70,5 +81,9 @@ ENV PATH=/opt/flutter/bin:$PATH \
 # signing keys. The work directory is the only place the process writes.
 USER nonroot:nonroot
 WORKDIR /var/lib/plux/render
+EXPOSE 8443
 ENTRYPOINT ["/usr/local/bin/plux"]
-CMD ["golden", "run", "--help"]
+CMD ["render-worker", "serve", "--listen", ":8443", \
+     "--flutter", "/opt/flutter/bin/flutter", "--runtime", "/opt/plux/packages/plux_flutter", \
+     "--fonts", "/opt/plux/schema/goldens/fonts", "--work", "/var/lib/plux/render", \
+     "--ca", "/etc/plux/internal/ca.crt", "--cert", "/etc/plux/internal/tls.crt", "--key", "/etc/plux/internal/tls.key"]

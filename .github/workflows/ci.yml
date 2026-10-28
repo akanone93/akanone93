@@ -745,6 +745,15 @@ jobs:
           key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
           restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
       # Verifies: DEP-002.
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      # The Studio image takes the pinned CanvasKit from this SDK (make studio-image-inputs).
+      - run: flutter precache --web
       - name: Build and start the single-node stack
         run: make compose-up
       - name: The server answers ready
@@ -785,6 +794,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      # The Studio image takes the pinned CanvasKit from this SDK (make studio-image-inputs).
+      - run: flutter precache --web
       - name: Build and start the single-node stack
         run: make compose-up
       # Verifies: QA-008.
@@ -2235,6 +2253,12 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      # The Studio image takes the pinned CanvasKit from this SDK (make studio-image-inputs).
+      - run: flutter precache --web
       - name: Build and start the single-node stack, Studio included
         run: make compose-up
       - name: Run the end-to-end tests
@@ -2285,6 +2309,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      # The Studio image takes the pinned CanvasKit from this SDK (make studio-image-inputs).
+      - run: flutter precache --web
       - name: Build and start the single-node stack
         run: make compose-up
       # Verifies: QA-008.
@@ -2314,6 +2347,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      # The Studio image takes the pinned CanvasKit from this SDK (make studio-image-inputs).
+      - run: flutter precache --web
       - name: Create a BuildKit builder (the OCI exporter and rewrite-timestamp need it)
         run: docker buildx create --use --driver docker-container
       # Verifies: CI-006.

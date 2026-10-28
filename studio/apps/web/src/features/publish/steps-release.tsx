@@ -53,7 +53,7 @@ export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds 
                 {s.beforeSha256 === "" ? m.diffNew : s.changed ? m.diffChanged : m.diffSame}
               </span>
             </div>
-            <ScreenTiles screen={s} />
+            <ScreenTiles screen={s} appId={request.appId} requestId={request.id} />
           </li>
         ))}
       </ul>

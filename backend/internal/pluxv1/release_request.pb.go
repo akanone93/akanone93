@@ -1686,6 +1686,112 @@ func (x *RequestVisualDiffResponse) GetJob() *VisualDiffJob {
 	return nil
 }
 
+type GetVisualDiffImageRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Id    string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// sha256 is the hash of the image in hex, as a VisualDiffScreen names it.
+	Sha256        string `protobuf:"bytes,3,opt,name=sha256,proto3" json:"sha256,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVisualDiffImageRequest) Reset() {
+	*x = GetVisualDiffImageRequest{}
+	mi := &file_plux_v1_release_request_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVisualDiffImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVisualDiffImageRequest) ProtoMessage() {}
+
+func (x *GetVisualDiffImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_release_request_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVisualDiffImageRequest.ProtoReflect.Descriptor instead.
+func (*GetVisualDiffImageRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetVisualDiffImageRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetVisualDiffImageRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetVisualDiffImageRequest) GetSha256() string {
+	if x != nil {
+		return x.Sha256
+	}
+	return ""
+}
+
+type GetVisualDiffImageResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// png is the image, at most golden.imageBytes.
+	Png           []byte `protobuf:"bytes,1,opt,name=png,proto3" json:"png,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVisualDiffImageResponse) Reset() {
+	*x = GetVisualDiffImageResponse{}
+	mi := &file_plux_v1_release_request_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVisualDiffImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVisualDiffImageResponse) ProtoMessage() {}
+
+func (x *GetVisualDiffImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_release_request_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVisualDiffImageResponse.ProtoReflect.Descriptor instead.
+func (*GetVisualDiffImageResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *GetVisualDiffImageResponse) GetPng() []byte {
+	if x != nil {
+		return x.Png
+	}
+	return nil
+}
+
 type RequestReleaseApprovalRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
@@ -1696,7 +1802,7 @@ type RequestReleaseApprovalRequest struct {
 
 func (x *RequestReleaseApprovalRequest) Reset() {
 	*x = RequestReleaseApprovalRequest{}
-	mi := &file_plux_v1_release_request_proto_msgTypes[24]
+	mi := &file_plux_v1_release_request_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1708,7 +1814,7 @@ func (x *RequestReleaseApprovalRequest) String() string {
 func (*RequestReleaseApprovalRequest) ProtoMessage() {}
 
 func (x *RequestReleaseApprovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_request_proto_msgTypes[24]
+	mi := &file_plux_v1_release_request_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1721,7 +1827,7 @@ func (x *RequestReleaseApprovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestReleaseApprovalRequest.ProtoReflect.Descriptor instead.
 func (*RequestReleaseApprovalRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *RequestReleaseApprovalRequest) GetAppId() string {
@@ -1747,7 +1853,7 @@ type RequestReleaseApprovalResponse struct {
 
 func (x *RequestReleaseApprovalResponse) Reset() {
 	*x = RequestReleaseApprovalResponse{}
-	mi := &file_plux_v1_release_request_proto_msgTypes[25]
+	mi := &file_plux_v1_release_request_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1759,7 +1865,7 @@ func (x *RequestReleaseApprovalResponse) String() string {
 func (*RequestReleaseApprovalResponse) ProtoMessage() {}
 
 func (x *RequestReleaseApprovalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_request_proto_msgTypes[25]
+	mi := &file_plux_v1_release_request_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1772,7 +1878,7 @@ func (x *RequestReleaseApprovalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestReleaseApprovalResponse.ProtoReflect.Descriptor instead.
 func (*RequestReleaseApprovalResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *RequestReleaseApprovalResponse) GetRequest() *ReleaseRequest {
@@ -1792,7 +1898,7 @@ type CompleteReleaseRequestRequest struct {
 
 func (x *CompleteReleaseRequestRequest) Reset() {
 	*x = CompleteReleaseRequestRequest{}
-	mi := &file_plux_v1_release_request_proto_msgTypes[26]
+	mi := &file_plux_v1_release_request_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1804,7 +1910,7 @@ func (x *CompleteReleaseRequestRequest) String() string {
 func (*CompleteReleaseRequestRequest) ProtoMessage() {}
 
 func (x *CompleteReleaseRequestRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_request_proto_msgTypes[26]
+	mi := &file_plux_v1_release_request_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1817,7 +1923,7 @@ func (x *CompleteReleaseRequestRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompleteReleaseRequestRequest.ProtoReflect.Descriptor instead.
 func (*CompleteReleaseRequestRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CompleteReleaseRequestRequest) GetAppId() string {
@@ -1843,7 +1949,7 @@ type CompleteReleaseRequestResponse struct {
 
 func (x *CompleteReleaseRequestResponse) Reset() {
 	*x = CompleteReleaseRequestResponse{}
-	mi := &file_plux_v1_release_request_proto_msgTypes[27]
+	mi := &file_plux_v1_release_request_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1855,7 +1961,7 @@ func (x *CompleteReleaseRequestResponse) String() string {
 func (*CompleteReleaseRequestResponse) ProtoMessage() {}
 
 func (x *CompleteReleaseRequestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_request_proto_msgTypes[27]
+	mi := &file_plux_v1_release_request_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1868,7 +1974,7 @@ func (x *CompleteReleaseRequestResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompleteReleaseRequestResponse.ProtoReflect.Descriptor instead.
 func (*CompleteReleaseRequestResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *CompleteReleaseRequestResponse) GetRequest() *ReleaseRequest {
@@ -1888,7 +1994,7 @@ type CancelReleaseRequestRequest struct {
 
 func (x *CancelReleaseRequestRequest) Reset() {
 	*x = CancelReleaseRequestRequest{}
-	mi := &file_plux_v1_release_request_proto_msgTypes[28]
+	mi := &file_plux_v1_release_request_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1900,7 +2006,7 @@ func (x *CancelReleaseRequestRequest) String() string {
 func (*CancelReleaseRequestRequest) ProtoMessage() {}
 
 func (x *CancelReleaseRequestRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_request_proto_msgTypes[28]
+	mi := &file_plux_v1_release_request_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1913,7 +2019,7 @@ func (x *CancelReleaseRequestRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelReleaseRequestRequest.ProtoReflect.Descriptor instead.
 func (*CancelReleaseRequestRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *CancelReleaseRequestRequest) GetAppId() string {
@@ -1939,7 +2045,7 @@ type CancelReleaseRequestResponse struct {
 
 func (x *CancelReleaseRequestResponse) Reset() {
 	*x = CancelReleaseRequestResponse{}
-	mi := &file_plux_v1_release_request_proto_msgTypes[29]
+	mi := &file_plux_v1_release_request_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1951,7 +2057,7 @@ func (x *CancelReleaseRequestResponse) String() string {
 func (*CancelReleaseRequestResponse) ProtoMessage() {}
 
 func (x *CancelReleaseRequestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_request_proto_msgTypes[29]
+	mi := &file_plux_v1_release_request_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1964,7 +2070,7 @@ func (x *CancelReleaseRequestResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelReleaseRequestResponse.ProtoReflect.Descriptor instead.
 func (*CancelReleaseRequestResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{29}
+	return file_plux_v1_release_request_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *CancelReleaseRequestResponse) GetRequest() *ReleaseRequest {
@@ -2104,7 +2210,13 @@ const file_plux_v1_release_request_proto_rawDesc = "" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\"E\n" +
 	"\x19RequestVisualDiffResponse\x12(\n" +
-	"\x03job\x18\x01 \x01(\v2\x16.plux.v1.VisualDiffJobR\x03job\"F\n" +
+	"\x03job\x18\x01 \x01(\v2\x16.plux.v1.VisualDiffJobR\x03job\"Z\n" +
+	"\x19GetVisualDiffImageRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x16\n" +
+	"\x06sha256\x18\x03 \x01(\tR\x06sha256\".\n" +
+	"\x1aGetVisualDiffImageResponse\x12\x10\n" +
+	"\x03png\x18\x01 \x01(\fR\x03png\"F\n" +
 	"\x1dRequestReleaseApprovalRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\"S\n" +
@@ -2119,14 +2231,15 @@ const file_plux_v1_release_request_proto_rawDesc = "" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\"Q\n" +
 	"\x1cCancelReleaseRequestResponse\x121\n" +
-	"\arequest\x18\x01 \x01(\v2\x17.plux.v1.ReleaseRequestR\arequest2\xb6\a\n" +
+	"\arequest\x18\x01 \x01(\v2\x17.plux.v1.ReleaseRequestR\arequest2\x97\b\n" +
 	"\x15ReleaseRequestService\x12e\n" +
 	"\x14CreateReleaseRequest\x12$.plux.v1.CreateReleaseRequestRequest\x1a%.plux.v1.CreateReleaseRequestResponse\"\x00\x12\\\n" +
 	"\x11GetReleaseRequest\x12!.plux.v1.GetReleaseRequestRequest\x1a\".plux.v1.GetReleaseRequestResponse\"\x00\x12b\n" +
 	"\x13ListReleaseRequests\x12#.plux.v1.ListReleaseRequestsRequest\x1a$.plux.v1.ListReleaseRequestsResponse\"\x00\x12h\n" +
 	"\x15AdvanceReleaseRequest\x12%.plux.v1.AdvanceReleaseRequestRequest\x1a&.plux.v1.AdvanceReleaseRequestResponse\"\x00\x12k\n" +
 	"\x16RefreezeReleaseRequest\x12&.plux.v1.RefreezeReleaseRequestRequest\x1a'.plux.v1.RefreezeReleaseRequestResponse\"\x00\x12\\\n" +
-	"\x11RequestVisualDiff\x12!.plux.v1.RequestVisualDiffRequest\x1a\".plux.v1.RequestVisualDiffResponse\"\x00\x12k\n" +
+	"\x11RequestVisualDiff\x12!.plux.v1.RequestVisualDiffRequest\x1a\".plux.v1.RequestVisualDiffResponse\"\x00\x12_\n" +
+	"\x12GetVisualDiffImage\x12\".plux.v1.GetVisualDiffImageRequest\x1a#.plux.v1.GetVisualDiffImageResponse\"\x00\x12k\n" +
 	"\x16RequestReleaseApproval\x12&.plux.v1.RequestReleaseApprovalRequest\x1a'.plux.v1.RequestReleaseApprovalResponse\"\x00\x12k\n" +
 	"\x16CompleteReleaseRequest\x12&.plux.v1.CompleteReleaseRequestRequest\x1a'.plux.v1.CompleteReleaseRequestResponse\"\x00\x12e\n" +
 	"\x14CancelReleaseRequest\x12$.plux.v1.CancelReleaseRequestRequest\x1a%.plux.v1.CancelReleaseRequestResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
@@ -2143,7 +2256,7 @@ func file_plux_v1_release_request_proto_rawDescGZIP() []byte {
 	return file_plux_v1_release_request_proto_rawDescData
 }
 
-var file_plux_v1_release_request_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_plux_v1_release_request_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_plux_v1_release_request_proto_goTypes = []any{
 	(*ReleaseRequest)(nil),                 // 0: plux.v1.ReleaseRequest
 	(*SelectedPlugin)(nil),                 // 1: plux.v1.SelectedPlugin
@@ -2169,32 +2282,34 @@ var file_plux_v1_release_request_proto_goTypes = []any{
 	(*RefreezeReleaseRequestResponse)(nil), // 21: plux.v1.RefreezeReleaseRequestResponse
 	(*RequestVisualDiffRequest)(nil),       // 22: plux.v1.RequestVisualDiffRequest
 	(*RequestVisualDiffResponse)(nil),      // 23: plux.v1.RequestVisualDiffResponse
-	(*RequestReleaseApprovalRequest)(nil),  // 24: plux.v1.RequestReleaseApprovalRequest
-	(*RequestReleaseApprovalResponse)(nil), // 25: plux.v1.RequestReleaseApprovalResponse
-	(*CompleteReleaseRequestRequest)(nil),  // 26: plux.v1.CompleteReleaseRequestRequest
-	(*CompleteReleaseRequestResponse)(nil), // 27: plux.v1.CompleteReleaseRequestResponse
-	(*CancelReleaseRequestRequest)(nil),    // 28: plux.v1.CancelReleaseRequestRequest
-	(*CancelReleaseRequestResponse)(nil),   // 29: plux.v1.CancelReleaseRequestResponse
-	(*timestamppb.Timestamp)(nil),          // 30: google.protobuf.Timestamp
-	(*Page)(nil),                           // 31: plux.v1.Page
-	(*PageResult)(nil),                     // 32: plux.v1.PageResult
+	(*GetVisualDiffImageRequest)(nil),      // 24: plux.v1.GetVisualDiffImageRequest
+	(*GetVisualDiffImageResponse)(nil),     // 25: plux.v1.GetVisualDiffImageResponse
+	(*RequestReleaseApprovalRequest)(nil),  // 26: plux.v1.RequestReleaseApprovalRequest
+	(*RequestReleaseApprovalResponse)(nil), // 27: plux.v1.RequestReleaseApprovalResponse
+	(*CompleteReleaseRequestRequest)(nil),  // 28: plux.v1.CompleteReleaseRequestRequest
+	(*CompleteReleaseRequestResponse)(nil), // 29: plux.v1.CompleteReleaseRequestResponse
+	(*CancelReleaseRequestRequest)(nil),    // 30: plux.v1.CancelReleaseRequestRequest
+	(*CancelReleaseRequestResponse)(nil),   // 31: plux.v1.CancelReleaseRequestResponse
+	(*timestamppb.Timestamp)(nil),          // 32: google.protobuf.Timestamp
+	(*Page)(nil),                           // 33: plux.v1.Page
+	(*PageResult)(nil),                     // 34: plux.v1.PageResult
 }
 var file_plux_v1_release_request_proto_depIdxs = []int32{
 	1,  // 0: plux.v1.ReleaseRequest.plugins:type_name -> plux.v1.SelectedPlugin
 	2,  // 1: plux.v1.ReleaseRequest.builds:type_name -> plux.v1.BuildRef
-	30, // 2: plux.v1.ReleaseRequest.created_at:type_name -> google.protobuf.Timestamp
-	30, // 3: plux.v1.ReleaseRequest.updated_at:type_name -> google.protobuf.Timestamp
-	30, // 4: plux.v1.ReleaseRequest.ended_at:type_name -> google.protobuf.Timestamp
+	32, // 2: plux.v1.ReleaseRequest.created_at:type_name -> google.protobuf.Timestamp
+	32, // 3: plux.v1.ReleaseRequest.updated_at:type_name -> google.protobuf.Timestamp
+	32, // 4: plux.v1.ReleaseRequest.ended_at:type_name -> google.protobuf.Timestamp
 	4,  // 5: plux.v1.VisualDiffJob.screens:type_name -> plux.v1.VisualDiffScreen
-	30, // 6: plux.v1.VisualDiffJob.created_at:type_name -> google.protobuf.Timestamp
-	30, // 7: plux.v1.VisualDiffJob.finished_at:type_name -> google.protobuf.Timestamp
+	32, // 6: plux.v1.VisualDiffJob.created_at:type_name -> google.protobuf.Timestamp
+	32, // 7: plux.v1.VisualDiffJob.finished_at:type_name -> google.protobuf.Timestamp
 	1,  // 8: plux.v1.CreateReleaseRequestRequest.plugins:type_name -> plux.v1.SelectedPlugin
 	0,  // 9: plux.v1.CreateReleaseRequestResponse.request:type_name -> plux.v1.ReleaseRequest
 	0,  // 10: plux.v1.GetReleaseRequestResponse.request:type_name -> plux.v1.ReleaseRequest
 	3,  // 11: plux.v1.GetReleaseRequestResponse.visual_diff:type_name -> plux.v1.VisualDiffJob
-	31, // 12: plux.v1.ListReleaseRequestsRequest.page:type_name -> plux.v1.Page
+	33, // 12: plux.v1.ListReleaseRequestsRequest.page:type_name -> plux.v1.Page
 	0,  // 13: plux.v1.ListReleaseRequestsResponse.requests:type_name -> plux.v1.ReleaseRequest
-	32, // 14: plux.v1.ListReleaseRequestsResponse.page:type_name -> plux.v1.PageResult
+	34, // 14: plux.v1.ListReleaseRequestsResponse.page:type_name -> plux.v1.PageResult
 	12, // 15: plux.v1.AdvanceReleaseRequestRequest.selection:type_name -> plux.v1.SelectionStep
 	13, // 16: plux.v1.AdvanceReleaseRequestRequest.builds:type_name -> plux.v1.BuildsStep
 	15, // 17: plux.v1.AdvanceReleaseRequestRequest.reports:type_name -> plux.v1.ReportsStep
@@ -2215,20 +2330,22 @@ var file_plux_v1_release_request_proto_depIdxs = []int32{
 	11, // 32: plux.v1.ReleaseRequestService.AdvanceReleaseRequest:input_type -> plux.v1.AdvanceReleaseRequestRequest
 	20, // 33: plux.v1.ReleaseRequestService.RefreezeReleaseRequest:input_type -> plux.v1.RefreezeReleaseRequestRequest
 	22, // 34: plux.v1.ReleaseRequestService.RequestVisualDiff:input_type -> plux.v1.RequestVisualDiffRequest
-	24, // 35: plux.v1.ReleaseRequestService.RequestReleaseApproval:input_type -> plux.v1.RequestReleaseApprovalRequest
-	26, // 36: plux.v1.ReleaseRequestService.CompleteReleaseRequest:input_type -> plux.v1.CompleteReleaseRequestRequest
-	28, // 37: plux.v1.ReleaseRequestService.CancelReleaseRequest:input_type -> plux.v1.CancelReleaseRequestRequest
-	6,  // 38: plux.v1.ReleaseRequestService.CreateReleaseRequest:output_type -> plux.v1.CreateReleaseRequestResponse
-	8,  // 39: plux.v1.ReleaseRequestService.GetReleaseRequest:output_type -> plux.v1.GetReleaseRequestResponse
-	10, // 40: plux.v1.ReleaseRequestService.ListReleaseRequests:output_type -> plux.v1.ListReleaseRequestsResponse
-	19, // 41: plux.v1.ReleaseRequestService.AdvanceReleaseRequest:output_type -> plux.v1.AdvanceReleaseRequestResponse
-	21, // 42: plux.v1.ReleaseRequestService.RefreezeReleaseRequest:output_type -> plux.v1.RefreezeReleaseRequestResponse
-	23, // 43: plux.v1.ReleaseRequestService.RequestVisualDiff:output_type -> plux.v1.RequestVisualDiffResponse
-	25, // 44: plux.v1.ReleaseRequestService.RequestReleaseApproval:output_type -> plux.v1.RequestReleaseApprovalResponse
-	27, // 45: plux.v1.ReleaseRequestService.CompleteReleaseRequest:output_type -> plux.v1.CompleteReleaseRequestResponse
-	29, // 46: plux.v1.ReleaseRequestService.CancelReleaseRequest:output_type -> plux.v1.CancelReleaseRequestResponse
-	38, // [38:47] is the sub-list for method output_type
-	29, // [29:38] is the sub-list for method input_type
+	24, // 35: plux.v1.ReleaseRequestService.GetVisualDiffImage:input_type -> plux.v1.GetVisualDiffImageRequest
+	26, // 36: plux.v1.ReleaseRequestService.RequestReleaseApproval:input_type -> plux.v1.RequestReleaseApprovalRequest
+	28, // 37: plux.v1.ReleaseRequestService.CompleteReleaseRequest:input_type -> plux.v1.CompleteReleaseRequestRequest
+	30, // 38: plux.v1.ReleaseRequestService.CancelReleaseRequest:input_type -> plux.v1.CancelReleaseRequestRequest
+	6,  // 39: plux.v1.ReleaseRequestService.CreateReleaseRequest:output_type -> plux.v1.CreateReleaseRequestResponse
+	8,  // 40: plux.v1.ReleaseRequestService.GetReleaseRequest:output_type -> plux.v1.GetReleaseRequestResponse
+	10, // 41: plux.v1.ReleaseRequestService.ListReleaseRequests:output_type -> plux.v1.ListReleaseRequestsResponse
+	19, // 42: plux.v1.ReleaseRequestService.AdvanceReleaseRequest:output_type -> plux.v1.AdvanceReleaseRequestResponse
+	21, // 43: plux.v1.ReleaseRequestService.RefreezeReleaseRequest:output_type -> plux.v1.RefreezeReleaseRequestResponse
+	23, // 44: plux.v1.ReleaseRequestService.RequestVisualDiff:output_type -> plux.v1.RequestVisualDiffResponse
+	25, // 45: plux.v1.ReleaseRequestService.GetVisualDiffImage:output_type -> plux.v1.GetVisualDiffImageResponse
+	27, // 46: plux.v1.ReleaseRequestService.RequestReleaseApproval:output_type -> plux.v1.RequestReleaseApprovalResponse
+	29, // 47: plux.v1.ReleaseRequestService.CompleteReleaseRequest:output_type -> plux.v1.CompleteReleaseRequestResponse
+	31, // 48: plux.v1.ReleaseRequestService.CancelReleaseRequest:output_type -> plux.v1.CancelReleaseRequestResponse
+	39, // [39:49] is the sub-list for method output_type
+	29, // [29:39] is the sub-list for method input_type
 	29, // [29:29] is the sub-list for extension type_name
 	29, // [29:29] is the sub-list for extension extendee
 	0,  // [0:29] is the sub-list for field type_name
@@ -2254,7 +2371,7 @@ func file_plux_v1_release_request_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_release_request_proto_rawDesc), len(file_plux_v1_release_request_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

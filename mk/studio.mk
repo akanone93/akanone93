@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-validator zap-studio studio-image-repro
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-validator zap-studio studio-image-repro studio-build-repro studio-image-inputs
 
 ##@ Studio (Bun, TypeScript)
 
@@ -107,8 +107,25 @@ zap-studio: ## Scan the running Compose stack's Studio with the ZAP baseline, ig
 # digest: no timestamp, path or ordering may reach the image.
 STUDIO_COMMIT_DATE = $(shell git log -1 --format=%ct)
 
-studio-image-repro: ## Build the Studio image twice and fail when the digests differ (CI-006)
+# Verifies: CI-006. The same check without Docker: two Vite builds of one
+# tree give identical bytes in every file of dist/ (what the image copies).
+studio-build-repro: studio-install studio-gen-theme studio-gen-icons studio-validator ## Build the web app twice and fail when any dist/ byte differs (CI-006)
+	cd studio && bun scripts/stage-canvaskit.ts
+	rm -rf build/studio-dist-1 build/studio-dist-2
+	mkdir -p build
+	@for n in 1 2; do \
+		(cd studio && bun run build && bun scripts/precompress.ts apps/web/dist) || exit 1; \
+		rm -rf build/studio-dist-$$n && cp -r studio/apps/web/dist build/studio-dist-$$n || exit 1; \
+	done
+	@if diff -r build/studio-dist-1 build/studio-dist-2 >/dev/null; then echo "✓ Studio web build reproducible"; else diff -rq build/studio-dist-1 build/studio-dist-2; echo "✗ Studio web builds differ"; exit 1; fi
+
+# The image build has no Flutter SDK: the pinned CanvasKit comes in the build context, checked
+# against its SHA-256 again inside the image (studio/Dockerfile).
+studio-image-inputs: ## Stage the pinned CanvasKit into the Studio image build context (DEP-001)
 	cd studio && bun scripts/stage-canvaskit.ts --to .canvaskit
+
+studio-image-repro: studio-image-inputs ## Build the Studio image twice and fail when the digests differ (CI-006)
+	mkdir -p build
 	@for n in 1 2; do \
 		docker buildx build -f studio/Dockerfile --build-arg SOURCE_DATE_EPOCH=$(STUDIO_COMMIT_DATE) \
 			--no-cache --provenance=false --sbom=false \

@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: AGPL-3.0-only
+
+# Read by BuildKit for `docker build -f studio/Dockerfile`. A file the image
+# is built from must come from the commit, not from a developer's working
+# tree: installs, build output and credentials never enter the context
+# (CI-006). The staged CanvasKit (studio/.canvaskit) is the one ignored-by-git
+# input the build needs, and it stays.
+.git
+**/node_modules
+studio/apps/web/dist
+studio/apps/web/src/features/plugin-canvas/canvaskit
+studio/packages/validator/build
+studio/coverage
+studio/test-results
+studio/playwright-report
+build
+deploy/compose/.secrets
