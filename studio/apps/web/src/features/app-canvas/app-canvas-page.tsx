@@ -13,6 +13,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import { EditorProvider, useEditSession } from "../editor/editor-provider.tsx";
+import { useHostFonts } from "../plugin-canvas/host-fonts.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { browserSurface, type CanvasSurface } from "../plugin-canvas/surface.ts";
 import { useNativeRoutes } from "../plugin-canvas/use-native-widgets.ts";
@@ -96,6 +97,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const navigate = useNavigate();
   const params = useParams({ strict: false }) as { org?: string };
   const { createSurface = browserSurface } = useRouteContext({ strict: false }) as Pick<RouterContext, "createSurface">;
+  const hostFonts = useHostFonts(appId);
   const queryClient = useQueryClient();
   const edit = useEditSession();
   const plugins = useMemo(() => createClient(PluginService, session.transport), [session]);
@@ -181,14 +183,14 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     }
     const width = canvas.clientWidth || window.innerWidth;
     const height = canvas.clientHeight || window.innerHeight;
-    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1 });
+    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1, hostFonts });
     surfaceRef.current = surface;
     setGeneration((g) => g + 1);
     return () => {
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface]);
+  }, [createSurface, hostFonts]);
   const surface = useCallback(() => surfaceRef.current, []);
   const scene = useAppScene({ surface, generation, boxes, frames, selected, focused, graph });
 

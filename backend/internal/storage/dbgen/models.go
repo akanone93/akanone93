@@ -146,6 +146,7 @@ type App struct {
 	OwningTeamID     pgtype.UUID
 	Tags             []string
 	ArchivedAt       pgtype.Timestamptz
+	HostFonts        []byte
 }
 
 type AppAccess struct {

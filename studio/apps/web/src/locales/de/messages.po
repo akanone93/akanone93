@@ -958,6 +958,12 @@ msgstr "Erwartung hinzufügen"
 msgid "designers.dbAddField"
 msgstr "Feld hinzufügen"
 
+#. Button that lists a host font.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontAdd"
+msgstr "Schrift hinzufügen"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -4576,6 +4582,24 @@ msgstr "Dem Rahmen folgen"
 msgid "design.familiesLabel"
 msgstr "Schriftfamilien für {script}, erste Wahl zuerst, durch Kommas getrennt"
 
+#. Label of the family name a host font is used by.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontFamily"
+msgstr "Schriftfamilie"
+
+#. Label of the uploaded font asset a host font is read from.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontAsset"
+msgstr "Schriftdatei"
+
+#. Caption under the host fonts heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsCaption"
+msgstr "Schriftdateien, die Ihre Host-App mitliefert und Plugins über den Namen verwenden. Laden Sie jede Datei als Asset hoch und tragen Sie sie hier ein, damit die Canvas den Text mit derselben Datei setzt."
+
 #. Caption under the heading of the heatmap page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -5031,6 +5055,12 @@ msgstr "Host-ABI-Version"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupCustom"
 msgstr "Host-Aktionen"
+
+#. Heading of the list of font files the host app bundles.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsTitle"
+msgstr "Schriften der Host-App"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -7104,6 +7134,12 @@ msgstr "In dieser Umgebung ist keine Funktion bereitgestellt."
 msgid "releases.noHealth"
 msgstr "Es wurde noch keine Zustandsprüfung ausgeführt."
 
+#. Shown when the app lists no host fonts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsNone"
+msgstr "Es sind keine Host-Schriften eingetragen."
+
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -8867,6 +8903,12 @@ msgstr "Entfernen"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.remove"
 msgstr "Entfernen"
+
+#. Accessible name of the button that removes a host font from the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontRemove"
+msgstr "{family} entfernen"
 
 #. Accessible name of the button that removes the crate {name} from the dependencies.
 #. js-lingui-explicit-id
@@ -11604,6 +11646,12 @@ msgstr "Die Datei wurde auf dem Weg zum Server beschädigt. Lade sie erneut hoch
 msgid "experiments.segmentValuesHelp"
 msgstr "Das erste Segment, zu dem ein Gerät gehört, entscheidet; Geräte in keinem Segment erhalten den Standardwert."
 
+#. Error shown when saving the host fonts fails.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsSaveFailed"
+msgstr "Die Schriftliste konnte nicht gespeichert werden."
+
 #. Shown when the manifest declares no dependencies.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -12931,6 +12979,12 @@ msgstr "Einbettung der Auswahl aufheben"
 msgid "admin.licenseUpload"
 msgstr "Lizenz hochladen"
 
+#. Shown when the app has no font asset to list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsNoAssets"
+msgstr "Laden Sie im Tab „Assets“ eine TrueType- oder OpenType-Datei hoch, um sie hier einzutragen."
+
 #. Button that opens the file picker to upload an asset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -13602,6 +13656,12 @@ msgstr "Sie dürfen diese App nicht verwalten."
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.readOnly"
 msgstr "Du darfst Szenarien lesen, aber nicht ändern."
+
+#. Why the host font controls are disabled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.hostFontsNoPermission"
+msgstr "Zum Ändern der Liste benötigen Sie die Berechtigung, diese App zu verwalten."
 
 #. Banner when the person cannot change the request.
 #. js-lingui-explicit-id
