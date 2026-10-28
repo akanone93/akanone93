@@ -268,11 +268,11 @@ function markdownColumn(ctx: WidgetContext, source: string): RenderFlex {
 /** `MarkdownView`: headings and paragraphs, 12 apart, across the width of the space. */
 const markdownView: WidgetBuilder = (node, ctx) => named(node, markdownColumn(ctx, text(node, "source") ?? ""));
 
-/**
- * A design-time stand-in for the 0.6 of the screen's height a `TermsViewer` takes when its parent gives it no height;
- * the screen theme carries the width of the device only.
- */
-const unboundedTermsHeight = 480;
+/** The share of the device height a `TermsViewer` takes when its parent gives it no height, as the runtime's does. */
+const termsHeightShare = 0.6;
+
+/** The device height assumed when the layout is not told one (a unit test, a scene without a frame). */
+const fallbackDeviceHeight = 800;
 
 /**
  * `TermsViewer`: as high as its parent allows, with the scrolling text filling it, then (the end is not reached at
@@ -282,7 +282,7 @@ const termsViewer: WidgetBuilder = (node, ctx) =>
   named(
     node,
     new RenderLimitedBox({
-      maxHeight: unboundedTermsHeight,
+      maxHeight: termsHeightShare * (ctx.deviceHeight ?? fallbackDeviceHeight),
       child: column(
         ctx,
         [

@@ -460,6 +460,63 @@ describe("Material composites in a screen (STU-005, S4.3)", () => {
   });
 });
 
+describe("MenuAnchor, NavigationRail and TermsViewer on a screen (STU-005, S4.6)", () => {
+  const boxesOf = (root: WidgetNode, options: { deviceHeight?: number } = {}): Map<string, { w: number; h: number }> =>
+    new Map(layoutScreen(root, { engine, theme, ...options }).boxes.map((b) => [b.id, { w: b.w, h: b.h }]));
+  const items = [
+    { value: "a", label: "Edit" },
+    { value: "b", label: "Delete" },
+  ];
+
+  test("a menu anchor is its child in a tap target of at least 48 by 48, or a 48-px more-vert icon", () => {
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        { id: "plain", type: "MenuAnchor", props: { items } },
+        { id: "named", type: "MenuAnchor", props: { items }, slots: { child: text("label", "Account menu") } },
+      ],
+    };
+    const byId = boxesOf(root);
+    expect(byId.get("plain")).toEqual({ w: 48, h: 48 });
+    const label = byId.get("label");
+    expect(byId.get("named")?.w).toBeCloseTo(label?.w ?? 0, 5);
+    expect(byId.get("named")?.h).toBe(48);
+    expect(byId.get("named")?.w).toBeGreaterThan(48);
+  });
+
+  test("a navigation rail is the viewport high and 80 wide beside its page, and 256 wide when extended", () => {
+    const rail = (id: string, props: Record<string, unknown>): WidgetNode => ({
+      id,
+      type: "NavigationRail",
+      props: {
+        destinations: [
+          { label: "Home", icon: "home" },
+          { label: "Search", icon: "search" },
+        ],
+        ...props,
+      },
+    });
+    const root: WidgetNode = {
+      id: "row",
+      type: "Row",
+      children: [rail("rail", {}), text("page", "Hello")],
+    };
+    const byId = boxesOf({ id: "col", type: "Column", children: [root, rail("wide", { extended: true })] });
+    expect(byId.get("rail")).toEqual({ w: 80, h: theme.viewportHeight });
+    expect(byId.get("wide")).toEqual({ w: 256, h: theme.viewportHeight });
+    expect(byId.get("page")?.h).toBeGreaterThan(0);
+  });
+
+  test("a terms viewer without a bounded parent is 0.6 of the device height of its frame", () => {
+    const viewer: WidgetNode = { id: "terms", type: "TermsViewer", props: { source: "# Terms" } };
+    const root: WidgetNode = { id: "col", type: "Column", children: [viewer] };
+    expect(boxesOf(root, { deviceHeight: 844 }).get("terms")?.h).toBeCloseTo(0.6 * 844, 5);
+    expect(boxesOf(root, { deviceHeight: 1000 }).get("terms")?.h).toBeCloseTo(600, 5);
+    expect(boxesOf(root, { deviceHeight: 667 }).get("terms")?.h).toBeCloseTo(0.6 * 667, 5);
+  });
+});
+
 describe("Layer 2 components checked as a box only (STU-005, S4.5)", () => {
   // Maintainer decision (S4.5): the scanner package cannot be built into the runtime's golden writer (its build hook
   // would make a cycle), so `QrCodeView`, `QrScanner` and `BarcodeScanner` have no conformance scene. Studio lays out

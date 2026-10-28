@@ -166,7 +166,6 @@ const wrapperTypes: readonly string[] = [
   "Scrollbar",
   "RefreshIndicator",
   "InteractiveViewer",
-  "MenuAnchor",
   "BackdropFilter",
   "FadeTransition",
   "RotationTransition",
