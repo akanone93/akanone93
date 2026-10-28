@@ -11,7 +11,6 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Known gaps (fix before the phase exit)
 
-- Functions area (S8.2): `FunctionVersion` has no granted-capabilities or required-assurance fields and no source id, so A11 shows placement/ABI/hashes and the tests tab takes a typed source id; the logs tab has no env dropdown.
 - S7.5: targeting sets the segment only; one primary and one guardrail metric; flags have no per-segment values.
 
 - Preview mock states (DAT-080) are selectable, but the canvas scene has no data bindings yet.
