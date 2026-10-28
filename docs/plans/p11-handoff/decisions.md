@@ -31,4 +31,13 @@ Earlier P11 decisions (M-1–M-13, O-1–O-20, L-1–L-15) are in [p11.md](../p1
 | 2026-10-27 | Limit `test.stepsPerRun` 5000 (max 100000) per reported Plux Test run | schema/limits.json |
 | 2026-10-28 | New permission `analytics.manage` for funnel definitions (Owner, Admin, Release manager); limit `analytics.funnelSteps` 10 (max 20) | permissions catalogue, schema/limits.json |
 | 2026-10-28 | S8.1 limits: `app.summariesPerCall` 100/500, `archive.bytes` 8/256 MiB, `archive.entries` 2000/20000, `archive.expandedBytes` 64 MiB/1 GiB, `project.bytes` 64/512 MiB, `project.jobsPerHour` 10/1000; ADR-0102 accepted as written | schema/limits.json, ADR-0102 |
+| 2026-10-28 | Session replay A47 built in P11: ADR-0101, runtime recorder, redacted ingestion, canvas viewer (O-8) | ADR-0101 |
+| 2026-10-28 | Project download Git push through a generalised `gitsync` (same SSRF proxy and credential handling) | S8.1 code |
+| 2026-10-28 | Design gate: re-enable `undersized-ui-text`, `dark-glow`, `pulsing-dot` with exact per-token waivers | studio/.impeccable/config.json |
+| 2026-10-28 | `FunctionVersion` gains granted capabilities, required assurance and source id (additive; verify every producer and consumer) | proto, S8.2 |
+| 2026-10-28 | Funnels: ordered per-session conversion from raw events, bounded by the registry | S8.6 code |
+| 2026-10-28 | Experiments: multiple segments and attributes, several metrics and guardrails, per-segment flag values | S7.5 code |
+| 2026-10-28 | Host-bundled fonts: an app-level font asset list loaded by the canvas and the runtime (§4.3 #11) | proto, schema |
+| 2026-10-28 | Port Material MenuAnchor and the NavigationRail screen builder with goldens | S4.6 code |
+| 2026-10-28 | Lead: Scene C drop frame (117 ms) is inside the M-13 settle budget (≤ 300 ms); no separate target | p11.md M-13 |
 | 2026-10-26 | Sign-in page design is not changed now | — |

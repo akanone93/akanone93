@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## For the maintainer
 
-- **Design-gate rules switched off** for approved tokens (decisions.md) — revisit with the tokens.
+- None open: every decision is recorded in decisions.md (2026-10-28 batch).
 
 ## Known gaps (fix before the phase exit)
 
@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 - S7.5: targeting sets the segment only; one primary and one guardrail metric; flags have no per-segment values.
 
 - Clipboard "copy over" (F7, D34) keeps the reference only: the envelope carries IDs, so no
-  dependency document is created in the target. Needs a decision on fetching the source content.
+  dependency document is created in the target (decided: fetch with the user's read access).
 - Preview mock states (DAT-080) are selectable, but the canvas scene has no data bindings yet.
 
 - History restore through `RestoreSnapshot` brings deleted documents back outside the client's
@@ -26,7 +26,6 @@ SPDX-License-Identifier: Apache-2.0
 - Host-bundled fonts (§4.3 #11) loaded by the canvas but not wired: the server field does not exist.
 - `TermsViewer` uses a fixed 480 px design-time height (no device height in the screen theme);
   `calendar-tables.ts` is a test-pinned copy of `schema/l10n/calendars/*.json`, not generated.
-- Scene C drop frame is 117 ms in the worker (arrows rerouted at drop end); no documented target.
 - Duplicate plugin rewrites top-level ids only; the D17 owning-team picker is missing; frame
   rename/resize (D20) missing on the app canvas.
 - Material MenuAnchor not ported (PopupMenu instead); NavigationRail has no screen builder.
