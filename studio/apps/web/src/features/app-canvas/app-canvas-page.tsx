@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { AppService, PluginService } from "@plux/api";
+import { AppService, PluginService, ReleaseService } from "@plux/api";
 import type { ArrowPick, NavigateEdge } from "@plux/canvas";
 import { Button } from "@plux/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -46,10 +47,12 @@ import {
   removeLink,
   type SceneBox,
 } from "./app-canvas.scene.ts";
-import { BoxList, DetailCard, MoveToDialog } from "./box-list.tsx";
+import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
 import { FrameTools } from "./frame-tools.tsx";
 import { LaneMenu } from "./lane-menu.tsx";
+import { latestPublisher } from "./latest-publisher.ts";
 import { type Dialogue, PluginDialogs } from "./plugin-dialogs.tsx";
+import { miniMapOf } from "./plugin-minimap.ts";
 import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
 import { TrashDialog } from "./trash-dialog.tsx";
 import { useAppScene } from "./use-app-scene.ts";
@@ -337,6 +340,22 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const one = selected.size === 1 ? summaryOf.get([...selected][0] ?? "") : undefined;
   const detail = summaryOf.get(hover ?? [...selected][0] ?? "");
 
+  const detailPlugin = detail?.plugin;
+  const publisher = useQuery({
+    queryKey: ["plugin-last-published", detailPlugin?.id, detail?.versions?.toString()],
+    enabled: detailPlugin !== undefined && (detail?.versions ?? 0n) > 0n,
+    queryFn: async () => latestPublisher(createClient(ReleaseService, session.transport), detailPlugin?.id ?? ""),
+  });
+  const published = useMemo<LastPublished | undefined>(() => {
+    const at =
+      publisher.data?.at ?? (detail?.publishedAt === undefined ? undefined : timestampDate(detail.publishedAt));
+    if (at === undefined) {
+      return undefined;
+    }
+    return { by: publisher.data?.by ?? "", at: i18n.date(at, { dateStyle: "medium", timeStyle: "short" }) };
+  }, [publisher.data, detail?.publishedAt, i18n]);
+  const miniMap = useMemo(() => miniMapOf(graph, detailPlugin?.id ?? ""), [graph, detailPlugin?.id]);
+
   return (
     <section aria-label={m.title} className="relative flex h-full w-full flex-col bg-canvas">
       <div role="toolbar" aria-label={m.toolbar} className="flex items-center gap-2 p-2">
@@ -390,6 +409,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             summary={detail}
             badges={boxes.find((b) => b.id === detail.plugin?.id)?.badges ?? []}
             messages={m}
+            miniMap={miniMap}
+            published={published}
           />
         )}
         <BoxList
