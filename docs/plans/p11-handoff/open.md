@@ -22,8 +22,6 @@ SPDX-License-Identifier: Apache-2.0
   undo step (the server writes them).
 - Localisation key extraction: one server undo step, but each document's local undo stack undoes
   only its part.
-- Theme/data designers: data source `route`, `config`, `transaction` and collection `indexes`
-  editable only in the JSON editor.
 - Action graph: node positions not saved; no drag from the catalogue.
 - Host-bundled fonts (§4.3 #11) loaded by the canvas but not wired: the server field does not exist.
 - `TermsViewer` uses a fixed 480 px design-time height (no device height in the screen theme);
@@ -32,6 +30,9 @@ SPDX-License-Identifier: Apache-2.0
 - Duplicate plugin rewrites top-level ids only; the D17 owning-team picker is missing; frame
   rename/resize (D20) missing on the app canvas.
 - Material MenuAnchor not ported (PopupMenu instead); NavigationRail has no screen builder.
-- Possible flaky unit test: the D27 rename-warning test failed once under full-suite load
-  (the JSON editor tests got a 5 s boot wait for the same reason). Root-cause before quarantining.
-- Docker image build and `make studio-image-repro` never run here (no Docker).
+- Docker image build and `make studio-image-repro` never run here (no Docker): run on a machine with Docker or in the phase-exit CI run.
+- Clipboard copy-over decision (lead, 2026-10-28): fetch the source documents through the API with the user's own read access at paste time; what they cannot read is dropped and listed.
+- S7.2: rollout plan is a JSON textarea; diffs step has no thumbnails/JSON diff; no per-plugin a11y/size reports.
+- S8.10: `plux test` does not call `ReportRun`; steps are not prefilled from the device loop.
+- S8.4: the A19 adopt dialog and A16–A18 dialogs lack tests.
+- Visual-diff renderer client (S7.1) not implemented; requested diffs stay queued (S9.5).
