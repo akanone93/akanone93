@@ -18,6 +18,8 @@ import {
 } from "@plux/api";
 
 const org = "0192f000-0000-7000-8000-00000000000a";
+/** The session's CSRF token: Studio keeps it in memory only, never in web storage (SEC-101). */
+const csrfToken = "plux_csrf_e2e_only_in_memory";
 
 function proto<S extends DescMessage>(schema: S, init: Parameters<typeof create<S>>[1]) {
   return {
@@ -45,13 +47,13 @@ async function mockUpstream(page: Page) {
           proto(GetCurrentUserResponseSchema, {
             user: create(UserSchema, { id: "u1", displayName: "Ada", email: "ada@example.org" }),
             memberships: [create(MemberSchema, { organizationId: org, userId: "u1" })],
-            csrfToken: "csrf",
+            csrfToken,
           }),
         );
       case "StartPasswordLogin":
         signedIn = true;
         return route.fulfill(
-          proto(StartPasswordLoginResponseSchema, { session: create(SessionSchema, { id: "s1", csrfToken: "csrf" }) }),
+          proto(StartPasswordLoginResponseSchema, { session: create(SessionSchema, { id: "s1", csrfToken }) }),
         );
       case "ListSignInProviders":
         return route.fulfill(proto(ListSignInProvidersResponseSchema, {}));
@@ -92,6 +94,10 @@ test("sign in lands on the organisation home, axe clean in light [STU-013]", asy
   await page.reload();
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`/o/${org}`));
+  const stored = await page.evaluate(() =>
+    [localStorage, sessionStorage].flatMap((s) => Object.keys(s).map((k) => `${k}=${s.getItem(k) ?? ""}`)),
+  );
+  expect(stored.filter((entry) => entry.includes(csrfToken))).toEqual([]);
   expect((await new AxeBuilder({ page }).withTags(axeTags).analyze()).violations).toEqual([]);
 });
 

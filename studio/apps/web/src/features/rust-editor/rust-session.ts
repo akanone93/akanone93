@@ -8,10 +8,10 @@ import {
   type Hover,
   LspClient,
   type Position,
-  type PublishDiagnostics,
   type SignatureHelp,
   type TextEdit,
 } from "./lsp-client.ts";
+import { publishedDiagnostics } from "./lsp-convert.ts";
 
 /** The slice of `LanguageBridge` a session uses. */
 export interface SessionBridge {
@@ -75,9 +75,9 @@ export class RustSession implements LanguageApi {
     this.#events = events;
     this.#client = new LspClient(bridge, requestTimeoutMs);
     this.#client.onNotification("textDocument/publishDiagnostics", (params) => {
-      const p = params as PublishDiagnostics;
-      if (p.uri === this.#uri) {
-        this.#events.onDiagnostics(p.diagnostics);
+      const diagnostics = publishedDiagnostics(params, this.#uri);
+      if (diagnostics !== undefined) {
+        this.#events.onDiagnostics(diagnostics);
       }
     });
   }

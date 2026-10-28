@@ -1,8 +1,8 @@
 # ASVS 5.0 L2 and API Security Top 10 — Plux Server
 
 The server half of `SEC-109`, checked at the end of P2. Each row names the control, how
-Plux meets it, and the evidence. Studio's half (browser controls) is added in P11, so
-`SEC-109` stays `WIP` until then. Evidence is a test, a CI check or a configuration file
+Plux meets it, and the evidence. Studio's half (browser controls) is
+[asvs-studio.md](asvs-studio.md) (P11); `SEC-109` stays `WIP` until its gaps are closed. Evidence is a test, a CI check or a configuration file
 in this repository; "P6" and "P11" mark controls that belong to a later phase.
 
 ## OWASP ASVS 5.0, level 2 — by chapter
