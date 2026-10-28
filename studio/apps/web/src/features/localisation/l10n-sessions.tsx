@@ -10,6 +10,7 @@ import {
   useCanEdit,
   useEditSession,
   useLock,
+  useUndoManager,
 } from "../editor/index.ts";
 import { KEYS_PATH, localePath, localeScope, readLocales } from "./l10n-model.ts";
 
@@ -97,6 +98,8 @@ export function L10nSessionsProvider(props: {
     () => (documents ?? []).filter((d) => d.pluginId === "" && d.path === localePath(locale)),
     [documents, locale],
   );
+  // The surrounding editor's undo stacks: a key extraction is one step with the plugin's edit (F3).
+  const undo = useUndoManager();
   const [keys, setKeys] = useState<AppSession | null>(null);
   const [messages, setMessages] = useState<AppSession | null>(null);
   const value = useMemo<L10nSessions | null>(
@@ -118,11 +121,19 @@ export function L10nSessionsProvider(props: {
   // The editors are siblings of the children, not their ancestors: the children keep the plugin's own editor.
   return (
     <>
-      <EditorProvider appId={appId} pluginId="" documents={keyDocs} hideBanner>
+      <EditorProvider appId={appId} pluginId="" documents={keyDocs} hideBanner undo={undo} undoStack="">
         <Tap onSlot={setKeys} />
       </EditorProvider>
       {app !== undefined && (
-        <EditorProvider key={locale} appId={appId} pluginId="" documents={messageDocs} lockScope={localeScope(locale)}>
+        <EditorProvider
+          key={locale}
+          appId={appId}
+          pluginId=""
+          documents={messageDocs}
+          lockScope={localeScope(locale)}
+          undo={undo}
+          undoStack={localeScope(locale)}
+        >
           <Tap onSlot={setMessages} />
         </EditorProvider>
       )}

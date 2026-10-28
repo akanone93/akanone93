@@ -48,12 +48,15 @@ export interface EditorProviderProps {
   /** Leaves the read-only banner to the caller, for an editor whose children are not the page (the app session of the designers). */
   readonly hideBanner?: boolean;
   /** The undo stacks this plugin's edits go to (stack key: the plugin ID, "" for app documents). */
-  readonly undo?: UndoManager;
+  readonly undo?: UndoManager | undefined;
+  /** The stack key of this editor's edits when it is not the plugin ID: a locale's messages beside the app's keys. */
+  readonly undoStack?: string;
   readonly children: ReactNode;
 }
 
 const EditorContext = createContext<EditSession | null>(null);
 const LockContext = createContext<LockController | null>(null);
+const UndoContext = createContext<UndoManager | undefined>(undefined);
 
 /** The heartbeat worker, or undefined where workers cannot start (the ticker then uses timers). */
 function makeLockWorker(): TickWorker {
@@ -160,11 +163,12 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
         void lock.ensure().catch(() => undefined);
         latest.current.onFirstEdit?.({ appId, pluginId, path });
       },
-      stepFor: (_path, group) => latest.current.undo?.stepFor(pluginId, group),
+      stepFor: (_path, group) => latest.current.undo?.stepFor(latest.current.undoStack ?? pluginId, group),
       onEdit: (record) => {
-        latest.current.undo?.record(pluginId, record);
+        latest.current.undo?.record(latest.current.undoStack ?? pluginId, record);
         latest.current.onEdit?.(record);
       },
+      onCreated: (record) => latest.current.undo?.recordCreated(latest.current.undoStack ?? pluginId, record),
       onRejected: (path, error, undone) => latest.current.onRejected?.(path, error, undone),
     });
   });
@@ -176,21 +180,22 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
   }, [edit, documents]);
 
   const { undo, editorSessionId } = props;
+  const stack = props.undoStack ?? pluginId;
   useEffect(() => {
     if (undo === undefined) {
       return;
     }
-    const detach = undo.attach(pluginId, edit);
+    const detach = undo.attach(stack, edit);
     if (editorSessionId !== undefined && editorSessionId !== "") {
       const depth = limitDefault("studio.undoDepth");
       loadSessionEntries(session.transport, { appId, pluginId, editorSessionId }, depth).then(
-        (entries) => undo.rebuild(pluginId, entries),
+        (entries) => undo.rebuild(stack, entries),
         // Without the entries the stack starts empty; editing is unaffected.
         () => undefined,
       );
     }
     return detach;
-  }, [undo, edit, appId, pluginId, editorSessionId, session.transport]);
+  }, [undo, edit, appId, pluginId, stack, editorSessionId, session.transport]);
   useEffect(() => {
     const detach = edit.attach({ window, document });
     const detachLock = lock.attach(window);
@@ -216,14 +221,16 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
   return (
     <EditorContext.Provider value={edit}>
       <LockContext.Provider value={lock}>
-        <CanEditContext.Provider value={canEdit}>
-          {props.hideBanner !== true && (
-            <LockBanner lock={lock} canEdit={props.canEdit ?? true} canOverride={canOverride} />
-          )}
-          {props.children}
-          <ConflictDialog session={edit} />
-          <LockLostDialog lock={lock} session={edit} />
-        </CanEditContext.Provider>
+        <UndoContext.Provider value={undo}>
+          <CanEditContext.Provider value={canEdit}>
+            {props.hideBanner !== true && (
+              <LockBanner lock={lock} canEdit={props.canEdit ?? true} canOverride={canOverride} />
+            )}
+            {props.children}
+            <ConflictDialog session={edit} />
+            <LockLostDialog lock={lock} session={edit} />
+          </CanEditContext.Provider>
+        </UndoContext.Provider>
       </LockContext.Provider>
     </EditorContext.Provider>
   );
@@ -250,6 +257,11 @@ export function useLock(): LockController {
     throw new Error("useLock outside EditorProvider");
   }
   return lock;
+}
+
+/** The undo stacks of the surrounding EditorProvider, for editors beside it that join its steps (F3). */
+export function useUndoManager(): UndoManager | undefined {
+  return useContext(UndoContext);
 }
 
 /** Whether the editor may change documents (the plugin lock is held); false by default. */

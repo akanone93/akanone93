@@ -10,6 +10,7 @@ export {
 } from "./document-transport.ts";
 export {
   type Conflict,
+  type CreateRecord,
   type DocState,
   type DocStatus,
   type DocumentDraft,
@@ -32,6 +33,7 @@ export {
   useEditor,
   useEditSession,
   useLock,
+  useUndoManager,
 } from "./editor-provider.tsx";
 export { applyPatch, type JsonPatchOp, type JsonValue, PatchError, toJsonPatch } from "./json-patch.ts";
 export {
