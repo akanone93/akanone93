@@ -3,6 +3,8 @@
 
 export { type DocWriter, type ExtractRequest, type ExtractResult, extractKey } from "./extract-key.ts";
 export { ExtractKeyDialog, type ExtractKeyDialogProps } from "./extract-key-dialog.tsx";
+export { LocalisationPage } from "./grid-page.tsx";
+export { HeatmapPage } from "./heatmap-page.tsx";
 export {
   type AppSession,
   type L10nSessions,
