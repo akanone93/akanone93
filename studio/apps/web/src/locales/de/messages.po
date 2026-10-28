@@ -49,6 +49,12 @@ msgstr "{app}: {n} Instanzen"
 msgid "approvals.simDescribe"
 msgstr "{approvers} Freigabe(n)"
 
+#. A brand overlay and the number of tokens it replaces.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandOverrides"
+msgstr "{brand}: {n} Überschreibungen"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -310,6 +316,12 @@ msgstr "{holder} hat die Bearbeitung übernommen. Ihre Arbeit bis dahin bleibt a
 msgid "lock.requested"
 msgstr "{holder} wurde gebeten, das Plugin zu übergeben."
 
+#. Result of reading a DTCG file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importSummary"
+msgstr "{imported} Tokens können hinzugefügt werden, {skipped} werden übersprungen."
+
 #. Size of a plugin's newest bundle in kilobytes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -333,6 +345,18 @@ msgstr "{matched} Texte werden importiert; {unknown} Schlüssel der Datei gehör
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.heatCell"
 msgstr "{missing} von {total} fehlen"
+
+#. Label of a token value field; {mode} is the mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.valueOf"
+msgstr "Wert für {mode}"
+
+#. Number of colour tokens that have a value in a mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.modeCount"
+msgstr "{mode}: {n} Farben"
 
 #. Badge: validation errors in a plugin.
 #. js-lingui-explicit-id
@@ -549,6 +573,18 @@ msgstr "{received} von {total}"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.ghostLeaveBody"
 msgstr "{screen} gehört zu einem anderen Plugin. Ihre Änderungen hier sind gespeichert. Diese Canvas verlassen und den Screen öffnen?"
+
+#. Warning when a script has fewer than two families.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noFallback"
+msgstr "{script} hat keine Ersatzschrift."
+
+#. A script with its number of fonts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.fallbackOk"
+msgstr "{script}: {n} Schriften"
 
 #. A screen in the list of targets; title is the screen's title and scope says which plugin it is in.
 #. js-lingui-explicit-id
@@ -880,6 +916,12 @@ msgstr "Feld hinzufügen"
 msgid "admin.addGrant"
 msgstr "Berechtigung hinzufügen"
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.addIcon"
+msgstr "Icon hinzufügen"
+
 #. Button that appends an item to a list property.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -934,10 +976,22 @@ msgstr "Schritt hinzufügen"
 msgid "designers.dataAddImported"
 msgstr "Importierte Datenquellen hinzufügen"
 
+#. Button that merges the read tokens into the theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importApply"
+msgstr "Zum Theme hinzufügen"
+
 #. Button that adds a design token.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeAddToken"
+msgstr "Token hinzufügen"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.addToken"
 msgstr "Token hinzufügen"
 
 #. Button that adds a variant.
@@ -993,6 +1047,12 @@ msgstr "Version übernehmen"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.adopt.title"
 msgstr "Version in {app} übernehmen"
+
+#. Button that opens dialog D32.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.adopt"
+msgstr "Version von {name} übernehmen"
 
 #. Button: adopt the chosen version.
 #. js-lingui-explicit-id
@@ -1432,6 +1492,12 @@ msgstr "Apps"
 msgid "home.caption"
 msgstr "Apps, Plugins und Freigaben erscheinen hier, sobald sie verfügbar sind."
 
+#. Name of a script.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.scriptArabic"
+msgstr "Arabisch"
+
 #. Button: archive the selected plugin without deleting it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -1653,6 +1719,18 @@ msgstr "Boolesch"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.bottom"
 msgstr "Unten"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandName"
+msgstr "Markenname"
+
+#. Heading of the brand overlays section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandsHeading"
+msgstr "Marken-Overlays"
 
 #. Title of the dialog asking why emergency access is used.
 #. js-lingui-explicit-id
@@ -2200,6 +2278,12 @@ msgstr "Schließen"
 msgid "devices.close"
 msgstr "Schließen"
 
+#. Close button of a dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.close"
+msgstr "Schließen"
+
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -2326,6 +2410,12 @@ msgstr "Collections des Plugins"
 msgid "designers.themePreview"
 msgstr "Farbvorschau"
 
+#. Accessible name of a swatch list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.swatches"
+msgstr "Farben im Modus {mode}"
+
 #. Density option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -2398,11 +2488,29 @@ msgstr "Compliance"
 msgid "admin.complianceTitle"
 msgstr "Compliance-Berichte"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.colComponent"
+msgstr "Komponente"
+
 #. Title of the dialog that lists the instances a revised component version changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.impact.title"
 msgstr "Komponente bearbeiten: Instanzen, die sich ändern"
+
+#. Link to the component library page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.libraryLink"
+msgstr "Komponentenbibliothek"
+
+#. Heading of the library page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.libraryTitle"
+msgstr "Komponentenbibliothek"
 
 #. Heading of the Properties section that edits a component instance's overrides.
 #. js-lingui-explicit-id
@@ -2427,6 +2535,12 @@ msgstr "Komponenten"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.kind.component"
 msgstr "Komponenten"
+
+#. Accessible name of the table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.libraryTable"
+msgstr "Komponenten der Bibliothek"
 
 #. Status while the migration preview is computed.
 #. js-lingui-explicit-id
@@ -2572,6 +2686,18 @@ msgstr "Crate-Namen beginnen mit einem Buchstaben und bestehen aus Buchstaben, Z
 msgid "pluginCanvas.create"
 msgstr "Erstellen"
 
+#. Button that opens the brand overlay dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.createBrand"
+msgstr "Marken-Overlay anlegen"
+
+#. Title of dialog D57 when it creates an overlay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.createBrandTitle"
+msgstr "Marken-Overlay anlegen"
+
 #. Button that creates the experiment.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -2595,6 +2721,12 @@ msgstr "Schlüssel anlegen"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.picker.confirm"
 msgstr "Link erstellen"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandCreate"
+msgstr "Overlay anlegen"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -2674,6 +2806,12 @@ msgstr "Eigener Rahmen"
 msgid "clipboard.cut"
 msgstr "Ausschneiden"
 
+#. Name of a script.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.scriptCyrillic"
+msgstr "Kyrillisch"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -2696,6 +2834,12 @@ msgstr "Dunkel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeDark"
+msgstr "Dunkel"
+
+#. Column heading and name of the dark mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.colDark"
 msgstr "Dunkel"
 
 #. Accessible name of the field that holds a token's dark value; {token} is its path.
@@ -3016,11 +3160,35 @@ msgstr "Beschreibung"
 msgid "admin.roleDescription"
 msgstr "Beschreibung"
 
+#. Accessible name of the navigation between the pages of the Design system area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.areaNav"
+msgstr "Bereiche des Designsystems"
+
 #. Accessible name of the table of design tokens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeTokens"
 msgstr "Design-Tokens"
+
+#. Heading of the tokens page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.tokensTitle"
+msgstr "Design-Tokens"
+
+#. Accessible name of the tokens table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.tokensTable"
+msgstr "Design-Tokens"
+
+#. Label of the field that takes the DTCG text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importLabel"
+msgstr "Design-Tokens-Datei (DTCG-JSON, etwa ein Figma-Variablenexport)"
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -3045,6 +3213,12 @@ msgstr "Komponenteninstanz lösen"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.detach.title"
 msgstr "Diese Instanz lösen?"
+
+#. Name of a script.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.scriptDevanagari"
+msgstr "Devanagari"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -3274,6 +3448,12 @@ msgstr "{key} bearbeiten"
 msgid "panelTabs.codeEdit"
 msgstr "{name} im Rust-Editor bearbeiten"
 
+#. Button that opens the token editor; {token} is its path.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.editToken"
+msgstr "{token} bearbeiten"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3309,6 +3489,12 @@ msgstr "Bearbeiten Sie die Richtlinie und probieren Sie sie vor dem Speichern an
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.editVariables"
 msgstr "Variablen im App-Dokument bearbeiten"
+
+#. Title of dialog D57.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.editTitle"
+msgstr "Token {token} bearbeiten"
 
 #. Hint under the build step.
 #. js-lingui-explicit-id
@@ -3567,6 +3753,12 @@ msgstr "Nur Fehler"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfCost"
 msgstr "Geschätzte Kosten"
+
+#. Name of a script.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.scriptEthiopic"
+msgstr "Äthiopisch"
 
 #. Label of the choice of the widget event that starts the navigation, for example onPressed.
 #. js-lingui-explicit-id
@@ -3994,6 +4186,12 @@ msgstr "Faltbares Gerät"
 msgid "preview.platformFrame"
 msgstr "Dem Rahmen folgen"
 
+#. Label of the font family list of a script.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.familiesLabel"
+msgstr "Schriftfamilien für {script}, erste Wahl zuerst, durch Kommas getrennt"
+
 #. Caption under the heading of the heatmap page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -4306,6 +4504,12 @@ msgstr "Hoch"
 msgid "profile.theme.contrast"
 msgstr "Hoher Kontrast"
 
+#. Column heading and name of the high-contrast mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.colContrast"
+msgstr "Hoher Kontrast"
+
 #. Switch: the node selected in Studio is highlighted on the paired device (inspect mode).
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -4378,6 +4582,36 @@ msgstr "Wie lange jede Datenklasse aufbewahrt wird. Eine Änderung wartet auf ih
 msgid "installation.storageCaption"
 msgstr "Wie viel Platz Datenbank und Objektspeicher belegen."
 
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconName"
+msgstr "Icon-Name"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconSet"
+msgstr "Icon-Set"
+
+#. Heading of the icon sets page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconsTitle"
+msgstr "Icon-Sets"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconSource"
+msgstr "Icon-Quelle (Asset oder Codepoint)"
+
+#. Link to the icon sets page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconsLink"
+msgstr "Icons"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -4420,11 +4654,23 @@ msgstr "API-Definition importieren"
 msgid "library.importComponent"
 msgstr "Komponente importieren"
 
+#. Title of dialog D58.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importTitle"
+msgstr "Design-Tokens importieren"
+
 #. Button: upload a template library file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.importTemplate"
 msgstr "Vorlage importieren"
+
+#. Button that opens dialog D58.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importButton"
+msgstr "Tokens importieren"
 
 #. Button that opens the import dialog.
 #. js-lingui-explicit-id
@@ -4689,6 +4935,12 @@ msgstr "Aussteller"
 #: apps/web/src/features/safety/safety.messages.ts
 msgid "safety.blocked.entry"
 msgstr "Dies ist ein Einstiegspunkt. Wähle zuerst einen anderen Einstieg."
+
+#. Reason a token was skipped.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.skipDepth"
+msgstr "es ist zu tief verschachtelt"
 
 #. Reason a screen cannot move: it is its plugin's entry (STU-071).
 #. Reason a screen cannot move: it is its plugin's entry (STU-071).
@@ -5046,6 +5298,12 @@ msgstr "Latenz p99 (Mikrosekunden)"
 msgid "functions.colVersion"
 msgstr "Neueste Version"
 
+#. Name of a script.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.scriptLatin"
+msgstr "Lateinisch"
+
 #. Tab: the tree of the nodes of the screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -5166,11 +5424,23 @@ msgstr "Hell"
 msgid "designers.themeLight"
 msgstr "Hell"
 
+#. Column heading and name of the light mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.colLight"
+msgstr "Hell"
+
 #. Accessible name of the field that holds a token's light value; {token} is its path.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeLightValue"
 msgstr "Heller Wert von {token}"
+
+#. Caption under the themes heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.themesCaption"
+msgstr "Werte für hell, dunkel und hohen Kontrast sowie Marken-Overlays, die Tokens für eine Marke ersetzen."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -5345,6 +5615,12 @@ msgstr "Vorlagen werden geladen …"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.loading"
 msgstr "Der Datenbereich wird geladen."
+
+#. Status.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.libraryLoading"
+msgstr "Die Bibliothek wird geladen."
 
 #. Shown while the library loads.
 #. js-lingui-explicit-id
@@ -5712,6 +5988,12 @@ msgstr "Mock-Wert (JSON)"
 msgid "data.mockLabel"
 msgstr "Mock-Wert (JSON)"
 
+#. Heading of the modes section.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.modesHeading"
+msgstr "Modi"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -6072,6 +6354,12 @@ msgstr "Neuer Zielbildschirm"
 msgid "appCanvas.redirectTarget"
 msgstr "Neuer Zielbildschirm"
 
+#. Label of the field for the path of a new token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.newName"
+msgstr "Pfad des neuen Tokens"
+
 #. Label of the field that holds the path of a token to add.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -6138,6 +6426,12 @@ msgstr "Noch keine Assets."
 msgid "approvals.noBaseline"
 msgstr "Noch keine Basis"
 
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noBrands"
+msgstr "Noch keine Marken-Overlays."
+
 #. Status when the edited JSON equals the document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -6161,6 +6455,12 @@ msgstr "Kein Befehl passt."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.noDeps"
 msgstr "Keine Abhängigkeiten."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noTokens"
+msgstr "Noch keine Design-Tokens."
 
 #. Shown in the send dialog when no device is paired.
 #. js-lingui-explicit-id
@@ -6227,6 +6527,12 @@ msgstr "In dieser Umgebung ist keine Funktion bereitgestellt."
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.noHealth"
 msgstr "Es wurde noch keine Zustandsprüfung ausgeführt."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noIcons"
+msgstr "Noch keine Icon-Sets."
 
 #. Shown when a revised component has no instances.
 #. js-lingui-explicit-id
@@ -6432,6 +6738,12 @@ msgstr "Knoten auf der Seite"
 msgid "security.none"
 msgstr "Keine"
 
+#. Cell value when the app has no version of the component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.notAdopted"
+msgstr "Nicht übernommen"
+
 #. Shown for a plugin number the server did not return.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -6623,6 +6935,12 @@ msgstr "Nacheinander"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.editGrantsDescription"
 msgstr "Ein Eintrag pro Zeile. Releases werden nur veröffentlicht, wenn jedes Plugin eine Teilmenge anfordert."
+
+#. Caption under the typography heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.typographyCaption"
+msgstr "Pro Schrift eine Liste von Schriftfamilien mit Ersatzschriften, damit kein Text fehlende Zeichen zeigt."
 
 #. Help text.
 #. js-lingui-explicit-id
@@ -7578,6 +7896,12 @@ msgstr "Schreibgeschützt: Du hältst die Bearbeitungssperre nicht."
 msgid "l10n.area.importRead"
 msgstr "Datei lesen"
 
+#. Button that parses the DTCG text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importRead"
+msgstr "Datei lesen"
+
 #. Button that runs the import on the text.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -7595,6 +7919,12 @@ msgstr "Schreibgeschützt: Bearbeiten ist gesperrt."
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.readOnly"
 msgstr "Schreibgeschützt: Dieses Plugin kann jetzt nicht geändert werden"
+
+#. Shown when the app lock is not held.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.readOnly"
+msgstr "Schreibgeschützt: Du kannst das Theme gerade nicht bearbeiten."
 
 #. Shown when the editing lock is not held.
 #. js-lingui-explicit-id
@@ -7824,6 +8154,12 @@ msgstr "Entfernen"
 msgid "rustEditor.removeDependency"
 msgstr "{name} entfernen"
 
+#. Button that removes a token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.removeToken"
+msgstr "{token} entfernen"
+
 #. Button that removes the selected collection and lists it as dropped.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -7847,6 +8183,12 @@ msgstr "Eintrag entfernen"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbRemoveField"
 msgstr "Feld entfernen"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.removeIcon"
+msgstr "Icon {icon} entfernen"
 
 #. Accessible name of the button that removes a list item.
 #. js-lingui-explicit-id
@@ -9234,6 +9576,12 @@ msgstr "Größenklasse"
 msgid "tests.skipped"
 msgstr "Übersprungen"
 
+#. Heading of the list of skipped tokens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.skippedHeading"
+msgstr "Übersprungen"
+
 #. Shown when an instance replaces the content of a slot.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -10032,6 +10380,12 @@ msgstr "Der Code ist falsch oder abgelaufen."
 msgid "data.collectionsCaption"
 msgstr "Die Sammlungen der Datenbank dieses Plugins auf dem Gerät."
 
+#. Caption under the tokens heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.tokensCaption"
+msgstr "Die Farben, Größen und weiteren Werte der App mit ihren Werten für hell, dunkel und hohen Kontrast."
+
 #. Field error.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -10164,11 +10518,23 @@ msgstr "Die Datei konnte nicht exportiert werden."
 msgid "library.importFailed"
 msgstr "Die Datei konnte nicht importiert werden. Prüfe, ob es eine Bibliotheksdatei dieser Art ist."
 
+#. Error when the DTCG JSON is not an object.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importNotObject"
+msgstr "Die Datei enthält keinen Token-Baum."
+
 #. Error: the import file has no entries.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.importEmpty"
 msgstr "Die Datei enthält keine Übersetzungen."
+
+#. Error when the DTCG text is too large.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importTooLarge"
+msgstr "Die Datei ist größer als das Limit für Dokumente."
 
 #. Error: the import file is too large.
 #. js-lingui-explicit-id
@@ -10187,6 +10553,12 @@ msgstr "Die Datei überschreitet die Größenbeschränkung für Assets. Wähle e
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.importMalformed"
 msgstr "Die Datei ist keine gültige Datei dieses Formats."
+
+#. Error when the DTCG text does not parse.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importNotJson"
+msgstr "Die Datei ist kein gültiges JSON."
 
 #. Validation.
 #. js-lingui-explicit-id
@@ -10211,6 +10583,12 @@ msgstr "Die Funktion hat keine Abhängigkeiten."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.listCaption"
 msgstr "Die Funktionen dieser Umgebung mit ihrer neuesten Version."
+
+#. Caption under the icon sets heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconsCaption"
+msgstr "Die Icons, die jedes Set der App bereitstellt, nach Namen."
 
 #. Help text under the field for the identifier of an uploaded function source.
 #. js-lingui-explicit-id
@@ -10302,11 +10680,23 @@ msgstr "Die Language-Server-Sitzung hat ihr Zeitlimit erreicht. Starten Sie sie 
 msgid "admin.lockoutNote"
 msgstr "Die letzte Eigentümerin kann nie die Möglichkeit verlieren, Mitglieder und Richtlinien zu verwalten."
 
+#. Error.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.libraryFailed"
+msgstr "Die Bibliothek konnte nicht geladen werden."
+
 #. Error when the library list fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.loadFailed"
 msgstr "Die Bibliothek konnte nicht geladen werden. Versuche es erneut."
+
+#. Empty state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.libraryNone"
+msgstr "Die Bibliothek enthält keine Komponenten."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -10349,6 +10739,18 @@ msgstr "Der Mock ist kein gültiges JSON."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataMockHelp"
 msgstr "Der Mock wird auf der Leinwand gezeigt, solange keine echten Daten vorliegen."
+
+#. Reason a token was skipped.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.skipName"
+msgstr "der Name ist nicht erlaubt"
+
+#. Caption under the library heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.libraryCaption"
+msgstr "Die gesperrten Komponenten der Organisation und die Version, die diese App jeweils nutzt."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -10663,6 +11065,12 @@ msgstr "Der Text wird zur Nachricht des Schlüssels in {locale}, und die Eigensc
 msgid "safety.confirm.mismatch"
 msgstr "Der Text stimmt noch nicht überein"
 
+#. Confirmation after the import.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importDone"
+msgstr "Die Tokens wurden zum Theme hinzugefügt."
+
 #. Field error.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -10680,6 +11088,12 @@ msgstr "Der Papierkorb ist leer."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.noChanges"
 msgstr "Die beiden Snapshots sind identisch."
+
+#. Reason a token was skipped.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.skipType"
+msgstr "der Typ fehlt oder ist unbekannt"
 
 #. Shown when the server no longer has the upload session, for example after it sat idle too long.
 #. js-lingui-explicit-id
@@ -10728,6 +11142,12 @@ msgstr "Der Validator ist nicht verfügbar."
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.unavailable"
 msgstr "Der Validator ist noch nicht bereit, daher kann das JSON noch nicht übernommen werden."
+
+#. Reason a token was skipped.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.skipValue"
+msgstr "der Wert passt nicht zum Typ"
 
 #. Error after a failed adoption.
 #. js-lingui-explicit-id
@@ -10807,6 +11227,18 @@ msgstr "Theme-Editor"
 msgid "panels.useToken"
 msgstr "Design-Token"
 
+#. Link to the themes page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.themesLink"
+msgstr "Themes"
+
+#. Heading of the themes page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.themesTitle"
+msgstr "Themes und Marken-Overlays"
+
 #. Shown when the plugin has no snapshots.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -10836,6 +11268,12 @@ msgstr "Diese App hat noch kein Plugin."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.empty"
 msgstr "Diese App hat noch keine Plugins."
+
+#. Shown when theme.json is missing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noTheme"
+msgstr "Diese App hat noch kein Theme-Dokument."
 
 #. Shown when the app has no theme.json.
 #. js-lingui-explicit-id
@@ -11155,11 +11593,29 @@ msgstr "Zwischen hellem und dunklem Design wechseln"
 msgid "designers.themeToken"
 msgstr "Token"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.colToken"
+msgstr "Token"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.tokenName"
 msgstr "Name des Tokens"
+
+#. Picker of the base token a brand replaces.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandToken"
+msgstr "Zu ersetzender Token"
+
+#. Link to the tokens page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.tokensLink"
+msgstr "Tokens"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -11275,6 +11731,12 @@ msgstr "Typ"
 msgid "experiments.colType"
 msgstr "Typ"
 
+#. Label of the token type picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.newType"
+msgstr "Typ"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -11310,6 +11772,18 @@ msgstr "Befehl eingeben"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.rawType"
 msgstr "Typausdruck"
+
+#. Link to the typography page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.typographyLink"
+msgstr "Typografie"
+
+#. Heading of the typography page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.typographyTitle"
+msgstr "Typografie je Schrift"
 
 #. A screen that did not change.
 #. js-lingui-explicit-id
@@ -11515,11 +11989,23 @@ msgstr "Validierungsfehler"
 msgid "security.colValue"
 msgstr "Wert"
 
+#. Label of the field for the value of a new token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.newValue"
+msgstr "Wert"
+
 #. Label of a step input written as a plain value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.literal"
 msgstr "Wert"
+
+#. Field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandValue"
+msgstr "Wert für die Marke"
 
 #. Label of the field that holds the value of a token to add.
 #. js-lingui-explicit-id
@@ -11605,6 +12091,12 @@ msgstr "Version"
 msgid "library.headVersion"
 msgstr "Version {n}"
 
+#. Cell value: the adopted version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.adoptedVersion"
+msgstr "Version {n}"
+
 #. One version in the version list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -11628,6 +12120,12 @@ msgstr "Version {version}"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.versionN"
 msgstr "Version {version}"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.colAdopted"
+msgstr "Version in dieser App"
 
 #. Label of the field for the version requirement of a crate, such as 1.0.
 #. js-lingui-explicit-id
