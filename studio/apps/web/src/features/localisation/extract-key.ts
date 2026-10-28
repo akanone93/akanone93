@@ -21,7 +21,7 @@ export interface DocWriter {
     recipe: (draft: DocumentDraft) => void,
     options?: { readonly group?: string; readonly step?: string },
   ): unknown;
-  create(path: string, content: JsonValue): Promise<WholeWrite>;
+  create(path: string, content: JsonValue, options?: { readonly step?: string }): Promise<WholeWrite>;
 }
 
 export interface ExtractRequest {
@@ -55,6 +55,7 @@ async function writeKeys(
     return req.keys.create(
       KEYS_PATH,
       newKeysDocument(req.schemaVersion, req.newId(), { id, key: req.key, description: "" }),
+      { step },
     );
   }
   req.keys.edit(KEYS_PATH, addKeyRecipe({ id, key: req.key }), { step });
@@ -68,6 +69,7 @@ async function writeMessage(req: ExtractRequest, id: string, step: string): Prom
     return req.source.create(
       path,
       newLocaleDocument(req.schemaVersion, req.newId(), req.sourceLocale, { [id]: req.text }),
+      { step },
     );
   }
   req.source.edit(path, setMessageRecipe(id, req.text), { step });
@@ -76,8 +78,9 @@ async function writeMessage(req: ExtractRequest, id: string, step: string): Prom
 
 /**
  * Extracts literal text to a translation key (I18N-007): the key joins `translations/keys.json`, the text becomes
- * its message in the source locale, and the prop holds `{"$t": id}` instead. Every write carries the same step
- * identifier, so the server regroups them into one undo step (STU-069, F3).
+ * its message in the source locale, and the prop holds `{"$t": id}` instead. Every write, a created document's
+ * included, carries the same step identifier: the client's undo stacks join them into one step across the
+ * documents, and the server regroups them the same way after a reload (STU-069, F3).
  */
 export async function extractKey(req: ExtractRequest): Promise<ExtractResult> {
   const existing = req.keys.store.getState().docs[KEYS_PATH]?.content;
