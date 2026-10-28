@@ -59,13 +59,19 @@ function Dialogs({ input }: { input: ClipboardInput }) {
   return useLibraryActions(input);
 }
 
-function mount(library: LibraryFixture, selected: string, has = targetHas([])) {
+function mount(
+  library: LibraryFixture,
+  selected: string,
+  has = targetHas([]),
+  extra: Partial<ClipboardInput> = {},
+  screenRoot: unknown = tree(),
+) {
   const edits: EditCall[] = [];
   const session = createSession("/api", createUpstream({ library }));
   const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });
   const registry = createRegistry([]);
   const input: ClipboardInput = {
-    screens: [{ id: "s1", root: tree() }],
+    screens: [{ id: "s1", root: screenRoot }],
     screenOf: new Map([
       [N0, "s1"],
       [N1, "s1"],
@@ -77,6 +83,7 @@ function mount(library: LibraryFixture, selected: string, has = targetHas([])) {
     source: { app: "a", plugin: "p" },
     has,
     validatePage: undefined,
+    ...extra,
   };
   render(
     <I18nProvider studio={studio}>
@@ -113,6 +120,40 @@ describe("[STU-080] [STU-083] [STU-084] canvas library commands", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     fireEvent.click(await screen.findByRole("button", { name: "Save template" }));
     await waitFor(() => expect(calls).toEqual(["createTemplate:hello-page"]));
+  });
+
+  test("save as template turns page state into parameters, flags the rest and lists the dependencies [STU-082]", async () => {
+    const created: NonNullable<LibraryFixture["created"]> = [];
+    const bound = {
+      id: N1,
+      type: "Text",
+      props: {
+        value: { $expr: "page.amount" },
+        color: { $token: "color.primary" },
+        label: { $expr: "page.amount + 1" },
+      },
+    };
+    mount(
+      { items: [], created },
+      N1,
+      targetHas([]),
+      { pageState: (id) => (id === "s1" ? [{ name: "amount", type: "int", default: 5 }] : []) },
+      { id: N0, children: [bound] },
+    );
+    await run("library.saveTemplate");
+    fireEvent.change(await screen.findByRole("textbox", { name: "Name" }), { target: { value: "Amount" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await screen.findByText("page.amount becomes the parameter amount");
+    await screen.findByText("page.amount + 1 is part of a larger expression");
+    fireEvent.click(screen.getByRole("button", { name: "Save template" }));
+    await waitFor(() => expect(created).toHaveLength(1));
+    const doc = JSON.parse(created[0]?.content ?? "{}") as Record<string, unknown>;
+    expect(doc["parameters"]).toEqual([
+      { name: "amount", type: "int", path: "/props/value", description: "page.amount", default: 5 },
+    ]);
+    expect(doc["dependencies"]).toEqual({ tokens: ["color.primary"], assets: [], components: [] });
+    expect(doc["x-flagged"]).toEqual([{ path: "/props/label", expression: "page.amount + 1", reason: "expression" }]);
+    expect((doc["root"] as { props: { value: unknown } }).props.value).toBe(5);
   });
 
   test("insert template fills the parameters and places new nodes in one grouped edit when nothing is missing", async () => {

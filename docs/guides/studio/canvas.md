@@ -26,13 +26,16 @@ Canvas, and you can drive both from the keyboard.
 
 1. Open the app. The **App canvas** lists a card per plugin with its screens, versions, links in and
    out, functions, bundle size and whether it is valid, has unpublished changes or is switched off.
-2. Choose **New plugin**, give it a name and a key, and save.
-3. Drag a plugin to move it, or use **Move to…** with X and Y positions. Frame a group with **Frame
+2. Hover a plugin, or move keyboard focus to it, to see its **detail card**: the description, a
+   mini-map of its screens and the links among them, how many links go in and out, the functions it
+   uses, its bundle size, and who published it last and when.
+3. Choose **New plugin**, give it a name and a key, and save.
+4. Drag a plugin to move it, or use **Move to…** with X and Y positions. Frame a group with **Frame
    selection**, then rename or resize the frame. **Arrange** tidies the layout and **Zoom to fit**
    shows everything.
-4. Open **Plugin settings** to change the description, tags and owning team, make the plugin the
+5. Open **Plugin settings** to change the description, tags and owning team, make the plugin the
    entry plugin, **Duplicate plugin**, or **Archive plugin** (and **Restore plugin** later).
-5. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.
+6. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.
    Deleting or deprecating a plugin of an app with a production release asks you to type its key.
    If other plugins link into it, **Redirect incoming links** to a new target screen first.
 

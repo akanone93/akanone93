@@ -6,7 +6,7 @@ import type { LibraryItem } from "@plux/api";
 import { Button, Dialog, Field, Input, Select } from "@plux/ui";
 import { type FormEvent, type ReactElement, useState } from "react";
 import { canvasLibraryMessages } from "./canvas.messages.ts";
-import type { TemplateParameter } from "./template-doc.ts";
+import type { PageStateScan, TemplateParameter } from "./template-doc.ts";
 
 const KEY = /^[a-z][a-z0-9-]*$/;
 const slug = (name: string) =>
@@ -51,10 +51,13 @@ function DetailFields({ form }: { readonly form: ReturnType<typeof useDetails> }
 /** D28: save the selection as a template in two steps: details, then exposed parameters and visibility. */
 export function SaveTemplateDialog({
   candidates,
+  pageState = { parameters: [], flagged: [] },
   save,
   onClose,
 }: {
   readonly candidates: readonly TemplateParameter[];
+  /** The page-state references of the selection: bare ones become parameters, the rest are flagged (STU-082). */
+  readonly pageState?: PageStateScan;
   readonly save: (details: Details & { visibility: string }, parameters: TemplateParameter[]) => Promise<void>;
   readonly onClose: () => void;
 }): ReactElement {
@@ -101,10 +104,30 @@ export function SaveTemplateDialog({
           {candidates.map((c) => (
             <label key={c.path} className="flex items-center gap-2 text-body">
               <input type="checkbox" checked={exposed.has(c.path)} onChange={() => toggle(c.path)} />
-              {c.name}
+              {c.label ?? c.name}
             </label>
           ))}
-          <p className="text-caption text-secondary">{m.flaggedNote}</p>
+          {pageState.parameters.length > 0 && (
+            <section aria-label={m.convertedHeading} className="flex flex-col gap-1">
+              <h3 className="text-body font-medium">{m.convertedHeading}</h3>
+              <ul className="flex flex-col gap-1 text-body">
+                {pageState.parameters.map((p) => (
+                  <li key={p.path}>{m.convertedItem(p.label ?? p.name, p.name)}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {pageState.flagged.length > 0 && (
+            <section aria-label={m.flaggedHeading} className="flex flex-col gap-1">
+              <h3 className="text-body font-medium">{m.flaggedHeading}</h3>
+              <ul className="flex flex-col gap-1 text-body">
+                {pageState.flagged.map((f) => (
+                  <li key={f.path}>{m.flaggedItem(f.expression, f.reason)}</li>
+                ))}
+              </ul>
+              <p className="text-caption text-secondary">{m.flaggedNote}</p>
+            </section>
+          )}
           <Select
             label={m.visibility}
             value={visibility}
@@ -216,7 +239,7 @@ export function InsertTemplateDialog({
           />
         )}
         {parameters.map((p) => (
-          <Field key={p.name} label={p.name}>
+          <Field key={p.name} label={p.description ?? p.name}>
             <Input value={args[p.name] ?? ""} onChange={(e) => setArgs({ ...args, [p.name]: e.target.value })} />
           </Field>
         ))}

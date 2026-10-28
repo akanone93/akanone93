@@ -42,7 +42,12 @@ The **Library** (organisation level) holds **Components** and **Templates**. Sav
 template or extract a component from the canvas; browse by kind, visibility (*Private*,
 *Organisation*, *Public*), author, category and tag. A component's page shows its **Versions** and
 **Instances across apps**, so you see what a change touches before you publish a new version.
-Apps **adopt** a version when they choose to. **Import** and **Export** move library items as files.
+Saving a template records what it uses (design tokens, assets and components) as references, never
+content. A property bound to a page-state entry (for example `page.amount`) becomes a template
+parameter of the entry's type, filled with the entry's default; the second step of the dialog lists
+them. Page state that cannot become a parameter, such as a reference inside a larger expression or
+the state path of an action, stays in the template and is listed as flagged, so you can check it
+after inserting. Apps **adopt** a version when they choose to. **Import** and **Export** move library items as files.
 
 Studio's own look is separate: the [engineering handbook](../../engineering/studio-ui-language.md)
 describes it.

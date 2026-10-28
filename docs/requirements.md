@@ -1684,7 +1684,7 @@ The app canvas shows every plugin of an app as a box on an infinite canvas, with
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `STU-030` | P11 | MUST | Each plugin **MUST** be a box showing name, icon, number of screens, draft/published state and version, badges (unpublished changes, locked by *user*, validation errors, disabled by kill switch), and owner. | DONE |
-| `STU-031` | P11 | MUST | Hovering or focusing a plugin **MUST** show a detail card: description, a mini-map of its screens, inbound and outbound link counts, functions used, bundle size, last published by and when. | WIP |
+| `STU-031` | P11 | MUST | Hovering or focusing a plugin **MUST** show a detail card: description, a mini-map of its screens, inbound and outbound link counts, functions used, bundle size, last published by and when. | DONE |
 | `STU-032` | P11 | MUST | Plugin boxes **MUST** be freely draggable, with snapping, alignment guides, multi-select, auto-layout (layered graph layout) and zoom-to-fit; positions are saved per app. | DONE |
 | `STU-033` | P11 | MUST | Native routes that plugins navigate to **MUST** appear as distinct native nodes (dashed outline, native icon) that only **receive** arrows. Native → plugin arrows **MUST NOT** be drawn, because Plux cannot know which native screens open plugin pages (§13.1). | DONE |
 | `STU-034` | P11 | MUST | Plugins **MUST** be creatable, renamed, duplicated, archived and configured from the canvas (context menu and toolbar). Double-clicking a plugin opens its plugin canvas. | DONE |
@@ -1766,7 +1766,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 |---|---|---|---|---|
 | `STU-080` | P11 | MUST | Selecting one or more nodes (with all nested nodes) **MUST** allow **Save as template** in at most two steps: name, description, category, tags, auto-generated thumbnail, parameters to expose (chosen from props of the selection), and visibility. | DONE |
 | `STU-081` | P11 | MUST | Template visibility **MUST** be `private` (only the author can see and reuse it), `organization` (every member of the organization — "Team" in the UI — can see and reuse it) or `public` (everyone on the installation, and, on multi-tenant installations, in the public gallery, `SAAS-006`). Changing visibility to `public` **MUST** run an automated scan (no secrets, no private URLs, no personal data) and **MAY** require moderation. | DONE |
-| `STU-082` | P11 | MUST | Saving a template **MUST** capture its dependencies (tokens, assets, components) and convert references to page state into parameters, or flag what cannot be converted. | WIP |
+| `STU-082` | P11 | MUST | Saving a template **MUST** capture its dependencies (tokens, assets, components) and convert references to page state into parameters, or flag what cannot be converted. | DONE |
 | `STU-083` | P11 | MUST | Inserting a template **MUST** copy it with new IDs and prompt for its parameters; inserted content is independent of the template afterwards. | DONE |
 | `STU-084` | P11 | MUST | **Extract to component** **MUST** turn a selection into a linked component with props, slots and events; the original selection is replaced by an instance. Editing the component **MUST** show which instances will change before saving; instances **MAY** override props and **MAY** be detached. | DONE |
 | `STU-085` | P11 | MUST | Components **MUST** have the same visibility levels as templates and be versioned; apps choose when to adopt a new component version. | DONE |

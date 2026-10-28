@@ -298,6 +298,18 @@ msgstr "{event} goes to {route}"
 msgid "links.created"
 msgstr "{event} now goes to {target}"
 
+#. A page-state reference inside a larger expression; it cannot become a template parameter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.flagged.expression"
+msgstr "{expression} is part of a larger expression"
+
+#. A page-state reference to an entry the page does not declare; it cannot become a parameter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.flagged.undeclared"
+msgstr "{expression} names state the page does not declare"
+
 #. One arrow between two boxes: source, target and how many navigation links it bundles.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -598,6 +610,12 @@ msgstr "{port} goes to"
 msgid "assets.progress"
 msgstr "{received} of {total}"
 
+#. One page-state reference converted to a template parameter; both values are identifiers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.converted.item"
+msgstr "{reference} becomes the parameter {parameter}"
+
 #. Body of the confirmation that opens the canvas of the plugin a ghost screen belongs to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -795,6 +813,12 @@ msgstr "Action graph"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.title"
 msgstr "Action graph editor"
+
+#. A page-state path in an action step; it cannot become a template parameter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.flagged.action"
+msgstr "Action state path {expression}"
 
 #. Column heading of the row actions.
 #. js-lingui-explicit-id
@@ -5862,6 +5886,18 @@ msgstr "Largest rise per session (basis points)"
 msgid "security.colAttested"
 msgstr "Last attestation"
 
+#. Detail card of a plugin: when the newest version was published, the publisher being unknown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.detail.publishedAt"
+msgstr "Last published {when}"
+
+#. Detail card of a plugin: who published the newest version, and when.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.detail.publishedBy"
+msgstr "Last published by {name}, {when}"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -7386,6 +7422,12 @@ msgstr "No screen has the route {route}."
 msgid "links.noTarget"
 msgstr "No screens to link to."
 
+#. Detail card of a plugin: the plugin has no screens, so the mini-map is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.detail.noScreens"
+msgstr "No screens yet"
+
 #. Text beside a key without a screenshot context.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -7505,6 +7547,12 @@ msgstr "Not interactive"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.productionNever"
 msgstr "Not production"
+
+#. Detail card of a plugin: it has no published version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.detail.neverPublished"
+msgstr "Not published yet"
 
 #. Fallback of a missing time.
 #. js-lingui-explicit-id
@@ -8039,6 +8087,18 @@ msgstr "Page or flow"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.pageLabel"
 msgstr "Page route"
+
+#. Heading of the list of page-state references that stay in the template and are flagged.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.flagged.heading"
+msgstr "Page state that cannot become a parameter"
+
+#. Heading of the list of page-state references that became template parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/canvas/canvas.messages.ts
+msgid "library.canvas.converted.heading"
+msgstr "Page state turned into parameters"
 
 #. Title of the dialog that shows the QR code for pairing a device.
 #. js-lingui-explicit-id
@@ -10127,6 +10187,12 @@ msgstr "Screens"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screens"
 msgstr "Screens in navigation order"
+
+#. Accessible name of the mini-map of a plugin's screens; the value lists the screen titles.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.detail.miniMap"
+msgstr "Screens: {screens}"
 
 #. Alternative text of a captured device screenshot.
 #. js-lingui-explicit-id
@@ -13254,6 +13320,12 @@ msgstr "User claims"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.accessUser"
 msgstr "User ID"
+
+#. Detail card of a plugin: the names of the Plux Functions it uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.detail.functionsUsed"
+msgstr "Uses {names}"
 
 #. Badge: a plugin has no validation errors.
 #. js-lingui-explicit-id

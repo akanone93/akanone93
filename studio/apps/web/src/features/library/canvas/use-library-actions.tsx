@@ -30,6 +30,7 @@ import {
   instanceNode,
   instantiateRoot,
   rootOf,
+  scanPageState,
   templateEnvelope,
 } from "./template-doc.ts";
 
@@ -109,11 +110,16 @@ export function useLibraryActions(input: ClipboardInput): ReactElement | null {
     [anchorDoc, edit, screenOf],
   );
 
+  const pageStateOf = useCallback(() => {
+    const { doc } = anchorDoc();
+    return doc === undefined ? [] : (input.pageState?.(doc) ?? []);
+  }, [anchorDoc, input]);
+
   const saveTemplate = async (
     details: { name: string; key: string; description: string; visibility: string },
     parameters: Parameters<typeof buildTemplateDoc>[1],
   ) => {
-    const doc = buildTemplateDoc({ ...details, category: "page" }, parameters, selectedNodes(), source);
+    const doc = buildTemplateDoc({ ...details, category: "page" }, parameters, selectedNodes(), source, pageStateOf());
     const created = await templates.createTemplate({
       draft: {
         key: details.key,
@@ -205,6 +211,7 @@ export function useLibraryActions(input: ClipboardInput): ReactElement | null {
     return (
       <SaveTemplateDialog
         candidates={candidateParameters(rootOf(selectedNodes()))}
+        pageState={scanPageState(rootOf(selectedNodes()), pageStateOf())}
         save={saveTemplate}
         onClose={close}
       />

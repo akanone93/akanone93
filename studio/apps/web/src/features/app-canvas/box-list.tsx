@@ -9,6 +9,7 @@ import { type ArrowKey, nudgeDelta } from "../plugin-canvas/select/geometry.ts";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
 import type { Frame, Point } from "./app-canvas.model.ts";
 import type { Badge, SceneBox } from "./app-canvas.scene.ts";
+import type { MiniMap } from "./plugin-minimap.ts";
 
 type Messages = ReturnType<typeof appCanvasMessages>;
 
@@ -75,9 +76,71 @@ export function PluginBoxCard(props: CardProps): ReactNode {
   );
 }
 
-/** The hover/focus detail card of a plugin (E5, STU-031): floating chrome over the canvas. */
-export function DetailCard(props: { summary: PluginSummary; badges: readonly Badge[]; messages: Messages }): ReactNode {
+/** Who published a plugin's newest version, and when (STU-031). */
+export interface LastPublished {
+  readonly by: string;
+  readonly at: string;
+}
+
+/** The mini-map of a plugin's screens: a small box per screen and a line per navigation between them. */
+function MiniMapView(props: { map: MiniMap; messages: Messages }): ReactNode {
+  const { map, messages: m } = props;
+  if (map.screens.length === 0) {
+    return <span className="text-data text-secondary">{m.noScreens}</span>;
+  }
+  const centre = new Map(
+    map.screens.map((s) => [s.id, { x: s.x + map.cell.width / 2, y: s.y + map.cell.height / 2 }] as const),
+  );
+  return (
+    <svg
+      role="img"
+      aria-label={m.miniMap(map.screens.map((s) => s.title).join(", "))}
+      viewBox={`0 0 ${map.width} ${map.height}`}
+      className="w-full rounded-sm border bg-canvas"
+    >
+      {map.edges.map((e) => {
+        const from = centre.get(e.from);
+        const to = centre.get(e.to);
+        return from === undefined || to === undefined ? null : (
+          <line
+            key={`${e.from}>${e.to}`}
+            x1={from.x}
+            y1={from.y}
+            x2={to.x}
+            y2={to.y}
+            className="stroke-current text-secondary"
+          />
+        );
+      })}
+      {map.screens.map((s) => (
+        <rect
+          key={s.id}
+          data-screen={s.id}
+          x={s.x}
+          y={s.y}
+          width={map.cell.width}
+          height={map.cell.height}
+          rx={2}
+          className="fill-current text-accent"
+        />
+      ))}
+    </svg>
+  );
+}
+
+/**
+ * The hover/focus detail card of a plugin (E5, STU-031): description, a mini-map of its screens, link counts in and
+ * out, the functions it uses, its bundle size, and who published it last and when. Floating chrome over the canvas.
+ */
+export function DetailCard(props: {
+  summary: PluginSummary;
+  badges: readonly Badge[];
+  messages: Messages;
+  miniMap: MiniMap;
+  published: LastPublished | undefined;
+}): ReactNode {
   const { summary: s, messages: m } = props;
+  const functions = [...s.functionsUsed];
   return (
     <aside
       aria-label={s.plugin?.name}
@@ -89,13 +152,24 @@ export function DetailCard(props: { summary: PluginSummary; badges: readonly Bad
           <StatusPill key={b.label} status={b.status} label={b.label} />
         ))}
       </span>
+      {s.plugin?.description ? <span>{s.plugin.description}</span> : null}
+      <MiniMapView map={props.miniMap} messages={m} />
       <span className="text-data">{m.screens(Number(s.screens))}</span>
       <span className="text-data">{m.versions(Number(s.versions))}</span>
       <span className="text-data">{m.bundleSize(Math.ceil(Number(s.bundleSize) / 1024))}</span>
       <span className="text-data">{m.linksOut(s.linksOut.length)}</span>
       <span className="text-data">{m.linksIn(s.linksIn.length)}</span>
-      <span className="text-data">{m.functions(s.functionsUsed.length)}</span>
-      {s.plugin?.description ? <span>{s.plugin.description}</span> : null}
+      <span className="text-data">{m.functions(functions.length)}</span>
+      {functions.length > 0 ? (
+        <span className="text-data text-secondary">{m.functionsUsed(functions.join(", "))}</span>
+      ) : null}
+      <span className="text-data">
+        {props.published === undefined
+          ? m.neverPublished
+          : props.published.by === ""
+            ? m.publishedAt(props.published.at)
+            : m.publishedBy(props.published.by, props.published.at)}
+      </span>
     </aside>
   );
 }
