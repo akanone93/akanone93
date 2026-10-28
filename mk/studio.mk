@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-validator zap-studio studio-image-repro
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-bench-lcp studio-validator zap-studio studio-image-repro
 
 ##@ Studio (Bun, TypeScript)
 
@@ -89,6 +89,11 @@ studio-bench-canvas: studio-install ## Canvas benchmark in software rendering (S
 
 studio-bench-overlay: studio-install ## Overlay open benchmark in software rendering, p95 at most 150 ms (STU-123)
 	cd studio/apps/web && bun bench/run.ts
+
+# STU-122: the built app's Largest Contentful Paint over emulated broadband (10 Mbit/s, 40 ms round trip);
+# the median of five cold loads must stay within budgets.json. Not part of studio-check.
+studio-bench-lcp: studio-build ## LCP benchmark of the built app, median at most 2.5 s (STU-122)
+	cd studio && bun scripts/bench-lcp.ts
 
 # Verifies: QA-008. The Compose stack runs Studio on port 8081 (make compose-up).
 STUDIO_ZAP_TARGET ?= http://localhost:8081
