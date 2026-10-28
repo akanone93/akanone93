@@ -12,6 +12,7 @@ import {
 } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearch } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { loadUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { defaultEnvironment } from "./security.schema.ts";
@@ -30,7 +31,7 @@ export function useScope() {
 export function usePermissions(): ReadonlySet<string> {
   const { session } = useApp();
   const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
-  return new Set(user.data?.permissions ?? []);
+  return useMemo(() => new Set(user.data?.permissions ?? []), [user.data]);
 }
 
 /** The environment of the scope, found by its key. */
