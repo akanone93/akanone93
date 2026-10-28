@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/analytics.proto.
  */
 export const file_plux_v1_analytics: GenFile = /*@__PURE__*/
-  fileDesc("ChdwbHV4L3YxL2FuYWx5dGljcy5wcm90bxIHcGx1eC52MSKHAQoLUm9sbHVwR3JvdXASFgoOZW52aXJvbm1lbnRfaWQYASABKAkSGAoQcmVsZWFzZV9zZXF1ZW5jZRgCIAEoAxISCgpwbHVnaW5fa2V5GAMgASgJEgwKBHBhZ2UYBCABKAkSFAoMZGV2aWNlX2NsYXNzGAUgASgJEg4KBmxvY2FsZRgGIAEoCSLRAQoLUm9sbHVwUG9pbnQSKgoGYnVja2V0GAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIjCgVncm91cBgCIAEoCzIULnBsdXgudjEuUm9sbHVwR3JvdXASDgoGZXZlbnRzGAMgASgDEhMKC3ZhbHVlX2NvdW50GAQgASgDEgsKA3N1bRgFIAEoARILCgNtaW4YBiABKAESCwoDbWF4GAcgASgBEgsKA3A1MBgIIAEoARILCgNwOTAYCSABKAESCwoDcDk5GAogASgBIuYBChNRdWVyeVJvbGx1cHNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRITCgtlbnZpcm9ubWVudBgCIAEoCRIOCgZtZXRyaWMYAyABKAkSEwoLZ3JhbnVsYXJpdHkYBCABKAkSKAoEZnJvbRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJgoCdG8YBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGdyb3VwX2J5GAcgAygJEg0KBWxpbWl0GAggASgFEhIKCnBhZ2VfdG9rZW4YCSABKAkiVQoUUXVlcnlSb2xsdXBzUmVzcG9uc2USJAoGcG9pbnRzGAEgAygLMhQucGx1eC52MS5Sb2xsdXBQb2ludBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkingEKEFJldGVudGlvblNldHRpbmcSEgoKZGF0YV9jbGFzcxgBIAEoCRIMCgRkYXlzGAIgASgFEhIKCmlzX2RlZmF1bHQYAyABKAgSEAoIZW5mb3JjZWQYBCABKAgSEgoKY2hhbmdlZF9ieRgFIAEoCRIuCgpjaGFuZ2VkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCL1AQoPUmV0ZW50aW9uQ2hhbmdlEgoKAmlkGAEgASgJEhIKCmRhdGFfY2xhc3MYAiABKAkSDAoEZGF5cxgDIAEoBRINCgVzdGF0ZRgEIAEoCRIUCgxyZXF1ZXN0ZWRfYnkYBSABKAkSMAoMcmVxdWVzdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghhcHBseV9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIhUKE0dldFJldGVudGlvblJlcXVlc3QicAoUR2V0UmV0ZW50aW9uUmVzcG9uc2USKwoIc2V0dGluZ3MYASADKAsyGS5wbHV4LnYxLlJldGVudGlvblNldHRpbmcSKwoJc2NoZWR1bGVkGAIgAygLMhgucGx1eC52MS5SZXRlbnRpb25DaGFuZ2UiSgoTU2V0UmV0ZW50aW9uUmVxdWVzdBISCgpkYXRhX2NsYXNzGAEgASgJEgwKBGRheXMYAiABKAUSEQoJaW1tZWRpYXRlGAMgASgIImoKFFNldFJldGVudGlvblJlc3BvbnNlEigKBmNoYW5nZRgBIAEoCzIYLnBsdXgudjEuUmV0ZW50aW9uQ2hhbmdlEigKC2RpYWdub3N0aWNzGAIgAygLMhMucGx1eC52MS5EaWFnbm9zdGljIkQKG0xpc3RSZXRlbnRpb25DaGFuZ2VzUmVxdWVzdBIWCg5vbmx5X3NjaGVkdWxlZBgBIAEoCBINCgVsaW1pdBgCIAEoBSJJChxMaXN0UmV0ZW50aW9uQ2hhbmdlc1Jlc3BvbnNlEikKB2NoYW5nZXMYASADKAsyGC5wbHV4LnYxLlJldGVudGlvbkNoYW5nZSIqChxDYW5jZWxSZXRlbnRpb25DaGFuZ2VSZXF1ZXN0EgoKAmlkGAEgASgJIkkKHUNhbmNlbFJldGVudGlvbkNoYW5nZVJlc3BvbnNlEigKBmNoYW5nZRgBIAEoCzIYLnBsdXgudjEuUmV0ZW50aW9uQ2hhbmdlIqgBCgZFeHBvcnQSEAoIZW5kcG9pbnQYASABKAkSDwoHZW5hYmxlZBgCIAEoCBIyCg5leHBvcnRlZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKbGFzdF9lcnJvchgEIAEoCRIzCg9sYXN0X2F0dGVtcHRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIhIKEEdldEV4cG9ydFJlcXVlc3QiNAoRR2V0RXhwb3J0UmVzcG9uc2USHwoGZXhwb3J0GAEgASgLMg8ucGx1eC52MS5FeHBvcnQiNQoQU2V0RXhwb3J0UmVxdWVzdBIQCghlbmRwb2ludBgBIAEoCRIPCgdlbmFibGVkGAIgASgIIjQKEVNldEV4cG9ydFJlc3BvbnNlEh8KBmV4cG9ydBgBIAEoCzIPLnBsdXgudjEuRXhwb3J0IhUKE0RlbGV0ZUV4cG9ydFJlcXVlc3QiFgoURGVsZXRlRXhwb3J0UmVzcG9uc2UiqQEKEkZpbGVFeHBvcnRTZXR0aW5ncxIXCg9wYXJxdWV0X2VuYWJsZWQYASABKAgSFgoOcGFycXVldF9ldmVudHMYAiABKAgSFwoPcGFycXVldF9yb2xsdXBzGAMgASgIEhsKE3BhcnF1ZXRfZ3JhbnVsYXJpdHkYBCABKAkSFwoPd2ViaG9va19lbmFibGVkGAUgASgIEhMKC3dlYmhvb2tfdXJsGAYgASgJIs0BCgpGaWxlRXhwb3J0Ei0KCHNldHRpbmdzGAEgASgLMhsucGx1eC52MS5GaWxlRXhwb3J0U2V0dGluZ3MSEwoLc2VjcmV0X2hpbnQYAiABKAkSMgoOZXhwb3J0ZWRfdW50aWwYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhIKCmxhc3RfZXJyb3IYBCABKAkSMwoPbGFzdF9hdHRlbXB0X2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIWChRHZXRGaWxlRXhwb3J0UmVxdWVzdCI8ChVHZXRGaWxlRXhwb3J0UmVzcG9uc2USIwoGZXhwb3J0GAEgASgLMhMucGx1eC52MS5GaWxlRXhwb3J0Il0KFFNldEZpbGVFeHBvcnRSZXF1ZXN0Ei0KCHNldHRpbmdzGAEgASgLMhsucGx1eC52MS5GaWxlRXhwb3J0U2V0dGluZ3MSFgoOd2ViaG9va19zZWNyZXQYAiABKAkiPAoVU2V0RmlsZUV4cG9ydFJlc3BvbnNlEiMKBmV4cG9ydBgBIAEoCzITLnBsdXgudjEuRmlsZUV4cG9ydCKfAwoJQWxlcnRSdWxlEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEg4KBm1ldHJpYxgEIAEoCRITCgtlbnZpcm9ubWVudBgFIAEoCRIwCgdmaWx0ZXJzGAYgAygLMh8ucGx1eC52MS5BbGVydFJ1bGUuRmlsdGVyc0VudHJ5EhMKC2FnZ3JlZ2F0aW9uGAcgASgJEhYKDndpbmRvd19zZWNvbmRzGAggASgFEhIKCmNvbXBhcmlzb24YCSABKAkSEQoJdGhyZXNob2xkGAogASgBEhMKC2Zvcl9zZWNvbmRzGAsgASgFEhAKCHNldmVyaXR5GAwgASgJEhAKCGRpc2FibGVkGA0gASgIEhAKCHJldmlzaW9uGA4gASgDEhIKCnVwZGF0ZWRfYnkYDyABKAkSLgoKdXBkYXRlZF9hdBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAaLgoMRmlsdGVyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiqQIKCkFsZXJ0U3RhdGUSDwoHcnVsZV9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSEQoJcnVsZV9uYW1lGAMgASgJEg0KBXN0YXRlGAQgASgJEikKBXNpbmNlGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxldmFsdWF0ZWRfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhIKBXZhbHVlGAcgASgBSACIAQESLAoIZmlyZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC3Jlc29sdmVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIICgZfdmFsdWUiOgoWQ3JlYXRlQWxlcnRSdWxlUmVxdWVzdBIgCgRydWxlGAEgASgLMhIucGx1eC52MS5BbGVydFJ1bGUiOwoXQ3JlYXRlQWxlcnRSdWxlUmVzcG9uc2USIAoEcnVsZRgBIAEoCzISLnBsdXgudjEuQWxlcnRSdWxlIjoKFlVwZGF0ZUFsZXJ0UnVsZVJlcXVlc3QSIAoEcnVsZRgBIAEoCzISLnBsdXgudjEuQWxlcnRSdWxlIjsKF1VwZGF0ZUFsZXJ0UnVsZVJlc3BvbnNlEiAKBHJ1bGUYASABKAsyEi5wbHV4LnYxLkFsZXJ0UnVsZSIkChZEZWxldGVBbGVydFJ1bGVSZXF1ZXN0EgoKAmlkGAEgASgJIhkKF0RlbGV0ZUFsZXJ0UnVsZVJlc3BvbnNlIicKFUxpc3RBbGVydFJ1bGVzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkiOwoWTGlzdEFsZXJ0UnVsZXNSZXNwb25zZRIhCgVydWxlcxgBIAMoCzISLnBsdXgudjEuQWxlcnRSdWxlIjcKFkxpc3RBbGVydFN0YXRlc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEg0KBXN0YXRlGAIgASgJIj4KF0xpc3RBbGVydFN0YXRlc1Jlc3BvbnNlEiMKBnN0YXRlcxgBIAMoCzITLnBsdXgudjEuQWxlcnRTdGF0ZSInCghFcnJvckRheRILCgNkYXkYASABKAkSDgoGZXZlbnRzGAIgASgDIoQDCgpFcnJvckdyb3VwEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIYChByZWxlYXNlX3NlcXVlbmNlGAMgASgDEhMKC2ZpbmdlcnByaW50GAQgASgJEgwKBGNvZGUYBSABKAkSEgoKcGx1Z2luX2tleRgGIAEoCRINCgVyb3V0ZRgHIAEoCRIRCglub2RlX3BhdGgYCCABKAkSEQoJanNvbl9wYXRoGAkgASgJEhMKC3NvdXJjZV9maWxlGAogASgJEg4KBmZyYW1lcxgLIAMoCRINCgVmYXRhbBgMIAEoCBIuCgpmaXJzdF9zZWVuGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCglsYXN0X3NlZW4YDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg4KBmV2ZW50cxgPIAEoAxIPCgdkZXZpY2VzGBAgASgDEiAKBXRyZW5kGBEgAygLMhEucGx1eC52MS5FcnJvckRheSJlCgtFcnJvclNhbXBsZRIQCghldmVudF9pZBgBIAEoCRIvCgtvY2N1cnJlZF9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoLZmllbGRzX2pzb24YAyABKAkiXwoWTGlzdEVycm9yR3JvdXBzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSGAoQcmVsZWFzZV9zZXF1ZW5jZRgCIAEoAxIMCgRkYXlzGAMgASgFEg0KBWxpbWl0GAQgASgFIj4KF0xpc3RFcnJvckdyb3Vwc1Jlc3BvbnNlEiMKBmdyb3VwcxgBIAMoCzITLnBsdXgudjEuRXJyb3JHcm91cCIwChRHZXRFcnJvckdyb3VwUmVxdWVzdBIKCgJpZBgBIAEoCRIMCgRkYXlzGAIgASgFImIKFUdldEVycm9yR3JvdXBSZXNwb25zZRIiCgVncm91cBgBIAEoCzITLnBsdXgudjEuRXJyb3JHcm91cBIlCgdzYW1wbGVzGAIgAygLMhQucGx1eC52MS5FcnJvclNhbXBsZTKMCwoQQW5hbHl0aWNzU2VydmljZRJLCgxRdWVyeVJvbGx1cHMSHC5wbHV4LnYxLlF1ZXJ5Um9sbHVwc1JlcXVlc3QaHS5wbHV4LnYxLlF1ZXJ5Um9sbHVwc1Jlc3BvbnNlEksKDEdldFJldGVudGlvbhIcLnBsdXgudjEuR2V0UmV0ZW50aW9uUmVxdWVzdBodLnBsdXgudjEuR2V0UmV0ZW50aW9uUmVzcG9uc2USSwoMU2V0UmV0ZW50aW9uEhwucGx1eC52MS5TZXRSZXRlbnRpb25SZXF1ZXN0Gh0ucGx1eC52MS5TZXRSZXRlbnRpb25SZXNwb25zZRJjChRMaXN0UmV0ZW50aW9uQ2hhbmdlcxIkLnBsdXgudjEuTGlzdFJldGVudGlvbkNoYW5nZXNSZXF1ZXN0GiUucGx1eC52MS5MaXN0UmV0ZW50aW9uQ2hhbmdlc1Jlc3BvbnNlEmYKFUNhbmNlbFJldGVudGlvbkNoYW5nZRIlLnBsdXgudjEuQ2FuY2VsUmV0ZW50aW9uQ2hhbmdlUmVxdWVzdBomLnBsdXgudjEuQ2FuY2VsUmV0ZW50aW9uQ2hhbmdlUmVzcG9uc2USQgoJR2V0RXhwb3J0EhkucGx1eC52MS5HZXRFeHBvcnRSZXF1ZXN0GhoucGx1eC52MS5HZXRFeHBvcnRSZXNwb25zZRJCCglTZXRFeHBvcnQSGS5wbHV4LnYxLlNldEV4cG9ydFJlcXVlc3QaGi5wbHV4LnYxLlNldEV4cG9ydFJlc3BvbnNlEksKDERlbGV0ZUV4cG9ydBIcLnBsdXgudjEuRGVsZXRlRXhwb3J0UmVxdWVzdBodLnBsdXgudjEuRGVsZXRlRXhwb3J0UmVzcG9uc2USTgoNR2V0RmlsZUV4cG9ydBIdLnBsdXgudjEuR2V0RmlsZUV4cG9ydFJlcXVlc3QaHi5wbHV4LnYxLkdldEZpbGVFeHBvcnRSZXNwb25zZRJOCg1TZXRGaWxlRXhwb3J0Eh0ucGx1eC52MS5TZXRGaWxlRXhwb3J0UmVxdWVzdBoeLnBsdXgudjEuU2V0RmlsZUV4cG9ydFJlc3BvbnNlElQKD0NyZWF0ZUFsZXJ0UnVsZRIfLnBsdXgudjEuQ3JlYXRlQWxlcnRSdWxlUmVxdWVzdBogLnBsdXgudjEuQ3JlYXRlQWxlcnRSdWxlUmVzcG9uc2USVAoPVXBkYXRlQWxlcnRSdWxlEh8ucGx1eC52MS5VcGRhdGVBbGVydFJ1bGVSZXF1ZXN0GiAucGx1eC52MS5VcGRhdGVBbGVydFJ1bGVSZXNwb25zZRJUCg9EZWxldGVBbGVydFJ1bGUSHy5wbHV4LnYxLkRlbGV0ZUFsZXJ0UnVsZVJlcXVlc3QaIC5wbHV4LnYxLkRlbGV0ZUFsZXJ0UnVsZVJlc3BvbnNlElEKDkxpc3RBbGVydFJ1bGVzEh4ucGx1eC52MS5MaXN0QWxlcnRSdWxlc1JlcXVlc3QaHy5wbHV4LnYxLkxpc3RBbGVydFJ1bGVzUmVzcG9uc2USVAoPTGlzdEFsZXJ0U3RhdGVzEh8ucGx1eC52MS5MaXN0QWxlcnRTdGF0ZXNSZXF1ZXN0GiAucGx1eC52MS5MaXN0QWxlcnRTdGF0ZXNSZXNwb25zZRJUCg9MaXN0RXJyb3JHcm91cHMSHy5wbHV4LnYxLkxpc3RFcnJvckdyb3Vwc1JlcXVlc3QaIC5wbHV4LnYxLkxpc3RFcnJvckdyb3Vwc1Jlc3BvbnNlEk4KDUdldEVycm9yR3JvdXASHS5wbHV4LnYxLkdldEVycm9yR3JvdXBSZXF1ZXN0Gh4ucGx1eC52MS5HZXRFcnJvckdyb3VwUmVzcG9uc2VCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_common]);
+  fileDesc("ChdwbHV4L3YxL2FuYWx5dGljcy5wcm90bxIHcGx1eC52MSKHAQoLUm9sbHVwR3JvdXASFgoOZW52aXJvbm1lbnRfaWQYASABKAkSGAoQcmVsZWFzZV9zZXF1ZW5jZRgCIAEoAxISCgpwbHVnaW5fa2V5GAMgASgJEgwKBHBhZ2UYBCABKAkSFAoMZGV2aWNlX2NsYXNzGAUgASgJEg4KBmxvY2FsZRgGIAEoCSLRAQoLUm9sbHVwUG9pbnQSKgoGYnVja2V0GAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIjCgVncm91cBgCIAEoCzIULnBsdXgudjEuUm9sbHVwR3JvdXASDgoGZXZlbnRzGAMgASgDEhMKC3ZhbHVlX2NvdW50GAQgASgDEgsKA3N1bRgFIAEoARILCgNtaW4YBiABKAESCwoDbWF4GAcgASgBEgsKA3A1MBgIIAEoARILCgNwOTAYCSABKAESCwoDcDk5GAogASgBIuYBChNRdWVyeVJvbGx1cHNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRITCgtlbnZpcm9ubWVudBgCIAEoCRIOCgZtZXRyaWMYAyABKAkSEwoLZ3JhbnVsYXJpdHkYBCABKAkSKAoEZnJvbRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJgoCdG8YBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGdyb3VwX2J5GAcgAygJEg0KBWxpbWl0GAggASgFEhIKCnBhZ2VfdG9rZW4YCSABKAkiVQoUUXVlcnlSb2xsdXBzUmVzcG9uc2USJAoGcG9pbnRzGAEgAygLMhQucGx1eC52MS5Sb2xsdXBQb2ludBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkingEKEFJldGVudGlvblNldHRpbmcSEgoKZGF0YV9jbGFzcxgBIAEoCRIMCgRkYXlzGAIgASgFEhIKCmlzX2RlZmF1bHQYAyABKAgSEAoIZW5mb3JjZWQYBCABKAgSEgoKY2hhbmdlZF9ieRgFIAEoCRIuCgpjaGFuZ2VkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCL1AQoPUmV0ZW50aW9uQ2hhbmdlEgoKAmlkGAEgASgJEhIKCmRhdGFfY2xhc3MYAiABKAkSDAoEZGF5cxgDIAEoBRINCgVzdGF0ZRgEIAEoCRIUCgxyZXF1ZXN0ZWRfYnkYBSABKAkSMAoMcmVxdWVzdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghhcHBseV9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIhUKE0dldFJldGVudGlvblJlcXVlc3QicAoUR2V0UmV0ZW50aW9uUmVzcG9uc2USKwoIc2V0dGluZ3MYASADKAsyGS5wbHV4LnYxLlJldGVudGlvblNldHRpbmcSKwoJc2NoZWR1bGVkGAIgAygLMhgucGx1eC52MS5SZXRlbnRpb25DaGFuZ2UiSgoTU2V0UmV0ZW50aW9uUmVxdWVzdBISCgpkYXRhX2NsYXNzGAEgASgJEgwKBGRheXMYAiABKAUSEQoJaW1tZWRpYXRlGAMgASgIImoKFFNldFJldGVudGlvblJlc3BvbnNlEigKBmNoYW5nZRgBIAEoCzIYLnBsdXgudjEuUmV0ZW50aW9uQ2hhbmdlEigKC2RpYWdub3N0aWNzGAIgAygLMhMucGx1eC52MS5EaWFnbm9zdGljIkQKG0xpc3RSZXRlbnRpb25DaGFuZ2VzUmVxdWVzdBIWCg5vbmx5X3NjaGVkdWxlZBgBIAEoCBINCgVsaW1pdBgCIAEoBSJJChxMaXN0UmV0ZW50aW9uQ2hhbmdlc1Jlc3BvbnNlEikKB2NoYW5nZXMYASADKAsyGC5wbHV4LnYxLlJldGVudGlvbkNoYW5nZSIqChxDYW5jZWxSZXRlbnRpb25DaGFuZ2VSZXF1ZXN0EgoKAmlkGAEgASgJIkkKHUNhbmNlbFJldGVudGlvbkNoYW5nZVJlc3BvbnNlEigKBmNoYW5nZRgBIAEoCzIYLnBsdXgudjEuUmV0ZW50aW9uQ2hhbmdlIqgBCgZFeHBvcnQSEAoIZW5kcG9pbnQYASABKAkSDwoHZW5hYmxlZBgCIAEoCBIyCg5leHBvcnRlZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKbGFzdF9lcnJvchgEIAEoCRIzCg9sYXN0X2F0dGVtcHRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIhIKEEdldEV4cG9ydFJlcXVlc3QiNAoRR2V0RXhwb3J0UmVzcG9uc2USHwoGZXhwb3J0GAEgASgLMg8ucGx1eC52MS5FeHBvcnQiNQoQU2V0RXhwb3J0UmVxdWVzdBIQCghlbmRwb2ludBgBIAEoCRIPCgdlbmFibGVkGAIgASgIIjQKEVNldEV4cG9ydFJlc3BvbnNlEh8KBmV4cG9ydBgBIAEoCzIPLnBsdXgudjEuRXhwb3J0IhUKE0RlbGV0ZUV4cG9ydFJlcXVlc3QiFgoURGVsZXRlRXhwb3J0UmVzcG9uc2UiqQEKEkZpbGVFeHBvcnRTZXR0aW5ncxIXCg9wYXJxdWV0X2VuYWJsZWQYASABKAgSFgoOcGFycXVldF9ldmVudHMYAiABKAgSFwoPcGFycXVldF9yb2xsdXBzGAMgASgIEhsKE3BhcnF1ZXRfZ3JhbnVsYXJpdHkYBCABKAkSFwoPd2ViaG9va19lbmFibGVkGAUgASgIEhMKC3dlYmhvb2tfdXJsGAYgASgJIs0BCgpGaWxlRXhwb3J0Ei0KCHNldHRpbmdzGAEgASgLMhsucGx1eC52MS5GaWxlRXhwb3J0U2V0dGluZ3MSEwoLc2VjcmV0X2hpbnQYAiABKAkSMgoOZXhwb3J0ZWRfdW50aWwYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhIKCmxhc3RfZXJyb3IYBCABKAkSMwoPbGFzdF9hdHRlbXB0X2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIWChRHZXRGaWxlRXhwb3J0UmVxdWVzdCI8ChVHZXRGaWxlRXhwb3J0UmVzcG9uc2USIwoGZXhwb3J0GAEgASgLMhMucGx1eC52MS5GaWxlRXhwb3J0Il0KFFNldEZpbGVFeHBvcnRSZXF1ZXN0Ei0KCHNldHRpbmdzGAEgASgLMhsucGx1eC52MS5GaWxlRXhwb3J0U2V0dGluZ3MSFgoOd2ViaG9va19zZWNyZXQYAiABKAkiPAoVU2V0RmlsZUV4cG9ydFJlc3BvbnNlEiMKBmV4cG9ydBgBIAEoCzITLnBsdXgudjEuRmlsZUV4cG9ydCKfAwoJQWxlcnRSdWxlEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEg4KBm1ldHJpYxgEIAEoCRITCgtlbnZpcm9ubWVudBgFIAEoCRIwCgdmaWx0ZXJzGAYgAygLMh8ucGx1eC52MS5BbGVydFJ1bGUuRmlsdGVyc0VudHJ5EhMKC2FnZ3JlZ2F0aW9uGAcgASgJEhYKDndpbmRvd19zZWNvbmRzGAggASgFEhIKCmNvbXBhcmlzb24YCSABKAkSEQoJdGhyZXNob2xkGAogASgBEhMKC2Zvcl9zZWNvbmRzGAsgASgFEhAKCHNldmVyaXR5GAwgASgJEhAKCGRpc2FibGVkGA0gASgIEhAKCHJldmlzaW9uGA4gASgDEhIKCnVwZGF0ZWRfYnkYDyABKAkSLgoKdXBkYXRlZF9hdBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAaLgoMRmlsdGVyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiqQIKCkFsZXJ0U3RhdGUSDwoHcnVsZV9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkSEQoJcnVsZV9uYW1lGAMgASgJEg0KBXN0YXRlGAQgASgJEikKBXNpbmNlGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxldmFsdWF0ZWRfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhIKBXZhbHVlGAcgASgBSACIAQESLAoIZmlyZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC3Jlc29sdmVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIICgZfdmFsdWUiOgoWQ3JlYXRlQWxlcnRSdWxlUmVxdWVzdBIgCgRydWxlGAEgASgLMhIucGx1eC52MS5BbGVydFJ1bGUiOwoXQ3JlYXRlQWxlcnRSdWxlUmVzcG9uc2USIAoEcnVsZRgBIAEoCzISLnBsdXgudjEuQWxlcnRSdWxlIjoKFlVwZGF0ZUFsZXJ0UnVsZVJlcXVlc3QSIAoEcnVsZRgBIAEoCzISLnBsdXgudjEuQWxlcnRSdWxlIjsKF1VwZGF0ZUFsZXJ0UnVsZVJlc3BvbnNlEiAKBHJ1bGUYASABKAsyEi5wbHV4LnYxLkFsZXJ0UnVsZSIkChZEZWxldGVBbGVydFJ1bGVSZXF1ZXN0EgoKAmlkGAEgASgJIhkKF0RlbGV0ZUFsZXJ0UnVsZVJlc3BvbnNlIicKFUxpc3RBbGVydFJ1bGVzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkiOwoWTGlzdEFsZXJ0UnVsZXNSZXNwb25zZRIhCgVydWxlcxgBIAMoCzISLnBsdXgudjEuQWxlcnRSdWxlIjcKFkxpc3RBbGVydFN0YXRlc1JlcXVlc3QSDgoGYXBwX2lkGAEgASgJEg0KBXN0YXRlGAIgASgJIj4KF0xpc3RBbGVydFN0YXRlc1Jlc3BvbnNlEiMKBnN0YXRlcxgBIAMoCzITLnBsdXgudjEuQWxlcnRTdGF0ZSInCghFcnJvckRheRILCgNkYXkYASABKAkSDgoGZXZlbnRzGAIgASgDIoQDCgpFcnJvckdyb3VwEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIYChByZWxlYXNlX3NlcXVlbmNlGAMgASgDEhMKC2ZpbmdlcnByaW50GAQgASgJEgwKBGNvZGUYBSABKAkSEgoKcGx1Z2luX2tleRgGIAEoCRINCgVyb3V0ZRgHIAEoCRIRCglub2RlX3BhdGgYCCABKAkSEQoJanNvbl9wYXRoGAkgASgJEhMKC3NvdXJjZV9maWxlGAogASgJEg4KBmZyYW1lcxgLIAMoCRINCgVmYXRhbBgMIAEoCBIuCgpmaXJzdF9zZWVuGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCglsYXN0X3NlZW4YDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg4KBmV2ZW50cxgPIAEoAxIPCgdkZXZpY2VzGBAgASgDEiAKBXRyZW5kGBEgAygLMhEucGx1eC52MS5FcnJvckRheSJlCgtFcnJvclNhbXBsZRIQCghldmVudF9pZBgBIAEoCRIvCgtvY2N1cnJlZF9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoLZmllbGRzX2pzb24YAyABKAkiXwoWTGlzdEVycm9yR3JvdXBzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSGAoQcmVsZWFzZV9zZXF1ZW5jZRgCIAEoAxIMCgRkYXlzGAMgASgFEg0KBWxpbWl0GAQgASgFIj4KF0xpc3RFcnJvckdyb3Vwc1Jlc3BvbnNlEiMKBmdyb3VwcxgBIAMoCzITLnBsdXgudjEuRXJyb3JHcm91cCIwChRHZXRFcnJvckdyb3VwUmVxdWVzdBIKCgJpZBgBIAEoCRIMCgRkYXlzGAIgASgFImIKFUdldEVycm9yR3JvdXBSZXNwb25zZRIiCgVncm91cBgBIAEoCzITLnBsdXgudjEuRXJyb3JHcm91cBIlCgdzYW1wbGVzGAIgAygLMhQucGx1eC52MS5FcnJvclNhbXBsZSKsAQoGRnVubmVsEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEg0KBXN0ZXBzGAQgAygJEhMKC2Vudmlyb25tZW50GAUgASgJEhAKCHJldmlzaW9uGAYgASgDEhIKCnVwZGF0ZWRfYnkYByABKAkSLgoKdXBkYXRlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiNgoTQ3JlYXRlRnVubmVsUmVxdWVzdBIfCgZmdW5uZWwYASABKAsyDy5wbHV4LnYxLkZ1bm5lbCI3ChRDcmVhdGVGdW5uZWxSZXNwb25zZRIfCgZmdW5uZWwYASABKAsyDy5wbHV4LnYxLkZ1bm5lbCIhChNEZWxldGVGdW5uZWxSZXF1ZXN0EgoKAmlkGAEgASgJIhYKFERlbGV0ZUZ1bm5lbFJlc3BvbnNlIiQKEkxpc3RGdW5uZWxzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkiNwoTTGlzdEZ1bm5lbHNSZXNwb25zZRIgCgdmdW5uZWxzGAEgAygLMg8ucGx1eC52MS5GdW5uZWwiPwoKRnVubmVsU3RlcBINCgVldmVudBgBIAEoCRIOCgZldmVudHMYAiABKAMSEgoKY29udmVyc2lvbhgDIAEoASJ2ChZHZXRGdW5uZWxSZXN1bHRSZXF1ZXN0EgoKAmlkGAEgASgJEigKBGZyb20YAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiYKAnRvGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJeChdHZXRGdW5uZWxSZXN1bHRSZXNwb25zZRIfCgZmdW5uZWwYASABKAsyDy5wbHV4LnYxLkZ1bm5lbBIiCgVzdGVwcxgCIAMoCzITLnBsdXgudjEuRnVubmVsU3RlcCJsCgtPdmVydmlld0FwcBIOCgZhcHBfaWQYASABKAkSEAoIc2Vzc2lvbnMYAiABKAMSFAoMc2NyZWVuX3ZpZXdzGAMgASgDEg4KBmVycm9ycxgEIAEoAxIVCg1maXJpbmdfYWxlcnRzGAUgASgFImYKEkdldE92ZXJ2aWV3UmVxdWVzdBIoCgRmcm9tGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBImCgJ0bxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiOQoTR2V0T3ZlcnZpZXdSZXNwb25zZRIiCgRhcHBzGAEgAygLMhQucGx1eC52MS5PdmVydmlld0FwcDKQDgoQQW5hbHl0aWNzU2VydmljZRJLCgxRdWVyeVJvbGx1cHMSHC5wbHV4LnYxLlF1ZXJ5Um9sbHVwc1JlcXVlc3QaHS5wbHV4LnYxLlF1ZXJ5Um9sbHVwc1Jlc3BvbnNlEksKDEdldFJldGVudGlvbhIcLnBsdXgudjEuR2V0UmV0ZW50aW9uUmVxdWVzdBodLnBsdXgudjEuR2V0UmV0ZW50aW9uUmVzcG9uc2USSwoMU2V0UmV0ZW50aW9uEhwucGx1eC52MS5TZXRSZXRlbnRpb25SZXF1ZXN0Gh0ucGx1eC52MS5TZXRSZXRlbnRpb25SZXNwb25zZRJjChRMaXN0UmV0ZW50aW9uQ2hhbmdlcxIkLnBsdXgudjEuTGlzdFJldGVudGlvbkNoYW5nZXNSZXF1ZXN0GiUucGx1eC52MS5MaXN0UmV0ZW50aW9uQ2hhbmdlc1Jlc3BvbnNlEmYKFUNhbmNlbFJldGVudGlvbkNoYW5nZRIlLnBsdXgudjEuQ2FuY2VsUmV0ZW50aW9uQ2hhbmdlUmVxdWVzdBomLnBsdXgudjEuQ2FuY2VsUmV0ZW50aW9uQ2hhbmdlUmVzcG9uc2USQgoJR2V0RXhwb3J0EhkucGx1eC52MS5HZXRFeHBvcnRSZXF1ZXN0GhoucGx1eC52MS5HZXRFeHBvcnRSZXNwb25zZRJCCglTZXRFeHBvcnQSGS5wbHV4LnYxLlNldEV4cG9ydFJlcXVlc3QaGi5wbHV4LnYxLlNldEV4cG9ydFJlc3BvbnNlEksKDERlbGV0ZUV4cG9ydBIcLnBsdXgudjEuRGVsZXRlRXhwb3J0UmVxdWVzdBodLnBsdXgudjEuRGVsZXRlRXhwb3J0UmVzcG9uc2USTgoNR2V0RmlsZUV4cG9ydBIdLnBsdXgudjEuR2V0RmlsZUV4cG9ydFJlcXVlc3QaHi5wbHV4LnYxLkdldEZpbGVFeHBvcnRSZXNwb25zZRJOCg1TZXRGaWxlRXhwb3J0Eh0ucGx1eC52MS5TZXRGaWxlRXhwb3J0UmVxdWVzdBoeLnBsdXgudjEuU2V0RmlsZUV4cG9ydFJlc3BvbnNlElQKD0NyZWF0ZUFsZXJ0UnVsZRIfLnBsdXgudjEuQ3JlYXRlQWxlcnRSdWxlUmVxdWVzdBogLnBsdXgudjEuQ3JlYXRlQWxlcnRSdWxlUmVzcG9uc2USVAoPVXBkYXRlQWxlcnRSdWxlEh8ucGx1eC52MS5VcGRhdGVBbGVydFJ1bGVSZXF1ZXN0GiAucGx1eC52MS5VcGRhdGVBbGVydFJ1bGVSZXNwb25zZRJUCg9EZWxldGVBbGVydFJ1bGUSHy5wbHV4LnYxLkRlbGV0ZUFsZXJ0UnVsZVJlcXVlc3QaIC5wbHV4LnYxLkRlbGV0ZUFsZXJ0UnVsZVJlc3BvbnNlElEKDkxpc3RBbGVydFJ1bGVzEh4ucGx1eC52MS5MaXN0QWxlcnRSdWxlc1JlcXVlc3QaHy5wbHV4LnYxLkxpc3RBbGVydFJ1bGVzUmVzcG9uc2USVAoPTGlzdEFsZXJ0U3RhdGVzEh8ucGx1eC52MS5MaXN0QWxlcnRTdGF0ZXNSZXF1ZXN0GiAucGx1eC52MS5MaXN0QWxlcnRTdGF0ZXNSZXNwb25zZRJUCg9MaXN0RXJyb3JHcm91cHMSHy5wbHV4LnYxLkxpc3RFcnJvckdyb3Vwc1JlcXVlc3QaIC5wbHV4LnYxLkxpc3RFcnJvckdyb3Vwc1Jlc3BvbnNlEk4KDUdldEVycm9yR3JvdXASHS5wbHV4LnYxLkdldEVycm9yR3JvdXBSZXF1ZXN0Gh4ucGx1eC52MS5HZXRFcnJvckdyb3VwUmVzcG9uc2USSwoMQ3JlYXRlRnVubmVsEhwucGx1eC52MS5DcmVhdGVGdW5uZWxSZXF1ZXN0Gh0ucGx1eC52MS5DcmVhdGVGdW5uZWxSZXNwb25zZRJLCgxEZWxldGVGdW5uZWwSHC5wbHV4LnYxLkRlbGV0ZUZ1bm5lbFJlcXVlc3QaHS5wbHV4LnYxLkRlbGV0ZUZ1bm5lbFJlc3BvbnNlEkgKC0xpc3RGdW5uZWxzEhsucGx1eC52MS5MaXN0RnVubmVsc1JlcXVlc3QaHC5wbHV4LnYxLkxpc3RGdW5uZWxzUmVzcG9uc2USVAoPR2V0RnVubmVsUmVzdWx0Eh8ucGx1eC52MS5HZXRGdW5uZWxSZXN1bHRSZXF1ZXN0GiAucGx1eC52MS5HZXRGdW5uZWxSZXN1bHRSZXNwb25zZRJICgtHZXRPdmVydmlldxIbLnBsdXgudjEuR2V0T3ZlcnZpZXdSZXF1ZXN0GhwucGx1eC52MS5HZXRPdmVydmlld1Jlc3BvbnNlQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM", [file_google_protobuf_timestamp, file_plux_v1_common]);
 
 /**
  * RollupGroup is the dimension values of a point; a dimension not grouped by
@@ -1432,6 +1432,322 @@ export const GetErrorGroupResponseSchema: GenMessage<GetErrorGroupResponse> = /*
   messageDesc(file_plux_v1_analytics, 45);
 
 /**
+ * Funnel is an ordered list of event names of an app.
+ *
+ * @generated from message plux.v1.Funnel
+ */
+export type Funnel = Message<"plux.v1.Funnel"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string app_id = 2;
+   */
+  appId: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * steps are event names, two to ten, in order.
+   *
+   * @generated from field: repeated string steps = 4;
+   */
+  steps: string[];
+
+  /**
+   * environment narrows the funnel to one environment key; empty for all.
+   *
+   * @generated from field: string environment = 5;
+   */
+  environment: string;
+
+  /**
+   * @generated from field: int64 revision = 6;
+   */
+  revision: bigint;
+
+  /**
+   * @generated from field: string updated_by = 7;
+   */
+  updatedBy: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp updated_at = 8;
+   */
+  updatedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.Funnel.
+ * Use `create(FunnelSchema)` to create a new message.
+ */
+export const FunnelSchema: GenMessage<Funnel> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 46);
+
+/**
+ * @generated from message plux.v1.CreateFunnelRequest
+ */
+export type CreateFunnelRequest = Message<"plux.v1.CreateFunnelRequest"> & {
+  /**
+   * @generated from field: plux.v1.Funnel funnel = 1;
+   */
+  funnel?: Funnel | undefined;
+};
+
+/**
+ * Describes the message plux.v1.CreateFunnelRequest.
+ * Use `create(CreateFunnelRequestSchema)` to create a new message.
+ */
+export const CreateFunnelRequestSchema: GenMessage<CreateFunnelRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 47);
+
+/**
+ * @generated from message plux.v1.CreateFunnelResponse
+ */
+export type CreateFunnelResponse = Message<"plux.v1.CreateFunnelResponse"> & {
+  /**
+   * @generated from field: plux.v1.Funnel funnel = 1;
+   */
+  funnel?: Funnel | undefined;
+};
+
+/**
+ * Describes the message plux.v1.CreateFunnelResponse.
+ * Use `create(CreateFunnelResponseSchema)` to create a new message.
+ */
+export const CreateFunnelResponseSchema: GenMessage<CreateFunnelResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 48);
+
+/**
+ * @generated from message plux.v1.DeleteFunnelRequest
+ */
+export type DeleteFunnelRequest = Message<"plux.v1.DeleteFunnelRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message plux.v1.DeleteFunnelRequest.
+ * Use `create(DeleteFunnelRequestSchema)` to create a new message.
+ */
+export const DeleteFunnelRequestSchema: GenMessage<DeleteFunnelRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 49);
+
+/**
+ * @generated from message plux.v1.DeleteFunnelResponse
+ */
+export type DeleteFunnelResponse = Message<"plux.v1.DeleteFunnelResponse"> & {
+};
+
+/**
+ * Describes the message plux.v1.DeleteFunnelResponse.
+ * Use `create(DeleteFunnelResponseSchema)` to create a new message.
+ */
+export const DeleteFunnelResponseSchema: GenMessage<DeleteFunnelResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 50);
+
+/**
+ * @generated from message plux.v1.ListFunnelsRequest
+ */
+export type ListFunnelsRequest = Message<"plux.v1.ListFunnelsRequest"> & {
+  /**
+   * app_id narrows the list to one app; empty for the organisation.
+   *
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+};
+
+/**
+ * Describes the message plux.v1.ListFunnelsRequest.
+ * Use `create(ListFunnelsRequestSchema)` to create a new message.
+ */
+export const ListFunnelsRequestSchema: GenMessage<ListFunnelsRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 51);
+
+/**
+ * @generated from message plux.v1.ListFunnelsResponse
+ */
+export type ListFunnelsResponse = Message<"plux.v1.ListFunnelsResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.Funnel funnels = 1;
+   */
+  funnels: Funnel[];
+};
+
+/**
+ * Describes the message plux.v1.ListFunnelsResponse.
+ * Use `create(ListFunnelsResponseSchema)` to create a new message.
+ */
+export const ListFunnelsResponseSchema: GenMessage<ListFunnelsResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 52);
+
+/**
+ * FunnelStep is one step of a funnel result.
+ *
+ * @generated from message plux.v1.FunnelStep
+ */
+export type FunnelStep = Message<"plux.v1.FunnelStep"> & {
+  /**
+   * @generated from field: string event = 1;
+   */
+  event: string;
+
+  /**
+   * @generated from field: int64 events = 2;
+   */
+  events: bigint;
+
+  /**
+   * conversion is the share of the first step's events, 0 to 1.
+   *
+   * @generated from field: double conversion = 3;
+   */
+  conversion: number;
+};
+
+/**
+ * Describes the message plux.v1.FunnelStep.
+ * Use `create(FunnelStepSchema)` to create a new message.
+ */
+export const FunnelStepSchema: GenMessage<FunnelStep> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 53);
+
+/**
+ * @generated from message plux.v1.GetFunnelResultRequest
+ */
+export type GetFunnelResultRequest = Message<"plux.v1.GetFunnelResultRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp from = 2;
+   */
+  from?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp to = 3;
+   */
+  to?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.GetFunnelResultRequest.
+ * Use `create(GetFunnelResultRequestSchema)` to create a new message.
+ */
+export const GetFunnelResultRequestSchema: GenMessage<GetFunnelResultRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 54);
+
+/**
+ * @generated from message plux.v1.GetFunnelResultResponse
+ */
+export type GetFunnelResultResponse = Message<"plux.v1.GetFunnelResultResponse"> & {
+  /**
+   * @generated from field: plux.v1.Funnel funnel = 1;
+   */
+  funnel?: Funnel | undefined;
+
+  /**
+   * @generated from field: repeated plux.v1.FunnelStep steps = 2;
+   */
+  steps: FunnelStep[];
+};
+
+/**
+ * Describes the message plux.v1.GetFunnelResultResponse.
+ * Use `create(GetFunnelResultResponseSchema)` to create a new message.
+ */
+export const GetFunnelResultResponseSchema: GenMessage<GetFunnelResultResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 55);
+
+/**
+ * OverviewApp is the headline numbers of one app.
+ *
+ * @generated from message plux.v1.OverviewApp
+ */
+export type OverviewApp = Message<"plux.v1.OverviewApp"> & {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+
+  /**
+   * @generated from field: int64 sessions = 2;
+   */
+  sessions: bigint;
+
+  /**
+   * @generated from field: int64 screen_views = 3;
+   */
+  screenViews: bigint;
+
+  /**
+   * @generated from field: int64 errors = 4;
+   */
+  errors: bigint;
+
+  /**
+   * @generated from field: int32 firing_alerts = 5;
+   */
+  firingAlerts: number;
+};
+
+/**
+ * Describes the message plux.v1.OverviewApp.
+ * Use `create(OverviewAppSchema)` to create a new message.
+ */
+export const OverviewAppSchema: GenMessage<OverviewApp> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 56);
+
+/**
+ * @generated from message plux.v1.GetOverviewRequest
+ */
+export type GetOverviewRequest = Message<"plux.v1.GetOverviewRequest"> & {
+  /**
+   * @generated from field: google.protobuf.Timestamp from = 1;
+   */
+  from?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp to = 2;
+   */
+  to?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.GetOverviewRequest.
+ * Use `create(GetOverviewRequestSchema)` to create a new message.
+ */
+export const GetOverviewRequestSchema: GenMessage<GetOverviewRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 57);
+
+/**
+ * @generated from message plux.v1.GetOverviewResponse
+ */
+export type GetOverviewResponse = Message<"plux.v1.GetOverviewResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.OverviewApp apps = 1;
+   */
+  apps: OverviewApp[];
+};
+
+/**
+ * Describes the message plux.v1.GetOverviewResponse.
+ * Use `create(GetOverviewResponseSchema)` to create a new message.
+ */
+export const GetOverviewResponseSchema: GenMessage<GetOverviewResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_analytics, 58);
+
+/**
  * AnalyticsService queries the rollups of runtime events, manages how long
  * events, rollups and the production audit log are kept, and configures the
  * OTLP export (ANL-010, ANL-011, ADR-0080, maintainer decision Q17).
@@ -1629,6 +1945,62 @@ export const AnalyticsService: GenService<{
     methodKind: "unary";
     input: typeof GetErrorGroupRequestSchema;
     output: typeof GetErrorGroupResponseSchema;
+  },
+  /**
+   * CreateFunnel defines a funnel of an app: an ordered list of event names
+   * (ANL-020, STU-114). It needs alerts.manage on the app and is audited.
+   *
+   * @generated from rpc plux.v1.AnalyticsService.CreateFunnel
+   */
+  createFunnel: {
+    methodKind: "unary";
+    input: typeof CreateFunnelRequestSchema;
+    output: typeof CreateFunnelResponseSchema;
+  },
+  /**
+   * DeleteFunnel removes a funnel. It needs alerts.manage on the app and is
+   * audited.
+   *
+   * @generated from rpc plux.v1.AnalyticsService.DeleteFunnel
+   */
+  deleteFunnel: {
+    methodKind: "unary";
+    input: typeof DeleteFunnelRequestSchema;
+    output: typeof DeleteFunnelResponseSchema;
+  },
+  /**
+   * ListFunnels lists the funnels of an app, or of the organisation. It
+   * needs analytics.read.
+   *
+   * @generated from rpc plux.v1.AnalyticsService.ListFunnels
+   */
+  listFunnels: {
+    methodKind: "unary";
+    input: typeof ListFunnelsRequestSchema;
+    output: typeof ListFunnelsResponseSchema;
+  },
+  /**
+   * GetFunnelResult counts the events of each step of a funnel over a time
+   * range, from the rollups. It needs analytics.read on the app.
+   *
+   * @generated from rpc plux.v1.AnalyticsService.GetFunnelResult
+   */
+  getFunnelResult: {
+    methodKind: "unary";
+    input: typeof GetFunnelResultRequestSchema;
+    output: typeof GetFunnelResultResponseSchema;
+  },
+  /**
+   * GetOverview summarises every app the caller may read analytics of over a
+   * time range: sessions, screen views, errors and firing alerts. It needs
+   * analytics.read.
+   *
+   * @generated from rpc plux.v1.AnalyticsService.GetOverview
+   */
+  getOverview: {
+    methodKind: "unary";
+    input: typeof GetOverviewRequestSchema;
+    output: typeof GetOverviewResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_plux_v1_analytics, 0);

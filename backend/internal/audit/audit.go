@@ -120,8 +120,11 @@ const (
 	AnalyticsFileExportSet Action = "analytics.file_export_set"
 	// AlertRuleSet and AlertRuleDeleted: an alert rule was created or
 	// changed, or removed (ANL-030).
-	AlertRuleSet         Action = "analytics.alert_rule_set"
-	AlertRuleDeleted     Action = "analytics.alert_rule_deleted"
+	AlertRuleSet     Action = "analytics.alert_rule_set"
+	AlertRuleDeleted Action = "analytics.alert_rule_deleted"
+	// FunnelSet and FunnelDeleted: a funnel was defined or removed (ANL-020).
+	FunnelSet            Action = "analytics.funnel_set"
+	FunnelDeleted        Action = "analytics.funnel_deleted"
 	ReleasesPurged       Action = "release.purged"
 	ControlChanged       Action = "release.control_changed"
 	SnapshotRestored     Action = "snapshot.restored"
@@ -461,7 +464,7 @@ var actions = sorted(
 	PluginCreated, PluginUpdated, PluginDeleted, PluginRestored, PluginPurged,
 	DocumentWritten, DocumentDeleted, DocumentRestored, DocumentPurged, DraftImported, AssetUploaded, AssetDeleted,
 	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged, GoldensApproved,
-	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AnalyticsFileExportSet, AlertRuleSet, AlertRuleDeleted,
+	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AnalyticsFileExportSet, AlertRuleSet, AlertRuleDeleted, FunnelSet, FunnelDeleted,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
