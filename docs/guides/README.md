@@ -12,7 +12,9 @@ the vocabulary the others use.
 | [Run it locally](run-locally.md) | The stack, the CLI, tests, end-to-end runs and benchmarks |
 | [Routing](routing.md) | Pages, navigation and the router adapters |
 | [Testing](testing.md) | Testing pages and actions |
+| [Studio guides](studio/README.md) | Using Plux Studio: canvas and editing, publishing and releases, functions, data, localisation, design system, analytics and replay, experiments and flags, Plux Test, administration and security |
 
 The remaining guides in this directory cover single topics, such as [state](state.md),
 [actions](actions.md), [forms](forms.md), [functions](functions.md) and [security](security.md);
-the [CLI reference](../reference/cli.md) lists every command.
+the [CLI reference](../reference/cli.md) lists every command. Operating Studio's backend for
+frontend: the [BFF runbook](../operations/studio-bff.md).

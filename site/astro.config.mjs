@@ -32,6 +32,23 @@ export default defineConfig({
           ],
         },
         {
+          label: "Studio guides",
+          collapsed: true,
+          items: [
+            { slug: "guides/studio" },
+            { slug: "guides/studio/canvas" },
+            { slug: "guides/studio/publishing" },
+            { slug: "guides/studio/functions" },
+            { slug: "guides/studio/data" },
+            { slug: "guides/studio/localisation" },
+            { slug: "guides/studio/design-system" },
+            { slug: "guides/studio/analytics" },
+            { slug: "guides/studio/experiments" },
+            { slug: "guides/studio/plux-test" },
+            { slug: "guides/studio/security-and-admin" },
+          ],
+        },
+        {
           label: "Security guides",
           collapsed: true,
           items: [
@@ -56,6 +73,7 @@ export default defineConfig({
           ],
         },
         { label: "Reference", collapsed: true, items: [{ autogenerate: { directory: "reference" } }] },
+        { label: "Operations", collapsed: true, items: [{ autogenerate: { directory: "operations" } }] },
         { label: "Runbooks", collapsed: true, items: [{ autogenerate: { directory: "runbooks" } }] },
         { label: "Security", collapsed: true, items: [{ autogenerate: { directory: "security" } }] },
         { label: "Benchmarks", collapsed: true, items: [{ autogenerate: { directory: "benchmarks" } }] },
