@@ -106,7 +106,7 @@ describe("ANL-020 funnels (A26, A27)", () => {
     await screen.findByRole("link", { name: "Signup" }, wait);
     const row = screen.getByRole("link", { name: "Signup" }).closest("tr") as HTMLElement;
     fireEvent.click(within(row).getByRole("button", { name: "Delete" }));
-    await waitFor(() => expect(screen.queryByRole("link", { name: "Signup" })).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("link", { name: "Signup" }) === null).toBe(true));
   }, 30_000);
 
   test("A26 disables the form without analytics.manage", async () => {
