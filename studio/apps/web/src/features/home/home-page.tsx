@@ -11,6 +11,7 @@ import { useState } from "react";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useCan } from "../admin/use-admin.ts";
+import { OnboardingChecklist } from "../onboarding/index.ts";
 import { CreateAppDialog } from "./create-app-dialog.tsx";
 import { homeMessages } from "./home.messages.ts";
 
@@ -48,6 +49,7 @@ export function HomePage() {
         </h1>
         <p className="text-body text-secondary">{m.caption}</p>
       </div>
+      <OnboardingChecklist org={org} canCreate={canCreate} onCreate={() => setCreating(true)} />
       <section aria-labelledby="home-apps" className="flex flex-col gap-3">
         <div className="flex items-center gap-4">
           <h2 id="home-apps" className="text-section">
