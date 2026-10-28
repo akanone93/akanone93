@@ -1,8 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { useQuery } from "@connectrpc/connect-query";
+import { PreferencesService } from "@plux/api";
 import { Outlet } from "@tanstack/react-router";
 import { CommandsProvider, createRegistry } from "../../lib/commands/index.ts";
+import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 
 /** Public pages (sign-in family): no shell, no organisation (R1). */
 export function PublicLayout() {
@@ -20,6 +23,9 @@ const NO_COMMANDS = { registry: createRegistry([]), states: [] };
  * scope with no shell commands of its own, so pages register theirs (undo and redo, F3).
  */
 export function CanvasLayout() {
+  // A canvas page can be the first one loaded: theme, density, language and direction apply here as in the shell (STU-012, STU-014).
+  const prefs = useQuery(PreferencesService.method.getPreferences, {});
+  useAppliedPreferences(prefs.data?.preferences);
   return (
     <CommandsProvider value={NO_COMMANDS}>
       <main className="h-screen w-screen">

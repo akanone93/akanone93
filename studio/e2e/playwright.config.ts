@@ -23,7 +23,7 @@ export default defineConfig({
     {
       // The catalogue page is compiled only by the dev server (STU-011).
       name: "dev",
-      testMatch: ["catalogue.spec.ts", "shell.spec.ts", "s3-flow.spec.ts"],
+      testMatch: ["catalogue.spec.ts", "shell.spec.ts", "s3-flow.spec.ts", "a11y-sweep.spec.ts", "keyboard.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: `http://127.0.0.1:${devPort}`,
