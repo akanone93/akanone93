@@ -39,10 +39,12 @@ export function useHostFonts(appId: string | undefined): () => Promise<readonly 
   const { session } = useApp();
   const apps = useMemo(() => createClient(AppService, session.transport), [session.transport]);
   const assets = useMemo(() => createClient(AssetService, session.transport), [session.transport]);
-  const ref = useRef(appId ?? "");
-  ref.current = appId ?? "";
+  const ref = useRef({ id: appId ?? "", apps, assets });
+  ref.current = { id: appId ?? "", apps, assets };
+  // Stable on purpose: the canvas surface is made once per canvas (its control moves to a worker only once), so
+  // the loader reads the current app and clients when it runs instead of changing identity with them.
   return useCallback(async () => {
-    const id = ref.current;
+    const { id, apps, assets } = ref.current;
     if (id === "") {
       return [];
     }
@@ -55,5 +57,5 @@ export function useHostFonts(appId: string | undefined): () => Promise<readonly 
     } catch {
       return [];
     }
-  }, [apps, assets]);
+  }, []);
 }
