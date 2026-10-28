@@ -28,8 +28,13 @@ const generated: ShellFixture = {
   entryRoute: "home",
 };
 const manager = ["app.read", "app.manage"];
-const setup = (projects: Partial<ProjectsData> = {}, permissions: string[] = manager): Upstream => ({
+const setup = (
+  projects: Partial<ProjectsData> = {},
+  permissions: string[] = manager,
+  assets: string[] = [],
+): Upstream => ({
   permissions,
+  assets,
   creation: { calls: [], apps },
   projects: { calls: [], shell: { current: generated, generated }, ...projects },
 });
@@ -169,6 +174,90 @@ describe("regenerating and downloading the host project from the shell settings 
       "The project could not be generated: the app has queued 10 projects this hour",
     );
     expect(state.projects?.calls.some((c) => c.startsWith("job:"))).toBe(false);
+  });
+});
+
+describe("the app icon of the native shell [GEN-004]", () => {
+  test("the picker offers the default icon and the app's PNG assets, and the saved icon is selected", async () => {
+    const current = { ...generated, iconAssetId: "asset-1" };
+    renderApp(shellPath, setup({ shell: { current, generated: current } }, manager, ["images/a.png", "images/b.png"]));
+    const group = await screen.findByRole("group", { name: "App icon" }, wait);
+    expect(
+      (await within(group).findByRole("radio", { name: "images/b.png" }, wait)) as HTMLInputElement,
+    ).toHaveProperty("checked", true);
+    expect((within(group).getByRole("radio", { name: "Default icon" }) as HTMLInputElement).checked).toBe(false);
+    expect(within(group).getAllByRole("radio").length).toBe(3);
+  });
+
+  test("choosing an image saves its asset as the icon, and the comparison reports the icon change with its reason", async () => {
+    const state = setup({ shell: { current: generated, generated } }, manager, ["images/a.png"]);
+    renderApp(shellPath, state);
+    fireEvent.click(await screen.findByRole("radio", { name: "images/a.png" }, wait));
+    fireEvent.click(screen.getByRole("button", { name: "Save settings" }));
+    expect(await screen.findByText("The shell settings were saved.", {}, wait)).toBeTruthy();
+    const call = state.projects?.calls.find((c) => c.startsWith("shell:")) ?? "";
+    expect(JSON.parse(call.slice("shell:a-bank:".length))).toMatchObject({ iconAssetId: "asset-0" });
+    const table = await screen.findByRole("table", {}, wait);
+    const row = within(within(table).getAllByRole("row")[1] as HTMLElement);
+    expect(row.getByRole("rowheader").textContent).toBe("App icon");
+    expect(row.getByText("Default icon")).toBeTruthy();
+    expect(row.getByText("asset-0")).toBeTruthy();
+    expect(row.getByText(/image files compiled into the native project/)).toBeTruthy();
+  });
+
+  test("an app without PNG assets says so, and the default icon stays chosen", async () => {
+    renderApp(shellPath, setup());
+    expect(await screen.findByText(/The app has no PNG assets yet/, {}, wait)).toBeTruthy();
+    expect((screen.getByRole("radio", { name: "Default icon" }) as HTMLInputElement).checked).toBe(true);
+  });
+
+  test("without app.manage the icon cannot be changed", async () => {
+    renderApp(shellPath, setup({}, ["app.read"], ["images/a.png"]));
+    const radio = await screen.findByRole("radio", { name: "images/a.png" }, wait);
+    expect((radio as HTMLInputElement).disabled).toBe(true);
+  });
+});
+
+describe("downloading a patch instead of the whole project [GEN-004]", () => {
+  const changed = { ...generated, appVersion: "1.1.0+2" };
+
+  test("the patch is offered beside the regenerate button only while an update is required for a generated project", async () => {
+    renderApp(shellPath, setup({ shell: { current: changed, generated } }));
+    expect(await screen.findByRole("button", { name: "Download patch" }, wait)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Regenerate project" })).toBeTruthy();
+    cleanup();
+    renderApp(shellPath, setup());
+    await screen.findByRole("button", { name: "Regenerate project" }, wait);
+    expect(screen.queryByRole("button", { name: "Download patch" }) === null).toBe(true);
+    cleanup();
+    renderApp(shellPath, setup({ shell: { current: changed } }));
+    await screen.findByRole("button", { name: "Regenerate project" }, wait);
+    expect(screen.queryByRole("button", { name: "Download patch" }) === null).toBe(true);
+  });
+
+  test("the patch is generated as a patch job, followed until ready, and downloaded", async () => {
+    const state = setup({ shell: { current: changed, generated }, jobStatuses: ["running", "succeeded"] });
+    renderApp(shellPath, state);
+    fireEvent.click(await screen.findByRole("button", { name: "Download patch" }, wait));
+    expect(await screen.findByText("Downloaded shop-patch.zip", {}, { timeout: 5000 })).toBeTruthy();
+    expect(state.projects?.calls.filter((c) => !c.startsWith("shell:"))).toEqual([
+      "generate:a-bank:production:production:patch",
+      "job:job-1",
+      "job:job-1",
+      "download:job-1",
+    ]);
+  });
+
+  test("a refusal because no project was generated before is shown", async () => {
+    const state = setup({
+      shell: { current: changed, generated },
+      refuse: { generate: "a patch needs a project generated before; generate the project first" },
+    });
+    renderApp(shellPath, state);
+    fireEvent.click(await screen.findByRole("button", { name: "Download patch" }, wait));
+    expect((await screen.findByRole("alert", {}, wait)).textContent).toBe(
+      "The project could not be generated: a patch needs a project generated before; generate the project first",
+    );
   });
 });
 

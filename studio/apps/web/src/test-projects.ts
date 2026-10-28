@@ -20,6 +20,8 @@ export interface ShellFixture {
   deepLinkSchemes: string[];
   packages: string[];
   entryRoute: string;
+  /** The app asset used as the icon; absent or empty for the default icon. */
+  iconAssetId?: string;
 }
 
 /**
@@ -71,6 +73,7 @@ const reasons: Readonly<Record<keyof ShellFixture, string>> = {
   bundleId: "The iOS bundle ID identifies the app in the App Store and cannot change in place.",
   appVersion: "The version is shown by the stores and is set in pubspec.yaml.",
   splashColor: "The launch screen is native and is drawn before Plux starts.",
+  iconAssetId: "The launcher and store icons are image files compiled into the native project.",
   router: "The router adapter is a compiled dependency of the shell.",
   deviceApis: "Device APIs add Android permissions and iOS usage descriptions to the native manifests.",
   push: "Push adds the notification permission and the iOS entitlement to the native project.",
@@ -81,19 +84,24 @@ const reasons: Readonly<Record<keyof ShellFixture, string>> = {
 };
 
 function text(value: ShellFixture[keyof ShellFixture]): string {
-  return Array.isArray(value) ? [...value].sort().join(",") : String(value);
+  return Array.isArray(value) ? [...value].sort().join(",") : String(value ?? "");
 }
 
 /** What differs between two settings, in the server's field order, with the reason each needs a store build. */
 export function shellChanges(generated: ShellFixture, current: ShellFixture) {
   return (Object.keys(reasons) as (keyof ShellFixture)[])
     .filter((field) => text(generated[field]) !== text(current[field]))
-    .map((field) => ({
-      field,
-      oldValue: text(generated[field]),
-      newValue: text(current[field]),
-      reason: reasons[field],
-    }));
+    .map((field) => {
+      // The icon setting is reported as `icon`, and the default icon as `default`.
+      const icon = field === "iconAssetId";
+      const side = (settings: ShellFixture) => (icon ? text(settings[field]) || "default" : text(settings[field]));
+      return {
+        field: icon ? "icon" : field,
+        oldValue: side(generated),
+        newValue: side(current),
+        reason: reasons[field],
+      };
+    });
 }
 
 /** The handlers of AppProjectService over `data`; `addApp` makes an imported app appear in the app list. */
@@ -108,6 +116,7 @@ export function projectsHandlers(
     }
   };
   let polls = 0;
+  let format = "zip";
   const current = () => data.shell?.current ?? blankShell;
   return {
     importApp: (req) => {
@@ -162,16 +171,20 @@ export function projectsHandlers(
             deepLinkSchemes: [...settings.deepLinkSchemes],
             packages: [...settings.packages],
             entryRoute: settings.entryRoute,
+            iconAssetId: settings.iconAssetId,
           },
         };
       }
       return { settings: current() };
     },
     generateProject: (req) => {
-      data.calls.push(`generate:${req.appId}:${req.environmentKey}:${req.channelKey}`);
+      format = req.format === "" ? "zip" : req.format;
+      data.calls.push(
+        `generate:${req.appId}:${req.environmentKey}:${req.channelKey}${format === "zip" ? "" : `:${format}`}`,
+      );
       refuse("generate");
       polls = 0;
-      return { job: { id: "job-1", appId: req.appId, format: "zip", status: "queued" } };
+      return { job: { id: "job-1", appId: req.appId, format, status: "queued" } };
     },
     getProjectJob: (req) => {
       data.calls.push(`job:${req.jobId}`);
@@ -182,7 +195,7 @@ export function projectsHandlers(
         job: {
           id: req.jobId,
           appId: req.appId,
-          format: "zip",
+          format,
           status,
           size: status === "succeeded" ? 2048n : 0n,
           errorCode: status === "failed" ? (data.jobError?.code ?? "PLX-9999") : "",
@@ -192,7 +205,11 @@ export function projectsHandlers(
     },
     downloadProject: (req) => {
       data.calls.push(`download:${req.jobId}`);
-      return { filename: "shop-project.zip", archive: new Uint8Array([80, 75, 3, 4]), sha256: "00" };
+      return {
+        filename: format === "patch" ? "shop-patch.zip" : "shop-project.zip",
+        archive: new Uint8Array([80, 75, 3, 4]),
+        sha256: "00",
+      };
     },
   };
 }

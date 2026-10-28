@@ -26,6 +26,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/shellupdate"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
@@ -51,6 +52,8 @@ type fixture struct {
 	archives *archive.Service
 	shells   *shellupdate.Service
 	queue    *queue
+	objects  *objects.Filesystem
+	gen      ids
 	log      *audit.Log
 	org      string
 	owner    auth.Principal
@@ -67,7 +70,11 @@ func newFixture(t *testing.T) *fixture {
 		t.Fatal(err)
 	}
 	gen := ids{g: uuid7.NewGenerator(time.Now, rand.Reader)}
-	f := &fixture{db: db, log: audit.NewLog(gen, nil), queue: &queue{}}
+	files, err := objects.NewFilesystem(t.TempDir(), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := &fixture{db: db, log: audit.NewLog(gen, nil), queue: &queue{}, objects: files, gen: gen}
 	authService, err := auth.NewService(auth.Options{DB: db, Audit: f.log, Cache: cache.NewMemory(nil), Crypter: backend, IDs: gen, VerificationURI: "https://p.example/device"})
 	if err != nil {
 		t.Fatal(err)
@@ -104,7 +111,7 @@ func newFixture(t *testing.T) *fixture {
 	keys := func(context.Context, string, string) ([]codegen.RootKey, error) {
 		return []codegen.RootKey{{KeyID: "k1", Algorithm: "ed25519", Role: "targets", PublicKey: bytes.Repeat([]byte{7}, 32)}}, nil
 	}
-	f.shells, err = shellupdate.New(shellupdate.Options{DB: db, Audit: f.log, IDs: gen, Queue: f.queue, Keys: keys, Endpoint: "https://plux.example"})
+	f.shells, err = shellupdate.New(shellupdate.Options{DB: db, Audit: f.log, IDs: gen, Queue: f.queue, Keys: keys, Objects: files, Endpoint: "https://plux.example"})
 	if err != nil {
 		t.Fatal(err)
 	}

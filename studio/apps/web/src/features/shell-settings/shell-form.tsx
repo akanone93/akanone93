@@ -7,6 +7,7 @@ import type { ShellSettings } from "@plux/api";
 import { Button, Field, Input, Select } from "@plux/ui";
 import { type FormEvent, type ReactElement, useState } from "react";
 import { Choice } from "../new-app/choice.tsx";
+import { IconPicker } from "./icon-picker.tsx";
 import { shellSettingsMessages } from "./shell-settings.messages.ts";
 import { useSaveShell } from "./use-shell.ts";
 
@@ -40,6 +41,7 @@ interface Values {
   readonly deepLinkSchemes: string;
   readonly packages: string;
   readonly entryRoute: string;
+  readonly iconAssetId: string;
 }
 
 function valuesOf(s: ShellSettings): Values {
@@ -57,6 +59,7 @@ function valuesOf(s: ShellSettings): Values {
     deepLinkSchemes: s.deepLinkSchemes.join(", "),
     packages: s.packages.join(", "),
     entryRoute: s.entryRoute,
+    iconAssetId: s.iconAssetId,
   };
 }
 
@@ -176,6 +179,12 @@ export function ShellForm({
         {list("deepLinkSchemes", m.fieldDeepLinkSchemes)}
         {list("packages", m.fieldPackages)}
       </div>
+      <IconPicker
+        appId={appId}
+        value={values.iconAssetId}
+        disabled={!canManage}
+        onChange={(iconAssetId) => set({ iconAssetId })}
+      />
       <fieldset className="flex flex-col gap-2">
         <legend className="text-label font-medium text-primary">{m.fieldDeviceApis}</legend>
         <div className="grid grid-cols-2 gap-2">

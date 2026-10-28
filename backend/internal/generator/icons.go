@@ -32,6 +32,13 @@ func decodeIcon(data []byte) (image.Image, error) {
 	return img, nil
 }
 
+// CheckIcon reports whether data is an icon the generator accepts: a
+// square PNG from 1024 to 4096 pixels a side (GEN-004).
+func CheckIcon(data []byte) error {
+	_, err := decodeIcon(data)
+	return err
+}
+
 // defaultIcon is the icon of an app that gives none: a light disc on the
 // splash colour, drawn with integer arithmetic only.
 func defaultIcon(bg color.NRGBA) image.Image {

@@ -40,6 +40,12 @@ var fields = []field{
 	{"bundleId", "The iOS bundle ID identifies the app in the App Store and cannot change in place.", func(s generator.ShellSpec) string { return s.BundleID }},
 	{"appVersion", "The version is shown by the stores and is set in pubspec.yaml.", func(s generator.ShellSpec) string { return s.AppVersion }},
 	{"splashColor", "The launch screen is native and is drawn before Plux starts.", func(s generator.ShellSpec) string { return s.SplashColor }},
+	{"icon", "The launcher and store icons are image files compiled into the native project.", func(s generator.ShellSpec) string {
+		if s.IconSHA256 == "" {
+			return "default"
+		}
+		return s.IconSHA256
+	}},
 	{"router", "The router adapter is a compiled dependency of the shell.", func(s generator.ShellSpec) string { return s.Router }},
 	{"deviceApis", "Device APIs add Android permissions and iOS usage descriptions to the native manifests.", func(s generator.ShellSpec) string { return list(s.DeviceAPIs) }},
 	{"push", "Push adds the notification permission and the iOS entitlement to the native project.", func(s generator.ShellSpec) string {

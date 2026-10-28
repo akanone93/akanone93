@@ -248,6 +248,56 @@ export function shellSettingsMessages(i18n: I18n) {
       message: "Progress of generating the project",
       comment: "Accessible name of the progress bar shown while the project is generated.",
     }),
+    projectPatch: i18n._({
+      id: "shell.project.patch",
+      message: "Download patch",
+      comment: "Button that downloads only the files that changed since the project was last generated.",
+    }),
+    projectPatchCaption: i18n._({
+      id: "shell.project.patch-caption",
+      message:
+        "The patch holds the files that were added or changed since the last generation, and plux-patch.json, which lists the changed, added and deleted files. Unzip it over your project and delete the listed files.",
+      comment: "Explains the patch download; plux-patch.json is a file name and stays as it is.",
+    }),
+    fieldIcon: i18n._({
+      id: "shell.field.icon",
+      message: "App icon",
+      comment: "Name of the setting for the launcher and store icon; also the legend of the icon picker.",
+    }),
+    iconDefault: i18n._({
+      id: "shell.icon.default",
+      message: "Default icon",
+      comment: "Choice of the icon picker: the icon Plux draws when the app has none, and the value shown for it.",
+    }),
+    iconHint: i18n._({
+      id: "shell.icon.hint",
+      message: "A square PNG, 1024 to 4096 pixels a side, from the app's assets.",
+      comment: "Explains which images work as the app icon.",
+    }),
+    iconNoAssets: i18n._({
+      id: "shell.icon.no-assets",
+      message: "The app has no PNG assets yet. Upload one in the Assets panel to use it as the icon.",
+      comment: "Shown in the icon picker when the app has no PNG image to choose.",
+    }),
+    iconLoadFailed: i18n._({
+      id: "shell.icon.load-failed",
+      message: "The app's images could not be loaded.",
+      comment: "Shown when the list of images for the icon picker failed to load.",
+    }),
+    iconSize: (width: number, height: number) =>
+      i18n._({
+        id: "shell.icon.size",
+        message: "{width} × {height} pixels",
+        values: { width, height },
+        comment: "Size of an image in the icon picker, in pixels.",
+      }),
+    iconPreview: (name: string) =>
+      i18n._({
+        id: "shell.icon.preview",
+        message: "Preview of {name}",
+        values: { name },
+        comment: "Accessible name of the preview of an image in the icon picker; name is the image's file name.",
+      }),
     linkLabel: i18n._({
       id: "shell.link",
       message: "Native shell settings",

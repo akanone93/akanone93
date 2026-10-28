@@ -62,3 +62,17 @@ func TestCheckRefusesInvalidSettings_GEN_004(t *testing.T) {
 		t.Fatalf("valid settings refused: %v", err)
 	}
 }
+
+// TestCompareReportsAnIconChange_GEN_004 reports a changed icon, and the
+// default icon, with a reason.
+func TestCompareReportsAnIconChange_GEN_004(t *testing.T) {
+	old, cur := spec(), spec()
+	cur.IconSHA256 = "ab12"
+	got := shellupdate.Compare(old, cur)
+	if len(got) != 1 || got[0].Field != "icon" || got[0].Old != "default" || got[0].New != "ab12" || got[0].Reason == "" {
+		t.Fatalf("icon change: %+v", got)
+	}
+	if got := shellupdate.Compare(cur, cur); len(got) != 0 {
+		t.Fatalf("the same icon differs: %+v", got)
+	}
+}
