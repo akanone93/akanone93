@@ -20,6 +20,7 @@ import type { EditSession } from "./features/editor/edit-session.ts";
 import { experimentsSearchSchema, newExperimentSearchSchema } from "./features/experiments/experiments.schema.ts";
 import { functionSearchSchema, functionsEnvSearchSchema } from "./features/functions/functions.schema.ts";
 import { librarySearchSchema } from "./features/library/library.schema.ts";
+import { localisationSearchSchema } from "./features/localisation/area-actions.ts";
 import { inboxSearchSchema } from "./features/notifications/notifications.schema.ts";
 import { canvasSearchSchema } from "./features/plugin-canvas/plugin-canvas.schema.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
@@ -249,6 +250,20 @@ const dataSourceRoute = dataRoute("/sources/$sourceId", "SourcePage");
 const dataCollectionsRoute = dataRoute("/collections", "CollectionsPage");
 const dataCollectionRoute = dataRoute("/collections/$collectionId", "CollectionPage");
 
+/** A13-A14: the localisation grid and the heatmap of one app (STU-111); the pages need `app.read`, editing needs `translations.edit` and the locale's lock. */
+function localisationRoute(path: string, component: "LocalisationPage" | "HeatmapPage") {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/localisation${path}`,
+    validateSearch: (raw) => localisationSearchSchema.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/localisation/index.ts"), component),
+  });
+}
+
+const localisationGridRoute = localisationRoute("", "LocalisationPage");
+const localisationHeatmapRoute = localisationRoute("/heatmap", "HeatmapPage");
+
 /** A6-A9: experiments, the wizard, one experiment and the flags (STU-103); actions are gated by experiments.manage and flags.manage. */
 function experimentsRoute(
   path: string,
@@ -447,6 +462,8 @@ const routeTree = rootRoute.addChildren([
       dataSourceRoute,
       dataCollectionsRoute,
       dataCollectionRoute,
+      localisationGridRoute,
+      localisationHeatmapRoute,
       experimentsListRoute,
       testsListRoute,
       testRunRoute,
