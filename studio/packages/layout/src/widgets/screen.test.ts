@@ -39,7 +39,7 @@ function measure(data: string, families: readonly string[]): { w: number; h: num
   return { w: box?.w ?? -1, h: box?.h ?? -1 };
 }
 
-describe("layoutScreen (STU-005, STU-006)", () => {
+describe("layoutScreen [STU-005] [STU-006]", () => {
   test("lays a column of text and a button out with the engine's text sizes", () => {
     const root: WidgetNode = {
       id: "scaffold",
@@ -115,7 +115,7 @@ describe("layoutScreen (STU-005, STU-006)", () => {
     );
   });
 
-  test("tall content reports its real height beyond the device (STU-056)", () => {
+  test("tall content reports its real height beyond the device [STU-056]", () => {
     const root: WidgetNode = {
       id: "col",
       type: "Column",
@@ -183,7 +183,7 @@ describe("layoutScreen (STU-005, STU-006)", () => {
   });
 });
 
-describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
+describe("Cupertino widgets in a screen ([STU-005], S4.4)", () => {
   const node = (id: string, type: string, extra: Partial<WidgetNode> = {}): WidgetNode => ({ id, type, ...extra });
   const col = (...children: WidgetNode[]): WidgetNode => ({ id: "col", type: "Column", children });
 
@@ -378,7 +378,7 @@ describe("Cupertino widgets in a screen (STU-005, S4.4)", () => {
   });
 });
 
-describe("Material composites in a screen (STU-005, S4.3)", () => {
+describe("Material composites in a screen ([STU-005], S4.3)", () => {
   const tab = (id: string, props: Record<string, unknown>, icon = false): WidgetNode => ({
     id,
     type: "Tab",
@@ -460,7 +460,7 @@ describe("Material composites in a screen (STU-005, S4.3)", () => {
   });
 });
 
-describe("MenuAnchor, NavigationRail and TermsViewer on a screen (STU-005, S4.6)", () => {
+describe("MenuAnchor, NavigationRail and TermsViewer on a screen ([STU-005], S4.6)", () => {
   const boxesOf = (root: WidgetNode, options: { deviceHeight?: number } = {}): Map<string, { w: number; h: number }> =>
     new Map(layoutScreen(root, { engine, theme, ...options }).boxes.map((b) => [b.id, { w: b.w, h: b.h }]));
   const items = [
@@ -517,7 +517,7 @@ describe("MenuAnchor, NavigationRail and TermsViewer on a screen (STU-005, S4.6)
   });
 });
 
-describe("Layer 2 components checked as a box only (STU-005, S4.5)", () => {
+describe("Layer 2 components checked as a box only ([STU-005], S4.5)", () => {
   // Maintainer decision (S4.5): the scanner package cannot be built into the runtime's golden writer (its build hook
   // would make a cycle), so `QrCodeView`, `QrScanner` and `BarcodeScanner` have no conformance scene. Studio lays out
   // the box the runtime gives them and this test pins it.
@@ -567,7 +567,7 @@ function schemaWidgetTypes(): string[] {
  */
 const placeholderTypes: readonly string[] = [];
 
-describe("builder coverage (STU-005)", () => {
+describe("builder coverage [STU-005]", () => {
   test("every widget type has a builder except the listed placeholders", () => {
     const types = schemaWidgetTypes();
     expect(types.length).toBeGreaterThan(200);

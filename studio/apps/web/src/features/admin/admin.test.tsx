@@ -29,7 +29,7 @@ const calls = (state: Upstream) => state.admin?.calls ?? [];
 const type = (label: string | RegExp, value: string) =>
   fireEvent.change(screen.getByRole("textbox", { name: label }), { target: { value } });
 
-describe("STU-116 organisation administration", () => {
+describe("[STU-116] organisation administration", () => {
   test("O15 renames the organisation and the area's navigation lists every page", async () => {
     const state: Upstream = { admin: { calls: [] } };
     open("", state);

@@ -135,7 +135,7 @@ function setup(options: { online?: () => boolean } = {}) {
   return { clock, server, session, confirmed, rebased, firstEdits, set };
 }
 
-describe("SRV-030 autosave pipeline", () => {
+describe("[SRV-030] [STU-004] autosave pipeline", () => {
   test("debounce comes from studio.autosaveDebounceMs and restarts on each edit", async () => {
     const { clock, server, set } = setup();
     set("padding", 10);

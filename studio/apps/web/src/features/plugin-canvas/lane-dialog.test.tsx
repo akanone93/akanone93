@@ -33,7 +33,7 @@ const root = () => ({
   ],
 });
 
-describe("STU-046 lane fixes find the step behind an arrow", () => {
+describe("[STU-046] lane fixes find the step behind an arrow", () => {
   test("the n-th navigate step in document order resolves to its widget, event and position", () => {
     expect(navigateSite(root(), 1)).toEqual({ nodeId: "b2", link: { event: "onPressed", step: 0, route: "tall" } });
     expect(navigateSite(root(), 2)).toBeUndefined();
@@ -56,7 +56,7 @@ describe("STU-046 lane fixes find the step behind an arrow", () => {
   });
 });
 
-describe("STU-046 the lane dialog", () => {
+describe("[STU-046] the lane dialog", () => {
   const routes = [
     { route: "detail", title: "Detail", own: true },
     { route: "tall", title: "Tall", own: true },

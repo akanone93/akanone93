@@ -54,7 +54,7 @@ const analytics = {
 const open = (path: string, state: Upstream = {}, permissions = ["app.read", "analytics.manage"]) =>
   renderApp(`${base}${path}`, { permissions, analytics: structuredClone(analytics), ...state });
 
-describe("STU-114 analytics model", () => {
+describe("[STU-114] analytics model", () => {
   test("sums events per day and per dimension", () => {
     const points = analytics.rollups.screen_view.map((r) => ({
       bucket: { seconds: BigInt(Date.parse(`${r.day}T00:00:00Z`) / 1000), nanos: 0 },
@@ -88,7 +88,7 @@ describe("STU-114 analytics model", () => {
   });
 });
 
-describe("STU-114 analytics pages (A24, A25, A30)", () => {
+describe("[STU-114] analytics pages (A24, A25, A30)", () => {
   test("A24 shows the headline numbers and the daily chart", async () => {
     open("");
     await screen.findByRole("img", { name: "Screen views per day" }, wait);
@@ -117,7 +117,7 @@ describe("STU-114 analytics pages (A24, A25, A30)", () => {
   });
 });
 
-describe("ANL-020 funnels (A26, A27)", () => {
+describe("[ANL-020] funnels (A26, A27)", () => {
   test("A26 creates and deletes a funnel; a reader cannot", async () => {
     open("/funnels");
     await screen.findByRole("link", { name: "Checkout" }, wait);
@@ -146,7 +146,7 @@ describe("ANL-020 funnels (A26, A27)", () => {
   });
 });
 
-describe("ANL-040 errors (A28, A29)", () => {
+describe("[ANL-040] errors (A28, A29)", () => {
   test("A28 lists the groups and A29 opens one with its node link", async () => {
     open("/errors");
     fireEvent.click(await screen.findByRole("link", { name: "PLX-4101" }, wait));
@@ -162,7 +162,7 @@ describe("ANL-040 errors (A28, A29)", () => {
   });
 });
 
-describe("ANL-050 session replay (A47)", () => {
+describe("[ANL-050] session replay (A47)", () => {
   const events = analytics.replays[0]?.events as never as Parameters<typeof frameAt>[0];
 
   test("the frame at a moment holds the layout, recent taps and the state so far", () => {

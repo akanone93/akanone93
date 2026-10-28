@@ -31,7 +31,7 @@ function renderPlain(node: React.ReactNode) {
   );
 }
 
-describe("STU-075 E13 chips and E14 banner", () => {
+describe("[STU-075] E13 chips and E14 banner", () => {
   test("offline wins over reconnecting; live shows nothing", async () => {
     const view = renderPlain(<StatusChips online={false} stream="reconnecting" />);
     await screen.findByText("Offline");
@@ -57,7 +57,7 @@ describe("STU-075 E13 chips and E14 banner", () => {
   });
 });
 
-describe("STU-075 E11 help menu and E14 version source", () => {
+describe("[STU-075] E11 help menu and E14 version source", () => {
   const json = (body: unknown, ok = true) => (async () => ({ ok, json: async () => body })) as unknown as typeof fetch;
 
   test("/version is validated; failures and bad shapes read as unknown", async () => {
@@ -84,7 +84,7 @@ describe("STU-075 E11 help menu and E14 version source", () => {
   });
 });
 
-describe("STU-075 O14 inbox filter", () => {
+describe("[STU-075] O14 inbox filter", () => {
   test("the unread flag in the URL is validated and the page renders", async () => {
     const r = renderApp(`/o/${orgA}/notifications?unread=true&type=`, {});
     await screen.findByRole("heading", { name: "Notifications" });
@@ -148,7 +148,7 @@ describe("F16 kinds and mutes", () => {
     await waitFor(() => expect(publish.checked).toBe(false));
   });
 
-  test("a mute is stored in the server preferences under its own mask path (STU-013)", async () => {
+  test("a mute is stored in the server preferences under its own mask path [STU-013]", async () => {
     const updates: NonNullable<Parameters<typeof renderApp>[1]>["updates"] = [];
     renderApp("/me", { updates });
     const publish = (await screen.findAllByRole("checkbox")).find((c) => !(c as HTMLInputElement).disabled);

@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { makeRect } from "./geometry.ts";
 import { clampZoom, MAX_ZOOM, MIN_ZOOM, Viewport } from "./viewport.ts";
 
-describe("STU-120 viewport math", () => {
+describe("[STU-120] viewport math", () => {
   test("zooming about a point keeps the world point under it fixed", () => {
     const viewport = new Viewport(800, 600);
     viewport.apply({ op: "set", x: 100, y: 50, zoom: 1 });

@@ -22,7 +22,7 @@ const mocks = new Map<string, unknown>([
 ]);
 const states = (s: Record<string, MockState>) => s;
 
-describe("DAT-080 data bindings take the selected mock state", () => {
+describe("[DAT-080] data bindings take the selected mock state", () => {
   test("success reads the mock by path and index", () => {
     expect(evaluateMockBinding("data.orders.value.customer.name", mocks, {})).toBe("Harbour Trading");
     expect(evaluateMockBinding("data.orders.value.lines[1].sku", mocks, {})).toBe("B-2");

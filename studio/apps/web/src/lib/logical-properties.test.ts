@@ -33,7 +33,7 @@ const physical = [
 /** Intentionally physical: the link layer positions a handle at canvas coordinates, which the canvas never mirrors. */
 const allowed = new Set(["features/plugin-canvas/link-layer.tsx"]);
 
-describe("STU-012 layout follows the writing direction", () => {
+describe("[STU-012] layout follows the writing direction", () => {
   test("no source uses a physical side where start and end exist", () => {
     const offenders: string[] = [];
     for (const root of roots) {

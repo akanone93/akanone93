@@ -40,7 +40,7 @@ const io = (readable: ReadonlySet<string>, refuse: ReadonlySet<string> = new Set
   return { api, writes };
 };
 
-describe("STU-067 copy over at paste time (F7)", () => {
+describe("[STU-067] copy over at paste time (F7)", () => {
   test("copies across plugins and apps with new IDs and consistent references", async () => {
     const { api, writes } = io(new Set(["ds1", "tok"]));
     const items = [item("ds1"), item("tok", "assets")];

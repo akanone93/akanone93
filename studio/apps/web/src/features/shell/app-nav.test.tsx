@@ -11,7 +11,7 @@ afterEach(cleanup);
 const base = `/o/${orgA}/apps/app1`;
 const reader = ["app.read"];
 
-describe("STU-100 to STU-116 navigation between the areas of an app", () => {
+describe("[STU-100] to [STU-116] navigation between the areas of an app", () => {
   test("a reader sees every area their permissions open, as links to the area's route", async () => {
     renderApp(`${base}/releases`, { permissions: reader });
     const nav = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });

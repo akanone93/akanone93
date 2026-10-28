@@ -43,7 +43,7 @@ const open = (onConfirm: (c: ReadonlyMap<string, Resolution>) => void, onClose: 
     />,
   );
 
-describe("STU-067 the paste dependency report (D34, F7)", () => {
+describe("[STU-067] the paste dependency report (D34, F7)", () => {
   test("lists every missing item as text and confirms the presets", async () => {
     const onConfirm = mock((_: ReadonlyMap<string, Resolution>) => undefined);
     open(onConfirm, () => undefined);

@@ -28,7 +28,7 @@ function mount(child: RenderBox): { owner: PipelineOwner; view: RenderView; upda
   return { owner, view, updates: () => updates };
 }
 
-describe("STU-005 relayout boundaries", () => {
+describe("[STU-005] relayout boundaries", () => {
   test("the boundary rule and propagation of markNeedsLayout to the nearest boundary", () => {
     const leaf = new RenderTestBox({ size: new Size(50, 50) });
     const proxy = new RenderProxyBox(leaf);
@@ -167,7 +167,7 @@ describe("STU-005 relayout boundaries", () => {
   });
 });
 
-describe("STU-005 intrinsic and dry-layout caches", () => {
+describe("[STU-005] intrinsic and dry-layout caches", () => {
   test("intrinsics are cached until markNeedsLayout, which then dirties the parent", () => {
     const leaf = new RenderTestBox({ size: new Size(50, 40) });
     const sized = new RenderConstrainedBox({
@@ -220,7 +220,7 @@ describe("STU-005 intrinsic and dry-layout caches", () => {
   });
 });
 
-describe("STU-005 BaselineOffset", () => {
+describe("[STU-005] BaselineOffset", () => {
   test("arithmetic keeps no-baseline", () => {
     expect(BaselineOffset.noBaseline.plus(3).offset).toBeNull();
     expect(new BaselineOffset(2).plus(3).offset).toBe(5);
@@ -254,7 +254,7 @@ class RenderVerticalList extends ContainerRenderBox {
   }
 }
 
-describe("STU-005 container children", () => {
+describe("[STU-005] container children", () => {
   test("insert, move, remove and baselines over a child list", () => {
     const a = new RenderTestBox({ size: new Size(10, 10) });
     const b = new RenderTestBox({ size: new Size(20, 20), baseline: 5 });

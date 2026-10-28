@@ -88,7 +88,7 @@ function languageServer(received: string[]) {
 const openOverlay = async () =>
   fireEvent.click(await screen.findByRole("button", { name: "Rust editor" }, { timeout: 5000 }));
 
-describe("FN-033 Rust editor V3", () => {
+describe("[FN-033] Rust editor V3", () => {
   test("starts the language server on an uploaded source, shows its diagnostics and answers hovers", async () => {
     const received: string[] = [];
     const log: string[] = [];

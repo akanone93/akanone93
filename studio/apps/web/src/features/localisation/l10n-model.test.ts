@@ -15,7 +15,7 @@ import {
   setMessageRecipe,
 } from "./l10n-model.ts";
 
-describe("I18N-007 key names", () => {
+describe("[I18N-007] key names", () => {
   test("a proposed key follows the key pattern and is unique", () => {
     const taken = new Set<string>();
     const first = proposeKey("Pay now, safely!", "Button", taken);
@@ -38,7 +38,7 @@ describe("I18N-007 key names", () => {
   });
 });
 
-describe("I18N-008 documents", () => {
+describe("[I18N-008] documents", () => {
   test("paths and lock scopes of a locale", () => {
     expect(localePath("de")).toBe("translations/de.json");
     expect(localeScope("de")).toBe("translations/de");

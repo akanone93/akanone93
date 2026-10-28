@@ -95,7 +95,7 @@ const steps = (s: EditSession) =>
     event: "onPressed",
   });
 
-describe("STU-065 action graph editor", () => {
+describe("[STU-065] action graph editor", () => {
   test("lists the catalogue, adds steps through the edit pipeline as a JSON Patch, and keeps them undoable", async () => {
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
     const s = await openEditor(undefined, { sent });

@@ -9,7 +9,7 @@ const asset = (id: string, url?: string) => ({
   variants: url === undefined ? [] : [{ artifact: { urls: [url] } }],
 });
 
-describe("STU-006 host fonts for the canvas", () => {
+describe("[STU-006] host fonts for the canvas", () => {
   test("each listed font is the verified file of its asset, in the app's order", () => {
     const app = {
       hostFonts: [

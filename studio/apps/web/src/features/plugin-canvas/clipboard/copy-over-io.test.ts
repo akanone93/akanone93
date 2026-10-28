@@ -6,7 +6,7 @@ import { sourceReader } from "./copy-over-io.ts";
 
 const enc = (v: unknown) => new TextEncoder().encode(JSON.stringify(v));
 
-describe("STU-067 the source reader uses the user's own access", () => {
+describe("[STU-067] the source reader uses the user's own access", () => {
   test("finds a document by id and a translation by key", async () => {
     const calls: string[] = [];
     const client = {

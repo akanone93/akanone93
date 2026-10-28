@@ -9,14 +9,14 @@ let n = 0;
 const seq = () => `01e0c450-6c00-7000-8000-${String(++n).padStart(12, "0")}`;
 const none = { keys: new Set<string>(), routes: new Set<string>() };
 
-describe("SCH-002 identifiers", () => {
+describe("[SCH-002] identifiers", () => {
   test("uuidv7 is canonical lower-case v7 with the time in front", () => {
     expect(uuidv7()).toMatch(uuid);
     expect(uuidv7(0x0123456789ab, () => new Uint8Array(16)).startsWith("01234567-89ab-7")).toBe(true);
   });
 });
 
-describe("SCH-022 blank screen", () => {
+describe("[SCH-022] blank screen", () => {
   test("is a page with its own ids, a scaffold root, and key and route unique among the taken names", () => {
     const page = blankPage("Loan calculator", {
       keys: new Set(["loan-calculator"]),
@@ -35,7 +35,7 @@ describe("SCH-022 blank screen", () => {
   });
 });
 
-describe("SCH-002 duplicate with ID remapping", () => {
+describe("[SCH-002] duplicate with ID remapping", () => {
   const source: PageDoc = {
     schemaVersion: "1.0.0",
     kind: "page",

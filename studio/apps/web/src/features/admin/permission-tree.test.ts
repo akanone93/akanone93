@@ -6,7 +6,7 @@ import { buildTree, toggleAll } from "./permission-tree.ts";
 
 const entry = (name: string) => ({ name, description: "", risk: "", stepUp: false });
 
-describe("STU-116 role builder tree", () => {
+describe("[STU-116] role builder tree", () => {
   test("groups area, feature and action in a stable order", () => {
     const tree = buildTree([
       entry("release.publish"),

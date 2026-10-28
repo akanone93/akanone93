@@ -46,8 +46,8 @@ function sfPro(): LocalFontLike {
   };
 }
 
-describe("canvas fonts (STU-006)", () => {
-  test("STU-006: host-bundled fonts rank after the app's own and before Roboto; a missing file raises the notice", async () => {
+describe("canvas fonts [STU-006]", () => {
+  test("[STU-006]: host-bundled fonts rank after the app's own and before Roboto; a missing file raises the notice", async () => {
     const host = [
       { family: "HostSerif", url: "/host/serif.ttf" },
       { family: "HostMono", url: "/host/mono.ttf" },
@@ -58,7 +58,7 @@ describe("canvas fonts (STU-006)", () => {
     expect(loaded.notices).toEqual([{ code: AUTHORITATIVE_NOTICE, reason: "font-unavailable", subject: "HostMono" }]);
   });
 
-  test("STU-006: loads device fonts first, then Roboto and Noto, with no notice", async () => {
+  test("[STU-006]: loads device fonts first, then Roboto and Noto, with no notice", async () => {
     const deps = fetching(["/assets/brand.ttf", "/fonts/roboto.ttf", "/fonts/noto-sans.ttf"]);
     const loaded = await loadCanvasFonts(request, deps);
     expect(loaded.families).toEqual(["Brand", "Roboto", "Noto Sans"]);
@@ -67,7 +67,7 @@ describe("canvas fonts (STU-006)", () => {
     expect(loaded.notices).toEqual([]);
   });
 
-  test("STU-006: a font that fails to load falls back to the next family, with the notice", async () => {
+  test("[STU-006]: a font that fails to load falls back to the next family, with the notice", async () => {
     const loaded = await loadCanvasFonts(request, fetching(["/fonts/noto-sans.ttf"]));
     expect(loaded.primary).toBe("Noto Sans");
     expect(loaded.notices.map((n) => [n.code, n.reason, n.subject])).toEqual([
@@ -79,7 +79,7 @@ describe("canvas fonts (STU-006)", () => {
     expect(none.primary).toBe("Fallback");
   });
 
-  test("STU-006: SF Pro only through Local Font Access when permitted, never fetched", async () => {
+  test("[STU-006]: SF Pro only through Local Font Access when permitted, never fetched", async () => {
     const deps = fetching(["/fonts/roboto.ttf"]);
     const permitted = await loadCanvasFonts(
       { ...request, device: [], noto: [], sfPro: true },
@@ -100,7 +100,7 @@ describe("canvas fonts (STU-006)", () => {
     expect(unsupported.notices.map((n) => n.reason)).toEqual(["sf-pro-substitute"]);
   });
 
-  test("STU-006: detects complex scripts whose shaping the device preview decides", () => {
+  test("[STU-006]: detects complex scripts whose shaping the device preview decides", () => {
     expect(complexScriptOf("Hello")).toBeNull();
     expect(complexScriptOf("Ünïcödé — ok")).toBeNull();
     expect(complexScriptOf("مرحبا")).toBe("Arabic");
@@ -108,7 +108,7 @@ describe("canvas fonts (STU-006)", () => {
     expect(complexScriptOf("สวัสดี")).toBe("Thai");
   });
 
-  test("STU-006: every locale of the matrix is classified: Latin is reproduced, each complex script raises the notice", () => {
+  test("[STU-006]: every locale of the matrix is classified: Latin is reproduced, each complex script raises the notice", () => {
     const samples: readonly (readonly [string, string | null])[] = [
       ["Account settings", null],
       ["إعدادات الحساب", "Arabic"],
@@ -125,7 +125,7 @@ describe("canvas fonts (STU-006)", () => {
     }
   });
 
-  test("STU-006: the host loads fonts before init and raises the notice as a host event", async () => {
+  test("[STU-006]: the host loads fonts before init and raises the notice as a host event", async () => {
     const env = new TestEnvironment(ck);
     const options: CanvasOptions = {
       renderer: "raster",

@@ -40,7 +40,7 @@ const screen: FrameSpec = {
   z: 0,
 };
 
-describe("STU-003 retained scene graph", () => {
+describe("[STU-003] retained scene graph", () => {
   test("bounds include stroke, shadow and control points", () => {
     expect(boundsOf(box("a", 10, 20), makeRect(0, 0, 0, 0))).toEqual({ l: 9.5, t: 19.5, r: 110.5, b: 70.5 });
     expect(boundsOf(screen, makeRect(0, 0, 0, 0)).l).toBe(-SHADOW_MARGIN);
@@ -155,7 +155,7 @@ describe("STU-003 retained scene graph", () => {
     expect(model.nodes[2]?.bounds).toEqual({ x: 19.5, y: 39.5, w: 101, h: 51 });
   });
 
-  test("STU-121 a resized box damages only strips around its moved edges; other changes their old and new bounds", () => {
+  test("[STU-121] a resized box damages only strips around its moved edges; other changes their old and new bounds", () => {
     const column = { ...box("c", 0, 0), w: 100, h: 400 };
     const out: Rect[] = [];
     const bounds = (spec: typeof column): Rect => boundsOf(spec, { l: 0, t: 0, r: 0, b: 0 });

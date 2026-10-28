@@ -46,7 +46,7 @@ function font(records: readonly NameRecord[], version = 0x00010000): Uint8Array 
   return out;
 }
 
-describe("STU-006 font family names", () => {
+describe("[STU-006] font family names", () => {
   test("a TrueType font gives its Windows family name", () => {
     expect(fontFamilyName(font([{ platform: 3, nameId: 1, text: "Brand Sans" }]))).toBe("Brand Sans");
   });

@@ -4,7 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { handleAnchor, screenAt, toCanvas, toWorld } from "./link-drag.ts";
 
-describe("link drag geometry (STU-047)", () => {
+describe("link drag geometry [STU-047]", () => {
   test("canvas and world points convert both ways", () => {
     const v = { x: 100, y: 50, zoom: 2 };
     expect(toWorld(v, { x: 20, y: 10 })).toEqual({ x: 110, y: 55 });

@@ -29,23 +29,23 @@ const root = () => ({
   children: [text, { id: "stack", type: "Stack", children: [] }],
 });
 
-describe("drop into a Stack (STU-067)", () => {
+describe("drop into a Stack [STU-067]", () => {
   const stack: Container = { id: "stack", box: { l: 100, t: 200, r: 400, b: 500 }, axis: "stack", children: [] };
 
-  test("STU-067 the drop point is rounded and given in the Stack's coordinates", () => {
+  test("[STU-067] the drop point is rounded and given in the Stack's coordinates", () => {
     const t = resolveDrop(indexNodes([root()] as never), [stack], [], 150.4, 260.6);
     expect(t?.position).toEqual({ left: 50, top: 61 });
     expect(t?.indicator).toEqual({ l: 150, t: 261, r: 150, b: 261 });
   });
 
-  test("STU-067 a canvas drag wraps the node in a Positioned at the drop point", () => {
+  test("[STU-067] a canvas drag wraps the node in a Positioned at the drop point", () => {
     const doc = root();
     stackDropRecipe("t", "stack", { left: 5, top: 7 }, () => "pos")(doc);
     expect(doc.children).toHaveLength(1);
     expect(doc.children[0]).toMatchObject({ id: "stack", children: [{ id: "pos", type: "Positioned" }] });
   });
 
-  test("STU-067 a Positioned child is moved whole, not double wrapped", () => {
+  test("[STU-067] a Positioned child is moved whole, not double wrapped", () => {
     const doc = {
       id: "col",
       children: [
@@ -64,7 +64,7 @@ describe("drop into a Stack (STU-067)", () => {
     ]);
   });
 
-  test("STU-067 Insert into a Stack writes a Positioned with left/top and the widget as child", () => {
+  test("[STU-067] Insert into a Stack writes a Positioned with left/top and the widget as child", () => {
     const edits: unknown[] = [];
     const ids = ["w", "pos"];
     const d = { type: "Text", props: [] } as never;
@@ -89,7 +89,7 @@ describe("drop into a Stack (STU-067)", () => {
   });
 });
 
-describe("native widgets (WGT-030)", () => {
+describe("native widgets [WGT-030]", () => {
   const wrap = (builds: string[]) => {
     const transport = createRouterTransport(({ service }) => {
       service(NativeCatalogueService, {
@@ -122,7 +122,7 @@ describe("native widgets (WGT-030)", () => {
     );
   };
 
-  test("WGT-030 the newest build's native slots become palette widgets", async () => {
+  test("[WGT-030] the newest build's native slots become palette widgets", async () => {
     const { result } = renderHook(() => useNativeWidgets("app"), { wrapper: wrap(["2.0", "1.0"]) });
     await waitFor(() => expect(result.current).toHaveLength(1));
     expect(result.current[0]).toMatchObject({
@@ -132,7 +132,7 @@ describe("native widgets (WGT-030)", () => {
     });
   });
 
-  test("WGT-030 an app without a build has no native widgets", async () => {
+  test("[WGT-030] an app without a build has no native widgets", async () => {
     const { result } = renderHook(() => useNativeWidgets("app"), { wrapper: wrap([]) });
     await new Promise((r) => setTimeout(r, 20));
     expect(result.current).toEqual([]);

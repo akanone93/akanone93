@@ -47,7 +47,7 @@ const disabled = (el: HTMLElement) => el.matches(":disabled, [aria-disabled=true
 const wait = { timeout: 5000 };
 const type = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 
-describe("TST-001 Plux Test scenarios (A45)", () => {
+describe("[TST-001] Plux Test scenarios (A45)", () => {
   test("lists the scenarios and the runs, and filters by ?q", async () => {
     open("?q=cart", {});
     await screen.findByText("Empty cart", {}, wait);
@@ -105,7 +105,7 @@ const trace = (sequence: bigint, runId: string, nodePath: string, trigger = "onT
     payload: { case: "actionTrace", value: { runId, graph: "g", trigger, nodePath } },
   });
 
-describe("TST-001 scenario steps from the device session (A45)", () => {
+describe("[TST-001] scenario steps from the device session (A45)", () => {
   test("prefills the new scenario from the taps the held session recorded", async () => {
     const events = [
       trace(1n, "r1", "/pages/home/0"),
@@ -129,7 +129,7 @@ describe("TST-001 scenario steps from the device session (A45)", () => {
   });
 });
 
-describe("TST-002 Plux Test run results (A46)", () => {
+describe("[TST-002] Plux Test run results (A46)", () => {
   test("shows the result of every scenario and step", async () => {
     open("/r1", {});
     await screen.findByText("found Failed", {}, wait);

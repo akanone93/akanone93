@@ -72,8 +72,8 @@ const pick = (canvas: HTMLElement) => {
   fireEvent.pointerUp(canvas, { clientX: 1, clientY: 1, ctrlKey: true });
 };
 
-describe("S5.6 panel tabs (STU-061, STU-062)", () => {
-  test("STU-061 the left State and Data tabs summarise the plugin and open the designers", async () => {
+describe("S5.6 panel tabs [STU-061] [STU-062]", () => {
+  test("[STU-061] the left State and Data tabs summarise the plugin and open the designers", async () => {
     renderApp(path, { documents, surface: surface("b1") });
     fireEvent.click(await screen.findByRole("tab", { name: "State" }, { timeout: 5000 }));
     expect(await screen.findByText("2 state entries, 1 computed value")).toBeTruthy();
@@ -84,7 +84,7 @@ describe("S5.6 panel tabs (STU-061, STU-062)", () => {
     expect(await screen.findByRole("dialog")).toBeTruthy();
   });
 
-  test("STU-061 the State tab adds, renames and sets the initial value of an entry through the edit pipeline", async () => {
+  test("[STU-061] the State tab adds, renames and sets the initial value of an entry through the edit pipeline", async () => {
     let edit: EditSession | undefined;
     renderApp(path, { documents, surface: surface("b1"), editor: (e) => (edit = e) });
     fireEvent.click(await screen.findByRole("tab", { name: "State" }, { timeout: 5000 }));
@@ -107,7 +107,7 @@ describe("S5.6 panel tabs (STU-061, STU-062)", () => {
     await waitFor(() => expect(state()[0]?.["default"]).toBe(5));
   });
 
-  test("STU-062 the right JSON, Code, Localisation and Performance tabs describe the selection", async () => {
+  test("[STU-062] the right JSON, Code, Localisation and Performance tabs describe the selection", async () => {
     renderApp(path, {
       documents,
       surface: surface("b1"),
@@ -162,7 +162,7 @@ describe("tab model", () => {
   });
 });
 
-describe("Code tab functions (FN-033, FN-034)", () => {
+describe("Code tab functions [FN-033] [FN-034]", () => {
   test("a listed function opens the Rust editor on its source and offers its tests", async () => {
     renderApp(path, { documents, surface: surface("b1") });
     pick(await screen.findByLabelText("Plugin canvas", undefined, { timeout: 5000 }));

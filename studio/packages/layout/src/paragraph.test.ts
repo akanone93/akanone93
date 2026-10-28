@@ -65,7 +65,7 @@ function laidOut(p: RenderParagraph, constraints: BoxConstraints): RenderParagra
 
 const loose = (width: number): BoxConstraints => new BoxConstraints({ maxWidth: width, maxHeight: 1000 });
 
-describe("STU-005 RenderParagraph wraps, truncates and sizes text as Flutter", () => {
+describe("[STU-005] RenderParagraph wraps, truncates and sizes text as Flutter", () => {
   test("wraps at the max width, breaking only between words", () => {
     const p = laidOut(paragraph(sentence), loose(120));
     const lines = p.textPainter.computeLineMetrics();
@@ -307,7 +307,7 @@ describe("STU-005 RenderParagraph wraps, truncates and sizes text as Flutter", (
   });
 });
 
-describe("STU-006 SkParagraph through CanvasKit, as on the device", () => {
+describe("[STU-006] SkParagraph through CanvasKit, as on the device", () => {
   test("an Arabic RTL paragraph shapes, wraps and aligns to the right", () => {
     const p = laidOut(
       paragraph(

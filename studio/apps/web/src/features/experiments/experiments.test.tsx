@@ -48,7 +48,7 @@ const open = (path: string, state: Upstream, permissions = all) =>
 const click = (name: string) => fireEvent.click(screen.getByRole("button", { name }));
 const type = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 
-describe("STU-103 experiments list (A6)", () => {
+describe("[STU-103] experiments list (A6)", () => {
   test("lists experiments with their state", async () => {
     open("", { experiments: { experiments } });
     await screen.findByRole("link", { name: "ctaLabel" });
@@ -71,7 +71,7 @@ describe("STU-103 experiments list (A6)", () => {
   });
 });
 
-describe("ABT-001 new experiment wizard (A7)", () => {
+describe("[ABT-001] new experiment wizard (A7)", () => {
   test("takes the canvas selection as its subject and creates the experiment", async () => {
     const calls: string[] = [];
     open("/new?target=n1,n2", { experiments: { experiments: [], calls } });
@@ -105,7 +105,7 @@ describe("ABT-001 new experiment wizard (A7)", () => {
   });
 });
 
-describe("ABT-001 targeting and metrics of a draft", () => {
+describe("[ABT-001] targeting and metrics of a draft", () => {
   test("reads attribute conditions and keeps versions as text", () => {
     expect(
       parseAttributes("os eq ios\nlocale in de, de-AT\nbuild gte 42\nosVersion gte 17.10\nuser.vip eq true"),
@@ -180,7 +180,7 @@ describe("ABT-001 targeting and metrics of a draft", () => {
   });
 });
 
-describe("ABT-003 experiment results and decision (A8, D48)", () => {
+describe("[ABT-003] experiment results and decision (A8, D48)", () => {
   test("shows the definition, the comparison and the verdict", async () => {
     open("/e1", { experiments: { experiments } });
     await screen.findByRole("heading", { name: "Experiment ctaLabel" });
@@ -229,7 +229,7 @@ describe("ABT-003 experiment results and decision (A8, D48)", () => {
   });
 });
 
-describe("STU-103 feature flags (A9, D49)", () => {
+describe("[STU-103] feature flags (A9, D49)", () => {
   const flags = [{ key: "newCheckout", type: 1, defaultJson: "false" }];
 
   test("lists flags and edits the default of one", async () => {

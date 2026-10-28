@@ -41,7 +41,7 @@ function ofType<T extends WorkerMessage["type"]>(
   return posted.filter((m): m is Extract<WorkerMessage, { type: T }> => m.type === type);
 }
 
-describe("STU-003 canvas worker core", () => {
+describe("[STU-003] canvas worker core", () => {
   test("renders a small scene headless and answers with its scene model", async () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
@@ -70,7 +70,7 @@ describe("STU-003 canvas worker core", () => {
     expect(snapshot?.model.viewport.x).toBe(-10);
   });
 
-  test("STU-052 renders a thumbnail of an item as a PNG and draws it back as an image", async () => {
+  test("[STU-052] renders a thumbnail of an item as a PNG and draws it back as an image", async () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
     await core.receive(init({ tiles: true }));
@@ -105,7 +105,7 @@ describe("STU-003 canvas worker core", () => {
     expect(ofType(posted, "error")).toEqual([]);
   });
 
-  test("STU-121 idle tile work yields to a pending message's frame", async () => {
+  test("[STU-121] idle tile work yields to a pending message's frame", async () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
     await core.receive(init({ tiles: true }));
@@ -164,7 +164,7 @@ describe("STU-003 canvas worker core", () => {
     expect(ofType(posted, "snapshot")).toHaveLength(0);
   });
 
-  test("STU-063 a paused worker draws nothing, keeps its state, and draws one frame on resume", async () => {
+  test("[STU-063] a paused worker draws nothing, keeps its state, and draws one frame on resume", async () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);
     await core.receive(init({ tiles: true }));
@@ -211,7 +211,7 @@ describe("STU-003 canvas worker core", () => {
   });
 });
 
-describe("STU-003 main-thread host", () => {
+describe("[STU-003] main-thread host", () => {
   test("transfers the canvas to a worker and drives it through the protocol", async () => {
     const env = new TestEnvironment(ck);
     let terminated = false;

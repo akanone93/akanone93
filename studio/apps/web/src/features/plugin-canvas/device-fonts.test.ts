@@ -47,7 +47,7 @@ const read = async (url: string): Promise<Uint8Array> => {
   return bytes;
 };
 
-describe("STU-006 device fonts for the canvas", () => {
+describe("[STU-006] device fonts for the canvas", () => {
   test("each font asset is named by the family its file declares, in order", async () => {
     const assets = [asset("font/ttf", "https://files/a.ttf"), asset("font/otf", "https://files/b.otf")];
     expect(await deviceFontSources(assets, read)).toEqual([

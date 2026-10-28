@@ -49,7 +49,7 @@ async function openMenu(entry: "Rename screen" | "Move to plugin" | "Delete scre
   fireEvent.click(await screen.findByRole("menuitem", { name: entry }));
 }
 
-describe("STU-070 STU-071 deleting a screen runs the where-used check (F13)", () => {
+describe("[STU-070] [STU-071] deleting a screen runs the where-used check (F13)", () => {
   const documents = [
     plugin("pl", "pl", ["home", "detail"], "home"),
     page("home", "home", [nav("detail")]),
@@ -64,7 +64,7 @@ describe("STU-070 STU-071 deleting a screen runs the where-used check (F13)", ()
   });
 });
 
-describe("STU-074 deleting in an app with a production release asks for the name", () => {
+describe("[STU-074] deleting in an app with a production release asks for the name", () => {
   const documents = [plugin("pl", "pl", ["lonely"]), page("lonely", "lonely")];
 
   test("with a production release the name must be typed", async () => {

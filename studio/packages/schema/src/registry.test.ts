@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { action, actions, enums, valueTypes, widget, widgets } from "./index.ts";
 
 describe("widget and action registries", () => {
-  test("describe every widget with its members [WGT-001, WGT-002]", () => {
+  test("describe every widget with its members [WGT-001] [WGT-002]", () => {
     const text = widget("Text");
     expect(text?.layer).toBe(1);
     expect(text?.props.find((p) => p.name === "data")).toMatchObject({ type: "string", required: true });

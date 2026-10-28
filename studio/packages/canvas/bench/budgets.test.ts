@@ -13,7 +13,7 @@ const ok: Summary = {
   propertyToCanvas: { p95: 19 },
 };
 
-describe("STU-120 STU-121 M-13 canvas budgets of the benchmark", () => {
+describe("[STU-120] [STU-121] M-13 canvas budgets of the benchmark", () => {
   test("a run inside every budget has no violation", () => {
     expect(violations(ok)).toEqual([]);
   });

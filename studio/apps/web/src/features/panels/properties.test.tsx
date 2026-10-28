@@ -62,7 +62,7 @@ function editor(over: Partial<EditorProps>) {
   return changes;
 }
 
-describe("STU-121 panels: editors generate the right recipe", () => {
+describe("[STU-121] panels: editors generate the right recipe", () => {
   test("property types pick their editors", () => {
     expect(editorKind("double", none)).toBe("number");
     expect(editorKind("bool?", none)).toBe("bool");
@@ -114,7 +114,7 @@ describe("STU-121 panels: editors generate the right recipe", () => {
   });
 });
 
-describe("STU-121 panels: Mixed", () => {
+describe("[STU-121] panels: Mixed", () => {
   const nodes = [...nodesById([root()]).values()].filter((n) => n.type === "Text");
   test("equal values are shared, different ones are Mixed (F5)", () => {
     expect(sharedValue(nodes, "maxLines", "compact")).toEqual({ mixed: false, value: 2, overridden: false });
@@ -131,7 +131,7 @@ describe("STU-121 panels: Mixed", () => {
   });
 });
 
-describe("STU-121 panels: editors", () => {
+describe("[STU-121] panels: editors", () => {
   test("a number shows its unit and reports a parsed number", () => {
     const changes = editor({ value: 4 });
     expect(screen.getByText("dp")).toBeTruthy();

@@ -61,7 +61,7 @@ const surface = (): CanvasSurface => ({
 
 const open = async () => fireEvent.click(await screen.findByRole("button", { name: "History" }, { timeout: 5000 }));
 
-describe("STU-069 history overlay V9", () => {
+describe("[STU-069] history overlay V9", () => {
   test("lists the snapshots with author and time, and compares any two", async () => {
     renderApp(path, { documents, snapshots, surface });
     await open();

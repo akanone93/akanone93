@@ -23,7 +23,7 @@ const cmd = (id: string, title: string, extra: Partial<Command> = {}): Command =
   ...extra,
 });
 
-describe("STU-013 registry", () => {
+describe("[STU-013] registry", () => {
   test("rejects duplicate ids and shortcut collisions", () => {
     expect(() => createRegistry([cmd("a", "A"), cmd("a", "B")])).toThrow("duplicate command id");
     expect(() => createRegistry([cmd("a", "A", { shortcut: "mod+k" }), cmd("b", "B", { shortcut: "Mod+K" })])).toThrow(
@@ -31,7 +31,7 @@ describe("STU-013 registry", () => {
     );
   });
 
-  test("STU-013 the collision check spans global and scoped commands", () => {
+  test("[STU-013] the collision check spans global and scoped commands", () => {
     const global = createRegistry([cmd("a", "A", { shortcut: "mod+k" })]);
     expect(mergeScoped(global, [cmd("canvas.wrap", "Wrap", { shortcut: "mod+alt+g" })]).commands).toHaveLength(2);
     expect(() => mergeScoped(global, [cmd("a", "Again")])).toThrow("duplicate command id");
@@ -58,7 +58,7 @@ function wrap(commands: Command[], permissions: string[], children: ReactNode) {
   );
 }
 
-describe("STU-013 palette", () => {
+describe("[STU-013] palette", () => {
   const ran: string[] = [];
   const commands = [
     cmd("home", "Go to home", { run: () => void ran.push("home") }),
@@ -84,7 +84,7 @@ describe("STU-013 palette", () => {
   });
 });
 
-describe("STU-013 shortcut sheet", () => {
+describe("[STU-013] shortcut sheet", () => {
   test("lists exactly the commands that have a shortcut", async () => {
     render(wrap([cmd("a", "Alpha", { shortcut: "alt+a" }), cmd("b", "Beta")], [], <ShortcutsPage />));
     await screen.findByRole("heading", { name: "Keyboard shortcuts" });
@@ -93,7 +93,7 @@ describe("STU-013 shortcut sheet", () => {
   });
 });
 
-describe("STU-013 global shortcuts", () => {
+describe("[STU-013] global shortcuts", () => {
   test("fire outside inputs and are ignored inside them", async () => {
     const hits: string[] = [];
     render(wrap([cmd("t", "T", { shortcut: "alt+t", run: () => void hits.push("t") })], [], <input aria-label="x" />));

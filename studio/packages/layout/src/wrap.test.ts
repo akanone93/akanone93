@@ -35,7 +35,7 @@ function offsets(wrap: RenderWrap): [number, number][] {
   });
 }
 
-describe("STU-005 RenderWrap intrinsics (wrap_test.dart)", () => {
+describe("[STU-005] RenderWrap intrinsics (wrap_test.dart)", () => {
   test("Compute intrinsic height test", () => {
     const wrap = new RenderWrap();
     for (const c of [min80(), min80(), min80()]) {
@@ -108,7 +108,7 @@ describe("STU-005 RenderWrap intrinsics (wrap_test.dart)", () => {
   });
 });
 
-describe("STU-005 RenderWrap layout", () => {
+describe("[STU-005] RenderWrap layout", () => {
   const constraints = new BoxConstraints({ maxWidth: 100, maxHeight: 400 });
 
   function threeRuns(options: ConstructorParameters<typeof RenderWrap>[0] = {}): RenderWrap {

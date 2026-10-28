@@ -20,7 +20,7 @@ const m = appCanvasMessages(i18n);
 
 const frame: Frame = { id: "f1", label: "Lending", x: 0, y: 0, width: 400, height: 300 };
 
-describe("STU-035 D20 rename and resize a frame", () => {
+describe("[STU-035] D20 rename and resize a frame", () => {
   test("changeFrame renames, resizes and keeps a minimum side", () => {
     const out = changeFrame([frame], "f1", { label: " Credit ", width: 10, height: 520.4 });
     expect(out[0]).toMatchObject({ label: "Credit", width: MIN_FRAME, height: 520 });
@@ -41,7 +41,7 @@ describe("STU-035 D20 rename and resize a frame", () => {
   });
 });
 
-describe("STU-034 D17 the owning-team picker", () => {
+describe("[STU-034] D17 the owning-team picker", () => {
   test("settings show the owning team and save it with the other fields", () => {
     const saved: unknown[][] = [];
     const s = {
