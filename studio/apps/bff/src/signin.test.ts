@@ -271,7 +271,7 @@ describe("OBS-001 telemetry endpoint", () => {
   });
 
   test("drops and counts events beyond the per-session limit", async () => {
-    const { bff, lines } = build({}, { limiter: new MemoryRateLimiter(3) });
+    const { bff, lines } = build({}, { telemetryLimiter: new MemoryRateLimiter(3) });
     const res = await post(bff, { events: Array.from({ length: 5 }, () => ({ name: "x", kind: "page" })) });
     expect(await res.json()).toEqual({ accepted: 3, dropped: 2 });
     expect(lines).toHaveLength(3);
@@ -368,5 +368,13 @@ describe("SEC-101 client address and shared limits", () => {
       1,
     );
     expect([await broken.allow("a"), await broken.allow("a")]).toEqual([true, false]);
+    // Two limits on one store count apart: telemetry never spends the request budget, nor the reverse.
+    const requests = new ValkeyRateLimiter(store, 1, Date.now, "rl");
+    const telemetry = new ValkeyRateLimiter(store, 1, Date.now, "tl");
+    expect([await requests.allow("s"), await telemetry.allow("s"), await requests.allow("s")]).toEqual([
+      true,
+      true,
+      false,
+    ]);
   });
 });

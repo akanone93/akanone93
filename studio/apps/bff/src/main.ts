@@ -35,7 +35,12 @@ const bff = createBff({
   config,
   studioVersion: pkg.version,
   stateKey,
-  ...(config.valkeyUrl === "" ? {} : { limiter: connectValkey(config.valkeyUrl, config.requestsPerMinute) }),
+  ...(config.valkeyUrl === ""
+    ? {}
+    : {
+        limiter: connectValkey(config.valkeyUrl, config.requestsPerMinute),
+        telemetryLimiter: connectValkey(config.valkeyUrl, config.telemetryEventsPerMinute, "tl"),
+      }),
   clientIp: (req) => server.requestIP(req)?.address ?? "unknown",
 });
 const server = Bun.serve({

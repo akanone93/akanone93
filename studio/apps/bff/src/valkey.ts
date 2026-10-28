@@ -16,13 +16,14 @@ export class ValkeyRateLimiter implements RateLimiter {
     private readonly store: CounterStore,
     private readonly perMinute: number,
     private readonly now: () => number = Date.now,
+    private readonly scope = "rl",
   ) {
     this.local = new MemoryRateLimiter(perMinute, now);
   }
 
   async allow(key: string): Promise<boolean> {
     try {
-      const k = `plux:bff:rl:${key}:${Math.floor(this.now() / 60000)}`;
+      const k = `plux:bff:${this.scope}:${key}:${Math.floor(this.now() / 60000)}`;
       const n = await this.store.incr(k);
       if (n === 1) {
         await this.store.expire(k, 120);
@@ -34,6 +35,7 @@ export class ValkeyRateLimiter implements RateLimiter {
   }
 }
 
-export function connectValkey(url: string, perMinute: number): RateLimiter {
-  return new ValkeyRateLimiter(new RedisClient(url), perMinute);
+/** A limiter on Valkey; scope keeps the counters of different limits apart. */
+export function connectValkey(url: string, perMinute: number, scope = "rl"): RateLimiter {
+  return new ValkeyRateLimiter(new RedisClient(url), perMinute, Date.now, scope);
 }
