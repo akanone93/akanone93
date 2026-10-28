@@ -3,6 +3,7 @@
 
 import {
   CanvasHost,
+  type FontRequest,
   type FontSource,
   type Guides,
   type SceneOp,
@@ -59,6 +60,19 @@ export interface SurfaceSize {
   readonly dpr: number;
   /** The host app's font files (STU-006), read before the worker starts; absent when the page has none. */
   readonly hostFonts?: () => Promise<readonly FontSource[]>;
+  /** The app's own font assets by their declared family (ADR-0032), read before the worker starts; absent when the page has none. */
+  readonly deviceFonts?: () => Promise<readonly FontSource[]>;
+}
+
+/** The fonts the canvas asks for: the app's own assets rank first, then the host's, then Roboto and Noto. */
+export function fontRequest(device: readonly FontSource[], host: readonly FontSource[]): FontRequest {
+  return {
+    device,
+    host,
+    roboto: toSource(FONT_FILES[0] as readonly [string, string]),
+    noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
+    sfPro: false,
+  };
 }
 
 /** Starts a surface on `canvas`. */
@@ -95,7 +109,11 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     if (disposed) {
       return;
     }
-    const hostFonts = await (size.hostFonts?.() ?? Promise.resolve([])).catch((): readonly FontSource[] => []);
+    const none = (): readonly FontSource[] => [];
+    const [deviceFonts, hostFonts] = await Promise.all([
+      (size.deviceFonts?.() ?? Promise.resolve(none())).catch(none),
+      (size.hostFonts?.() ?? Promise.resolve(none())).catch(none),
+    ]);
     if (disposed) {
       return;
     }
@@ -120,13 +138,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
         },
       },
       {
-        request: {
-          device: [],
-          host: hostFonts,
-          roboto: toSource(FONT_FILES[0] as readonly [string, string]),
-          noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
-          sfPro: false,
-        },
+        request: fontRequest(deviceFonts, hostFonts),
         deps: { fetchFont: (url) => fetch(url).then((r) => r.arrayBuffer()) },
       },
     )

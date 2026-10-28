@@ -35,6 +35,7 @@ import { useStateTarget } from "../state-designer/index.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { useCopyOver } from "./clipboard/use-copy-over.ts";
 import { DeviceBayHost } from "./device-bay-host.tsx";
+import { useDeviceFonts } from "./device-fonts.ts";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
@@ -225,6 +226,7 @@ function PluginCanvasView({
   const appDocs = useAppDocuments(params.app ?? "");
   const { session: app } = useApp();
   const hostFonts = useHostFonts(params.app);
+  const deviceFonts = useDeviceFonts(params.app);
   const tests = useMemo(() => createClient(FunctionAdminService, app.transport), [app.transport]);
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const validation = useValidation(createValidator, appDocs.data, docs.data);
@@ -425,13 +427,13 @@ function PluginCanvasView({
     }
     const width = canvas.clientWidth || window.innerWidth;
     const height = canvas.clientHeight || window.innerHeight;
-    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1, hostFonts });
+    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1, hostFonts, deviceFonts });
     surfaceRef.current = surface;
     return () => {
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface, hostFonts]);
+  }, [createSurface, hostFonts, deviceFonts]);
 
   const focusRef = useRef<string | undefined>(undefined);
   useEffect(() => {
