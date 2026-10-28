@@ -77,9 +77,12 @@ export function L10nSessionsProvider(props: {
   readonly documents: readonly Document[] | undefined;
   /** Locales added in this session whose app document has not been read back yet. */
   readonly addedLocales?: readonly string[];
+  /** Told when the server refuses a save of the app's draft documents (the theme) and the edit is undone, and on each later edit of them. */
+  readonly onRejected?: () => void;
+  readonly onEdit?: () => void;
   readonly children: ReactNode;
 }): ReactElement {
-  const { appId, documents, addedLocales } = props;
+  const { appId, documents, addedLocales, onRejected, onEdit } = props;
   const app = useMemo(() => {
     const read = readLocales(parse(documents?.find((d) => d.path === "app.json")));
     const added = (addedLocales ?? []).filter((l) => read?.supported.includes(l) === false);
@@ -121,7 +124,16 @@ export function L10nSessionsProvider(props: {
   // The editors are siblings of the children, not their ancestors: the children keep the plugin's own editor.
   return (
     <>
-      <EditorProvider appId={appId} pluginId="" documents={keyDocs} hideBanner undo={undo} undoStack="">
+      <EditorProvider
+        appId={appId}
+        pluginId=""
+        documents={keyDocs}
+        hideBanner
+        undo={undo}
+        undoStack=""
+        {...(onEdit !== undefined && { onEdit })}
+        {...(onRejected !== undefined && { onRejected })}
+      >
         <Tap onSlot={setKeys} />
       </EditorProvider>
       {app !== undefined && (

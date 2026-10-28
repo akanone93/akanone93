@@ -6,7 +6,7 @@ import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-const rules = ["no-inner-html", "no-raw-values", "logical-properties", "no-literal-ui-strings"];
+const rules = ["no-inner-html", "no-raw-values", "logical-properties", "no-literal-ui-strings", "no-waitfor-tobenull"];
 const studio = resolve(import.meta.dir, "..");
 
 // Each fixture is linted inside a scratch project whose path matches the

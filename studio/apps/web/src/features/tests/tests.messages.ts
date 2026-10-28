@@ -135,6 +135,19 @@ export function testsMessages(i18n: I18n) {
       message: "This scenario reported no steps.",
       comment: "Shown for a scenario without steps.",
     }),
+    fromSession: i18n._({
+      id: "tests.fromSession",
+      message: "Create test from device session",
+      comment: "Button that fills the new scenario form with the taps recorded in the device-loop session.",
+    }),
+    fromSessionSteps: (count: number) =>
+      i18n._({
+        id: "tests.fromSessionSteps",
+        message:
+          "{count, plural, one {# tap recorded in the device session} other {# taps recorded in the device session}}",
+        values: { count },
+        comment: "How many tap steps the device-loop session has recorded so far.",
+      }),
     never: i18n._({ id: "tests.never", message: "not reported", comment: "Fallback of a missing time." }),
   };
 }

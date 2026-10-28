@@ -161,6 +161,22 @@ describe("STU-112 A16 to A18", () => {
     expect(disabled()).toBe(false);
   });
 
+  test("the server refusing the autosave of a brand overlay is reported and the overlay is undone", async () => {
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    renderApp(`${base}/themes`, { ...state, sent, patchRefusal: { message: "not allowed", paths: ["theme.json"] } });
+    const open = await screen.findByRole("button", { name: "Create a brand overlay" }, { timeout: 10000 });
+    await waitFor(() => expect((open as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(open);
+    fireEvent.change(await screen.findByLabelText("Brand name"), { target: { value: "acme" } });
+    fireEvent.change(screen.getByLabelText("Value for the brand"), { target: { value: "#ff0000" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create overlay" }));
+    const alert = await screen.findByRole("alert", {}, { timeout: 10000 });
+    expect(alert.textContent).toBe("The server refused this change. It was undone.");
+    expect(sent?.some((s) => s.path === "theme.json")).toBe(true);
+    await waitFor(() => expect(screen.queryByText("acme: 1 overrides") === null).toBe(true));
+    expect(screen.getByText("No brand overlays yet.")).toBeTruthy();
+  });
+
   test("typography flags a script without a fallback (THM-004)", async () => {
     renderApp(`${base}/typography`, state);
     expect(await screen.findByText("Latin: 2 fonts", {}, { timeout: 10000 })).toBeTruthy();
@@ -178,6 +194,25 @@ describe("STU-112 A16 to A18", () => {
     fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
     fireEvent.click(screen.getByRole("button", { name: "Add icon" }));
     expect(await screen.findByText("search")).toBeTruthy();
+  });
+});
+
+describe("STU-112 A18 icon form: server refusal", () => {
+  test("the server refusing the autosave of an icon is reported and the icon is undone", async () => {
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    renderApp(`${base}/icons`, { ...state, sent, patchRefusal: { message: "not allowed" } });
+    await screen.findByText("home", {}, { timeout: 10000 });
+    const set = screen.getByLabelText("Icon set");
+    await waitFor(() => expect((set as HTMLInputElement).disabled).toBe(false));
+    fireEvent.change(set, { target: { value: "core" } });
+    fireEvent.change(screen.getByLabelText("Icon name"), { target: { value: "search" } });
+    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add icon" }));
+    const alert = await screen.findByRole("alert", {}, { timeout: 10000 });
+    expect(alert.textContent).toBe("The server refused this change. It was undone.");
+    expect(sent?.length).toBeGreaterThan(0);
+    await waitFor(() => expect(screen.queryByText("search") === null).toBe(true));
+    expect(screen.getByText("home")).toBeTruthy();
   });
 });
 

@@ -14,6 +14,8 @@ import { Frame } from "../releases/frame.tsx";
 import { Table } from "../security/parts.tsx";
 import { usePermissions, useScope } from "../security/use-security.ts";
 import { ScenarioForm } from "./scenario-form.tsx";
+import { draftFromSession } from "./session-steps.ts";
+import { SessionWatcher } from "./session-watcher.tsx";
 import { type TestsMessages, testsMessages } from "./tests.messages.ts";
 import {
   appendRecipe,
@@ -28,6 +30,7 @@ import {
   scenarioOf,
 } from "./tests.model.ts";
 import { useScenarioFiles } from "./use-scenarios.ts";
+import { useSessionSteps } from "./use-session-steps.ts";
 import { useTestRuns } from "./use-tests.ts";
 
 /** A45: the app's Plux Test scenarios, authored as documents, and the runs reported for the app (TST-001, TST-002). */
@@ -121,6 +124,7 @@ function TestsView(props: {
   const mayEdit = usePermissions().has("plugin.edit") && canEdit;
   const actions = useScenarioActions(app, m, new Set(files.keys()));
   const [draft, setDraft] = useState<Draft>(emptyDraft);
+  const session = useSessionSteps(app);
   const rows = filterRows([...files.values()].flat(), q);
   return (
     <Frame id="tests-title" title={m.listTitle} caption={m.listCaption} loading={props.loading} failed={props.failed}>
@@ -169,6 +173,21 @@ function TestsView(props: {
         <p role={actions.note.ok ? "status" : "alert"} className="text-body">
           {actions.note.text}
         </p>
+      )}
+      {session.sessionId !== undefined && <SessionWatcher sessionId={session.sessionId} onEvent={session.onEvent} />}
+      {mayEdit && session.sessionId !== undefined && (
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            disabled={session.recorded.steps.length === 0}
+            onClick={() => setDraft(draftFromSession(session.recorded))}
+          >
+            {m.fromSession}
+          </Button>
+          <span role="status" className="text-body text-secondary">
+            {m.fromSessionSteps(session.recorded.steps.length)}
+          </span>
+        </div>
       )}
       {mayEdit ? (
         <ScenarioForm

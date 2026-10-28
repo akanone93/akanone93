@@ -5,12 +5,20 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"io/fs"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"connectrpc.com/connect"
+
+	"github.com/nightCode42/plux3/backend/internal/pluxv1"
+	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 )
 
 const starterProject = "../../../schema/testdata/documents/starter"
@@ -209,5 +217,77 @@ func TestTestCommandRunsTheStarterProject(t *testing.T) {
 	}
 	if xml := read(t, junit); !strings.Contains(xml, `tests="1" failures="0" errors="0"`) {
 		t.Errorf("junit = %s", xml)
+	}
+}
+
+// fakeTestRuns records the runs `plux test --report` reports.
+type fakeTestRuns struct {
+	pluxv1connect.UnimplementedTestRunServiceHandler
+	got *[]*pluxv1.ReportRunRequest
+}
+
+func (f fakeTestRuns) ReportRun(_ context.Context, r *connect.Request[pluxv1.ReportRunRequest]) (*connect.Response[pluxv1.ReportRunResponse], error) {
+	if r.Header().Get("Authorization") != "Bearer plux_pat_run" || r.Header().Get("X-Plux-Organization") != "org-1" {
+		return nil, connect.NewError(connect.CodeUnauthenticated, nil)
+	}
+	*f.got = append(*f.got, r.Msg)
+	return connect.NewResponse(&pluxv1.ReportRunResponse{Run: &pluxv1.TestRun{Id: "run-1"}}), nil
+}
+
+// Verifies: TST-002.
+// plux test --report records the run on the server with the caller's
+// credential: one scenario result each, the failure message as a step, and
+// the exit code of the tests unless only the report fails.
+func TestTestCommandReportsTheRun_TST_002(t *testing.T) { //nolint:paralleltest // the environment is process-wide
+	t.Setenv(tokenEnv, "plux_pat_run")
+	t.Setenv(serverEnv, "")
+	t.Setenv(orgEnv, "")
+	var got []*pluxv1.ReportRunRequest
+	mux := http.NewServeMux()
+	mux.Handle(pluxv1connect.NewTestRunServiceHandler(fakeTestRuns{got: &got}))
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	dir := copyProject(t)
+	putScenario(t, dir, "tests/a.scenario.yaml", profileScenario)
+	pass := fakeFlutterReporting(t, `{"testID":2,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1500}`+"\n", "0")
+	fail := fakeFlutterReporting(t, `{"testID":2,"messageType":"print","message":"The following TestFailure was thrown running a test:\ntests/a.scenario.yaml:12:9: expected a navigation to \"x\"\n\nWhen the exception was thrown","type":"print","time":1100}`+"\n"+
+		`{"testID":2,"error":"Test failed. See exception logs above.","stackTrace":"","isFailure":false,"type":"error","time":1200}`+"\n"+
+		`{"testID":2,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":1300}`+"\n", "1")
+	test := func(flutter string, args ...string) (int, string, string) {
+		var out, errOut bytes.Buffer
+		e := newEnv(&out, &errOut)
+		e.creds = credentials{dir: t.TempDir()}
+		full := append([]string{"-C", dir, "--flutter", flutter, "--report", "--server", srv.URL, "--org", "org-1"}, args...)
+		return e.testCmd(full), out.String(), errOut.String()
+	}
+
+	code, out, stderr := test(pass, "--app", "app-1", "--label", "main", "--report-key", "k1")
+	if code != exitOK || !strings.Contains(out, "reported run run-1") || len(got) != 1 {
+		t.Fatalf("passing run: %d %q %s %d", code, out, stderr, len(got))
+	}
+	if r := got[0]; r.GetAppId() != "app-1" || r.GetReportKey() != "k1" || r.GetSource() != "cli" || r.GetLabel() != "main" || len(r.GetScenarios()) != 1 ||
+		r.GetScenarios()[0].GetStatus() != "passed" || r.GetScenarios()[0].GetName() != "opens the profile" || len(r.GetScenarios()[0].GetSteps()) != 0 {
+		t.Errorf("passing report = %v", r)
+	}
+
+	code, _, _ = test(fail, "--app", "app-1")
+	if code != exitFailed || len(got) != 2 || len(got[1].GetReportKey()) != 32 {
+		t.Fatalf("failing run: %d %d", code, len(got))
+	}
+	sc := got[1].GetScenarios()[0]
+	if sc.GetStatus() != "failed" || len(sc.GetSteps()) != 1 || !strings.Contains(sc.GetSteps()[0].GetMessage(), "a.scenario.yaml:12:9") || sc.GetSteps()[0].GetStatus() != "failed" {
+		t.Errorf("failing report = %v", sc)
+	}
+
+	if code, _, stderr = test(pass); code != exitUsage || !strings.Contains(stderr, "no app") {
+		t.Errorf("no app: %d %s", code, stderr)
+	}
+	t.Setenv(tokenEnv, "")
+	if code, _, stderr = test(pass, "--app", "app-1"); code != exitAuth || !strings.Contains(stderr, "not signed in") || len(got) != 2 {
+		t.Errorf("not signed in: %d %s", code, stderr)
+	}
+	t.Setenv(tokenEnv, "plux_pat_other")
+	if code, _, stderr = test(pass, "--app", "app-1"); code != exitAuth || len(got) != 2 {
+		t.Errorf("refused: %d %s", code, stderr)
 	}
 }

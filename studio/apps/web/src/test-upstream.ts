@@ -301,6 +301,8 @@ export interface UpstreamData {
   lockHeldElsewhere?: boolean;
   /** Collects every PatchDocument the upstream receives (autosave, undo, redo). */
   sent?: { path: string; pluginId: string; stepId: string; ops: { op: string; path: string; value?: unknown }[] }[];
+  /** PatchDocument is refused with PermissionDenied (autosave rejects the edit): for the listed paths, or for every path when none are given. */
+  patchRefusal?: { message: string; paths?: readonly string[] };
   /** Collects every lock taken, by the plugin it names (empty for the app's own lock) and its scope. */
   acquired?: { pluginId: string; scope: string }[];
   /** What ListDocuments returns for the whole app (no plugin); defaults to `documents`. */
@@ -715,6 +717,7 @@ export function createUpstream(state: UpstreamData) {
           ...(o.value.length > 0 && { value: JSON.parse(new TextDecoder().decode(o.value)) as JsonValue }),
         }));
         state.sent?.push({ path: req.path, pluginId: req.pluginId, stepId: req.stepId, ops });
+        refusePatch(state.patchRefusal, req.path);
         if (doc !== undefined) {
           doc.json = applyPatch(doc.json as JsonValue, ops);
           patched.set(req.path, doc);
@@ -799,6 +802,13 @@ export function createUpstream(state: UpstreamData) {
     service(LicenseService, licenseAdmin(admin));
     service(InstallationService, installationAdmin(admin));
   });
+}
+
+/** Throws the refusal `UpstreamData.patchRefusal` describes when it covers `path`. */
+function refusePatch(refusal: UpstreamData["patchRefusal"], path: string): void {
+  if (refusal !== undefined && (refusal.paths === undefined || refusal.paths.includes(path))) {
+    throw new ConnectError(refusal.message, Code.PermissionDenied);
+  }
 }
 
 type DevSessionData = NonNullable<UpstreamData["devSession"]>;
