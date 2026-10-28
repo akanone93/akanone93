@@ -142,6 +142,7 @@
         "proto/**",
         "docs/reference/**",
         "studio/packages/schema/**",
+        "studio/packages/**/*.gen.ts",
         "packages/**/*.g.dart",
         "packages/**/*_generated.dart",
         "packages/*/LICENSE",
