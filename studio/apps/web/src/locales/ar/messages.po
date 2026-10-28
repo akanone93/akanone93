@@ -2482,6 +2482,12 @@ msgstr "جارٍ التحقق…"
 msgid "auth.invite.password"
 msgstr "اختر كلمة مرور"
 
+#. Caption of the section that shows the limits usage of one plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage-caption"
+msgstr "اختر إضافة لترى ما تستخدمه من الحدود المطبقة على الإضافات."
+
 #. Label prefix of the checkbox that picks a snapshot for comparison.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -4678,6 +4684,12 @@ msgstr "أعلام الميزات"
 msgid "experiments.flagsTitle"
 msgstr "أعلام الميزات"
 
+#. Name of the limit on the number of feature flags of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.flags"
+msgstr "أعلام الميزات"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -5097,6 +5109,12 @@ msgstr "الانتقال إلى الصفحة الرئيسية"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.nav.profile"
 msgstr "الانتقال إلى الملف الشخصي"
+
+#. Name of the limit on the size of the golden baseline images of a plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.golden-baselines"
+msgstr "خطوط الأساس الذهبية لكل إضافة"
 
 #. Heading of the golden-image comparison.
 #. js-lingui-explicit-id
@@ -6078,11 +6096,23 @@ msgstr "اللغة"
 msgid "devices.locale"
 msgstr "اللغة"
 
+#. Name of the limit on the size of one asset file; the app shows its largest.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.asset-file-size"
+msgstr "أكبر ملف أصول"
+
 #. Label of the crash-free threshold.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.crashFreeDrop"
 msgstr "أكبر انخفاض في الجلسات الخالية من الأعطال (نقاط أساس، 0: معطّل)"
+
+#. Name of the limit on the size of one plugin bundle; the app shows its largest.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.bundle-plugin-size"
+msgstr "أكبر حزمة إضافة"
 
 #. Label of the action error rate threshold.
 #. js-lingui-explicit-id
@@ -6125,6 +6155,12 @@ msgstr "آخر إثبات"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.card.published"
 msgstr "آخر نشر {when}"
+
+#. Date and time of an app's newest release and who created it, on its card; both are already formatted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.card.published-by"
+msgstr "آخر نشر {when} بواسطة {who}"
 
 #. Detail card of a plugin: when the newest version was published, the publisher being unknown.
 #. js-lingui-explicit-id
@@ -6605,6 +6641,12 @@ msgstr "رمز اللغة"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.editLocale"
 msgstr "اللغة المراد تحريرها"
+
+#. Name of the limit on the number of locales of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.locales"
+msgstr "اللغات"
 
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
@@ -8808,6 +8850,12 @@ msgstr "مفتاح الإضافة"
 msgid "appCanvas.settings"
 msgstr "إعدادات الإضافة"
 
+#. Heading of the section that shows the limits usage of one plugin of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage"
+msgstr "استخدام الإضافة"
+
 #. Scope option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -8824,6 +8872,12 @@ msgstr "تبقى إصدارات الإضافات المبنية بالفعل؛ �
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.card.plugins"
+msgstr "الإضافات"
+
+#. Accessible name of the group of buttons that choose the plugin whose limits usage is shown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-picker"
 msgstr "الإضافات"
 
 #. Name of the limit on the number of plugins in an app.
@@ -11976,6 +12030,12 @@ msgstr "تعذّر تحميل التطبيق."
 msgid "data.importLocked"
 msgstr "لا يمكن تحرير مستند التطبيق الآن، لذا لا يمكن إضافة متغيراته."
 
+#. Shown in the plugin usage section when the app has no plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage-none"
+msgstr "لا توجد إضافات في التطبيق."
+
 #. Caption under the heading of the app settings page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -12593,6 +12653,12 @@ msgstr "الإضافة مقفلة من قبل شخص آخر: المخطط للق
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.confirmBody"
 msgstr "تعود مستندات الإضافة إلى حالتها في {when}. يمكنك التراجع عن الاستعادة بخطوة واحدة."
+
+#. Shown when reading the limits usage of a plugin failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage-load-failed"
+msgstr "تعذر تحميل حدود الإضافة."
 
 #. Shown when the save failed.
 #. js-lingui-explicit-id

@@ -151,6 +151,14 @@ export function appsMessages(i18n: I18n) {
         values: { when },
         comment: "Date and time of an app's newest release, on its card; when is already formatted.",
       }),
+    publishedBy: (when: string, who: string) =>
+      i18n._({
+        id: "apps.card.published-by",
+        message: "Last publish {when} by {who}",
+        values: { when, who },
+        comment:
+          "Date and time of an app's newest release and who created it, on its card; both are already formatted.",
+      }),
     neverPublished: i18n._({
       id: "apps.card.never-published",
       message: "Never published",
@@ -365,6 +373,31 @@ export function appsMessages(i18n: I18n) {
       message: "The limits could not be loaded.",
       comment: "Shown when reading the app's limits failed.",
     }),
+    pluginUsageTitle: i18n._({
+      id: "apps.settings.plugin-usage",
+      message: "Plugin usage",
+      comment: "Heading of the section that shows the limits usage of one plugin of the app.",
+    }),
+    pluginUsageCaption: i18n._({
+      id: "apps.settings.plugin-usage-caption",
+      message: "Choose a plugin to see what it uses of the limits that apply to a plugin.",
+      comment: "Caption of the section that shows the limits usage of one plugin.",
+    }),
+    pluginPicker: i18n._({
+      id: "apps.settings.plugin-picker",
+      message: "Plugins",
+      comment: "Accessible name of the group of buttons that choose the plugin whose limits usage is shown.",
+    }),
+    pluginUsageNone: i18n._({
+      id: "apps.settings.plugin-usage-none",
+      message: "The app has no plugins.",
+      comment: "Shown in the plugin usage section when the app has no plugin.",
+    }),
+    pluginUsageLoadFailed: i18n._({
+      id: "apps.settings.plugin-usage-load-failed",
+      message: "The plugin's limits could not be loaded.",
+      comment: "Shown when reading the limits usage of a plugin failed.",
+    }),
     limitsEmpty: i18n._({
       id: "apps.settings.limits-empty",
       message: "No limits to show.",
@@ -479,6 +512,31 @@ function limitNames(i18n: I18n): Readonly<Record<string, string>> {
       id: "apps.limit.assets",
       message: "Assets per plugin",
       comment: "Name of the limit on the total size of a plugin's assets.",
+    }),
+    "bundle.pluginSize": i18n._({
+      id: "apps.limit.bundle-plugin-size",
+      message: "Largest plugin bundle",
+      comment: "Name of the limit on the size of one plugin bundle; the app shows its largest.",
+    }),
+    "asset.fileSize": i18n._({
+      id: "apps.limit.asset-file-size",
+      message: "Largest asset file",
+      comment: "Name of the limit on the size of one asset file; the app shows its largest.",
+    }),
+    "app.locales": i18n._({
+      id: "apps.limit.locales",
+      message: "Locales",
+      comment: "Name of the limit on the number of locales of an app.",
+    }),
+    "flags.perApp": i18n._({
+      id: "apps.limit.flags",
+      message: "Feature flags",
+      comment: "Name of the limit on the number of feature flags of an app.",
+    }),
+    "golden.baselineBytesPerPlugin": i18n._({
+      id: "apps.limit.golden-baselines",
+      message: "Golden baselines per plugin",
+      comment: "Name of the limit on the size of the golden baseline images of a plugin.",
     }),
     "app.functions": i18n._({
       id: "apps.limit.functions",

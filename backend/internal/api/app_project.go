@@ -29,6 +29,9 @@ func summaryProto(s tenancy.AppSummary) *pluxv1.AppSummary {
 		App: appProto(s.App), LastPublishedAt: ts(s.LastPublishedAt), ActiveDevices: s.ActiveDevices, PluginCount: s.PluginCount,
 		CrashFreeRate: s.CrashFreeRate, CrashFreeTrend: s.CrashFreeTrend,
 	}
+	if w := s.LastPublisher; w != nil {
+		out.LastPublisher = &pluxv1.Actor{Kind: w.Kind, Id: w.ID, Display: w.Display}
+	}
 	for _, r := range s.Releases {
 		out.Releases = append(out.Releases, &pluxv1.EnvironmentRelease{EnvironmentKey: r.Environment, LiveSequence: r.Sequence, PublishedAt: ts(r.PublishedAt)})
 	}

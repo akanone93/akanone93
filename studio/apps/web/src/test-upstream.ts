@@ -684,8 +684,12 @@ export function createUpstream(state: UpstreamData) {
         state.pluginCalls?.push(`archive:${req.id}`);
         return {};
       },
+      listPluginLimits: (req) => grid?.listPluginLimits(req.pluginId) ?? { limits: [] },
       listPlugins: () => ({
-        plugins: Object.keys(state.pluginDocuments ?? {}).map((id) => create(PluginSchema, { id, key: id })),
+        plugins:
+          state.appsGrid?.plugins !== undefined
+            ? state.appsGrid.plugins.map((p) => create(PluginSchema, p))
+            : Object.keys(state.pluginDocuments ?? {}).map((id) => create(PluginSchema, { id, key: id })),
       }),
       // The editing lock: free until taken, then held by the session that took it.
       getLock: (req) =>

@@ -13,10 +13,10 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
 
-// Usage measures what P2 can measure against the limits (LIM-005): for
-// an app, its plugins and the size of its newest release; for a plugin,
-// its pages and the size of its newest bundle. It is registered with
-// tenancy, whose limit listings report it.
+// Usage measures what a plugin uses of its limits (LIM-005): its pages, the
+// size of its newest bundle and the bytes of its golden baselines. It is
+// registered with tenancy, whose plugin limit listing reports it; tenancy
+// measures the app-scope limits itself.
 func (*Service) Usage(ctx context.Context, tx pgx.Tx, appID, pluginID string) (map[limits.Key]int64, error) {
 	q := dbgen.New(tx)
 	app, err := parseID(appID, "app")
@@ -25,12 +25,7 @@ func (*Service) Usage(ctx context.Context, tx pgx.Tx, appID, pluginID string) (m
 	}
 	out := map[limits.Key]int64{}
 	if pluginID == "" {
-		if out[limits.AppPlugins], err = q.CountPlugins(ctx, app); err != nil {
-			return nil, failure(err, "plugin")
-		}
-		if out[limits.ReleaseAppSize], err = q.LatestReleaseSize(ctx, app); err != nil {
-			return nil, failure(err, "release")
-		}
+		// The app's usage is measured by tenancy, in one query for a page of apps.
 		return out, nil
 	}
 	plugin, err := parseID(pluginID, "plugin")
@@ -46,6 +41,9 @@ func (*Service) Usage(ctx context.Context, tx pgx.Tx, appID, pluginID string) (m
 		out[limits.BundlePluginSize] = v.BundleSize
 	case !errors.Is(err, pgx.ErrNoRows):
 		return nil, failure(err, "version")
+	}
+	if out[limits.GoldenBaselineBytesPerPlugin], err = q.PluginGoldenBytes(ctx, dbgen.PluginGoldenBytesParams{AppID: app, ID: plugin}); err != nil {
+		return nil, failure(err, "golden baseline")
 	}
 	return out, nil
 }

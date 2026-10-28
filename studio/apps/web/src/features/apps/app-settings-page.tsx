@@ -14,6 +14,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import { useCan } from "../admin/use-admin.ts";
 import { appsMessages } from "./apps.messages.ts";
 import { LimitsTable } from "./limits-usage.tsx";
+import { PluginUsage } from "./plugin-usage.tsx";
 import { useRefreshApps } from "./use-apps.ts";
 
 type SaveState = "idle" | "saved" | "failed";
@@ -95,6 +96,7 @@ export function AppSettingsPage(): ReactElement {
   const { org, app: appId } = useParams({ strict: false }) as { org: string; app: string };
   const canEdit = useCan("app.manage");
   const canAdmin = useCan("organization.manage");
+  const canPlugins = useCan("plugin.read");
   const app = useQuery({
     queryKey: ["app", appId],
     queryFn: async () => (await createClient(AppService, session.transport).getApp({ id: appId })).app,
@@ -136,6 +138,7 @@ export function AppSettingsPage(): ReactElement {
         )}
         {limits.isSuccess && <LimitsTable limits={limits.data} />}
       </section>
+      {canPlugins && <PluginUsage appId={appId} />}
       <section aria-labelledby="app-settings-fonts" className="flex flex-col gap-2">
         <h2 id="app-settings-fonts" className="text-section">
           {m.fontsTitle}

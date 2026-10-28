@@ -2482,6 +2482,12 @@ msgstr "Wird geprüft …"
 msgid "auth.invite.password"
 msgstr "Passwort wählen"
 
+#. Caption of the section that shows the limits usage of one plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage-caption"
+msgstr "Wählen Sie ein Plugin, um zu sehen, was es von den Limits für Plugins nutzt."
+
 #. Label prefix of the checkbox that picks a snapshot for comparison.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -4678,6 +4684,12 @@ msgstr "Feature-Flags"
 msgid "experiments.flagsTitle"
 msgstr "Feature-Flags"
 
+#. Name of the limit on the number of feature flags of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.flags"
+msgstr "Feature-Flags"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -5097,6 +5109,12 @@ msgstr "Zur Startseite"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.nav.profile"
 msgstr "Zum Profil"
+
+#. Name of the limit on the size of the golden baseline images of a plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.golden-baselines"
+msgstr "Golden-Baselines je Plugin"
 
 #. Heading of the golden-image comparison.
 #. js-lingui-explicit-id
@@ -6078,11 +6096,23 @@ msgstr "Sprache"
 msgid "devices.locale"
 msgstr "Sprache"
 
+#. Name of the limit on the size of one asset file; the app shows its largest.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.asset-file-size"
+msgstr "Größte Asset-Datei"
+
 #. Label of the crash-free threshold.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.crashFreeDrop"
 msgstr "Größter Rückgang absturzfreier Sitzungen (Basispunkte, 0: aus)"
+
+#. Name of the limit on the size of one plugin bundle; the app shows its largest.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.bundle-plugin-size"
+msgstr "Größtes Plugin-Bundle"
 
 #. Label of the action error rate threshold.
 #. js-lingui-explicit-id
@@ -6125,6 +6155,12 @@ msgstr "Letzte Attestierung"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.card.published"
 msgstr "Letzte Veröffentlichung {when}"
+
+#. Date and time of an app's newest release and who created it, on its card; both are already formatted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.card.published-by"
+msgstr "Letzte Veröffentlichung {when} von {who}"
 
 #. Detail card of a plugin: when the newest version was published, the publisher being unknown.
 #. js-lingui-explicit-id
@@ -6605,6 +6641,12 @@ msgstr "Sprachcode"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.editLocale"
 msgstr "Zu bearbeitende Sprache"
+
+#. Name of the limit on the number of locales of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.limit.locales"
+msgstr "Sprachen"
 
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
@@ -8808,6 +8850,12 @@ msgstr "Plugin-Schlüssel"
 msgid "appCanvas.settings"
 msgstr "Plugin-Einstellungen"
 
+#. Heading of the section that shows the limits usage of one plugin of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage"
+msgstr "Plugin-Nutzung"
+
 #. Scope option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -8824,6 +8872,12 @@ msgstr "Bereits gebaute Plugin-Versionen bleiben erhalten; sie sind unveränderl
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.card.plugins"
+msgstr "Plugins"
+
+#. Accessible name of the group of buttons that choose the plugin whose limits usage is shown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-picker"
 msgstr "Plugins"
 
 #. Name of the limit on the number of plugins in an app.
@@ -11976,6 +12030,12 @@ msgstr "Die App konnte nicht geladen werden."
 msgid "data.importLocked"
 msgstr "Das App-Dokument kann jetzt nicht bearbeitet werden, daher können seine Variablen nicht hinzugefügt werden."
 
+#. Shown in the plugin usage section when the app has no plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage-none"
+msgstr "Die App hat keine Plugins."
+
 #. Caption under the heading of the app settings page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -12593,6 +12653,12 @@ msgstr "Das Plugin ist von jemand anderem gesperrt: Der Graph ist schreibgeschü
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.confirmBody"
 msgstr "Die Dokumente des Plugins kehren zum Stand von {when} zurück. Sie können die Wiederherstellung in einem Schritt rückgängig machen."
+
+#. Shown when reading the limits usage of a plugin failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.settings.plugin-usage-load-failed"
+msgstr "Die Limits des Plugins konnten nicht geladen werden."
 
 #. Shown when the save failed.
 #. js-lingui-explicit-id

@@ -7,6 +7,7 @@ package plux.v1;
 
 import "google/protobuf/timestamp.proto";
 import "plux/v1/app.proto";
+import "plux/v1/common.proto";
 
 option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
 
@@ -77,7 +78,13 @@ message AppSummary {
   // crash_free_trend is crash_free_rate minus the same rate for the seven
   // days before; positive is better.
   double crash_free_trend = 7;
+  // limits is the app's current usage against every app-scope limit the
+  // server can measure (STU-025, LIM-005); the rest are in ListAppLimits'
+  // registry listing with a value of zero.
   repeated AppLimitUsage limits = 8;
+  // last_publisher is who created the newest release of any environment;
+  // unset when the app was never published (STU-022).
+  Actor last_publisher = 9;
 }
 
 message ListAppSummariesRequest {

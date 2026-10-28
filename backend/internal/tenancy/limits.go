@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
@@ -127,6 +128,17 @@ func (s *Service) measure(ctx context.Context, tx pgx.Tx, appID, pluginID string
 	sources := slices.Clone(s.usage)
 	s.mu.Unlock()
 	out := map[limits.Key]int64{}
+	if pluginID == "" {
+		id, err := parseID(appID, "app")
+		if err != nil {
+			return nil, err
+		}
+		app, err := measureApps(ctx, tx, []pgtype.UUID{id})
+		if err != nil {
+			return nil, err
+		}
+		maps.Copy(out, app[storage.ID(id)])
+	}
 	for _, f := range sources {
 		m, err := f(ctx, tx, appID, pluginID)
 		if err != nil {

@@ -73,7 +73,7 @@ function Health({
   );
 }
 
-/** The date and time of the newest release, or a word when there is none. */
+/** The date, time and publisher of the newest release, or a word when there is none (STU-022). */
 function Published({
   summary,
   m,
@@ -88,7 +88,8 @@ function Published({
     return <p className="text-caption text-secondary">{m.neverPublished}</p>;
   }
   const when = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(timestampDate(at));
-  return <p className="text-caption text-secondary">{m.published(when)}</p>;
+  const who = summary.lastPublisher?.display ?? "";
+  return <p className="text-caption text-secondary">{who === "" ? m.published(when) : m.publishedBy(when, who)}</p>;
 }
 
 /** The pin toggle: pinned apps come first in every order (STU-023). */

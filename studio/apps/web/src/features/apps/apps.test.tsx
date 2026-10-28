@@ -53,7 +53,13 @@ const bank: AppsGridApp = {
   pluginCount: 5,
   crashFreeRate: 0.995,
   crashFreeTrend: 0.004,
-  limits: [{ key: "app.plugins", used: 5, limit: 200 }],
+  lastPublisher: { kind: "user", id: "u-ana", display: "Ana" },
+  limits: [
+    { key: "app.plugins", used: 5, limit: 200 },
+    { key: "release.appSize", used: 52_428_800, limit: 104_857_600 },
+    { key: "app.functions", used: 3, limit: 100 },
+    { key: "app.locales", used: 4, limit: 50 },
+  ],
 };
 const chat: AppsGridApp = {
   id: "a-chat",
@@ -369,7 +375,30 @@ describe("search, filters, sort, pins and actions [STU-023]", () => {
   });
 });
 
+describe("the publisher of the last release on the card [STU-022]", () => {
+  test("the card names who created the newest release, and says nothing when there is none", async () => {
+    const { state } = setup();
+    open(state);
+    expect(within(await card("Bank")).getByText(/^Last publish .*2023.* by Ana$/)).toBeTruthy();
+    expect(
+      within(await card("Chat"))
+        .getByText(/^Last publish /)
+        .textContent?.includes(" by "),
+    ).toBe(false);
+    expect(within(await card("Shop")).getByText("Never published")).toBeTruthy();
+  });
+});
+
 describe("limits usage on the card [STU-025]", () => {
+  test("the card meters cover release size, functions and locales beside the plugins", async () => {
+    const { state } = setup();
+    open(state);
+    const c = within(await card("Bank"));
+    expect(c.getByRole("meter", { name: "Release size" }).getAttribute("aria-valuetext")).toBe("50 MiB of 100 MiB");
+    expect(c.getByRole("meter", { name: "Functions" }).getAttribute("aria-valuetext")).toBe("3 of 100");
+    expect(c.getByRole("meter", { name: "Locales" }).getAttribute("aria-valuetext")).toBe("4 of 50");
+  });
+
   test("each card shows its usage against the limit in force, with a badge from 80 percent", async () => {
     const { state } = setup();
     open(state);
