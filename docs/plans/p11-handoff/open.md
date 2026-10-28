@@ -37,4 +37,6 @@ SPDX-License-Identifier: Apache-2.0
 - S8.4: the A19 adopt dialog and A16–A18 dialogs lack tests.
 - Session replay A47 (O-8, ANL-050): ADR-0101 was never written; recorder, redacted ingestion and the canvas viewer are not built.
 - Analytics funnel results count steps from daily rollups, not per-session ordered conversion.
+- No app-area navigation: releases, functions, data, localisation, design, analytics, tests, experiments, approvals, publish, devices/security and settings are reached only by URL or in-page links.
+- Analytics "Open node" passes the error's `nodePath` ("root/0" form) as the canvas `node` param; unverified that it maps to a document node id.
 - Visual-diff renderer client (S7.1) not implemented; requested diffs stay queued (S9.5).
