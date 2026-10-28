@@ -4456,6 +4456,12 @@ msgstr "Functions"
 msgid "actionGraph.groupFunction"
 msgstr "Functions"
 
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capFunctions"
+msgstr "Functions it may call"
+
 #. Heading in the Code tab: the functions the plugin may call.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -4540,11 +4546,23 @@ msgstr "Go to profile"
 msgid "approvals.goldenHeading"
 msgstr "Golden-image differences"
 
+#. Capability is granted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capGrantedYes"
+msgstr "Granted"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.allowedBy"
 msgstr "Granted by"
+
+#. Heading of the host capabilities the version was granted; everything else is denied.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capGranted"
+msgstr "Granted capabilities"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -5297,6 +5315,12 @@ msgstr "Key storage"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.keyId"
 msgstr "Key thumbprint"
+
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capKv"
+msgstr "Key-value store"
 
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
@@ -6402,6 +6426,12 @@ msgstr "Network"
 msgid "security.networkDomains"
 msgstr "Network domains"
 
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capHttp"
+msgstr "Network domains"
+
 #. Shown for a missing date.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -6936,6 +6966,12 @@ msgstr "Nodes in the page"
 msgid "security.none"
 msgstr "None"
 
+#. Shown when a list of grants is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capNone"
+msgstr "None"
+
 #. Cell value when the app has no version of the component.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -6947,6 +6983,12 @@ msgstr "Not adopted"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfUnknown"
 msgstr "Not available"
+
+#. Capability is denied.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capGrantedNo"
+msgstr "Not granted"
 
 #. Shown when the widget cannot be operated.
 #. js-lingui-explicit-id
@@ -8670,6 +8712,12 @@ msgstr "required"
 msgid "actionGraph.required"
 msgstr "required"
 
+#. Label of the assurance level a device must hold to invoke the version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceRequired"
+msgstr "Required assurance level"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -9521,6 +9569,12 @@ msgstr "Second factor"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.secretHeading"
 msgstr "Secret (shown once)"
+
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capSecrets"
+msgstr "Secrets it may read"
 
 #. Heading of the security page.
 #. js-lingui-explicit-id
@@ -10836,6 +10890,12 @@ msgstr "The email or password is not correct."
 msgid "admin.licenseCaption"
 msgstr "The enterprise licence of this installation, verified offline."
 
+#. Shown when the function declares no assurance level of its own.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.assuranceDefault"
+msgstr "The environment's default"
+
 #. Shown when explain-access fails.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -11875,6 +11935,12 @@ msgstr "This screen has unsaved changes. Wait until they are saved, then try aga
 msgid "library.parameters.none"
 msgstr "This template asks for no parameters."
 
+#. Shown when the build of a version declared no capabilities.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.noDeclaration"
+msgstr "This version recorded no declaration, so it is granted nothing."
+
 #. Shown in the Actions tab when the selected widget type declares no events.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -12211,7 +12277,7 @@ msgstr "Upload file"
 msgid "rustEditor.source"
 msgstr "Uploaded source"
 
-#. Label of the source id field.
+#. Label of the source a version was built from.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.sourceLabel"
@@ -12318,6 +12384,12 @@ msgstr "Used by this plugin"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colUser"
 msgstr "User"
+
+#. Capability label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/functions/functions.messages.ts
+msgid "functions.capClaims"
+msgstr "User claims"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id

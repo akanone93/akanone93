@@ -53,7 +53,7 @@ export function FunctionPage(): ReactElement {
     ),
     assurance: latest && <AssurancePanel v={latest} m={m} />,
     capabilities: latest && <CapabilitiesPanel v={latest} m={m} />,
-    tests: <StoredTestsPanel client={client} m={m} />,
+    tests: <StoredTestsPanel client={client} sourceId={latest?.sourceId} m={m} />,
     metrics: <MetricsPanel scope={scope} m={m} />,
     logs: <LogsPanel scope={scope} m={m} />,
   };
