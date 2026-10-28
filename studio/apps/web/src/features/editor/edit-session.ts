@@ -25,8 +25,8 @@ export interface DocumentTransport {
     options: { readonly keepalive: boolean; readonly step?: string | undefined },
   ): Promise<ServerDocument>;
   get(path: string): Promise<ServerDocument>;
-  /** Creates a whole document (PutDocument with revision zero). */
-  put(path: string, content: JsonValue): Promise<ServerDocument>;
+  /** Creates a whole document (PutDocument with revision zero), tagged with the undo step it belongs to. */
+  put(path: string, content: JsonValue, options?: { readonly step?: string | undefined }): Promise<ServerDocument>;
   /** Deletes a whole document at the revision it was read at (DeleteDocument). */
   remove(path: string, ifRevision: bigint): Promise<void>;
   classify(error: unknown): SaveFailure;
@@ -58,6 +58,15 @@ export interface EditSessionOptions {
   readonly onEdit?: (record: EditRecord) => void;
   /** The undo step an edit belongs to; a save never mixes steps, so the server can regroup them (STU-069). */
   readonly stepFor?: (path: string, group: string | undefined) => string | undefined;
+  /** A document created as part of an undo step, so undoing the step deletes it again (STU-069). */
+  readonly onCreated?: (record: CreateRecord) => void;
+}
+
+/** A document created within an undo step, with the content the server confirmed. */
+export interface CreateRecord {
+  readonly path: string;
+  readonly content: JsonValue;
+  readonly step: string;
 }
 
 /** How a whole-document write ended; nothing is dropped silently (F4). */
@@ -229,9 +238,10 @@ export class EditSession {
 
   /**
    * Creates a document. Whole-document writes use the same offline rule as saves: offline, nothing is
-   * sent and the caller keeps its intent. On success the document is opened for editing.
+   * sent and the caller keeps its intent. On success the document is opened for editing; a creation
+   * made as part of an undo `step` joins that step, whose undo deletes the document again.
    */
-  async create(path: string, content: JsonValue): Promise<WholeWrite> {
+  async create(path: string, content: JsonValue, options: { readonly step?: string } = {}): Promise<WholeWrite> {
     if (!this.online()) {
       return { ok: false, reason: "offline" };
     }
@@ -239,13 +249,25 @@ export class EditSession {
       return { ok: false, reason: "rejected" };
     }
     try {
-      const doc = await this.options.transport.put(path, content);
+      const doc = await this.options.transport.put(path, content, { step: options.step });
       this.open(doc);
       this.options.onConfirmed?.(doc);
+      if (options.step !== undefined) {
+        this.options.onCreated?.({ path, content: doc.content, step: options.step });
+      }
       return { ok: true };
     } catch (error) {
       return { ok: false, reason: this.options.transport.classify(error) };
     }
+  }
+
+  /**
+   * Opens a document the server created on the user's behalf (a snapshot restore bringing back a
+   * deleted document) as part of undo `step`, so undoing the step deletes it again (STU-069).
+   */
+  adopt(doc: ServerDocument, step: string): void {
+    this.open(doc);
+    this.options.onCreated?.({ path: doc.path, content: doc.content, step });
   }
 
   /**

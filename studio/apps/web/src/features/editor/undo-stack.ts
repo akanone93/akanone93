@@ -2,22 +2,32 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { applyPatches, type Patch } from "immer";
-import type { EditRecord, EditSession } from "./edit-session.ts";
-import type { JsonPatchOp } from "./json-patch.ts";
+import type { CreateRecord, EditRecord, EditSession } from "./edit-session.ts";
+import type { JsonPatchOp, JsonValue } from "./json-patch.ts";
 
 /**
  * Undo and redo (F3, STU-069, ADR-0095). Only document changes are steps. There is one stack per
  * plugin and one for the app's own documents (stack key `""`). A step may span documents and
  * stacks (a cross-plugin change); it is undone atomically or not at all. Undo and redo go through
- * the pipeline's `edit`, so each is an ordinary forward write the server stores like any other.
+ * the pipeline's `edit`, `create` and `remove`, so each is an ordinary forward write the server
+ * stores like any other.
  */
 
 /** The patches that, applied to one document, undo (or redo) its part of a step. */
-interface Part {
+interface PatchPart {
   readonly stack: string;
   readonly path: string;
   readonly patches: readonly Patch[];
 }
+
+/** A whole document a step created or deleted: undoing (or redoing) it gives the document this content, or deletes it (null). */
+interface WholePart {
+  readonly stack: string;
+  readonly path: string;
+  readonly whole: JsonValue | null;
+}
+
+type Part = PatchPart | WholePart;
 
 interface Step {
   /** Sent with every write of the step, so the rebuild after a reload regroups it. */
@@ -38,7 +48,13 @@ interface Stack {
 
 /** The outcome of an undo or redo: done, nothing to do, or blocked with the reason. */
 export type UndoResult =
-  | { readonly kind: "done"; readonly stacks: readonly string[]; readonly paths: readonly string[] }
+  | {
+      readonly kind: "done";
+      readonly stacks: readonly string[];
+      readonly paths: readonly string[];
+      /** Settles once the step's whole-document writes (creations, deletions) landed: true when all did. */
+      readonly written: Promise<boolean>;
+    }
   | { readonly kind: "empty" }
   | { readonly kind: "blocked"; readonly reason: UndoBlock; readonly stack: string };
 
@@ -96,6 +112,49 @@ export function toImmerPatches(ops: readonly JsonPatchOp[]): Patch[] {
 interface Run {
   readonly step: string;
   readonly parts: Part[];
+}
+
+/** Deletes a document once its pending saves have landed, so the delete never races its own save. */
+async function removeSettled(session: EditSession, path: string): Promise<boolean> {
+  session.flushAll();
+  await new Promise<void>((resolve) => {
+    const settled = () => {
+      const doc = session.store.getState().docs[path];
+      return doc === undefined || doc.waiting === 0 || doc.status === "conflict";
+    };
+    if (settled()) {
+      resolve();
+      return;
+    }
+    const stop = session.store.subscribe(() => {
+      if (settled()) {
+        stop();
+        resolve();
+      }
+    });
+  });
+  return (await session.remove(path)).ok;
+}
+
+/**
+ * What one part makes of a document in the trial run (`null`: absent), or why it cannot apply: a
+ * creation needs the document absent, a deletion or a patch needs it open, and a patch must apply.
+ */
+function trialOf(part: Part, base: unknown): { readonly content: unknown } | "not-open" | "conflict" {
+  if ("whole" in part && part.whole !== null) {
+    return base === null ? { content: part.whole } : "conflict";
+  }
+  if (base === null || typeof base !== "object") {
+    return "not-open";
+  }
+  if ("whole" in part) {
+    return { content: null };
+  }
+  try {
+    return { content: applyPatches(base as object, part.patches as Patch[]) };
+  } catch {
+    return "conflict";
+  }
 }
 
 /** Groups entries (newest first) into runs oldest first: consecutive writes of one step are one run. */
@@ -180,12 +239,30 @@ export class UndoManager {
     );
   }
 
-  /** Records an edit of the pipeline (its `onEdit`). A new edit clears the stack's redo. */
+  /**
+   * Records an edit of the pipeline (its `onEdit`). A new edit clears the stack's redo. An edit
+   * tagged with the step on top of another stack joins that step, so writes of one user action
+   * across stacks (a key extraction) are one step, as the server regroups them after a reload.
+   */
   record(stack: string, record: EditRecord): void {
     if (this.applying) {
       return;
     }
-    const part: Part = { stack, path: record.path, patches: record.inversePatches };
+    this.add(stack, { stack, path: record.path, patches: record.inversePatches }, record.step, record.group);
+  }
+
+  /**
+   * Records a document the pipeline created as part of a step (its `onCreated`): undoing the step
+   * deletes the document again, redoing it creates it with the content it had when undone.
+   */
+  recordCreated(stack: string, record: CreateRecord): void {
+    if (this.applying || record.step.startsWith("undo:") || record.step.startsWith("redo:")) {
+      return;
+    }
+    this.add(stack, { stack, path: record.path, whole: null }, record.step, undefined);
+  }
+
+  private add(stack: string, part: Part, step: string | undefined, group: string | undefined): void {
     if (this.open !== null) {
       this.open.parts.push(part);
       (this.open.stacks as Set<string>).add(stack);
@@ -195,23 +272,41 @@ export class UndoManager {
     s.redo = [];
     const top = s.undo.at(-1);
     const at = this.now();
-    if (top !== undefined && (record.step === undefined ? this.continues(top, record.group) : top.id === record.step)) {
+    const shared = step === undefined || top?.id === step ? undefined : this.sharedTop(stack, step);
+    if (top !== undefined && (step === undefined ? this.continues(top, group) : top.id === step)) {
       top.parts.push(part);
       top.at = at;
       top.selectionAfter = this.options.selection?.();
+    } else if (shared !== undefined) {
+      shared.parts.push(part);
+      (shared.stacks as Set<string>).add(stack);
+      shared.at = at;
+      shared.selectionAfter = this.options.selection?.();
+      this.push(s, shared);
     } else {
       const selection = this.options.selection?.();
       this.push(s, {
-        id: record.step ?? this.newId(),
+        id: step ?? this.newId(),
         parts: [part],
         stacks: new Set([stack]),
-        group: record.group,
+        group,
         at,
         selectionBefore: selection,
         selectionAfter: selection,
       });
     }
     this.changed();
+  }
+
+  /** The step on top of another stack with this ID, which an edit of the same step joins. */
+  private sharedTop(stack: string, id: string): Step | undefined {
+    for (const [key, other] of this.stacks) {
+      const top = other.undo.at(-1);
+      if (key !== stack && top?.id === id) {
+        return top;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -342,20 +437,14 @@ export class UndoManager {
       return { kind: "blocked", ...reason };
     }
     const done: Part[] = [];
+    const writes: Promise<boolean>[] = [];
     this.applying = true;
     try {
       // Undone in reverse order of the edits, so later edits of a document are reverted first.
       for (const part of [...step.parts].reverse()) {
-        const session = this.sessions.get(part.stack);
-        const record = session?.edit(
-          part.path,
-          (draft) => {
-            applyPatches(draft, part.patches as Patch[]);
-          },
-          { step: `${from}:${step.id}` },
-        );
-        if (record !== undefined) {
-          done.push({ stack: part.stack, path: part.path, patches: record.inversePatches });
+        const inverse = this.apply(part, `${from}:${step.id}`, writes);
+        if (inverse !== undefined) {
+          done.push(inverse);
         }
       }
     } finally {
@@ -371,7 +460,40 @@ export class UndoManager {
     }
     this.options.restoreSelection?.(from === "undo" ? step.selectionBefore : step.selectionAfter);
     this.changed();
-    return { kind: "done", stacks: [...step.stacks], paths: [...new Set(step.parts.map((p) => p.path))] };
+    return {
+      kind: "done",
+      stacks: [...step.stacks],
+      paths: [...new Set(step.parts.map((p) => p.path))],
+      written: Promise.all(writes).then((ok) => ok.every(Boolean)),
+    };
+  }
+
+  /**
+   * Applies one part of a step and returns its inverse. A whole-document part creates or deletes the
+   * document; that write settles later and joins `writes`.
+   */
+  private apply(part: Part, tag: string, writes: Promise<boolean>[]): Part | undefined {
+    const session = this.sessions.get(part.stack);
+    if (session === undefined) {
+      return undefined;
+    }
+    if ("whole" in part) {
+      const before = session.store.getState().docs[part.path]?.content ?? null;
+      writes.push(
+        part.whole === null
+          ? removeSettled(session, part.path)
+          : session.create(part.path, part.whole, { step: tag }).then((w) => w.ok),
+      );
+      return { stack: part.stack, path: part.path, whole: before };
+    }
+    const record = session.edit(
+      part.path,
+      (draft) => {
+        applyPatches(draft, part.patches as Patch[]);
+      },
+      { step: tag },
+    );
+    return record === undefined ? undefined : { stack: part.stack, path: part.path, patches: record.inversePatches };
   }
 
   /** Checks that every part of a step can be applied before any is: atomically or not at all. */
@@ -384,21 +506,18 @@ export class UndoManager {
         return { reason: "later-step", stack: key };
       }
     }
-    // Trial run on copies: every document is open and every part still applies.
+    // Trial run on copies: every document is open (or, to be created, absent) and every part still applies.
     const trial = new Map<string, unknown>();
     for (const part of [...step.parts].reverse()) {
       const key = `${part.stack}\u0000${part.path}`;
       const base = trial.has(key)
         ? trial.get(key)
-        : this.sessions.get(part.stack)?.store.getState().docs[part.path]?.content;
-      if (base === undefined || base === null || typeof base !== "object") {
-        return { reason: "not-open", stack: part.stack };
+        : (this.sessions.get(part.stack)?.store.getState().docs[part.path]?.content ?? null);
+      const next = trialOf(part, base);
+      if (typeof next === "string") {
+        return { reason: next, stack: part.stack };
       }
-      try {
-        trial.set(key, applyPatches(base as object, part.patches as Patch[]));
-      } catch {
-        return { reason: "conflict", stack: part.stack };
-      }
+      trial.set(key, next.content);
     }
     return undefined;
   }

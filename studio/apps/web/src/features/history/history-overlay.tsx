@@ -7,11 +7,12 @@ import { useLingui } from "@lingui/react";
 import { type DocumentChange, DocumentService, type Snapshot } from "@plux/api";
 import { AlertDialog, Button, Dialog, Select, TypeTag } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { toServerDocument } from "../editor/document-transport.ts";
 import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
 import { MonacoView } from "../json-editor/lazy-view.tsx";
+import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { type HistoryMessages, historyMessages } from "./history.messages.ts";
 import { missingPaths, orderedPair, restoreRecipes, sessionTag } from "./history-model.ts";
 
@@ -147,7 +148,6 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
   const [chosen, setChosen] = useState<readonly string[]>([]);
   const [target, setTarget] = useState<Snapshot | null>(null);
   const [note, setNote] = useState("");
-  const restores = useRef(0);
   const pair = useMemo(() => orderedPair(listing.rows, chosen), [listing.rows, chosen]);
   const { changes, path, setPath, diff } = useComparison(documents, pair);
   const time = useMemo(() => new Intl.DateTimeFormat(i18n.locale, { dateStyle: "medium", timeStyle: "short" }), [i18n]);
@@ -165,11 +165,12 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
   const restore = async (s: Snapshot) => {
     try {
       const res = await documents.getSnapshot({ id: s.id });
-      restores.current += 1;
-      const group = `history:restore:${restores.current}`;
+      // One undo step: every edit and every document brought back carries it, so undo reverts the
+      // edits and deletes those documents again, and redo re-applies both (STU-069).
+      const step = uuidv7();
       const open = session.store.getState().docs;
       const applied = restoreRecipes(res.documents).filter(
-        (e) => open[e.path] !== undefined && session.edit(e.path, e.recipe, { group }) !== undefined,
+        (e) => open[e.path] !== undefined && session.edit(e.path, e.recipe, { step }) !== undefined,
       );
       // Documents the plugin no longer has come back through the server (STU-069).
       const missing = missingPaths(res.documents, (p) => open[p] !== undefined);
@@ -179,7 +180,7 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
         for (const p of missing) {
           const back = await documents.getDocument({ appId, pluginId: plugin, path: p });
           if (back.document !== undefined) {
-            session.open(toServerDocument(back.document));
+            session.adopt(toServerDocument(back.document), step);
             brought += 1;
           }
         }

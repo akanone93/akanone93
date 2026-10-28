@@ -99,6 +99,54 @@ describe("STU-069 history overlay V9", () => {
     await waitFor(() => expect(edit?.store.getState().docs["pages/gone.page.json"]).toBeDefined());
   });
 
+  test("undo of a restore reverts its edits and deletes the documents it brought back; redo re-applies both", async () => {
+    let edit: EditSession | undefined;
+    const restoredSnapshots: { id: string; paths: string[] }[] = [];
+    const deletedDocuments: string[] = [];
+    const createdDocuments: string[] = [];
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    const gone = { kind: "page", path: "pages/gone.page.json", json: { id: "gone", kind: "page" } };
+    renderApp(path, {
+      documents,
+      snapshots: [{ id: "s3", revision: 3, reason: "write", author: "Ada", documents: [plugin, page("old"), gone] }],
+      restoredSnapshots,
+      deletedDocuments,
+      createdDocuments,
+      sent,
+      surface,
+      editor: (e) => (edit = e),
+    });
+    const route = () =>
+      (edit?.store.getState().docs["pages/home.page.json"]?.content as { route?: string } | undefined)?.route;
+    const brought = () => edit?.store.getState().docs["pages/gone.page.json"] !== undefined;
+    await open();
+    await screen.findByRole("list", { name: "Snapshots" });
+    fireEvent.click(screen.getAllByRole("button", { name: /^Restore the snapshot of/ })[0] as HTMLElement);
+    fireEvent.click(await screen.findByRole("button", { name: "Restore" }));
+    await waitFor(() => expect(screen.getByText("Restored 2 documents.")).toBeTruthy());
+    expect(route()).toBe("old");
+    expect(brought()).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Close the history" }));
+    await waitFor(() => expect(screen.queryByRole("list", { name: "Snapshots" }) === null).toBe(true));
+
+    const undo = screen.getByRole("button", { name: "Undo" });
+    await waitFor(() => expect(undo.matches(":disabled, [aria-disabled=true]")).toBe(false));
+    fireEvent.click(undo);
+    expect(route()).toBe("home");
+    await waitFor(() => expect(deletedDocuments).toEqual(["pages/gone.page.json"]));
+    await waitFor(() => expect(brought()).toBe(false));
+    edit?.flushAll();
+    await waitFor(() => expect(sent.some((x) => x.stepId.startsWith("undo:"))).toBe(true));
+
+    const redo = screen.getByRole("button", { name: "Redo" });
+    await waitFor(() => expect(redo.matches(":disabled, [aria-disabled=true]")).toBe(false));
+    fireEvent.click(redo);
+    expect(route()).toBe("old");
+    await waitFor(() => expect(createdDocuments).toEqual(["pages/gone.page.json"]));
+    await waitFor(() => expect(brought()).toBe(true));
+    expect(edit?.store.getState().docs["pages/gone.page.json"]?.content).toEqual({ id: "gone", kind: "page" });
+  });
+
   test("each snapshot shows the tag of its editor session", async () => {
     renderApp(path, {
       documents,
