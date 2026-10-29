@@ -19,7 +19,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 | R-L1-IPHONE | An iPhone on iOS 17 or newer, in an Apple Developer team with App Attest enabled, Xcode on a Mac | You, once |
 | R-L1-ATTEST | The stack of S-2 reachable from both phones over HTTPS, with `attestation.developmentProvider: false` for the test environment and an `attestation.apps` entry for Plux Bank and Plux Express (package, signing-certificate digest, Play Integrity keys, iOS App ID; `docs/guides/device-trust.md` §3, a copy of `deploy/compose/plux-server.yaml`). The fixtures `schema/testdata/documents/plux_bank` and `plux_express` are published to it (`plux publish --release`) and `test/refapi` runs beside it | L1-SEC-603 |
 | R-L1-BANK | Release builds of Plux Bank and Plux Express pointed at R-L1-ATTEST (defines in `apps/starter/README.md`, `apps/plux_bank/README.md`): on R-L1-REFPHONE from a Play Console internal test track linked to a Google Cloud project with the Play Integrity API; on R-L1-IPHONE signed by the App Attest team | L1-SEC-603 |
-| R-L1-DEVLIST | The `ListDevices` call of `docs/runbooks/device-revocation.md` with `PLUX_SERVER`, `PLUX_TOKEN` (R-TOKEN) and `ORG` (R-ORG); it shows each device's `assuranceLevel`, `keyStorage`, attestation provider and `revokedAt` | L1-SEC-603 |
+| R-L1-DEVLIST | `curl -sS --cacert deploy/compose/.secrets/ca/ca.crt https://localhost:8080/plux.v1.DeviceService/ListDevices -H "Authorization: Bearer $PLUX_DEV_TOKEN" -H "X-Plux-Organization: $PLUX_DEV_ORGANIZATION" -H 'Content-Type: application/json' -d '{"appId":"…","environmentId":"…"}'` (body as in `docs/runbooks/device-revocation.md`; variables from `dev.env`, R-TOKEN, R-ORG); it shows each device's `assuranceLevel`, `keyStorage`, attestation provider and `revokedAt` | L1-SEC-603 |
 | R-L1-ROOTED | A second Android phone, rooted with Magisk, with `frida-server` and LSPosed installed, USB debugging on | You, once |
 | R-L1-PROXY | `mitmproxy` on your machine, its CA installed on both phones, the phones' Wi-Fi proxy pointed at it | L1-SEC-613 |
 
@@ -124,7 +124,8 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 - **Needs:** R-L1-REFPHONE with R-L1-BANK, R-L1-DEVLIST
 - **Do:**
   1. Install a Bank build with a higher build number; open it.
-  2. Revoke the phone with `RevokeDevice` (`docs/runbooks/device-revocation.md`); use the app.
+  2. Revoke the phone: the call of R-L1-DEVLIST on `plux.v1.DeviceService/RevokeDevice` with
+     `{"deviceId":"…","reason":"manual check"}`; use the app.
   3. Leave the app 24 hours; open it again.
 - **Expect:** step 1 re-attests (a new `attestation.verifiedAt`); step 2 fails with `PLX-6006`,
   the app registers again as a new device; step 3 re-attests before the next refresh.
