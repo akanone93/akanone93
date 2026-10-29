@@ -51,5 +51,32 @@ makes the rest, and later checks reuse them.
 | R-DEVICE | The emulator, simulator or phone running the starter app | S-3 |
 | R-STUDIO | A browser signed in to Studio as R-ADMIN | [L2-STU-001](layer-2-functional/studio.md) |
 
+### Layer 1 resources
+
+Hardware, people and tools the [layer 1](layer-1-wip/README.md) checks need; each file's
+"Resources this file adds" table has the details.
+
+| ID | What | Defined in |
+|---|---|---|
+| R-L1-GH | `gh` signed in with admin rights on the repository | [p00-p01.md](layer-1-wip/p00-p01.md) |
+| R-L1-TAG | The first signed release tags (0.0.1) | [p00-p01.md](layer-1-wip/p00-p01.md) |
+| R-L1-API | Shell function `pluxapi` calling the API as R-TOKEN | [p02.md](layer-1-wip/p02.md) |
+| R-L1-MID | Mid-tier reference Android phone (spec §30.1) on `adb` | [p03.md](layer-1-wip/p03.md) |
+| R-L1-LOW | Low-end reference Android phone (spec §30.1) on `adb` | [p03.md](layer-1-wip/p03.md) |
+| R-L1-BENCH | Runtime benchmark runs per phone and their report | [p03.md](layer-1-wip/p03.md) |
+| R-L1-IPHONE | iPhone with App Attest in an Apple Developer team, and a Mac with Xcode | [p06-security.md](layer-1-wip/p06-security.md) |
+| R-L1-ATTEST | The stack reachable from the phones with real attestation | [p06-security.md](layer-1-wip/p06-security.md) |
+| R-L1-BANK | Release builds of Plux Bank and Plux Express on R-L1-ATTEST | [p06-security.md](layer-1-wip/p06-security.md) |
+| R-L1-DEVLIST | The device-list API call | [p06-security.md](layer-1-wip/p06-security.md) |
+| R-L1-ROOTED | A rooted Android phone with Frida and LSPosed | [p06-security.md](layer-1-wip/p06-security.md) |
+| R-L1-PROXY | `mitmproxy` with its CA on both phones | [p06-security.md](layer-1-wip/p06-security.md) |
+| R-L1-KIND | A machine for the kind and Helm checks | [p07-p10.md](layer-1-wip/p07-p10.md) |
+| R-L1-HA | A production-like HA installation from the Helm chart | [p07-p10.md](layer-1-wip/p07-p10.md) |
+| R-L1-DEVAPP | The Plux Dev app on R-L1-MID and R-L1-IPHONE | [p07-p10.md](layer-1-wip/p07-p10.md) |
+| R-L1-NEWDEVS | Developers new to Plux, with recording | [p07-p10.md](layer-1-wip/p07-p10.md) |
+| R-L1-SR | Screen readers: NVDA on Windows, VoiceOver on macOS | [p11.md](layer-1-wip/p11.md) |
+| R-L1-NATIVE | Native German and Arabic speakers with Studio accounts | [p11.md](layer-1-wip/p11.md) |
+| R-L1-LAPTOP | The reference laptop (spec §30) | [p11.md](layer-1-wip/p11.md) |
+
 Layer files add rows here when a check creates a resource others reuse (a second user, a
 plugin, fonts, a function, a paired Dev app device…).

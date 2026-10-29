@@ -18,7 +18,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 |---|---|---|
 | R-L1-IPHONE | An iPhone on iOS 17 or newer, in an Apple Developer team with App Attest enabled, Xcode on a Mac | You, once |
 | R-L1-ATTEST | The stack of S-2 reachable from both phones over HTTPS, with `attestation.developmentProvider: false` for the test environment and an `attestation.apps` entry for Plux Bank and Plux Express (package, signing-certificate digest, Play Integrity keys, iOS App ID; `docs/guides/device-trust.md` §3, a copy of `deploy/compose/plux-server.yaml`). The fixtures `schema/testdata/documents/plux_bank` and `plux_express` are published to it (`plux publish --release`) and `test/refapi` runs beside it | L1-SEC-603 |
-| R-L1-BANK | Release builds of Plux Bank and Plux Express pointed at R-L1-ATTEST (defines in `apps/starter/README.md`, `apps/plux_bank/README.md`): on R-L1-REFPHONE from a Play Console internal test track linked to a Google Cloud project with the Play Integrity API; on R-L1-IPHONE signed by the App Attest team | L1-SEC-603 |
+| R-L1-BANK | Release builds of Plux Bank and Plux Express pointed at R-L1-ATTEST (defines in `apps/starter/README.md`, `apps/plux_bank/README.md`): on R-L1-MID from a Play Console internal test track linked to a Google Cloud project with the Play Integrity API; on R-L1-IPHONE signed by the App Attest team | L1-SEC-603 |
 | R-L1-DEVLIST | `curl -sS --cacert deploy/compose/.secrets/ca/ca.crt https://localhost:8080/plux.v1.DeviceService/ListDevices -H "Authorization: Bearer $PLUX_DEV_TOKEN" -H "X-Plux-Organization: $PLUX_DEV_ORGANIZATION" -H 'Content-Type: application/json' -d '{"appId":"…","environmentId":"…"}'` (body as in `docs/runbooks/device-revocation.md`; variables from `dev.env`, R-TOKEN, R-ORG); it shows each device's `assuranceLevel`, `keyStorage`, attestation provider and `revokedAt` | L1-SEC-603 |
 | R-L1-ROOTED | A second Android phone, rooted with Magisk, with `frida-server` and LSPosed installed, USB debugging on | You, once |
 | R-L1-PROXY | `mitmproxy` on your machine, its CA installed on both phones, the phones' Wi-Fi proxy pointed at it | L1-SEC-613 |
@@ -49,7 +49,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-603 — The DPoP key lives in secure hardware (SEC-001)
 
-- **Needs:** R-L1-REFPHONE, R-L1-IPHONE; make R-L1-ATTEST, R-L1-BANK and R-L1-DEVLIST
+- **Needs:** R-L1-MID, R-L1-IPHONE; make R-L1-ATTEST, R-L1-BANK and R-L1-DEVLIST
 - **Do:**
   1. Install Plux Bank on both phones and open it once.
   2. Run R-L1-DEVLIST for the Bank app's environment.
@@ -61,7 +61,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-604 — DPoP proof creation within 15 ms on the phones (NFR-012)
 
-- **Needs:** R-L1-REFPHONE, R-L1-IPHONE
+- **Needs:** R-L1-MID, R-L1-IPHONE
 - **Do:** in `apps/starter`, for each phone:
   `flutter test integration_test/dpop_bench_test.dart -d <device> --dart-define=PLUX_BENCH_ASSERT=1`
 - **Expect:** the test passes; its JSON shows p95 ≤ 15 ms and the `key_storage` used.
@@ -71,9 +71,9 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-605 — A real Key Attestation chain verifies (SEC-002)
 
-- **Needs:** R-L1-REFPHONE with R-L1-BANK, R-L1-ROOTED, R-L1-DEVLIST
+- **Needs:** R-L1-MID with R-L1-BANK, R-L1-ROOTED, R-L1-DEVLIST
 - **Do:**
-  1. On R-L1-REFPHONE: R-L1-DEVLIST after L1-SEC-603.
+  1. On R-L1-MID: R-L1-DEVLIST after L1-SEC-603.
   2. Install the same Bank build on R-L1-ROOTED (unlocked bootloader) and open it.
 - **Expect:** the reference phone is at `AL2` or `AL3`; the rooted phone is refused or held
   below `AL2` (unverified boot or unlocked bootloader in the chain).
@@ -121,7 +121,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-609 — Re-attestation and revocation (SEC-006)
 
-- **Needs:** R-L1-REFPHONE with R-L1-BANK, R-L1-DEVLIST
+- **Needs:** R-L1-MID with R-L1-BANK, R-L1-DEVLIST
 - **Do:**
   1. Install a Bank build with a higher build number; open it.
   2. Revoke the phone: the call of R-L1-DEVLIST on `plux.v1.DeviceService/RevokeDevice` with
@@ -136,7 +136,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-610 — Strong customer authentication signs a transfer (SEC-027)
 
-- **Needs:** R-L1-REFPHONE and R-L1-IPHONE with R-L1-BANK, biometrics enrolled
+- **Needs:** R-L1-MID and R-L1-IPHONE with R-L1-BANK, biometrics enrolled
 - **Do:** in Plux Bank, sign in, New transfer, confirm the sheet with a fingerprint or Face ID;
   repeat and cancel the biometric prompt; then enrol a new fingerprint or face and try again.
 - **Expect:** the first transfer succeeds; cancelling sends nothing; after re-enrolment the old
@@ -148,7 +148,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-611 — Confidential bundles open only on the registered phone (SEC-053)
 
-- **Needs:** R-L1-REFPHONE, R-L1-IPHONE, R-L1-ATTEST
+- **Needs:** R-L1-MID, R-L1-IPHONE, R-L1-ATTEST
 - **Do:**
   1. `plux security config set --env <bank env> --profile strict --expected-version <n> --set confidentialBundles=required`
      (keep the overrides `plux security config diff` shows); publish a Bank release.
@@ -161,7 +161,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-612 — Decrypting a confidential bundle within 10 ms per MiB (NFR-013)
 
-- **Needs:** R-L1-REFPHONE, R-L1-IPHONE
+- **Needs:** R-L1-MID, R-L1-IPHONE
 - **Do:**
   1. `make bench-confidential` for the host upper bound (pure-Dart cipher).
   2. Run the same benchmark on each phone with the platform cipher
@@ -175,7 +175,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-613 — Pinning refuses an intercepting proxy (SEC-041)
 
-- **Needs:** R-L1-REFPHONE and R-L1-IPHONE with R-L1-BANK; make R-L1-PROXY
+- **Needs:** R-L1-MID and R-L1-IPHONE with R-L1-BANK; make R-L1-PROXY
 - **Do:** with the phones' traffic through `mitmproxy`, open Bank and pull to refresh; open the
   dashboard (its SSE banner).
 - **Expect:** no request reaches the server through the proxy; sync fails closed with `PLX-6020`
@@ -198,9 +198,9 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-615 — RASP detects a hostile phone (SEC-070)
 
-- **Needs:** R-L1-ROOTED, R-L1-REFPHONE, R-L1-IPHONE (a jailbroken one if you have it), R-L1-BANK
+- **Needs:** R-L1-ROOTED, R-L1-MID, R-L1-IPHONE (a jailbroken one if you have it), R-L1-BANK
 - **Do:** on R-L1-ROOTED open Bank: rooted; then with `frida-server` running; then with a debugger
-  attached (`flutter attach` on a debug build). On R-L1-REFPHONE: install a re-signed APK
+  attached (`flutter attach` on a debug build). On R-L1-MID: install a re-signed APK
   (`apksigner` with another key); side-load with `adb install`; cast the screen; enable a
   third-party accessibility service; run an app that draws over Bank.
 - **Expect:** each case is reported with its kind (`root`, `hooking`, `debugger`, `repackaging`,
@@ -234,7 +234,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-618 — Secure pages block capture and blur in the app switcher (SEC-091)
 
-- **Needs:** R-L1-REFPHONE and R-L1-IPHONE with R-L1-BANK
+- **Needs:** R-L1-MID and R-L1-IPHONE with R-L1-BANK
 - **Do:** on the `login` and `transfer` pages take a screenshot, start a screen recording, open the app switcher.
 - **Expect:** Android: the screenshot is refused or black, the recording black. iOS: the recording
   shows a covering view; the app switcher shows a blurred page on both.
@@ -244,7 +244,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-619 — Touches under an overlay are filtered (SEC-093)
 
-- **Needs:** R-L1-REFPHONE with R-L1-BANK; an app with "Display over other apps" granted (a screen-filter app)
+- **Needs:** R-L1-MID with R-L1-BANK; an app with "Display over other apps" granted (a screen-filter app)
 - **Do:** turn the overlay on, open `transfer`, tap Confirm.
 - **Expect:** the tap is ignored while the overlay covers the page; an `overlay` detection is reported; with the overlay off it works.
 - **Why:** tapjacking tricks a user into confirming (SEC-093).
@@ -264,7 +264,7 @@ with identifiers removed), as [real-device-checklist.md](../../security/real-dev
 
 ### L1-SEC-621 — No personal data leaves the phone without consent (SEC-160)
 
-- **Needs:** R-L1-REFPHONE with R-L1-BANK, R-L1-ATTEST
+- **Needs:** R-L1-MID with R-L1-BANK, R-L1-ATTEST
 - **Do:** open Bank without granting analytics consent and use it for a few minutes; then read
   that device's rows of the `telemetry_events` table in the server's database (`psql`); compare
   with `docs/security/privacy.md` (processing activities and retention).
