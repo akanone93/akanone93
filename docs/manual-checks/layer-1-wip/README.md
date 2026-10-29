@@ -120,7 +120,7 @@ that closes its row. Run [setup](../00-setup.md) first.
 | `QA-072` | [L1-OPS-003](p00-p01.md#l1-ops-003--a-requirement-pr-updates-its-status-qa-072) |
 | `REL-003` | [L1-SRV-004](p02.md#l1-srv-004--a-release-with-an-unresolved-reference-is-refused-rel-003) |
 | `REL-080` | [L1-SRV-005](p02.md#l1-srv-005--the-publisher-sees-which-devices-can-use-a-release-rel-080) |
-| `RT-001` | [L1-RUN-005](p03.md#l1-run-005--pluxflutter-on-pubdev-with-maximum-pub-points-rt-001) |
+| `RT-001` | [L1-RUN-005](p03.md#l1-run-005--plux_flutter-on-pubdev-with-maximum-pub-points-rt-001) |
 | `RT-002` | [L1-RUN-003](p03.md#l1-run-003--android-70-and-ios-15-on-the-supported-flutter-rt-002) |
 | `RT-004` | [L1-RUN-007](p03.md#l1-run-007--initialize-within-budget-off-the-ui-isolate-rt-004) |
 | `RT-060` | [L1-RUN-004](p03.md#l1-run-004--optional-capabilities-in-separate-packages-rt-060) |
