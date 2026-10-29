@@ -3,8 +3,17 @@
 
 import { useLingui } from "@lingui/react";
 import { Icon, type IconName } from "@plux/ui";
-import { domAnimation, LazyMotion, m, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
-import { type CSSProperties, type ReactNode, useEffect, useState } from "react";
+import {
+  domAnimation,
+  LazyMotion,
+  type MotionStyle,
+  m,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "motion/react";
+import { type ReactNode, useEffect, useState } from "react";
 import { authMessages } from "./auth.messages.ts";
 import "./screen-ring.css";
 
@@ -20,16 +29,24 @@ interface SampleScreen {
 /** How long a screen stays at the front before the ring turns on. */
 const PAUSE_MS = 3600;
 /** The yaw of the whole ring, so the front screen is seen a little from the side and its layers show their depth. */
-const YAW = -10;
-/** Slots on the ring; the sample screens repeat around it so neighbours show on both sides. */
-const SLOTS = 8;
-/** How high each layer rises when its screen is at the front, in px. */
-const LIFT = 26;
+const YAW = -16;
+/**
+ * How high each layer of the front screen stands above it, in px, from the lowest layer up; the
+ * chip floats highest. Every layer moves on the same curve over the same time, so a higher layer
+ * moves faster and the ratio of their heights holds at every frame: they stay stacked on the screen.
+ */
+const HEIGHTS = [22, 58, 104, 158] as const;
+const CHIP_HEIGHT = 210;
 /** Pointer parallax in degrees at the edge of the window. */
 const PARALLAX = 7;
 
 const turn = { type: "spring", stiffness: 42, damping: 14, mass: 1 } as const;
-const rise = { type: "spring", stiffness: 140, damping: 13, mass: 0.9 } as const;
+/** The layers rise once the screen has settled at the front, and sink as it turns away. */
+const rise = { duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.55 } as const;
+const sink = { duration: 0.5, ease: [0.4, 0, 1, 1] } as const;
+/** Only the front screen is seen: the others fade out as they turn away and in as they arrive. */
+const show = { duration: 0.45, ease: "easeOut", delay: 0.1 } as const;
+const hide = { duration: 0.3, ease: "easeIn" } as const;
 
 function money(locale: string, value: number, digits = 2): string {
   return new Intl.NumberFormat(locale, {
@@ -166,19 +183,26 @@ function distance(slot: number, front: number, count: number): number {
 
 function Slot({ screen, index, count, front }: { screen: SampleScreen; index: number; count: number; front: number }) {
   const reduced = useReducedMotion() === true;
-  const away = distance(index, front, count);
-  const isFront = away === 0;
-  const style = { "--slot": index, "--slots": count } as CSSProperties;
+  const isFront = distance(index, front, count) === 0;
+  const style = { "--slot": index, "--slots": count } as MotionStyle;
+  const height = (k: number) => HEIGHTS[Math.min(k, HEIGHTS.length - 1)] ?? 0;
   return (
-    <div className="sr-slot" style={style} data-away={away}>
+    <m.div
+      className="sr-slot"
+      style={style}
+      data-front={isFront}
+      initial={false}
+      animate={{ opacity: isFront ? 1 : 0 }}
+      transition={reduced ? { duration: 0 } : isFront ? show : hide}
+    >
       <div className="sr-screen" />
       {screen.layers.map((layer, k) => (
         <m.div
           key={layer !== null && typeof layer === "object" && "key" in layer ? String(layer.key) : k}
           className="sr-layer"
           initial={false}
-          animate={{ z: isFront ? (k + 1) * LIFT : 0 }}
-          transition={reduced ? { duration: 0 } : { ...rise, delay: isFront ? 0.45 + k * 0.1 : (2 - k) * 0.03 }}
+          animate={{ z: isFront ? height(k) : 0 }}
+          transition={reduced ? { duration: 0 } : isFront ? rise : sink}
         >
           {layer}
         </m.div>
@@ -186,18 +210,13 @@ function Slot({ screen, index, count, front }: { screen: SampleScreen; index: nu
       <m.div
         className="sr-chip"
         initial={false}
-        animate={{
-          z: isFront ? (screen.layers.length + 2) * LIFT : 0,
-          opacity: isFront ? 1 : 0,
-          scale: isFront ? 1 : 0.85,
-        }}
-        transition={reduced ? { duration: 0 } : { ...rise, delay: isFront ? 0.75 + screen.layers.length * 0.1 : 0 }}
+        animate={{ z: isFront ? CHIP_HEIGHT : 0, opacity: isFront ? 1 : 0 }}
+        transition={reduced ? { duration: 0 } : isFront ? rise : sink}
       >
         <Icon name={screen.chip.icon} size="pill" />
         {screen.chip.text}
       </m.div>
-      <div className="sr-veil" />
-    </div>
+    </m.div>
   );
 }
 
@@ -245,7 +264,7 @@ export function ScreenRing() {
     return () => window.removeEventListener("pointermove", move);
   }, [reduced, pointerX, pointerY]);
 
-  const count = SLOTS;
+  const count = list.length;
   const front = step % count;
   return (
     <LazyMotion features={domAnimation} strict>
@@ -257,13 +276,9 @@ export function ScreenRing() {
             animate={{ rotateY: YAW - step * (360 / count), opacity: 1, scale: 1 }}
             transition={reduced ? { duration: 0 } : { rotateY: turn, opacity: { duration: 0.8 }, scale: turn }}
           >
-            {Array.from({ length: count }, (_, i) => {
-              const screen = list[i % list.length];
-              return screen === undefined ? null : (
-                // biome-ignore lint/suspicious/noArrayIndexKey: the slots of the ring are fixed positions
-                <Slot key={i} screen={screen} index={i} count={count} front={front} />
-              );
-            })}
+            {list.map((screen, i) => (
+              <Slot key={screen.key} screen={screen} index={i} count={count} front={front} />
+            ))}
           </m.div>
         </m.div>
       </div>

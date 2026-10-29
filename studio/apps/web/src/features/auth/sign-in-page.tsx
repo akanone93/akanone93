@@ -96,9 +96,9 @@ function SignInFrame({ children }: { children: ReactNode }) {
           <header className="flex h-10 shrink-0 items-center">
             <span className="font-wordmark text-section font-semibold">{m.wordmark}</span>
           </header>
-          <main className="flex flex-1 flex-col justify-center gap-10 py-12">
+          <main className="signin-main flex flex-1 flex-col justify-center gap-10 py-12">
             <div className="flex flex-col gap-5">
-              <h1 className="text-display-sm lg:text-display">
+              <h1 className="signin-title text-display-sm lg:text-display">
                 <RisingWords text={lineOne} from={0} className="block" />
                 <RisingWords text={m.heroLineTwo} from={lineOne.split(" ").length} className="block text-tertiary" />
               </h1>

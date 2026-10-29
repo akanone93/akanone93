@@ -14,7 +14,7 @@
   min-block-size: 640px;
   perspective: 2600px;
   perspective-origin: 50% 35%;
-  --ring-radius: 430px;
+  --ring-radius: 360px;
 }
 
 .sr-view,
@@ -37,9 +37,11 @@
   backface-visibility: hidden;
 }
 
-/* The whole ring is set back so several screens show around it. */
+/* One large screen at a time, moved back to the middle of the stage: the yaw of the ring carries
+   the front screen to one side by the ring's radius times the sine of the yaw. */
 .sr-view {
-  scale: 0.66;
+  scale: 1.05;
+  translate: calc(var(--ring-radius) * 0.28) 0;
 }
 
 /* The screen surface: no device around it, only the lit glass of the display. */
@@ -61,25 +63,6 @@
   inset: 0;
   transform-style: preserve-3d;
   pointer-events: none;
-}
-
-/* The screens beside the front one are veiled; the ones behind face away and are hidden. */
-.sr-veil {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-3xl);
-  background-color: var(--color-raised);
-  opacity: 0;
-  transition: opacity var(--duration-slow) var(--ease-standard);
-  pointer-events: none;
-}
-
-.sr-slot[data-away="1"] .sr-veil {
-  opacity: 0.4;
-}
-
-.sr-slot[data-away="2"] .sr-veil {
-  opacity: 0.75;
 }
 
 /* The feature chip floats outside the screen's edge, highest of all. */
@@ -409,6 +392,28 @@
   }
 
   .sr-view {
-    scale: 0.6;
+    scale: 0.8;
+  }
+}
+
+/* Short windows (laptops): a smaller screen and headline, so the form and the screen both fit. */
+@media (max-height: 820px) {
+  .sr-stage {
+    min-block-size: 520px;
+  }
+
+  .sr-view {
+    scale: 0.82;
+  }
+
+  .signin-title {
+    font-size: var(--text-display-sm);
+    line-height: var(--text-display-sm--line-height);
+    letter-spacing: var(--text-display-sm--letter-spacing);
+  }
+
+  .signin-main {
+    gap: var(--spacing-6);
+    padding-block: var(--spacing-4);
   }
 }
