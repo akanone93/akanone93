@@ -31,6 +31,7 @@ export const iconNames = [
   "dots-three",
   "eye",
   "file",
+  "flask",
   "folder",
   "funnel",
   "gear",
@@ -38,6 +39,7 @@ export const iconNames = [
   "house",
   "info",
   "key",
+  "lightning",
   "list",
   "lock",
   "magnifying-glass",
@@ -57,6 +59,7 @@ export const iconNames = [
   "user",
   "warning",
   "warning-circle",
+  "wifi-slash",
   "x",
   "x-circle",
 ] as const;

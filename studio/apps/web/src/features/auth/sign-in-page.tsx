@@ -4,7 +4,7 @@
 import { Code, ConnectError, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { FederationService, IdentityService, type MfaChallenge, type SignInProvider } from "@plux/api";
-import { Button, Field, Input } from "@plux/ui";
+import { Button, Field, Icon, Input } from "@plux/ui";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
@@ -15,7 +15,7 @@ import type { Session } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { authMessages } from "./auth.messages.ts";
 import { codeSchema, signInSchema } from "./auth.schema.ts";
-import { HeroScene } from "./hero-scene.tsx";
+import { ScreenRing } from "./screen-ring.tsx";
 import { getAssertion } from "./webauthn.ts";
 
 type Messages = ReturnType<typeof authMessages>;
@@ -71,48 +71,56 @@ function Rise({ delay, children, className }: { delay: number; children: ReactNo
   );
 }
 
+/** One of the short facts under the form. */
+function Fact({ children }: { children: ReactNode }) {
+  return (
+    <li className="flex items-center gap-2 text-caption text-secondary">
+      <Icon name="check-circle" size="tab" />
+      {children}
+    </li>
+  );
+}
+
 /**
- * The sign-in page (U16.2), composed like a product page: the promise in large type, the exploded
- * app screen standing in the middle, and the form on deep glass floating over its foot. The layers
- * of the picture come together while the form has focus.
+ * The sign-in page (U16.2): on a white page, the promise, the form and three facts fill the left
+ * half; on the right, sample app screens built with Plux turn on a ring and lift their layers.
  */
 function SignInFrame({ children }: { children: ReactNode }) {
   const { i18n } = useLingui();
   const m = authMessages(i18n);
-  const [focused, setFocused] = useState(false);
   const lineOne = m.heroLineOne;
   return (
     <LazyMotion features={domAnimation} strict>
-      <div className="mx-auto flex min-h-screen w-full max-w-page flex-col px-6 lg:px-10">
-        <header className="flex h-16 shrink-0 items-center">
-          <span className="font-wordmark text-section font-semibold">{m.wordmark}</span>
-        </header>
-        <main className="flex flex-1 flex-col items-center pb-10 text-center">
-          <h1 className="signin-title mt-2 text-display-sm lg:text-display">
-            <RisingWords text={lineOne} from={0} />
-            <RisingWords text={m.heroLineTwo} from={lineOne.split(" ").length} className="text-tertiary" />
-          </h1>
-          <Rise delay={0.55} className="mt-4 max-w-dialog-md">
-            <p className="text-lead text-secondary">{m.heroLead}</p>
-          </Rise>
-          <div className="signin-stage mt-12 w-full">
-            <HeroScene together={focused} />
-          </div>
-          <Rise delay={0.9} className="signin-card relative -mt-12 w-full max-w-auth-form text-start">
-            {/* biome-ignore lint/a11y/noStaticElementInteractions: focus is only observed, to move the picture; the controls inside handle input */}
-            <div
-              className="glass-deep rounded-2xl p-8"
-              onFocus={() => setFocused(true)}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) {
-                  setFocused(false);
-                }
-              }}
-            >
-              {children}
+      <div className="grid min-h-screen bg-raised lg:grid-cols-12">
+        <div className="flex flex-col px-6 py-8 sm:px-12 lg:col-span-6 lg:px-16 xl:px-24">
+          <header className="flex h-10 shrink-0 items-center">
+            <span className="font-wordmark text-section font-semibold">{m.wordmark}</span>
+          </header>
+          <main className="flex flex-1 flex-col justify-center gap-10 py-12">
+            <div className="flex flex-col gap-5">
+              <h1 className="text-display-sm lg:text-display">
+                <RisingWords text={lineOne} from={0} className="block" />
+                <RisingWords text={m.heroLineTwo} from={lineOne.split(" ").length} className="block text-tertiary" />
+              </h1>
+              <Rise delay={0.5}>
+                <p className="max-w-auth-form text-lead text-secondary">{m.heroLead}</p>
+              </Rise>
             </div>
-          </Rise>
-        </main>
+            <Rise delay={0.7} className="w-full max-w-auth-form">
+              {children}
+            </Rise>
+            <Rise delay={0.9}>
+              <ul className="flex flex-col gap-2">
+                <Fact>{m.factSigned}</Fact>
+                <Fact>{m.factInstant}</Fact>
+                <Fact>{m.factNative}</Fact>
+              </ul>
+            </Rise>
+          </main>
+        </div>
+        <div className="relative hidden overflow-hidden lg:col-span-6 lg:block">
+          <ScreenRing />
+        </div>
       </div>
     </LazyMotion>
   );

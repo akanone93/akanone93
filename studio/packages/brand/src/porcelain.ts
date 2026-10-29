@@ -230,10 +230,8 @@ export const semanticColors: readonly SemanticColor[] = [
     dark: violet.dark,
     contrast: primitives["violet.700"],
   },
-  // U16.2 the tint of the sign-in picture: its screen and the light under it; decorative, never
-  // under text, so it carries no contrast pair. The contrast theme has none.
-  { name: "hero.tint", key: "hero-tint", light: "#B9A8FF", dark: "#4B2FD6", contrast: "transparent" },
-  // U16.2 the liquid form: violet into sky into rose, deeper in the dark theme.
+  // U16.2 the colours of the sample screens on the sign-in page: violet, sky and rose, deeper in the
+  // dark theme; decorative, never under text, so they carry no contrast pair. The contrast theme has none.
   { name: "hero.liquidA", key: "hero-liquid-a", light: "#7B5CFF", dark: "#5B3DF5", contrast: "transparent" },
   { name: "hero.liquidB", key: "hero-liquid-b", light: "#62B6FF", dark: "#2D6BFF", contrast: "transparent" },
   { name: "hero.liquidC", key: "hero-liquid-c", light: "#FF9AD0", dark: "#B83E8C", contrast: "transparent" },
@@ -490,7 +488,7 @@ export interface TypeRole {
  */
 export const typeRoles: readonly TypeRole[] = [
   // U7.3 the public pages: one very large sans headline and its lead sentence.
-  { key: "display", name: "type.display", family: "sans", size: 72, line: 72, weight: 600, tracking: -0.04 },
+  { key: "display", name: "type.display", family: "sans", size: 64, line: 66, weight: 600, tracking: -0.04 },
   { key: "lead", name: "type.lead", family: "sans", size: 19, line: 28, weight: 400, tracking: -0.01 },
   { key: "display-sm", name: "type.displaySmall", family: "sans", size: 44, line: 46, weight: 600, tracking: -0.035 },
   { key: "control", name: "type.control", family: "sans", size: 16, line: 22, weight: 400 },

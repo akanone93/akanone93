@@ -406,6 +406,12 @@ msgstr "{kib} KiB"
 msgid "l10n.area.importPreview"
 msgstr "{matched} Texte werden importiert; {unknown} Schlüssel der Datei gehören nicht zu dieser App und werden übersprungen."
 
+#. Text in a sample app screen drawn beside the sign-in form. Minutes until the delivery arrives; {minutes} is a number.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.delivery-eta"
+msgstr "{minutes} Min."
+
 #. Text of one heatmap cell: how many of a plugin's keys a locale lacks.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -777,6 +783,12 @@ msgstr "Ein quadratisches PNG, 1024 bis 4096 Pixel pro Seite, aus den Assets der
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.percentFalls"
 msgstr "Eine Stufe darf den Anteil der vorherigen Stufe nicht senken."
+
+#. Small floating label beside a sample app screen, naming a Plux feature.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.chip.experiment"
+msgstr "A/B-Test · Variante B"
 
 #. Button: end a rollout and revert.
 #. js-lingui-explicit-id
@@ -1192,6 +1204,12 @@ msgstr "Schritt hinzufügen"
 msgid "designers.dataAddImported"
 msgstr "Importierte Datenquellen hinzufügen"
 
+#. Text in a sample app screen drawn beside the sign-in form. A button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.shop-add"
+msgstr "In den Warenkorb"
+
 #. Button that merges the read tokens into the theme.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -1432,12 +1450,6 @@ msgstr "Erlaubt"
 msgid "notify.mute.locked"
 msgstr "Immer aktiv"
 
-#. Accessible description of the animated picture beside the sign-in form.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.hero.scene"
-msgstr "Ein App-Bildschirm, in seine Ebenen zerlegt"
-
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -1666,7 +1678,7 @@ msgstr "Übernehmen"
 msgid "data.apply"
 msgstr "Anwenden"
 
-#. Button of the sample app screen.
+#. Text in a sample app screen drawn beside the sign-in form. A button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.apply"
@@ -2091,6 +2103,12 @@ msgstr "Backups"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.backupsTitle"
 msgstr "Backups"
+
+#. Text in a sample app screen drawn beside the sign-in form. Label above an account balance.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-balance"
+msgstr "Kontostand"
 
 #. Heading of the base URL section.
 #. js-lingui-explicit-id
@@ -3237,6 +3255,12 @@ msgstr "Kopieren Sie eine der Beispiel-Apps dieses Servers."
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.actionCopy"
 msgstr "Übernehmen"
+
+#. Text in a sample app screen drawn beside the sign-in form. Name of a shop in a payment list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-coffee"
+msgstr "Eckcafé"
 
 #. Metric name.
 #. js-lingui-explicit-id
@@ -5338,6 +5362,12 @@ msgstr "Einfrieren und bauen"
 msgid "publish.startBuild"
 msgstr "Einfrieren und bauen"
 
+#. Text in a sample app screen drawn beside the sign-in form. Title of a welcome screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.onboard-title"
+msgstr "Frisch, jeden Morgen"
+
 #. Label of the first day of the range.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -5524,6 +5554,12 @@ msgstr "Das Projekt wird erzeugt"
 msgid "onboarding.title"
 msgstr "Erste Schritte"
 
+#. Text in a sample app screen drawn beside the sign-in form. A button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.onboard-start"
+msgstr "Los geht’s"
+
 #. Help menu entry that opens the onboarding guide.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -5637,6 +5673,12 @@ msgstr "Raster"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.view.grid"
 msgstr "Raster"
+
+#. Text in a sample app screen drawn beside the sign-in form. Sentence on a welcome screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.onboard-body"
+msgstr "Lebensmittel in 30 Minuten an Ihrer Tür."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -6930,6 +6972,12 @@ msgstr "Limit-Auslastung"
 msgid "apps.settings.limits"
 msgstr "Limit-Auslastung"
 
+#. Text in a sample app screen drawn beside the sign-in form. A product name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.shop-product"
+msgstr "Leinenhemd"
+
 #. Title of the menu of one navigation link, e.g. 'Link Home → Offers'.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -7164,7 +7212,7 @@ msgstr "Wird geladen …"
 msgid "approvals.loading"
 msgstr "Wird geladen …"
 
-#. Title of the sample app screen drawn in the sign-in picture.
+#. Text in a sample app screen drawn beside the sign-in form.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.title"
@@ -7560,7 +7608,7 @@ msgstr "Modi"
 msgid "functions.assuranceModule"
 msgstr "Modul-Hash"
 
-#. Label of the monthly payment in the sample app screen.
+#. Text in a sample app screen drawn beside the sign-in form.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.monthly"
@@ -7949,6 +7997,12 @@ msgstr "Neues Experiment"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.wizardTitle"
 msgstr "Neues Experiment"
+
+#. Text in a sample app screen drawn beside the sign-in form. Heading of a shop screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.shop-title"
+msgstr "Neu eingetroffen"
 
 #. Label of the field in which the name of a new translation key is typed.
 #. js-lingui-explicit-id
@@ -8765,6 +8819,12 @@ msgstr "Ältere und neuere Version des Dokuments"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.on"
 msgstr "An"
+
+#. Text in a sample app screen drawn beside the sign-in form. Title of a delivery tracking screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.delivery-title"
+msgstr "Unterwegs"
 
 #. Option.
 #. js-lingui-explicit-id
@@ -10506,6 +10566,12 @@ msgstr "Visuellen Vergleich rendern"
 msgid "publish.diffSucceeded"
 msgstr "Gerendert"
 
+#. One of three short facts under the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.fact.native"
+msgstr "Nativ von Flutter dargestellt"
+
 #. Alternative text of a rendered screen thumbnail; side is Before or After.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -10565,6 +10631,12 @@ msgstr "Berichte"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.reportsHeading"
 msgstr "Berichte"
+
+#. Text in a sample app screen drawn beside the sign-in form. A button that requests money.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-request"
+msgstr "Anfordern"
 
 #. Button that asks the approvers.
 #. js-lingui-explicit-id
@@ -10992,6 +11064,12 @@ msgstr "Zurückgesetzt"
 msgid "releases.colRollout"
 msgstr "Rollout"
 
+#. Small floating label beside a sample app screen, naming a Plux feature. {percent} is a formatted percentage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.chip.rollout"
+msgstr "Rollout · {percent}"
+
 #. Heading of the rollout controls.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -11135,6 +11213,12 @@ msgstr "Rust-Editor"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.editorLabel"
 msgstr "Rust-Quellcode der Funktion"
+
+#. Accessible description of the animated picture beside the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.hero.scene"
+msgstr "Ein App-Bildschirm, in seine Ebenen zerlegt"
 
 #. Heading of the list of sample apps on the checklist.
 #. js-lingui-explicit-id
@@ -11676,6 +11760,12 @@ msgstr "Semantik-Bezeichnung"
 msgid "devices.send"
 msgstr "Senden"
 
+#. Text in a sample app screen drawn beside the sign-in form. A button that sends money.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-send"
+msgstr "Senden"
+
 #. Title of the dialog that opens a screen on a paired device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -11964,7 +12054,7 @@ msgstr "Anmeldungen von Personen dieser Organisation. Widerrufen meldet die Sitz
 msgid "admin.colSigned"
 msgstr "Signiert"
 
-#. Badge on the sample app screen: the release is signed. {version} is a version number.
+#. Small floating label beside a sample app screen, naming a Plux feature. {version} is a version number.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.signed"
@@ -11975,6 +12065,12 @@ msgstr "Signiert · v{version}"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceSigned"
 msgstr "Vom Builder signiert"
+
+#. One of three short facts under the sign-in form: every release is signed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.fact.signed"
+msgstr "Signierte Releases"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -14569,6 +14665,12 @@ msgstr "Bis (Datum)"
 msgid "onboarding.status.todo"
 msgstr "Offen"
 
+#. Text in a sample app screen drawn beside the sign-in form. Heading of the list of recent payments.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-today"
+msgstr "Heute"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -14640,6 +14742,12 @@ msgstr "Betrifft einen Zahlungsablauf"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.riskTouchesSecurePage"
 msgstr "Betrifft eine geschützte Seite"
+
+#. Text in a sample app screen drawn beside the sign-in form. A button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.delivery-track"
+msgstr "Bestellung verfolgen"
 
 #. Field label of the signed-transaction pointers.
 #. js-lingui-explicit-id
@@ -14850,6 +14958,18 @@ msgstr "Nur ungelesene"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.command.unwrap"
 msgstr "Einbettung der Auswahl aufheben"
+
+#. Small floating label beside a sample app screen, naming a Plux feature.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.chip.instant"
+msgstr "Live aktualisiert"
+
+#. One of three short facts under the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.fact.instant"
+msgstr "Updates ohne Store-Release"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -15481,6 +15601,12 @@ msgstr "Arbeit"
 msgid "admin.workloads"
 msgstr "Workload-Identitäten"
 
+#. Small floating label beside a sample app screen, naming a Plux feature.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.chip.offline"
+msgstr "Funktioniert offline"
+
 #. Verdict of a comparison.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -15541,7 +15667,7 @@ msgstr "Du bist offline. Es wurde nichts geändert; versuche es erneut, sobald d
 msgid "chrome.signedout.title"
 msgstr "Sie sind abgemeldet"
 
-#. Label above the amount in the sample app screen.
+#. Text in a sample app screen drawn beside the sign-in form.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.borrow"
@@ -15666,6 +15792,12 @@ msgstr "Deine Änderungen ließen sich nicht mit der neueren Version zusammenfü
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.save-failed"
 msgstr "Ihre Auswahl konnte nicht gespeichert werden."
+
+#. Text in a sample app screen drawn beside the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.delivery-near"
+msgstr "Ihr Kurier ist in der Nähe"
 
 #. Heading of the decision form.
 #. js-lingui-explicit-id

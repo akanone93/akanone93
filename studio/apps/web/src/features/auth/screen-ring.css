@@ -1,0 +1,414 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The sign-in picture (U16.2): sample app screens on a ring that turns on its vertical axis.
+   screen-ring.tsx moves the ring and lifts the layers of the front screen; this file places the
+   slots and draws the miniature screens. Colours, radii and shadows are tokens; the geometry of
+   the miniatures is their own. Only transforms and opacity animate. */
+
+.sr-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  block-size: 100%;
+  min-block-size: 640px;
+  perspective: 2600px;
+  perspective-origin: 50% 35%;
+  --ring-radius: 430px;
+}
+
+.sr-view,
+.sr-ring {
+  position: relative;
+  inline-size: 264px;
+  block-size: 540px;
+  transform-style: preserve-3d;
+}
+
+/* Each slot stands on the ring, turned to face outwards. */
+.sr-slot {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateY(calc(var(--slot) * 360deg / var(--slots))) translateZ(var(--ring-radius));
+}
+
+.sr-slot > * {
+  backface-visibility: hidden;
+}
+
+/* The whole ring is set back so several screens show around it. */
+.sr-view {
+  scale: 0.66;
+}
+
+/* The screen surface: no device around it, only the lit glass of the display. */
+.sr-screen {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-3xl);
+  background-color: var(--color-raised);
+  background-image: var(--surface-glass-sheen);
+  /* A tight shadow: a wide one makes the planes of neighbouring screens overlap, and the browser
+     then cuts them into each other when it sorts the ring in depth. */
+  box-shadow:
+    inset 0 0 0 1px var(--color-hairline),
+    var(--shadow-e1);
+}
+
+.sr-layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+/* The screens beside the front one are veiled; the ones behind face away and are hidden. */
+.sr-veil {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-3xl);
+  background-color: var(--color-raised);
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+  pointer-events: none;
+}
+
+.sr-slot[data-away="1"] .sr-veil {
+  opacity: 0.4;
+}
+
+.sr-slot[data-away="2"] .sr-veil {
+  opacity: 0.75;
+}
+
+/* The feature chip floats outside the screen's edge, highest of all. */
+.sr-chip {
+  position: absolute;
+  inset-block-start: 96px;
+  inset-inline-end: -64px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-glass-solid);
+  box-shadow: var(--shadow-float);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-primary);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.sr-chip svg {
+  color: var(--color-accent);
+}
+
+/* The parts the screens are made of. */
+.sr-header {
+  position: absolute;
+  inset-block-start: 48px;
+  inset-inline: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sr-title {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-primary);
+}
+
+.sr-title-large {
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.sr-caption {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-tertiary);
+}
+
+.sr-label {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.sr-figure {
+  font-family: var(--font-sans);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-amount {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sr-card {
+  position: absolute;
+  inset-inline: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-raised);
+  box-shadow: var(--shadow-e1);
+}
+
+.sr-at-middle {
+  inset-block-start: 210px;
+}
+
+.sr-at-bottom {
+  inset-block-end: 104px;
+}
+
+.sr-action {
+  position: absolute;
+  inset-block-end: 28px;
+  inset-inline: 16px;
+  display: grid;
+  place-items: center;
+  block-size: 50px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  box-shadow: var(--shadow-primary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-on-accent);
+}
+
+/* Loan: the slider. */
+.sr-track {
+  position: relative;
+  block-size: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-hairline);
+}
+
+.sr-track-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 62%;
+  border-radius: inherit;
+  background-color: var(--color-accent);
+}
+
+.sr-thumb {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 62%;
+  inline-size: 22px;
+  block-size: 22px;
+  margin-inline-start: -11px;
+  margin-block-start: -11px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-raised);
+  box-shadow: var(--shadow-e1);
+}
+
+/* Shop: the product. */
+.sr-product {
+  position: absolute;
+  inset-block-start: 88px;
+  inset-inline: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-raised);
+  box-shadow: var(--shadow-e1);
+}
+
+.sr-product-image {
+  block-size: 220px;
+  border-radius: var(--radius-lg);
+  background-image: linear-gradient(150deg, var(--color-hero-liquid-c), var(--color-hero-liquid-a));
+}
+
+.sr-swatches {
+  display: flex;
+  gap: 8px;
+}
+
+.sr-swatches span {
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: var(--radius-full);
+  box-shadow: inset 0 0 0 1px var(--color-hairline);
+}
+
+.sr-swatches [data-swatch="1"] {
+  background-color: var(--color-hero-liquid-c);
+}
+
+.sr-swatches [data-swatch="2"] {
+  background-color: var(--color-hero-liquid-b);
+}
+
+.sr-swatches [data-swatch="3"] {
+  background-color: var(--color-primary);
+}
+
+/* Bank: the card and the two actions. */
+.sr-bank-card {
+  position: absolute;
+  inset-block-start: 150px;
+  inset-inline: 16px;
+  block-size: 140px;
+  border-radius: var(--radius-xl);
+  background-image: linear-gradient(135deg, var(--color-hero-liquid-a), var(--color-hero-liquid-b));
+  box-shadow: var(--shadow-float);
+}
+
+.sr-pair {
+  position: absolute;
+  inset-block-start: 306px;
+  inset-inline: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sr-pair span {
+  display: grid;
+  place-items: center;
+  block-size: 44px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-raised);
+  box-shadow: var(--shadow-e1);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+/* Onboarding: the orb and the welcome. */
+.sr-orb {
+  position: absolute;
+  inset-block-start: 64px;
+  inset-inline: 0;
+  margin-inline: auto;
+  inline-size: 168px;
+  block-size: 168px;
+  border-radius: var(--radius-full);
+  background-image: radial-gradient(
+    circle at 35% 30%,
+    var(--color-raised),
+    var(--color-hero-liquid-b) 45%,
+    var(--color-hero-liquid-a)
+  );
+  box-shadow: var(--shadow-float);
+}
+
+.sr-welcome {
+  position: absolute;
+  inset-block-start: 270px;
+  inset-inline: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sr-dots {
+  display: flex;
+  gap: 6px;
+  margin-block-start: 6px;
+}
+
+.sr-dots span {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-strong);
+}
+
+.sr-dots [data-active="true"] {
+  inline-size: 18px;
+  background-color: var(--color-accent);
+}
+
+/* Delivery: the map and the progress. */
+.sr-map {
+  position: absolute;
+  inset-block-start: 140px;
+  inset-inline: 16px;
+  block-size: 170px;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background-color: color-mix(in oklab, var(--color-hero-liquid-b) 14%, var(--color-raised));
+  box-shadow: var(--shadow-e1);
+}
+
+.sr-route {
+  position: absolute;
+  inset: 40px 30px 40px 30px;
+  border: 3px dashed var(--color-accent);
+  border-inline-start-color: transparent;
+  border-block-end-color: transparent;
+  border-radius: var(--radius-xl);
+}
+
+.sr-pin {
+  position: absolute;
+  inset-block-start: 30px;
+  inset-inline-end: 22px;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  box-shadow: 0 0 0 6px var(--color-accent-halo);
+}
+
+.sr-progress {
+  block-size: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-hairline);
+}
+
+.sr-progress > div {
+  inline-size: 72%;
+  block-size: 100%;
+  border-radius: inherit;
+  background-color: var(--color-accent);
+}
+
+@media (max-width: 1023px) {
+  .sr-stage {
+    min-block-size: 520px;
+    --ring-radius: 380px;
+  }
+
+  .sr-view {
+    scale: 0.6;
+  }
+}

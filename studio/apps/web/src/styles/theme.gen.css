@@ -45,7 +45,6 @@
   --color-danger-fill: #D92D20;
   --color-arrow: #7A81A3;
   --color-arrow-active: #5B3DF5;
-  --color-hero-tint: #B9A8FF;
   --color-hero-liquid-a: #7B5CFF;
   --color-hero-liquid-b: #62B6FF;
   --color-hero-liquid-c: #FF9AD0;
@@ -99,8 +98,8 @@
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
-  --text-display: 72px;
-  --text-display--line-height: 72px;
+  --text-display: 64px;
+  --text-display--line-height: 66px;
   --text-display--font-weight: 600;
   --text-display--letter-spacing: -0.04em;
   --text-lead: 19px;
@@ -216,7 +215,6 @@
     --color-danger-fill: #8E1B10;
     --color-arrow: #11142A;
     --color-arrow-active: #4A2DE6;
-    --color-hero-tint: transparent;
     --color-hero-liquid-a: transparent;
     --color-hero-liquid-b: transparent;
     --color-hero-liquid-c: transparent;
@@ -301,7 +299,6 @@
   --color-danger-fill: #F97066;
   --color-arrow: #6B7390;
   --color-arrow-active: #8B74FF;
-  --color-hero-tint: #4B2FD6;
   --color-hero-liquid-a: #5B3DF5;
   --color-hero-liquid-b: #2D6BFF;
   --color-hero-liquid-c: #B83E8C;
@@ -348,7 +345,6 @@
   --color-danger-fill: #8E1B10;
   --color-arrow: #11142A;
   --color-arrow-active: #4A2DE6;
-  --color-hero-tint: transparent;
   --color-hero-liquid-a: transparent;
   --color-hero-liquid-b: transparent;
   --color-hero-liquid-c: transparent;

@@ -136,35 +136,152 @@ export function authMessages(i18n: I18n) {
     }),
     sceneLabel: i18n._({
       id: "auth.hero.scene",
-      message: "An app screen taken apart into its layers",
+      message: "Sample app screens built with Plux, turning one by one",
       comment: "Accessible description of the animated picture beside the sign-in form.",
     }),
-    sceneTitle: i18n._({
+    factSigned: i18n._({
+      id: "auth.fact.signed",
+      message: "Signed releases",
+      comment: "One of three short facts under the sign-in form: every release is signed.",
+    }),
+    factInstant: i18n._({
+      id: "auth.fact.instant",
+      message: "Updates without a store release",
+      comment: "One of three short facts under the sign-in form.",
+    }),
+    factNative: i18n._({
+      id: "auth.fact.native",
+      message: "Rendered natively by Flutter",
+      comment: "One of three short facts under the sign-in form.",
+    }),
+    loanTitle: i18n._({
       id: "auth.scene.title",
       message: "Loan calculator",
-      comment: "Title of the sample app screen drawn in the sign-in picture.",
+      comment: "Text in a sample app screen drawn beside the sign-in form.",
     }),
-    sceneBorrow: i18n._({
+    loanBorrow: i18n._({
       id: "auth.scene.borrow",
       message: "You borrow",
-      comment: "Label above the amount in the sample app screen.",
+      comment: "Text in a sample app screen drawn beside the sign-in form.",
     }),
-    sceneMonthly: i18n._({
+    loanMonthly: i18n._({
       id: "auth.scene.monthly",
       message: "Monthly",
-      comment: "Label of the monthly payment in the sample app screen.",
+      comment: "Text in a sample app screen drawn beside the sign-in form.",
     }),
-    sceneApply: i18n._({
+    loanApply: i18n._({
       id: "auth.scene.apply",
       message: "Apply",
-      comment: "Button of the sample app screen.",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
     }),
-    sceneSigned: (version: string) =>
+    shopTitle: i18n._({
+      id: "auth.scene.shop-title",
+      message: "New in",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Heading of a shop screen.",
+    }),
+    shopProduct: i18n._({
+      id: "auth.scene.shop-product",
+      message: "Linen shirt",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A product name.",
+    }),
+    shopAdd: i18n._({
+      id: "auth.scene.shop-add",
+      message: "Add to bag",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
+    }),
+    bankBalance: i18n._({
+      id: "auth.scene.bank-balance",
+      message: "Balance",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Label above an account balance.",
+    }),
+    bankSend: i18n._({
+      id: "auth.scene.bank-send",
+      message: "Send",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A button that sends money.",
+    }),
+    bankRequest: i18n._({
+      id: "auth.scene.bank-request",
+      message: "Request",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A button that requests money.",
+    }),
+    bankToday: i18n._({
+      id: "auth.scene.bank-today",
+      message: "Today",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Heading of the list of recent payments.",
+    }),
+    bankCoffee: i18n._({
+      id: "auth.scene.bank-coffee",
+      message: "Corner Café",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Name of a shop in a payment list.",
+    }),
+    onboardTitle: i18n._({
+      id: "auth.scene.onboard-title",
+      message: "Fresh, every morning",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Title of a welcome screen.",
+    }),
+    onboardBody: i18n._({
+      id: "auth.scene.onboard-body",
+      message: "Groceries at your door in 30 minutes.",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Sentence on a welcome screen.",
+    }),
+    onboardStart: i18n._({
+      id: "auth.scene.onboard-start",
+      message: "Get started",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
+    }),
+    deliveryTitle: i18n._({
+      id: "auth.scene.delivery-title",
+      message: "On its way",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Title of a delivery tracking screen.",
+    }),
+    deliveryNear: i18n._({
+      id: "auth.scene.delivery-near",
+      message: "Your courier is nearby",
+      comment: "Text in a sample app screen drawn beside the sign-in form.",
+    }),
+    deliveryTrack: i18n._({
+      id: "auth.scene.delivery-track",
+      message: "Track order",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
+    }),
+    deliveryEta: (minutes: string) =>
+      i18n._({
+        id: "auth.scene.delivery-eta",
+        message: "{minutes} min",
+        comment:
+          "Text in a sample app screen drawn beside the sign-in form. Minutes until the delivery arrives; {minutes} is a number.",
+        values: { minutes },
+      }),
+    chipSigned: (version: string) =>
       i18n._({
         id: "auth.scene.signed",
         message: "Signed · v{version}",
-        comment: "Badge on the sample app screen: the release is signed. {version} is a version number.",
+        comment:
+          "Small floating label beside a sample app screen, naming a Plux feature. {version} is a version number.",
         values: { version },
       }),
+    chipInstant: i18n._({
+      id: "auth.chip.instant",
+      message: "Updated live",
+      comment: "Small floating label beside a sample app screen, naming a Plux feature.",
+    }),
+    chipRollout: (percent: string) =>
+      i18n._({
+        id: "auth.chip.rollout",
+        message: "Rollout · {percent}",
+        comment:
+          "Small floating label beside a sample app screen, naming a Plux feature. {percent} is a formatted percentage.",
+        values: { percent },
+      }),
+    chipExperiment: i18n._({
+      id: "auth.chip.experiment",
+      message: "A/B test · variant B",
+      comment: "Small floating label beside a sample app screen, naming a Plux feature.",
+    }),
+    chipOffline: i18n._({
+      id: "auth.chip.offline",
+      message: "Works offline",
+      comment: "Small floating label beside a sample app screen, naming a Plux feature.",
+    }),
   };
 }
